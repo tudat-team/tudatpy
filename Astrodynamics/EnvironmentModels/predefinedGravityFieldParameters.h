@@ -23,7 +23,7 @@
  *    Copyright (c) 2010 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modificaton is unlawful and
+ *    Any unauthorized use, reproduction or modifiation is unlawful and
  *    will be prosecuted. Commercial and non-private application of the
  *    software in any form is strictly prohibited unless otherwise granted
  *    by the authors.
@@ -49,11 +49,11 @@
  */
 namespace predefined_gravity_field_parameters
 {
-    
+
 // Earth gravity field parameters using object of GravityFieldParameters class.
 const GravityFieldParameters defaultEarthGravityFieldParameters(
         398600.4415e9, 6378136.3 );
-    
+
 }
 
 #endif // PREDEFINED_GRAVITY_FIELD_PARAMETERS_H

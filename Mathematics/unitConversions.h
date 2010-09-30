@@ -1,6 +1,6 @@
 /*! \file unitConversions.h
  *    This file contains a namespace with selected unit conversions
- *    commonly used in astrodynamics. 
+ *    commonly used in astrodynamics.
  *
  *    Path              : /Astrodynamics/
  *    Version           : 1
@@ -24,7 +24,7 @@
  *    Copyright (c) 2010 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modificaton is unlawful and
+ *    Any unauthorized use, reproduction or modification is unlawful and
  *    will be prosecuted. Commercial and non-private application of the
  *    software in any form is strictly prohibited unless otherwise granted
  *    by the authors.
@@ -55,9 +55,9 @@ namespace unit_conversions
 template < typename T >
 T convertRadiansToDegrees( T angleInRadians )
 {
-    return angleInRadians / M_PI * 180.0; 
-}    
-    
+    return angleInRadians / M_PI * 180.0;
+}
+
 //! Convert from degrees to radians.
 /*!
  *  Convert an angle from degrees to radians.
@@ -69,55 +69,55 @@ T convertDegreesToRadians( T angleInDegrees )
 {
     return angleInDegrees / 180.0 * M_PI;
 }
-    
+
 //! Convert from meters to kilometers.
 /*!
  *  Convert a distance from meters to kilometers.
  *  \param distanceInMeters distance in meters.
  *  \return distanceInKilometers distance in kilometers.
- */    
+ */
 template < typename T >
 T convertMetersToKilometers( T distanceInMeters )
 {
     return distanceInMeters / 1000.;
 }
-    
+
 //! Convert from kilometers to meters.
 /*!
  *  Convert a distance from kilometers to meters.
  *  \param distanceInKilometers distance in kilometers.
  *  \return distanceInMeters distance in meters.
- */    
+ */
 template < typename T >
 T convertKilometersToMeters( T distanceInKilometers )
 {
     return distanceInKilometers * 1000.;
 }
-    
+
 //! Convert from meters to astronomical units.
 /*!
  *  Convert a distance from meters to astronomical units.
  *  \param distanceInMeters distance in meters.
  *  \return distanceInAstronomicalUnits distance in astronomical units.
- */    
+ */
 template < typename T >
 T convertMetersToAstronomicalUnits( T distanceInMeters )
 {
     return distanceInMeters / PhysicalConstants::ASTRONOMICAL_UNIT;
 }
-    
+
 //! Convert from astronomical units to meters.
 /*!
  *  Convert a distance from astronomical units to meters.
  *  \param distanceInAstronomicalUnits distance in astronomical units.
  *  \return distanceInMeters distance in meters.
- */    
+ */
 template < typename T >
 T convertAstronomicalUnitsToMeters( T distanceInAstronomicalUnits )
 {
     return distanceInAstronomicalUnits * PhysicalConstants::ASTRONOMICAL_UNIT;
-}    
-    
+}
+
 }
 
 #endif // UNIT_CONVERSIONS_H

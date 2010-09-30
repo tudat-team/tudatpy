@@ -120,7 +120,7 @@ void WritingOutputToFile::
     if ( writeType== 0 )
     {
         // Open output file.
-        outputFile_.open(filename.c_str());
+        outputFile_.open(filename.c_str( ));
     }
 
     // Open the file to which writing will take place if it is to append to
@@ -128,7 +128,7 @@ void WritingOutputToFile::
     else if ( writeType == 1 )
     {
         // Open output file with append option.
-        outputFile_.open(filename.c_str(), std::ios::app );
+        outputFile_.open(filename.c_str( ), std::ios::app );
     }
 
 
@@ -202,7 +202,7 @@ void WritingOutputToFile::
     }
 
     // Closing output file.
-    outputFile_.close();
+    outputFile_.close( );
 }
 
 // End of file.

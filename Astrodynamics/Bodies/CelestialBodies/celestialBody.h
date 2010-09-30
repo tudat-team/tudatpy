@@ -24,7 +24,7 @@
  *    Copyright (c) 2010 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modificaton is unlawful and
+ *    Any unauthorized use, reproduction or modification is unlawful and
  *    will be prosecuted. Commercial and non-private application of the
  *    software in any form is strictly prohibited unless otherwise granted
  *    by the authors.
@@ -51,15 +51,15 @@
  * Celestial body class.
  */
 class CelestialBody : public Body
-{ 
+{
 public:
-    
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
     CelestialBody( );
-    
+
     //! Customized constructor.
     /*!
      * Customized constructor.
@@ -70,7 +70,7 @@ public:
     /*!
      * Defines the gravity field parameters.
      * \param gravityFieldParameters Gravitational parameter.
-     */    
+     */
     void setGravityFieldParameters( const GravityFieldParameters&
                                     gravityFieldParameters );
 
@@ -78,22 +78,22 @@ public:
     /*!
      * Returns the gravitational parameter in meter^3 per second^2.
      * \return Gravitational parameter.
-     */    
+     */
     const double getGravitationalParameter( ) const;
-    
+
     //! Gets the reference radius.
     /*!
      * Returns the reference radius used for the spherical harmonics expansion
      * in meters.
      * \return Reference radius.
-     */    
+     */
     const double getReferenceRadius( ) const;
-    
+
 protected:
-    
+
     //! Gravity field parameters.
     GravityFieldParameters gravityFieldParameters_;
-    
+
 };
 
 #endif // CELESTIAL_BODY_H
