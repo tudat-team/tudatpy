@@ -1,4 +1,4 @@
-/*! \file vehicleExternalModels.cpp
+/*! \file vehicleExternalModel.cpp
  * This file contains the definition of the VehicleExternalModel class.
  *
  *  Path              : Astrodynamics/Bodies/Vehicles/
@@ -17,11 +17,11 @@
  *  Last modified     : 28 September, 2010
  *
  *  References
- *  <First reference>
- *  <Second reference>
+ *
+ *
  *
  *  Notes
- *  <note>
+ *
  *
  *  Copyright (c) 2010 Delft University of Technology.
  *

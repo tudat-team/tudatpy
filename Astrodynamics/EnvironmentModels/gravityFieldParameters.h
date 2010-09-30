@@ -65,7 +65,7 @@ public:
     //! Sets the gravitational parameter.
     /*!
      * Defines the gravitational parameter in meter^3 per second^2.
-     * \param gravitationalParameter.
+     * \param gravitationalParameter
      */
     void setGravitationalParameter( const double& gravitationalParameter );
 
