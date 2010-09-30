@@ -1,5 +1,8 @@
-/*! \file vehicleExternalModel.cpp
- * This file contains the definition of the VehicleExternalModel class.
+/*! \file vehicle.cpp
+ *  This file contains the definition of the VehicleModel class,
+ *  which is a container for the different subsystems and
+ *  characteristics of the vehicle. Currently only the
+ *  VehicleExternalModel can be set as a property
  *
  *  Path              : Astrodynamics/Bodies/Vehicles/
  *  Version           : 3
@@ -18,10 +21,7 @@
  *
  *  References
  *
- *
- *
  *  Notes
- *
  *
  *  Copyright (c) 2010 Delft University of Technology.
  *
@@ -38,40 +38,38 @@
  *    100910   D. Dirkx                    First version of file
  *    100915   D. Dirkx                    Modified to correct comments, 80
  *                                         lines rule, etc.
- *    100928   D. Dirkx                    Modifications following first
- *                                         checking iteration.
  *
  */
 
-#include "vehicleExternalModels.h"
+#include "vehicle.h"
 
 //! Default constructor.
-VehicleExternalModel::VehicleExternalModel( )
+Vehicle::Vehicle( )
 {
-    // No geometry is set when constructor is called.
-    isGeometrySet_ = 0;
+    // External model is not set when constructor is called.
+    isExternalModelSet_ = 0;
 }
 
 //! Default destructor.
-VehicleExternalModel::~VehicleExternalModel( )
+Vehicle::~Vehicle( )
 {
 }
 
-//! Function to set external geometry.
-void VehicleExternalModel::setVehicleGeometry( GeometricShape& vehicleGeometry )
+//! Function to set the external model.
+void Vehicle::setExternalModel(VehicleExternalModel& externalModel)
 {
-    // Sets the geometry and the isGeometrySet_ boolean to true.
-    pointerToVehicleGeometry_ = &vehicleGeometry;
-    isGeometrySet_ = 1;
+    // Sets the external mode and the isExternalModelSet_ boolean to true.
+    pointerToExternalModel_ = &externalModel;
+    isExternalModelSet_ = 1;
 }
 
-//! Function to retrieve external geometry.
-GeometricShape* VehicleExternalModel::getPointerToVehicleGeometry( )
+//! Function to retrieve the externalModel.
+VehicleExternalModel* Vehicle::getPointerToExternalModel( )
 {
-    // Only return the geometry when one is set.
-    if( isGeometrySet_ == 1 )
+    // Only return the external model if one is set.
+    if (isExternalModelSet_ == 1)
     {
-        return pointerToVehicleGeometry_;
+        return pointerToExternalModel_;
     }
     else
     {
@@ -79,15 +77,12 @@ GeometricShape* VehicleExternalModel::getPointerToVehicleGeometry( )
     }
 }
 
-//! Overloaded ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          VehicleExternalModel& vehicleExternalModel )
+std::ostream& operator<<( std::ostream& stream, Vehicle& vehicle )
 {
-    stream << "This is an external model, the following properties"<<
-              " have been set:" << std::endl;
-    if( vehicleExternalModel.isGeometrySet_ == true )
+    stream << "This is a vehicle; the following properties have been set:" << std::endl;
+    if( vehicle.isExternalModelSet_ == true)
     {
-        stream << "Surface geometry" << std::endl;
+        stream << "External model" << std::endl;
     }
     return stream;
 }
