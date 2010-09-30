@@ -1,11 +1,43 @@
-/*
- *  EigenRoutines.h
- *  Propagator
+/*! \file linearAlgebra.h
+ *    This file contains include statements for common Eiegn components,
+ *    typedef for vectors and a number of useful vector operation definitions.
  *
- *  Created by Melman, J.C.P. (jcpmelman) on 8/7/09.
- *  Copyright 2009 Delft University of Technology. All rights reserved.
+ *    Path              : /Mathematics/LinearAlgebra/
+ *    Version           : 2
+ *    Check status      : Checked
  *
+ *    Author            : J. Melman
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.C.P.Melman@tudelft.nl
+ *
+ *    Checker           : D. Dirkx
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : D.Dirkx@student.tudelft.nl
+ *
+ *    Date created      : 7 August, 2009
+ *    Last modified     : 30 September, 2010
+ *
+ *    References
+ *
+ *    Notes
+ *
+ *    Copyright (c) 2010 Delft University of Technology.
+ *
+ *    This software is protected by national and international copyright.
+ *    Any unauthorized use, reproduction or modificaton is unlawful and
+ *    will be prosecuted. Commercial and non-private application of the
+ *    software in any form is strictly prohibited unless otherwise granted
+ *    by the authors.
+ *
+ *    The code is provided without any warranty; without even the implied
+ *    warranty of merchantibility or fitness for a particular purpose.
+ *
+ *    Changelog
+ *      YYMMDD    author        comment
+ *      090807    J. Melman     First creation of code.
+ *      100930    D. Dirkx      Modified to comply with Tudat standards
  */
+
 
 #ifndef EIGENROUTINES_H_
 #define EIGENROUTINES_H_
@@ -23,14 +55,40 @@
 #include <Eigen/QR>
 #include <Eigen/Cholesky>
 
-// import most common Eigen types 
+// Import most common Eigen types.
 USING_PART_OF_NAMESPACE_EIGEN
 
+// Use typedef for VectorXd for intuitive access and future replacement
+// by in-house code.
 typedef VectorXd Vector;
 
-double cosAngle(const Vector3d&, const Vector3d&);
-double angle(const Vector3d&, const Vector3d&);
-double average(const VectorXd&);
-double standDev(const VectorXd&);
+//! Determine the cosine of the angle between two vectors.
+/*!
+ * Function to determine the cosine of the angle between two vectors,
+ * both vectors must have non-zero norm.
+ */
+double determineCosineOfAngleBetweenVectors( const Vector3d& vector0,
+                                             const Vector3d& vector1 );
+
+//! Determine the angle between two vectors.
+/*!
+ * Function to determine the angle between two vectors,
+ * both vectors must have non-zero norm.
+ */
+double determineAngleBetweenVectors( const Vector3d& vector0,
+                                     const Vector3d& vector1 );
+
+//! Determine the average of the components of a vector
+/*!
+ * Function to determine the average (arithmetic mean) of the components of a
+ * vector.
+ */
+double determineAverageOfVectorComponents( const VectorXd& vector0 );
+
+//! Determine the standard deviation of the components of a vector.
+/*!
+ * Function to determine the standard deviation of the components of a vector.
+ */
+double determineStandardDeviationOfVectorComponents( const VectorXd& vector0 );
 
 #endif // EIGENROUTINES_H

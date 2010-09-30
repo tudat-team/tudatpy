@@ -89,7 +89,7 @@ double computeLinearInterpolation( Vector& sortedIndependentVariables,
  * \f[
  *      y_{target} = x_{1} * ( 1 - mu ) + x_{2} * mu
  * \f]
- * where \f$ mu = \frac{ x_{target} - x_{1} } { x_{2} + x_{1} } \f$
+ * where \f$ \mu = \frac{ x_{target} - x_{1} } { x_{2} + x_{1} } \f$
  * and \f$ x_{2} > x_{1} \f$.
  *   \param sortedIndepedentAndDependentVariables Map of sorted independent
  *              variables, in ascending/descending order, and associated
@@ -108,8 +108,8 @@ Vector computeLinearInterpolation(
 * Function to convert spherical to cartesian coordinates.
 * Schematic representation can be found on, e.g.,
 * http://mathworld.wolfram.com/SphericalCoordinates.html.
-* The transformation equations are the following, with \f$\r\f$ the radius,
-* \f$\theta\f$ the azimuth angle and \f$\phi\f$ the azimuth angle:
+* The transformation equations are the following, with \f$ \r \f$ the radius,
+* \f$ \theta \f$ the azimuth angle and \f$ \phi \f$ the azimuth angle:
 * \f[
 *      x=r\cos\theta\sin\phi \\
 *      y=r\sin\theta\sin\phi \\
@@ -126,13 +126,13 @@ void convertSphericalToCartesian( const double& radius,
 * Function to convert cylindrical to cartesian coordinates.
 * Schematic representation can be found on, e.g.,
 * http://mathworld.wolfram.com/CylindricalCoordinates.html.
-* The transformation equations are the following, with \f$\r\f$  the radius and
-* \f$theta\f$ the azimuth angle:
-* f[
+* The transformation equations are the following, with \f$ \r \f$  the radius and
+* \f$ \theta \f$ the azimuth angle:
+* \f[
 *      x=r\cos\theta \\
 *      y=r\sin\theta \\
 *      z=z \\
-* ]f
+* \f]
 * Since the value of z is left unaffected by this transformation,
 * it is not set or changed by this function.
 */

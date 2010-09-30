@@ -45,7 +45,7 @@
 #ifndef VEHICLEEXTERNALMODELS_H
 #define VEHICLEEXTERNALMODELS_H
 
-#include "geometricShapes.h"
+#include "geometricShape.h"
 
 /*!
  *  Class that contains the properties of the external portion of the
