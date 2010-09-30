@@ -59,13 +59,13 @@ public:
     /*!
      * Default constructor.
      */
-    ForceModel(){};
+    ForceModel( ){};
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~ForceModel(){};
+    virtual ~ForceModel( ){};
 
     //! Compute state derivatives.
     /*!
