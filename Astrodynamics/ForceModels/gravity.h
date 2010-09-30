@@ -60,13 +60,13 @@ public:
     /*!
      * Default constructor.
      */
-    Gravity();
+    Gravity( );
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~Gravity();
+    ~Gravity( );
 
     //! Set body for gravity field expansion.
     /*!

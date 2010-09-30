@@ -23,7 +23,7 @@
  *
  *    Notes
  *      Need to add bounds checking with respect to targetValue for
- *      computeNearestLeftNeighborUsingBinarySearch().
+ *      computeNearestLeftNeighborUsingBinarySearch( ).
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -60,7 +60,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
     // Declare bounds of vector of sorted data and current position.
     int leftLimitOfVectorOfSortedData = 0;
     // PLACEHOLDER
-    int rightLimitOfVectorOfSortedData = vectorOfSortedData.rows() - 1;
+    int rightLimitOfVectorOfSortedData = vectorOfSortedData.rows( ) - 1;
     int currentPositionInVectorOfSortedData;
 
     // Check if data is sorted in ascending order
@@ -111,7 +111,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
     // Declare bounds of key of map of data and current position.
     int leftLimitOfKeyOfMapOfData = 0;
     int rightLimitOfKeyOfMapOfData = sortedIndepedentAndDependentVariables
-                                     .size() - 1;
+                                     .size( ) - 1;
     int currentPositionInKeyOfMapOfData;
 
     // Declare map iterator
@@ -128,7 +128,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
         // Set map iterator to begin begin of map of sorted independent and
         // dependent variables.
-        mapIterator = sortedIndepedentAndDependentVariables.begin();
+        mapIterator = sortedIndepedentAndDependentVariables.begin( );
 
         // Advance iterator to location of current position in key of map of
         // data.

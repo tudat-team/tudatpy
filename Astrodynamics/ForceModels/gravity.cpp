@@ -43,12 +43,12 @@
 #include "gravity.h"
 
 //! Default constructor.
-Gravity::Gravity()
+Gravity::Gravity( )
 {
 }
 
 //! Default destructor.
-Gravity::~Gravity()
+Gravity::~Gravity( )
 {
 }
 
@@ -76,7 +76,7 @@ void Gravity::computeStateDerivatives( Vector& stateVector,
 
     // Set state derivative vector to size of state vector and fill with zeros.
     // PLACEHOLDER
-    stateDerivativeVector.setZero( stateVector.rows() );
+    stateDerivativeVector.setZero( stateVector.rows( ) );
 
     // Compute cube of norm of state vector.
     // PLACEHOLDER
@@ -87,15 +87,15 @@ void Gravity::computeStateDerivatives( Vector& stateVector,
     stateDerivativeVector( 1 ) = stateVector( 4 );
     stateDerivativeVector( 2 ) = stateVector( 5 );
     // PLACEHOLDER
-    stateDerivativeVector( 3 ) = -celestialBody_.getGravitationalParameter()
+    stateDerivativeVector( 3 ) = -celestialBody_.getGravitationalParameter( )
                                  * stateVector( 0 )
                                  / stateVectorNormCubed;
     // PLACEHOLDER
-    stateDerivativeVector( 4 ) = -celestialBody_.getGravitationalParameter()
+    stateDerivativeVector( 4 ) = -celestialBody_.getGravitationalParameter( )
                                  * stateVector( 1 )
                                  / stateVectorNormCubed;
     // PLACEHOLDER
-    stateDerivativeVector( 5 ) = -celestialBody_.getGravitationalParameter()
+    stateDerivativeVector( 5 ) = -celestialBody_.getGravitationalParameter( )
                                  * stateVector( 2 )
                                  / stateVectorNormCubed;
 }
