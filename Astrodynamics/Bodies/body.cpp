@@ -24,7 +24,7 @@
  *    Copyright (c) 2010 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modificaton is unlawful and
+ *    Any unauthorized use, reproduction or modification is unlawful and
  *    will be prosecuted. Commercial and non-private application of the
  *    software in any form is strictly prohibited unless otherwise granted
  *    by the authors.
@@ -36,7 +36,7 @@
  *      YYMMDD    author        comment
  *      100910    J. Melman     First creation of code.
  *      100929    K. Kumar      Minor comment changes and Body scope for
- *                              setShapeModel() function added.
+ *                              setShapeModel( ) function added.
  */
 
 // Include statements.
@@ -44,11 +44,11 @@
 
 //! Default constructor.
 Body::Body( )
-{   
+{
 }
 
 //! Sets the shape model.
-void Body::setShapeModel()
+void Body::setShapeModel( )
 {
 }
 

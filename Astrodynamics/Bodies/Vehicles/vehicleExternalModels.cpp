@@ -26,7 +26,7 @@
  *  Copyright (c) 2010 Delft University of Technology.
  *
  *  This software is protected by national and international copyright.
- *  Any unauthorized use, reproduction or modificaton is unlawful and
+ *  Any unauthorized use, reproduction or modification is unlawful and
  *  will be prosecuted. Commercial and non-private application of the
  *  software in any form is strictly prohibited unless otherwise granted
  *  by the authors.

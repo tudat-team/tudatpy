@@ -24,7 +24,7 @@
  *    Copyright (c) 2010 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modificaton is unlawful and
+ *    Any unauthorized use, reproduction or modification is unlawful and
  *    will be prosecuted. Commercial and non-private application of the
  *    software in any form is strictly prohibited unless otherwise granted
  *    by the authors.
@@ -55,7 +55,7 @@ namespace predefined_planets
 // Definition of Earth using object of CelestialBody class.
 const CelestialBody earth(
     predefined_gravity_field_parameters::defaultEarthGravityFieldParameters );
-    
+
 }
 
 #endif // PREDEFINED_PLANETS_H

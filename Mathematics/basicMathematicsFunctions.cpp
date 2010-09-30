@@ -107,9 +107,9 @@ Vector computeLinearInterpolation(
 
     // Compute location of target independent variable value in interval
     // between nearest neighbors.
-    mapIteratorIntervalLeft = sortedIndepedentAndDependentVariables.begin();
+    mapIteratorIntervalLeft = sortedIndepedentAndDependentVariables.begin( );
     advance( mapIteratorIntervalLeft, nearestLeftNeighbor );
-    mapIteratorIntervalRight = sortedIndepedentAndDependentVariables.begin();
+    mapIteratorIntervalRight = sortedIndepedentAndDependentVariables.begin( );
     advance( mapIteratorIntervalRight, nearestLeftNeighbor + 1 );
     locationTargetIndependentVariableValueInInterval
             = ( targetIndependentVariableValue
