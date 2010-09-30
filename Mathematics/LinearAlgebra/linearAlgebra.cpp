@@ -1,79 +1,111 @@
-/*
- *  EigenRoutines.cpp
- *  Propagator
+/*! \file linearAlgebra.cpp
+ *    This file contains include statements for common Eiegn components,
+ *    typedef for vectors and a number of useful vector operation definitions.
  *
- *  Created by Melman, J.C.P. (jcpmelman) on 8/7/09.
- *  Copyright 2009 Delft University of Technology. All rights reserved.
+ *    Path              : /Mathematics/LinearAlgebra/
+ *    Version           : 2
+ *    Check status      : Checked
  *
+ *    Author            : J. Melman
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.C.P.Melman@tudelft.nl
+ *
+ *    Checker           : D. Dirkx
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : D.Dirkx@student.tudelft.nl
+ *
+ *    Date created      : 7 August, 2009
+ *    Last modified     : 30 September, 2010
+ *
+ *    References
+ *
+ *    Notes
+ *
+ *    Copyright (c) 2010 Delft University of Technology.
+ *
+ *    This software is protected by national and international copyright.
+ *    Any unauthorized use, reproduction or modificaton is unlawful and
+ *    will be prosecuted. Commercial and non-private application of the
+ *    software in any form is strictly prohibited unless otherwise granted
+ *    by the authors.
+ *
+ *    The code is provided without any warranty; without even the implied
+ *    warranty of merchantibility or fitness for a particular purpose.
+ *
+ *    Changelog
+ *      YYMMDD    author        comment
+ *      090807    J. Melman     First creation of code.
+ *      100930    D. Dirkx      Modified to comply with Tudat standards
  */
 
 #include "linearAlgebra.h"
 
-// Determine the cosine of the angle between two vectors
-double cosAngle(const Vector3d& v0, const Vector3d& v1)
+//! Determine the cosine of the angle between two vectors.
+double determineCosineOfAngleBetweenVectors( const Vector3d& vector0,
+                                             const Vector3d& vector1 )
 {
-	// Determine the length of the vectors
-	double l0 = v0.norm( );
-	double l1 = v1.norm( );
+    // Determine the length of the vectors.
+    double normOfVector0 = vector0.norm( );
+    double normOfVector1 = vector1.norm( );
 
-	// Check for a division by zero, which is obviously not allowed
-	if (l0 > 0.0 && l1 > 0.0)
-	{
-		// Normalize both vectors
-		Vector3d v0n = v0 / l0;
-		Vector3d v1n = v1 / l1;
 
-		// Get the cosine of the angle by dotting the normalized vectors
-		double dotNorm = v0n.dot(v1n);
-		// Explicitly define the extreme cases, which can give problems with the
-		// acos function.
-		if (dotNorm >= 1.0)
-			return 1.0;
-		else if (dotNorm <= -1.0)
-			return -1.0;
-		// Determine the actual angle
-		else
-			return dotNorm;
-	}
-	else
-	{
-		return 1.0e10;
-	}
+    // Normalize both vectors.
+    Vector3d vector0Normalized = vector0 / normOfVector0;
+    Vector3d vector1Normalized = vector1 / normOfVector1;
+
+    // Get the cosine of the angle by dotting the normalized
+    // vectors.
+    double dotProductOfNormalizedVectors =
+            vector0Normalized.dot( vector1Normalized );
+
+    // Explicitly define the extreme cases, which can give problems
+    // with the acos function.
+    if (dotProductOfNormalizedVectors >= 1.0)
+        return 1.0;
+    else if (dotProductOfNormalizedVectors <= -1.0)
+        return -1.0;
+
+    // Determine the actual angle.
+    else
+        return dotProductOfNormalizedVectors;
+
 }
 
-// Determine the angle between two vectors
-double angle(const Vector3d& v0, const Vector3d& v1)
+//! Determine the angle between two vectors.
+double determineAngleBetweenVectors( const Vector3d& vector0,
+                                     const Vector3d& vector1 )
 {
-	// Determine the cosine of the angle by using another routine
-	double dotNorm = cosAngle( v0, v1 );
+    // Determine the cosine of the angle by using another routine.
+    double dotProductOfNormalizedVectors =
+            determineCosineOfAngleBetweenVectors( vector0, vector1 );
 
-	// Check for a division by zero, which is obviously not allowed
-	if (fabs(dotNorm) <= 1.0)
-	{
-		return acos(dotNorm);
+    // return arccosine of the above.
+    return acos( dotProductOfNormalizedVectors );
 
-	}
-	else
-	{
-		return 1.0e10;
-	}
 }
 
-// Determine the average of the components of a vector
-double average(const VectorXd& v)
+//! Determine the average of the components of a vector
+double determineAverageOfVectorComponents( const VectorXd& vector0 )
 {
-	return v.sum( ) / v.rows( );
+    return vector0.sum( ) / vector0.rows( );
 }
 
-// Determine the standard deviation of the components of a vector
-double standDev(const VectorXd& v)
+//! Determine the standard deviation of the components of a vector.
+double determineStandardDeviationOfVectorComponents( const VectorXd& vector0 )
 {
-	double variance = 0.;
-	double ave = average( v );
-	for( int i = 0; i < v.rows( ); i++ )
-	{
-		variance += pow( ( v(i) - ave ), 2. );
-	}
-	variance /= v.rows( ) - 1;
-	return sqrt( variance );
+    double varianceOfEntries = 0.0;
+
+    // Determine average of entries.
+    double averageOfEntries = determineAverageOfVectorComponents( vector0 );
+
+    // Determine variance of entries.
+    for( int i = 0 ; i < vector0.rows( ) ; i++ )
+    {
+        varianceOfEntries += pow( ( vector0( i ) -
+                                    averageOfEntries ), 2.0 );
+    }
+    varianceOfEntries /= vector0.rows( ) - 1;
+
+    // Return square root of variance ( = standard deviation ).
+    return sqrt( varianceOfEntries );
 }

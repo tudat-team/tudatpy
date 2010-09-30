@@ -129,7 +129,7 @@ void NumericalPropagator::propagate( )
     // Set computeSumOfStateDerivatives function as state derivative function
     // for integrator.
     pointerToIntegrator_
-            ->setStateDerivativeFunction( 
+            ->setStateDerivativeFunction(
                    &NumericalPropagator::computeSumOfStateDerivatives_, this );
 
     // Check if fixed output interval is set.
@@ -145,7 +145,7 @@ void NumericalPropagator::propagate( )
         integrationHistory_ = pointerToIntegrator_->getIntegrationHistory( );
 
         // Compute numerb of output intervals.
-        int numberOfOutputsIntervals = std
+        unsigned int numberOfOutputsIntervals = std
                                        ::floor( ( propagationIntervalEnd_
                                                   - propagationIntervalStart_ )
                                                   / fixedOutputInterval_ ) + 1;

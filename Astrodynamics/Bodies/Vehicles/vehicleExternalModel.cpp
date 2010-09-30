@@ -43,7 +43,7 @@
  *
  */
 
-#include "vehicleExternalModels.h"
+#include "vehicleExternalModel.h"
 
 //! Default constructor.
 VehicleExternalModel::VehicleExternalModel( )
