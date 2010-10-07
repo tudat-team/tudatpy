@@ -42,7 +42,7 @@
 
 #include "linearAlgebra.h"
 
-//! linear_algebra namespace.
+//! Linear algebra namespace.
 namespace linear_algebra
 {
 

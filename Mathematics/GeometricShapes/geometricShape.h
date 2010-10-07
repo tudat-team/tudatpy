@@ -61,7 +61,7 @@
 
 using unit_conversions::convertRadiansToDegrees;
 
-//! Geometry base class.
+//! Geometric shape base class.
 /*!
  *  Base class for geometric shapes.
  */

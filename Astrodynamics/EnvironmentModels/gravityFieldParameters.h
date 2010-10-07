@@ -72,7 +72,7 @@ public:
     //! Gets the gravitational parameter.
     /*!
      * Returns the gravitational parameter in meter^3 per second^2.
-     * \return gravitationalParameter
+     * \return Gravitational parameter.
      */
     const double getGravitationalParameter( ) const;
 
@@ -80,7 +80,7 @@ public:
     /*!
      * Defines the reference radius used for the spherical harmonics expansion
      * in meters.
-     *  \param referenceRadius
+     *  \param referenceRadius Reference radius.
      */
     void setReferenceRadius( const double& referenceRadius );
 
@@ -88,7 +88,7 @@ public:
     /*!
      * Returns the reference radius used for the spherical harmonics expansion
      * in meters.
-     * \return referenceRadius
+     * \return Reference radius.
      */
     const double getReferenceRadius( ) const;
 

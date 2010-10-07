@@ -1,5 +1,5 @@
 /*! \file vehicle.cpp
- *  This file contains the definition of the VehicleModel class,
+ *  This file contains the definition of the Vehicle class,
  *  which is a container for the different subsystems and
  *  characteristics of the vehicle. Currently only the
  *  VehicleExternalModel can be set as a property

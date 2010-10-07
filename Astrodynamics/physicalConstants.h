@@ -46,9 +46,12 @@
 #ifndef PHYSICAL_CONSTANTS_H
 #define PHYSICAL_CONSTANTS_H
 
+//! Physical constants structure.
+/*!
+ * Physical constants structure.
+ */
 struct PhysicalConstants
 {
-
 public:
 
     //! Julian day.
@@ -172,7 +175,6 @@ public:
      *             http://iau-comm4.jpl.nasa.gov/de405iom/de405iom.pdf
      */
     const static double UNCERTAINTY_ASTRONOMICAL_UNIT = 3.0;
-
 };
 
 #endif // PHYSICAL_CONSTANTS_H

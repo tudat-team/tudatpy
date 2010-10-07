@@ -43,14 +43,18 @@
 #include <cmath>
 #include "physicalConstants.h"
 
+//! Unit conversions namespace.
+/*!
+ *  Unit conversions namespace.
+ */
 namespace unit_conversions
 {
 
 //! Convert from radians to degrees.
 /*!
  *  Convert an angle from radians to degrees.
- *  \param angleInRadians angle in radians.
- *  \return angleInDegrees angle in degrees.
+ *  \param angleInRadians Angle in radians.
+ *  \return Angle in degrees.
  */
 template < typename T >
 T convertRadiansToDegrees( T angleInRadians )
@@ -61,8 +65,8 @@ T convertRadiansToDegrees( T angleInRadians )
 //! Convert from degrees to radians.
 /*!
  *  Convert an angle from degrees to radians.
- *  \param angleInDegrees angle in degrees.
- *  \return angleInRadians angle in radians.
+ *  \param angleInDegrees Angle in degrees.
+ *  \return Angle in radians.
  */
 template < typename T >
 T convertDegreesToRadians( T angleInDegrees )
@@ -73,8 +77,8 @@ T convertDegreesToRadians( T angleInDegrees )
 //! Convert from meters to kilometers.
 /*!
  *  Convert a distance from meters to kilometers.
- *  \param distanceInMeters distance in meters.
- *  \return distanceInKilometers distance in kilometers.
+ *  \param distanceInMeters Distance in meters.
+ *  \return Distance in kilometers.
  */
 template < typename T >
 T convertMetersToKilometers( T distanceInMeters )
@@ -85,8 +89,8 @@ T convertMetersToKilometers( T distanceInMeters )
 //! Convert from kilometers to meters.
 /*!
  *  Convert a distance from kilometers to meters.
- *  \param distanceInKilometers distance in kilometers.
- *  \return distanceInMeters distance in meters.
+ *  \param distanceInKilometers Distance in kilometers.
+ *  \return Distance in meters.
  */
 template < typename T >
 T convertKilometersToMeters( T distanceInKilometers )
@@ -97,8 +101,8 @@ T convertKilometersToMeters( T distanceInKilometers )
 //! Convert from meters to astronomical units.
 /*!
  *  Convert a distance from meters to astronomical units.
- *  \param distanceInMeters distance in meters.
- *  \return distanceInAstronomicalUnits distance in astronomical units.
+ *  \param distanceInMeters Distance in meters.
+ *  \return Distance in astronomical units.
  */
 template < typename T >
 T convertMetersToAstronomicalUnits( T distanceInMeters )
@@ -109,8 +113,8 @@ T convertMetersToAstronomicalUnits( T distanceInMeters )
 //! Convert from astronomical units to meters.
 /*!
  *  Convert a distance from astronomical units to meters.
- *  \param distanceInAstronomicalUnits distance in astronomical units.
- *  \return distanceInMeters distance in meters.
+ *  \param distanceInAstronomicalUnits Distance in astronomical units.
+ *  \return Distance in meters.
  */
 template < typename T >
 T convertAstronomicalUnitsToMeters( T distanceInAstronomicalUnits )

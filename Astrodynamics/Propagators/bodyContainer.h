@@ -57,7 +57,7 @@
 class Propagator;
 class NumericalPropagator;
 
-//! BodyContainer class.
+//! Body container class.
 /*!
  * Class containing properties of bodies to be propagated by Tudat propagators.
  */

@@ -63,9 +63,9 @@ USING_PART_OF_NAMESPACE_EIGEN
 // by in-house code.
 typedef VectorXd Vector;
 
-//! linear_algebra namespace.
+//! Linear algebra namespace.
 /*!
- *  Defintion of linear_algebra namespace.
+ *  Linear algebra namespace.
  */
 namespace linear_algebra
 {

@@ -46,9 +46,10 @@
 // Include statements.
 #include "basicMathematicsFunctions.h"
 
-//! mathematics namespace.
+//! Mathematics namespace.
 namespace mathematics
 {
+
 //! Linear interpolation.
 double computeLinearInterpolation( Vector& sortedIndependentVariables,
                                    Vector& associatedDependentVariables,

@@ -21,7 +21,6 @@
  * References
  *
  * Notes
- *   This class should be derived from the class Body.
  *
  * Copyright (c) 2010 Delft University of Technology.
  *
@@ -50,6 +49,7 @@
 #include "vehicleExternalModel.h"
 #include "body.h"
 
+//! Vehicle class.
 /*!
  * Class that represents the physical model of the vehicle. Subsystem
  * objects should be created externally and then set by the corresponding

@@ -18,10 +18,7 @@
  *
  *  References
  *
- *
- *
  *  Notes
- *
  *
  *  Copyright (c) 2010 Delft University of Technology.
  *

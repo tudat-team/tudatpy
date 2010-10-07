@@ -53,6 +53,7 @@
 
 #include "surfaceGeometry.h"
 
+//! Sphere segment class.
 /*!
  * Class that defines the sphere (segment) shape. Parametrization is based
  * on spherical coordinates, with independentVariable1 representing the azimuth

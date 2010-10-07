@@ -47,9 +47,9 @@
 #include "celestialBody.h"
 #include "linearAlgebra.h"
 
-//! ForceModel class.
+//! Force model class.
 /*!
- * Base class for all force models included in Tudat.
+ * Base class for all force models.
  */
 class ForceModel
 {
