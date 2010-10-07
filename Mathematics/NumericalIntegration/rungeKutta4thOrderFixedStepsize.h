@@ -45,10 +45,9 @@
 // Include statements.
 #include "singleStepIntegrationMethods.h"
 
-//! 4th-order, fixed stepsize, Runge- Kutta Integrator class.
+//! 4th-order, fixed stepsize, Runge-Kutta integrator class.
 /*!
- * Implementation of 4th-order, fixed stepsize, Runge-Kutta integrator in
- * Tudat.
+ * Implementation of 4th-order, fixed stepsize, Runge-Kutta integrator.
  */
 class RungeKutta4thOrderFixedStepsize : public SingleStepIntegrationMethods
 {

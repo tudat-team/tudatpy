@@ -53,7 +53,7 @@
 
 #include "geometricShape.h"
 
-//! Surface geometry base class
+//! Surface geometry base class.
 /*!
  * Base class for surface geometry representations in terms of two
  * parameterizing variables 1 and 2. Class contains the minimum and
@@ -127,14 +127,14 @@ public:
     //! Function to retrieve the rotation matrix from the shape.
     /*!
      * Function to retrieve rotation matrix from the shape.
-     * \return rotationMatrix_ Rotation matrix of shape.
+     * \return Rotation matrix of shape.
      */
     MatrixXd getRotationMatrix( );
 
     //! Function to retrieve offset from the shape.
     /*!
      * Function to retrieve offset from the shape.
-     * \return offset_ translation vector for geometry.
+     * \return Translation vector for geometry.
      */
     Vector getOffset( );
 
@@ -143,7 +143,7 @@ public:
      * Function to retrieve minimum values of independent variables.
      * \param parameterIndex Index of independent variable from which to
      * retrieve minimum,
-     * \return minimumValue Minimum of independent variable.
+     * \return Minimum of independent variable.
      */
     double getMinimumIndependentVariable( const int& parameterIndex );
 
@@ -152,7 +152,7 @@ public:
      * Function to retrieve maximum values of independent variables.
      * \param parameterIndex Index of independent variable from which to
      * retrieve minimum.
-     * \return maximumValue Maximum of independent variable.
+     * \return Maximum of independent variable.
      */
     double getMaximumIndependentVariable( const int& parameterIndex );
 

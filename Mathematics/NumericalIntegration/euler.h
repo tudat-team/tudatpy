@@ -44,9 +44,9 @@
 // Include statements.
 #include "singleStepIntegrationMethods.h"
 
-//! Euler Integrator class.
+//! Euler integrator class.
 /*!
- * Implementation of Euler integrator in Tudat.
+ * Implementation of Euler integrator.
  */
 class Euler : public SingleStepIntegrationMethods
 {

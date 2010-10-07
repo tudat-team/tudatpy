@@ -52,9 +52,9 @@
 #include "basicFunctions.h"
 #include "linearAlgebra.h"
 
-//! mathematics namespace.
+//! Mathematics namespace.
 /*!
- *  Defintion of mathematics namespace.
+ *  Mathematics namespace.
  */
 namespace mathematics
 {
@@ -91,12 +91,12 @@ double computeLinearInterpolation( Vector& sortedIndependentVariables,
  * \f]
  * where \f$ \mu = \frac{ x_{target} - x_{1} } { x_{2} + x_{1} } \f$
  * and \f$ x_{2} > x_{1} \f$.
- *   \param sortedIndepedentAndDependentVariables Map of sorted independent
+ * \param sortedIndepedentAndDependentVariables Map of sorted independent
  *              variables, in ascending/descending order, and associated
  *              dependent variables.
- *   \param targetIndependentVariableValue Target independent variable value
+ * \param targetIndependentVariableValue Target independent variable value
  *              in vector of sorted independent variables.
- *   \return Vector of dependent variable associated with target independent
+ * \return Vector of dependent variable associated with target independent
  *              value in vector of sorted independent variables.
  */
 Vector computeLinearInterpolation(

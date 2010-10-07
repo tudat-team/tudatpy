@@ -55,9 +55,9 @@
 #include <iterator>
 #include "linearAlgebra.h"
 
-//! basicFunctions namespace.
+//! Basic functions namespace.
 /*!
- * Defintion of basicFunctions namespace.
+ * Basic functions namespace.
  */
 namespace basic_functions
 {
@@ -66,11 +66,9 @@ namespace basic_functions
 /*!
  * This function searches for the nearest left neighbor in a vector of sorted
  * data using a binary algorithm (Press W.H., et al., 2002).
- *  \param vectorOfSortedData Vector of data sorted in ascending/descending
- *          order.
- *  \param targetValueInVectorOfSortedData Target value in vector of sorted
- *          data.
- *  \return Index of nearest left neighbor to target value.
+ * \param vectorOfSortedData Vector of data sorted in ascending/descending order.
+ * \param targetValueInVectorOfSortedData Target value in vector of sorted data.
+ * \return Index of nearest left neighbor to target value.
  */
 int computeNearestLeftNeighborUsingBinarySearch(
         Vector& vectorOfSortedData,

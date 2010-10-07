@@ -47,6 +47,7 @@
 
 #include "geometricShape.h"
 
+//! Vehicle external model class.
 /*!
  *  Class that contains the properties of the external portion of the
  *  vehicle. Current properties that can be set are:

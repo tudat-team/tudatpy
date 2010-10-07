@@ -47,7 +47,7 @@
 // Include statements.
 #include "basicFunctions.h"
 
-//! basicFunctions namespace.
+//! Basic functions namespace.
 namespace basic_functions
 {
 
