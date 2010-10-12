@@ -65,7 +65,7 @@
 #include <map>
 #include <vector>
 #include "numericalPropagator.h"
-#include "linearALgebra.h"
+#include "linearAlgebra.h"
 
 // Forward declartions.
 class NumericalPropagator;
