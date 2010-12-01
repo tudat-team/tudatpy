@@ -17,6 +17,7 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Propagators/bodyContainer.cpp \
     Basics/basicFunctions.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
+    Mathematics/randomNumberGenerator.cpp \
     Mathematics/GeometricShapes/surfaceGeometry.cpp \
     Mathematics/GeometricShapes/sphereSegment.cpp \
     Mathematics/GeometricShapes/geometricShape.cpp \
@@ -24,8 +25,7 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/NumericalIntegration/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegration/integrator.cpp \
     Mathematics/NumericalIntegration/euler.cpp \
-    Output/writingOutputToFile.cpp \
-    earthOrbitExample.cpp
+    Output/writingOutputToFile.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
@@ -42,6 +42,7 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Basics/basicFunctions.h \
     Mathematics/unitConversions.h \
     Mathematics/basicMathematicsFunctions.h \
+    Mathematics/randomNumberGenerator.h \
     Mathematics/GeometricShapes/surfaceGeometry.h \
     Mathematics/GeometricShapes/sphereSegment.h \
     Mathematics/GeometricShapes/geometricShape.h \
