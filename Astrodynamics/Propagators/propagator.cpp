@@ -103,7 +103,7 @@ void Propagator::setPropagator( Body* pointerToBody,
 
 //! Set initial state vector of body.
 void Propagator::setInitialState( Body* pointerToBody,
-                                  Vector& initialStateVector )
+                                  VectorXd& initialStateVector )
 {
     // Set initial state vector of given body to be propogated.
     bodiesToBePropagated_[ pointerToBody ]
@@ -130,14 +130,14 @@ void Propagator::setFixedOutputInterval( const double& fixedOutputInterval )
 }
 
 //! Get final state of body.
-Vector& Propagator::getFinalState( Body* pointerToBody )
+VectorXd& Propagator::getFinalState( Body* pointerToBody )
 {
     // Return final state of given body.
     return bodiesToBePropagated_[ pointerToBody ]->finalStateVector_;
 }
 
 //! Get propagation history of body at fixed output intervals.
-std::map < double, Vector >
+std::map < double, VectorXd >
         Propagator::getPropagationHistoryAtFixedOutputIntervals(
                 Body* pointerToBody )
 {
@@ -146,11 +146,11 @@ std::map < double, Vector >
 }
 
 void Propagator::
-        computeSumOfStateDerivatives_( Vector& assembledStateVector,
-                                       Vector& assembledStateDerivativeVector )
+        computeSumOfStateDerivatives_( VectorXd& assembledStateVector,
+                                       VectorXd& assembledStateDerivativeVector )
 {
      // State derivative vector.
-     Vector stateDerivativeVector_;
+     VectorXd stateDerivativeVector_;
 
      // Set assembled state vector to zero.
      assembledStateDerivativeVector.setZero( assembledStateVector.rows( ) );

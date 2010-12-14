@@ -100,7 +100,7 @@ public:
      * \param independentVariable1 Azimuth angle.
      * \param independentVariable2 Zenith angle.
      */
-    virtual Vector getSurfacePoint( const double& independentVariable1 ,
+    virtual VectorXd getSurfacePoint( const double& independentVariable1 ,
                                     const double& independentVariable2 );
 
     //! Calculates the surface derivative on the sphere w.r.t. the independent
@@ -117,7 +117,7 @@ public:
      * \param powerOfDerivative1 Power of the derivative w.r.t. the azimuth angle.
      * \param powerOfDerivative2 Power of the derivative w.r.t. the zenith angle.
      */
-    virtual Vector getSurfaceDerivative( const double& independentVariable1,
+    virtual VectorXd getSurfaceDerivative( const double& independentVariable1,
                                          const double& independentVariable2,
                                          const int& powerOfDerivative1,
                                          const int& powerOfDerivative2 );

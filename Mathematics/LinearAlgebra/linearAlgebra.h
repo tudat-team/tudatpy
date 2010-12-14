@@ -59,10 +59,6 @@
 // Import most common Eigen types.
 USING_PART_OF_NAMESPACE_EIGEN
 
-// Use typedef for VectorXd for intuitive access and future replacement
-// by in-house code.
-typedef VectorXd Vector;
-
 //! Linear algebra namespace.
 /*!
  *  Linear algebra namespace.

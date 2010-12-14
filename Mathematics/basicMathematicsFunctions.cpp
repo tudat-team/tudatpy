@@ -51,8 +51,8 @@ namespace mathematics
 {
 
 //! Linear interpolation.
-double computeLinearInterpolation( Vector& sortedIndependentVariables,
-                                   Vector& associatedDependentVariables,
+double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
+                                   VectorXd& associatedDependentVariables,
                                    double& targetIndependentVariableValue )
 {
 
@@ -84,8 +84,8 @@ double computeLinearInterpolation( Vector& sortedIndependentVariables,
 }
 
 //! Linear interpolation.
-Vector computeLinearInterpolation(
-        std::map < double, Vector >& sortedIndepedentAndDependentVariables,
+VectorXd computeLinearInterpolation(
+        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue )
 {
     // Declare local variables.
@@ -96,8 +96,8 @@ Vector computeLinearInterpolation(
     double locationTargetIndependentVariableValueInInterval;
 
     // Declare map iterators
-    std::map < double, Vector >::iterator mapIteratorIntervalLeft;
-    std::map < double, Vector >::iterator mapIteratorIntervalRight;
+    std::map < double, VectorXd >::iterator mapIteratorIntervalLeft;
+    std::map < double, VectorXd >::iterator mapIteratorIntervalRight;
 
     // Compute nearest neighbor in map of data.
     // Result is always to the left of the target independent variable value.
@@ -129,7 +129,7 @@ Vector computeLinearInterpolation(
 void convertSphericalToCartesian( const double& radius,
                                   const double& azimuthAngle,
                                   const double& zenithAngle,
-                                  Vector& cartesianCoordinates )
+                                  VectorXd& cartesianCoordinates )
 {
     // Declaring sine and cosine which have multiple usages to save computation
     // time.
@@ -147,7 +147,7 @@ void convertSphericalToCartesian( const double& radius,
 //! Converts cylindrical to cartesian coordinates, z value left unaffected.
 void convertCylindricalToCartesian( const double& radius,
                                     const double& azimuthAngle,
-                                    Vector& cartesianCoordinates )
+                                    VectorXd& cartesianCoordinates )
 {
     // Perform transformation, z value should be set outside function.
     cartesianCoordinates( 0 ) = radius * cos( azimuthAngle );

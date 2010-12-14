@@ -54,27 +54,10 @@
 SurfaceGeometry::SurfaceGeometry( )
 {
     // Declare the size of the offset vector.
-    offset_ = Vector( 3 );
+    offset_.setZero( 3 );
 
-    // PLACEHOLDER
-    rotationMatrix_ = MatrixXd( 3, 3 );
-
-    // The offset is initialized to zero and the rotation matrix is
-    // initialized to the identity matrix.
-    int i, j;
-    // PLACEHOLDER
-    for( i = 0 ; i < 3 ; i++ )
-    {
-        offset_( i ) = 0.0;
-        for( j = 0 ; j < 3 ; j++ )
-        {
-            if( i != j )
-            {
-                rotationMatrix_( i, j ) = 0.0;
-            }
-        }
-        rotationMatrix_( i, i ) = 1.0;
-    }
+    // Declare the rotation matrix.
+    rotationMatrix_.setIdentity( 3, 3 );
 }
 
 //! Default destructor.
@@ -82,9 +65,8 @@ SurfaceGeometry::~SurfaceGeometry( )
 {
 }
 
-// PLACEHOLDER (MatrixXd)
 //! Function to set the rotation and translation values.
-void SurfaceGeometry::setTransFormValues( const Vector& offset,
+void SurfaceGeometry::setTransFormValues( const VectorXd& offset,
                                           const MatrixXd& rotationMatrix )
 {
     offset_ = offset;
@@ -98,7 +80,7 @@ MatrixXd SurfaceGeometry::getRotationMatrix( )
 }
 
 //! Function to retrieve offset from the shape.
-Vector SurfaceGeometry::getOffset( )
+VectorXd SurfaceGeometry::getOffset( )
 {
     return offset_;
 }

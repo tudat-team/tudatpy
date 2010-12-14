@@ -104,25 +104,25 @@ private:
     /*!
      * Initial state vector.
      */
-    Vector initialStateVector_;
+    VectorXd initialStateVector_;
 
     //! State vector.
     /*!
      * State vector.
      */
-    Vector stateVector_;
+    VectorXd stateVector_;
 
     //! Final state vector.
     /*!
      * Final state vector.
      */
-    Vector finalStateVector_;
+    VectorXd finalStateVector_;
 
     //! A map of propagation history.
     /*!
      * A map of propagation history with propagation time taken as key.
      */
-    std::map < double, Vector > propagationHistory_;
+    std::map < double, VectorXd > propagationHistory_;
 
     //! Vector container of pointers to force models.
     /*!

@@ -74,8 +74,8 @@ public:
      * \param stateDerivativeVector Vector containing derivative of
      *          stateVector.
      */
-    virtual void computeStateDerivatives( Vector& stateVector,
-                                          Vector& stateDerivativeVector ) =0;
+    virtual void computeStateDerivatives( VectorXd& stateVector,
+                                          VectorXd& stateDerivativeVector ) =0;
 
     //! Object of Celestial Body class.
     /*!

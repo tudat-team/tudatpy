@@ -113,7 +113,7 @@ void WritingOutputToFile::
 
     // Declaration of vector which will be iteratively retrieved from geometry
     // and written to file.
-    Vector point = Vector(3);
+    VectorXd point = VectorXd(3);
 
     // Open the file to which writing will take place if it is to overwrite any
     // existing content.
