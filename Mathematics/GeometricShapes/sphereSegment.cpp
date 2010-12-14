@@ -75,19 +75,17 @@ SphereSegment::SphereSegment( const double& minimumIndependentVariable1,
 }
 
  //! Function to retrieve a surface point on the sphere.
-Vector SphereSegment::getSurfacePoint( const double& independentVariable1 ,
+VectorXd SphereSegment::getSurfacePoint( const double& independentVariable1 ,
                                        const double& independentVariable2 )
 {
-    Vector cartesianPositionVector = Vector( 3 );
+    VectorXd cartesianPositionVector = VectorXd( 3 );
 
     // Gets surface point on sphere, unrotated and centered at origin.
     mathematics::convertSphericalToCartesian( radius_, independentVariable1,
                                               independentVariable2,
                                               cartesianPositionVector);
-    //PLACEHOLDER
-    Vector point = Vector( 3 );
+    VectorXd point = VectorXd( 3 );
     // Rotates point to correct orientation.
-    //PLACEHOLDER
     point( 0 ) = rotationMatrix_( 0, 0 ) * cartesianPositionVector( 0 ) +
                  rotationMatrix_( 0, 1 ) * cartesianPositionVector( 1 ) +
                  rotationMatrix_( 0, 2 ) * cartesianPositionVector( 2 );
@@ -106,13 +104,13 @@ Vector SphereSegment::getSurfacePoint( const double& independentVariable1 ,
 
 //! Calculates the surface derivative on the sphere w.r.t. the independent
 //! variables.
-Vector SphereSegment::getSurfaceDerivative( const double& independentVariable1,
+VectorXd SphereSegment::getSurfaceDerivative( const double& independentVariable1,
                                             const double& independentVariable2,
                                             const int& powerOfDerivative1,
                                             const int& powerOfDerivative2 )
 {
     // Set size of derivative.
-    Vector derivative = Vector( 3 );
+    VectorXd derivative = VectorXd( 3 );
 
     // Go through the different possibilities for the values of the power of the derivative.
     if ( powerOfDerivative1 < 0 || powerOfDerivative2 < 0 )
@@ -134,8 +132,8 @@ Vector SphereSegment::getSurfaceDerivative( const double& independentVariable1,
     // and then  component-wise multiplied.
     else
     {
-        Vector derivative1Contribution = Vector( 3 );
-        Vector derivative2Contribution = Vector( 3 );
+        VectorXd derivative1Contribution = VectorXd( 3 );
+        VectorXd derivative2Contribution = VectorXd( 3 );
 
         // Since this derivative is "cyclical", as it is
         // only dependent on sines and cosines, only the "modulo 4"th
@@ -198,12 +196,10 @@ Vector SphereSegment::getSurfaceDerivative( const double& independentVariable1,
         derivative( 2 ) = derivative1Contribution( 2 ) * derivative2Contribution( 2 );
 
         // Scale vector by radius
-        // PLACEHOLDER
         derivative = derivative * radius_;
 
         // Rotate derivatives to take into account rotation of sphere
-        // PLACEHOLDER
-        Vector newDerivative = Vector( 3 );
+        VectorXd newDerivative = VectorXd( 3 );
         newDerivative( 0 ) = rotationMatrix_( 0, 0 ) * derivative( 0 ) +
                              rotationMatrix_( 0, 1 ) * derivative( 1 ) +
                              rotationMatrix_( 0, 2 ) * derivative( 2 );

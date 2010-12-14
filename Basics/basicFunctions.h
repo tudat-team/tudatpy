@@ -71,7 +71,7 @@ namespace basic_functions
  * \return Index of nearest left neighbor to target value.
  */
 int computeNearestLeftNeighborUsingBinarySearch(
-        Vector& vectorOfSortedData,
+        VectorXd& vectorOfSortedData,
         double& targetValueInVectorOfSortedData );
 
 //! Nearest left neighbor binary search.
@@ -84,7 +84,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
  * \return Index of nearest left neighbor to target value.
  */
 int computeNearestLeftNeighborUsingBinarySearch(
-        std::map < double, Vector >& sortedIndepedentAndDependentVariables,
+        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetValueInMapOfData );
 
 }

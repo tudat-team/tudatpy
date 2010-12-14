@@ -85,8 +85,8 @@ public:
      * field; first three entries are equal to velocity from state, second
      * three are computed from gravity field and position.
      */
-    void computeStateDerivatives( Vector& stateVector,
-                                  Vector& stateDerivativeVector );
+    void computeStateDerivatives( VectorXd& stateVector,
+                                  VectorXd& stateDerivativeVector );
 
 protected:
 

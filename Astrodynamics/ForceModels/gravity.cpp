@@ -60,41 +60,35 @@ void Gravity::setBody( CelestialBody& celestialBody )
 }
 
 //! Compute state derivatives for gravity field expansion.
-void Gravity::computeStateDerivatives( Vector& stateVector,
-                              Vector& stateDerivativeVector )
+void Gravity::computeStateDerivatives( VectorXd& stateVector,
+                              VectorXd& stateDerivativeVector )
 {
     // Declare local variables.
-    // PLACEHOLDER
     double stateVectorNorm;
     double stateVectorNormCubed;
 
     // Compute norm of state vector.
-    // PLACEHOLDER
     stateVectorNorm = sqrt( stateVector( 0 ) * stateVector( 0 )
                       + stateVector( 1 ) * stateVector( 1 )
                       + stateVector( 2 ) * stateVector( 2 ) );
 
     // Set state derivative vector to size of state vector and fill with zeros.
-    // PLACEHOLDER
     stateDerivativeVector.setZero( stateVector.rows( ) );
 
     // Compute cube of norm of state vector.
-    // PLACEHOLDER
     stateVectorNormCubed = stateVectorNorm * stateVectorNorm * stateVectorNorm;
 
     // Compute state derivatives.
+    // PLACEHOLDER
     stateDerivativeVector( 0 ) = stateVector( 3 );
     stateDerivativeVector( 1 ) = stateVector( 4 );
     stateDerivativeVector( 2 ) = stateVector( 5 );
-    // PLACEHOLDER
     stateDerivativeVector( 3 ) = -celestialBody_.getGravitationalParameter( )
                                  * stateVector( 0 )
                                  / stateVectorNormCubed;
-    // PLACEHOLDER
     stateDerivativeVector( 4 ) = -celestialBody_.getGravitationalParameter( )
                                  * stateVector( 1 )
                                  / stateVectorNormCubed;
-    // PLACEHOLDER
     stateDerivativeVector( 5 ) = -celestialBody_.getGravitationalParameter( )
                                  * stateVector( 2 )
                                  / stateVectorNormCubed;

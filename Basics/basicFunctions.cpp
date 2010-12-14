@@ -53,13 +53,12 @@ namespace basic_functions
 
 //! Nearest left neighbor binary search.
 int computeNearestLeftNeighborUsingBinarySearch(
-        Vector& vectorOfSortedData,
+        VectorXd& vectorOfSortedData,
         double& targetValueInVectorOfSortedData )
 {
     // Declare local variables.
     // Declare bounds of vector of sorted data and current position.
     int leftLimitOfVectorOfSortedData = 0;
-    // PLACEHOLDER
     int rightLimitOfVectorOfSortedData = vectorOfSortedData.rows( ) - 1;
     int currentPositionInVectorOfSortedData;
 
@@ -104,7 +103,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
 //! Nearest left neighbor binary search.
 int computeNearestLeftNeighborUsingBinarySearch(
-        std::map < double, Vector >& sortedIndepedentAndDependentVariables,
+        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetValueInMapOfData )
 {
     // Declare local variables.
@@ -115,7 +114,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
     int currentPositionInKeyOfMapOfData;
 
     // Declare map iterator
-    std::map < double, Vector >::iterator mapIterator;
+    std::map < double, VectorXd >::iterator mapIterator;
 
     // Loop through vector of sorted data until left and right limits
     // are neighbours

@@ -81,14 +81,14 @@ private:
      * k-Coefficients for 4th-order, fixed stepsize, Runge-Kutta integration
      * scheme.
      */
-    Vector kCoefficients_[ 4 ];
+    VectorXd kCoefficients_[ 4 ];
 
     //! Modified initial state vector.
     /*!
      * Modified initial state vector, computed during a single 4th-order,
      * fixed stepsize, Runge-Kutta integration step.
      */
-    Vector modifiedInitialStateVector_;
+    VectorXd modifiedInitialStateVector_;
 
     //! Compute next state vector.
     /*!

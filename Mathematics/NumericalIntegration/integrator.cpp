@@ -122,7 +122,7 @@ void Integrator::setStateDerivativeFunction( pointerToStateDerivativeFunction
 }
 
 //! Set initial state vector.
-void Integrator::setInitialStateVector( Vector& initialStateVector )
+void Integrator::setInitialStateVector( VectorXd& initialStateVector )
 {
     // Set initial state vector.
     initialStateVector_ = initialStateVector;
@@ -248,29 +248,29 @@ double Integrator::getIntegrationIntervalEnd( )
 }
 
 //! Get address of initial state vector.
-Vector& Integrator::getInitialStateVector( )
+VectorXd& Integrator::getInitialStateVector( )
 {
     // Return initial state vector.
     return initialStateVector_;
 }
 
 //! Get address of final state vector.
-Vector& Integrator::getFinalStateVector( )
+VectorXd& Integrator::getFinalStateVector( )
 {
     // Return final state vector.
     return finalStateVector_;
 }
 
 //! Get integration history.
-std::map < double, Vector >& Integrator::getIntegrationHistory( )
+std::map < double, VectorXd >& Integrator::getIntegrationHistory( )
 {
     // Return map integration history.
     return integrationHistory_;
 }
 
 //! Compute state derivatives.
-void Integrator::computeStateDerivatives_( Vector& stateVector,
-                                           Vector& stateDerivativeVector )
+void Integrator::computeStateDerivatives_( VectorXd& stateVector,
+                                           VectorXd& stateDerivativeVector )
 {
     // Check if pointer to vector-vector-taking function is set.
     if( pointerToVectorVectorTakingFunction_ )

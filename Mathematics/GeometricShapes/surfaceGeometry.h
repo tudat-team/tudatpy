@@ -86,8 +86,8 @@ public:
      * separately for each derived class. It contains no functionality
      * for this base class.
      */
-    virtual Vector getSurfacePoint( const double& independentVariable1,
-                                    const double& independentVariable2 ) = 0 ;
+    virtual VectorXd getSurfacePoint( const double& independentVariable1,
+                                      const double& independentVariable2 ) = 0 ;
 
     //! Pure virtual function to get surface derivative.
     /*!
@@ -95,10 +95,10 @@ public:
      * defined separately for each derived class. It contains no functionality
      * for this base class.
      */
-    virtual Vector getSurfaceDerivative( const double& independentVariable1 ,
-                                         const double& independentVariable2 ,
-                                         const int& powerOfDerivative1 ,
-                                         const int& powerOfDerivative2 ) = 0;
+    virtual VectorXd getSurfaceDerivative( const double& independentVariable1 ,
+                                           const double& independentVariable2 ,
+                                           const int& powerOfDerivative1 ,
+                                           const int& powerOfDerivative2 ) = 0;
 
     //! Function to set the rotation and translation values.
     /*!
@@ -108,7 +108,7 @@ public:
      * \param offset Translation vector for surface geometry.
      * \param rotationMatrix Rotation matrix for vehicle geometry.
      */
-    void setTransFormValues( const Vector& offset, const MatrixXd& rotationMatrix );
+    void setTransFormValues( const VectorXd& offset, const MatrixXd& rotationMatrix );
 
     //! Pure virtual function to retrieve parameter.
     /*!
@@ -136,7 +136,7 @@ public:
      * Function to retrieve offset from the shape.
      * \return Translation vector for geometry.
      */
-    Vector getOffset( );
+    VectorXd getOffset( );
 
     //! Function to retrieve minimum values of independent variables
     /*!
@@ -190,7 +190,7 @@ protected:
     /*!
      * Vector by which to translate the center of the geometric shape.
      */
-    Vector offset_;
+    VectorXd offset_;
 
     /*!
      * Rotation matrix to be applied to geometry to obtain correct orientation.

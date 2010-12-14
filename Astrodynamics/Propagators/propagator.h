@@ -121,7 +121,7 @@ public:
      * \param pointerToBody Pointer to Body object.
      * \param initialStateVector Initial state vector.
      */
-    void setInitialState( Body* pointerToBody, Vector& initialStateVector );
+    void setInitialState( Body* pointerToBody, VectorXd& initialStateVector );
 
     //! Set fixed output interval.
     /*!
@@ -138,7 +138,7 @@ public:
      * \param pointerToBody Pointer to Body object.
      * \return Final state vector.
      */
-    Vector& getFinalState( Body* pointerToBody );
+    VectorXd& getFinalState( Body* pointerToBody );
 
     //! Get propagation history of body at fixed output intervals.
     /*!
@@ -147,7 +147,7 @@ public:
      * \param pointerToBody Pointer to Body object.
      * \return Map of propagation history.
      */
-    std::map < double, Vector >
+    std::map < double, VectorXd >
             getPropagationHistoryAtFixedOutputIntervals( Body* pointerToBody );
 
     //! Propagate.
@@ -186,13 +186,13 @@ protected:
     /*!
      * Assembled state vector.
      */
-    Vector assembledStateVector_;
+    VectorXd assembledStateVector_;
 
     //! Assembled state derivative vector.
     /*!
      * Assembled state derivative vector.
      */
-    Vector assembledStateDerivativeVector_;
+    VectorXd assembledStateDerivativeVector_;
 
     //! Map of bodies to be propagated.
     /*!
@@ -218,19 +218,19 @@ protected:
     /*!
      * Map of propagation history.
      */
-    std::map < double, Vector > propagationHistory_;
+    std::map < double, VectorXd > propagationHistory_;
 
     //! Iterator for map of propagation history.
     /*!
      * Iterator for map of propagation history.
      */
-    std::map < double, Vector >::iterator iteratorPropagationHistory_;
+    std::map < double, VectorXd >::iterator iteratorPropagationHistory_;
 
     //! Map of integration history.
     /*!
      * Map of integration history. // JM: Niet nodig voor analytical propagator
      */
-    std::map < double, Vector > integrationHistory_;
+    std::map < double, VectorXd > integrationHistory_;
 
     //! Pointer to Body object.
     /*!
@@ -245,7 +245,7 @@ protected:
      * \param stateDerivativeVector State derivative vector.
      */
     void computeSumOfStateDerivatives_
-            ( Vector& stateVector, Vector& stateDerivativeVector );
+            ( VectorXd& stateVector, VectorXd& stateDerivativeVector );
 
 private:
 };

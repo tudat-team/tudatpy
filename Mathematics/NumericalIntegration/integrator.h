@@ -86,10 +86,10 @@ public:
     // function which is neither global nor a member of NumericalPropagator,
     // a new (member)-function pointer is necessary.
     // A typedef should be added here for such a pointer.
-    typedef void ( *pointerToVectorVectorTakingFunction ) ( Vector&, Vector& );
+    typedef void ( *pointerToVectorVectorTakingFunction ) ( VectorXd&, VectorXd& );
 
     typedef void ( NumericalPropagator::
-                   *pointerToStateDerivativeFunction ) ( Vector&, Vector& );
+                   *pointerToStateDerivativeFunction ) ( VectorXd&, VectorXd& );
 
     //! Integrator class constructor.
     /*!
@@ -134,7 +134,7 @@ public:
      * to proceed.
      * \param initialStateVector Initial state vector.
      */
-    void setInitialStateVector( Vector& initialStateVector );
+    void setInitialStateVector( VectorXd& initialStateVector );
 
     //! Set value of initial stepsize.
     /*!
@@ -205,21 +205,21 @@ public:
      * This function returns address of the initial state vector.
      * \return Initial state vector.
      */
-    Vector& getInitialStateVector( );
+    VectorXd& getInitialStateVector( );
 
     //! Get final state vector.
     /*!
      * This function returns address of the final state vector.
      * \return Final state vector.
      */
-    Vector& getFinalStateVector( );
+    VectorXd& getFinalStateVector( );
 
     //! Get integration history.
     /*!
      * This function returns a map of the integration history.
      * \return Integration history.
      */
-    std::map < double, Vector >& getIntegrationHistory( );
+    std::map < double, VectorXd >& getIntegrationHistory( );
 
     //! Integrate.
     /*!
@@ -293,32 +293,32 @@ protected:
     /*!
      * Vector containing initial state.
      */
-    Vector initialStateVector_;
+    VectorXd initialStateVector_;
 
     //! State derivatives vector.
     /*!
      * Vector containing state derivatives.
      */
-    Vector stateDerivativeVector_;
+    VectorXd stateDerivativeVector_;
 
     //! Final state vector.
     /*!
      * Vector containing final state.
      */
-    Vector finalStateVector_;
+    VectorXd finalStateVector_;
 
     //! Vector containing current state vectors.
     /*!
      * Vector containing current state vectors.
      */
-     std::vector< Vector > vectorOfCurrentStateVectors_;
+     std::vector< VectorXd > vectorOfCurrentStateVectors_;
 
      //! A map of integration history.
      /*!
       * A map of integration history with current point in integration interval
       * taken as key.
       */
-     std::map < double, Vector > integrationHistory_;
+     std::map < double, VectorXd > integrationHistory_;
 
     //! Pointer to function of type: void functionName( Vector, Vector ).
     /*!
@@ -345,8 +345,8 @@ protected:
      * \param stateDerivativeVector State derivative vector computed in
      * function.
      */
-    void computeStateDerivatives_( Vector& stateVector,
-                                   Vector& stateDerivativeVector );
+    void computeStateDerivatives_( VectorXd& stateVector,
+                                   VectorXd& stateDerivativeVector );
 
     //! Store intermediate integration result.
     /*!

@@ -78,8 +78,8 @@ namespace mathematics
  * \return Value of dependent variable associated with target independent
  *          value in vector of sorted independent variables.
  */
-double computeLinearInterpolation( Vector& sortedIndependentVariables,
-                                   Vector& associatedDependentVariables,
+double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
+                                   VectorXd& associatedDependentVariables,
                                    double& targetIndependentVariableValue );
 //! Linear interpolation.
 /*!
@@ -99,8 +99,8 @@ double computeLinearInterpolation( Vector& sortedIndependentVariables,
  * \return Vector of dependent variable associated with target independent
  *              value in vector of sorted independent variables.
  */
-Vector computeLinearInterpolation(
-        std::map < double, Vector >& sortedIndepedentAndDependentVariables,
+VectorXd computeLinearInterpolation(
+        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue );
 
 //! Converts spherical to cartesian coordinates.
@@ -119,7 +119,7 @@ Vector computeLinearInterpolation(
 void convertSphericalToCartesian( const double& radius,
                                   const double& azimuthAngle,
                                   const double& zenithAngle,
-                                  Vector& cartesianCoordinates );
+                                  VectorXd& cartesianCoordinates );
 
 //! Converts cylindrical to cartesian coordinates, z value unaffected.
 /*!
@@ -138,7 +138,7 @@ void convertSphericalToCartesian( const double& radius,
 */
 void convertCylindricalToCartesian( const double& radius,
                                     const double& azimuthAngle,
-                                    Vector& cartesianCoordinates );
+                                    VectorXd& cartesianCoordinates );
 
 }
 
