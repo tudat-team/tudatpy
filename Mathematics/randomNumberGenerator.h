@@ -2,8 +2,8 @@
  *    This header file contains a class and struct for generating random
  *    numbers.
  *
- *    Path              : /Astrodynamics/
- *    Version           : 4
+ *    Path              : /Mathematics/
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 7 October, 2010
- *    Last modified     : 25 October, 2010
+ *    Last modified     : 21 January, 2010
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -28,6 +28,11 @@
  *      based on the computer system being used to run simulations. For more
  *      information, refer to (Press et al., 2002). The use of the 'long long'
  *      variable type is to support 64-bit arithmetic in C++.
+ *
+ *      It should be noted that the behaviour of "long int" on 32-bit systems
+ *      might not result in a correct random number. Even if it does, it will
+ *      not generate the same random number for the same seed number on 64-bit
+ *      systems.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -49,12 +54,18 @@
  *                              created by explicit seeding.
  *      101025    K. Kumar      Updated code based on D. Dirkx's codecheck
  *                              comments.
+ *      110117    K. Kumar      Corrected path.
+ *      110121    K. Kumar      Added comment to "Notes".
  */
 
 #ifndef RANDOMNUMBERGENERATOR_H
 #define RANDOMNUMBERGENERATOR_H
 
 // Include statements.
+#include <cmath>
+#include <exception>
+#include <climits>
+#include "basicMathematicsFunctions.h"
 
 //! Random number generator class.
 /*!

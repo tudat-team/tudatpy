@@ -3,8 +3,8 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 3
- *    Check status      : Checked
+ *    Version           : 6
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -18,8 +18,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : L.Abdulkadir@student.tudelft.nl
  *
- *    Date created      : 3 august, 2010
- *    Last modified     : 29 september, 2010
+ *    Checker           : D. Dirkx
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : D.Dirkx@student.tudelft.nl
+ *
+ *    Date created      : 3 September, 2010
+ *    Last modified     : 13 December, 2010
  *
  *    References
  *
@@ -41,6 +45,11 @@
  *      100903    K. Kumar            File header and footer added.
  *      100916    L. Abdulkadir       File checked.
  *      100929    K. Kumar            Checked code by D. Dirkx added.
+ *      101110    K. Kumar            Added raiseToIntegerExponent() function.
+ *      102410    D. Dirkx            Minor comment changes during code check.
+ *      101213    K. Kumar            Modified raiseToIntegerExponent()
+ *                                    function; renamed raiseToIntegerPower().
+ *                                    Added computeAbsoluteValue() functions.
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
@@ -49,6 +58,7 @@
 // Include statements.
 #include <map>
 #include <cmath>
+#include <cfloat>
 #include "basicFunctions.h"
 #include "linearAlgebra.h"
 
@@ -59,7 +69,25 @@
 namespace mathematics
 {
 
-//! Linear interpolation.
+//! Machine precision for floats.
+/*!
+ * Machine precision for floats from <float>.
+ */
+const static double MACHINE_PRECISION_FLOATS = FLT_EPSILON;
+
+//! Machine precision for doubles.
+/*!
+ * Machine precision for doubles from <float>.
+ */
+const static double MACHINE_PRECISION_DOUBLES = DBL_EPSILON;
+
+//! Machine precision for long doubles.
+/*!
+ * Machine precision for long doubles from <float>.
+ */
+const static double MACHINE_PRECISION_LONG_DOUBLES = LDBL_EPSILON;
+
+//! Compute linear interpolation.
 /*!
  * This function computes linear interpolation of data provided in the form of
  * a vector of sorted indepedent variables and an associated vector of
@@ -81,7 +109,7 @@ namespace mathematics
 double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
                                    VectorXd& associatedDependentVariables,
                                    double& targetIndependentVariableValue );
-//! Linear interpolation.
+//! Compute linear interpolation.
 /*!
  * This function computes linear interpolation of data provided in the form of
  * a vector of sorted indepedent variables and an associated vector of
@@ -103,7 +131,7 @@ VectorXd computeLinearInterpolation(
         std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue );
 
-//! Converts spherical to cartesian coordinates.
+//! Convert spherical to cartesian coordinates.
 /*!
 * Function to convert spherical to cartesian coordinates.
 * Schematic representation can be found on, e.g.,
@@ -121,7 +149,7 @@ void convertSphericalToCartesian( const double& radius,
                                   const double& zenithAngle,
                                   VectorXd& cartesianCoordinates );
 
-//! Converts cylindrical to cartesian coordinates, z value unaffected.
+//! Convert cylindrical to cartesian coordinates, z value unaffected.
 /*!
 * Function to convert cylindrical to cartesian coordinates.
 * Schematic representation can be found on, e.g.,
@@ -139,6 +167,30 @@ void convertSphericalToCartesian( const double& radius,
 void convertCylindricalToCartesian( const double& radius,
                                     const double& azimuthAngle,
                                     VectorXd& cartesianCoordinates );
+
+//! Raise double to integer power.
+/*!
+ * This function computes the result of raising floating-point base values to
+ * integer powers. This function seems to perform faster than the STL pow()
+ * function included in <cmath>. This function is based on exponentiation by
+ * squares.
+ */
+double raiseToIntegerPower( const double& baseValue,
+                            const int& integerPower );
+
+//! Compute absolute value of integer.
+/*!
+ * This function computes the absolute value of an integer. This function seems
+ * to perform faster than the STL abs() function included in <cmath>
+ */
+int computeAbsoluteValue( const int& signedInteger );
+
+//! Compute absolute value of double.
+/*!
+ * This function computes the absolute value of an double. This function seems
+ * to perform faster than the STL abs() function included in <cmath>
+ */
+double computeAbsoluteValue( const double& signedDouble );
 
 }
 
