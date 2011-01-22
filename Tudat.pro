@@ -16,8 +16,8 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
     Astrodynamics/Propagators/bodyContainer.cpp \
     Basics/basicFunctions.cpp \
-    Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
+    Mathematics/unitTestRandomNumberGenerator.cpp \
     Mathematics/GeometricShapes/surfaceGeometry.cpp \
     Mathematics/GeometricShapes/sphereSegment.cpp \
     Mathematics/GeometricShapes/geometricShape.cpp \
@@ -25,7 +25,8 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/NumericalIntegration/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegration/integrator.cpp \
     Mathematics/NumericalIntegration/euler.cpp \
-    Output/writingOutputToFile.cpp
+    Output/writingOutputToFile.cpp \
+    Mathematics/basicMathematicsFunctions.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
@@ -43,6 +44,7 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/unitConversions.h \
     Mathematics/basicMathematicsFunctions.h \
     Mathematics/randomNumberGenerator.h \
+    Mathematics/unitTestRandomNumberGenerator.h \
     Mathematics/GeometricShapes/surfaceGeometry.h \
     Mathematics/GeometricShapes/sphereSegment.h \
     Mathematics/GeometricShapes/geometricShape.h \
@@ -51,8 +53,8 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/NumericalIntegration/rungeKutta4thOrderFixedStepsize.h \
     Mathematics/NumericalIntegration/integrator.h \
     Mathematics/NumericalIntegration/euler.h \
-    Output/writingOutputToFile.h \
-    Output/outputHandling.h
+    Output/outputHandling.h \
+    Output/writingOutputToFile.h
 INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics \
     Astrodynamics/Bodies \

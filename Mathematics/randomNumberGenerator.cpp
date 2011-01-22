@@ -1,8 +1,8 @@
 /*! \file randomNumberGenerator.cpp
  *    This source file contains a class implemetation for generating random numbers.
  *
- *    Path              : /Astrodynamics/
- *    Version           : 3
+ *    Path              : /Mathematics/
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 15 October, 2010
- *    Last modified     : 25 October, 2010
+ *    Last modified     : 17 January, 2010
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -46,16 +46,17 @@
  *                              file. Code comments included.
  *      101025    K. Kumar      Updated code based on D. Dirkx's codecheck
  *                              comments.
+ *      110107    K. Kumar      Changed normalizated function to use climits.
+ *      110117    K. Kumar      Minor layout modification; path corrected.
  */
 
 // Include statements.
-#include <cmath>
 #include "randomNumberGenerator.h"
 
 //! Customized constructor to pass random number generator seed.
 RandomNumberGenerator::RandomNumberGenerator( unsigned long long seed )
     : randomNumberParameter2_( 4101842887655102017LL ),
-    randomNumberParameter3_( 1 )
+      randomNumberParameter3_( 1 )
 {
     randomNumberParameter1_ = seed ^ randomNumberParameter2_;
     getUniformlyDistributedRandom64BitInteger( );
@@ -68,7 +69,7 @@ RandomNumberGenerator::RandomNumberGenerator( unsigned long long seed )
 }
 
 //! Default destructor.
-RandomNumberGenerator::~RandomNumberGenerator()
+RandomNumberGenerator::~RandomNumberGenerator( )
 {
 }
 
@@ -102,16 +103,18 @@ double RandomNumberGenerator::
         getUniformlyDistributedNormalizedRandomDouble( )
 {
     // Return uniformly distributed, normalized, random double.
-    return 5.42101086242752217E-20
-            * getUniformlyDistributedRandom64BitInteger( );
+    return  static_cast< double >
+            ( getUniformlyDistributedRandom64BitInteger( ) )
+            / ULLONG_MAX;
 }
 
 //! Get uniformly distributed random integer using 32-bit arithmetic.
 unsigned int RandomNumberGenerator::
         getUniformlyDistributedRandom32BitInteger( )
 {
-    // Return uniformly distributed random integer using 32-bit arithmetic.
-    return ( unsigned int )getUniformlyDistributedRandom64BitInteger( );
+    // Return uniformly distributed random integer using 32-bit arithmetic
+    return static_cast< unsigned int >
+            ( getUniformlyDistributedRandom64BitInteger( ) );
 }
 
 //! Get random plus/minus sign.
@@ -121,10 +124,12 @@ int RandomNumberGenerator::getRandomPlusMinusSign( )
     int randomPlusMinusSign_;
 
     // Get random integer.
-    randomPlusMinusSign_ = getUniformlyDistributedRandom64BitInteger( );
+    randomPlusMinusSign_ = static_cast< int >
+                           ( getUniformlyDistributedRandom64BitInteger( ) );
 
     // Normalize to plus/minus 1.
-    randomPlusMinusSign_ /= std::fabs( randomPlusMinusSign_ );
+    randomPlusMinusSign_ /= mathematics::
+                            computeAbsoluteValue( randomPlusMinusSign_ );
 
     // Return random plus/minus sign.
     return randomPlusMinusSign_;

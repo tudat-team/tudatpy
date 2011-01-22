@@ -3,8 +3,8 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 3
- *    Check status      : Checked
+ *    Version           : 6
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -18,8 +18,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : L.Abdulkadir@student.tudelft.nl
  *
- *    Date created      : 3 september, 2010
- *    Last modified     : 29 september, 2010
+ *    Checker           : D. Dirkx
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : D.Dirkx@student.tudelft.nl
+ *
+ *    Date created      : 3 September, 2010
+ *    Last modified     : 13 December, 2010
  *
  *    References
  *
@@ -41,6 +45,11 @@
  *      100903    K. Kumar            File created.
  *      100916    L. Abdulkadir       File checked.
  *      100929    K. Kumar            Checked code by D. Dirkx added.
+ *      101110    K. Kumar            Added raiseToExponentPower() function.
+ *      102410    D. Dirkx            Minor comment changes as code check.
+ *      101213    K. Kumar            Bugfix raiseToIntegerExponent(); renamed
+ *                                    raiseToIntegerPower().
+ *                                    Added computeAbsoluteValue() functions.
  */
 
 // Include statements.
@@ -50,7 +59,7 @@
 namespace mathematics
 {
 
-//! Linear interpolation.
+//! Compute linear interpolation.
 double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
                                    VectorXd& associatedDependentVariables,
                                    double& targetIndependentVariableValue )
@@ -83,7 +92,7 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
              * locationTargetIndependentVariableValueInInterval );
 }
 
-//! Linear interpolation.
+//! Compute linear interpolation.
 VectorXd computeLinearInterpolation(
         std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue )
@@ -125,7 +134,7 @@ VectorXd computeLinearInterpolation(
              * locationTargetIndependentVariableValueInInterval );
 }
 
-//! Converts spherical to cartesian coordinates.
+//! Convert spherical to cartesian coordinates.
 void convertSphericalToCartesian( const double& radius,
                                   const double& azimuthAngle,
                                   const double& zenithAngle,
@@ -144,7 +153,7 @@ void convertSphericalToCartesian( const double& radius,
     cartesianCoordinates( 2 ) = radius * cos( zenithAngle );
 }
 
-//! Converts cylindrical to cartesian coordinates, z value left unaffected.
+//! Convert cylindrical to cartesian coordinates, z value left unaffected.
 void convertCylindricalToCartesian( const double& radius,
                                     const double& azimuthAngle,
                                     VectorXd& cartesianCoordinates )
@@ -152,6 +161,64 @@ void convertCylindricalToCartesian( const double& radius,
     // Perform transformation, z value should be set outside function.
     cartesianCoordinates( 0 ) = radius * cos( azimuthAngle );
     cartesianCoordinates( 1 ) = radius * sin( azimuthAngle );
+}
+
+//! Raise double to integer power.
+double raiseToIntegerPower( const double& baseValue,
+                               const int& integerPower )
+{
+    // Declare local variable.
+    // Declare result of raising base to integer power.
+    // Initialise with value.
+    double resultOfRaisingBaseToIntegerPower = 1;
+    // Declare absolute value of integerPower.
+    int absoluteValueOfIntegerPower
+            = computeAbsoluteValue( integerPower );
+    // Declare copy of base value.
+    double copyOfBaseValue = baseValue;
+
+    // Compute the result here using exponentiation by squares.
+    // Stop loop when absolute value of integer power is equal to zero.
+    while ( absoluteValueOfIntegerPower )
+    {
+        // Check that absolute value of integer power.
+        if ( absoluteValueOfIntegerPower & 1 )
+        {
+          // Compute intermediate result.
+          resultOfRaisingBaseToIntegerPower *= copyOfBaseValue;
+        }
+
+        // Divide integer power by two.
+        absoluteValueOfIntegerPower >>= 1;
+
+        // Square base value.
+        copyOfBaseValue *= copyOfBaseValue;
+    }
+
+    // Check if sign of integerPower is negative.
+    if ( integerPower < 0 )
+    {
+        // Switch sign of result.
+        resultOfRaisingBaseToIntegerPower
+                = 1.0 / resultOfRaisingBaseToIntegerPower;
+    }
+
+    // Return result of raising base to integer power.
+    return resultOfRaisingBaseToIntegerPower;
+}
+
+//! Compute absolute value of integer.
+int computeAbsoluteValue( const int& signedInteger )
+{
+    // Return absolute value of integer.
+    return ( signedInteger > 0 ) ? signedInteger : -signedInteger;
+}
+
+//! Compute absolute value of double.
+double computeAbsoluteValue( const double& signedDouble )
+{
+    // Return absolute value of double.
+    return ( signedDouble > 0 ) ? signedDouble : -signedDouble;
 }
 
 }
