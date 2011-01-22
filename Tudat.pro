@@ -15,6 +15,12 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Propagators/propagator.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
     Astrodynamics/Propagators/bodyContainer.cpp \
+    Astrodynamics/States/state.cpp \
+    Astrodynamics/States/orbitalElements.cpp \
+    Astrodynamics/States/orbitalElementConversions.cpp \
+    Astrodynamics/States/keplerianElements.cpp \
+    Astrodynamics/States/cartesianElements.cpp \
+    Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
     Basics/basicFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
     Mathematics/unitTestRandomNumberGenerator.cpp \
@@ -40,6 +46,12 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Propagators/propagator.h \
     Astrodynamics/Propagators/numericalPropagator.h \
     Astrodynamics/Propagators/bodyContainer.h \
+    Astrodynamics/States/state.h \
+    Astrodynamics/States/orbitalElements.h \
+    Astrodynamics/States/orbitalElementConversions.h \
+    Astrodynamics/States/keplerianElements.h \
+    Astrodynamics/States/cartesianElements.h \
+    Astrodynamics/States/unitTestOrbitalElementConversions.h \
     Basics/basicFunctions.h \
     Mathematics/unitConversions.h \
     Mathematics/basicMathematicsFunctions.h \
@@ -63,6 +75,7 @@ INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics/EnvironmentModels \
     Astrodynamics/ForceModels \
     Astrodynamics/Propagators \
+    Astrodynamics/States \
     Basics \
     Mathematics \
     Mathematics/GeometricShapes \
