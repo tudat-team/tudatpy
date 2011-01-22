@@ -51,6 +51,7 @@
 //#define EIGEN_NO_DEBUG
 //#endif
 
+// Include statements.
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/QR>
