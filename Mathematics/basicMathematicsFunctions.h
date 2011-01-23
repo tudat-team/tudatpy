@@ -192,6 +192,16 @@ int computeAbsoluteValue( const int& signedInteger );
  */
 double computeAbsoluteValue( const double& signedDouble );
 
+//! Function to compute the modulo.
+/*!
+ * This function computes the remainder of division of one number by another.
+ * The remainder is in the range [ 0, divisor ].
+ * \param dividend Number to be divided.
+ * \param divisor Number that is divided by.
+ * \return Remainder of division of dividend by divisor.
+ */
+double computeModulo( double dividend, double divisor );
+
 }
 
 #endif // BASICMATHEMATICSFUNCTIONS_H

@@ -1,4 +1,4 @@
-/*! \file unitTestOrbitalElementConversion.test
+/*! \file unitTestOrbitalElementConversion.cpp
  *    Source file of unit test for the orbitalElementConversion, from Cartesian to
  *    Keplerian and viceversa.
  *    The first part of the code tests the code for elliptical, parabolic,
@@ -83,7 +83,7 @@ bool testOrbitalElementConversion( )
     bool isOrbitalElementConversionErroneous = false;
 
     // Define tolerance.
-    double errorTolerance_ = 1.0e-14;
+    double errorTolerance_ = 1.0e2 * mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Define gravitational parameters.
     double gravitationalParameterEarth = 398600.4415e9;
@@ -401,8 +401,3 @@ bool testOrbitalElementConversion( )
 }
 
 // End of file.
-
-int main( )
-{
-    unit_tests::testOrbitalElementConversion( );
-}
