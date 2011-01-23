@@ -48,20 +48,10 @@
 #include "keplerianElements.h"
 #include "gravityFieldParameters.h"
 #include "linearAlgebra.h"
+#include "basicMathematicsFunctions.h"
 
 #ifndef ORBITALELEMENTCONVERSIONS_H
 #define ORBITALELEMENTCONVERSIONS_H
-
-// TEMPORARY!
-//! Function to compute the modulo.
-/*!
- * This function computes the remainder of division of one number by another.
- * The remainder is in the range [ 0, divisor ].
- * \param dividend Number to be divided.
- * \param divisor Number that is divided by.
- * \return Remainder of division of dividend by divisor.
- */
-double computeModulo( double dividend, double divisor );
 
 //! Orbital element conversions namespace.
 /*!

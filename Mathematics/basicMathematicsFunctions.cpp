@@ -221,6 +221,12 @@ double computeAbsoluteValue( const double& signedDouble )
     return ( signedDouble > 0 ) ? signedDouble : -signedDouble;
 }
 
+//! Function to compute the modulo.
+double computeModulo( double dividend, double divisor )
+{
+    return dividend - divisor * floor( dividend / divisor );
+}
+
 }
 
 // End of file.

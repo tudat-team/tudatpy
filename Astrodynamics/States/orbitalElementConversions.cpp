@@ -74,13 +74,7 @@
 // Using directives.
 using linear_algebra::determineAngleBetweenVectors;
 using mathematics::raiseToIntegerPower;
-
-// TEMPORARY!!! Needs to be relocated.
-//! Function to compute the modulo.
-double computeModulo( double dividend, double divisor )
-{
-    return dividend - divisor * floor( dividend / divisor );
-}
+using mathematics::computeModulo;
 
 //! Orbital element conversions namespace.
 namespace orbital_element_conversions
@@ -97,8 +91,7 @@ CartesianElements convertKeplerianToCartesianElements(
 
     // Declare the tolerance with which a defined double has to be equal to
     // a specific value.
-    // TEMPORARY!! Needs to be related to the actual machine precision for doubles.
-    double tolerance_ = 1.0e-15;
+    double tolerance_ = 10.0 * mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Precompute sines and cosines of involved angles for efficient computation.
     double cosineOfInclination_ = cos( keplerianElements.getInclination ( ) );
@@ -201,8 +194,7 @@ KeplerianElements convertCartesianToKeplerianElements(
 
     // Declare the tolerance with which a computed double has to be equal to
     // a specific value.
-    // TEMPORARY!! Needs to be related to the actual machine precision for doubles.
-    double tolerance_ = 1.0e-15;
+    double tolerance_ = 10.0 * mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Norm of position vector in the inertial frame.
     double normOfPositionVector_;
