@@ -1,4 +1,4 @@
-/*! \file unitTestOrbitalElementConversion.cpp
+/*! \file unitTestOrbitalElementConversions.cpp
  *    Source file of unit test for the orbitalElementConversion, from Cartesian to
  *    Keplerian and viceversa.
  *    The first part of the code tests the code for elliptical, parabolic,
@@ -68,7 +68,7 @@
 #include "orbitalElementConversions.h"
 #include "unitConversions.h"
 
-// Using directives.
+// Using declarations.
 using std::cerr;
 using std::endl;
 
@@ -77,7 +77,7 @@ namespace unit_tests
 {
 
 //! Test of orbitalElementConversion code.
-bool testOrbitalElementConversion( )
+bool testOrbitalElementConversions( )
 {
     // Test result initialised to false.
     bool isOrbitalElementConversionErroneous = false;
