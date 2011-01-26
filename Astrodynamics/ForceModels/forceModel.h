@@ -2,8 +2,8 @@
  *    Header file that defines the base class for all force models included in
  *    Tudat.
  *
- *    Path              : /Astrodynamics/ForceModel/
- *    Version           : 3
+ *    Path              : /Astrodynamics/ForceModels/
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 14 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 19 January, 2011
  *
  *    References
  *
@@ -37,7 +37,11 @@
  *      100914    K. Kumar            File created.
  *      100929    D. Dirkx            File checked.
  *      100929    K. Kumar            Minor corrections to include statements
- *                                     and comments.
+ *                                    and comments.
+ *      110113    K. Kumar            Modified CelestialBody object to pointer;
+ *                                    minor comment changes.
+ *      110119    K. Kumar            Changed computeStateDerivatives() to
+ *                                    computeForce().
  */
 
 #ifndef FORCEMODEL_H
@@ -74,16 +78,17 @@ public:
      * \param stateDerivativeVector Vector containing derivative of
      *          stateVector.
      */
-    virtual void computeStateDerivatives( VectorXd& stateVector,
-                                          VectorXd& stateDerivativeVector ) =0;
-
-    //! Object of Celestial Body class.
-    /*!
-     * Object of Celestial Body class for gravity field expansion.
-     */
-    CelestialBody celestialBody_;
+    virtual VectorXd& computeForce( VectorXd& stateVector ) = 0;
 
 protected:
+
+    //! Pointer to object of Celestial Body class.
+    /*!
+     * Pointer to object of Celestial Body class for gravity field expansion.
+     */
+    CelestialBody* celestialBody_;
+
+    VectorXd forcePerUnitMass_;
 
 private:
 };

@@ -46,7 +46,6 @@
 // Include statements.
 #include "cartesianElements.h"
 #include "keplerianElements.h"
-#include "gravityFieldParameters.h"
 #include "linearAlgebra.h"
 #include "basicMathematicsFunctions.h"
 

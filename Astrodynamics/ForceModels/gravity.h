@@ -2,7 +2,7 @@
  *    Header file that defines the gravity force model included in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/
- *    Version           : 4
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 16 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 19 January, 2011
  *
  *    References
  *
@@ -37,7 +37,11 @@
  *      100916    K. Kumar            Filename modified.
  *      100929    D. Dirkx            File checked.
  *      100929    K. Kumar            Minor corrections to include statements
-                                      and comments.
+ *                                    and comments.
+ *      110113    K. Kumar            Changed setBody() argument to pointer;
+ *                                    added pointer to GravityFieldModel.
+ *      110119    K. Kumar            Changed computeStateDerivatives() to
+ *                                    computeForce().
  */
 
 #ifndef GRAVITY_H
@@ -47,6 +51,7 @@
 #include <cmath>
 #include "forceModel.h"
 #include "celestialBody.h"
+#include "gravityFieldModel.h"
 
 //! Gravity force class.
 /*!
@@ -73,24 +78,27 @@ public:
      * This function sets the body for gravity field expansion.
      * \param celestialBody Celestial body which is set.
      */
-    void setBody( CelestialBody& celestialBody );
+    void setBody( CelestialBody* celestialBody );
 
-    //! Compute state derivatives for gravity field expansion.
+    //! Compute forces per unit mass for gravity field expansion.
     /*!
-     * This function computes the state derivatives for gravity field
+     * This function computes the forces per unit mass for gravity field
      * expansion.
      * \param stateVector State vector of size 6; first three cartesian
      * position coordinates, followed by three cartesian velocity coordinates.
-     * \param stateDerivativeVector Derivative of stateVector from gravity
-     * field; first three entries are equal to velocity from state, second
-     * three are computed from gravity field and position.
+     * \return Force per unit mass computed from gravity field and position.
      */
-    void computeStateDerivatives( VectorXd& stateVector,
-                                  VectorXd& stateDerivativeVector );
+    VectorXd& computeForce( VectorXd& stateVector );
 
 protected:
 
 private:
+
+    //! Pointer to gravity field model.
+    /*!
+     * Pointer to gravity field model.
+     */
+    GravityFieldModel* pointerToGravityFieldModel_;
 };
 
 #endif // GRAVITY_H

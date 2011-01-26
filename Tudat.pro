@@ -8,10 +8,16 @@ CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.cpp \
+    Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
-    Astrodynamics/EnvironmentModels/gravityFieldParameters.cpp \
+    Astrodynamics/EnvironmentModels/unitTestSphericalHarmonicsGravityField.cpp \
+    Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.cpp \
+    Astrodynamics/EnvironmentModels/predefinedGravityFieldModels.cpp \
+    Astrodynamics/EnvironmentModels/gravityFieldModel.cpp \
     Astrodynamics/ForceModels/gravity.cpp \
+    Astrodynamics/physicalConstants.cpp \
+    Astrodynamics/unitTestPhysicalConstants.cpp \
     Astrodynamics/Propagators/propagator.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
     Astrodynamics/Propagators/bodyContainer.cpp \
@@ -22,6 +28,7 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/States/cartesianElements.cpp \
     Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
     Basics/basicFunctions.cpp \
+    Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
     Mathematics/unitTestRandomNumberGenerator.cpp \
     Mathematics/GeometricShapes/surfaceGeometry.cpp \
@@ -31,8 +38,8 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/NumericalIntegration/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegration/integrator.cpp \
     Mathematics/NumericalIntegration/euler.cpp \
-    Output/writingOutputToFile.cpp \
-    Mathematics/basicMathematicsFunctions.cpp
+    Mathematics/unitTestUnitConversions.cpp \
+    Output/writingOutputToFile.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
@@ -43,6 +50,7 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/ForceModels/gravity.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/physicalConstants.h \
+    Astrodynamics/unitTestPhysicalConstants.h \
     Astrodynamics/Propagators/propagator.h \
     Astrodynamics/Propagators/numericalPropagator.h \
     Astrodynamics/Propagators/bodyContainer.h \
@@ -54,6 +62,7 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/States/unitTestOrbitalElementConversions.h \
     Basics/basicFunctions.h \
     Mathematics/unitConversions.h \
+    Mathematics/unitTestUnitConversions.h \
     Mathematics/basicMathematicsFunctions.h \
     Mathematics/randomNumberGenerator.h \
     Mathematics/unitTestRandomNumberGenerator.h \

@@ -2,7 +2,7 @@
  *    Source file that defines the gravity force model included in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/
- *    Version           : 3
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 17 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 19 January, 2011
  *
  *    References
  *
@@ -37,6 +37,9 @@
  *      100929    D. Dirkx            File checked.
  *      100929    K. Kumar            Include statements modified and
  *                                    fileheader updated.
+ *      110113    K. Kumar            Updated computeStateDerivatives().
+ *      110119    K. Kumar            Changed computeStateDerivatives() to
+ *                                    computeForce().
  */
 
 // Include statements.
@@ -45,6 +48,8 @@
 //! Default constructor.
 Gravity::Gravity( )
 {
+    // Initialize variables.
+    forcePerUnitMass_.setZero( 3 );
 }
 
 //! Default destructor.
@@ -53,45 +58,26 @@ Gravity::~Gravity( )
 }
 
 //! Set body for gravity field expansion.
-void Gravity::setBody( CelestialBody& celestialBody )
+void Gravity::setBody( CelestialBody* celestialBody )
 {
     // Set celestial body.
     celestialBody_ = celestialBody;
 }
 
-//! Compute state derivatives for gravity field expansion.
-void Gravity::computeStateDerivatives( VectorXd& stateVector,
-                              VectorXd& stateDerivativeVector )
+//! Compute force per unit mass for gravity field expansion.
+VectorXd& Gravity::computeForce( VectorXd& stateVector )
 {
-    // Declare local variables.
-    double stateVectorNorm;
-    double stateVectorNormCubed;
+    // Set pointer to gravity field model to gravity field model stored in
+    // CelestialBody object.
+    pointerToGravityFieldModel_ = celestialBody_->getGravityFieldModel( );
 
-    // Compute norm of state vector.
-    stateVectorNorm = sqrt( stateVector( 0 ) * stateVector( 0 )
-                      + stateVector( 1 ) * stateVector( 1 )
-                      + stateVector( 2 ) * stateVector( 2 ) );
+    // Compute forces per unit mass using gradient of potential of gravity
+    // expansion.
+    forcePerUnitMass_ = pointerToGravityFieldModel_
+                        ->getGradientOfPotential( stateVector.segment( 0, 3 ) );
 
-    // Set state derivative vector to size of state vector and fill with zeros.
-    stateDerivativeVector.setZero( stateVector.rows( ) );
-
-    // Compute cube of norm of state vector.
-    stateVectorNormCubed = stateVectorNorm * stateVectorNorm * stateVectorNorm;
-
-    // Compute state derivatives.
-    // PLACEHOLDER
-    stateDerivativeVector( 0 ) = stateVector( 3 );
-    stateDerivativeVector( 1 ) = stateVector( 4 );
-    stateDerivativeVector( 2 ) = stateVector( 5 );
-    stateDerivativeVector( 3 ) = -celestialBody_.getGravitationalParameter( )
-                                 * stateVector( 0 )
-                                 / stateVectorNormCubed;
-    stateDerivativeVector( 4 ) = -celestialBody_.getGravitationalParameter( )
-                                 * stateVector( 1 )
-                                 / stateVectorNormCubed;
-    stateDerivativeVector( 5 ) = -celestialBody_.getGravitationalParameter( )
-                                 * stateVector( 2 )
-                                 / stateVectorNormCubed;
+    // Return computed forces per unit mass.
+    return forcePerUnitMass_;
 }
 
 // End of file.

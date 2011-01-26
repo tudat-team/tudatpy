@@ -65,6 +65,7 @@
  */
 
 // Include statements.
+#include "unitTestOrbitalElementConversions.h"
 #include "orbitalElementConversions.h"
 #include "unitConversions.h"
 

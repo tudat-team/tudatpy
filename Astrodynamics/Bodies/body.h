@@ -3,7 +3,7 @@
  *    celestial bodies and vehicles, with all their characteristics.
  *
  *    Path              : /Astrodynamics/Bodies/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 20 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 15 January, 2011
  *
  *    References
  *
@@ -36,10 +36,14 @@
  *      YYMMDD    author        comment
  *      100920    J. Melman     First creation of code.
  *      100929    K. Kumar      Minor comment changes.
+ *      110115    J. Melman     Added set and get shape model functions.
  */
 
 #ifndef BODY_H
 #define BODY_H
+
+// Include statements.
+#include "geometricShape.h"
 
 //! Body base class.
 /*!
@@ -51,15 +55,33 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     * Default constructor.
      */
     Body( );
 
     //! Sets the shape model.
     /*!
-     *  Defines the shape model.
+     * Defines the shape model.
+     * \param bodyGeometricShape Pointer to geometric shape of body.
      */
-    void setShapeModel( );
+    void setShapeModel( GeometricShape* bodyGeometricShape );
+
+    //! Get the shape model.
+    /*!
+     * Returns the shape model.
+     * \return bodyGeometricShape Pointer to geometric shape of body.
+     */
+    GeometricShape* getShapeModel( );
+
+protected:
+
+private:
+
+    //! Pointer to GeometricShape object.
+    /*!
+     * Pointer to GeometricShape object.
+     */
+    GeometricShape* bodyGeometricShape_;
 };
 
 #endif // BODY_H

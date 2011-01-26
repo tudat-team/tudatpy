@@ -1,9 +1,9 @@
 /*! \file predefinedPlanets.h
- *    This file contains instantiations of the CelestialBody class that
- *    assign default values to the characteristics of certain planets.
+ *    Header file that defines a namespace that contains predefined planets in
+ *    Tudat.
  *
  *    Path              : /Astrodynamics/Bodies/CelestialBodies/
- *    Version           : 1
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 20 September, 2010
- *    Last modified     : 20 September, 2010
+ *    Last modified     : 15 January, 2011
  *
  *    References
  *
@@ -36,6 +36,9 @@
  *      YYMMDD    author        comment
  *      100920    J. Melman     First creation of code.
  *      100929    K. Kumar      Minor comment changes.
+ *      110112    K. Kumar      Updated code to use enum and
+ *                              createPredefinedPlanet() function.
+ *      110114    J. Melman     Corrected Doxygen comments.
  */
 
 #ifndef PREDEFINED_PLANETS_H
@@ -43,7 +46,8 @@
 
 // Include statements.
 #include "celestialBody.h"
-#include "predefinedGravityFieldParameters.h"
+#include "sphericalHarmonicsGravityField.h"
+#include "predefinedGravityFieldModels.h"
 
 //! Predefined planets namespace.
 /*!
@@ -52,9 +56,23 @@
 namespace predefined_planets
 {
 
-// Definition of Earth using object of CelestialBody class.
-const CelestialBody earth(
-    predefined_gravity_field_parameters::defaultEarthGravityFieldParameters );
+//! Predefined planets.
+/*!
+ * Predefined planets.
+ */
+enum PredefinedPlanets
+{
+    earth
+};
+
+//! Create predefined planet.
+/*!
+ * This function creates a predefined planet.
+ * \param predefinedPlanet Name of predefined planet.
+ * \return CelestialBody pointer.
+ */
+CelestialBody* createPredefinedPlanet(
+        PredefinedPlanets predefinedPlanet );
 
 }
 
