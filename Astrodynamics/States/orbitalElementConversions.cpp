@@ -71,7 +71,7 @@
 // Include statements.
 #include "orbitalElementConversions.h"
 
-// Using directives.
+// Using declarations.
 using linear_algebra::determineAngleBetweenVectors;
 using mathematics::raiseToIntegerPower;
 using mathematics::computeModulo;

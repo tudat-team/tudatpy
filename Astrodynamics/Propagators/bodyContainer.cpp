@@ -2,9 +2,9 @@
  *    Source file that defines the class for all bodies that will be propagated
  *    by the Tudat propagators.
  *
- *    Path              : /Astrodynamics/Propagator/
+ *    Path              : /Astrodynamics/Propagators/
  *    Version           : 2
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -44,11 +44,11 @@
 //! Default constructor.
 BodyContainer::BodyContainer( )
 {
-};
+}
 
 //! Default destructor.
 BodyContainer::~BodyContainer( )
 {
-};
+}
 
 // End of file.

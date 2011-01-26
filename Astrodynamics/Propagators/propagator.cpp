@@ -2,9 +2,9 @@
  *    Source file that defines the base class for all propagators included in
  *    Tudat.
  *
- *    Path              : /Astrodynamics/Propagator/
- *    Version           : 3
- *    Check status      : Unchecked
+ *    Path              : /Astrodynamics/Propagators/
+ *    Version           : 5
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,11 +15,14 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 26 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 24 January, 2010
  *
  *    References
  *
  *    Notes
+ *      The propagator code has now been setup to work with 1st-order ODEs. Use
+ *      of 2nd-order ODEs will result in errors. This will be corrected in
+ *      future versions.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -39,15 +42,18 @@
  *                                    corrected several alignments.
  *      100929    K. Kumar            Minor comment modifications and obsolete
  *                                    code removed.
+ *      110119    K. Kumar            Modified computeSumOfStateDerivatives_()
+ *                                    to use computeForce() in ForceModel.
+ *      110124    K. Kumar            Updated computeSumOfStateDerivatives_()
+ *                                    and added to "Notes".
  */
 
 // Include statements.
 #include "propagator.h"
 
 //! Default constructor.
-Propagator::Propagator( )
+Propagator::Propagator( ) : fixedOutputInterval_( -0.0 )
 {
-    fixedOutputInterval_ = -0.0;
 }
 
 //! Default destructor.
@@ -78,8 +84,8 @@ void Propagator::addBody( Body* pointerToBody )
     // Set body in new BodyContainer object as given body.
     bodiesToBePropagated_[ pointerToBody ]->pointerToBody_ = pointerToBody;
 
-    // Set pointer to Body object.
-    pointerToBody_ = pointerToBody;
+//    // Set pointer to Body object.
+//    pointerToBody_ = pointerToBody;
 }
 
 //! Add force model for propagation of a body.
@@ -149,49 +155,75 @@ void Propagator::
         computeSumOfStateDerivatives_( VectorXd& assembledStateVector,
                                        VectorXd& assembledStateDerivativeVector )
 {
-     // State derivative vector.
-     VectorXd stateDerivativeVector_;
+    // Declare local variables.
+    unsigned int sizeOfStateVector_;
 
-     // Set assembled state vector to zero.
-     assembledStateDerivativeVector.setZero( assembledStateVector.rows( ) );
+    // State derivative vector.
+    VectorXd stateDerivativeVector_;
+
+    // Vector of sum of forces.
+    VectorXd sumOfForces_;
+
+    // Set assembled state vector to zero.
+    assembledStateDerivativeVector.setZero( assembledStateVector.rows( ) );
 
     // Loop over map of bodies to be propagated.
     for ( iteratorBodiesToBePropagated_ =
-                  bodiesToBePropagated_.begin( );
-          iteratorBodiesToBePropagated_ !=
-                  bodiesToBePropagated_.end( );
-          iteratorBodiesToBePropagated_++)
+         bodiesToBePropagated_.begin( );
+         iteratorBodiesToBePropagated_ !=
+         bodiesToBePropagated_.end( );
+         iteratorBodiesToBePropagated_++)
     {
         // Set state vector for body to be propagated based on associated
         // segment of assembled state vector.
         iteratorBodiesToBePropagated_->second->stateVector_ =
                 assembledStateVector.segment(
-                        iteratorBodiesToBePropagated_->second
-                                ->stateVectorStartIndex_,
-                        iteratorBodiesToBePropagated_->second
-                                ->sizeOfStateVector_ );
+                    iteratorBodiesToBePropagated_->second
+                    ->stateVectorStartIndex_,
+                    iteratorBodiesToBePropagated_->second
+                    ->sizeOfStateVector_ );
 
         // Loop over container of force models for a given body to be
         // propagated.
         for ( unsigned int i = 0;
-              i < iteratorBodiesToBePropagated_->second
-                      ->vectorContainerOfPointersToForceModels_.size( );
-              i++ )
+             i < iteratorBodiesToBePropagated_->second
+             ->vectorContainerOfPointersToForceModels_.size( );
+             i++ )
         {
             // Compute state derivatives for given force model.
-            iteratorBodiesToBePropagated_->second
+            sumOfForces_ = iteratorBodiesToBePropagated_->second
                     ->vectorContainerOfPointersToForceModels_.at( i )
-                    ->computeStateDerivatives( iteratorBodiesToBePropagated_
-                                                       ->second->stateVector_,
-                                               stateDerivativeVector_ );
+                    ->computeForce( iteratorBodiesToBePropagated_
+                                   ->second->stateVector_ );
+
+            // Set size of state vector.
+            sizeOfStateVector_ = iteratorBodiesToBePropagated_
+                    ->second->sizeOfStateVector_;
+
+            // Set state derivative vector to size of state vector.
+            stateDerivativeVector_.setZero( sizeOfStateVector_ );
+
+            // Set state derivative vector elements using state vector and
+            // computed sum of forces.
+            stateDerivativeVector_.segment( 0, sizeOfStateVector_
+                                           - sumOfForces_.rows( ) )
+                    = iteratorBodiesToBePropagated_
+                    ->second->stateVector_
+                    .segment( sumOfForces_.rows( ),
+                              sizeOfStateVector_
+                              - sumOfForces_.rows( ) );
+
+            stateDerivativeVector_.segment( sizeOfStateVector_
+                                            - sumOfForces_.rows( ),
+                                            sumOfForces_.rows( ) )
+                    = sumOfForces_;
 
             // Add computed state derivatives to assembled state derivative
             // vector.
             assembledStateDerivativeVector
                     .segment( iteratorBodiesToBePropagated_
-                                      ->second->stateVectorStartIndex_,
-                              iteratorBodiesToBePropagated_
-                                      ->second->sizeOfStateVector_ )
+                              ->second->stateVectorStartIndex_,
+                              sizeOfStateVector_ )
                     = stateDerivativeVector_;
         }
     }

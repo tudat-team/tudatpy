@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 10 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 15 January, 2011
  *
  *    References
  *
@@ -37,6 +37,7 @@
  *      100910    J. Melman     First creation of code.
  *      100929    K. Kumar      Minor comment changes and Body scope for
  *                              setShapeModel( ) function added.
+ *      110115    J. Melman     Added set and get shape model functions.
  */
 
 // Include statements.
@@ -48,8 +49,15 @@ Body::Body( )
 }
 
 //! Sets the shape model.
-void Body::setShapeModel( )
+void Body::setShapeModel( GeometricShape* bodyGeometricShape )
 {
+    bodyGeometricShape_ = bodyGeometricShape;
+}
+
+//! Get the shape model.
+GeometricShape* Body::getShapeModel( )
+{
+    return bodyGeometricShape_;
 }
 
 // End of file.

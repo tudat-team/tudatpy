@@ -4,7 +4,7 @@
  *
  *    Path              : /Mathematics/
  *    Version           : 1
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -47,7 +47,7 @@ namespace unit_tests
 {
 
 //! Test of implementation of random number generator class.
-int testRandomNumberGenerator( )
+bool testRandomNumberGenerator( )
 {
     // Four tests.
     // Test 1: Get a random integer ( 64-bit ).

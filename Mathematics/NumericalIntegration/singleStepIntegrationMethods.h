@@ -57,17 +57,13 @@ public:
     /*!
      * Default constructor.
      */
-    SingleStepIntegrationMethods( )
-    {
-    };
+    SingleStepIntegrationMethods( ){};
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~SingleStepIntegrationMethods( )
-    {
-    };
+    ~SingleStepIntegrationMethods( ){};
 
 protected:
 

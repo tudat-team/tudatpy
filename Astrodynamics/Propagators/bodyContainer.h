@@ -2,9 +2,9 @@
  *    Header file that defines the class for all bodies that will be propagated
  *    by the Tudat propagators.
  *
- *    Path              : /Astrodynamics/Propagator/
+ *    Path              : /Astrodynamics/Propagators/
  *    Version           : 5
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -38,8 +38,10 @@
  *      100926    K. Kumar            Filename changed, Doxygen comments added.
  *      100927    K. Kumar            Set functions removed, bodyContainer.cpp
  *                                    merged.
- *      100929    J. Melman           Deleted destructor and constructor implementations.
- *                                    stateVectorRangeStart_ -> stateVectorStartIndex_.
+ *      100929    J. Melman           Deleted destructor and constructor
+ *                                    implementations.
+ *                                    stateVectorRangeStart_ ->
+ *                                    stateVectorStartIndex_.
  *      100929    K. Kumar            EigenRoutines.h replaced in include
  *                                    statements by linearAlgebra.h.
  */
@@ -92,13 +94,13 @@ private:
     /*!
      * Starting index of stateVector in assembled state vector.
      */
-    int stateVectorStartIndex_;
+    unsigned int stateVectorStartIndex_;
 
     //! Size of state vector.
     /*!
      * Size of state vector in assembled state vector.
      */
-    int sizeOfStateVector_;
+    unsigned int sizeOfStateVector_;
 
     //! Initial state vector.
     /*!

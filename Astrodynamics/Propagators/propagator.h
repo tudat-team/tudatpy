@@ -2,9 +2,9 @@
  *    Header file that defines the base class for all propagators included in
  *    Tudat.
  *
- *    Path              : /Astrodynamics/Propagator/
+ *    Path              : /Astrodynamics/Propagators/
  *    Version           : 5
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -162,7 +162,7 @@ protected:
     /*!
      * Size of assmebled state vector.
      */
-    int sizeOfAssembledStateVector_;
+    unsigned int sizeOfAssembledStateVector_;
 
     //! Set start of propagation interval.
     /*!

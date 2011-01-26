@@ -2,8 +2,8 @@
  *    This file contains a class that describes celestial bodies
  *    with all their characteristics.
  *
- *    Path              : /Astrodynamics/Environment/CelestialBodies/
- *    Version           : 3
+ *    Path              : /Astrodynamics/Bodies/CelestialBodies/
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 6 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 13 January, 2011
  *
  *    References
  *
@@ -37,6 +37,9 @@
  *      100906    J. Melman     First creation of code.
  *      100910    J. Melman     No more switch statement and enum.
  *      100929    K. Kumar      Minor comment changes.
+ *      110112    K. Kumar      Modified to use GravityFieldModel; corrected
+ *                              path.
+ *      110113    K. Kumar      Added getGravityFieldModel() function.
  */
 
 #ifndef CELESTIAL_BODY_H
@@ -44,7 +47,7 @@
 
 // Include statements.
 #include "body.h"
-#include "gravityFieldParameters.h"
+#include "gravityFieldModel.h"
 
 //! Celestial body class.
 /*!
@@ -60,40 +63,31 @@ public:
      */
     CelestialBody( );
 
-    //! Customized constructor.
+    //! Set gravity field model.
     /*!
-     * Customized constructor.
+     * Sets the gravity field model.
+     * \param gravityFieldModel Pointer to gravity field model.
      */
-    CelestialBody( const GravityFieldParameters& gravityFieldParameters );
+    void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel);
 
-    //! Sets the gravity field parameters.
-    /*!
-     * Defines the gravity field parameters.
-     * \param gravityFieldParameters Gravitational parameter.
-     */
-    void setGravityFieldParameters( const GravityFieldParameters&
-                                    gravityFieldParameters );
-
-    //! Gets the gravitational parameter.
+    //! Get gravitational parameter.
     /*!
      * Returns the gravitational parameter in meter^3 per second^2.
      * \return Gravitational parameter.
      */
     const double getGravitationalParameter( ) const;
 
-    //! Gets the reference radius.
+    //! Get gravity field model.
     /*!
-     * Returns the reference radius used for the spherical harmonics expansion
-     * in meters.
-     * \return Reference radius.
+     * Returns the gravity field model.
+     * \return Gravity field model.
      */
-    const double getReferenceRadius( ) const;
+     GravityFieldModel* getGravityFieldModel( );
 
 protected:
 
     //! Gravity field parameters.
-    GravityFieldParameters gravityFieldParameters_;
-
+    GravityFieldModel* pointerToGravityFieldModel_;
 };
 
 #endif // CELESTIAL_BODY_H

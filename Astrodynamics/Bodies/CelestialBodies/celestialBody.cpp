@@ -2,8 +2,8 @@
  *    This file contains a class that describes celestial bodies
  *    with all their characteristics.
  *
- *    Path              : /Astrodynamics/Environment/CelestialBodies/
- *    Version           : 3
+ *    Path              : /Astrodynamics/Bodies/CelestialBodies/
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 6 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 13 January, 2011
  *
  *    References
  *
@@ -37,7 +37,8 @@
  *      100906    J. Melman     First creation of code.
  *      100910    J. Melman     No more switch statement and enum.
  *      100929    K. Kumar      Minor comment changes.
- *
+ *      110113    K. Kumar      Added getGravityFieldModel() function;
+ *                              updated path.
  */
 
 // Include statements.
@@ -48,35 +49,26 @@ CelestialBody::CelestialBody( )
 {
 }
 
-//! Customized constructor.
-CelestialBody::CelestialBody( const GravityFieldParameters&
-                              gravityFieldParameters )
+//! Set gravity field model.
+void CelestialBody::setGravityFieldModel( GravityFieldModel*
+                                          pointerToGravityFieldModel)
+
 {
-    // Set gravity field parameters.
-    gravityFieldParameters_ = gravityFieldParameters;
+    // Set gravity field model.
+    pointerToGravityFieldModel_ = pointerToGravityFieldModel;
 }
 
-//! Sets the gravity field parameters.
-void CelestialBody::
-        setGravityFieldParameters( const GravityFieldParameters&
-                                   gravityFieldParameters )
-{
-    // Set gravity field parameters.
-    gravityFieldParameters_ = gravityFieldParameters;
-}
-
-//! Gets the gravitational parameter.
+//! Get gravitational parameter.
 const double CelestialBody::getGravitationalParameter( ) const
 {
     // Return gravitational parameter.
-    return gravityFieldParameters_.getGravitationalParameter( );
+    return pointerToGravityFieldModel_->getGravitationalParameter( );
 }
 
-//! Gets the reference radius.
-const double CelestialBody::getReferenceRadius( ) const
-{
-    // Return reference radius.
-    return gravityFieldParameters_.getReferenceRadius( );
-}
+//! Get gravity field model.
+GravityFieldModel* CelestialBody::getGravityFieldModel( )
+ {
+     return pointerToGravityFieldModel_;
+ }
 
 // End of file.

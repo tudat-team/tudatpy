@@ -1,9 +1,9 @@
 /*! \file vehicleExternalModel.cpp
  * This file contains the definition of the VehicleExternalModel class.
  *
- *  Path              : Astrodynamics/Bodies/Vehicles/
- *  Version           : 3
- *  Check status      : Checked
+ *  Path              : /Astrodynamics/Bodies/Vehicles/
+ *  Version           : 4
+ *  Check status      : Unchecked
  *
  *  Author            : Dominic Dirkx
  *  Affiliation       : TU Delft
@@ -14,14 +14,11 @@
  *  E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *  Date created      : 10 September, 2010
- *  Last modified     : 28 September, 2010
+ *  Last modified     : 11 January, 2011
  *
  *  References
  *
- *
- *
  *  Notes
- *
  *
  *  Copyright (c) 2010 Delft University of Technology.
  *
@@ -35,16 +32,18 @@
  *  warranty of merchantibility or fitness for a particular purpose.
  *
  *  Changelog
- *    100910   D. Dirkx                    First version of file
- *    100915   D. Dirkx                    Modified to correct comments, 80
- *                                         lines rule, etc.
- *    100928   D. Dirkx                    Modifications following first
- *                                         checking iteration.
+ *      YYMMDD    author        comment
+ *      100910    D. Dirkx      First version of file.
+ *      100915    D. Dirkx      Modified comments, 80 lines rule, etc.
+ *      100928    D. Dirkx      Modifications following first checking
+ *                              iteration.
+ *      110112    K. Kumar      Minor comment changes.
  */
 
 #ifndef VEHICLEEXTERNALMODELS_H
 #define VEHICLEEXTERNALMODELS_H
 
+// Include statements.
 #include "geometricShape.h"
 
 //! Vehicle external model class.
@@ -57,6 +56,7 @@
 class VehicleExternalModel
 {
 public:
+
     //! Default constructor.
     /*!
      *  Default constructor.
@@ -81,7 +81,7 @@ public:
     /*!
     * Function to retrieve the external geometry.
     */
-    GeometricShape* getPointerToVehicleGeometry( );
+    GeometricShape* getVehicleExternalGeometry( );
 
     //! Overloaded ostream to print class information.
     /*!
@@ -92,11 +92,14 @@ public:
                                      VehicleExternalModel& vehicleExternalModel );
 
 private:
+
+    //! Pointer to vehicle geometry
     /*!
      * Pointer to geometric shape that represents the vehicle's external shape.
      */
     GeometricShape* pointerToVehicleGeometry_;
 
+    //! Flag that indicates if geometric shape has been set.
     /*!
      * Boolean that is true if a geometric shape has been set.
      */
@@ -105,4 +108,4 @@ private:
 
 #endif // VEHICLEEXTERNALMODELS_H
 
-//End of file
+//End of file.

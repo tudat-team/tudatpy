@@ -3,8 +3,8 @@
  *    in astrodynamics.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 1
- *    Check status      : Unchecked
+ *    Version           : 2
+ *    Check status      : Checked
  *
  *    Author            : J. Melman
  *    Affiliation       : Delft University of Technology
