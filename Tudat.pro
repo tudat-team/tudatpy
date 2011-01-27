@@ -39,14 +39,18 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/NumericalIntegration/integrator.cpp \
     Mathematics/NumericalIntegration/euler.cpp \
     Mathematics/unitTestUnitConversions.cpp \
-    Output/writingOutputToFile.cpp
+    Output/writingOutputToFile.cpp \
+    earthOrbitExample.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
     Astrodynamics/Bodies/Vehicles/vehicle.h \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h \
-    Astrodynamics/EnvironmentModels/predefinedGravityFieldParameters.h \
-    Astrodynamics/EnvironmentModels/gravityFieldParameters.h \
+    Astrodynamics/EnvironmentModels/environmentModel.h \
+    Astrodynamics/EnvironmentModels/gravityFieldModel.h \
+    Astrodynamics/EnvironmentModels/predefinedGravityFieldModels.h \
+    Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h \
+    Astrodynamics/EnvironmentModels/unitTestSphericalHarmonicsGravityField.h \
     Astrodynamics/ForceModels/gravity.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/physicalConstants.h \
