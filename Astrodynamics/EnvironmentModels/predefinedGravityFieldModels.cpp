@@ -2,8 +2,8 @@
  *    Source file that defines a namespace containing pre-defined gravity field
  *    models.
  *
- *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 2
+ *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 6 January, 2011
- *    Last modified     : 7 January, 2011
+ *    Last modified     : 28 January, 2011
  *
  *    References
  *
@@ -36,6 +36,7 @@
  *      YYMMDD    author              comment
  *      110106    K. Kumar            File created.
  *      110107    K. Kumar            Updated code after comments by J. Melman.
+ *      110128    K. Kumar            Added Mars central gravity field.
  */
 
 // Include statements.
@@ -60,7 +61,7 @@ SphericalHarmonicsGravityField* createPredefinedCentralGravityField(
    // Select predefined central gravity field model based on input.
    switch( bodyWithPredefinedCentralGravityField )
    {
-    case earth:
+   case earth:
 
         // Set gravitational parameter.
         pointerToSphericalHarmonicsGravityField
@@ -75,6 +76,32 @@ SphericalHarmonicsGravityField* createPredefinedCentralGravityField(
 
         // Set order of expansion.
         pointerToSphericalHarmonicsGravityField->setOrderOfExpansion( 0 );
+
+        break;
+
+   case mars:
+
+       // Set gravitational parameter.
+       pointerToSphericalHarmonicsGravityField
+               ->setGravitationalParameter( 42828.0e9  );
+
+       // Set reference radius.
+       pointerToSphericalHarmonicsGravityField
+               ->setReferenceRadius( 3370000.0 );
+
+       // Set degree of expansion.
+       pointerToSphericalHarmonicsGravityField->setDegreeOfExpansion( 0 );
+
+       // Set order of expansion.
+       pointerToSphericalHarmonicsGravityField->setOrderOfExpansion( 0 );
+
+       break;
+
+   default:
+
+       // Print cerr statement.
+       cerr << "Desired predefined central gravity field does not exist."
+            << endl;
    }
 
    // Return pointer to a spherical harmonics gravity field model.

@@ -3,7 +3,7 @@
  *   harmonics gravity field class in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 15 December, 2010
- *    Last modified     : 15 January, 2011
+ *    Last modified     : 28 January, 2011
 
  *    References
  *
@@ -49,6 +49,7 @@
  *                              namespace, new filename, new file location.
  *      110113    K. Kumar      Added cerr statements.
  *      110115    J. Melman     Changed the error messages.
+ *      110128    K. Kumar      Updated code to work with pointers.
  */
 
 // Include statements.

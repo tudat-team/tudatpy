@@ -46,6 +46,11 @@
 // Include statements.
 #include <cmath>
 #include "orbitalElementConversions.h"
+#include "unitConversions.h"
+#include "celestialBody.h"
+#include "basicMathematicsFunctions.h"
+#include "predefinedPlanets.h"
+#include "sphericalHarmonicsGravityField.h"
 
 //! Namespace for all unit tests.
 /*!

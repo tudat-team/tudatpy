@@ -3,7 +3,7 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/Bodies/CelestialBodies/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 September, 2010
- *    Last modified     : 12 January, 2011
+ *    Last modified     : 28 January, 2011
  *
  *    References
  *
@@ -33,8 +33,9 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      110112    K. Kumar     First creation of code.
+ *      YYMMDD    Author        Comment
+ *      110112    K. Kumar      First creation of code.
+ *      110128    K. Kumar      Added Mars; added default case with cerr.
  */
 
 // Include statements.
@@ -67,9 +68,26 @@ CelestialBody* createPredefinedPlanet( PredefinedPlanets predefinedPlanet )
                ::createPredefinedCentralGravityField(
                        predefined_gravity_field_models::earth );
 
-       // Set spherical harmonics gravity field.
-       pointerToCelestialBody_->setGravityFieldModel( pointerToGravityFieldModel_ );
+       break;
+
+   case mars:
+
+       // Set pointer to gravity field model to predefined Earth gravity field.
+       pointerToGravityFieldModel_ =
+               predefined_gravity_field_models
+               ::createPredefinedCentralGravityField(
+                       predefined_gravity_field_models::mars );
+
+       break;
+
+   default:
+
+       // Print cerr statement.
+       cerr << "Desired predefined planet does not exist." << endl;
    }
+
+   // Set spherical harmonics gravity field.
+   pointerToCelestialBody_->setGravityFieldModel( pointerToGravityFieldModel_ );
 
    // Return pointer to a spherical harmonics gravity field model.
    return pointerToCelestialBody_;

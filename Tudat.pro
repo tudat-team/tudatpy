@@ -39,8 +39,7 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/NumericalIntegration/integrator.cpp \
     Mathematics/NumericalIntegration/euler.cpp \
     Mathematics/unitTestUnitConversions.cpp \
-    Output/writingOutputToFile.cpp \
-    earthOrbitExample.cpp
+    Output/writingOutputToFile.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
