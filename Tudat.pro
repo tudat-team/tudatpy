@@ -38,6 +38,9 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/NumericalIntegration/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegration/integrator.cpp \
     Mathematics/NumericalIntegration/euler.cpp \
+    Mathematics/RootFindingMethods/unitTestNewtonRaphson.cpp \
+    Mathematics/RootFindingMethods/rootFinder.cpp \
+    Mathematics/RootFindingMethods/newtonRaphson.cpp \
     Mathematics/unitTestUnitConversions.cpp \
     Output/writingOutputToFile.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
@@ -77,6 +80,12 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/NumericalIntegration/rungeKutta4thOrderFixedStepsize.h \
     Mathematics/NumericalIntegration/integrator.h \
     Mathematics/NumericalIntegration/euler.h \
+    Mathematics/RootFindingMethods/unitTestNewtonRaphson.h \
+    Mathematics/RootFindingMethods/rootFinderBase.h \
+    Mathematics/RootFindingMethods/rootFinder.h \
+    Mathematics/RootFindingMethods/newtonRaphsonBase.h \
+    Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h \
+    Mathematics/RootFindingMethods/newtonRaphson.h \
     Output/outputHandling.h \
     Output/writingOutputToFile.h
 INCLUDEPATH += External/Eigen-2.0.15 \
@@ -93,4 +102,5 @@ INCLUDEPATH += External/Eigen-2.0.15 \
     Mathematics/GeometricShapes \
     Mathematics/LinearAlgebra \
     Mathematics/NumericalIntegration \
+    Mathematics/RootFindingMethods \
     Output
