@@ -1,10 +1,10 @@
 /*! \file unitTestOrbitalElementConversions.cpp
- *    Source file of unit test for the orbitalElementConversion, from Cartesian to
- *    Keplerian and viceversa.
+ *    Source file of unit test for the orbitalElementConversion, from Cartesian
+ *    to Keplerian and viceversa.
  *    The first part of the code tests the code for elliptical, parabolic,
  *    hyperbolic and circular orbits. SI units are used.
- *    The second part of the code tests the code from Cartesian to Keplerian with
- *    the example 3.4 pag. 63 of the book "Fondamenti di Meccanica del Volo
+ *    The second part of the code tests the code from Cartesian to Keplerian
+ *    with the example 3.4 pag. 63 of the book "Fondamenti di Meccanica del Volo
  *    Spaziale" (G. Mengali, A.A. Quarta). In this part of the code, canonical
  *    units are used.
  *
@@ -26,9 +26,9 @@
  *    References
  *
  *    Notes
- *      Test calls function and verifies result against expected value.
- *      If the test is successful, the main function returns an integer value
- *      0; if the test fails, the main function returns an integer value 1.
+ *      Test runs code and verifies result against expected value.
+ *      If the tested code is erroneous, the test function returns a boolean
+ *      true; if the code is correct, the function returns a boolean false.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -48,7 +48,7 @@
  *      101208    E. Iorfida     Modified punctuation.
  *      101215    E. Iorfida     Added tolerance, added parabolic, circular and
  *                               hyperbolic cases.
- *      101217    E. Iorfida     Added fabs( ) in the errors computation,
+ *      101217    E. Iorfida     Added computeAbsoluteValue( ) in the errors computation,
  *                               modified punctuation.
  *      101219    J. Melman      Put gravitational parameters in one place,
  *                               changed first right ascension to 15.0 * pi / 8.0,
@@ -66,12 +66,15 @@
 
 // Include statements.
 #include "unitTestOrbitalElementConversions.h"
-#include "orbitalElementConversions.h"
-#include "unitConversions.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
+using mathematics::computeAbsoluteValue;
+using mathematics::raiseToIntegerPower;
+using orbital_element_conversions::convertCartesianToKeplerianElements;
+using orbital_element_conversions::convertKeplerianToCartesianElements;
+using predefined_planets::createPredefinedPlanet;
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -86,78 +89,121 @@ bool testOrbitalElementConversions( )
     // Define tolerance.
     double errorTolerance_ = 1.0e2 * mathematics::MACHINE_PRECISION_DOUBLES;
 
-    // Define gravitational parameters.
-    double gravitationalParameterEarth = 398600.4415e9;
-    double gravitationalParameterMars  = 42828e9;
-    double gravitationalParameterSun   = 132712440018e8;
+    // Create predefind Earth.
+    CelestialBody* pointerToPredefinedEarth_ = new CelestialBody;
+    pointerToPredefinedEarth_ = createPredefinedPlanet(
+            predefined_planets::earth );
+
+    // Create predefined Mars.
+    CelestialBody* pointerToPredefinedMars_ = new CelestialBody;
+    pointerToPredefinedMars_ = createPredefinedPlanet(
+            predefined_planets::mars );
+
+    // Create custom-defined Sun with central gravity field.
+    CelestialBody* pointerToCustomDefinedSun_ = new CelestialBody;
+    SphericalHarmonicsGravityField* pointerToSunCentralGravity_
+            = new SphericalHarmonicsGravityField;
+    pointerToSunCentralGravity_->setGravitationalParameter( 132712440018e8 );
+    pointerToSunCentralGravity_->setDegreeOfExpansion( 0 );
+    pointerToSunCentralGravity_->setOrderOfExpansion( 0 );
+    pointerToCustomDefinedSun_
+            ->setGravityFieldModel( pointerToSunCentralGravity_ );
+
+    // Create custom-defined central body.
+    CelestialBody* pointerToCustomDefinedBody_ = new CelestialBody;
+    SphericalHarmonicsGravityField* pointerToCustomBodyCentralGravity_
+            = new SphericalHarmonicsGravityField;
+    pointerToCustomBodyCentralGravity_
+            ->setGravitationalParameter( 1.0 );
+    pointerToCustomBodyCentralGravity_->setDegreeOfExpansion( 0 );
+    pointerToCustomBodyCentralGravity_->setOrderOfExpansion( 0 );
+    pointerToCustomDefinedBody_
+            ->setGravityFieldModel( pointerToCustomBodyCentralGravity_ );
 
     // *************************************************************************
     // Elliptical orbit case around the Earth.
     // *************************************************************************
 
     // From Keplerian to Cartesian.
-    KeplerianElements myKeplerianEllipticalElements1_;
+    KeplerianElements* pointerToKeplerianEllipticalElements1_
+            = new KeplerianElements;
 
     // Define Keplerian elements.
-    myKeplerianEllipticalElements1_.setSemiMajorAxis(
+    pointerToKeplerianEllipticalElements1_->setSemiMajorAxis(
             unit_conversions::convertAstronomicalUnitsToMeters( 0.3 ) );
-    myKeplerianEllipticalElements1_.setEccentricity( 0.2 );
-    myKeplerianEllipticalElements1_.setInclination( M_PI / 4.0  );
-    myKeplerianEllipticalElements1_.setArgumentOfPeriapsis( 4.0 * M_PI / 3.0 );
-    myKeplerianEllipticalElements1_.
-            setRightAscensionOfAscendingNode( 1.0 * M_PI / 8.0 );
-    myKeplerianEllipticalElements1_.setTrueAnomaly( 1.0 * M_PI / 3.0 );
-    myKeplerianEllipticalElements1_.setSemiLatusRectum(
-            myKeplerianEllipticalElements1_.getSemiMajorAxis( ) * ( 1.0 -
-            mathematics::raiseToIntegerPower(
-                    myKeplerianEllipticalElements1_.getEccentricity( ), 2 ) ) );
+    pointerToKeplerianEllipticalElements1_->setEccentricity( 0.2 );
+    pointerToKeplerianEllipticalElements1_->setInclination( M_PI / 4.0  );
+    pointerToKeplerianEllipticalElements1_
+            ->setArgumentOfPeriapsis( 4.0 * M_PI / 3.0 );
+    pointerToKeplerianEllipticalElements1_
+            ->setRightAscensionOfAscendingNode( 1.0 * M_PI / 8.0 );
+    pointerToKeplerianEllipticalElements1_->setTrueAnomaly( 1.0 * M_PI / 3.0 );
+    pointerToKeplerianEllipticalElements1_->setSemiLatusRectum(
+            pointerToKeplerianEllipticalElements1_->getSemiMajorAxis( )
+            * ( 1.0 - raiseToIntegerPower(
+                    pointerToKeplerianEllipticalElements1_
+                    ->getEccentricity( ), 2 ) ) );
 
     // Compute Cartesian elements.
-    CartesianElements myCartesianEllipticalElements_;
+    CartesianElements* pointerToCartesianEllipticalElements_
+            = new CartesianElements;
 
-    myCartesianEllipticalElements_ =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-            myKeplerianEllipticalElements1_, gravitationalParameterEarth );
+    pointerToCartesianEllipticalElements_ =
+            convertKeplerianToCartesianElements(
+            pointerToKeplerianEllipticalElements1_,
+            pointerToPredefinedEarth_ );
 
     // From Cartesian to Keplerian.
     // Compute Keplerian elements.
-    KeplerianElements myKeplerianEllipticalElements2_;
+    KeplerianElements* pointerToKeplerianEllipticalElements2_
+            = new KeplerianElements;
 
-    myKeplerianEllipticalElements2_ =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-            myCartesianEllipticalElements_, gravitationalParameterEarth );
+    pointerToKeplerianEllipticalElements2_ =
+            convertCartesianToKeplerianElements(
+                    pointerToCartesianEllipticalElements_,
+                    pointerToPredefinedEarth_ );
 
     // Set test result to false if the output Keplerian elements of the
     // conversion from Cartesian to Keplerian are equal to the input Keplerian
     // elements of the conversion from Keplerian to Cartesian, within a
     // tolerance limit.
-    if ( fabs( ( myKeplerianEllipticalElements2_.getSemiMajorAxis( ) -
-                 myKeplerianEllipticalElements1_.getSemiMajorAxis( ) ) /
-               myKeplerianEllipticalElements1_.getSemiMajorAxis( ) ) >=
+    if ( computeAbsoluteValue( ( pointerToKeplerianEllipticalElements2_
+                                 ->getSemiMajorAxis( ) -
+                 pointerToKeplerianEllipticalElements1_->getSemiMajorAxis( ) ) /
+               pointerToKeplerianEllipticalElements1_->getSemiMajorAxis( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianEllipticalElements2_.getEccentricity( ) -
-               myKeplerianEllipticalElements1_.getEccentricity( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianEllipticalElements2_
+                               ->getEccentricity( ) -
+               pointerToKeplerianEllipticalElements1_->getEccentricity( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianEllipticalElements2_.getInclination( ) -
-               myKeplerianEllipticalElements1_.getInclination( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianEllipticalElements2_
+                               ->getInclination( ) -
+               pointerToKeplerianEllipticalElements1_->getInclination( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianEllipticalElements2_.getArgumentOfPeriapsis( ) -
-               myKeplerianEllipticalElements1_.getArgumentOfPeriapsis( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianEllipticalElements2_
+                               ->getArgumentOfPeriapsis( ) -
+               pointerToKeplerianEllipticalElements1_
+               ->getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianEllipticalElements2_.
+         computeAbsoluteValue( pointerToKeplerianEllipticalElements2_->
                getRightAscensionOfAscendingNode( ) -
-               myKeplerianEllipticalElements1_.
+               pointerToKeplerianEllipticalElements1_->
                getRightAscensionOfAscendingNode( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianEllipticalElements2_.getTrueAnomaly( ) -
-               myKeplerianEllipticalElements1_.getTrueAnomaly( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianEllipticalElements2_
+                               ->getTrueAnomaly( ) -
+               pointerToKeplerianEllipticalElements1_->getTrueAnomaly( ) ) >=
          errorTolerance_ ||
-         fabs( ( myKeplerianEllipticalElements2_.getSemiLatusRectum( ) -
-                 myKeplerianEllipticalElements1_.getSemiLatusRectum( ) ) /
-               myKeplerianEllipticalElements1_.getSemiLatusRectum( ) ) >=
+         computeAbsoluteValue( ( pointerToKeplerianEllipticalElements2_
+                                 ->getSemiLatusRectum( ) -
+                 pointerToKeplerianEllipticalElements1_
+                 ->getSemiLatusRectum( ) ) /
+               pointerToKeplerianEllipticalElements1_
+               ->getSemiLatusRectum( ) ) >=
          errorTolerance_ )
     {
         isOrbitalElementConversionErroneous = true;
+
         cerr << "The orbital element conversion for an elliptical orbit is "
              << "erroneous." << endl;
     }
@@ -167,58 +213,69 @@ bool testOrbitalElementConversions( )
     // *************************************************************************
 
     // From Keplerian to Cartesian.
-    KeplerianElements myKeplerianParabolicElements1_;
+    KeplerianElements* pointerToKeplerianParabolicElements1_
+            = new KeplerianElements;
 
     // Define Keplerian elements.
-    myKeplerianParabolicElements1_.setSemiLatusRectum(
+    pointerToKeplerianParabolicElements1_->setSemiLatusRectum(
             unit_conversions::convertAstronomicalUnitsToMeters( 4.0 ) );
-    myKeplerianParabolicElements1_.setEccentricity( 1.0 );
-    myKeplerianParabolicElements1_.setInclination( M_PI / 6.0 );
-    myKeplerianParabolicElements1_.setArgumentOfPeriapsis( M_PI / 8.0 );
-    myKeplerianParabolicElements1_.setRightAscensionOfAscendingNode(
+    pointerToKeplerianParabolicElements1_->setEccentricity( 1.0 );
+    pointerToKeplerianParabolicElements1_->setInclination( M_PI / 6.0 );
+    pointerToKeplerianParabolicElements1_->setArgumentOfPeriapsis( M_PI / 8.0 );
+    pointerToKeplerianParabolicElements1_->setRightAscensionOfAscendingNode(
             8.0 * M_PI / 7.0 );
-    myKeplerianParabolicElements1_.setTrueAnomaly( 7.0 * M_PI / 4.0 );
+    pointerToKeplerianParabolicElements1_->setTrueAnomaly( 7.0 * M_PI / 4.0 );
 
     // Compute Cartesian elements.
-    CartesianElements myCartesianParabolicElements_;
+    CartesianElements* pointerToCartesianParabolicElements_
+            = new CartesianElements;
 
-    myCartesianParabolicElements_ =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-            myKeplerianParabolicElements1_, gravitationalParameterMars );
+    pointerToCartesianParabolicElements_ =
+            convertKeplerianToCartesianElements(
+            pointerToKeplerianParabolicElements1_, pointerToPredefinedMars_ );
 
     // From Cartesian to Keplerian.
     // Compute Keplerian elements.
-    KeplerianElements myKeplerianParabolicElements2_;
+    KeplerianElements* pointerToKeplerianParabolicElements2_
+            = new KeplerianElements;
 
-    myKeplerianParabolicElements2_ =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-            myCartesianParabolicElements_, gravitationalParameterMars );
+    pointerToKeplerianParabolicElements2_ =
+            convertCartesianToKeplerianElements(
+            pointerToCartesianParabolicElements_, pointerToPredefinedMars_ );
 
     // Set test result to false if the output Keplerian elements of the
     // conversion from Cartesian to Keplerian are equal to the input Keplerian
     // elements of the conversion from Keplerian to Cartesian, within a
     // tolerance limit.
-    if ( fabs( ( myKeplerianParabolicElements2_.getSemiLatusRectum( ) -
-                 myKeplerianParabolicElements1_.getSemiLatusRectum( ) ) /
-               myKeplerianParabolicElements1_.getSemiLatusRectum( ) ) >=
+    if ( computeAbsoluteValue( ( pointerToKeplerianParabolicElements2_
+                                 ->getSemiLatusRectum( ) -
+                 pointerToKeplerianParabolicElements1_->getSemiLatusRectum( ) ) /
+               pointerToKeplerianParabolicElements1_->getSemiLatusRectum( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianParabolicElements2_.getEccentricity( ) -
-               myKeplerianParabolicElements1_.getEccentricity( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianParabolicElements2_
+                               ->getEccentricity( ) -
+               pointerToKeplerianParabolicElements1_->getEccentricity( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianParabolicElements2_.getInclination( ) -
-               myKeplerianParabolicElements1_.getInclination( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianParabolicElements2_
+                               ->getInclination( ) -
+               pointerToKeplerianParabolicElements1_->getInclination( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianParabolicElements2_.getArgumentOfPeriapsis( ) -
-               myKeplerianParabolicElements1_.getArgumentOfPeriapsis( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianParabolicElements2_
+                               ->getArgumentOfPeriapsis( ) -
+               pointerToKeplerianParabolicElements1_->getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianParabolicElements2_.getRightAscensionOfAscendingNode( ) -
-               myKeplerianParabolicElements1_.getRightAscensionOfAscendingNode( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianParabolicElements2_
+                               ->getRightAscensionOfAscendingNode( ) -
+               pointerToKeplerianParabolicElements1_
+               ->getRightAscensionOfAscendingNode( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianParabolicElements2_.getTrueAnomaly( ) -
-               myKeplerianParabolicElements1_.getTrueAnomaly( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianParabolicElements2_
+                               ->getTrueAnomaly( ) -
+               pointerToKeplerianParabolicElements1_->getTrueAnomaly( ) ) >=
          errorTolerance_ )
     {
         isOrbitalElementConversionErroneous = true;
+
         cerr << "The orbital element conversion for a parabolic orbit is "
              << "erroneous." << endl;
     }
@@ -228,57 +285,68 @@ bool testOrbitalElementConversions( )
     // *************************************************************************
 
     // From Keplerian to Cartesian.
-    KeplerianElements myKeplerianCircularElements1_;
+    KeplerianElements* pointerToKeplerianCircularElements1_
+            = new KeplerianElements;
 
     // Define Keplerian elements.
-    myKeplerianCircularElements1_.setSemiMajorAxis(
+    pointerToKeplerianCircularElements1_->setSemiMajorAxis(
             unit_conversions::convertAstronomicalUnitsToMeters( 0.1 ) );
-    myKeplerianCircularElements1_.setEccentricity( 0.0 );
-    myKeplerianCircularElements1_.setInclination( 0.0 );
-    myKeplerianCircularElements1_.setArgumentOfPeriapsis( 0.0 );
-    myKeplerianCircularElements1_.setRightAscensionOfAscendingNode( 0.0 );
-    myKeplerianCircularElements1_.setTrueAnomaly( M_PI / 4.0 );
+    pointerToKeplerianCircularElements1_->setEccentricity( 0.0 );
+    pointerToKeplerianCircularElements1_->setInclination( 0.0 );
+    pointerToKeplerianCircularElements1_->setArgumentOfPeriapsis( 0.0 );
+    pointerToKeplerianCircularElements1_
+            ->setRightAscensionOfAscendingNode( 0.0 );
+    pointerToKeplerianCircularElements1_->setTrueAnomaly( M_PI / 4.0 );
 
     // Compute Cartesian elements.
-    CartesianElements myCartesianCircularElements_;
+    CartesianElements* pointerToCartesianCircularElements_
+            = new CartesianElements;
 
-    myCartesianCircularElements_ =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-            myKeplerianCircularElements1_, gravitationalParameterEarth );
+    pointerToCartesianCircularElements_ =
+            convertKeplerianToCartesianElements(
+            pointerToKeplerianCircularElements1_, pointerToPredefinedEarth_ );
 
     // From Cartesian to Keplerian.
     // Compute Keplerian elements.
-    KeplerianElements myKeplerianCircularElements2_;
+    KeplerianElements* pointerToKeplerianCircularElements2_
+            = new KeplerianElements;
 
-    myKeplerianCircularElements2_ =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-            myCartesianCircularElements_, gravitationalParameterEarth );
+    pointerToKeplerianCircularElements2_ =
+            convertCartesianToKeplerianElements(
+            pointerToCartesianCircularElements_, pointerToPredefinedEarth_ );
 
     // Set test result to false if the output Keplerian elements of the
     // conversion from Cartesian to Keplerian are equal to the input Keplerian
     // elements of the conversion from Keplerian to Cartesian, within a
     // tolerance limit.
-    if ( fabs( ( myKeplerianCircularElements2_.getSemiMajorAxis( ) -
-                 myKeplerianCircularElements1_.getSemiMajorAxis( ) ) /
-               myKeplerianCircularElements1_.getSemiMajorAxis( ) ) >=
+    if ( computeAbsoluteValue( ( pointerToKeplerianCircularElements2_
+                                 ->getSemiMajorAxis( ) -
+                 pointerToKeplerianCircularElements1_->getSemiMajorAxis( ) ) /
+               pointerToKeplerianCircularElements1_->getSemiMajorAxis( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianCircularElements2_.getEccentricity( ) -
-               myKeplerianCircularElements1_.getEccentricity( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianCircularElements2_
+                               ->getEccentricity( ) -
+               pointerToKeplerianCircularElements1_->getEccentricity( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianCircularElements2_.getInclination( ) -
-               myKeplerianCircularElements1_.getInclination( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianCircularElements2_
+                               ->getInclination( ) -
+               pointerToKeplerianCircularElements1_->getInclination( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianCircularElements2_.getArgumentOfPeriapsis( ) -
-               myKeplerianCircularElements1_.getArgumentOfPeriapsis( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianCircularElements2_
+                               ->getArgumentOfPeriapsis( ) -
+               pointerToKeplerianCircularElements1_->getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianCircularElements2_.getRightAscensionOfAscendingNode( ) -
-               myKeplerianCircularElements1_.getRightAscensionOfAscendingNode( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianCircularElements2_
+                               ->getRightAscensionOfAscendingNode( ) -
+               pointerToKeplerianCircularElements1_->getRightAscensionOfAscendingNode( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianCircularElements2_.getTrueAnomaly( ) -
-               myKeplerianCircularElements1_.getTrueAnomaly( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianCircularElements2_
+                               ->getTrueAnomaly( ) -
+               pointerToKeplerianCircularElements1_->getTrueAnomaly( ) ) >=
          errorTolerance_ )
     {
         isOrbitalElementConversionErroneous = true;
+
         cerr << "The orbital element conversion for a circular orbit is "
              << "erroneous." << endl;
     }
@@ -288,59 +356,72 @@ bool testOrbitalElementConversions( )
     // *************************************************************************
 
     // From Keplerian to Cartesian.
-    KeplerianElements myKeplerianHyperbolicElements1_;
+    KeplerianElements* pointerToKeplerianHyperbolicElements1_
+            = new KeplerianElements;
 
     // Define Keplerian elements.
-    myKeplerianHyperbolicElements1_.setSemiMajorAxis(
+    pointerToKeplerianHyperbolicElements1_->setSemiMajorAxis(
             unit_conversions::convertAstronomicalUnitsToMeters( -3.0 ) );
-    myKeplerianHyperbolicElements1_.setEccentricity( 2.0 );
-    myKeplerianHyperbolicElements1_.setInclination( 0.0 );
-    myKeplerianHyperbolicElements1_.setArgumentOfPeriapsis(
+    pointerToKeplerianHyperbolicElements1_->setEccentricity( 2.0 );
+    pointerToKeplerianHyperbolicElements1_->setInclination( 0.0 );
+    pointerToKeplerianHyperbolicElements1_->setArgumentOfPeriapsis(
             11.0 * M_PI / 8.0 );
-    myKeplerianHyperbolicElements1_.setRightAscensionOfAscendingNode(
+    pointerToKeplerianHyperbolicElements1_->setRightAscensionOfAscendingNode(
             0.0 );
-    myKeplerianHyperbolicElements1_.setTrueAnomaly( 9.0 * M_PI / 16.0 );
+    pointerToKeplerianHyperbolicElements1_->setTrueAnomaly( 9.0 * M_PI / 16.0 );
 
     // Compute Cartesian elements.
-    CartesianElements myCartesianHyperbolicElements_;
+    CartesianElements* pointerToCartesianHyperbolicElements_
+            = new CartesianElements;
 
-    myCartesianHyperbolicElements_ =
-            orbital_element_conversions::convertKeplerianToCartesianElements(
-            myKeplerianHyperbolicElements1_, gravitationalParameterSun );
+    pointerToCartesianHyperbolicElements_ =
+            convertKeplerianToCartesianElements(
+            pointerToKeplerianHyperbolicElements1_,
+            pointerToCustomDefinedSun_ );
 
     // From Cartesian to Keplerian.
     // Compute Keplerian elements.
-    KeplerianElements myKeplerianHyperbolicElements2_;
+    KeplerianElements* pointerToKeplerianHyperbolicElements2_
+            = new KeplerianElements;
 
-    myKeplerianHyperbolicElements2_ =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-            myCartesianHyperbolicElements_, gravitationalParameterSun );
+    pointerToKeplerianHyperbolicElements2_ =
+            convertCartesianToKeplerianElements(
+            pointerToCartesianHyperbolicElements_,
+            pointerToCustomDefinedSun_ );
 
     // Set test result to false if the output Keplerian elements of the
     // conversion from Cartesian to Keplerian are equal to the input Keplerian
     // elements of the conversion from Keplerian to Cartesian, within a
     // tolerance limit.
-    if ( fabs( ( myKeplerianHyperbolicElements2_.getSemiMajorAxis( ) -
-                 myKeplerianHyperbolicElements1_.getSemiMajorAxis( ) ) /
-               myKeplerianHyperbolicElements1_.getSemiMajorAxis( ) ) >=
+    if ( computeAbsoluteValue( ( pointerToKeplerianHyperbolicElements2_
+                                 ->getSemiMajorAxis( ) -
+                 pointerToKeplerianHyperbolicElements1_->getSemiMajorAxis( ) ) /
+               pointerToKeplerianHyperbolicElements1_->getSemiMajorAxis( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianHyperbolicElements2_.getEccentricity( ) -
-               myKeplerianHyperbolicElements1_.getEccentricity( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianHyperbolicElements2_
+                               ->getEccentricity( ) -
+               pointerToKeplerianHyperbolicElements1_->getEccentricity( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianHyperbolicElements2_.getInclination( ) -
-               myKeplerianHyperbolicElements1_.getInclination( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianHyperbolicElements2_
+                               ->getInclination( ) -
+               pointerToKeplerianHyperbolicElements1_->getInclination( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianHyperbolicElements2_.getArgumentOfPeriapsis( ) -
-               myKeplerianHyperbolicElements1_.getArgumentOfPeriapsis( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianHyperbolicElements2_
+                               ->getArgumentOfPeriapsis( ) -
+               pointerToKeplerianHyperbolicElements1_->getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianHyperbolicElements2_.getRightAscensionOfAscendingNode( ) -
-               myKeplerianHyperbolicElements1_.getRightAscensionOfAscendingNode( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianHyperbolicElements2_
+                               ->getRightAscensionOfAscendingNode( ) -
+               pointerToKeplerianHyperbolicElements1_
+               ->getRightAscensionOfAscendingNode( ) ) >=
          errorTolerance_ ||
-         fabs( myKeplerianHyperbolicElements2_.getTrueAnomaly( ) -
-               myKeplerianHyperbolicElements1_.getTrueAnomaly( ) ) >=
+         computeAbsoluteValue( pointerToKeplerianHyperbolicElements2_
+                               ->getTrueAnomaly( ) -
+               pointerToKeplerianHyperbolicElements1_->getTrueAnomaly( ) ) >=
          errorTolerance_ )
     {
         isOrbitalElementConversionErroneous = true;
+
         cerr << "The orbital element conversion for a hyperbolic orbit is "
              << "erroneous." << endl;
     }
@@ -353,45 +434,52 @@ bool testOrbitalElementConversions( )
     double errorToleranceBookExample_ = 1.0e-04;
 
     // From Cartesian to Keplerian.
-    CartesianElements myCartesianElements_;
+    CartesianElements* pointerToCartesianElements_ = new CartesianElements;
 
     // Define Cartesian elements.
     // Position vector expressed in canonical units.
-    myCartesianElements_.setCartesianElementX( 1.0 );
-    myCartesianElements_.setCartesianElementY( 2.0 );
-    myCartesianElements_.setCartesianElementZ( 1.0 );
+    pointerToCartesianElements_->setCartesianElementX( 1.0 );
+    pointerToCartesianElements_->setCartesianElementY( 2.0 );
+    pointerToCartesianElements_->setCartesianElementZ( 1.0 );
 
     // Velocity vector expressed in canonical units.
-    myCartesianElements_.setCartesianElementXDot( -0.25 );
-    myCartesianElements_.setCartesianElementYDot( -0.25 );
-    myCartesianElements_.setCartesianElementZDot( 0.5 );
+    pointerToCartesianElements_->setCartesianElementXDot( -0.25 );
+    pointerToCartesianElements_->setCartesianElementYDot( -0.25 );
+    pointerToCartesianElements_->setCartesianElementZDot( 0.5 );
 
     // Define Keplerian elements.
-    KeplerianElements myKeplerianElements_;
+    KeplerianElements* pointerToKeplerianElements_ = new KeplerianElements;
 
     // Convert Cartesian to Keplerian elements.
     // Gravitational parameter is equal to 1 in the applied units.
-    myKeplerianElements_ =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-                    myCartesianElements_, 1.0 );
+    pointerToKeplerianElements_ =
+            convertCartesianToKeplerianElements(
+                    pointerToCartesianElements_, pointerToCustomDefinedBody_ );
 
     // Set test result to false if the output Keplerian elements of the
     // conversion from Cartesian to Keplerian are equal to the output Keplerian
     // elements of the exercise, within a tolerance limit.
-    if ( fabs( myKeplerianElements_.getSemiMajorAxis( ) - 2.265 ) >=
+    if ( computeAbsoluteValue( pointerToKeplerianElements_
+                               ->getSemiMajorAxis( ) - 2.265 ) >=
          errorToleranceBookExample_ ||
-         fabs( myKeplerianElements_.getEccentricity( ) - 0.185 ) >=
+         computeAbsoluteValue( pointerToKeplerianElements_
+                               ->getEccentricity( ) - 0.185 ) >=
          errorToleranceBookExample_ ||
-         fabs( myKeplerianElements_.getInclination( ) - 1.401 ) >=
+         computeAbsoluteValue( pointerToKeplerianElements_
+                               ->getInclination( ) - 1.401 ) >=
          errorToleranceBookExample_ ||
-         fabs( myKeplerianElements_.getArgumentOfPeriapsis( ) - 2.6143 ) >=
+         computeAbsoluteValue( pointerToKeplerianElements_
+                               ->getArgumentOfPeriapsis( ) - 2.6143 ) >=
          errorToleranceBookExample_ ||
-         fabs( myKeplerianElements_.getRightAscensionOfAscendingNode( ) -
+         computeAbsoluteValue( pointerToKeplerianElements_
+                               ->getRightAscensionOfAscendingNode( ) -
                1.0304 ) >= errorToleranceBookExample_ ||
-         fabs( myKeplerianElements_.getTrueAnomaly( ) - 4.0959 ) >=
+         computeAbsoluteValue( pointerToKeplerianElements_
+                               ->getTrueAnomaly( ) - 4.0959 ) >=
          errorToleranceBookExample_ )
     {
         isOrbitalElementConversionErroneous = true;
+
         cerr << "The orbital element conversion for the book example is "
              << "erroneous." << endl;
     }

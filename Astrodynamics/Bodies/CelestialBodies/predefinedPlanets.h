@@ -3,7 +3,7 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/Bodies/CelestialBodies/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 20 September, 2010
- *    Last modified     : 15 January, 2011
+ *    Last modified     : 28 January, 2011
  *
  *    References
  *
@@ -33,12 +33,13 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
+ *      YYMMDD    Author        Comment
  *      100920    J. Melman     First creation of code.
  *      100929    K. Kumar      Minor comment changes.
  *      110112    K. Kumar      Updated code to use enum and
  *                              createPredefinedPlanet() function.
  *      110114    J. Melman     Corrected Doxygen comments.
+ *      110128    K. Kumar      Added Mars.
  */
 
 #ifndef PREDEFINED_PLANETS_H
@@ -48,6 +49,10 @@
 #include "celestialBody.h"
 #include "sphericalHarmonicsGravityField.h"
 #include "predefinedGravityFieldModels.h"
+
+// Using declarations.
+using std::cerr;
+using std::endl;
 
 //! Predefined planets namespace.
 /*!
@@ -62,7 +67,8 @@ namespace predefined_planets
  */
 enum PredefinedPlanets
 {
-    earth
+    earth,
+    mars
 };
 
 //! Create predefined planet.

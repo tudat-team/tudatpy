@@ -3,7 +3,7 @@
  *    models.
  *
  *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 16 November, 2010
- *    Last modified     : 15 January, 2011
+ *    Last modified     : 28 January, 2011
  *
  *    References
  *
@@ -33,7 +33,7 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      101116    K. Kumar            File created.
  *      101208    K. Kumar            Added predefined Earth central body
  *                                    gravity field.
@@ -47,6 +47,7 @@
  *                                    centralGravityField.
  *      110107    K. Kumar            Change enum and updated code.
  *      110114    J. Melman           Corrected Doxygen comments.
+ *      110128    K. Kumar            Added Mars central gravity field.
  */
 
 #ifndef PREDEFINEDGRAVITYFIELDMODELS_H
@@ -55,6 +56,10 @@
 // Include statements.
 #include "gravityFieldModel.h"
 #include "sphericalHarmonicsGravityField.h"
+
+// Using declarations.
+using std::cerr;
+using std::endl;
 
 //! Pre-defined gravity field models namespace.
 /*!
@@ -69,7 +74,8 @@ namespace predefined_gravity_field_models
 */
 enum BodiesWithPredefinedGravityFields
 {
-    earth
+    earth,
+    mars
 };
 
 //! Create predefined central gravity field.
