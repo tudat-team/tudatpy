@@ -3,7 +3,7 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
@@ -14,6 +14,10 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
+ *    Author            : J.C.P Melman
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.C.P.Melman@tudelft.nl
+
  *    Checker           : L. Abdulkadir
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : L.Abdulkadir@student.tudelft.nl
@@ -23,7 +27,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 13 December, 2010
+ *    Last modified     : 11 January, 2011
  *
  *    References
  *
@@ -50,6 +54,7 @@
  *      101213    K. Kumar            Bugfix raiseToIntegerExponent(); renamed
  *                                    raiseToIntegerPower().
  *                                    Added computeAbsoluteValue() functions.
+ *      110111    J. Melman           Added computeModulo() function.
  */
 
 // Include statements.

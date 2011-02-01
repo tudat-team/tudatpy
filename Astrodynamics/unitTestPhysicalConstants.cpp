@@ -3,8 +3,8 @@
  *    defined in physicalConstants.h.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 3
- *    Check status      : Unchecked
+ *    Version           : 4
+ *    Check status      : Checked
  *
  *    Author            : J. Melman
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 10 September, 2010
- *    Last modified     : 24 January, 2011
+ *    Last modified     : 1 February, 2011
  *
  *    References
  *
@@ -41,6 +41,8 @@
  *      110111    J. Melman           Adapted to the offical Tudat standards.
  *      110124    J. Melman           Further adapted to the offical Tudat
  *                                    standards.
+ *      110201    J. Melman           Made the tests for obliquity and
+ *                                    astronomical unit more accurate.
  */
 
 // Include statements.
@@ -93,7 +95,7 @@ bool testPhysicalConstants( )
     // Test for the obliquity of the ecliptic.
     // Test for its absolute size (23.5 degrees, from the top of my head).
     if ( computeAbsoluteValue( PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_DEGREES
-         - 23.5 ) > 0.1 )
+         - 23.439281 ) > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The obliquity of the ecliptic is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
@@ -110,10 +112,9 @@ bool testPhysicalConstants( )
     }
 
     // Test for astronomical unit.
-    // It should be equal to 150 million kilometers, give or take 1 million,
-    // which is 1 billion meters.
+    // As expected, indeed approximately equal to 150 million kilometers.
     if ( computeAbsoluteValue( PhysicalConstants::ASTRONOMICAL_UNIT -
-         150.0e9 ) > 1.0e9 )
+         1.49597870691e11 ) > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The astronomical unit is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
