@@ -64,6 +64,9 @@ State::~State( )
 std::ostream& operator<<( std::ostream& stream, State* pointerToState )
 {
     stream << "The state is set to: " << pointerToState->state << endl;
+
+    // Return stream.
+    return stream;
 }
 
 // End of file.
