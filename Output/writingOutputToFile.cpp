@@ -1,10 +1,10 @@
-/*! \file writingOutputToFile.h
+/*! \file writingOutputToFile.cpp
  *    Header file that defines the class containing all funtionality pertaining
  *    to writing output to file included in Tudat.
  *
  *    Path              : /Astrodynamics/Output/
  *    Version           : 5
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -47,7 +47,6 @@
  *      100929    K. Kumar            Added checked code written by D. Dirkx.
  *      110202    K. Kumar            Updated writePropagationHistoryToFile()
  *                                    to work with State*.
- *
  */
 
 // Include statements.
@@ -103,68 +102,76 @@ void WritingOutputToFile::writePropagationHistoryToFile(
     outputFile_.close( );
 }
 
-//! Function to write a surface geometry to a file.
-void WritingOutputToFile::
-        writeGeometryPointsToFile( SurfaceGeometry* geometry,
-                                   int numberOfLines, int numberOfPoints,
-                                   const std::string& filename, int writeType,
-                                   bool isInvertIndependentVariable)
+//! Write single surface geometry to a file.
+void WritingOutputToFile:: writeSingleSurfaceGeometryPointsToFile(
+        SingleSurfaceGeometry* pointerToSingleSurfaceGeometry,
+        const int& numberOfLines, const int& numberOfPoints,
+        const std::string& filename, const int& writeType,
+        const bool& isIndependentVariableInverted )
 {
     // Declare local variables.
     // Declare grid sizes.
-    double gridSize1;
-    double gridSize2;
+    double gridSize1_;
+    double gridSize2_;
 
     // Declaration of vector which will be iteratively retrieved from geometry
     // and written to file.
-    VectorXd point = VectorXd(3);
+    VectorXd point = VectorXd( 3 );
 
     // Open the file to which writing will take place if it is to overwrite any
     // existing content.
-    if ( writeType== 0 )
+    if ( writeType == 0 )
     {
         // Open output file.
-        outputFile_.open(filename.c_str( ));
+        outputFile_.open( filename.c_str( ) );
     }
 
     // Open the file to which writing will take place if it is to append to
-    // existing content
+    // existing content.
     else if ( writeType == 1 )
     {
         // Open output file with append option.
-        outputFile_.open(filename.c_str( ), std::ios::app );
+        outputFile_.open( filename.c_str( ), std::ios::app );
     }
 
 
     // Sets the grid size in both directions.
-    if ( isInvertIndependentVariable  == false )
+    if ( isIndependentVariableInverted  == false )
     {
         // Set grid size 1.
-        gridSize1 = ( geometry->getMaximumIndependentVariable( 1 )
-                      - geometry->getMinimumIndependentVariable( 1 ) )
+        gridSize1_ = ( pointerToSingleSurfaceGeometry->
+                      getMaximumIndependentVariable( 1 )
+                      - pointerToSingleSurfaceGeometry->
+                      getMinimumIndependentVariable( 1 ) )
                     / ( numberOfLines - 1 );
 
         // Set grid size 2.
-        gridSize2 = ( geometry->getMaximumIndependentVariable( 2 )
-                      - geometry->getMinimumIndependentVariable( 2 ))
+        gridSize2_ = ( pointerToSingleSurfaceGeometry->
+                      getMaximumIndependentVariable( 2 )
+                      - pointerToSingleSurfaceGeometry->
+                      getMinimumIndependentVariable( 2 ) )
                     / ( numberOfPoints - 1 );
     }
 
     // Sets the grid size in both directions, inverted
-    // (i.e., numberOfPoints corresponds to number of points in independent
+    // ( i.e., numberOfPoints corresponds to number of points in independent
     // variable 2 direction and numberOfLines corresponds to number of points
-    // in indepedent variable 1 direction)
+    // in indepedent variable 1 direction )
     else
     {
         // Set grid size 1.
-        gridSize1 = ( geometry->getMaximumIndependentVariable( 1 )
-                      - geometry->getMinimumIndependentVariable( 1 ) )
-                    / ( numberOfPoints - 1 );
+        gridSize1_ = ( pointerToSingleSurfaceGeometry->
+                      getMaximumIndependentVariable( 1 )
+                      - pointerToSingleSurfaceGeometry->
+                      getMinimumIndependentVariable( 1 ) ) /
+                      ( numberOfPoints - 1 );
 
         // Set grid size 1.
-        gridSize2 = ( geometry->getMaximumIndependentVariable( 2 )
-                      - geometry->getMinimumIndependentVariable( 2 ) )
-                    / ( numberOfLines - 1 );
+        gridSize2_ = ( pointerToSingleSurfaceGeometry->
+                      getMaximumIndependentVariable( 2 )
+                      - pointerToSingleSurfaceGeometry->
+                      getMinimumIndependentVariable( 2 ) ) /
+                     ( numberOfLines - 1 );
     }
 
     // Iterate over all points, and retrieve the surface point from the
@@ -175,14 +182,14 @@ void WritingOutputToFile::
         {
             // If not inverted, all points from a single value of independent
             // variable 2 are written first.
-            if ( isInvertIndependentVariable  == false )
+            if ( isIndependentVariableInverted  == false )
             {
                 // Set point.
-                point = geometry->getSurfacePoint(
-                        geometry->getMinimumIndependentVariable( 1 )
-                        + i * gridSize1,
-                        geometry->getMinimumIndependentVariable( 2 )
-                        + j * gridSize2 );
+                point = pointerToSingleSurfaceGeometry->getSurfacePoint(
+                        pointerToSingleSurfaceGeometry->
+                        getMinimumIndependentVariable( 1 ) + i * gridSize1_,
+                        pointerToSingleSurfaceGeometry->
+                        getMinimumIndependentVariable( 2 ) + j * gridSize2_ );
             }
 
             // If not inverted, all points from a single value of independent
@@ -190,14 +197,16 @@ void WritingOutputToFile::
             else
             {
                 // Set point.
-                point = geometry->getSurfacePoint(
-                        geometry->getMinimumIndependentVariable( 1 )
-                        + j * gridSize1,
-                        geometry->getMinimumIndependentVariable( 2 )
-                        + i * gridSize2);
+                point = pointerToSingleSurfaceGeometry->getSurfacePoint(
+                        pointerToSingleSurfaceGeometry->
+                        getMinimumIndependentVariable( 1 ) + j * gridSize1_,
+                        pointerToSingleSurfaceGeometry->
+                        getMinimumIndependentVariable( 2 ) + i * gridSize2_);
             }
 
             // Write the x-, y- and z-coordinates, followed by a next line command.
+            outputFile_ << i+1 << " ";
+            outputFile_ << j+1 << " ";
             outputFile_ << point( 0 ) << " ";
             outputFile_ << point( 1 ) << " ";
             outputFile_ << point( 2 ) << " ";
@@ -207,6 +216,32 @@ void WritingOutputToFile::
 
     // Closing output file.
     outputFile_.close( );
+}
+
+//! Write composite surface geometry to a file.
+void WritingOutputToFile:: writeCompositeSurfaceGeometryPointsToFile(
+        CompositeSurfaceGeometry* pointerToCompositeSurfaceGeometry,
+        int* arrayOfNumberOfLines, int* arrayOfNumberOfPoints,
+        const std::string& filename, const int& writeType,
+        bool* isIndependentVariableInvertedArray )
+{
+    // Remove file of same name, if writeType is not append.
+    if ( writeType == 0 )
+    {
+        remove( filename.c_str( ) );
+    }
+
+    // Iterate over all single geometries in composite geometry.
+    for ( unsigned int i = 0; i < pointerToCompositeSurfaceGeometry->
+          getNumberOfSingleSurfaceGeometries( ); i++ )
+    {
+        // Append single geometry to file.
+        writeSingleSurfaceGeometryPointsToFile(
+                pointerToCompositeSurfaceGeometry
+                ->getSingleSurfaceGeometry( i ),
+                arrayOfNumberOfLines[ i ], arrayOfNumberOfPoints[ i ],
+                filename, 1, isIndependentVariableInvertedArray[ i ] );
+    }
 }
 
 // End of file.

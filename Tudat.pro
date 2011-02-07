@@ -33,9 +33,10 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
     Mathematics/unitTestRandomNumberGenerator.cpp \
-    Mathematics/GeometricShapes/surfaceGeometry.cpp \
-    Mathematics/GeometricShapes/sphereSegment.cpp \
+    Mathematics/GeometricShapes/compositeSurfaceGeometry.cpp \
     Mathematics/GeometricShapes/geometricShape.cpp \
+    Mathematics/GeometricShapes/singleSurfaceGeometry.cpp \
+    Mathematics/GeometricShapes/surfaceGeometry.cpp \
     Mathematics/LinearAlgebra/linearAlgebra.cpp \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegrators/integrator.cpp \
@@ -77,9 +78,10 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/basicMathematicsFunctions.h \
     Mathematics/randomNumberGenerator.h \
     Mathematics/unitTestRandomNumberGenerator.h \
-    Mathematics/GeometricShapes/surfaceGeometry.h \
-    Mathematics/GeometricShapes/sphereSegment.h \
+    Mathematics/GeometricShapes/compositeSurfaceGeometry.h \
     Mathematics/GeometricShapes/geometricShape.h \
+    Mathematics/GeometricShapes/singleSurfaceGeometry.h \
+    Mathematics/GeometricShapes/surfaceGeometry.h \
     Mathematics/LinearAlgebra/linearAlgebra.h \
     Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h \

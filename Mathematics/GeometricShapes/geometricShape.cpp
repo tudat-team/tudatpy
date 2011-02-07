@@ -1,60 +1,67 @@
 /*! \file geometricShape.cpp
- *  This file contains the definitions of the GeometricShape
- *  base class.
+ *   This file contains the definitions of the GeometricShape
+ *   base class.
  *
- *  Path              : Mathematics/Geometry/
- *  Version           : 1
- *  Check status      : Checked
+ *    Path              : /Mathematics/GeometricShapes/
+ *    Version           : 7
+ *    Check status      : Checked
  *
- *  Author            : Dominic Dirkx
- *  Affiliation       : TU Delft
- *  E-mail address    : D.Dirkx@student.tudelft.nl
+ *    Author            : Dominic Dirkx
+ *    Affiliation       : TU Delft
+ *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
- *  Checker           : J. Melman
- *  Affiliation       : Delft University of Technology
- *  E-mail address    : J.C.P.Melman@tudelft.nl
+ *    Checker           : J. Melman
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *  Date created      : 29 September, 2010
- *  Last modified     : 29 September, 2010
+ *    Checker           : K. Kumar
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : K.Kumar@tudelft.nl
  *
- *  References
+ *    Date created      : 29 September, 2010
+ *    Last modified     : 7 February, 2011
  *
- *  Notes
- *    The original file was split into several parts, so that each class is
- *    defined separately in a file. Hence, the this file was created after the
- *    first entries in the changelog and the file version is lower than the
- *    number of entries in changelog.
+ *    References
  *
- *  Copyright (c) 2010 Delft University of Technology.
+ *    Notes
  *
- *  This software is protected by national and international copyright.
- *  Any unauthorized use, reproduction or modification is unlawful and
- *  will be prosecuted. Commercial and non-private application of the
- *  software in any form is strictly prohibited unless otherwise granted
- *  by the authors.
+ *    Copyright (c) 2010 Delft University of Technology.
  *
- *  The code is provided without any warranty; without even the implied
- *  warranty of merchantibility or fitness for a particular purpose.
+ *    This software is protected by national and international copyright.
+ *    Any unauthorized use, reproduction or modification is unlawful and
+ *    will be prosecuted. Commercial and non-private application of the
+ *    software in any form is strictly prohibited unless otherwise granted
+ *    by the authors.
  *
- *  Changelog
- *    100910   D. Dirkx                    First version of file
- *    100915   D. Dirkx                    Modified to correct comments, 80
- *                                         lines rule, etc.
- *    100928   D. Dirkx                    Modifications following first
- *                                         checking iteration.
- *    100929   D. Dirkx                    Creation of separate file for class
+ *    The code is provided without any warranty; without even the implied
+ *    warranty of merchantibility or fitness for a particular purpose.
+ *
+ *    Changelog
+ *      YYMMDD    Author            Comment
+ *      100910    D. Dirkx          First version of file.
+ *      100915    D. Dirkx          Modified to correct comments, 80-lines
+ *                                  rule, etc.
+ *      100928    D. Dirkx          Modifications following first checking
+ *                                  iteration.
+ *      100929    D. Dirkx          Creation of separate file for class.
+ *      110124    K. Kumar          Updated path; removed "Notes"; minor
+ *                                  changes to comments and layout; added
+ *                                  "End of line" comment.
+ *      110204    K. Kumar          Minor comment and layout modifications.
+ *      110207    D. Dirkx          Removed overloaded ostream operator.
  */
 
+// Include statements.
 #include "geometricShape.h"
 
-//! Base class constructor.
+//! Default constructor.
 GeometricShape::GeometricShape( )
 {
-
 }
 
-//! Base class destructor.
+//! Default destructor.
 GeometricShape::~GeometricShape( )
 {
-
 }
+
+// End of file.

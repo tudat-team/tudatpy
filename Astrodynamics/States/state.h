@@ -90,6 +90,7 @@ public:
      * Overloads ostream to print class information.
      * \param stream Stream object.
      * \param pointerToPropagator Pointer to State.
+     * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      State* pointerToState );

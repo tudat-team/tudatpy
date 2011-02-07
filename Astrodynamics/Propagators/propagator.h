@@ -173,6 +173,7 @@ public:
      * Overloads ostream to print class information.
      * \param stream Stream object.
      * \param pointerToPropagator Pointer to Propagator.
+     * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      Propagator* pointerToPropagator );

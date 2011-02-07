@@ -56,11 +56,6 @@ State::~State( )
 }
 
 //! Overload ostream to print class information.
-/*!
- * Overloads ostream to print class information.
- * \param stream Stream object.
- * \param pointerToPropagator Pointer to State.
- */
 std::ostream& operator<<( std::ostream& stream, State* pointerToState )
 {
     stream << "The state is set to: " << pointerToState->state << endl;

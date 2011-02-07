@@ -84,6 +84,7 @@ public:
      * Overloads ostream to print class information.
      * \param stream Stream object.
      * \param pointerToIntegrator Pointer to Integrator.
+     * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      Integrator* pointerToIntegrator );
