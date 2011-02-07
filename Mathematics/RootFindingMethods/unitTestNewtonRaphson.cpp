@@ -193,6 +193,8 @@ bool testNewtonRaphsonMethod( )
                 pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
                 - expectedResult ) )
         {
+            isNewtonRaphsonMethodErroneous = true;
+
             // Generate error statements.
             cerr << "The computed value ( " <<
                     pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )

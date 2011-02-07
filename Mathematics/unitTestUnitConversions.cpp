@@ -92,6 +92,7 @@ bool testUnitConversions( )
     {
         cerr << "The conversion from astronomical units to meters does not "
              << "function correctly." << endl;
+
         isUnitConversionsErroneous = true;
     }
 
