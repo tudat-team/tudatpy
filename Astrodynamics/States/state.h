@@ -1,11 +1,14 @@
 /*! \file state.h
  *    This header file contains a base class for all state classes in Tudat.
+ *    This base class provides an interface for the rest of the Tudat library
+ *    to ensure consistent implementation of state vectors, matrices etc. All
+ *    state classes in Tudat are derived from this base class.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 2
+ *    Version           : 7
  *    Check status      : Checked
  *
- *    Author            : K. Kumar
+ *    Checker           : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
@@ -13,12 +16,15 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *    Date created      : 26 Checked, 2010
- *    Last modified     : 02 December, 2010
+ *    Date created      : 26 October, 2010
+ *    Last modified     : 7 February, 2011
  *
  *    References
  *
  *    Notes
+ *      The variable state is public as opposed to being protected and accessed
+ *      by set and get functions to simplify the use of Eigen functions for
+ *      vectors in the rest of the code, e.g. setZero(), segment().
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -32,20 +38,30 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101026    K. Kumar      First creation of code.
- *      101202    J. Melman     Changed path and blank line removed.
+ *      YYMMDD    Author            Comment
+ *      101026    K. Kumar          First creation of code.
+ *      101110    K. Kumar          Added setState() function for matrices.
+ *      101202    J. Melman         Changed path and blank line removed.
+ *      110110    K. Kumar          Changed matrices to vectors.
+ *      110202    K. Kumar          Removed set/get functions for state and
+ *                                  made state a public variable for
+ *                                  functionality.
+ *      110204    K. Kumar          Note added about public state variable.
+ *      110207    K. Kumar          Added ostream overload.
  */
 
 #ifndef STATE_H
 #define STATE_H
 
 // Include statements.
+#include <map>
+#include <string>
 #include "linearAlgebra.h"
 
 //! State class.
 /*!
- * Definition of State class.
+ * Definition of State class. This is a base class for all state classes
+ * defined within Tudat.
  */
 class State
 {
@@ -63,27 +79,22 @@ public:
      */
     ~State( );
 
-    //! Set state.
-    /*!
-     * This function sets the state.
-     * \param state State given as a vector.
-     */
-    void setState( VectorXd& state );
-
-    //! Get state.
-    /*!
-     * This function returns the state.
-     * \return State.
-     */
-    VectorXd& getState( );
-
-protected:
-
     //! State.
     /*!
      * State.
      */
-    VectorXd state_;
+    VectorXd state;
+
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param pointerToPropagator Pointer to State.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     State* pointerToState );
+
+protected:
 
 private:
 };

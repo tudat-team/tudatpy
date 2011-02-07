@@ -5,7 +5,7 @@
  *    Version           : 4
  *    Check status      : Checked
  *
- *    Author            : K. Kumar
+ *    Checker           : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
@@ -13,8 +13,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *    Date created      : 20 Checked, 2010
- *    Last modified     : 02 December, 2010
+ *    Date created      : 20 October, 2010
+ *    Last modified     : 2 December, 2010
  *
  *    References
  *
@@ -32,12 +32,13 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101020    K. Kumar      First creation of code.
- *      101022    K. Kumar      Added set/get functions and completed code
- *                              comments.
- *      101110    K. Kumar      Added get functions for auxiliary parameters.
- *      101130    E. Iorfida    Added set function for semi-latus rectum.
+ *      YYMMDD    Author            Comment
+ *      101020    K. Kumar          First creation of code.
+ *      101022    K. Kumar          Added set/get functions and completed code
+ *                                  comments.
+ *      101110    K. Kumar          Added get functions for auxilliary
+ *                                  parameters.
+ *      101130    E. Iorfida        Added set function for semi-latus rectum.
  */
 
 #ifndef KEPLERIANELEMENTS_H
@@ -69,33 +70,33 @@ public:
 
     //! Set semi-major axis.
     /*!
-     * Set semi-major axis.
+     * Sets semi-major axis.
      * \param semiMajorAxis Semi-major axis.
      */
     void setSemiMajorAxis( const double& semiMajorAxis );
 
     //! Set eccentricity.
     /*!
-     * Set eccentricity.
+     * Sets eccentricity.
      * \param eccentricity Eccentricity.
      */
     void setEccentricity( const double& eccentricity );
 
     //! Set inclination.
     /*!
-     * Set inclination.
+     * Sets inclination.
      * \param inclination Inclination.
      */
     void setInclination( const double& inclination );
 
     //! Set argument of periapsis.
     /*!
-     * Set argument of periapsis.
+     * Sets argument of periapsis.
      * \param argumentOfPeriapsis Argument of periapsis.
      */
     void setArgumentOfPeriapsis( const double& argumentOfPeriapsis );
 
-    //! Set right ascension of ascending node.
+    //! Sets right ascension of ascending node.
     /*!
      * Set right ascension of ascending node.
      * \param rightAscensionOfAscendingNode Right ascension of ascending node.
@@ -105,14 +106,17 @@ public:
 
     //! Set true anomaly.
     /*!
-     * Set true anomaly.
+     * Sets true anomaly.
      * \param trueAnomaly True anomaly.
      */
     void setTrueAnomaly( const double& trueAnomaly );
 
-    //! Set semi-latus rectum.
+    //! Set semi-latus rectum ( for parabolic orbits ).
     /*!
-     * Set semi-latus rectum.
+     * This function sets the semi-latus rectum for parabolic orbits.
+     * The semi-latus rectum is not computed from the orbital parameters
+     * since for a parabola the semi-major axis is undefined. This function
+     * must only be used in conjunction with parabolic orbits.
      * \param semiLatusRectum Semi-latus rectum.
      */
     void setSemiLatusRectum( const double& semiLatusRectum );
@@ -159,13 +163,6 @@ public:
      */
     double& getTrueAnomaly( );
 
-    //! Get semi-latus rectum.
-    /*!
-     * Get semi-latus rectum.
-     * \return Semi-latus rectum.
-     */
-    double getSemiLatusRectum( );
-
     //! Get longitude of periapsis.
     /*!
      * Get longitude of periapsis.
@@ -176,7 +173,7 @@ public:
     //! Get true longitude.
     /*!
      * Get true longitude.
-     *  \return True longitude.
+     * \return True longitude.
      */
     double getTrueLongitude( );
 
@@ -187,53 +184,23 @@ public:
      */
     double getArgumentOfLatitude( );
 
+    //! Get semi-latus rectum.
+    /*!
+     * Get semi-latus rectum.
+     * \return Semi-latus rectum.
+     */
+    double getSemiLatusRectum( );
+
 protected:
 
 private:
 
-    //! Semi-major axis.
+    //! Semi-latus rectum ( for parabolas ).
     /*!
-     * Semi-major axis.
-     */
-    double semiMajorAxis_;
-
-    //! Eccentricity.
-    /*!
-     * Eccentricity.
-     */
-    double eccentricity_;
-
-    //! Inclination.
-    /*!
-     * Inclination.
-     */
-    double inclination_;
-
-    //! Argument of periapsis.
-    /*!
-     * Argument of periapsis.
-     */
-    double argumentOfPeriapsis_;
-
-    //! Right ascension of ascending node.
-    /*!
-     * Right ascension of ascending node.
-     */
-    double rightAscensionOfAscendingNode_;
-
-    //! True anomaly.
-    /*!
-     * True anomaly.
-     */
-    double trueAnomaly_;
-
-    //! Semi-latus rectum.
-    /*!
-     * Semi-latus rectum.
+     * Semi-latus rectum, only applicable for parabolas.
      */
     double semiLatusRectum_;
-
-  };
+};
 
 #endif // KEPLERIANELEMENTS_H
 

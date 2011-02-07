@@ -2,8 +2,8 @@
  *    Source file that defines the gravity force model included in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/
- *    Version           : 5
- *    Check status      : Checked
+ *    Version           : 6
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,7 +14,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 17 September, 2010
- *    Last modified     : 19 January, 2011
+ *    Last modified     : 2 February, 2011
  *
  *    References
  *
@@ -32,7 +32,7 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      100917    K. Kumar            File created.
  *      100929    D. Dirkx            File checked.
  *      100929    K. Kumar            Include statements modified and
@@ -40,6 +40,8 @@
  *      110113    K. Kumar            Updated computeStateDerivatives().
  *      110119    K. Kumar            Changed computeStateDerivatives() to
  *                                    computeForce().
+ *      110202    K. Kumar            Updated code to make use of the State and
+ *                                    CartesianPositionElements classes.
  */
 
 // Include statements.
@@ -65,16 +67,19 @@ void Gravity::setBody( CelestialBody* celestialBody )
 }
 
 //! Compute force per unit mass for gravity field expansion.
-VectorXd& Gravity::computeForce( VectorXd& stateVector )
+VectorXd& Gravity::computeForce( State* pointerToState )
 {
+    // Set Cartesian position elements state.
+    cartesianPositionElements_.state = pointerToState->state.segment( 0, 3 );
+
     // Set pointer to gravity field model to gravity field model stored in
     // CelestialBody object.
     pointerToGravityFieldModel_ = celestialBody_->getGravityFieldModel( );
 
     // Compute forces per unit mass using gradient of potential of gravity
     // expansion.
-    forcePerUnitMass_ = pointerToGravityFieldModel_
-                        ->getGradientOfPotential( stateVector.segment( 0, 3 ) );
+    forcePerUnitMass_ = pointerToGravityFieldModel_->getGradientOfPotential(
+            &cartesianPositionElements_ );
 
     // Return computed forces per unit mass.
     return forcePerUnitMass_;

@@ -3,7 +3,7 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
@@ -27,7 +27,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 11 January, 2010
+ *    Last modified     : 2 February, 2011
  *
  *    References
  *
@@ -45,7 +45,7 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      100903    K. Kumar            File header and footer added.
  *      100916    L. Abdulkadir       File checked.
  *      100929    K. Kumar            Checked code by D. Dirkx added.
@@ -55,6 +55,8 @@
  *                                    function; renamed raiseToIntegerPower().
  *                                    Added computeAbsoluteValue() functions.
  *      110111    J. Melman           Added computeModulo() function.
+ *      110202    K. Kumar            Added overload for State* for
+ *                                    computeLinearInterpolation();
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
@@ -66,6 +68,7 @@
 #include <cfloat>
 #include "basicFunctions.h"
 #include "linearAlgebra.h"
+#include "state.h"
 
 //! Mathematics namespace.
 /*!
@@ -94,9 +97,9 @@ const static double MACHINE_PRECISION_LONG_DOUBLES = LDBL_EPSILON;
 
 //! Compute linear interpolation.
 /*!
- * This function computes linear interpolation of data provided in the form of
- * a vector of sorted indepedent variables and an associated vector of
- * dependent variables. The linear interpolation equation used is:
+ * Computes linear interpolation of data provided in the form of a vector of
+ * sorted indepedent variables and an associated vector of dependent variables.
+ * The linear interpolation equation used is:
  * \f[
  *      y_{target} = x_{1} * ( 1 - mu ) + x_{2} * mu
  * \f]
@@ -116,9 +119,9 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
                                    double& targetIndependentVariableValue );
 //! Compute linear interpolation.
 /*!
- * This function computes linear interpolation of data provided in the form of
- * a vector of sorted indepedent variables and an associated vector of
- * dependent variables. The linear interpolation equation used is:
+ * Computes linear interpolation of data provided in the form of a map of
+ * independent variables and associated vectors of dependent variables.
+ * The linear interpolation equation used is:
  * \f[
  *      y_{target} = x_{1} * ( 1 - mu ) + x_{2} * mu
  * \f]
@@ -134,6 +137,28 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
  */
 VectorXd computeLinearInterpolation(
         std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+        double& targetIndependentVariableValue );
+
+//! Compute linear interpolation.
+/*!
+ * Computes linear interpolation of data provided in the form of a map of
+ * sorted independent variables and associated State objects containing vectors
+ * of dependent variables. The linear interpolation equation used is:
+ * \f[
+ *      y_{target} = x_{1} * ( 1 - mu ) + x_{2} * mu
+ * \f]
+ * where \f$ \mu = \frac{ x_{target} - x_{1} } { x_{2} + x_{1} } \f$
+ * and \f$ x_{2} > x_{1} \f$.
+ * \param sortedIndepedentAndDependentVariables Map of sorted independent
+ *              variables, in ascending/descending order, and associated
+ *              State objects.
+ * \param targetIndependentVariableValue Target independent variable value
+ *              in vector of sorted independent variables.
+ * \return Vector of dependent variable associated with target independent
+ *              value in vector of sorted independent variables.
+ */
+State* computeLinearInterpolation(
+        std::map < double, State* >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue );
 
 //! Convert spherical to cartesian coordinates.

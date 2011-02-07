@@ -2,8 +2,8 @@
  *    Source file that defines the numerical propagator class included in
  *    Tudat.
  *
- *    Path              : /Astrodynamics/Propagator/
- *    Version           : 4
+ *    Path              : /Astrodynamics/Propagators/
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,14 +15,14 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 15 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 7 February, 2011
  *
  *    References
  *
  *    Notes
- *      Exception handling not included yet. If necessary set functions are not
- *      defined, the propagateOrbit function should throw an error; this still
- *      has to be implemented.
+ *      The code only handles 1st-order Ordinary Differential Equations (ODEs)
+ *      at the moment. In future, the code will be changed to accommodate
+ *      2nd-order ODE's.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -36,23 +36,28 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      100915    K. Kumar            File created.
- *      100928    K. Kumar            Modified propagate function; added fixed
- *                                    output interval option.
- *      100929    J. Melman           Corrected several alignments; added
- *                                    some comments.
- *      100929    K. Kumar            Minor comment modifications.
+ *      YYMMDD    Author            Comment
+ *      100915    K. Kumar          File created.
+ *      100928    K. Kumar          Modified propagate function; added fixed
+ *                                  output interval option.
+ *      100929    J. Melman         Corrected several alignments; added some
+ *                                  comments.
+ *      100929    K. Kumar          Minor comment modifications.
+ *      110202    K. Kumar          Updated code to use Integrator adaptor
+ *                                  instead of pointers-to-member functions;
+ *                                  Update code to use State class.
+ *      110203    J. Melman         Possibly encountered a mistake regarding
+ *                                  the addition of the forces.
+ *      110207    K. Kumar          Updated code with corrections.
  */
 
 // Include statements.
 #include "numericalPropagator.h"
 
 //! Default constructor.
-NumericalPropagator::NumericalPropagator( )
+NumericalPropagator::NumericalPropagator( ) : sizeOfAssembledState_( 0 )
 {
-    sizeOfAssembledStateVector_ = 0;
-};
+}
 
 //! Default destructor.
 NumericalPropagator::~NumericalPropagator( )
@@ -66,16 +71,33 @@ void NumericalPropagator::setIntegrator( Integrator* pointerToIntegrator )
     pointerToIntegrator_ = pointerToIntegrator;
 }
 
+//! Add force model for propagation of a body.
+void NumericalPropagator::addForceModel( Body* pointerToBody,
+                                         ForceModel* pointerToForceModel )
+{
+    bodiesToPropagate_[ pointerToBody ]
+            ->vectorContainerOfPointersToForceModels_
+                     .push_back( pointerToForceModel );
+}
+
 //! Propagate.
 void NumericalPropagator::propagate( )
 {
     // Declare local variables.
-    // Start position for assembly of state vector.
-    int startAssemblyPositionInStateVector_ = 0;
+    // Start position for assembly of state.
+    int startAssemblyPositionInState_ = 0;
 
     // Declare target integration interval value, i.e., the value of
     // the independent variable at the end of the integration interval.
     double targetIntegrationIntervalValue_;
+
+    // Set the class that contains the derivative function needed for the
+    // integrator.
+    integratorAdaptorForNumericalPropagator_.setClass( this );
+
+    // Set state derivative function used by integrator.
+    integratorAdaptorForNumericalPropagator_.setStateDerivativeFunction(
+            &NumericalPropagator::computeSumOfStateDerivatives_ );
 
     // Set integration interval start and end.
     pointerToIntegrator_
@@ -83,60 +105,60 @@ void NumericalPropagator::propagate( )
     pointerToIntegrator_
             ->setIntegrationIntervalEnd( propagationIntervalEnd_ );
 
-    // Set assembled state vector to determined size with zero values.
-    assembledStateVector_.setZero( sizeOfAssembledStateVector_ );
+    // Set the adaptor for integrator.
+    pointerToIntegrator_->setIntegratorAdaptor(
+            &integratorAdaptorForNumericalPropagator_ );
 
-    // Set assembled state derivative vector to determined size with zero
-    // values.
-    assembledStateDerivativeVector_.setZero( sizeOfAssembledStateVector_ );
-
-    // Loop over map of bodies to be propagated.
-    for ( iteratorBodiesToBePropagated_ =
-                  bodiesToBePropagated_.begin( );
-          iteratorBodiesToBePropagated_ !=
-                  bodiesToBePropagated_.end( );
-          iteratorBodiesToBePropagated_++ )
+    // Loop over map of bodies to propagate.
+    for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
+          iteratorBodiesToPropagate_++ )
     {
-        // Set propagator to this NumericalPropagator object for all bodies.
-        iteratorBodiesToBePropagated_
-                ->second->pointerToPropagator_ = this;
-
-        // Store start of range of initial state vector of a given
-        // body in assembled initial state vector.
-        iteratorBodiesToBePropagated_
-                ->second->stateVectorStartIndex_ =
-                        startAssemblyPositionInStateVector_;
-
-        // Assemble state vector using initial state vectors of bodies
-        // to be propagated.
-        assembledStateVector_
-                .segment( iteratorBodiesToBePropagated_
-                                  ->second->stateVectorStartIndex_,
-                          iteratorBodiesToBePropagated_
-                                  ->second->sizeOfStateVector_ )
-        = iteratorBodiesToBePropagated_->second->stateVector_;
-
-        // Start Position in initial state vector for assembly.
-        startAssemblyPositionInStateVector_ +=
-                iteratorBodiesToBePropagated_
-                        ->second->sizeOfStateVector_;
+        // Increment size of assembled state based on size of initial state of
+        // body to propagate.
+        sizeOfAssembledState_ += iteratorBodiesToPropagate_->second
+                                 ->initialState_.state.size( );
     }
 
-    // Set assembled initial state vector as state vector for integrator.
-    pointerToIntegrator_
-            ->setInitialStateVector( assembledStateVector_ );
+    // Set assembled state to determined size with zero values.
+    assembledState_.state.setZero( sizeOfAssembledState_ );
 
-    // Set computeSumOfStateDerivatives function as state derivative function
-    // for integrator.
-    pointerToIntegrator_
-            ->setStateDerivativeFunction(
-                   &NumericalPropagator::computeSumOfStateDerivatives_, this );
+    // Set assembled state derivative to determined size with zero values.
+    assembledStateDerivative_.state.setZero( sizeOfAssembledState_ );
+
+    // Loop over map of bodies to propagate.
+    for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
+          iteratorBodiesToPropagate_++ )
+    {
+        // Set propagator to this NumericalPropagator object for all bodies.
+        iteratorBodiesToPropagate_->second->pointerToPropagator_ = this;
+
+        // Store start of range of initial state of a given body in assembled
+        // initial state.
+        iteratorBodiesToPropagate_->second->stateStartIndex_
+                = startAssemblyPositionInState_;
+
+        // Assemble state using initial states of bodies to propagate.
+        assembledState_.state.segment( iteratorBodiesToPropagate_
+                                       ->second->stateStartIndex_,
+                                       iteratorBodiesToPropagate_
+                                       ->second->sizeOfState_ )
+                = iteratorBodiesToPropagate_->second->currentState_.state;
+
+        // Start position in initial state for assembly.
+        startAssemblyPositionInState_ +=
+                iteratorBodiesToPropagate_->second->sizeOfState_;
+    }
+
+    // Set assembled initial state as state for integrator.
+    pointerToIntegrator_->setInitialState( &assembledState_ );
 
     // Check if fixed output interval is set.
     if ( fixedOutputInterval_ != -0.0 )
     {
         // Set boolean flag to save integration history to true.
-        pointerToIntegrator_->saveIntegrationHistory( true );
+        pointerToIntegrator_->setIsIntegrationHistoryToBeSaved( true );
 
         // Execute integration.
         pointerToIntegrator_->integrate( );
@@ -144,14 +166,13 @@ void NumericalPropagator::propagate( )
         // Store integration history.
         integrationHistory_ = pointerToIntegrator_->getIntegrationHistory( );
 
-        // Compute numerb of output intervals.
-        unsigned int numberOfOutputsIntervals = std
-                                       ::floor( ( propagationIntervalEnd_
-                                                  - propagationIntervalStart_ )
-                                                  / fixedOutputInterval_ ) + 1;
+        // Compute number of output intervals.
+        unsigned int numberOfOutputIntervals = std::ceil(
+                ( propagationIntervalEnd_ - propagationIntervalStart_ )
+                / fixedOutputInterval_ );
 
         // Compute values at successive output interval values.
-        for ( unsigned int i = 0; i < numberOfOutputsIntervals; i++ )
+        for ( unsigned int i = 0; i < numberOfOutputIntervals; i++ )
         {
             // Compute target integration interval value for interpolation of
             // integration output.
@@ -170,30 +191,33 @@ void NumericalPropagator::propagate( )
               iteratorPropagationHistory_++ )
         {
             // Loop over map of bodies that were propagated.
-            for ( iteratorBodiesToBePropagated_ =
-                          bodiesToBePropagated_.begin( );
-                  iteratorBodiesToBePropagated_ !=
-                          bodiesToBePropagated_.end( );
-                  iteratorBodiesToBePropagated_++ )
+            for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+                  iteratorBodiesToPropagate_ !=  bodiesToPropagate_.end( );
+                  iteratorBodiesToPropagate_++ )
             {
-                // Disassemble assembled initial state vector by updating
-                // propagation histories in respective BodyContainer objects.
-                // PLACEHOLDER
-                iteratorBodiesToBePropagated_->second
-                        ->propagationHistory_[ iteratorPropagationHistory_->first ]
-                        = iteratorPropagationHistory_->second
-                          .segment( iteratorBodiesToBePropagated_
-                                            ->second->stateVectorStartIndex_,
-                                    iteratorBodiesToBePropagated_
-                                            ->second->sizeOfStateVector_ );
+                // Pointer to new state object.
+                State* pointerToState_ = new State;
 
-                // Store state vector as final state vector
-                iteratorBodiesToBePropagated_->second->finalStateVector_ =
-                        pointerToIntegrator_->getFinalStateVector( )
-                        .segment( iteratorBodiesToBePropagated_
-                                          ->second->stateVectorStartIndex_,
-                                  iteratorBodiesToBePropagated_
-                                          ->second->sizeOfStateVector_ );
+                // Disassemble assembled initial state by updating propagation
+                // histories in respective PropagatorDataContainer objects.
+                pointerToState_->state = iteratorPropagationHistory_->second
+                                         ->state.segment(
+                                                 iteratorBodiesToPropagate_
+                                                 ->second->stateStartIndex_,
+                                                 iteratorBodiesToPropagate_
+                                                 ->second->sizeOfState_ );
+
+                iteratorBodiesToPropagate_->second->propagationHistory_[
+                        iteratorPropagationHistory_->first ]
+                        = pointerToState_;
+
+                // Store state as final state.
+                iteratorBodiesToPropagate_->second->finalState_.state
+                        = pointerToIntegrator_->getFinalState( )->state
+                          .segment( iteratorBodiesToPropagate_
+                                    ->second->stateStartIndex_,
+                                    iteratorBodiesToPropagate_
+                                    ->second->sizeOfState_ );
             }
         }
     }
@@ -206,26 +230,103 @@ void NumericalPropagator::propagate( )
         pointerToIntegrator_->integrate( );
 
         // Loop over map of bodies to be propagated.
-        for ( iteratorBodiesToBePropagated_ =
-                      bodiesToBePropagated_.begin( );
-              iteratorBodiesToBePropagated_ !=
-                      bodiesToBePropagated_.end( );
-              iteratorBodiesToBePropagated_++ )
+        for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+              iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
+              iteratorBodiesToPropagate_++ )
         {
-            // Disassemble assembled initial state vector by updating state
-            // vectors in respective BodyContainer objects.
-            iteratorBodiesToBePropagated_->second->stateVector_ =
-                    pointerToIntegrator_->getFinalStateVector( )
-                    .segment( iteratorBodiesToBePropagated_
-                                      ->second->stateVectorStartIndex_,
-                              iteratorBodiesToBePropagated_
-                                      ->second->sizeOfStateVector_ );
+            // Disassemble assembled initial state by updating state in
+            // respective PropagatorDataContainer objects.
+            iteratorBodiesToPropagate_->second->currentState_.state
+                    = pointerToIntegrator_->getFinalState( )->state
+                      .segment( iteratorBodiesToPropagate_
+                                ->second->stateStartIndex_,
+                                iteratorBodiesToPropagate_
+                                ->second->sizeOfState_ );
 
-            // Store state vector as final state vector
-            iteratorBodiesToBePropagated_->second->finalStateVector_
-                    = iteratorBodiesToBePropagated_->second->stateVector_;
+            // Store state as final state.
+            iteratorBodiesToPropagate_->second->finalState_
+                    = iteratorBodiesToPropagate_->second->currentState_;
         }
     }
+}
+
+//! Compute sum of state derivatives.
+State* NumericalPropagator::
+        computeSumOfStateDerivatives_( State* pointerToAssembledState )
+{
+    // Declare local variables.
+    unsigned int sizeOfState_;
+
+    // State derivative.
+    State stateDerivative_;
+
+    // Vector of sum of forces.
+    VectorXd sumOfForces_;
+
+    // Set assembled state to zero.
+    assembledStateDerivative_
+            .state.setZero( pointerToAssembledState->state.rows( ) );
+
+    // Loop over map of bodies to propagate.
+    for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
+          iteratorBodiesToPropagate_++ )
+    {
+        // Set state for body to propagate based on associated segment of
+        // assembled state.
+        iteratorBodiesToPropagate_->second->currentState_.state
+                = pointerToAssembledState->state.segment(
+                        iteratorBodiesToPropagate_->second->stateStartIndex_,
+                        iteratorBodiesToPropagate_->second->sizeOfState_ );
+
+        // Compute sum of forces for first force model.
+        sumOfForces_ = iteratorBodiesToPropagate_->second
+                       ->vectorContainerOfPointersToForceModels_.at( 0 )
+                       ->computeForce( &iteratorBodiesToPropagate_
+                                       ->second->currentState_ );
+
+        // Loop over container of force models for the remaining force models
+        // for a given body to propagate.
+        for ( unsigned int i = 1;
+              i < iteratorBodiesToPropagate_->second
+              ->vectorContainerOfPointersToForceModels_.size( );
+              i++ )
+        {
+            // Compute sum of forces for given force model.
+            sumOfForces_ += iteratorBodiesToPropagate_->second
+                            ->vectorContainerOfPointersToForceModels_.at( i )
+                            ->computeForce( &iteratorBodiesToPropagate_
+                                            ->second->currentState_ );
+        }
+
+        // Set size of state.
+        sizeOfState_ = iteratorBodiesToPropagate_->second->sizeOfState_;
+
+        // Set state derivative to size of state.
+        stateDerivative_.state.setZero( sizeOfState_ );
+
+        // Set state derivative elements using state and computed sum of
+        // forces.
+        // Set derivative of position equal to the velocity.
+        stateDerivative_.state.segment( 0, sizeOfState_
+                                        - sumOfForces_.rows( ) )
+                = iteratorBodiesToPropagate_->second->currentState_.state
+                  .segment( sumOfForces_.rows( ), sizeOfState_
+                            - sumOfForces_.rows( ) );
+
+        // Set derivative of velocity equal to acceleration ( specific force ).
+        stateDerivative_.state.segment( sizeOfState_ - sumOfForces_.rows( ),
+                                        sumOfForces_.rows( ) ) = sumOfForces_;
+
+        // Add computed state derivatives to assembled state derivative.
+        assembledStateDerivative_
+                .state.segment( iteratorBodiesToPropagate_->second
+                                 ->stateStartIndex_, sizeOfState_ )
+                = stateDerivative_.state;
+    }
+
+    // Return pointer to assembled state derivative.
+    return &assembledStateDerivative_;
 }
 
 // End of file.

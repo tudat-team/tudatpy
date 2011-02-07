@@ -3,8 +3,8 @@
  *    included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 5
- *    Check status      : Checked
+ *    Version           : 7
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 17 November, 2010
- *    Last modified     : 6 January, 2011
+ *    Last modified     : 4 February, 2011
  *
  *    References
  *
@@ -33,16 +33,19 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      101117    K. Kumar            File created.
- *      101214    K. Kumar            Updated getGradientOfPotential() and
- *                                    getLaplacianOfPotential().
- *      101215    K. Kumar            Simplified getGradientOfPotential() and
- *                                    getLaplacianOfPotential().
- *      101216    K. Kumar            Updated functions to use position vector
- *                                    of origin for relative position.
- *      110106    K. Kumar            Added set/get functions for degree and
- *                                    order of expansion.
+ *      YYMMDD    Author            Comment
+ *      101117    K. Kumar          File created.
+ *      101214    K. Kumar          Updated getGradientOfPotential() and
+ *                                  getLaplacianOfPotential().
+ *      101215    K. Kumar          Simplified getGradientOfPotential() and
+ *                                  getLaplacianOfPotential().
+ *      101216    K. Kumar          Updated functions to use position
+ *                                  of origin for relative position.
+ *      110106    K. Kumar          Added set/get functions for degree and
+ *                                  order of expansion.
+ *      110202    K. Kumar          Updated code to make use of the
+ *                                  CartesianPositionElements class.
+ *      110204    K. Kumar          Removed "vector" from naming.
  */
 
 // Include statements.
@@ -53,11 +56,10 @@ using mathematics::raiseToIntegerPower;
 
 //! Default constructor.
 SphericalHarmonicsGravityField::SphericalHarmonicsGravityField( )
-{
-    // Initialize variables.
-    referenceRadius_ = -0.0;
-    degreeOfExpansion_ = -0;
-    orderOfExpansion_ = -0;
+    : degreeOfExpansion_( -0 ),
+      orderOfExpansion_( -0 ),
+      referenceRadius_( -0.0 )
+{  
 }
 
 //! Default destructor.
@@ -106,50 +108,51 @@ double SphericalHarmonicsGravityField::getOrderOfExpansion( )
 
 //! Get the gravitational potential.
 double SphericalHarmonicsGravityField::getPotential(
-        const Vector3d& positionVector )
+        CartesianPositionElements* pointerToPosition )
 {
-    // Compute relative position vector.
-    relativePositionVector_ = positionVector - positionVectorOfOrigin_;
+    // Compute relative position.
+    relativePosition_.state = pointerToPosition->state
+                              - positionOfOrigin_.state;
 
     // Return the gravitational potential for a point mass.
-    return gravitationalParameter_ / relativePositionVector_.norm();
+    return gravitationalParameter_ / relativePosition_.state.norm( );
 }
 
 //! Get the gradient of the gravitational potential.
 Vector3d SphericalHarmonicsGravityField::getGradientOfPotential(
-        const Vector3d& positionVector )
+        CartesianPositionElements* pointerToPosition )
 {
-    // Compute relative position vector.
-    relativePositionVector_ = positionVector - positionVectorOfOrigin_;
+    // Compute relative position.
+    relativePosition_.state = pointerToPosition->state
+                              - positionOfOrigin_.state;
 
     // Compute and return gradient of potential.
-    return -gravitationalParameter_
-            * relativePositionVector_
-            / raiseToIntegerPower(
-                    relativePositionVector_.norm(), 3 );
+    return -gravitationalParameter_ * relativePosition_.state
+            / raiseToIntegerPower( relativePosition_.state.norm(), 3 );
 }
 
 //! Get the Laplacian of the gravitational potential.
 Matrix3d SphericalHarmonicsGravityField::
-        getLaplacianOfPotential( const Vector3d& positionVector )
+        getLaplacianOfPotential( CartesianPositionElements*
+                                 pointerToPosition )
 {
+
     // Declare local variables.
     // Declare identity matrix for computations.
     Matrix3d identityMatrix_;
 
-    // Compute relative position vector.
-    relativePositionVector_ = positionVector - positionVectorOfOrigin_;
-
-    // Set identity matrix to square size of state vector.
+    // Compute relative position.
+    relativePosition_.state = pointerToPosition->state
+                              - positionOfOrigin_.state;
+    // Set identity matrix to square size of state.
     identityMatrix_.setIdentity( 3, 3 );
 
     // Compute and return Laplacian of potential.
     return gravitationalParameter_
-            / raiseToIntegerPower(
-                    relativePositionVector_.norm( ), 5 )
-            * ( ( 3.0 * relativePositionVector_
-                  * relativePositionVector_.transpose( ) )
-                - ( relativePositionVector_.squaredNorm( )
+            / raiseToIntegerPower( relativePosition_.state.norm( ), 5 )
+            * ( ( 3.0 * relativePosition_.state
+                  * relativePosition_.state.transpose( ) )
+                - ( relativePosition_.state.squaredNorm( )
                     * identityMatrix_ ) );
 }
 

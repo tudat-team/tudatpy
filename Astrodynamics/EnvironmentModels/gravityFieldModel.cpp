@@ -2,8 +2,8 @@
  *    Header file that defines the gravity field model included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 2
- *    Check status      : Checked
+ *    Version           : 4
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 8 December, 2010
- *    Last modified     : 15 December, 2010
+ *    Last modified     : 4 February, 2010
  *
  *    References
  *
@@ -32,20 +32,23 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      101208    K. Kumar            File created.
- *      101215    K. Kumar            Removed consts from end of get functions.
+ *      YYMMDD    Author            Comment
+ *      101208    K. Kumar          File created.
+ *      101215    K. Kumar          Removed consts from end of get functions.
+ *      110202    K. Kumar          Updated code to use the
+ *                                  CartesianPositionElements class.
+ *      110204    K. Kumar          Removed "vector" from naming.
  */
 
 // Include statements.
 #include "gravityFieldModel.h"
 
 //! Default constructor.
-GravityFieldModel::GravityFieldModel( )
+GravityFieldModel::GravityFieldModel( ) : gravitationalParameter_( -0.0 )
 {
     // Initialize variables.
-    gravitationalParameter_ = -0.0;
-    positionVectorOfOrigin_.setConstant( -0.0 );
+    // Set origin of gravity field model to zero by default.
+    positionOfOrigin_.state.setZero( 3 );
 }
 
 //! Default destructor.
@@ -61,9 +64,10 @@ void GravityFieldModel::setGravitationalParameter(
 }
 
 //! Set origin of gravity field.
-void GravityFieldModel::setOrigin( Vector3d& positionVectorOfOrigin )
+void GravityFieldModel::setOrigin( CartesianPositionElements*
+                                   pointerToPositionOfOrigin )
 {
-    positionVectorOfOrigin_ = positionVectorOfOrigin;
+    positionOfOrigin_ = *pointerToPositionOfOrigin;
 }
 
 //! Get the gravitational parameter.
@@ -73,9 +77,9 @@ double GravityFieldModel::getGravitationalParameter( )
 }
 
 //! Get origin of gravity field.
-Vector3d GravityFieldModel::getOrigin( )
+CartesianPositionElements* GravityFieldModel::getOrigin( )
 {
-    return positionVectorOfOrigin_;
+    return &positionOfOrigin_;
 }
 
 // End of file.

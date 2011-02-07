@@ -2,10 +2,10 @@
  *    This source file contains a base class for all state classes in Tudat.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 2
+ *    Version           : 4
  *    Check status      : Checked
  *
- *    Author            : K. Kumar
+ *    Checker           : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
@@ -13,8 +13,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *    Date created      : 26 Checked, 2010
- *    Last modified     : 02 December, 2010
+ *    Date created      : 26 October, 2010
+ *    Last modified     : 4 February, 2011
  *
  *    References
  *
@@ -32,12 +32,18 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101022    K. Kumar      First creation of code.
- *      101202    J. Melman     Changed path and dot added.
+ *      YYMMDD    Author            Comment
+ *      101022    K. Kumar          First creation of code.
+ *      101202    J. Melman         Changed path and dot added.
+ *      110204    K. Kumar          Changed path; added missing comment.
+ *      110207    K. Kumar          Added ostream overload.
  */
 
+// Include statements.
 #include "state.h"
+
+// Using declarations.
+using std::endl;
 
 //! Default constructor.
 State::State( )
@@ -49,16 +55,15 @@ State::~State( )
 {
 }
 
-//! Set state.
-void State::setState( VectorXd& state )
+//! Overload ostream to print class information.
+/*!
+ * Overloads ostream to print class information.
+ * \param stream Stream object.
+ * \param pointerToPropagator Pointer to State.
+ */
+std::ostream& operator<<( std::ostream& stream, State* pointerToState )
 {
-    state_ = state;
-}
-
-//! Get state.
-VectorXd& State::getState( )
-{
-    return state_;
+    stream << "The state is set to: " << pointerToState->state << endl;
 }
 
 // End of file.

@@ -1,12 +1,12 @@
-/*! \file orbitalElements.h
- *    This header file contains a base class for all orbital element classes in
- *    Tudat.
+/*! \file integratorBase.h
+ *    This header file contains an abstract base class for the Integrator
+ *    class included in Tudat.
  *
- *    Path              : /Astrodynamics/States/
+ *    Path              : /Mathematics/NumericalIntegrators/
  *    Version           : 3
  *    Check status      : Checked
  *
- *    Checker           : K. Kumar
+ *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
@@ -14,8 +14,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *    Date created      : 20 October, 2010
- *    Last modified     : 26 October, 2010
+ *    Date created      : 1 February, 2011
+ *    Last modified     : 7 February, 2011
  *
  *    References
  *
@@ -34,23 +34,22 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101020    K. Kumar          First creation of code.
- *      101022    K. Kumar          Completed constructor and set/get state
- *                                  functions. Added code comments.
- *      101026    K. Kumar          Moved set/get state functions to base class.
+ *      110201    K. Kumar          First creation of code.
+ *      110203    J. Melman         File checked.
+ *      110207    K. Kumar          Path changed.
  */
 
-#ifndef ORBITALELEMENTS_H
-#define ORBITALELEMENTS_H
+#ifndef INTEGRATORBASE_H
+#define INTEGRATORBASE_H
 
 // Include statements.
 #include "state.h"
 
-//! Orbital elements base class.
+//! An abstract base class for Integrator.
 /*!
- * Orbital elements base class.
+ * This is an abstract base class for the Integrator class.
  */
-class OrbitalElements : public State
+class IntegratorBase
 {
 public:
 
@@ -58,19 +57,27 @@ public:
     /*!
      * Default constructor.
      */
-    OrbitalElements( );
+    IntegratorBase( ){ }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~OrbitalElements( );
+    virtual ~IntegratorBase( ){ }
+
+    //! Compute state derivative.
+    /*!
+     * Computes the state derivative for the numerical integrator being used.
+     * \param pointerToState State given as pointer to State object.
+     * \return State derivative given as pointer to State object.
+     */
+    virtual State* computeStateDerivative( State* pointerToState ) = 0;
 
 protected:
 
 private:
 };
 
-#endif // ORBITALELEMENTS_H
+#endif // INTEGRATORBASE_H
 
 // End of file.

@@ -3,8 +3,8 @@
  *    basic functions contained in Tudat.
  *
  *    Path              : /Basics/
- *    Version           : 4
- *    Check status      : Checked
+ *    Version           : 5
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,8 +14,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
- *    Date created      : 1 september, 2010
- *    Last modified     : 29 september, 2010
+ *    Date created      : 1 September, 2010
+ *    Last modified     : 2 February, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -37,11 +37,13 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      100902    K. Kumar            File header and footer added.
  *      100916    D. Dirkx            Added minor comments during checking.
  *      100928    K. Kumar            Small comment modifications.
  *      100929    K. Kumar            Small comment modifications.
+ *      110202    K. Kumar            Added overload for map with State* for
+ *                                    computeNearestLeftNeighborUsingBinarySearch().
  */
 
 // Include statements.
@@ -87,6 +89,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
             // Set left limit to current position in vector of sorted data.
             leftLimitOfVectorOfSortedData = currentPositionInVectorOfSortedData;
         }
+
         else
         {
             // Set right limit to current position in vector of sorted data.
@@ -141,6 +144,59 @@ int computeNearestLeftNeighborUsingBinarySearch(
             leftLimitOfKeyOfMapOfData = currentPositionInKeyOfMapOfData;
         }
 
+        else
+        {
+            // Set right limit to current position in map of data.
+            rightLimitOfKeyOfMapOfData = currentPositionInKeyOfMapOfData;
+        }
+    }
+
+    // Set current position to left limit.
+    currentPositionInKeyOfMapOfData = leftLimitOfKeyOfMapOfData;
+
+    // Return current position in map of data.
+    return currentPositionInKeyOfMapOfData;
+}
+
+//! Nearest left neighbor binary search.
+int computeNearestLeftNeighborUsingBinarySearch(
+        std::map < double, State* >& sortedIndepedentAndDependentVariables,
+        double& targetValueInMapOfData )
+{
+    // Declare local variables.
+    // Declare bounds of key of map of data and current position.
+    int leftLimitOfKeyOfMapOfData = 0;
+    int rightLimitOfKeyOfMapOfData = sortedIndepedentAndDependentVariables
+                                     .size( ) - 1;
+    int currentPositionInKeyOfMapOfData;
+
+    // Declare map iterator
+    std::map < double, State* >::iterator mapIterator;
+
+    // Loop through State objects of sorted data until left and right limits
+    // are neighbours.
+    while ( rightLimitOfKeyOfMapOfData - leftLimitOfKeyOfMapOfData > 1 )
+    {
+        // Compute midpoint ( bitshift is same as division by 2.0 ).
+        currentPositionInKeyOfMapOfData
+                = ( rightLimitOfKeyOfMapOfData
+                   + leftLimitOfKeyOfMapOfData ) >> 1;
+
+        // Set map iterator to begin begin of map of sorted independent and
+        // dependent variables.
+        mapIterator = sortedIndepedentAndDependentVariables.begin( );
+
+        // Advance iterator to location of current position in key of map of
+        // data.
+        advance( mapIterator, currentPositionInKeyOfMapOfData );
+
+        // Check that target value lies to the right of lower bound.
+        if ( targetValueInMapOfData
+             >= mapIterator->first )
+        {
+            // Set left limit to current position in map of data.
+            leftLimitOfKeyOfMapOfData = currentPositionInKeyOfMapOfData;
+        }
 
         else
         {

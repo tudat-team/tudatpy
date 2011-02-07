@@ -1,15 +1,14 @@
 /*! \file unitTestOrbitalElementConversions.cpp
  *    Source file of unit test for the orbitalElementConversion, from Cartesian
- *    to Keplerian and viceversa.
- *    The first part of the code tests the code for elliptical, parabolic,
- *    hyperbolic and circular orbits. SI units are used.
+ *    to Keplerian and viceversa. The first part of the code tests the code for
+ *    elliptical, parabolic, hyperbolic and circular orbits. SI units are used.
  *    The second part of the code tests the code from Cartesian to Keplerian
  *    with the example 3.4 pag. 63 of the book "Fondamenti di Meccanica del Volo
  *    Spaziale" (G. Mengali, A.A. Quarta). In this part of the code, canonical
  *    units are used.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 9
+ *    Version           : 10
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -20,8 +19,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *    Date created      : 03 December, 2010
- *    Last modified     : 11 January, 2011
+ *    Date created      : 3 December, 2010
+ *    Last modified     : 4 February, 2011
  *
  *    References
  *
@@ -42,26 +41,30 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author         comment
- *      101203    E. Iorfida     First creation of the code.
- *      101208    E. Iorfida     Fulfillment of the code with the elliptical case.
- *      101208    E. Iorfida     Modified punctuation.
- *      101215    E. Iorfida     Added tolerance, added parabolic, circular and
- *                               hyperbolic cases.
- *      101217    E. Iorfida     Added computeAbsoluteValue( ) in the errors computation,
- *                               modified punctuation.
- *      101219    J. Melman      Put gravitational parameters in one place,
- *                               changed first right ascension to 15.0 * pi / 8.0,
- *                               thereby exposing a possible error.
- *      110107    E. Iorfida     orbitalConversionBookExampleUnitTest.test added to
- *                               this file, to have a unique unit test file for the
- *                               conversion code. Also some punctuation modifications
- *                               have been made.
- *      110109    J. Melman      Included test for semi-latus rectum of circular case.
- *                               Gave the orbital angles less trivial values, and not
- *                               almost exclusively in the first quadrant.
- *      110111    E. Iorfida     Updated to the new format of unitTest file and
- *                               added hyperbolic equatorial case.
+ *      YYMMDD    Author            Comment
+ *      101203    E. Iorfida        First creation of the code.
+ *      101208    E. Iorfida        Fulfillment of the code with the elliptical
+ *                                  case.
+ *      101208    E. Iorfida        Modified punctuation.
+ *      101215    E. Iorfida        Added tolerance, added parabolic, circular
+ *                                  and hyperbolic cases.
+ *      101217    E. Iorfida        Added computeAbsoluteValue( ) in the errors
+ *                                  computation, modified punctuation.
+ *      101219    J. Melman         Put gravitational parameters in one place,
+ *                                  changed first right ascension to
+ *                                  15.0 * pi / 8.0, thereby exposing a
+ *                                  possible error.
+ *      110107    E. Iorfida        orbitalConversionBookExampleUnitTest.test
+ *                                  added to this file, to have a unique unit
+ *                                  test file for the conversion code. Also some
+ *                                  punctuation modifications have been made.
+ *      110109    J. Melman         Included test for semi-latus rectum of
+ *                                  circular case. Gave the orbital angles less
+ *                                  trivial values, and not almost exclusively
+ *                                  in the first quadrant.
+ *      110111    E. Iorfida        Updated to the new format of unitTest file
+ *                                  and added hyperbolic equatorial case.
+ *      110204    K. Kumar          Removed "vector" from naming.
  */
 
 // Include statements.
@@ -437,12 +440,12 @@ bool testOrbitalElementConversions( )
     CartesianElements* pointerToCartesianElements_ = new CartesianElements;
 
     // Define Cartesian elements.
-    // Position vector expressed in canonical units.
+    // Position expressed in canonical units.
     pointerToCartesianElements_->setCartesianElementX( 1.0 );
     pointerToCartesianElements_->setCartesianElementY( 2.0 );
     pointerToCartesianElements_->setCartesianElementZ( 1.0 );
 
-    // Velocity vector expressed in canonical units.
+    // Velocity expressed in canonical units.
     pointerToCartesianElements_->setCartesianElementXDot( -0.25 );
     pointerToCartesianElements_->setCartesianElementYDot( -0.25 );
     pointerToCartesianElements_->setCartesianElementZDot( 0.5 );

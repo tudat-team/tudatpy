@@ -3,8 +3,8 @@
  *    to writing output to file included in Tudat.
  *
  *    Path              : /Astrodynamics/Output/
- *    Version           : 4
- *    Check status      : Checked
+ *    Version           : 5
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -18,8 +18,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : bart.romgens@gmail.com
  *
- *    Date created      : 12 august, 2010
- *    Last modified     : 29 september, 2010
+ *    Date created      : 12 August, 2010
+ *    Last modified     : 2 February, 2010
  *
  *    References
  *
@@ -37,13 +37,15 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      100914    K. Kumar            File created.
  *      100928    K. Kumar            Completed missing comments, changed
  *                                    writeIntegrationHistoryToFile( ) to
  *                                    writePropagationHistoryToFile( ).
  *      100929    B. Romgens          Spelling mistakes corrected.
  *      100929    K. Kumar            Added checked code written by D. Dirkx.
+ *      110202    K. Kumar            Updated writePropagationHistoryToFile()
+ *                                    to work with State*.
  */
 
 
@@ -57,6 +59,7 @@
 #include "outputHandling.h"
 #include "linearAlgebra.h"
 #include "surfaceGeometry.h"
+#include "state.h"
 
 //! Writing output to file class.
 /*!
@@ -80,17 +83,17 @@ public:
 
     //! Write propagation history to file.
     /*!
-     * This function writes propagation history stored in a map to file.
+     * Writes propagation history stored in a map to file.
      * \param propagationHistory Map of propagation history.
      * \param outputFilename Output filename.
      */
     static void writePropagationHistoryToFile(
-            std::map < double, VectorXd >& propagationHistory,
+            std::map < double, State* >& propagationHistory,
             const std::string& outputFilename );
 
-    //! Function to write a surface geometry to a file.
+    //! Write a surface geometry to a file.
     /*!
-     * Function to write the points on a surfaceGeometry object to a file.
+     * Writes the points on a surfaceGeometry object to a file.
      * Each row contains the x, y and z coordinate of the point, each next row
      * defines a single new point.
      * \param numberOfLines defines how many points are taken over the 1st

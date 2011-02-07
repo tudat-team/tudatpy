@@ -33,17 +33,18 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author        Comment
- *      101020    K. Kumar      First creation of code.
- *      101025    E. Iorfida    Fulfillment of the code with gravitational
- *                              parameter.
- *      101130    E. Iorfida    Gravitational parameter removed.
- *      101202    J. Melman     Replaced #endif statement and changed Doxygen
- *                              return statement.
- *      101203    E. Iorfida    Gravitational parameter added.
- *      101219    J. Melman     Doxygen comment on gravitational parameter
- *                              added.
- *      110128    K. Kumar      Changed references to pointers for functions.
+ *      YYMMDD    Author            Comment
+ *      101020    K. Kumar          First creation of code.
+ *      101025    E. Iorfida        Fulfillment of the code with gravitational
+ *                                  parameter.
+ *      101130    E. Iorfida        Gravitational parameter removed.
+ *      101202    J. Melman         Replaced #endif statement and changed
+ *                                  Doxygen return statement.
+ *      101203    E. Iorfida        Gravitational parameter added.
+ *      101219    J. Melman         Doxygen comment on gravitational parameter
+ *                                  added.
+ *      110128    K. Kumar          Changed references to pointers for
+ *                                  functions.
  */
 
 // Include statements.
