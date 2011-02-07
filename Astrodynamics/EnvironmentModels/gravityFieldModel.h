@@ -2,8 +2,8 @@
  *    Header file that defines the gravity field model included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 6
- *    Check status      : Checked
+ *    Version           : 8
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 10 November, 2010
- *    Last modified     : 13 January, 2011
+ *    Last modified     : 4 February, 2011
  *
  *    References
  *
@@ -32,16 +32,19 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      101110    K. Kumar            File created.
- *      101116    K. Kumar            Changed filename and class name.
- *      101215    K. Kumar            Added virtual functions and missing
- *                                    Doxygen comments.
- *      101216    K. Kumar            Added set/get functions for origin.
- *      110107    K. Kumar            Removed reference radius get/set virtual
- *                                    functions.
- *      110113    K. Kumar            Updated arguments of get-functions with
- *                                    const.
+ *      YYMMDD    Author            Comment
+ *      101110    K. Kumar          File created.
+ *      101116    K. Kumar          Changed filename and class name.
+ *      101215    K. Kumar          Added virtual functions and missing
+ *                                  Doxygen comments.
+ *      101216    K. Kumar          Added set/get functions for origin.
+ *      110107    K. Kumar          Removed reference radius get/set virtual
+ *                                  functions.
+ *      110113    K. Kumar          Updated arguments of get-functions with
+ *                                  const.
+ *      110202    K. Kumar          Updated code to use the
+ *                                  CartesianPositionElements class.
+ *      110204    K. Kumar          Removed "vector" from naming.
  */
 
 #ifndef GRAVITYFIELDMODEL_H
@@ -49,6 +52,7 @@
 
 // Include statements.
 #include "environmentModel.h"
+#include "cartesianPositionElements.h"
 
 //! GravityFieldModel class.
 /*!
@@ -80,9 +84,10 @@ public:
     //! Set origin of gravity field.
     /*!
      * Set origin of gravity field.
-     * \param positionVectorOfOrigin Position vector of origin.
+     * \param positionOfOrigin Position of origin given as a pointer to a
+     *          CartesianPositionElements object.
      */
-    void setOrigin( Vector3d& positionVectorOfOrigin );
+    void setOrigin( CartesianPositionElements* pointerToPositionOfOrigin );
 
     //! Get the gravitational parameter.
     /*!
@@ -94,32 +99,40 @@ public:
     //! Get origin of gravity field.
     /*!
      * Get origin of gravity field.
-     * \return Position vector of origin.
+     * \return Position of origin given as a pointer to a
+     *          CartesianPositionElements object.
      */
-    Vector3d getOrigin( );
+    CartesianPositionElements* getOrigin( );
 
     //! Get the potential.
     /*!
      * Returns the potential for the gravity field selected.
+     * \param pointerToPosition Position given as a pointer to a
+     *          CartesianPositionElements object.
      * \return Potential.
      */
-    virtual double getPotential( const Vector3d& positionVector ) = 0;
+    virtual double getPotential( CartesianPositionElements*
+                                 pointerToPosition ) = 0;
 
     //! Get the gradient of the potential.
     /*!
      * Returns the gradient of the potential for the gravity field selected.
+     * \param pointerToPosition Position given as a pointer to a
+     *          CartesianPositionElements object.
      * \return Gradient of potential.
      */
     virtual Vector3d getGradientOfPotential(
-            const Vector3d& positionVector ) = 0;
+            CartesianPositionElements* pointerToPosition ) = 0;
 
     //! Get the Laplacian of the potential.
     /*!
      * Returns the Laplacian of the potential for the gravity field selected.
+     * \param pointerToPosition Position given as a pointer to a
+     *          CartesianPositionElements object.
      * \return Laplacian of potential.
      */
-    virtual Matrix3d getLaplacianOfPotential(
-            const Vector3d& positionVector ) = 0;
+    virtual Matrix3d getLaplacianOfPotential( CartesianPositionElements*
+                                              pointerToPosition ) = 0;
 
 protected:
 
@@ -131,9 +144,15 @@ protected:
 
     //! Origin of gravity field.
     /*!
-     * Origin of gravity field.
+     * Origin of gravity field given as a CartesianPositionElements object.
      */
-    Vector3d positionVectorOfOrigin_;
+    CartesianPositionElements positionOfOrigin_;
+
+    //! Relative position.
+    /*!
+     * Relative position given as a CartesianPositionElements object.
+     */
+    CartesianPositionElements relativePosition_;
 
 private:
 };

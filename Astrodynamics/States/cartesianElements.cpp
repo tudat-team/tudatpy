@@ -2,10 +2,10 @@
  *    This source file contains the Cartesian elements class included in Tudat.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 4
+ *    Version           : 6
  *    Check status      : Checked
  *
- *    Author            : K. Kumar
+ *    Checker           : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
@@ -13,8 +13,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *    Date created      : 22 Checked, 2010
- *    Last modified     : 02 December, 2010
+ *    Date created      : 22 October, 2010
+ *    Last modified     : 4 February, 2010
  *
  *    References
  *
@@ -32,13 +32,16 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101022    K. Kumar      First creation of code.
- *      101026    K. Kumar      Added position and velocity vector functions.
- *      101201    E. Iorfida    Modified punctuation.
- *      101202    J. Melman     Large modification: only set state_ and use
- *                              state_ to get components. Does not use private
- *                              variables, so those are obsolete.
+ *      YYMMDD    Author            Comment
+ *      101022    K. Kumar          First creation of code.
+ *      101026    K. Kumar          Added position, velocity vector functions.
+ *      101201    E. Iorfida        Modified punctuation.
+ *      101202    J. Melman         Large modification: only set state_ and use
+ *                                  state_ to get components. Does not use
+ *                                  private variables, so those are obsolete.
+ *      110110    K. Kumar          Minor modifications; initialised values
+ *                                  using constructor.
+ *      110204    K. Kumar          Removed "vector" from naming.
  */
 
 // Include statements.
@@ -47,6 +50,10 @@
 //! Default constructor.
 CartesianElements::CartesianElements( )
 {
+    // Initialize values.
+    position_.setConstant( -0.0 );
+    // Initialize variables.
+    state.setZero( 6 );
 }
 
 //! Default destructor.
@@ -54,105 +61,74 @@ CartesianElements::~CartesianElements( )
 {
 }
 
-//! Set Cartesian element: x.
-void CartesianElements::setCartesianElementX( const double& cartesianElementX )
-{
-    state_( 0 ) = cartesianElementX;
-}
-
-//! Set Cartesian element: y.
-void CartesianElements::setCartesianElementY( const double& cartesianElementY )
-{
-    state_( 1 ) = cartesianElementY;
-}
-
-//! Set Cartesian element: z.
-void CartesianElements::setCartesianElementZ( const double& cartesianElementZ )
-{
-    state_( 2 ) = cartesianElementZ;
-}
-
 //! Set Cartesian element: xDot.
 void CartesianElements::setCartesianElementXDot( const double&
                                                  cartesianElementXDot )
 {
-     state_( 3 ) = cartesianElementXDot;
+    state( 3 ) = cartesianElementXDot;
 }
 
 //! Set Cartesian element: yDot.
 void CartesianElements::setCartesianElementYDot( const double&
                                                  cartesianElementYDot )
 {
-    state_( 4 ) = cartesianElementYDot;
+    state( 4 ) = cartesianElementYDot;
 }
 
 //! Set Cartesian element: zDot.
 void CartesianElements::setCartesianElementZDot( const double&
                                                  cartesianElementZDot )
 {
-    state_( 5 ) = cartesianElementZDot;
+    state( 5 ) = cartesianElementZDot;
 }
 
-//! Set position vector.
-void CartesianElements::setPositionVector (Vector3d &positionVector)
+//! Set position.
+void CartesianElements::setPosition( Vector3d& position )
 {
-    state_.segment( 0, 3 ) = positionVector;
+    state.segment( 0, 3 ) = position;
 }
 
-//! Set velocity vector.
-void CartesianElements::setVelocityVector (Vector3d &velocityVector)
+//! Set velocity.
+void CartesianElements::setVelocity( Vector3d& velocity )
 {
-    state_.segment( 3, 3 ) = velocityVector;
-}
-
-//! Get Cartesian element: x.
-double& CartesianElements::getCartesianElementX( )
-{
-    return state_( 0 );
-}
-
-//! Get Cartesian element: y.
-double& CartesianElements::getCartesianElementY( )
-{
-    return state_( 1 );
-}
-
-//! Get Cartesian element: z.
-double& CartesianElements::getCartesianElementZ( )
-{
-    return state_( 2 );
+    state.segment( 3, 3 ) = velocity;
 }
 
 //! Get Cartesian element: xDot.
 double& CartesianElements::getCartesianElementXDot( )
 {
-    return state_( 3 );
+    // Return Cartesian element: xDot.
+    return state( 3 );
 }
 
 //! Get Cartesian element: yDot.
 double& CartesianElements::getCartesianElementYDot( )
 {
-    return state_( 4 );
+    // Return Cartesian element: yDot.
+    return state( 4 );
 }
 
 //! Get Cartesian element: zDot.
 double& CartesianElements::getCartesianElementZDot( )
 {
-    return state_( 5 );
+    // Return Cartesian element: zDot.
+    return state( 5 );
 }
 
-//! Get position vector.
-Vector3d& CartesianElements::getPositionVector( )
+//! Get position.
+Vector3d& CartesianElements::getPosition( )
 {
-    positionVector_ = state_.segment( 0, 3 );
-    return positionVector_;
+    // Return position.
+    position_ = state.segment( 0, 3 );
+    return position_;
 }
 
-//! Get velocity vector.
-Vector3d& CartesianElements::getVelocityVector( )
+//! Get velocity.
+Vector3d& CartesianElements::getVelocity( )
 {
-    velocityVector_ = state_.segment( 3, 3 );
-    return velocityVector_;
+    // Return velocity.
+    velocity_ = state.segment( 3, 3 );
+    return velocity_;
 }
 
 // End of file.

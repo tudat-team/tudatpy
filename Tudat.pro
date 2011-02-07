@@ -18,14 +18,16 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/ForceModels/gravity.cpp \
     Astrodynamics/physicalConstants.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
+    Astrodynamics/Propagators/propagatorDataContainer.cpp \
     Astrodynamics/Propagators/propagator.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
-    Astrodynamics/Propagators/bodyContainer.cpp \
     Astrodynamics/States/state.cpp \
     Astrodynamics/States/orbitalElements.cpp \
     Astrodynamics/States/orbitalElementConversions.cpp \
     Astrodynamics/States/keplerianElements.cpp \
     Astrodynamics/States/cartesianElements.cpp \
+    Astrodynamics/States/cartesianPositionElements.cpp \
+    Astrodynamics/States/cartesianVelocityElements.cpp \
     Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
     Basics/basicFunctions.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
@@ -35,9 +37,10 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/GeometricShapes/sphereSegment.cpp \
     Mathematics/GeometricShapes/geometricShape.cpp \
     Mathematics/LinearAlgebra/linearAlgebra.cpp \
-    Mathematics/NumericalIntegration/rungeKutta4thOrderFixedStepsize.cpp \
-    Mathematics/NumericalIntegration/integrator.cpp \
-    Mathematics/NumericalIntegration/euler.cpp \
+    Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp \
+    Mathematics/NumericalIntegrators/integrator.cpp \
+    Mathematics/NumericalIntegrators/euler.cpp \
+    Mathematics/NumericalIntegrators/singleStepIntegrationMethods.cpp  \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
@@ -57,14 +60,16 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/physicalConstants.h \
     Astrodynamics/unitTestPhysicalConstants.h \
+    Astrodynamics/Propagators/propagatorDataContainer.h \
     Astrodynamics/Propagators/propagator.h \
     Astrodynamics/Propagators/numericalPropagator.h \
-    Astrodynamics/Propagators/bodyContainer.h \
     Astrodynamics/States/state.h \
     Astrodynamics/States/orbitalElements.h \
     Astrodynamics/States/orbitalElementConversions.h \
     Astrodynamics/States/keplerianElements.h \
     Astrodynamics/States/cartesianElements.h \
+    Astrodynamics/States/cartesianPositionElements.h \
+    Astrodynamics/States/cartesianVelocityElements.h \
     Astrodynamics/States/unitTestOrbitalElementConversions.h \
     Basics/basicFunctions.h \
     Mathematics/unitConversions.h \
@@ -76,10 +81,12 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/GeometricShapes/sphereSegment.h \
     Mathematics/GeometricShapes/geometricShape.h \
     Mathematics/LinearAlgebra/linearAlgebra.h \
-    Mathematics/NumericalIntegration/singleStepIntegrationMethods.h \
-    Mathematics/NumericalIntegration/rungeKutta4thOrderFixedStepsize.h \
-    Mathematics/NumericalIntegration/integrator.h \
-    Mathematics/NumericalIntegration/euler.h \
+    Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h \
+    Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h \
+    Mathematics/NumericalIntegrators/integrator.h \
+    Mathematics/NumericalIntegrators/integratorBase.h \
+    Mathematics/NumericalIntegrators/integratorAdaptor.h \
+    Mathematics/NumericalIntegrators/euler.h \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.h \
     Mathematics/RootFindingMethods/rootFinderBase.h \
     Mathematics/RootFindingMethods/rootFinder.h \
@@ -101,6 +108,6 @@ INCLUDEPATH += External/Eigen-2.0.15 \
     Mathematics \
     Mathematics/GeometricShapes \
     Mathematics/LinearAlgebra \
-    Mathematics/NumericalIntegration \
+    Mathematics/NumericalIntegrators \
     Mathematics/RootFindingMethods \
     Output

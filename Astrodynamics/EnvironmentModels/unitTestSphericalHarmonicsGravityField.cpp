@@ -3,8 +3,8 @@
  *   harmonics gravity field class in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/
- *    Version           : 9
- *    Check status      : Checked
+ *    Version           : 11
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 15 December, 2010
- *    Last modified     : 28 January, 2011
+ *    Last modified     : 4 February, 2011
 
  *    References
  *
@@ -36,20 +36,22 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101215    K. Kumar      First creation of code.
- *      101216    K. Kumar      Updated to include test of getPotential().
- *      101230    K. Kumar      Updated to include test of getGradient() and
- *                              getLaplacian().
- *      110104    J. Melman     Some minor comment and layout changes.
- *      110106    K. Kumar      Updated test using predefined gravity field and
- *                              added machine precision variable.
- *      110107    K. Kumar      Updated call to predefined gravity field.
- *                              Updated unit test to new protocol, added
- *                              namespace, new filename, new file location.
- *      110113    K. Kumar      Added cerr statements.
- *      110115    J. Melman     Changed the error messages.
- *      110128    K. Kumar      Updated code to work with pointers.
+ *      YYMMDD    Author            Comment
+ *      101215    K. Kumar          First creation of code.
+ *      101216    K. Kumar          Updated to include test of getPotential().
+ *      101230    K. Kumar          Updated to include test of getGradient()
+ *                                  and getLaplacian().
+ *      110104    J. Melman         Some minor comment and layout changes.
+ *      110106    K. Kumar          Updated test using predefined gravity field
+ *                                  and added machine precision variable.
+ *      110107    K. Kumar          Updated call to predefined gravity field.
+ *                                  Updated unit test to new protocol, added
+ *                                  namespace, new filename, new file location.
+ *      110113    K. Kumar          Added cerr statements.
+ *      110115    J. Melman         Changed the error messages.
+ *      110128    K. Kumar          Updated code to work with pointers.
+ *      110202    K. Kumar          Updated code to work with State.
+ *      110204    K. Kumar          Removed "vector" from naming.
  */
 
 // Include statements.
@@ -105,15 +107,19 @@ bool testSphericalHarmonicsGravityField( )
 
     // Set origin of gravity field of myPlanet with respect to geometric
     // center.
-    Vector3d positionVectorOfOrigin;
-    positionVectorOfOrigin.setZero( );
-    myPlanetGravityField.setOrigin( positionVectorOfOrigin );
+    CartesianPositionElements* pointerToCartesianPositionOfOrigin
+            = new CartesianPositionElements;
+    VectorXd positionOfOrigin( 3 );
+    positionOfOrigin.setZero( );
+    pointerToCartesianPositionOfOrigin->state = positionOfOrigin;
+    myPlanetGravityField.setOrigin( pointerToCartesianPositionOfOrigin );
 
-    // Set position vector with respect to geometric center.
-    Vector3d positionVector;
-    positionVector( 0 ) = 5.0e6;
-    positionVector( 1 ) = 3.0e6;
-    positionVector( 2 ) = 1.0e6;
+    // Set position with respect to geometric center.
+    CartesianPositionElements* pointerToCartesianPosition
+            = new CartesianPositionElements;
+    pointerToCartesianPosition->setCartesianElementX( 5.0e6 );
+    pointerToCartesianPosition->setCartesianElementY( 3.0e6 );
+    pointerToCartesianPosition->setCartesianElementZ( 1.0e6 );
 
     // Create pointer to spherical harmonics predefined Earth gravity field.
     SphericalHarmonicsGravityField*
@@ -130,17 +136,24 @@ bool testSphericalHarmonicsGravityField( )
     double expectedResultForTest1 = gravitationalParameterOfMyPlanet;
     double expectedResultForTest2 = 398600.4415e9;
     double expectedResultForTest3 = gravitationalParameterOfMyPlanet
-                                    / positionVector.norm();
-    Vector3d expectedResultForTest4 =  -gravitationalParameterOfMyPlanet
+                                    / pointerToCartesianPosition
+                                    ->state.norm( );
+    VectorXd expectedResultForTest4 =  -gravitationalParameterOfMyPlanet
                                        / raiseToIntegerPower(
-                                               positionVector.norm(), 3 )
-                                       * positionVector;
+                                               pointerToCartesianPosition
+                                               ->state.norm( ), 3 )
+                                       * pointerToCartesianPosition
+                                       ->state;
     Matrix3d expectedResultForTest5 = gravitationalParameterOfMyPlanet
                                       / raiseToIntegerPower(
-                                              positionVector.norm( ), 5 )
-                                      * ( ( 3.0 * positionVector
-                                            * positionVector.transpose( ) )
-                                          - ( positionVector.squaredNorm( )
+                                              pointerToCartesianPosition
+                                              ->state.norm( ), 5 )
+                                      * ( ( 3.0 * pointerToCartesianPosition
+                                            ->state
+                                            * pointerToCartesianPosition
+                                            ->state.transpose( ) )
+                                          - ( pointerToCartesianPosition
+                                              ->state.squaredNorm( )
                                               * identityMatrix ) );
 
     // Results computed using implementation of spherical harmonics gravity
@@ -148,15 +161,16 @@ bool testSphericalHarmonicsGravityField( )
     double computedResultForTest1 = myPlanetGravityField
                                     .getGravitationalParameter( );
     double computedResultForTest2 =
-            pointerToPredefinedEarthCentralBodyGravityField->getGravitationalParameter();
-    double computedResultForTest3 = myPlanetGravityField
-                                    .getPotential( positionVector );
+            pointerToPredefinedEarthCentralBodyGravityField
+            ->getGravitationalParameter();
+    double computedResultForTest3 = myPlanetGravityField.getPotential(
+            pointerToCartesianPosition );
     Vector3d computedResultForTest4 = myPlanetGravityField
                                       .getGradientOfPotential(
-                                              positionVector );
+                                              pointerToCartesianPosition );
     Matrix3d computedResultForTest5 = myPlanetGravityField
                                       .getLaplacianOfPotential(
-                                              positionVector );
+                                              pointerToCartesianPosition );
 
     // Compute differences between computed and expected results.
     VectorXd differenceBetweenResults( 5 );

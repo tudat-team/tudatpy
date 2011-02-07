@@ -3,7 +3,7 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 5
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 26 September, 2010
- *    Last modified     : 24 January, 2010
+ *    Last modified     : 7 February, 2010
  *
  *    References
  *
@@ -36,7 +36,7 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      100926    K. Kumar            File created.
  *      100929    J. Melman           Deleted some superfluous comments,
  *                                    corrected several alignments.
@@ -46,10 +46,17 @@
  *                                    to use computeForce() in ForceModel.
  *      110124    K. Kumar            Updated computeSumOfStateDerivatives_()
  *                                    and added to "Notes".
+ *      110201    K. Kumar            Updated code to make use of State class;
+ *                                    moved computeSumOfStateDerivatives_() to
+ *                                    NumericalPropagator class.
+ *      110207    K. Kumar            Added ostream overload.
  */
 
 // Include statements.
 #include "propagator.h"
+
+// Using declarations.
+using std::endl;
 
 //! Default constructor.
 Propagator::Propagator( ) : fixedOutputInterval_( -0.0 )
@@ -75,26 +82,14 @@ void Propagator::setPropagationIntervalEnd( const double&
     propagationIntervalEnd_ = propagationIntervalEnd;
 }
 
-//! Add body to be propagated.
+//! Add body to propagate.
 void Propagator::addBody( Body* pointerToBody )
 {
-    // Add body as key for map, with new BodyContainer object as data.
-    bodiesToBePropagated_[ pointerToBody ] = new BodyContainer( );
+    // Add body as key for map, with new PropagatorDataContainer object as data.
+    bodiesToPropagate_[ pointerToBody ] = new PropagatorDataContainer( );
 
-    // Set body in new BodyContainer object as given body.
-    bodiesToBePropagated_[ pointerToBody ]->pointerToBody_ = pointerToBody;
-
-//    // Set pointer to Body object.
-//    pointerToBody_ = pointerToBody;
-}
-
-//! Add force model for propagation of a body.
-void Propagator::addForceModel( Body* pointerToBody,
-                                ForceModel* pointerToForceModel )
-{
-    bodiesToBePropagated_[ pointerToBody ]
-            ->vectorContainerOfPointersToForceModels_
-                     .push_back( pointerToForceModel );
+    // Set body in new PropagatorDataContainer object as given body.
+    bodiesToPropagate_[ pointerToBody ]->pointerToBody_ = pointerToBody;
 }
 
 //! Set propagator for propagation of a body.
@@ -103,29 +98,25 @@ void Propagator::setPropagator( Body* pointerToBody,
 {
     // Set pointer to object of Propagator class for given pointer to body in
     // map of bodies to be propagated.
-    bodiesToBePropagated_[ pointerToBody ]
+    bodiesToPropagate_[ pointerToBody ]
             ->pointerToPropagator_ = pointerToPropagator;
 }
 
-//! Set initial state vector of body.
+//! Set initial state of body.
 void Propagator::setInitialState( Body* pointerToBody,
-                                  VectorXd& initialStateVector )
+                                  State* pointerToInitialState )
 {
-    // Set initial state vector of given body to be propogated.
-    bodiesToBePropagated_[ pointerToBody ]
-            ->initialStateVector_ = initialStateVector;
+    // Set initial state of given body to be propogated.
+    bodiesToPropagate_[ pointerToBody ]
+            ->initialState_ = *pointerToInitialState;
 
-    // Set size of initial state vector of given body to be propagated.
-    bodiesToBePropagated_[ pointerToBody ]
-            ->sizeOfStateVector_ = initialStateVector.size( );
+    // Set size of initial state of given body to propagate.
+    bodiesToPropagate_[ pointerToBody ]
+            ->sizeOfState_ = pointerToInitialState->state.size( );
 
-    // Increment size of assembled state vector based on size of initial state
-    // vector of body to be propagated.
-    sizeOfAssembledStateVector_ += initialStateVector.size( );
-
-    // Set state vector in body to be propagated as initial state vector.
-    bodiesToBePropagated_[ pointerToBody ]
-            ->stateVector_ = initialStateVector;
+    // Set state in body to propagate as initial state.
+    bodiesToPropagate_[ pointerToBody ]
+            ->currentState_ = *pointerToInitialState;
 }
 
 //! Set fixed output interval.
@@ -135,98 +126,47 @@ void Propagator::setFixedOutputInterval( const double& fixedOutputInterval )
     fixedOutputInterval_ = fixedOutputInterval;
 }
 
+//! Get start of propagation interval.
+double& Propagator::getPropagationIntervalStart( )
+{
+    // Return start of propagation interval.
+    return propagationIntervalStart_;
+}
+
+//! Get end of propagation interval.
+double& Propagator::getPropagationIntervalEnd( )
+{
+    // Return end of propagation interval.
+    return propagationIntervalEnd_;
+}
+
 //! Get final state of body.
-VectorXd& Propagator::getFinalState( Body* pointerToBody )
+State* Propagator::getFinalState( Body* pointerToBody )
 {
     // Return final state of given body.
-    return bodiesToBePropagated_[ pointerToBody ]->finalStateVector_;
+    return &bodiesToPropagate_[ pointerToBody ]->finalState_;
 }
 
 //! Get propagation history of body at fixed output intervals.
-std::map < double, VectorXd >
+std::map < double, State* >
         Propagator::getPropagationHistoryAtFixedOutputIntervals(
                 Body* pointerToBody )
 {
     // Return propagation history of given body.
-    return bodiesToBePropagated_[ pointerToBody ]->propagationHistory_;
+    return bodiesToPropagate_[ pointerToBody ]->propagationHistory_;
 }
 
-void Propagator::
-        computeSumOfStateDerivatives_( VectorXd& assembledStateVector,
-                                       VectorXd& assembledStateDerivativeVector )
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          Propagator* pointerToPropagator )
 {
-    // Declare local variables.
-    unsigned int sizeOfStateVector_;
+    stream << "The start of the propagation interval is set to: " << endl;
+    stream << pointerToPropagator->getPropagationIntervalStart( ) << endl;
+    stream << "The end of the propagation interval is set to: " << endl;
+    stream << pointerToPropagator->getPropagationIntervalEnd( ) << endl;
 
-    // State derivative vector.
-    VectorXd stateDerivativeVector_;
-
-    // Vector of sum of forces.
-    VectorXd sumOfForces_;
-
-    // Set assembled state vector to zero.
-    assembledStateDerivativeVector.setZero( assembledStateVector.rows( ) );
-
-    // Loop over map of bodies to be propagated.
-    for ( iteratorBodiesToBePropagated_ =
-         bodiesToBePropagated_.begin( );
-         iteratorBodiesToBePropagated_ !=
-         bodiesToBePropagated_.end( );
-         iteratorBodiesToBePropagated_++)
-    {
-        // Set state vector for body to be propagated based on associated
-        // segment of assembled state vector.
-        iteratorBodiesToBePropagated_->second->stateVector_ =
-                assembledStateVector.segment(
-                    iteratorBodiesToBePropagated_->second
-                    ->stateVectorStartIndex_,
-                    iteratorBodiesToBePropagated_->second
-                    ->sizeOfStateVector_ );
-
-        // Loop over container of force models for a given body to be
-        // propagated.
-        for ( unsigned int i = 0;
-             i < iteratorBodiesToBePropagated_->second
-             ->vectorContainerOfPointersToForceModels_.size( );
-             i++ )
-        {
-            // Compute state derivatives for given force model.
-            sumOfForces_ = iteratorBodiesToBePropagated_->second
-                    ->vectorContainerOfPointersToForceModels_.at( i )
-                    ->computeForce( iteratorBodiesToBePropagated_
-                                   ->second->stateVector_ );
-
-            // Set size of state vector.
-            sizeOfStateVector_ = iteratorBodiesToBePropagated_
-                    ->second->sizeOfStateVector_;
-
-            // Set state derivative vector to size of state vector.
-            stateDerivativeVector_.setZero( sizeOfStateVector_ );
-
-            // Set state derivative vector elements using state vector and
-            // computed sum of forces.
-            stateDerivativeVector_.segment( 0, sizeOfStateVector_
-                                           - sumOfForces_.rows( ) )
-                    = iteratorBodiesToBePropagated_
-                    ->second->stateVector_
-                    .segment( sumOfForces_.rows( ),
-                              sizeOfStateVector_
-                              - sumOfForces_.rows( ) );
-
-            stateDerivativeVector_.segment( sizeOfStateVector_
-                                            - sumOfForces_.rows( ),
-                                            sumOfForces_.rows( ) )
-                    = sumOfForces_;
-
-            // Add computed state derivatives to assembled state derivative
-            // vector.
-            assembledStateDerivativeVector
-                    .segment( iteratorBodiesToBePropagated_
-                              ->second->stateVectorStartIndex_,
-                              sizeOfStateVector_ )
-                    = stateDerivativeVector_;
-        }
-    }
+    // Return stream.
+    return stream;
 }
 
 // End of file.

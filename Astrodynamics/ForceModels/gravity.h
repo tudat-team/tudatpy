@@ -2,8 +2,8 @@
  *    Header file that defines the gravity force model included in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/
- *    Version           : 6
- *    Check status      : Checked
+ *    Version           : 7
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,7 +14,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 16 September, 2010
- *    Last modified     : 19 January, 2011
+ *    Last modified     : 2 February, 2011
  *
  *    References
  *
@@ -42,6 +42,8 @@
  *                                    added pointer to GravityFieldModel.
  *      110119    K. Kumar            Changed computeStateDerivatives() to
  *                                    computeForce().
+ *      110202    K. Kumar            Updated code to make use of the State and
+ *                                    CartesianPositionElements classes.
  */
 
 #ifndef GRAVITY_H
@@ -82,13 +84,11 @@ public:
 
     //! Compute forces per unit mass for gravity field expansion.
     /*!
-     * This function computes the forces per unit mass for gravity field
-     * expansion.
-     * \param stateVector State vector of size 6; first three cartesian
-     * position coordinates, followed by three cartesian velocity coordinates.
+     * Computes the forces per unit mass for gravity field expansion.
+     * \param pointerToState Pointer to an object of the State class.
      * \return Force per unit mass computed from gravity field and position.
      */
-    VectorXd& computeForce( VectorXd& stateVector );
+    VectorXd& computeForce( State* pointerToState );
 
 protected:
 
@@ -99,6 +99,12 @@ private:
      * Pointer to gravity field model.
      */
     GravityFieldModel* pointerToGravityFieldModel_;
+
+    //! Cartesian position elements.
+    /*!
+     * Cartesian position elements.
+     */
+    CartesianPositionElements cartesianPositionElements_;
 };
 
 #endif // GRAVITY_H

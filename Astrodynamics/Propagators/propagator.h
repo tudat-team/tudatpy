@@ -3,7 +3,7 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 5
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 14 September, 2010
- *    Last modified     : 29 September, 2010
+ *    Last modified     : 7 February, 2011
  *
  *    References
  *
@@ -33,7 +33,7 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      100914    K. Kumar            File created.
  *      100926    K. Kumar            Added Doxygen comments.
  *      100928    K. Kumar            Completed missing comments.
@@ -42,21 +42,27 @@
  *                                    'class' in comments changed into 'object'.
  *      100929    K. Kumar            EigenRoutines.h replaced in include
  *                                    statements by linearAlgebra.h.
+ *      110201    K. Kumar            Updated code to make use of State class;
+ *                                    moved computeSumOfStateDerivatives_() to
+ *                                    NumericalPropagator class.
+ *      110207    K. Kumar            Added ostream overload.
  */
 
 #ifndef PROPAGATOR_H
 #define PROPAGATOR_H
 
 // Include statements.
+#include <iostream>
 #include <map>
 #include <vector>
 #include "forceModel.h"
-#include "bodyContainer.h"
+#include "propagatorDataContainer.h"
 #include "body.h"
 #include "linearAlgebra.h"
+#include "state.h"
 
 // Forward declarations.
-class BodyContainer;
+class PropagatorDataContainer;
 
 //! Propagator class.
 /*!
@@ -80,36 +86,28 @@ public:
 
     //! Set start of propagation interval.
     /*!
-     * This function sets the start of the propagation interval.
+     * Sets the start of the propagation interval.
      * \param propagationIntervalStart Start of propagation interval.
      */
     void setPropagationIntervalStart( const double& propagationIntervalStart );
 
     //! Set end of propagation interval.
     /*!
-     * This function sets the end of the propagation interval.
+     * Sets the end of the propagation interval.
      * \param propagationIntervalEnd End of propagation interval.
      */
     void setPropagationIntervalEnd( const double& propagationIntervalEnd );
 
     //! Add body to be propagated.
     /*!
-     * This function adds a body to be propagated.
+     * Adds a body to be propagated.
      * \param pointerToBody Pointer to Body object.
      */
     void addBody( Body* pointerToBody );
 
-    //! Add force model for propagation of a body.
-    /*!
-     * This function adds a force model for propagation of given body.
-     * \param pointerToBody Pointer to Body object.
-     * \param pointerToForceModel Pointer to ForceModel object.
-     */
-    void addForceModel( Body* pointerToBody, ForceModel* pointerToForceModel );
-
     //! Set propagator for propagation of a body.
     /*!
-     * This function sets a propagator for propagation of given body.
+     * Sets a propagator for propagation of given body.
      * \param pointerToBody Pointer to Body object.
      * \param pointerToPropagator Pointer to Propagator object.
      */
@@ -117,37 +115,51 @@ public:
 
     //! Set initial state of body.
     /*!
-     * This function sets the initial state of given body.
+     * Sets the initial state of given body.
      * \param pointerToBody Pointer to Body object.
-     * \param initialStateVector Initial state vector.
+     * \param initialState Initial state given as pointer to a State object.
      */
-    void setInitialState( Body* pointerToBody, VectorXd& initialStateVector );
+    void setInitialState( Body* pointerToBody, State* pointerToInitialState );
 
     //! Set fixed output interval.
     /*!
-     * This function sets the fixed output interval at which propagation output
-     * should be generated and stored in propagationHistory_. Calls to this
-     * function are optional.
+     * Sets the fixed output interval at which propagation output should be
+     * generated and stored in propagationHistory_. Calls to this function are
+     * optional.
      * \param fixedOutputInterval Fixed output interval.
      */
     void setFixedOutputInterval( const double& fixedOutputInterval );
 
+    //! Get start of propagation interval.
+    /*!
+     * Gets the start of the propagation interval.
+     * \return Start of propagation interval.
+     */
+    double& getPropagationIntervalStart( );
+
+    //! Get end of propagation interval.
+    /*!
+     * Gets the end of the propagation interval.
+     * \return End of propagation interval.
+     */
+    double& getPropagationIntervalEnd( );
+
     //! Get final state of body.
     /*!
-     * This function gets the final state of given body.
+     * Returns the final state of given body.
      * \param pointerToBody Pointer to Body object.
-     * \return Final state vector.
+     * \return Final state.
      */
-    VectorXd& getFinalState( Body* pointerToBody );
+    State* getFinalState( Body* pointerToBody );
 
     //! Get propagation history of body at fixed output intervals.
     /*!
-     * This function gets the propagation history of given body at specified
-     * fixed output intervals.
+     * Returns the propagation history of given body at specified fixed output
+     * intervals.
      * \param pointerToBody Pointer to Body object.
      * \return Map of propagation history.
      */
-    std::map < double, VectorXd >
+    std::map < double, State* >
             getPropagationHistoryAtFixedOutputIntervals( Body* pointerToBody );
 
     //! Propagate.
@@ -156,13 +168,16 @@ public:
      */
     virtual void propagate( ) = 0;
 
-protected:
-
-    //! Size of assembled state vector.
+    //! Overload ostream to print class information.
     /*!
-     * Size of assmebled state vector.
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param pointerToPropagator Pointer to Propagator.
      */
-    unsigned int sizeOfAssembledStateVector_;
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     Propagator* pointerToPropagator );
+
+protected:
 
     //! Set start of propagation interval.
     /*!
@@ -182,70 +197,30 @@ protected:
      */
     double fixedOutputInterval_;
 
-    //! Assembled state vector.
+    //! Map of bodies to propagate and associated data.
     /*!
-     * Assembled state vector.
+     * Map of bodies to be propagated and associated data.
      */
-    VectorXd assembledStateVector_;
+    std::map < Body*, PropagatorDataContainer* > bodiesToPropagate_;
 
-    //! Assembled state derivative vector.
+    //! Iterator for map of bodies to propagate and associated data.
     /*!
-     * Assembled state derivative vector.
+     * Iterator for map of bodies to propagate and associated data.
      */
-    VectorXd assembledStateDerivativeVector_;
-
-    //! Map of bodies to be propagated.
-    /*!
-     * Map of bodies to be propagated.
-     */
-    std::map < Body*, BodyContainer* > bodiesToBePropagated_;
-
-    //! Iterator for map of bodies to be propagated.
-    /*!
-     * Iterator for map of bodies to be propagated.
-     */
-    std::map < Body*, BodyContainer* >::iterator
-            iteratorBodiesToBePropagated_;
-
-    //! Iterator for vector container of pointers to force models.
-    /*!
-     * Iterator for vector container of pointers to force models.
-     */
-    std::vector < ForceModel* >
-            ::iterator iteratorContainerOfPointersToForceModels_;
+    std::map < Body*, PropagatorDataContainer* >::iterator
+            iteratorBodiesToPropagate_;
 
     //! Map of propagation history.
     /*!
      * Map of propagation history.
      */
-    std::map < double, VectorXd > propagationHistory_;
+    std::map < double, State* > propagationHistory_;
 
     //! Iterator for map of propagation history.
     /*!
      * Iterator for map of propagation history.
      */
-    std::map < double, VectorXd >::iterator iteratorPropagationHistory_;
-
-    //! Map of integration history.
-    /*!
-     * Map of integration history. // JM: Niet nodig voor analytical propagator
-     */
-    std::map < double, VectorXd > integrationHistory_;
-
-    //! Pointer to Body object.
-    /*!
-     * Pointer to Body object.
-     */
-    Body* pointerToBody_;
-
-    //! Compute sum of state derivatives.
-    /*!
-     * This function computes the sum of state derivatives.
-     * \param stateVector State vector.
-     * \param stateDerivativeVector State derivative vector.
-     */
-    void computeSumOfStateDerivatives_
-            ( VectorXd& stateVector, VectorXd& stateDerivativeVector );
+    std::map < double, State* >::iterator iteratorPropagationHistory_;
 
 private:
 };

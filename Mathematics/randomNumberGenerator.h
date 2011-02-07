@@ -65,6 +65,7 @@
 #include <cmath>
 #include <exception>
 #include <climits>
+#include <ctime>
 #include "basicMathematicsFunctions.h"
 
 //! Random number generator class.

@@ -3,8 +3,8 @@
  *    basic functions contained in Tudat.
  *
  *    Path              : /Basics/
- *    Version           : 4
- *    Check status      : Checked
+ *    Version           : 5
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,8 +14,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
- *    Date created      : 10 august, 2010
- *    Last modified     : 29 september, 2010
+ *    Date created      : 10 August, 2010
+ *    Last modified     : 2 February, 2010
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -35,7 +35,7 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      100902    K. Kumar            File header and footer added.
  *      100916    D. Dirkx            Added minor comments and placeholder
  *                                    tag during checking.
@@ -45,6 +45,8 @@
  *                                    to linearAlgebra.h and removed
  *                                    placeholder comment. Added small comment
  *                                    modifications.
+ *      110202    K. Kumar            Added overload for map with State* for
+ *                                    computeNearestLeftNeighborUsingBinarySearch().
  */
 
 #ifndef BASICOPERATIONS_H
@@ -54,6 +56,7 @@
 #include <map>
 #include <iterator>
 #include "linearAlgebra.h"
+#include "state.h"
 
 //! Basic functions namespace.
 /*!
@@ -64,8 +67,8 @@ namespace basic_functions
 
 //! Nearest left neighbor binary search.
 /*!
- * This function searches for the nearest left neighbor in a vector of sorted
- * data using a binary algorithm (Press W.H., et al., 2002).
+ * Searches for the nearest left neighbor in a vector of sorted data using a
+ * binary algorithm (Press W.H., et al., 2002).
  * \param vectorOfSortedData Vector of data sorted in ascending/descending order.
  * \param targetValueInVectorOfSortedData Target value in vector of sorted data.
  * \return Index of nearest left neighbor to target value.
@@ -76,8 +79,8 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
 //! Nearest left neighbor binary search.
 /*!
- * This function searches for the nearest left neighbor in a map of sorted
- * data using a binary algorithm (Press W.H., et al., 2002).
+ * Searches for the nearest left neighbor in a map of sorted data using a
+ * binary algorithm (Press W.H., et al., 2002).
  * \param sortedIndepedentAndDependentVariables Map of independent and
  *           dependent data sorted in ascending/descending order.
  * \param targetValueInMapOfData Target value in map of sorted data.
@@ -85,6 +88,19 @@ int computeNearestLeftNeighborUsingBinarySearch(
  */
 int computeNearestLeftNeighborUsingBinarySearch(
         std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+        double& targetValueInMapOfData );
+
+//! Nearest left neighbor binary search.
+/*!
+ * Searches for the nearest left neighbor in a map of sorted data using a
+ * binary algorithm (Press W.H., et al., 2002).
+ * \param sortedIndepedentAndDependentVariables Map of independent and
+ *           dependent data sorted in ascending/descending order.
+ * \param targetValueInMapOfData Target value in map of sorted data.
+ * \return Index of nearest left neighbor to target value.
+ */
+int computeNearestLeftNeighborUsingBinarySearch(
+        std::map < double, State* >& sortedIndepedentAndDependentVariables,
         double& targetValueInMapOfData );
 
 }

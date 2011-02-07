@@ -3,7 +3,7 @@
  *    functions.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 13
+ *    Version           : 15
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -19,11 +19,12 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 09 January, 2011
+ *    Last modified     : 4 February, 2011
  *
  *    References
- *      Mission geometry; orbit and constellation design and management (James R. Wertz)
- *      Fondamenti di meccanica del volo spaziale (Giovanni Mengali, Alessandro A. Quarta)
+ *      Wertz, J. R. Mission geometry; orbit and constellation design and
+ *          management.
+ *      Mengali, G., Quarta, A.A. Fondamenti di meccanica del volo spaziale
  *
  *    Notes
  *
@@ -39,37 +40,40 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101020    K. Kumar      First creation of code.
- *      101025    E. Iorfida    First development of the code with conversion
- *                              equations.
- *      101028    E. Iorfida    Modification of code for updating of the
- *                              Keplerian elements and Cartesian elements
- *                              classes.
- *      101103    E. Iorfida    Additional conversion equations for extra
- *                              Keplerian elements.
- *      101104    E. Iorfida    Modification of the code (no pointers, but
- *                              directly call of variables).
- *      101119    E. Iorfida    Removed computation for extra Keplerian
- *                              elements.
- *      101130    E. Iorfida    Added different orbital cases with if-else
- *                              operators.
- *      101202    J. Melman     Compile errors taken out.
- *      101203    E. Iorfida    Added gravitational parameter, and modified
- *                              punctuation.
- *      101215    E. Iorfida    Added tolerance, modified punctuation, added
- *                              comments, deleted raiseToIntegerExponent, used pow.
- *      101219    J. Melman     Suggested efficiency improvement of if-statements.
- *      110107    E. Iorfida    Written a better definition of the range in which
- *                              angles are computed, and made some punctuation
- *                              modifications.
- *      110109    J. Melman     Incorporated function determineAngleBetweenVectors
- *                              and computeModulo. Reduced the number of
- *                              if-statements considerably and bundled all
- *                              eccentricity and inclination checks in
- *                              convertCartesianTopointerToCartesianElements_->
- *      110128    K. Kumar      Changed references to pointers.
-
+ *      YYMMDD    Author            Comment
+ *      101020    K. Kumar          First creation of code.
+ *      101025    E. Iorfida        First development of the code with
+ *                                  conversion equations.
+ *      101028    E. Iorfida        Modification of code for updating of the
+ *                                  Keplerian elements and Cartesian elements
+ *                                  classes.
+ *      101103    E. Iorfida        Additional conversion equations for extra
+ *                                  Keplerian elements.
+ *      101104    E. Iorfida        Modification of the code (no pointers, but
+ *                                  directly call of variables).
+ *      101119    E. Iorfida        Removed computation for extra Keplerian
+ *                                  elements.
+ *      101130    E. Iorfida        Added different orbital cases with if-else
+ *                                  operators.
+ *      101202    J. Melman         Compile errors taken out.
+ *      101203    E. Iorfida        Added gravitational parameter, and modified
+ *                                  punctuation.
+ *      101215    E. Iorfida        Added tolerance, modified punctuation,
+ *                                  added comments, deleted
+ *                                  raiseToIntegerExponent, used pow.
+ *      101219    J. Melman         Suggested efficiency improvement of
+ *                                  if-statements.
+ *      110107    E. Iorfida        Written a better definition of the range in
+ *                                  which angles are computed, and made some
+ *                                  punctuation modifications.
+ *      110109    J. Melman         Incorporated function computeModulo
+ *                                  and determineAngleBetweenVectors. Reduced
+ *                                  number of if-statements considerably and
+ *                                  bundled all eccentricity and inclination
+ *                                  checks in
+ *                                  convertCartesianTopointerToCartesianElements_
+ *      110128    K. Kumar          Changed references to pointers.
+ *      110204    K. Kumar          Removed "vector" naming.
  */
 
 // Include statements.
@@ -129,7 +133,7 @@ CartesianElements* convertKeplerianToCartesianElements(
                                      ->getEccentricity( ), 2 ) ) );
     }
 
-    // Definition of position vector in the perifocal coordinate system.
+    // Definition of position in the perifocal coordinate system.
     Vector2d positionPerifocal_;
     positionPerifocal_.x( ) =
         pointerToKeplerianElements->getSemiLatusRectum( )
@@ -142,7 +146,7 @@ CartesianElements* convertKeplerianToCartesianElements(
         ( 1.0 + pointerToKeplerianElements->getEccentricity( )
           * cosineOfTrueAnomaly_ );
 
-    // Definition of velocity vector in the perifocal coordinate system.
+    // Definition of velocity in the perifocal coordinate system.
     Vector2d velocityPerifocal_;
     velocityPerifocal_.x( ) = - sqrt( pointerToCelestialBody
                                       ->getGravitationalParameter( ) /
@@ -187,17 +191,15 @@ CartesianElements* convertKeplerianToCartesianElements(
     transformationMatrix_( 2, 1 ) = cosineOfArgumentOfPeriapsis_ *
                                     sineOfInclination_;
 
-    // Compute value of position vector in Cartesian coordinates.
-    Vector3d positionVector_;
-    positionVector_ = ( transformationMatrix_ *
-                        positionPerifocal_ );
-    pointerToCartesianElements_->setPositionVector( positionVector_ );
+    // Compute value of position in Cartesian coordinates.
+    Vector3d position_;
+    position_ = ( transformationMatrix_ * positionPerifocal_ );
+    pointerToCartesianElements_->setPosition( position_ );
 
-    // Compute value of velocity vector in Cartesian coordinates.
-    Vector3d velocityVector_;
-    velocityVector_ = ( transformationMatrix_ *
-                        velocityPerifocal_ );
-    pointerToCartesianElements_->setVelocityVector( velocityVector_ );
+    // Compute value of velocity in Cartesian coordinates.
+    Vector3d velocity_;
+    velocity_ = ( transformationMatrix_ * velocityPerifocal_ );
+    pointerToCartesianElements_->setVelocity( velocity_ );
 
     return pointerToCartesianElements_;
 }
@@ -216,21 +218,21 @@ KeplerianElements* convertCartesianToKeplerianElements(
     // a specific value.
     double tolerance_ = 10.0 * mathematics::MACHINE_PRECISION_DOUBLES;
 
-    // Norm of position vector in the inertial frame.
-    double normOfPositionVector_;
-    normOfPositionVector_ = pointerToCartesianElements
-                            ->getPositionVector( ).norm( );
+    // Norm of position in the inertial frame.
+    double normOfPosition_;
+    normOfPosition_ = pointerToCartesianElements
+                            ->getPosition( ).norm( );
 
-    // Norm of velocity vector in the inertial frame.
-    double normOfVelocityVector_;
-    normOfVelocityVector_ = pointerToCartesianElements
-                            ->getVelocityVector( ).norm( );
+    // Norm of velocity in the inertial frame.
+    double normOfVelocity_;
+    normOfVelocity_ = pointerToCartesianElements
+                            ->getVelocity( ).norm( );
 
     // Definition of orbit angular momentum.
     Vector3d orbitAngularMomentum_;
-    orbitAngularMomentum_ = pointerToCartesianElements->getPositionVector( ).
+    orbitAngularMomentum_ = pointerToCartesianElements->getPosition( ).
                             cross( pointerToCartesianElements
-                                   ->getVelocityVector( ) );
+                                   ->getVelocity( ) );
     double normOfOrbitAngularMomentum_ = orbitAngularMomentum_.norm( );
 
     // Definition of the (unit) vector to the ascending node.
@@ -242,17 +244,17 @@ KeplerianElements* convertCartesianToKeplerianElements(
     // Definition of eccentricity vector.
     Vector3d eccentricityVector_;
     eccentricityVector_ =
-        ( ( pointerToCartesianElements->getVelocityVector( ).
+        ( ( pointerToCartesianElements->getVelocity( ).
             cross( orbitAngularMomentum_ ) )
           / pointerToCelestialBody->getGravitationalParameter( ) ) -
-        pointerToCartesianElements->getPositionVector( ).normalized( );
+        pointerToCartesianElements->getPosition( ).normalized( );
 
     // Compute the total orbital energy.
     double totalOrbitalEnergy_;
     totalOrbitalEnergy_ =
-        raiseToIntegerPower( normOfVelocityVector_, 2 ) / 2.0 -
+        raiseToIntegerPower( normOfVelocity_, 2 ) / 2.0 -
         pointerToCelestialBody->getGravitationalParameter( )
-        / normOfPositionVector_ ;
+        / normOfPosition_ ;
 
     // Compute the value of the eccentricity.
     pointerToKeplerianElements_->setEccentricity( eccentricityVector_.norm( ) );
@@ -347,13 +349,13 @@ KeplerianElements* convertCartesianToKeplerianElements(
     {
         pointerToKeplerianElements_->setTrueAnomaly(
                 determineAngleBetweenVectors( pointerToCartesianElements
-                                              ->getPositionVector( ),
+                                              ->getPosition( ),
                 eccentricityVector_ ) );
 
         // Quadrant check. In the second half of the orbit, the angle
         // between position and velocity vector is larger than 90 degrees.
-        if ( pointerToCartesianElements->getVelocityVector( ).
-             dot( pointerToCartesianElements->getPositionVector( ) ) < 0.0 )
+        if ( pointerToCartesianElements->getVelocity( ).
+             dot( pointerToCartesianElements->getPosition( ) ) < 0.0 )
         {
             pointerToKeplerianElements_->setTrueAnomaly( 2.0 * M_PI -
                 pointerToKeplerianElements_->getTrueAnomaly( ) );
@@ -377,7 +379,7 @@ KeplerianElements* convertCartesianToKeplerianElements(
         {
             pointerToKeplerianElements_->setTrueAnomaly(
                     determineAngleBetweenVectors( pointerToCartesianElements
-                                                  ->getPositionVector( ),
+                                                  ->getPosition( ),
                     vectorToAscendingNode_ ) );
 
             // Quadrant check. In the second half of the orbit, the body

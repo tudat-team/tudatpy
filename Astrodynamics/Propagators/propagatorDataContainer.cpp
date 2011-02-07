@@ -1,21 +1,21 @@
-/*! \file orbitalElements.cpp
- *    This source file contains a base class for all orbital element classes in
- *    Tudat.
+/*! \file propagatorDataContainer.cpp
+ *    Source file that defines the class that contains all the data required by
+ *    the Tudat propagators.
  *
- *    Path              : /Astrodynamics/States/
- *    Version           : 1
+ *    Path              : /Astrodynamics/Propagators/
+ *    Version           : 3
  *    Check status      : Checked
  *
- *    Checker           : K. Kumar
+ *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
- *    Checker           : J. Melman
+ *    Checker           : J.C.P. Melman
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *    Date created      : 22 October, 2010
- *    Last modified     : 22 October, 2010
+ *    Date created      : 20 September, 2010
+ *    Last modified     : 1 February, 2010
  *
  *    References
  *
@@ -33,20 +33,22 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author            Comment
- *      101022    K. Kumar          First creation of code.
+ *      YYMMDD    Author              Comment
+ *      100920    K. Kumar            File created.
+ *      100926    K. Kumar            Fiename changed, comments added.
+ *      110201    K. Kumar            Changed filename; updated constructor.
  */
 
 // Include statements.
-#include "orbitalElements.h"
+#include "propagatorDataContainer.h"
 
 //! Default constructor.
-OrbitalElements::OrbitalElements( )
+PropagatorDataContainer::PropagatorDataContainer( )
 {
 }
 
 //! Default destructor.
-OrbitalElements::~OrbitalElements( )
+PropagatorDataContainer::~PropagatorDataContainer( )
 {
 }
 

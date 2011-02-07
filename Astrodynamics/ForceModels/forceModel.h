@@ -3,8 +3,8 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/
- *    Version           : 5
- *    Check status      : Checked
+ *    Version           : 6
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 14 September, 2010
- *    Last modified     : 19 January, 2011
+ *    Last modified     : 2 February, 2011
  *
  *    References
  *
@@ -42,6 +42,7 @@
  *                                    minor comment changes.
  *      110119    K. Kumar            Changed computeStateDerivatives() to
  *                                    computeForce().
+ *      110202    K. Kumar            Updated code to make use of State class.
  */
 
 #ifndef FORCEMODEL_H
@@ -50,6 +51,7 @@
 // Include statements.
 #include "celestialBody.h"
 #include "linearAlgebra.h"
+#include "cartesianPositionElements.h"
 
 //! Force model class.
 /*!
@@ -71,14 +73,12 @@ public:
      */
     virtual ~ForceModel( ){};
 
-    //! Compute state derivatives.
+    //! Compute force per unit mass.
     /*!
-     * This function computes the state derivatives.
-     * \param stateVector State vector.
-     * \param stateDerivativeVector Vector containing derivative of
-     *          stateVector.
+     * Computes the forces per unit mass.
+     * \param pointerToState Pointer to a State object.
      */
-    virtual VectorXd& computeForce( VectorXd& stateVector ) = 0;
+    virtual VectorXd& computeForce( State* pointerToState ) = 0;
 
 protected:
 
@@ -88,6 +88,10 @@ protected:
      */
     CelestialBody* celestialBody_;
 
+    //! Force per unit mass.
+    /*!
+     * Force per unit mass.
+     */
     VectorXd forcePerUnitMass_;
 
 private:

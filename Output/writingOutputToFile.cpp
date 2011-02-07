@@ -3,8 +3,8 @@
  *    to writing output to file included in Tudat.
  *
  *    Path              : /Astrodynamics/Output/
- *    Version           : 4
- *    Check status      : Checked
+ *    Version           : 5
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -18,8 +18,8 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : bart.romgens@gmail.com
  *
- *    Date created      : 12 august, 2010
- *    Last modified     : 29 september, 2010
+ *    Date created      : 12 August, 2010
+ *    Last modified     : 2 February, 2011
  *
  *    References
  *
@@ -37,7 +37,7 @@
  *    warranty of merchantability or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
+ *      YYMMDD    Author              Comment
  *      100914    K. Kumar            File created.
  *      100928    K. Kumar            Completed missing comments, changed
  *                                    writeIntegrationHistoryToFile( ) to
@@ -45,6 +45,8 @@
  *      100929    B. Romgens          Spelling mistakes corrected and output to
  *                                    file corrected.
  *      100929    K. Kumar            Added checked code written by D. Dirkx.
+ *      110202    K. Kumar            Updated writePropagationHistoryToFile()
+ *                                    to work with State*.
  *
  */
 
@@ -66,12 +68,12 @@ WritingOutputToFile::~WritingOutputToFile( )
 
 //! Write propagation history to file.
 void WritingOutputToFile::writePropagationHistoryToFile(
-        std::map < double, VectorXd >& propagationHistory,
+        std::map < double, State* >& propagationHistory,
         const std::string& outputFilename )
 {
     // Declare local variables.
     // Declare iterator for propagation history.
-    std::map < double, VectorXd >::iterator iteratorPropagationHistory_;
+    std::map < double, State* >::iterator iteratorPropagationHistory_;
 
     // Open output file.
     outputFile_.open( outputFilename.c_str( ) );
@@ -85,10 +87,12 @@ void WritingOutputToFile::writePropagationHistoryToFile(
         outputFile_ << iteratorPropagationHistory_->first;
 
         // Loop over map data.
-        for ( int i = 0; i < iteratorPropagationHistory_->second.rows( ); i++ )
+        for ( int i = 0;
+              i < iteratorPropagationHistory_->second->state.rows( ); i++ )
         {
             // Print map data to file.
-            outputFile_ << ", " << iteratorPropagationHistory_->second[ i ];
+            outputFile_ << ", "
+                        << iteratorPropagationHistory_->second->state[ i ];
         }
 
         // End line of output file.

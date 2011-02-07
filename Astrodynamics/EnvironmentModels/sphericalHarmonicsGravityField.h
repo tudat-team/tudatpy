@@ -3,8 +3,8 @@
  *    included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 4
- *    Check status      : Checked
+ *    Version           : 6
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 16 November, 2010
- *    Last modified     : 6 January, 2011
+ *    Last modified     : 4 February, 2011
  *
  *    References
  *
@@ -33,14 +33,17 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      101116    K. Kumar            File created.
- *      101117    K. Kumar            Added getPotential() and
- *                                    getGradientOfPotential functions.
- *      101214    K. Kumar            Updated getGradientOfPotential() and
- *                                    getLaplacianOfPotential().
- *      110106    K. Kumar            Added order and degree of expansion
- *                                    variables and set/get functions.
+ *      YYMMDD    Author            Comment
+ *      101116    K. Kumar          File created.
+ *      101117    K. Kumar          Added getPotential() and
+ *                                  getGradientOfPotential functions.
+ *      101214    K. Kumar          Updated getGradientOfPotential() and
+ *                                  getLaplacianOfPotential().
+ *      110106    K. Kumar          Added order and degree of expansion
+ *                                  variables and set/get functions.
+ *      110202    K. Kumar          Updated code to make use of the
+ *                                  CartesianPositionElements class.
+ *      110204    K. Kumar          Removed "vector" from naming.
  */
 
 #ifndef SPHERICALHARMONICSGRAVITYFIELD_H
@@ -120,46 +123,38 @@ public:
     //! Get the gravitational potential.
     /*!
      * Get the value of the gravitational potential, expressed in spherical
-     * harmonics for the given position vector.
-     * \param positionVector Position vector.
+     * harmonics for the given position.
+     * \param pointerToPosition Position given as a pointer to a
+     *          CartesianPositionElements object.
      * \return Gravitational potential.
      */
-    double getPotential( const Vector3d& positionVector );
+    double getPotential( CartesianPositionElements* pointerToPosition );
 
     //! Get the gradient of the gravitational potential.
     /*!
      * Get the value of the gradient of the gravitational potential, expressed
-     * in spherical harmonics for the given position vector.
-     * \param positionVector Position vector.
+     * in spherical harmonics for the given position.
+     * \param pointerToPosition Position given as a pointer to a
+     *          CartesianPositionElements object.
      * \return Gradient of gravitational potential.
      */
-    Vector3d getGradientOfPotential( const Vector3d& positionVector );
+    Vector3d getGradientOfPotential( CartesianPositionElements*
+                                     pointerToPosition );
 
     //! Get the Laplacian of the gravitational potential.
     /*!
      * Get the value of the Laplacian of the gravitational potential
-     * expressed in spherical harmonics for the given position vector.
-     * \param positionVector Position vector.
+     * expressed in spherical harmonics for the given position.
+     * \param pointerToPosition Position given as a pointer to a
+     *          CartesianPositionElements object.
      * \return Laplacian of gravitational potential.
      */
-    Matrix3d getLaplacianOfPotential( const Vector3d& positionVector );
+    Matrix3d getLaplacianOfPotential( CartesianPositionElements*
+                                      pointerToPosition );
 
 protected:
 
 private:
-
-    //! Reference radius.
-    /*!
-     * The reference radius used for the spherical harmonics expansion in
-     * meters.
-     */
-    double referenceRadius_;
-
-    //! Relative position vector.
-    /*!
-     * Relative position vector.
-     */
-    VectorXd relativePositionVector_;
 
     //! Degree of spherical harmonics expansion.
     /*!
@@ -172,6 +167,13 @@ private:
      * Order of spherical harmonics expansion.
      */
     int orderOfExpansion_;
+
+    //! Reference radius.
+    /*!
+     * The reference radius used for the spherical harmonics expansion in
+     * meters.
+     */
+    double referenceRadius_;
 };
 
 #endif // SPHERICALHARMONICSGRAVITYFIELD_H

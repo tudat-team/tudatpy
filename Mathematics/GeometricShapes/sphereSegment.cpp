@@ -75,26 +75,27 @@ SphereSegment::SphereSegment( const double& minimumIndependentVariable1,
 }
 
  //! Function to retrieve a surface point on the sphere.
-VectorXd SphereSegment::getSurfacePoint( const double& independentVariable1 ,
-                                       const double& independentVariable2 )
+VectorXd SphereSegment::getSurfacePoint( const double& independentVariable1,
+                                         const double& independentVariable2 )
 {
-    VectorXd cartesianPositionVector = VectorXd( 3 );
+    VectorXd cartesianPosition = VectorXd( 3 );
 
     // Gets surface point on sphere, unrotated and centered at origin.
     mathematics::convertSphericalToCartesian( radius_, independentVariable1,
                                               independentVariable2,
-                                              cartesianPositionVector);
+                                              cartesianPosition );
     VectorXd point = VectorXd( 3 );
+
     // Rotates point to correct orientation.
-    point( 0 ) = rotationMatrix_( 0, 0 ) * cartesianPositionVector( 0 ) +
-                 rotationMatrix_( 0, 1 ) * cartesianPositionVector( 1 ) +
-                 rotationMatrix_( 0, 2 ) * cartesianPositionVector( 2 );
-    point( 1 ) = rotationMatrix_( 1, 0 ) * cartesianPositionVector( 0 ) +
-                 rotationMatrix_( 1, 1 ) * cartesianPositionVector( 1 ) +
-                 rotationMatrix_( 1, 2 ) * cartesianPositionVector( 2 );
-    point( 2 ) = rotationMatrix_( 2, 0 ) * cartesianPositionVector( 0 ) +
-                 rotationMatrix_( 2, 1 ) * cartesianPositionVector( 1 ) +
-                 rotationMatrix_( 2, 2 ) * cartesianPositionVector( 2 );
+    point( 0 ) = rotationMatrix_( 0, 0 ) * cartesianPosition( 0 ) +
+                 rotationMatrix_( 0, 1 ) * cartesianPosition( 1 ) +
+                 rotationMatrix_( 0, 2 ) * cartesianPosition( 2 );
+    point( 1 ) = rotationMatrix_( 1, 0 ) * cartesianPosition( 0 ) +
+                 rotationMatrix_( 1, 1 ) * cartesianPosition( 1 ) +
+                 rotationMatrix_( 1, 2 ) * cartesianPosition( 2 );
+    point( 2 ) = rotationMatrix_( 2, 0 ) * cartesianPosition( 0 ) +
+                 rotationMatrix_( 2, 1 ) * cartesianPosition( 1 ) +
+                 rotationMatrix_( 2, 2 ) * cartesianPosition( 2 );
 
     // Translates point such that sphere origin is correctly located.
     point = point + offset_;

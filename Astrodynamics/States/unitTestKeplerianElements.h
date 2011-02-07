@@ -1,21 +1,21 @@
-/*! \file unitTestOrbitalElementConversions.h
- *    Header file of unit test for the orbitalElementConversion, from Cartesian
- *    to Keplerian and viceversa.
+/*! \file unitTestKeplerianElements.h
+ *    Header file for a unit test that tests the implementation of the
+ *    Keplerian elements state class in Tudat.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 1
- *    Check status      : Checked
+ *    Check status      : Unchecked
  *
- *    Author            : E. Iorfida
+ *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
- *    E-mail address    : elisabetta_iorfida@yahoo.it
+ *    E-mail address    : <email address>
  *
- *    Checker           : J. Melman
+ *    Checker           : D. Dirkx
  *    Affiliation       : Delft University of Technology
- *    E-mail address    : J.C.P.Melman@tudelft.nl
+ *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
- *    Date created      : 11 January, 2011
- *    Last modified     : 11 January, 2011
+ *    Date created      : 10 January, 2010
+ *    Last modified     : 10 January, 2010
  *
  *    References
  *
@@ -36,21 +36,21 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author            Comment
- *      110111    E. Iorfida        First creation of the code.
+ *      YYMMDD    author              comment
+ *      110110    K. Kumar            File created.
  */
 
-#ifndef UNITTESTORBITALELEMENTCONVERSIONS_H
-#define UNITTESTORBITALELEMENTCONVERSIONS_H
+#ifndef UNITTESTKEPLERIANELEMENTS_H
+#define UNITTESTKEPLERIANELEMENTS_H
 
 // Include statements.
-#include <cmath>
-#include "orbitalElementConversions.h"
-#include "unitConversions.h"
-#include "celestialBody.h"
 #include "basicMathematicsFunctions.h"
-#include "predefinedPlanets.h"
-#include "sphericalHarmonicsGravityField.h"
+#include "keplerianElements.h"
+#include "linearAlgebra.h"
+#include "unitConversions.h"
+
+// Using statements.
+using unit_conversions::convertDegreesToRadians;
 
 //! Namespace for all unit tests.
 /*!
@@ -59,16 +59,16 @@
 namespace unit_tests
 {
 
-//! Test of orbital element conversions code.
+//! Test of Keplerian elements state class.
 /*!
- * Test of orbital element conversions code.
+ * Test of Keplerian elements state class.
  * \return Boolean indicating success of test
  * ( false = successful; true = failed ).
  */
-bool testOrbitalElementConversions( );
+bool testKeplerianElements( );
 
 }
 
-#endif // UNITTESTORBITALELEMENTCONVERSIONS_H
-
 // End of file.
+
+#endif // UNITTESTKEPLERIANELEMENTS_H
