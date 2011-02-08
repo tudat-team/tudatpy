@@ -18,6 +18,7 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/ForceModels/gravity.cpp \
     Astrodynamics/physicalConstants.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
+    Astrodynamics/Propagators/keplerPropagator.cpp \
     Astrodynamics/Propagators/propagatorDataContainer.cpp \
     Astrodynamics/Propagators/propagator.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
@@ -41,7 +42,7 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegrators/integrator.cpp \
     Mathematics/NumericalIntegrators/euler.cpp \
-    Mathematics/NumericalIntegrators/singleStepIntegrationMethods.cpp  \
+    Mathematics/NumericalIntegrators/singleStepIntegrationMethods.cpp \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
@@ -61,6 +62,7 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/physicalConstants.h \
     Astrodynamics/unitTestPhysicalConstants.h \
+    Astrodynamics/Propagators/keplerPropagator.h \
     Astrodynamics/Propagators/propagatorDataContainer.h \
     Astrodynamics/Propagators/propagator.h \
     Astrodynamics/Propagators/numericalPropagator.h \

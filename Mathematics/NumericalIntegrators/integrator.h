@@ -341,11 +341,8 @@ protected:
     /*!
      * Stores intermediate integration results obtained during integration in
      * integrationHistory.
-     * \param pointerToIntermediateState Pointer to intermediate state to be
-     *          stored.
      */
-    void storeIntermediateIntegrationResult_( State*
-                                              pointerToIntermediateState );
+    void storeIntermediateIntegrationResult_( );
 
 private:
 

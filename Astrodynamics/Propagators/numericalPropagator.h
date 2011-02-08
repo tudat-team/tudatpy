@@ -4,7 +4,7 @@
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 7
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -110,6 +110,18 @@ private:
      * Pointer to Integrator object.
      */
     Integrator* pointerToIntegrator_;
+
+    //! Pointer to assembled state.
+    /*!
+     * Assembled state given as a pointer to a State object.
+     */
+    State* pointerToAssembledState_;
+
+    //! Pointer to assembled state derivative.
+    /*!
+     * Assembled state derivative given as a pointer to a State object.
+     */
+    State* pointerToAssembledStateDerivative_;
 
     //! Assembled state.
     /*!
