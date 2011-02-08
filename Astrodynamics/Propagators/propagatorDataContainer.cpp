@@ -33,10 +33,10 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      100920    K. Kumar            File created.
- *      100926    K. Kumar            Fiename changed, comments added.
- *      110201    K. Kumar            Changed filename; updated constructor.
+ *      YYMMDD    Author            Comment
+ *      100920    K. Kumar          File created.
+ *      100926    K. Kumar          Fiename changed, comments added.
+ *      110201    K. Kumar          Changed filename; updated constructor.
  */
 
 // Include statements.
@@ -45,6 +45,9 @@
 //! Default constructor.
 PropagatorDataContainer::PropagatorDataContainer( )
 {
+    pointerToInitialState_ = &initialState_;
+    pointerToCurrentState_ = &currentState_;
+    pointerToFinalState_ = &finalState_;
 }
 
 //! Default destructor.

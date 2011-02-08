@@ -39,20 +39,20 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      100920    K. Kumar            File created.
- *      100926    K. Kumar            Filename changed, Doxygen comments added.
- *      100927    K. Kumar            Set functions removed, bodyContainer.cpp
- *                                    merged.
- *      100929    J. Melman           Deleted destructor and constructor
- *                                    implementations.
- *                                    stateVectorRangeStart_ ->
- *                                    stateVectorStartIndex_.
- *      100929    K. Kumar            EigenRoutines.h replaced in include
- *                                    statements by linearAlgebra.h.
- *      110201    K. Kumar            Updated code to make use of State class;
- *                                    changed filename.
- *      110205    K. Kumar            Added note about use of container.
+ *      YYMMDD    Author            Comment
+ *      100920    K. Kumar          File created.
+ *      100926    K. Kumar          Filename changed, Doxygen comments added.
+ *      100927    K. Kumar          Set functions removed, bodyContainer.cpp
+ *                                  merged.
+ *      100929    J. Melman         Deleted destructor and constructor
+ *                                  implementations.
+ *                                  stateVectorRangeStart_ ->
+ *                                  stateVectorStartIndex_.
+ *      100929    K. Kumar          EigenRoutines.h replaced in include
+ *                                  statements by linearAlgebra.h.
+ *      110201    K. Kumar          Updated code to make use of State class;
+ *                                  changed filename.
+ *      110205    K. Kumar          Added note about use of container.
  */
 
 #ifndef PROPAGATORDATACONTAINER_H
@@ -69,6 +69,7 @@
 // Forward declarations.
 class Propagator;
 class NumericalPropagator;
+class KeplerPropagator;
 
 //! Propagator data container class.
 /*!
@@ -87,6 +88,9 @@ public:
 
     // Set NumericalPropagator class as friend.
     friend class NumericalPropagator;
+
+    // Set KeplerPropagator class as friend.
+    friend class KeplerPropagator;
 
     //! Default constructor.
     /*!
@@ -115,6 +119,24 @@ private:
      * Size of state in assembled state.
      */
     unsigned int sizeOfState_;
+
+    //! Pointer to initial state.
+    /*!
+     * Initial state given as a pointer to a State object.
+     */
+    State* pointerToInitialState_;
+
+    //! Pointer to current state.
+    /*!
+     * Current state given as a pointer to a State object.
+     */
+    State* pointerToCurrentState_;
+
+    //! Pointer to final state.
+    /*!
+     * Final state given as a pointer to a State object.
+     */
+    State* pointerToFinalState_;
 
     //! Initial state.
     /*!
@@ -157,6 +179,12 @@ private:
      * Pointer to Propagator class.
      */
     Propagator* pointerToPropagator_;
+
+    //! Pointer to central body.
+    /*!
+     * Pointer to central body.
+     */
+    CelestialBody* pointerToCentralBody_;
 };
 
 #endif // PROPAGATORDATACONTAINER_H

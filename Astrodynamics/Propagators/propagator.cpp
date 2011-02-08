@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 26 September, 2010
- *    Last modified     : 7 February, 2010
+ *    Last modified     : 7 February, 2011
  *
  *    References
  *
@@ -36,20 +36,19 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      100926    K. Kumar            File created.
- *      100929    J. Melman           Deleted some superfluous comments,
- *                                    corrected several alignments.
- *      100929    K. Kumar            Minor comment modifications and obsolete
- *                                    code removed.
- *      110119    K. Kumar            Modified computeSumOfStateDerivatives_()
- *                                    to use computeForce() in ForceModel.
- *      110124    K. Kumar            Updated computeSumOfStateDerivatives_()
- *                                    and added to "Notes".
- *      110201    K. Kumar            Updated code to make use of State class;
- *                                    moved computeSumOfStateDerivatives_() to
- *                                    NumericalPropagator class.
- *      110207    K. Kumar            Added ostream overload.
+ *      YYMMDD    Author            Comment
+ *      100926    K. Kumar          File created.
+ *      100929    J. Melman         Deleted some superfluous comments,
+ *                                  corrected several alignments.
+ *      100929    K. Kumar          Minor comment modifications and obsolete
+ *                                  code removed.
+ *      110119    K. Kumar          Modified computeSumOfStateDerivatives_()
+ *                                  to use computeForce() in ForceModel.
+ *      110124    K. Kumar          Updated computeSumOfStateDerivatives_()
+ *                                  and added to "Notes".
+ *      110201    K. Kumar          Updated code to make use of State class;
+ *                                  moved computeSumOfStateDerivatives_() to
+ *                                  NumericalPropagator class.
  */
 
 // Include statements.
@@ -108,7 +107,7 @@ void Propagator::setInitialState( Body* pointerToBody,
 {
     // Set initial state of given body to be propogated.
     bodiesToPropagate_[ pointerToBody ]
-            ->initialState_ = *pointerToInitialState;
+            ->pointerToInitialState_ = pointerToInitialState;
 
     // Set size of initial state of given body to propagate.
     bodiesToPropagate_[ pointerToBody ]
@@ -116,7 +115,7 @@ void Propagator::setInitialState( Body* pointerToBody,
 
     // Set state in body to propagate as initial state.
     bodiesToPropagate_[ pointerToBody ]
-            ->currentState_ = *pointerToInitialState;
+            ->pointerToCurrentState_ = pointerToInitialState;
 }
 
 //! Set fixed output interval.
@@ -144,7 +143,7 @@ double& Propagator::getPropagationIntervalEnd( )
 State* Propagator::getFinalState( Body* pointerToBody )
 {
     // Return final state of given body.
-    return &bodiesToPropagate_[ pointerToBody ]->finalState_;
+    return bodiesToPropagate_[ pointerToBody ]->pointerToFinalState_;
 }
 
 //! Get propagation history of body at fixed output intervals.

@@ -244,12 +244,18 @@ State* Integrator::computeStateDerivative_( State* pointerToState )
 }
 
 //! Store intermediate integration result.
-void Integrator::storeIntermediateIntegrationResult_(
-        State* pointerToIntermediateState )
+void Integrator::storeIntermediateIntegrationResult_( )
 {
+    // Pointer to intermediate state.
+    State* ponterToIntermediateState_ = new State;
+
+    // Set intermediate state to current state.
+    ponterToIntermediateState_->state
+            = vectorOfCurrentStatePointers_.at( 0 )->state;
+
     // Store intermediate integration results in integration history map.
     integrationHistory_[ integrationIntervalCurrentPoint_ ]
-            = pointerToIntermediateState;
+            = ponterToIntermediateState_;
 }
 
 //! Compute internal derived integration parameters.

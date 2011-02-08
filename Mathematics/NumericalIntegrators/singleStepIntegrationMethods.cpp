@@ -68,12 +68,14 @@ void SingleStepIntegrationMethods::integrate( )
     // state at each integration step.
     for ( unsigned int i = 1; i < numberOfIntegrationSteps_; i++ )
     {
+        // Set final state.
+        finalState_.state = vectorOfCurrentStatePointers_.at( 0 )->state;
+
         // Check if integration history should be saved.
         if ( isIntegrationHistoryToBeSaved_ )
         {
             // Store intermediate results.
-            storeIntermediateIntegrationResult_(
-                    vectorOfCurrentStatePointers_.at( 0 ) );
+            storeIntermediateIntegrationResult_( );
         }
 
         // Compute final state.
@@ -84,12 +86,14 @@ void SingleStepIntegrationMethods::integrate( )
     lastStepStepsize_ = integrationIntervalEnd_
                         - integrationIntervalCurrentPoint_;
 
+    // Set final state.
+    finalState_.state = vectorOfCurrentStatePointers_.at( 0 )->state;
+
     // Check if integration history should be saved.
     if ( isIntegrationHistoryToBeSaved_ )
     {
         // Store intermediate results.
-        storeIntermediateIntegrationResult_(
-                vectorOfCurrentStatePointers_.at( 0 ) );
+        storeIntermediateIntegrationResult_( );
     }
 
     // Compute final state.
@@ -102,8 +106,7 @@ void SingleStepIntegrationMethods::integrate( )
     if ( isIntegrationHistoryToBeSaved_ )
     {
         // Store intermediate results.
-        storeIntermediateIntegrationResult_(
-                vectorOfCurrentStatePointers_.at( 0 ) );
+        storeIntermediateIntegrationResult_( );
     }
 }
 
