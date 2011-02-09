@@ -129,7 +129,7 @@ void NewtonRaphson::execute( )
             currentValueOfRoot_ = -0.0;
             nextValueOfRoot_ = -0.0;
 
-            cerr << " The Newton-Raphson algorithm did not converge after "
+            cerr << "The Newton-Raphson algorithm did not converge after "
                  << maximumNumberOfIterations_ << " iterations." << endl;
         }
     }

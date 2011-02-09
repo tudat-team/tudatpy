@@ -30,6 +30,9 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/States/cartesianPositionElements.cpp \
     Astrodynamics/States/cartesianVelocityElements.cpp \
     Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
+    Astrodynamics/Trajectory/trajectoryDesignMethods.cpp \
+    Astrodynamics/Trajectory/LambertTargeter/lambertTargeter.cpp \
+    Astrodynamics/Trajectory/LambertTargeter/unitTestLambertTargeter.cpp \
     Basics/basicFunctions.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
@@ -78,6 +81,9 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/States/cartesianPositionElements.h \
     Astrodynamics/States/cartesianVelocityElements.h \
     Astrodynamics/States/unitTestOrbitalElementConversions.h \
+    Astrodynamics/Trajectory/trajectoryDesignMethods.h \
+    Astrodynamics/Trajectory/LambertTargeter/lambertTargeter.h \
+    Astrodynamics/Trajectory/LambertTargeter/unitTestLambertTargeter.h \
     Basics/basicFunctions.h \
     Mathematics/unitConversions.h \
     Mathematics/unitTestUnitConversions.h \
@@ -116,6 +122,8 @@ INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics/ForceModels \
     Astrodynamics/Propagators \
     Astrodynamics/States \
+    Astrodynamics/Trajectory \
+    Astrodynamics/Trajectory/LambertTargeter \
     Basics \
     Mathematics \
     Mathematics/GeometricShapes \
