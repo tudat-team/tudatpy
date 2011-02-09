@@ -46,16 +46,16 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101007    K. Kumar      First creation of code.
- *      101015    K. Kumar      Added RandomNumbers structure.
- *      101020    K. Kumar      Consolidated code into single class and
- *                              completed code comments. Object can now only be
- *                              created by explicit seeding.
- *      101025    K. Kumar      Updated code based on D. Dirkx's codecheck
- *                              comments.
- *      110117    K. Kumar      Corrected path.
- *      110121    K. Kumar      Added comment to "Notes".
+ *      YYMMDD    Author            Comment
+ *      101007    K. Kumar          First creation of code.
+ *      101015    K. Kumar          Added RandomNumbers structure.
+ *      101020    K. Kumar          Consolidated code into single class and
+ *                                  completed code comments. Object can now
+ *                                  only be created by explicit seeding.
+ *      101025    K. Kumar          Updated code based on D. Dirkx's codecheck
+ *                                  comments.
+ *      110117    K. Kumar          Corrected path.
+ *      110121    K. Kumar          Added comment to "Notes".
  */
 
 #ifndef RANDOMNUMBERGENERATOR_H
