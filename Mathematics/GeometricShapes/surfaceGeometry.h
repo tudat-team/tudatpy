@@ -5,7 +5,7 @@
  *    Version           : 6
  *    Check status      : Checked
  *
- *    Author            : Dominic Dirkx
+ *    Author            : D. Dirkx
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
@@ -74,7 +74,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~SurfaceGeometry( );
+    virtual ~SurfaceGeometry( );
 
 protected:
 

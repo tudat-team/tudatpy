@@ -3,10 +3,10 @@
  *    class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
- *    Author            : Dominic Dirkx
+ *    Author            : D. Dirkx
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
@@ -19,7 +19,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 9 February, 2011
  *
  *    References
  *
@@ -54,6 +54,7 @@
  *      110204    K. Kumar          Minor comment and layout modifications;
  *                                  corrected Doxygen comments.
  *      110207    D. Dirkx          Removed overloaded ostream operator.
+ *      110209    D. Dirkx          Minor changes.
  */
 
 #ifndef SINGLESURFACEGEOMETRY_H
@@ -259,11 +260,27 @@ protected:
      */
     double maximumIndependentVariable2_;
 
+    //! Parameter for use in get parameter function.
+    /*!
+     * Parameter for use in get parameter function.
+     * Variable is declared here to prevent it being created multiple times
+     * in local scope.
+     */
+    double parameter_;
+
     //! Indepedent variable.
     /*!
      * Indepedent variable.
      */
     IndependentVariables independentVariable_;
+
+    //! Cartesian position vector for use in getSurfacePoint function.
+    /*!
+     * Cartesian position vector for use in getSurfacePoint function.
+     * Variable is declared here to prevent it being created multiple times
+     * in local scope.
+     */
+    VectorXd cartesianPositionVector_;
 
     //! Offset vector.
     /*!

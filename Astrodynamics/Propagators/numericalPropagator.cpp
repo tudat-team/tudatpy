@@ -336,7 +336,7 @@ State* NumericalPropagator::
                     = pointerToStateDerivative_->state;
     }
 
-    // De-allocate pointer to state derivative.
+    // Deallocate pointer to state derivative.
     delete pointerToStateDerivative_;
 
     // Return pointer to assembled state derivative.

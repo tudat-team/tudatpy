@@ -38,6 +38,10 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/GeometricShapes/geometricShape.cpp \
     Mathematics/GeometricShapes/singleSurfaceGeometry.cpp \
     Mathematics/GeometricShapes/surfaceGeometry.cpp \
+    Mathematics/GeometricShapes/torus.cpp \
+    Mathematics/GeometricShapes/sphereSegment.cpp \
+    Mathematics/GeometricShapes/conicalFrustum.cpp \
+    Mathematics/GeometricShapes/capsule.cpp \
     Mathematics/LinearAlgebra/linearAlgebra.cpp \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegrators/integrator.cpp \
@@ -84,6 +88,10 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/GeometricShapes/geometricShape.h \
     Mathematics/GeometricShapes/singleSurfaceGeometry.h \
     Mathematics/GeometricShapes/surfaceGeometry.h \
+    Mathematics/GeometricShapes/torus.h \
+    Mathematics/GeometricShapes/sphereSegment.h \
+    Mathematics/GeometricShapes/conicalFrustum.h \
+    Mathematics/GeometricShapes/capsule.h \
     Mathematics/LinearAlgebra/linearAlgebra.h \
     Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h \
