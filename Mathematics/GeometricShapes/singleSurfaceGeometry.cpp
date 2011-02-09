@@ -2,10 +2,10 @@
  *    This file contains the definition of the SingleSurfaceGeometry base class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
- *    Author            : Dominic Dirkx
+ *    Author            : D. Dirkx
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
@@ -18,7 +18,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 9 February, 2011
  *
  *    References
  *
@@ -26,7 +26,11 @@
  *      Contents of this file used to be in singleGeometry.cpp, but as this class
  *      has been split into single and composite surface geometry, the contents
  *      have been moved, with most of the SurfaceGeometry class now belonging to
- *     the SingleSurfaceGeometry class.
+ *      the SingleSurfaceGeometry class.
+ *
+ *      The getSurfacePoint currently uses a VectorXd as a return type,
+ *      this could be changed to a CartesianPositionElements type in the
+ *      future for consistency with the rest of the code.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -52,6 +56,7 @@
  *      110124    K. Kumar          Minor comment and layout changes.
  *      110204    K. Kumar          Minor comment and layout modifications;
  *                                  corrected Doxygen comments.
+ *      110209    D. Dirkx          Minor changes.
  */
 
 // Include statements.
@@ -70,6 +75,9 @@ SingleSurfaceGeometry::SingleSurfaceGeometry( )
     offset_ = VectorXd::Zero( 3 );
     rotationMatrix_ = MatrixXd::Identity( 3, 3 );
     scalingMatrix_ = MatrixXd::Identity( 3, 3 );
+
+    // Declare the size of the vector for use in the getSurfacePoint function.
+    cartesianPositionVector_ = VectorXd( 3 );
 }
 
 //! Default destructor.

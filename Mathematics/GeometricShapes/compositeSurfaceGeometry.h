@@ -77,7 +77,7 @@ public:
 
     //! Default destructor.
     /*!
-     * Default destructor, de-allocates surface lists and resets them to NULL.
+     * Default destructor, deallocates surface lists and resets them to NULL.
      */
     virtual ~CompositeSurfaceGeometry();
 

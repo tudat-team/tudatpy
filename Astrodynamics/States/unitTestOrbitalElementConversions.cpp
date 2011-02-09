@@ -139,8 +139,8 @@ bool testOrbitalElementConversions( )
     pointerToKeplerianEllipticalElements1_
             ->setArgumentOfPeriapsis( 4.0 * M_PI / 3.0 );
     pointerToKeplerianEllipticalElements1_
-            ->setRightAscensionOfAscendingNode( 1.0 * M_PI / 8.0 );
-    pointerToKeplerianEllipticalElements1_->setTrueAnomaly( 1.0 * M_PI / 3.0 );
+            ->setRightAscensionOfAscendingNode( M_PI / 8.0 );
+    pointerToKeplerianEllipticalElements1_->setTrueAnomaly( M_PI / 3.0 );
     pointerToKeplerianEllipticalElements1_->setSemiLatusRectum(
             pointerToKeplerianEllipticalElements1_->getSemiMajorAxis( )
             * ( 1.0 - raiseToIntegerPower(

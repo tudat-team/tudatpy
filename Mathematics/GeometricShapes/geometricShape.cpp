@@ -6,8 +6,8 @@
  *    Version           : 7
  *    Check status      : Checked
  *
- *    Author            : Dominic Dirkx
- *    Affiliation       : TU Delft
+ *    Author            : D. Dirkx
+ *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Checker           : J. Melman
