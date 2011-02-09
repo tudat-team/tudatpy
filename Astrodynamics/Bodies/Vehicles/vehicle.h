@@ -5,7 +5,7 @@
  *
  * Path              : /Astrodynamics/Bodies/Vehicles/
  * Version           : 4
- * Check status      : Unchecked
+ * Check status      : Checked
  *
  * Author            : D. Dirkx
  * Affiliation       : Delft University of Technology

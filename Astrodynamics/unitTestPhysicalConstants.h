@@ -4,7 +4,7 @@
  *
  *    Path              : /Astrodynamics/
  *    Version           : 2
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : J. Melman
  *    Affiliation       : Delft University of Technology

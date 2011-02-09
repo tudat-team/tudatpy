@@ -4,7 +4,7 @@
  *
  *    Path              : /Astrodynamics/EnvironmentModels/
  *    Version           : 11
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -195,8 +195,6 @@ bool testSphericalHarmonicsGravityField( )
     // Set test result to false if the test does not match the expected result.
     if ( differenceBetweenResults.norm( ) > MACHINE_PRECISION_DOUBLES )
     {
-        // JM: Good that you're splitting the tests up, but I don't think that
-        // that these messages were really informative, so I've changed them.
         // Check if the source of the error is Test 1.
         if ( differenceBetweenResults( 0 ) > MACHINE_PRECISION_DOUBLES )
         {

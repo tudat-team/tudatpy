@@ -3,7 +3,7 @@
  *
  *    Path              : /Astrodynamics/EnvironmentModel/
  *    Version           : 8
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
