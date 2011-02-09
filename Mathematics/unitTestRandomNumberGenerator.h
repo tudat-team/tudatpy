@@ -3,8 +3,8 @@
  *    generator included in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 1
- *    Check status      : Checked
+ *    Version           : 2
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 7 January, 2011
- *    Last modified     : 7 January, 2010
+ *    Last modified     : 7 February, 2011
  *
  *    References
  *

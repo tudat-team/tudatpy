@@ -40,14 +40,15 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101015    K. Kumar      First creation of code.
- *      101020    K. Kumar      Class implemented as described by the header
- *                              file. Code comments included.
- *      101025    K. Kumar      Updated code based on D. Dirkx's codecheck
- *                              comments.
- *      110107    K. Kumar      Changed normalizated function to use climits.
- *      110117    K. Kumar      Minor layout modification; path corrected.
+ *      YYMMDD    Author            Comment
+ *      101015    K. Kumar          First creation of code.
+ *      101020    K. Kumar          Class implemented as described by the
+ *                                  header file. Code comments included.
+ *      101025    K. Kumar          Updated code based on D. Dirkx's codecheck
+ *                                  comments.
+ *      110107    K. Kumar          Changed normalizated function to use
+ *                                  climits.
+ *      110117    K. Kumar          Minor layout modification; path corrected.
  */
 
 // Include statements.
