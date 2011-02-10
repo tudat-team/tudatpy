@@ -11,10 +11,12 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
-    Astrodynamics/EnvironmentModels/unitTestSphericalHarmonicsGravityField.cpp \
-    Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.cpp \
-    Astrodynamics/EnvironmentModels/predefinedGravityFieldModels.cpp \
-    Astrodynamics/EnvironmentModels/gravityFieldModel.cpp \
+    Astrodynamics/EnvironmentModels/Aerodynamics/aerodynamics.cpp \
+    Astrodynamics/EnvironmentModels/Aerodynamics/unitTestAerodynamicsNamespace.cpp \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/predefinedGravityFieldModels.cpp \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.cpp \
     Astrodynamics/ForceModels/gravity.cpp \
     Astrodynamics/physicalConstants.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
@@ -61,10 +63,12 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/Vehicles/vehicle.h \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h \
     Astrodynamics/EnvironmentModels/environmentModel.h \
-    Astrodynamics/EnvironmentModels/gravityFieldModel.h \
-    Astrodynamics/EnvironmentModels/predefinedGravityFieldModels.h \
-    Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h \
-    Astrodynamics/EnvironmentModels/unitTestSphericalHarmonicsGravityField.h \
+    Astrodynamics/EnvironmentModels/Aerodynamics/aerodynamics.h \
+    Astrodynamics/EnvironmentModels/Aerodynamics/unitTestAerodynamicsNamespace.h \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/predefinedGravityFieldModels.h \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.h \
     Astrodynamics/ForceModels/gravity.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/physicalConstants.h \
@@ -119,6 +123,8 @@ INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics/Bodies/CelestialBodies \
     Astrodynamics/Bodies/Vehicles \
     Astrodynamics/EnvironmentModels \
+    Astrodynamics/EnvironmentModels/Aerodynamics \
+    Astrodynamics/EnvironmentModels/GravityFieldModel \
     Astrodynamics/ForceModels \
     Astrodynamics/Propagators \
     Astrodynamics/States \
