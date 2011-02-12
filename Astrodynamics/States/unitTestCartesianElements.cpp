@@ -113,12 +113,12 @@ bool testCartesianElements( )
             cartesianElementsStateVectorTest1 - vectorOfCartesianElements;
 
     // Test 2: Set Cartesian elements using setState() function.
-    cartesianElementsStateTest2.setState( vectorOfCartesianElements );
+    cartesianElementsStateTest2.state = vectorOfCartesianElements;
 
     // Test 2: Difference between setting the Cartesian state as a whole and
     // the expected values.
     VectorXd differenceBetweenResultsTest2;
-    differenceBetweenResultsTest2 = cartesianElementsStateTest2.getState( )
+    differenceBetweenResultsTest2 = cartesianElementsStateTest2.state
                                     - vectorOfCartesianElements;
 
     // Set test result to true if the test does not match the expected result.
@@ -149,7 +149,7 @@ bool testCartesianElements( )
         {
             // Generate error statements.
             cerr << "The computed value " << endl;
-            cerr << "( " << cartesianElementsStateTest2.getState( ) << " )"
+            cerr << "( " << cartesianElementsStateTest2.state << " )"
                  << endl;
             cerr << "using set/get functions for the whole state for the "
                  << "CartesianElements class does not match the expected "
@@ -157,7 +157,7 @@ bool testCartesianElements( )
             cerr << "( " << vectorOfCartesianElements << " )." << endl;
             cerr << "The difference is: "
                  << vectorOfCartesianElements -
-                    - cartesianElementsStateTest2.getState( ) << endl;
+                    - cartesianElementsStateTest2.state << endl;
         }
     }
 
