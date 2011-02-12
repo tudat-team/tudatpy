@@ -206,8 +206,3 @@ bool testGravityAssist( )
 }
 
 // End of file.
-
-int main( ) {
-return unit_tests::testGravityAssist( );
-}
-

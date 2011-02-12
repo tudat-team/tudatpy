@@ -58,7 +58,10 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
     Mathematics/unitTestUnitConversions.cpp \
-    Output/writingOutputToFile.cpp
+    Output/writingOutputToFile.cpp \
+    Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.cpp \
+    Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.cpp \
+    Mathematics/GeometricShapes/lawgsPartGeometry.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
@@ -120,7 +123,10 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h \
     Mathematics/RootFindingMethods/newtonRaphson.h \
     Output/outputHandling.h \
-    Output/writingOutputToFile.h
+    Output/writingOutputToFile.h \
+    Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.h \
+    Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h \
+    Mathematics/GeometricShapes/lawgsPartGeometry.h
 INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics \
     Astrodynamics/Bodies \
