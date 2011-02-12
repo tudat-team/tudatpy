@@ -16,13 +16,14 @@
  *    Date created      : 11 November, 2010
  *    Last modified     : 08 February, 2011
  *
- *    References        : [1] "A procedure for the solution of Lambert's orbital
- *                        boundary-value problem", R.H. Gooding, Celestial
- *                        Mechanics and Dynamical Astronomy 48:145-165, 1990
- *                        [2] "Trajectory optimization for a mission to
- *                        Neptune and Triton", J. Melman, MSc thesis report,
- *                        TU Delft, 2007
- *                        [3] TEMPORARY!! Thesis E. Iorfida, MSc thesis report.
+ *    References
+ *      [1] R.H. Gooding, "A procedure for the solution of Lambert's orbital
+ *      boundary-value problem", Celestial Mechanics and Dynamical Astronomy
+ *      48:145-165, 1990
+ *      [2] J. Melman, "Trajectory optimization for a mission to Neptune and
+ *      Triton", MSc thesis report, TU Delft, 2007
+ *      [3] E. Iorfida, "Unknown name", MSc thesis report, TU Delft, 2011,
+ *      (Unpublished)
  *
  *    Notes
  *      The number of revolutions from departure to arrival body is zero

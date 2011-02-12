@@ -18,12 +18,11 @@
  *    Date created      : 13 January, 2011
  *    Last modified     : 08 February, 2011
  *
- *    References        : - Hyperbolic case: [1] (tudat.tudelf.nl\external_files ->
- *                        this is just a guess of where the file could be stored).
- *                        TEMPORARY!!! Ron's Excel file!!!
- *                        - Elliptical case: [2] "Fondamenti di Meccanica del volo
- *                        Spaziale", G. Mengali, A. A. Quarta, example 6.1
- *                        page 159-162.
+ *    References
+ *      Hyperbolic case: [1] R. Noomen, Excel file, tudat.tudelft.nl, still
+ *      has to be put in there. TEMPORARY!!!
+ *      Elliptical case: [2] G. Mengali, A.A. Quarta, "Fondamenti di Meccanica
+ *      del Volo Spaziale", example 6.1, page 159-162.
  *
  *    Notes
  *      Test runs code and verifies result against expected value.
