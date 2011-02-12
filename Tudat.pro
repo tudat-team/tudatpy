@@ -11,13 +11,13 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
-    Astrodynamics/EnvironmentModels/Aerodynamics/aerodynamics.cpp \
-    Astrodynamics/EnvironmentModels/Aerodynamics/unitTestAerodynamicsNamespace.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/predefinedGravityFieldModels.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.cpp \
     Astrodynamics/ForceModels/gravity.cpp \
+    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.cpp \
+    Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.cpp \
     Astrodynamics/physicalConstants.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
     Astrodynamics/Propagators/keplerPropagator.cpp \
@@ -31,12 +31,16 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/States/cartesianElements.cpp \
     Astrodynamics/States/cartesianPositionElements.cpp \
     Astrodynamics/States/cartesianVelocityElements.cpp \
+    Astrodynamics/States/unitTestKeplerianElements.cpp \
+    Astrodynamics/States/unitTestCartesianElements.cpp \
     Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
-    Astrodynamics/Trajectory/trajectoryDesignMethods.cpp \
-    Astrodynamics/Trajectory/LambertTargeter/lambertTargeter.cpp \
-    Astrodynamics/Trajectory/LambertTargeter/unitTestLambertTargeter.cpp \
-    Astrodynamics/Trajectory/GravityAssist/gravityAssist.cpp \
-    Astrodynamics/Trajectory/GravityAssist/unitTestGravityAssist.cpp \
+    Astrodynamics/MissionSegments/trajectoryDesignMethod.cpp \
+    Astrodynamics/MissionSegments/EscapeAndCapture/unitTestEscapeAndCapture.cpp \
+    Astrodynamics/MissionSegments/EscapeAndCapture/escapePhase.cpp \
+    Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.cpp \
+    Astrodynamics/MissionSegments/EscapeAndCapture/capturePhase.cpp \
+    Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.cpp \
+    Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.cpp \
     Basics/basicFunctions.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
@@ -59,23 +63,21 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
     Mathematics/unitTestUnitConversions.cpp \
     Output/writingOutputToFile.cpp \
-    Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.cpp \
-    Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.cpp \
-    Mathematics/GeometricShapes/lawgsPartGeometry.cpp
+    main.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
     Astrodynamics/Bodies/Vehicles/vehicle.h \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h \
     Astrodynamics/EnvironmentModels/environmentModel.h \
-    Astrodynamics/EnvironmentModels/Aerodynamics/aerodynamics.h \
-    Astrodynamics/EnvironmentModels/Aerodynamics/unitTestAerodynamicsNamespace.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/predefinedGravityFieldModels.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.h \
     Astrodynamics/ForceModels/gravity.h \
     Astrodynamics/ForceModels/forceModel.h \
+    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h \
+    Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.h \
     Astrodynamics/physicalConstants.h \
     Astrodynamics/unitTestPhysicalConstants.h \
     Astrodynamics/Propagators/keplerPropagator.h \
@@ -89,12 +91,16 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/States/cartesianElements.h \
     Astrodynamics/States/cartesianPositionElements.h \
     Astrodynamics/States/cartesianVelocityElements.h \
+    Astrodynamics/States/unitTestKeplerianElements.h \
+    Astrodynamics/States/unitTestCartesianElements.h \
     Astrodynamics/States/unitTestOrbitalElementConversions.h \
-    Astrodynamics/Trajectory/trajectoryDesignMethods.h \
-    Astrodynamics/Trajectory/LambertTargeter/lambertTargeter.h \
-    Astrodynamics/Trajectory/LambertTargeter/unitTestLambertTargeter.h \
-    Astrodynamics/Trajectory/GravityAssist/gravityAssist.h \
-    Astrodynamics/Trajectory/GravityAssist/unitTestGravityAssist.h \
+    Astrodynamics/MissionSegments/trajectoryDesignMethod.h \
+    Astrodynamics/MissionSegments/EscapeAndCapture/unitTestEscapeAndCapture.h \
+    Astrodynamics/MissionSegments/EscapeAndCapture/escapePhase.h \
+    Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.h \
+    Astrodynamics/MissionSegments/EscapeAndCapture/capturePhase.h \
+    Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.h \
+    Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.h \
     Basics/basicFunctions.h \
     Mathematics/unitConversions.h \
     Mathematics/unitTestUnitConversions.h \
@@ -123,24 +129,21 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h \
     Mathematics/RootFindingMethods/newtonRaphson.h \
     Output/outputHandling.h \
-    Output/writingOutputToFile.h \
-    Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.h \
-    Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h \
-    Mathematics/GeometricShapes/lawgsPartGeometry.h
+    Output/writingOutputToFile.h
 INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics \
     Astrodynamics/Bodies \
     Astrodynamics/Bodies/CelestialBodies \
     Astrodynamics/Bodies/Vehicles \
     Astrodynamics/EnvironmentModels \
-    Astrodynamics/EnvironmentModels/Aerodynamics \
     Astrodynamics/EnvironmentModels/GravityFieldModel \
     Astrodynamics/ForceModels \
+    Astrodynamics/ForceModels/Aerothermodynamics \
     Astrodynamics/Propagators \
     Astrodynamics/States \
-    Astrodynamics/Trajectory \
-    Astrodynamics/Trajectory/LambertTargeter \
-    Astrodynamics/Trajectory/GravityAssist \
+    Astrodynamics/MissionSegments \
+    Astrodynamics/MissionSegments/EscapeAndCapture \
+    Astrodynamics/MissionSegments/LambertTargeter \
     Basics \
     Mathematics \
     Mathematics/GeometricShapes \
