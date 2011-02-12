@@ -39,6 +39,8 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/MissionSegments/EscapeAndCapture/escapePhase.cpp \
     Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.cpp \
     Astrodynamics/MissionSegments/EscapeAndCapture/capturePhase.cpp \
+    Astrodynamics/MissionSegments/GravityAssist/unitTestGravityAssist.cpp \
+    Astrodynamics/MissionSegments/GravityAssist/gravityAssist.cpp \
     Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.cpp \
     Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.cpp \
     Basics/basicFunctions.cpp \
@@ -62,8 +64,7 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
     Mathematics/unitTestUnitConversions.cpp \
-    Output/writingOutputToFile.cpp \
-    main.cpp
+    Output/writingOutputToFile.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
@@ -99,6 +100,8 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/MissionSegments/EscapeAndCapture/escapePhase.h \
     Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.h \
     Astrodynamics/MissionSegments/EscapeAndCapture/capturePhase.h \
+    Astrodynamics/MissionSegments/GravityAssist/unitTestGravityAssist.h \
+    Astrodynamics/MissionSegments/GravityAssist/gravityAssist.h \
     Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.h \
     Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.h \
     Basics/basicFunctions.h \
@@ -143,6 +146,7 @@ INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics/States \
     Astrodynamics/MissionSegments \
     Astrodynamics/MissionSegments/EscapeAndCapture \
+    Astrodynamics/MissionSegments/GravityAssist \
     Astrodynamics/MissionSegments/LambertTargeter \
     Basics \
     Mathematics \
