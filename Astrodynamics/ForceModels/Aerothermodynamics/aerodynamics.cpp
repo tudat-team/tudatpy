@@ -246,7 +246,6 @@ double computeSmythDeltaWingPressureCoefficient(
 {
     // Declare local variables.
     double machNumberSine_;
-    double pressureCoefficient_;
     double correctedInclinationAngle_;
 
     // Calculate inclination angle for use in calculations ( angles lower than
@@ -265,11 +264,10 @@ double computeSmythDeltaWingPressureCoefficient(
     machNumberSine_ = machNumber * sin( correctedInclinationAngle_ );
 
     // Employ empirical correlation to calculate pressure coefficient.
-    pressureCoefficient_ = 1.66667
-                           * ( raiseToIntegerPower(
-                                   1.09 * machNumberSine_
-                                   + exp( -0.49 * machNumberSine_ ), 2 ) - 1.0 )
-                           / raiseToIntegerPower( machNumber, 2 );
+    // Return pressure coefficient.
+    return 1.66667 * ( raiseToIntegerPower(
+            1.09 * machNumberSine_ + exp( -0.49 * machNumberSine_ ), 2 ) - 1.0 )
+            / raiseToIntegerPower( machNumber, 2 );
 }
 
 //! Compute pressure coefficient using the van Dyke unified method.
