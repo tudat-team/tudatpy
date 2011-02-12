@@ -35,6 +35,8 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Trajectory/trajectoryDesignMethods.cpp \
     Astrodynamics/Trajectory/LambertTargeter/lambertTargeter.cpp \
     Astrodynamics/Trajectory/LambertTargeter/unitTestLambertTargeter.cpp \
+    Astrodynamics/Trajectory/GravityAssist/gravityAssist.cpp \
+    Astrodynamics/Trajectory/GravityAssist/unitTestGravityAssist.cpp \
     Basics/basicFunctions.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
@@ -88,6 +90,8 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Trajectory/trajectoryDesignMethods.h \
     Astrodynamics/Trajectory/LambertTargeter/lambertTargeter.h \
     Astrodynamics/Trajectory/LambertTargeter/unitTestLambertTargeter.h \
+    Astrodynamics/Trajectory/GravityAssist/gravityAssist.h \
+    Astrodynamics/Trajectory/GravityAssist/unitTestGravityAssist.h \
     Basics/basicFunctions.h \
     Mathematics/unitConversions.h \
     Mathematics/unitTestUnitConversions.h \
@@ -130,6 +134,7 @@ INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics/States \
     Astrodynamics/Trajectory \
     Astrodynamics/Trajectory/LambertTargeter \
+    Astrodynamics/Trajectory/GravityAssist \
     Basics \
     Mathematics \
     Mathematics/GeometricShapes \
