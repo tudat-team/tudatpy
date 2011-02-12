@@ -128,12 +128,12 @@ bool testKeplerianElements( )
                                      - vectorOfKeplerianElements;
 
     // Test 2: Set Keplerian elements using setState() function.
-    keplerianElementsStateTest2.setState( vectorOfKeplerianElements );
+    keplerianElementsStateTest2.state = vectorOfKeplerianElements;
 
     // Test 2: Difference between setting the Keplerian state as a whole and
     // the expected values.
     VectorXd differenceBetweenResultsTest2;
-    differenceBetweenResultsTest2 = keplerianElementsStateTest2.getState( )
+    differenceBetweenResultsTest2 = keplerianElementsStateTest2.state
                                     - vectorOfKeplerianElements;
 
     // Test 3: Set eccentricity and semi-latus rectum ( only for parabolic
@@ -190,7 +190,7 @@ bool testKeplerianElements( )
         {
             // Generate error statements.
             cerr << "The computed value " << endl;
-            cerr << "( " << keplerianElementsStateTest2.getState( ) << " )"
+            cerr << "( " << keplerianElementsStateTest2.state << " )"
                  << endl;
             cerr << "using set/get functions for the whole state for the "
                  << "KeplerianElements class does not match the expected "
@@ -198,7 +198,7 @@ bool testKeplerianElements( )
             cerr << "( " << vectorOfKeplerianElements << " )." << endl;
             cerr << "The difference is: "
                  << vectorOfKeplerianElements
-                    - keplerianElementsStateTest2.getState( ) << endl;
+                    - keplerianElementsStateTest2.state << endl;
         }
 
         if ( differenceBetweenResultsTest3.norm( )

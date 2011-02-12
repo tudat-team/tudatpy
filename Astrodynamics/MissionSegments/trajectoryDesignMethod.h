@@ -2,7 +2,7 @@
  *    This header file contains a base class for all trajectory design methods
  *    classes in Tudat.
  *
- *    Path              : /Astrodynamics/Trajectory/
+ *    Path              : /Astrodynamics/MissionSegments/
  *    Version           : 1
  *    Check status      : Checked
  *
@@ -33,22 +33,21 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101111    E. Iorfida    First creation of code.
- *
+ *      YYMMDD    Author            Comment
+ *      101111    E. Iorfida        First creation of code.
  */
 
-#ifndef TRAJECTORYDESIGNMETHODS_H
-#define TRAJECTORYDESIGNMETHODS_H
+#ifndef TRAJECTORYDESIGNMETHOD_H
+#define TRAJECTORYDESIGNMETHOD_H
 
 // Include statements.
 #include "linearAlgebra.h"
 
-//! Trajectory design methods base class.
+//! Trajectory design method base class.
 /*!
- * Trajectory design methods class.
+ * Trajectory design method class.
  */
-class TrajectoryDesignMethods
+class TrajectoryDesignMethod
 {
 public:
 
@@ -56,14 +55,18 @@ public:
     /*!
      * Default constructor.
      */
-    TrajectoryDesignMethods( );
+    TrajectoryDesignMethod( );
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~TrajectoryDesignMethods( );
+    virtual ~TrajectoryDesignMethod( );
 
+    //! Execute trajectory design method.
+    /*!
+     * Execute trajectory design method.
+     */
     virtual void execute( ) = 0;
 
 protected:
@@ -71,6 +74,6 @@ protected:
 private:
 };
 
-#endif // TRAJECTORYDESIGNMETHODS_H
+#endif // TRAJECTORYDESIGNMETHOD_H
 
 // End of file.

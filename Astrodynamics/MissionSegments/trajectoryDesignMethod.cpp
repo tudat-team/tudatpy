@@ -1,8 +1,8 @@
-/*! \file unitTestLambertTargeter.h
- *    Header file of unit test file of Lambert targeting algorithm code.
- *    This unit test file will test the Lambert targeting algorithm code.
+/*! \file trajectoryDesignMethod.cpp
+ *    This source file contains a base class for all trajectory design methods classes in
+ *    Tudat.
  *
- *    Path              : /Astrodynamics/Trajectory/LambertTargeter/
+ *    Path              : /Astrodynamics/MissionSegments/Trajectory/
  *    Version           : 1
  *    Check status      : Checked
  *
@@ -20,9 +20,6 @@
  *    References
  *
  *    Notes
- *      Test runs code and verifies result against expected value.
- *      If the tested code is erroneous, the test function returns a boolean
- *      true; if the code is correct, the function returns a boolean false.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -36,34 +33,21 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      110113    E. Iorfida          First creation of the code.
+ *      YYMMDD    Author            Comment
+ *      110113    E. Iorfida        First creation of code.
  */
-
-#ifndef UNITTESTLAMBERTTARGETER_H
-#define UNITTESTLAMBERTTARGETER_H
 
 // Include statements.
-#include "lambertTargeter.h"
-#include "cartesianElements.h"
+#include "trajectoryDesignMethod.h"
 
-//! Namespace for all unit tests.
-/*!
- * Namespace containing all unit tests.
- */
-namespace unit_tests
+//! Default constructor.
+TrajectoryDesignMethod::TrajectoryDesignMethod( )
 {
-
-//! Test of Lambert targeter code.
-/*!
- * Test of Lambert targeter code.
- * \return Boolean indicating success of test
- * ( false = successful; true = failed ).
- */
-bool testLambertTargeter( );
-
 }
 
-#endif // UNITTESTLAMBERTTARGETER_H
+//! Default destructor.
+TrajectoryDesignMethod::~TrajectoryDesignMethod( )
+{
+}
 
 // End of file.
