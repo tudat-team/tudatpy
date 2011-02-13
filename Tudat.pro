@@ -17,7 +17,10 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.cpp \
     Astrodynamics/ForceModels/gravity.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.cpp \
+    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.cpp \
+    Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.cpp \
+    Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.cpp \
     Astrodynamics/physicalConstants.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
     Astrodynamics/Propagators/keplerPropagator.cpp \
@@ -55,6 +58,9 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/GeometricShapes/sphereSegment.cpp \
     Mathematics/GeometricShapes/conicalFrustum.cpp \
     Mathematics/GeometricShapes/capsule.cpp \
+    Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.cpp \
+    Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.cpp \
+    Mathematics/GeometricShapes/lawgsPartGeometry.cpp \
     Mathematics/LinearAlgebra/linearAlgebra.cpp \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegrators/integrator.cpp \
@@ -64,7 +70,8 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
     Mathematics/unitTestUnitConversions.cpp \
-    Output/writingOutputToFile.cpp
+    Output/writingOutputToFile.cpp \
+    unitTests.cpp
 HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
@@ -78,7 +85,10 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Astrodynamics/ForceModels/gravity.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h \
+    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.h \
+    Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.h \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.h \
+    Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.h \
     Astrodynamics/physicalConstants.h \
     Astrodynamics/unitTestPhysicalConstants.h \
     Astrodynamics/Propagators/keplerPropagator.h \
@@ -118,6 +128,9 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/GeometricShapes/sphereSegment.h \
     Mathematics/GeometricShapes/conicalFrustum.h \
     Mathematics/GeometricShapes/capsule.h \
+    Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.h \
+    Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h \
+    Mathematics/GeometricShapes/lawgsPartGeometry.h \
     Mathematics/LinearAlgebra/linearAlgebra.h \
     Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h \
