@@ -80,8 +80,8 @@ public:
 
     //! Default destructor.
     /*!
-     *  Default destructor, deletes arrays of data points and values of independent
-     *  variables and resets them to NULL.
+     *  Default destructor, deletes arrays of data points and values of
+     *  independent variables and resets them to NULL.
      */
     virtual ~AerodynamicCoefficientGenerator( );
 
@@ -107,7 +107,7 @@ public:
      *  moments.
      *  \param referenceLength Aerodynamic reference length.
      */
-    void setReferenceLength( double referenceLength );
+    void setReferenceLength( const double& referenceLength );
 
     //! Gets reference length.
     /*!
@@ -123,7 +123,7 @@ public:
      *  moment on a vehicle panel is determined.
      *  \param referencePoint Aerodynamic reference point.
      */
-    void setMomentReferencePoint( Vector3d referencePoint);
+    void setMomentReferencePoint( const Vector3d& referencePoint );
 
     //! Gets moment reference point.
     /*!
@@ -155,7 +155,8 @@ public:
      *  \param numberOfAngleOfAttackPoints Number of data points for angle of
      *  attack.
      */
-    void setNumberOfAngleOfAttackPoints ( const int& numberOfAngleOfAttackPoints );
+    void setNumberOfAngleOfAttackPoints ( const int&
+                                          numberOfAngleOfAttackPoints );
 
     //! Sets the number of points for angle of sideslip.
     /*!
@@ -164,7 +165,8 @@ public:
      *  \param numberOfAngleOfSideslipPoints Number of data points for angle of
      *  attack.
      */
-    void setNumberOfAngleOfSideslipPoints ( const int& numberOfAngleOfSideslipPoints );
+    void setNumberOfAngleOfSideslipPoints ( const int&
+                                            numberOfAngleOfSideslipPoints );
 
     //! Gets the number of independent variables
     /*!
@@ -181,7 +183,8 @@ public:
      *  number of data points.
      *  \return Number of data points for Mach number
      */
-    int getNumberOfValuesOfIndependentVariable( const int& independentVariable );
+    int getNumberOfValuesOfIndependentVariable( const int&
+                                                independentVariable );
 
     //! Gets the number of points for Mach number.
     /*!
@@ -240,7 +243,7 @@ public:
     void setAngleOfSideslipPoint( const int& index,
                                   const double& angleOfSideslipPoint );
 
-    //! Gets a Mach number point
+    //! Gets a Mach number point.
     /*!
      *  Gets a Mach number at which aerodynamic coefficients are to
      *  be determined.
@@ -250,7 +253,7 @@ public:
      */
     double getMachPoint( const int& index );
 
-    //! Gets an angle of attack point
+    //! Gets an angle of attack point.
     /*!
      *  Gets an angle of attack at which aerodynamic coefficients
      *  are to be determined.
@@ -260,7 +263,7 @@ public:
      */
     double getAngleOfAttackPoint( const int& index );
 
-    //! Gets an angle of sideslip point
+    //! Gets an angle of sideslip point.
     /*!
      *  Gets an angle of sideslip at which aerodynamic coefficients
      *  are to be determined.
@@ -290,9 +293,9 @@ public:
      */
     virtual VectorXd getAerodynamicCoefficients( int* independentVariables ) = 0;
 
-    //! List of pointers to VectorXds containing coefficients
+    //! List of pointers to VectorXds containing coefficients.
     /*!
-     *  List of pointers to VectorXds containing coefficients
+     *  List of pointers to VectorXds containing coefficients.
      */
     VectorXd** vehicleCoefficients_;
 
@@ -304,8 +307,8 @@ protected:
      *  Converts the independent variable indices to list index in
      *  vehicleCoefficients_.
      *  \param independentVariableIndices Array of indices of independent
-     *  variables
-     *  \return Resulting index in vehicleCoefficients_
+     *  variables.
+     *  \return Resulting index in vehicleCoefficients_.
      */
     int variableIndicesToListIndex( int* independentVariableIndices );
 

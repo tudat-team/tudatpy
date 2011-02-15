@@ -59,6 +59,8 @@
 #include "aerodynamics.h"
 #include "string.h"
 
+//! Class for inviscid hypersonic aerodynamic analysis using local inclination
+//! methods.
 /*! Class for inviscid hypersonic aerodynamic analysis using local inclination
  *  methods. These methods assume that the local pressure on the vehicle is only
  *  dependent on the local inclination angle w.r.t. the freestream flow and
@@ -76,19 +78,19 @@ class HypersonicLocalInclinationAnalysis: public AerodynamicCoefficientGenerator
 {
 public:
 
-    //! Default constructor
+    //! Default constructor.
     /*!
-     *  Default constructor
+     *  Default constructor.
      */
     HypersonicLocalInclinationAnalysis( );
 
-    //! Default destructor
+    //! Default destructor.
     /*!
-     *  Default destructor
+     *  Default destructor.
      */
     virtual ~HypersonicLocalInclinationAnalysis( );
 
-    //! Constructor from a Vehicle
+    //! Constructor from a Vehicle.
     /*!
      *  This constructor sets the geometry which is used for the analysis from
      *  a Vehicle object. Vehicle must have an external model containing a
@@ -117,14 +119,14 @@ public:
      *  \param independentVariables Array of values of independent variable
      *  indices in dataPointsOfIndependentVariables_.
      */
-    virtual VectorXd getAerodynamicCoefficients(  int* independentVariables );
+    VectorXd getAerodynamicCoefficients(  int* independentVariables );
 
     //! Sets local inclination methods for all parts (expansion
-    //! and compression)
+    //! and compression).
     /*!
      * Sets the aerodynamic analysis methods
      * \param selectedMethods two-dimensional array (2 by numberOfVehicleParts_)
-     * containing the identifiers
+     * containing the identifiers.
      * for the methods.
      * For the first index:
      * 0 = compression
@@ -151,7 +153,7 @@ public:
      * 5 = Van Dyke Unified
      * 6 = ACM empirical
      */
-    void setSelectedMethods( int** selectedMethodsIn );
+    void setSelectedMethods( int** selectedMethods );
 
     //! Sets an analysis method on a single vehicle part.
     /*!
@@ -164,9 +166,11 @@ public:
      *  3 = Low hypersonic expansion.
      *  \param part Vehicle part on which to apply method.
      */
-    void setSelectedMethod(int method, int type, int part);
+    void setSelectedMethod( const int& method,
+                            const int& type,
+                            const int& part);
 
-    //! Generates aerodynamic database
+    //! Generates aerodynamic database.
     /*!
      *  Generates aerodynamic database. Settings of geometry,
      *  reference quantities, database point settings and analysis methods
@@ -174,7 +178,7 @@ public:
      */
     void generateDatabase( );
 
-    //! Determines inclination angles of panels on a given part
+    //! Determines inclination angles of panels on a given part.
     /*!
      *  Determines panel inclinations for all panels on a given part
      *  for given attitude.
@@ -185,10 +189,9 @@ public:
      *  \param angleOfSidelsip Angle of sideslip at which to determine
      *  inclination angles.
      */
-    virtual void determineInclination( int partNumber,
-                               double angleOfAttack,
-                               double angleOfSideslip );
-
+    virtual void determineInclination( const int& partNumber,
+                               const double& angleOfAttack,
+                               const double& angleOfSideslip );
 
     //! Gets the number of vehicle parts.
     /*!
@@ -226,7 +229,7 @@ public:
      * Sets mach regime, see machRegime_.
      * \param machRegime Name of Mach regime which is set.
      */
-    void setMachRegime(std::string machRegime);
+    void setMachRegime( const std::string& machRegime);
 
     //! Gets mach regime.
     /*!
@@ -235,12 +238,12 @@ public:
      */
     std::string getMachRegime( );
 
-    //! Sets the vehicle name
+    //! Sets the vehicle name.
     /*!
      *  Sets the vehicle name.
      *  \param vehicleName vehicle name.
      */
-    void setVehicleName( std::string vehicleName );
+    void setVehicleName( const std::string& vehicleName );
 
     //! Gets the vehicle name.
     /*!
@@ -276,7 +279,7 @@ private:
 
 
 
-    //! Determine aerodynamic coefficients for a single LaWGS part
+    //! Determine aerodynamic coefficients for a single LaWGS part.
     /*!
      *  Determine aerodynamic coefficients for a single LaWGS part,
      *  calls determinepressureCoefficient_ function for given vehicle part.
@@ -289,9 +292,9 @@ private:
                                         int* independentVariableIndices );
 
 
-    //! Determine pressure coefficients on a given part
+    //! Determine pressure coefficients on a given part.
     /*!
-     *  Determine pressure coefficients on a single vehicle
+     *  Determine pressure coefficients on a single vehicle.
      *  part. Calls the updateExpansionPressures and updateCompressionPressures
      *  for given vehicle part.
      *  \param partNumber Index from vehicleParts_ array for which determine.
@@ -302,20 +305,17 @@ private:
     void determinePressureCoefficients( const int& partNumber,
                                         int* independentVariableIndices );
 
-
-
-
-    //! Determine force coefficients of a part
+    //! Determine force coefficients of a part.
     /*! Sums the pressure coefficients of given part and
      *  determines force coefficients from it by non-dimensionalization with
-     *  reference area
+     *  reference area.
      *  \param partNumber Index from vehicleParts_ array for which determine
      *  coefficients.
      */
-    VectorXd calculateForceCoefficients( int partNumber );
+    VectorXd calculateForceCoefficients( const int& partNumber );
 
 
-    //! Determine moment coefficients of a part
+    //! Determine moment coefficients of a part.
     /*! Determines the moment coefficients of a given part
      *  by summing the contributions of all panels on the part. Moment arms are
      *  taken from panel centroid to momentReferencePoint. Non-
@@ -324,7 +324,7 @@ private:
      *  \param partNumber Index from vehicleParts_ array for which determine.
      *  coefficients.
      */
-    VectorXd calculateMomentCoefficients( int partNumber );
+    VectorXd calculateMomentCoefficients( const int& partNumber );
 
 
     //! Determine the compression pressure coefficients of a
@@ -347,7 +347,7 @@ private:
     void updateExpansionPressures( const double& machNumber,
                                    const int& partNumber );
 
-    //! Sets the default analysis points for Mach number
+    //! Sets the default analysis points for Mach number.
     /*!
      *  Sets the default analysis points for Mach number,
      *  depending on which Mach regime has been set.
@@ -424,7 +424,7 @@ private:
      *  Array of selected methods, first index represents compression/expansion,
      *  second index represents vehicle part.
      */
-    int ** selectedMethods_;
+    int** selectedMethods_;
 };
 
 #endif // HYPERSONICLOCALINCLINATIONANALYSIS_H

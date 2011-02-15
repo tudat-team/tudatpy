@@ -281,7 +281,9 @@ double computeVanDykeUnifiedPressureCoefficient(
                                    - 1.0 );
     double exponent_ = 2.0
                        * ratioOfSpecificHeats / ( ratioOfSpecificHeats - 1.0 );
-    double pressureCoefficient_;
+
+    // Declare and initialize value.
+    double pressureCoefficient_ = 0.0;
 
     // Calculate compression pressure coefficient.
     if ( inclinationAngle >= 0 && type == 1 )

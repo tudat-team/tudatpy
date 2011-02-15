@@ -57,7 +57,6 @@ AerodynamicCoefficientGenerator::AerodynamicCoefficientGenerator( )
     // Set arrays to NULL.
     numberOfPointsPerIndependentVariables_ = NULL;
     dataPointsOfIndependentVariables_ = NULL;
-
     vehicleCoefficients_ = NULL;
 }
 
@@ -94,7 +93,7 @@ double AerodynamicCoefficientGenerator::getReferenceArea( )
 
 //! Sets reference length.
 void AerodynamicCoefficientGenerator::setReferenceLength(
-        double referenceLength )
+        const double& referenceLength )
 {
     referenceLength_ = referenceLength;
 }
@@ -107,7 +106,7 @@ double AerodynamicCoefficientGenerator::getReferenceLength( )
 
 //! Sets moment reference point.
 void AerodynamicCoefficientGenerator::setMomentReferencePoint(
-        Vector3d momentReferencePoint)
+        const Vector3d& momentReferencePoint)
 {
     momentReferencePoint_ = momentReferencePoint;
 }
@@ -136,8 +135,6 @@ void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
         dataPointsOfIndependentVariables_[ i ] = NULL;
     }
 }
-
-
 
 //! Sets the number of points for Mach number.
 void AerodynamicCoefficientGenerator::setNumberOfMachPoints(
@@ -213,7 +210,8 @@ int AerodynamicCoefficientGenerator::getNumberOfAngleOfSideslipPoints( )
 void AerodynamicCoefficientGenerator::setMachPoint( const int& index,
                                                     const double& machPoint )
 {
-    dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = machPoint;
+    dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] =
+            machPoint;
 }
 
 //! Sets an angle of attack point.
@@ -255,7 +253,8 @@ double AerodynamicCoefficientGenerator::getAngleOfAttackPoint( const int& index 
 }
 
 //! Gets an angle of sideslip point.
-double AerodynamicCoefficientGenerator::getAngleOfSideslipPoint( const int& index )
+double AerodynamicCoefficientGenerator::getAngleOfSideslipPoint( const int&
+                                                                 index )
 {
     return dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ];
 }
@@ -263,7 +262,7 @@ double AerodynamicCoefficientGenerator::getAngleOfSideslipPoint( const int& inde
 //! Function to convert the independent variable indices to list index in
 //! vehicleCoefficients_.
 int AerodynamicCoefficientGenerator::variableIndicesToListIndex(
-        int* independentVariableIndices)
+        int* independentVariableIndices )
 {
     int i ,j;
 

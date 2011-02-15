@@ -2,7 +2,7 @@
  *    This header file contains a base class for the gravity assist method.
  *
  *    Path              : /Astrodynamics/MissionSegments/GravityAssist/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 17 January, 2011
- *    Last modified     : 12 February, 2011
+ *    Last modified     : 14 February, 2011
  *
  *    References
  *
@@ -23,14 +23,20 @@
  *      The delta-V that is computed for a powered swing-by has not been
  *      proven to be the optimum (lowest) to achieve the desired geometry
  *      of incoming and outgoing hyperbolic legs.
- *      For the moment in this code the radius of the central body, and the
- *      smallestPeriapsisDistanceFactor are given as external input by the
- *      user, but they should be part of the CelestialBody object.
+ *      For the moment in this code the smallestPeriapsisDistanceFactor
+ *      is given as external input by the user, but in the future it should
+ *      be part of the CelestialBody object.
  *      Also, the velocity of the central body will need to be computed by
  *      the ephemeris code.
+ *      At the moment the shape of the central body is a sphere segment,
+ *      and the radius of the planet is set externally by the user.
+ *      In the future it should be possible to get the radius of each planet
+ *      directly from the CelestialBody class, by a link to GeometricShape
+ *      class.
  *      At the moment, this code uses a Newton-Raphson root finder by default.
- *      In the future it should be possible to apply for example the Halley
+ *      In the future it should be possible to apply, for example, the Halley
  *      method by using polymorphism.
+ *
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -60,6 +66,8 @@
  *                                  TrajectoryDesignMethod.
  *      110212    J. Melman         Made delta-V private. getDeltaV changed
  *                                  into computeDeltaV.
+ *      110214    E. Iorfida        Deleted temporary centralBodyRadius,
+ *                                  replaced by an element of GeometricShapes.
  */
 
 #ifndef GRAVITYASSIST_H
@@ -72,6 +80,7 @@
 # include "basicMathematicsFunctions.h"
 # include "celestialBody.h"
 # include "cartesianVelocityElements.h"
+# include "sphereSegment.h"
 
 //! Gravity assist method class.
 /*!
@@ -93,14 +102,6 @@ public:
      */
     virtual ~GravityAssist( );
 
-    // TEMPORARY!! Needs to be part of CelestialBody object.
-    //! Set radius of the swing-by central body.
-    /*!
-     * Sets the radius of the central body involved in the swing-by.
-     * \param BodyRadius.
-     */
-    void setCentralBodyRadius( const double& centralBodyRadius );
-
     //! Set central body of the swing-by.
     /*!
      * Sets pointer to central body of the swing-by.
@@ -116,7 +117,6 @@ public:
      */
     void setCentralBodyVelocity( Vector3d centralBodyVelocity );
 
-    // TEMPORARY!! Needs to be part of CelestialBody object.
     //! Set smallest periapsis distance factor.
     /*!
      * Sets the smallest allowable periapsis distance factor that has to be
@@ -200,17 +200,17 @@ public:
 
 protected:
 
-    //! Radius of the swing-by central body.
-    /*!
-     * Radius of the central body involved in the swing-by.
-     */
-    double centralBodyRadius_;
-
     //! Pointer to CelestialBody class for swing-by.
     /*!
      * Pointer to CelestialBody class for swing-by.
      */
     CelestialBody* pointerToCentralBody_;
+
+    //! Pointer to SphereSegment class for central body.
+    /*!
+     * Pointer to SphereSegment class for central body.
+     */
+    SphereSegment* pointerToCentralBodySphere_;
 
     //! Velocity of the swing-by central body.
     /*!

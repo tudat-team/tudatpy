@@ -6,7 +6,7 @@
  *    interplanetary transfer trajectory.
  *
  *    Path              : /Astrodynamics/MissionSegments/EscapeAndCapture/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -18,7 +18,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 29 January, 2011
- *    Last modified     : 8 February, 2011
+ *    Last modified     : 14 February, 2011
  *
  *    References
  *
@@ -45,10 +45,13 @@
  *                                  TrajectoryDesignMethod, and execute()
  *                                  function, too. Modified getDeltaV into
  *                                  computeDeltaV.
+ *      110214    E. Iorfida        Deleted temporary centralBodyRadius,
+ *                                  replaced by an element of GeometricShapes.
  */
 
 // Include statements.
 #include "escapeAndCapture.h"
+#include "sphereSegment.h"
 
 // Include directives.
 using mathematics::raiseToIntegerPower;
@@ -59,8 +62,7 @@ EscapeAndCapture::EscapeAndCapture( ) :
         eccentricity_ ( -1.0 ),
         periapsisAltitude_ ( -0.0 ),
         apoapsisAltitude_( -0.0 ),
-        centralBodyRadius_( -0.0 ),
-        hyperbolicExcessSpeed_( -0.0 ),
+        hyperbolicExcessSpeed_( -1.0 ),
         deltaV_ ( -0.0 )
 
 {
@@ -102,14 +104,6 @@ void EscapeAndCapture::setCentralBody( CelestialBody *pointerToCentralBody )
     pointerToCentralBody_ = pointerToCentralBody;
 }
 
-// TEMPORARY!! Needs to be replaced by a derived element of shape object.
-//! Set central body radius of parking orbit.
-void EscapeAndCapture::setCentralBodyRadius( const double
-                                                &centralBodyRadius )
-{
-    centralBodyRadius_ = centralBodyRadius;
-}
-
 //! Set hyperbolic excess speed at launch/capture phase.
 void EscapeAndCapture::setHyperbolicExcessSpeed(
         const double &hyperbolicExcessSpeed )
@@ -123,6 +117,10 @@ double& EscapeAndCapture::computeDeltaV( )
     // Local variables.
     double periapsisRadius_;
     double apoapsisRadius_;
+
+    // Get shape model of central body.
+    pointerToCentralBodySphere_ = static_cast< SphereSegment* >
+                                  ( pointerToCentralBody_->getShapeModel( ) );
 
     // Check input parameters.
     // For the correct functioning of this routine, the periapsis
@@ -139,8 +137,10 @@ double& EscapeAndCapture::computeDeltaV( )
               apoapsisAltitude_ != ( -0.0 ) )
     {
         // Compute periapsis and apoapsis radii.
-        periapsisRadius_ = periapsisAltitude_ + centralBodyRadius_;
-        apoapsisRadius_ = apoapsisAltitude_ + centralBodyRadius_;
+        periapsisRadius_ = periapsisAltitude_ +
+                           pointerToCentralBodySphere_->getRadius( );
+        apoapsisRadius_ = apoapsisAltitude_ +
+                          pointerToCentralBodySphere_->getRadius( );
 
         // Compute eccentricity.
         eccentricity_ = ( apoapsisRadius_ - periapsisRadius_ ) /
@@ -151,7 +151,8 @@ double& EscapeAndCapture::computeDeltaV( )
     else if ( periapsisAltitude_ != ( -0.0 ) && eccentricity_ != ( -1.0 ) )
     {
         // Compute periapsis radius.
-        periapsisRadius_ = periapsisAltitude_ + centralBodyRadius_;
+        periapsisRadius_ = periapsisAltitude_ +
+                           pointerToCentralBodySphere_->getRadius( );
     }
 
     // Compute escape velocity squared.
