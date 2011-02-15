@@ -4,7 +4,7 @@
  *    Meccanica del volo Spaziale", G. Mengali, A. A. Quarta.
  *
  *    Path              : /Astrodynamics/MissionSegments/EscapeAndCapture/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -16,7 +16,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 31 January, 2011
- *    Last modified     : 8 February, 2011
+ *    Last modified     : 14 February, 2011
  *
  *    References        :
  *      Mengali, G., Quarta, A.A. Fondamenti di Meccanica del volo Spaziale,
@@ -45,10 +45,14 @@
  *                                  base class for launch and capture paths.
  *      110208    E. Iorfida        Deleted execute() function. Modified
  *                                  getDeltaV into computeDeltaV.
+ *      110214    E. Iorfida        Code updated with the modification made
+ *                                  in .h/.cpp files about radius of central
+ *                                  body.
  */
 
 // Include statements.
 #include "unitTestEscapeAndCapture.h"
+#include "sphereSegment.h"
 
 // Using declarations.
 using std::cerr;
@@ -83,22 +87,26 @@ bool testEscapeAndCapture( )
     CelestialBody* pointerToEarth = new CelestialBody;
     pointerToEarth = createPredefinedPlanet(
             predefined_planets::earth );
+    SphereSegment* pointerToEarthSphere = new SphereSegment;
+    pointerToEarth->setShapeModel( pointerToEarthSphere );
 
     // Central body at capture phase.
     CelestialBody* pointerToMars = new CelestialBody;
     pointerToMars = createPredefinedPlanet(
             predefined_planets::mars );
+    SphereSegment* pointerToMarsSphere = new SphereSegment;
+    pointerToMars->setShapeModel( pointerToMarsSphere );
 
     // Set launch conditions.
     pointerToEscapePhaseTest->setCentralBody( pointerToEarth );
-    pointerToEscapePhaseTest->setCentralBodyRadius( 6371.0e3 );
+    pointerToEarthSphere->setRadius( 6371.0e3 );
     pointerToEscapePhaseTest->setPeriapsisAltitude( 629.0e3 );
     pointerToEscapePhaseTest->setEccentricity( 0.0 );
     pointerToEscapePhaseTest->setHyperbolicExcessSpeed( 2.9444e3 );
 
     // Set capture conditions.
     pointerToCapturePhaseTest->setCentralBody( pointerToMars );
-    pointerToCapturePhaseTest->setCentralBodyRadius( 3389.0e3 );
+    pointerToMarsSphere->setRadius( 3389.0e3 );
     pointerToCapturePhaseTest->setPeriapsisAltitude( 2611.0e3 );
     pointerToCapturePhaseTest->setEccentricity( 0.0 );
     pointerToCapturePhaseTest->setHyperbolicExcessSpeed( 2.6486e3 );

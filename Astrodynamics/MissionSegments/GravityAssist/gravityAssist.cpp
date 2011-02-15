@@ -2,7 +2,7 @@
  *    This source file contains the code of the gravity assist method.
  *
  *    Path              : /Astrodynamics/MissionSegments/GravityAssist/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 17 January, 2011
- *    Last modified     : 12 February, 2011
+ *    Last modified     : 14 February, 2011
  *
  *    References
  *      Melman J. Trajectory optimization for a mission to Neptune and
@@ -26,11 +26,16 @@
  *      proven to be the optimum (lowest) to achieve the desired geometry
  *      of incoming and outgoing hyperbolic legs. Some literature research
  *      will have to be done to look at the alternatives.
- *      For the moment in this code the radius of the central body, and the
- *      smallestPeriapsisDistanceFactor are given as external input by the
- *      user, but they should be part of the CelestialBody object.
+ *      For the moment in this code the smallestPeriapsisDistanceFactor
+ *      is given as external input by the user, but in the future it should
+ *      be part of the CelestialBody object.
  *      Also, the velocity of the central body will need to be computed by
  *      the ephemeris code.
+ *      At the moment the shape of the central body is a sphere segment,
+ *      and the radius of the planet is set externally by the user.
+ *      In the future it should be possible to get the radius of each planet
+ *      directly from the CelestialBody class, by a link to GeometricShape
+ *      class.
  *      At the moment, this code uses a Newton-Raphson root finder by default.
  *      In the future it should be possible to apply for example the Halley
  *      method by using polymorphism.
@@ -60,6 +65,8 @@
  *                                  public variables. Some comment rephrasing.
  *                                  Changed and added some notes.
  *      110212    J. Melman         Added a reference to my own thesis.
+ *      110214    E. Iorfida        Deleted temporary centralBodyRadius,
+ *                                  replaced by an element of GeometricShapes.
  */
 
 // Include statements.
@@ -88,13 +95,6 @@ GravityAssist::GravityAssist( ) :
 //! Default destructor.
 GravityAssist::~GravityAssist( )
 {
-}
-
-// TEMPORARY!! Needs to be part of CelestialBody object.
-//! Set radius of the swing-by central body.
-void GravityAssist::setCentralBodyRadius( const double &centralBodyRadius )
-{
-    centralBodyRadius_ = centralBodyRadius;
 }
 
 //! Set central body of the swing-by.
@@ -169,6 +169,10 @@ double GravityAssist::firstDerivativeVelocityEffectFunction(
 //! Compute the delta-V of the powered swing-by.
 const double& GravityAssist::computeDeltaV( )
 {
+    // Get shape model of central body.
+    pointerToCentralBodySphere_ = static_cast< SphereSegment* >
+                                  ( pointerToCentralBody_->getShapeModel( ) );
+
     // Define local velocity vectors.
     Vector3d incomingVelocity_;
     incomingVelocity_.x( ) =
@@ -201,7 +205,7 @@ const double& GravityAssist::computeDeltaV( )
 
     // Compute smallest allowable periapsis distance.
     double smallestPeriapsisDistance;
-    smallestPeriapsisDistance = centralBodyRadius_ *
+    smallestPeriapsisDistance = pointerToCentralBodySphere_->getRadius( ) *
                                 smallestPeriapsisDistanceFactor_;
 
     // Compute maximum achievable bending angle.

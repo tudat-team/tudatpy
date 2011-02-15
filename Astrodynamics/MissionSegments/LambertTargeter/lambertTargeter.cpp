@@ -512,7 +512,17 @@ void LambertTargeter::execute( )
             &LambertTargeter::lambertFirstDerivativeFunction );
 
     // Set initial guess of the variable computed in Newton-Rapshon method.
-    pointerToNewtonRaphson_->setInitialGuessOfRoot( initialLambertGuess_ );
+    // A patch for negative initialLambertGuess_ is applied.
+    // This has not been stated in the paper by Gooding, but this patch
+    // has been found by trial and error.
+    if ( raiseToIntegerPower( initialLambertGuess_ , 2 ) - 1.0 < 0.0 )
+    {
+        pointerToNewtonRaphson_->setInitialGuessOfRoot( computeAbsoluteValue( initialLambertGuess_ ) );
+    }
+    else
+    {
+        pointerToNewtonRaphson_->setInitialGuessOfRoot( initialLambertGuess_ );
+    }
 
     // Set tolerance for Newton-Raphson method.
     // Page 155 [1].
@@ -527,28 +537,6 @@ void LambertTargeter::execute( )
 
     // Execute Newton-Raphson method.
     pointerToNewtonRaphson_->execute( );
-
-    // Check convergence Newton-Raphson method.
-    if ( pointerToNewtonRaphson_->getComputedRootOfFunction( ) == -0.0 )
-    {
-        // Apparently Newton-Raphson has not converged.
-        // Print message about second attempt.
-        std::cerr << "A second attempt to converge is made." << std::endl;
-
-        // Set initial guess as absolute value of initialLambertGuess_.
-        // This has not been stated in the paper by Gooding, but this patch
-        // has been found by trial and error.
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( computeAbsoluteValue(
-                initialLambertGuess_ ) );
-        pointerToNewtonRaphson_->execute( );
-
-        // Check convergence Newton-Raphson method again.
-        if ( pointerToNewtonRaphson_->getComputedRootOfFunction( ) != -0.0 )
-        {
-            // Apparently Newton-Raphson has converged this time.
-            std::cerr << "The second attempt was successful." << std::endl;
-        }
-    }
 
     // Define xParameter_ as the output value of Newton-Raphson method.
     xParameter_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );

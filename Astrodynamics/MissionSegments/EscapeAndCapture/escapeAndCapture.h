@@ -6,7 +6,7 @@
  *    interplanetary transfer trajectory.
  *
  *    Path              : /Astrodynamics/MissionSegments/EscapeAndCapture/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -18,11 +18,16 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 29 January, 2011
- *    Last modified     : 8 February, 2011
+ *    Last modified     : 14 February, 2011
  *
  *    References
  *
  *    Notes
+ *    At the moment the shape of the central body is a sphere segment,
+ *    and the radius of the planet is set externally by the user.
+ *    In the future it should be possible to get the radius of each planet
+ *    directly from the CelestialBody class, by a link to GeometricShape
+ *    class.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -46,7 +51,9 @@
  *      110208    E. Iorfida        Deleted inheritance from
  *                                  TrajectoryDesignMethod, and execute(),
  *                                  function too. Modified getDeltaV into
- *                                  computeDeltaV
+ *                                  computeDeltaV.
+ *      110214    E. Iorfida        Deleted temporary centralBodyRadius,
+ *                                  replaced by an element of GeometricShapes.
  */
 
 #ifndef ESCAPEANDCAPTURE_H
@@ -56,6 +63,7 @@
 #include "linearAlgebra.h"
 #include "celestialBody.h"
 #include "basicMathematicsFunctions.h"
+#include "sphereSegment.h"
 
 //! Escape and capture base class.
 /*!
@@ -105,20 +113,12 @@ public:
      */
     void setApoapsisAltitude( const double& apoapsisAltitude );
 
-     //! Set central body of parking orbit.
+    //! Set central body of parking orbit.
     /*!
      * Sets pointer to central body of parking orbit.
      * \param pointerToCentralBody Central body of parking orbit.
      */
     void setCentralBody( CelestialBody* pointerToCentralBody );
-
-    // TEMPORARY!! Needs to be replaced by a CelestialBody element.
-    //! Set central body radius of parking orbit.
-    /*!
-     * Sets central body radius of parking orbit.
-     * \param centralBodyRadius Central body radius of parking orbit.
-     */
-    void setCentralBodyRadius( const double& centralBodyRadius );
 
     //! Set hyperbolic excess speed at launch/capture phase.
     /*!
@@ -162,12 +162,6 @@ protected:
      */
     double apoapsisAltitude_;
 
-    //! Central body radius of parking orbit.
-    /*!
-     * Central body radius of parking orbit.
-     */
-    double centralBodyRadius_;
-
     //! Hyperbolic excess speed at launch/capture phase in a parking orbit.
     /*!
      * Hyperbolic excess speed at launch/capture phase in a parking orbit.
@@ -185,6 +179,12 @@ protected:
      * Pointer to CelestialBody class for parking orbit.
      */
     CelestialBody* pointerToCentralBody_;
+
+    //! Pointer to SphereSegment class for central body.
+    /*!
+     * Pointer to SphereSegment class for central body.
+     */
+    SphereSegment* pointerToCentralBodySphere_;
 
 private:
 };

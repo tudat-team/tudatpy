@@ -54,6 +54,7 @@
 // Include statements.
 #include "unitTestGravityAssist.h"
 #include "predefinedPlanets.h"
+#include "sphereSegment.h"
 
 // Using directives.
 using mathematics::computeAbsoluteValue;
@@ -94,14 +95,11 @@ bool testGravityAssist( )
     double distanceMarsToSun =
             unit_conversions::convertAstronomicalUnitsToMeters( 1.5 );
 
-    // Define planet radius.
-    double marsRadius = 3398.0e3;
-
     // Define smallest periapsis distance factor.
     double marsSmallestPeriapsisDistanceFactor = 1.076;
 
     // Declare GravityAssist object.
-    GravityAssist myGravityAssist_;
+    GravityAssist* pointerToMyGravityAssist = new GravityAssist;
 
     // Define planet heliocentric velocity vector.
     // The orbit is considered to be circular.
@@ -132,34 +130,38 @@ bool testGravityAssist( )
     pointerToOutgoingVelocityTest->setCartesianElementZDot( 0.0 );
 
     // Set values to compute gravity assist code.
-    myGravityAssist_.setCentralBody( pointerToMars );
-    myGravityAssist_.setCentralBodyRadius( marsRadius );
-    myGravityAssist_.setCentralBodyVelocity( marsVelocity_ );
-    myGravityAssist_.setSmallestPeriapsisDistanceFactor(
+    SphereSegment* pointerToSphereSegment = new SphereSegment;
+    pointerToSphereSegment->setRadius( 3398.0e3 );
+    pointerToMars->setShapeModel( pointerToSphereSegment );
+    pointerToMyGravityAssist->setCentralBody( pointerToMars );
+    pointerToMyGravityAssist->setCentralBodyVelocity( marsVelocity_ );
+    pointerToMyGravityAssist->setSmallestPeriapsisDistanceFactor(
             marsSmallestPeriapsisDistanceFactor );
-    myGravityAssist_.setPointerToIncomingVelocity(
+    pointerToMyGravityAssist->setPointerToIncomingVelocity(
             pointerToIncomingVelocityTest );
-    myGravityAssist_.setPointerToOutgoingVelocity(
+    pointerToMyGravityAssist->setPointerToOutgoingVelocity(
             pointerToOutgoingVelocityTest );
 
     // Create pointers to new Newton Raphson objects.
     NewtonRaphson* pointerToMyNewtonRaphsonGravityAssist =
             new NewtonRaphson;
-    myGravityAssist_.setNewtonRaphsonMethod(
+    pointerToMyGravityAssist->setNewtonRaphsonMethod(
             pointerToMyNewtonRaphsonGravityAssist );
 
     // Set boolean to true, to apply Newton-Raphson method anyway,
     // although the excess velocities are equal, and thus normally
     // no iterator would be required.
-    myGravityAssist_.isRootFinderRequiredForChecking = true;
+    pointerToMyGravityAssist->isRootFinderRequiredForChecking = true;
 
     // Compute powered gravity-assist implementation.
-    double deltaV = myGravityAssist_.computeDeltaV( );
+    double deltaV = pointerToMyGravityAssist->computeDeltaV( );
 
     // Set test result to true if the test does not match the expected results.
-    if ( computeAbsoluteValue( deltaV - expectedDeltaV ) >= velocityTolerance ||
-         computeAbsoluteValue( myGravityAssist_.incomingEccentricity -
-            myGravityAssist_.outgoingEccentricity ) >= eccentricityTolerance )
+    if ( computeAbsoluteValue( deltaV - expectedDeltaV )
+        >= velocityTolerance ||
+         computeAbsoluteValue( pointerToMyGravityAssist->incomingEccentricity -
+            pointerToMyGravityAssist->outgoingEccentricity )
+        >= eccentricityTolerance )
     {
         // Set error flag to true.
         isGravityAssistErroneous = true;
@@ -179,22 +181,22 @@ bool testGravityAssist( )
         }
 
         if ( computeAbsoluteValue(
-                myGravityAssist_.incomingEccentricity -
-                myGravityAssist_.outgoingEccentricity )
+                pointerToMyGravityAssist->incomingEccentricity -
+                pointerToMyGravityAssist->outgoingEccentricity )
             >= eccentricityTolerance )
         {
             // Generate error statements.
             cerr << "The value of eccentricity of the incoming hyperbolic leg ( "
-                 << myGravityAssist_.incomingEccentricity
+                 << pointerToMyGravityAssist->incomingEccentricity
                  << " ) using the powered gravity-assist algorithm "
                  << "does not match the value of eccentricity of the"
                     " outgoing hyperbolic leg ( "
-                 << myGravityAssist_.outgoingEccentricity << " )."
+                 << pointerToMyGravityAssist->outgoingEccentricity << " )."
                  << endl;
             cerr << "The relative error is: "
                  << computeAbsoluteValue(
-                    myGravityAssist_.incomingEccentricity -
-                    myGravityAssist_.outgoingEccentricity ) << endl;
+                    pointerToMyGravityAssist->incomingEccentricity -
+                    pointerToMyGravityAssist->outgoingEccentricity ) << endl;
         }
     }
 
