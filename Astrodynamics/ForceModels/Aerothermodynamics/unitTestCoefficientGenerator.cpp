@@ -70,8 +70,8 @@ bool unit_tests::testCoefficientGenerator( )
     int* numberOfLines = new int[ 1 ];
     int* numberOfPoints = new int[ 1 ];
     bool* invertOrder = new bool[ 1 ];
-    numberOfLines[ 0 ] = 101;
-    numberOfPoints[ 0 ] = 101;
+    numberOfLines[ 0 ] = 31;
+    numberOfPoints[ 0 ] = 31;
     invertOrder[ 0 ] = 0;
     analysis.setVehicle( vehicle, numberOfLines, numberOfPoints, invertOrder );
 
@@ -122,7 +122,7 @@ bool unit_tests::testCoefficientGenerator( )
 
                 // Check if 'total' aerodynamic coefficient is always
                 // sufficiently close to zero.
-                if( fabs( forceCoefficient_ - 1.0 ) > 1.0E-3 )
+                if( fabs( forceCoefficient_ - 1.0 ) > 1.0E-2 )
                 {
                     std::cout<<"Total magnitude of aerodynamic force wrong in "
                             <<"sphere."<<std::endl;
@@ -132,19 +132,19 @@ bool unit_tests::testCoefficientGenerator( )
                 // Check if moment coefficients are approximately zero. Deviations
                 // for pitch moment are greater due to greater range of angles of
                 // attack than sideslip.
-                if( fabs( aerodynamicCoefficients_[ 3 ] ) > 1.0E-5 )
+                if( fabs( aerodynamicCoefficients_[ 3 ] ) > 1.0E-4 )
                 {
                     std::cerr<<" Error, sphere roll moment coefficient not zero. "
                             <<std::endl;
                     isCoefficientGeneratorBad_ = true;
                 }
-                if( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0E-3 )
+                if( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0E-2 )
                 {
                     std::cerr<<" Error, sphere pitch moment coefficient not zero. "
                             <<std::endl;
                     isCoefficientGeneratorBad_ = true;
                 }
-                if( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0E-5 )
+                if( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0E-2 )
                 {
                     std::cerr<<" Error, sphere yaw moment coefficient not zero. "
                             <<std::endl;
@@ -175,14 +175,14 @@ bool unit_tests::testCoefficientGenerator( )
     bool * invertOrders2 = new bool[ 4 ];
 
     // Set number of analysis points
-    numberOfLines2[ 0 ] = 51;
-    numberOfPoints2[ 0 ] = 51;
-    numberOfLines2[ 1 ] = 51;
-    numberOfPoints2[ 1 ] = 51;
-    numberOfLines2[ 2 ] = 51;
+    numberOfLines2[ 0 ] = 31;
+    numberOfPoints2[ 0 ] = 31;
+    numberOfLines2[ 1 ] = 31;
+    numberOfPoints2[ 1 ] = 31;
+    numberOfLines2[ 2 ] = 31;
     numberOfPoints2[ 2 ] = 2;
-    numberOfLines2[ 3 ] = 51;
-    numberOfPoints2[ 3 ] = 51;
+    numberOfLines2[ 3 ] = 11;
+    numberOfPoints2[ 3 ] = 11;
     invertOrders2[ 0 ] = 1;
     invertOrders2[ 1 ] = 1;
     invertOrders2[ 2 ] = 1;
