@@ -80,11 +80,10 @@ using unit_conversions::convertRadiansToDegrees;
 
 //! Default constructor.
 GravityAssist::GravityAssist( ) :
-        incomingEccentricity( -0.0 ),
-        outgoingEccentricity( -0.0 ),
-        isRootFinderRequiredForChecking( false ),
         deltaV_( -0.0 ),
         bendingAngle_( -0.0 ),
+        incomingEccentricity_( -0.0 ),
+        outgoingEccentricity_( -0.0 ),
         incomingSemiMajorAxis_( -0.0 ),
         outgoingSemiMajorAxis_( -0.0 ),
         bendingEffectDeltaV_( -0.0 ),
@@ -249,12 +248,9 @@ const double& GravityAssist::computeDeltaV( )
     double speedTolerance_ = 1.0e-01;
 
     // Verify necessity to apply a swing-by delta-V due to the effect of
-    // a difference in excess speeds. For checking purposes one might want
-    // to let the root finder do his work anyway; setting the boolean below
-    // equal to true serves that purpose.
+    // a difference in excess speeds.
     if ( computeAbsoluteValue( incomingHyperbolicExcessSpeed_ -
-         outgoingHyperbolicExcessSpeed_ ) <= speedTolerance_ &&
-         !isRootFinderRequiredForChecking )
+         outgoingHyperbolicExcessSpeed_ ) <= speedTolerance_ )
     {
         // Set delta-V due to velocity effect equal to zero.
         velocityEffectDeltaV_ = 0.0;
@@ -300,23 +296,23 @@ const double& GravityAssist::computeDeltaV( )
 
         // Define incoming hyperbolic leg eccentricity as the output value of
         // Newton-Raphson method.
-        incomingEccentricity =
+        incomingEccentricity_ =
                 pointerToNewtonRaphson_->getComputedRootOfFunction( );
 
         // Compute outgoing hyperbolic leg eccentricity.
-        outgoingEccentricity = 1.0 - ( incomingSemiMajorAxis_ /
-                outgoingSemiMajorAxis_ ) * ( 1.0 - incomingEccentricity );
+        outgoingEccentricity_ = 1.0 - ( incomingSemiMajorAxis_ /
+                outgoingSemiMajorAxis_ ) * ( 1.0 - incomingEccentricity_ );
 
         // Compute incoming and outgoing velocities at periapsis.
         double incomingVelocityAtPeriapsis_;
         double outgoingVelocityAtPeriapsis_;
 
         incomingVelocityAtPeriapsis_ = incomingHyperbolicExcessSpeed_ *
-                sqrt( ( incomingEccentricity + 1.0 ) /
-                      ( incomingEccentricity - 1.0 ) );
+                sqrt( ( incomingEccentricity_ + 1.0 ) /
+                      ( incomingEccentricity_ - 1.0 ) );
         outgoingVelocityAtPeriapsis_ = outgoingHyperbolicExcessSpeed_ *
-                sqrt( ( outgoingEccentricity + 1.0 ) /
-                      ( outgoingEccentricity - 1.0 ) );
+                sqrt( ( outgoingEccentricity_ + 1.0 ) /
+                      ( outgoingEccentricity_ - 1.0 ) );
 
         // Compute necessary delta-V due to velocity-effect.
         velocityEffectDeltaV_ =
