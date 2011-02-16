@@ -2,7 +2,7 @@
  *    This file contains the definition of the hypersonic local inclination
  *    analysis class.
  *
- *    Path              : /Astrodynamics/ForceModels\Aerothermodynamics/
+ *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *    Version           : 5
  *    Check status      : Checked
  *
@@ -186,7 +186,7 @@ public:
      *  coefficients.
      *  \param angleOfAttack Angle of attack at which to determine inclination
      *  angles.
-     *  \param angleOfSidelsip Angle of sideslip at which to determine
+     *  \param angleOfSideslip Angle of sideslip at which to determine
      *  inclination angles.
      */
     virtual void determineInclination( const int& partNumber,
@@ -268,14 +268,11 @@ private:
      *  Generates aerodynamic coefficients at a single set of
      *  independent variables. Determines values and sets corresponding entry
      *  in vehicleCoefficients_ array.
-     *  \param machNumberIndex Index from list of Mach number points at which
+     *  \param independentVariableIndices Array of indices from lists of Mach number,
+     *  angle of attack and angle of sideslip points at which
      *  to perform analysis.
-     *  \param angleOfAttackIndex Index from list of angle of attack
-     *  points at which to perform analysis.
-     *  \param angleOfSideslipIndex Index from list of angle of sideslip
-     *  points at which to perform analysis.
      */
-    void determineVehicleCoefficients( int* independentVariables );
+    void determineVehicleCoefficients( int* independentVariableIndices );
 
 
 
@@ -332,7 +329,7 @@ private:
     /*! Sets the values of pressureCoefficient_ on given part and
      *  at given Mach number for which inclination > 0.
      *  \param machNumber Mach number at which to perform analysis.
-     *  \param Number of part from vehicleParts_ which is to be analyzed.
+     *  \param partNumber of part from vehicleParts_ which is to be analyzed.
      */
     void updateCompressionPressures( const double& machNumber,
                                      const int& partNumber );
@@ -342,7 +339,7 @@ private:
     /*! Function to set the values of pressureCoefficient_ on given part and
      *  at given Mach number for which inclination <= 0.
      *  \param machNumber Mach number at which to perform analysis.
-     *  \param Number of part from vehicleParts_ which is to be analyzed.
+     *  \param partNumber of part from vehicleParts_ which is to be analyzed.
      */
     void updateExpansionPressures( const double& machNumber,
                                    const int& partNumber );

@@ -66,7 +66,7 @@ public:
     //! Set gravity field model.
     /*!
      * Sets the gravity field model.
-     * \param gravityFieldModel Pointer to gravity field model.
+     * \param pointerToGravityFieldModel Pointer to gravity field model.
      */
     void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel);
 

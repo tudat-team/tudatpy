@@ -150,7 +150,7 @@ public:
     /*!
      * Sets a pointer to the Newton-Raphson method for gravity assist
      * algorithm.
-     * \param pointerToNewtonRaphsonMethod Pointer to NewtonRaphson object.
+     * \param pointerToNewtonRaphson Pointer to NewtonRaphson object.
      */
     void setNewtonRaphsonMethod( NewtonRaphson* pointerToNewtonRaphson );
 
@@ -173,7 +173,7 @@ public:
     /*!
      * Defines first derivative of root-finder function for the velocity-effect
      * delta-V.
-     * \param incomingEccentricity Incoming eccentricity.
+     * \param incomingEccentricity_ Incoming eccentricity.
      * \return Value of first derivative of root-finder function at defined
      * eccentricity.
      */

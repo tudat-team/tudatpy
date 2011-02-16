@@ -152,9 +152,6 @@ double computeNewtonianPressureCoefficient( const double& inclinationAngle );
  * Computes the pressure coefficient based on modified Newtonian theory.
  * \param inclinationAngle Angle between the wall and the freestream
  *         velocity vector.
- * \param machNumber Flow Mach number.
- * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
- *         specific heat at constant volume.
  * \param stagnationPressureCoefficient Stagnation pressure coefficient.
  * \return Newtonian pressure coefficient.
  */
@@ -225,7 +222,7 @@ double computeSmythDeltaWingPressureCoefficient(
  * \param machNumber Flow Mach number.
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *         specific heat at constant volume.
- * \param Type ( expansion ( 1 ) or compression( -1 ) ).
+ * \param type ( expansion ( 1 ) or compression( -1 ) ).
  * \return Hankey Flat surface pressure coefficient.
  */
 double computeVanDykeUnifiedPressureCoefficient(

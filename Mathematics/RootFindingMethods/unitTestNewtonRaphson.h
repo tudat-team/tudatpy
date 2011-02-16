@@ -1,4 +1,4 @@
-/*! \file unitTestNewtonRapshon.h
+/*! \file unitTestNewtonRaphson.h
  *    Header file of unit test file of Newton-Raphson method code.
  *    This unit test file will test the Newton-Raphson method code.
  *

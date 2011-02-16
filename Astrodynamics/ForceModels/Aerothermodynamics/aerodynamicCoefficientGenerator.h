@@ -2,7 +2,7 @@
  *    This file contains the definition of the aerodynamic coefficient generator
  *    base class.
  *
- *    Path              : /Astrodynamics/ForceModels\Aerothermodynamics/
+ *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *    Version           : 5
  *    Check status      : Checked
  *
@@ -227,7 +227,7 @@ public:
      *  are to be determined.
      *  \param index Index in angle of attack number data point list at which
      *  to set the value.
-     *  \param machPoint Value of angle of attack to set.
+     *  \param angleOfAttackPoint Value of angle of attack to set.
      */
     void setAngleOfAttackPoint( const int& index,
                                 const double& angleOfAttackPoint );
@@ -238,7 +238,7 @@ public:
      *  are to be determined.
      *  \param index Index in angle of sideslip number data point list at which
      *  to set the value.
-     *  \param machPoint Value of angle of sideslip to set.
+     *  \param angleOfSideslipPoint Value of angle of sideslip to set.
      */
     void setAngleOfSideslipPoint( const int& index,
                                   const double& angleOfSideslipPoint );

@@ -4,7 +4,7 @@
  *
  *    Path              : /Mathematics/
  *    Version           : 8
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -166,13 +166,13 @@ State* computeLinearInterpolation(
 * Function to convert spherical to cartesian coordinates.
 * Schematic representation can be found on, e.g.,
 * http://mathworld.wolfram.com/SphericalCoordinates.html.
-* The transformation equations are the following, with \f$ \r \f$ the radius,
+* The transformation equations are the following, with \f$ r \f$ the radius,
 * \f$ \theta \f$ the azimuth angle and \f$ \phi \f$ the azimuth angle:
-* \f[
-*      x=r\cos\theta\sin\phi \\
-*      y=r\sin\theta\sin\phi \\
-*      z=r\cos\phi \\
-* \f]
+* \f{eqnarray*}{
+*      x &=& r\cos\theta\sin\phi \\
+*      y &=& r\sin\theta\sin\phi \\
+*      z &=& r\cos\phi \\
+* \f}
 */
 void convertSphericalToCartesian( const double& radius,
                                   const double& azimuthAngle,
@@ -184,13 +184,13 @@ void convertSphericalToCartesian( const double& radius,
 * Function to convert cylindrical to cartesian coordinates.
 * Schematic representation can be found on, e.g.,
 * http://mathworld.wolfram.com/CylindricalCoordinates.html.
-* The transformation equations are the following, with \f$ \r \f$  the radius and
+* The transformation equations are the following, with \f$ r \f$  the radius and
 * \f$ \theta \f$ the azimuth angle:
-* \f[
-*      x=r\cos\theta \\
-*      y=r\sin\theta \\
-*      z=z \\
-* \f]
+* \f{eqnarray*}{
+*      x &=& r\cos\theta \\
+*      y &=& r\sin\theta \\
+*      z &=& z \\
+* \f}
 * Since the value of z is left unaffected by this transformation,
 * it is not set or changed by this function.
 */

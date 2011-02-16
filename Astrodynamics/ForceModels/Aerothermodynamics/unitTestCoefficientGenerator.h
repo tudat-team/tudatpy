@@ -1,7 +1,7 @@
 /*!   \file hypersonicLocalInclinationAnalysis.cpp
  *    This file contains the unit test of the hypersonic local inclination
  *    analysis.
- *    Path              : /Astrodynamics/ForceModels\Aerothermodynamics/
+ *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *    Version           : 1
  *    Check status      : Checked
  *
