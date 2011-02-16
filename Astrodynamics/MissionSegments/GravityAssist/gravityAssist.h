@@ -180,24 +180,6 @@ public:
     double firstDerivativeVelocityEffectFunction( double&
                                                   incomingEccentricity );
 
-    //! Eccentricity of the incoming hyperbolic leg.
-    /*!
-     * Eccentricity of the incoming hyperbolic leg.
-     */
-    double incomingEccentricity;
-
-    //! Eccentricity of the outgoing hyperbolic leg.
-    /*!
-     * Eccentricity of the outgoing hyperbolic leg.
-     */
-    double outgoingEccentricity;
-
-    //! Boolean to set whether the root finder is required for checking.
-    /*!
-     * Boolean to set whether the root finder is required for checking.
-     */
-    bool isRootFinderRequiredForChecking;
-
 protected:
 
     //! Pointer to CelestialBody class for swing-by.
@@ -261,6 +243,18 @@ protected:
      * Bending angle between the excess velocities.
      */
     double bendingAngle_;
+
+    //! Eccentricity of the incoming hyperbolic leg.
+    /*!
+     * Eccentricity of the incoming hyperbolic leg.
+     */
+    double incomingEccentricity_;
+
+    //! Eccentricity of the outgoing hyperbolic leg.
+    /*!
+     * Eccentricity of the outgoing hyperbolic leg.
+     */
+    double outgoingEccentricity_;
 
     //! Semi-major axis of the incoming hyperbolic leg.
     /*!

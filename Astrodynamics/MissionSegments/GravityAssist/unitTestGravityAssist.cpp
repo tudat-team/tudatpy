@@ -73,8 +73,7 @@ bool testGravityAssist( )
     bool isGravityAssistErroneous = false;
 
     // Tolerances.
-    // Velocity outputs have a tolerance of 1 m/s.
-    double eccentricityTolerance = 1.0e-13;
+    // Expected velocity output is defined with an accuracy of 1 m/s.
     double velocityTolerance = 1.0;
 
     // In the first test case, the incoming and outgoing inertial
@@ -148,56 +147,25 @@ bool testGravityAssist( )
     pointerToMyGravityAssist->setNewtonRaphsonMethod(
             pointerToMyNewtonRaphsonGravityAssist );
 
-    // Set boolean to true, to apply Newton-Raphson method anyway,
-    // although the excess velocities are equal, and thus normally
-    // no iterator would be required.
-    pointerToMyGravityAssist->isRootFinderRequiredForChecking = true;
-
     // Compute powered gravity-assist implementation.
     double deltaV = pointerToMyGravityAssist->computeDeltaV( );
 
     // Set test result to true if the test does not match the expected results.
     if ( computeAbsoluteValue( deltaV - expectedDeltaV )
-        >= velocityTolerance ||
-         computeAbsoluteValue( pointerToMyGravityAssist->incomingEccentricity -
-            pointerToMyGravityAssist->outgoingEccentricity )
-        >= eccentricityTolerance )
+         >= velocityTolerance )
     {
         // Set error flag to true.
         isGravityAssistErroneous = true;
 
-        if ( computeAbsoluteValue( deltaV - expectedDeltaV ) >=
-             velocityTolerance )
-        {
-            // Generate error statements.
-            cerr << "The computed value of delta-V for the "
-                    "case of equal hyperbolic excess velocities ( "
-                 << deltaV
-                 << " ) using the powered gravity-assist algorithm "
-                 << "does not match the expected solution ( "
-                 << expectedDeltaV << " )." << endl;
-            cerr << "The relative error is: "
-                 << computeAbsoluteValue( deltaV - expectedDeltaV ) << endl;
-        }
-
-        if ( computeAbsoluteValue(
-                pointerToMyGravityAssist->incomingEccentricity -
-                pointerToMyGravityAssist->outgoingEccentricity )
-            >= eccentricityTolerance )
-        {
-            // Generate error statements.
-            cerr << "The value of eccentricity of the incoming hyperbolic leg ( "
-                 << pointerToMyGravityAssist->incomingEccentricity
-                 << " ) using the powered gravity-assist algorithm "
-                 << "does not match the value of eccentricity of the"
-                    " outgoing hyperbolic leg ( "
-                 << pointerToMyGravityAssist->outgoingEccentricity << " )."
-                 << endl;
-            cerr << "The relative error is: "
-                 << computeAbsoluteValue(
-                    pointerToMyGravityAssist->incomingEccentricity -
-                    pointerToMyGravityAssist->outgoingEccentricity ) << endl;
-        }
+        // Generate error statements.
+        cerr << "The computed value of delta-V for the "
+                "case of equal hyperbolic excess velocities ( "
+             << deltaV
+             << " ) using the powered gravity-assist algorithm "
+             << "does not match the expected solution ( "
+             << expectedDeltaV << " )." << endl;
+        cerr << "The relative error is: "
+             << computeAbsoluteValue( deltaV - expectedDeltaV ) << endl;
     }
 
     // Return test result.
