@@ -218,6 +218,8 @@ public:
      * each derived class. It contains no functionality for this base class.
      * \param independentVariable1 Independent variable 1.
      * \param independentVariable2 Independent variable 2.
+     * \param powerOfDerivative1 Power of derivative wrt independent variable 1.
+     * \param powerOfDerivative2 Power of derivative wrt independent variable 2.
      * \return Surface derivative.
      */
     virtual VectorXd getSurfaceDerivative( const double& independentVariable1,

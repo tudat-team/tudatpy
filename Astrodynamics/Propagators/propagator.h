@@ -117,7 +117,7 @@ public:
     /*!
      * Sets the initial state of given body.
      * \param pointerToBody Pointer to Body object.
-     * \param initialState Initial state given as pointer to a State object.
+     * \param pointerToInitialState Initial state given as pointer to a State object.
      */
     void setInitialState( Body* pointerToBody, State* pointerToInitialState );
 

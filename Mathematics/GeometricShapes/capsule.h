@@ -101,7 +101,7 @@ public:
     //! Set rear length.
     /*!
      * Sets the rear length of the capsule.
-     * \param rearLength Rear length.
+     * \param rearRadius Rear radius.
      */
     void setRearLength( const double& rearRadius );
 

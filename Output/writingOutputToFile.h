@@ -104,7 +104,7 @@ public:
      * \param filename Name of the file to which the points are written.
      * \param writeType Defines whether to append or write to the file given by
      *          filename, should be "a" for append and "w" for write.
-     * \param isInvertIndependentVariable Boolean flag which if set to true
+     * \param isIndependentVariableInverted Boolean flag which if set to true
      *          inverts which independent variable is treated as 1st and which
      *          as 2nd.
      */
@@ -121,14 +121,14 @@ public:
      *  each surface geometry.
      *  \param pointerToCompositeSurfaceGeometry Geometry from which there
      *          is to be written.
-     *  \param numberOfLines Array of how many points to take over the 1st
+     *  \param arrayOfNumberOfLines Array of how many points to take over the 1st
      *          independent variables of single surface geometries.
-     *  \param numberOfLines Array of how many points to take over the 2nd
+     *  \param arrayOfNumberOfPoints Array of how many points to take over the 2nd
      *          independent variables of single surface geometries.
      *  \param filename Name of the file to which the points are written.
      *  \param writeType Defines whether to append or write to the file given
      *          by filename,  should be "a" for append and "w" for write.
-     *  \param isInvertIndependentVariableInverted Array of booleans which if
+     *  \param isIndependentVariableInvertedArray Array of booleans which if
      *          set to true invert which independent variable is treated as 1st
      *          and which as 2nd for each single surface geometry.
      */

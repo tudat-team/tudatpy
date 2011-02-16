@@ -84,7 +84,7 @@ public:
     //! Set origin of gravity field.
     /*!
      * Set origin of gravity field.
-     * \param positionOfOrigin Position of origin given as a pointer to a
+     * \param pointerToPositionOfOrigin Position of origin given as a pointer to a
      *          CartesianPositionElements object.
      */
     void setOrigin( CartesianPositionElements* pointerToPositionOfOrigin );

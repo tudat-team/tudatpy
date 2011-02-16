@@ -103,7 +103,7 @@ public:
     /*!
      * Sets the position at departure as pointer to object of
      * CartesianPositionElements class.
-     * \param positionAtDeparture Position at departure.
+     * \param pointerToCartesianPositionAtDeparture Position at departure.
      */
     void setPositionAtDeparture( CartesianPositionElements*
                                  pointerToCartesianPositionAtDeparture );
@@ -112,7 +112,7 @@ public:
     /*!
      * Sets position at arrival as pointer to object of
      * CartesianPositionElements class.
-     * \param positionAtArrival Position at arrival.
+     * \param pointerToCartesianPositionAtArrival Position at arrival.
      */
     void setPositionAtArrival( CartesianPositionElements*
                                pointerToCartesianPositionAtArrival );
@@ -134,7 +134,7 @@ public:
     //! Set central body.
     /*!
      * Sets pointer to central body.
-     * \param pointerToCelestialBodyCapture Central body
+     * \param pointerToCelestialBody Central body
      */
     void setCentralBody( CelestialBody* pointerToCelestialBody );
 
@@ -142,7 +142,7 @@ public:
     /*!
      * Sets a pointer to the Newton-Raphson method for the Lambert targeting
      * algorithm.
-     * \param pointerToNewtonRaphsonMethod Pointer to NewtonRaphson
+     * \param pointerToNewtonRaphson Pointer to NewtonRaphson
      *          object.
      */
     void setNewtonRaphsonMethod( NewtonRaphson* pointerToNewtonRaphson );

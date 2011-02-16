@@ -1,4 +1,4 @@
-/*! \file trajectoryDesignMethods.h
+/*! \file trajectoryDesignMethod.h
  *    This header file contains a base class for all trajectory design methods
  *    classes in Tudat.
  *
