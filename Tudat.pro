@@ -6,7 +6,8 @@ TARGET = Tudat
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
-SOURCES += Astrodynamics/Bodies/body.cpp \
+SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
+    Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.cpp \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \
@@ -71,7 +72,8 @@ SOURCES += Astrodynamics/Bodies/body.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
     Mathematics/unitTestUnitConversions.cpp \
     Output/writingOutputToFile.cpp
-HEADERS += Astrodynamics/Bodies/body.h \
+HEADERS += Applications/exampleEarthOrbitingSatellite.h \
+    Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
     Astrodynamics/Bodies/Vehicles/vehicle.h \
@@ -145,7 +147,7 @@ HEADERS += Astrodynamics/Bodies/body.h \
     Mathematics/RootFindingMethods/newtonRaphson.h \
     Output/outputHandling.h \
     Output/writingOutputToFile.h
-INCLUDEPATH += External/Eigen-2.0.15 \
+INCLUDEPATH += Applications \
     Astrodynamics \
     Astrodynamics/Bodies \
     Astrodynamics/Bodies/CelestialBodies \
@@ -161,6 +163,7 @@ INCLUDEPATH += External/Eigen-2.0.15 \
     Astrodynamics/MissionSegments/GravityAssist \
     Astrodynamics/MissionSegments/LambertTargeter \
     Basics \
+    External/Eigen-2.0.15 \
     Mathematics \
     Mathematics/GeometricShapes \
     Mathematics/LinearAlgebra \
