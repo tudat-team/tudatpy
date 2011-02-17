@@ -33,8 +33,8 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      100906    J. Melman     First creation of code.
+ *      YYMMDD    Author            Comment
+ *      100906    J. Melman         First creation of code.
  */
 
 #ifndef UNIT_CONVERSIONS_H

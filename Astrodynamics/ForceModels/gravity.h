@@ -32,18 +32,18 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      100916    K. Kumar            File created.
- *      100916    K. Kumar            Filename modified.
- *      100929    D. Dirkx            File checked.
- *      100929    K. Kumar            Minor corrections to include statements
- *                                    and comments.
- *      110113    K. Kumar            Changed setBody() argument to pointer;
- *                                    added pointer to GravityFieldModel.
- *      110119    K. Kumar            Changed computeStateDerivatives() to
- *                                    computeForce().
- *      110202    K. Kumar            Updated code to make use of the State and
- *                                    CartesianPositionElements classes.
+ *      YYMMDD    Author            Comment
+ *      100916    K. Kumar          File created.
+ *      100916    K. Kumar          Filename modified.
+ *      100929    D. Dirkx          File checked.
+ *      100929    K. Kumar          Minor corrections to include statements
+ *                                  and comments.
+ *      110113    K. Kumar          Changed setBody() argument to pointer;
+ *                                  added pointer to GravityFieldModel.
+ *      110119    K. Kumar          Changed computeStateDerivatives() to
+ *                                  computeForce().
+ *      110202    K. Kumar          Updated code to make use of the State and
+ *                                  CartesianPositionElements classes.
  */
 
 #ifndef GRAVITY_H

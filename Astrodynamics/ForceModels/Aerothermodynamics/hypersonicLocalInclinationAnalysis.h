@@ -6,11 +6,11 @@
  *    Version           : 5
  *    Check status      : Checked
  *
- *    Author            : Dominic Dirkx
+ *    Author            : D. Dirkx
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
- *    Checker           : Bart Romgens
+ *    Checker           : B. Romgens
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : B.Romgens@student.tudelft.nl
  *

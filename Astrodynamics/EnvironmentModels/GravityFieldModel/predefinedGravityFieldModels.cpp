@@ -33,10 +33,10 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      110106    K. Kumar            File created.
- *      110107    K. Kumar            Updated code after comments by J. Melman.
- *      110128    K. Kumar            Added Mars central gravity field.
+ *      YYMMDD    Author            Comment
+ *      110106    K. Kumar          File created.
+ *      110107    K. Kumar          Updated code after comments by J. Melman.
+ *      110128    K. Kumar          Added Mars central gravity field.
  */
 
 // Include statements.

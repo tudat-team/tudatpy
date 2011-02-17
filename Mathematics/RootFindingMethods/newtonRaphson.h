@@ -32,18 +32,19 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101111    E. Iorfida    First creation of code.
- *      101116    E. Iorfida    Added setFunction and execute.
- *      101121    E. Iorfida    Added Doxygen comments.
- *      110111    E. Iorfida    Deleted useless lines, and modified
- *                              punctuation.
- *      110111    K. Kumar      Changed variable and function names to be more
- *                              descriptive; added "End of file." comment.
- *      110114    K. Kumar      Removed circular code dependency.
- *      110119    K. Kumar      Updated code to work with adaptor and abstract
- *                              base implementation so that pointer-to-member
- *                              functions are not required; changed filename.
+ *      YYMMDD    Author            Comment
+ *      101111    E. Iorfida        First creation of code.
+ *      101116    E. Iorfida        Added setFunction and execute.
+ *      101121    E. Iorfida        Added Doxygen comments.
+ *      110111    E. Iorfida        Deleted useless lines, and modified
+ *                                  punctuation.
+ *      110111    K. Kumar          Changed variable and function names to be
+ *                                  more descriptive; added "End of file."
+ *      110114    K. Kumar          Removed circular code dependency.
+ *      110119    K. Kumar          Updated code to work with adaptor and
+ *                                  abstract base implementation so that
+ *                                  pointer-to-member functions are not
+ *                                  required; changed filename.
  */
 
 #ifndef NEWTONRAPHSON_H

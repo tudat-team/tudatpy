@@ -33,8 +33,8 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      110119    K. Kumar      First creation of code.
+ *      YYMMDD    Author            Comment
+ *      110119    K. Kumar          First creation of code.
  */
 
 #ifndef ROOTFINDERBASE_H

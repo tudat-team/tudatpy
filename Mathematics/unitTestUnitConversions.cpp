@@ -36,9 +36,9 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      110111    J. Melman           First creation of code.
- *      110124    J. Melman           Adapted to the offical Tudat standards.
+ *      YYMMDD    Author            Comment
+ *      110111    J. Melman         First creation of code.
+ *      110124    J. Melman         Adapted to the offical Tudat standards.
  */
 
 // Include statements.

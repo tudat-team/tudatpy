@@ -5,7 +5,7 @@
  *    Version           : 3
  *    Check status      : Unchecked
  *
- *    Author            : Dominic Dirkx
+ *    Author            : D. Dirkx
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *

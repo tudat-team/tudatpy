@@ -39,9 +39,9 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      100906    J. Melman     First creation of code.
- *      110124    K. Kumar      Split into .h and .cpp files ( C++ standard ).
+ *      YYMMDD    Author            Comment
+ *      100906    J. Melman         First creation of code.
+ *      110124    K. Kumar          Split into .h and .cpp files.
  */
 
 #ifndef PHYSICAL_CONSTANTS_H
