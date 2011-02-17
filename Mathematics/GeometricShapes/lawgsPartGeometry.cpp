@@ -155,8 +155,8 @@ VectorXd LawgsPartGeometry::getSurfacePoint( const double& independentVariable1,
     VectorXd point = VectorXd( 3 );
 
     // Set local variables.
-    pointIndex = floor( independentVariable2 );
-    lineIndex = floor( independentVariable1 );
+    pointIndex = static_cast< int > ( floor( independentVariable2 ) );
+    lineIndex = static_cast< int > ( floor( independentVariable1 ) );
 
     // Start with panel centroid.
     point = panelCentroids_[ lineIndex ][ pointIndex ];
@@ -221,7 +221,7 @@ void LawgsPartGeometry::setParameter( const int& parameterIndex,
             <<parameterIndex<< std::endl;
 }
 
-//! Overloaded ostream to print class information.
+//! Overloads ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry & geometry)
 {
     stream << "This is a Langley Wireframe Geometry Standard surface geometry"
@@ -233,3 +233,5 @@ std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry & geometry)
     stream << "The part name is: " << geometry.name_ << std::endl;
     return stream;
 }
+
+// End of file.

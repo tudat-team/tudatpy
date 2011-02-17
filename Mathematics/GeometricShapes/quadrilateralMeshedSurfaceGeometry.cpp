@@ -233,3 +233,20 @@ void QuadrilateralMeshedSurfaceGeometry::setReversalOperator(
      }
      return isMeshInverted;
  }
+
+ //! Overload ostream to print class information.
+ std::ostream& operator<<( std::ostream& stream,
+                           QuadrilateralMeshedSurfaceGeometry& geometry )
+ {
+     stream << "This is a quadrilateral meshed surface geometry"
+            << " of a single part." << std::endl;
+     stream << "The number of lines ( contours ) is: "
+            << geometry.numberOfLines_ << std::endl;
+     stream << "The number of points per line is: "
+            << geometry.numberOfPoints_ << std::endl;
+
+     // Return stream.
+     return stream;
+ }
+
+ // End of file.

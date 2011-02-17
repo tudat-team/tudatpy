@@ -295,7 +295,7 @@ double computeVanDykeUnifiedPressureCoefficient(
                               + 4.0
                               / ( raiseToIntegerPower(  inclinationAngle
                                                         * machNumberTerm_,
-                                                        2.0 ) ) ) );
+                                                        2 ) ) ) );
     }
 
     // Calculate expansion pressure coefficient.
@@ -402,12 +402,12 @@ double computeAcmEmpiricalPressureCoefficient(
     double preliminaryPressureCoefficient_;
 
     // Set minimum pressure coefficient.
-    minimumPressureCoefficient_ = -1.0 / raiseToIntegerPower( machNumber, 2.0 );
+    minimumPressureCoefficient_ = -1.0 / raiseToIntegerPower( machNumber, 2 );
 
     // Calculate preliminary pressure coefficient.
     preliminaryPressureCoefficient_ = 180.0 / M_PI * inclinationAngle
                                       / ( 16.0 * raiseToIntegerPower(
-                                              machNumber , 2.0 ) );
+                                              machNumber , 2 ) );
 
     // If necessary, correct preliminary pressure coefficient.
     if ( minimumPressureCoefficient_ > preliminaryPressureCoefficient_ )
@@ -534,7 +534,7 @@ double computeShockDeflectionAngle( const double& shockAngle,
     tangentOfDeflectionAngle_ = 2.0
                                 * ( raiseToIntegerPower( machNumber
                                                          * sin( shockAngle ),
-                                                         2.0 ) - 1.0 )
+                                                         2 ) - 1.0 )
                                 / ( tan( shockAngle )
                                     * ( raiseToIntegerPower( machNumber, 2 )
                                         * ( ratioOfSpecificHeats

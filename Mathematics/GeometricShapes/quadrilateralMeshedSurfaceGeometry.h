@@ -152,6 +152,15 @@ public:
      */
      bool getReversalOperator( );
 
+     //! Overload ostream to print class information.
+     /*!
+      *  Overloads ostream to print class information, prints the number of
+      *  lines and points, and the name of the part.
+      */
+     friend std::ostream& operator<<( std::ostream& stream,
+                                      QuadrilateralMeshedSurfaceGeometry&
+                                      geometry );
+
 protected:
 
     //! Number of lines in mesh.
@@ -205,3 +214,5 @@ protected:
 };
 
 #endif // QUADRILATERALMESHEDSURFACEGEOMETRY_H
+
+// End of file.

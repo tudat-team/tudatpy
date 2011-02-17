@@ -51,6 +51,7 @@
 #include "linearAlgebra.h"
 #include "string.h"
 
+//! Base class for aerodynamic coefficient generator.
 /*!
  *  Abstract base class for aerodynamic analysis method. Stores aerodynamic reference
  *  quantities, independent variable values and data points of independent
@@ -66,7 +67,6 @@
  *  variables to the index in this VectorXd is performed by the
  *  variableIndicesToListIndex function.
  */
-
 class AerodynamicCoefficientGenerator
 {
 public:

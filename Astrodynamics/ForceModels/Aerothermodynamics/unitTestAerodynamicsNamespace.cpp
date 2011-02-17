@@ -166,7 +166,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
                 = aerodynamics::computeNewtonianPressureCoefficient( angle_ );
 
         if ( computeAbsoluteValue( newtonianPressureCoefficient_ - 2.0
-                                   * raiseToIntegerPower( sin( angle_ ), 2.0 ) )
+                                   * raiseToIntegerPower( sin( angle_ ), 2 ) )
              > 1.0e-15 )
         {
             cerr << "Error in Newtonian pressure coefficient." << endl;
