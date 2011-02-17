@@ -64,11 +64,11 @@ int computeNearestLeftNeighborUsingBinarySearch(
     int rightLimitOfVectorOfSortedData = vectorOfSortedData.rows( ) - 1;
     int currentPositionInVectorOfSortedData;
 
-    // Check if data is sorted in ascending order
+    // Check if data is sorted in ascending order.
     // ( true if ascending, else false ).
     bool isVectorOfSortedDataAscending
-            = ( vectorOfSortedData[rightLimitOfVectorOfSortedData]
-                >= vectorOfSortedData[leftLimitOfVectorOfSortedData]);
+            = ( vectorOfSortedData[ rightLimitOfVectorOfSortedData ]
+                >= vectorOfSortedData[ leftLimitOfVectorOfSortedData ] );
 
     // Loop through vector of sorted data until left and right limits
     // are neighbours.
@@ -84,7 +84,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
         // is in right half, replace left limit ).
         if ( targetValueInVectorOfSortedData
              >= vectorOfSortedData[ currentPositionInVectorOfSortedData ]
-             == isVectorOfSortedDataAscending )
+             && isVectorOfSortedDataAscending )
         {
             // Set left limit to current position in vector of sorted data.
             leftLimitOfVectorOfSortedData = currentPositionInVectorOfSortedData;

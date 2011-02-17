@@ -4,11 +4,11 @@
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 1
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
- *    E-mail address    : <email address>
+ *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Checker           : D. Dirkx
  *    Affiliation       : Delft University of Technology
@@ -36,8 +36,8 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      110110    K. Kumar            File created.
+ *      YYMMDD    Author            Comment
+ *      110110    K. Kumar          File created.
  */
 
 #ifndef UNITTESTCARTESIANELEMENTS_H

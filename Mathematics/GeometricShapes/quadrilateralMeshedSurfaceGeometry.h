@@ -1,51 +1,53 @@
 /*! \file quadrilateralMeshedSurfaceGeometry.h
- *  This file contains the definition of the quadrilateral meshed surface
- *  geometry class.
+ *    This file contains the definition of the quadrilateral meshed surface
+ *    geometry class.
  *
- *  Path              : Mathematics/Geometry/
- *  Version           : 1
- *  Check status      : Unchecked
+ *    Path              : /Mathematics/GeometricShapes/
+ *    Version           : 1
+ *    Check status      : Checked
  *
- *  Author            : Dominic Dirkx
- *  Affiliation       : TU Delft
- *  E-mail address    : D.Dirkx@student.tudelft.nl
+ *    Author            : Dominic Dirkx
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
- *  Checker           : J. Melman
- *  Affiliation       : Delft University of Technology
- *  E-mail address    : J.C.P.Melman@tudelft.nl
+ *    Checker           : J. Melman
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *  Date created      : 25 November, 2010
- *  Last modified     : 6 February, 2011
+ *    Date created      : 25 November, 2010
+ *    Last modified     : 6 February, 2011
  *
- *  References
- *    An example of a heritage code which uses such a mesh is found in:
- *    The Mark IV Supersonic-Hypersonic Arbitrary Body Program, Volume II-
- *    Program Formulation, Douglas Aircraft Company, AFFDL-TR-73-159, Volume II.
+ *    References
+ *      An example of a heritage code which uses such a mesh is found in:
+ *          The Mark IV Supersonic-Hypersonic Arbitrary Body Program, Volume
+ *          II-Program Formulation, Douglas Aircraft Company, AFFDL-TR-73-159,
+ *          Volume II.
  *
- *  Notes
- *    This class uses pointers to pointers to denote two-dimensional arrays
- *    for heritage reasons, instead of the more modern C++ vector or map types.
+ *    Notes
+ *      This class uses pointers to pointers to denote two-dimensional arrays
+ *      for heritage reasons, instead of the more modern C++ vector or map
+ *      types.
  *
- *    The numberOfLines_ and numberOfPoints_ member variables denote the number of
- *    mesh points. The number of panels in the mesh will be numberOfLines_  - 1 by
- *    numberOfPoints_ -1.
+ *      The numberOfLines_ and numberOfPoints_ member variables denote the
+ *      number of mesh points. The number of panels in the mesh will be
+ *      numberOfLines_ - 1 by numberOfPoints_ -1.
  *
- *  Copyright (c) 2010 Delft University of Technology.
+ *    Copyright (c) 2010 Delft University of Technology.
  *
- *  This software is protected by national and international copyright.
- *  Any unauthorized use, reproduction or modification is unlawful and
- *  will be prosecuted. Commercial and non-private application of the
- *  software in any form is strictly prohibited unless otherwise granted
- *  by the authors.
+ *    This software is protected by national and international copyright.
+ *    Any unauthorized use, reproduction or modification is unlawful and
+ *    will be prosecuted. Commercial and non-private application of the
+ *    software in any form is strictly prohibited unless otherwise granted
+ *    by the authors.
  *
- *  The code is provided without any warranty; without even the implied
- *  warranty of merchantibility or fitness for a particular purpose.
+ *    The code is provided without any warranty; without even the implied
+ *    warranty of merchantibility or fitness for a particular purpose.
  *
- *  Changelog
- *    YYMMDD   Author               Comment
- *    101125   D. Dirkx             First version of file.
- *    110127   D. Dirkx             Finalized for code check.
- *    110206   J. Melman            Minor formatting issues.
+ *    Changelog
+ *      YYMMDD    Author            Comment
+ *      101125    D. Dirkx          First version of file.
+ *      110127    D. Dirkx          Finalized for code check.
+ *      110206    J. Melman         Minor formatting issues.
  */
 
 #ifndef QUADRILATERALMESHEDSURFACEGEOMETRY_H

@@ -1,12 +1,12 @@
 /*! \file unitTestLawgsSurfaceGeometry.cpp
- *    This file contains the definition of the LawgsPartGeometry unit test.
+ *    This file contains the implemtation of the LawgsPartGeometry unit test.
  *
- *    Path              : Mathematics/Geometry/
+ *    Path              : /Mathematics/GeometricShapes/
  *    Version           : 3
  *    Check status      : Unchecked
  *
  *    Author            : Dominic Dirkx
- *    Affiliation       : TU Delft
+ *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Checker           : J. Melman
@@ -17,8 +17,8 @@
  *    Last modified     : 12 February, 2011
  *
  *    References
- *      C.B. Craidon, "A Description of the Langley Wireframe Geometry Standard
- *      (LaWGS) format", NASA TECHNICAL MEMORANDUM 85767.
+ *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
+ *          (LaWGS) format, NASA TECHNICAL MEMORANDUM 85767.
  *
  *    Notes
  *
@@ -34,10 +34,10 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD   Author               Comment
- *      110206   D. Dirkx             First version of file.
- *      110208   D. Dirkx             Finalized for code check.
- *      110212   J. Melman            Fixed many minor formatting issues.
+ *      YYMMDD    Author            Comment
+ *      110206    D. Dirkx          First version of file.
+ *      110208    D. Dirkx          Finalized for code check.
+ *      110212    J. Melman         Fixed many minor formatting issues.
  */
 
 // Include statements.
