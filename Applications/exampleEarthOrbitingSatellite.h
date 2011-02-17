@@ -3,8 +3,8 @@
  *    satellite mission scenario using Tudat.
  *
  *    Path              : /Applications/
- *    Version           : 1
- *    Check status      : Unchecked
+ *    Version           : 2
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : bart.romgens@gmail.com
  *
  *    Date created      : 16 February, 2011
- *    Last modified     : 16 February, 2011
+ *    Last modified     : 17 February, 2011
  *
  *    References
  *
@@ -33,8 +33,9 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      110216    K. Kumar            File created.
+ *      YYMMDD    Author            Comment
+ *      110216    K. Kumar          File created.
+ *      110217    K. Kumar          Function name changed.
  */
 
 #ifndef EXAMPLEEARTHORBITINGSATELLITE_H
@@ -60,11 +61,11 @@
 namespace applications
 {
 
-//! Example of an Earth-orbiting satellite.
+//! Execute example of an Earth-orbiting satellite.
 /*!
- * Example of an Earth-orbiting satellite.
+ * Execute example of an Earth-orbiting satellite.
  */
-void exampleEarthOrbitingSatellite( );
+void executeEarthOrbitingSatelliteExample( );
 
 }
 

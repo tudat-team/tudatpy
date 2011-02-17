@@ -4,7 +4,7 @@
  *
  *    Path              : /Applications/
  *    Version           : 3
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,8 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
+ *    Checker           : B. Romgens
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : bart.romgens@gmail.com
+ *
  *    Date created      : 11 November, 2010
- *    Last modified     : 1 February, 2011
+ *    Last modified     : 17 February, 2011
  *
  *    References
  *
@@ -33,13 +37,14 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      101111    K. Kumar            File created.
- *      110113    K. Kumar            Scenario updated to use latest version of
- *                                    code; added file header and footer.
- *      110202    K. Kumar            Scenario updated to use latest version of
- *                                    code.
- *      110216    K. Kumar            Migrated to applications namespace.
+ *      YYMMDD    Author            Comment
+ *      101111    K. Kumar          File created.
+ *      110113    K. Kumar          Scenario updated to use latest version of
+ *                                  code; added file header and footer.
+ *      110202    K. Kumar          Scenario updated to use latest version of
+ *                                  code.
+ *      110216    K. Kumar          Migrated to applications namespace.
+ *      110217    K. Kumar          Function name changed.
  */
 
 // Include statements.
@@ -53,8 +58,8 @@ using std::endl;
 namespace applications
 {
 
-//! Example of an Earth-orbiting satellite.
-void exampleEarthOrbitingSatellite( )
+//! Execute example of an Earth-orbiting satellite.
+void executeEarthOrbitingSatelliteExample( )
 {
     // Create pointer to the state of Asterix given in Cartesian elements.
     CartesianElements* pointerToStateOfAsterix = new CartesianElements;
