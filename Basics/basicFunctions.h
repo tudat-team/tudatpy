@@ -53,8 +53,10 @@
 #define BASICOPERATIONS_H
 
 // Include statements.
+#include <iostream>
 #include <map>
 #include <iterator>
+#include <string>
 #include "linearAlgebra.h"
 #include "state.h"
 
@@ -64,6 +66,9 @@
  */
 namespace basic_functions
 {
+
+//! Root path of Tudat library
+static std::string ROOT_PATH;
 
 //! Nearest left neighbor binary search.
 /*!

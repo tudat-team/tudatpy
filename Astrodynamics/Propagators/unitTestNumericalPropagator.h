@@ -1,29 +1,21 @@
-/*! \file unitTestOrbitalElementConversions.h
- *    Header file of unit test for the orbitalElementConversion, from Cartesian
- *    to Keplerian and viceversa.
+/*! \file unitTestNumericalPropagator.h
+ *    Header file that defines a unit test that tests the numerical propagator
+ *    included in Tudat.
  *
- *    Path              : /Astrodynamics/States/
- *    Version           : 2
+ *    Path              : /Astrodynamics/Propagators/
+ *    Version           : 1
  *    Check status      : Checked
- *
- *    Author            : E. Iorfida
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
- *    Checker           : J. Melman
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : J.C.P.Melman@tudelft.nl
- *
  *    Checker           : E. Iorfida
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
- *    Date created      : 11 January, 2011
- *    Last modified     : 16 February, 2011
+ *    Date created      : 16 February, 2011
+ *    Last modified     : 16 Feburary, 2011
  *
  *    References
  *
@@ -31,6 +23,11 @@
  *      Test runs code and verifies result against expected value.
  *      If the tested code is erroneous, the test function returns a boolean
  *      true; if the code is correct, the function returns a boolean false.
+ *
+ *      The unit test at present only checks that the code is internally
+ *      consistent and doesn't check the result against benchmark data.
+ *      Validation of the code against benchmark data should be added to
+ *      ensure that the output of both simulation cases tested is correct.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -45,25 +42,26 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110111    E. Iorfida        First creation of the code.
- *      110216    K. Kumar          Added include statements for new orbital
- *                                  element conversion functions.
+ *      110216    K. Kumar          First creation of code.
  */
 
-#ifndef UNITTESTORBITALELEMENTCONVERSIONS_H
-#define UNITTESTORBITALELEMENTCONVERSIONS_H
+#ifndef UNITTESTNUMERICALPROPAGATOR_H
+#define UNITTESTNUMERICALPROPAGATOR_H
 
 // Include statements.
-#include <cmath>
-#include "orbitalElementConversions.h"
-#include "unitConversions.h"
+#include <iostream>
+#include <map>
+#include "cartesianElements.h"
+#include "cartesianPositionElements.h"
 #include "celestialBody.h"
-#include "basicMathematicsFunctions.h"
+#include "gravity.h"
+#include "numericalPropagator.h"
 #include "predefinedPlanets.h"
+#include "rungeKutta4thOrderFixedStepsize.h"
 #include "sphericalHarmonicsGravityField.h"
-#include "convertMeanAnomalyToEccentricAnomaly.h"
-#include "convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
-#include "newtonRaphson.h"
+#include "state.h"
+#include "unitConversions.h"
+#include "vehicle.h"
 
 //! Namespace for all unit tests.
 /*!
@@ -72,16 +70,16 @@
 namespace unit_tests
 {
 
-//! Test of orbital element conversions code.
+//! Test of implementation of numerical propagator class.
 /*!
- * Test of orbital element conversions code.
+ * Test of implementation of numerical propagator class.
  * \return Boolean indicating success of test
  * ( false = successful; true = failed ).
  */
-bool testOrbitalElementConversions( );
+bool testNumericalPropagator( );
 
 }
 
-#endif // UNITTESTORBITALELEMENTCONVERSIONS_H
+#endif // UNITTESTNUMERICALPROPAGATOR_H
 
 // End of file.

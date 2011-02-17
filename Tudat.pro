@@ -28,6 +28,8 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Propagators/propagatorDataContainer.cpp \
     Astrodynamics/Propagators/propagator.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
+    Astrodynamics/Propagators/unitTestNumericalPropagator.cpp \
+    Astrodynamics/Propagators/unitTestKeplerPropagator.cpp \
     Astrodynamics/States/state.cpp \
     Astrodynamics/States/orbitalElements.cpp \
     Astrodynamics/States/orbitalElementConversions.cpp \
@@ -35,6 +37,9 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/States/cartesianElements.cpp \
     Astrodynamics/States/cartesianPositionElements.cpp \
     Astrodynamics/States/cartesianVelocityElements.cpp \
+    Astrodynamics/States/convertMeanAnomalyBase.cpp \
+    Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.cpp \
+    Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp \
     Astrodynamics/States/unitTestKeplerianElements.cpp \
     Astrodynamics/States/unitTestCartesianElements.cpp \
     Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
@@ -50,6 +55,7 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Basics/basicFunctions.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
+    Mathematics/unitTestBasicMathematicsFunctions.cpp \
     Mathematics/unitTestRandomNumberGenerator.cpp \
     Mathematics/GeometricShapes/compositeSurfaceGeometry.cpp \
     Mathematics/GeometricShapes/geometricShape.cpp \
@@ -96,6 +102,8 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Propagators/propagatorDataContainer.h \
     Astrodynamics/Propagators/propagator.h \
     Astrodynamics/Propagators/numericalPropagator.h \
+    Astrodynamics/Propagators/unitTestNumericalPropagator.h \
+    Astrodynamics/Propagators/unitTestKeplerPropagator.h \
     Astrodynamics/States/state.h \
     Astrodynamics/States/orbitalElements.h \
     Astrodynamics/States/orbitalElementConversions.h \
@@ -103,6 +111,9 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/States/cartesianElements.h \
     Astrodynamics/States/cartesianPositionElements.h \
     Astrodynamics/States/cartesianVelocityElements.h \
+    Astrodynamics/States/convertMeanAnomalyBase.h \
+    Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h \
+    Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.h \
     Astrodynamics/States/unitTestKeplerianElements.h \
     Astrodynamics/States/unitTestCartesianElements.h \
     Astrodynamics/States/unitTestOrbitalElementConversions.h \
@@ -120,6 +131,7 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/unitTestUnitConversions.h \
     Mathematics/basicMathematicsFunctions.h \
     Mathematics/randomNumberGenerator.h \
+    Mathematics/unitTestBasicMathematicsFunctions.h \
     Mathematics/unitTestRandomNumberGenerator.h \
     Mathematics/GeometricShapes/compositeSurfaceGeometry.h \
     Mathematics/GeometricShapes/geometricShape.h \

@@ -132,7 +132,7 @@ void executeEarthOrbitingSatelliteExample( )
     numericalPropagator.setInitialState(
             pointerToAsterix, pointerToStateOfAsterix );
 
-    // Run simulation.86400
+    // Run simulation.
     numericalPropagator.propagate( );
 
     // Get propagation history of Asterix.
@@ -150,7 +150,7 @@ void executeEarthOrbitingSatelliteExample( )
     WritingOutputToFile::
             writePropagationHistoryToFile(
                     asterixPropagationHistory,
-                    "AsterixExampleEarthOrbitingSatellite.dat" );
+                    "asterixExampleEarthOrbitingSatellite.dat" );
 
 }
 

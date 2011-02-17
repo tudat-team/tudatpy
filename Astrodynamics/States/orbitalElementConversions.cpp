@@ -18,6 +18,10 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
+ *    Checker           : E. Iorfida
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : elisabetta_iorfida@yahoo.it
+ *
  *    Date created      : 20 October, 2010
  *    Last modified     : 4 February, 2011
  *
@@ -393,6 +397,137 @@ KeplerianElements* convertCartesianToKeplerianElements(
     }
 
     return pointerToKeplerianElements_;
+}
+
+//! Convert true anomaly to eccentric anomaly.
+double convertTrueAnomalyToEccentricAnomaly( const double& trueAnomaly,
+                                             const double& eccentricity )
+{
+    // Declare and compute sine and cosine of eccentric anomaly.
+    double sineOfEccentricAnomaly_
+            = sqrt( 1.0 - raiseToIntegerPower( eccentricity, 2 ) )
+              * sin( trueAnomaly )
+              / ( 1.0 + eccentricity * cos( trueAnomaly ) );
+
+    double cosineOfEccentricAnomaly_
+            = ( eccentricity + cos( trueAnomaly ) )
+              / ( 1.0 + eccentricity * cos( trueAnomaly ) );
+
+    // Return eccentric anomaly.
+    return atan2( sineOfEccentricAnomaly_, cosineOfEccentricAnomaly_ );
+}
+
+//! Convert eccentric anomaly to true anomaly.
+double convertEccentricAnomalyToTrueAnomaly( const double& eccentricAnomaly,
+                                             const double& eccentricity )
+{
+    // Compute sine and cosine of true anomaly.
+    double sineOfTrueAnomaly_
+            = sqrt( 1.0 - raiseToIntegerPower( eccentricity, 2 ) )
+              * sin( eccentricAnomaly )
+              / ( 1.0 - eccentricity * cos( eccentricAnomaly ) );
+
+    double cosineOfTrueAnomaly_
+            = ( cos( eccentricAnomaly ) - eccentricity )
+              / ( 1.0 - eccentricity * cos( eccentricAnomaly ) );
+
+    // Return true anomaly.
+    return atan2( sineOfTrueAnomaly_, cosineOfTrueAnomaly_  );
+}
+
+//! Convert true anomaly to hyperbolic eccentric anomaly.
+double convertTrueAnomalyToHyperbolicEccentricAnomaly(
+        const double& trueAnomaly, const double& eccentricity )
+{
+    // Compute hyperbolic sine and hyperbolic cosine of hyperbolic eccentric
+    // anomaly.
+    double hyperbolicSineOfHyperbolicEccentricAnomaly_
+            = sqrt( raiseToIntegerPower( eccentricity, 2 ) - 1.0 )
+              * sin( trueAnomaly ) / ( 1.0 + cos( trueAnomaly ) );
+
+    double hyperbolicCosineOfHyperbolicEccentricAnomaly_
+            = ( cos( trueAnomaly ) + eccentricity )
+              / ( 1.0 + cos( trueAnomaly ) );
+
+    // Return hyperbolic eccentric anomaly.
+    return atanh( hyperbolicSineOfHyperbolicEccentricAnomaly_
+                  / hyperbolicCosineOfHyperbolicEccentricAnomaly_ );
+}
+
+//! Convert hyperbolic eccentric anomaly to true anomaly.
+double convertHyperbolicEccentricAnomalyToTrueAnomaly(
+        const double& hyperbolicEccentricAnomaly, const double& eccentricity )
+{
+    // Compute sine and cosine of true anomaly.
+    double sineOfTrueAnomaly_
+            = sqrt( raiseToIntegerPower( eccentricity, 2 ) - 1.0 )
+            * sinh( hyperbolicEccentricAnomaly )
+            / ( eccentricity * cosh( hyperbolicEccentricAnomaly ) - 1.0 );
+
+    double cosineOfTrueAnomaly_
+            = ( eccentricity - cosh( hyperbolicEccentricAnomaly ) )
+              / ( eccentricity
+                  * cosh( hyperbolicEccentricAnomaly ) - 1.0 );
+
+    // Return true anomaly.
+    return atan2( sineOfTrueAnomaly_, cosineOfTrueAnomaly_ );
+}
+
+//! Convert eccentric anomaly to mean anomaly.
+double convertEccentricAnomalyToMeanAnomaly( const double& eccentricAnomaly,
+                                             const double& eccentricity )
+{
+    return eccentricAnomaly - eccentricity * sin( eccentricAnomaly );
+}
+
+//! Convert hyperbolic eccentric anomaly to mean anomaly.
+double convertHyperbolicEccentricAnomalyToMeanAnomaly(
+        const double& hyperbolicEccentricAnomaly, const double& eccentricity )
+{
+    return eccentricity * sinh( hyperbolicEccentricAnomaly )
+            - hyperbolicEccentricAnomaly;
+}
+
+//! Convert elapsed time to mean anomaly for elliptical orbits.
+double convertElapsedTimeToMeanAnomalyForEllipticalOrbits(
+        const double& elapsedTime, CelestialBody* pointerToCentralBody,
+        const double& semiMajorAxis )
+{
+    // Return mean anomaly.
+    return sqrt( pointerToCentralBody->getGravitationalParameter( )
+                 / raiseToIntegerPower( semiMajorAxis, 3 ) ) * elapsedTime;
+}
+
+//! Convert mean anomaly to elapsed time for elliptical orbits.
+double convertMeanAnomalyToElapsedTimeForEllipticalOrbits(
+        const double& meanAnomaly, CelestialBody* pointerToCentralBody,
+        const double& semiMajorAxis )
+{
+    // Return time since last periapsis passage.
+    return meanAnomaly * sqrt( raiseToIntegerPower( semiMajorAxis, 3 )
+                               / pointerToCentralBody
+                               ->getGravitationalParameter( ) );
+}
+
+//! Convert elapsed time to mean anomaly for hyperbolic orbits.
+double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits(
+        const double& elapsedTime, CelestialBody* pointerToCentralBody,
+        const double& semiMajorAxis )
+{
+    // Return mean anomaly.
+    return sqrt( pointerToCentralBody->getGravitationalParameter( )
+                 / raiseToIntegerPower( -semiMajorAxis, 3 ) ) * elapsedTime;
+}
+
+//! Convert mean anomaly to elapsed time for hyperbolic orbits.
+double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits(
+        const double& meanAnomaly, CelestialBody* pointerToCentralBody,
+        const double& semiMajorAxis )
+{
+    // Return time since last periapsis passage.
+    return sqrt( raiseToIntegerPower( -semiMajorAxis, 3 )
+                 / pointerToCentralBody->getGravitationalParameter( ) )
+            * meanAnomaly;
 }
 
 }

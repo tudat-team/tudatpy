@@ -138,29 +138,13 @@ private:
      */
     State* pointerToFinalState_;
 
-    //! Initial state.
-    /*!
-     * Initial state given as a State object.
-     */
-    State initialState_;
-
-    //! Current state.
-    /*!
-     * Current state given as a State object.
-     */
-    State currentState_;
-
-    //! Final state.
-    /*!
-     * Final state given as a State object.
-     */
-    State finalState_;
-
     //! A map of propagation history.
     /*!
      * A map of propagation history with propagation time taken as key.
      */
     std::map < double, State* > propagationHistory_;
+
+    std::map < double, State* >::iterator iteratorPropagationHistory_;
 
     //! Vector container of pointers to force models.
     /*!

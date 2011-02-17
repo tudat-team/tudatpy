@@ -276,8 +276,9 @@ void Integrator::computeInternalDerivedIntegrationParameters_( )
                                - integrationIntervalStart_;
 
         // Compute number of integration steps for fixed stepsize methods.
-        numberOfIntegrationSteps_ = std::ceil( integrationInterval_
-                                               / stepsize_ );
+        numberOfIntegrationSteps_ = static_cast < unsigned int >
+                                    ( std::ceil( integrationInterval_
+                                                 / stepsize_ ) );
 
         // Set dimension of initial state.
         dimensionOfCurrentState_ = vectorOfCurrentStatePointers_.at( 0 )

@@ -58,13 +58,16 @@
 NumericalPropagator::NumericalPropagator( ) : sizeOfAssembledState_( 0 )
 {
     // Initialize variables.
-    pointerToAssembledState_ = &assembledState_;
-    pointerToAssembledStateDerivative_ = &assembledStateDerivative_;
+    pointerToAssembledState_ = new State;
+    pointerToAssembledStateDerivative_ = new State;
 }
 
 //! Default destructor.
 NumericalPropagator::~NumericalPropagator( )
 {
+    // Deallocate pointers.
+    delete pointerToAssembledState_;
+    delete pointerToAssembledStateDerivative_;
 }
 
 //! Set integrator for propagation.
@@ -171,12 +174,13 @@ void NumericalPropagator::propagate( )
         integrationHistory_ = pointerToIntegrator_->getIntegrationHistory( );
 
         // Compute number of output intervals.
-        unsigned int numberOfOutputIntervals = std::ceil(
-                ( propagationIntervalEnd_ - propagationIntervalStart_ )
-                / fixedOutputInterval_ );
+        unsigned int numberOfOutputIntervals
+                = static_cast < unsigned int > ( std::ceil(
+                        ( propagationIntervalEnd_ - propagationIntervalStart_ )
+                        / fixedOutputInterval_ ) );
 
         // Compute values at successive output interval values.
-        for ( unsigned int i = 0; i < numberOfOutputIntervals - 1; i++ )
+        for ( unsigned int i = 0; i < numberOfOutputIntervals + 1; i++ )
         {
             // Compute target integration interval value for interpolation of
             // integration output.
@@ -306,34 +310,34 @@ State* NumericalPropagator::
                                            ->second->pointerToCurrentState_ );
         }
 
-            // Set size of state.
-            sizeOfState_ = iteratorBodiesToPropagate_->second->sizeOfState_;
+        // Set size of state.
+        sizeOfState_ = iteratorBodiesToPropagate_->second->sizeOfState_;
 
-            // Set state derivative to size of state.
-            pointerToStateDerivative_->state.setZero( sizeOfState_ );
+        // Set state derivative to size of state.
+        pointerToStateDerivative_->state.setZero( sizeOfState_ );
 
-            // Set state derivative elements using state and computed sum of
-            // forces.
-            // Set derivative of position equal to the velocity.
-            pointerToStateDerivative_
-                    ->state.segment( 0, sizeOfState_ - sumOfForces_.rows( ) )
-                    = iteratorBodiesToPropagate_->second
-                      ->pointerToCurrentState_->state.segment(
-                              sumOfForces_.rows( ),
-                              sizeOfState_ - sumOfForces_.rows( ) );
+        // Set state derivative elements using state and computed sum of
+        // forces.
+        // Set derivative of position equal to the velocity.
+        pointerToStateDerivative_
+                ->state.segment( 0, sizeOfState_ - sumOfForces_.rows( ) )
+                = iteratorBodiesToPropagate_->second
+                  ->pointerToCurrentState_->state.segment(
+                          sumOfForces_.rows( ),
+                          sizeOfState_ - sumOfForces_.rows( ) );
 
-            // Set derivative of velocity equal to acceleration ( specific force ).
-            pointerToStateDerivative_->state.segment( sizeOfState_
-                                                      - sumOfForces_.rows( ),
-                                                      sumOfForces_.rows( ) )
-                    = sumOfForces_;
+        // Set derivative of velocity equal to acceleration ( specific force ).
+        pointerToStateDerivative_->state.segment( sizeOfState_
+                                                  - sumOfForces_.rows( ),
+                                                  sumOfForces_.rows( ) )
+                = sumOfForces_;
 
-            // Add computed state derivatives to assembled state derivative.
-            pointerToAssembledStateDerivative_
-                    ->state.segment( iteratorBodiesToPropagate_
-                                     ->second->stateStartIndex_,
-                                     sizeOfState_ )
-                    = pointerToStateDerivative_->state;
+        // Add computed state derivatives to assembled state derivative.
+        pointerToAssembledStateDerivative_
+                ->state.segment( iteratorBodiesToPropagate_
+                                 ->second->stateStartIndex_,
+                                 sizeOfState_ )
+                = pointerToStateDerivative_->state;
     }
 
     // Deallocate pointer to state derivative.

@@ -90,6 +90,7 @@ void WritingOutputToFile::writePropagationHistoryToFile(
               i < iteratorPropagationHistory_->second->state.rows( ); i++ )
         {
             // Print map data to file.
+            outputFile_.precision( 10 );
             outputFile_ << ", "
                         << iteratorPropagationHistory_->second->state[ i ];
         }

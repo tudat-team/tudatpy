@@ -50,7 +50,7 @@
 #include "rootFinder.h"
 
 //! Default constructor.
-RootFinder::RootFinder( ) : maximumNumberOfIterations_( 50 ),
+RootFinder::RootFinder( ) : maximumNumberOfIterations_( 100 ),
                             initialGuessOfRoot_( -0.0 ),
                             currentValueOfRoot_( -0.0 ),
                             nextValueOfRoot_( -0.0 ),

@@ -3,7 +3,7 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 7
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -122,18 +122,6 @@ private:
      * Assembled state derivative given as a pointer to a State object.
      */
     State* pointerToAssembledStateDerivative_;
-
-    //! Assembled state.
-    /*!
-     * Assembled state given as a State object.
-     */
-    State assembledState_;
-
-    //! Assembled state derivative.
-    /*!
-     * Assembled state derivative given as a State object.
-     */
-    State assembledStateDerivative_;
 
     //! Pointer to adaptor object of IntegratorAdaptor class.
     /*!
