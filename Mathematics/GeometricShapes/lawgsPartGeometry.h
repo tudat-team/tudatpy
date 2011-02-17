@@ -49,11 +49,11 @@
 #include "quadrilateralMeshedSurfaceGeometry.h"
 #include "singleSurfaceGeometry.h"
 
+//! Class to defined a mesh accoring to Lawgs standards.
 /*!
  *  Class to define a surface mesh accoring to the Langley Wireframe Geometry
  *  standard, seet reference.
  */
-
 class LawgsPartGeometry : public QuadrilateralMeshedSurfaceGeometry
 {
 public:
@@ -150,7 +150,7 @@ public:
 
     //! Overloaded ostream to print class information.
     /*!
-     *  Overloaded ostream to print class information, prints the number of
+     *  Overloads ostream to print class information, prints the number of
      *  lines and points, and the name of the part.
      */
     friend std::ostream& operator<<( std::ostream& stream,
@@ -167,3 +167,5 @@ protected:
 };
 
 #endif // LAWGSPARTGEOMETRY_H
+
+// End of file.
