@@ -142,7 +142,7 @@ void executeEarthOrbitingSatelliteExample( )
 
     // Output final state vector of Asterix to screen.
     cout << "Asterix final state in km(/s):" << endl;
-    cout <<  unit_conversions::convertMetersToKilometers(
+    cout << unit_conversions::convertMetersToKilometers(
             numericalPropagator.getFinalState( pointerToAsterix )->state )
          << endl;
 
