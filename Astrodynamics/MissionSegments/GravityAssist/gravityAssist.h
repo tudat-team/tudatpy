@@ -161,26 +161,19 @@ public:
      */
     const double& computeDeltaV( );
 
-    //! Define root-finder function.
+    //! Overload ostream to print class information.
     /*!
-     * Defines root-finder function for the velocity-effect delta-V.
-     * \param incomingEccentricity Incoming eccentricity.
-     * \return Value of root-finder function at defined eccentricity.
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param pointerToGravityAssist Pointer to Gravity Assist.
+     * \return Stream object.
      */
-    double velocityEffectFunction( double& incomingEccentricity );
-
-    //! Define first derivative of root-finder function.
-    /*!
-     * Defines first derivative of root-finder function for the velocity-effect
-     * delta-V.
-     * \param incomingEccentricity_ Incoming eccentricity.
-     * \return Value of first derivative of root-finder function at defined
-     * eccentricity.
-     */
-    double firstDerivativeVelocityEffectFunction( double&
-                                                  incomingEccentricity );
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     GravityAssist* pointerToGravityAssist );
 
 protected:
+
+private:
 
     //! Pointer to CelestialBody class for swing-by.
     /*!
@@ -295,7 +288,25 @@ protected:
     NewtonRaphsonAdaptor< GravityAssist >
             newtonRaphsonAdaptorForGravityAssist_;
 
-private:
+    //! Define root-finder function.
+    /*!
+     * Defines root-finder function for the velocity-effect delta-V.
+     * \param incomingEccentricity Incoming eccentricity.
+     * \return Value of root-finder function at defined eccentricity.
+     */
+    double velocityEffectFunction( double& incomingEccentricity );
+
+    //! Define first derivative of root-finder function.
+    /*!
+     * Defines first derivative of root-finder function for the velocity-effect
+     * delta-V.
+     * \param incomingEccentricity_ Incoming eccentricity.
+     * \return Value of first derivative of root-finder function at defined
+     * eccentricity.
+     */
+    double firstDerivativeVelocityEffectFunction( double&
+                                                  incomingEccentricity );
+
 };
 
 #endif // GRAVITYASSIST_H

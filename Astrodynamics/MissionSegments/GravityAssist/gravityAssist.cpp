@@ -78,6 +78,9 @@ using mathematics::raiseToIntegerPower;
 using mathematics::computeAbsoluteValue;
 using unit_conversions::convertRadiansToDegrees;
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 GravityAssist::GravityAssist( ) :
         deltaV_( -0.0 ),
@@ -325,6 +328,21 @@ const double& GravityAssist::computeDeltaV( )
 
     // Return DeltaV.
     return deltaV_;
+}
+
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          GravityAssist* pointerToGravityAssist )
+{
+    stream << "The incoming velocity is set to: "
+           << pointerToGravityAssist->pointerToIncomingVelocity_
+           << "The outgoing velocity is set to: "
+           << pointerToGravityAssist->pointerToOutgoingVelocity_
+           << "The computed delta-V is: "
+           << pointerToGravityAssist->computeDeltaV( ) << endl;
+
+    // Return stream.
+    return stream;
 }
 
 // End of file.

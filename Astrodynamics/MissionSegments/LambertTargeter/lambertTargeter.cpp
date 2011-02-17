@@ -97,14 +97,18 @@ using linear_algebra::determineAngleBetweenVectors;
 using mathematics::raiseToIntegerPower;
 using mathematics::computeAbsoluteValue;
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 LambertTargeter::LambertTargeter( ):
         xParameter_( -0.0 ),
         normalizedTimeOfFlight_( -0.0 ),
         qParameter_( -0.0 )
 {
-    pointerToCartesianVelocityAtDeparture_ = &cartesianVelocityAtDeparture_;
-    pointerToCartesianVelocityAtArrival_ = &cartesianVelocityAtArrival_;
+    // Initialize variables.
+    pointerToCartesianVelocityAtDeparture_ = new CartesianVelocityElements;
+    pointerToCartesianVelocityAtArrival_ = new CartesianVelocityElements;
 }
 
 //! Default destructor.
@@ -198,8 +202,26 @@ CartesianVelocityElements* LambertTargeter::getInertialVelocityAtArrival( )
     return pointerToCartesianVelocityAtArrival_;
 }
 
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          LambertTargeter* pointerToLambertTargeter )
+{
+    stream << "The position vector at departure is set to: "
+            << pointerToLambertTargeter->pointerToCartesianPositionAtDeparture_
+            << "The position vector at arrival is set to: "
+            << pointerToLambertTargeter->pointerToCartesianPositionAtArrival_
+            << "The velocity vector at departure is computed as: "
+            << pointerToLambertTargeter->getInertialVelocityAtDeparture( )
+            << "The velocity vector at departure is computed as: "
+            << pointerToLambertTargeter->getInertialVelocityAtArrival( )
+            << "The semi-major axis of the computed arc is: "
+            << pointerToLambertTargeter->getLambertSemiMajorAxis( ) << endl;
+
+    // Return stream.
+    return stream;
+}
+
 //! Define Lambert function for positive lambertEccentricAnomaly_.
-// Page 47 [2].
 double LambertTargeter::lambertFunctionPositive( double& xParameter_ )
 {
     double lambertEccentricAnomaly_ =
@@ -220,7 +242,6 @@ double LambertTargeter::lambertFunctionPositive( double& xParameter_ )
 }
 
 //! Define Lambert function for negative lambertEccentricAnomaly_.
-// Page 47 [2].
 double LambertTargeter::lambertFunctionNegative( double& xParameter_ )
 {
     double lambertEccentricAnomaly_ =
@@ -242,7 +263,6 @@ double LambertTargeter::lambertFunctionNegative( double& xParameter_ )
 
 //! Define first derivative of Lambert function for positive
 //! lambertEccentricAnomaly_.
-// Page xx [3].
 double LambertTargeter::lambertFirstDerivativeFunctionPositive(
          double& xParameter_ )
 {
@@ -282,7 +302,6 @@ double LambertTargeter::lambertFirstDerivativeFunctionPositive(
 
 //! Define first derivative of Lambert function for negative
 //! lambertEccentricAnomaly_.
-// Page xx [3].
 double LambertTargeter::lambertFirstDerivativeFunctionNegative(
          double& xParameter_ )
 {

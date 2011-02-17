@@ -204,47 +204,19 @@ public:
      */
     void execute( );
 
-    //! Define Lambert function for positive lambertEccentricAnomaly_.
+    //! Overload ostream to print class information.
     /*!
-     * Defines Lambert function for positive lambertEccentricAnomaly_.
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param pointerToLambertTargeter Pointer to Lambert Targeter.
+     * \return Stream object.
      */
-    double lambertFunctionPositive( double& xParameter_ );
-
-    //! Define Lambert function for negative lambertEccentricAnomaly_.
-    /*!
-     * Defines Lambert function for negative lambertEccentricAnomaly_.
-     */
-    double lambertFunctionNegative( double& xParameter_ );
-
-    //! Define first derivative of Lambert function for positive
-    //! lambertEccentricAnomaly_.
-    /*!
-     * Defines first derivative of Lambert function for positive
-     * lambertEccentricAnomaly_.
-     */
-    double lambertFirstDerivativeFunctionPositive( double& xParameter_ );
-
-    //! Define first derivative of Lambert function for negative
-    //! lambertEccentricAnomaly_.
-    /*!
-     * Defines first derivative of Lambert function for negative
-     * lambertEccentricAnomaly_.
-     */
-    double lambertFirstDerivativeFunctionNegative( double& xParameter_ );
-
-    //! Define general Lambert function.
-    /*!
-     * Defines general Lambert function.
-     */
-    double lambertFunction( double& xParameter_ );
-
-    //! Define first derivative of general Lambert function.
-    /*!
-     * Defines first derivative of general Lambert function.
-     */
-    double lambertFirstDerivativeFunction( double& xParameter_ );
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     LambertTargeter* pointerToLambertTargeter );
 
 protected:
+
+private:
 
     //! Number of Revolutions.
     /*!
@@ -332,13 +304,6 @@ protected:
      */
     CartesianVelocityElements* pointerToCartesianVelocityAtDeparture_;
 
-    //! CartesianVelocityElements object at departure.
-    /*!
-     * CartesianVelocityElements object at departure that represents the
-     * inertial velocity at departure (referred to central body).
-     */
-    CartesianVelocityElements cartesianVelocityAtDeparture_;
-
     //! Pointer to CartesianVelocityElements object at arrival.
     /*!
      * Pointer to CartesianVelocityElements object at arrival
@@ -346,13 +311,6 @@ protected:
      * body).
      */
     CartesianVelocityElements* pointerToCartesianVelocityAtArrival_;
-
-    //! CartesianVelocityElements object at arrival.
-    /*!
-     * CartesianVelocityElements object at arrival that represents the
-     * inertial velocity at departure (referred to central body).
-     */
-    CartesianVelocityElements cartesianVelocityAtArrival_;
 
     //! Pointer to object of NewtonRaphson class.
     /*!
@@ -368,7 +326,46 @@ protected:
     NewtonRaphsonAdaptor< LambertTargeter >
             newtonRaphsonAdaptorForLambertTargeter_;
 
-private:
+    //! Define Lambert function for positive lambertEccentricAnomaly_.
+    /*!
+     * Defines Lambert function for positive lambertEccentricAnomaly_.
+     */
+    double lambertFunctionPositive( double& xParameter_ );
+
+    //! Define Lambert function for negative lambertEccentricAnomaly_.
+    /*!
+     * Defines Lambert function for negative lambertEccentricAnomaly_.
+     */
+    double lambertFunctionNegative( double& xParameter_ );
+
+    //! Define first derivative of Lambert function for positive
+    //! lambertEccentricAnomaly_.
+    /*!
+     * Defines first derivative of Lambert function for positive
+     * lambertEccentricAnomaly_.
+     */
+    double lambertFirstDerivativeFunctionPositive( double& xParameter_ );
+
+    //! Define first derivative of Lambert function for negative
+    //! lambertEccentricAnomaly_.
+    /*!
+     * Defines first derivative of Lambert function for negative
+     * lambertEccentricAnomaly_.
+     */
+    double lambertFirstDerivativeFunctionNegative( double& xParameter_ );
+
+    //! Define general Lambert function.
+    /*!
+     * Defines general Lambert function.
+     */
+    double lambertFunction( double& xParameter_ );
+
+    //! Define first derivative of general Lambert function.
+    /*!
+     * Defines first derivative of general Lambert function.
+     */
+    double lambertFirstDerivativeFunction( double& xParameter_ );
+
 };
 
 #endif // LAMBERTTARGETER_H
