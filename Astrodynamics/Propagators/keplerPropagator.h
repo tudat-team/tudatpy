@@ -3,8 +3,8 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 2
- *    Check status      : Checked
+ *    Version           : 3
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 3 February, 2011
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 14 February, 2011
  *
  *    References
  *
@@ -41,6 +41,8 @@
  *      YYMMDD    Author            Comment
  *      110203    K. Kumar          File created.
  *      110207    E. Iorfida        Minor changes.
+ *      110214    K. Kumar          Updated code to use orbital element
+ *                                  conversion functions.
  */
 
 #ifndef KEPLERPROPAGATOR_H
@@ -48,14 +50,20 @@
 
 // Include statements.
 #include <cmath>
-#include "propagator.h"
 #include "basicMathematicsFunctions.h"
 #include "body.h"
 #include "cartesianElements.h"
+#include "convertMeanAnomalyToEccentricAnomaly.h"
+#include "convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
 #include "keplerianElements.h"
 #include "newtonRaphson.h"
-#include "newtonRaphsonAdaptor.h"
 #include "orbitalElementConversions.h"
+#include "propagator.h"
+
+// Using declarations.
+using orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
+using orbital_element_conversions::
+        ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
 
 //! Kepler propagator class.
 /*!
@@ -117,23 +125,17 @@ private:
      */
     double eccentricAnomaly_;
 
+    //! Change of eccentric anomaly.
+    /*!
+     * Change of eccentric anomaly.
+     */
+    double eccentricAnomalyChange_;
+
     //! Hyperbolic eccentric anomaly.
     /*!
      * Hyperbolic eccentric anomaly.
      */
     double hyperbolicEccentricAnomaly_;
-
-    //! Hyperbolic mean anomaly.
-    /*!
-     * Hyperbolic mean anomaly.
-     */
-    double hyperbolicMeanAnomaly_;
-
-    //! Mean anomaly.
-    /*!
-     * Mean anomaly.
-     */
-    double meanAnomaly_;
 
     //! True anomaly.
     /*!
@@ -141,18 +143,17 @@ private:
      */
     double trueAnomaly_;
 
-    //! Pointer to Newton-Raphson.
+    //! Mean anomaly.
     /*!
-     * Pointer to Newton-Raphson method.
+     * Mean anomaly.
      */
-    NewtonRaphson* pointerToNewtonRaphson_;
+    double meanAnomaly_;
 
-    //! Pointer to adaptor NewtonRaphsonAdaptor.
+    //! Mean anomaly change.
     /*!
-     * Pointer to adaptor NewtonRaphsonAdaptor class.
+     * Change of mean anomaly between start time and end time.
      */
-    NewtonRaphsonAdaptor< KeplerPropagator >
-            newtonRaphsonAdaptorForKeplerPropagator_;
+    double meanAnomalyChange_;
 
     //! Pointer to Keplerian elements.
     /*!
@@ -160,73 +161,25 @@ private:
      */
     KeplerianElements* pointerToKeplerianElements_;
 
-    //! Keplerian elements.
+    //! Pointer to mean anomaly to eccentric anomaly conversion.
     /*!
-     * Keplerian elements.
+     * Pointer to ConvertMeanAnomalyToEccentricAnomaly object.
      */
-    KeplerianElements keplerianElements_;
+    ConvertMeanAnomalyToEccentricAnomaly*
+            pointerToConvertMeanAnomalyToEccentricAnomaly_;
 
-    //! Compute Kepler's equation for elliptical orbits.
+    //! Pointer to mean anomaly to hyperbolic eccentric anomaly conversion.
     /*!
-     * Computes Kepler's equation for elliptical orbits. Kepler's equation for
-     * elliptical orbits is given as:
-     * \f[
-     *      f_{ E } = E - e * sin( E ) - M
-     * \f]
-     * where \f$ E \f$ is the eccentric anomaly, \f$ e \f$ is the eccentricity
-     * and \f$ M \f$ is the mean anomaly.
-     * \param eccentricAnomaly Eccentric anomaly.
-     * \return Value of Kepler's equation for elliptical orbits.
+     * Pointer to ConvertMeanAnomalyToHyperbolicEccentricAnomaly object.
      */
-    double computeKeplerEquationForEllipticalOrbits_( double&
-                                                      eccentricAnomaly );
+    ConvertMeanAnomalyToHyperbolicEccentricAnomaly*
+            pointerToConvertMeanAnomalyToHyperbolicEccentricAnomaly_;
 
-    //! Compute first-derivative of Kepler's equation for elliptical orbits.
+    //! Pointer to Newton-Raphson.
     /*!
-     * Computes the first-derivative of Kepler's equation with respect to
-     * \f$ E \f$, the eccentric anomaly, for elliptical orbits. The
-     * first-derivative of Kepler's for elliptical orbits equation is given as:
-     * \f[
-     *      \frac{ df_{ E } } { dE } = 1 - e * cos( E )
-     * \f]
-     * where \f$ e \f$ is the eccentricity.
-     * \param eccentricAnomaly Eccentric anomaly.
-     * \return Value of first-derivative of Kepler's equation for elliptical
-     *          orbits.
+     * Pointer to Newton-Raphson method.
      */
-    double computeFirstDerivativeKeplerEquationForEllipticalOrbits_(
-            double& eccentricAnomaly );
-
-    //! Compute Kepler's equation for hyperbolic orbits.
-    /*!
-     * Computes Kepler's equation for hyperbolic orbits. Kepler's equation for
-     * hyperbolic orbits is given as:
-     * \f[
-     *      g_{ H } = e * sinh( H ) - H - Mh
-     * \f]
-     * where \f$ H \f$ is the hyperbolic eccentric anomaly, \f$ e \f$ is the
-     * eccentricity and \f$ Mh \f$ is the hyperbolic mean anomaly.
-     * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly.
-     * \return Value of Kepler's equation for hyperbolic orbits.
-     */
-    double computeKeplerEquationForHyperbolicOrbits_(
-            double& hyperbolicEccentricAnomaly );
-
-    //! Compute first-derivative of Kepler's equation for hyperbolic orbits.
-    /*!
-     * Computes the first-derivative of Kepler's equation with respect to
-     * \f$ E \f$, the eccentric anomaly, for hyperbolic orbits. The
-     * first-derivative of Kepler's for hyperbolic orbits equation is given as:
-     * \f[
-     *      \frac{ dg_{ H } } { dH } = e * cos( H ) - 1
-     * \f]
-     * where \f$ e \f$ is the eccentricity.
-     * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly.
-     * \return Value of first-derivative of Kepler's equation for hyperbolic
-     *          orbits.
-     */
-    double computeFirstDerivativeKeplerEquationForHyperbolicOrbits_(
-            double& hyperbolicEccentricAnomaly );
+    NewtonRaphson* pointerToNewtonRaphson_;
 };
 
 #endif // KEPLERPROPAGATOR_H

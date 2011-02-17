@@ -15,11 +15,14 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 14 September, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 16 February, 2011
  *
  *    References
  *
  *    Notes
+ *      It may be possible that there memory leaks in the library due to the
+ *      Propagator class. This must be tested in future using a tool such as
+ *      Valgrind ( www.valgrind.org ).
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -33,19 +36,20 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      100914    K. Kumar            File created.
- *      100926    K. Kumar            Added Doxygen comments.
- *      100928    K. Kumar            Completed missing comments.
- *      100929    J. Melman           Reference to Integrator::
- *                                    setFixedOutputInterval deleted,
- *                                    'class' in comments changed into 'object'.
- *      100929    K. Kumar            EigenRoutines.h replaced in include
- *                                    statements by linearAlgebra.h.
- *      110201    K. Kumar            Updated code to make use of State class;
- *                                    moved computeSumOfStateDerivatives_() to
- *                                    NumericalPropagator class.
- *      110207    K. Kumar            Added ostream overload.
+ *      YYMMDD    Author            Comment
+ *      100914    K. Kumar          File created.
+ *      100926    K. Kumar          Added Doxygen comments.
+ *      100928    K. Kumar          Completed missing comments.
+ *      100929    J. Melman         Reference to Integrator::
+ *                                  setFixedOutputInterval deleted,
+ *                                  'class' in comments changed into 'object'.
+ *      100929    K. Kumar          EigenRoutines.h replaced in include
+ *                                  statements by linearAlgebra.h.
+ *      110201    K. Kumar          Updated code to make use of State class;
+ *                                  moved computeSumOfStateDerivatives_() to
+ *                                  NumericalPropagator class.
+ *      110207    K. Kumar          Added ostream overload.
+ *      110216    K. Kumar          Added get function for fixedOutputInterval_.
  */
 
 #ifndef PROPAGATOR_H
@@ -143,6 +147,14 @@ public:
      * \return End of propagation interval.
      */
     double& getPropagationIntervalEnd( );
+
+    //! Get fixed output interval.
+    /*!
+     * Gets the fixed output interval at which propagation output should be
+     * generated and stored in propagationHistory_.
+     * \return Fixed output interval.
+     */
+    double& getFixedOutputInterval( );
 
     //! Get final state of body.
     /*!

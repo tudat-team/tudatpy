@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 26 September, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 16 February, 2011
  *
  *    References
  *
@@ -23,6 +23,10 @@
  *      The propagator code has now been setup to work with 1st-order ODEs. Use
  *      of 2nd-order ODEs will result in errors. This will be corrected in
  *      future versions.
+ *
+ *      It may be possible that there memory leaks in the library due to the
+ *      Propagator class. This must be tested in future using a tool such as
+ *      Valgrind ( www.valgrind.org ).
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -49,6 +53,7 @@
  *      110201    K. Kumar          Updated code to make use of State class;
  *                                  moved computeSumOfStateDerivatives_() to
  *                                  NumericalPropagator class.
+ *      110216    K. Kumar          Added get function for fixedOutputInterval_.
  */
 
 // Include statements.
@@ -137,6 +142,13 @@ double& Propagator::getPropagationIntervalEnd( )
 {
     // Return end of propagation interval.
     return propagationIntervalEnd_;
+}
+
+//! Get fixed output interval.
+double& Propagator::getFixedOutputInterval( )
+{
+    // Return fixed output interval.
+    return fixedOutputInterval_;
 }
 
 //! Get final state of body.
