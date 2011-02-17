@@ -32,21 +32,23 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101111    E. Iorfida    First creation of code.
- *      101118    E. Iorfida    Added algorithm implementation.
- *      101121    E. Iorfida    Modified algorithm and added Doxygen comments.
- *      101216    E. Iorfida    Modified punctuation.
- *      110111    E. Iorfida    Deleted useless lines, and modified
- *                              punctuation.
- *      110111    K. Kumar      Updated based on changes to .h file; changed
- *                              do-while loop to for loop to prevent infinite
- *                              loop; added "End of file." comment.
- *      110119    K. Kumar      Updated code to work with adaptor and abstract
- *                              base implementation so that pointer-to-member
- *                              functions are not required; changed filename.
- *      110124    K. Kumar      Added cerr statement for when loop does not
- *                              converge.
+ *      YYMMDD    Author            Comment
+ *      101111    E. Iorfida        First creation of code.
+ *      101118    E. Iorfida        Added algorithm implementation.
+ *      101121    E. Iorfida        Modified algorithm and added Doxygen
+ *                                  comments.
+ *      101216    E. Iorfida        Modified punctuation.
+ *      110111    E. Iorfida        Deleted useless lines, and modified
+ *                                  punctuation.
+ *      110111    K. Kumar          Updated based on changes to .h file;
+ *                                  changed do-while loop to for loop to
+ *                                  prevent infinite loop; added "End of file."
+ *      110119    K. Kumar          Updated code to work with adaptor and
+ *                                  abstract base implementation so that
+ *                                  pointer-to-member functions are not
+ *                                  required; changed filename.
+ *      110124    K. Kumar          Added cerr statement for when loop does not
+ *                                  converge.
  */
 
 // Include statements.

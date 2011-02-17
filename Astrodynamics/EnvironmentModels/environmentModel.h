@@ -2,7 +2,7 @@
  *    Header file that defines the base class for all environment models
  *    included in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModel/
+ *    Path              : /Astrodynamics/EnvironmentModels/
  *    Version           : 2
  *    Check status      : Checked
  *
@@ -33,9 +33,9 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      100914    K. Kumar            File created.
- *      101012    K. Kumar            Minor comment changes.
+ *      YYMMDD    Author            Comment
+ *      100914    K. Kumar          File created.
+ *      101012    K. Kumar          Minor comment changes.
  */
 
 #ifndef ENVIRONMENTMODEL_H

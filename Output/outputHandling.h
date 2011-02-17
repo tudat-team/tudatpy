@@ -33,10 +33,10 @@
  *    warranty of merchantability or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      100914    K. Kumar            File created.
- *      100928    K. Kumar            Completed missing comments.
- *      100929    B. Romgens          Spelling mistakes corrected.
+ *      YYMMDD    Author            Comment
+ *      100914    K. Kumar          File created.
+ *      100928    K. Kumar          Completed missing comments.
+ *      100929    B. Romgens        Spelling mistakes corrected.
  */
 
 

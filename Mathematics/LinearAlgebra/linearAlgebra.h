@@ -33,11 +33,11 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      090807    J. Melman     First creation of code.
- *      100930    D. Dirkx      Modified to comply with Tudat standards.
- *      100930    J. Melman     Implemented namespace, minor comment
- *                              changes.
+ *      YYMMDD    Author            Comment
+ *      090807    J. Melman         First creation of code.
+ *      100930    D. Dirkx          Modified to comply with Tudat standards.
+ *      100930    J. Melman         Implemented namespace, minor comment
+ *                                  changes.
  */
 
 #ifndef LINEAR_ALGEBRA_H

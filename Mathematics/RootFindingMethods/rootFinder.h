@@ -33,21 +33,23 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101111    E. Iorfida    First creation of code.
- *      101116    E. Iorfida    Added set-get functions.
- *      101121    E. Iorfida    Added Doxygen comments.
- *      110111    E. Iorfida    Deleted useless lines, and modified
- *                              punctuation.
- *      110111    K. Kumar      Renamed functions and variables to be
- *                              more accurate and descriptive; added
- *                              "End of file." comment; added example of
- *                              pointer-to-member-function for LambertTargeter.
- *      110119    K. Kumar      Updated code to work with adaptor and abstract
- *                              base implementation so that pointer-to-member
- *                              functions are not required.
- *      110124    E. Iorfida    Added set/get functions for maximum number of
- *                              iterations.
+ *      YYMMDD    Author            Comment
+ *      101111    E. Iorfida        First creation of code.
+ *      101116    E. Iorfida        Added set-get functions.
+ *      101121    E. Iorfida        Added Doxygen comments.
+ *      110111    E. Iorfida        Deleted useless lines, and modified
+ *                                  punctuation.
+ *      110111    K. Kumar          Renamed functions and variables to be
+ *                                  more accurate and descriptive; added
+ *                                  "End of file." comment; added example of
+ *                                  pointer-to-member-function for
+ *                                  LambertTargeter.
+ *      110119    K. Kumar          Updated code to work with adaptor and
+ *                                  abstract base implementation so that
+ *                                  pointer-to-member functions are not
+ *                                  required.
+ *      110124    E. Iorfida        Added set/get functions for maximum number
+ *                                  of iterations.
  */
 
 #ifndef ROOTFINDER_H

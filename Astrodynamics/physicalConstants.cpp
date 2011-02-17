@@ -39,8 +39,8 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      110124    K. Kumar      First creation of code.
+ *      YYMMDD    Author            Comment
+ *      110124    K. Kumar          First creation of code.
  */
 
 // Include directives.

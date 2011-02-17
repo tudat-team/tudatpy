@@ -1,6 +1,6 @@
 /*! \file unitTestPhysicalConstants.h
- *    This unit test will test the physical constants that are
- *    defined in physicalConstants.h.
+ *    This unit test will test the physical constants that are defined in
+ *    physicalConstants.h.
  *
  *    Path              : /Astrodynamics/
  *    Version           : 2
@@ -36,9 +36,9 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      110111    J. Melman           First creation of code.
- *      110111    J. Melman           Adapted to the offical Tudat standards.
+ *      YYMMDD    Author            Comment
+ *      110111    J. Melman         First creation of code.
+ *      110111    J. Melman         Adapted to the offical Tudat standards.
  */
 
 // Include statements.

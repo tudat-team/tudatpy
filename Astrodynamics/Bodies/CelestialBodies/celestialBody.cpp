@@ -33,12 +33,12 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      100906    J. Melman     First creation of code.
- *      100910    J. Melman     No more switch statement and enum.
- *      100929    K. Kumar      Minor comment changes.
- *      110113    K. Kumar      Added getGravityFieldModel() function;
- *                              updated path.
+ *      YYMMDD    Author            Comment
+ *      100906    J. Melman         First creation of code.
+ *      100910    J. Melman         No more switch statement and enum.
+ *      100929    K. Kumar          Minor comment changes.
+ *      110113    K. Kumar          Added getGravityFieldModel() function;
+ *                                  updated path.
  */
 
 // Include statements.

@@ -36,9 +36,9 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      110107    K. Kumar      First creation of code.
- *      110113    K. Kumar      Minor updates to match protocol.
+ *      YYMMDD    Author            Comment
+ *      110107    K. Kumar          First creation of code.
+ *      110113    K. Kumar          Minor updates to match protocol.
  */
 
 #ifndef UNITTESTSPHERICALHARMONICSGRAVITYFIELD_H

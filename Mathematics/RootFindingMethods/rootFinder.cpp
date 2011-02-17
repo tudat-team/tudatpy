@@ -33,17 +33,18 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      101121    E. Iorfida    First creation of code.
- *      110111    E. Iorfida    Deleted useless lines, and modified
- *                              punctuation.
- *      110111    K. Kumar      Minor comment changes; "End of file."
- *                              comment added; changes in .h file updated.
- *      110119    K. Kumar      Updated code to work with adaptor and abstract
- *                              base implementation so that pointer-to-member
- *                              functions are not required.
- *      110124    E. Iorfida    Added set/get functions for maximum number of
- *                              iterations.
+ *      YYMMDD    Author            comment
+ *      101121    E. Iorfida        First creation of code.
+ *      110111    E. Iorfida        Deleted useless lines, and modified
+ *                                  punctuation.
+ *      110111    K. Kumar          Minor comment changes; "End of file."
+ *                                  comment added; changes in .h file updated.
+ *      110119    K. Kumar          Updated code to work with adaptor and
+ *                                  abstract base implementation so that
+ *                                  pointer-to-member functions are not
+ *                                  required.
+ *      110124    E. Iorfida        Added set/get functions for maximum number
+ *                                  of iterations.
  */
 
 // Include statements.

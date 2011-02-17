@@ -33,16 +33,16 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      100914    K. Kumar            File created.
- *      100929    D. Dirkx            File checked.
- *      100929    K. Kumar            Minor corrections to include statements
- *                                    and comments.
- *      110113    K. Kumar            Modified CelestialBody object to pointer;
- *                                    minor comment changes.
- *      110119    K. Kumar            Changed computeStateDerivatives() to
- *                                    computeForce().
- *      110202    K. Kumar            Updated code to make use of State class.
+ *      YYMMDD    Author            Comment
+ *      100914    K. Kumar          File created.
+ *      100929    D. Dirkx          File checked.
+ *      100929    K. Kumar          Minor corrections to include statements
+ *                                  and comments.
+ *      110113    K. Kumar          Modified CelestialBody object to pointer;
+ *                                  minor comment changes.
+ *      110119    K. Kumar          Changed computeStateDerivatives() to
+ *                                  computeForce().
+ *      110202    K. Kumar          Updated code to make use of State class.
  */
 
 #ifndef FORCEMODEL_H

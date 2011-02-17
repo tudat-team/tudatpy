@@ -1,6 +1,6 @@
 /*! \file body.h
- *    This file contains a class that describes bodies, both
- *    celestial bodies and vehicles, with all their characteristics.
+ *    This file contains a class that describes bodies, both celestial bodies
+ *    and vehicles, with all their characteristics.
  *
  *    Path              : /Astrodynamics/Bodies/
  *    Version           : 3
@@ -33,10 +33,10 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author        comment
- *      100920    J. Melman     First creation of code.
- *      100929    K. Kumar      Minor comment changes.
- *      110115    J. Melman     Added set and get shape model functions.
+ *      YYMMDD    Author            Comment
+ *      100920    J. Melman         First creation of code.
+ *      100929    K. Kumar          Minor comment changes.
+ *      110115    J. Melman         Added set and get shape model functions.
  */
 
 #ifndef BODY_H
