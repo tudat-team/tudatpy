@@ -104,6 +104,18 @@ public:
      */
     ~PropagatorDataContainer( );
 
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param pointerToPropagatorDataContainer Pointer to propagator data
+     *          container.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     PropagatorDataContainer*
+                                     pointerToPropagatorDataContainer );
+
 protected:
 
 private:

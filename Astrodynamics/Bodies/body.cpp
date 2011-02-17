@@ -48,6 +48,11 @@ Body::Body( )
 {
 }
 
+//! Default destructor.
+Body::~Body( )
+{
+}
+
 //! Sets the shape model.
 void Body::setShapeModel( GeometricShape* bodyGeometricShape )
 {

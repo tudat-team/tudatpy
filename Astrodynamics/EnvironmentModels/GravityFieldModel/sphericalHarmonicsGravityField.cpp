@@ -51,8 +51,9 @@
 // Include statements.
 #include "sphericalHarmonicsGravityField.h"
 
-// Using directives.
+// Using declarations.
 using mathematics::raiseToIntegerPower;
+using std::endl;
 
 //! Default constructor.
 SphericalHarmonicsGravityField::SphericalHarmonicsGravityField( )
@@ -154,6 +155,33 @@ Matrix3d SphericalHarmonicsGravityField::
                   * relativePosition_.state.transpose( ) )
                 - ( relativePosition_.state.squaredNorm( )
                     * identityMatrix_ ) );
+}
+
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          SphericalHarmonicsGravityField*
+                          pointerToSphericalHarmonicsGravityField )
+{
+    stream << "This is a SphericalHarmonicsGravityField object." << endl;
+    stream << "The gravitational parameter is set to: "
+           << pointerToSphericalHarmonicsGravityField
+                ->getGravitationalParameter( ) << endl;
+    stream << "The origin of the gravity field is set to: "
+           << pointerToSphericalHarmonicsGravityField->getOrigin( ) << endl;
+    stream << "The degree of expansion of the spherical harmonics series is "
+           << "set to : "
+           << pointerToSphericalHarmonicsGravityField
+                ->getDegreeOfExpansion( ) << endl;
+    stream << "The order of expansion of the spherical harmonics series is "
+           << "set to: "
+           << pointerToSphericalHarmonicsGravityField
+                ->getOrderOfExpansion( ) << endl;
+    stream << "The reference radius is set to: "
+           << pointerToSphericalHarmonicsGravityField
+                ->getReferenceRadius( ) << endl;
+
+    // Return stream.
+    return stream;
 }
 
 // End of file.

@@ -42,6 +42,9 @@
 // Include statements.
 #include "propagatorDataContainer.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 PropagatorDataContainer::PropagatorDataContainer( )
 {
@@ -66,6 +69,23 @@ PropagatorDataContainer::~PropagatorDataContainer( )
         delete iteratorPropagationHistory_->second;
     }
 
+}
+
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          PropagatorDataContainer*
+                          pointerToPropagatorDataContainer )
+{
+    stream << "This is a PropagatorDataContainer object." << endl;
+    stream << "The initial state is set to: "
+           << pointerToPropagatorDataContainer->pointerToInitialState_ << endl;
+    stream << "The current state is set to: "
+           << pointerToPropagatorDataContainer->pointerToCurrentState_ << endl;
+    stream << "The final state is set to: "
+           << pointerToPropagatorDataContainer->pointerToFinalState_ << endl;
+
+    // Return stream.
+    return stream;
 }
 
 // End of file.

@@ -92,6 +92,17 @@ public:
      */
     void execute( );
 
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param pointerToNewtonRaphson Pointer to Newton-Raphson.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     NewtonRaphson*
+                                     pointerToNewtonRaphson );
+
 protected:
 
 private:
