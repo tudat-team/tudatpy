@@ -152,6 +152,18 @@ public:
     Matrix3d getLaplacianOfPotential( CartesianPositionElements*
                                       pointerToPosition );
 
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param pointerToSphericalHarmonicsGravityField Pointer to
+     *          spherical harmonics gravity field.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     SphericalHarmonicsGravityField*
+                                     pointerToSphericalHarmonicsGravityField );
+
 protected:
 
 private:

@@ -43,6 +43,7 @@
 #define BODY_H
 
 // Include statements.
+#include <iostream>
 #include "geometricShape.h"
 
 //! Body base class.
@@ -58,6 +59,12 @@ public:
      * Default constructor.
      */
     Body( );
+
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    ~Body( );
 
     //! Sets the shape model.
     /*!

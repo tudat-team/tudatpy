@@ -44,6 +44,9 @@
 // Include statements.
 #include "celestialBody.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 CelestialBody::CelestialBody( )
 {
@@ -70,5 +73,18 @@ GravityFieldModel* CelestialBody::getGravityFieldModel( )
  {
      return pointerToGravityFieldModel_;
  }
+
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          CelestialBody* pointerToCelestialBody )
+{
+    stream << "This is a CelestialBody object." << endl;
+    stream << "The gravitational parameter is set to: "
+           << pointerToCelestialBody->getGravitationalParameter( )
+           << endl;
+
+    // Return stream.
+    return stream;
+}
 
 // End of file.

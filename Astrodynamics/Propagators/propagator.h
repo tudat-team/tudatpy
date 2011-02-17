@@ -184,7 +184,7 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param pointerToPropagator Pointer to Propagator.
+     * \param pointerToPropagator Pointer to propagator.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,

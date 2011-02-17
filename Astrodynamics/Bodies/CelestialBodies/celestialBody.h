@@ -84,6 +84,16 @@ public:
      */
      GravityFieldModel* getGravityFieldModel( );
 
+     //! Overload ostream to print class information.
+     /*!
+      * Overloads ostream to print class information.
+      * \param stream Stream object.
+      * \param pointerToCelestialBody Pointer to Celestial body.
+      * \return Stream object.
+      */
+     friend std::ostream& operator<<( std::ostream& stream,
+                                      CelestialBody* pointerToCelestialBody );
+
 protected:
 
     //! Gravity field parameters.
