@@ -1,45 +1,46 @@
 /*! \file lawgsPartGeometry.h
- *  This file contains the definition of the LawgsPartGeometry class,
- *  Lawgs is short for Langley Wireframe Geometry Standard and is a geometry
- *  format developed by NASA (see reference) using quadrilateral surface panels.
+ *    This file contains the definition of the LawgsPartGeometry class,
+ *    Lawgs is short for Langley Wireframe Geometry Standard and is a geometry
+ *    format developed by NASA (see reference) using quadrilateral surface
+ *    panels.
  *
- *  Path              : Mathematics/Geometry/
- *  Version           : 1
- *  Check status      : Unchecked
+ *    Path              : /Mathematics/GeometricShapes/
+ *    Version           : 1
+ *    Check status      : Checked
  *
- *  Author            : Dominic Dirkx
- *  Affiliation       : TU Delft
- *  E-mail address    : D.Dirkx@student.tudelft.nl
+ *    Author            : Dominic Dirkx
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
- *  Checker           : J. Melman
- *  Affiliation       : Delft University of Technology
- *  E-mail address    : J.C.P.Melman@tudelft.nl
+ *    Checker           : J. Melman
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
- *  Date created      : 25 November, 2010
- *  Last modified     : 6 February, 2011
+ *    Date created      : 25 November, 2010
+ *    Last modified     : 6 February, 2011
  *
- *  References
- *    "A Desription of the Langley Wireframe Geometry Standard (LaWGS) format",
- *    C.B. Craidon, NASA TECHNICAL MEMORANDUM 85767.
+ *    References
+ *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
+ *          (LaWGS) format, NASA TECHNICAL MEMORANDUM 85767.
  *
- *  Notes
+ *    Notes
  *
- *  Copyright (c) 2010 Delft University of Technology.
+ *    Copyright (c) 2010 Delft University of Technology.
  *
- *  This software is protected by national and international copyright.
- *  Any unauthorized use, reproduction or modification is unlawful and
- *  will be prosecuted. Commercial and non-private application of the
- *  software in any form is strictly prohibited unless otherwise granted
- *  by the authors.
+ *    This software is protected by national and international copyright.
+ *    Any unauthorized use, reproduction or modification is unlawful and
+ *    will be prosecuted. Commercial and non-private application of the
+ *    software in any form is strictly prohibited unless otherwise granted
+ *    by the authors.
  *
- *  The code is provided without any warranty; without even the implied
- *  warranty of merchantibility or fitness for a particular purpose.
+ *    The code is provided without any warranty; without even the implied
+ *    warranty of merchantibility or fitness for a particular purpose.
  *
- *  Changelog
- *    YYMMDD   Author               Comment
- *    101125   D. Dirkx             First version of file.
- *    110127   D. Dirkx             Finalized for code check.
- *    110206   J. Melman            Minor formatting issues.
+ *    Changelog
+ *      YYMMDD    Author            Comment
+ *      101125    D. Dirkx          First version of file.
+ *      110127    D. Dirkx          Finalized for code check.
+ *      110206    J. Melman         Minor formatting issues.
  */
 
 #ifndef LAWGSPARTGEOMETRY_H

@@ -7,7 +7,7 @@
  *    Version           : 3
  *    Check status      : Checked
  *
- *    Author            : Bart Römgens
+ *    Author            : B. Römgens
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : bart.romgens@gmail.com
  *
@@ -76,8 +76,8 @@ using std::endl;
 /*!
  * Executes all unit tests.
  */
-int main() {
-
+int main()
+{
     // Return value, 0 on success, 1 on failure of one or more unit tests.
     int success = 0;
 
@@ -287,12 +287,21 @@ int main() {
     strftime( cptime, 50, "%H:%M:%S", localtime( &now ) );
     std::string time = cptime;
 
-    // Open output file stream for ( unitTestReport.txt ) unit test report.
+    // Generate time and date stamp for report filename YYMMDD_HHMMSS
+    strftime( cptime, 50, "%y%m%d", localtime( &now ) );
+    std::string dateForFile = cptime;
+    strftime( cptime, 50, "%H%M%S", localtime( &now ) );
+    std::string timeForFile = cptime;
+
+    // Open output file stream for ( YYMMDD_HHMMSS_unitTestReport.txt ) unit
+    // test report.
     std::ofstream unitTestReportOutputFile;
-    unitTestReportOutputFile.open("unitTestReport.txt");
-    unitTestReportOutputFile << "Tudat Unit Test Report" << endl;
+    std::string reportFileName = dateForFile + "_" + timeForFile
+                                 + "_unitTestReport.txt";
+    unitTestReportOutputFile.open( reportFileName.c_str( ) );
+    unitTestReportOutputFile << "Tudat Unit Test Report" << std::endl;
     unitTestReportOutputFile << date << ", " << time
-            << endl << endl;
+            << std::endl << std::endl;
 
     // Write unit test results for Mathematics.
     unitTestReportOutputFile << "Mathematics" << endl;

@@ -4,7 +4,7 @@
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -36,9 +36,9 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    author              comment
- *      110110    K. Kumar            File created.
- *      110121    K. Kumar            Updated to comply with new protocol.
+ *      YYMMDD    Author            Comment
+ *      110110    K. Kumar          File created.
+ *      110121    K. Kumar          Updated to comply with new protocol.
  */
 
 // Include statements.
