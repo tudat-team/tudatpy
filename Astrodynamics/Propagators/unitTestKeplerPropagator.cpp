@@ -90,6 +90,7 @@ bool testKeplerPropagator( )
     if ( !twoBodyKeplerData )
     {
           cerr << "Error: file could not be opened" << endl;
+          cerr << absolutePathToBenchmarkData << endl;
     }
 
     // Create propagation history map for benchmark data to be stored in.

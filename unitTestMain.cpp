@@ -4,8 +4,8 @@
  *    A 0 corresponds to success in the report.
  *
  *    Path              : /
- *    Version           : 3
- *    Check status      : Checked
+ *    Version           : 4
+ *    Check status      : Unchecked
  *
  *    Author            : B. Römgens
  *    Affiliation       : Delft University of Technology
@@ -16,7 +16,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 January, 2011
- *    Last modified     : 17 February, 2011
+ *    Last modified     : 29 March, 2011
  *
  *    References
  *
@@ -41,6 +41,7 @@
  *      110125    B. Römgens        File created.
  *      110217    B. Römgens        Added new unit tests for v0.2.
  *      110217    K. Kumar          Minor changes.
+ *      110329    K. Kumar          Added testTextFileReader unit test.
  */
 
 // Include statements.
@@ -67,6 +68,9 @@
 #include "unitTestEscapeAndCapture.h"
 #include "unitTestGravityAssist.h"
 #include "unitTestLambertTargeter.h"
+
+// Input unit test includes
+#include "unitTestTextFileReader.h"
 
 // Using declarations.
 using std::cerr;
@@ -173,6 +177,13 @@ int main()
     bool testLambertTargeter =
             unit_tests::testLambertTargeter( );
 
+    // Run Input unit tests.
+
+    // testTextFileReader: Tests reading in a text file using the readAndStore,
+    // skipLines, and skipLinesStartingWithCharacter functions.
+    bool testTextFileReader =
+            unit_tests::testTextFileReader( );
+
     // Check if all tests were successful and print cerr message stating
     // which test failed, if any.
     if ( testBasicMathematicsFunctions )
@@ -277,6 +288,12 @@ int main()
         success = 1;
     }
 
+    if ( testTextFileReader )
+    {
+        cerr << "testTextFileReader failed!" << endl;
+        success = 1;
+    }
+
     // Generate unit test report file ( unitTestReport.txt ).
 
     // Generate time and date stamp for report.
@@ -345,6 +362,14 @@ int main()
             << "\tGravity Assist" << endl;
     unitTestReportOutputFile << testLambertTargeter
             << "\tLambert Targeter" << endl;
+
+    // Empty line.
+    unitTestReportOutputFile << endl;
+
+    // Write unit test results for Input.
+    unitTestReportOutputFile << "Astrodynamics" << endl;
+    unitTestReportOutputFile << testTextFileReader
+            << "\tPhysical Constants" << endl;
 
     // Return success variable.
     return success;

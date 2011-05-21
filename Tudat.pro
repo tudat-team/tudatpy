@@ -53,6 +53,9 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.cpp \
     Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.cpp \
     Basics/basicFunctions.cpp \
+    Input/textFileReader.cpp \
+    Input/fileReader.cpp \
+    Input/unitTestTextFileReader.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/randomNumberGenerator.cpp \
     Mathematics/unitTestBasicMathematicsFunctions.cpp \
@@ -127,6 +130,9 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.h \
     Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.h \
     Basics/basicFunctions.h \
+    Input/textFileReader.h \
+    Input/fileReader.h \
+    Input/unitTestTextFileReader.h \
     Mathematics/unitConversions.h \
     Mathematics/unitTestUnitConversions.h \
     Mathematics/basicMathematicsFunctions.h \
@@ -175,6 +181,7 @@ INCLUDEPATH += Applications \
     Astrodynamics/MissionSegments/GravityAssist \
     Astrodynamics/MissionSegments/LambertTargeter \
     Basics \
+    Input \
     External/Eigen-2.0.15 \
     Mathematics \
     Mathematics/GeometricShapes \
