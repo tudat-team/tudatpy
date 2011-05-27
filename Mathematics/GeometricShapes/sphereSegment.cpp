@@ -316,25 +316,26 @@ double SphereSegment::getMinimumZenithAngle( )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream, SphereSegment& geometry )
+std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment )
 {
     stream << "This is a sphere segment geometry." << endl;
     stream << "The range of the independent variables are: " << endl;
     stream << "Azimuth angle: "
-            << convertRadiansToDegrees( geometry
-                                        .getMinimumIndependentVariable( 1 ) )
+           << convertRadiansToDegrees( sphereSegment
+                                       .getMinimumIndependentVariable( 1 ) )
            << " degrees to "
-           << convertRadiansToDegrees( geometry
+           << convertRadiansToDegrees( sphereSegment
                                        .getMaximumIndependentVariable( 1 ) )
            << " degrees" << endl;
     stream << "Zenith angle: "
-            << convertRadiansToDegrees( geometry
-                                        .getMinimumIndependentVariable( 2 ) )
-            << " degrees to "
-            << convertRadiansToDegrees( geometry
-                                        .getMaximumIndependentVariable( 2 ) )
-            << " degrees" << endl;
-    stream << "The radius is: " << geometry.getRadius( ) << " meter." << endl;
+           << convertRadiansToDegrees( sphereSegment
+                                       .getMinimumIndependentVariable( 2 ) )
+           << " degrees to "
+           << convertRadiansToDegrees( sphereSegment
+                                       .getMaximumIndependentVariable( 2 ) )
+           << " degrees" << endl;
+    stream << "The radius is: " << sphereSegment.getRadius( ) << " meter."
+           << endl;
 
     // Return stream.
     return stream;

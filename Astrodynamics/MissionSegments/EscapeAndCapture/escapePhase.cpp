@@ -50,5 +50,15 @@ EscapePhase::~EscapePhase( )
 {
 }
 
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream, EscapePhase& escapePhase )
+{
+    stream << "The computed delta-V is: "
+           << escapePhase.computeDeltaV( ) << std::endl;
+
+    // Return stream.
+    return stream;
+}
+
 // End of file.
 

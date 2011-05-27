@@ -2,7 +2,7 @@
  *    This source file contains the Keplerian elements class included in Tudat.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Checker           : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 22 October, 2010
- *    Last modified     : 2 December, 2010
+ *    Last modified     : 10 March, 2011
  *
  *    References
  *
@@ -39,6 +39,8 @@
  *      101130    E. Iorfida        Added set function for semi-latus rectum.
  *      101202    J. Melman         Only setting the state_ vector now, 6
  *                                  private Keplerian elements not used anymore.
+ *      110310    K. Kumar          Changed right ascension of ascending node
+ *                                  to longitude of ascending node.
  */
 
 // Include statements.
@@ -80,11 +82,11 @@ void KeplerianElements::setArgumentOfPeriapsis( const double& argumentOfPeriapsi
     state( 3 ) = argumentOfPeriapsis;
 }
 
-//! Set right ascension of ascending node.
-void KeplerianElements::setRightAscensionOfAscendingNode( const double&
-                                                          rightAscensionOfAscendingNode )
+//! Set longitude of ascending node.
+void KeplerianElements::setLongitudeOfAscendingNode( const double&
+                                                          longitudeOfAscendingNode )
 {
-    state( 4 ) = rightAscensionOfAscendingNode;
+    state( 4 ) = longitudeOfAscendingNode;
 }
 
 //! Set true anomaly.
@@ -123,8 +125,8 @@ double& KeplerianElements::getArgumentOfPeriapsis( )
     return state( 3 );
 }
 
-//! Get right ascension of ascending node.
-double& KeplerianElements::getRightAscensionOfAscendingNode( )
+//! Get longitude of ascending node.
+double& KeplerianElements::getLongitudeOfAscendingNode( )
 {
     return state( 4 );
 }
@@ -148,13 +150,13 @@ double KeplerianElements::getSemiLatusRectum( )
 //! Get longitude of periapsis.
 double KeplerianElements::getLongitudeOfPeriapsis( )
 {
-    return getArgumentOfPeriapsis( ) + getRightAscensionOfAscendingNode( );
+    return getArgumentOfPeriapsis( ) + getLongitudeOfAscendingNode( );
 }
 
 //! Get true longitude.
 double KeplerianElements::getTrueLongitude( )
 {
-    return getArgumentOfPeriapsis( ) + getRightAscensionOfAscendingNode( )
+    return getArgumentOfPeriapsis( ) + getLongitudeOfAscendingNode( )
             + getTrueAnomaly( );
 }
 

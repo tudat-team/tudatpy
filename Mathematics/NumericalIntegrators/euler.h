@@ -72,6 +72,15 @@ public:
      */
     ~Euler( );
 
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param euler Euler integrator.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream, Euler& euler );
+
 protected:
 
 private:

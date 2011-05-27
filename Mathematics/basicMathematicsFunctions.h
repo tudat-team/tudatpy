@@ -3,7 +3,7 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -27,7 +27,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 2 February, 2011
+ *    Last modified     : 11 April, 2011
  *
  *    References
  *
@@ -57,6 +57,8 @@
  *      110111    J. Melman           Added computeModulo() function.
  *      110202    K. Kumar            Added overload for State* for
  *                                    computeLinearInterpolation();
+ *      110411    K. Kumar            Added convertCartesianToSpherical()
+ *                                    function.
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
@@ -178,6 +180,22 @@ void convertSphericalToCartesian( const double& radius,
                                   const double& azimuthAngle,
                                   const double& zenithAngle,
                                   VectorXd& cartesianCoordinates );
+
+//! Convert cartesian to spherical coordinates.
+/*!
+* Converts cartesian to spherical coordinates.
+* Schematic representation can be found on, e.g.,
+* http://mathworld.wolfram.com/SphericalCoordinates.html.
+* The transformation equations are the following, with \f$ r \f$ the radius,
+* \f$ \theta \f$ the azimuth angle and \f$ \phi \f$ the azimuth angle:
+* \f{eqnarray*}{
+*      r &=& \sqrt{ x^{ 2 } + y^{ 2 } + z^{ 2 } } \\
+*      \theta &=& \arctan\frac{ y }{ x } \\
+*      \phi &=& \arccos\frac{ z }{ r } \\
+* \f}
+*/
+void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
+                                  VectorXd& sphericalCoordinates );
 
 //! Convert cylindrical to cartesian coordinates, z value unaffected.
 /*!

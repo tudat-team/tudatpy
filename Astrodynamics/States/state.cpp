@@ -56,9 +56,10 @@ State::~State( )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream, State* pointerToState )
+std::ostream& operator<<( std::ostream& stream, State& stateObject )
 {
-    stream << "The state is set to: " << pointerToState->state << endl;
+    stream << "The state is set to: " << endl;
+    stream << stateObject.state << endl;
 
     // Return stream.
     return stream;

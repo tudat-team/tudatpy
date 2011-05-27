@@ -1,7 +1,7 @@
 /*! \file gravityFieldModel.h
  *    Header file that defines the gravity field model included in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModel/
+ *    Path              : /Astrodynamics/EnvironmentModels/
  *    Version           : 4
  *    Check status      : Checked
  *

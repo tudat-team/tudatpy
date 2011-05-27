@@ -331,15 +331,14 @@ const double& GravityAssist::computeDeltaV( )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          GravityAssist* pointerToGravityAssist )
+std::ostream& operator<<( std::ostream& stream, GravityAssist& gravityAssist )
 {
     stream << "The incoming velocity is set to: "
-           << pointerToGravityAssist->pointerToIncomingVelocity_
+           << gravityAssist.pointerToIncomingVelocity_
            << "The outgoing velocity is set to: "
-           << pointerToGravityAssist->pointerToOutgoingVelocity_
+           << gravityAssist.pointerToOutgoingVelocity_
            << "The computed delta-V is: "
-           << pointerToGravityAssist->computeDeltaV( ) << endl;
+           << gravityAssist.computeDeltaV( ) << endl;
 
     // Return stream.
     return stream;

@@ -9,7 +9,7 @@ TEMPLATE = app
 SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.cpp \
-    Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.cpp \
+    Astrodynamics/Bodies/CelestialBodies/predefinedCelestialBodies.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
@@ -30,6 +30,9 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
     Astrodynamics/Propagators/unitTestNumericalPropagator.cpp \
     Astrodynamics/Propagators/unitTestKeplerPropagator.cpp \
+    Astrodynamics/States/approximatePlanetPositionsDataContainer.cpp \
+    Astrodynamics/States/approximatePlanetPositions.cpp \
+    Astrodynamics/States/ephemeris.cpp \
     Astrodynamics/States/state.cpp \
     Astrodynamics/States/orbitalElements.cpp \
     Astrodynamics/States/orbitalElementConversions.cpp \
@@ -40,6 +43,7 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/States/convertMeanAnomalyBase.cpp \
     Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.cpp \
     Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp \
+    Astrodynamics/States/unitTestApproximatePlanetPositions.cpp \
     Astrodynamics/States/unitTestKeplerianElements.cpp \
     Astrodynamics/States/unitTestCartesianElements.cpp \
     Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
@@ -83,8 +87,8 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Output/writingOutputToFile.cpp
 HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Bodies/body.h \
-    Astrodynamics/Bodies/CelestialBodies/predefinedPlanets.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
+    Astrodynamics/Bodies/CelestialBodies/predefinedCelestialBodies.h \
     Astrodynamics/Bodies/Vehicles/vehicle.h \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h \
     Astrodynamics/EnvironmentModels/environmentModel.h \
@@ -107,6 +111,9 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Propagators/numericalPropagator.h \
     Astrodynamics/Propagators/unitTestNumericalPropagator.h \
     Astrodynamics/Propagators/unitTestKeplerPropagator.h \
+    Astrodynamics/States/approximatePlanetPositions.h \
+    Astrodynamics/States/approximatePlanetPositionsDataContainer.h \
+    Astrodynamics/States/ephemeris.h \
     Astrodynamics/States/state.h \
     Astrodynamics/States/orbitalElements.h \
     Astrodynamics/States/orbitalElementConversions.h \
@@ -117,6 +124,7 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/States/convertMeanAnomalyBase.h \
     Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h \
     Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.h \
+    Astrodynamics/States/unitTestApproximatePlanetPositions.h \
     Astrodynamics/States/unitTestKeplerianElements.h \
     Astrodynamics/States/unitTestCartesianElements.h \
     Astrodynamics/States/unitTestOrbitalElementConversions.h \
@@ -181,8 +189,8 @@ INCLUDEPATH += Applications \
     Astrodynamics/MissionSegments/GravityAssist \
     Astrodynamics/MissionSegments/LambertTargeter \
     Basics \
-    Input \
     External/Eigen-2.0.15 \
+    Input \
     Mathematics \
     Mathematics/GeometricShapes \
     Mathematics/LinearAlgebra \

@@ -59,9 +59,9 @@ using unit_conversions::convertDegreesToRadians;
 namespace unit_tests
 {
 
-//! Test of Keplerian elements state class.
+//! Test Keplerian elements state class.
 /*!
- * Test of Keplerian elements state class.
+ * Tests Keplerian elements state class.
  * \return Boolean indicating success of test
  * ( false = successful; true = failed ).
  */

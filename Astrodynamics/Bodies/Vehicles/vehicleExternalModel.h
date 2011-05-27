@@ -83,10 +83,13 @@ public:
     */
     GeometricShape* getVehicleExternalGeometry( );
 
-    //! Overloaded ostream to print class information.
+    //! Overload ostream to print class information.
     /*!
-     *  Overloaded ostream to print class information; prints whether a
-     *  surface geometry has been set.
+     * Overloads ostream to print class information; prints whether a
+     * surface geometry has been set.
+     * \param stream Stream object.
+     * \param vehicleExternalModel Vehicle external model.
+     * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      VehicleExternalModel& vehicleExternalModel );

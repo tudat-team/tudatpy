@@ -2,8 +2,8 @@
  *    Header file that defines a namespace containing pre-defined gravity field
  *    models.
  *
- *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 8
+ *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Version           : 10
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 16 November, 2010
- *    Last modified     : 28 January, 2011
+ *    Last modified     : 21 April, 2011
  *
  *    References
  *
@@ -33,21 +33,23 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      101116    K. Kumar            File created.
- *      101208    K. Kumar            Added predefined Earth central body
- *                                    gravity field.
- *      101215    K. Kumar            Removed createPredefinedPlanet function;
- *                                    not functioning correctly. Added
- *                                    predefined Earth central body gravity
- *                                    field.
- *      110106    K. Kumar            Created new functions and split between
- *                                    .h and .cpp files.
- *      110107    J. Melman           Changed centralBodyGravityField into
- *                                    centralGravityField.
- *      110107    K. Kumar            Change enum and updated code.
- *      110114    J. Melman           Corrected Doxygen comments.
- *      110128    K. Kumar            Added Mars central gravity field.
+ *      YYMMDD    Author            Comment
+ *      101116    K. Kumar          File created.
+ *      101208    K. Kumar          Added predefined Earth central body
+ *                                  gravity field.
+ *      101215    K. Kumar          Removed createPredefinedCelestialBody function;
+ *                                  not functioning correctly. Added
+ *                                  predefined Earth central body gravity
+ *                                  field.
+ *      110106    K. Kumar          Created new functions and split between
+ *                                  .h and .cpp files.
+ *      110107    J. Melman         Changed centralBodyGravityField into
+ *                                  centralGravityField.
+ *      110107    K. Kumar          Change enum and updated code.
+ *      110114    J. Melman         Corrected Doxygen comments.
+ *      110128    K. Kumar          Added Mars central gravity field.
+ *      110310    K. Kumar          Added Sun central gravity field.
+ *      110421    E. Iorfida        Added Jupiter and Venus central gravity fields.
  */
 
 #ifndef PREDEFINEDGRAVITYFIELDMODELS_H
@@ -75,7 +77,10 @@ namespace predefined_gravity_field_models
 enum BodiesWithPredefinedGravityFields
 {
     earth,
-    mars
+    mars,
+    sun,
+    jupiter,
+    venus
 };
 
 //! Create predefined central gravity field.

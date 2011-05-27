@@ -3,7 +3,7 @@
  *    with all their characteristics.
  *
  *    Path              : /Astrodynamics/Bodies/CelestialBodies/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 6 September, 2010
- *    Last modified     : 13 January, 2011
+ *    Last modified     : 10 March, 2011
  *
  *    References
  *
@@ -39,6 +39,7 @@
  *      100929    K. Kumar          Minor comment changes.
  *      110113    K. Kumar          Added getGravityFieldModel() function;
  *                                  updated path.
+ *      110310    K. Kumar          Added ephemeris; added missing destructor.
  */
 
 // Include statements.
@@ -52,13 +53,33 @@ CelestialBody::CelestialBody( )
 {
 }
 
+//! Default destructor.
+CelestialBody::~CelestialBody( )
+{
+}
+
+//! Set ephemeris.
+void CelestialBody::setEphemeris( Ephemeris* pointerToEphemeris )
+{
+    // Set ephemeris.
+    pointerToEphemeris_ = pointerToEphemeris;
+}
+
 //! Set gravity field model.
 void CelestialBody::setGravityFieldModel( GravityFieldModel*
-                                          pointerToGravityFieldModel)
+                                          pointerToGravityFieldModel )
 
 {
     // Set gravity field model.
     pointerToGravityFieldModel_ = pointerToGravityFieldModel;
+}
+
+//! Get state from ephemeris at given Julian date.
+CartesianElements* CelestialBody::getStateFromEphemeris( const double&
+                                                         julianDate )
+{
+    // Return state from ephemeris.
+    return pointerToEphemeris_->getStateFromEphemeris( julianDate );
 }
 
 //! Get gravitational parameter.
@@ -68,20 +89,27 @@ const double CelestialBody::getGravitationalParameter( ) const
     return pointerToGravityFieldModel_->getGravitationalParameter( );
 }
 
+//! Get ephemeris.
+Ephemeris* CelestialBody::getEphemeris( )
+{
+    // Return ephemeris.
+    return pointerToEphemeris_;
+}
+
 //! Get gravity field model.
 GravityFieldModel* CelestialBody::getGravityFieldModel( )
- {
-     return pointerToGravityFieldModel_;
- }
+{
+    // Return gravity field model.
+    return pointerToGravityFieldModel_;
+}
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
-                          CelestialBody* pointerToCelestialBody )
+                          CelestialBody& celestialBody )
 {
     stream << "This is a CelestialBody object." << endl;
     stream << "The gravitational parameter is set to: "
-           << pointerToCelestialBody->getGravitationalParameter( )
-           << endl;
+           << celestialBody.getGravitationalParameter( ) << endl;
 
     // Return stream.
     return stream;

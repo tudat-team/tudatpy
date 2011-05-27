@@ -319,4 +319,18 @@ void KeplerPropagator::propagate( )
     }
 }
 
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          KeplerPropagator& keplerPropagator )
+{
+    stream << "This is a KeplerPropagator object." << endl;
+    stream << "The start of the propagation interval is set to: " << endl;
+    stream << keplerPropagator.getPropagationIntervalStart( ) << endl;
+    stream << "The end of the propagation interval is set to: " << endl;
+    stream << keplerPropagator.getPropagationIntervalEnd( ) << endl;
+
+    // Return stream.
+    return stream;
+}
+
 // End of file.

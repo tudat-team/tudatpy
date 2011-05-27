@@ -88,9 +88,9 @@ void executeEarthOrbitingSatelliteExample( )
     Vehicle* pointerToAsterix = new Vehicle;
 
     // Create pre-defined Earth object.
-    CelestialBody* pointerToEarth = predefined_planets::
-                                    createPredefinedPlanet(
-                                            predefined_planets::earth );
+    CelestialBody* pointerToEarth = predefined_celestial_bodies::
+                                    createPredefinedCelestialBody(
+                                            predefined_celestial_bodies::earth );
 
     // Create a pointer to a new Gravity object for Earth.
     Gravity* pointerToEarthGravity = new Gravity;

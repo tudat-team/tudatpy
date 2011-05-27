@@ -172,15 +172,4 @@ double& EscapeAndCapture::computeDeltaV( )
     return deltaV_;
 }
 
-//! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          EscapeAndCapture* pointerToEscapeAndCapture )
-{
-    stream << "The computed delta-V is: "
-           << pointerToEscapeAndCapture->computeDeltaV( ) << endl;
-
-    // Return stream.
-    return stream;
-}
-
 // End of file.

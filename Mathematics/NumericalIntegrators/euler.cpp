@@ -91,4 +91,23 @@ void Euler::computeNextState_( const double& stepsize )
               + stepsize * stateDerivative_.state;
 }
 
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream, Euler& euler )
+{
+    stream << "This is an Euler object" << endl;
+    stream << "The initial state is set to: " << endl;
+    stream << euler.getInitialState( )->state << endl;
+    stream << "The stepsize is set to: "
+           << euler.getStepsize( ) << endl;
+    stream << "The start of the integration interval is set to: "
+           << euler.getIntegrationIntervalStart( ) << endl;
+    stream << "The end of the integration interval is set to: "
+           << euler.getIntegrationIntervalEnd( ) << endl;
+    stream << "The number of integration steps required is: "
+           << euler.getNumberOfIntegrationSteps( ) << endl;
+
+    // Return stream.
+    return stream;
+}
+
 // End of file.

@@ -55,9 +55,9 @@
 namespace unit_tests
 {
 
-//! Test of Cartesian elements state class.
+//! Test Cartesian elements state class.
 /*!
- * Test of Cartesian elements state class.
+ * Tests Cartesian elements state class.
  * \return Boolean indicating success of test
  * ( false = successful; true = failed ).
  */

@@ -3,10 +3,11 @@
  *    containing all basic mathematics functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
- *    Author            : B. Romgens *    Affiliation       : Delft University of Technology
+ *    Author            : B. Romgens
+ *    Affiliation       : Delft University of Technology
  *    E-mail address    : bart.romgens@gmail.com
  *
  *    Checker           : K. Kumar
@@ -14,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 7 February, 2011
- *    Last modified     : 15 February, 2011
+ *    Last modified     : 11 April, 2011
  *
  *    References
  *
@@ -33,9 +34,11 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110207    B. Romgens       File created.
+ *      110207    B. Romgens        File created.
  *      110215    K. Kumar          Minor modifications to layout, comments
  *                                  and variable-naming.
+ *      110411    K. Kumar          Added unit test for
+ *                                  convertCartesianToSpherical() function.
  */
 
 // Include statements.
@@ -51,6 +54,7 @@ using mathematics::computeModulo;
 using mathematics::convertCylindricalToCartesian;
 using mathematics::convertSphericalToCartesian;
 using mathematics::computeLinearInterpolation;
+using mathematics::convertCartesianToSpherical;
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -381,10 +385,122 @@ bool testBasicMathematicsFunctions( )
         isBasicMathematicsFunctionsErroneous = true;
     }
 
+    // Test conversion from Cartesian to spherical coordinates.
+    // Test 24: Test conversion of: ( 0.0, 0.0, 0.0 ).
+    // Test 25: Test conversion of: ( 2.0, 3.5, -4.1 ).
+    // Test 26: Test conversion of: ( 5.2, -6.3, 0.0 ).
+    // Test 27: Test conversion of: ( 0.0, 12.2, -0.9 ).
+
+    // Cartesian coordinates.
+    VectorXd cartesianCoordinatesTest24_( 3 );
+    cartesianCoordinatesTest24_.Zero( 3 );
+
+    VectorXd cartesianCoordinatesTest25_( 3 );
+    cartesianCoordinatesTest25_( 0 ) = 2.0;
+    cartesianCoordinatesTest25_( 1 ) = 3.5;
+    cartesianCoordinatesTest25_( 2 ) = -4.1;
+
+    VectorXd cartesianCoordinatesTest26_( 3 );
+    cartesianCoordinatesTest26_( 0 ) = 5.2;
+    cartesianCoordinatesTest26_( 1 ) = -6.3;
+    cartesianCoordinatesTest26_( 2 ) = 0.0;
+
+    VectorXd cartesianCoordinatesTest27_( 3 );
+    cartesianCoordinatesTest27_( 0 ) = 0.0;
+    cartesianCoordinatesTest27_( 1 ) = 12.2;
+    cartesianCoordinatesTest27_( 2 ) = -0.9;
+
+    // Expected vectors in spherical coordinates.
+    VectorXd expectedSphericalCoordinatesTest24_( 3 );
+    expectedSphericalCoordinatesTest24_.Zero( 3 );
+
+    VectorXd expectedSphericalCoordinatesTest25_( 3 );
+    expectedSphericalCoordinatesTest25_( 0 )
+            = sqrt( pow( cartesianCoordinatesTest25_( 0 ), 2.0 )
+                    + pow( cartesianCoordinatesTest25_( 1 ), 2.0 )
+                    + pow( cartesianCoordinatesTest25_( 2 ), 2.0 ) );
+    expectedSphericalCoordinatesTest25_( 1 )
+            = atan2( cartesianCoordinatesTest25_( 1 ),
+                     cartesianCoordinatesTest25_( 0 ) );
+    expectedSphericalCoordinatesTest25_( 2 )
+            = acos( cartesianCoordinatesTest25_( 2 ) /
+                     expectedSphericalCoordinatesTest25_( 0 ) );
+
+    VectorXd expectedSphericalCoordinatesTest26_( 3 );
+    expectedSphericalCoordinatesTest26_( 0 )
+            = sqrt( pow( cartesianCoordinatesTest26_( 0 ), 2.0 )
+                    + pow( cartesianCoordinatesTest26_( 1 ), 2.0 )
+                    + pow( cartesianCoordinatesTest26_( 2 ), 2.0 ) );
+    expectedSphericalCoordinatesTest26_( 1 )
+            = atan2( cartesianCoordinatesTest26_( 1 ),
+                     cartesianCoordinatesTest26_( 0 ) );
+    expectedSphericalCoordinatesTest26_( 2 )
+            = acos( cartesianCoordinatesTest26_( 2 ) /
+                     expectedSphericalCoordinatesTest26_( 0 ) );
+
+    VectorXd expectedSphericalCoordinatesTest27_( 3 );
+    expectedSphericalCoordinatesTest27_( 0 )
+            = sqrt( pow( cartesianCoordinatesTest27_( 0 ), 2.0 )
+                    + pow( cartesianCoordinatesTest27_( 1 ), 2.0 )
+                    + pow( cartesianCoordinatesTest27_( 2 ), 2.0 ) );
+    expectedSphericalCoordinatesTest27_( 1 )
+            = atan2( cartesianCoordinatesTest27_( 1 ),
+                     cartesianCoordinatesTest27_( 0 ) );
+    expectedSphericalCoordinatesTest27_( 2 )
+            = acos( cartesianCoordinatesTest27_( 2 ) /
+                     expectedSphericalCoordinatesTest27_( 0 ) );
+
+    // Result vector in spherical coordinates.
+    VectorXd sphericalCoordinates_( 3 );
+
+    // Test 24: Test conversion of: ( 0.0, 0.0, 0.0 ).
+    VectorXd differences_( 3 );
+    differences_ = sphericalCoordinates_ - expectedSphericalCoordinatesTest24_;
+    convertCartesianToSpherical( cartesianCoordinatesTest24_, sphericalCoordinates_ );
+
+    if ( differences_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The convertCartesianToSpherical, function does not "
+             << "function correctly. ( Test 24 )." << endl;
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    // Test 25: Test conversion of: ( 2.0, 3.5, -4.1 ).
+    convertCartesianToSpherical( cartesianCoordinatesTest25_, sphericalCoordinates_ );
+    differences_ = sphericalCoordinates_ - expectedSphericalCoordinatesTest25_;
+
+    if ( differences_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The convertCartesianToSpherical, function does not "
+             << "function correctly. ( Test 25 )." << endl;
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    // Test 26: Test conversion of: ( 5.2, -6.3, 0.0 ).
+    convertCartesianToSpherical( cartesianCoordinatesTest26_, sphericalCoordinates_ );
+    differences_ = sphericalCoordinates_ - expectedSphericalCoordinatesTest26_;
+
+    if ( differences_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The convertCartesianToSpherical, function does not "
+             << "function correctly. ( Test 26 )." << endl;
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    // Test 27: Test conversion of: ( 0.0, 12.2, -0.9 ).
+    convertCartesianToSpherical( cartesianCoordinatesTest27_, sphericalCoordinates_ );
+    differences_ = sphericalCoordinates_ - expectedSphericalCoordinatesTest27_;
+
+    if ( differences_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The convertCartesianToSpherical, function does not "
+             << "function correctly. ( Test 27 )." << endl;
+        isBasicMathematicsFunctionsErroneous = true;
+    }
 
     // Test linear interpolation from independent and dependent vectors.
-    // Test 24: Test vector data with expected result of 0.0.
-    // Test 25: Test vector data with expected result of -20.5
+    // Test 28: Test vector data with expected result of 0.0.
+    // Test 29: Test vector data with expected result of -20.5
 
     // Declare variables.
     // Vectors of data.
@@ -445,7 +561,7 @@ bool testBasicMathematicsFunctions( )
 
     // Test linear interpolation with map of vectors with keys as
     // independent variable.
-    // Test 26: Test map of data.
+    // Test 30: Test map of data.
 
     // Declare map of data and vectors for map value.
     std::map < double, VectorXd > sortedIndepedentAndDependentVariables;
@@ -496,7 +612,7 @@ bool testBasicMathematicsFunctions( )
 
 
     // Test linear interpolation with map of States.
-    // Test 27: Test run using three states. Interpolation between the first
+    // Test 31: Test run using three states. Interpolation between the first
     // and second, and second and third tested. An extrapolation is also
     // tested.
 

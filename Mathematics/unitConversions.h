@@ -3,7 +3,7 @@
  *    commonly used in astrodynamics.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 6 September, 2010
- *    Last modified     : 6 September, 2010
+ *    Last modified     : 11 April, 2011
  *
  *    References
  *
@@ -35,6 +35,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      100906    J. Melman         First creation of code.
+ *      110411    K. Kumar          Added convertDegreesToArcminutes() and
+ *                                  convertArcminutesToArcseconds().
  */
 
 #ifndef UNIT_CONVERSIONS_H
@@ -72,6 +74,30 @@ template < typename T >
 T convertDegreesToRadians( T angleInDegrees )
 {
     return angleInDegrees / 180.0 * M_PI;
+}
+
+//! Convert from degrees to arcminutes.
+/*!
+ *  Convert an angle from degrees to arcminutes.
+ *  \param angleInDegrees Angle in degrees.
+ *  \return Angle in arcminutes.
+ */
+template < typename T >
+T convertDegreesToArcminutes( T angleInDegrees )
+{
+    return angleInDegrees * 60.0;
+}
+
+//! Convert from arcminutes to arcseconds.
+/*!
+ *  Convert an angle from arcminutes to arcseconds.
+ *  \param angleInArcminutes Angle in arcminutes.
+ *  \return Angle in arcseconds.
+ */
+template < typename T >
+T convertArcminutesToArcseconds( T angleInArcminutes )
+{
+    return angleInArcminutes * 60.0;
 }
 
 //! Convert from meters to kilometers.

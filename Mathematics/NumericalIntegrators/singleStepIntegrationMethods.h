@@ -79,16 +79,6 @@ public:
      */
     void integrate( );
 
-    //! Overload ostream to print class information.
-    /*!
-     * Overloads ostream to print class information.
-     * \param stream Stream object.
-     * \param pointerToIntegrator Pointer to Integrator.
-     * \return Stream object.
-     */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     Integrator* pointerToIntegrator );
-
 protected:
 
     //! Compute next state.

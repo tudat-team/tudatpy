@@ -63,11 +63,11 @@
 // Include statements.
 #include "unitTestLambertTargeter.h"
 #include "unitConversions.h"
-#include "predefinedPlanets.h"
+#include "predefinedCelestialBodies.h"
 
 // Using directives.
 using mathematics::computeAbsoluteValue;
-using predefined_planets::createPredefinedPlanet;
+using predefined_celestial_bodies::createPredefinedCelestialBody;
 using unit_conversions::convertAstronomicalUnitsToMeters;
 using std::endl;
 using std::cerr;
@@ -114,7 +114,7 @@ bool testLambertTargeter( )
 
     // Central bodies parameters.
     CelestialBody* pointerToEarth = new CelestialBody;
-    pointerToEarth = createPredefinedPlanet( predefined_planets::earth );
+    pointerToEarth = createPredefinedCelestialBody( predefined_celestial_bodies::earth );
 
     // Compute Lambert targeting algorithm.
 

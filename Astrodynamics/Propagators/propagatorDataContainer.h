@@ -3,7 +3,7 @@
  *    the Tudat propagators.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 September, 2010
- *    Last modified     : 5 February, 2011
+ *    Last modified     : 23 February, 2011
  *
  *    References
  *
@@ -53,6 +53,7 @@
  *      110201    K. Kumar          Updated code to make use of State class;
  *                                  changed filename.
  *      110205    K. Kumar          Added note about use of container.
+ *      110223    K. Kumar          Added missing Doxygen comment.
  */
 
 #ifndef PROPAGATORDATACONTAINER_H
@@ -108,13 +109,12 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param pointerToPropagatorDataContainer Pointer to propagator data
-     *          container.
+     * \param propagatorDataContainer Propagator data container.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     PropagatorDataContainer*
-                                     pointerToPropagatorDataContainer );
+                                     PropagatorDataContainer&
+                                     propagatorDataContainer );
 
 protected:
 
@@ -156,6 +156,10 @@ private:
      */
     std::map < double, State* > propagationHistory_;
 
+    //! Iterator for map of propagation history.
+    /*!
+     * Iterator for map of propagation history.
+     */
     std::map < double, State* >::iterator iteratorPropagationHistory_;
 
     //! Vector container of pointers to force models.

@@ -48,7 +48,7 @@
 #include "celestialBody.h"
 #include "gravity.h"
 #include "numericalPropagator.h"
-#include "predefinedPlanets.h"
+#include "predefinedCelestialBodies.h"
 #include "rungeKutta4thOrderFixedStepsize.h"
 #include "unitConversions.h"
 #include "vehicle.h"

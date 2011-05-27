@@ -58,7 +58,7 @@
 
 //! Class for quadrilateral meshed surface geometry.
 /*!
- *  Base class for quadrilateral meshed surface geometry.
+ * Base class for quadrilateral meshed surface geometry.
  */
 class QuadrilateralMeshedSurfaceGeometry : public SingleSurfaceGeometry
 {
@@ -66,69 +66,69 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     * Default constructor.
      */
     QuadrilateralMeshedSurfaceGeometry( );
 
     //! Default destructor.
     /*!
-     *  Default destructor.
+     * Default destructor.
      */
     ~QuadrilateralMeshedSurfaceGeometry( );
 
     //! Function to calculate panel characteristics.
     /*!
-     *  This function calculates the normal, centroid and area of panels in mesh.
+     * This function calculates the normal, centroid and area of panels in mesh.
      */
     void performPanelCalculations( );
 
     //! Function to retrieve a surface point.
     /*!
-     *  Function to retrieve a surface point.
-     *  \param lineIndex Line on which to retrieve point.
-     *  \param pointIndex Point from line to retrieve.
-     *  \return Surface point.
+     * Function to retrieve a surface point.
+     * \param lineIndex Line on which to retrieve point.
+     * \param pointIndex Point from line to retrieve.
+     * \return Surface point.
      */
     Vector3d getMeshPoint( const int& lineIndex, const int& pointIndex );
 
     //! Function to retrieve a panel area.
     /*!
-     *  Function to retrieve a panel area.
-     *  \param lineIndex Line of panels from which to retrieve.
-     *  \param pointIndex Point from line from which to retrieve.
-     *  \return Panel area
+     * Function to retrieve a panel area.
+     * \param lineIndex Line of panels from which to retrieve.
+     * \param pointIndex Point from line from which to retrieve.
+     * \return Panel area
      */
     double getPanelArea( const int& lineIndex, const int& pointIndex );
 
     //! Function to retrieve a panel centroid.
     /*!
-     *  Function to retrieve a panel centroid.
-     *  \param lineIndex Line of panels from which to retrieve.
-     *  \param pointIndex Point from line from which to retrieve.
-     *  \return Panel centroid.
+     * Function to retrieve a panel centroid.
+     * \param lineIndex Line of panels from which to retrieve.
+     * \param pointIndex Point from line from which to retrieve.
+     * \return Panel centroid.
      */
     Vector3d getPanelCentroid( const int& lineIndex, const int& pointIndex );
 
     //! Function to retrieve an outward panel surface normal
     /*!
-     *  Function to retrieve an outward panel surface normal.
-     *  \param lineIndex Line of panels from which to retrieve.
-     *  \param pointIndex Point from line from which to retrieve.
-     *  \return Outward panel surface normal.
+     * Function to retrieve an outward panel surface normal.
+     * \param lineIndex Line of panels from which to retrieve.
+     * \param pointIndex Point from line from which to retrieve.
+     * \return Outward panel surface normal.
      */
     Vector3d getPanelSurfaceNormal( const int& lineIndex, const int& pointIndex );
 
     //! Function to retrieve number of lines.
     /*!
-     *  Function to retrieve number of lines.
-     *  \return Number of lines on mesh.
+     * Function to retrieve number of lines.
+     * \return Number of lines on mesh.
      */
     int getNumberOfLines( );
 
     //! Function to retrieve number of points.
     /*!
-     *  Function to retrieve number of points.
-     *  \return Number of points on mesh.
+     * Function to retrieve number of points.
+     * \return Number of points on mesh.
      */
     int getNumberOfPoints( );
 
@@ -141,76 +141,80 @@ public:
 
     //! Sets reversal operator.
     /*!
-     *  Function set if the panels in the mesh are to be inverted.
-     *  \param isMeshInverted Boolean to denote whether the mesh panels are to
-     *  be inverted.
+     * Function set if the panels in the mesh are to be inverted.
+     * \param isMeshInverted Boolean to denote whether the mesh panels are to
+     * be inverted.
      */
     void setReversalOperator( bool isMeshInverted );
 
     //! Returns a boolean denoting if the mesh is inverted.
     /*!
-     *  Returns a boolean denoting if the mesh is inverted.
-     *  \return Boolean which is true if mesh is inverted, false if not.
+     * Returns a boolean denoting if the mesh is inverted.
+     * \return Boolean which is true if mesh is inverted, false if not.
      */
      bool getReversalOperator( );
 
      //! Overload ostream to print class information.
      /*!
-      *  Overloads ostream to print class information, prints the number of
-      *  lines and points, and the name of the part.
+      * Overloads ostream to print class information, prints the number of
+      * lines and points, and the name of the part.
+      * \param stream Stream object.
+      * \param quadrilateralMeshedSurfaceGeometry Quadrilateral meshed surface
+      *         geometry.
+      * \return Stream object.
       */
      friend std::ostream& operator<<( std::ostream& stream,
                                       QuadrilateralMeshedSurfaceGeometry&
-                                      geometry );
+                                      quadrilateralMeshedSurfaceGeometry );
 
 protected:
 
     //! Number of lines in mesh.
     /*!
-     *  Number of lines in mesh.
+     * Number of lines in mesh.
      */
     int numberOfLines_;
 
     //! Number of points in mesh.
     /*!
-     *  Number of points in mesh.
+     * Number of points in mesh.
      */
     int numberOfPoints_;
 
     //! Variable to denote whether mesh orientation is to be inverted.
     /*!
-     *  Variable to denote whether mesh orientation is to be inverted, -1 if
-     *  it is inverted, 1 if not.
+     * Variable to denote whether mesh orientation is to be inverted, -1 if
+     * it is inverted, 1 if not.
      */
     int reversalOperator_;
 
     //! Mesh points.
     /*!
-     *  2-Dimensional array containing mesh point locations.
+     * 2-Dimensional array containing mesh point locations.
      */
     Vector3d** meshPoints_;
 
     //! Panel centroids.
     /*!
-     *  2-Dimensional array containing panel centroid locations.
+     * 2-Dimensional array containing panel centroid locations.
      */
     Vector3d** panelCentroids_;
 
     //! Panel surface normals.
     /*!
-     *  2-Dimensional array containing outward panel surface normal vectors.
+     * 2-Dimensional array containing outward panel surface normal vectors.
      */
     Vector3d** panelSurfaceNormals_;
 
     //! Panel doubles.
     /*!
-     *  2-Dimensional array containing panel areas.
+     * 2-Dimensional array containing panel areas.
      */
     double** panelAreas_;
 
     //! Total mesh surface area/
     /*!
-     *  Total mesh surface area, contains the sum of all areas in panelAreas_.
+     * Total mesh surface area, contains the sum of all areas in panelAreas_.
      */
     double totalArea_;
 };
