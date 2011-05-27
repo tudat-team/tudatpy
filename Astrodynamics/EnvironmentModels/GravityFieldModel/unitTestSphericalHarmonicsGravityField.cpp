@@ -3,7 +3,7 @@
  *   harmonics gravity field class in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/
- *    Version           : 11
+ *    Version           : 12
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 15 December, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 10 March, 2011
 
  *    References
  *
@@ -52,6 +52,8 @@
  *      110128    K. Kumar          Updated code to work with pointers.
  *      110202    K. Kumar          Updated code to work with State.
  *      110204    K. Kumar          Removed "vector" from naming.
+ *      110310    K. Kumar          Changed naming from Laplacian to gradient
+ *                                  tensor.
  */
 
 // Include statements.
@@ -82,7 +84,7 @@ bool testSphericalHarmonicsGravityField( )
     //         central body gravity field.
     // Test 3: Test getting potential given state.
     // Test 4: Test getting gradient of potential given state.
-    // Test 5: Test getting Laplacian of potential given state.
+    // Test 5: Test getting gradient tensor of potential given state.
 
     // Test result initialised to false.
     bool isSphericalHarmonicsGravityFieldErroneous = false;
@@ -134,7 +136,7 @@ bool testSphericalHarmonicsGravityField( )
 
     // Expected test results.
     double expectedResultForTest1 = gravitationalParameterOfMyPlanet;
-    double expectedResultForTest2 = 398600.4415e9;
+    double expectedResultForTest2 = 398600.4418e9;
     double expectedResultForTest3 = gravitationalParameterOfMyPlanet
                                     / pointerToCartesianPosition
                                     ->state.norm( );
@@ -169,7 +171,7 @@ bool testSphericalHarmonicsGravityField( )
                                       .getGradientOfPotential(
                                               pointerToCartesianPosition );
     Matrix3d computedResultForTest5 = myPlanetGravityField
-                                      .getLaplacianOfPotential(
+                                      .getGradientTensorOfPotential(
                                               pointerToCartesianPosition );
 
     // Compute differences between computed and expected results.
@@ -243,7 +245,7 @@ bool testSphericalHarmonicsGravityField( )
         if ( differenceBetweenResults( 4 ) > MACHINE_PRECISION_DOUBLES )
         {
             cerr << "The computed value ( " << computedResultForTest5
-                 <<  ") for the gravitational Laplacian does not match "
+                 <<  ") for the gravitational gradient tensor does not match "
                  << "the expected solution ( " << expectedResultForTest5
                  << " )." << endl;
             cerr << "The difference is: "

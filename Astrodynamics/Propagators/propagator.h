@@ -56,7 +56,6 @@
 #define PROPAGATOR_H
 
 // Include statements.
-#include <iostream>
 #include <map>
 #include <vector>
 #include "forceModel.h"
@@ -179,16 +178,6 @@ public:
      * This function executes propagation.
      */
     virtual void propagate( ) = 0;
-
-    //! Overload ostream to print class information.
-    /*!
-     * Overloads ostream to print class information.
-     * \param stream Stream object.
-     * \param pointerToPropagator Pointer to propagator.
-     * \return Stream object.
-     */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     Propagator* pointerToPropagator );
 
 protected:
 

@@ -43,6 +43,9 @@
 // Include statements.
 #include "vehicleExternalModel.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 VehicleExternalModel::VehicleExternalModel( )
 {
@@ -71,6 +74,7 @@ GeometricShape* VehicleExternalModel::getVehicleExternalGeometry( )
     {
         return pointerToVehicleGeometry_;
     }
+
     else
     {
         return NULL;
@@ -81,13 +85,13 @@ GeometricShape* VehicleExternalModel::getVehicleExternalGeometry( )
 std::ostream& operator<<( std::ostream& stream,
                           VehicleExternalModel& vehicleExternalModel )
 {
-    stream << "This is an external model, the following properties"<<
-              " have been set:" << std::endl;
+    stream << "This is an external model, the following properties"
+           << " have been set:" << endl;
 
     // Check if external geometry is set and if so, output to stream.
     if ( vehicleExternalModel.isGeometrySet_ == true )
     {
-        stream << "Surface geometry" << std::endl;
+        stream << "Surface geometry" << endl;
     }
 
     // Return stream.

@@ -3,7 +3,7 @@
  *
  *    Path              : /Mathematics/GeometricShapes/
  *    Version           : 3
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : D. Dirkx
  *    Affiliation       : Delft University of Technology

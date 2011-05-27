@@ -53,12 +53,12 @@
 
 // Include statements.
 #include "unitTestGravityAssist.h"
-#include "predefinedPlanets.h"
+#include "predefinedCelestialBodies.h"
 #include "sphereSegment.h"
 
 // Using directives.
 using mathematics::computeAbsoluteValue;
-using predefined_planets::createPredefinedPlanet;
+using predefined_celestial_bodies::createPredefinedCelestialBody;
 using std::endl;
 using std::cerr;
 
@@ -85,7 +85,7 @@ bool testGravityAssist( )
 
     // Define body that is swung by.
     CelestialBody* pointerToMars = new CelestialBody;
-    pointerToMars = createPredefinedPlanet( predefined_planets::mars );
+    pointerToMars = createPredefinedCelestialBody( predefined_celestial_bodies::mars );
 
     // Define Sun gravitational parameter.
     double gravitationalParameterSun = 1.32712440018e20;

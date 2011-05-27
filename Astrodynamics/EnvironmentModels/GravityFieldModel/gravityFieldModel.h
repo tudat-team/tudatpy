@@ -1,8 +1,8 @@
 /*! \file gravityFieldModel.h
  *    Header file that defines the gravity field model included in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 8
+ *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 10 November, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 10 March, 2011
  *
  *    References
  *
@@ -45,6 +45,8 @@
  *      110202    K. Kumar          Updated code to use the
  *                                  CartesianPositionElements class.
  *      110204    K. Kumar          Removed "vector" from naming.
+ *      110310    K. Kumar          Changed naming from Laplacian to gradient
+ *                                  tensor.
  */
 
 #ifndef GRAVITYFIELDMODEL_H
@@ -124,15 +126,16 @@ public:
     virtual Vector3d getGradientOfPotential(
             CartesianPositionElements* pointerToPosition ) = 0;
 
-    //! Get the Laplacian of the potential.
+    //! Get gradient tensor of the potential.
     /*!
-     * Returns the Laplacian of the potential for the gravity field selected.
+     * Returns the gradient tensor of the potential for the gravity field
+     * selected.
      * \param pointerToPosition Position given as a pointer to a
      *          CartesianPositionElements object.
-     * \return Laplacian of potential.
+     * \return Gradient tensor of potential.
      */
-    virtual Matrix3d getLaplacianOfPotential( CartesianPositionElements*
-                                              pointerToPosition ) = 0;
+    virtual Matrix3d getGradientTensorOfPotential( CartesianPositionElements*
+                                                   pointerToPosition ) = 0;
 
 protected:
 

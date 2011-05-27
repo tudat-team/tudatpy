@@ -86,13 +86,15 @@ public:
      */
     VehicleExternalModel* getPointerToExternalModel( );
 
-    //! Overloaded ostream to print class information.
+    //! Overload ostream to print class information.
     /*!
-     *  Overloaded ostream to print class information; prints what
-     *  property models have been set for the vehicle model.
+     * Overloads ostream to print class information; prints what
+     * property models have been set for the vehicle model.
+     * \param stream Stream object.
+     * \param vehicle Vehicle.
+     * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     Vehicle& vehicle );
+    friend std::ostream& operator<<( std::ostream& stream, Vehicle& vehicle );
 
 private:
 

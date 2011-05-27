@@ -2,7 +2,7 @@
  *    Source file of the Lambert targeting solver implemented in Tudat.
  *
  *    Path              : /Astrodynamics/MissionSegments/LambertTargeter/
- *    Version           : 19
+ *    Version           : 20
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 11 November, 2010
- *    Last modified     : 8 February, 2011
+ *    Last modified     : 18 April, 2011
  *
  *    References        :
  *      Gooding, R.H. A procedure for the solution of Lambert's orbital
@@ -87,6 +87,11 @@
  *      110208    E. Iorfida        Added CartesianPositionElements objects as
  *                                  input and CartesianVelocityElements objects
  *                                  as output.
+ *      110418    E. Iorfida        Added a new normal plane that take into account
+ *                                  the case of two parallel position vector (with
+ *                                  a relative angle of 180 degrees).
+ *                                  Better defined the pointers to the output
+ *                                  CartesianVelocityElements.
  */
 
 // Include statementes.
@@ -204,18 +209,18 @@ CartesianVelocityElements* LambertTargeter::getInertialVelocityAtArrival( )
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
-                          LambertTargeter* pointerToLambertTargeter )
+                          LambertTargeter& lambertTargeter )
 {
     stream << "The position vector at departure is set to: "
-            << pointerToLambertTargeter->pointerToCartesianPositionAtDeparture_
+            << lambertTargeter.pointerToCartesianPositionAtDeparture_
             << "The position vector at arrival is set to: "
-            << pointerToLambertTargeter->pointerToCartesianPositionAtArrival_
+            << lambertTargeter.pointerToCartesianPositionAtArrival_
             << "The velocity vector at departure is computed as: "
-            << pointerToLambertTargeter->getInertialVelocityAtDeparture( )
+            << lambertTargeter.getInertialVelocityAtDeparture( )
             << "The velocity vector at departure is computed as: "
-            << pointerToLambertTargeter->getInertialVelocityAtArrival( )
+            << lambertTargeter.getInertialVelocityAtArrival( )
             << "The semi-major axis of the computed arc is: "
-            << pointerToLambertTargeter->getLambertSemiMajorAxis( ) << endl;
+            << lambertTargeter.getLambertSemiMajorAxis( ) << endl;
 
     // Return stream.
     return stream;
@@ -404,12 +409,15 @@ void LambertTargeter::execute( )
 
     // Compute angle between positions.
     double reducedLambertAngle_;
-    Vector3d planeNormal_ = positionAtDeparture_.
-                            cross( positionAtArrival_ ).normalized( );
+
+    Vector3d planeNormalPosition_;
+    planeNormalPosition_ = positionAtDeparture_.
+                  cross( positionAtArrival_ ).normalized( );
+
     reducedLambertAngle_ = determineAngleBetweenVectors( positionAtDeparture_,
                                                          positionAtArrival_ );
 
-    if ( planeNormal_.z( ) < 0.0 )
+    if ( planeNormalPosition_.z( ) < 0.0 )
     {
         reducedLambertAngle_ = 2.0 * M_PI - reducedLambertAngle_;
     }
@@ -624,6 +632,16 @@ void LambertTargeter::execute( )
     Vector3d radialUnitVectorAtDeparture_ = positionAtDeparture_.normalized( );
     Vector3d radialUnitVectorAtArrival_ = positionAtArrival_.normalized( );
 
+    Vector3d unitZVector_;
+    unitZVector_.x( ) = 0.0;
+    unitZVector_.y( ) = 0.0;
+    unitZVector_.z( ) = 1.0;
+
+    Vector3d planeNormal_;
+    planeNormal_ =
+            ( ( positionAtDeparture_.cross( unitZVector_ ) ).cross(
+                    positionAtDeparture_ ) ).normalized( );
+
     // Compute unit vector that is normal to the plane in which the
     // trajectory takes place, and points in the positive z-direction.
     if ( planeNormal_.z( ) < 0 )
@@ -664,19 +682,9 @@ void LambertTargeter::execute( )
     velocityAtArrival_ = radialInertialVelocityAtArrival_ +
                          transverseInertialVelocityAtArrival_;
 
-    pointerToCartesianVelocityAtDeparture_->
-            setCartesianElementXDot( velocityAtDeparture_.x( ) );
-    pointerToCartesianVelocityAtDeparture_->
-            setCartesianElementXDot( velocityAtDeparture_.y( ) );
-    pointerToCartesianVelocityAtDeparture_->
-            setCartesianElementXDot( velocityAtDeparture_.z( ) );
-
-    pointerToCartesianVelocityAtArrival_->
-            setCartesianElementXDot( velocityAtArrival_.x( ) );
-    pointerToCartesianVelocityAtArrival_->
-            setCartesianElementXDot( velocityAtArrival_.y( ) );
-    pointerToCartesianVelocityAtArrival_->
-            setCartesianElementXDot( velocityAtArrival_.z( ) );
+    // Define output velocities.
+    pointerToCartesianVelocityAtDeparture_->state = velocityAtDeparture_;
+    pointerToCartesianVelocityAtArrival_->state = velocityAtArrival_;
 }
 
 // End of file.

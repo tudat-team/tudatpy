@@ -59,7 +59,7 @@
 #include "unitConversions.h"
 #include "celestialBody.h"
 #include "basicMathematicsFunctions.h"
-#include "predefinedPlanets.h"
+#include "predefinedCelestialBodies.h"
 #include "sphericalHarmonicsGravityField.h"
 #include "convertMeanAnomalyToEccentricAnomaly.h"
 #include "convertMeanAnomalyToHyperbolicEccentricAnomaly.h"

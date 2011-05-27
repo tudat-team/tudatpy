@@ -74,6 +74,18 @@ public:
      */
     ~RungeKutta4thOrderFixedStepsize( );
 
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param rungeKutta4thOrderFixedStepsize Runge-Kutta 4th-order
+     *          fixed-stepsize integrator.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     RungeKutta4thOrderFixedStepsize&
+                                     rungeKutta4thOrderFixedStepsize );
+
 protected:
 
 private:

@@ -49,6 +49,7 @@
 #define KEPLERPROPAGATOR_H
 
 // Include statements.
+#include <iostream>
 #include <cmath>
 #include "basicMathematicsFunctions.h"
 #include "body.h"
@@ -108,6 +109,16 @@ public:
      * This function executes propagation.
      */
     void propagate( );
+
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param keplerPropagator Kepler propagator.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     KeplerPropagator& keplerPropagator );
 
 protected:
 

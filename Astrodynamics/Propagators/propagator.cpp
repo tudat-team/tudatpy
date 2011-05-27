@@ -167,17 +167,4 @@ std::map < double, State* >
     return bodiesToPropagate_[ pointerToBody ]->propagationHistory_;
 }
 
-//! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          Propagator* pointerToPropagator )
-{
-    stream << "The start of the propagation interval is set to: " << endl;
-    stream << pointerToPropagator->getPropagationIntervalStart( ) << endl;
-    stream << "The end of the propagation interval is set to: " << endl;
-    stream << pointerToPropagator->getPropagationIntervalEnd( ) << endl;
-
-    // Return stream.
-    return stream;
-}
-
 // End of file.

@@ -44,6 +44,9 @@
 // Include statements.
 #include "vehicle.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 Vehicle::Vehicle( )
 {
@@ -80,13 +83,13 @@ VehicleExternalModel* Vehicle::getPointerToExternalModel( )
 
 std::ostream& operator<<( std::ostream& stream, Vehicle& vehicle )
 {
-    stream << "This is a vehicle; the following properties have been set:"
-           << std::endl;
+    stream << "This is a vehicle; the following properties have been set: "
+           << endl;
 
     // Check if external model is set and if so, output to stream.
     if ( vehicle.isExternalModelSet_ == true )
     {
-        stream << "External model" << std::endl;
+        stream << "External model" << endl;
     }
 
     // Return stream.

@@ -136,17 +136,6 @@ public:
      */
     double& computeDeltaV( );
 
-    //! Overload ostream to print class information.
-    /*!
-     * Overloads ostream to print class information.
-     * \param stream Stream object.
-     * \param pointerToEscapeAndCapture Pointer to Escape and Capture.
-     * \return Stream object.
-     */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     EscapeAndCapture*
-                                     pointerToEscapeAndCapture );
-
 protected:
 
     //! Semi-major axis of parking orbit.

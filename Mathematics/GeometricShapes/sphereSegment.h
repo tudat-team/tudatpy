@@ -212,8 +212,12 @@ public:
     /*!
      * Overloads ostream to print class information, prints the class type,
      * the ranges for the azimuth and zenith angles and the radius.
+     * \param stream Stream object.
+     * \param sphereSegment Sphere segment.
+     * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream, SphereSegment& geometry );
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     SphereSegment& sphereSegment );
 
 protected:
 

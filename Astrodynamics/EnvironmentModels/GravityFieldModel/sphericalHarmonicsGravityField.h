@@ -2,8 +2,8 @@
  *    Header file that defines the spherical harmonics gravity field model
  *    included in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 6
+ *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 16 November, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 10 March, 2011
  *
  *    References
  *
@@ -44,6 +44,8 @@
  *      110202    K. Kumar          Updated code to make use of the
  *                                  CartesianPositionElements class.
  *      110204    K. Kumar          Removed "vector" from naming.
+ *      110310    K. Kumar          Changed naming from Laplacian to gradient
+ *                                  tensor.
  */
 
 #ifndef SPHERICALHARMONICSGRAVITYFIELD_H
@@ -141,28 +143,27 @@ public:
     Vector3d getGradientOfPotential( CartesianPositionElements*
                                      pointerToPosition );
 
-    //! Get the Laplacian of the gravitational potential.
+    //! Get gradient tensor of the gravitational potential.
     /*!
-     * Get the value of the Laplacian of the gravitational potential
+     * Get the value of the gradient tensor of the gravitational potential
      * expressed in spherical harmonics for the given position.
      * \param pointerToPosition Position given as a pointer to a
      *          CartesianPositionElements object.
-     * \return Laplacian of gravitational potential.
+     * \return Gradient tensor of gravitational potential.
      */
-    Matrix3d getLaplacianOfPotential( CartesianPositionElements*
-                                      pointerToPosition );
+    Matrix3d getGradientTensorOfPotential( CartesianPositionElements*
+                                           pointerToPosition );
 
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param pointerToSphericalHarmonicsGravityField Pointer to
-     *          spherical harmonics gravity field.
+     * \param sphericalHarmonicsGravityField Spherical harmonics gravity field.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     SphericalHarmonicsGravityField*
-                                     pointerToSphericalHarmonicsGravityField );
+                                     SphericalHarmonicsGravityField&
+                                     sphericalHarmonicsGravityField );
 
 protected:
 

@@ -2,7 +2,7 @@
  *    This header file contains the Keplerian elements class included in Tudat.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Checker           : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 2 December, 2010
+ *    Last modified     : 10 March, 201`
  *
  *    References
  *
@@ -39,6 +39,8 @@
  *      101110    K. Kumar          Added get functions for auxilliary
  *                                  parameters.
  *      101130    E. Iorfida        Added set function for semi-latus rectum.
+ *      110310    K. Kumar          Changed right ascension of ascending node
+ *                                  to longitude of ascending node.
  */
 
 #ifndef KEPLERIANELEMENTS_H
@@ -96,13 +98,13 @@ public:
      */
     void setArgumentOfPeriapsis( const double& argumentOfPeriapsis );
 
-    //! Sets right ascension of ascending node.
+    //! Sets longitude of ascending node.
     /*!
-     * Set right ascension of ascending node.
-     * \param rightAscensionOfAscendingNode Right ascension of ascending node.
+     * Set longitude of ascending node.
+     * \param longitudeOfAscendingNode Longitude of ascending node.
      */
-    void setRightAscensionOfAscendingNode( const double&
-                                           rightAscensionOfAscendingNode );
+    void setLongitudeOfAscendingNode( const double&
+                                           longitudeOfAscendingNode );
 
     //! Set true anomaly.
     /*!
@@ -149,12 +151,12 @@ public:
      */
     double& getArgumentOfPeriapsis( );
 
-    //! Get right ascension of ascending node.
+    //! Get longitude of ascending node.
     /*!
-     * Get right ascension of ascending node.
-     * \return Right ascension of ascending node.
+     * Get longitude of ascending node.
+     * \return Longitude of ascending node.
      */
-    double& getRightAscensionOfAscendingNode( );
+    double& getLongitudeOfAscendingNode( );
 
     //! Get true anomaly.
     /*!

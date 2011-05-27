@@ -52,6 +52,7 @@ using std::endl;
 namespace unit_tests
 {
 
+//! Test Cartesian elements state class.
 bool testCartesianElements( )
 {
     // Two tests.
@@ -61,7 +62,7 @@ bool testCartesianElements( )
     //         Cartesian elements using getState() function.
 
     // Test result initialised to true.
-    bool isCartesianElements = false;
+    bool isCartesianElementsErroneous = false;
 
     // Create Cartesian elements state objects.
     CartesianElements cartesianElementsStateTest1;
@@ -122,48 +123,45 @@ bool testCartesianElements( )
                                     - vectorOfCartesianElements;
 
     // Set test result to true if the test does not match the expected result.
+
     if ( differenceBetweenResultsTest1.norm( )
-         > mathematics::MACHINE_PRECISION_DOUBLES
-         || differenceBetweenResultsTest2.norm( )
          > mathematics::MACHINE_PRECISION_DOUBLES )
     {
-        isCartesianElements = true;
+        isCartesianElementsErroneous = true;
 
-        if ( differenceBetweenResultsTest1.norm( )
-             > mathematics::MACHINE_PRECISION_DOUBLES )
-        {
-            // Generate error statements.
-            cerr << "The computed value " << endl;
-            cerr << "( " << cartesianElementsStateVectorTest1 << " )" << endl;
-            cerr << "using individual set/get functions for the "
-                 << "CartesianElements class does not match the expected "
-                 << "solution " << endl;
-            cerr << "( " << vectorOfCartesianElements << " )." << endl;
-            cerr << "The difference is: "
-                 << vectorOfCartesianElements -
-                    - cartesianElementsStateVectorTest1 << endl;
-        }
+        // Generate error statements.
+        cerr << "The computed value " << endl;
+        cerr << "( " << cartesianElementsStateVectorTest1 << " )" << endl;
+        cerr << "using individual set/get functions for the "
+             << "CartesianElements class does not match the expected "
+             << "solution " << endl;
+        cerr << "( " << vectorOfCartesianElements << " )." << endl;
+        cerr << "The difference is: "
+             << vectorOfCartesianElements
+                - cartesianElementsStateVectorTest1 << endl;
+    }
 
-        if ( differenceBetweenResultsTest2.norm( )
-             > mathematics::MACHINE_PRECISION_DOUBLES )
-        {
-            // Generate error statements.
-            cerr << "The computed value " << endl;
-            cerr << "( " << cartesianElementsStateTest2.state << " )"
-                 << endl;
-            cerr << "using set/get functions for the whole state for the "
-                 << "CartesianElements class does not match the expected "
-                 << "solution " << endl;
-            cerr << "( " << vectorOfCartesianElements << " )." << endl;
-            cerr << "The difference is: "
-                 << vectorOfCartesianElements -
-                    - cartesianElementsStateTest2.state << endl;
-        }
+    if ( differenceBetweenResultsTest2.norm( )
+         > mathematics::MACHINE_PRECISION_DOUBLES )
+    {
+        isCartesianElementsErroneous = true;
+
+        // Generate error statements.
+        cerr << "The computed value " << endl;
+        cerr << "( " << cartesianElementsStateTest2.state << " )"
+             << endl;
+        cerr << "using set/get functions for the whole state for the "
+             << "CartesianElements class does not match the expected "
+             << "solution " << endl;
+        cerr << "( " << vectorOfCartesianElements << " )." << endl;
+        cerr << "The difference is: "
+             << vectorOfCartesianElements
+                - cartesianElementsStateTest2.state << endl;
     }
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isCartesianElements;
+    return isCartesianElementsErroneous;
 }
 
 }

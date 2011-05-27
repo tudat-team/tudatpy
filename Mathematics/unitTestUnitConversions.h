@@ -54,9 +54,9 @@
 namespace unit_tests
 {
 
-//! Test of unit conversions.
+//! Test unit conversions.
 /*!
- * Test of unit conversions.
+ * Tests unit conversions.
  * \return Boolean indicating success of test
  * ( false = successful; true = failed ).
  */

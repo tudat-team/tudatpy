@@ -50,4 +50,14 @@ CapturePhase::~CapturePhase( )
 {
 }
 
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream, CapturePhase& capturePhase )
+{
+    stream << "The computed delta-V is: "
+           << capturePhase.computeDeltaV( ) << std::endl;
+
+    // Return stream.
+    return stream;
+}
+
 // End of file.

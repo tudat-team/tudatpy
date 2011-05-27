@@ -8,7 +8,7 @@
  *    units are used.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 11
+ *    Version           : 12
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -24,7 +24,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 3 December, 2010
- *    Last modified     : 16 February, 2011
+ *    Last modified     : 10 March, 2011
  *
  *    References
  *      http://www.astro.uu.nl/~strous/AA/en/reken/kepler.html,
@@ -78,6 +78,8 @@
  *      110204    K. Kumar          Removed "vector" from naming.
  *      110216    K. Kumar          Added unit tests for new orbital element
  *                                  conversion functions.
+ *      110310    K. Kumar          Changed right ascension of ascending node
+ *                                  to longitude of ascending node.
  */
 
 // Include statements.
@@ -94,7 +96,7 @@ using orbital_element_conversions::convertKeplerianToCartesianElements;
 using orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
 using orbital_element_conversions::
         ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
-using predefined_planets::createPredefinedPlanet;
+using predefined_celestial_bodies::createPredefinedCelestialBody;
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -130,13 +132,13 @@ bool testOrbitalElementConversions( )
 
     // Create predefind Earth.
     CelestialBody* pointerToPredefinedEarth_ = new CelestialBody;
-    pointerToPredefinedEarth_ = createPredefinedPlanet(
-            predefined_planets::earth );
+    pointerToPredefinedEarth_ = createPredefinedCelestialBody(
+            predefined_celestial_bodies::earth );
 
     // Create predefined Mars.
     CelestialBody* pointerToPredefinedMars_ = new CelestialBody;
-    pointerToPredefinedMars_ = createPredefinedPlanet(
-            predefined_planets::mars );
+    pointerToPredefinedMars_ = createPredefinedCelestialBody(
+            predefined_celestial_bodies::mars );
 
     // Create custom-defined Sun with central gravity field.
     CelestialBody* pointerToCustomDefinedSun_ = new CelestialBody;
@@ -175,7 +177,7 @@ bool testOrbitalElementConversions( )
     pointerToKeplerianEllipticalElements1_
             ->setArgumentOfPeriapsis( 4.0 * M_PI / 3.0 );
     pointerToKeplerianEllipticalElements1_
-            ->setRightAscensionOfAscendingNode( M_PI / 8.0 );
+            ->setLongitudeOfAscendingNode( M_PI / 8.0 );
     pointerToKeplerianEllipticalElements1_->setTrueAnomaly( M_PI / 3.0 );
     pointerToKeplerianEllipticalElements1_->setSemiLatusRectum(
             pointerToKeplerianEllipticalElements1_->getSemiMajorAxis( )
@@ -225,9 +227,9 @@ bool testOrbitalElementConversions( )
                ->getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
          computeAbsoluteValue( pointerToKeplerianEllipticalElements2_->
-               getRightAscensionOfAscendingNode( ) -
+               getLongitudeOfAscendingNode( ) -
                pointerToKeplerianEllipticalElements1_->
-               getRightAscensionOfAscendingNode( ) ) >=
+               getLongitudeOfAscendingNode( ) ) >=
          errorTolerance_ ||
          computeAbsoluteValue( pointerToKeplerianEllipticalElements2_
                                ->getTrueAnomaly( ) -
@@ -261,7 +263,7 @@ bool testOrbitalElementConversions( )
     pointerToKeplerianParabolicElements1_->setEccentricity( 1.0 );
     pointerToKeplerianParabolicElements1_->setInclination( M_PI / 6.0 );
     pointerToKeplerianParabolicElements1_->setArgumentOfPeriapsis( M_PI / 8.0 );
-    pointerToKeplerianParabolicElements1_->setRightAscensionOfAscendingNode(
+    pointerToKeplerianParabolicElements1_->setLongitudeOfAscendingNode(
             8.0 * M_PI / 7.0 );
     pointerToKeplerianParabolicElements1_->setTrueAnomaly( 7.0 * M_PI / 4.0 );
 
@@ -304,9 +306,9 @@ bool testOrbitalElementConversions( )
                pointerToKeplerianParabolicElements1_->getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
          computeAbsoluteValue( pointerToKeplerianParabolicElements2_
-                               ->getRightAscensionOfAscendingNode( ) -
+                               ->getLongitudeOfAscendingNode( ) -
                pointerToKeplerianParabolicElements1_
-               ->getRightAscensionOfAscendingNode( ) ) >=
+               ->getLongitudeOfAscendingNode( ) ) >=
          errorTolerance_ ||
          computeAbsoluteValue( pointerToKeplerianParabolicElements2_
                                ->getTrueAnomaly( ) -
@@ -334,7 +336,7 @@ bool testOrbitalElementConversions( )
     pointerToKeplerianCircularElements1_->setInclination( 0.0 );
     pointerToKeplerianCircularElements1_->setArgumentOfPeriapsis( 0.0 );
     pointerToKeplerianCircularElements1_
-            ->setRightAscensionOfAscendingNode( 0.0 );
+            ->setLongitudeOfAscendingNode( 0.0 );
     pointerToKeplerianCircularElements1_->setTrueAnomaly( M_PI / 4.0 );
 
     // Compute Cartesian elements.
@@ -376,8 +378,8 @@ bool testOrbitalElementConversions( )
                pointerToKeplerianCircularElements1_->getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
          computeAbsoluteValue( pointerToKeplerianCircularElements2_
-                               ->getRightAscensionOfAscendingNode( ) -
-               pointerToKeplerianCircularElements1_->getRightAscensionOfAscendingNode( ) ) >=
+                               ->getLongitudeOfAscendingNode( ) -
+               pointerToKeplerianCircularElements1_->getLongitudeOfAscendingNode( ) ) >=
          errorTolerance_ ||
          computeAbsoluteValue( pointerToKeplerianCircularElements2_
                                ->getTrueAnomaly( ) -
@@ -405,7 +407,7 @@ bool testOrbitalElementConversions( )
     pointerToKeplerianHyperbolicElements1_->setInclination( 0.0 );
     pointerToKeplerianHyperbolicElements1_->setArgumentOfPeriapsis(
             11.0 * M_PI / 8.0 );
-    pointerToKeplerianHyperbolicElements1_->setRightAscensionOfAscendingNode(
+    pointerToKeplerianHyperbolicElements1_->setLongitudeOfAscendingNode(
             0.0 );
     pointerToKeplerianHyperbolicElements1_->setTrueAnomaly( 9.0 * M_PI / 16.0 );
 
@@ -450,9 +452,9 @@ bool testOrbitalElementConversions( )
                pointerToKeplerianHyperbolicElements1_->getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
          computeAbsoluteValue( pointerToKeplerianHyperbolicElements2_
-                               ->getRightAscensionOfAscendingNode( ) -
+                               ->getLongitudeOfAscendingNode( ) -
                pointerToKeplerianHyperbolicElements1_
-               ->getRightAscensionOfAscendingNode( ) ) >=
+               ->getLongitudeOfAscendingNode( ) ) >=
          errorTolerance_ ||
          computeAbsoluteValue( pointerToKeplerianHyperbolicElements2_
                                ->getTrueAnomaly( ) -
@@ -511,7 +513,7 @@ bool testOrbitalElementConversions( )
                                ->getArgumentOfPeriapsis( ) - 2.6143 ) >=
          errorToleranceBookExample_ ||
          computeAbsoluteValue( pointerToKeplerianElements_
-                               ->getRightAscensionOfAscendingNode( ) -
+                               ->getLongitudeOfAscendingNode( ) -
                1.0304 ) >= errorToleranceBookExample_ ||
          computeAbsoluteValue( pointerToKeplerianElements_
                                ->getTrueAnomaly( ) - 4.0959 ) >=
@@ -832,8 +834,8 @@ bool testOrbitalElementConversions( )
 
     // Create pre-defined Earth.
     CelestialBody* pointerToEarth
-            = predefined_planets::createPredefinedPlanet(
-                    predefined_planets::earth );
+            = predefined_celestial_bodies::createPredefinedCelestialBody(
+                    predefined_celestial_bodies::earth );
 
     // Set semi-major axis.
     double semiMajorAxis = unit_conversions::
@@ -845,7 +847,7 @@ bool testOrbitalElementConversions( )
                           elapsedTime, pointerToEarth, semiMajorAxis );
 
     // Check if computed mean anomaly is equal to reference value.
-    if ( computeAbsoluteValue( meanAnomaly - 20.203139659369779 )
+    if ( computeAbsoluteValue( meanAnomaly - 20.203139666972554 )
         > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
@@ -855,7 +857,7 @@ bool testOrbitalElementConversions( )
              << unit_conversions::
                     convertRadiansToDegrees( meanAnomaly )
              << " ) does not match the expected value of the mean anomaly ( "
-             << unit_conversions::convertRadiansToDegrees( 20.203139659369779 )
+             << unit_conversions::convertRadiansToDegrees( 20.203139666972554 )
              << " ) " << endl;
     }
 
@@ -865,11 +867,11 @@ bool testOrbitalElementConversions( )
     toleranceOrbitalElementConversion = 1e-11;
 
     // Set mean anomaly.
-    meanAnomaly = 20.203139659369779;
+    meanAnomaly = 20.203139666972554;
 
     // Set pre-defined Earth.
-    pointerToEarth = predefined_planets::createPredefinedPlanet(
-            predefined_planets::earth );
+    pointerToEarth = predefined_celestial_bodies::createPredefinedCelestialBody(
+            predefined_celestial_bodies::earth );
 
     // Set semi-major axis.
     semiMajorAxis = unit_conversions::convertKilometersToMeters( 2500.0 );
@@ -901,8 +903,8 @@ bool testOrbitalElementConversions( )
     elapsedTime = 1000.0;
 
     // Create pre-defined Earth.
-    pointerToEarth = predefined_planets::createPredefinedPlanet(
-            predefined_planets::earth );
+    pointerToEarth = predefined_celestial_bodies::createPredefinedCelestialBody(
+            predefined_celestial_bodies::earth );
 
     // Set semi-major axis.
     semiMajorAxis = unit_conversions::convertKilometersToMeters( -40000.0 );
@@ -913,7 +915,7 @@ bool testOrbitalElementConversions( )
                           elapsedTime, pointerToEarth, semiMajorAxis );
 
     // Check if computed mean anomaly is equal to reference value.
-    if ( computeAbsoluteValue( meanAnomaly - 0.078918514294413 )
+    if ( computeAbsoluteValue( meanAnomaly - 0.078918514324112 )
         > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
@@ -923,7 +925,7 @@ bool testOrbitalElementConversions( )
              << unit_conversions::
                     convertRadiansToDegrees( meanAnomaly )
              << " ) does not match the expected value of the mean anomaly ( "
-             << unit_conversions::convertRadiansToDegrees( 0.078918514294413 )
+             << unit_conversions::convertRadiansToDegrees( 0.078918514324112 )
              << " ) " << endl;
     }
 
@@ -933,11 +935,11 @@ bool testOrbitalElementConversions( )
     toleranceOrbitalElementConversion = 1e-11;
 
     // Set mean anomaly.
-    meanAnomaly = 0.078918514294413;
+    meanAnomaly = 0.078918514324112;
 
     // Set pre-defined Earth.
-    pointerToEarth = predefined_planets::createPredefinedPlanet(
-            predefined_planets::earth );
+    pointerToEarth = predefined_celestial_bodies::createPredefinedCelestialBody(
+            predefined_celestial_bodies::earth );
 
     // Set semi-major axis.
     semiMajorAxis = unit_conversions::convertKilometersToMeters( -40000.0 );

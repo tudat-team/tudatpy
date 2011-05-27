@@ -44,7 +44,7 @@
 // Include statements.
 #include "escapeAndCapture.h"
 
-//! Escape phase base class.
+//! Escape phase class.
 /*!
  * Escape phase class.
  */
@@ -62,7 +62,17 @@ public:
     /*!
      * Default destructor.
      */
-    virtual ~EscapePhase( );
+    ~EscapePhase( );
+
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param escapePhase Escape phase.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     EscapePhase& escapePhase );
 
 protected:
 

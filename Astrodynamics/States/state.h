@@ -54,6 +54,7 @@
 #define STATE_H
 
 // Include statements.
+#include <iostream>
 #include <map>
 #include <string>
 #include "linearAlgebra.h"
@@ -89,11 +90,11 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param pointerToState Pointer to State.
+     * \param stateObject State.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     State* pointerToState );
+                                     State& stateObject );
 
 protected:
 

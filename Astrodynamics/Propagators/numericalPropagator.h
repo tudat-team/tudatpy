@@ -48,6 +48,7 @@
 #define NUMERICALPROPAGATOR_H
 
 // Include statements.
+#include <iostream>
 #include "basicMathematicsFunctions.h"
 #include "body.h"
 #include "propagator.h"
@@ -94,6 +95,16 @@ public:
      * Executes numerical propagation.
      */
     void propagate( );
+
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param numericalPropagator Numerical propagator.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     NumericalPropagator& numericalPropagator );
 
 protected:
 

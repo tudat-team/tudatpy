@@ -52,8 +52,8 @@
 
 //! Class to defined a mesh accoring to Lawgs standards.
 /*!
- *  Class to define a surface mesh accoring to the Langley Wireframe Geometry
- *  standard, seet reference.
+ * Class to define a surface mesh accoring to the Langley Wireframe Geometry
+ * standard, seet reference.
  */
 class LawgsPartGeometry : public QuadrilateralMeshedSurfaceGeometry
 {
@@ -61,25 +61,25 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     * Default constructor.
      */
-    LawgsPartGeometry();
+    LawgsPartGeometry( );
 
     //! Default destructor.
     /*!
-     *  Default destructor.
+     * Default destructor.
      */
-    virtual ~LawgsPartGeometry();
+    virtual ~LawgsPartGeometry( );
 
     //! Function to create a mesh surface on a single-surface geometry.
     /*!
-     *  Function to create a mesh surface on a single-surface geometry. A meshed
-     *  surface based on the given surface geometry is created.
-     *  \param originalSurface surface from which a mesh is to be created.
-     *  \param numberOfLines Number of points to be sampled from 1st
-     *  independent variable.
-     *  \param numberOfPoints Number of points to be sampled from 2nd
-     *  independent variable.
+     * Function to create a mesh surface on a single-surface geometry. A meshed
+     * surface based on the given surface geometry is created.
+     * \param originalSurface surface from which a mesh is to be created.
+     * \param numberOfLines Number of points to be sampled from 1st
+     * independent variable.
+     * \param numberOfPoints Number of points to be sampled from 2nd
+     * independent variable.
      */
     void setMesh( SingleSurfaceGeometry* originalSurface,
                   int numberOfLines,
@@ -94,23 +94,23 @@ public:
 
     //! Function to retrieve surface point.
     /*!
-     *  This function retrieves a surface point from on a panel. Because four
-     *  points define a panel in this mesh format, the collection of panels
-     *  will not be necessarilly watertight, making this function non-trivial,
-     *  since the four points defining the panle will not necessarily lie in
-     *  the same plane.
-     *  \param independentVariable1 Independent variable indicating on (or
-     *  between) which lines to retrieve a point.
-     *  \param independentVariable2 Independent variable indicating on (or
-     *  between) which points to retrieve a point.
-     *  \return point on mesh panel.
+     * This function retrieves a surface point from on a panel. Because four
+     * points define a panel in this mesh format, the collection of panels
+     * will not be necessarilly watertight, making this function non-trivial,
+     * since the four points defining the panle will not necessarily lie in
+     * the same plane.
+     * \param independentVariable1 Independent variable indicating on (or
+     * between) which lines to retrieve a point.
+     * \param independentVariable2 Independent variable indicating on (or
+     * between) which points to retrieve a point.
+     * \return point on mesh panel.
      */
     virtual VectorXd getSurfacePoint( const double& independentVariable1,
                                       const double& independentVariable2 );
 
     //! Function to retrieve surface derivative (currently not implemented).
     /*!
-     *  Currently unavailable function to return surface derivative.
+     * Currently unavailable function to return surface derivative.
      */
     virtual VectorXd getSurfaceDerivative( const double& u ,
                                            const double& v ,
@@ -119,21 +119,21 @@ public:
 
     //! Function to set the name of a Lawgs part.
     /*!
-     *  Function to set the name of a Lawgs part.
+     * Function to set the name of a Lawgs part.
      */
     void setName( const std::string& name );
 
     //! Non-functional function to retrieve parameter.
     /*!
-     *  Non functional function of base class, could be implemented in future
-     *  modification.
+     * Non functional function of base class, could be implemented in future
+     * modification.
      */
     virtual double getParameter( const int& i );
 
     //! Non-functional function to set parameter.
     /*!
-     *  Non functional function of base class, could be implemented in future
-     *  modification.
+     * Non functional function of base class, could be implemented in future
+     * modification.
      */
     virtual void setParameter( const int &parameterIndex, const double &value );
 
@@ -141,7 +141,7 @@ public:
     /*!
      * Function to de-allocate arrays in object.
      */
-    void deAllocateArrays();
+    void deAllocateArrays( );
 
     //! Function to retrieve part name.
     /*!
@@ -149,22 +149,26 @@ public:
      */
     std::string getName( );
 
-    //! Overloaded ostream to print class information.
+    //! Overload ostream to print class information.
     /*!
-     *  Overloads ostream to print class information, prints the number of
-     *  lines and points, and the name of the part.
+     * Overloads ostream to print class information, prints the number of
+     * lines and points, and the name of the part.
+     * \param stream Stream object.
+     * \param lawgsPartGeometry Lawgs part geometry.
+     * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     LawgsPartGeometry& geometry );
+                                     LawgsPartGeometry& lawgsPartGeometry );
 
 protected:
 
     //! Part name.
     /*!
-     *  Part name.
+     * Part name.
      */
     std::string name_;
 
+private:
 };
 
 #endif // LAWGSPARTGEOMETRY_H

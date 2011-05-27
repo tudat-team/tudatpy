@@ -3,7 +3,7 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -27,7 +27,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 2 February, 2011
+ *    Last modified     : 11 April, 2011
  *
  *    References
  *
@@ -57,6 +57,8 @@
  *      110202    K. Kumar            Added overload for State* for
  *                                    computeLinearInterpolation();
  *      110111    J. Melman           Added computeModulo() function.
+ *      110411    K. Kumar            Added convertCartesianToSpherical()
+ *                                    function.
  */
 
 // Include statements.
@@ -209,6 +211,20 @@ void convertSphericalToCartesian( const double& radius,
     cartesianCoordinates( 1 ) = radius * sin( azimuthAngle )
                                 * sineOfZenithAngle;
     cartesianCoordinates( 2 ) = radius * cos( zenithAngle );
+}
+
+//! Convert cartesian to spherical coordinates.
+void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
+                                  VectorXd& sphericalCoordinates )
+{
+    // Compute transformation of Cartesian coordinates to spherical
+    // coordinates.
+    sphericalCoordinates( 0 ) = cartesianCoordinates.norm( );
+    sphericalCoordinates( 1 ) = atan2( cartesianCoordinates( 1 ),
+                                       cartesianCoordinates( 0 ) );
+
+    sphericalCoordinates( 2 ) = acos( cartesianCoordinates( 2 )
+                                      / sphericalCoordinates( 0 ) );
 }
 
 //! Convert cylindrical to cartesian coordinates, z value left unaffected.

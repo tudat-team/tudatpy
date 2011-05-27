@@ -99,8 +99,8 @@ bool testNumericalPropagator( )
 
     // Create pre-defined Earth object for full gravity.
     CelestialBody* pointerToEarth
-            = predefined_planets::createPredefinedPlanet(
-                    predefined_planets::earth );
+            = predefined_celestial_bodies::createPredefinedCelestialBody(
+                    predefined_celestial_bodies::earth );
 
     // Create a pointer to a new Gravity object for full Earth gravity.
     Gravity* pointerToFullEarthGravity = new Gravity;

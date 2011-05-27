@@ -212,7 +212,7 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     LambertTargeter* pointerToLambertTargeter );
+                                     LambertTargeter& lambertTargeter );
 
 protected:
 

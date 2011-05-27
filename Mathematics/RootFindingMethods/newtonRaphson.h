@@ -97,12 +97,11 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param pointerToNewtonRaphson Pointer to Newton-Raphson.
+     * \param newtonRaphson Newton-Raphson.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     NewtonRaphson*
-                                     pointerToNewtonRaphson );
+                                     NewtonRaphson& newtonRaphson );
 
 protected:
 

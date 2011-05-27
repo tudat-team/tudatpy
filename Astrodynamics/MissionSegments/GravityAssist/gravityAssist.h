@@ -165,11 +165,11 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param pointerToGravityAssist Pointer to Gravity Assist.
+     * \param gravityAssist Gravity Assist.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     GravityAssist* pointerToGravityAssist );
+                                     GravityAssist& gravityAssist );
 
 protected:
 

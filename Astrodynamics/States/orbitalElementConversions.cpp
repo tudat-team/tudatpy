@@ -3,7 +3,7 @@
  *    functions.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 15
+ *    Version           : 16
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -23,7 +23,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 10 March, 2011
  *
  *    References
  *      Wertz, J. R. Mission geometry; orbit and constellation design and
@@ -78,6 +78,8 @@
  *                                  convertCartesianTopointerToCartesianElements_
  *      110128    K. Kumar          Changed references to pointers.
  *      110204    K. Kumar          Removed "vector" naming.
+ *      110310    K. Kumar          Changed right ascension of ascending node
+ *                                  to longitude of ascending node.
  */
 
 // Include statements.
@@ -109,22 +111,22 @@ CartesianElements* convertKeplerianToCartesianElements(
     // Pre-compute sines and cosines of involved angles for efficient
     // computation.
     double cosineOfInclination_ = cos( pointerToKeplerianElements
-                                       ->getInclination ( ) );
+                                       ->getInclination( ) );
     double sineOfInclination_ = sin( pointerToKeplerianElements
-                                     ->getInclination ( ) );
+                                     ->getInclination( ) );
     double cosineOfArgumentOfPeriapsis_ = cos(
-            pointerToKeplerianElements->getArgumentOfPeriapsis ( ) );
+            pointerToKeplerianElements->getArgumentOfPeriapsis( ) );
     double sineOfArgumentOfPeriapsis_ = sin(
-            pointerToKeplerianElements->getArgumentOfPeriapsis ( ) );
-    double cosineOfRightAscensionOfAscendingNode_ = cos(
+            pointerToKeplerianElements->getArgumentOfPeriapsis( ) );
+    double cosineOfLongitudeOfAscendingNode_ = cos(
             pointerToKeplerianElements
-            ->getRightAscensionOfAscendingNode ( ) );
-    double sineOfRightAscensionOfAscendingNode_ = sin(
-            pointerToKeplerianElements->getRightAscensionOfAscendingNode ( ) );
+            ->getLongitudeOfAscendingNode( ) );
+    double sineOfLongitudeOfAscendingNode_ = sin(
+            pointerToKeplerianElements->getLongitudeOfAscendingNode( ) );
     double cosineOfTrueAnomaly_ = cos( pointerToKeplerianElements
-                                       ->getTrueAnomaly ( ) );
+                                       ->getTrueAnomaly( ) );
     double sineOfTrueAnomaly_ = sin( pointerToKeplerianElements
-                                     ->getTrueAnomaly ( ) );
+                                     ->getTrueAnomaly( ) );
 
     // Compute semi-latus rectum in the case it is not a parabola (for which it
     // should already have been set).
@@ -170,24 +172,24 @@ CartesianElements* convertKeplerianToCartesianElements(
     transformationMatrix_.setZero( 3, 2 );
 
     // Compute the transformation matrix.
-    transformationMatrix_( 0, 0 ) = cosineOfRightAscensionOfAscendingNode_ *
+    transformationMatrix_( 0, 0 ) = cosineOfLongitudeOfAscendingNode_ *
                                     cosineOfArgumentOfPeriapsis_ -
-                                    sineOfRightAscensionOfAscendingNode_ *
+                                    sineOfLongitudeOfAscendingNode_ *
                                     sineOfArgumentOfPeriapsis_ *
                                     cosineOfInclination_;
-    transformationMatrix_( 0, 1 ) = - cosineOfRightAscensionOfAscendingNode_ *
+    transformationMatrix_( 0, 1 ) = - cosineOfLongitudeOfAscendingNode_ *
                                     sineOfArgumentOfPeriapsis_ -
-                                    sineOfRightAscensionOfAscendingNode_ *
+                                    sineOfLongitudeOfAscendingNode_ *
                                     cosineOfArgumentOfPeriapsis_ *
                                     cosineOfInclination_;
-    transformationMatrix_( 1, 0 ) = sineOfRightAscensionOfAscendingNode_ *
+    transformationMatrix_( 1, 0 ) = sineOfLongitudeOfAscendingNode_ *
                                     cosineOfArgumentOfPeriapsis_ +
-                                    cosineOfRightAscensionOfAscendingNode_ *
+                                    cosineOfLongitudeOfAscendingNode_ *
                                     sineOfArgumentOfPeriapsis_ *
                                     cosineOfInclination_;
-    transformationMatrix_( 1, 1 ) = - sineOfRightAscensionOfAscendingNode_ *
+    transformationMatrix_( 1, 1 ) = - sineOfLongitudeOfAscendingNode_ *
                                     sineOfArgumentOfPeriapsis_ +
-                                    cosineOfRightAscensionOfAscendingNode_ *
+                                    cosineOfLongitudeOfAscendingNode_ *
                                     cosineOfArgumentOfPeriapsis_ *
                                     cosineOfInclination_;
     transformationMatrix_( 2, 0 ) = sineOfArgumentOfPeriapsis_ *
@@ -330,12 +332,12 @@ KeplerianElements* convertCartesianToKeplerianElements(
                 2.0 * M_PI ) );
     }
 
-    // Compute the value of right ascension of ascending node.
+    // Compute the value of longitude of ascending node.
     // Range between 0 degrees and 360 degrees.
     // Non-equatorial orbits.
     if ( !isOrbitEquatorial_ )
     {
-        pointerToKeplerianElements_->setRightAscensionOfAscendingNode(
+        pointerToKeplerianElements_->setLongitudeOfAscendingNode(
                 computeModulo( atan2( unitVectorToAscendingNode_.y( ),
                        unitVectorToAscendingNode_.x( ) ), 2.0 * M_PI ) );
     }
@@ -343,7 +345,7 @@ KeplerianElements* convertCartesianToKeplerianElements(
     // Equatorial orbits.
     else
     {
-        pointerToKeplerianElements_->setRightAscensionOfAscendingNode( 0.0 );
+        pointerToKeplerianElements_->setLongitudeOfAscendingNode( 0.0 );
     }
 
     // Compute the value of true anomaly.

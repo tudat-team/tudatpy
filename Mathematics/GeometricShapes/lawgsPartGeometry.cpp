@@ -221,16 +221,19 @@ void LawgsPartGeometry::setParameter( const int& parameterIndex,
             <<parameterIndex<< std::endl;
 }
 
-//! Overloads ostream to print class information.
-std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry & geometry)
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          LawgsPartGeometry& lawgsPartGeometry )
 {
     stream << "This is a Langley Wireframe Geometry Standard surface geometry"
            << " of a single part." << std::endl;
-    stream << "The number of lines ( contours ) is: " << geometry.numberOfLines_
-           << std::endl;
-    stream << "The number of points per line is: "<< geometry.numberOfPoints_
-           << std::endl;
-    stream << "The part name is: " << geometry.name_ << std::endl;
+    stream << "The number of lines ( contours ) is: "
+           << lawgsPartGeometry.numberOfLines_ << std::endl;
+    stream << "The number of points per line is: "
+           << lawgsPartGeometry.numberOfPoints_ << std::endl;
+    stream << "The part name is: " << lawgsPartGeometry.name_ << std::endl;
+
+    // Return stream.
     return stream;
 }
 

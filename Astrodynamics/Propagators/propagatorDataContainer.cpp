@@ -73,16 +73,15 @@ PropagatorDataContainer::~PropagatorDataContainer( )
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
-                          PropagatorDataContainer*
-                          pointerToPropagatorDataContainer )
+                          PropagatorDataContainer& propagatorDataContainer )
 {
     stream << "This is a PropagatorDataContainer object." << endl;
     stream << "The initial state is set to: "
-           << pointerToPropagatorDataContainer->pointerToInitialState_ << endl;
+           << propagatorDataContainer.pointerToInitialState_ << endl;
     stream << "The current state is set to: "
-           << pointerToPropagatorDataContainer->pointerToCurrentState_ << endl;
+           << propagatorDataContainer.pointerToCurrentState_ << endl;
     stream << "The final state is set to: "
-           << pointerToPropagatorDataContainer->pointerToFinalState_ << endl;
+           << propagatorDataContainer.pointerToFinalState_ << endl;
 
     // Return stream.
     return stream;

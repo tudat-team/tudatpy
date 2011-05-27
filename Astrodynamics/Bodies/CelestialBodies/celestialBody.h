@@ -3,7 +3,7 @@
  *    with all their characteristics.
  *
  *    Path              : /Astrodynamics/Bodies/CelestialBodies/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 6 September, 2010
- *    Last modified     : 13 January, 2011
+ *    Last modified     : 10 March, 2011
  *
  *    References
  *
@@ -40,6 +40,7 @@
  *      110112    K. Kumar          Modified to use GravityFieldModel;
  *                                  corrected path.
  *      110113    K. Kumar          Added getGravityFieldModel() function.
+ *      110310    K. Kumar          Added ephemeris; added missing destructor.
  */
 
 #ifndef CELESTIAL_BODY_H
@@ -47,6 +48,8 @@
 
 // Include statements.
 #include "body.h"
+#include "cartesianElements.h"
+#include "ephemeris.h"
 #include "gravityFieldModel.h"
 
 //! Celestial body class.
@@ -63,12 +66,25 @@ public:
      */
     CelestialBody( );
 
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    ~CelestialBody( );
+
+    //! Set ephemeris.
+    /*!
+     * Sets the ephemeris.
+     * \param pointerToEphemeris Pointer to ephemeris.
+     */
+    void setEphemeris( Ephemeris* pointerToEphemeris );
+
     //! Set gravity field model.
     /*!
      * Sets the gravity field model.
      * \param pointerToGravityFieldModel Pointer to gravity field model.
      */
-    void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel);
+    void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel );
 
     //! Get gravitational parameter.
     /*!
@@ -77,26 +93,50 @@ public:
      */
     const double getGravitationalParameter( ) const;
 
+    //! Get state from ephemeris at given Julian date.
+    /*!
+     * Returns the state of the celestial body from the defined ephemeris at
+     * the given Julian date in Cartesian elements.
+     * \return Pointer to Cartesian elements.
+     */
+    CartesianElements* getStateFromEphemeris( const double& julianDate );
+
+    //! Get ephemeris.
+    /*!
+     * Gets the ephemeris.
+     * \return Pointer to ephemeris.
+     */
+    Ephemeris* getEphemeris( );
+
     //! Get gravity field model.
     /*!
      * Returns the gravity field model.
      * \return Gravity field model.
      */
-     GravityFieldModel* getGravityFieldModel( );
+    GravityFieldModel* getGravityFieldModel( );
 
-     //! Overload ostream to print class information.
-     /*!
-      * Overloads ostream to print class information.
-      * \param stream Stream object.
-      * \param pointerToCelestialBody Pointer to Celestial body.
-      * \return Stream object.
-      */
-     friend std::ostream& operator<<( std::ostream& stream,
-                                      CelestialBody* pointerToCelestialBody );
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param celestialBody Celestial body.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     CelestialBody& celestialBody );
 
 protected:
 
-    //! Gravity field parameters.
+    //! Pointer to ephemeris.
+    /*!
+     * Pointer to ephemeris.
+     */
+    Ephemeris* pointerToEphemeris_;
+
+    //! Pointer to gravity field model.
+    /*!
+     * Pointer to gravity field model.
+     */
     GravityFieldModel* pointerToGravityFieldModel_;
 };
 

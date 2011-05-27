@@ -252,13 +252,18 @@ public:
      */
     std::string getVehicleName( );
 
-    //! Overloaded ostream to print class information.
+    //! Overload ostream to print class information.
     /*!
-     *  Overloaded ostream to print class information, prints the number
-     *  of lawgs geometry parts and names.
+     * Overloads ostream to print class information, prints the number
+     * of lawgs geometry parts and names.
+     * \param stream Stream object.
+     * \param hypersonicLocalInclinationAnalysis Hypersonic local inclination
+     *          analysis.
+     * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     Vehicle& vehicle );
+                                     HypersonicLocalInclinationAnalysis&
+                                     hypersonicLocalInclinationAnalysis );
 
 private:
 
@@ -274,8 +279,6 @@ private:
      */
     void determineVehicleCoefficients( int* independentVariableIndices );
 
-
-
     //! Determine aerodynamic coefficients for a single LaWGS part.
     /*!
      *  Determine aerodynamic coefficients for a single LaWGS part,
@@ -287,7 +290,6 @@ private:
      */
     VectorXd determinePartCoefficients( const int& partNumber,
                                         int* independentVariableIndices );
-
 
     //! Determine pressure coefficients on a given part.
     /*!
@@ -311,7 +313,6 @@ private:
      */
     VectorXd calculateForceCoefficients( const int& partNumber );
 
-
     //! Determine moment coefficients of a part.
     /*! Determines the moment coefficients of a given part
      *  by summing the contributions of all panels on the part. Moment arms are
@@ -322,7 +323,6 @@ private:
      *  coefficients.
      */
     VectorXd calculateMomentCoefficients( const int& partNumber );
-
 
     //! Determine the compression pressure coefficients of a
     //! given part.

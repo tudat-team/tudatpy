@@ -50,6 +50,7 @@
 
 // Using declarations.
 using std::string;
+using std::endl;
 
 //! Default constructor.
 HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis( )
@@ -992,22 +993,32 @@ std::string HypersonicLocalInclinationAnalysis::getVehicleName( )
 }
 
 
-//! Overloaded ostream to print class information.
+//! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
-                                 HypersonicLocalInclinationAnalysis& analysis )
+                          HypersonicLocalInclinationAnalysis&
+                          hypersonicLocalInclinationAnalysis )
 {
-    stream << "This is a hypersonic local inclination analysis object."<<std::endl;
-    stream << "The Mach regime is "<< analysis.getMachRegime()<<std::endl;
-    stream << "The name of the vehicle being analyzed is "<<
-            analysis.getVehicleName() <<std::endl;
-    stream << "It contains "<< analysis.getNumberOfVehicleParts( )<<
-            " parts in Lawgs format. "<<std::endl;
+    stream << "This is a hypersonic local inclination analysis object."<< endl;
+    stream << "The Mach regime is "
+           << hypersonicLocalInclinationAnalysis.getMachRegime( ) << endl;
+    stream << "The name of the vehicle being analyzed is "
+           << hypersonicLocalInclinationAnalysis.getVehicleName( ) << endl;
+    stream << "It contains "
+           << hypersonicLocalInclinationAnalysis.getNumberOfVehicleParts( )
+           << " parts in Lawgs format. " << endl;
     stream << "The names of the vehicle parts are ";
-    for( int i = 0; i < analysis.getNumberOfVehicleParts( ); i++ )
+
+    for ( int i = 0;
+          i < hypersonicLocalInclinationAnalysis.getNumberOfVehicleParts( );
+          i++ )
     {
-        stream << analysis.getVehiclePart( i ).getName( )<<", ";
+        stream << hypersonicLocalInclinationAnalysis
+                  .getVehiclePart( i ).getName( ) << ", ";
     }
-    stream << std::endl;
+
+    stream << endl;
+
+    // Return stream.
     return stream;
 }
 

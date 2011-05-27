@@ -110,23 +110,4 @@ void SingleStepIntegrationMethods::integrate( )
     }
 }
 
-//! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                                 Integrator* pointerToIntegrator )
-{
-    stream << "The initial state is set to: " << endl;
-    stream << pointerToIntegrator->getInitialState( )->state << endl;
-    stream << "The stepsize is set to: "
-           << pointerToIntegrator->getStepsize( ) << endl;
-    stream << "The start of the integration interval is set to: "
-           << pointerToIntegrator->getIntegrationIntervalStart( ) << endl;
-    stream << "The end of the integration interval is set to: "
-           << pointerToIntegrator->getIntegrationIntervalEnd( ) << endl;
-    stream << "The number of integration steps required is: "
-           << pointerToIntegrator->getNumberOfIntegrationSteps( ) << endl;
-
-    // Return stream.
-    return stream;
-}
-
 // End of file.

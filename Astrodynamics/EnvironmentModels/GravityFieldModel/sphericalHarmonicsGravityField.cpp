@@ -2,8 +2,8 @@
  *    Source file that defines the spherical harmonics gravity field model
  *    included in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModel/
- *    Version           : 7
+ *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 17 November, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 10 March, 2011
  *
  *    References
  *
@@ -46,6 +46,8 @@
  *      110202    K. Kumar          Updated code to make use of the
  *                                  CartesianPositionElements class.
  *      110204    K. Kumar          Removed "vector" from naming.
+ *      110310    K. Kumar          Changed naming from Laplacian to gradient
+ *                                  tensor.
  */
 
 // Include statements.
@@ -132,10 +134,10 @@ Vector3d SphericalHarmonicsGravityField::getGradientOfPotential(
             / raiseToIntegerPower( relativePosition_.state.norm(), 3 );
 }
 
-//! Get the Laplacian of the gravitational potential.
+//! Get gradient tensor of the gravitational potential.
 Matrix3d SphericalHarmonicsGravityField::
-        getLaplacianOfPotential( CartesianPositionElements*
-                                 pointerToPosition )
+        getGradientTensorOfPotential( CartesianPositionElements*
+                                      pointerToPosition )
 {
 
     // Declare local variables.
@@ -148,7 +150,7 @@ Matrix3d SphericalHarmonicsGravityField::
     // Set identity matrix to square size of state.
     identityMatrix_.setIdentity( 3, 3 );
 
-    // Compute and return Laplacian of potential.
+    // Compute and return gradient tensor of potential.
     return gravitationalParameter_
             / raiseToIntegerPower( relativePosition_.state.norm( ), 5 )
             * ( ( 3.0 * relativePosition_.state
@@ -159,26 +161,23 @@ Matrix3d SphericalHarmonicsGravityField::
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
-                          SphericalHarmonicsGravityField*
-                          pointerToSphericalHarmonicsGravityField )
+                          SphericalHarmonicsGravityField&
+                          sphericalHarmonicsGravityField )
 {
     stream << "This is a SphericalHarmonicsGravityField object." << endl;
     stream << "The gravitational parameter is set to: "
-           << pointerToSphericalHarmonicsGravityField
-                ->getGravitationalParameter( ) << endl;
+           << sphericalHarmonicsGravityField.getGravitationalParameter( )
+           << endl;
     stream << "The origin of the gravity field is set to: "
-           << pointerToSphericalHarmonicsGravityField->getOrigin( ) << endl;
+           << sphericalHarmonicsGravityField.getOrigin( ) << endl;
     stream << "The degree of expansion of the spherical harmonics series is "
            << "set to : "
-           << pointerToSphericalHarmonicsGravityField
-                ->getDegreeOfExpansion( ) << endl;
+           << sphericalHarmonicsGravityField.getDegreeOfExpansion( ) << endl;
     stream << "The order of expansion of the spherical harmonics series is "
            << "set to: "
-           << pointerToSphericalHarmonicsGravityField
-                ->getOrderOfExpansion( ) << endl;
+           << sphericalHarmonicsGravityField.getOrderOfExpansion( ) << endl;
     stream << "The reference radius is set to: "
-           << pointerToSphericalHarmonicsGravityField
-                ->getReferenceRadius( ) << endl;
+           << sphericalHarmonicsGravityField.getReferenceRadius( ) << endl;
 
     // Return stream.
     return stream;

@@ -64,7 +64,7 @@
 #include "celestialBody.h"
 #include "keplerPropagator.h"
 #include "newtonRaphson.h"
-#include "predefinedPlanets.h"
+#include "predefinedCelestialBodies.h"
 #include "state.h"
 #include "unitConversions.h"
 #include "vehicle.h"

@@ -3,7 +3,7 @@
  *    defined in unitConversions.h.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 10 September, 2010
- *    Last modified     : 24 January, 2011
+ *    Last modified     : 11 April, 2011
  *
  *    References
  *
@@ -39,6 +39,9 @@
  *      YYMMDD    Author            Comment
  *      110111    J. Melman         First creation of code.
  *      110124    J. Melman         Adapted to the offical Tudat standards.
+ *      110411    K. Kumar          Added unit tests for
+ *                                  convertDegreesToArcminutes() and
+ *                                  convertArcminutesToArcseconds().
  */
 
 // Include statements.
@@ -54,7 +57,7 @@ using mathematics::MACHINE_PRECISION_DOUBLES;
 namespace unit_tests
 {
 
-//! Test of unit conversions header file.
+//! Test unit conversions.
 bool testUnitConversions( )
 {
     // Test result initialised to false.
@@ -79,6 +82,26 @@ bool testUnitConversions( )
          > 1.0e-8 )
     {
         cerr << "The conversion from degrees to radians does not "
+             << "function correctly." << endl;
+        isUnitConversionsErroneous = true;
+    }
+
+    // Test conversion from degrees to arcminutes.
+    if ( computeAbsoluteValue(
+            unit_conversions::convertDegreesToArcminutes( 43.2 ) -
+            43.2 * 60.0 )  > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The conversion from degrees to arcminutes does not "
+             << "function correctly." << endl;
+        isUnitConversionsErroneous = true;
+    }
+
+    // Test conversion from arcminutes to arcseconds.
+    if ( computeAbsoluteValue(
+            unit_conversions::convertArcminutesToArcseconds( 125.9 ) -
+            125.9 * 60.0 )  > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The conversion from degrees to arcminutes does not "
              << "function correctly." << endl;
         isUnitConversionsErroneous = true;
     }

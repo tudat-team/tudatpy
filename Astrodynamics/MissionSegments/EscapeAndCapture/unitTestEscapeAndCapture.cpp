@@ -57,7 +57,7 @@
 // Using declarations.
 using std::cerr;
 using std::endl;
-using predefined_planets::createPredefinedPlanet;
+using predefined_celestial_bodies::createPredefinedCelestialBody;
 using mathematics::computeAbsoluteValue;
 
 //! Namespace for all unit tests.
@@ -85,15 +85,15 @@ bool testEscapeAndCapture( )
     // Central bodies parameters.
     // Central body at launch phase.
     CelestialBody* pointerToEarth = new CelestialBody;
-    pointerToEarth = createPredefinedPlanet(
-            predefined_planets::earth );
+    pointerToEarth = createPredefinedCelestialBody(
+            predefined_celestial_bodies::earth );
     SphereSegment* pointerToEarthSphere = new SphereSegment;
     pointerToEarth->setShapeModel( pointerToEarthSphere );
 
     // Central body at capture phase.
     CelestialBody* pointerToMars = new CelestialBody;
-    pointerToMars = createPredefinedPlanet(
-            predefined_planets::mars );
+    pointerToMars = createPredefinedCelestialBody(
+            predefined_celestial_bodies::mars );
     SphereSegment* pointerToMarsSphere = new SphereSegment;
     pointerToMars->setShapeModel( pointerToMarsSphere );
 

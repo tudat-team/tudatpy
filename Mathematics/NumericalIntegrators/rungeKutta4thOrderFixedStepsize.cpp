@@ -65,6 +65,9 @@
 // Include statements.
 #include "rungeKutta4thOrderFixedStepsize.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 RungeKutta4thOrderFixedStepsize::RungeKutta4thOrderFixedStepsize( )
 {
@@ -120,6 +123,31 @@ void RungeKutta4thOrderFixedStepsize::computeNextState_( const double& stepsize 
               + ( kCoefficients_[ 0 ] + 2.0 * kCoefficients_[ 1 ]
                   + 2.0 * kCoefficients_[ 2 ]
                   + kCoefficients_[ 3 ] ) / 6.0;
+}
+
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          RungeKutta4thOrderFixedStepsize&
+                          rungeKutta4thOrderFixedStepsize )
+{
+    stream << "This is a RungeKutta4thOrderFixedStepsize object" << endl;
+    stream << "The initial state is set to: " << endl;
+    stream << rungeKutta4thOrderFixedStepsize.getInitialState( )->state
+           << endl;
+    stream << "The stepsize is set to: "
+           << rungeKutta4thOrderFixedStepsize.getStepsize( ) << endl;
+    stream << "The start of the integration interval is set to: "
+           << rungeKutta4thOrderFixedStepsize.getIntegrationIntervalStart( )
+           << endl;
+    stream << "The end of the integration interval is set to: "
+           << rungeKutta4thOrderFixedStepsize.getIntegrationIntervalEnd( )
+           << endl;
+    stream << "The number of integration steps required is: "
+           << rungeKutta4thOrderFixedStepsize.getNumberOfIntegrationSteps( )
+           << endl;
+
+    // Return stream.
+    return stream;
 }
 
 // End of file.

@@ -138,17 +138,17 @@ void NewtonRaphson::execute( )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          NewtonRaphson* pointerToNewtonRaphson )
+std::ostream& operator<<( std::ostream& stream, NewtonRaphson& newtonRaphson )
 {
+    stream << "This is a NewtonRaphson object" << endl;
     stream << "The maximum number of iterations is set to: "
-           << pointerToNewtonRaphson->getMaximumNumberOfIterations( )
+           << newtonRaphson.getMaximumNumberOfIterations( )
            << "The tolerance is set to: "
-           << pointerToNewtonRaphson->getTolerance( )
+           << newtonRaphson.getTolerance( )
            << "The initial guess of root is set to: "
-           << pointerToNewtonRaphson->initialGuessOfRoot_
+           << newtonRaphson.initialGuessOfRoot_
            << "The computed root is: "
-           << pointerToNewtonRaphson->getComputedRootOfFunction( ) << endl;
+           << newtonRaphson.getComputedRootOfFunction( ) << endl;
 
     // Return stream.
     return stream;

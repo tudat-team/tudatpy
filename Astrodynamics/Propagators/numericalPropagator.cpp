@@ -54,6 +54,9 @@
 // Include statements.
 #include "numericalPropagator.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 NumericalPropagator::NumericalPropagator( ) : sizeOfAssembledState_( 0 )
 {
@@ -257,6 +260,20 @@ void NumericalPropagator::propagate( )
                       ->second->pointerToCurrentState_;
         }
     }
+}
+
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          NumericalPropagator& numericalPropagator )
+{
+    stream << "This is a NumericalPropagator object." << endl;
+    stream << "The start of the propagation interval is set to: " << endl;
+    stream << numericalPropagator.getPropagationIntervalStart( ) << endl;
+    stream << "The end of the propagation interval is set to: " << endl;
+    stream << numericalPropagator.getPropagationIntervalEnd( ) << endl;
+
+    // Return stream.
+    return stream;
 }
 
 //! Compute sum of state derivatives.
