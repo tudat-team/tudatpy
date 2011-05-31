@@ -56,6 +56,8 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/MissionSegments/GravityAssist/gravityAssist.cpp \
     Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.cpp \
     Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.cpp \
+    Astrodynamics/MissionSegments/DeepSpaceManeuver/unitTestDeepSpaceManeuver.cpp \
+    Astrodynamics/MissionSegments/DeepSpaceManeuver/deepSpaceManeuver.cpp \
     Basics/basicFunctions.cpp \
     Input/textFileReader.cpp \
     Input/fileReader.cpp \
@@ -137,6 +139,8 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/MissionSegments/GravityAssist/gravityAssist.h \
     Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.h \
     Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.h \
+    Astrodynamics/MissionSegments/DeepSpaceManeuver/unitTestDeepSpaceManeuver.h \
+    Astrodynamics/MissionSegments/DeepSpaceManeuver/deepSpaceManeuver.h \
     Basics/basicFunctions.h \
     Input/textFileReader.h \
     Input/fileReader.h \
@@ -188,6 +192,7 @@ INCLUDEPATH += Applications \
     Astrodynamics/MissionSegments/EscapeAndCapture \
     Astrodynamics/MissionSegments/GravityAssist \
     Astrodynamics/MissionSegments/LambertTargeter \
+    Astrodynamics/MissionSegments/DeepSpaceManeuver \
     Basics \
     External/Eigen-2.0.15 \
     Input \
