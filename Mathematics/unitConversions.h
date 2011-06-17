@@ -3,16 +3,24 @@
  *    commonly used in astrodynamics.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : J. Melman
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
+ *    Author            : F. M. Engelen
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *
  *    Checker           : D. Dirkx
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
+ *
+ *    Checker           : J. Melman
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 6 September, 2010
  *    Last modified     : 11 April, 2011
@@ -37,6 +45,8 @@
  *      100906    J. Melman         First creation of code.
  *      110411    K. Kumar          Added convertDegreesToArcminutes() and
  *                                  convertArcminutesToArcseconds().
+ *      110609    F.M. Engelen      Added Rankine, feet, and pound per square feet
+ *                                  to SI conversion.
  */
 
 #ifndef UNIT_CONVERSIONS_H
@@ -146,6 +156,42 @@ template < typename T >
 T convertAstronomicalUnitsToMeters( T distanceInAstronomicalUnits )
 {
     return distanceInAstronomicalUnits * PhysicalConstants::ASTRONOMICAL_UNIT;
+}
+
+//! Convert from Rankine to Kelvin.
+/*!
+ *  Convert a temperature in Rankine to Kelvin.
+ *  \param temperatureInRankine Temperature in Rankine.
+ *  \return Temperature in Kelvin.
+ */
+template < typename T >
+T convertRankineToKelvin( T temperatureInRankine )
+{
+   return temperatureInRankine * 5.0 / 9.0;
+}
+
+//! Convert from feet to meters.
+/*!
+ *  Convert a distance in feet to meters.
+ *  \param distanceInFeet Distance in feet.
+ *  \return distance in meters.
+ */
+template < typename T >
+T convertFeetToMeter( T distanceInFeet )
+{
+    return distanceInFeet * 0.3048 ;
+}
+
+//! Convert from pound per square feet to Newton per square meter (Pascal)
+/*!
+ * Convert a pressure in pound per square feet to Newton per square meter.
+ * \param pressureInPoundPerSquareFeet pressure in pound per square feet.
+ * \return pressure in Newton per square meter (Pascal)
+ */
+template < typename T >
+T convertPoundPerSquareFeetToPascal( T pressureInPoundPerSquareFeet )
+{
+    return pressureInPoundPerSquareFeet * 47.880259;
 }
 
 }

@@ -86,7 +86,8 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
     Mathematics/unitTestUnitConversions.cpp \
-    Output/writingOutputToFile.cpp
+    Output/writingOutputToFile.cpp \
+    unitTestMain.cpp
 HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
