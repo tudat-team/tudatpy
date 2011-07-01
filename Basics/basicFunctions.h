@@ -67,7 +67,11 @@
 namespace basic_functions
 {
 
-//! Root path of Tudat library
+//! Root path of Tudat library.
+/*!
+ * Root path of Tudat library must be set for file-reading/file-writing purposes.
+ * Path must include a trailing slash.
+ */
 static std::string ROOT_PATH;
 
 //! Nearest left neighbor binary search.

@@ -68,6 +68,7 @@
 #include "unitTestEscapeAndCapture.h"
 #include "unitTestGravityAssist.h"
 #include "unitTestLambertTargeter.h"
+#include "unitTestReferenceFrameTransformations.h"
 
 // Input unit test includes
 #include "unitTestTextFileReader.h"
@@ -176,6 +177,13 @@ int main()
     // elliptical and hypterbolic test case.
     bool testLambertTargeter =
             unit_tests::testLambertTargeter( );
+
+    // TestFrameTransformations: Tests the reference frame transformations:
+    // Rotating planetocentric (R) to Inertial (I) frame transformation,
+    // Inertial (I) to Rotating planetocentric (R) frame transformation,
+    // Aerodynamic (airspeed based) (AA) to Body (B) frame transformation.
+    bool testReferenceFrameTransformations
+            = unit_tests::testReferenceFrameTransformations( );
 
     // Run Input unit tests.
 
@@ -294,6 +302,12 @@ int main()
         success = 1;
     }
 
+    if ( testReferenceFrameTransformations )
+    {
+        cerr << "referenceFrameTransformations failed" << endl;
+        success = 1;
+    }
+
     // Generate unit test report file ( unitTestReport.txt ).
 
     // Generate time and date stamp for report.
@@ -333,6 +347,9 @@ int main()
     unitTestReportOutputFile << testLawgsSurfaceGeometry
             << "\tLawgs Surface Geometry" << endl;
 
+
+
+
     // Empty line.
     unitTestReportOutputFile << endl;
 
@@ -362,6 +379,8 @@ int main()
             << "\tGravity Assist" << endl;
     unitTestReportOutputFile << testLambertTargeter
             << "\tLambert Targeter" << endl;
+    unitTestReportOutputFile << testReferenceFrameTransformations
+            << "\tReference Frame Transformations" << endl;
 
     // Empty line.
     unitTestReportOutputFile << endl;
