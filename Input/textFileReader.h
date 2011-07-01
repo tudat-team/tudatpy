@@ -2,7 +2,7 @@
  *    This header file contains the definition of a text file reader class.
  *
  *    Path              : /Input/
- *    Version           : 3
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -36,6 +36,8 @@
  *      110223    K. Kumar          First creation of code.
  *      110315    J. Leloux         Checked code.
  *      110316    K. Kumar          Added ostream >> operator overload.
+ *      110607    F.M. Engelen      Added skipKeyWord Feature.
+ *      110627    K. Kumar          Moved skipLinesWithKeyword() to FileReader.
  */
 
 #ifndef TEXTFILEREADER_H

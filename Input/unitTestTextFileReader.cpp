@@ -3,7 +3,7 @@
  *    reader class.
  *
  *    Path              : /Input/
- *    Version           : 5
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : J. Leloux
@@ -16,7 +16,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 24 March, 2011
- *    Last modified     : 21 May, 2011
+ *    Last modified     : 27 June, 2011
  *
  *    References
  *
@@ -42,7 +42,9 @@
  *      110408    K. Kumar          Added carriage return to string ( temp
  *                                  solution ).
  *      110521    K. Kumar          Updated to reflect changes to
- *                                  stripEndOfLineCharacters()
+ *                                  stripEndOfLineCharacters().
+ *      110607    F.M. Engelen      Updated with skipKeyword() test.
+ *      110627    K. Kumar          Fixed skipKeyword() test.
  */
 
 // Include statements.
@@ -69,7 +71,7 @@ bool testTextFileReader( )
     string line3 = "Test line 1.";
     string line4 = "Test line 2.";
     string line5 = "Test line 3.";
-    string line6 = "Test line 4.";
+    string line6 = "Test line 4 with KEYWORD in the line.";
     string line7 = "% Starting character % or skip line 3.";
     string line8 = "Test line 5.";
     string line9 = "Test line 6.";
@@ -157,6 +159,49 @@ bool testTextFileReader( )
 
     // Close the file.
     testTextFileReader2.closeFile( );
+
+    // Declare third test TextFileReader object.
+    TextFileReader testTextFileReader3;
+
+    // Declare a skip keyword string;
+    string skipKeyword = "KEYWORD";
+
+    // Set path and open test text file, Skip lines with keyword.
+    testTextFileReader3.setRelativePath( "Input/" );
+    testTextFileReader3.setFileName( "testTextFile.txt" );
+    testTextFileReader3.openFile( );
+    testTextFileReader3.skipLinesWithKeyword( skipKeyword );
+    testTextFileReader3.readAndStoreData( );
+
+    // Set map variable to the read input file string data.
+    map< unsigned int, string > testContainerOfData3
+            = testTextFileReader3.getContainerOfData( );
+
+    // Strip End-Of-Line characters from string data.
+    testTextFileReader3.stripEndOfLineCharacters( );
+
+    // Set map variable to the read input file string data.
+    testContainerOfData3 =
+            testTextFileReader3.getContainerOfData( );
+
+    // Check if the defined lines match the stored string data, if it doesn't,
+    // set the test boolean to true and give an error output message.
+    if ( testContainerOfData3[ 1 ] != line1 ||
+         testContainerOfData3[ 2 ] != line2 ||
+         testContainerOfData3[ 3 ] != line3 ||
+         testContainerOfData3[ 4 ] != line4 ||
+         testContainerOfData3[ 5 ] != line5 ||
+         testContainerOfData3[ 7 ] != line7 ||
+         testContainerOfData3[ 8 ] != line8 )
+    {
+        isTextFileReaderErroneous = true;
+        cerr << "Test text file reading with skipping of lines with a keyword "
+                "was unsuccessful."
+             << endl;
+    }
+
+    // Close the file.
+    testTextFileReader3.closeFile( );
 
     // Return test result.
     // If test is successful return false; if test fails, return true.

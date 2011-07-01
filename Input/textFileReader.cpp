@@ -2,7 +2,7 @@
  *    This source file contains the definition of a text file reader class.
  *
  *    Path              : /Input/
- *    Version           : 4
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : J.Leloux@student.tudelft.nl
  *
  *    Date created      : 24 February, 2011
- *    Last modified     : 21 May, 2011
+ *    Last modified     : 27 June, 2011
  *
  *    References
  *      ASCII Table, http://www.asciitable.com/, last accessed: 21st May, 2011.
@@ -38,6 +38,8 @@
  *      110315    J. Leloux         Checked code.
  *      110316    K. Kumar          Added ostream >> operator overload.
  *      110521    K. Kumar          Modified stripEndOfLineCharacters().
+ *      110607    F.M. Engelen      Added skipKeyWord Feature.
+ *      110627    K. Kumar          Moved skipLinesWithKeyword() to FileReader.
  */
 
 // Include statements.
@@ -66,10 +68,14 @@ void TextFileReader::readAndStoreData( )
         // Get next line of data from data file and store in a string.
         getline( dataFile_, stringOfData_ );
 
-        // Check if string doesn't start with set starting character and string
-        // is not empty.
-        if ( stringOfData_.substr( 0, 1 ).compare( startingCharacter_ ) != 0
-             && !stringOfData_.empty( ) )
+        // Check if string doesn't start with set starting character, if string
+        // is not empty, and if the skip keyword is not in the string.
+        if ( ( ( !startingCharacter_.empty( ) && stringOfData_.substr( 0, 1 )
+                 .compare( startingCharacter_ ) != 0 )
+            || ( !skipKeyword_.empty( ) && stringOfData_.find( skipKeyword_ )
+                 == string::npos ) )
+            && !stringOfData_.empty( ) )
+
         {
             // Store string in container.
             containerOfDataFromFile_[ lineCounter_ ] = stringOfData_;
@@ -78,6 +84,7 @@ void TextFileReader::readAndStoreData( )
         // Increment line counter.
         lineCounter_++;
     }
+
 }
 
 //! Read and store data.
@@ -109,17 +116,15 @@ void TextFileReader::stripEndOfLineCharacters( )
     string::iterator iteratorString_;
 
     // Loop through all the strings stored in the container.
-    for ( iteratorContainerOfDataFromFile_
-          = containerOfDataFromFile_.begin( );
-          iteratorContainerOfDataFromFile_
-          != containerOfDataFromFile_.end( );
+    for ( iteratorContainerOfDataFromFile_ = containerOfDataFromFile_.begin( );
+          iteratorContainerOfDataFromFile_ != containerOfDataFromFile_.end( );
           iteratorContainerOfDataFromFile_++ )
     {
         // Loop through all the characters in the string.
-        for ( iteratorString_
-              = iteratorContainerOfDataFromFile_->second.begin( );
-              iteratorString_
-              != iteratorContainerOfDataFromFile_->second.end( );
+        for ( iteratorString_ = iteratorContainerOfDataFromFile_
+                                ->second.begin( );
+              iteratorString_ != iteratorContainerOfDataFromFile_
+                                 ->second.end( );
               iteratorString_++ )
         {
             // Check if end-of-line characters are present in string.

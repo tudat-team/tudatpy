@@ -3,7 +3,7 @@
  *    readers included in Tudat.
  *
  *    Path              : /Input/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.Leloux@student.tudelft.nl
  *
  *    Date created      : 24 February, 2011
- *    Last modified     : 15 March, 2011
+ *    Last modified     : 27 June, 2011
  *
  *    References
  *
@@ -45,6 +45,8 @@
  *      110223    K. Kumar          First creation of code.
  *      110224    K. Kumar          Changed vector container to map container.
  *      110224    J. Leloux         Checked code and fixed typo.
+ *      110627    K. Kumar          Moved skipLinesWithKeyword() from
+ *                                  TextFileReader.
  */
 
 #ifndef FILEREADER_H
@@ -117,7 +119,15 @@ public:
      * used in combination with the skipLines( ) function.
      * \param startingCharacter Starting character.
      */
-    void skipLinesStartingWithCharacter( string startingCharacter );
+    void skipLinesStartingWithCharacter( const string& startingCharacter );
+
+    //! Skip all lines containing a given keyword.
+    /*!
+     * Skips all lines containing a given keyword. This function cannot be
+     * used in combination with the skipLines( ) function.
+     * \param skipKeyword Keyword to skip line.
+     */
+    void skipLinesWithKeyword( const string& skipKeyword );
 
     //! Read and store data.
     /*!
@@ -193,6 +203,12 @@ protected:
      * Starting character.
      */
     string startingCharacter_;
+
+    //! Skip keyword.
+    /*!
+     * Keyword used to skip a line.
+     */
+    string skipKeyword_;
 
     //! Map container of data from file.
     /*!

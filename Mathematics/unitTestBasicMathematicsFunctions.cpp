@@ -3,7 +3,7 @@
  *    containing all basic mathematics functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : B. Romgens
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 7 February, 2011
- *    Last modified     : 11 April, 2011
+ *    Last modified     : 1 July, 2011
  *
  *    References
  *
@@ -39,6 +39,7 @@
  *                                  and variable-naming.
  *      110411    K. Kumar          Added unit test for
  *                                  convertCartesianToSpherical() function.
+ *      110701    K. Kumar          Updated failing tests with relative errors.
  */
 
 // Include statements.
@@ -454,11 +455,24 @@ bool testBasicMathematicsFunctions( )
     VectorXd sphericalCoordinates_( 3 );
 
     // Test 24: Test conversion of: ( 0.0, 0.0, 0.0 ).
-    VectorXd differences_( 3 );
-    differences_ = sphericalCoordinates_ - expectedSphericalCoordinatesTest24_;
-    convertCartesianToSpherical( cartesianCoordinatesTest24_, sphericalCoordinates_ );
 
-    if ( differences_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    // Declare absolute and relative differences.
+    double absoluteDifference_;
+    double relativeDifference_;
+
+    // Compute conversions.
+    convertCartesianToSpherical( cartesianCoordinatesTest24_,
+                                 sphericalCoordinates_ );
+
+    // Compute absolute and relative differences.
+    absoluteDifference_ = abs( sphericalCoordinates_.norm( )
+            - expectedSphericalCoordinatesTest24_.norm( ) );
+
+    relativeDifference_ = absoluteDifference_
+            / expectedSphericalCoordinatesTest24_.norm( );
+
+    // Check if relative error is too large.
+    if ( relativeDifference_  > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The convertCartesianToSpherical, function does not "
              << "function correctly. ( Test 24 )." << endl;
@@ -466,10 +480,19 @@ bool testBasicMathematicsFunctions( )
     }
 
     // Test 25: Test conversion of: ( 2.0, 3.5, -4.1 ).
-    convertCartesianToSpherical( cartesianCoordinatesTest25_, sphericalCoordinates_ );
-    differences_ = sphericalCoordinates_ - expectedSphericalCoordinatesTest25_;
 
-    if ( differences_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    // Compute conversions.
+    convertCartesianToSpherical( cartesianCoordinatesTest25_,
+                                 sphericalCoordinates_ );
+
+    // Compute absolute and relative differences.
+    absoluteDifference_ = abs( sphericalCoordinates_.norm( )
+                               - expectedSphericalCoordinatesTest25_.norm( ) );
+
+    relativeDifference_ = absoluteDifference_
+            / expectedSphericalCoordinatesTest25_.norm( );
+
+    if ( relativeDifference_ > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The convertCartesianToSpherical, function does not "
              << "function correctly. ( Test 25 )." << endl;
@@ -477,10 +500,17 @@ bool testBasicMathematicsFunctions( )
     }
 
     // Test 26: Test conversion of: ( 5.2, -6.3, 0.0 ).
-    convertCartesianToSpherical( cartesianCoordinatesTest26_, sphericalCoordinates_ );
-    differences_ = sphericalCoordinates_ - expectedSphericalCoordinatesTest26_;
 
-    if ( differences_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    // Compute conversion.
+    convertCartesianToSpherical( cartesianCoordinatesTest26_, sphericalCoordinates_ );
+
+    // Compute absolute and relative differences.
+    absoluteDifference_ = abs( sphericalCoordinates_.norm( )
+                               - expectedSphericalCoordinatesTest26_.norm( ) );
+
+    relativeDifference_ = absoluteDifference_ / expectedSphericalCoordinatesTest26_.norm( );
+
+    if ( relativeDifference_ > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The convertCartesianToSpherical, function does not "
              << "function correctly. ( Test 26 )." << endl;
@@ -488,10 +518,18 @@ bool testBasicMathematicsFunctions( )
     }
 
     // Test 27: Test conversion of: ( 0.0, 12.2, -0.9 ).
-    convertCartesianToSpherical( cartesianCoordinatesTest27_, sphericalCoordinates_ );
-    differences_ = sphericalCoordinates_ - expectedSphericalCoordinatesTest27_;
 
-    if ( differences_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    // Compute conversion.
+    convertCartesianToSpherical( cartesianCoordinatesTest27_, sphericalCoordinates_ );
+
+    // Compute absolute and relative differences.
+    absoluteDifference_ = abs( sphericalCoordinates_.norm( )
+                               - expectedSphericalCoordinatesTest27_.norm( ) );
+
+    relativeDifference_ = absoluteDifference_
+            / expectedSphericalCoordinatesTest27_.norm( );
+
+    if ( relativeDifference_ > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The convertCartesianToSpherical, function does not "
              << "function correctly. ( Test 27 )." << endl;

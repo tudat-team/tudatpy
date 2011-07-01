@@ -3,7 +3,7 @@
  *    readers included in Tudat.
  *
  *    Path              : /Input/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.Leloux@student.tudelft.nl
  *
  *    Date created      : 24 February, 2011
- *    Last modified     : 15 March, 2011
+ *    Last modified     : 27 June, 2011
  *
  *    References
  *
@@ -37,6 +37,8 @@
  *      110223    K. Kumar          First creation of code.
  *      110224    K. Kumar          Changed vector container to map container.
  *      110224    J. Leloux         Checked code and fixed typo.
+ *      110627    K. Kumar          Moved skipLinesWithKeyword() from
+ *                                  TextFileReader.
  */
 
 // Include statements.
@@ -103,9 +105,16 @@ void FileReader::skipLines( unsigned int numberOfLines )
 }
 
 //! Skip all lines starting with a given character.
-void FileReader::skipLinesStartingWithCharacter( string startingCharacter )
+void FileReader::skipLinesStartingWithCharacter( const string&
+                                                 startingCharacter )
 {
     startingCharacter_ = startingCharacter;
+}
+
+//! Skip all lines containing a given keyword.
+void FileReader::skipLinesWithKeyword( const string& skipKeyword )
+{
+    skipKeyword_ = skipKeyword;
 }
 
 //! Close data file.
