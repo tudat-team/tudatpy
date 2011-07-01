@@ -30,6 +30,8 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
     Astrodynamics/Propagators/unitTestNumericalPropagator.cpp \
     Astrodynamics/Propagators/unitTestKeplerPropagator.cpp \
+    Astrodynamics/ReferenceFrames/referenceFrameTransformations.cpp \
+    Astrodynamics/ReferenceFrames/unitTestReferenceFrameTransformations.cpp \
     Astrodynamics/States/approximatePlanetPositionsDataContainer.cpp \
     Astrodynamics/States/approximatePlanetPositions.cpp \
     Astrodynamics/States/ephemeris.cpp \
@@ -114,6 +116,8 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Propagators/numericalPropagator.h \
     Astrodynamics/Propagators/unitTestNumericalPropagator.h \
     Astrodynamics/Propagators/unitTestKeplerPropagator.h \
+    Astrodynamics/ReferenceFrames/referenceFrameTransformations.h \
+    Astrodynamics/ReferenceFrames/unitTestReferenceFrameTransformations.h \
     Astrodynamics/States/approximatePlanetPositions.h \
     Astrodynamics/States/approximatePlanetPositionsDataContainer.h \
     Astrodynamics/States/ephemeris.h \
@@ -188,6 +192,7 @@ INCLUDEPATH += Applications \
     Astrodynamics/ForceModels \
     Astrodynamics/ForceModels/Aerothermodynamics \
     Astrodynamics/Propagators \
+    Astrodynamics/ReferenceFrames \
     Astrodynamics/States \
     Astrodynamics/MissionSegments \
     Astrodynamics/MissionSegments/EscapeAndCapture \

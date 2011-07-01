@@ -54,9 +54,9 @@
 namespace unit_tests
 {
 
-//! Test of physical constants header file.
+//! Test physical constants header file.
 /*!
- * Test of physical constants header file.
+ * Tests physical constants header file.
  * \return Boolean indicating success of test
  * ( false = successful; true = failed ).
  */
