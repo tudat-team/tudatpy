@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@student.tudelft.nl
  *
  *    Date created      : 24 January, 2011
- *    Last modified     : 24 January, 2011
+ *    Last modified     : 29 June, 2011
  *
  *    References
  *      Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical
@@ -41,6 +41,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110124    K. Kumar          First creation of code.
+ *      110629    F.M. Engelen      Added specific gas constants.
  */
 
 // Include directives.
@@ -92,5 +93,11 @@ const double PhysicalConstants::ASTRONOMICAL_UNIT = 1.49597870691e11;
 
 //! Uncertainty of the Astronomical Unit.
 const double PhysicalConstants::UNCERTAINTY_ASTRONOMICAL_UNIT = 3.0;
+
+//! Specific gas constant of air.
+const double PhysicalConstants::SPECIFIC_GAS_CONSTANT_AIR = 2.87e2;
+
+//! Ratio of specific heats of air/diatomic gases.
+const double PhysicalConstants::RATIO_OF_SPECIFIC_HEATS_AIR = 1.4;
 
 // End of file.

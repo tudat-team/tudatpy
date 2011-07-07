@@ -72,6 +72,7 @@
 #include "unitTestCoefficientGenerator.h"
 #include "unitTestDeepSpaceManeuver.h"
 #include "unitTestEscapeAndCapture.h"
+#include "unitTestExponentialAtmosphere.h"
 #include "unitTestGravityAssist.h"
 #include "unitTestKeplerianElements.h"
 #include "unitTestKeplerPropagator.h"
@@ -99,7 +100,7 @@ int main( )
     // JM: In the ExponentialAtmosphere code check I've already changed
     // the following to isErroneous. Difficult to merge, I guesss.
     // Good you've set it in alphabetical order.
-    int success = 0;
+    int isErroneous = 0;
 
     // Run all unit tests.
     // Unit test functions return false ( 0 ) for success.
@@ -173,6 +174,10 @@ int main( )
     bool testEscapeAndCapture =
             unit_tests::testEscapeAndCapture( );
 
+    // testExponentialAtmosphere: Tests the exponential atmosphere model.
+       bool testExponentialAtmosphere =
+               unit_tests::testExponentialAtmosphere( );
+
     // testGravityAssist: Tests delta-V for a gravity assist for the
     // case of equal hyperbolic excess velocities.
     bool testGravityAssist =
@@ -232,140 +237,146 @@ int main( )
     if ( testBasicMathematicsFunctions )
     {
         cerr << "testBasicMathematicsFunctions failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testEulerIntegrator )
     {
         cerr << "testEulerIntegrator failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testLawgsSurfaceGeometry )
     {
         cerr << "testLawgsSurfaceGeometry failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testNewtonRaphson )
     {
         cerr << "testNewtonRaphson failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testUnitConversions )
     {
         cerr << "testUnitConversions failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testRandomNumberGenerator )
     {
         cerr << "testRandomNumberGenerator failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testRungeKutta4thOrderFixedStepsizeIntegrator )
     {
         cerr << "testRungeKutta4thOrderFixedStepsizeIntegrator failed!"
              << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testApproximatePlanetPositions )
     {
         cerr << "testApproximatePlanetPositions failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testAerodynamicsNamespace )
     {
         cerr << "testAerodynamicsNamespace failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testCartesianElements )
     {
         cerr << "testCartesianElements failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testCoefficientGenerator )
     {
         cerr << "testCoefficientGenerator failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testDeepSpaceManeuver )
     {
         cerr << "testDeepSpaceManeuver failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testEscapeAndCapture )
     {
         cerr << "testEscapeAndCapture failed!" << endl;
-        success = 1;
+        isErroneous = 1;
+    }
+
+    if ( testExponentialAtmosphere )
+    {
+        cerr << "testExponentialAtmosphere failed!" << endl;
+        isErroneous = 1;
     }
 
     if ( testGravityAssist )
     {
         cerr << "testGravityAssist failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testKeplerianElements )
     {
         cerr << "testKeplerianElements failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testKeplerPropagator )
     {
         cerr << "testKeplerPropagator failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testLambertTargeter )
     {
         cerr << "testLambertTargeter failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testNumericalPropagator )
     {
         cerr << "testNumericalPropagator failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testOrbitalElementConversions )
     {
         cerr << "testOrbitalElementConversions failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testPhysicalConstants )
     {
         cerr << "testPhysicalConstants failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testReferenceFrameTransformations )
     {
         cerr << "referenceFrameTransformations failed" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testSphericalHarmonicsGravityField )
     {
         cerr << "testSphericalHarmonicsGravityField failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     if ( testTextFileReader )
     {
         cerr << "testTextFileReader failed!" << endl;
-        success = 1;
+        isErroneous = 1;
     }
 
     // Generate unit test report file ( unitTestReport.txt ).
@@ -426,6 +437,8 @@ int main( )
                              << "\tDeep Space Maneuver" << endl;
     unitTestReportOutputFile << testEscapeAndCapture
                              << "\tEscape and Capture" << endl;
+    unitTestReportOutputFile << testExponentialAtmosphere
+                             << "\tExponential Atmosphere" << endl;
     unitTestReportOutputFile << testGravityAssist
                              << "\tGravity Assist" << endl;
     unitTestReportOutputFile << testKeplerianElements
@@ -454,7 +467,7 @@ int main( )
                              << "\tText File Reader" << endl;
 
     // Return success variable.
-    return success;
+    return isErroneous;
 }
 
 // End of file.

@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 24 January, 2011
+ *    Last modified     : 29 June, 2011
  *
  *    References
  *      Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical
@@ -23,6 +23,11 @@
  *          Table 1, Kluwer Academic Publishers, Dordrecht.
  *      Standish, E.M. (1998) "JPL Planetary and Lunar Ephemerides,
  *          DE405/LE405", JPL IOM 312.F-98-048.
+ *      Anderson, J.D. Jr. Hypersonic and High-Temperature Gas Dynamics
+ *          Second Edition, p469.
+ *      Wikipedia. Heat Capacity Ratio,
+ *          http://en.wikipedia.org/wiki/Heat_capacity_ratio, last accessed:
+ *          7 July, 2011.
  *
  *    Notes
  *      The reference for the sidereal day and year should be updated.
@@ -42,6 +47,7 @@
  *      YYMMDD    Author            Comment
  *      100906    J. Melman         First creation of code.
  *      110124    K. Kumar          Split into .h and .cpp files.
+ *      110629    F.M. Engelen      Added specific gas constants.
  */
 
 #ifndef PHYSICAL_CONSTANTS_H
@@ -176,6 +182,21 @@ public:
      *             http://iau-comm4.jpl.nasa.gov/de405iom/de405iom.pdf
      */
     const static double UNCERTAINTY_ASTRONOMICAL_UNIT;
+
+    //! Specific gas constant of air.
+    /*!
+     * The specific gas constant of air in J per kg Kelvin (J/kg K).
+     * Reference: Hypersonic and High-Temperature Gas Dynamics Second Edition,
+     *            John D. Anderson Jr., p469.
+     */
+    const static double SPECIFIC_GAS_CONSTANT_AIR;
+
+    //! Ratio of specific heats of air/diatomic gases.
+    /*!
+     * Ratio of specific heats of air/diatomic gases.
+     * Reference: http://en.wikipedia.org/wiki/Heat_capacity_ratio.
+     */
+    const static double RATIO_OF_SPECIFIC_HEATS_AIR;
 };
 
 #endif // PHYSICAL_CONSTANTS_H

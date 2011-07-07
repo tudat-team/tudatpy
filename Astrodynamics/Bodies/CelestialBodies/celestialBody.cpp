@@ -74,6 +74,12 @@ void CelestialBody::setGravityFieldModel( GravityFieldModel*
     pointerToGravityFieldModel_ = pointerToGravityFieldModel;
 }
 
+//! Set atmosphere model.
+void CelestialBody::setAtmosphereModel( AtmosphereModel* pointerToAtmosphereModel )
+{
+    pointerToAtmosphereModel_ = pointerToAtmosphereModel ;
+}
+
 //! Get state from ephemeris at given Julian date.
 CartesianElements* CelestialBody::getStateFromEphemeris( const double&
                                                          julianDate )
@@ -101,6 +107,12 @@ GravityFieldModel* CelestialBody::getGravityFieldModel( )
 {
     // Return gravity field model.
     return pointerToGravityFieldModel_;
+}
+
+//! Get atmosphere model.
+AtmosphereModel* CelestialBody::getAtmospheremodel( )
+{
+    return pointerToAtmosphereModel_;
 }
 
 //! Overload ostream to print class information.
