@@ -58,14 +58,20 @@
 // Include statements.
 #include <map>
 #include <vector>
-#include "forceModel.h"
-#include "propagatorDataContainer.h"
 #include "body.h"
+#include "cartesianElements.h"
+#include "forceModel.h"
 #include "linearAlgebra.h"
+#include "propagatorDataContainer.h"
+#include "seriesPropagator.h"
 #include "state.h"
+
+// Using declarations.
+using std::map;
 
 // Forward declarations.
 class PropagatorDataContainer;
+class SeriesPropagator;
 
 //! Propagator class.
 /*!
@@ -74,6 +80,10 @@ class PropagatorDataContainer;
 class Propagator
 {
 public:
+
+    // Definition of friendships.
+    // Define SeriesPropagator as friend.
+    friend class SeriesPropagator;
 
     //! Default constructor.
     /*!
@@ -120,18 +130,11 @@ public:
     /*!
      * Sets the initial state of given body.
      * \param pointerToBody Pointer to Body object.
-     * \param pointerToInitialState Initial state given as pointer to a State object.
+     * \param pointerToInitialState Initial state given as pointer to a
+     *          CartesianElements object.
      */
-    void setInitialState( Body* pointerToBody, State* pointerToInitialState );
-
-    //! Set fixed output interval.
-    /*!
-     * Sets the fixed output interval at which propagation output should be
-     * generated and stored in propagationHistory_. Calls to this function are
-     * optional.
-     * \param fixedOutputInterval Fixed output interval.
-     */
-    void setFixedOutputInterval( const double& fixedOutputInterval );
+    virtual void setInitialState( Body* pointerToBody,
+                                  State* pointerToInitialState );
 
     //! Get start of propagation interval.
     /*!
@@ -147,13 +150,13 @@ public:
      */
     double& getPropagationIntervalEnd( );
 
-    //! Get fixed output interval.
+    //! Get initial state of body.
     /*!
-     * Gets the fixed output interval at which propagation output should be
-     * generated and stored in propagationHistory_.
-     * \return Fixed output interval.
+     * Returns the initial state of given body.
+     * \param pointerToBody Pointer to Body object.
+     * \return Initial state.
      */
-    double& getFixedOutputInterval( );
+    State* getInitialState( Body* pointerToBody );
 
     //! Get final state of body.
     /*!
@@ -162,16 +165,6 @@ public:
      * \return Final state.
      */
     State* getFinalState( Body* pointerToBody );
-
-    //! Get propagation history of body at fixed output intervals.
-    /*!
-     * Returns the propagation history of given body at specified fixed output
-     * intervals.
-     * \param pointerToBody Pointer to Body object.
-     * \return Map of propagation history.
-     */
-    std::map < double, State* >
-            getPropagationHistoryAtFixedOutputIntervals( Body* pointerToBody );
 
     //! Propagate.
     /*!
@@ -193,36 +186,17 @@ protected:
      */
     double propagationIntervalEnd_;
 
-    //! Fixed output interval.
-    /*!
-     * Fixed interval for output of state.
-     */
-    double fixedOutputInterval_;
-
     //! Map of bodies to propagate and associated data.
     /*!
      * Map of bodies to be propagated and associated data.
      */
-    std::map < Body*, PropagatorDataContainer* > bodiesToPropagate_;
+    map< Body*, PropagatorDataContainer > bodiesToPropagate_;
 
     //! Iterator for map of bodies to propagate and associated data.
     /*!
      * Iterator for map of bodies to propagate and associated data.
      */
-    std::map < Body*, PropagatorDataContainer* >::iterator
-            iteratorBodiesToPropagate_;
-
-    //! Map of propagation history.
-    /*!
-     * Map of propagation history.
-     */
-    std::map < double, State* > propagationHistory_;
-
-    //! Iterator for map of propagation history.
-    /*!
-     * Iterator for map of propagation history.
-     */
-    std::map < double, State* >::iterator iteratorPropagationHistory_;
+    map< Body*, PropagatorDataContainer >::iterator iteratorBodiesToPropagate_;
 
 private:
 };

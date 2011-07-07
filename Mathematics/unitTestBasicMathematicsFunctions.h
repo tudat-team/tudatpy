@@ -1,12 +1,13 @@
 /*! \file unitTestBasicMathematicsFunctions.h
- *    Source file that defines the unitTestBasicMathematicsFunctions unit test,
+ *    Header file that defines the unitTestBasicMathematicsFunctions unit test,
  *    containing all basic mathematics functions contained in Tudat.
  *
  *    Path              : /Mathematics/
  *    Version           : 2
  *    Check status      : Checked
  *
- *    Author            : B. Romgens *    Affiliation       : Delft University of Technology
+ *    Author            : B. Romgens
+ *    Affiliation       : Delft University of Technology
  *    E-mail address    : bart.romgens@gmail.com
  *
  *    Checker           : K. Kumar
@@ -33,7 +34,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110207    B. Romgens       File created.
+ *      110207    B. Romgens        File created.
  *      110215    K. Kumar          Minor modifications.
  */
 

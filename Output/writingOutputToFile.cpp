@@ -52,6 +52,9 @@
 // Include statements.
 #include "writingOutputToFile.h"
 
+// Using declarations.
+using std::map;
+
 // Ofstream object.
 std::ofstream WritingOutputToFile::outputFile_;
 
@@ -67,12 +70,12 @@ WritingOutputToFile::~WritingOutputToFile( )
 
 //! Write propagation history to file.
 void WritingOutputToFile::writePropagationHistoryToFile(
-        std::map < double, State* >& propagationHistory,
+        map< double, State >& propagationHistory,
         const std::string& outputFilename )
 {
     // Declare local variables.
     // Declare iterator for propagation history.
-    std::map < double, State* >::iterator iteratorPropagationHistory_;
+    map< double, State >::iterator iteratorPropagationHistory_;
 
     // Open output file.
     outputFile_.open( outputFilename.c_str( ) );
@@ -87,12 +90,12 @@ void WritingOutputToFile::writePropagationHistoryToFile(
 
         // Loop over map data.
         for ( int i = 0;
-              i < iteratorPropagationHistory_->second->state.rows( ); i++ )
+              i < iteratorPropagationHistory_->second.state.rows( ); i++ )
         {
             // Print map data to file.
             outputFile_.precision( 10 );
             outputFile_ << ", "
-                        << iteratorPropagationHistory_->second->state[ i ];
+                        << iteratorPropagationHistory_->second.state( i );
         }
 
         // End line of output file.
@@ -104,7 +107,7 @@ void WritingOutputToFile::writePropagationHistoryToFile(
 }
 
 //! Write single surface geometry to a file.
-void WritingOutputToFile:: writeSingleSurfaceGeometryPointsToFile(
+void WritingOutputToFile::writeSingleSurfaceGeometryPointsToFile(
         SingleSurfaceGeometry* pointerToSingleSurfaceGeometry,
         const int& numberOfLines, const int& numberOfPoints,
         const std::string& filename, const int& writeType,

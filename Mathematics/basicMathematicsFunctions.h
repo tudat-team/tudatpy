@@ -4,7 +4,7 @@
  *
  *    Path              : /Mathematics/
  *    Version           : 9
- *    Check status      : Checked
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -27,9 +27,11 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 11 April, 2011
+ *    Last modified     : 10 May, 2011
  *
  *    References
+ *      Press W.H., et al. Numerical Recipes in C++: The Art of
+ *          Scientific Computing. Cambridge University Press, February 2002.
  *
  *    Notes
  *
@@ -45,32 +47,38 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      100903    K. Kumar            File header and footer added.
- *      100916    L. Abdulkadir       File checked.
- *      100929    K. Kumar            Checked code by D. Dirkx added.
- *      101110    K. Kumar            Added raiseToIntegerExponent() function.
- *      102410    D. Dirkx            Minor comment changes during code check.
- *      101213    K. Kumar            Modified raiseToIntegerExponent()
- *                                    function; renamed raiseToIntegerPower().
- *                                    Added computeAbsoluteValue() functions.
- *      110111    J. Melman           Added computeModulo() function.
- *      110202    K. Kumar            Added overload for State* for
- *                                    computeLinearInterpolation();
- *      110411    K. Kumar            Added convertCartesianToSpherical()
- *                                    function.
+ *      YYMMDD    Author            Comment
+ *      100903    K. Kumar          File header and footer added.
+ *      100916    L. Abdulkadir     File checked.
+ *      100929    K. Kumar          Checked code by D. Dirkx added.
+ *      101110    K. Kumar          Added raiseToIntegerExponent() function.
+ *      102410    D. Dirkx          Minor comment changes during code check.
+ *      101213    K. Kumar          Modified raiseToIntegerExponent()
+ *                                  function; renamed raiseToIntegerPower().
+ *                                  Added computeAbsoluteValue() functions.
+ *      110111    J. Melman         Added computeModulo() function.
+ *      110202    K. Kumar          Added overload for State* for
+ *                                  computeLinearInterpolation();
+ *      110411    K. Kumar          Added convertCartesianToSpherical()
+ *                                  function.
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
 #define BASICMATHEMATICSFUNCTIONS_H
 
 // Include statements.
+#include <iostream>
 #include <map>
 #include <cmath>
 #include <cfloat>
+#include <numeric>
 #include "basicFunctions.h"
 #include "linearAlgebra.h"
 #include "state.h"
+
+// Using declarations.
+using std::map;
+using std::accumulate;
 
 //! Mathematics namespace.
 /*!
@@ -78,6 +86,9 @@
  */
 namespace mathematics
 {
+
+// Definition of typedefs.
+typedef map< double, double > mapOfDoubleDoubleData;
 
 //! Machine precision for floats.
 /*!
@@ -169,7 +180,7 @@ State* computeLinearInterpolation(
 * Schematic representation can be found on, e.g.,
 * http://mathworld.wolfram.com/SphericalCoordinates.html.
 * The transformation equations are the following, with \f$ r \f$ the radius,
-* \f$ \theta \f$ the azimuth angle and \f$ \phi \f$ the azimuth angle:
+* \f$ \theta \f$ the azimuth angle and \f$ \phi \f$ the zenith angle:
 * \f{eqnarray*}{
 *      x &=& r\cos\theta\sin\phi \\
 *      y &=& r\sin\theta\sin\phi \\
@@ -228,8 +239,9 @@ double raiseToIntegerPower( const double& baseValue,
 
 //! Compute absolute value of integer.
 /*!
- * This function computes the absolute value of an integer. This function seems
+ * Computes the absolute value of a double. This function seems
  * to perform faster than the STL abs() function included in <cmath>
+ * in certain circumstances. Try the abs() function first.
  */
 int computeAbsoluteValue( const int& signedInteger );
 
@@ -240,9 +252,9 @@ int computeAbsoluteValue( const int& signedInteger );
  */
 double computeAbsoluteValue( const double& signedDouble );
 
-//! Function to compute the modulo.
+//! Compute the modulo.
 /*!
- * This function computes the remainder of division of one number by another.
+ * Computes the remainder of division of one number by another.
  * The remainder is in the range [ 0, divisor ].
  * \param dividend Number to be divided.
  * \param divisor Number that is divided by.

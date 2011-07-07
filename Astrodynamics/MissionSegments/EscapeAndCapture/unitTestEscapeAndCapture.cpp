@@ -4,7 +4,7 @@
  *    Meccanica del volo Spaziale", G. Mengali, A. A. Quarta.
  *
  *    Path              : /Astrodynamics/MissionSegments/EscapeAndCapture/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -16,7 +16,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 31 January, 2011
- *    Last modified     : 14 February, 2011
+ *    Last modified     : 27 June, 2011
  *
  *    References        :
  *      Mengali, G., Quarta, A.A. Fondamenti di Meccanica del volo Spaziale,
@@ -48,16 +48,15 @@
  *      110214    E. Iorfida        Code updated with the modification made
  *                                  in .h/.cpp files about radius of central
  *                                  body.
+ *      110627    K. Kumar          Updated to use new predefined planets code.
  */
 
 // Include statements.
 #include "unitTestEscapeAndCapture.h"
-#include "sphereSegment.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-using predefined_celestial_bodies::createPredefinedCelestialBody;
 using mathematics::computeAbsoluteValue;
 
 //! Namespace for all unit tests.
@@ -79,45 +78,43 @@ bool testEscapeAndCapture( )
     double expectedDeltaVCapture = 1.9425e3;
 
     // Set test case.
-    EscapePhase* pointerToEscapePhaseTest = new EscapePhase;
-    CapturePhase* pointerToCapturePhaseTest = new CapturePhase;
+    EscapePhase escapePhaseTest;
+    CapturePhase capturePhaseTest;
 
     // Central bodies parameters.
     // Central body at launch phase.
-    CelestialBody* pointerToEarth = new CelestialBody;
-    pointerToEarth = createPredefinedCelestialBody(
-            predefined_celestial_bodies::earth );
-    SphereSegment* pointerToEarthSphere = new SphereSegment;
-    pointerToEarth->setShapeModel( pointerToEarthSphere );
+    Planet predefinedEarth;
+    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
+    SphereSegment earthSphere;
+    predefinedEarth.setShapeModel( &earthSphere );
 
     // Central body at capture phase.
-    CelestialBody* pointerToMars = new CelestialBody;
-    pointerToMars = createPredefinedCelestialBody(
-            predefined_celestial_bodies::mars );
-    SphereSegment* pointerToMarsSphere = new SphereSegment;
-    pointerToMars->setShapeModel( pointerToMarsSphere );
+    Planet predefinedMars;
+    predefinedMars.setPredefinedPlanetSettings( Planet::mars );
+    SphereSegment marsSphere;
+    predefinedMars.setShapeModel( &marsSphere );
 
     // Set launch conditions.
-    pointerToEscapePhaseTest->setCentralBody( pointerToEarth );
-    pointerToEarthSphere->setRadius( 6371.0e3 );
-    pointerToEscapePhaseTest->setPeriapsisAltitude( 629.0e3 );
-    pointerToEscapePhaseTest->setEccentricity( 0.0 );
-    pointerToEscapePhaseTest->setHyperbolicExcessSpeed( 2.9444e3 );
+    escapePhaseTest.setCentralBody( &predefinedEarth );
+    earthSphere.setRadius( 6371.0e3 );
+    escapePhaseTest.setPeriapsisAltitude( 629.0e3 );
+    escapePhaseTest.setEccentricity( 0.0 );
+    escapePhaseTest.setHyperbolicExcessSpeed( 2.9444e3 );
 
     // Set capture conditions.
-    pointerToCapturePhaseTest->setCentralBody( pointerToMars );
-    pointerToMarsSphere->setRadius( 3389.0e3 );
-    pointerToCapturePhaseTest->setPeriapsisAltitude( 2611.0e3 );
-    pointerToCapturePhaseTest->setEccentricity( 0.0 );
-    pointerToCapturePhaseTest->setHyperbolicExcessSpeed( 2.6486e3 );
+    capturePhaseTest.setCentralBody( &predefinedMars );
+    marsSphere.setRadius( 3389.0e3 );
+    capturePhaseTest.setPeriapsisAltitude( 2611.0e3 );
+    capturePhaseTest.setEccentricity( 0.0 );
+    capturePhaseTest.setHyperbolicExcessSpeed( 2.6486e3 );
 
     // Execute patched conic implementation.
-    pointerToEscapePhaseTest->computeDeltaV( );
-    pointerToCapturePhaseTest->computeDeltaV( );
+    escapePhaseTest.computeDeltaV( );
+    capturePhaseTest.computeDeltaV( );
 
     // Define delta-V of escape/capture phase.
-    double deltaVEscape_ = pointerToEscapePhaseTest->computeDeltaV( );
-    double deltaVCapture_ = pointerToCapturePhaseTest->computeDeltaV( );
+    double deltaVEscape_ = escapePhaseTest.computeDeltaV( );
+    double deltaVCapture_ = capturePhaseTest.computeDeltaV( );
 
     // Set test result to true if the test does not match the expected result.
     if ( mathematics::computeAbsoluteValue(

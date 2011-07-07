@@ -15,7 +15,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 16 February, 2011
- *    Last modified     : 16 Feburary, 2011
+ *    Last modified     : 16 February, 2011
  *
  *    References
  *
@@ -53,10 +53,11 @@
 #include <map>
 #include "cartesianElements.h"
 #include "cartesianPositionElements.h"
+#include "cartesianStateNumericalPropagator.h"
 #include "celestialBody.h"
 #include "gravity.h"
 #include "numericalPropagator.h"
-#include "predefinedCelestialBodies.h"
+#include "planet.h"
 #include "rungeKutta4thOrderFixedStepsize.h"
 #include "sphericalHarmonicsGravityField.h"
 #include "state.h"

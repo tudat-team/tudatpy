@@ -54,6 +54,7 @@
 #include "forceModel.h"
 #include "celestialBody.h"
 #include "gravityFieldModel.h"
+#include "sphericalHarmonicsGravityField.h"
 
 //! Gravity force class.
 /*!
@@ -80,7 +81,7 @@ public:
      * This function sets the body for gravity field expansion.
      * \param celestialBody Celestial body which is set.
      */
-    void setBody( CelestialBody* celestialBody );
+    void setBody( CelestialBody* pointerToCelestialBody );
 
     //! Compute forces per unit mass for gravity field expansion.
     /*!

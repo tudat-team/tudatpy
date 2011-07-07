@@ -143,6 +143,16 @@ public:
      */
     Vector3d& getVelocity( );
 
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param cartesianElements CartesianElements object.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     CartesianElements& cartesianElements );
+
 protected:
 
 private:

@@ -50,12 +50,11 @@
 #define SINGLESTEP_H
 
 // Include statements.
-#include <iostream>
 #include "integrator.h"
 
 //! Single step integration methods class.
 /*!
- * Base class for all single step integration methods included in Tudat.
+ * Base class for all single-step integration methods included in Tudat.
  */
 class SingleStepIntegrationMethods : public Integrator
 {
@@ -75,7 +74,7 @@ public:
 
     //! Integrate.
     /*!
-     * This function executes an integration.
+     * Executes numerical integration.
      */
     void integrate( );
 

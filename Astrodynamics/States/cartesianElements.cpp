@@ -47,11 +47,15 @@
 // Include statements.
 #include "cartesianElements.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 CartesianElements::CartesianElements( )
 {
     // Initialize values.
     position_.setConstant( -0.0 );
+
     // Initialize variables.
     state.setZero( 6 );
 }
@@ -129,6 +133,16 @@ Vector3d& CartesianElements::getVelocity( )
     // Return velocity.
     velocity_ = state.segment( 3, 3 );
     return velocity_;
+}
+
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          CartesianElements& cartesianElements )
+{
+    stream << "The state is set to: " << cartesianElements.state << endl;
+
+    // Return stream.
+    return stream;
 }
 
 // End of file.

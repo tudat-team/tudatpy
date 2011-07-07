@@ -61,97 +61,105 @@ namespace applications
 //! Execute example of an Earth-orbiting satellite.
 void executeEarthOrbitingSatelliteExample( )
 {
-    // Create pointer to the state of Asterix given in Cartesian elements.
-    CartesianElements* pointerToStateOfAsterix = new CartesianElements;
+    // Create the state of Asterix given in Cartesian elements.
+    CartesianElements stateOfAsterix;
 
     // Fill initial state vector with position and
     // velocity given for Asterix.
     // Position is given in kilometers and
     // velocity is given in kilometers per second.
-    pointerToStateOfAsterix->setCartesianElementX( 7000.0 );
-    pointerToStateOfAsterix->setCartesianElementY( 0.0 );
-    pointerToStateOfAsterix->setCartesianElementZ( 0.0 );
-    pointerToStateOfAsterix->setCartesianElementXDot( 0.0 );
-    pointerToStateOfAsterix->setCartesianElementYDot( 5.0 );
-    pointerToStateOfAsterix->setCartesianElementZDot( 7.0 );
+    stateOfAsterix.setCartesianElementX( 7000.0 );
+    stateOfAsterix.setCartesianElementY( 0.0 );
+    stateOfAsterix.setCartesianElementZ( 0.0 );
+    stateOfAsterix.setCartesianElementXDot( 0.0 );
+    stateOfAsterix.setCartesianElementYDot( 5.0 );
+    stateOfAsterix.setCartesianElementZDot( 7.0 );
 
     // Convert initial state vector to meters from
     // kilometers.
-    pointerToStateOfAsterix->state =
+    stateOfAsterix.state =
             unit_conversions::convertKilometersToMeters(
-                    pointerToStateOfAsterix->state );
+                    stateOfAsterix.state );
 
     // Create map of propagation history of Asterix.
-    std::map < double, State* > asterixPropagationHistory;
+    std::map < double, State > asterixPropagationHistory;
 
-    // Create a pointer to new vehicle for Asterix.
-    Vehicle* pointerToAsterix = new Vehicle;
+    // Create a new vehicle object for Asterix.
+    Vehicle asterix;
 
     // Create pre-defined Earth object.
-    CelestialBody* pointerToEarth = predefined_celestial_bodies::
-                                    createPredefinedCelestialBody(
-                                            predefined_celestial_bodies::earth );
+    Planet predefinedEarth;
+    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
 
-    // Create a pointer to a new Gravity object for Earth.
-    Gravity* pointerToEarthGravity = new Gravity;
+    // Create a new Gravity object for Earth.
+    Gravity earthGravity;
 
     // Set Earth as central body for gravity.
-    pointerToEarthGravity->setBody( pointerToEarth );
+    earthGravity.setBody( &predefinedEarth );
 
-    // Create a pointer to a new RK4 integrator.
-    RungeKutta4thOrderFixedStepsize* pointerToRK4
-            = new RungeKutta4thOrderFixedStepsize;
+    // Create a new RK4 integrator object.
+    RungeKutta4thOrderFixedStepsize rungeKutta4;
 
     // Set an initial stepsize for our integrator.
-    pointerToRK4->setInitialStepsize( 30.0 );
+    rungeKutta4.setInitialStepsize( 30.0 );
 
-    // Create numerical propagator object.
-    NumericalPropagator numericalPropagator;
+    // Create Cartesian state numerical propagator object.
+    CartesianStateNumericalPropagator cartesianStateNumericalPropagator;
 
-    // Set fixed output interval for output in numerical
-    // propagator object.
-    numericalPropagator.setFixedOutputInterval( 60.0 );
-
-    // Set the propagation start time.
-    numericalPropagator.setPropagationIntervalStart( 0.0 );
-
-    // Set the propagation end time.
-    numericalPropagator.setPropagationIntervalEnd( 86400.0 );
+    // Set object containing state derivative function for integrator. In this
+    // case the Cartesian state numerical propagator contains the state
+    // derivative function.
+    rungeKutta4.setObjectContainingStateDerivative(
+                &cartesianStateNumericalPropagator );
 
     // Set the integrator to use RK4.
-    numericalPropagator.setIntegrator( pointerToRK4 );
+    cartesianStateNumericalPropagator.setIntegrator( &rungeKutta4 );
 
     // Add Asterix as the body that has to be propagated.
-    numericalPropagator.addBody( pointerToAsterix );
+    cartesianStateNumericalPropagator.addBody( &asterix );
 
     // Add Earth gravity as force acting on Asterix.
-    numericalPropagator.addForceModel( pointerToAsterix,
-                                       pointerToEarthGravity );
+    cartesianStateNumericalPropagator.addForceModel( &asterix,
+                                                      &earthGravity );
 
-    // Set initial state of Asterix.
-    numericalPropagator.setInitialState(
-            pointerToAsterix, pointerToStateOfAsterix );
+    // Create series propagator object to propagate timeseries.
+    SeriesPropagator seriesPropagator;
 
-    // Run simulation.
-    numericalPropagator.propagate( );
+    // Set Cartesin state numerical propagator for timeseries propagation.
+    seriesPropagator.setPropagator( &cartesianStateNumericalPropagator );
+
+    // Set start of the timeseries for propagation.
+    seriesPropagator.setSeriesPropagationStart( 0.0 );
+
+    // Set start of the timeseries for propagation.
+    seriesPropagator.setSeriesPropagationEnd( 86400.0 );
+
+    // Set fixed output interval for timeseries propagation
+    seriesPropagator.setFixedOutputInterval( 60.0 );
+
+    // Set initial state of Asterix for timeseries propagation.
+    seriesPropagator.setInitialState( &asterix, &stateOfAsterix );
+
+    // Run timeseries propagation.
+    seriesPropagator.execute( );
 
     // Get propagation history of Asterix.
-    asterixPropagationHistory = numericalPropagator.
-                                getPropagationHistoryAtFixedOutputIntervals(
-                                        pointerToAsterix );
+    asterixPropagationHistory
+            = seriesPropagator
+              .getPropagationHistoryAtFixedOutputIntervals( &asterix );
 
     // Output final state vector of Asterix to screen.
     cout << "Asterix final state in km(/s):" << endl;
     cout << unit_conversions::convertMetersToKilometers(
-            numericalPropagator.getFinalState( pointerToAsterix )->state )
+            asterixPropagationHistory[
+                    seriesPropagator.getSeriesPropagationEnd( ) ].state )
          << endl;
 
     // Write propagation history of Asterix to file.
-    WritingOutputToFile::
-            writePropagationHistoryToFile(
-                    asterixPropagationHistory,
-                    "asterixExampleEarthOrbitingSatellite.dat" );
-
+    WritingOutputToFile fileWriter;
+    fileWriter.writePropagationHistoryToFile(
+                asterixPropagationHistory,
+                "asterixExampleEarthOrbitingSatellite.dat" );
 }
 
 }

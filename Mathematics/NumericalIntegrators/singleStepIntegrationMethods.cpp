@@ -44,9 +44,6 @@
 // Include statements.
 #include "singleStepIntegrationMethods.h"
 
-// Using declarations.
-using std::endl;
-
 //! Default constructor.
 SingleStepIntegrationMethods::SingleStepIntegrationMethods( )
 {
@@ -68,46 +65,22 @@ void SingleStepIntegrationMethods::integrate( )
     // state at each integration step.
     for ( unsigned int i = 1; i < numberOfIntegrationSteps_; i++ )
     {
-        // Set final state.
-        finalState_.state = vectorOfCurrentStatePointers_.at( 0 )->state;
-
-        // Check if integration history should be saved.
-        if ( isIntegrationHistoryToBeSaved_ )
-        {
-            // Store intermediate results.
-            storeIntermediateIntegrationResult_( );
-        }
-
         // Compute final state.
         computeNextState_( stepsize_ );
+
+        // Move current point in integration interval to next.
+        integrationIntervalCurrentPoint_ += stepsize_;
     }
 
     // Compute stepsize of last step.
     lastStepStepsize_ = integrationIntervalEnd_
                         - integrationIntervalCurrentPoint_;
 
-    // Set final state.
-    finalState_.state = vectorOfCurrentStatePointers_.at( 0 )->state;
-
-    // Check if integration history should be saved.
-    if ( isIntegrationHistoryToBeSaved_ )
-    {
-        // Store intermediate results.
-        storeIntermediateIntegrationResult_( );
-    }
-
     // Compute final state.
     computeNextState_( lastStepStepsize_ );
 
     // Set final state.
-    finalState_.state = vectorOfCurrentStatePointers_.at( 0 )->state;
-
-    // Check if integration history should be saved.
-    if ( isIntegrationHistoryToBeSaved_ )
-    {
-        // Store intermediate results.
-        storeIntermediateIntegrationResult_( );
-    }
+    finalState_ = vectorOfCurrentStates_.at( 0 );
 }
 
 // End of file.

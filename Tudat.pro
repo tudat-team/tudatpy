@@ -9,11 +9,11 @@ TEMPLATE = app
 SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.cpp \
-    Astrodynamics/Bodies/CelestialBodies/predefinedCelestialBodies.cpp \
+    Astrodynamics/Bodies/CelestialBodies/planet.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/predefinedGravityFieldModels.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.cpp \
     Astrodynamics/ForceModels/gravity.cpp \
@@ -24,9 +24,11 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.cpp \
     Astrodynamics/physicalConstants.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
+    Astrodynamics/Propagators/cartesianStateNumericalPropagator.cpp \
     Astrodynamics/Propagators/keplerPropagator.cpp \
     Astrodynamics/Propagators/propagatorDataContainer.cpp \
     Astrodynamics/Propagators/propagator.cpp \
+    Astrodynamics/Propagators/seriesPropagator.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
     Astrodynamics/Propagators/unitTestNumericalPropagator.cpp \
     Astrodynamics/Propagators/unitTestKeplerPropagator.cpp \
@@ -80,10 +82,13 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.cpp \
     Mathematics/GeometricShapes/lawgsPartGeometry.cpp \
     Mathematics/LinearAlgebra/linearAlgebra.cpp \
-    Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp \
-    Mathematics/NumericalIntegrators/integrator.cpp \
     Mathematics/NumericalIntegrators/euler.cpp \
+    Mathematics/NumericalIntegrators/integrator.cpp \
+    Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegrators/singleStepIntegrationMethods.cpp \
+    Mathematics/NumericalIntegrators/stateDerivativeBase.cpp \
+    Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.cpp \
+    Mathematics/NumericalIntegrators/unitTestEulerIntegrator.cpp \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
@@ -94,12 +99,12 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
 HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
-    Astrodynamics/Bodies/CelestialBodies/predefinedCelestialBodies.h \
+    Astrodynamics/Bodies/CelestialBodies/planet.h \
     Astrodynamics/Bodies/Vehicles/vehicle.h \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h \
     Astrodynamics/EnvironmentModels/environmentModel.h \
+    Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/predefinedGravityFieldModels.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.h \
     Astrodynamics/ForceModels/gravity.h \
@@ -111,9 +116,11 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.h \
     Astrodynamics/physicalConstants.h \
     Astrodynamics/unitTestPhysicalConstants.h \
+    Astrodynamics/Propagators/cartesianStateNumericalPropagator.h \
     Astrodynamics/Propagators/keplerPropagator.h \
     Astrodynamics/Propagators/propagatorDataContainer.h \
     Astrodynamics/Propagators/propagator.h \
+    Astrodynamics/Propagators/seriesPropagator.h \
     Astrodynamics/Propagators/numericalPropagator.h \
     Astrodynamics/Propagators/unitTestNumericalPropagator.h \
     Astrodynamics/Propagators/unitTestKeplerPropagator.h \
@@ -169,12 +176,15 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h \
     Mathematics/GeometricShapes/lawgsPartGeometry.h \
     Mathematics/LinearAlgebra/linearAlgebra.h \
-    Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h \
-    Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h \
+    Mathematics/NumericalIntegrators/euler.h \
     Mathematics/NumericalIntegrators/integrator.h \
     Mathematics/NumericalIntegrators/integratorBase.h \
     Mathematics/NumericalIntegrators/integratorAdaptor.h \
-    Mathematics/NumericalIntegrators/euler.h \
+    Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h \
+    Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h \
+    Mathematics/NumericalIntegrators/stateDerivativeBase.h \
+    Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.h \
+    Mathematics/NumericalIntegrators/unitTestEulerIntegrator.h \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.h \
     Mathematics/RootFindingMethods/rootFinderBase.h \
     Mathematics/RootFindingMethods/rootFinder.h \

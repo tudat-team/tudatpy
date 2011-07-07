@@ -41,6 +41,9 @@
 // Include statements.
 #include "cartesianPositionElements.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 CartesianPositionElements::CartesianPositionElements( )
 {
@@ -93,6 +96,18 @@ double& CartesianPositionElements::getCartesianElementZ( )
 {
     // Return Cartesian element: z.
     return state( 2 );
+}
+
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          CartesianPositionElements&
+                          cartesianPositionElements )
+{
+    stream << "The state is set to: " << cartesianPositionElements.state
+           << endl;
+
+    // Return stream.
+    return stream;
 }
 
 // End of file.

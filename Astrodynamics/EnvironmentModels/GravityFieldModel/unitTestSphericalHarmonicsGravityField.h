@@ -49,7 +49,7 @@
 #include "basicMathematicsFunctions.h"
 #include "linearAlgebra.h"
 #include "gravityFieldModel.h"
-#include "predefinedGravityFieldModels.h"
+#include "planet.h"
 #include "sphericalHarmonicsGravityField.h"
 
 // Using directives.

@@ -3,8 +3,8 @@
  *    ApproximatePlanetPositions class in Tudat.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 1
- *    Check status      : Checked
+ *    Version           : 2
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 5 April, 2011
- *    Last modified     : 5 April, 2011
+ *    Last modified     : 1 July, 2011
  *
  *    References
  *
@@ -38,6 +38,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110405    K. Kumar          File created.
+ *      110701    K. Kumar          Updated to use new predefined planets
+ *                                  architecture.
  */
 
 #ifndef UNITTESTAPPROXIMATEPLANETPOSITIONS_H
@@ -49,7 +51,7 @@
 #include "keplerianElements.h"
 #include "linearAlgebra.h"
 #include "orbitalElementConversions.h"
-#include "predefinedCelestialBodies.h"
+#include "planet.h"
 #include "unitConversions.h"
 
 //! Namespace for all unit tests.

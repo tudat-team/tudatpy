@@ -3,7 +3,7 @@
  *    included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 16 February, 2011
- *    Last modified     : 16 Feburary, 2011
+ *    Last modified     : 2 June, 2011
  *
  *    References
  *
@@ -48,6 +48,9 @@
  *                                  gravitational parameter of "half Earth
  *                                  gravity case" with (pointerToEarth->
  *                                  getGravitationalParameter( ) / 2.0).
+ *      110602    K. Kumar          Updated code to not use dynamic memory
+ *                                  allocation and to work with other code
+ *                                  updates.
  */
 
 // Include statements.
@@ -60,9 +63,10 @@ namespace unit_tests
 //! Test of implementation of numerical propagator class.
 bool testNumericalPropagator( )
 {
-    // Test to see if the orbit of a satellite around the Earth is correctly
-    // reproduced with 1x the gravity of the Earth and 2x half the gravity of
-    // the Earth.
+    // Test to see if the orbit of a satellite around the Earth is reproduced
+    // the same with 1x the gravity of the Earth and 2x half the gravity of
+    // the Earth. In other words, the results from the two cases are compared
+    // directly.
 
     // Test result initialised to false.
     bool isNumericalPropagatorErroneous = false;
@@ -70,219 +74,233 @@ bool testNumericalPropagator( )
     // Run full Earth gravity case.
 
     // Create pointer to the state of Asterix given in Cartesian elements.
-    CartesianElements* pointerToStateOfAsterixForFullEarthGravity
-            = new CartesianElements;
+    CartesianElements stateOfAsterixForFullEarthGravity;
 
     // Fill initial state vector with position and
     // velocity given for Asterix.
     // Position is given in kilometers and
     // velocity is given in kilometers per second.
-    pointerToStateOfAsterixForFullEarthGravity->setCartesianElementX( 7000.0 );
-    pointerToStateOfAsterixForFullEarthGravity->setCartesianElementY( 0.0 );
-    pointerToStateOfAsterixForFullEarthGravity->setCartesianElementZ( 0.0 );
-    pointerToStateOfAsterixForFullEarthGravity->setCartesianElementXDot( 2.0 );
-    pointerToStateOfAsterixForFullEarthGravity->setCartesianElementYDot( 5.0 );
-    pointerToStateOfAsterixForFullEarthGravity->setCartesianElementZDot( 7.0 );
+    stateOfAsterixForFullEarthGravity.setCartesianElementX( 7000.0 );
+    stateOfAsterixForFullEarthGravity.setCartesianElementY( 0.0 );
+    stateOfAsterixForFullEarthGravity.setCartesianElementZ( 0.0 );
+    stateOfAsterixForFullEarthGravity.setCartesianElementXDot( 2.0 );
+    stateOfAsterixForFullEarthGravity.setCartesianElementYDot( 5.0 );
+    stateOfAsterixForFullEarthGravity.setCartesianElementZDot( 7.0 );
 
     // Convert initial state vector to meters from
     // kilometers for both cases.
-    pointerToStateOfAsterixForFullEarthGravity->state =
+    stateOfAsterixForFullEarthGravity.state =
             unit_conversions::convertKilometersToMeters(
-                    pointerToStateOfAsterixForFullEarthGravity->state );
+                    stateOfAsterixForFullEarthGravity.state );
 
     // Create map of propagation history of Asterix for full gravity and half
-    // gravity, and an iterator that works for both.
-    std::map < double, State* > asterixPropagationHistoryFullGravity;
+    // gravity.
+    std::map< double, State > asterixPropagationHistoryFullGravity;
 
-    // Create a pointer to new vehicle for Asterix.
-    Vehicle* pointerToAsterixForFullEarthGravity = new Vehicle;
+    // Create a vehicle object for Asterix.
+    Vehicle asterixForFullEarthGravity;
 
-    // Create pre-defined Earth object for full gravity.
-    CelestialBody* pointerToEarth
-            = predefined_celestial_bodies::createPredefinedCelestialBody(
-                    predefined_celestial_bodies::earth );
+    // Create predefined Earth object for full gravity.
+    Planet predefinedEarth;
+    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
 
     // Create a pointer to a new Gravity object for full Earth gravity.
-    Gravity* pointerToFullEarthGravity = new Gravity;
+    Gravity fullEarthGravity;
 
     // Set Earth as central body for full Earth gravity.
-    pointerToFullEarthGravity->setBody( pointerToEarth );
+    fullEarthGravity.setBody( &predefinedEarth );
 
     // Create a pointer to a new RK4 integrator.
-    RungeKutta4thOrderFixedStepsize* pointerToRK4ForFullEarthGravity
-            = new RungeKutta4thOrderFixedStepsize;
+    RungeKutta4thOrderFixedStepsize rk4ForFullEarthGravity;
 
     // Set an initial stepsize for the integrators.
-    pointerToRK4ForFullEarthGravity->setInitialStepsize( 30.0 );
+    rk4ForFullEarthGravity.setInitialStepsize( 30.0 );
 
-    // Create numerical propagator object for full Earth.
-    NumericalPropagator numericalPropagatorForFullEarthGravity;
+    // Create numerical propagator object for full Earth gravity.
+    CartesianStateNumericalPropagator
+            cartesianStateNumericalPropagatorForFullEarthGravity;
 
-    // Set fixed output interval for output in numerical
-    // propagator object.
-    numericalPropagatorForFullEarthGravity.setFixedOutputInterval( 3600.0 );
-
-    // Set the propagation start time.
-    numericalPropagatorForFullEarthGravity.setPropagationIntervalStart( 0.0 );
-
-    // Set the propagation end time.
-    numericalPropagatorForFullEarthGravity
-            .setPropagationIntervalEnd( 86400.0 );
+    // Set Cartesian state numerical propagator as state derivative class for
+    // RK4 integrator.
+    rk4ForFullEarthGravity.setObjectContainingStateDerivative(
+            &cartesianStateNumericalPropagatorForFullEarthGravity );
 
     // Set the integrator to use RK4.
-    numericalPropagatorForFullEarthGravity
-            .setIntegrator( pointerToRK4ForFullEarthGravity );
+    cartesianStateNumericalPropagatorForFullEarthGravity
+            .setIntegrator( &rk4ForFullEarthGravity );
 
     // Add Asterix as the body that has to be propagated.
-    numericalPropagatorForFullEarthGravity
-            .addBody( pointerToAsterixForFullEarthGravity );
+    cartesianStateNumericalPropagatorForFullEarthGravity
+            .addBody( &asterixForFullEarthGravity );
 
     // Add full Earth gravity as force acting on Asterix.
-    numericalPropagatorForFullEarthGravity
-            .addForceModel( pointerToAsterixForFullEarthGravity,
-                            pointerToFullEarthGravity );
+    cartesianStateNumericalPropagatorForFullEarthGravity
+            .addForceModel( &asterixForFullEarthGravity,
+                            &fullEarthGravity );
 
-    // Set initial state of Asterix.
-    numericalPropagatorForFullEarthGravity.setInitialState(
-            pointerToAsterixForFullEarthGravity,
-            pointerToStateOfAsterixForFullEarthGravity );
+    // Create series propagator for full Earth gravity.
+    SeriesPropagator seriesPropagatorForFullEarthGravity;
+
+    // Set series propagation start time.
+    seriesPropagatorForFullEarthGravity.setSeriesPropagationStart( 0.0 );
+
+    // Set the propagation end time.
+    seriesPropagatorForFullEarthGravity.setSeriesPropagationEnd( 86400.0 );
+
+    // Set fixed output interval for series propagation
+    seriesPropagatorForFullEarthGravity.setFixedOutputInterval( 3600.0 );
+
+    // Set propagator for series propagation.
+    seriesPropagatorForFullEarthGravity.setPropagator(
+            &cartesianStateNumericalPropagatorForFullEarthGravity );
+
+    // Set initial state of Asterix for series propagation.
+    seriesPropagatorForFullEarthGravity.setInitialState(
+            &asterixForFullEarthGravity,
+            &stateOfAsterixForFullEarthGravity );
 
     // Run simulation for full Earth.
-    numericalPropagatorForFullEarthGravity.propagate( );
+    seriesPropagatorForFullEarthGravity.execute( );
 
     // Get propagation history of Asterix.
     asterixPropagationHistoryFullGravity
-            = numericalPropagatorForFullEarthGravity
+            = seriesPropagatorForFullEarthGravity
               .getPropagationHistoryAtFixedOutputIntervals(
-                      pointerToAsterixForFullEarthGravity );
+                      &asterixForFullEarthGravity );
 
     // Run half Earth gravity case.
 
     // Create pointer to the state of Asterix given in Cartesian elements.
-    CartesianElements* pointerToStateOfAsterixForHalfEarthGravity
-            = new CartesianElements;
+    CartesianElements stateOfAsterixForHalfEarthGravity;
 
     // Fill initial state vector with position and
     // velocity given for Asterix.
     // Position is given in kilometers and
     // velocity is given in kilometers per second.
-    pointerToStateOfAsterixForHalfEarthGravity->setCartesianElementX( 7000.0 );
-    pointerToStateOfAsterixForHalfEarthGravity->setCartesianElementY( 0.0 );
-    pointerToStateOfAsterixForHalfEarthGravity->setCartesianElementZ( 0.0 );
-    pointerToStateOfAsterixForHalfEarthGravity->setCartesianElementXDot( 2.0 );
-    pointerToStateOfAsterixForHalfEarthGravity->setCartesianElementYDot( 5.0 );
-    pointerToStateOfAsterixForHalfEarthGravity->setCartesianElementZDot( 7.0 );
+    stateOfAsterixForHalfEarthGravity.setCartesianElementX( 7000.0 );
+    stateOfAsterixForHalfEarthGravity.setCartesianElementY( 0.0 );
+    stateOfAsterixForHalfEarthGravity.setCartesianElementZ( 0.0 );
+    stateOfAsterixForHalfEarthGravity.setCartesianElementXDot( 2.0 );
+    stateOfAsterixForHalfEarthGravity.setCartesianElementYDot( 5.0 );
+    stateOfAsterixForHalfEarthGravity.setCartesianElementZDot( 7.0 );
 
     // Convert initial state vector to meters from
     // kilometers for both cases.
-    pointerToStateOfAsterixForHalfEarthGravity->state =
+    stateOfAsterixForHalfEarthGravity.state =
             unit_conversions::convertKilometersToMeters(
-                    pointerToStateOfAsterixForHalfEarthGravity->state );
+                    stateOfAsterixForHalfEarthGravity.state );
 
     // Create map of propagation history of Asterix for full gravity and half
-    // gravity, and an iterator that works for both.
-    std::map < double, State* > asterixPropagationHistoryHalfGravity;
+    // gravity.
+    std::map < double, State > asterixPropagationHistoryHalfGravity;
 
     // Create a pointer to new vehicle for Asterix.
-    Vehicle* pointerToAsterixForHalfEarthGravity = new Vehicle;
+    Vehicle asterixForHalfEarthGravity;
 
     // Create half Earth object for half gravity.
-    CelestialBody* pointerToHalfEarth = new CelestialBody;
+    CelestialBody halfEarth;
 
     // Create gravity field model for half Earth gravity.
-    SphericalHarmonicsGravityField* pointerToHalfEarthGravityField
-            = new SphericalHarmonicsGravityField;
+    SphericalHarmonicsGravityField halfEarthGravityField;
 
     // Set half Earth gravity field to central gravity.
-    pointerToHalfEarthGravityField->setDegreeOfExpansion( 0 );
-    pointerToHalfEarthGravityField->setOrderOfExpansion( 0 );
+    halfEarthGravityField.setDegreeOfExpansion( 0 );
+    halfEarthGravityField.setOrderOfExpansion( 0 );
 
     // Set origin of half Earth gravity field.
-    CartesianPositionElements* pointerToOriginForHalfEarthGravityField
-            = new CartesianPositionElements;
-    pointerToOriginForHalfEarthGravityField->setCartesianElementX( 0.0 );
-    pointerToOriginForHalfEarthGravityField->setCartesianElementY( 0.0 );
-    pointerToOriginForHalfEarthGravityField->setCartesianElementZ( 0.0 );
-    pointerToHalfEarthGravityField
-            ->setOrigin( pointerToOriginForHalfEarthGravityField );
+    CartesianPositionElements originForHalfEarthGravityField;
+    originForHalfEarthGravityField.setCartesianElementX( 0.0 );
+    originForHalfEarthGravityField.setCartesianElementY( 0.0 );
+    originForHalfEarthGravityField.setCartesianElementZ( 0.0 );
+    halfEarthGravityField.setOrigin( &originForHalfEarthGravityField );
 
     // Set gravity parameter for half Earth gravity field.
-    pointerToHalfEarthGravityField->setGravitationalParameter(
-            pointerToEarth->getGravitationalParameter( ) / 2.0 );
+    halfEarthGravityField.setGravitationalParameter(
+            predefinedEarth.getGravitationalParameter( ) / 2.0 );
 
     // Set gravity field model for half Earth.
-    pointerToHalfEarth->setGravityFieldModel( pointerToHalfEarthGravityField );
+    halfEarth.setGravityFieldModel( &halfEarthGravityField );
 
     // Create a pointer to a new Gravity object for half Earth gravity.
-    Gravity* pointerToHalfEarthGravity = new Gravity;
+    Gravity halfEarthGravity;
 
     // Set half Earth as central body for half Earth gravity.
-    pointerToHalfEarthGravity->setBody( pointerToHalfEarth );
+    halfEarthGravity.setBody( &halfEarth );
 
     // Create a pointer to a new RK4 integrator.
-    RungeKutta4thOrderFixedStepsize* pointerToRK4ForHalfEarthGravity
-            = new RungeKutta4thOrderFixedStepsize;
+    RungeKutta4thOrderFixedStepsize rk4ForHalfEarthGravity;
 
     // Set an initial stepsize for the integrators.
-    pointerToRK4ForHalfEarthGravity->setInitialStepsize( 30.0 );
+    rk4ForHalfEarthGravity.setInitialStepsize( 30.0 );
 
-    // Create numerical propagator object for full Earth.
-    NumericalPropagator numericalPropagatorForHalfEarthGravity;
+    // Create numerical propagator object for full Earth gravity.
+    CartesianStateNumericalPropagator
+            cartesianStateNumericalPropagatorForHalfEarthGravity;
 
-    // Set fixed output interval for output in numerical
-    // propagator object.
-    numericalPropagatorForHalfEarthGravity.setFixedOutputInterval( 3600.0 );
-
-    // Set the propagation start time.
-    numericalPropagatorForHalfEarthGravity.setPropagationIntervalStart( 0.0 );
-
-    // Set the propagation end time.
-    numericalPropagatorForHalfEarthGravity
-            .setPropagationIntervalEnd( 86400.0 );
+    // Set Cartesian state numerical propagator as state derivative class for
+    // RK4 integrator.
+    rk4ForHalfEarthGravity.setObjectContainingStateDerivative(
+            &cartesianStateNumericalPropagatorForHalfEarthGravity );
 
     // Set the integrator to use RK4.
-    numericalPropagatorForHalfEarthGravity
-            .setIntegrator( pointerToRK4ForHalfEarthGravity );
+    cartesianStateNumericalPropagatorForHalfEarthGravity
+            .setIntegrator( &rk4ForHalfEarthGravity );
 
     // Add Asterix as the body that has to be propagated.
-    numericalPropagatorForHalfEarthGravity
-            .addBody( pointerToAsterixForHalfEarthGravity );
+    cartesianStateNumericalPropagatorForHalfEarthGravity
+            .addBody( &asterixForHalfEarthGravity );
 
     // Add half Earth gravity as force acting on Asterix twice.
-    numericalPropagatorForHalfEarthGravity
-            .addForceModel( pointerToAsterixForHalfEarthGravity,
-                            pointerToHalfEarthGravity );
-    numericalPropagatorForHalfEarthGravity
-            .addForceModel( pointerToAsterixForHalfEarthGravity,
-                            pointerToHalfEarthGravity );
+    cartesianStateNumericalPropagatorForHalfEarthGravity
+            .addForceModel( &asterixForHalfEarthGravity,
+                            &halfEarthGravity );
+    cartesianStateNumericalPropagatorForHalfEarthGravity
+            .addForceModel( &asterixForHalfEarthGravity,
+                            &halfEarthGravity );
 
-    // Set initial state of Asterix.
-    numericalPropagatorForHalfEarthGravity.setInitialState(
-            pointerToAsterixForHalfEarthGravity,
-            pointerToStateOfAsterixForHalfEarthGravity );
+    // Create series propagator for half Earth gravity.
+    SeriesPropagator seriesPropagatorForHalfEarthGravity;
 
-    // Run simulation for half Earth.
-    numericalPropagatorForHalfEarthGravity.propagate( );
+    // Set series propagation start time.
+    seriesPropagatorForHalfEarthGravity.setSeriesPropagationStart( 0.0 );
+
+    // Set the propagation end time.
+    seriesPropagatorForHalfEarthGravity.setSeriesPropagationEnd( 86400.0 );
+
+    // Set fixed output interval for series propagation
+    seriesPropagatorForHalfEarthGravity.setFixedOutputInterval( 3600.0 );
+
+    // Set propagator for series propagation.
+    seriesPropagatorForHalfEarthGravity.setPropagator(
+            &cartesianStateNumericalPropagatorForHalfEarthGravity );
+
+    // Set initial state of Asterix for series propagation.
+    seriesPropagatorForHalfEarthGravity.setInitialState(
+            &asterixForHalfEarthGravity,
+            &stateOfAsterixForHalfEarthGravity );
+
+    // Run simulation for full Earth.
+    seriesPropagatorForHalfEarthGravity.execute( );
 
     // Get propagation history of Asterix for half Earth gravity case.
     asterixPropagationHistoryHalfGravity
-            = numericalPropagatorForHalfEarthGravity
+            = seriesPropagatorForHalfEarthGravity
               .getPropagationHistoryAtFixedOutputIntervals(
-                      pointerToAsterixForHalfEarthGravity );
+                      &asterixForHalfEarthGravity );
 
     // Check if results of full and half Earth gravity cases match.
     for ( unsigned int i = 0;
-          i < numericalPropagatorForHalfEarthGravity
-              .getPropagationIntervalEnd( )
-              / numericalPropagatorForHalfEarthGravity
+          i < seriesPropagatorForHalfEarthGravity
+              .getSeriesPropagationEnd( )
+              / seriesPropagatorForHalfEarthGravity
               .getFixedOutputInterval( ); i++ )
     {
         if ( asterixPropagationHistoryFullGravity[
-                i * numericalPropagatorForFullEarthGravity
-                .getFixedOutputInterval( ) ]->state
+                i * seriesPropagatorForFullEarthGravity
+                .getFixedOutputInterval( ) ].state
              != asterixPropagationHistoryHalfGravity[
-                     i * numericalPropagatorForHalfEarthGravity
-                     .getFixedOutputInterval( ) ]->state )
+                     i * seriesPropagatorForHalfEarthGravity
+                     .getFixedOutputInterval( ) ].state )
         {
             isNumericalPropagatorErroneous = true;
 

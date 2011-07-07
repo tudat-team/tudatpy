@@ -57,12 +57,7 @@
  */
 
 // Include statements.
-#include <cmath>
-#include "basicMathematicsFunctions.h"
-#include "linearAlgebra.h"
-#include "gravityFieldModel.h"
-#include "predefinedGravityFieldModels.h"
-#include "sphericalHarmonicsGravityField.h"
+#include "unitTestSphericalHarmonicsGravityField.h"
 
 // Using directives.
 using std::cerr;
@@ -96,12 +91,6 @@ bool testSphericalHarmonicsGravityField( )
     // Create gravity field for myPlanet.
     SphericalHarmonicsGravityField myPlanetGravityField;
 
-    // Create polymorphic pointer to myPlanet gravity field.
-    GravityFieldModel* pointerToMyPlanetGravityField;
-
-    // Set polymorphic pointer to address of myPlanet gravity field.
-    pointerToMyPlanetGravityField = &myPlanetGravityField;
-
     // Set gravitational parameter of myPlanet.
     double gravitationalParameterOfMyPlanet = 22032.00;
     myPlanetGravityField.setGravitationalParameter(
@@ -109,53 +98,43 @@ bool testSphericalHarmonicsGravityField( )
 
     // Set origin of gravity field of myPlanet with respect to geometric
     // center.
-    CartesianPositionElements* pointerToCartesianPositionOfOrigin
-            = new CartesianPositionElements;
+    CartesianPositionElements cartesianPositionOfOrigin;
     VectorXd positionOfOrigin( 3 );
     positionOfOrigin.setZero( );
-    pointerToCartesianPositionOfOrigin->state = positionOfOrigin;
-    myPlanetGravityField.setOrigin( pointerToCartesianPositionOfOrigin );
+    cartesianPositionOfOrigin.state = positionOfOrigin;
+    myPlanetGravityField.setOrigin( &cartesianPositionOfOrigin );
 
     // Set position with respect to geometric center.
-    CartesianPositionElements* pointerToCartesianPosition
-            = new CartesianPositionElements;
-    pointerToCartesianPosition->setCartesianElementX( 5.0e6 );
-    pointerToCartesianPosition->setCartesianElementY( 3.0e6 );
-    pointerToCartesianPosition->setCartesianElementZ( 1.0e6 );
+    CartesianPositionElements cartesianPosition;
+    cartesianPosition.setCartesianElementX( 5.0e6 );
+    cartesianPosition.setCartesianElementY( 3.0e6 );
+    cartesianPosition.setCartesianElementZ( 1.0e6 );
 
-    // Create pointer to spherical harmonics predefined Earth gravity field.
-    SphericalHarmonicsGravityField*
-            pointerToPredefinedEarthCentralBodyGravityField;
-
-    // Set polymorphic pointer to predefined Earth gravity field to address of
-    // predefined Earth central body gravity field object.
-    pointerToPredefinedEarthCentralBodyGravityField =
-            predefined_gravity_field_models
-            ::createPredefinedCentralGravityField(
-                    predefined_gravity_field_models::earth );
+    // Create predefined Earth central gravity field.
+    CentralGravityField predefinedEarthCentralGravityField;
+    predefinedEarthCentralGravityField
+            .setPredefinedCentralGravityFieldSettings(
+                CentralGravityField::earth );
 
     // Expected test results.
     double expectedResultForTest1 = gravitationalParameterOfMyPlanet;
-    double expectedResultForTest2 = 398600.4418e9;
+    double expectedResultForTest2 = 3.9859383624e+14;
     double expectedResultForTest3 = gravitationalParameterOfMyPlanet
-                                    / pointerToCartesianPosition
-                                    ->state.norm( );
+                                    / cartesianPosition.state.norm( );
     VectorXd expectedResultForTest4 =  -gravitationalParameterOfMyPlanet
                                        / raiseToIntegerPower(
-                                               pointerToCartesianPosition
-                                               ->state.norm( ), 3 )
-                                       * pointerToCartesianPosition
-                                       ->state;
+                                               cartesianPosition
+                                               .state.norm( ), 3 )
+                                       * cartesianPosition.state;
     Matrix3d expectedResultForTest5 = gravitationalParameterOfMyPlanet
                                       / raiseToIntegerPower(
-                                              pointerToCartesianPosition
-                                              ->state.norm( ), 5 )
-                                      * ( ( 3.0 * pointerToCartesianPosition
-                                            ->state
-                                            * pointerToCartesianPosition
-                                            ->state.transpose( ) )
-                                          - ( pointerToCartesianPosition
-                                              ->state.squaredNorm( )
+                                              cartesianPosition
+                                              .state.norm( ), 5 )
+                                      * ( ( 3.0 * cartesianPosition.state
+                                            * cartesianPosition
+                                            .state.transpose( ) )
+                                          - ( cartesianPosition
+                                              .state.squaredNorm( )
                                               * identityMatrix ) );
 
     // Results computed using implementation of spherical harmonics gravity
@@ -163,16 +142,15 @@ bool testSphericalHarmonicsGravityField( )
     double computedResultForTest1 = myPlanetGravityField
                                     .getGravitationalParameter( );
     double computedResultForTest2 =
-            pointerToPredefinedEarthCentralBodyGravityField
-            ->getGravitationalParameter();
+            predefinedEarthCentralGravityField.getGravitationalParameter( );
     double computedResultForTest3 = myPlanetGravityField.getPotential(
-            pointerToCartesianPosition );
+            &cartesianPosition );
     Vector3d computedResultForTest4 = myPlanetGravityField
                                       .getGradientOfPotential(
-                                              pointerToCartesianPosition );
+                                              &cartesianPosition );
     Matrix3d computedResultForTest5 = myPlanetGravityField
                                       .getGradientTensorOfPotential(
-                                              pointerToCartesianPosition );
+                                              &cartesianPosition );
 
     // Compute differences between computed and expected results.
     VectorXd differenceBetweenResults( 5 );

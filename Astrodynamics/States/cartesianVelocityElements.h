@@ -55,13 +55,13 @@ public:
     /*!
      * Default constructor.
      */
-    CartesianVelocityElements();
+    CartesianVelocityElements( );
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CartesianVelocityElements();
+    ~CartesianVelocityElements( );
 
     //! Set Cartesian element: xDot.
     /*!
@@ -105,7 +105,19 @@ public:
      */
     double& getCartesianElementZDot( );
 
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param cartesianVelocityElements CartesianVelocityElements object.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     CartesianVelocityElements&
+                                     cartesianVelocityElements );
+
 protected:
+
 private:
 };
 

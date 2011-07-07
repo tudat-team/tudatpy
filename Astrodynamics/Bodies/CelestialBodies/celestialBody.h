@@ -47,6 +47,7 @@
 #define CELESTIAL_BODY_H
 
 // Include statements.
+#include <iostream>
 #include "body.h"
 #include "cartesianElements.h"
 #include "ephemeris.h"

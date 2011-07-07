@@ -90,12 +90,18 @@ protected:
 
 private:
 
-    //! k-Coefficients
+    //! Modified current point in integration interval.
+    /*!
+     * Modified current point in integration interval.
+     */
+    double modifiedIntegrationIntervalCurrentPoint_;
+
+    //! k-Coefficients.
     /*!
      * k-Coefficients for 4th-order, fixed stepsize, Runge-Kutta integration
      * scheme.
      */
-    VectorXd kCoefficients_[ 4 ];
+    std::vector< VectorXd > kCoefficients_;
 
     //! Modified initial state.
     /*!

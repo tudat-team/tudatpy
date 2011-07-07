@@ -1,10 +1,10 @@
-/*! \file integratorBase.h
- *    This header file contains an abstract base class for the Integrator
- *    class included in Tudat.
+/*! \file stateDerivativeBase.h
+ *    This header file contains an abstract base class to compute state
+ *    derivatives, for use with the numerical integrators included in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 3
- *    Check status      : Checked
+ *    Version           : 4
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 1 February, 2011
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 16 May, 2011
  *
  *    References
  *
@@ -36,20 +36,20 @@
  *      YYMMDD    Author            Comment
  *      110201    K. Kumar          First creation of code.
  *      110203    J. Melman         File checked.
- *      110207    K. Kumar          Path changed.
+ *      110516    K. Kumar          Renamed file and class.
  */
 
-#ifndef INTEGRATORBASE_H
-#define INTEGRATORBASE_H
+#ifndef STATEDERIVATIVEBASE_H
+#define STATEDERIVATIVEBASE_H
 
 // Include statements.
 #include "state.h"
 
-//! An abstract base class for Integrator.
+//! An abstract base class for state derivative functions.
 /*!
- * This is an abstract base class for the Integrator class.
+ * An abstract base class for state derivative functions.
  */
-class IntegratorBase
+class StateDerivativeBase
 {
 public:
 
@@ -57,27 +57,32 @@ public:
     /*!
      * Default constructor.
      */
-    IntegratorBase( ){ }
+    StateDerivativeBase( );
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~IntegratorBase( ){ }
+    virtual ~StateDerivativeBase( );
 
     //! Compute state derivative.
     /*!
      * Computes the state derivative for the numerical integrator being used.
+     * \param independentVariable Value of independent variable.
      * \param pointerToState State given as pointer to State object.
-     * \return State derivative given as pointer to State object.
+     * \param State derivative given as pointer to State object. The computed
+     *          state derivative is stored in the object that this pointer
+     *          points to.
      */
-    virtual State* computeStateDerivative( State* pointerToState ) = 0;
+    virtual void computeStateDerivative( double& independentVariable,
+                                         State* pointerToState,
+                                         State* pointerToStateDerivative ) = 0;
 
 protected:
 
 private:
 };
 
-#endif // INTEGRATORBASE_H
+#endif // STATEDERIVATIVEBASE_H
 
 // End of file.

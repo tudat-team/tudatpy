@@ -88,7 +88,7 @@ public:
      * gravity field expansion.
      * \param degreeOfExpansion Degree of spherical harmonics expansion.
      */
-    void setDegreeOfExpansion( const int& degreeOfExpansion );
+    void setDegreeOfExpansion( const unsigned int& degreeOfExpansion );
 
     //! Set order of spherical harmonics gravity field expansion.
     /*!
@@ -96,7 +96,7 @@ public:
      * gravity field expansion.
      * \param orderOfExpansion Order of spherical harmonics expansion.
      */
-    void setOrderOfExpansion( const int& orderOfExpansion );
+    void setOrderOfExpansion( const unsigned int& orderOfExpansion );
 
     //! Get the reference radius.
     /*!
@@ -167,19 +167,17 @@ public:
 
 protected:
 
-private:
-
     //! Degree of spherical harmonics expansion.
     /*!
      * Degree of spherical harmonics expansion.
      */
-    int degreeOfExpansion_;
+    unsigned int degreeOfExpansion_;
 
     //! Order of spherical harmonics expansion.
     /*!
      * Order of spherical harmonics expansion.
      */
-    int orderOfExpansion_;
+    unsigned int orderOfExpansion_;
 
     //! Reference radius.
     /*!
@@ -187,6 +185,8 @@ private:
      * meters.
      */
     double referenceRadius_;
+
+private:
 };
 
 #endif // SPHERICALHARMONICSGRAVITYFIELD_H

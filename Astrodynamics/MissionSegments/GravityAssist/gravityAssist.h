@@ -74,13 +74,13 @@
 #define GRAVITYASSIST_H
 
 // Include statements.
-# include "newtonRaphson.h"
-# include "newtonRaphsonAdaptor.h"
-# include "unitConversions.h"
-# include "basicMathematicsFunctions.h"
-# include "celestialBody.h"
-# include "cartesianVelocityElements.h"
-# include "sphereSegment.h"
+#include "newtonRaphson.h"
+#include "newtonRaphsonAdaptor.h"
+#include "unitConversions.h"
+#include "basicMathematicsFunctions.h"
+#include "celestialBody.h"
+#include "cartesianVelocityElements.h"
+#include "sphereSegment.h"
 
 //! Gravity assist method class.
 /*!

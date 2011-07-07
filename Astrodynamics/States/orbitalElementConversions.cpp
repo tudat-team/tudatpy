@@ -3,8 +3,8 @@
  *    functions.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 16
- *    Check status      : Checked
+ *    Version           : 17
+ *    Check status      : Unchecked
  *
  *    Author            : E. Iorfida
  *    Affiliation       : Delft University of Technology
@@ -23,7 +23,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 10 March, 2011
+ *    Last modified     : 10 May, 2011
  *
  *    References
  *      Wertz, J. R. Mission geometry; orbit and constellation design and
@@ -80,6 +80,8 @@
  *      110204    K. Kumar          Removed "vector" naming.
  *      110310    K. Kumar          Changed right ascension of ascending node
  *                                  to longitude of ascending node.
+ *      110510    K. Kumar          Updated conversion functions to not use
+ *                                  dynamic memory allocation.
  */
 
 // Include statements.
@@ -90,23 +92,24 @@ using linear_algebra::determineAngleBetweenVectors;
 using mathematics::raiseToIntegerPower;
 using mathematics::computeModulo;
 using mathematics::computeAbsoluteValue;
+using mathematics::MACHINE_PRECISION_DOUBLES;
 
 //! Orbital element conversions namespace.
 namespace orbital_element_conversions
 {
 
 //! Convert Keplerian to Cartesian orbital elements.
-CartesianElements* convertKeplerianToCartesianElements(
+CartesianElements convertKeplerianToCartesianElements(
         KeplerianElements* pointerToKeplerianElements,
         CelestialBody* pointerToCelestialBody )
 {
     // Declare local variables.
-    // Declare the output of this routine.
-    CartesianElements* pointerToCartesianElements_ = new CartesianElements;
-
     // Declare the tolerance with which a defined double has to be equal to
     // a specific value.
-    double tolerance_ = 10.0 * mathematics::MACHINE_PRECISION_DOUBLES;
+    double tolerance_ = 10.0 * MACHINE_PRECISION_DOUBLES;
+
+    // Declare CartesianElements object.
+    CartesianElements cartesianElements_;
 
     // Pre-compute sines and cosines of involved angles for efficient
     // computation.
@@ -134,38 +137,38 @@ CartesianElements* convertKeplerianToCartesianElements(
          pointerToKeplerianElements->getEccentricity( ) > 1.0 + tolerance_ )
     {
         pointerToKeplerianElements->setSemiLatusRectum(
-            pointerToKeplerianElements->getSemiMajorAxis( ) * ( 1.0 -
-                raiseToIntegerPower( pointerToKeplerianElements
-                                     ->getEccentricity( ), 2 ) ) );
+                pointerToKeplerianElements->getSemiMajorAxis( )
+                * ( 1.0 - raiseToIntegerPower( pointerToKeplerianElements
+                                               ->getEccentricity( ), 2 ) ) );
     }
 
     // Definition of position in the perifocal coordinate system.
     Vector2d positionPerifocal_;
     positionPerifocal_.x( ) =
-        pointerToKeplerianElements->getSemiLatusRectum( )
-        * cosineOfTrueAnomaly_ /
-        ( 1.0 + pointerToKeplerianElements->getEccentricity( )
-          * cosineOfTrueAnomaly_ );
+            pointerToKeplerianElements->getSemiLatusRectum( )
+            * cosineOfTrueAnomaly_ /
+            ( 1.0 + pointerToKeplerianElements->getEccentricity( )
+              * cosineOfTrueAnomaly_ );
     positionPerifocal_.y( ) =
-        pointerToKeplerianElements->getSemiLatusRectum( )
-        * sineOfTrueAnomaly_ /
-        ( 1.0 + pointerToKeplerianElements->getEccentricity( )
-          * cosineOfTrueAnomaly_ );
+            pointerToKeplerianElements->getSemiLatusRectum( )
+            * sineOfTrueAnomaly_ /
+            ( 1.0 + pointerToKeplerianElements->getEccentricity( )
+              * cosineOfTrueAnomaly_ );
 
     // Definition of velocity in the perifocal coordinate system.
     Vector2d velocityPerifocal_;
     velocityPerifocal_.x( ) = - sqrt( pointerToCelestialBody
                                       ->getGravitationalParameter( ) /
-                              pointerToKeplerianElements
-                              ->getSemiLatusRectum( ) ) *
+                                      pointerToKeplerianElements
+                                      ->getSemiLatusRectum( ) ) *
                               sineOfTrueAnomaly_;
     velocityPerifocal_.y( ) = sqrt( pointerToCelestialBody
                                     ->getGravitationalParameter( ) /
-                              pointerToKeplerianElements
-                              ->getSemiLatusRectum( ) ) *
+                                    pointerToKeplerianElements
+                                    ->getSemiLatusRectum( ) ) *
                               ( pointerToKeplerianElements
                                 ->getEccentricity( ) +
-                              cosineOfTrueAnomaly_ );
+                                cosineOfTrueAnomaly_ );
 
     // Definition of the transformation matrix.
     MatrixXd transformationMatrix_;
@@ -200,39 +203,37 @@ CartesianElements* convertKeplerianToCartesianElements(
     // Compute value of position in Cartesian coordinates.
     Vector3d position_;
     position_ = ( transformationMatrix_ * positionPerifocal_ );
-    pointerToCartesianElements_->setPosition( position_ );
+    cartesianElements_.setPosition( position_ );
 
     // Compute value of velocity in Cartesian coordinates.
     Vector3d velocity_;
     velocity_ = ( transformationMatrix_ * velocityPerifocal_ );
-    pointerToCartesianElements_->setVelocity( velocity_ );
+    cartesianElements_.setVelocity( velocity_ );
 
-    return pointerToCartesianElements_;
+    // Return CartesianElements object.
+    return cartesianElements_;
 }
 
 //! Convert Cartesian to Keplerian orbital elements.
-KeplerianElements* convertCartesianToKeplerianElements(
+KeplerianElements convertCartesianToKeplerianElements(
         CartesianElements* pointerToCartesianElements,
         CelestialBody* pointerToCelestialBody )
 {
-    // Local variables.
-
-    // Declare the output of this routine.
-    KeplerianElements* pointerToKeplerianElements_ = new KeplerianElements;
-
+    // Declare local variables.
     // Declare the tolerance with which a computed double has to be equal to
     // a specific value.
-    double tolerance_ = 10.0 * mathematics::MACHINE_PRECISION_DOUBLES;
+    double tolerance_ = 10.0 * MACHINE_PRECISION_DOUBLES;
+
+    // Declare KeplerianElements object.
+    KeplerianElements keplerianElements_;
 
     // Norm of position in the inertial frame.
     double normOfPosition_;
-    normOfPosition_ = pointerToCartesianElements
-                            ->getPosition( ).norm( );
+    normOfPosition_ = pointerToCartesianElements->getPosition( ).norm( );
 
     // Norm of velocity in the inertial frame.
     double normOfVelocity_;
-    normOfVelocity_ = pointerToCartesianElements
-                            ->getVelocity( ).norm( );
+    normOfVelocity_ = pointerToCartesianElements->getVelocity( ).norm( );
 
     // Definition of orbit angular momentum.
     Vector3d orbitAngularMomentum_;
@@ -250,39 +251,38 @@ KeplerianElements* convertCartesianToKeplerianElements(
     // Definition of eccentricity vector.
     Vector3d eccentricityVector_;
     eccentricityVector_ =
-        ( ( pointerToCartesianElements->getVelocity( ).
-            cross( orbitAngularMomentum_ ) )
-          / pointerToCelestialBody->getGravitationalParameter( ) ) -
-        pointerToCartesianElements->getPosition( ).normalized( );
+            ( ( pointerToCartesianElements->getVelocity( ).
+                cross( orbitAngularMomentum_ ) )
+              / pointerToCelestialBody->getGravitationalParameter( ) ) -
+            pointerToCartesianElements->getPosition( ).normalized( );
 
     // Compute the total orbital energy.
     double totalOrbitalEnergy_;
     totalOrbitalEnergy_ =
-        raiseToIntegerPower( normOfVelocity_, 2 ) / 2.0 -
-        pointerToCelestialBody->getGravitationalParameter( )
-        / normOfPosition_ ;
+            raiseToIntegerPower( normOfVelocity_, 2 ) / 2.0 -
+            pointerToCelestialBody->getGravitationalParameter( )
+            / normOfPosition_;
 
     // Compute the value of the eccentricity.
-    pointerToKeplerianElements_->setEccentricity( eccentricityVector_.norm( ) );
+    keplerianElements_.setEccentricity( eccentricityVector_.norm( ) );
 
     // Define and compute boolean of whether orbit is circular or not.
-    bool isOrbitCircular_ = pointerToKeplerianElements_->getEccentricity( )
-                            < tolerance_;
+    bool isOrbitCircular_ = keplerianElements_.getEccentricity( ) < tolerance_;
 
     // Compute the value of inclination.
     // Range between 0 degrees and 180 degrees.
-    pointerToKeplerianElements_->setInclination(
-            acos( orbitAngularMomentum_.z( ) / normOfOrbitAngularMomentum_ ) );
+    keplerianElements_.setInclination( acos( orbitAngularMomentum_.z( )
+                                             / normOfOrbitAngularMomentum_ ) );
 
     // Define and compute boolean of whether orbit is equatorial or not.
     bool isOrbitEquatorial_ = vectorToAscendingNode_.norm( ) < tolerance_;
 
     // Compute the value of semi-major axis.
     // Non-parabolic orbits.
-    if ( computeAbsoluteValue( pointerToKeplerianElements_
-                               ->getEccentricity( ) - 1.0 ) > tolerance_ )
+    if ( computeAbsoluteValue( keplerianElements_
+                               .getEccentricity( ) - 1.0 ) > tolerance_ )
     {
-        pointerToKeplerianElements_->setSemiMajorAxis(
+        keplerianElements_.setSemiMajorAxis(
                 pointerToCelestialBody->getGravitationalParameter( ) /
                 ( -2.0 * totalOrbitalEnergy_ ) );
     }
@@ -291,11 +291,11 @@ KeplerianElements* convertCartesianToKeplerianElements(
     else
     {
         // Semi-major axis is infinite.
-        pointerToKeplerianElements_->setSemiMajorAxis( 1.0e100 );
+        keplerianElements_.setSemiMajorAxis( 1.0e100 );
     }
 
     // Compute value of semi-latus rectum.
-    pointerToKeplerianElements_->setSemiLatusRectum( raiseToIntegerPower(
+    keplerianElements_.setSemiLatusRectum( raiseToIntegerPower(
             normOfOrbitAngularMomentum_, 2 ) / pointerToCelestialBody
                                            ->getGravitationalParameter( ) );
 
@@ -304,22 +304,22 @@ KeplerianElements* convertCartesianToKeplerianElements(
     // Non-circular, inclined orbits.
     if ( !isOrbitCircular_ && !isOrbitEquatorial_ )
     {
-        pointerToKeplerianElements_->setArgumentOfPeriapsis(
+        keplerianElements_.setArgumentOfPeriapsis(
                 determineAngleBetweenVectors( eccentricityVector_,
                                               vectorToAscendingNode_ ) );
 
         // Quadrant check.
         if ( eccentricityVector_( 2 ) < 0.0 )
         {
-            pointerToKeplerianElements_->setArgumentOfPeriapsis( 2.0 * M_PI -
-                pointerToKeplerianElements_->getArgumentOfPeriapsis( ) );
+            keplerianElements_.setArgumentOfPeriapsis(
+                    2.0 * M_PI - keplerianElements_.getArgumentOfPeriapsis( ) );
         }
     }
 
     // Circular orbits.
     else if ( isOrbitCircular_ )
     {
-        pointerToKeplerianElements_->setArgumentOfPeriapsis( 0.0 );
+        keplerianElements_.setArgumentOfPeriapsis( 0.0 );
     }
 
     // Equatorial orbits.
@@ -327,7 +327,7 @@ KeplerianElements* convertCartesianToKeplerianElements(
     // and x-axis.
     else
     {
-        pointerToKeplerianElements_->setArgumentOfPeriapsis( computeModulo(
+        keplerianElements_.setArgumentOfPeriapsis( computeModulo(
                 atan2( eccentricityVector_( 1 ), eccentricityVector_( 0 ) ),
                 2.0 * M_PI ) );
     }
@@ -337,15 +337,16 @@ KeplerianElements* convertCartesianToKeplerianElements(
     // Non-equatorial orbits.
     if ( !isOrbitEquatorial_ )
     {
-        pointerToKeplerianElements_->setLongitudeOfAscendingNode(
+        keplerianElements_.setLongitudeOfAscendingNode(
                 computeModulo( atan2( unitVectorToAscendingNode_.y( ),
-                       unitVectorToAscendingNode_.x( ) ), 2.0 * M_PI ) );
+                                      unitVectorToAscendingNode_.x( ) ),
+                               2.0 * M_PI ) );
     }
 
     // Equatorial orbits.
     else
     {
-        pointerToKeplerianElements_->setLongitudeOfAscendingNode( 0.0 );
+        keplerianElements_.setLongitudeOfAscendingNode( 0.0 );
     }
 
     // Compute the value of true anomaly.
@@ -353,18 +354,18 @@ KeplerianElements* convertCartesianToKeplerianElements(
     // Non-circular orbits.
     if ( !isOrbitCircular_ )
     {
-        pointerToKeplerianElements_->setTrueAnomaly(
+        keplerianElements_.setTrueAnomaly(
                 determineAngleBetweenVectors( pointerToCartesianElements
                                               ->getPosition( ),
-                eccentricityVector_ ) );
+                                              eccentricityVector_ ) );
 
         // Quadrant check. In the second half of the orbit, the angle
         // between position and velocity vector is larger than 90 degrees.
         if ( pointerToCartesianElements->getVelocity( ).
              dot( pointerToCartesianElements->getPosition( ) ) < 0.0 )
         {
-            pointerToKeplerianElements_->setTrueAnomaly( 2.0 * M_PI -
-                pointerToKeplerianElements_->getTrueAnomaly( ) );
+            keplerianElements_.setTrueAnomaly(
+                    2.0 * M_PI - keplerianElements_.getTrueAnomaly( ) );
         }
     }
 
@@ -374,31 +375,32 @@ KeplerianElements* convertCartesianToKeplerianElements(
         // Circular equatorial orbits.
         if ( isOrbitEquatorial_ )
         {
-            pointerToKeplerianElements_->setTrueAnomaly( computeModulo(
+            keplerianElements_.setTrueAnomaly( computeModulo(
                     atan2( pointerToCartesianElements->getCartesianElementY( ),
-                    pointerToCartesianElements->getCartesianElementX( ) ),
+                           pointerToCartesianElements->getCartesianElementX( ) ),
                     2.0 * M_PI ) );
         }
 
         // Circular inclined orbits.
         else
         {
-            pointerToKeplerianElements_->setTrueAnomaly(
+            keplerianElements_.setTrueAnomaly(
                     determineAngleBetweenVectors( pointerToCartesianElements
                                                   ->getPosition( ),
-                    vectorToAscendingNode_ ) );
+                                                  vectorToAscendingNode_ ) );
 
             // Quadrant check. In the second half of the orbit, the body
             // will be below the xy-plane.
             if ( pointerToCartesianElements->getCartesianElementZ( ) < 0.0 )
             {
-                pointerToKeplerianElements_->setTrueAnomaly( 2.0 * M_PI -
-                     pointerToKeplerianElements_->getTrueAnomaly( ) );
+                keplerianElements_.setTrueAnomaly(
+                        2.0 * M_PI - keplerianElements_.getTrueAnomaly( ) );
             }
         }
     }
 
-    return pointerToKeplerianElements_;
+    // Return KeplerianElements object.
+    return keplerianElements_;
 }
 
 //! Convert true anomaly to eccentric anomaly.

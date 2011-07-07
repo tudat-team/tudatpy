@@ -88,15 +88,11 @@ bool testTextFileReader( )
     testTextFileReader.skipLinesStartingWithCharacter( "%" );
     testTextFileReader.readAndStoreData( );
 
-    // Create a map variable with the read input file string data.
-    map< unsigned int, string > testContainerOfData =
-            testTextFileReader.getContainerOfData( );
-
     // Strip End-Of-Line characters from string data.
     testTextFileReader.stripEndOfLineCharacters( );
 
     // Create a map variable with the read input file string data.
-    testContainerOfData =
+    map< unsigned int, string > testContainerOfData =
             testTextFileReader.getContainerOfData( );
 
     // Check if the defined lines match the stored string data, if it doesn't,
@@ -106,7 +102,7 @@ bool testTextFileReader( )
          testContainerOfData[ 5 ] != line5 ||
          testContainerOfData[ 6 ] != line6 ||
          testContainerOfData[ 8 ] != line8 ||
-         testContainerOfData[ 9 ] != line9    )
+         testContainerOfData[ 9 ] != line9 )
     {
         isTextFileReaderErroneous = true;
         cerr << "Test text file reading with lines with "
@@ -131,16 +127,12 @@ bool testTextFileReader( )
     testTextFileReader2.skipLines( 1 );
     testTextFileReader2.readAndStoreData( 2 );
 
-    // Set map variable to the read input file string data.
-    map< unsigned int, string > testContainerOfData2 =
-                testTextFileReader2.getContainerOfData( );
-
     // Strip End-Of-Line characters from string data.
     testTextFileReader2.stripEndOfLineCharacters( );
 
     // Set map variable to the read input file string data.
-    testContainerOfData2 =
-            testTextFileReader2.getContainerOfData( );
+    map< unsigned int, string > testContainerOfData2 =
+                testTextFileReader2.getContainerOfData( );
 
     // Check if the defined lines match the stored string data, if it doesn't,
     // set the test boolean to true and give an error output message.
@@ -149,7 +141,7 @@ bool testTextFileReader( )
          testContainerOfData2[ 5 ] != line5 ||
          testContainerOfData2[ 6 ] != line6 ||
          testContainerOfData2[ 8 ] != line8 ||
-         testContainerOfData2[ 9 ] != line9    )
+         testContainerOfData2[ 9 ] != line9 )
     {
         isTextFileReaderErroneous = true;
         cerr << "Test text file reading with skipping of lines and reading "
@@ -173,16 +165,12 @@ bool testTextFileReader( )
     testTextFileReader3.skipLinesWithKeyword( skipKeyword );
     testTextFileReader3.readAndStoreData( );
 
-    // Set map variable to the read input file string data.
-    map< unsigned int, string > testContainerOfData3
-            = testTextFileReader3.getContainerOfData( );
-
     // Strip End-Of-Line characters from string data.
     testTextFileReader3.stripEndOfLineCharacters( );
 
     // Set map variable to the read input file string data.
-    testContainerOfData3 =
-            testTextFileReader3.getContainerOfData( );
+    map< unsigned int, string > testContainerOfData3
+            = testTextFileReader3.getContainerOfData( );
 
     // Check if the defined lines match the stored string data, if it doesn't,
     // set the test boolean to true and give an error output message.

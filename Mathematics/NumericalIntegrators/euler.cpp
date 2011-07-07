@@ -77,34 +77,32 @@ Euler::~Euler( )
 //! Compute next state.
 void Euler::computeNextState_( const double& stepsize )
 {
-    // Compute next point in integration interval and set it to current point.
-    integrationIntervalCurrentPoint_ += stepsize;
-
-    // Compute state derivative given initial state.
-    stateDerivative_ = *computeStateDerivative_(
-            vectorOfCurrentStatePointers_.at( 0 ) );
+    // Compute state derivative initial given state and initial time.
+    computeStateDerivative_( integrationIntervalCurrentPoint_,
+                             &vectorOfCurrentStates_.at( 0 ),
+                             &stateDerivative_ );
 
     // Compute next state using Euler algorithm by updating current state
     // stored in vector container.
-    vectorOfCurrentStatePointers_.at( 0 )->state
-            = vectorOfCurrentStatePointers_.at( 0 )->state
+    vectorOfCurrentStates_.at( 0 ).state
+            = vectorOfCurrentStates_.at( 0 ).state
               + stepsize * stateDerivative_.state;
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream, Euler& euler )
+std::ostream& operator<<( std::ostream& stream, Euler& eulerIntegrator )
 {
     stream << "This is an Euler object" << endl;
     stream << "The initial state is set to: " << endl;
-    stream << euler.getInitialState( )->state << endl;
+    stream << eulerIntegrator.getInitialState( )->state << endl;
     stream << "The stepsize is set to: "
-           << euler.getStepsize( ) << endl;
+           << eulerIntegrator.getStepsize( ) << endl;
     stream << "The start of the integration interval is set to: "
-           << euler.getIntegrationIntervalStart( ) << endl;
+           << eulerIntegrator.getIntegrationIntervalStart( ) << endl;
     stream << "The end of the integration interval is set to: "
-           << euler.getIntegrationIntervalEnd( ) << endl;
+           << eulerIntegrator.getIntegrationIntervalEnd( ) << endl;
     stream << "The number of integration steps required is: "
-           << euler.getNumberOfIntegrationSteps( ) << endl;
+           << eulerIntegrator.getNumberOfIntegrationSteps( ) << endl;
 
     // Return stream.
     return stream;

@@ -106,6 +106,17 @@ public:
      */
     double& getCartesianElementZ( );
 
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param cartesianPositionElements CartesianPositionElements object.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     CartesianPositionElements&
+                                     cartesianPositionElements );
+
 protected:
 
 private:

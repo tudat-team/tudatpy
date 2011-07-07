@@ -48,27 +48,11 @@ using std::endl;
 //! Default constructor.
 PropagatorDataContainer::PropagatorDataContainer( )
 {
-    // Initilize variables.
-    pointerToInitialState_ = new State;
-    pointerToCurrentState_ = new State;
-    pointerToFinalState_ = new State;
 }
 
 //! Default destructor.
 PropagatorDataContainer::~PropagatorDataContainer( )
 {
-    // Deallocate pointers.
-    delete pointerToInitialState_;
-    delete pointerToCurrentState_;
-    delete pointerToFinalState_;
-
-    for ( iteratorPropagationHistory_ = propagationHistory_.begin( );
-          iteratorPropagationHistory_ != propagationHistory_.end( );
-          iteratorPropagationHistory_++ )
-    {
-        delete iteratorPropagationHistory_->second;
-    }
-
 }
 
 //! Overload ostream to print class information.
@@ -78,10 +62,8 @@ std::ostream& operator<<( std::ostream& stream,
     stream << "This is a PropagatorDataContainer object." << endl;
     stream << "The initial state is set to: "
            << propagatorDataContainer.pointerToInitialState_ << endl;
-    stream << "The current state is set to: "
-           << propagatorDataContainer.pointerToCurrentState_ << endl;
     stream << "The final state is set to: "
-           << propagatorDataContainer.pointerToFinalState_ << endl;
+           << propagatorDataContainer.finalState_ << endl;
 
     // Return stream.
     return stream;

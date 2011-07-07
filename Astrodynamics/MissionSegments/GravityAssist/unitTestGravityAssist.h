@@ -46,6 +46,7 @@
 
 // Include statements.
 #include "gravityAssist.h"
+#include "planet.h"
 #include "unitConversions.h"
 
 //! Namespace for all unit tests.
