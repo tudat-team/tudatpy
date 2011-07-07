@@ -46,6 +46,10 @@
 // Include statements.
 #include "lambertTargeter.h"
 #include "cartesianElements.h"
+#include "gravityFieldModel.h"
+#include "planet.h"
+#include "unitConversions.h"
+
 
 //! Namespace for all unit tests.
 /*!

@@ -70,7 +70,13 @@
 // Forward declarations.
 class Propagator;
 class NumericalPropagator;
+class CartesianStateNumericalPropagator;
 class KeplerPropagator;
+class SeriesPropagator;
+
+// Using declarations.
+using std::map;
+using std::vector;
 
 //! Propagator data container class.
 /*!
@@ -90,8 +96,14 @@ public:
     // Set NumericalPropagator class as friend.
     friend class NumericalPropagator;
 
+    // Set CartesianStateNumericalPropagator class as friend.
+    friend class CartesianStateNumericalPropagator;
+
     // Set KeplerPropagator class as friend.
     friend class KeplerPropagator;
+
+    // Set SeriesPropagator class as friend.
+    friend class SeriesPropagator;
 
     //! Default constructor.
     /*!
@@ -132,41 +144,35 @@ private:
      */
     unsigned int sizeOfState_;
 
-    //! Pointer to initial state.
-    /*!
-     * Initial state given as a pointer to a State object.
-     */
-    State* pointerToInitialState_;
-
-    //! Pointer to current state.
-    /*!
-     * Current state given as a pointer to a State object.
-     */
-    State* pointerToCurrentState_;
-
-    //! Pointer to final state.
-    /*!
-     * Final state given as a pointer to a State object.
-     */
-    State* pointerToFinalState_;
-
     //! A map of propagation history.
     /*!
      * A map of propagation history with propagation time taken as key.
      */
-    std::map < double, State* > propagationHistory_;
+    map< double, State > propagationHistory_;
 
-    //! Iterator for map of propagation history.
+    //! Propagation history iterator.
     /*!
      * Iterator for map of propagation history.
      */
-    std::map < double, State* >::iterator iteratorPropagationHistory_;
+    map< double, State >::iterator iteratorPropagationHistory_;
 
     //! Vector container of pointers to force models.
     /*!
      * Vector container of pointers to force models.
      */
-    std::vector < ForceModel* > vectorContainerOfPointersToForceModels_;
+    vector< ForceModel* > vectorContainerOfPointersToForceModels_;
+
+    //! Final state.
+    /*!
+     * Final state.
+     */
+    State finalState_;
+
+    //! Pointer to initial state.
+    /*!
+     * Initial state given as a pointer to a State object.
+     */
+    State* pointerToInitialState_;
 
     //! Pointer to Body class.
     /*!

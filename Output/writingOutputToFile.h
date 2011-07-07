@@ -55,11 +55,14 @@
 #include <map>
 #include <fstream>
 #include <string>
-#include "outputHandling.h"
+#include "compositeSurfaceGeometry.h"
 #include "linearAlgebra.h"
 #include "singleSurfaceGeometry.h"
-#include "compositeSurfaceGeometry.h"
 #include "state.h"
+#include "outputHandling.h"
+
+// Using declarations.
+using std::map;
 
 //! Writing output to file class.
 /*!
@@ -83,13 +86,13 @@ public:
 
     //! Write propagation history to file.
     /*!
-     * Writes propagation history stored in a map to file.
+     * Writes propagation history stored in a map to file. The data is stored
+     * in State objects.
      * \param propagationHistory Map of propagation history.
      * \param outputFilename Output filename.
      */
-    static void writePropagationHistoryToFile(
-            std::map < double, State* >& propagationHistory,
-            const std::string& outputFilename );
+    void writePropagationHistoryToFile( map< double, State >& propagationHistory,
+                                        const std::string& outputFilename );
 
     //! Write single surface geometry to a file.
     /*!

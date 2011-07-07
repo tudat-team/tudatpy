@@ -3,8 +3,8 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 9
- *    Check status      : Checked
+ *    Version           : 10
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -27,9 +27,11 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 11 April, 2011
+ *    Last modified     : 6 June, 2011
  *
  *    References
+ *      Press W.H., et al. Numerical Recipes in C++: The Art of
+ *          Scientific Computing. Cambridge University Press, February 2002.
  *
  *    Notes
  *
@@ -45,24 +47,29 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      100903    K. Kumar            File created.
- *      100916    L. Abdulkadir       File checked.
- *      100929    K. Kumar            Checked code by D. Dirkx added.
- *      101110    K. Kumar            Added raiseToExponentPower() function.
- *      102410    D. Dirkx            Minor comment changes as code check.
- *      101213    K. Kumar            Bugfix raiseToIntegerExponent(); renamed
- *                                    raiseToIntegerPower().
- *                                    Added computeAbsoluteValue() functions.
- *      110202    K. Kumar            Added overload for State* for
- *                                    computeLinearInterpolation();
- *      110111    J. Melman           Added computeModulo() function.
- *      110411    K. Kumar            Added convertCartesianToSpherical()
- *                                    function.
+ *      YYMMDD    Author            Comment
+ *      100903    K. Kumar          File created.
+ *      100916    L. Abdulkadir     File checked.
+ *      100929    K. Kumar          Checked code by D. Dirkx added.
+ *      101110    K. Kumar          Added raiseToExponentPower() function.
+ *      102410    D. Dirkx          Minor comment changes as code check.
+ *      101213    K. Kumar          Bugfix raiseToIntegerExponent(); renamed
+ *                                  raiseToIntegerPower().
+ *                                  Added computeAbsoluteValue() functions.
+ *      110202    K. Kumar          Added overload for State* for
+ *                                  computeLinearInterpolation();
+ *      110111    J. Melman         Added computeModulo() function.
+ *      110411    K. Kumar          Added convertCartesianToSpherical()
+ *                                  function.
+ *      110606    J. Melman         Removed possible singularity from
+ *                                  convertCartesianToSpherical.
  */
 
 // Include statements.
 #include "basicMathematicsFunctions.h"
+
+// Using declarations.
+using mathematics::MACHINE_PRECISION_DOUBLES;
 
 //! Mathematics namespace.
 namespace mathematics
@@ -220,11 +227,22 @@ void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
     // Compute transformation of Cartesian coordinates to spherical
     // coordinates.
     sphericalCoordinates( 0 ) = cartesianCoordinates.norm( );
-    sphericalCoordinates( 1 ) = atan2( cartesianCoordinates( 1 ),
-                                       cartesianCoordinates( 0 ) );
 
-    sphericalCoordinates( 2 ) = acos( cartesianCoordinates( 2 )
+    // Check if coordinates are at origin.
+    if ( sphericalCoordinates( 0 ) < MACHINE_PRECISION_DOUBLES )
+    {
+        sphericalCoordinates( 1 ) = 0.0;
+        sphericalCoordinates( 2 ) = 0.0;
+    }
+
+    // Else compute coordinates using trigonometric relationships.
+    else
+    {
+        sphericalCoordinates( 1 ) = atan2( cartesianCoordinates( 1 ),
+                                       cartesianCoordinates( 0 ) );
+        sphericalCoordinates( 2 ) = acos( cartesianCoordinates( 2 )
                                       / sphericalCoordinates( 0 ) );
+    }
 }
 
 //! Convert cylindrical to cartesian coordinates, z value left unaffected.

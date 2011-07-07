@@ -3,8 +3,8 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 6
- *    Check status      : Checked
+ *    Version           : 7
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 14 September, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 12 May, 2011
  *
  *    References
  *
@@ -42,6 +42,9 @@
  *      110201    K. Kumar            Updated code to use Integrator adaptor
  *                                    instead of pointers-to-member functions;
  *                                    Update code to use State class.
+ *      110512    K. Kumar          Updated code not to use dynamics memory
+ *                                  allocation; split into base and derived
+ *                                  class.
  */
 
 #ifndef NUMERICALPROPAGATOR_H
@@ -51,15 +54,15 @@
 #include <iostream>
 #include "basicMathematicsFunctions.h"
 #include "body.h"
-#include "propagator.h"
 #include "integrator.h"
-#include "integratorAdaptor.h"
+#include "propagator.h"
+#include "stateDerivativeBase.h"
 
 //! Numerical propagator class.
 /*!
  * Numerical propagator class.
  */
-class NumericalPropagator : public Propagator
+class NumericalPropagator : public Propagator, public StateDerivativeBase
 {
 public:
 
@@ -90,12 +93,6 @@ public:
      */
     void addForceModel( Body* pointerToBody, ForceModel* pointerToForceModel );
 
-    //! Propagate.
-    /*!
-     * Executes numerical propagation.
-     */
-    void propagate( );
-
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information.
@@ -108,61 +105,20 @@ public:
 
 protected:
 
-private:
-
-    //! Size of assembled state.
-    /*!
-     * Size of assmebled state.
-     */
-    unsigned int sizeOfAssembledState_;
-
     //! Pointer to Integrator object.
     /*!
      * Pointer to Integrator object.
      */
     Integrator* pointerToIntegrator_;
 
-    //! Pointer to assembled state.
-    /*!
-     * Assembled state given as a pointer to a State object.
-     */
-    State* pointerToAssembledState_;
-
-    //! Pointer to assembled state derivative.
-    /*!
-     * Assembled state derivative given as a pointer to a State object.
-     */
-    State* pointerToAssembledStateDerivative_;
-
-    //! Pointer to adaptor object of IntegratorAdaptor class.
-    /*!
-     * Pointer to adaptor object of IntegratorAdaptor class. The template
-     * parameter passed is this class.
-     */
-    IntegratorAdaptor < NumericalPropagator >
-            integratorAdaptorForNumericalPropagator_;
-
     //! Iterator for vector container of pointers to force models.
     /*!
      * Iterator for vector container of pointers to force models.
      */
-    std::vector < ForceModel* >::
+    std::vector< ForceModel* >::
             iterator iteratorContainerOfPointersToForceModels_;
 
-    //! Map of integration history.
-    /*!
-     * Map of integration history.
-     */
-    std::map < double, State* > integrationHistory_;
-
-    //! Compute sum of state derivatives.
-    /*!
-     * Computes the sum of state derivatives.
-     * \param pointerToAssembledState Assembled state given as a pointer to
-     *          State object.
-     * \return Assembled state derivative given as a pointer to a State object.
-     */
-    State* computeSumOfStateDerivatives_( State* pointerToAssembledState );
+private:
 };
 
 #endif // NUMERICALPROPAGATOR_H

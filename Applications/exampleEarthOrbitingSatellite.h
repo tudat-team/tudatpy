@@ -45,11 +45,13 @@
 #include <cmath>
 #include <iostream>
 #include "cartesianElements.h"
+#include "cartesianStateNumericalPropagator.h"
 #include "celestialBody.h"
+#include "euler.h"
 #include "gravity.h"
-#include "numericalPropagator.h"
-#include "predefinedCelestialBodies.h"
+#include "planet.h"
 #include "rungeKutta4thOrderFixedStepsize.h"
+#include "seriesPropagator.h"
 #include "unitConversions.h"
 #include "vehicle.h"
 #include "writingOutputToFile.h"

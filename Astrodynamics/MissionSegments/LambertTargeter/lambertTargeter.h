@@ -208,7 +208,7 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param pointerToLambertTargeter Pointer to Lambert Targeter.
+     * \param lambertTargeter Lambert targeter object.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,

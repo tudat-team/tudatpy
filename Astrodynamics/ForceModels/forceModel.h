@@ -80,13 +80,15 @@ public:
      */
     virtual VectorXd& computeForce( State* pointerToState ) = 0;
 
-protected:
-
     //! Pointer to object of Celestial Body class.
     /*!
      * Pointer to object of Celestial Body class for gravity field expansion.
      */
-    CelestialBody* celestialBody_;
+    CelestialBody* pointerToCelestialBody_;
+
+protected:
+
+
 
     //! Force per unit mass.
     /*!

@@ -40,6 +40,9 @@
 // Include statements.
 #include "cartesianVelocityElements.h"
 
+// Using declarations.
+using std::endl;
+
 //! Default constructor.
 CartesianVelocityElements::CartesianVelocityElements( )
 {
@@ -94,5 +97,16 @@ double& CartesianVelocityElements::getCartesianElementZDot( )
     return state( 2 );
 }
 
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          CartesianVelocityElements&
+                          cartesianVelocityElements )
+{
+    stream << "The state is set to: " << cartesianVelocityElements.state
+           << endl;
+
+    // Return stream.
+    return stream;
+}
 
 // End of file.

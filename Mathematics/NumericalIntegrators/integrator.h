@@ -3,8 +3,8 @@
  *    included in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 10
- *    Check status      : Checked
+ *    Version           : 11
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -19,7 +19,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 28 July, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 16 May, 2011
  *
  *    References
  *
@@ -61,17 +61,20 @@
  *                                  isIntegrationHistoryToBeSaved.
  *      110207    K. Kumar          Path changed; added integrate() virtual
  *                                  function.
+ *      110516    K. Kumar          Changed architecture so adaptor is not
+ *                                  used. Global functions can no longer be
+ *                                  used. StateDerivativeBase used to define
+ *                                  classes with state derivative function.
  */
 
 #ifndef INTEGRATOR_H
 #define INTEGRATOR_H
 
 // Include statements.
-#include <map>
 #include <vector>
-#include "integratorBase.h"
-#include "linearAlgebra.h"
+#include "basicMathematicsFunctions.h"
 #include "state.h"
+#include "stateDerivativeBase.h"
 
 //! Integrator class.
 /*!
@@ -80,11 +83,6 @@
 class Integrator
 {
 public:
-
-    // Definition of typedefs.
-    // State derivative functions can be passed as pointers to global
-    // functions.
-    typedef State* ( *pointerToStateTakingFunction ) ( State* );
 
     //! Default constructor.
     /*!
@@ -98,32 +96,22 @@ public:
      */
     virtual ~Integrator( );
 
-    //! Set function containing state derivative.
+    //! Set object containing state derivative.
     /*!
-     * Sets the function that computes the state derivative to be used for
-     * integration. Either this function or setIntegratorAdaptor() must be
-     * called at least once for integration to proceed.
-     * \param derivativeFunction Pointer to state derivative function.
+     * Sets class object containing the function to compute the state
+     * derivative. The state derivative function must have the following form:
+     * void computeStateDerivative( const double&, State*, State* ). The name
+     * of the function must be 'computeStateDerivative'.
+     * \param pointerToStateDerivative Pointer to class containing state
+     *          derivative function.
      */
-    void setStateDerivativeFunction( pointerToStateTakingFunction
-                                     derivativeFunction );
-
-    //! Set adaptor class for Integrator.
-    /*!
-     * Sets the adaptor class for the Integrator class, which serves as a
-     * method to communicate with the class containing the state derivative
-     * function used for the Integrator class. Objects of the IntegratorAdaptor
-     * class need to be passed as the argument to this function. Either this
-     * function or setStateDerivativeFunction() must be called at least once
-     * for integration to proceed.
-     * \param pointerToIntegratorBase Polymorphic pointer to adaptor class.
-     */
-    void setIntegratorAdaptor( IntegratorBase* pointerToIntegratorBase );
+    void setObjectContainingStateDerivative( StateDerivativeBase*
+                                             pointerToStateDerivative );
 
     //! Set initial state.
     /*!
      * Sets the initial state to be used during integration as a pointer to a
-     * State object. This function must be called  at least once for
+     * State object. This function must be called at least once for
      * integration to proceed.
      * \param pointerToInitialState Initial state given as pointer to State
      *          object.
@@ -136,7 +124,7 @@ public:
      * must be called at least once for integration to proceed.
      * \param stepsize Stepsize for integration method.
      */
-    void setInitialStepsize( const double& stepsize );
+    void setInitialStepsize( const double& initialStepsize );
 
     //! Set start of integration interval.
     /*!
@@ -154,43 +142,33 @@ public:
      */
     void setIntegrationIntervalEnd( const double& integrationIntervalEnd );
 
-    //! Set whether integration history should be saved.
-    /*!
-     * Sets whether integration history should be saved. By default, it is not
-     * saved.
-     * \param isIntegrationHistoryToBeSaved Boolean flag to indicate whether to
-     *          save integration history.
-     */
-    void setIsIntegrationHistoryToBeSaved( const bool&
-                                           isIntegrationHistoryToBeSaved );
-
     //! Get stepsize.
     /*!
      * Returns the stepsize.
      * \return Stepsize.
      */
-    double getStepsize( );
+    double& getStepsize( );
 
     //! Get number of integration steps.
     /*!
      * Returns the number of integration steps.
      * \return Number of integration steps.
      */
-    unsigned int getNumberOfIntegrationSteps( );
+    unsigned int& getNumberOfIntegrationSteps( );
 
     //! Get start of integration interval.
     /*!
      * Returns the start of the integration interval.
      * \return Start of integration interval.
      */
-    double getIntegrationIntervalStart( );
+    double& getIntegrationIntervalStart( );
 
     //! Get end of integration interval.
     /*!
      * Returns the end of the integration interval.
      * \return End of integration interval.
      */
-    double getIntegrationIntervalEnd( );
+    double& getIntegrationIntervalEnd( );
 
     //! Get initial state.
     /*!
@@ -206,13 +184,6 @@ public:
      */
     State* getFinalState( );
 
-    //! Get integration history.
-    /*!
-     * Returns a map of the integration history.
-     * \return Integration history.
-     */
-    std::map< double, State* >& getIntegrationHistory( );
-
     //! Integrate.
     /*!
      * This function executes an integration.
@@ -221,17 +192,11 @@ public:
 
 protected:
 
-    //! Flag to indicate if integration history should be saved.
-    /*!
-     * Flag to indicate if integration history should be saved.
-     */
-    bool isIntegrationHistoryToBeSaved_;
-
     //! Dimension of current state.
     /*!
      * Dimension of current state.
      */
-    unsigned int dimensionOfCurrentState_;
+    unsigned int dimensionOfState_;
 
     //! Number of integration steps.
     /*!
@@ -282,11 +247,11 @@ protected:
      */
     double lastStepStepsize_;
 
-    //! Initial state.
+    //! Pointer to initial state.
     /*!
-     * A State object containing the initial state.
+     * Pointer to initial state.
      */
-    State initialState_;
+    State* pointerToInitialState_;
 
     //! State derivative.
     /*!
@@ -300,49 +265,34 @@ protected:
      */
     State finalState_;
 
-    //! Vector containing current state pointers.
+    //! Vector containing current states.
     /*!
-     * Vector containing the current state given as pointers to State objects.
-     * It is a vector of pointers instead of just one pointer, since it has
-     * to be possible to contain more than one state for the multi-step
-     * methods. In the case of single-step methods only the first entry of the
-     * vector is used.
+     * Vector containing the current states given as State objects.
+     * It is a vector of states, since it has to be possible to contain more
+     * than one state for the multi-step methods.  In the case of single-step
+     * methods only the first entry of the vector is used.
      */
-    std::vector< State* > vectorOfCurrentStatePointers_;
+    std::vector< State > vectorOfCurrentStates_;
 
-    //! A map of integration history.
+    //! Pointer to state derivative.
     /*!
-     * A map of integration history with current point in integration interval
-     * taken as key.
+     * Pointer to class object containing state derivative function.
      */
-    std::map< double, State* > integrationHistory_;
-
-    //! Pointer to function of type: void functionName( State*, State* ).
-    /*!
-     * Pointer to function type for state derivatives.
-     */
-    pointerToStateTakingFunction pointerToStateTakingFunction_;
-
-    //! Polymorphic pointer to Integrator abstract base class.
-    /*!
-     * Polymorphic pointer to Integrator abstract base class.
-     */
-    IntegratorBase* pointerToIntegratorBase_;
+    StateDerivativeBase* pointerToStateDerivative_;
 
     //! Compute state derivative.
     /*!
-     * Computes the state derivative.
+     * Computes the state derivative by calling the object set containing the
+     * state derivative function. This is simply an internal wrapper function.
+     * \param integrationIntervalCurrentPoint Current point in integration
+     *          interval.
      * \param pointerToState State given as pointer to State object.
-     * \return State derivative given as pointer to State object.
+     * \param State derivative given as pointer to State object. This is where
+     *        the computed state derivative is stored.
      */
-    State* computeStateDerivative_( State* pointerToState );
-
-    //! Store intermediate integration result.
-    /*!
-     * Stores intermediate integration results obtained during integration in
-     * integrationHistory.
-     */
-    void storeIntermediateIntegrationResult_( );
+    void computeStateDerivative_( double& integrationIntervalCurrentPoint,
+                                  State* pointerToState,
+                                  State* pointerToStateDerivative );
 
 private:
 
@@ -370,11 +320,11 @@ private:
      */
     bool isIntegrationIntervalEndSet_;
 
-    //! Flag to indicate if state derivative function is set.
+    //! Flag to indicate if state derivative is set.
     /*!
-     * Flag to indicate if state derivative function is set.
+     * Flag to indicate if state derivative is set.
      */
-    bool isStateDerivativeFunctionSet_;
+    bool isStateDerivativeSet_;
 
     //! Compute internal derived integration parameters.
     /*!

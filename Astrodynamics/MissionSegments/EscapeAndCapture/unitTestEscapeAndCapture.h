@@ -47,7 +47,8 @@
 #include "escapeAndCapture.h"
 #include "escapePhase.h"
 #include "capturePhase.h"
-#include "predefinedCelestialBodies.h"
+#include "planet.h"
+#include "sphereSegment.h"
 
 //! Namespace for all unit tests.
 /*!

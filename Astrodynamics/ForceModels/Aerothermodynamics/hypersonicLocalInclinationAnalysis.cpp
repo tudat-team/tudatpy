@@ -370,7 +370,7 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
 
     // Declare coefficients vector and initialize to zeros.
     VectorXd coefficients = VectorXd( 6 );
-    for( i = 0 ; i < 6 ; i++)
+    for ( i = 0 ; i < 6 ; i++ )
     {
         coefficients[ i ] = 0;
     }
@@ -380,13 +380,12 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
 
     // Loop over all vehicle parts, calculate aerodynamic coefficients and add
     // to vehicleCoefficients_.
-    for( i = 0 ; i < numberOfVehicleParts_ ; i++)
+    for ( i = 0 ; i < numberOfVehicleParts_ ; i++ )
     {
-        partCoefficients = determinePartCoefficients( i,
-                                               independentVariableIndices );
+        partCoefficients
+                = determinePartCoefficients( i, independentVariableIndices );
         coefficients += partCoefficients;
     }
-    //std::cout<<numberOfVehicleParts_<<" fin"<<std::endl;
 
     // Allocate and set vehicle coefficients at given independent variables.
     vehicleCoefficients_[ coefficientsIndex ] = new VectorXd( coefficients );

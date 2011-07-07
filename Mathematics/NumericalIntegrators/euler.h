@@ -79,7 +79,8 @@ public:
      * \param euler Euler integrator.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream, Euler& euler );
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     Euler& eulerIntegrator );
 
 protected:
 

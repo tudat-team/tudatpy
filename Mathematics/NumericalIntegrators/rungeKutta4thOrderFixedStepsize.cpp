@@ -79,50 +79,68 @@ RungeKutta4thOrderFixedStepsize::~RungeKutta4thOrderFixedStepsize( )
 }
 
 //! Compute next state.
-void RungeKutta4thOrderFixedStepsize::computeNextState_( const double& stepsize )
+void RungeKutta4thOrderFixedStepsize::computeNextState_( const double&
+                                                         stepsize )
 {
-    // Compute next point in integration interval and set it to current point.
-    integrationIntervalCurrentPoint_ += stepsize;
+    // Clear k-Coefficients.
+    kCoefficients_.clear( );
+
+    // Set size of state derivative vector.
+    stateDerivative_.state.setZero(
+            vectorOfCurrentStates_.at( 0 ).state.rows( ) );
 
     // Compute k-Coefficients for 4th order, fixed stepsize,
     // Runge-Kutta integration scheme.
     // Compute k1.
-    stateDerivative_ = *computeStateDerivative_(
-            vectorOfCurrentStatePointers_.at( 0 ) );
+    computeStateDerivative_( integrationIntervalCurrentPoint_,
+                             &vectorOfCurrentStates_.at( 0 ),
+                             &stateDerivative_ );
 
-    kCoefficients_[ 0 ] = stepsize * stateDerivative_.state;
+    kCoefficients_.push_back( stepsize * stateDerivative_.state );
 
     // Compute k2.
-    modifiedInitialState_.state = vectorOfCurrentStatePointers_.at( 0 )->state
-                                  + kCoefficients_[ 0 ] / 2.0;
+    modifiedInitialState_.state = vectorOfCurrentStates_.at( 0 ).state
+                                  + kCoefficients_.at( 0 ) / 2.0;
 
-    stateDerivative_ = *computeStateDerivative_( &modifiedInitialState_ );
+    modifiedIntegrationIntervalCurrentPoint_
+            = integrationIntervalCurrentPoint_ + stepsize / 2.0;
 
-    kCoefficients_[ 1 ] = stepsize * stateDerivative_.state;
+    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_,
+                             &modifiedInitialState_, &stateDerivative_ );
+
+    kCoefficients_.push_back( stepsize * stateDerivative_.state );
 
     // Compute k3.
-    modifiedInitialState_.state = vectorOfCurrentStatePointers_.at( 0 )->state
-                                  + kCoefficients_[ 1 ] / 2.0;
+    modifiedInitialState_.state = vectorOfCurrentStates_.at( 0 ).state
+                                  + kCoefficients_.at( 1 ) / 2.0;
 
-    stateDerivative_ = *computeStateDerivative_( &modifiedInitialState_ );
+    modifiedIntegrationIntervalCurrentPoint_
+            = integrationIntervalCurrentPoint_ + stepsize / 2.0;
 
-    kCoefficients_[ 2 ] = stepsize * stateDerivative_.state;
+    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_,
+                             &modifiedInitialState_, &stateDerivative_ );
+
+    kCoefficients_.push_back( stepsize * stateDerivative_.state );
 
     // Compute k4.
-    modifiedInitialState_.state = vectorOfCurrentStatePointers_.at( 0 )->state
-                                  + kCoefficients_[ 2 ];
+    modifiedInitialState_.state = vectorOfCurrentStates_.at( 0 ).state
+                                  + kCoefficients_.at( 2 );
 
-    stateDerivative_ = *computeStateDerivative_( &modifiedInitialState_ );
+    modifiedIntegrationIntervalCurrentPoint_
+            = integrationIntervalCurrentPoint_ + stepsize;
 
-    kCoefficients_[ 3 ] = stepsize * stateDerivative_.state;
+    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_,
+                             &modifiedInitialState_, &stateDerivative_ );
+
+    kCoefficients_.push_back( stepsize * stateDerivative_.state );
 
     // Compute final state using 4th Order, fixed stepsize Runge-Kutta
     // algorithm.
-    vectorOfCurrentStatePointers_.at( 0 ) ->state
-            = vectorOfCurrentStatePointers_.at( 0 )->state
-              + ( kCoefficients_[ 0 ] + 2.0 * kCoefficients_[ 1 ]
-                  + 2.0 * kCoefficients_[ 2 ]
-                  + kCoefficients_[ 3 ] ) / 6.0;
+    vectorOfCurrentStates_.at( 0 ).state
+            = vectorOfCurrentStates_.at( 0 ).state
+              + ( kCoefficients_.at( 0 ) + 2.0 * kCoefficients_.at( 1 )
+                  + 2.0 * kCoefficients_.at( 2 )
+                  + kCoefficients_.at( 3 ) ) / 6.0;
 }
 
 //! Overload ostream to print class information.

@@ -15,11 +15,17 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 7 January, 2011
- *    Last modified     : 9 Feburary, 2011
+ *    Last modified     : 7 July, 2011
  *
  *    References
  *      Walpole, R.E., et al. Probabilty and Statistics for Engineers &
- *      Scientists, Seventh Edition, Prentice Hall, NJ, 2002.
+ *          Scientists, Seventh Edition, Prentice Hall, NJ, 2002.
+ *      Texas A&M University. Chi Square Calculator,
+ *          http://www.stat.tamu.edu/~west/applets/chisqdemo.html, last
+ *          accessed: 7 July, 2011.
+ *      Faculty of Mathematics and Informatics, University of Sofia.
+ *          http://www.fmi.uni-sofia.bg/vesta/virtual_labs/interval/interval6.html,
+ *          last accessed: 7 July, 2011.
  *
  *    Notes
  *      Test runs code and verifies result against expected value.
@@ -52,6 +58,8 @@
  *      110209    K. Kumar          Updated tests and added test for mean and
  *                                  variance of uniform distribution; added
  *                                  note and reference.
+ *      110707    K. Kumar          Corrected variance calculation errors;
+ *                                  updated references.
  */
 
 // Include statements.
@@ -148,8 +156,8 @@ bool testRandomNumberGenerator( )
                 << "is not equal to either +1 or -1" << endl;
     }
 
-    // Test 5: Compute sample mean and standard distrubution of distribution
-    //         and compare to analytical results.
+    // Test 5: Compute sample mean and variance of distribution and compare to
+    //         analytical results.
     // Declare and initialize number of samples.
     unsigned int numberOfSamples = 100000;
 
@@ -168,7 +176,7 @@ bool testRandomNumberGenerator( )
     double sampleMean = sampleOfRandomValues.sum( )
                         / numberOfSamples;
 
-    // Estimate sample standard deviation.
+    // Estimate sample variance.
     double sumOfResidualsSquared = 0.0;
     for ( unsigned int i = 0; i < numberOfSamples; i++ )
     {
@@ -177,32 +185,47 @@ bool testRandomNumberGenerator( )
                                      - sampleMean, 2 );
     }
     double sampleVariance
-            = 1.0 / ( 1.0 - numberOfSamples ) * sumOfResidualsSquared;
+            = 1.0 / ( numberOfSamples - 1.0 ) * sumOfResidualsSquared;
 
     // Compute differences between computed and expected results.
     // Test sample mean versus true mean with a confidence of 99.96%.
     // This means that the test below guarentees that this unit test will
     // fail on average every 2500 times it is run.
-    // Also test sample variance versus true variance a confidence of 99.96%
-    // The true mean and true variance of a uniform distribution from 0 to 1
-    // are 1/2 and 1/12 respectively.
+    // Also test sample variance versus true variance with a confidence of
+    // 99.96%. The true mean and true variance of a uniform distribution
+    // from 0 to 1 are 1/2 and 1/12 respectively.
     // The tolerances were computed using confidence intervals for the sample
     // mean and variance and table lookup.
     if ( computeAbsoluteValue( sampleMean - 0.5 )
-         > 3.49 * 1.0 / sqrt( 12.0 ) * 1.0 / sqrt( numberOfSamples )
-        || ( 1.0 / 12.0 ) / sampleVariance
-         > ( numberOfSamples - 1 ) / 101292 )
+         > 3.49 * 1.0 / sqrt( 12.0 )
+           * 1.0 / static_cast< double >( sqrt( numberOfSamples ) )
+        )
     {
         isRandomNumberGeneratorErroneous = true;
 
-        cerr << "The computed sample mean and variance ( "
-             << sampleMean << ", " << sampleVariance
+        cerr << "The computed sample mean ( " << sampleMean
              << " ) using a sample size of " << numberOfSamples
              << " is not within the standard error of the true sample mean"
-             << " and variance ( 1/2, 1/12 ) " << endl;
+             << " ( 1/2 ) " << endl;
         cerr << "The distribution is not uniform to a confidence of 99.96%. "
              << "Run the unit test again to ensure error is not due to "
-             << "statistical anomaly " << endl;
+             << "statistical anomaly. " << endl;
+    }
+
+    if ( ( 1.0 / 12.0 ) / sampleVariance
+         < static_cast< double >( numberOfSamples - 1 ) / 101291
+         || ( 1.0 / 12.0 ) / sampleVariance
+         > static_cast< double>( numberOfSamples - 1 ) / 98717 )
+    {
+        isRandomNumberGeneratorErroneous = true;
+
+        cerr << "The computed sample variance ( " << sampleVariance
+             << " ) using a sample size of " << numberOfSamples
+             << " is not within the standard error of the true sample variance"
+             << "( 1/12 ) " << endl;
+        cerr << "The distribution is not uniform to a confidence of 99.96%. "
+             << "Run the unit test again to ensure error is not due to "
+             << "statistical anomaly." << endl;
     }
 
     // Return test result.

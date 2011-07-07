@@ -3,7 +3,7 @@
  *    This unit test file will test the gravity assist code.
  *
  *    Path              : /Astrodynamics/MissionSegments/GravityAssist/
- *    Version           : 5
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 17 January, 2011
- *    Last modified     : 12 February, 2011
+ *    Last modified     : 27 June, 2011
  *
  *    References
  *
@@ -49,16 +49,17 @@
  *      110208    E. Iorfida        Update file with CartesianVelocityElements
  *                                  pointers as input.
  *      110212    J. Melman         Added comments to clarify test case.
+ *      110512    K. Kumar          Updated code to not use dynamic memory
+ *                                  allocation and new
+ *                                  createPredefinedCelestialBody() function.
+ *      110627    K. Kumar          Updated to use new predefined planets code.
  */
 
 // Include statements.
 #include "unitTestGravityAssist.h"
-#include "predefinedCelestialBodies.h"
-#include "sphereSegment.h"
 
 // Using directives.
 using mathematics::computeAbsoluteValue;
-using predefined_celestial_bodies::createPredefinedCelestialBody;
 using std::endl;
 using std::cerr;
 
@@ -84,8 +85,8 @@ bool testGravityAssist( )
     double expectedDeltaV = 3.652e3;
 
     // Define body that is swung by.
-    CelestialBody* pointerToMars = new CelestialBody;
-    pointerToMars = createPredefinedCelestialBody( predefined_celestial_bodies::mars );
+    Planet predefinedMars;
+    predefinedMars.setPredefinedPlanetSettings( Planet::mars );
 
     // Define Sun gravitational parameter.
     double gravitationalParameterSun = 1.32712440018e20;
@@ -98,57 +99,50 @@ bool testGravityAssist( )
     double marsSmallestPeriapsisDistanceFactor = 1.076;
 
     // Declare GravityAssist object.
-    GravityAssist* pointerToMyGravityAssist = new GravityAssist;
+    GravityAssist myGravityAssist;
 
     // Define planet heliocentric velocity vector.
     // The orbit is considered to be circular.
-    Vector3d marsVelocity_;
-    marsVelocity_.x( ) = 0.0;
-    marsVelocity_.y( ) =
+    Vector3d marsVelocity;
+    marsVelocity.x( ) = 0.0;
+    marsVelocity.y( ) =
             sqrt( gravitationalParameterSun / distanceMarsToSun );
-    marsVelocity_.z( ) = 0.0;
+    marsVelocity.z( ) = 0.0;
 
     // Define pointer to satellite incoming vector.
-    CartesianVelocityElements* pointerToIncomingVelocityTest =
-            new CartesianVelocityElements;
-    pointerToIncomingVelocityTest->
-            setCartesianElementXDot( -25.0e3 * sin( M_PI / 6.0 ) );
-    pointerToIncomingVelocityTest->
-            setCartesianElementYDot( 25.0e3 * cos( M_PI / 6.0 ) );
-    pointerToIncomingVelocityTest->
-            setCartesianElementZDot( 0.0 );
+    CartesianVelocityElements incomingVelocityTest;
+    incomingVelocityTest.setCartesianElementXDot( -25.0e3
+                                                  * sin( M_PI / 6.0 ) );
+    incomingVelocityTest.setCartesianElementYDot( 25.0e3
+                                                  * cos( M_PI / 6.0 ) );
+    incomingVelocityTest.setCartesianElementZDot( 0.0 );
 
     // Define pointer to satellite outgoing vector.
-    CartesianVelocityElements* pointerToOutgoingVelocityTest =
-            new CartesianVelocityElements;
-    pointerToOutgoingVelocityTest->setCartesianElementXDot(
-            pointerToIncomingVelocityTest->getCartesianElementXDot( ) );
-    pointerToOutgoingVelocityTest->setCartesianElementYDot(
-            2.0 * marsVelocity_.y( ) -
-            pointerToIncomingVelocityTest->getCartesianElementYDot( ) );
-    pointerToOutgoingVelocityTest->setCartesianElementZDot( 0.0 );
+    CartesianVelocityElements outgoingVelocityTest;
+    outgoingVelocityTest.setCartesianElementXDot(
+            incomingVelocityTest.getCartesianElementXDot( ) );
+    outgoingVelocityTest.setCartesianElementYDot(
+            2.0 * marsVelocity.y( ) -
+            incomingVelocityTest.getCartesianElementYDot( ) );
+    outgoingVelocityTest.setCartesianElementZDot( 0.0 );
 
     // Set values to compute gravity assist code.
-    SphereSegment* pointerToSphereSegment = new SphereSegment;
-    pointerToSphereSegment->setRadius( 3398.0e3 );
-    pointerToMars->setShapeModel( pointerToSphereSegment );
-    pointerToMyGravityAssist->setCentralBody( pointerToMars );
-    pointerToMyGravityAssist->setCentralBodyVelocity( marsVelocity_ );
-    pointerToMyGravityAssist->setSmallestPeriapsisDistanceFactor(
+    SphereSegment sphereSegment;
+    sphereSegment.setRadius( 3398.0e3 );
+    predefinedMars.setShapeModel( &sphereSegment );
+    myGravityAssist.setCentralBody( &predefinedMars );
+    myGravityAssist.setCentralBodyVelocity( marsVelocity );
+    myGravityAssist.setSmallestPeriapsisDistanceFactor(
             marsSmallestPeriapsisDistanceFactor );
-    pointerToMyGravityAssist->setPointerToIncomingVelocity(
-            pointerToIncomingVelocityTest );
-    pointerToMyGravityAssist->setPointerToOutgoingVelocity(
-            pointerToOutgoingVelocityTest );
+    myGravityAssist.setPointerToIncomingVelocity( &incomingVelocityTest );
+    myGravityAssist.setPointerToOutgoingVelocity( &outgoingVelocityTest );
 
     // Create pointers to new Newton Raphson objects.
-    NewtonRaphson* pointerToMyNewtonRaphsonGravityAssist =
-            new NewtonRaphson;
-    pointerToMyGravityAssist->setNewtonRaphsonMethod(
-            pointerToMyNewtonRaphsonGravityAssist );
+    NewtonRaphson myNewtonRaphsonGravityAssist;
+    myGravityAssist.setNewtonRaphsonMethod( &myNewtonRaphsonGravityAssist );
 
     // Compute powered gravity-assist implementation.
-    double deltaV = pointerToMyGravityAssist->computeDeltaV( );
+    double deltaV = myGravityAssist.computeDeltaV( );
 
     // Set test result to true if the test does not match the expected results.
     if ( computeAbsoluteValue( deltaV - expectedDeltaV )

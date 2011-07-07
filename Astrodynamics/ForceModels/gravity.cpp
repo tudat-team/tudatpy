@@ -60,10 +60,15 @@ Gravity::~Gravity( )
 }
 
 //! Set body for gravity field expansion.
-void Gravity::setBody( CelestialBody* celestialBody )
+void Gravity::setBody( CelestialBody* pointerToCelestialBody )
 {
     // Set celestial body.
-    celestialBody_ = celestialBody;
+    pointerToCelestialBody_ = pointerToCelestialBody;
+
+    // Set pointer to gravity field model to gravity field model stored in
+    // CelestialBody object.
+    pointerToGravityFieldModel_ = pointerToCelestialBody_
+            ->getGravityFieldModel( );
 }
 
 //! Compute force per unit mass for gravity field expansion.
@@ -72,14 +77,10 @@ VectorXd& Gravity::computeForce( State* pointerToState )
     // Set Cartesian position elements state.
     cartesianPositionElements_.state = pointerToState->state.segment( 0, 3 );
 
-    // Set pointer to gravity field model to gravity field model stored in
-    // CelestialBody object.
-    pointerToGravityFieldModel_ = celestialBody_->getGravityFieldModel( );
-
     // Compute forces per unit mass using gradient of potential of gravity
     // expansion.
     forcePerUnitMass_ = pointerToGravityFieldModel_->getGradientOfPotential(
-            &cartesianPositionElements_ );
+                &cartesianPositionElements_ );
 
     // Return computed forces per unit mass.
     return forcePerUnitMass_;

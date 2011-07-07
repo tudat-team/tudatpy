@@ -124,12 +124,6 @@ protected:
 
 private:
 
-    //! Number of propagation steps.
-    /*!
-     * Number of propagation steps.
-     */
-    unsigned int numberOfPropagationSteps_;
-
     //! Eccentric anomaly.
     /*!
      * Eccentric anomaly.
@@ -148,12 +142,6 @@ private:
      */
     double hyperbolicEccentricAnomaly_;
 
-    //! True anomaly.
-    /*!
-     * True anomaly.
-     */
-    double trueAnomaly_;
-
     //! Mean anomaly.
     /*!
      * Mean anomaly.
@@ -166,31 +154,42 @@ private:
      */
     double meanAnomalyChange_;
 
-    //! Pointer to Keplerian elements.
+    //! True anomaly.
     /*!
-     * Pointer to Keplerian elements.
+     * True anomaly.
      */
-    KeplerianElements* pointerToKeplerianElements_;
-
-    //! Pointer to mean anomaly to eccentric anomaly conversion.
-    /*!
-     * Pointer to ConvertMeanAnomalyToEccentricAnomaly object.
-     */
-    ConvertMeanAnomalyToEccentricAnomaly*
-            pointerToConvertMeanAnomalyToEccentricAnomaly_;
-
-    //! Pointer to mean anomaly to hyperbolic eccentric anomaly conversion.
-    /*!
-     * Pointer to ConvertMeanAnomalyToHyperbolicEccentricAnomaly object.
-     */
-    ConvertMeanAnomalyToHyperbolicEccentricAnomaly*
-            pointerToConvertMeanAnomalyToHyperbolicEccentricAnomaly_;
+    double trueAnomaly_;
 
     //! Pointer to Newton-Raphson.
     /*!
      * Pointer to Newton-Raphson method.
      */
     NewtonRaphson* pointerToNewtonRaphson_;
+
+    //! Mean anomaly to eccentric anomaly conversion.
+    /*!
+     * Mean anomaly to eccentric anomaly conversion
+     */
+    ConvertMeanAnomalyToEccentricAnomaly convertMeanAnomalyToEccentricAnomaly_;
+
+    //! Mean anomaly to hyperbolic eccentric anomaly conversion.
+    /*!
+     * Mean anomaly to hyperbolic eccentric anomaly conversion.
+     */
+    ConvertMeanAnomalyToHyperbolicEccentricAnomaly
+            convertMeanAnomalyToHyperbolicEccentricAnomaly_;
+
+    //! Cartesian elements object.
+    /*!
+     * Cartesian elements object.
+     */
+    CartesianElements cartesianElements_;
+
+    //! Keplerian elements object.
+    /*!
+     * Keplerian elements object.
+     */
+    KeplerianElements keplerianElements_;
 };
 
 #endif // KEPLERPROPAGATOR_H

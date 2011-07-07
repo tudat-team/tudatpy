@@ -10,6 +10,10 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : bart.romgens@gmail.com
  *
+ *    Author            : K. Kumar
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : K.Kumar@tudelft.nl
+ *
  *    Checker           : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
@@ -394,7 +398,7 @@ bool testBasicMathematicsFunctions( )
 
     // Cartesian coordinates.
     VectorXd cartesianCoordinatesTest24_( 3 );
-    cartesianCoordinatesTest24_.Zero( 3 );
+    cartesianCoordinatesTest24_.setZero( 3 );
 
     VectorXd cartesianCoordinatesTest25_( 3 );
     cartesianCoordinatesTest25_( 0 ) = 2.0;
@@ -413,7 +417,7 @@ bool testBasicMathematicsFunctions( )
 
     // Expected vectors in spherical coordinates.
     VectorXd expectedSphericalCoordinatesTest24_( 3 );
-    expectedSphericalCoordinatesTest24_.Zero( 3 );
+    expectedSphericalCoordinatesTest24_.setZero( 3 );
 
     VectorXd expectedSphericalCoordinatesTest25_( 3 );
     expectedSphericalCoordinatesTest25_( 0 )

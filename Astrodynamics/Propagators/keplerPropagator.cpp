@@ -54,22 +54,13 @@ using std::endl;
 using mathematics::raiseToIntegerPower;
 
 //! Default constructor.
-KeplerPropagator::KeplerPropagator( ) : numberOfPropagationSteps_( 0 ),
-                                        trueAnomaly_( -1.0 )
+KeplerPropagator::KeplerPropagator( ) : trueAnomaly_( -1.0 )
 {
-    // Initialize variables.
-    pointerToConvertMeanAnomalyToEccentricAnomaly_
-            = new ConvertMeanAnomalyToEccentricAnomaly;
-    pointerToConvertMeanAnomalyToHyperbolicEccentricAnomaly_
-            = new ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
 }
 
 //! Default destructor
 KeplerPropagator::~KeplerPropagator( )
 {
-    // Deallocate variables.
-    delete pointerToConvertMeanAnomalyToEccentricAnomaly_;
-    delete pointerToConvertMeanAnomalyToHyperbolicEccentricAnomaly_;
 }
 
 //! Set central body.
@@ -77,7 +68,7 @@ void KeplerPropagator::setCentralBody( Body* pointerToBody,
                                        CelestialBody* pointerToCentralBody )
 {
     // Set pointer to central body for given body to propagate.
-    bodiesToPropagate_[ pointerToBody ]->pointerToCentralBody_
+    bodiesToPropagate_[ pointerToBody ].pointerToCentralBody_
             = pointerToCentralBody;
 }
 
@@ -92,27 +83,6 @@ void KeplerPropagator::setNewtonRaphson( NewtonRaphson*
 //! Propagate.
 void KeplerPropagator::propagate( )
 {
-    // Check if fixed output interval is set.
-    if ( fixedOutputInterval_ != -0.0 )
-    {
-        // Compute number of steps required.
-        numberOfPropagationSteps_
-                = static_cast < unsigned int > ( std::floor(
-                        ( propagationIntervalEnd_ - propagationIntervalStart_ )
-                        / fixedOutputInterval_ ) );
-    }
-
-    // If fixed output interval is not set, only one step is required.
-    else
-    {
-        // Compute number of steps required.
-        numberOfPropagationSteps_ = 2;
-
-        // Set fixed output interval length of propagation interval.
-        fixedOutputInterval_ = propagationIntervalEnd_
-                               - propagationIntervalStart_;
-    }
-
     // Loop over map of bodies to be propagated.
     for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
           iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
@@ -120,202 +90,146 @@ void KeplerPropagator::propagate( )
     {
         // Set propagator to this KeplerPropagator object for all bodies.
         iteratorBodiesToPropagate_
-                ->second->pointerToPropagator_ = this;
+                ->second.pointerToPropagator_ = this;
 
         // Convert initial state given in Cartesian elements to Keplerian
         // elements.
-        pointerToKeplerianElements_
+        keplerianElements_
                 = orbital_element_conversions::
                   convertCartesianToKeplerianElements(
                           static_cast< CartesianElements* > (
                                   iteratorBodiesToPropagate_
-                                  ->second->pointerToInitialState_ ),
-                          iteratorBodiesToPropagate_->second
-                          ->pointerToCentralBody_ );
+                                  ->second.pointerToInitialState_ ),
+                          iteratorBodiesToPropagate_
+                          ->second.pointerToCentralBody_ );
 
-        if ( pointerToKeplerianElements_->getEccentricity( ) < 0.8
-             && pointerToKeplerianElements_->getEccentricity( ) >= 0.0 )
+        if ( keplerianElements_.getEccentricity( ) < 0.8
+             && keplerianElements_.getEccentricity( ) >= 0.0 )
         {
             // Convert initial true anomaly to eccentric anomaly.
             eccentricAnomaly_ = orbital_element_conversions::
                                 convertTrueAnomalyToEccentricAnomaly(
-                                        pointerToKeplerianElements_
-                                        ->getTrueAnomaly( ),
-                                        pointerToKeplerianElements_
-                                        ->getEccentricity( ) );
+                                        keplerianElements_.getTrueAnomaly( ),
+                                        keplerianElements_.getEccentricity( ) );
 
             // Convert initial eccentric anomaly to mean anomaly.
             meanAnomaly_ = orbital_element_conversions::
                            convertEccentricAnomalyToMeanAnomaly(
                                    eccentricAnomaly_,
-                                   pointerToKeplerianElements_
-                                   ->getEccentricity( ) );
+                                   keplerianElements_.getEccentricity( ) );
 
             // Set Keplerian elements for mean anomaly to eccentric anomaly
             // conversion.
-            pointerToConvertMeanAnomalyToEccentricAnomaly_
-                    ->setEccentricity( pointerToKeplerianElements_
-                                       ->getEccentricity( ) );
+            convertMeanAnomalyToEccentricAnomaly_.setEccentricity(
+                    keplerianElements_.getEccentricity( ) );
 
             // Set Newton-Raphson method.
-            pointerToConvertMeanAnomalyToEccentricAnomaly_
-                    ->setNewtonRaphson( pointerToNewtonRaphson_ );
+            convertMeanAnomalyToEccentricAnomaly_.
+                    setNewtonRaphson( pointerToNewtonRaphson_ );
 
             // Compute change of mean anomaly between start and end of
-            // propagation step. This change is the same of each propagation
-            // step since the steps are equal in time.
+            // propagation step.
             meanAnomalyChange_
                     = orbital_element_conversions::
                       convertElapsedTimeToMeanAnomalyForEllipticalOrbits(
-                              fixedOutputInterval_,
+                              ( propagationIntervalEnd_
+                                - propagationIntervalStart_ ),
                               iteratorBodiesToPropagate_
-                              ->second->pointerToCentralBody_,
-                              pointerToKeplerianElements_
-                              ->getSemiMajorAxis( ) );
+                              ->second.pointerToCentralBody_,
+                              keplerianElements_.getSemiMajorAxis( ) );
 
-            // Loop over all steps and store propagation history.
-            for ( unsigned int i = 0; i < numberOfPropagationSteps_ + 1; i++ )
-            {
-                // Create pointer to CartesianElements object.
-                CartesianElements* pointerToCartesianElements_
-                        = new CartesianElements;
+            // Set mean anomaly change in mean anomaly to eccentric anomaly
+            // conversions.
+            convertMeanAnomalyToEccentricAnomaly_
+                    .setMeanAnomaly( meanAnomaly_ + meanAnomalyChange_ );
 
-                // Set mean anomaly change in mean anomaly to eccentric anomaly
-                // conversions
-                pointerToConvertMeanAnomalyToEccentricAnomaly_
-                        ->setMeanAnomaly( meanAnomaly_ );
+            // Compute eccentric anomaly for mean anomaly.
+            eccentricAnomaly_
+                    = convertMeanAnomalyToEccentricAnomaly_.convert( );
 
-                // Compute eccentric anomaly for mean anomaly.
-                eccentricAnomaly_
-                        = pointerToConvertMeanAnomalyToEccentricAnomaly_
-                          ->convert( );
+            // Compute true anomaly for computed eccentric anomaly.
+            trueAnomaly_ = orbital_element_conversions::
+                           convertEccentricAnomalyToTrueAnomaly(
+                                   eccentricAnomaly_,
+                                   keplerianElements_.getEccentricity( ) );
 
-                // Compute true anomaly for computed eccentric anomaly.
-                trueAnomaly_ = orbital_element_conversions::
-                               convertEccentricAnomalyToTrueAnomaly(
-                                       eccentricAnomaly_,
-                                       pointerToKeplerianElements_
-                                       ->getEccentricity( ) );
-
-                // Set computed true anomaly in KeplerianElements object.
-                pointerToKeplerianElements_->setTrueAnomaly( trueAnomaly_ );
-
-                // Convert state given in Keplerian elements to Cartesian
-                // elements.
-                pointerToCartesianElements_
-                        = orbital_element_conversions::
-                          convertKeplerianToCartesianElements(
-                                  pointerToKeplerianElements_,
-                                  iteratorBodiesToPropagate_->second
-                                  ->pointerToCentralBody_ );
-
-                // Store intermediate propagation state in propagation history
-                // for given body.
-                iteratorBodiesToPropagate_->second
-                        ->propagationHistory_[ i * fixedOutputInterval_ ]
-                        = pointerToCartesianElements_;
-
-                // Increment mean anomaly for next propagation step.
-                meanAnomaly_ += meanAnomalyChange_;
-            }
-
-            // Store final state in CartesianElements for given body.
-            iteratorBodiesToPropagate_->second->pointerToFinalState_
-                    = iteratorBodiesToPropagate_->second
-                      ->propagationHistory_[ ( numberOfPropagationSteps_ - 1 )
-                                             * fixedOutputInterval_ ];
+            // Set computed true anomaly in KeplerianElements object.
+            keplerianElements_.setTrueAnomaly( trueAnomaly_ );
         }
 
-        else if ( pointerToKeplerianElements_->getEccentricity( ) > 1.2 )
+        else if ( keplerianElements_.getEccentricity( ) > 1.2 )
         {
             // Convert initial true anomaly to hyperbolic eccentric anomaly.
             hyperbolicEccentricAnomaly_
                     = orbital_element_conversions::
                       convertTrueAnomalyToHyperbolicEccentricAnomaly(
-                              pointerToKeplerianElements_->getTrueAnomaly( ),
-                              pointerToKeplerianElements_->getEccentricity( ) );
+                              keplerianElements_.getTrueAnomaly( ),
+                              keplerianElements_.getEccentricity( ) );
 
             // Convert initial hyperbolic eccentric anomaly to mean anomaly.
             meanAnomaly_ = orbital_element_conversions::
                            convertHyperbolicEccentricAnomalyToMeanAnomaly(
                                    hyperbolicEccentricAnomaly_,
-                                   pointerToKeplerianElements_
-                                   ->getEccentricity( ) );
+                                   keplerianElements_.getEccentricity( ) );
 
             // Set Keplerian elements for mean anomaly to hyperbolic eccentric
             // anomaly conversion.
-            pointerToConvertMeanAnomalyToHyperbolicEccentricAnomaly_
-                    ->setEccentricity( pointerToKeplerianElements_
-                                       ->getEccentricity( ) );
+            convertMeanAnomalyToHyperbolicEccentricAnomaly_
+                    .setEccentricity( keplerianElements_.getEccentricity( ) );
 
             // Set Newton-Raphson method.
-            pointerToConvertMeanAnomalyToHyperbolicEccentricAnomaly_
-                    ->setNewtonRaphson( pointerToNewtonRaphson_ );
+            convertMeanAnomalyToHyperbolicEccentricAnomaly_
+                    .setNewtonRaphson( pointerToNewtonRaphson_ );
 
             // Compute change of mean anomaly between start and end of
-            // propagation step. This change is the same of each propagation
-            // step since the steps are equal in time.
+            // propagation step.
             meanAnomalyChange_
                     = orbital_element_conversions::
                       convertElapsedTimeToMeanAnomalyForHyperbolicOrbits(
-                              fixedOutputInterval_,
+                              ( propagationIntervalEnd_
+                                - propagationIntervalStart_ ),
                               iteratorBodiesToPropagate_
-                              ->second->pointerToCentralBody_,
-                              pointerToKeplerianElements_
-                              ->getSemiMajorAxis( ) );
+                              ->second.pointerToCentralBody_,
+                              keplerianElements_.getSemiMajorAxis( ) );
 
-            // Loop over all steps and store propagation history.
-            for ( unsigned int i = 0; i < numberOfPropagationSteps_ + 1; i++ )
-            {
-                // Create pointer to CartesianElements object.
-                CartesianElements* pointerToCartesianElements_
-                        = new CartesianElements;
+            // Set mean anomaly change in mean anomaly to eccentric anomaly
+            // conversions
+            convertMeanAnomalyToHyperbolicEccentricAnomaly_
+                    .setMeanAnomaly( meanAnomaly_ + meanAnomalyChange_ );
 
-                // Set mean anomaly change in mean anomaly to eccentric anomaly
-                // conversions
-                pointerToConvertMeanAnomalyToHyperbolicEccentricAnomaly_
-                        ->setMeanAnomaly( meanAnomaly_ );
+            // Compute hyperbolic eccentric anomaly for mean anomaly.
+            hyperbolicEccentricAnomaly_ =
+                    convertMeanAnomalyToHyperbolicEccentricAnomaly_
+                    .convert( );
 
-                // Compute hyperbolic eccentric anomaly for mean anomaly.
-                hyperbolicEccentricAnomaly_ =
-                        pointerToConvertMeanAnomalyToHyperbolicEccentricAnomaly_
-                        ->convert( );
+            // Compute true anomaly for computed hyperbolic eccentric
+            // anomaly.
+            trueAnomaly_ = orbital_element_conversions::
+                           convertHyperbolicEccentricAnomalyToTrueAnomaly(
+                                   hyperbolicEccentricAnomaly_,
+                                   keplerianElements_.getEccentricity( ) );
 
-                // Compute true anomaly for computed hyperbolic eccentric anomaly.
-                trueAnomaly_ = orbital_element_conversions::
-                               convertHyperbolicEccentricAnomalyToTrueAnomaly(
-                                       hyperbolicEccentricAnomaly_,
-                                       pointerToKeplerianElements_
-                                       ->getEccentricity( ) );
-
-                // Set computed true anomaly in KeplerianElements object.
-                pointerToKeplerianElements_->setTrueAnomaly( trueAnomaly_ );
-
-                // Convert state given in Keplerian elements to Cartesian
-                // elements.
-                pointerToCartesianElements_
-                        = orbital_element_conversions::
-                          convertKeplerianToCartesianElements(
-                                  pointerToKeplerianElements_,
-                                  iteratorBodiesToPropagate_->second
-                                  ->pointerToCentralBody_ );
-
-                // Store intermediate propagation state in propagation history
-                // for given body.
-                iteratorBodiesToPropagate_->second
-                        ->propagationHistory_[ i * fixedOutputInterval_ ]
-                        = pointerToCartesianElements_;
-
-                // Increment mean anomaly for next propagation step.
-                meanAnomaly_ += meanAnomalyChange_;
-            }
-
-            // Store final state in CartesianElements for given body.
-            iteratorBodiesToPropagate_->second->pointerToFinalState_
-                    = iteratorBodiesToPropagate_->second
-                      ->propagationHistory_[ ( numberOfPropagationSteps_ - 1 )
-                                             * fixedOutputInterval_ ];
+            // Set computed true anomaly in KeplerianElements object.
+            keplerianElements_.setTrueAnomaly( trueAnomaly_ );
         }
+
+        else
+        {
+            cerr << "There is currently no valid implementation " << endl;
+            cerr << "of the Kepler propagator for eccentricities " << endl;
+            cerr << "in the range: 0.8 <= eccentricity <= 1.2" << endl;
+        }
+
+        // Convert Keplerian elements to Cartesian elements.
+        cartesianElements_ = orbital_element_conversions::
+                             convertKeplerianToCartesianElements(
+                                     &keplerianElements_,
+                                     iteratorBodiesToPropagate_->second
+                                     .pointerToCentralBody_ );
+
+        // Store final state in CartesianElements for given body.
+        iteratorBodiesToPropagate_->second.finalState_
+                = cartesianElements_;
     }
 }
 

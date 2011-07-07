@@ -59,7 +59,6 @@
 #include "ephemeris.h"
 #include "keplerianElements.h"
 #include "newtonRaphson.h"
-#include "predefinedCelestialBodies.h"
 #include "state.h"
 #include "unitConversions.h"
 
@@ -166,17 +165,17 @@ private:
     orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
             convertMeanAnomalyToEccentricAnomaly_;
 
-    //! Pointer to Cartesian elements of planet at given Julian date.
+    //! Cartesian elements of planet at given Julian date.
     /*!
-     * Pointer to Cartesian elements of planet at given Julian date.
+     * Cartesian elements of planet at given Julian date.
      */
-    CartesianElements* pointerToPlanetCartesianElementsAtGivenJulianDate_;
+    CartesianElements planetCartesianElementsAtGivenJulianDate_;
 
-    //! Pointer to Keplerian elements of planet at given Julian date.
+    //! Keplerian elements of planet at given Julian date.
     /*!
-     * Pointer tot Keplerian elements of planet at given Julian date.
+     * Keplerian elements of planet at given Julian date.
      */
-    KeplerianElements* pointerToPlanetKeplerianElementsAtGivenJulianDate_;
+    KeplerianElements planetKeplerianElementsAtGivenJulianDate_;
 
     //! Newton-Raphson method.
     /*!

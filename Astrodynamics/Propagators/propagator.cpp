@@ -63,7 +63,7 @@
 using std::endl;
 
 //! Default constructor.
-Propagator::Propagator( ) : fixedOutputInterval_( -0.0 )
+Propagator::Propagator( )
 {
 }
 
@@ -89,11 +89,8 @@ void Propagator::setPropagationIntervalEnd( const double&
 //! Add body to propagate.
 void Propagator::addBody( Body* pointerToBody )
 {
-    // Add body as key for map, with new PropagatorDataContainer object as data.
-    bodiesToPropagate_[ pointerToBody ] = new PropagatorDataContainer( );
-
     // Set body in new PropagatorDataContainer object as given body.
-    bodiesToPropagate_[ pointerToBody ]->pointerToBody_ = pointerToBody;
+    bodiesToPropagate_[ pointerToBody ].pointerToBody_ = pointerToBody;
 }
 
 //! Set propagator for propagation of a body.
@@ -103,7 +100,7 @@ void Propagator::setPropagator( Body* pointerToBody,
     // Set pointer to object of Propagator class for given pointer to body in
     // map of bodies to be propagated.
     bodiesToPropagate_[ pointerToBody ]
-            ->pointerToPropagator_ = pointerToPropagator;
+            .pointerToPropagator_ = pointerToPropagator;
 }
 
 //! Set initial state of body.
@@ -112,22 +109,11 @@ void Propagator::setInitialState( Body* pointerToBody,
 {
     // Set initial state of given body to be propogated.
     bodiesToPropagate_[ pointerToBody ]
-            ->pointerToInitialState_ = pointerToInitialState;
+            .pointerToInitialState_ = pointerToInitialState;
 
     // Set size of initial state of given body to propagate.
     bodiesToPropagate_[ pointerToBody ]
-            ->sizeOfState_ = pointerToInitialState->state.size( );
-
-    // Set state in body to propagate as initial state.
-    bodiesToPropagate_[ pointerToBody ]
-            ->pointerToCurrentState_ = pointerToInitialState;
-}
-
-//! Set fixed output interval.
-void Propagator::setFixedOutputInterval( const double& fixedOutputInterval )
-{
-    // Set fixed output interval for propagation output.
-    fixedOutputInterval_ = fixedOutputInterval;
+            .sizeOfState_ = pointerToInitialState->state.size( );
 }
 
 //! Get start of propagation interval.
@@ -144,27 +130,18 @@ double& Propagator::getPropagationIntervalEnd( )
     return propagationIntervalEnd_;
 }
 
-//! Get fixed output interval.
-double& Propagator::getFixedOutputInterval( )
+//! Get initial state of body.
+State* Propagator::getInitialState( Body* pointerToBody )
 {
-    // Return fixed output interval.
-    return fixedOutputInterval_;
+    // Return final state of given body.
+    return bodiesToPropagate_[ pointerToBody ].pointerToInitialState_;
 }
 
 //! Get final state of body.
 State* Propagator::getFinalState( Body* pointerToBody )
 {
     // Return final state of given body.
-    return bodiesToPropagate_[ pointerToBody ]->pointerToFinalState_;
-}
-
-//! Get propagation history of body at fixed output intervals.
-std::map < double, State* >
-        Propagator::getPropagationHistoryAtFixedOutputIntervals(
-                Body* pointerToBody )
-{
-    // Return propagation history of given body.
-    return bodiesToPropagate_[ pointerToBody ]->propagationHistory_;
+    return &bodiesToPropagate_[ pointerToBody ].finalState_;
 }
 
 // End of file.

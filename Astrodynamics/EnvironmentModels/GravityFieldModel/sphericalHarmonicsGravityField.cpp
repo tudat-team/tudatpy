@@ -79,14 +79,14 @@ void SphericalHarmonicsGravityField::setReferenceRadius(
 
 //! Set degree of spherical harmonics gravity field expansion.
 void SphericalHarmonicsGravityField::setDegreeOfExpansion(
-        const int& degreeOfExpansion )
+        const unsigned int& degreeOfExpansion )
 {
     degreeOfExpansion_ = degreeOfExpansion;
 }
 
 //! Set order of spherical harmonics gravity field expansion.
 void SphericalHarmonicsGravityField::setOrderOfExpansion(
-        const int& orderOfExpansion )
+        const unsigned int& orderOfExpansion )
 {
     orderOfExpansion_ = orderOfExpansion;
 }

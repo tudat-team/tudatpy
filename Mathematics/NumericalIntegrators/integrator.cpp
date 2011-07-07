@@ -3,8 +3,8 @@
  *    included in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 9
- *    Check status      : Checked
+ *    Version           : 10
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -19,14 +19,12 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 22 August, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 16 May, 2011
  *
  *    References
  *
  *    Notes
- *      Currently, the code is only setup for fixed stepsize methods. In
- *      future, templates should be employed to enable selection of the
- *      stepsize and order types.
+ *      Currently, the code is only setup for fixed stepsize methods.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -55,21 +53,32 @@
  *      110204    K. Kumar          Added note about stepsize and order
  *                                  selection.
  *      110207    K. Kumar          Path changed.
+ *      110516    K. Kumar          Changed architecture so adaptor is not
+ *                                  used. Global functions can no longer be
+ *                                  used. StateDerivativeBase used to define
+ *                                  classes with state derivative function.
  */
 
 // Include statements.
 #include "integrator.h"
 
 //! Default constructor.
-Integrator::Integrator( ) : isIntegrationHistoryToBeSaved_( false ),
-                            dimensionOfCurrentState_( -0 ),
-                            pointerToStateTakingFunction_( NULL ),
-                            pointerToIntegratorBase_( NULL ),
+Integrator::Integrator( ) : dimensionOfState_( -0 ),
+                            numberOfIntegrationSteps_( -0 ),
+                            stepsize_( -0.0 ),
+                            initialStepsize_( -0.0 ),
+                            integrationIntervalStart_( -0.0 ),
+                            integrationIntervalEnd_( -0.0 ),
+                            integrationInterval_( -0.0 ),
+                            integrationIntervalCurrentPoint_( -0.0 ),
+                            lastStepStepsize_( -0.0 ),
+                            pointerToInitialState_( NULL ),
+                            pointerToStateDerivative_( NULL ),
                             isStepsizeSet_ ( false ),
                             isInitialStateSet_( false ),
                             isIntegrationIntervalStartSet_( false ),
                             isIntegrationIntervalEndSet_( false ),
-                            isStateDerivativeFunctionSet_( false )
+                            isStateDerivativeSet_( false )
 {
 }
 
@@ -78,29 +87,15 @@ Integrator::~Integrator( )
 {
 }
 
-//! Set function containing state derivative.
-void Integrator::setStateDerivativeFunction(
-        pointerToStateTakingFunction derivativeFunction )
+//! Set object containing state derivative.
+void Integrator::setObjectContainingStateDerivative(
+    StateDerivativeBase* pointerToStateDerivative )
 {
-    // Set pointer to state derivative function.
-    pointerToStateTakingFunction_ =  derivativeFunction;
+    // Set pointer to object containing state derivative function.
+    pointerToStateDerivative_ = pointerToStateDerivative;
 
-    // Set boolean flag to check if state derivative function is set, to true.
-    isStateDerivativeFunctionSet_ = true;
-
-    // Compute internal derived integration parameters.
-    computeInternalDerivedIntegrationParameters_( );
-}
-
-//! Set adaptor class for Integrator.
-void Integrator::setIntegratorAdaptor( IntegratorBase*
-                                       pointerToIntegratorBase )
-{
-    // Set pointer to integrator abstract base class.
-    pointerToIntegratorBase_ = pointerToIntegratorBase;
-
-    // Set boolean flag to check if state derivative function is set, to true.
-    isStateDerivativeFunctionSet_ = true;
+    // Set boolean flag to check if state derivative is set to true.
+    isStateDerivativeSet_ = true;
 
     // Compute internal derived integration parameters.
     computeInternalDerivedIntegrationParameters_( );
@@ -110,10 +105,7 @@ void Integrator::setIntegratorAdaptor( IntegratorBase*
 void Integrator::setInitialState( State* pointerToInitialState )
 {
     // Set initial state.
-    initialState_ = *pointerToInitialState;
-
-    // Add pointer to initial state to container vector.
-    vectorOfCurrentStatePointers_.push_back( pointerToInitialState );
+    pointerToInitialState_ = pointerToInitialState;
 
     // Set boolean flag to check if initial state is set to true.
     isInitialStateSet_ = true;
@@ -123,10 +115,10 @@ void Integrator::setInitialState( State* pointerToInitialState )
 }
 
 //! Set initial stepsize.
-void Integrator::setInitialStepsize( const double& stepsize )
+void Integrator::setInitialStepsize( const double& initialStepsize )
 {
     // Set stepsize for integrator.
-    initialStepsize_ = stepsize;
+    initialStepsize_ = initialStepsize;
 
     // Set boolean flag to check if stepsize is set to true.
     isStepsizeSet_ = true;
@@ -164,38 +156,29 @@ void Integrator::setIntegrationIntervalEnd( const double&
     computeInternalDerivedIntegrationParameters_( );
 }
 
-//! Sets whether integration history should be saved.
-void Integrator::setIsIntegrationHistoryToBeSaved(
-        const bool& isIntegrationHistoryToBeSaved )
-{
-    // Set flag to check if integration history should be saved.
-    isIntegrationHistoryToBeSaved_ = isIntegrationHistoryToBeSaved;
-}
-
-
 //! Get stepsize.
-double Integrator::getStepsize( )
+double& Integrator::getStepsize( )
 {
     // Return stepsize for integrator.
     return stepsize_;
 }
 
 //! Get number of integration steps.
-unsigned int Integrator::getNumberOfIntegrationSteps( )
+unsigned int& Integrator::getNumberOfIntegrationSteps( )
 {
     // Return number of integration steps.
     return numberOfIntegrationSteps_;
 }
 
 //! Get start of integration interval.
-double Integrator::getIntegrationIntervalStart( )
+double& Integrator::getIntegrationIntervalStart( )
 {
     // Return start of integration interval.
     return integrationIntervalStart_;
 }
 
 //! Get end of integration interval.
-double Integrator::getIntegrationIntervalEnd( )
+double& Integrator::getIntegrationIntervalEnd( )
 {
     // Return end of integration interval.
     return integrationIntervalEnd_;
@@ -204,7 +187,7 @@ double Integrator::getIntegrationIntervalEnd( )
 //! Get pointer to initial state.
 State* Integrator::getInitialState( )
 {
-    return &initialState_;
+    return pointerToInitialState_;
 }
 
 //! Get pointer to final state.
@@ -213,49 +196,15 @@ State* Integrator::getFinalState( )
     return &finalState_;
 }
 
-//! Get integration history.
-std::map< double, State* >& Integrator::getIntegrationHistory( )
-{
-    // Return map integration history.
-    return integrationHistory_;
-}
-
 //! Compute state derivative.
-State* Integrator::computeStateDerivative_( State* pointerToState )
+void Integrator::computeStateDerivative_(
+        double& integrationIntervalCurrentPoint,
+        State* pointerToState, State* pointerToStateDerivative )
 {
-    // Check if pointer to state-taking function is set.
-    if ( pointerToStateTakingFunction_ )
-    {
-        // Call state derivative function using pointer.
-        stateDerivative_ = *pointerToStateTakingFunction_( pointerToState );
-    }
-
-    // Else check if pointer to abstract base class with derivative function is
-    // set.
-    else if ( pointerToIntegratorBase_ )
-    {
-        // Call state derivative function using pointer to abstract base class.
-        stateDerivative_ = *pointerToIntegratorBase_
-                           ->computeStateDerivative( pointerToState );
-    }
-
-    // Return pointer to state derivative.
-    return &stateDerivative_;
-}
-
-//! Store intermediate integration result.
-void Integrator::storeIntermediateIntegrationResult_( )
-{
-    // Pointer to intermediate state.
-    State* ponterToIntermediateState_ = new State;
-
-    // Set intermediate state to current state.
-    ponterToIntermediateState_->state
-            = vectorOfCurrentStatePointers_.at( 0 )->state;
-
-    // Store intermediate integration results in integration history map.
-    integrationHistory_[ integrationIntervalCurrentPoint_ ]
-            = ponterToIntermediateState_;
+    // Call state derivative function using pointer to abstract base class.
+   pointerToStateDerivative_->computeStateDerivative(
+           integrationIntervalCurrentPoint,
+           pointerToState, pointerToStateDerivative );
 }
 
 //! Compute internal derived integration parameters.
@@ -266,8 +215,11 @@ void Integrator::computeInternalDerivedIntegrationParameters_( )
          isInitialStateSet_ == true &&
          isIntegrationIntervalStartSet_ == true &&
          isIntegrationIntervalEndSet_ == true &&
-         isStateDerivativeFunctionSet_ == true )
+         isStateDerivativeSet_ == true )
     {
+        // Clear vector of current states.
+        vectorOfCurrentStates_.clear( );
+
         // Set stepsize to value of initial stepsize.
         stepsize_ = initialStepsize_;
 
@@ -276,21 +228,27 @@ void Integrator::computeInternalDerivedIntegrationParameters_( )
                                - integrationIntervalStart_;
 
         // Compute number of integration steps for fixed stepsize methods.
-        numberOfIntegrationSteps_ = static_cast < unsigned int >
-                                    ( std::ceil( integrationInterval_
-                                                 / stepsize_ ) );
+        // To prevent numerical instabilities from occuring (e.g., ceil( 4 / 2 ) !=
+        // ceil( ( 4 + 1e-16 ) / 2 )), the square root of the machine precision is
+        // subtracted before applying the ceil function.
+        numberOfIntegrationSteps_
+                = static_cast < unsigned int >(
+                    std::ceil( integrationInterval_ / stepsize_
+                    - sqrt( mathematics::MACHINE_PRECISION_DOUBLES ) ) );
+
+        // Add pointer to initial state to container vector.
+        vectorOfCurrentStates_.push_back( *pointerToInitialState_ );
 
         // Set dimension of initial state.
-        dimensionOfCurrentState_ = vectorOfCurrentStatePointers_.at( 0 )
-                                   ->state.rows( );
+        dimensionOfState_ = pointerToInitialState_->state.rows( );
 
         // Set dimension of final state to correspond with dimension of initial
         // state.
-        finalState_.state.setZero( dimensionOfCurrentState_ );
+        finalState_.state.setZero( dimensionOfState_ );
 
         // Set dimension of state derivative to correpsond with dimension of
         // initial state.
-        stateDerivative_.state.setZero( dimensionOfCurrentState_ );
+        stateDerivative_.state.setZero( dimensionOfState_ );
     }
 }
 

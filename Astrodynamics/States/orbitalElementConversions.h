@@ -3,8 +3,8 @@
  *    functions.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 7
- *    Check status      : Checked
+ *    Version           : 8
+ *    Check status      : Unchecked
  *
  *    Author            : E. Iorfida
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 28 January, 2011
+ *    Last modified     : 10 May, 2011
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series,
@@ -47,6 +47,8 @@
  *                                  added.
  *      110128    K. Kumar          Changed references to pointers for
  *                                  functions.
+ *      110510    K. Kumar          Updated conversion functions to not use
+ *                                  dynamic memory allocation.
  */
 
 // Include statements.
@@ -68,23 +70,23 @@ namespace orbital_element_conversions
 
 //! Convert Keplerian to Cartesian orbital elements.
 /*!
- * This function converts Keplerian to Cartesian orbital elements.
+ * Converts Keplerian to Cartesian orbital elements.
  * \param pointerToKeplerianElements Pointer to KeplerianElements object.
  * \param pointerToCelestialBody Pointer to CelestialBody object.
- * \return Pointer to CartesianElements object.
+ * \return CartesianElements object.
  */
-CartesianElements* convertKeplerianToCartesianElements(
+CartesianElements convertKeplerianToCartesianElements(
         KeplerianElements* pointerToKeplerianElements,
         CelestialBody* pointerToCelestialBody );
 
 //! Convert Cartesian to Keplerian orbital elements.
 /*!
- * This function converts Cartesian to Keplerian orbital elements.
+ * Converts Cartesian to Keplerian orbital elements.
  * \param pointerToCartesianElements Pointer to CartesianElements object.
  * \param pointerToCelestialBody Pointer to CelestialBody object.
- * \return Pointer to KeplerianElements object.
+ * \return KeplerianElements object.
  */
-KeplerianElements* convertCartesianToKeplerianElements(
+KeplerianElements convertCartesianToKeplerianElements(
         CartesianElements* pointerToCartesianElements,
         CelestialBody* pointerToCelestialBody );
 
