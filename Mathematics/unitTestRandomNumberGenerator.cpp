@@ -213,9 +213,9 @@ bool testRandomNumberGenerator( )
     }
 
     if ( ( 1.0 / 12.0 ) / sampleVariance
-         < static_cast< double >( numberOfSamples - 1 ) / 101291
+         < static_cast< double >( numberOfSamples - 1 ) / 101590
          || ( 1.0 / 12.0 ) / sampleVariance
-         > static_cast< double>( numberOfSamples - 1 ) / 98717 )
+         > static_cast< double>( numberOfSamples - 1 ) / 98424 )
     {
         isRandomNumberGeneratorErroneous = true;
 
