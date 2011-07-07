@@ -12,6 +12,9 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Bodies/CelestialBodies/planet.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.cpp \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.cpp \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
@@ -103,6 +106,9 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Bodies/Vehicles/vehicle.h \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h \
     Astrodynamics/EnvironmentModels/environmentModel.h \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h \
@@ -199,6 +205,7 @@ INCLUDEPATH += Applications \
     Astrodynamics/Bodies/CelestialBodies \
     Astrodynamics/Bodies/Vehicles \
     Astrodynamics/EnvironmentModels \
+    Astrodynamics/EnvironmentModels/AtmosphereModel \
     Astrodynamics/EnvironmentModels/GravityFieldModel \
     Astrodynamics/ForceModels \
     Astrodynamics/ForceModels/Aerothermodynamics \

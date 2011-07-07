@@ -52,6 +52,7 @@
 #include "cartesianElements.h"
 #include "ephemeris.h"
 #include "gravityFieldModel.h"
+#include "atmosphereModel.h"
 
 //! Celestial body class.
 /*!
@@ -87,6 +88,13 @@ public:
      */
     void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel );
 
+    //! Set atmosphere model.
+    /*!
+     * Sets the atmosphere model.
+     * \param pointerToAtmosphereModel Pointer to an atmosphere model.
+     */
+    void setAtmosphereModel( AtmosphereModel* pointerToAtmosphereModel );
+
     //! Get gravitational parameter.
     /*!
      * Returns the gravitational parameter in meter^3 per second^2.
@@ -116,6 +124,13 @@ public:
      */
     GravityFieldModel* getGravityFieldModel( );
 
+    //! Get atmosphere model.
+    /*!
+     * Gets the atmosphere model.
+     * \return Pointer to the atmosphere model.
+     */
+    AtmosphereModel* getAtmospheremodel( );
+
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information.
@@ -139,6 +154,12 @@ protected:
      * Pointer to gravity field model.
      */
     GravityFieldModel* pointerToGravityFieldModel_;
+
+    //! Pointer to atmosphere model.
+    /*!
+     * Pointer to atmosphere model.
+     */
+    AtmosphereModel* pointerToAtmosphereModel_;
 };
 
 #endif // CELESTIAL_BODY_H
