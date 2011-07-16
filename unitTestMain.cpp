@@ -60,6 +60,7 @@
 #include "unitTestBasicMathematicsFunctions.h"
 #include "unitTestEulerIntegrator.h"
 #include "unitTestLawgsSurfaceGeometry.h"
+#include "unitTestCubicSplineInterpolation.h"
 #include "unitTestNewtonRaphson.h"
 #include "unitTestRandomNumberGenerator.h"
 #include "unitTestRungeKutta4thOrderFixedStepsizeIntegrator.h"
@@ -120,6 +121,9 @@ int main( )
     // testLawgsSurfaceGeometry: Tests a Lawgs mesh of a sphere.
     bool testLawgsSurfaceGeometry =
             unit_tests::testLawgsSurfaceGeometry( );
+
+    // testCubicSpline: Test the cubic spline interpolation.
+    bool testCubicSplineInterpolation = unit_tests::testCubicSplineInterpolation( );
 
     // testNewtonRaphson: Tests the Newton-Raphson root-finder.
     bool testNewtonRaphson = unit_tests::testNewtonRaphsonMethod( );
@@ -343,6 +347,12 @@ int main( )
         isErroneous = 1;
     }
 
+    if ( testCubicSplineInterpolation )
+     {
+         cerr << "cubicSplineInterpolation failed! " << endl;
+         isErroneous = 1;
+     }
+
     if ( testNumericalPropagator )
     {
         cerr << "testNumericalPropagator failed!" << endl;
@@ -376,6 +386,12 @@ int main( )
     if ( testTextFileReader )
     {
         cerr << "testTextFileReader failed!" << endl;
+        isErroneous = 1;
+    }
+
+    if ( testCubicSplineInterpolation )
+    {
+        cerr << "cubicSplineInterpolation failed! " << endl;
         isErroneous = 1;
     }
 
@@ -413,6 +429,8 @@ int main( )
                              << "\tEuler Integrator" << endl;
     unitTestReportOutputFile << testLawgsSurfaceGeometry
                              << "\tLawgs Surface Geometry" << endl;
+    unitTestReportOutputFile << testCubicSplineInterpolation
+            << "\tCubic Spline Interpolation" << endl;
     unitTestReportOutputFile << testUnitConversions
                              << "\tUnit Conversions" << endl;
     unitTestReportOutputFile << testRandomNumberGenerator
@@ -454,7 +472,7 @@ int main( )
     unitTestReportOutputFile << testPhysicalConstants
                              << "\tPhysical Constants" << endl;
     unitTestReportOutputFile << testReferenceFrameTransformations
-            << "\tReference Frame Transformations" << endl;
+                             << "\tReference Frame Transformations" << endl;
     unitTestReportOutputFile << testSphericalHarmonicsGravityField
                              << "\tSpherical Harmonics Gravity Field" << endl;
 
