@@ -70,8 +70,10 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Input/fileReader.cpp \
     Input/unitTestTextFileReader.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
+    Mathematics/cubicSplineInterpolation.cpp \
     Mathematics/randomNumberGenerator.cpp \
     Mathematics/unitTestBasicMathematicsFunctions.cpp \
+    Mathematics/unitTestCubicSplineInterpolation.cpp \
     Mathematics/unitTestRandomNumberGenerator.cpp \
     Mathematics/GeometricShapes/compositeSurfaceGeometry.cpp \
     Mathematics/GeometricShapes/geometricShape.cpp \
@@ -167,8 +169,10 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/unitConversions.h \
     Mathematics/unitTestUnitConversions.h \
     Mathematics/basicMathematicsFunctions.h \
+    Mathematics/cubicSplineInterpolation.h \
     Mathematics/randomNumberGenerator.h \
     Mathematics/unitTestBasicMathematicsFunctions.h \
+    Mathematics/unitTestCubicSplineInterpolation.h\
     Mathematics/unitTestRandomNumberGenerator.h \
     Mathematics/GeometricShapes/compositeSurfaceGeometry.h \
     Mathematics/GeometricShapes/geometricShape.h \
