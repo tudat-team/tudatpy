@@ -42,6 +42,8 @@
  *      112701    D. Dirkx          Finalized for code check.
  *      110131    B. Romgens        Minor modifications during code check.
  *      110204    D. Dirkx          Finalized code.
+ *      110615    F.M. Engelen      Made a child of Coefficient Database. Moved aerodynamic
+ *                                  reference quatities to the parent class.
  */
 
 // Include statements.
@@ -78,44 +80,7 @@ AerodynamicCoefficientGenerator::~AerodynamicCoefficientGenerator( )
     numberOfPointsPerIndependentVariables_ = NULL;
 }
 
-//! Set sreference area.
-void AerodynamicCoefficientGenerator::setReferenceArea(
-        const double& referenceArea )
-{
-    referenceArea_ = referenceArea;
-}
 
-//! Gets reference area.
-double AerodynamicCoefficientGenerator::getReferenceArea( )
-{
-    return referenceArea_ ;
-}
-
-//! Sets reference length.
-void AerodynamicCoefficientGenerator::setReferenceLength(
-        const double& referenceLength )
-{
-    referenceLength_ = referenceLength;
-}
-
-//! Gets reference length.
-double AerodynamicCoefficientGenerator::getReferenceLength( )
-{
-    return referenceLength_ ;
-}
-
-//! Sets moment reference point.
-void AerodynamicCoefficientGenerator::setMomentReferencePoint(
-        const Vector3d& momentReferencePoint)
-{
-    momentReferencePoint_ = momentReferencePoint;
-}
-
-//! Gets moment reference point.
-VectorXd AerodynamicCoefficientGenerator::getMomentReferencePoint( )
-{
-    return momentReferencePoint_ ;
-}
 
 //! Sets the number of independent variables
 void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
@@ -174,6 +139,19 @@ void AerodynamicCoefficientGenerator::setNumberOfAngleOfSideslipPoints(
             new double[ numberOfAngleOfSideslipPoints ];
 }
 
+//! Sets the number of points for the Reynolds Number.
+void AerodynamicCoefficientGenerator::setNumberOfReynoldsNumberPoints(
+        const int& numberOfReynoldsNumberPoints )
+{
+    // Set value of number of Reynolds Number points.
+    numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ] =
+            numberOfReynoldsNumberPoints;
+
+    // Allocate memory for data points.
+    dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ] =
+            new double[ numberOfReynoldsNumberPoints ];
+}
+
 //! Gets the number of independent variables
 int AerodynamicCoefficientGenerator::getNumberOfIndependentVariables( )
 {
@@ -206,6 +184,12 @@ int AerodynamicCoefficientGenerator::getNumberOfAngleOfSideslipPoints( )
     return numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ];
 }
 
+//! Gets the number of points for Reynold number.
+int AerodynamicCoefficientGenerator::getNumberOfReynoldsNumberPoints( )
+{
+    return numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ];
+}
+
 //! Sets a Mach number point.
 void AerodynamicCoefficientGenerator::setMachPoint( const int& index,
                                                     const double& machPoint )
@@ -230,6 +214,15 @@ void AerodynamicCoefficientGenerator::setAngleOfSideslipPoint(
 {
     dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ] =
             angleOfSideslipPoint;
+}
+
+//! Sets an Reynolds Number point.
+void AerodynamicCoefficientGenerator::setReynoldsNumberPoint(
+        const int& index,
+        const double& reynoldsNumberPoint )
+{
+    dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ] =
+            reynoldsNumberPoint;
 }
 
 //! Gets a value of an independent variable.
@@ -259,6 +252,13 @@ double AerodynamicCoefficientGenerator::getAngleOfSideslipPoint( const int&
     return dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ];
 }
 
+//! Gets an Reynold Number point.
+double AerodynamicCoefficientGenerator::getReynoldsNumberPoint( const int&
+                                                                 index )
+{
+    return dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ];
+}
+
 //! Function to convert the independent variable indices to list index in
 //! vehicleCoefficients_.
 int AerodynamicCoefficientGenerator::variableIndicesToListIndex(
@@ -283,7 +283,7 @@ int AerodynamicCoefficientGenerator::variableIndicesToListIndex(
                     numberOfPointsPerIndependentVariables_[ j ];
         }
 
-        // Add contribution to reqeusted index.
+        // Add contribution to requested index.
         coefficientsIndex_ += singleStepContribution_ *
                              independentVariableIndices[ i ];
     }
