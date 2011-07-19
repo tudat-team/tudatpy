@@ -42,6 +42,8 @@
  *      112701    D. Dirkx          Finalized for code check.
  *      110131    B. Romgens        Minor modifications during code check.
  *      110204    D. Dirkx          Finalized code.
+ *      110615    F.M. Engelen      Made a child of Coefficient Database. Moved aerodynamic
+ *                                  reference quatities to the parent class.
  */
 
 #ifndef AERODYNAMICCOEFFICIENTGENERATOR_H
@@ -50,12 +52,13 @@
 // Include statements.
 #include "linearAlgebra.h"
 #include "string.h"
+#include "aerodynamicCoefficientInterface.h"
 
 //! Base class for aerodynamic coefficient generator.
 /*!
- *  Abstract base class for aerodynamic analysis method. Stores aerodynamic reference
- *  quantities, independent variable values and data points of independent
- *  variables. Currently supports Mach number, angles of attack and sideslip
+ *  Abstract base class for aerodynamic analysis method. Stores independent variable values
+ *  and data points of independent variables.
+ *  Currently supports Mach number, angles of attack sideslip, and Reynold number
  *  as independent variables, but others can be added easily. To do so, only the
  *  interface function need to be added. As an example, for adding the Mach number
  *  , only the  get/set numberOfMachPoints and get/set
@@ -67,7 +70,7 @@
  *  variables to the index in this VectorXd is performed by the
  *  variableIndicesToListIndex function.
  */
-class AerodynamicCoefficientGenerator
+class AerodynamicCoefficientGenerator: public AerodynamicCoefficientInterface
 {
 public:
 
@@ -84,54 +87,6 @@ public:
      *  independent variables and resets them to NULL.
      */
     virtual ~AerodynamicCoefficientGenerator( );
-
-    //! Sets reference area.
-    /*!
-     *  Sets reference area used to non-dimensionalize aerodynamic
-     *  forces and moments.
-     *  \param referenceArea Aerodynamic reference area.
-     */
-    void setReferenceArea( const double& referenceArea );
-
-    //! Gets reference area.
-    /*!
-     *  Gets reference area used to non-dimensionalize aerodynamic
-     *  forces and moments.
-     *  \return Aerodynamic reference area.
-     */
-    double getReferenceArea( );
-
-    //! Sets reference length.
-    /*!
-     *  Sets reference length used to non-dimensionalize aerodynamic
-     *  moments.
-     *  \param referenceLength Aerodynamic reference length.
-     */
-    void setReferenceLength( const double& referenceLength );
-
-    //! Gets reference length.
-    /*!
-     *  Gets reference length used to non-dimensionalize aerodynamic
-     *  moments.
-     *  \return Aerodynamic reference length.
-     */
-    double getReferenceLength( );
-
-    //! Sets moment reference point.
-    /*!
-     *  Sets the point w.r.t. which the arm of the aerodynamic
-     *  moment on a vehicle panel is determined.
-     *  \param referencePoint Aerodynamic reference point.
-     */
-    void setMomentReferencePoint( const Vector3d& referencePoint );
-
-    //! Gets moment reference point.
-    /*!
-     *  Gets the point w.r.t. which the arm of the aerodynamic
-     *  moment on a vehicle panel is determined.
-     *  \return Aerodynamic reference point.
-     */
-    VectorXd getMomentReferencePoint( );
 
     //! Sets the number of independent variables
     /*!
@@ -163,10 +118,19 @@ public:
      *  Sets the number of different angles of sideslip at which
      *  coefficients are determined.
      *  \param numberOfAngleOfSideslipPoints Number of data points for angle of
-     *  attack.
+     *  sideslip.
      */
     void setNumberOfAngleOfSideslipPoints ( const int&
                                             numberOfAngleOfSideslipPoints );
+
+    //! Sets the number of points for the Reynolds Number.
+    /*!
+     *  Sets the number of different Reynolds Number. at which
+     *  coefficients are determined.
+     *  \param numberOfReynoldsNumberPoints Number of data points for ReynoldsNumber.
+     */
+    void setNumberOfReynoldsNumberPoints(
+            const int& numberOfReynoldsNumberPoints );
 
     //! Gets the number of independent variables
     /*!
@@ -210,6 +174,15 @@ public:
      */
     int getNumberOfAngleOfSideslipPoints ( );
 
+
+    //! Gets the number of points for Reynold number.
+    /*!
+     *  Gets the number of different Reynolds numbers at which
+     *  coefficients are determined.
+     *  \return Number of data points for Reynold number.
+     */
+    int getNumberOfReynoldsNumberPoints( );
+
     //! Sets a Mach number point.
     /*!
      *  Sets a Mach number at which aerodynamic coefficients are to
@@ -243,6 +216,18 @@ public:
     void setAngleOfSideslipPoint( const int& index,
                                   const double& angleOfSideslipPoint );
 
+    //! Sets a Reynolds Number point.
+    /*!
+     *  Sets a ReyNolds Number at which aerodynamic coefficients
+     *  are to be determined.
+     *  \param index Index in Reynold number data point list at which
+     *  to set the value.
+     *  \param reynoldsNumberPoint Value of Reynold number to set.
+     */
+    void setReynoldsNumberPoint(
+            const int& index,
+            const double& reynoldsNumberPoint );
+
     //! Gets a Mach number point.
     /*!
      *  Gets a Mach number at which aerodynamic coefficients are to
@@ -272,6 +257,16 @@ public:
      *  \return Value of angle of attack at index.
      */
     double getAngleOfSideslipPoint( const int& index );
+
+    //! Gets an Reynold Number point.
+    /*!
+     *  Gets an Reynold Number at which aerodynamic coefficients
+     *  are to be determined.
+     *  \param index Index from Reynold Number data point list from which
+     *  to retrieve the value.
+     *  \return Value of Reynold Number at index.
+     */
+    double getReynoldsNumberPoint( const int& index );
 
     //! Gets a value of an independent variable.
     /*!
@@ -312,27 +307,6 @@ protected:
      */
     int variableIndicesToListIndex( int* independentVariableIndices );
 
-    //! Aerodynamic reference length.
-    /*!
-     *  Reference length with which aerodynamic moments are non-
-     *  dimensionalized.
-     */
-    double referenceLength_ ;
-
-    //! Aerodynamic reference area.
-    /*!
-     *  Reference area with which aerodynamic forces and moments are non-
-     *  dimensionalized.
-     */
-    double referenceArea_ ;
-
-    //! Aerodynamic moment reference point.
-    /*!
-     *  Point w.r.t. which the arm of the moment on a vehicle panel is
-     *  determined.
-     */
-    Vector3d momentReferencePoint_ ;
-
     //! Number of independent variables in analysis.
     /*!
      *  Number of independent variables in analysis. To be set from derived
@@ -367,11 +341,17 @@ protected:
      */
     int angleOfAttackIndex_;
 
-    //! Index in independent variables arrays representing angle of attack.
+    //! Index in independent variables arrays representing angle of sideslip.
     /*!
-     *  Index in independent variables arrays representing angle of attack.
+     *  Index in independent variables arrays representing angle of sideslip.
      */
     int angleOfSideslipIndex_;
+
+    //! Index in independent variables arrays representing Reynold Number.
+    /*!
+     *  Index in independent variables arrays representing Reynold Number.
+     */
+    int reynoldsNumberIndex_;
 
 };
 

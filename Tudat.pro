@@ -22,6 +22,7 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/ForceModels/gravity.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.cpp \
+    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.cpp \
@@ -119,6 +120,7 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.h \
+    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h \
     Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.h \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.h \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.h \
