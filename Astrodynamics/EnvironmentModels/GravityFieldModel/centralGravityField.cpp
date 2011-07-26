@@ -116,8 +116,17 @@ void CentralGravityField::setPredefinedCentralGravityFieldSettings(
         // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
         //            of gravitational constant taken from
         //            http://ssd.jpl.nasa.gov/?constants#ref.
-        gravitationalParameter_ = 3.9859383624e+14;
-//        gravitationalParameter_ = 398600.4418e9;
+        gravitationalParameter_ = 3.9859383624e14;
+
+        break;
+
+    case moon:
+
+        // Set gravitational parameter [m^3 s^-2].
+        // Reference: Mass taken from Table 1.2, pg. 6, (de Pater, 2010), value
+        //            of gravitational constant taken from
+        //            http://ssd.jpl.nasa.gov/?constants#ref.
+        gravitationalParameter_ = 4.903686391e12;
 
         break;
 

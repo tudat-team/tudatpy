@@ -78,6 +78,7 @@
 #include "unitTestKeplerianElements.h"
 #include "unitTestKeplerPropagator.h"
 #include "unitTestLambertTargeter.h"
+#include "unitTestLibrationPoints.h"
 #include "unitTestNumericalPropagator.h"
 #include "unitTestOrbitalElementConversions.h"
 #include "unitTestPhysicalConstants.h"
@@ -98,9 +99,6 @@ using std::endl;
 int main( )
 {
     // Return value, 0 on success, 1 on failure of one or more unit tests.
-    // JM: In the ExponentialAtmosphere code check I've already changed
-    // the following to isErroneous. Difficult to merge, I guesss.
-    // Good you've set it in alphabetical order.
     int isErroneous = 0;
 
     // Run all unit tests.
@@ -114,6 +112,9 @@ int main( )
     bool testBasicMathematicsFunctions =
             unit_tests::testBasicMathematicsFunctions( );
 
+    // testCubicSpline: Test the cubic spline interpolation.
+    bool testCubicSplineInterpolation = unit_tests::testCubicSplineInterpolation( );
+
     // testEulerIntegrator:: Tests the Euler integrator against benchmark
     // data from (Burden and Faires, 2001).
     bool testEulerIntegrator = unit_tests::testEulerIntegrator( );
@@ -121,9 +122,6 @@ int main( )
     // testLawgsSurfaceGeometry: Tests a Lawgs mesh of a sphere.
     bool testLawgsSurfaceGeometry =
             unit_tests::testLawgsSurfaceGeometry( );
-
-    // testCubicSpline: Test the cubic spline interpolation.
-    bool testCubicSplineInterpolation = unit_tests::testCubicSplineInterpolation( );
 
     // testNewtonRaphson: Tests the Newton-Raphson root-finder.
     bool testNewtonRaphson = unit_tests::testNewtonRaphsonMethod( );
@@ -204,6 +202,13 @@ int main( )
     bool testLambertTargeter =
             unit_tests::testLambertTargeter( );
 
+    // testLibrationPointComputations: Tests the values of the locations of
+    // the five Lagrange libration points in the Earth-Moon system, using
+    // benchmark data from (James, 2006). Also tests the computation of the
+    // dimensionless mass parameter.
+    bool testLibrationPointLocations
+            = unit_tests::testLibrationPointLocations( );
+
     // testNumericalPropagator: Tests the numerical propagator.
     bool testNumericalPropagator = unit_tests::testNumericalPropagator( );
 
@@ -243,6 +248,12 @@ int main( )
         cerr << "testBasicMathematicsFunctions failed!" << endl;
         isErroneous = 1;
     }
+
+    if ( testCubicSplineInterpolation )
+     {
+         cerr << "cubicSplineInterpolation failed! " << endl;
+         isErroneous = 1;
+     }
 
     if ( testEulerIntegrator )
     {
@@ -347,11 +358,11 @@ int main( )
         isErroneous = 1;
     }
 
-    if ( testCubicSplineInterpolation )
-     {
-         cerr << "cubicSplineInterpolation failed! " << endl;
-         isErroneous = 1;
-     }
+    if ( testLibrationPointLocations )
+    {
+        cerr << "testLibrationPointLocations failed!" << endl;
+        isErroneous = 1;
+    }
 
     if ( testNumericalPropagator )
     {
@@ -425,12 +436,12 @@ int main( )
     unitTestReportOutputFile << "Mathematics" << endl;
     unitTestReportOutputFile << testBasicMathematicsFunctions
                              << "\tBasic Mathematics Functions" << endl;
+    unitTestReportOutputFile << testCubicSplineInterpolation
+                             << "\tCubic Spline Interpolation" << endl;
     unitTestReportOutputFile << testEulerIntegrator
                              << "\tEuler Integrator" << endl;
     unitTestReportOutputFile << testLawgsSurfaceGeometry
                              << "\tLawgs Surface Geometry" << endl;
-    unitTestReportOutputFile << testCubicSplineInterpolation
-            << "\tCubic Spline Interpolation" << endl;
     unitTestReportOutputFile << testUnitConversions
                              << "\tUnit Conversions" << endl;
     unitTestReportOutputFile << testRandomNumberGenerator
@@ -465,6 +476,8 @@ int main( )
                              << "\tKepler Propagator" << endl;
     unitTestReportOutputFile << testLambertTargeter
                              << "\tLambert Targeter" << endl;
+    unitTestReportOutputFile << testLibrationPointLocations
+                             << "\tLibration Point Locations" << endl;
     unitTestReportOutputFile << testNumericalPropagator
                              << "\tNumerical Propagator" << endl;
     unitTestReportOutputFile << testOrbitalElementConversions

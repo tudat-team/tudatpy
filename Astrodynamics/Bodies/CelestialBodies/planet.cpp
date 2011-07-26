@@ -89,6 +89,19 @@ void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 
         break;
 
+    case moon:
+
+        // Set predefined Moon central gravity field.
+        predefinedCentralGravityField_
+                .setPredefinedCentralGravityFieldSettings(
+                    CentralGravityField::moon );
+
+        // Set Moon as body for ephemeris.
+        approximatePlanetPositions_.setPlanet(
+                ApproximatePlanetPositions::earthMoonBarycenter );
+
+        break;
+
     case mars:
 
         // Set predefined Mars central gravity field.
