@@ -97,6 +97,10 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/NumericalIntegrators/stateDerivativeBase.cpp \
     Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.cpp \
     Mathematics/NumericalIntegrators/unitTestEulerIntegrator.cpp \
+    Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.cpp \
+    Mathematics/RandomNumberGenerators/randomNumberGenerator.cpp \
+    Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.cpp \
+    Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.cpp \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
@@ -201,6 +205,10 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/NumericalIntegrators/stateDerivativeBase.h \
     Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.h \
     Mathematics/NumericalIntegrators/unitTestEulerIntegrator.h \
+    Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.h \
+    Mathematics/RandomNumberGenerators/randomNumberGenerator.h \
+    Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h \
+    Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.h \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.h \
     Mathematics/RootFindingMethods/rootFinderBase.h \
     Mathematics/RootFindingMethods/rootFinder.h \
@@ -235,5 +243,6 @@ INCLUDEPATH += Applications \
     Mathematics/GeometricShapes \
     Mathematics/LinearAlgebra \
     Mathematics/NumericalIntegrators \
+    Mathematics/RandomNumberGenerators \
     Mathematics/RootFindingMethods \
     Output

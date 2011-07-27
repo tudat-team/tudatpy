@@ -1,8 +1,9 @@
-/*! \file randomNumberGenerator.cpp
- *    This source file contains a class implemetation for generating random numbers.
+/*! \file uniformRandomNumberGenerator.cpp
+ *    This source file contains a class implemetation for generating random
+ *    numbers with uniform distribution.
  *
  *    Path              : /Mathematics/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -13,8 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
+ *    Checker           : F.M. Engelen
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *
  *    Date created      : 15 October, 2010
- *    Last modified     : 17 January, 2010
+ *    Last modified     : 16 May, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -49,34 +54,35 @@
  *      110107    K. Kumar          Changed normalizated function to use
  *                                  climits.
  *      110117    K. Kumar          Minor layout modification; path corrected.
+ *      110516    K. Kumar          Renamed file and class.
  */
 
 // Include statements.
-#include "randomNumberGenerator.h"
+#include "uniformRandomNumberGenerator.h"
 
 //! Customized constructor to pass random number generator seed.
-RandomNumberGenerator::RandomNumberGenerator( unsigned long long seed )
+UniformRandomNumberGenerator::UniformRandomNumberGenerator( unsigned long long seed )
     : randomNumberParameter2_( 4101842887655102017LL ),
       randomNumberParameter3_( 1 )
 {
     randomNumberParameter1_ = seed ^ randomNumberParameter2_;
-    getUniformlyDistributedRandom64BitInteger( );
+    getUniformlyDistributedRandomInteger( );
 
     randomNumberParameter2_ = randomNumberParameter1_;
-    getUniformlyDistributedRandom64BitInteger( );
+    getUniformlyDistributedRandomInteger( );
 
     randomNumberParameter3_ = randomNumberParameter2_;
-    getUniformlyDistributedRandom64BitInteger( );
+    getUniformlyDistributedRandomInteger( );
 }
 
 //! Default destructor.
-RandomNumberGenerator::~RandomNumberGenerator( )
+UniformRandomNumberGenerator::~UniformRandomNumberGenerator( )
 {
 }
 
 //! Get uniformly distributed random integer.
-unsigned long long RandomNumberGenerator::
-        getUniformlyDistributedRandom64BitInteger( )
+unsigned long long UniformRandomNumberGenerator
+::getUniformlyDistributedRandomInteger( )
 {
     randomNumberParameter1_ = randomNumberParameter1_ * 2862933555777941757LL
                              + 7046029254386353087LL;
@@ -100,33 +106,32 @@ unsigned long long RandomNumberGenerator::
 }
 
 //! Get uniformly distributed, normalized, random double.
-double RandomNumberGenerator::
-        getUniformlyDistributedNormalizedRandomDouble( )
+double UniformRandomNumberGenerator
+::getUniformlyDistributedNormalizedRandomDouble( )
 {
     // Return uniformly distributed, normalized, random double.
-    return  static_cast< double >
-            ( getUniformlyDistributedRandom64BitInteger( ) )
+    return  static_cast< double >( getUniformlyDistributedRandomInteger( ) )
             / ULLONG_MAX;
 }
 
 //! Get uniformly distributed random integer using 32-bit arithmetic.
-unsigned int RandomNumberGenerator::
+unsigned int UniformRandomNumberGenerator::
         getUniformlyDistributedRandom32BitInteger( )
 {
     // Return uniformly distributed random integer using 32-bit arithmetic
-    return static_cast< unsigned int >
-            ( getUniformlyDistributedRandom64BitInteger( ) );
+    return static_cast< unsigned int >(
+                getUniformlyDistributedRandomInteger( ) );
 }
 
-//! Get random plus/minus sign.
-int RandomNumberGenerator::getRandomPlusMinusSign( )
+//! Get uniformly distributed random plus/minus sign.
+int UniformRandomNumberGenerator::getUniformlyDistributedRandomPlusMinusSign( )
 {
     // Declare local variables.
     int randomPlusMinusSign_;
 
     // Get random integer.
-    randomPlusMinusSign_ = static_cast< int >
-                           ( getUniformlyDistributedRandom64BitInteger( ) );
+    randomPlusMinusSign_ = static_cast< int >(
+                getUniformlyDistributedRandomInteger( ) );
 
     // Normalize to plus/minus 1.
     randomPlusMinusSign_ /= mathematics::

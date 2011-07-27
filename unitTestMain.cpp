@@ -88,6 +88,9 @@
 // Input unit test includes.
 #include "unitTestTextFileReader.h"
 
+#include "exponentialRandomNumberGenerator.h"
+#include <fstream>
+
 // Using declarations.
 using std::cerr;
 using std::endl;
@@ -98,6 +101,21 @@ using std::endl;
  */
 int main( )
 {
+
+    std::ofstream outputFile;
+
+    ExponentialRandomNumberGenerator exp( 1.0, time( NULL ) );
+
+    outputFile.open( "exponentialNumbers.dat" );
+
+    for ( unsigned int i = 0; i < 20000; i++ )
+    {
+        outputFile.precision( 10 );
+        outputFile << exp.getExponentiallyDistributedNormalizedRandomDouble( ) << std::endl;
+    }
+
+    outputFile.close( );
+
     // Return value, 0 on success, 1 on failure of one or more unit tests.
     int isErroneous = 0;
 
@@ -119,6 +137,11 @@ int main( )
     // data from (Burden and Faires, 2001).
     bool testEulerIntegrator = unit_tests::testEulerIntegrator( );
 
+    // testExponentialRandomNumberGenerator: Tests the exponential random
+    // number generator.
+    bool testExponentialRandomNumberGenerator
+            = unit_tests::testExponentialRandomNumberGenerator( );
+
     // testLawgsSurfaceGeometry: Tests a Lawgs mesh of a sphere.
     bool testLawgsSurfaceGeometry =
             unit_tests::testLawgsSurfaceGeometry( );
@@ -126,19 +149,20 @@ int main( )
     // testNewtonRaphson: Tests the Newton-Raphson root-finder.
     bool testNewtonRaphson = unit_tests::testNewtonRaphsonMethod( );
 
-    // testUnitConversions: Tests conversions that are defined
-    // in unitConversions.h.
-    bool testUnitConversions = unit_tests::testUnitConversions( );
-
-    // testRandomNumberGenerator: Tests the random number generator
-    // defined in randomNumberGenerator.h
-    bool testRandomNumberGenerator = unit_tests::testRandomNumberGenerator( );
-
     // testRungeKutta4thOrderFixedStepsizeIntegrator: Tests the 4th-order,
     // fixed stepsize, Runge-Kutta integrator against benchmark data from
     // (Burden and Faires, 2001).
     bool testRungeKutta4thOrderFixedStepsizeIntegrator
             = unit_tests::testRungeKutta4thOrderFixedStepsizeIntegrator( );
+
+    // testUniformRandomNumberGenerator: Tests the uniform random number
+    // generator.
+    bool testUniformRandomNumberGenerator
+            = unit_tests::testUniformRandomNumberGenerator( );
+
+    // testUnitConversions: Tests conversions that are defined
+    // in unitConversions.h.
+    bool testUnitConversions = unit_tests::testUnitConversions( );
 
     // Run Astrodynamics unit tests.
 
@@ -261,6 +285,12 @@ int main( )
         isErroneous = 1;
     }
 
+    if ( testExponentialRandomNumberGenerator )
+    {
+        cerr << "testExponentialRandomNumberGenerator failed!" << endl;
+        isErroneous = 1;
+    }
+
     if ( testLawgsSurfaceGeometry )
     {
         cerr << "testLawgsSurfaceGeometry failed!" << endl;
@@ -273,22 +303,22 @@ int main( )
         isErroneous = 1;
     }
 
-    if ( testUnitConversions )
-    {
-        cerr << "testUnitConversions failed!" << endl;
-        isErroneous = 1;
-    }
-
-    if ( testRandomNumberGenerator )
-    {
-        cerr << "testRandomNumberGenerator failed!" << endl;
-        isErroneous = 1;
-    }
-
     if ( testRungeKutta4thOrderFixedStepsizeIntegrator )
     {
         cerr << "testRungeKutta4thOrderFixedStepsizeIntegrator failed!"
              << endl;
+        isErroneous = 1;
+    }
+
+    if ( testUniformRandomNumberGenerator )
+    {
+        cerr << "testUniformRandomNumberGenerator failed!" << endl;
+        isErroneous = 1;
+    }
+
+    if ( testUnitConversions )
+    {
+        cerr << "testUnitConversions failed!" << endl;
         isErroneous = 1;
     }
 
@@ -440,14 +470,20 @@ int main( )
                              << "\tCubic Spline Interpolation" << endl;
     unitTestReportOutputFile << testEulerIntegrator
                              << "\tEuler Integrator" << endl;
+    unitTestReportOutputFile << testExponentialRandomNumberGenerator
+                             << "\tExponential Random Number Generator"
+                             << endl;
     unitTestReportOutputFile << testLawgsSurfaceGeometry
                              << "\tLawgs Surface Geometry" << endl;
-    unitTestReportOutputFile << testUnitConversions
-                             << "\tUnit Conversions" << endl;
-    unitTestReportOutputFile << testRandomNumberGenerator
-                             << "\tRandom Number Generator" << endl;
     unitTestReportOutputFile << testNewtonRaphson
                              << "\tNewton Raphson Root Finder" << endl;
+    unitTestReportOutputFile << testRungeKutta4thOrderFixedStepsizeIntegrator
+                             << "\tRunge-Kutta 4th-Order Fixed-Stepsize "
+                             << "Integrator" << endl;
+    unitTestReportOutputFile << testUniformRandomNumberGenerator
+                             << "\tUniform Random Number Generator" << endl;
+    unitTestReportOutputFile << testUnitConversions
+                             << "\tUnit Conversions" << endl;
 
     // Empty line.
     unitTestReportOutputFile << endl;
