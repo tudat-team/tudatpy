@@ -3,8 +3,8 @@
  *    containing all basic mathematics functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 4
- *    Check status      : Checked
+ *    Version           : 5
+ *    Check status      : Unchecked
  *
  *    Author            : B. Romgens
  *    Affiliation       : Delft University of Technology
@@ -19,7 +19,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 7 February, 2011
- *    Last modified     : 1 July, 2011
+ *    Last modified     : 8 July, 2011
  *
  *    References
  *
@@ -44,6 +44,8 @@
  *      110411    K. Kumar          Added unit test for
  *                                  convertCartesianToSpherical() function.
  *      110701    K. Kumar          Updated failing tests with relative errors.
+ *      110708    K. Kumar          Added unit tests for computeSampleMean()
+ *                                  and computeSampleVariance() functions.
  */
 
 // Include statements.
@@ -747,6 +749,55 @@ bool testBasicMathematicsFunctions( )
              << interpolatedState->state << " does not match the expected "
              << "state: ( -7.0, -3.0, -1.0 )" << endl;
        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    // Test computation of sample mean and sample variance.
+    // Test 32: Test computation of sample mean and sample variance on finite
+    // population using unbiased estimators. The expected values are computed
+    // using the Microsoft Excel AVERAGE() and VAR() functions.
+
+    // Declare vector of sample data.
+    std::vector< double > sampleData;
+
+    // Declare number of samples.
+    double numberOfSamples = 5;
+
+    // Populate vector with sample data.
+    sampleData.push_back( 2.5 );
+    sampleData.push_back( 6.4 );
+    sampleData.push_back( 8.9 );
+    sampleData.push_back( 12.7 );
+    sampleData.push_back( 15.0 );
+
+    // Declare expected sample mean.
+    double expectedSampleMean = 9.1;
+
+    // Declare expected sample variance.
+    double expectedSampleVariance = 24.665;
+
+    // Declare and compute sample mean.
+    double computedSampleMean = mathematics::computeSampleMean( sampleData );
+
+    // Declare and compute sample variance.
+    double computedSampleVariance
+            = mathematics::computeSampleVariance( sampleData );
+
+    // Check if differences between computed and expected sample means and
+    // variances are too large; if so print cerr statements.
+    if ( abs( computedSampleMean - expectedSampleMean) / expectedSampleMean
+         > MACHINE_PRECISION_DOUBLES
+         || abs( computedSampleVariance - expectedSampleVariance )
+         / expectedSampleVariance > MACHINE_PRECISION_DOUBLES )
+    {
+        isBasicMathematicsFunctionsErroneous = true;
+
+        cerr << "The computeSampleMean() and/or computeSampleVariance "
+             << "functions are erroneous, as the computed sample mean "
+             << "( " << computedSampleMean << " ) and/or computed sample "
+             << "variance ( " << computedSampleVariance << " ) are/is not "
+             << "equal to the expected sample mean ( " << expectedSampleMean
+             << " ) and/or expected sample variance ( "
+             << expectedSampleVariance << " )." << endl;
     }
 
     // Return test result.

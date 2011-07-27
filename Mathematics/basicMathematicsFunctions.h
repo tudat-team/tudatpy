@@ -3,7 +3,7 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 9
+ *    Version           : 10
  *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
@@ -27,11 +27,13 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 10 May, 2011
+ *    Last modified     : 7 July, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
  *          Scientific Computing. Cambridge University Press, February 2002.
+ *      Spiegel, M.R., Stephens, L.J. Statistics, Fourth Edition, Schaum's
+ *          Outlines, McGraw-Hill, 2008.
  *
  *    Notes
  *
@@ -61,6 +63,8 @@
  *                                  computeLinearInterpolation();
  *      110411    K. Kumar          Added convertCartesianToSpherical()
  *                                  function.
+ *      110707    K. Kumar          Added computeSampleMean() and
+ *                                  computeSampleVariance() functions.
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
@@ -72,13 +76,14 @@
 #include <cmath>
 #include <cfloat>
 #include <numeric>
+#include <vector>
 #include "basicFunctions.h"
 #include "linearAlgebra.h"
 #include "state.h"
 
 // Using declarations.
 using std::map;
-using std::accumulate;
+using std::vector;
 
 //! Mathematics namespace.
 /*!
@@ -86,9 +91,6 @@ using std::accumulate;
  */
 namespace mathematics
 {
-
-// Definition of typedefs.
-typedef map< double, double > mapOfDoubleDoubleData;
 
 //! Machine precision for floats.
 /*!
@@ -149,7 +151,7 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
  *              value in vector of sorted independent variables.
  */
 VectorXd computeLinearInterpolation(
-        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+        map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue );
 
 //! Compute linear interpolation.
@@ -171,7 +173,7 @@ VectorXd computeLinearInterpolation(
  *              value in vector of sorted independent variables.
  */
 State* computeLinearInterpolation(
-        std::map < double, State* >& sortedIndepedentAndDependentVariables,
+        map < double, State* >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue );
 
 //! Convert spherical to cartesian coordinates.
@@ -252,7 +254,7 @@ int computeAbsoluteValue( const int& signedInteger );
  */
 double computeAbsoluteValue( const double& signedDouble );
 
-//! Compute the modulo.
+//! Compute modulo of double.
 /*!
  * Computes the remainder of division of one number by another.
  * The remainder is in the range [ 0, divisor ].
@@ -260,7 +262,37 @@ double computeAbsoluteValue( const double& signedDouble );
  * \param divisor Number that is divided by.
  * \return Remainder of division of dividend by divisor.
  */
-double computeModulo( double dividend, double divisor );
+double computeModulo( const double& dividend, const double& divisor );
+
+//! Compute sample mean.
+/*!
+ * Computes sample mean based on the following unbiased estimator
+ * (Spiegel and Stephens, 2008):
+ * \f[
+ *      \mu_{s} = \frac{ \sum_{i=1}^{N} X_{i} } { N }
+ * \f]
+ * where \f$\mu_{s}\f$ is the unbiased estimate of the sample mean,
+ * \f$ N \f$ is the number of samples, and \f$ X \f$ is the sample value.
+ * \param sampleData Sample data.
+ * \return Sample mean.
+ */
+double computeSampleMean( const vector< double >& sampleData );
+
+//! Compute sample variance.
+/*!
+ * Computes sample variance based on the following unbiased estimator
+ * (Spiegel and Stephens, 2008):
+ * \f[
+ *      \s^{2}_{s} = \frac{ 1 }{ N - 1 } \sum_{i=1}^{N} X_{i} ( X_{i}
+ *          - \bar{ X } )^{ 2 }
+ * \f]
+ * where \f$ \s^{2}_{s} \f$ is the unbiased estimate of the sample variance,
+ * \f$ N \f$ is the number of samples, \f$ X \f$ is the sample value, and
+ * \f$ \bar{ X } \f$ is the sample mean.
+ * \param sampleData Map containing sample data.
+ * \return Sample variance.
+ */
+double computeSampleVariance( const vector< double >& sampleData  );
 
 }
 

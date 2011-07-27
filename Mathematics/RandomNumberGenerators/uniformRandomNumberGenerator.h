@@ -1,9 +1,9 @@
-/*! \file randomNumberGenerator.h
- *    This header file contains a class and struct for generating random
- *    numbers.
+/*! \file uniformRandomNumberGenerator.h
+ *    This header file contains a class definition for generating random
+ *    numbers with uniform distribution.
  *
  *    Path              : /Mathematics/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,8 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
+ *    Checker           : F.M. Engelen
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *
  *    Date created      : 7 October, 2010
- *    Last modified     : 21 January, 2010
+ *    Last modified     : 16 May, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -56,10 +60,11 @@
  *                                  comments.
  *      110117    K. Kumar          Corrected path.
  *      110121    K. Kumar          Added comment to "Notes".
+ *      110516    K. Kumar          Renamed file and class.
  */
 
-#ifndef RANDOMNUMBERGENERATOR_H
-#define RANDOMNUMBERGENERATOR_H
+#ifndef UNIFORMRANDOMNUMBERGENERATOR_H
+#define UNIFORMRANDOMNUMBERGENERATOR_H
 
 // Include statements.
 #include <cmath>
@@ -67,12 +72,13 @@
 #include <climits>
 #include <ctime>
 #include "basicMathematicsFunctions.h"
+#include "randomNumberGenerator.h"
 
-//! Random number generator class.
+//! Uniform random number generator class.
 /*!
- * This class contains random number generators.
+ * This class contains uniform random number generators.
  */
-class RandomNumberGenerator
+class UniformRandomNumberGenerator : public RandomNumberGenerator
 {
 public:
 
@@ -82,44 +88,43 @@ public:
      * seed.
      * \param seed Random number generator seed.
      */
-    RandomNumberGenerator( unsigned long long seed );
+    UniformRandomNumberGenerator( unsigned long long seed );
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~RandomNumberGenerator( );
+    ~UniformRandomNumberGenerator( );
 
     //! Get uniformly distributed random integer.
     /*!
-     * This function returns an uniformly distributed random integer using
-     * 64-bit arithmetic.
+     * Returns an uniformly distributed random integer using 64-bit arithmetic.
      * \return Uniformly distributed random integer.
      */
-     unsigned long long getUniformlyDistributedRandom64BitInteger( );
+     unsigned long long getUniformlyDistributedRandomInteger( );
 
     //! Get uniformly distributed, normalized, random double.
     /*!
-     * This function returns a uniformly distributed, normalized, random
-     * double within the interval [0,1].
+     * Returns an uniformly distributed, normalized, random double within the
+     * interval [0,1].
      * \return Uniformly distributed, normalized, random double.
      */
     double getUniformlyDistributedNormalizedRandomDouble( );
 
+    //! Get uniformly distributed random plus/minus sign.
+    /*!
+     * Returns an uniformly distributed random plus/minus sign as an integer.
+     * \return Random plus/minus sign integer.
+     */
+    int getUniformlyDistributedRandomPlusMinusSign( );
+
     //! Get uniformly distributed random integer using 32-bit arithmetic.
     /*!
-     * This function returns a uniformly distributed random integer using
+     * This function returns an uniformly distributed random integer using
      * 32-bit arithmetic.
      * \return Uniformly distributed random integer.
      */
     unsigned int getUniformlyDistributedRandom32BitInteger( );
-
-    //! Get random plus/minus sign.
-    /*!
-     * This function returns a random plus/minus sign as an integer.
-     * \return Random plus/minus sign integer.
-     */
-    int getRandomPlusMinusSign( );
 
 protected:
 
@@ -144,6 +149,6 @@ private:
     unsigned long long randomNumberParameter3_;
 };
 
-#endif // RANDOMNUMBERGENERATOR_H
+#endif // UNIFORMRANDOMNUMBERGENERATOR_H
 
 // End of file.

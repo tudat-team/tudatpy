@@ -1,10 +1,10 @@
 /*! \file unitTestRandomNumberGenerator.h
  *    Header file that defines a unit test that tests the random number
- *    generator included in Tudat.
+ *    generators included in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 2
- *    Check status      : Checked
+ *    Version           : 3
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,8 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
+ *    Checker           : F.M. Engelen
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *
  *    Date created      : 7 January, 2011
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 16 May, 2011
  *
  *    References
  *
@@ -39,6 +43,10 @@
  *      YYMMDD    Author            Comment
  *      110107    K. Kumar          First creation of code.
  *      110207    K. Kumar          Updated code to conform to protocol.
+ *      110516    K. Kumar          Updated code to be compatible with file/
+ *                                  class name change for uniform random
+ *                                  number generator. Added unit test for
+ *                                  exponential random number generator.
  */
 
 #ifndef UNITTESTRANDOMNUMBERGENERATOR_H
@@ -48,8 +56,10 @@
 #include <ctime>
 #include <cmath>
 #include <iostream>
-#include "randomNumberGenerator.h"
+#include <map>
 #include "basicMathematicsFunctions.h"
+#include "exponentialRandomNumberGenerator.h"
+#include "uniformRandomNumberGenerator.h"
 
 //! Namespace for all unit tests.
 /*!
@@ -58,13 +68,21 @@
 namespace unit_tests
 {
 
-//! Test of implementation of random number generator class.
+//! Test implementation of uniform random number generator class.
 /*!
- * Test of implementation of random number generator class.
+ * Tests implementation of uniform random number generator class.
  * \return Boolean indicating success of test
  * ( false = successful; true = failed ).
  */
-bool testRandomNumberGenerator( );
+bool testUniformRandomNumberGenerator( );
+
+//! Test implementation of exponential random number generator class.
+/*!
+ * Tests implementation of exponential random number generator class.
+ * \return Boolean indicating success of test
+ * ( false = successful; true = failed ).
+ */
+bool testExponentialRandomNumberGenerator( );
 
 }
 
