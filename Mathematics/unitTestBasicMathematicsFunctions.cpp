@@ -759,9 +759,6 @@ bool testBasicMathematicsFunctions( )
     // Declare vector of sample data.
     std::vector< double > sampleData;
 
-    // Declare number of samples.
-    double numberOfSamples = 5;
-
     // Populate vector with sample data.
     sampleData.push_back( 2.5 );
     sampleData.push_back( 6.4 );
