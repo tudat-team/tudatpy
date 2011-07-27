@@ -88,9 +88,6 @@
 // Input unit test includes.
 #include "unitTestTextFileReader.h"
 
-#include "exponentialRandomNumberGenerator.h"
-#include <fstream>
-
 // Using declarations.
 using std::cerr;
 using std::endl;
@@ -101,21 +98,6 @@ using std::endl;
  */
 int main( )
 {
-
-    std::ofstream outputFile;
-
-    ExponentialRandomNumberGenerator exp( 1.0, time( NULL ) );
-
-    outputFile.open( "exponentialNumbers.dat" );
-
-    for ( unsigned int i = 0; i < 20000; i++ )
-    {
-        outputFile.precision( 10 );
-        outputFile << exp.getExponentiallyDistributedNormalizedRandomDouble( ) << std::endl;
-    }
-
-    outputFile.close( );
-
     // Return value, 0 on success, 1 on failure of one or more unit tests.
     int isErroneous = 0;
 
@@ -201,8 +183,8 @@ int main( )
             unit_tests::testEscapeAndCapture( );
 
     // testExponentialAtmosphere: Tests the exponential atmosphere model.
-       bool testExponentialAtmosphere =
-               unit_tests::testExponentialAtmosphere( );
+    bool testExponentialAtmosphere =
+            unit_tests::testExponentialAtmosphere( );
 
     // testGravityAssist: Tests delta-V for a gravity assist for the
     // case of equal hyperbolic excess velocities.
@@ -460,7 +442,7 @@ int main( )
     unitTestReportOutputFile.open( reportFileName.c_str( ) );
     unitTestReportOutputFile << "Tudat Unit Test Report" << std::endl;
     unitTestReportOutputFile << date << ", " << time
-            << std::endl << std::endl;
+                             << std::endl << std::endl;
 
     // Write unit test results for Mathematics.
     unitTestReportOutputFile << "Mathematics" << endl;
