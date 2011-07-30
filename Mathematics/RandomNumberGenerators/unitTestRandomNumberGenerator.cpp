@@ -2,8 +2,8 @@
  *    Source file that defines a unit test that tests the random number
  *    generator included in Tudat.
  *
- *    Path              : /Mathematics/
- *    Version           : 5
+ *    Path              : /Mathematics/RandomNumberGenerators/
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -18,8 +18,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : F.M.Engelen@student.tudelft.nl
  *
+ *    Checker           : E.A.G. Heeren
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : E.A.G.Heeren@student.tudelft.nl
+ *
  *    Date created      : 7 January, 2011
- *    Last modified     : 8 July, 2011
+ *    Last modified     : 29 July, 2011
  *
  *    References
  *      Spiegel, M.R., Stephens, L.J. Statistics, Fourth Edition, Schaum's
@@ -75,10 +79,16 @@
  *                                  class name change for uniform random
  *                                  number generator. Added unit test for
  *                                  exponential random number generator.
+ *      110728    K. Kumar          Added unit test for normal random number
+ *                                  generator.
+ *      110729    E.A.G. Heeren     Minor changes to comments in normal random
+ *                                  number generator.
  */
 
 // Include statements.
 #include "unitTestRandomNumberGenerator.h"
+
+#include <fstream>
 
 // Using declarations.
 using mathematics::computeAbsoluteValue;
@@ -268,7 +278,7 @@ bool testExponentialRandomNumberGenerator( )
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( computedResultForTest1 < 0.0 && computedResultForTest1 > 1.0 )
+    if ( computedResultForTest1 < 0.0  )
     {
         isExponentialRandomNumberGeneratorErroneous = true;
 
@@ -344,6 +354,89 @@ bool testExponentialRandomNumberGenerator( )
     // Return test result.
     // If test is successful return false; if test fails, return true.
     return isExponentialRandomNumberGeneratorErroneous;
+}
+
+//! Test implementation of normal random number generator class.
+bool testNormalRandomNumberGenerator( )
+{
+    // Summary of tests.
+    // Test 1: Compute sample mean and standard deviation of distribution
+    //         and compare to analytical results.
+
+    // Test result initialized to false.
+    bool isNormalRandomNumberGeneratorErroneous = false;
+
+    // Create normal random number generator object.
+    // Normal distribution mean set to 1.0, standard deviation set to 2.0.
+    NormalRandomNumberGenerator normalRandomNumbers( 1.0, 2.0, time( NULL ) );
+
+    // Test 1: Compute sample mean and standard deviation of distribution
+    //         and compare to analytical results.
+    // Declare and initialize number of samples.
+    unsigned int numberOfSamples = 100000;
+
+    // Declare and set size of vector of sample normal random values.
+    vector< double > sampleOfNormalRandomValues;
+
+    // Fill vector of sample normal random values.
+    for ( unsigned int i = 0; i < numberOfSamples; i++ )
+    {
+        sampleOfNormalRandomValues.push_back(
+                    normalRandomNumbers
+                    .getNormallyDistributedNormalizedRandomDouble( ) );
+    }
+
+    // Estimate sample mean of the distribution.
+    double sampleMean = computeSampleMean( sampleOfNormalRandomValues );
+
+    // Estimate sample variance.
+    double sampleVariance = computeSampleVariance(
+                sampleOfNormalRandomValues );
+
+    // Compute differences between computed and expected results.
+    // Test sample mean versus true mean with a confidence of 99.96%.
+    // This means that the test below guarentees that this unit test will
+    // fail on average every 2500 times it is run.
+    // Also test sample variance versus true variance with a confidence of
+    // 99.96%. The true mean and true variance of the tested normal distribution
+    // distribution is equal to 1 and 4 respectively.
+    // The tolerances were computed using confidence intervals for the sample
+    // mean and variance of a normal distribution and table lookup.
+    if ( computeAbsoluteValue( sampleMean - 1.0 )
+         > 3.49 * 4.0
+           * 1.0 / static_cast< double >( sqrt( numberOfSamples ) )
+        )
+    {
+        isNormalRandomNumberGeneratorErroneous = true;
+
+        cerr << "The computed sample mean ( " << sampleMean
+             << " ) using a sample size of " << numberOfSamples
+             << " is not within the standard error of the true sample mean"
+             << " ( 1/2 ) " << endl;
+        cerr << "The distribution is not normal to a confidence of "
+             << "99.96%. Run the unit test again to ensure error is not due "
+             << "to statistical anomaly. " << endl;
+    }
+
+    if ( 4.0 / sampleVariance
+         < static_cast< double >( numberOfSamples - 1 ) / 101590
+         || 4.0 / sampleVariance
+         > static_cast< double>( numberOfSamples - 1 ) / 98424 )
+    {
+        isNormalRandomNumberGeneratorErroneous = true;
+
+        cerr << "The computed sample variance ( " << sampleVariance
+             << " ) using a sample size of " << numberOfSamples
+             << " is not within the standard error of the true sample variance"
+             << "( 4 ) " << endl;
+        cerr << "The distribution is not normal to a confidence of "
+             << "99.96%. Run the unit test again to ensure error is not due "
+             << "to statistical anomaly." << endl;
+    }
+
+    // Return test result.
+    // If test is successful return false; if test fails, return true.
+    return isNormalRandomNumberGeneratorErroneous;
 }
 
 }

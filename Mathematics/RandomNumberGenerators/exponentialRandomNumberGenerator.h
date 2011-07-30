@@ -2,7 +2,7 @@
  *    This header file contains a class definition for generating random
  *    numbers with exponential distribution.
  *
- *    Path              : /Mathematics/
+ *    Path              : /Mathematics/RandomNumberGenerators/
  *    Version           : 1
  *    Check status      : Checked
  *
@@ -69,11 +69,11 @@ public:
      */
     ~ExponentialRandomNumberGenerator( );
 
-    //! Get exponential distributed, normalized, random double.
+    //! Get exponentially-distributed, normalized, random double.
     /*!
-     * Returns an exponentially distributed, normalized, random double within
+     * Returns an exponentially-distributed, normalized, random double within
      * the interval [ 0, infinity ).
-     * \return Exponentially distributed, normalized, random double.
+     * \return Exponentially-distributed, normalized, random double.
      */
     double getExponentiallyDistributedNormalizedRandomDouble( );
 

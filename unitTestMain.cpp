@@ -131,6 +131,11 @@ int main( )
     // testNewtonRaphson: Tests the Newton-Raphson root-finder.
     bool testNewtonRaphson = unit_tests::testNewtonRaphsonMethod( );
 
+    // testNormalRandomNumberGenerator: Tests the normal random number
+    // generator.
+    bool testNormalRandomNumberGenerator
+            = unit_tests::testNormalRandomNumberGenerator( );
+
     // testRungeKutta4thOrderFixedStepsizeIntegrator: Tests the 4th-order,
     // fixed stepsize, Runge-Kutta integrator against benchmark data from
     // (Burden and Faires, 2001).
@@ -282,6 +287,12 @@ int main( )
     if ( testNewtonRaphson )
     {
         cerr << "testNewtonRaphson failed!" << endl;
+        isErroneous = 1;
+    }
+
+    if ( testNormalRandomNumberGenerator )
+    {
+        cerr << "testNormalRandomNumberGenerator failed!" << endl;
         isErroneous = 1;
     }
 
@@ -459,6 +470,8 @@ int main( )
                              << "\tLawgs Surface Geometry" << endl;
     unitTestReportOutputFile << testNewtonRaphson
                              << "\tNewton Raphson Root Finder" << endl;
+    unitTestReportOutputFile << testNormalRandomNumberGenerator
+                             << "\tNormal Random Number Generator" << endl;
     unitTestReportOutputFile << testRungeKutta4thOrderFixedStepsizeIntegrator
                              << "\tRunge-Kutta 4th-Order Fixed-Stepsize "
                              << "Integrator" << endl;
