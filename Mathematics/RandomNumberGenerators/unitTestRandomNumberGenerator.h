@@ -2,9 +2,9 @@
  *    Header file that defines a unit test that tests the random number
  *    generators included in Tudat.
  *
- *    Path              : /Mathematics/
- *    Version           : 3
- *    Check status      : Unchecked
+ *    Path              : /Mathematics/RandomNumberGenerators/
+ *    Version           : 4
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -14,12 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
- *    Checker           : F.M. Engelen
+ *    Checker           : E.A.G. Heeren
  *    Affiliation       : Delft University of Technology
- *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *    E-mail address    : E.A.G.Heeren@student.tudelft.nl
  *
  *    Date created      : 7 January, 2011
- *    Last modified     : 16 May, 2011
+ *    Last modified     : 28 July, 2011
  *
  *    References
  *
@@ -47,6 +47,8 @@
  *                                  class name change for uniform random
  *                                  number generator. Added unit test for
  *                                  exponential random number generator.
+ *      110728    K. Kumar          Added unit test for normal random number
+ *                                  generator.
  */
 
 #ifndef UNITTESTRANDOMNUMBERGENERATOR_H
@@ -59,6 +61,7 @@
 #include <map>
 #include "basicMathematicsFunctions.h"
 #include "exponentialRandomNumberGenerator.h"
+#include "normalRandomNumberGenerator.h"
 #include "uniformRandomNumberGenerator.h"
 
 //! Namespace for all unit tests.
@@ -83,6 +86,14 @@ bool testUniformRandomNumberGenerator( );
  * ( false = successful; true = failed ).
  */
 bool testExponentialRandomNumberGenerator( );
+
+//! Test implementation of normal random number generator class.
+/*!
+ * Tests implementation of normal random number generator class.
+ * \return Boolean indicating success of test
+ * ( false = successful; true = failed ).
+ */
+bool testNormalRandomNumberGenerator( );
 
 }
 

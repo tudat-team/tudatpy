@@ -2,7 +2,7 @@
  *    This header file contains a class definition for generating random
  *    numbers with uniform distribution.
  *
- *    Path              : /Mathematics/
+ *    Path              : /Mathematics/RandomNumberGenerators/
  *    Version           : 7
  *    Check status      : Checked
  *

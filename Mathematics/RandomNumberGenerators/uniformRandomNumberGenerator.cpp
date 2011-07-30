@@ -2,7 +2,7 @@
  *    This source file contains a class implemetation for generating random
  *    numbers with uniform distribution.
  *
- *    Path              : /Mathematics/
+ *    Path              : /Mathematics/RandomNumberGenerators/
  *    Version           : 6
  *    Check status      : Checked
  *

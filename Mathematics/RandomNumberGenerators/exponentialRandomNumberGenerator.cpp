@@ -2,7 +2,7 @@
  *    This source file contains a class definition for generating random
  *    numbers with exponential distribution.
  *
- *    Path              : /Mathematics/
+ *    Path              : /Mathematics/RandomNumberGenerators/
  *    Version           : 1
  *    Check status      : Checked
  *
@@ -58,22 +58,23 @@ ExponentialRandomNumberGenerator::~ExponentialRandomNumberGenerator( )
 {
 }
 
-//! Get exponential distributed, normalized, random double.
-double ExponentialRandomNumberGenerator::getExponentiallyDistributedNormalizedRandomDouble( )
+//! Get exponentially-distributed, normalized, random double.
+double ExponentialRandomNumberGenerator::
+getExponentiallyDistributedNormalizedRandomDouble( )
 {
     // Declare local variables.
     // Declare local uniform random number.
-    double uniformRandomNumber;
+    double uniformRandomNumber_;
 
     // Get a non-zero normalized exponentially-distributed random double.
     do
     {
-        uniformRandomNumber = getUniformlyDistributedNormalizedRandomDouble( );
+        uniformRandomNumber_ = getUniformlyDistributedNormalizedRandomDouble( );
     }
-    while ( uniformRandomNumber == 0.0 );
+    while ( uniformRandomNumber_ == 0.0 );
 
-    // Return exponentially distributed, normalized, random double.
-    return -log( uniformRandomNumber ) / exponentialRandomNumberParameter_;
+    // Return exponentially0distributed, normalized, random double.
+    return -log( uniformRandomNumber_ ) / exponentialRandomNumberParameter_;
 }
 
 // End of file.

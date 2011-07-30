@@ -96,6 +96,7 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.cpp \
     Mathematics/NumericalIntegrators/unitTestEulerIntegrator.cpp \
     Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.cpp \
+    Mathematics/RandomNumberGenerators/normalRandomNumberGenerator.cpp \
     Mathematics/RandomNumberGenerators/randomNumberGenerator.cpp \
     Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.cpp \
     Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.cpp \
@@ -202,6 +203,7 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.h \
     Mathematics/NumericalIntegrators/unitTestEulerIntegrator.h \
     Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.h \
+    Mathematics/RandomNumberGenerators/normalRandomNumberGenerator.h \
     Mathematics/RandomNumberGenerators/randomNumberGenerator.h \
     Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h \
     Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.h \

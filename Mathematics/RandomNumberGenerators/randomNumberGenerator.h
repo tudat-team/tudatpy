@@ -2,7 +2,7 @@
  *    This header file contains a base class for all random number generators
  *    in Tudat.
  *
- *    Path              : /Mathematics/
+ *    Path              : /Mathematics/RandomNumberGenerators/
  *    Version           : 7
  *    Check status      : Checked
  *
