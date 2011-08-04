@@ -142,7 +142,7 @@ std::ostream& operator<<( std::ostream& stream,
     stream << twoLineElementData.lineNumberLine2 << " ";
     stream << twoLineElementData.objectIdentificationNumberLine2 << " ";
     stream << twoLineElementData.TLEKeplerianElements.getInclination( ) << " ";
-    stream << twoLineElementData.TLEKeplerianElements.getRightAscensionOfAscendingNode( ) << " ";
+    stream << twoLineElementData.TLEKeplerianElements.getLongitudeOfAscendingNode( ) << " ";
     stream << twoLineElementData.TLEKeplerianElements.getEccentricity( ) << " ";
     stream << twoLineElementData.TLEKeplerianElements.getArgumentOfPeriapsis( ) << " ";
     stream << twoLineElementData.meanAnomaly << " ";
