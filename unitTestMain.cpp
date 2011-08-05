@@ -64,6 +64,7 @@
 #include "unitTestNewtonRaphson.h"
 #include "unitTestRandomNumberGenerator.h"
 #include "unitTestRungeKutta4thOrderFixedStepsizeIntegrator.h"
+#include "unitTestSimpleLinearRegression.h"
 #include "unitTestUnitConversions.h"
 
 // Astrodynamics unit test includes.
@@ -141,6 +142,11 @@ int main( )
     // (Burden and Faires, 2001).
     bool testRungeKutta4thOrderFixedStepsizeIntegrator
             = unit_tests::testRungeKutta4thOrderFixedStepsizeIntegrator( );
+
+    // testSimpleLinearRegression: Tests simple linear regression method
+    // against benchmark data from (Burden and Faires, 2001).
+    bool testSimpleLinearRegression
+            = unit_tests::testSimpleLinearRegression( );
 
     // testUniformRandomNumberGenerator: Tests the uniform random number
     // generator.
@@ -300,6 +306,12 @@ int main( )
     {
         cerr << "testRungeKutta4thOrderFixedStepsizeIntegrator failed!"
              << endl;
+        isErroneous = 1;
+    }
+
+    if ( testSimpleLinearRegression )
+    {
+        cerr << "testSimpleLinearRegression failed!" << endl;
         isErroneous = 1;
     }
 
@@ -475,6 +487,8 @@ int main( )
     unitTestReportOutputFile << testRungeKutta4thOrderFixedStepsizeIntegrator
                              << "\tRunge-Kutta 4th-Order Fixed-Stepsize "
                              << "Integrator" << endl;
+    unitTestReportOutputFile << testSimpleLinearRegression
+                             << "\tSimple Linear Regression" << endl;
     unitTestReportOutputFile << testUniformRandomNumberGenerator
                              << "\tUniform Random Number Generator" << endl;
     unitTestReportOutputFile << testUnitConversions
