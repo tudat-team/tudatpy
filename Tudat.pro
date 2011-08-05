@@ -104,6 +104,8 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.cpp \
     Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
+    Mathematics/Statistics/simpleLinearRegression.cpp \
+    Mathematics/Statistics/unitTestSimpleLinearRegression.cpp \
     Mathematics/unitTestUnitConversions.cpp \
     Output/writingOutputToFile.cpp \
     #applicationMain.cpp
@@ -215,6 +217,8 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/RootFindingMethods/newtonRaphsonBase.h \
     Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h \
     Mathematics/RootFindingMethods/newtonRaphson.h \
+    Mathematics/Statistics/simpleLinearRegression.h \
+    Mathematics/Statistics/unitTestSimpleLinearRegression.h \
     Output/outputHandling.h \
     Output/writingOutputToFile.h
 INCLUDEPATH += Applications \
@@ -245,4 +249,5 @@ INCLUDEPATH += Applications \
     Mathematics/NumericalIntegrators \
     Mathematics/RandomNumberGenerators \
     Mathematics/RootFindingMethods \
+    Mathematics/Statistics \
     Output
