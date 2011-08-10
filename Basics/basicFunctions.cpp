@@ -3,19 +3,27 @@
  *    basic functions contained in Tudat.
  *
  *    Path              : /Basics/
- *    Version           : 5
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Author            : J. Leloux
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.Leloux@tudelft.nl
+ *
  *    Checker           : D. Dirkx
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
+ *    Checker           : K. Kumar
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : K.Kumar@tudelft.nl
+ *
  *    Date created      : 1 September, 2010
- *    Last modified     : 2 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -44,10 +52,20 @@
  *      100929    K. Kumar            Small comment modifications.
  *      110202    K. Kumar            Added overload for map with State* for
  *                                    computeNearestLeftNeighborUsingBinarySearch().
+ *      110803    J. Leloux           Added convertStringToTemplate.
+ *      110805    J. Leloux           Added outputCurrentRunningTime().
+ *      110807    K. Kumar            Minor comment modifications.
+ *      110810    J. Leloux           Minor comment modifications.
  */
 
 // Include statements.
 #include "basicFunctions.h"
+
+// Using declarations.
+using std::string;
+using std::endl;
+using std::cout;
+using std::vector;
 
 //! Basic functions namespace.
 namespace basic_functions
@@ -210,6 +228,35 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
     // Return current position in map of data.
     return currentPositionInKeyOfMapOfData;
+}
+
+//! Write the current running time and status to vector.
+vector< string > outputCurrentRunningTime( clock_t start_clock, const string& status )
+{
+    // Declare local variables.
+    // Declare vector of strings to store current running time and status of executed application.
+    vector< string > runningTimeAndStatusContainer_;
+
+    // Declare stringstream.
+    std::stringstream currentRunningTimeStatement_;
+
+    // Set current and running clock times.
+    clock_t current_clock_ = clock( );
+    clock_t running_clocks_ = current_clock_ - start_clock;
+
+    // Compute current running time.
+    double runningTime_ = running_clocks_;
+
+    // Create output string.
+    currentRunningTimeStatement_ << "Current running time in seconds is: "
+                                 << runningTime_ / 1000;
+
+    // Store data in vector of strings.
+    runningTimeAndStatusContainer_.push_back( status );
+    runningTimeAndStatusContainer_.push_back( currentRunningTimeStatement_.str( ) );
+
+    // Return string container.
+    return runningTimeAndStatusContainer_;
 }
 
 }

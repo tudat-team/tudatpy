@@ -14,7 +14,7 @@
  *    E-mail address    : J.Leloux@student.tudelft.nl
  *
  *    Date created      : 24 February, 2011
- *    Last modified     : 27 June, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      ASCII Table, http://www.asciitable.com/, last accessed: 21st May, 2011.
@@ -40,6 +40,7 @@
  *      110521    K. Kumar          Modified stripEndOfLineCharacters().
  *      110607    F.M. Engelen      Added skipKeyWord Feature.
  *      110627    K. Kumar          Moved skipLinesWithKeyword() to FileReader.
+ *      110810    J. Leloux         Changed if-statement of readAndStoreData function.
  */
 
 // Include statements.
@@ -72,10 +73,10 @@ void TextFileReader::readAndStoreData( )
         // is not empty, and if the skip keyword is not in the string.
         if ( ( ( !startingCharacter_.empty( ) && stringOfData_.substr( 0, 1 )
                  .compare( startingCharacter_ ) != 0 )
-            || ( !skipKeyword_.empty( ) && stringOfData_.find( skipKeyword_ )
-                 == string::npos ) )
-            && !stringOfData_.empty( ) )
-
+               || ( !skipKeyword_.empty( ) && stringOfData_.find( skipKeyword_ )
+                    == string::npos )
+               || ( startingCharacter_.empty( ) && skipKeyword_.empty( ) ) )
+             && !stringOfData_.empty( ) )
         {
             // Store string in container.
             containerOfDataFromFile_[ lineCounter_ ] = stringOfData_;

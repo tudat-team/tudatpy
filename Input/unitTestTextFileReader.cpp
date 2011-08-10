@@ -97,12 +97,12 @@ bool testTextFileReader( )
 
     // Check if the defined lines match the stored string data, if it doesn't,
     // set the test boolean to true and give an error output message.
-    if ( testContainerOfData[ 3 ] != line3 ||
-         testContainerOfData[ 4 ] != line4 ||
-         testContainerOfData[ 5 ] != line5 ||
-         testContainerOfData[ 6 ] != line6 ||
-         testContainerOfData[ 8 ] != line8 ||
-         testContainerOfData[ 9 ] != line9 )
+    if ( testContainerOfData.at( 3 ) != line3 ||
+         testContainerOfData.at( 4 ) != line4 ||
+         testContainerOfData.at( 5 ) != line5 ||
+         testContainerOfData.at( 6 ) != line6 ||
+         testContainerOfData.at( 8 ) != line8 ||
+         testContainerOfData.at( 9 ) != line9 )
     {
         isTextFileReaderErroneous = true;
         cerr << "Test text file reading with lines with "
@@ -136,12 +136,12 @@ bool testTextFileReader( )
 
     // Check if the defined lines match the stored string data, if it doesn't,
     // set the test boolean to true and give an error output message.
-    if ( testContainerOfData2[ 3 ] != line3 ||
-         testContainerOfData2[ 4 ] != line4 ||
-         testContainerOfData2[ 5 ] != line5 ||
-         testContainerOfData2[ 6 ] != line6 ||
-         testContainerOfData2[ 8 ] != line8 ||
-         testContainerOfData2[ 9 ] != line9 )
+    if ( testContainerOfData.at( 3 ) != line3 ||
+         testContainerOfData.at( 4 ) != line4 ||
+         testContainerOfData.at( 5 ) != line5 ||
+         testContainerOfData.at( 6 ) != line6 ||
+         testContainerOfData.at( 8 ) != line8 ||
+         testContainerOfData.at( 9 ) != line9 )
     {
         isTextFileReaderErroneous = true;
         cerr << "Test text file reading with skipping of lines and reading "
@@ -174,13 +174,13 @@ bool testTextFileReader( )
 
     // Check if the defined lines match the stored string data, if it doesn't,
     // set the test boolean to true and give an error output message.
-    if ( testContainerOfData3[ 1 ] != line1 ||
-         testContainerOfData3[ 2 ] != line2 ||
-         testContainerOfData3[ 3 ] != line3 ||
-         testContainerOfData3[ 4 ] != line4 ||
-         testContainerOfData3[ 5 ] != line5 ||
-         testContainerOfData3[ 7 ] != line7 ||
-         testContainerOfData3[ 8 ] != line8 )
+    if ( testContainerOfData3.at( 1 ) != line1 ||
+         testContainerOfData3.at( 2 ) != line2 ||
+         testContainerOfData3.at( 3 ) != line3 ||
+         testContainerOfData3.at( 4 ) != line4 ||
+         testContainerOfData3.at( 5 ) != line5 ||
+         testContainerOfData3.at( 7 ) != line7 ||
+         testContainerOfData3.at( 8 ) != line8 )
     {
         isTextFileReaderErroneous = true;
         cerr << "Test text file reading with skipping of lines with a keyword "

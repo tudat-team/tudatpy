@@ -72,7 +72,9 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Input/textFileReader.cpp \
     Input/fileReader.cpp \
     Input/twoLineElementData.cpp \
+    Input/twoLineElementsTextFileReader.cpp \
     Input/unitTestTextFileReader.cpp \
+    Input/unitTestTwoLineElementsTextFileReader.cpp \
     Mathematics/basicMathematicsFunctions.cpp \
     Mathematics/cubicSplineInterpolation.cpp \
     Mathematics/unitTestBasicMathematicsFunctions.cpp \
@@ -178,7 +180,9 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Input/textFileReader.h \
     Input/fileReader.h \
     Input/twoLineElementData.h \
+    Input/twoLineElementsTextFileReader.h \
     Input/unitTestTextFileReader.h \
+    Input/unitTestTwoLineElementsTextFileReader.h \
     Mathematics/unitConversions.h \
     Mathematics/unitTestUnitConversions.h \
     Mathematics/basicMathematicsFunctions.h \

@@ -87,7 +87,7 @@ TwoLineElementData::TwoLineElementData( ) :
         lineNumberLine2( 0 ),
         objectIdentificationNumberLine2( -0 ),
         meanAnomaly( -0.0 ),
-        meanMotion( -0.0 ),
+        meanMotionInRevolutionsPerDay( -0.0 ),
         revolutionNumber( -0 ),
         totalRevolutionNumber( -0 ),
         modulo10CheckSumLine2( 10 ),
@@ -146,7 +146,7 @@ std::ostream& operator<<( std::ostream& stream,
     stream << twoLineElementData.TLEKeplerianElements.getEccentricity( ) << " ";
     stream << twoLineElementData.TLEKeplerianElements.getArgumentOfPeriapsis( ) << " ";
     stream << twoLineElementData.meanAnomaly << " ";
-    stream << twoLineElementData.meanMotion << " ";
+    stream << twoLineElementData.meanMotionInRevolutionsPerDay << " ";
     stream << twoLineElementData.revolutionNumber << " ";
     stream << twoLineElementData.totalRevolutionNumber << " ";
     stream << twoLineElementData.modulo10CheckSumLine2 << endl;

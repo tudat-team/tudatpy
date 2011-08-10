@@ -3,19 +3,27 @@
  *    basic functions contained in Tudat.
  *
  *    Path              : /Basics/
- *    Version           : 5
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Author            : J. Leloux
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : J.Leloux@tudelft.nl
+ *
  *    Checker           : D. Dirkx
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
+ *    Checker           : K. Kumar
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : K.Kumar@tudelft.nl
+ *
  *    Date created      : 10 August, 2010
- *    Last modified     : 2 February, 2010
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -47,18 +55,28 @@
  *                                    modifications.
  *      110202    K. Kumar            Added overload for map with State* for
  *                                    computeNearestLeftNeighborUsingBinarySearch().
+ *      110803    J. Leloux           Added convertStringToTemplate.
+ *      110805    J. Leloux           Added outputCurrentRunningTime.
+ *      110810    J. Leloux           Minor comment modifications.
  */
 
 #ifndef BASICOPERATIONS_H
 #define BASICOPERATIONS_H
 
 // Include statements.
+#include <ctime>
 #include <iostream>
-#include <map>
 #include <iterator>
+#include <map>
 #include <string>
+#include <sstream>
+#include <vector>
 #include "linearAlgebra.h"
 #include "state.h"
+
+// Using declarations.
+using std::string;
+using std::vector;
 
 //! Basic functions namespace.
 /*!
@@ -111,6 +129,36 @@ int computeNearestLeftNeighborUsingBinarySearch(
 int computeNearestLeftNeighborUsingBinarySearch(
         std::map < double, State* >& sortedIndepedentAndDependentVariables,
         double& targetValueInMapOfData );
+
+//! Convert string to variable type.
+/*!
+ * Definition of a template function which converts a string to any variable
+ * type which it can be converted to, and is used as input.
+ * \param inputString String to be converted.
+ * \param outputTemplate Template type to which the string will be converted.
+ * \return Boolean stating the success or failure of the conversion.
+ */
+template < class T >
+bool convertStringToTemplate( const std::string& inputString, T& outputTemplate )
+{
+    // Create stringstream containing input string.
+    std::istringstream inputStringStream( inputString );
+
+    // Return output template containing contents of stringstream.
+    return inputStringStream >> outputTemplate;
+}
+
+//! Write the current running time and status to vector.
+/*!
+ * Definition of a function which determines the running time of a program with respect to a start
+ * clock and outputs this time together with a string containing the current state of the program.
+ * \param start_clock Input starting clock.
+ * \param status Current status of executed application.
+ * \return Container of current status of executed application and current running time statement.
+ *          The first element contains the current status and the second contains the current
+ *          running time statement.
+ */
+vector< string > outputCurrentRunningTime( clock_t start_clock, const string& status );
 
 }
 
