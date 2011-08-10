@@ -3,7 +3,7 @@
  *    classes in Tudat.
  *
  *    Path              : /Mathematics/RootFindingMethods/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 11 November, 2010
- *    Last modified     : 24 January, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -50,6 +50,7 @@
  *                                  required.
  *      110124    E. Iorfida        Added set/get functions for maximum number
  *                                  of iterations.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef ROOTFINDER_H
@@ -75,10 +76,12 @@ class RootFinder
 {
 public:
 
-    // Definition of typedef.
-    // Functions to which root-finding methods are applied can be passed as
-    // pointers to global functions. ( Polymorphic ) Pointers to RootFinder
-    // objects must be used for global functions to be usable.
+    //! Definition of typedef.
+    /*!
+     * Functions to which root-finding methods are applied can be passed as
+     * pointers to global functions. ( Polymorphic ) Pointers to RootFinder
+     * objects must be used for global functions to be usable.
+     */
     typedef double ( *pointerToDoubleTakingFunction )( double& );
 
     //! Default constructor.

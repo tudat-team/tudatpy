@@ -3,8 +3,8 @@
  *    base class included in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
- *    Version           : 3
- *    Check status      : not checked
+ *    Version           : 4
+ *    Check status      : Checked
  *
  *    Author           :  F. M. Engelen
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : D.Dirkx@tudelft.nl
  *
  *    Date created      : 08 June 2011
- *    Last modified     : 15 July 2011
+ *    Last modified     : 10 August 2011
  *
  *    References
  *
@@ -40,6 +40,7 @@
  *      110608    F.M. Engelen      First creation of code.
  *      110714    D. Dirkx          Class name change and other minor changes during code check.
  *      110715    F.M. Engelen      Added the virtual compute function.
+ *      110810    J. Leloux         Corrected doxygen documentation (function variable name).
  */
 
 #ifndef AERODYNAMICCOEFFICIENTINTERFACE_H
@@ -151,14 +152,14 @@ public:
      *  Sets the current force coefficients, i.e. at the current flight condition.
      * \param currentForceCoefficients the current force coefficients.
      */
-    void setCurrentForceCoefficients( const Vector3d& forceCoefficients );
+    void setCurrentForceCoefficients( const Vector3d& currentForceCoefficients );
 
     //! Function to set the moment Coefficients.
     /*!
      *  Sets the current moment coefficients, i.e. at the current flight condition.
      * \param currentMomentCoefficients the current force coefficients.
      */
-    void setCurrentMomentCoefficients( const Vector3d& momentCoefficients );
+    void setCurrentMomentCoefficients( const Vector3d& currentMomentCoefficients );
 
     //! Function to compute the aerodynamic coefficients at current flight condition.
     /*!

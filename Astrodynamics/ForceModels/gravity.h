@@ -2,7 +2,7 @@
  *    Header file that defines the gravity force model included in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 16 September, 2010
- *    Last modified     : 2 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -44,6 +44,7 @@
  *                                  computeForce().
  *      110202    K. Kumar          Updated code to make use of the State and
  *                                  CartesianPositionElements classes.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef GRAVITY_H
@@ -78,8 +79,8 @@ public:
 
     //! Set body for gravity field expansion.
     /*!
-     * This function sets the body for gravity field expansion.
-     * \param celestialBody Celestial body which is set.
+     * Sets the body for gravity field expansion.
+     * \param pointerToCelestialBody Celestial body which is set.
      */
     void setBody( CelestialBody* pointerToCelestialBody );
 

@@ -5,7 +5,7 @@
  *
  *    Path              : /Astrodynamics/MissionSegments/LambertTargeter/
  *    Version           : 8
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : E. Iorfida
  *    Affiliation       : Delft University of Technology

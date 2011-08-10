@@ -3,8 +3,8 @@
  *    functions.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 9
- *    Check status      : Unchecked
+ *    Version           : 10
+ *    Check status      : Checked
  *
  *    Author            : E. Iorfida
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 5 August, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series,
@@ -40,7 +40,7 @@
  *      101025    E. Iorfida        Fulfillment of the code with gravitational
  *                                  parameter.
  *      101130    E. Iorfida        Gravitational parameter removed.
- *      101202    J. Melman         Replaced #endif statement and changed
+ *      101202    J. Melman         Replaced endif statement and changed.
  *                                  Doxygen return statement.
  *      101203    E. Iorfida        Gravitational parameter added.
  *      101219    J. Melman         Doxygen comment on gravitational parameter
@@ -51,6 +51,7 @@
  *                                  dynamic memory allocation.
  *      110805    K. Kumar          Added mean motion to semi-major axis
  *                                  conversion.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 // Include statements.

@@ -2,7 +2,7 @@
  *    This file contains the definition of the CompositeSurfaceGeometry class
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,13 +14,13 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
  *    Notes
  *      The code uses pointers to pointers to represent an array of pointers,
- *      instead of the <vector> or <map> from the STL for heritage reasons. In
+ *      instead of the vector or map from the STL for heritage reasons. In
  *      future, it might be fruitful to consider the use of standard STL
  *      containers instead.
  *
@@ -45,6 +45,7 @@
  *                                  changes to layout.
  *      110204    K. Kumar          Minor comment and layout modifications;
  *                                  corrected Doxygen comments.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 // Include statements.

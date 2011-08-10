@@ -3,7 +3,7 @@
  *    numbers with normal distribution.
  *
  *    Path              : /Mathematics/RandomNumberGenerators/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : E.A.G.Heeren@student.tudelft.nl
  *
  *    Date created      : 26 July, 2011
- *    Last modified     : 26 July, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -38,6 +38,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110726    K. Kumar          First creation of code.
+ *      110810    J. Leloux         Corrected doxygen documentation (equations).
  */
 
 #ifndef NORMALRANDOMNUMBERGENERATOR_H
@@ -87,7 +88,7 @@ private:
      * Mean of normal distribution to generate random numbers.
      * The mean, \f$ \mu \f$, scales the normal distribution as follows:
      * \f[
-     *      p( y ) = \frac{ 1 }{ \sqrt{ 2 * \pi } * \sigma \beta
+     *      p( y ) = \frac{ 1 }{ \sqrt{ 2 * \pi } } * \sigma \beta
      *               * e^{ -\frac{ 1 }{ 2 } ( \frac{ x - \mu }{ \sigma } )^ 2 }
      * \f]
      */
@@ -99,7 +100,7 @@ private:
      * The standard deviation, \f$ \sigma \f$, scales the normal distribution
      * as follows:
      * \f[
-     *      p( y ) = \frac{ 1 }{ \sqrt{ 2 * \pi } * \sigma \beta
+     *      p( y ) = \frac{ 1 }{ \sqrt{ 2 * \pi } } * \sigma \beta
      *               * e^{ -\frac{ 1 }{ 2 } ( \frac{ x - \mu }{ \sigma } )^ 2 }
      * \f]
      */

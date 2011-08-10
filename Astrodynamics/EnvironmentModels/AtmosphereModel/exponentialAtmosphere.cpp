@@ -3,7 +3,7 @@
  *
  *    Path              : /Astrodynamics/EnvironmentModels/AtmosphereModel/
  *    Version           : 4
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
  *    Affiliation       : Delft University of Technology

@@ -1,9 +1,9 @@
-/*!   \file unitTestCoefficientGenerator.cpp
- *    This file contains the unit test of the hypersonic local inclination
- *    analysis.
+/*! \file unitTestCoefficientGenerator.cpp
+ *    This file contains the unit test of the aerodynamic coefficient generator
+ *    in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -15,7 +15,7 @@
  *    E-mail address    : B.Romgens@student.tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 9 February,  2011
+ *    Last modified     : 10 August,  2011
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic
@@ -38,12 +38,14 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      102511    D. Dirkx          First version of file.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 // Include statements.
 #include "unitTestCoefficientGenerator.h"
 #include "writingOutputToFile.h"
 
+//! Test coefficient Generator.
 bool unit_tests::testCoefficientGenerator( )
 {
 

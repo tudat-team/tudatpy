@@ -4,7 +4,7 @@
  *
  *    Path              : /Mathematics/
  *    Version           : 5
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : B. Romgens
  *    Affiliation       : Delft University of Technology

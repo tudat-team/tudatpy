@@ -3,8 +3,8 @@
  *    included in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 11
- *    Check status      : Unchecked
+ *    Version           : 12
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -19,7 +19,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 28 July, 2010
- *    Last modified     : 16 May, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -65,6 +65,7 @@
  *                                  used. Global functions can no longer be
  *                                  used. StateDerivativeBase used to define
  *                                  classes with state derivative function.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef INTEGRATOR_H
@@ -122,7 +123,7 @@ public:
     /*!
      * Sets the initial stepsize for all integration methods. This function
      * must be called at least once for integration to proceed.
-     * \param stepsize Stepsize for integration method.
+     * \param initialStepsize Initial stepsize for integration method.
      */
     void setInitialStepsize( const double& initialStepsize );
 
@@ -287,8 +288,9 @@ protected:
      * \param integrationIntervalCurrentPoint Current point in integration
      *          interval.
      * \param pointerToState State given as pointer to State object.
-     * \param State derivative given as pointer to State object. This is where
-     *        the computed state derivative is stored.
+     * \param pointerToStateDerivative State derivative given as pointer to
+     *          State object. This is where the computed state derivative is
+     *          stored.
      */
     void computeStateDerivative_( double& integrationIntervalCurrentPoint,
                                   State* pointerToState,
