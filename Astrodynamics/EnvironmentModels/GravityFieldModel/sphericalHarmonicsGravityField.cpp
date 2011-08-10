@@ -3,8 +3,8 @@
  *    included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/
- *    Version           : 8
- *    Check status      : Checked
+ *    Version           : 9
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,9 +15,12 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 17 November, 2010
- *    Last modified     : 10 March, 2011
+ *    Last modified     : 5 August, 2011
  *
  *    References
+ *      Vallado, D. A., Crawford, P., Hujsak, R., & Kelso, T. Revisiting
+ *          Spacetrack Report #3: Rev 1, Proceedings of the AIAA/AAS Astro-
+ *          dynamics Specialist Conference. Keystone, CO, 2006.
  *
  *    Notes
  *
@@ -48,6 +51,8 @@
  *      110204    K. Kumar          Removed "vector" from naming.
  *      110310    K. Kumar          Changed naming from Laplacian to gradient
  *                                  tensor.
+ *      110805    K. Kumar          Added predefined functionality with WGS-72
+ *                                  and WGS-84 predefined Earth gravity fields.
  */
 
 // Include statements.
@@ -56,18 +61,80 @@
 // Using declarations.
 using mathematics::raiseToIntegerPower;
 using std::endl;
+using std::cerr;
 
 //! Default constructor.
 SphericalHarmonicsGravityField::SphericalHarmonicsGravityField( )
-    : degreeOfExpansion_( -0 ),
-      orderOfExpansion_( -0 ),
-      referenceRadius_( -0.0 )
+    : degreeOfExpansion_( -0 ), orderOfExpansion_( -0 ),
+      referenceRadius_( -0.0 ),
+      j2SphericalHarmonicsGravityFieldCoefficient_( -0.0 ),
+      j3SphericalHarmonicsGravityFieldCoefficient_( -0.0 ),
+      j4SphericalHarmonicsGravityFieldCoefficient_( -0.0 )
 {  
 }
 
 //! Default destructor.
 SphericalHarmonicsGravityField::~SphericalHarmonicsGravityField( )
 {
+}
+
+//! Set predefined spherical harmonics gravity field settings.
+void SphericalHarmonicsGravityField::
+setPredefinedSphericalHarmonicsGravityFieldSettings(
+    BodiesWithPredefinedSphericalHarmonicsGravityFields
+    bodyWithPredefinedSphericalHarmonicsGravityField )
+{
+    // Select body with prefined central gravity field.
+    switch( bodyWithPredefinedSphericalHarmonicsGravityField )
+    {
+    case earthWorldGeodeticSystem72:
+
+        // Reference: Table 2 in (Vallado, D.A., et al., 2006).
+
+        // Set gravitational parameter [m^3 s^-2].
+        gravitationalParameter_ = 398600.8e9;
+
+        // Set reference radius.
+        referenceRadius_ = 6378.135e3;
+
+        // Set J2 coefficient.
+        j2SphericalHarmonicsGravityFieldCoefficient_ = 0.001082616;
+
+        // Set J3 coefficient.
+        j3SphericalHarmonicsGravityFieldCoefficient_ = -0.00000253881;
+
+        // Set J4 coefficient.
+        j4SphericalHarmonicsGravityFieldCoefficient_ = -0.00000165597;
+
+        break;
+
+    case earthWorldGeodeticSystem84:
+
+        // Reference: Table 3 in (Vallado, D.A., et al., 2006).
+
+        // Set gravitational parameter [m^3 s^-2].
+        gravitationalParameter_ = 398600.4418e9;
+
+        // Set reference radius.
+        referenceRadius_ = 6378.137e3;
+
+        // Set J2 coefficient.
+        j2SphericalHarmonicsGravityFieldCoefficient_ = 0.00108262998905;
+
+        // Set J3 coefficient.
+        j3SphericalHarmonicsGravityFieldCoefficient_ = -0.00000253215306;
+
+        // Set J4 coefficient.
+        j4SphericalHarmonicsGravityFieldCoefficient_ = -0.00000161098761;
+
+        break;
+
+    default:
+
+        // Print cerr statement.
+        cerr << "Desired predefined spherical harmonics gravity field does not exist."
+             << endl;
+    };
 }
 
 //! Set the reference radius.

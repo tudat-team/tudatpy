@@ -3,7 +3,7 @@
  *    functions.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Unchecked
  *
  *    Author            : E. Iorfida
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 10 May, 2011
+ *    Last modified     : 5 August, 2011
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series,
@@ -49,6 +49,8 @@
  *                                  functions.
  *      110510    K. Kumar          Updated conversion functions to not use
  *                                  dynamic memory allocation.
+ *      110805    K. Kumar          Added mean motion to semi-major axis
+ *                                  conversion.
  */
 
 // Include statements.
@@ -236,6 +238,15 @@ double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits(
         const double& meanAnomaly, CelestialBody* pointerToCentralBody,
         const double& semiMajorAxis );
 
+//! Convert mean motion to semi-major axis.
+/*!
+ * Converts mean motion to semi-major axis.
+ * \param meanMotion Mean motion.
+ * \param pointerToCentralBody Pointer to central body.
+ * \return semiMajorAxis Semi-major axis.
+ */
+double convertMeanMotionToSemiMajorAxis( const double& meanMotion,
+                                         CelestialBody* pointerToCentralBody );
 }
 
 #endif // ORBITALELEMENTCONVERSIONS_H

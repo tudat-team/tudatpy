@@ -48,8 +48,9 @@ NormalRandomNumberGenerator::NormalRandomNumberGenerator(
         const double& mean, const double& standardDeviation,
         unsigned long long seed )
             : UniformRandomNumberGenerator( seed ), mean_( mean ),
-              standardDeviation_( standardDeviation ), storedValue_( 0.0 ),
-              ordinateInUnitCircle_( -0.0 ), abscissaInUnitCircle_( -0.0 )
+              standardDeviation_( standardDeviation ),
+              ordinateInUnitCircle_( -0.0 ), abscissaInUnitCircle_( -0.0 ),
+              storedValue_( 0.0 )
 {
 }
 

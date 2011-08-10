@@ -3,7 +3,7 @@
  *    functions.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 17
+ *    Version           : 18
  *    Check status      : Unchecked
  *
  *    Author            : E. Iorfida
@@ -23,7 +23,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 10 May, 2011
+ *    Last modified     : 5 August, 2011
  *
  *    References
  *      Wertz, J. R. Mission geometry; orbit and constellation design and
@@ -82,6 +82,8 @@
  *                                  to longitude of ascending node.
  *      110510    K. Kumar          Updated conversion functions to not use
  *                                  dynamic memory allocation.
+ *      110805    K. Kumar          Added mean motion to semi-major axis
+ *                                  conversion.
  */
 
 // Include statements.
@@ -532,6 +534,16 @@ double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits(
     return sqrt( raiseToIntegerPower( -semiMajorAxis, 3 )
                  / pointerToCentralBody->getGravitationalParameter( ) )
             * meanAnomaly;
+}
+
+//! Convert mean motion to semi-major axis.
+double convertMeanMotionToSemiMajorAxis( const double& meanMotion,
+                                         CelestialBody* pointerToCentralBody )
+{
+    // Return semi-major axis.
+    return pow( pointerToCentralBody->getGravitationalParameter( )
+                / pow( meanMotion, 2.0 ), 1.0 / 3.0 );
+
 }
 
 }

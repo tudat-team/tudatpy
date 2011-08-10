@@ -88,6 +88,7 @@
 
 // Input unit test includes.
 #include "unitTestTextFileReader.h"
+#include "unitTestTwoLineElementsTextFileReader.h"
 
 // Using declarations.
 using std::cerr;
@@ -257,6 +258,11 @@ int main( )
     // skipLines, and skipLinesStartingWithCharacter functions.
     bool testTextFileReader =
             unit_tests::testTextFileReader( );
+
+    // testTwoLineElementsTextFileReader: Tests reading and storing of TLE
+    // catalog data, and a function to check the data integrity of the catalog.
+    bool testTwoLineElementsTextFileReader =
+            unit_tests::testTwoLineElementsTextFileReader( );
 
     // Check if all tests were successful and print cerr message stating
     // which test failed, if any.
@@ -435,9 +441,9 @@ int main( )
         isErroneous = 1;
     }
 
-    if ( testCubicSplineInterpolation )
+    if ( testTwoLineElementsTextFileReader )
     {
-        cerr << "cubicSplineInterpolation failed! " << endl;
+        cerr << "testTwoLineElementsTextFileReader failed!" << endl;
         isErroneous = 1;
     }
 
@@ -541,6 +547,8 @@ int main( )
     unitTestReportOutputFile << "Input" << endl;
     unitTestReportOutputFile << testTextFileReader
                              << "\tText File Reader" << endl;
+    unitTestReportOutputFile << testTwoLineElementsTextFileReader
+                             << "\tTwo-Line Elements Text File Reader" << endl;
 
     // Return success variable.
     return isErroneous;

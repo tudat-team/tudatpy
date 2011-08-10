@@ -271,7 +271,7 @@ public:
     /*!
      *  Mean motion, in revolutions per day.
      */
-    double meanMotion;
+    double meanMotionInRevolutionsPerDay;
 
     //! Revolution number.
     /*!
@@ -284,7 +284,7 @@ public:
     /*!
      * Total revolution number calculated with mean motion.
      */
-    unsigned int totalRevolutionNumber;
+    int totalRevolutionNumber;
 
     //! Modulo-10 checksum of line 2.
     /*!
@@ -309,7 +309,7 @@ public:
     /*!
      * The line numbers of this TLE in the original input file are saved here.
      */
-    vector< int > lineNumbers;
+    vector< unsigned int > lineNumbers;
 
     //! Overloaded ostream to print class information.
     /*!
