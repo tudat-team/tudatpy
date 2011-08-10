@@ -3,7 +3,7 @@
  *    defined in unitConversions.h.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 3
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -22,12 +22,19 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
+ *    Checker           : K. Kumar
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : K.Kumar@tudelft.nl
+ *
  *    Date created      : 10 September, 2010
- *    Last modified     : 15 June, 2011
+ *    Last modified     : 9 August, 2011
  *
  *    References
  *
  *    Notes
+ *      At the moment, not all conversion routines are test both ways. This
+ *      should be modified in a next version.
+ *
  *      Test runs code and verifies result against expected value.
  *      If the tested code is erroneous, the test function returns a boolean
  *      true; if the code is correct, the function returns a boolean false.
@@ -50,8 +57,12 @@
  *      110411    K. Kumar          Added unit tests for
  *                                  convertDegreesToArcminutes() and
  *                                  convertArcminutesToArcseconds().
- *      110615    F.M. Engelen      Added Rankine, feet, and pound/m^2 conversion. Solved bug
- *                                  with respect to absolute precision and relative precision.
+ *      110615    F.M. Engelen      Added Rankine, feet, and pound/m^2
+ *                                  conversion. Solved bug with respect to
+ *                                  absolute precision and relative precision.
+ *      110808    J. Melman         Added time conversion unit tests.
+ *      110809    K. Kumar          Minor corrections.
+ *      110810    J. Melman         Added 3 more time conversion unit tests.
  */
 
 // Include statements.
@@ -90,9 +101,10 @@ bool testUnitConversions( )
                     PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_DEGREES ) -
             PhysicalConstants::OBLIQUITY_ECLIPTIC )
         > 1.0e-8 )
-        {
+    {
         cerr << "The conversion from degrees to radians does not "
              << "function correctly." << endl;
+
         isUnitConversionsErroneous = true;
     }
 
@@ -102,10 +114,12 @@ bool testUnitConversions( )
             43.2 * 60.0 ) / ( 43.2 * 60.0 )  > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The conversion from degrees to arcminutes does not "
-                << "function correctly." << endl;
-        cerr << "The calculated value is: " << unit_conversions::convertDegreesToArcminutes( 43.2 );
-        cerr << " with a precision of "
-                << unit_conversions::convertDegreesToArcminutes( 43.2 ) - 43.2 * 60.0 << endl;
+             << "function correctly." << endl;
+        cerr << "The calculated value is: "
+             << unit_conversions::convertDegreesToArcminutes( 43.2 );
+        cerr << ", which has an error of "
+             << unit_conversions::convertDegreesToArcminutes( 43.2 ) - 43.2 * 60.0 << endl;
+
         isUnitConversionsErroneous = true;
     }
 
@@ -114,8 +128,9 @@ bool testUnitConversions( )
             unit_conversions::convertArcminutesToArcseconds( 125.9 ) -
             125.9 * 60.0 ) / ( 125.9 * 60.0 )  > MACHINE_PRECISION_DOUBLES )
     {
-        cerr << "The conversion from arcminutes to arcseconds does not "
-             << "function correctly." << endl;
+        cerr << "The conversion from arcminutes to arcseconds does not function correctly."
+             << endl;
+
         isUnitConversionsErroneous = true;
     }
 
@@ -125,9 +140,90 @@ bool testUnitConversions( )
             unit_conversions::convertAstronomicalUnitsToMeters(
                     30.10366151 ) - 4.503443661e+12 )
         > 1.0e3 )
-        {
-        cerr << "The conversion from astronomical units to meters does not "
+    {
+        cerr << "The conversion from astronomical units to meters does not function correctly."
+             << endl;
+
+        isUnitConversionsErroneous = true;
+    }
+
+    // Test conversion from minutes to seconds.
+    if ( computeAbsoluteValue(
+            unit_conversions::convertMinutesToSeconds( 12.0 ) -
+            12.0 * 60.0 ) / ( 12.0 * 60.0 )  > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The conversion from minutes to seconds does not function correctly." << endl;
+
+        isUnitConversionsErroneous = true;
+    }
+
+    // Test conversion from seconds to minutes.
+    if ( computeAbsoluteValue(
+            unit_conversions::convertSecondsToMinutes( 12.0 ) - 0.2 ) /
+            0.2 > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The conversion from seconds to minutes does not function correctly." << endl;
+
+        isUnitConversionsErroneous = true;
+    }
+
+    // Test conversion from hours to Julian years.
+    // Three tests in one.
+    if ( computeAbsoluteValue(
+            unit_conversions::convertJulianDaysToJulianYears(
+                unit_conversions::convertSecondsToJulianDays(
+                    unit_conversions::convertHoursToSeconds( 24.0 ) ) ) -
+            1.0 / 365.25 ) / ( 1.0 / 365.25 )  > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The conversion from hours to Julian years does not function correctly." << endl;
+
+        isUnitConversionsErroneous = true;
+    }
+
+    // Test conversion from Julian years to hours.
+    // Three tests in one.
+    if ( computeAbsoluteValue(
+            unit_conversions::convertSecondsToHours(
+                unit_conversions::convertJulianDaysToSeconds(
+                    unit_conversions::convertJulianYearsToJulianDays( 1.0 / 365.25 ) ) ) -
+            24.0 ) / ( 24.0 )  > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The conversion from Julian years to hours does not "
              << "function correctly." << endl;
+
+        isUnitConversionsErroneous = true;
+    }
+
+    // Test conversion from sidereal days to seconds.
+    if ( computeAbsoluteValue(
+            unit_conversions::convertSiderealDaysToSeconds( 7.0 ) -
+            7.0 * PhysicalConstants::SIDEREAL_DAY )
+         / ( 7.0 * PhysicalConstants::SIDEREAL_DAY )  > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The conversion from sidereal days to seconds does not "
+             << "function correctly." << endl;
+        cerr << "The calculated value is: "
+             << unit_conversions::convertSiderealDaysToSeconds( 7.0 );
+        cerr << ", which has an error of "
+             << unit_conversions::convertSiderealDaysToSeconds( 7.0 )
+                - ( 7.0 * PhysicalConstants::SIDEREAL_DAY ) << endl;
+
+        isUnitConversionsErroneous = true;
+    }
+
+    // Test conversion from seconds to sidereal days.
+    if ( computeAbsoluteValue(
+            unit_conversions::convertSecondsToSiderealDays( 100.0 ) -
+            100.0 / PhysicalConstants::SIDEREAL_DAY )
+         / ( 100.0 / PhysicalConstants::SIDEREAL_DAY )  > MACHINE_PRECISION_DOUBLES )
+    {
+        cerr << "The conversion from seconds to sidereal days does not "
+             << "function correctly." << endl;
+        cerr << "The calculated value is: "
+             << unit_conversions::convertSecondsToSiderealDays( 100.0 );
+        cerr << ", which has an error of "
+             << unit_conversions::convertSecondsToSiderealDays( 100.0 )
+                - ( 100.0 / PhysicalConstants::SIDEREAL_DAY ) << endl;
 
         isUnitConversionsErroneous = true;
     }
@@ -145,7 +241,7 @@ bool testUnitConversions( )
     }
 
     // Test conversion from distance in feet to meters.
-    // case: lenght of a statute mile (source wikipedia).
+    // Case: length of a statute mile (source wikipedia).
     if ( computeAbsoluteValue(
             unit_conversions::convertFeetToMeter( 5280.0 ) - 1609.344 ) / 1609.344
          > MACHINE_PRECISION_DOUBLES )
@@ -157,7 +253,7 @@ bool testUnitConversions( )
     }
 
     // Test conversion from pressure in pound per square feet to Pascal.
-    // case: atmospheric pressure at sea level. (source wikipedia).
+    // Case: atmospheric pressure at sea level. (source wikipedia).
     if ( computeAbsoluteValue(
             unit_conversions::convertPoundPerSquareFeetToPascal( 2116.21662367394 ) - 101325.0 )
         > 1.0e-4 )

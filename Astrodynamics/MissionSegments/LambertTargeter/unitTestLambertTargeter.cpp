@@ -19,10 +19,15 @@
  *    Last modified     : 27 June, 2011
  *
  *    References        :
- *      Mengali, G., Quarta, A.A. Fondamenti di Meccanica del volo Spaziale.
- *      Noomen, R. Lambert targeter excel file.
+ *      Mengali, G., and A.A. Quarta, Fondamenti di Meccanica del volo Spaziale.
+ *      Noomen, R., Lambert targeter Excel file.
  *
  *    Notes
+ *      DISCLAIMER: At the moment, the Lambert targeter only converges for
+ *      about half of the cases. This is not evident from the tests below, but
+ *      it was observed during simulations carried out by the author. The
+ *      reason might very well be an erroneous definition of the starters.
+ *
  *      Test runs code and verifies result against expected value.
  *      If the tested code is erroneous, the test function returns a boolean
  *      true; if the code is correct, the function returns a boolean false.
@@ -108,8 +113,8 @@ bool testLambertTargeter( )
 
     // Time conversions.
     double timeOfFlightInDaysHyperbola = 100.0;
-    double timeOfFlightHyperbola = 24.0 * 60.0 * 60.0 *
-                                   timeOfFlightInDaysHyperbola;
+    double timeOfFlightHyperbola = unit_conversions::convertJulianDaysToSeconds(
+            timeOfFlightInDaysHyperbola );
     double timeOfFlightEllipse = 5.0 * timeUnit;
 
     // Central bodies parameters.
