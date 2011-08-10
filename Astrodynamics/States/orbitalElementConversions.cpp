@@ -4,7 +4,7 @@
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 18
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : E. Iorfida
  *    Affiliation       : Delft University of Technology

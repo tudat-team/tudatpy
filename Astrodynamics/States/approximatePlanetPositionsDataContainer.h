@@ -5,7 +5,7 @@
  *    The ephemeris file used is for the period 3000 BC to 3000 AD.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -17,7 +17,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 24 February, 2011
- *    Last modified     : 24 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the
@@ -40,6 +40,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110224    K. Kumar          First creation of code.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef APPROXIMATEPLANETPOSITIONSDATACONTAINER_H
@@ -78,14 +79,13 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param pointerToApproximatePlanetPositionsDataContainer Pointer to
-     *          approximate planet positions data container.
+     * \param approximatePlanetPositionsDataContainer Aproximate planet
+     *          positions data container.
      * \return Stream object.
      */
-    friend std::ostream& operator<<(
-            std::ostream& stream,
-            ApproximatePlanetPositionsDataContainer&
-            approximatePlanetPositionsDataContainer );
+    friend std::ostream& operator<<( std::ostream& stream,
+                                     ApproximatePlanetPositionsDataContainer&
+                                     approximatePlanetPositionsDataContainer );
 
     //! Planet name.
     /*!

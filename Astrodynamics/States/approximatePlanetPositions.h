@@ -6,7 +6,7 @@
  *    3000 AD.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -18,7 +18,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 21 February, 2011
- *    Last modified     : 21 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the
@@ -42,6 +42,7 @@
  *      YYMMDD    Author            Comment
  *      110221    K. Kumar          First creation of code.
  *      110224    K. Kumar          Renamed class and file.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef APPROXIMATEPLANETPOSITIONS_H
@@ -88,7 +89,7 @@ public:
     //! Set planet.
     /*!
      * Sets planet to retrieve ephemeris data for.
-     * \param Planet planet.
+     * \param bodyWithEphemerisData Planet.
      */
     void setPlanet( BodiesWithEphemerisData bodyWithEphemerisData );
 

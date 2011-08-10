@@ -1,9 +1,9 @@
-/*! \file librationPoins.h
+/*! \file librationPoint.h
  *    Header file that defines the computation of the location of a Lagrange
  *    libration point in the Circular Restricted Three-Body Problem (CRTBP).
  *
  *    Path              : /Astrodynamics/MissionSegments/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : L. van der Ham
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 27 May, 2011
- *    Last modified     : 10 July, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References:
  *      Mireles James, J.D., "Celestial Mechanics Notes Set 4: The Circular
@@ -45,6 +45,7 @@
  *                                  include statement; modified libration point
  *                                  compute-functions; changed filename and
  *                                  class; added enum.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef LIBRATIONPOINT_H
@@ -110,7 +111,7 @@ public:
     //! Set secondary celestial body.
     /*!
      * Sets secondary celestial body in the CRTBP.
-     * \param pointerToSecondaryCelelstialBody Pointer to secondary celestial
+     * \param pointerToSecondaryCelestialBody Pointer to secondary celestial
      *          body.
      */
     void setSecondaryCelestialBody( CelestialBody*
@@ -128,7 +129,6 @@ public:
     /*!
      * Returns the dimensionless mass parameter based on the gravitational
      * parameters of the primary and secondary bodies.
-     * \param Dimensionless mass parameter.
      */
     const double& getMassParameter( );
 
@@ -137,7 +137,6 @@ public:
      * Returns the position vector in Cartesian elements of a Lagrange libration point. The
      * libration point is selected when the computeLocationOfLibrationPoint() function is
      * called.
-     * \param lagrangeLibrationPoint Lagrange libration point.
      * \return Cartesian position elements of Lagrange libration point.
      */
     CartesianPositionElements& getLocationOfLagrangeLibrationPoint( );

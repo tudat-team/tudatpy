@@ -4,7 +4,7 @@
  *    pointers-to-member-functions.
  *
  *    Path              : /Mathematics/RootFindingMethods/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -16,7 +16,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 19 January, 2011
- *    Last modified     : 19 January, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -36,6 +36,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110119    K. Kumar          First creation of code.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef NEWTONRAPHSONADAPTOR_H
@@ -53,9 +54,11 @@ class NewtonRaphsonAdaptor : public NewtonRaphsonBase
 {
 public:
 
-    // Definition of typedef.
-    // Functions to which the Newton-Raphson method is applied can be passed as
-    // pointers-to-member-functions by making use of this adaptor class.
+    //! Definition of typedef.
+    /*!
+     * Functions to which the Newton-Raphson method is applied can be passed as
+     * pointers-to-member-functions by making use of this adaptor class.
+     */
     typedef double ( TClass::*pointerToTClassMemberFunction )( double& );
 
     //! Default constructor.

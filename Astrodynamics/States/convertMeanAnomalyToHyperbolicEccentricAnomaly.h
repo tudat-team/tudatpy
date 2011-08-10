@@ -3,7 +3,7 @@
  *    eccentric anomaly for hyperbolic orbits.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 14 February, 2011
- *    Last modified     : 15 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series,
@@ -39,6 +39,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110214    K. Kumar          First creation of code.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef CONVERTMEANANOMALYTOHYPERBOLICECCENTRICANOMALY_H
@@ -54,6 +55,10 @@
 namespace orbital_element_conversions
 {
 
+//! Definition of mean anomaly to hyperbolic eccentric anomaly converter class.
+/*!
+ * Definition of mean anomaly to hyperbolic eccentric anomaly converter class.
+ */
 class ConvertMeanAnomalyToHyperbolicEccentricAnomaly
     : public ConvertMeanAnomalyBase
 {

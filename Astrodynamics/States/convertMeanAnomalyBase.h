@@ -3,7 +3,7 @@
  *    eccentric and hyperbolic eccentric anomalies.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 10 February, 2011
- *    Last modified     : 10 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -35,6 +35,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110210    K. Kumar          First creation of code.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef CONVERTMEANANOMALYBASE_H
@@ -57,6 +58,10 @@
 namespace orbital_element_conversions
 {
 
+//! Definition of mean anomaly conversion base class.
+/*!
+ * Definition of mean anomaly conversion base class.
+ */
 class ConvertMeanAnomalyBase
 {
 public:

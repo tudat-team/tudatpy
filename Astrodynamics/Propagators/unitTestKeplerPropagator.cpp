@@ -4,7 +4,7 @@
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 3
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology

@@ -1,8 +1,9 @@
-/*!   \file hypersonicLocalInclinationAnalysis.cpp
- *    This file contains the unit test of the hypersonic local inclination
- *    analysis.
+/*! \file unitTestCoefficientGenerator.h
+ *    This file contains the unit test of the aerodynamic coefficient generator
+ *    in Tudat.
+ *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +15,7 @@
  *    E-mail address    : B.Romgens@student.tudelft.nl
  *
  *    Date created      : 4 February, 2011
- *    Last modified     : 8 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Anderson Jr., J.D. , Fundamentals of Aerodynamics, 3rd edition,
@@ -39,6 +40,7 @@
  *      YYMMDD    Author            Comment
  *      110402    D. Dirkx          First version of file.
  *      110802    D. Dirkx          Added Apollo check.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef UNITTESTCOEFFICIENTGENERATOR_H
@@ -52,7 +54,15 @@
 
 namespace unit_tests
 {
-    bool testCoefficientGenerator( );
+
+//! Test coefficient Generator.
+/*!
+ * Tests implementation of aerodynamic coefficient generator.
+ * \return Boolean indicating success of test
+ * ( false = successful; true = failed ).
+ */
+bool testCoefficientGenerator( );
+
 }
 
 #endif // UNITTESTCOEFFICIENTGENERATOR_H

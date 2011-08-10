@@ -1,8 +1,8 @@
-/*! \file simpleSimpleLinearRegression.cpp
+/*! \file simpleLinearRegression.cpp
  *    Source file that defines the simple linear regression method in Tudat.
  *
  *    Path              : /Mathematics/Statistics/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 1 July, 2011
- *    Last modified     : 2 August, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -40,6 +40,7 @@
  *      110802    K. Kumar          Added computeFitErrors() function and
  *                                  split code from computeFit(); changed
  *                                  filename and class name.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 // Include statements.

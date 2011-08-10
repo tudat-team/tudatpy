@@ -3,8 +3,8 @@
  *    derivatives, for use with the numerical integrators included in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 4
- *    Check status      : Unchecked
+ *    Version           : 5
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 1 February, 2011
- *    Last modified     : 16 May, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -37,6 +37,8 @@
  *      110201    K. Kumar          First creation of code.
  *      110203    J. Melman         File checked.
  *      110516    K. Kumar          Renamed file and class.
+ *      110810    J. Leloux         Corrected doxygen documentation, deleted
+ *                                  unused variable.
  */
 
 #ifndef STATEDERIVATIVEBASE_H
@@ -70,9 +72,9 @@ public:
      * Computes the state derivative for the numerical integrator being used.
      * \param independentVariable Value of independent variable.
      * \param pointerToState State given as pointer to State object.
-     * \param State derivative given as pointer to State object. The computed
-     *          state derivative is stored in the object that this pointer
-     *          points to.
+     * \param pointerToStateDerivative State derivative given as pointer to
+     *          State object. The computed  state derivative is stored in the
+     *          object that this pointer points to.
      */
     virtual void computeStateDerivative( double& independentVariable,
                                          State* pointerToState,

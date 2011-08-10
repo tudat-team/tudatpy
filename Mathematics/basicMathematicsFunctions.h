@@ -3,8 +3,8 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 10
- *    Check status      : Unchecked
+ *    Version           : 11
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -27,7 +27,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 7 July, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -65,6 +65,7 @@
  *                                  function.
  *      110707    K. Kumar          Added computeSampleMean() and
  *                                  computeSampleVariance() functions.
+ *      110810    J. Leloux         Corrected doxygen documentation (equations).
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
@@ -233,7 +234,7 @@ void convertCylindricalToCartesian( const double& radius,
 /*!
  * This function computes the result of raising floating-point base values to
  * integer powers. This function seems to perform faster than the STL pow()
- * function included in <cmath>. This function is based on exponentiation by
+ * function included in cmath. This function is based on exponentiation by
  * squares.
  */
 double raiseToIntegerPower( const double& baseValue,
@@ -242,7 +243,7 @@ double raiseToIntegerPower( const double& baseValue,
 //! Compute absolute value of integer.
 /*!
  * Computes the absolute value of a double. This function seems
- * to perform faster than the STL abs() function included in <cmath>
+ * to perform faster than the STL abs() function included in cmath
  * in certain circumstances. Try the abs() function first.
  */
 int computeAbsoluteValue( const int& signedInteger );
@@ -250,7 +251,7 @@ int computeAbsoluteValue( const int& signedInteger );
 //! Compute absolute value of double.
 /*!
  * This function computes the absolute value of an double. This function seems
- * to perform faster than the STL abs() function included in <cmath>
+ * to perform faster than the STL abs() function included in cmath
  */
 double computeAbsoluteValue( const double& signedDouble );
 
@@ -283,10 +284,10 @@ double computeSampleMean( const vector< double >& sampleData );
  * Computes sample variance based on the following unbiased estimator
  * (Spiegel and Stephens, 2008):
  * \f[
- *      \s^{2}_{s} = \frac{ 1 }{ N - 1 } \sum_{i=1}^{N} X_{i} ( X_{i}
- *          - \bar{ X } )^{ 2 }
+ *      s^{2}_{s} = \frac{ 1 }{ N - 1 } * \sum_{i=1}^{N} X_{i}
+ *                  ( X_{i} - \bar{ X } )^{ 2 } )
  * \f]
- * where \f$ \s^{2}_{s} \f$ is the unbiased estimate of the sample variance,
+ * where \f$ s^{2}_{s} \f$ is the unbiased estimate of the sample variance,
  * \f$ N \f$ is the number of samples, \f$ X \f$ is the sample value, and
  * \f$ \bar{ X } \f$ is the sample mean.
  * \param sampleData Map containing sample data.

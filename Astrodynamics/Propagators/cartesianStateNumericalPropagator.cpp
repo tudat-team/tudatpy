@@ -3,8 +3,8 @@
  *    class included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 1
- *    Check status      : Unchecked
+ *    Version           : 2
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 14 May, 2011
- *    Last modified     : 14 May, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -35,6 +35,7 @@
  *    Changelog
  *      YYMMDD    Author              Comment
  *      110514    K. Kumar            File created.
+ *      110810    J. Leloux           Corrected doxygen documentation, unused variable deleted.
  */
 
 // Include statements.

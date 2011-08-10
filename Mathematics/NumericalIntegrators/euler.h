@@ -2,7 +2,7 @@
  *    Header file that defines the Euler integrator implemented in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -18,7 +18,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 27 July, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -44,6 +44,7 @@
  *      110203    J. Melman         File checked.
  *      110207    K. Kumar          Path changed; moved integrat() function
  *                                  to SingleStepIntegrationMethods.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef EULER_H
@@ -76,7 +77,7 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param euler Euler integrator.
+     * \param eulerIntegrator Euler integrator.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,

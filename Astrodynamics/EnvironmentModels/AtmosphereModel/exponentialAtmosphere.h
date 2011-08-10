@@ -2,8 +2,8 @@
  *    Header file that defines the exponential atmosphere model included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/AtmosphereModel/
- *    Version           : 2
- *    Check status      : Unchecked
+ *    Version           : 3
+ *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
  *    Affiliation       : Delft University of Technology
@@ -18,7 +18,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 10 March, 2011
- *    Last modified     : 05 July, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *
@@ -43,6 +43,7 @@
  *      110427    F.M. Engelen      Changed input parameter to altitude, longitude and latitude.
  *      110629    F.M. Engelen      Added predefined function.
  *      110705    F.M. Engelen      Changed to passing by reference.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef EXPONENTIALATMOSPHERE_H
@@ -85,7 +86,7 @@ public:
     //! Set predefined exponential atmosphere settings.
     /*!
      * Set predefined exponential atmosphere settings
-     * \param bodyWithPredefindExponentialAtmosphere Body with a predefined exponential
+     * \param bodyWithPredefinedExponentialAtmosphere Body with a predefined exponential
      * atmosphere.
      */
     void setPredefinedExponentialAtmosphere( BodiesWithPredefinedExponentialAtmospheres

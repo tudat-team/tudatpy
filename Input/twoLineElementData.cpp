@@ -1,9 +1,9 @@
-/*! \file twoLineElementsData.cpp
+/*! \file twoLineElementData.cpp
  *    This source file defines a class which stores (Two-Line Element) TLE data
  *    read by the TwoLineElementsTextFileReader.
  *
  *    Path              : /Input/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : J. Leloux
@@ -16,7 +16,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 4 March, 2011
- *    Last modified     : 2 August, 2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Literature research including information on TLE's:
@@ -53,6 +53,7 @@
  *      110802    K. Kumar          Minor changes.
  *      110802    J. Leloux         Minor correction and checked for compliance
  *                                  with TLEreader in rev 138.
+ *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 // Include statements.
