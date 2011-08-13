@@ -49,28 +49,15 @@
 #define APPROXIMATEPLANETPOSITIONS_H
 
 // Include statements.
-#include <cmath>
-#include <fstream>
-#include <map>
-#include <string>
-#include "approximatePlanetPositionsDataContainer.h"
-#include "basicMathematicsFunctions.h"
-#include "cartesianElements.h"
+#include "approximatePlanetPositionsBase.h"
 #include "convertMeanAnomalyToEccentricAnomaly.h"
-#include "ephemeris.h"
-#include "keplerianElements.h"
 #include "newtonRaphson.h"
-#include "state.h"
-#include "unitConversions.h"
-
-// Using declarations.
-using std::map;
 
 //! Ephemeris class using JPL "Approximate Positions of Major Planets".
 /*!
  * Ephemeris class using JPL "Approximate Positions of Major Planets".
  */
-class ApproximatePlanetPositions : public Ephemeris
+class ApproximatePlanetPositions : public ApproximatePlanetPositionsBase
 {
 public:
 
@@ -86,25 +73,12 @@ public:
      */
     ~ApproximatePlanetPositions( );
 
-    //! Set planet.
-    /*!
-     * Sets planet to retrieve ephemeris data for.
-     * \param bodyWithEphemerisData Planet.
-     */
-    void setPlanet( BodiesWithEphemerisData bodyWithEphemerisData );
-
     //! Get state from ephemeris.
     /*!
      * Returns state in Cartesian elements from ephemeris.
      * \return State in Cartesian elements from ephemeris.
      */
     CartesianElements* getStateFromEphemeris( const double& julianDate );
-
-    //! Approximate planet positions data container.
-    /*!
-     * Approximate planet positions data container.
-     */
-    ApproximatePlanetPositionsDataContainer approximatePlanetPositionsDataContainer_;
 
 protected:
 
@@ -115,12 +89,6 @@ private:
      * Eccentric anomaly of planet at given Julian date.
      */
     double eccentricAnomalyAtGivenJulianDate_;
-
-    //! Julian date.
-    /*!
-     * Julian date at which to obtain planet's orbital elements.
-     */
-    double julianDate_;
 
     //! Longitude of perihelion at given Julian date.
     /*!
@@ -134,30 +102,11 @@ private:
      */
     double meanAnomalyAtGivenJulianDate_;
 
-    //! Mean longitude at given Julian date.
-    /*!
-     * Mean longitude of planet at given Julian date.
-     */
-    double meanLongitudeAtGivenJulianDate_;
-
-    //! Number of centuries passed J2000.
-    /*!
-     * Number of centuries passed J2000, computed using Julian date defined
-     * by user when using getStateFromEphemeris( ).
-     */
-    double numberOfCenturiesPastJ2000_;
-
     //! True anomaly at given Julian date.
     /*!
      * True anomaly of planet at given Julian date.
      */
     double trueAnomalyAtGivenJulianData_;
-
-    //! Map container of data from ephemeris file.
-    /*!
-     * Map container of string data from ephemeris data file.
-     */
-    map< unsigned int, string > containerOfDataFromEphemerisFile_;
 
     //! Convert mean anomaly to eccentric anomaly.
     /*!
@@ -166,37 +115,11 @@ private:
     orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
             convertMeanAnomalyToEccentricAnomaly_;
 
-    //! Cartesian elements of planet at given Julian date.
-    /*!
-     * Cartesian elements of planet at given Julian date.
-     */
-    CartesianElements planetCartesianElementsAtGivenJulianDate_;
-
-    //! Keplerian elements of planet at given Julian date.
-    /*!
-     * Keplerian elements of planet at given Julian date.
-     */
-    KeplerianElements planetKeplerianElementsAtGivenJulianDate_;
-
     //! Newton-Raphson method.
     /*!
      * Newton-Raphson method.
      */
     NewtonRaphson newtonRaphson_;
-
-    //! Parse ephemeris line data.
-    /*!
-     * Parse ephemeris line data.
-     * \param firstLineNumber First line number.
-     */
-    void parseEphemerisLineData_( const unsigned int& firstLineNumber );
-
-    //! Parse line data for extra terms for ephemeris.
-    /*!
-     * Parse ephemeris line data.
-     * \param lineNumber Line number.
-     */
-    void parseExtraTermsEphemerisLineData_( const unsigned int& lineNumber );
 };
 
 #endif // APPROXIMATEPLANETPOSITIONS_H

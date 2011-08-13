@@ -46,6 +46,7 @@
 #define UNITTESTAPPROXIMATEPLANETPOSITIONS_H
 
 // Include statements.
+#include "approximatePlanetPositionsCircularCoplanar.h"
 #include "basicMathematicsFunctions.h"
 #include "celestialBody.h"
 #include "keplerianElements.h"
