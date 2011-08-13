@@ -38,8 +38,10 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Propagators/unitTestKeplerPropagator.cpp \
     Astrodynamics/ReferenceFrames/referenceFrameTransformations.cpp \
     Astrodynamics/ReferenceFrames/unitTestReferenceFrameTransformations.cpp \
-    Astrodynamics/States/approximatePlanetPositionsDataContainer.cpp \
     Astrodynamics/States/approximatePlanetPositions.cpp \
+    Astrodynamics/States/approximatePlanetPositionsBase.cpp \
+    Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.cpp \
+    Astrodynamics/States/approximatePlanetPositionsDataContainer.cpp \
     Astrodynamics/States/ephemeris.cpp \
     Astrodynamics/States/state.cpp \
     Astrodynamics/States/orbitalElements.cpp \
@@ -147,6 +149,8 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/ReferenceFrames/referenceFrameTransformations.h \
     Astrodynamics/ReferenceFrames/unitTestReferenceFrameTransformations.h \
     Astrodynamics/States/approximatePlanetPositions.h \
+    Astrodynamics/States/approximatePlanetPositionsBase.h \
+    Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h \
     Astrodynamics/States/approximatePlanetPositionsDataContainer.h \
     Astrodynamics/States/ephemeris.h \
     Astrodynamics/States/state.h \

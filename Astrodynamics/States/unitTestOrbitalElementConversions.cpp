@@ -311,7 +311,7 @@ bool testOrbitalElementConversions( )
 
     // Define Keplerian elements.
     keplerianCircularElements1.setSemiMajorAxis(
-            unit_conversions::convertAstronomicalUnitsToMeters( 0.1 ) );
+            unit_conversions::convertKilometersToMeters( 7.0e3 ) );
     keplerianCircularElements1.setEccentricity( 0.0 );
     keplerianCircularElements1.setInclination( 0.0 );
     keplerianCircularElements1.setArgumentOfPeriapsis( 0.0 );

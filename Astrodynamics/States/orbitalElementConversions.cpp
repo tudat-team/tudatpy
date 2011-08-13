@@ -245,10 +245,8 @@ KeplerianElements convertCartesianToKeplerianElements(
     double normOfOrbitAngularMomentum_ = orbitAngularMomentum_.norm( );
 
     // Definition of the (unit) vector to the ascending node.
-    Vector3d vectorToAscendingNode_;
-    vectorToAscendingNode_ = Vector3d::UnitZ( ).cross( orbitAngularMomentum_ );
     Vector3d unitVectorToAscendingNode_;
-    unitVectorToAscendingNode_ = vectorToAscendingNode_.normalized( );
+    unitVectorToAscendingNode_ = Vector3d::UnitZ( ).cross( orbitAngularMomentum_.normalized( ) );
 
     // Definition of eccentricity vector.
     Vector3d eccentricityVector_;
@@ -277,7 +275,7 @@ KeplerianElements convertCartesianToKeplerianElements(
                                              / normOfOrbitAngularMomentum_ ) );
 
     // Define and compute boolean of whether orbit is equatorial or not.
-    bool isOrbitEquatorial_ = vectorToAscendingNode_.norm( ) < tolerance_;
+    bool isOrbitEquatorial_ = unitVectorToAscendingNode_.norm( ) < tolerance_;
 
     // Compute the value of semi-major axis.
     // Non-parabolic orbits.
@@ -308,7 +306,7 @@ KeplerianElements convertCartesianToKeplerianElements(
     {
         keplerianElements_.setArgumentOfPeriapsis(
                 determineAngleBetweenVectors( eccentricityVector_,
-                                              vectorToAscendingNode_ ) );
+                                              unitVectorToAscendingNode_ ) );
 
         // Quadrant check.
         if ( eccentricityVector_( 2 ) < 0.0 )
@@ -389,7 +387,7 @@ KeplerianElements convertCartesianToKeplerianElements(
             keplerianElements_.setTrueAnomaly(
                     determineAngleBetweenVectors( pointerToCartesianElements
                                                   ->getPosition( ),
-                                                  vectorToAscendingNode_ ) );
+                                                  unitVectorToAscendingNode_ ) );
 
             // Quadrant check. In the second half of the orbit, the body
             // will be below the xy-plane.
