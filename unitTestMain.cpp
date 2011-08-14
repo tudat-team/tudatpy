@@ -85,6 +85,7 @@
 #include "unitTestPhysicalConstants.h"
 #include "unitTestReferenceFrameTransformations.h"
 #include "unitTestSphericalHarmonicsGravityField.h"
+#include "unitTestTabulatedAtmosphere.h"
 
 // Input unit test includes.
 #include "unitTestTextFileReader.h"
@@ -251,6 +252,10 @@ int main( )
     // spherical harmonics gravity field class.
     bool testSphericalHarmonicsGravityField =
             unit_tests::testSphericalHarmonicsGravityField( );
+
+    // testTabulatedAtmosphere: Test the tabulated atmosphere.
+    bool testTabulatedAtmosphere =
+            unit_tests::testTabulatedAtmosphere( );
 
     // Run Input unit tests.
 
@@ -435,6 +440,12 @@ int main( )
         isErroneous = 1;
     }
 
+    if ( testTabulatedAtmosphere )
+    {
+        cerr << "testTabulatedAtmosphere failed!" << endl;
+        isErroneous = 1;
+    }
+
     if ( testTextFileReader )
     {
         cerr << "testTextFileReader failed!" << endl;
@@ -539,6 +550,8 @@ int main( )
                              << "\tReference Frame Transformations" << endl;
     unitTestReportOutputFile << testSphericalHarmonicsGravityField
                              << "\tSpherical Harmonics Gravity Field" << endl;
+    unitTestReportOutputFile << testTabulatedAtmosphere
+                             << "\tTabulated Atmosphere" << endl;
 
     // Empty line.
     unitTestReportOutputFile << endl;
