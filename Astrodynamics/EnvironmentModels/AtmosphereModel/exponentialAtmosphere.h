@@ -2,7 +2,7 @@
  *    Header file that defines the exponential atmosphere model included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/AtmosphereModel/
- *    Version           : 3
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen

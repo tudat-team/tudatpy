@@ -14,7 +14,9 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.cpp \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.cpp \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestTabulatedAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
@@ -123,7 +125,9 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/EnvironmentModels/environmentModel.h \
     Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h \
     Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.h \
     Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.h \
+    Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestTabulatedAtmosphere.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h \
