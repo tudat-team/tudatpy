@@ -351,8 +351,8 @@ bool testBasicMathematicsFunctions( )
     {
         cerr << "The convertCylindricalToCartesian function does not "
              << "function correctly, as the computed coordinates: ( "
-             << cartesianCoordinates( 0 ) << ", " << cartesianCoordinates( 1 )
-             << " , " << cartesianCoordinates( 2 ) << " ) do not match the "
+             << cartesianCoordinates3( 0 ) << ", " << cartesianCoordinates3( 1 )
+             << " , " << cartesianCoordinates3( 2 ) << " ) do not match the "
              << "expected coordinates: ( " << 1.0 << ", " << 1.0 << ", "
              << -sqrt( 2.0 ) << " )" << endl;
         isBasicMathematicsFunctionsErroneous = true;
@@ -369,8 +369,8 @@ bool testBasicMathematicsFunctions( )
     {
         cerr << "The convertCylindricalToCartesian function does not "
              << "function correctly, as the computed coordinates: ( "
-             << cartesianCoordinates( 0 ) << ", " << cartesianCoordinates( 1 )
-             << " , " << cartesianCoordinates( 2 ) << " ) do not match the "
+             << cartesianCoordinates3( 0 ) << ", " << cartesianCoordinates3( 1 )
+             << " , " << cartesianCoordinates3( 2 ) << " ) do not match the "
              << "expected coordinates: ( " << -1.0 << ", " << 1.0 << ", "
              << -sqrt( 2.0 ) << " )" << endl;
         isBasicMathematicsFunctionsErroneous = true;
@@ -385,8 +385,8 @@ bool testBasicMathematicsFunctions( )
     {
         cerr << "The convertCylindricalToCartesian function does not "
              << "function correctly, as the computed coordinates: ( "
-             << cartesianCoordinates( 0 ) << ", " << cartesianCoordinates( 1 )
-             << " , " << cartesianCoordinates( 2 ) << " ) do not match the "
+             << cartesianCoordinates3( 0 ) << ", " << cartesianCoordinates3( 1 )
+             << " , " << cartesianCoordinates3( 2 ) << " ) do not match the "
              << "expected coordinates: ( " << 0.0 << ", " << 0.0 << ", "
              << -2.0 << " )" << endl;
         isBasicMathematicsFunctionsErroneous = true;

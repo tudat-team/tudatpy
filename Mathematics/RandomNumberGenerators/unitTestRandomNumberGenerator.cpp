@@ -129,7 +129,8 @@ bool testUniformRandomNumberGenerator( )
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( fmod( computedResultForTest1, floor( computedResultForTest1 ) )
+    if ( fmod( computedResultForTest1,
+               static_cast< double >( computedResultForTest1 ) )
          > MACHINE_PRECISION_DOUBLES )
     {
         isUniformRandomNumberGeneratorErroneous = true;
@@ -145,7 +146,8 @@ bool testUniformRandomNumberGenerator( )
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( fmod( computedResultForTest2, floor( computedResultForTest2 ) )
+    if ( fmod( computedResultForTest2,
+               static_cast< double >( computedResultForTest2 ) )
          > MACHINE_PRECISION_DOUBLES )
     {
         isUniformRandomNumberGeneratorErroneous = true;
@@ -221,7 +223,7 @@ bool testUniformRandomNumberGenerator( )
     // mean and variance of a normal distribution and table lookup.
     if ( computeAbsoluteValue( sampleMean - 0.5 )
          > 3.49 * 1.0 / sqrt( 12.0 )
-           * 1.0 / static_cast< double >( sqrt( numberOfSamples ) )
+           * 1.0 / sqrt( static_cast< double >( numberOfSamples ) )
         )
     {
         isUniformRandomNumberGeneratorErroneous = true;
@@ -321,7 +323,7 @@ bool testExponentialRandomNumberGenerator( )
     // mean and variance of a normal distribution and table lookup.
     if ( computeAbsoluteValue( sampleMean - 0.5 )
          > 3.49 * 1.0 / sqrt( 4.0 )
-           * 1.0 / static_cast< double >( sqrt( numberOfSamples ) )
+           * 1.0 / sqrt( static_cast< double >( numberOfSamples ) )
         )
     {
         isExponentialRandomNumberGeneratorErroneous = true;
@@ -404,7 +406,7 @@ bool testNormalRandomNumberGenerator( )
     // mean and variance of a normal distribution and table lookup.
     if ( computeAbsoluteValue( sampleMean - 1.0 )
          > 3.49 * 4.0
-           * 1.0 / static_cast< double >( sqrt( numberOfSamples ) )
+           * 1.0 / sqrt( static_cast< double >( numberOfSamples ) )
         )
     {
         isNormalRandomNumberGeneratorErroneous = true;
