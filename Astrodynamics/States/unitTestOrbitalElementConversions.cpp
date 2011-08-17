@@ -146,7 +146,7 @@ bool testOrbitalElementConversions( )
     // Create custom-defined Sun with central gravity field.
     CelestialBody customDefinedSun;
     SphericalHarmonicsGravityField sunCentralGravity;
-    sunCentralGravity.setGravitationalParameter( 132712440018e8 );
+    sunCentralGravity.setGravitationalParameter( 1.32712440018e20 );
     sunCentralGravity.setDegreeOfExpansion( 0 );
     sunCentralGravity.setOrderOfExpansion( 0 );
     customDefinedSun.setGravityFieldModel( &sunCentralGravity );
