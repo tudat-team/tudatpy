@@ -66,22 +66,6 @@ public:
      */
     ~CartesianStateNumericalPropagator( );
 
-    //! Propagate.
-    /*!
-     * Executes numerical propagation.
-     */
-    void propagate( );
-
-    //! Set initial state of body.
-    /*!
-     * Sets the initial state of given body.
-     * \param pointerToBody Pointer to Body object.
-     * \param pointerToInitialState Initial state given as pointer to a
-     *          CartesianElements object.
-     */
-    void setInitialState( Body* pointerToBody,
-                          State* pointerToInitialState );
-
     //! Compute state derivative.
     /*!
      * Computes the state derivative given to the integrator. This is an
@@ -99,18 +83,6 @@ public:
 protected:
 
 private:
-
-    //! Size of assembled state.
-    /*!
-     * Size of assembled state.
-     */
-    unsigned int sizeOfAssembledState_;
-
-    //! Assembled state in Cartesian elements.
-    /*!
-     * Assembled state in Cartesian elements.
-     */
-    CartesianElements assembledState_;
 };
 
 #endif // CARTESIANSTATENUMERICALPROPAGATOR_H

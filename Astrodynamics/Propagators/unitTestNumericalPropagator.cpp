@@ -3,7 +3,7 @@
  *    included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -13,6 +13,10 @@
  *    Checker           : E. Iorfida
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : elisabetta_iorfida@yahoo.it
+ *
+ *    Checker           : F.M. Engelen
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : F.M.Engelen@student.tudelft.nl
  *
  *    Date created      : 16 February, 2011
  *    Last modified     : 2 June, 2011
@@ -51,6 +55,7 @@
  *      110602    K. Kumar          Updated code to not use dynamic memory
  *                                  allocation and to work with other code
  *                                  updates.
+ *      110815    K. Kumar          Included the mass of Astrix.
  */
 
 // Include statements.
@@ -100,15 +105,22 @@ bool testNumericalPropagator( )
     // Create a vehicle object for Asterix.
     Vehicle asterixForFullEarthGravity;
 
+    // Set mass of Asterix.
+    asterixForFullEarthGravity.setMass( 1000.0 );
+
     // Create predefined Earth object for full gravity.
     Planet predefinedEarth;
     predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
 
-    // Create a pointer to a new Gravity object for full Earth gravity.
-    Gravity fullEarthGravity;
+    // Create a pointer to a gravitational force model for full Earth gravity.
+    GravitationalForceModel fullEarthGravitationalForceModel;
+
+    // Set Asterix as body subject to the full Earth gravitational force.
+    fullEarthGravitationalForceModel.setBodySubjectToForce(
+                &asterixForFullEarthGravity );
 
     // Set Earth as central body for full Earth gravity.
-    fullEarthGravity.setBody( &predefinedEarth );
+    fullEarthGravitationalForceModel.setGravitationalBody( &predefinedEarth );
 
     // Create a pointer to a new RK4 integrator.
     RungeKutta4thOrderFixedStepsize rk4ForFullEarthGravity;
@@ -136,7 +148,7 @@ bool testNumericalPropagator( )
     // Add full Earth gravity as force acting on Asterix.
     cartesianStateNumericalPropagatorForFullEarthGravity
             .addForceModel( &asterixForFullEarthGravity,
-                            &fullEarthGravity );
+                            &fullEarthGravitationalForceModel );
 
     // Create series propagator for full Earth gravity.
     SeriesPropagator seriesPropagatorForFullEarthGravity;
@@ -197,6 +209,9 @@ bool testNumericalPropagator( )
     // Create a pointer to new vehicle for Asterix.
     Vehicle asterixForHalfEarthGravity;
 
+    // Set mass of Asterix.
+    asterixForHalfEarthGravity.setMass( 1000.0 );
+
     // Create half Earth object for half gravity.
     CelestialBody halfEarth;
 
@@ -221,11 +236,15 @@ bool testNumericalPropagator( )
     // Set gravity field model for half Earth.
     halfEarth.setGravityFieldModel( &halfEarthGravityField );
 
-    // Create a pointer to a new Gravity object for half Earth gravity.
-    Gravity halfEarthGravity;
+    // Create a pointer to a gravitational force model for half Earth gravity.
+    GravitationalForceModel halfEarthGravitationalForceModel;
+
+    // Set Asterix as body subject to half of the Earth gravitational force.
+    halfEarthGravitationalForceModel.setBodySubjectToForce(
+                &asterixForHalfEarthGravity );
 
     // Set half Earth as central body for half Earth gravity.
-    halfEarthGravity.setBody( &halfEarth );
+    halfEarthGravitationalForceModel.setGravitationalBody( &halfEarth );
 
     // Create a pointer to a new RK4 integrator.
     RungeKutta4thOrderFixedStepsize rk4ForHalfEarthGravity;
@@ -250,13 +269,13 @@ bool testNumericalPropagator( )
     cartesianStateNumericalPropagatorForHalfEarthGravity
             .addBody( &asterixForHalfEarthGravity );
 
-    // Add half Earth gravity as force acting on Asterix twice.
+    // Add half Earth gravitational force models as forces acting on Asterix.
     cartesianStateNumericalPropagatorForHalfEarthGravity
             .addForceModel( &asterixForHalfEarthGravity,
-                            &halfEarthGravity );
+                            &halfEarthGravitationalForceModel );
     cartesianStateNumericalPropagatorForHalfEarthGravity
             .addForceModel( &asterixForHalfEarthGravity,
-                            &halfEarthGravity );
+                            &halfEarthGravitationalForceModel );
 
     // Create series propagator for half Earth gravity.
     SeriesPropagator seriesPropagatorForHalfEarthGravity;

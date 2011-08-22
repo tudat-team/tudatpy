@@ -45,6 +45,7 @@
  *                                  code.
  *      110216    K. Kumar          Migrated to applications namespace.
  *      110217    K. Kumar          Function name changed.
+ *      110815    K. Kumar          Updated with mass of Asterix.
  */
 
 // Include statements.
@@ -87,15 +88,21 @@ void executeEarthOrbitingSatelliteExample( )
     // Create a new vehicle object for Asterix.
     Vehicle asterix;
 
+    // Set mass of Asterix.
+    asterix.setMass( 1000.0 );
+
     // Create pre-defined Earth object.
     Planet predefinedEarth;
     predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
 
-    // Create a new Gravity object for Earth.
-    Gravity earthGravity;
+    // Create a new gravitational force model for Earth.
+    GravitationalForceModel earthGravitiationalForceModel;
+
+    // Set Asterix as body subject to Earth gravitational force.
+    earthGravitiationalForceModel.setBodySubjectToForce( &asterix );
 
     // Set Earth as central body for gravity.
-    earthGravity.setBody( &predefinedEarth );
+    earthGravitiationalForceModel.setGravitationalBody( &predefinedEarth );
 
     // Create a new RK4 integrator object.
     RungeKutta4thOrderFixedStepsize rungeKutta4;
@@ -120,12 +127,12 @@ void executeEarthOrbitingSatelliteExample( )
 
     // Add Earth gravity as force acting on Asterix.
     cartesianStateNumericalPropagator.addForceModel( &asterix,
-                                                      &earthGravity );
+                                                     &earthGravitiationalForceModel );
 
     // Create series propagator object to propagate timeseries.
     SeriesPropagator seriesPropagator;
 
-    // Set Cartesin state numerical propagator for timeseries propagation.
+    // Set Cartesian state numerical propagator for timeseries propagation.
     seriesPropagator.setPropagator( &cartesianStateNumericalPropagator );
 
     // Set start of the timeseries for propagation.

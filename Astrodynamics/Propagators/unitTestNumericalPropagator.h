@@ -55,7 +55,7 @@
 #include "cartesianPositionElements.h"
 #include "cartesianStateNumericalPropagator.h"
 #include "celestialBody.h"
-#include "gravity.h"
+#include "gravitationalForceModel.h"
 #include "numericalPropagator.h"
 #include "planet.h"
 #include "rungeKutta4thOrderFixedStepsize.h"
