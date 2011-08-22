@@ -101,6 +101,7 @@ using std::endl;
  */
 int main( )
 {
+
     // Return value, 0 on success, 1 on failure of one or more unit tests.
     int isErroneous = 0;
 
@@ -278,10 +279,10 @@ int main( )
     }
 
     if ( testCubicSplineInterpolation )
-     {
-         cerr << "cubicSplineInterpolation failed! " << endl;
-         isErroneous = 1;
-     }
+    {
+        cerr << "cubicSplineInterpolation failed! " << endl;
+        isErroneous = 1;
+    }
 
     if ( testEulerIntegrator )
     {
@@ -478,7 +479,7 @@ int main( )
     // test report.
     std::ofstream unitTestReportOutputFile;
     std::string reportFileName = dateForFile + "_" + timeForFile
-                                 + "_unitTestReport.txt";
+            + "_unitTestReport.txt";
     unitTestReportOutputFile.open( reportFileName.c_str( ) );
     unitTestReportOutputFile << "Tudat Unit Test Report" << std::endl;
     unitTestReportOutputFile << date << ", " << time
