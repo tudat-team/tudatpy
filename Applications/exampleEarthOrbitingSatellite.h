@@ -46,9 +46,7 @@
 #include <iostream>
 #include "cartesianElements.h"
 #include "cartesianStateNumericalPropagator.h"
-#include "celestialBody.h"
-#include "euler.h"
-#include "gravity.h"
+#include "gravitationalForceModel.h"
 #include "planet.h"
 #include "rungeKutta4thOrderFixedStepsize.h"
 #include "seriesPropagator.h"

@@ -21,7 +21,6 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.cpp \
-    Astrodynamics/ForceModels/gravity.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.cpp \
@@ -115,7 +114,10 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/unitTestUnitConversions.cpp \
     Output/writingOutputToFile.cpp \
     #applicationMain.cpp
-    unitTestMain.cpp
+    unitTestMain.cpp \
+    Astrodynamics/ForceModels/forceModel.cpp \
+    Astrodynamics/MomentModels/momentModel.cpp \
+    Astrodynamics/ForceModels/gravitationalForceModel.cpp
 HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Bodies/body.h \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
@@ -132,7 +134,6 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.h \
-    Astrodynamics/ForceModels/gravity.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.h \
@@ -232,7 +233,9 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/Statistics/simpleLinearRegression.h \
     Mathematics/Statistics/unitTestSimpleLinearRegression.h \
     Output/outputHandling.h \
-    Output/writingOutputToFile.h
+    Output/writingOutputToFile.h \
+    Astrodynamics/MomentModels/momentModel.h \
+    Astrodynamics/ForceModels/gravitationalForceModel.h
 INCLUDEPATH += Applications \
     Astrodynamics \
     Astrodynamics/Bodies \
@@ -243,6 +246,7 @@ INCLUDEPATH += Applications \
     Astrodynamics/EnvironmentModels/GravityFieldModel \
     Astrodynamics/ForceModels \
     Astrodynamics/ForceModels/Aerothermodynamics \
+    Astrodynamics/MomentModels \
     Astrodynamics/Propagators \
     Astrodynamics/ReferenceFrames \
     Astrodynamics/States \

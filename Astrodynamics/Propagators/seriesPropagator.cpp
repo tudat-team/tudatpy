@@ -181,7 +181,7 @@ void SeriesPropagator::execute( )
         iteratorPropagatedBodies_->second
                 .propagationHistory_[ seriesPropagationEnd_ ]
                 = iteratorPropagatedBodies_->second.finalState_;
-     }
+    }
 }
 
 //! Get propagation history of body at fixed output intervals.

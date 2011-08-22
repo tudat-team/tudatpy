@@ -3,10 +3,14 @@
  *    Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/
- *    Version           : 6
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : K.Kumar@tudelft.nl
+ *
+ *    Author            : F.M. Engelen
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
@@ -14,8 +18,12 @@
  *    Affiliation       : Delft University of technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
+ *    Checker           : K. Kumar
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : K.Kumar@tudelft.nl
+ *
  *    Date created      : 14 September, 2010
- *    Last modified     : 2 February, 2011
+ *    Last modified     : 9 August, 2011
  *
  *    References
  *
@@ -43,15 +51,17 @@
  *      110119    K. Kumar          Changed computeStateDerivatives() to
  *                                  computeForce().
  *      110202    K. Kumar          Updated code to make use of State class.
+ *      110707    F.M. Engelen      Replaced code with new code.
+ *      110809    K. Kumar          Split code into base class and derived
+ *                                  class (SixDegreeOfFreedomForceModel).
  */
 
 #ifndef FORCEMODEL_H
 #define FORCEMODEL_H
 
 // Include statements.
-#include "celestialBody.h"
 #include "linearAlgebra.h"
-#include "cartesianPositionElements.h"
+#include "state.h"
 
 //! Force model class.
 /*!
@@ -65,36 +75,42 @@ public:
     /*!
      * Default constructor.
      */
-    ForceModel( ){};
+    ForceModel( );
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~ForceModel( ){};
+    virtual ~ForceModel( );
 
-    //! Compute force per unit mass.
+    //! Set force.
     /*!
-     * Computes the forces per unit mass.
-     * \param pointerToState Pointer to a State object.
+     * Sets the force.
+     * \param force Force.
      */
-    virtual VectorXd& computeForce( State* pointerToState ) = 0;
+    void setForce( const Vector3d& force );
 
-    //! Pointer to object of Celestial Body class.
+   //! Get force.
     /*!
-     * Pointer to object of Celestial Body class for gravity field expansion.
+     * Returns the force.
+     * \return Force.
      */
-    CelestialBody* pointerToCelestialBody_;
+    Vector3d& getForce( );
+
+    //! Compute the force.
+    /*!
+     * Compute the force.
+     * \param pointerToState Pointer to an object of the State class.
+     */
+    virtual void computeForce( State* pointerToState ) = 0;
 
 protected:
 
-
-
-    //! Force per unit mass.
+    //! Force.
     /*!
-     * Force per unit mass.
+     * Force given in [N].
      */
-    VectorXd forcePerUnitMass_;
+    Vector3d force_;
 
 private:
 };

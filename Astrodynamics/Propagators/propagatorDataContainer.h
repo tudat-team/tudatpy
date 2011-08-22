@@ -62,6 +62,7 @@
 // Include statements.
 #include <map>
 #include <vector>
+#include "celestialBody.h"
 #include "forceModel.h"
 #include "propagator.h"
 #include "linearAlgebra.h"

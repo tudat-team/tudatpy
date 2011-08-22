@@ -3,7 +3,7 @@
  *    (derived) characteristics.
  *
  *    Path              : /Astrodynamics/Bodies/
- *    Version           : 2
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -14,8 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Checker           : F.M. Engelen
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *
  *    Date created      : 10 September, 2010
- *    Last modified     : 15 January, 2011
+ *    Last modified     : 15 August, 2011
  *
  *    References
  *
@@ -38,6 +42,7 @@
  *      100929    K. Kumar          Minor comment changes and Body scope for
  *                                  setShapeModel( ) function added.
  *      110115    J. Melman         Added set and get shape model functions.
+ *      110815    K. Kumar          Added setMass() and getMass() functions.
  */
 
 // Include statements.
@@ -53,10 +58,22 @@ Body::~Body( )
 {
 }
 
+//! Set mass of body.
+void Body::setMass( const double& mass )
+{
+    mass_ = mass;
+}
+
 //! Sets the shape model.
 void Body::setShapeModel( GeometricShape* bodyGeometricShape )
 {
     bodyGeometricShape_ = bodyGeometricShape;
+}
+
+//! Get mass of body.
+double& Body::getMass( )
+{
+    return mass_;
 }
 
 //! Get the shape model.

@@ -3,7 +3,7 @@
  *    and vehicles, with all their characteristics.
  *
  *    Path              : /Astrodynamics/Bodies/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -14,8 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Checker           : F.M. Engelen
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *
  *    Date created      : 20 September, 2010
- *    Last modified     : 15 January, 2011
+ *    Last modified     : 15 August, 2011
  *
  *    References
  *
@@ -37,6 +41,7 @@
  *      100920    J. Melman         First creation of code.
  *      100929    K. Kumar          Minor comment changes.
  *      110115    J. Melman         Added set and get shape model functions.
+ *      110815    K. Kumar          Added setMass() and getMass() functions.
  */
 
 #ifndef BODY_H
@@ -66,12 +71,26 @@ public:
      */
     ~Body( );
 
+    //! Set mass of body.
+    /*!
+     * Sets the mass of the body.
+     * \param mass Mass.
+     */
+    void setMass( const double& mass );
+
     //! Sets the shape model.
     /*!
      * Defines the shape model.
      * \param bodyGeometricShape Pointer to geometric shape of body.
      */
     void setShapeModel( GeometricShape* bodyGeometricShape );
+
+    //! Get mass of body.
+    /*!
+     * Returns the mass of the body.
+     * \return Mass.
+     */
+    double& getMass( );
 
     //! Get the shape model.
     /*!
@@ -83,6 +102,12 @@ public:
 protected:
 
 private:
+
+    //! Mass.
+    /*!
+     * Mass of body.
+     */
+    double mass_;
 
     //! Pointer to GeometricShape object.
     /*!

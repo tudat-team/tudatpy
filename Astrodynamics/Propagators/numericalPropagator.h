@@ -34,14 +34,14 @@
  *
  *    Changelog
  *      YYMMDD    Author              Comment
- *      100915    K. Kumar            File created.
- *      100926    K. Kumar            Doxygen comments added.
- *      100928    K. Kumar            Completed missing comments.
- *      100929    J. Melman           Added a dot behind "Include statements"
- *      100929    K. Kumar            Minor comment modifications.
- *      110201    K. Kumar            Updated code to use Integrator adaptor
- *                                    instead of pointers-to-member functions;
- *                                    Update code to use State class.
+ *      100915    K. Kumar          File created.
+ *      100926    K. Kumar          Doxygen comments added.
+ *      100928    K. Kumar          Completed missing comments.
+ *      100929    J. Melman         Added a dot behind "Include statements"
+ *      100929    K. Kumar          Minor comment modifications.
+ *      110201    K. Kumar          Updated code to use Integrator adaptor
+ *                                  instead of pointers-to-member functions;
+ *                                  Update code to use State class.
  *      110512    K. Kumar          Updated code not to use dynamics memory
  *                                  allocation; split into base and derived
  *                                  class.
@@ -93,6 +93,22 @@ public:
      */
     void addForceModel( Body* pointerToBody, ForceModel* pointerToForceModel );
 
+    //! Set initial state of body.
+    /*!
+     * Sets the initial state of given body.
+     * \param pointerToBody Pointer to Body object.
+     * \param pointerToInitialState Initial state given as pointer to a
+     *          CartesianElements object.
+     */
+    void setInitialState( Body* pointerToBody,
+                          State* pointerToInitialState );
+
+    //! Propagate.
+    /*!
+     * Executes numerical propagation.
+     */
+    void propagate( );
+
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information.
@@ -104,6 +120,18 @@ public:
                                      NumericalPropagator& numericalPropagator );
 
 protected:
+
+    //! Size of assembled state.
+    /*!
+     * Size of assembled state.
+     */
+    unsigned int sizeOfAssembledState_;
+
+    //! Assembled state in Cartesian elements.
+    /*!
+     * Assembled state in Cartesian elements.
+     */
+    CartesianElements assembledState_;
 
     //! Pointer to Integrator object.
     /*!

@@ -1,8 +1,8 @@
-/*! \file gravity.h
- *    Header file that defines the gravity force model included in Tudat.
+/*! \file gravitationalForceModel.h
+ *    Header file that defines the gravitational force model included in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -13,12 +13,18 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
+ *    Checker           : F.M. Engelen
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *
  *    Date created      : 16 September, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 15 August, 2011
  *
  *    References
  *
  *    Notes
+ *      The mass and state of the body on which the force acts should be
+ *      transferred to the Body class.
  *
  *    Copyright (c) 2010 Delft University of Technology.
  *
@@ -45,23 +51,27 @@
  *      110202    K. Kumar          Updated code to make use of the State and
  *                                  CartesianPositionElements classes.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110815    K. Kumar          Changed filename and class name; changed
+ *                                  computeForce() function and added
+ *                                  setMass() function.
  */
 
-#ifndef GRAVITY_H
-#define GRAVITY_H
+#ifndef GRAVITATIONALFORCEMODEL_H
+#define GRAVITATIONALFORCEMODEL_H
 
 // Include statements.
 #include <cmath>
-#include "forceModel.h"
+#include "body.h"
 #include "celestialBody.h"
+#include "forceModel.h"
 #include "gravityFieldModel.h"
 #include "sphericalHarmonicsGravityField.h"
 
-//! Gravity force class.
+//! Gravitational force model class.
 /*!
- * Class containing the gravity force model.
+ * Class containing the gravitational force model.
  */
-class Gravity : public ForceModel
+class GravitationalForceModel : public ForceModel
 {
 public:
 
@@ -69,32 +79,50 @@ public:
     /*!
      * Default constructor.
      */
-    Gravity( );
+    GravitationalForceModel( );
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~Gravity( );
+    ~GravitationalForceModel( );
+
+    //! Set body subject to force.
+    /*!
+     * Sets body subject to force.
+     * \param pointerToBodySubjectToForce Pointer to body subject to force.
+     */
+    void setBodySubjectToForce( Body* pointerToBodySubjectToForce );
 
     //! Set body for gravity field expansion.
     /*!
      * Sets the body for gravity field expansion.
      * \param pointerToCelestialBody Celestial body which is set.
      */
-    void setBody( CelestialBody* pointerToCelestialBody );
+    void setGravitationalBody( CelestialBody* pointerToCelestialBody );
 
-    //! Compute forces per unit mass for gravity field expansion.
+    //! Compute force due to gravity field.
     /*!
-     * Computes the forces per unit mass for gravity field expansion.
+     * Computes the force due to the gravity field.
      * \param pointerToState Pointer to an object of the State class.
-     * \return Force per unit mass computed from gravity field and position.
      */
-    VectorXd& computeForce( State* pointerToState );
+    void computeForce( State* pointerToState );
 
 protected:
 
 private:
+
+    //! Body subject to force.
+    /*!
+     * Body subject to force.
+     */
+    Body* pointerToBodySubjectToForce_;
+
+    //! Pointer to celestial body.
+    /*!
+     * Pointer to celestial body.
+     */
+    CelestialBody* pointerToCelestialBody_;
 
     //! Pointer to gravity field model.
     /*!
@@ -109,6 +137,6 @@ private:
     CartesianPositionElements cartesianPositionElements_;
 };
 
-#endif // GRAVITY_H
+#endif // GRAVITATIONALFORCEMODEL_H
 
 // End of file.

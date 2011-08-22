@@ -58,7 +58,7 @@
 using std::endl;
 
 //! Default constructor.
-NumericalPropagator::NumericalPropagator( )
+NumericalPropagator::NumericalPropagator( ) : sizeOfAssembledState_( 0 )
 {
 }
 
@@ -82,6 +82,87 @@ void NumericalPropagator::addForceModel( Body* pointerToBody,
     bodiesToPropagate_[ pointerToBody ]
             .vectorContainerOfPointersToForceModels_
                      .push_back( pointerToForceModel );
+}
+
+//! Set initial state of body.
+void NumericalPropagator::setInitialState(
+        Body* pointerToBody, State* pointerToInitialState )
+{
+    // Set initial state of given body to be propagated.
+    bodiesToPropagate_[ pointerToBody ]
+            .pointerToInitialState_ = pointerToInitialState;
+
+    // Set size of initial state of given body to propagate.
+    bodiesToPropagate_[ pointerToBody ]
+            .sizeOfState_ = pointerToInitialState->state.size( );
+
+    // Increment size of assembled state based on size of initial state of
+    // body to propagate.
+    sizeOfAssembledState_ += pointerToInitialState->state.size( );
+
+    // Set assembled state to determined size with zero values.
+    assembledState_.state.setZero( sizeOfAssembledState_ );
+}
+
+//! Propagate.
+void NumericalPropagator::propagate( )
+{
+    // Declare local variables.
+    // Start position for assembly of state.
+    int startAssemblyPositionInState_ = 0;
+
+    // Set integration interval start and end.
+    pointerToIntegrator_
+            ->setIntegrationIntervalStart( propagationIntervalStart_ );
+    pointerToIntegrator_
+            ->setIntegrationIntervalEnd( propagationIntervalEnd_ );
+
+    // Loop over map of bodies to propagate.
+    for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
+          iteratorBodiesToPropagate_++ )
+    {
+        // Set propagator to this NumericalPropagator object for this body.
+        iteratorBodiesToPropagate_->second.pointerToPropagator_ = this;
+
+        // Store start of range of initial state of a given body in assembled
+        // initial state.
+        iteratorBodiesToPropagate_->second.stateStartIndex_
+                = startAssemblyPositionInState_;
+
+        // Assemble state using initial states of bodies to propagate.
+        assembledState_.state.segment( iteratorBodiesToPropagate_
+                                       ->second.stateStartIndex_,
+                                       iteratorBodiesToPropagate_
+                                       ->second.sizeOfState_ )
+                = iteratorBodiesToPropagate_
+                  ->second.pointerToInitialState_->state;
+
+        // Start position in initial state for assembly.
+        startAssemblyPositionInState_ +=
+                iteratorBodiesToPropagate_->second.sizeOfState_;
+    }
+
+    // Set assembled initial state as state for integrator.
+    pointerToIntegrator_->setInitialState( &assembledState_ );
+
+    // Execute integration.
+    pointerToIntegrator_->integrate( );
+
+    // Loop over map of bodies to be propagated.
+    for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
+          iteratorBodiesToPropagate_++ )
+    {
+        // Disassemble assembled initial state by updating final state in
+        // respective PropagatorDataContainer objects.
+        iteratorBodiesToPropagate_->second.finalState_.state
+                = pointerToIntegrator_->getFinalState( )->state
+                  .segment( iteratorBodiesToPropagate_
+                            ->second.stateStartIndex_,
+                            iteratorBodiesToPropagate_
+                            ->second.sizeOfState_ );
+    }
 }
 
 // End of file.

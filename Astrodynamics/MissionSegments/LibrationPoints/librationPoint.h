@@ -55,7 +55,7 @@
 #include "basicMathematicsFunctions.h"
 #include "cartesianPositionElements.h"
 #include "celestialBody.h"
-#include "gravity.h"
+#include "gravitationalForceModel.h"
 #include "newtonRaphson.h"
 #include "newtonRaphsonAdaptor.h"
 
