@@ -70,19 +70,19 @@ public:
 
     //! Set force application point.
     /*!
-     * Sets force application point, i.e., the vector from the origin of the reference frame in
+     * Sets force application arm, i.e., the vector from the origin of the reference frame in
      * which the moment is calculated, to the application point of the input force.
-     * \param forceApplicationPoint Vector location of force application point.
+     * \param forceApplicationPoint Vector arm to application point of force.
      */
-    void setForceApplicationPoint( Vector3d& forceApplicationPoint );
+    void setForceApplicationArm( Vector3d& forceApplicationArm );
 
-    //! Get force application point.
+    //! Get force application arm.
     /*!
-     * Returns force application point, i.e., returns the vector from the origin of the reference
+     * Returns force application arm, i.e., returns the vector from the origin of the reference
      * frame in which the moment is calculated, to the application point of the input force.
-     * \return Vector location of application point of force.
+     * \return Vector arm to application point of force.
      */
-    Vector3d& getForceApplicationPoint( );
+    Vector3d& getForceApplicationArm( );
 
     //! Set force model.
     /*!
@@ -118,7 +118,7 @@ public:
      /*!
       * Computes the moment.
       */
-    virtual void computeMoment( ) = 0;
+    virtual void computeMoment( State* pointerToState ) = 0;
 
 protected:
 
@@ -138,7 +138,7 @@ protected:
     /*!
      * Force application point, which can also be considered the force arm.
      */
-    Vector3d forceApplicationPoint_;
+    Vector3d forceApplicationArm_;
 
 private:
 };

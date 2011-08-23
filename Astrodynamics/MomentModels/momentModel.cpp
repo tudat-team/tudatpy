@@ -45,7 +45,7 @@
 //! Default constructor.
 MomentModel::MomentModel( ) : pointerToForceModel_( NULL )
 {
-    forceApplicationPoint_.setZero( );
+    forceApplicationArm_.setZero( );
 }
 
 //! Default destructor.
@@ -53,16 +53,16 @@ MomentModel::~MomentModel( )
 {
 }
 
-//! Set force application point.
-void MomentModel::setForceApplicationPoint( Vector3d& forceApplicationPoint )
+//! Set force application arm.
+void MomentModel::setForceApplicationArm( Vector3d& forceApplicationArm )
 {
-    forceApplicationPoint_ = forceApplicationPoint;
+    forceApplicationArm_ = forceApplicationArm;
 }
 
-//! Get force application point.
-Vector3d& MomentModel::getForceApplicationPoint( )
+//! Get force application arm.
+Vector3d& MomentModel::getForceApplicationArm( )
 {
-    return forceApplicationPoint_;
+    return forceApplicationArm_;
 }
 
 //! Set force model.
