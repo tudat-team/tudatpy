@@ -4,7 +4,7 @@
  *    A 0 corresponds to success in the report.
  *
  *    Path              : /
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : B. Römgens
@@ -20,7 +20,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 January, 2011
- *    Last modified     : 1 July, 2011
+ *    Last modified     : 22 August, 2011
  *
  *    References
  *
@@ -50,6 +50,7 @@
  *                                  testDeepSpaceManeuver, testEulerIntegrator,
  *                                  testRungeKutta4thOrderFixedStepsizeIntegrator,
  *                                  unit tests; updated layout.
+ *      110822    D.Dirkx           Added testAerodynamicForcesAndMoments
  */
 
 // Include statements.
@@ -68,6 +69,7 @@
 #include "unitTestUnitConversions.h"
 
 // Astrodynamics unit test includes.
+#include "unitTestAerodynamicMomentAndAerodynamicForce.h"
 #include "unitTestAerodynamicsNamespace.h"
 #include "unitTestApproximatePlanetPositions.h"
 #include "unitTestCartesianElements.h"
@@ -101,7 +103,6 @@ using std::endl;
  */
 int main( )
 {
-
     // Return value, 0 on success, 1 on failure of one or more unit tests.
     int isErroneous = 0;
 
@@ -162,11 +163,9 @@ int main( )
 
     // Run Astrodynamics unit tests.
 
-    // testApproximatePlanetPositions: Tests the approximate planet positions
-    // ephemeris class implemented in the class ApproximatePlanetPositions. The
-    // ephemeris data comes from http://ssd.jpl.nasa.gov/horizons.cgi.
-    bool testApproximatePlanetPositions
-            = unit_tests::testApproximatePlanetPositions( );
+    // testAerodynamicForcesAndMoments: Tests calculation of aerodynamic forces and moments
+    bool testAerodynamicForcesAndMoments =
+            unit_tests::testAerodynamicMomentAndAerodynamicForce( );
 
     // testAerodynamicsNamespace: Tests the following functions:
     // static pressure ratio, stagnation pressure coefficient,
@@ -177,6 +176,12 @@ int main( )
     // shock total pressure ratio, shock wave total pressure ratio.
     bool testAerodynamicsNamespace =
             unit_tests::testAerodynamicsNameSpace( );
+
+    // testApproximatePlanetPositions: Tests the approximate planet positions
+    // ephemeris class implemented in the class ApproximatePlanetPositions. The
+    // ephemeris data comes from http://ssd.jpl.nasa.gov/horizons.cgi.
+    bool testApproximatePlanetPositions
+            = unit_tests::testApproximatePlanetPositions( );
 
     // testCartesianElements: Tests the different set and get functions
     // of CartesianElements.
@@ -339,9 +344,9 @@ int main( )
         isErroneous = 1;
     }
 
-    if ( testApproximatePlanetPositions )
+    if ( testAerodynamicForcesAndMoments )
     {
-        cerr << "testApproximatePlanetPositions failed!" << endl;
+        cerr << "testAerodynamicForcesAndMoment failed!" << endl;
         isErroneous = 1;
     }
 
@@ -350,6 +355,13 @@ int main( )
         cerr << "testAerodynamicsNamespace failed!" << endl;
         isErroneous = 1;
     }
+
+    if ( testApproximatePlanetPositions )
+    {
+        cerr << "testApproximatePlanetPositions failed!" << endl;
+        isErroneous = 1;
+    }
+
 
     if ( testCartesianElements )
     {
@@ -457,7 +469,7 @@ int main( )
     {
         cerr << "testTwoLineElementsTextFileReader failed!" << endl;
         isErroneous = 1;
-    }
+    }   
 
     // Generate unit test report file ( unitTestReport.txt ).
 
@@ -517,10 +529,12 @@ int main( )
 
     // Write unit test results for Astrodynamics.
     unitTestReportOutputFile << "Astrodynamics" << endl;
-    unitTestReportOutputFile << testApproximatePlanetPositions
-                             << "\tApproximate Planet Positions" << endl;
+    unitTestReportOutputFile << testAerodynamicForcesAndMoments
+                             << "\tAerodynamic Forces and Moments" << endl;
     unitTestReportOutputFile << testAerodynamicsNamespace
                              << "\tAerodynamics Namespace" << endl;
+    unitTestReportOutputFile << testApproximatePlanetPositions
+                             << "\tApproximate Planet Positions" << endl;
     unitTestReportOutputFile << testCartesianElements
                              << "\tCartesian Elements" << endl;
     unitTestReportOutputFile << testCoefficientGenerator
