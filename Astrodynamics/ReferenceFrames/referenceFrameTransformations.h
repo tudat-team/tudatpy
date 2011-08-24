@@ -3,8 +3,8 @@
  *    namespace included in Tudat.
  *
  *    Path              : /Astrodynamics/ReferenceFrames/
- *    Version           : 6
- *    Check status      : Unchecked
+ *    Version           : 7
+ *    Check status      : Checked
  *
  *    Checker           : F. M. Engelen
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 19 May, 2011
- *    Last modified     : 08 August, 2011
+ *    Last modified     : 24 August, 2011
  *
  *    References
  *      Muller, J.A., et al. Flight Dynamics Lecture Notes, TU Delft, February 2007.
@@ -45,6 +45,7 @@
  *      110718    F.M. Engelen      Added Quaternion transformations and ItoE tranformation.
  *      110726    K. Kumar          Minor modifications.
  *      110809    F.M. Engelen      Replaced the normal planet fixed, with local vertical frame.
+ *      110824    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef FRAMETRANSFORMATION_H
@@ -124,7 +125,7 @@ Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
  * \warning Note the order of the arguments: the real \a w coefficient first,
  * while internally the coefficients are stored in the following order:
  * [\c x, \c y, \c z, \c w]
- * \param attitudeQuaternion A vector containing the quaternions of the rotation state
+ * \param vectorWithQuaternion A vector containing the quaternions of the rotation state
  * \return Transformation quaternion.
  */
 Quaterniond getQuaternionObjectFromQuaternionValues( const Vector4d& vectorWithQuaternion );

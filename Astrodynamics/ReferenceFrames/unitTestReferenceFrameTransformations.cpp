@@ -4,7 +4,7 @@
  *
  *    Path              : /Astrodynamics/ReferenceFrames/
  *    Version           : 6
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Checker           : F. M. Engelen
  *    Affiliation       : Delft University of Technology

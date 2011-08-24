@@ -6,7 +6,7 @@
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : L. van der Ham
  *    Affiliation       : Delft University of Technology

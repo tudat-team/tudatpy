@@ -3,7 +3,7 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 11
+ *    Version           : 12
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -27,7 +27,7 @@
  *    E-mail address    : D.Dirkx@student.tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 24 August, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -66,6 +66,7 @@
  *      110707    K. Kumar          Added computeSampleMean() and
  *                                  computeSampleVariance() functions.
  *      110810    J. Leloux         Corrected doxygen documentation (equations).
+ *      110824    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
@@ -95,19 +96,19 @@ namespace mathematics
 
 //! Machine precision for floats.
 /*!
- * Machine precision for floats from <float>.
+ * Machine precision for floats from the standard float library <cfloat>.
  */
 const static double MACHINE_PRECISION_FLOATS = FLT_EPSILON;
 
 //! Machine precision for doubles.
 /*!
- * Machine precision for doubles from <float>.
+ * Machine precision for doubles from the standard float library <cfloat>.
  */
 const static double MACHINE_PRECISION_DOUBLES = DBL_EPSILON;
 
 //! Machine precision for long doubles.
 /*!
- * Machine precision for long doubles from <float>.
+ * Machine precision for long doubles from the standard float library <cfloat>.
  */
 const static double MACHINE_PRECISION_LONG_DOUBLES = LDBL_EPSILON;
 

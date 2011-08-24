@@ -3,7 +3,7 @@
  *
  *    Path              : /Astrodynamics/MomentModels/
  *    Version           : 2
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Checker           : F.M. Engelen
  *    Affiliation       : Delft University of Technology
