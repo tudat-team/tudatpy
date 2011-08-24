@@ -1,9 +1,9 @@
-/*! \file unitTestAerodynamicForce.cpp
+/*! \file unitTestAerodynamicMomentAndAerodynamicForce.cpp
 *    This source file contains the unit test for aerodynamic forces model
 *    included in Tudat.
 *
 *    Path              : /Astrodynamics/ForceModels/
-*    Version           : 2
+*    Version           : 3
 *    Check status      : Checked
 *
 *    Checker           : F. M. Engelen
@@ -15,7 +15,7 @@
 *    E-mail address    : D.Dirkx@tudelft.nl
 *
 *    Date created      : 22 June, 2011
-*    Last modified     : 22 August, 2011
+*    Last modified     : 24 August, 2011
 *
 *    References
 *
@@ -36,6 +36,7 @@
 *      YYMMDD    Author            Comment
 *      110622    F.M. Engelen      First creation of code.
 *      110822    D. Dirkx          Removed no longer necessary unit tests.
+*      110824    J. Leloux         Corrected doxygen documentation.
 */
 
 // Include statements.

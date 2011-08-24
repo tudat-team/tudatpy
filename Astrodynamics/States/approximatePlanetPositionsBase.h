@@ -6,7 +6,7 @@
  *    3000 AD.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -26,7 +26,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 21 February, 2011
- *    Last modified     : 3 August, 2011
+ *    Last modified     : 24 August, 2011
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the
@@ -53,6 +53,7 @@
  *      110629    L. van der Ham    Added function coplanar circular orbits.
  *      110803    L. van der Ham    Created base class and separated approximatePlanetPositions
  *                                  from approximatePlanetPositionsCircularCoplanar.
+ *      110824    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef APPROXIMATEPLANETPOSITIONSBASE_H
@@ -96,7 +97,7 @@ public:
     //! Set planet.
     /*!
      * Sets planet to retrieve ephemeris data for.
-     * \param Planet planet.
+     * \param bodyWithEphemerisData Planet.
      */
     void setPlanet( BodiesWithEphemerisData bodyWithEphemerisData );
 

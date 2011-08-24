@@ -3,7 +3,7 @@
  *    included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 14 May, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 24 August, 2011
  *
  *    References
  *
@@ -36,6 +36,7 @@
  *      YYMMDD    Author              Comment
  *      110514    K. Kumar            File created.
  *      110810    J. Leloux           Corrected doxygen documentation, deleted unused variable.
+ *      110824    J. Leloux           Corrected doxygen documentation.
  */
 
 #ifndef CARTESIANSTATENUMERICALPROPAGATOR_H
@@ -71,6 +72,7 @@ public:
      * Computes the state derivative given to the integrator. This is an
      * implementation of the computeStateDerivative() virtual function in the
      * StateDerivativeBase class.
+     * \param independentVariable Independant variable.
      * \param pointerToAssembledState Assembled state given as a pointer to
      *          State object.
      * \param pointerToAssembledStateDerivative Computed assembled state

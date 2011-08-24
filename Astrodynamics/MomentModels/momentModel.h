@@ -2,7 +2,7 @@
  *    This header file contains the moment model base class included in Tudat.
  *
  *    Path              : /Astrodynamics/ForceAndMomentModels/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Checker           : F. M. Engelen
@@ -14,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 10 May, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 24 August, 2011
  *
  *    References
  *
@@ -39,6 +39,7 @@
  *      110510    F.M. Engelen      First creation of code.
  *      110810    K. Kumar          Minor corrections; changed function names
  *                                  and removed redundant functions.
+ *      110824    J. Leloux         Corrected doxygen documentation.
  */
 
 #ifndef MOMENTMODEL_H
@@ -72,7 +73,7 @@ public:
     /*!
      * Sets force application arm, i.e., the vector from the origin of the reference frame in
      * which the moment is calculated, to the application point of the input force.
-     * \param forceApplicationPoint Vector arm to application point of force.
+     * \param forceApplicationArm Vector arm to application point of force.
      */
     void setForceApplicationArm( Vector3d& forceApplicationArm );
 
