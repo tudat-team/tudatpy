@@ -60,12 +60,23 @@ AerodynamicCoefficientGenerator::AerodynamicCoefficientGenerator( )
     numberOfPointsPerIndependentVariables_ = NULL;
     dataPointsOfIndependentVariables_ = NULL;
     vehicleCoefficients_ = NULL;
+
+    // Set number of combinations of independent variables.
+    numberOfCases_ = 0;
 }
 
 //! Default destructor.
 AerodynamicCoefficientGenerator::~AerodynamicCoefficientGenerator( )
 {
     int i;
+
+    // Delete array of independent variables.
+    for( i = 0; i < numberOfCases_ ; i++ )
+    {
+        delete vehicleCoefficients_[ i ];
+    }
+    delete [ ] vehicleCoefficients_;
+
     // Delete data points of each independent variable and reset to NULL.
     for( i = 0; i < numberOfIndependentVariables_; i++ )
     {

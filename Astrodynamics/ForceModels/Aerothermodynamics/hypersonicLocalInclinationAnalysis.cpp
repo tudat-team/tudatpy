@@ -106,6 +106,7 @@ HypersonicLocalInclinationAnalysis::~HypersonicLocalInclinationAnalysis( )
     }
     delete [ ] inclination_;
     delete [ ] pressureCoefficient_;
+    delete [ ] vehicleParts_;
 }
 
 //! Constructor to set geometry and reference quantities.
@@ -342,14 +343,14 @@ void HypersonicLocalInclinationAnalysis::allocateVehicleCoefficients( )
     }
 
     // Determine number of combinations of independent variables.
-    int numberOfCases = numberOfPointsPerIndependentVariables_[ machIndex_ ] *
+    numberOfCases_ = numberOfPointsPerIndependentVariables_[ machIndex_ ] *
                         numberOfPointsPerIndependentVariables_[ angleOfSideslipIndex_ ] *
                         numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ];
 
     // Allocate memory for pointers to coefficients and initialize to NULL.
-    vehicleCoefficients_ = new VectorXd*[ numberOfCases ];
+    vehicleCoefficients_ = new VectorXd*[ numberOfCases_ ];
     int i;
-    for( i = 0; i < numberOfCases ; i++ )
+    for( i = 0; i < numberOfCases_ ; i++ )
     {
         vehicleCoefficients_[ i ] = NULL;
     }

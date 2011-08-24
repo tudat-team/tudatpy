@@ -353,6 +353,13 @@ protected:
      */
     int reynoldsNumberIndex_;
 
+    //! Number of data points in aerodynamic database.
+    /*!
+     *  Number of data points in aerodynamic database, should equal product of number of data
+     *  points per independent variables tha are used.
+     */
+    int numberOfCases_;
+
 };
 
 #endif // AERODYNAMICCOEFFICIENTGENERATOR_H
