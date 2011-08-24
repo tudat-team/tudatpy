@@ -74,7 +74,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~QuadrilateralMeshedSurfaceGeometry( );
+    virtual ~QuadrilateralMeshedSurfaceGeometry( );
 
     //! Function to calculate panel characteristics.
     /*!
