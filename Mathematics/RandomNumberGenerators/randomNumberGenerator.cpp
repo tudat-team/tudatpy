@@ -12,7 +12,7 @@
  *
  *    Checker           : D. Dirkx
  *    Affiliation       : Delft University of Technology
- *    E-mail address    : D.Dirkx@student.tudelft.nl
+ *    E-mail address    : d.dirkx@tudelft.nl
  *
  *    Checker           : F.M. Engelen
  *    Affiliation       : Delft University of Technology
