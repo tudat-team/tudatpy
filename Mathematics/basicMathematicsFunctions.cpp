@@ -12,7 +12,7 @@
  *
  *    Author            : D. Dirkx
  *    Affiliation       : Delft University of Technology
- *    E-mail address    : D.Dirkx@student.tudelft.nl
+ *    E-mail address    : d.dirkx@tudelft.nl
  *
  *    Author            : J.C.P Melman
  *    Affiliation       : Delft University of Technology
@@ -24,7 +24,7 @@
  *
  *    Checker           : D. Dirkx
  *    Affiliation       : Delft University of Technology
- *    E-mail address    : D.Dirkx@student.tudelft.nl
+ *    E-mail address    : d.dirkx@tudelft.nl
  *
  *    Date created      : 3 September, 2010
  *    Last modified     : 6 June, 2011
