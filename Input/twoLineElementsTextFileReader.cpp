@@ -136,6 +136,11 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
     // Create Earth World Geodetic System (WGS) 72 gravity field.
     SphericalHarmonicsGravityField earthWorldGeodeticSystem72GravityField_;
 
+    // Set predefined settings for World Geodetic System (WGS) 72 gravity field.
+    earthWorldGeodeticSystem72GravityField_
+            .setPredefinedSphericalHarmonicsGravityFieldSettings(
+                SphericalHarmonicsGravityField::earthWorldGeodeticSystem72 );
+
     // Create Earth object and add WGS-72 gravity field.
     Planet earthWithWorldGeodeticSystem72GravityField_;
     earthWithWorldGeodeticSystem72GravityField_.setGravityFieldModel(
