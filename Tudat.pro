@@ -220,8 +220,6 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/LinearAlgebra/linearAlgebra.h \
     Mathematics/NumericalIntegrators/euler.h \
     Mathematics/NumericalIntegrators/integrator.h \
-    Mathematics/NumericalIntegrators/integratorBase.h \
-    Mathematics/NumericalIntegrators/integratorAdaptor.h \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h \
     Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h \
     Mathematics/NumericalIntegrators/stateDerivativeBase.h \
