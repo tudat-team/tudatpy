@@ -59,12 +59,15 @@ public:
     enum PredefinedPlanets
     {
         sun,
+        mercury,
         venus,
         earth,
         moon,
         mars,
         jupiter,
-        uranus
+        saturn,
+        uranus,
+        neptune
     };
 
     //! Default constructor.

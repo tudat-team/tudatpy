@@ -63,6 +63,19 @@ void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 
         break;
 
+    case mercury:
+
+        // Set predefined Mercury central gravity field.
+        predefinedCentralGravityField_
+                .setPredefinedCentralGravityFieldSettings(
+                    CentralGravityField::mercury );
+
+        // Set Mercury as planet for ephemeris.
+        approximatePlanetPositions_.setPlanet(
+                ApproximatePlanetPositions::mercury );
+
+        break;
+
     case venus:
 
         // Set predefined Venus central gravity field.
@@ -128,6 +141,19 @@ void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 
         break;
 
+    case saturn:
+
+        // Set predefined Saturn central gravity field.
+        predefinedCentralGravityField_
+                .setPredefinedCentralGravityFieldSettings(
+                    CentralGravityField::saturn );
+
+        // Set Saturn as planet for ephemeris.
+        approximatePlanetPositions_.setPlanet(
+                ApproximatePlanetPositions::saturn );
+
+        break;
+
     case uranus:
 
         // Set predefined Uranus central gravity field.
@@ -138,6 +164,19 @@ void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
         // Set Uranus as planet for ephemeris.
         approximatePlanetPositions_.setPlanet(
                 ApproximatePlanetPositions::uranus );
+
+        break;
+
+    case neptune:
+
+        // Set predefined Neptune central gravity field.
+        predefinedCentralGravityField_
+                .setPredefinedCentralGravityFieldSettings(
+                    CentralGravityField::neptune );
+
+        // Set Neptune as planet for ephemeris.
+        approximatePlanetPositions_.setPlanet(
+                ApproximatePlanetPositions::neptune );
 
         break;
 
