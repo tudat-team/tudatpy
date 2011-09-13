@@ -43,82 +43,15 @@
  */
 
 // Include statements.
-#include "celestialBody.h"
-
-// Using declarations.
-using std::endl;
-
-//! Default constructor.
-CelestialBody::CelestialBody( )
-{
-}
-
-//! Default destructor.
-CelestialBody::~CelestialBody( )
-{
-}
-
-//! Set ephemeris.
-void CelestialBody::setEphemeris( Ephemeris* pointerToEphemeris )
-{
-    // Set ephemeris.
-    pointerToEphemeris_ = pointerToEphemeris;
-}
-
-//! Set gravity field model.
-void CelestialBody::setGravityFieldModel( GravityFieldModel*
-                                          pointerToGravityFieldModel )
-
-{
-    // Set gravity field model.
-    pointerToGravityFieldModel_ = pointerToGravityFieldModel;
-}
-
-//! Set atmosphere model.
-void CelestialBody::setAtmosphereModel( AtmosphereModel* pointerToAtmosphereModel )
-{
-    pointerToAtmosphereModel_ = pointerToAtmosphereModel ;
-}
-
-//! Get state from ephemeris at given Julian date.
-CartesianElements* CelestialBody::getStateFromEphemeris( const double&
-                                                         julianDate )
-{
-    // Return state from ephemeris.
-    return pointerToEphemeris_->getStateFromEphemeris( julianDate );
-}
-
-//! Get gravitational parameter.
-const double CelestialBody::getGravitationalParameter( ) const
-{
-    // Return gravitational parameter.
-    return pointerToGravityFieldModel_->getGravitationalParameter( );
-}
-
-//! Get ephemeris.
-Ephemeris* CelestialBody::getEphemeris( )
-{
-    // Return ephemeris.
-    return pointerToEphemeris_;
-}
-
-//! Get gravity field model.
-GravityFieldModel* CelestialBody::getGravityFieldModel( )
-{
-    // Return gravity field model.
-    return pointerToGravityFieldModel_;
-}
-
-//! Get atmosphere model.
-AtmosphereModel* CelestialBody::getAtmospheremodel( )
-{
-    return pointerToAtmosphereModel_;
-}
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
                           CelestialBody& celestialBody )
 {
+    // Using declarations.
+    using std::endl;
+
     stream << "This is a CelestialBody object." << endl;
     stream << "The gravitational parameter is set to: "
            << celestialBody.getGravitationalParameter( ) << endl;

@@ -44,20 +44,9 @@
  */
 
 // Include statements.
-#include "exponentialAtmosphere.h"
-
-//! Default constructor.
-ExponentialAtmosphere::ExponentialAtmosphere( )
-{
-    scaleHeight_ = -0.0;
-    densityAtZeroAltitude_ = -0.0;
-    constantTemperature_ = -0.0;
-}
-
-//! Default destructor.
-ExponentialAtmosphere::~ExponentialAtmosphere( )
-{
-}
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h"
+#include "Astrodynamics/physicalConstants.h"
+#include <cmath>
 
 //! Set predefined exponential atmosphere settings.
 void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
@@ -70,13 +59,16 @@ void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
         // Rocket Motion by Prof. Ir. B.A.C. Ambrosius, November 2009.
 
         // Set scale height.
-        this->setScaleHeight( 7.200e3 );
+        setScaleHeight( 7.200e3 );
 
         //Set density at zero altitude.
-        this->setDensityAtZeroAltitude( 1.225 );
+        setDensityAtZeroAltitude( 1.225 );
 
         //Set atmosphere temperature.
-        this->setConstantTemperature( 246.0 );
+        setConstantTemperature( 246.0 );
+
+        //Set specific gas constant.
+        setSpecificGasConstant( PhysicalConstants::SPECIFIC_GAS_CONSTANT_AIR );
 
         break;
 
@@ -85,63 +77,13 @@ void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
     }
 }
 
-//! Set scale altitude.
-void ExponentialAtmosphere::setScaleHeight( const double& scaleHeight )
-{
-    scaleHeight_ = scaleHeight;
-}
-
-//! Get scale altitude.
-double ExponentialAtmosphere::getScaleHeight( )
-{
-    return scaleHeight_;
-}
-
-//! Set density at zero altitude.
-void ExponentialAtmosphere::setDensityAtZeroAltitude( const double& densityAtZeroAltitude )
-{
-    densityAtZeroAltitude_ = densityAtZeroAltitude;
-}
-
-//! Get density at zero altitude.
-double ExponentialAtmosphere::getDensityAtZeroAltitude( )
-{
-    return densityAtZeroAltitude_;
-}
-
-//! Set constant temperature.
-void ExponentialAtmosphere::setConstantTemperature( const double& constantTemperature )
-{
-    constantTemperature_ = constantTemperature;
-}
-
-//! Get constant temperature.
-double ExponentialAtmosphere::getConstantTemperature( )
-{
-    return constantTemperature_;
-}
-
-//! Get local density.
-double ExponentialAtmosphere::getDensity( const double& altitude )
-{
-    return densityAtZeroAltitude_ * exp( - altitude / scaleHeight_ );
-}
-
-
 //! Get local density in the general way.
 double ExponentialAtmosphere::getDensity( const double& altitude,
                                           const double& longitude,
                                           const double& latitude,
                                           const double& time )
 {
-    return getDensity( altitude );
-}
-
-//! Get local pressure.
-double ExponentialAtmosphere::getPressure( const double& altitude )
-{
-    return getDensity( altitude ) * PhysicalConstants::SPECIFIC_GAS_CONSTANT_AIR *
-            constantTemperature_;
+    return densityAtZeroAltitude_ * exp( - altitude / scaleHeight_ );
 }
 
 //! Get local pressure in the general way.
@@ -150,13 +92,8 @@ double ExponentialAtmosphere::getPressure( const double& altitude,
                                            const double& latitude,
                                            const double& time )
 {
-    return getPressure( altitude );
-}
-
-//! Get local temperature.
-double ExponentialAtmosphere::getTemperature( const double& altitude )
-{
-    return constantTemperature_;
+    return getDensity( altitude ) * specificGasConstant_ *
+            constantTemperature_;
 }
 
 //! Get local temperature in the general way.

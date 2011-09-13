@@ -63,10 +63,7 @@ public:
      * Default constructor.
      */
     KeplerianElements( ) : semiLatusRectum_( -0.0 )
-    {
-        // Initialize state to zero.
-        state.setZero( 6 );
-    }
+    { state.setZero( 6 ); }
 
     //! Default destructor.
     /*!
@@ -80,9 +77,7 @@ public:
      * \param semiMajorAxis Semi-major axis.
      */
     void setSemiMajorAxis( const double& semiMajorAxis )
-    {
-        state( 0 ) = semiMajorAxis;
-    }
+    { state( 0 ) = semiMajorAxis; }
 
     //! Set eccentricity.
     /*!
@@ -90,9 +85,7 @@ public:
      * \param eccentricity Eccentricity.
      */
     void setEccentricity( const double& eccentricity )
-    {
-        state( 1 ) = eccentricity;
-    }
+    { state( 1 ) = eccentricity; }
 
     //! Set inclination.
     /*!
@@ -100,9 +93,7 @@ public:
      * \param inclination Inclination.
      */
     void setInclination( const double& inclination )
-    {
-        state( 2 ) = inclination;
-    }
+    { state( 2 ) = inclination; }
 
     //! Set argument of periapsis.
     /*!
@@ -110,9 +101,7 @@ public:
      * \param argumentOfPeriapsis Argument of periapsis.
      */
     void setArgumentOfPeriapsis( const double& argumentOfPeriapsis )
-    {
-        state( 3 ) = argumentOfPeriapsis;
-    }
+    { state( 3 ) = argumentOfPeriapsis; }
 
     //! Sets longitude of ascending node.
     /*!
@@ -120,9 +109,7 @@ public:
      * \param longitudeOfAscendingNode Longitude of ascending node.
      */
     void setLongitudeOfAscendingNode( const double& longitudeOfAscendingNode )
-    {
-        state( 4 ) = longitudeOfAscendingNode;
-    }
+    { state( 4 ) = longitudeOfAscendingNode; }
 
     //! Set true anomaly.
     /*!
@@ -130,9 +117,7 @@ public:
      * \param trueAnomaly True anomaly.
      */
     void setTrueAnomaly( const double& trueAnomaly )
-    {
-        state( 5 ) = trueAnomaly;
-    }
+    { state( 5 ) = trueAnomaly; }
 
     //! Set semi-latus rectum ( for parabolic orbits ).
     /*!
@@ -143,9 +128,7 @@ public:
      * \param semiLatusRectum Semi-latus rectum.
      */
     void setSemiLatusRectum( const double& semiLatusRectum )
-    {
-        semiLatusRectum_ = semiLatusRectum;
-    }
+    { semiLatusRectum_ = semiLatusRectum; }
 
     //! Get semi-major axis.
     /*!
@@ -153,9 +136,7 @@ public:
      * \return Semi-major axis.
      */
     double& getSemiMajorAxis( )
-    {
-        return state( 0 );
-    }
+    { return state( 0 ); }
 
     //! Get eccentricity.
     /*!
@@ -163,9 +144,7 @@ public:
      * \return Eccentricity.
      */
     double& getEccentricity( )
-    {
-        return state( 1 );
-    }
+    { return state( 1 ); }
 
     //! Get inclination.
     /*!
@@ -173,9 +152,7 @@ public:
      * \return Inclination.
      */
     double& getInclination( )
-    {
-        return state( 2 );
-    }
+    { return state( 2 ); }
 
     //! Get argument of periapsis.
     /*!
@@ -183,9 +160,7 @@ public:
      * \return Argument of periapsis.
      */
     double& getArgumentOfPeriapsis( )
-    {
-        return state( 3 );
-    }
+    { return state( 3 ); }
 
     //! Get longitude of ascending node.
     /*!
@@ -193,9 +168,7 @@ public:
      * \return Longitude of ascending node.
      */
     double& getLongitudeOfAscendingNode( )
-    {
-        return state( 4 );
-    }
+    { return state( 4 ); }
 
     //! Get true anomaly.
     /*!
@@ -203,9 +176,7 @@ public:
      * \return True anomaly.
      */
     double& getTrueAnomaly( )
-    {
-        return state( 5 );
-    }
+    { return state( 5 ); }
 
     //! Get longitude of periapsis.
     /*!
@@ -213,9 +184,7 @@ public:
      * \return Longitude of periapsis.
      */
     double getLongitudeOfPeriapsis( )
-    {
-        return getArgumentOfPeriapsis( ) + getLongitudeOfAscendingNode( );
-    }
+    { return getArgumentOfPeriapsis( ) + getLongitudeOfAscendingNode( ); }
 
     //! Get true longitude.
     /*!
@@ -223,10 +192,7 @@ public:
      * \return True longitude.
      */
     double getTrueLongitude( )
-    {
-        return getArgumentOfPeriapsis( ) + getLongitudeOfAscendingNode( )
-                + getTrueAnomaly( );
-    }
+    { return getArgumentOfPeriapsis( ) + getLongitudeOfAscendingNode( ) + getTrueAnomaly( ); }
 
     //! Get argument of latitude.
     /*!
@@ -234,23 +200,17 @@ public:
      * \return Argument of latitude.
      */
     double getArgumentOfLatitude( )
-    {
-        return getArgumentOfPeriapsis( ) + getTrueAnomaly( );
-    }
+    { return getArgumentOfPeriapsis( ) + getTrueAnomaly( ); }
 
     //! Get semi-latus rectum.
     /*!
-     * Get semi-latus rectum.
+     * Get semi-latus rectum This only works if it has been set, which is necessary for a parabola.
+     * It does not compute the semi-latus rectum from the semi-major axis and the eccentricity,
+     * since in the case of a parabola, the semi-major axis is not defined.
      * \return Semi-latus rectum.
      */
     double getSemiLatusRectum( )
-    {
-        // This only works if it has been set, which is necessary for a parabola.
-        // It does not compute the semi-latus rectum from the semi-major axis and
-        // the eccentricity, since in the case of a parabola, the semi-major axis
-        // is not defined.
-        return semiLatusRectum_;
-    }
+    { return semiLatusRectum_; }
 
 protected:
 

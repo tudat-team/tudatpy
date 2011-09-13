@@ -50,14 +50,15 @@
 #define EXPONENTIALATMOSPHERE_H
 
 // Include statements.
-#include <cmath>
-#include "atmosphereModel.h"
-//#include "simpleAltitudeModel.h"
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h"
 
 //! Exponential atmosphere class.
 /*! Class with an exponential atmosphere. The user has to initialize this class
  * with a scale altitude, a density at zero meters altitude and a constant
- * temperature.
+ * temperature. The density is determined by \f$ \rho = \rho_0 e^{-h/H} \f$, with \f$ \rho_0 \f$
+ * the density at zero altitude, \f$ h \f$ the altitude, and \f$ H \f$ the scaling
+ * altitude. The temperature is taken as constant and the pressure follows from the universal
+ * gas law \f$ p = \rho RT$
  */
 class ExponentialAtmosphere : public AtmosphereModel
 {
@@ -75,13 +76,14 @@ public:
     /*!
      * Default constructor.
      */
-    ExponentialAtmosphere( );
+    ExponentialAtmosphere( ):scaleHeight_( -0.0 ), constantTemperature_( -0.0 ),
+                             densityAtZeroAltitude_( -0.0 ), specificGasConstant_( -0.0 ){ }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ExponentialAtmosphere( );
+    ~ExponentialAtmosphere( ){ }
 
     //! Set predefined exponential atmosphere settings.
     /*!
@@ -96,50 +98,56 @@ public:
     /*!
      * Set scale height (property of exponential atmosphere) in meters.
      */
-    void setScaleHeight( const double& scaleHeight );
+    void setScaleHeight( const double& scaleHeight ){ scaleHeight_ = scaleHeight; }
 
     //! Get scale height.
     /*!
      * Get scale height (property of exponential atmosphere) in meters.
      */
-    double getScaleHeight( );
+    double getScaleHeight( ){ return scaleHeight_; }
 
     //! Set density at zero altitude.
     /*!
      * Set density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
-    void setDensityAtZeroAltitude( const double& densityAtZeroAltitude );
+    void setDensityAtZeroAltitude( const double& densityAtZeroAltitude )
+        { densityAtZeroAltitude_ = densityAtZeroAltitude; }
 
     //! Get density at zero altitude.
     /*!
      * Get density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
-    double getDensityAtZeroAltitude( );
+    double getDensityAtZeroAltitude( ){ return densityAtZeroAltitude_; }
 
     //! Set constant temperature.
     /*!
      * Set the atmospheric temperature (constant, property of exponential atmosphere)
      * in Kelvin.
      */
-    void setConstantTemperature( const double& constantTemperature );
+    void setConstantTemperature( const double& constantTemperature )
+        { constantTemperature_ = constantTemperature; }
 
     //! Get constant temperature.
     /*!
      * Get the atmospheric temperature (constant, property of exponential atmosphere)
      * in Kelvin.
      */
-    double getConstantTemperature( );
+    double getConstantTemperature( ){ return constantTemperature_; }
 
-    //! Get local density.
+    //! Set specific gas constant.
     /*!
-     * Return the local density of the atmosphere in kg per meter^3.
-     * It is determined by \f$ \rho = \rho_0 e^{-h/H} \f$, with \f$ \rho_0 \f$ the
-     * density at zero altitude, \f$ h \f$ the altitude, and \f$ H \f$ the scaling
-     * altitude.
-     * \param altitude Altitude.
-     * \return Atmospheric density.
+     * Set the specific gas constant of the air in J/(kg K), its value is assumed constant,
+     * due to the assumption of constant atmospheric composition.
      */
-    double getDensity( const double& altitude );
+    void setSpecificGasConstant( const double& specificGasConstant )
+        { specificGasConstant_ = specificGasConstant; }
+
+    //! Get specific gas constant.
+    /*!
+     * Get the specific gas constant of the air in J/(kg K), its value is assumed constant,
+     * due to the assumption of constant atmospheric composition.
+     */
+    double getSpecificGasConstant( ){ return specificGasConstant_; }
 
     //! Get local density in the general way.
     /*!
@@ -151,20 +159,9 @@ public:
      * \return Atmospheric density.
      */
     double getDensity( const double& altitude,
-                       const double& longitude,
-                       const double& latitude,
+                       const double& longitude = 0.0,
+                       const double& latitude = 0.0,
                        const double& time = 0.0 );
-
-    //! Get local pressure.
-    /*!
-     * Return the local pressure of the atmosphere in Newton per meter^2.
-     * It is determined by the perfect gas law: \f$ p = \rho R T \f$, with
-     * \f$ \rho \f$ the density, \f$ R \f$ the specific gas constant of air,
-     * and \f$ T \f$ the temperature.
-     * \param altitude Altitude.
-     * \return Atmospheric pressure.
-     */
-    double getPressure( const double& altitude );
 
     //! Get local pressure in the general way.
     /*!
@@ -176,17 +173,9 @@ public:
      * \return Atmospheric pressure.
      */
     double getPressure( const double& altitude,
-                        const double& longitude,
-                        const double& latitude,
+                        const double& longitude = 0.0,
+                        const double& latitude = 0.0,
                         const double& time = 0.0 );
-
-    //! Get local temperature.
-    /*!
-     * Return the local temperature of the atmosphere in Kelvin.
-     * \param altitude Altitude.
-     * \return Atmospheric temperature.
-     */
-    double getTemperature( const double& altitude);
 
     //! Get local temperature.
     /*!
@@ -198,8 +187,8 @@ public:
      * \return Atmospheric temperature.
      */
     double getTemperature( const double& altitude,
-                           const double& longitude,
-                           const double& latitude,
+                           const double& longitude = 0.0,
+                           const double& latitude = 0.0,
                            const double& time = 0.0 );
 
 protected:
@@ -224,6 +213,13 @@ private:
      * Density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
     double densityAtZeroAltitude_;
+
+    //! Specific gas constant.
+    /*!
+     * Specific gas constant of the air, its value is assumed constant,
+     * due to the assumption of constant atmospheric composition.
+     */
+    double specificGasConstant_;
 };
 
 #endif // EXPONENTIALATMOSPHERE_H

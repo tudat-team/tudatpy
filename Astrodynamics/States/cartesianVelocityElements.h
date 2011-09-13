@@ -57,10 +57,7 @@ public:
      * Default constructor.
      */
     CartesianVelocityElements( )
-    {
-        // Initialize state to zero.
-        state.setZero( 3 );
-    }
+    { state.setZero( 3 ); }
 
     //! Default destructor.
     /*!
@@ -74,9 +71,7 @@ public:
      * \param cartesianElementXDot Cartesian element: xDot.
      */
     void setCartesianElementXDot( const double& cartesianElementXDot )
-    {
-        state( 0 ) = cartesianElementXDot;
-    }
+    { state( 0 ) = cartesianElementXDot; }
 
     //! Set Cartesian element: yDot.
     /*!
@@ -84,9 +79,7 @@ public:
      * \param cartesianElementYDot Cartesian element: yDot.
      */
     void setCartesianElementYDot( const double& cartesianElementYDot )
-    {
-        state( 1 ) = cartesianElementYDot;
-    }
+    { state( 1 ) = cartesianElementYDot; }
 
     //! Set Cartesian element: zDot.
     /*!
@@ -94,9 +87,7 @@ public:
      * \param cartesianElementZDot Cartesian element: zDot.
      */
     void setCartesianElementZDot( const double& cartesianElementZDot )
-    {
-        state( 2 ) = cartesianElementZDot;
-    }
+    { state( 2 ) = cartesianElementZDot; }
 
     //! Get Cartesian element: xDot.
     /*!
@@ -104,9 +95,7 @@ public:
      * \return Cartesian element: xDot.
      */
     double& getCartesianElementXDot( )
-    {
-        return state( 0 );
-    }
+    { return state( 0 ); }
 
     //! Get Cartesian element: yDot.
     /*!
@@ -114,9 +103,7 @@ public:
      * \return Cartesian element: yDot.
      */
     double& getCartesianElementYDot( )
-    {
-        return state( 1 );
-    }
+    { return state( 1 ); }
 
     //! Get Cartesian element: zDot.
     /*!
@@ -124,9 +111,7 @@ public:
      * \return Cartesian element: zDot.
      */
     double& getCartesianElementZDot( )
-    {
-        return state( 2 );
-    }
+    { return state( 2 ); }
 
     //! Overload ostream to print class information.
     /*!

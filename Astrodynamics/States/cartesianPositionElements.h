@@ -58,10 +58,7 @@ public:
      * Default constructor.
      */
     CartesianPositionElements( )
-    {
-        // Initialize state to zero.
-        state.setZero( 3 );
-    }
+    { state.setZero( 3 ); }
 
     //! Default destructor.
     /*!
@@ -75,9 +72,7 @@ public:
      * \param cartesianElementX Cartesian element: x.
      */
     void setCartesianElementX( const double& cartesianElementX )
-    {
-        state( 0 ) = cartesianElementX;
-    }
+    { state( 0 ) = cartesianElementX; }
 
     //! Set Cartesian element: y.
     /*!
@@ -85,9 +80,7 @@ public:
      * \param cartesianElementY Cartesian element: y.
      */
     void setCartesianElementY( const double& cartesianElementY )
-    {
-        state( 1 ) = cartesianElementY;
-    }
+    { state( 1 ) = cartesianElementY; }
 
     //! Set Cartesian element: z.
     /*!
@@ -95,9 +88,7 @@ public:
      * \param cartesianElementZ Cartesian element: z.
      */
     void setCartesianElementZ( const double& cartesianElementZ )
-    {
-        state( 2 ) = cartesianElementZ;
-    }
+    { state( 2 ) = cartesianElementZ; }
 
     //! Get Cartesian element: x.
     /*!
@@ -105,9 +96,7 @@ public:
      * \return Cartesian element: x.
      */
     double& getCartesianElementX( )
-    {
-        return state( 0 );
-    }
+    { return state( 0 ); }
 
     //! Get Cartesian element: y.
     /*!
@@ -115,9 +104,7 @@ public:
      * \return Cartesian element: y.
      */
     double& getCartesianElementY( )
-    {
-        return state( 1 );
-    }
+    { return state( 1 ); }
 
     //! Get Cartesian element: z.
     /*!
@@ -125,9 +112,7 @@ public:
      * \return Cartesian element: z.
      */
     double& getCartesianElementZ( )
-    {
-        return state( 2 );
-    }
+    { return state( 2 ); }
 
     //! Overload ostream to print class information.
     /*!

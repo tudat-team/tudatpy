@@ -42,24 +42,9 @@
 
 // Include statements.
 #include <iostream>
-#include "vehicleExternalModel.h"
+#include "Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h"
 
-// Using declarations.
-using std::endl;
-
-//! Default constructor.
-VehicleExternalModel::VehicleExternalModel( )
-{
-    // No geometry is set when constructor is called.
-    isGeometrySet_ = false;
-}
-
-//! Default destructor.
-VehicleExternalModel::~VehicleExternalModel( )
-{
-}
-
-//! Function to set external geometry.
+//! Set external geometry.
 void VehicleExternalModel::setVehicleGeometry( GeometricShape& vehicleGeometry )
 {
     // Sets the geometry and the isGeometrySet_ boolean to true.
@@ -67,7 +52,7 @@ void VehicleExternalModel::setVehicleGeometry( GeometricShape& vehicleGeometry )
     isGeometrySet_ = true;
 }
 
-//! Function to retrieve external geometry.
+//! Get external geometry.
 GeometricShape* VehicleExternalModel::getVehicleExternalGeometry( )
 {
     // Only return the geometry when one is set.
@@ -82,10 +67,13 @@ GeometricShape* VehicleExternalModel::getVehicleExternalGeometry( )
     }
 }
 
-//! Overloaded ostream to print class information.
+//! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
                           VehicleExternalModel& vehicleExternalModel )
 {
+    // Using declarations.
+    using std::endl;
+
     stream << "This is an external model, the following properties"
            << " have been set:" << endl;
 

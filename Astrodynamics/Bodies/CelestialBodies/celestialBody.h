@@ -48,11 +48,11 @@
 
 // Include statements.
 #include <iostream>
-#include "body.h"
-#include "cartesianElements.h"
-#include "ephemeris.h"
-#include "gravityFieldModel.h"
-#include "atmosphereModel.h"
+#include "Astrodynamics/Bodies/body.h"
+#include "States/cartesianElements.h"
+#include "States/ephemeris.h"
+#include "EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
+#include "EnvironmentModels/AtmosphereModel/atmosphereModel.h"
 
 //! Celestial body class.
 /*!
@@ -66,41 +66,45 @@ public:
     /*!
      * Default constructor.
      */
-    CelestialBody( );
+    CelestialBody( ) : pointerToEphemeris_( NULL ), pointerToGravityFieldModel_( NULL ),
+                       pointerToAtmosphereModel_( NULL ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CelestialBody( );
+    virtual ~CelestialBody( ) { }
 
     //! Set ephemeris.
     /*!
      * Sets the ephemeris.
      * \param pointerToEphemeris Pointer to ephemeris.
      */
-    void setEphemeris( Ephemeris* pointerToEphemeris );
+    void setEphemeris( Ephemeris* pointerToEphemeris ){ pointerToEphemeris_ = pointerToEphemeris; }
 
     //! Set gravity field model.
     /*!
      * Sets the gravity field model.
      * \param pointerToGravityFieldModel Pointer to gravity field model.
      */
-    void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel );
+    void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel )
+        { pointerToGravityFieldModel_ = pointerToGravityFieldModel; }
 
     //! Set atmosphere model.
     /*!
      * Sets the atmosphere model.
      * \param pointerToAtmosphereModel Pointer to an atmosphere model.
      */
-    void setAtmosphereModel( AtmosphereModel* pointerToAtmosphereModel );
+    void setAtmosphereModel( AtmosphereModel* pointerToAtmosphereModel )
+        { pointerToAtmosphereModel_ = pointerToAtmosphereModel; }
 
     //! Get gravitational parameter.
     /*!
      * Returns the gravitational parameter in meter^3 per second^2.
      * \return Gravitational parameter.
      */
-    const double getGravitationalParameter( ) const;
+    const double getGravitationalParameter( ) const
+        { return pointerToGravityFieldModel_->getGravitationalParameter( ); }
 
     //! Get state from ephemeris at given Julian date.
     /*!
@@ -108,28 +112,29 @@ public:
      * the given Julian date in Cartesian elements.
      * \return Pointer to Cartesian elements.
      */
-    CartesianElements* getStateFromEphemeris( const double& julianDate );
+    CartesianElements* getStateFromEphemeris( const double& julianDate )
+        { return pointerToEphemeris_->getStateFromEphemeris( julianDate ); }
 
     //! Get ephemeris.
     /*!
      * Gets the ephemeris.
      * \return Pointer to ephemeris.
      */
-    Ephemeris* getEphemeris( );
+    Ephemeris* getEphemeris( ) { return pointerToEphemeris_; }
 
     //! Get gravity field model.
     /*!
      * Returns the gravity field model.
      * \return Gravity field model.
      */
-    GravityFieldModel* getGravityFieldModel( );
+    GravityFieldModel* getGravityFieldModel( ) { return pointerToGravityFieldModel_; }
 
     //! Get atmosphere model.
     /*!
      * Gets the atmosphere model.
      * \return Pointer to the atmosphere model.
      */
-    AtmosphereModel* getAtmospheremodel( );
+    AtmosphereModel* getAtmospheremodel( ) { return pointerToAtmosphereModel_; }
 
     //! Overload ostream to print class information.
     /*!

@@ -60,7 +60,7 @@
 #define SPHERICALHARMONICSGRAVITYFIELD_H
 
 // Include statements.
-#include "gravityFieldModel.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
 
 //! SphericalHarmonicsGravityField class.
 /*!
@@ -84,13 +84,16 @@ public:
     /*!
      * Default constructor.
      */
-    SphericalHarmonicsGravityField( );
+    SphericalHarmonicsGravityField( ):degreeOfExpansion_( -0 ), orderOfExpansion_( -0 ),
+        referenceRadius_( -0.0 ), j2SphericalHarmonicsGravityFieldCoefficient_( -0.0 ),
+        j3SphericalHarmonicsGravityFieldCoefficient_( -0.0 ),
+        j4SphericalHarmonicsGravityFieldCoefficient_( -0.0 ){ }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~SphericalHarmonicsGravityField( );
+    virtual ~SphericalHarmonicsGravityField( ){ }
 
     //! Set predefined spherical harmonics gravity field settings.
     /*!
@@ -108,7 +111,7 @@ public:
      * in meters.
      *  \param referenceRadius Reference radius.
      */
-    void setReferenceRadius( const double& referenceRadius );
+    void setReferenceRadius( const double& referenceRadius ){ referenceRadius_ = referenceRadius; }
 
     //! Set degree of spherical harmonics gravity field expansion.
     /*!
@@ -116,7 +119,8 @@ public:
      * gravity field expansion.
      * \param degreeOfExpansion Degree of spherical harmonics expansion.
      */
-    void setDegreeOfExpansion( const unsigned int& degreeOfExpansion );
+    void setDegreeOfExpansion( const unsigned int& degreeOfExpansion )
+        { degreeOfExpansion_ = degreeOfExpansion; }
 
     //! Set order of spherical harmonics gravity field expansion.
     /*!
@@ -124,7 +128,8 @@ public:
      * gravity field expansion.
      * \param orderOfExpansion Order of spherical harmonics expansion.
      */
-    void setOrderOfExpansion( const unsigned int& orderOfExpansion );
+    void setOrderOfExpansion( const unsigned int& orderOfExpansion )
+        { orderOfExpansion_ = orderOfExpansion; }
 
     //! Get the reference radius.
     /*!
@@ -132,7 +137,7 @@ public:
      * in meters.
      * \return Reference radius.
      */
-    double getReferenceRadius( );
+    double getReferenceRadius( ){ return referenceRadius_; }
 
     //! Get degree of spherical harmonics gravity field expansion.
     /*!
@@ -140,7 +145,7 @@ public:
      * gravity field expansion.
      * \return Degree of spherical harmonics expansion.
      */
-    double getDegreeOfExpansion( );
+    double getDegreeOfExpansion( ){ return degreeOfExpansion_; }
 
     //! Get order of spherical harmonics gravity field expansion.
     /*!
@@ -148,7 +153,7 @@ public:
      * gravity field expansion.
      * \return Order of spherical harmonics expansion.
      */
-    double getOrderOfExpansion( );
+    double getOrderOfExpansion( ){ return orderOfExpansion_; }
 
     //! Get the gravitational potential.
     /*!

@@ -49,8 +49,7 @@
 #define ATMOSPHEREMODEL_H
 
 // Include statements.
-#include "environmentModel.h"
-#include "physicalConstants.h"
+#include "Astrodynamics/EnvironmentModels/environmentModel.h"
 
 //! Atmosphere model class.
 /*! Base class for all atmosphere models.
@@ -66,13 +65,13 @@ public:
     /*!
      * Default constructor.
      */
-    AtmosphereModel( );
+    AtmosphereModel( ){ }
 
     //! Default destructor.
     /*!
     * Default destructor.
     */
-    ~AtmosphereModel( );
+    virtual ~AtmosphereModel( ){ }
 
     //! Get local density.
     /*!
@@ -86,7 +85,7 @@ public:
     virtual double getDensity( const double& altitude,
                                const double& longitude,
                                const double& latitude,
-                               const double& time = 0.0 ) = 0;
+                               const double& time ) = 0;
 
     //! Get local pressure.
     /*!
@@ -100,7 +99,7 @@ public:
     virtual double getPressure( const double& altitude,
                                 const double& longitude,
                                 const double& latitude,
-                                const double& time = 0.0 ) = 0;
+                                const double& time ) = 0;
 
     //! Get local temperature.
     /*!
@@ -114,7 +113,7 @@ public:
     virtual double getTemperature( const double& altitude,
                                    const double& longitude,
                                    const double& latitude,
-                                   const double& time = 0.0 ) = 0;
+                                   const double& time ) = 0;
 
 protected:
 

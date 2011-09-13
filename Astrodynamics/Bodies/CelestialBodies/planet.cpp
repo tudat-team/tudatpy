@@ -37,20 +37,15 @@
  */
 
 // Include statements.
-#include "planet.h"
-
-// Using declarations.
-using std::cerr;
-using std::endl;
-
-//! Default constructor.
-Planet::Planet( )
-{
-}
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
 
 //! Set predefined planet settings.
 void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+
     // Select predefined planet.
     switch( predefinedPlanet )
     {
@@ -191,11 +186,6 @@ void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 
     // Set ephemeris.
     pointerToEphemeris_ = &approximatePlanetPositions_;
-}
-
-//! Default destructor.
-Planet::~Planet( )
-{
 }
 
 // End of file.

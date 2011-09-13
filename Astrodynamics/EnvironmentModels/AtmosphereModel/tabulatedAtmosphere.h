@@ -42,18 +42,17 @@
  *                                  and consistency modified.
  */
 
-
 #ifndef TABULATEDATMOSPHERE_H
 #define TABULATEDATMOSPHERE_H
 
-//include statements
-#include "atmosphereModel.h"
-#include <string>
+// Include statements.
 #include <iostream>
 #include <sstream>
-#include "textFileReader.h"
-#include "linearAlgebra.h"
-#include "cubicSplineInterpolation.h"
+#include <string>
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h"
+#include "Input/textFileReader.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include "Mathematics/cubicSplineInterpolation.h"
 
 //using statements
 using std::stringstream;
@@ -74,13 +73,14 @@ public:
     /*!
      *  Default constructor
      */
-    TabulatedAtmosphere( );
+    TabulatedAtmosphere( )
+    { relativePath_ = "Astrodynamics/EnvironmentModels/AtmosphereModel/AtmosphereTables/"; }
 
     //! Default destructor.
     /*!
      *  Default destructor.
      */
-    ~TabulatedAtmosphere( );
+    ~TabulatedAtmosphere( ) { }
 
     //! Initialise the atmosphere table reader.
     /*!
@@ -94,14 +94,14 @@ public:
      *  Get atmosphere table file name.
      * \return The atmosphere table file.
      */
-    string getAtmosphereTableFile( );
+    string getAtmosphereTableFile( ) { return atmosphereTableFile_; }
 
     //! Get relative path.
     /*!
      * Get relative path.
      * \return The relative path.
      */
-    string getRelativePath( );
+    string getRelativePath( ) { return relativePath_; }
 
     //! Get local density.
     /*!
@@ -112,19 +112,9 @@ public:
      * \param time Time.
      * \return Atmospheric density.
      */
-    double getDensity( const double& altitude,
-                       const double& longitude,
-                       const double& latitude,
-                       const double& time = 0.0 );
-
-    //! Get local density.
-    /*!
-     * Return the local density parameter of the atmosphere in kg per meter^3.
-     * \param altitude Altitude.
-     * \return Atmospheric density.
-     */
-    double getDensity( const double& altitude );
-
+    double getDensity( const double& altitude, const double& longitude = 0.0,
+                       const double& latitude = 0.0, const double& time = 0.0 )
+    { return cubicSplineInterpolationForDensity_.interpolate( altitude ); }
 
     //! Get local pressure.
     /*!
@@ -135,18 +125,9 @@ public:
      * \param time Time.
      * \return Atmospheric pressure.
      */
-    double getPressure( const double& altitude,
-                        const double& longitude,
-                        const double& latitude,
-                        const double& time = 0.0 );
-
-    //! Get local pressure.
-    /*!
-     * Return the local pressure of the atmosphere in Newton per meter^2.
-     * \param altitude Altitude.
-     * \return Atmospheric pressure.
-     */
-    double getPressure( const double& altitude );
+    double getPressure( const double& altitude, const double& longitude = 0.0,
+                        const double& latitude = 0.0, const double& time = 0.0 )
+    { return cubicSplineInterpolationForPressure_.interpolate( altitude ); }
 
     //! Get local temperature.
     /*!
@@ -157,19 +138,9 @@ public:
      * \param time Time.
      * \return Atmospheric temperature.
      */
-    double getTemperature( const double& altitude,
-                           const double& longitude,
-                           const double& latitude,
-                           const double& time = 0.0 );
-
-    //! Get local temperature.
-    /*!
-     * Return the local temperature of the atmosphere parameter in Kelvin.
-     * \param altitude Altitude.
-     * \return Atmospheric temperature.
-     */
-    double getTemperature( const double& altitude );
-
+    double getTemperature( const double& altitude, const double& longitude = 0.0,
+                           const double& latitude = 0.0, const double& time = 0.0 )
+    { return cubicSplineInterpolationForTemperature_.interpolate( altitude ); }
 
 protected:
 

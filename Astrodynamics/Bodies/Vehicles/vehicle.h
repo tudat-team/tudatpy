@@ -48,8 +48,8 @@
 
 // Include statements.
 #include <iostream>
-#include "vehicleExternalModel.h"
-#include "body.h"
+#include "Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h"
+#include "Astrodynamics/Bodies/body.h"
 
 //! Vehicle class.
 /*!
@@ -66,23 +66,25 @@ public:
     /*!
      * Default constructor.
      */
-    Vehicle( );
+    Vehicle( ) : pointerToExternalModel_( NULL ), isExternalModelSet_( false ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~Vehicle( );
+    virtual ~Vehicle( ) { }
 
-    //! Function to set the externalModel of the vehicle.
+    //! Set the external model of the vehicle.
     /*!
-     * Function to set the external model of the vehicle.
+     * Sets the external model of the vehicle.
+     * \param externalModel Vehicle external model.
      */
     void setExternalModel( VehicleExternalModel& externalModel );
 
-    //! Function to retrieve the externalModel of the vehicle.
+    //! Get external model of the vehicle.
     /*!
-     * Function to retrieve the external model of the vehicle.
+     * Returns the external model of the vehicle.
+     * \return Pointer to vehicle external model.
      */
     VehicleExternalModel* getPointerToExternalModel( );
 

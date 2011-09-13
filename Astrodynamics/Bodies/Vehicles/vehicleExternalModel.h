@@ -45,14 +45,14 @@
 
 // Include statements.
 #include <iostream>
-#include "geometricShape.h"
+#include "Mathematics/GeometricShapes/geometricShape.h"
 
 //! Vehicle external model class.
 /*!
- *  Class that contains the properties of the external portion of the
- *  vehicle. Current properties that can be set are:
- *  Array of pointers to VehiclePartExternalModels, to be able to set
- *  different (types of) properties for different vehicle parts.
+ * Class that contains the properties of the external portion of the
+ * vehicle. Current properties that can be set are:
+ * Array of pointers to VehiclePartExternalModels, to be able to set
+ * different (types of) properties for different vehicle parts.
  */
 class VehicleExternalModel
 {
@@ -60,28 +60,29 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     * Default constructor.
      */
-    VehicleExternalModel( );
+    VehicleExternalModel( ) : pointerToVehicleGeometry_( NULL ), isGeometrySet_( false ) { }
 
     //! Default destructor.
     /*!
      *  Default destructor.
      */
-    ~VehicleExternalModel( );
+    ~VehicleExternalModel( ) { }
 
     //! Function to set external geometry.
     /*!
-    * Function to set the external vehicle geometry. Geometry object is to be
-    * created externally.
-    * \param vehicleGeometry pointer to shape that is to be set.
-    */
+     * Function to set the external vehicle geometry. Geometry object is to be
+     * created externally.
+     * \param vehicleGeometry pointer to shape that is to be set.
+     */
     void setVehicleGeometry( GeometricShape& vehicleGeometry );
 
-    //! Function to retrieve external geometry.
+    //! Get external geometry.
     /*!
-    * Function to retrieve the external geometry.
-    */
+     * Returns the external geometry.
+     * \return Pointer to geometric shape.
+     */
     GeometricShape* getVehicleExternalGeometry( );
 
     //! Overload ostream to print class information.

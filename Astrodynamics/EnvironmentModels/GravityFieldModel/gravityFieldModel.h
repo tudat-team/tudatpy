@@ -53,8 +53,8 @@
 #define GRAVITYFIELDMODEL_H
 
 // Include statements.
-#include "environmentModel.h"
-#include "cartesianPositionElements.h"
+#include "Astrodynamics/EnvironmentModels/environmentModel.h"
+#include "Astrodynamics/States/cartesianPositionElements.h"
 
 //! GravityFieldModel class.
 /*!
@@ -68,20 +68,21 @@ public:
     /*!
      * Default constructor.
      */
-    GravityFieldModel( );
+    GravityFieldModel( ): gravitationalParameter_( -0.0 ){ }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~GravityFieldModel( );
+    virtual ~GravityFieldModel( ){ }
 
     //! Set the gravitational parameter.
     /*!
      * Define the gravitational parameter in meter^3 per second^2.
      * \param gravitationalParameter
      */
-    void setGravitationalParameter( const double& gravitationalParameter );
+    void setGravitationalParameter( const double& gravitationalParameter )
+        { gravitationalParameter_ = gravitationalParameter; }
 
     //! Set origin of gravity field.
     /*!
@@ -89,14 +90,15 @@ public:
      * \param pointerToPositionOfOrigin Position of origin given as a pointer to a
      *          CartesianPositionElements object.
      */
-    void setOrigin( CartesianPositionElements* pointerToPositionOfOrigin );
+    void setOrigin( CartesianPositionElements* pointerToPositionOfOrigin )
+        { positionOfOrigin_ = *pointerToPositionOfOrigin; }
 
     //! Get the gravitational parameter.
     /*!
      * Return the gravitational parameter in meter^3 per second^2.
      * \return Gravitational parameter.
      */
-    double getGravitationalParameter( );
+    double getGravitationalParameter( ){ return gravitationalParameter_; }
 
     //! Get origin of gravity field.
     /*!
@@ -104,7 +106,7 @@ public:
      * \return Position of origin given as a pointer to a
      *          CartesianPositionElements object.
      */
-    CartesianPositionElements* getOrigin( );
+    CartesianPositionElements* getOrigin( ){ return &positionOfOrigin_; }
 
     //! Get the potential.
     /*!

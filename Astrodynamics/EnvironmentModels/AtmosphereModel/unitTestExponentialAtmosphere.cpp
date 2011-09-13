@@ -41,21 +41,25 @@
  */
 
 // Include statements.
-#include "unitTestExponentialAtmosphere.h"
-
-// Using directives.
-using std::cerr;
-using std::endl;
-using mathematics::computeAbsoluteValue;
-using mathematics::MACHINE_PRECISION_DOUBLES;
+#include <cmath>
+#include "Astrodynamics/physicalConstants.h"
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h"
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Namespace for all unit tests.
 namespace unit_tests
 {
 
 //! Test of implementation of the exponential atmosphere.
-bool testExponentialAtmosphere ( )
+bool testExponentialAtmosphere( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using mathematics::computeAbsoluteValue;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+
     // Declare test variable.
     bool isExponentialAtmosphereBad_ = false;
 
@@ -78,6 +82,7 @@ bool testExponentialAtmosphere ( )
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
     exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
     exponentialAtmosphere.setScaleHeight( scaleHeight );
+    exponentialAtmosphere.setSpecificGasConstant( PhysicalConstants::SPECIFIC_GAS_CONSTANT_AIR );
 
     // Check if set and get functions work well.
     if ( computeAbsoluteValue( ( exponentialAtmosphere.getConstantTemperature( )

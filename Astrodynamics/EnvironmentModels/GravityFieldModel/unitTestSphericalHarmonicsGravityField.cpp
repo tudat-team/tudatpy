@@ -57,14 +57,15 @@
  */
 
 // Include statements.
-#include "unitTestSphericalHarmonicsGravityField.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.h"
 
-// Using directives.
-using std::cerr;
-using std::endl;
-using mathematics::raiseToIntegerPower;
-using mathematics::computeAbsoluteValue;
-using mathematics::MACHINE_PRECISION_DOUBLES;
+// Include statements.
+#include <cmath>
+#include "basicMathematicsFunctions.h"
+#include "linearAlgebra.h"
+#include "gravityFieldModel.h"
+#include "planet.h"
+#include "sphericalHarmonicsGravityField.h"
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -73,6 +74,13 @@ namespace unit_tests
 //! Test of implementation of spherical harmonics gravity field class.
 bool testSphericalHarmonicsGravityField( )
 {
+    // Using directives.
+    using std::cerr;
+    using std::endl;
+    using mathematics::raiseToIntegerPower;
+    using mathematics::computeAbsoluteValue;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+
     // Five tests.
     // Test 1: Test setting and getting gravitational parameter.
     // Test 2: Test getting gravitational parameter for predefined Earth

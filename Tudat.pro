@@ -7,7 +7,6 @@ CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
-    Astrodynamics/Bodies/body.cpp \
     Astrodynamics/Bodies/CelestialBodies/celestialBody.cpp \
     Astrodynamics/Bodies/CelestialBodies/planet.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \

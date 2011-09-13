@@ -63,21 +63,6 @@ using mathematics::raiseToIntegerPower;
 using std::endl;
 using std::cerr;
 
-//! Default constructor.
-SphericalHarmonicsGravityField::SphericalHarmonicsGravityField( )
-    : degreeOfExpansion_( -0 ), orderOfExpansion_( -0 ),
-      referenceRadius_( -0.0 ),
-      j2SphericalHarmonicsGravityFieldCoefficient_( -0.0 ),
-      j3SphericalHarmonicsGravityFieldCoefficient_( -0.0 ),
-      j4SphericalHarmonicsGravityFieldCoefficient_( -0.0 )
-{  
-}
-
-//! Default destructor.
-SphericalHarmonicsGravityField::~SphericalHarmonicsGravityField( )
-{
-}
-
 //! Set predefined spherical harmonics gravity field settings.
 void SphericalHarmonicsGravityField::
 setPredefinedSphericalHarmonicsGravityFieldSettings(
@@ -135,45 +120,6 @@ setPredefinedSphericalHarmonicsGravityFieldSettings(
         cerr << "Desired predefined spherical harmonics gravity field does not exist."
              << endl;
     };
-}
-
-//! Set the reference radius.
-void SphericalHarmonicsGravityField::setReferenceRadius(
-        const double& referenceRadius )
-{
-    referenceRadius_ = referenceRadius;
-}
-
-//! Set degree of spherical harmonics gravity field expansion.
-void SphericalHarmonicsGravityField::setDegreeOfExpansion(
-        const unsigned int& degreeOfExpansion )
-{
-    degreeOfExpansion_ = degreeOfExpansion;
-}
-
-//! Set order of spherical harmonics gravity field expansion.
-void SphericalHarmonicsGravityField::setOrderOfExpansion(
-        const unsigned int& orderOfExpansion )
-{
-    orderOfExpansion_ = orderOfExpansion;
-}
-
-//! Get the reference radius.
-double SphericalHarmonicsGravityField::getReferenceRadius( )
-{
-    return referenceRadius_;
-}
-
-//! Get degree of spherical harmonics gravity field expansion.
-double SphericalHarmonicsGravityField::getDegreeOfExpansion( )
-{
-    return degreeOfExpansion_;
-}
-
-//! Get order of spherical harmonics gravity field expansion.
-double SphericalHarmonicsGravityField::getOrderOfExpansion( )
-{
-    return orderOfExpansion_;
 }
 
 //! Get the gravitational potential.

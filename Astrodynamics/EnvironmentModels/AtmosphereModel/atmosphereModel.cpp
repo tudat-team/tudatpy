@@ -44,17 +44,4 @@
 *      110427    F.M. Engelen      Changed input arguments to altitude, longitude, latitude.
 */
 
-// Include statements.
-#include "atmosphereModel.h"
-
-//! Default constructor.
-AtmosphereModel::AtmosphereModel( )
-{
-}
-
-//! Default destructor.
-AtmosphereModel::~AtmosphereModel( )
-{
-}
-
 // End of file.

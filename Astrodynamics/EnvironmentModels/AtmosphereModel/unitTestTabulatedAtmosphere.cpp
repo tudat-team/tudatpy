@@ -42,22 +42,25 @@
  */
 
 // Include statements.
-#include "unitTestTabulatedAtmosphere.h"
-#include "tabulatedAtmosphere.h"
-
-// Using directives.
-using std::cerr;
-using std::endl;
-using mathematics::computeAbsoluteValue;
-using mathematics::MACHINE_PRECISION_DOUBLES;
+#include <iostream>
+#include <cmath>
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.h"
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestTabulatedAtmosphere.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Namespace for all unit tests.
 namespace unit_tests
 {
 
 //! Test of implementation of the Tabulated atmosphere.
-bool testTabulatedAtmosphere ( )
+bool testTabulatedAtmosphere( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using mathematics::computeAbsoluteValue;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+
     // Declare test variable.
     bool isTabulatedAtmosphereBad_ = false;
 

@@ -85,10 +85,7 @@ public:
      * \param pointerToNewtonRaphson Pointer to NewtonRaphson object.
      */
     void setNewtonRaphson( NewtonRaphson* pointerToNewtonRaphson )
-    {
-        // Set pointer to Newton-Raphson method.
-        pointerToNewtonRaphson_ = pointerToNewtonRaphson;
-    }
+    { pointerToNewtonRaphson_ = pointerToNewtonRaphson; }
 
     //! Set eccentricity.
     /*!
@@ -96,9 +93,7 @@ public:
      * \param eccentricity Eccentricity.
      */
     void setEccentricity( const double& eccentricity )
-    {
-        eccentricity_ = eccentricity;
-    }
+    { eccentricity_ = eccentricity; }
 
     //! Set mean anomaly.
     /*!
@@ -106,9 +101,7 @@ public:
      * \param meanAnomaly Mean anomaly.
      */
     void setMeanAnomaly( const double& meanAnomaly )
-    {
-        meanAnomaly_ = meanAnomaly;
-    }
+    { meanAnomaly_ = meanAnomaly; }
 
 protected:
 
