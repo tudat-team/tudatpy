@@ -44,24 +44,13 @@
  */
 
 // Include statements.
-#include "approximatePlanetPositionsCircularCoplanar.h"
-#include "planet.h"
+#include "Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
 using mathematics::raiseToIntegerPower;
-
-//! Default constructor.
-ApproximatePlanetPositionsCircularCoplanar::ApproximatePlanetPositionsCircularCoplanar( )
-{
-}
-
-//! Default destructor.
-ApproximatePlanetPositionsCircularCoplanar::
-        ~ApproximatePlanetPositionsCircularCoplanar( )
-{
-}
 
 //! Get state from ephemeris; circular, coplanar case
 CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphemeris(

@@ -49,15 +49,7 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/States/approximatePlanetPositionsBase.cpp \
     Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.cpp \
     Astrodynamics/States/approximatePlanetPositionsDataContainer.cpp \
-    Astrodynamics/States/ephemeris.cpp \
-    Astrodynamics/States/state.cpp \
-    Astrodynamics/States/orbitalElements.cpp \
     Astrodynamics/States/orbitalElementConversions.cpp \
-    Astrodynamics/States/keplerianElements.cpp \
-    Astrodynamics/States/cartesianElements.cpp \
-    Astrodynamics/States/cartesianPositionElements.cpp \
-    Astrodynamics/States/cartesianVelocityElements.cpp \
-    Astrodynamics/States/convertMeanAnomalyBase.cpp \
     Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.cpp \
     Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp \
     Astrodynamics/States/unitTestApproximatePlanetPositions.cpp \

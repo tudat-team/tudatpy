@@ -44,8 +44,8 @@
 
 // Include statements.
 #include <sstream>
-#include "cartesianElements.h"
-#include "textFileReader.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Input/textFileReader.h"
 
 //! Ephemeris base class.
 /*!
@@ -76,13 +76,13 @@ public:
     /*!
      * Default constructor.
      */
-    Ephemeris( );
+    Ephemeris( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~Ephemeris( );
+    virtual ~Ephemeris( ) { }
 
     //! Get state from ephemeris.
     /*!

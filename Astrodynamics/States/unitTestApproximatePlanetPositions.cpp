@@ -59,7 +59,15 @@
 
 // Include statements.
 #include <iostream>
-#include "unitTestApproximatePlanetPositions.h"
+#include "Astrodynamics/States/unitTestApproximatePlanetPositions.h"
+#include "Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/States/keplerianElements.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include "Astrodynamics/States/orbitalElementConversions.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Mathematics/unitConversions.h"
 
 // Using declarations.
 using std::cerr;
@@ -81,7 +89,7 @@ namespace unit_tests
 //! Test ApproximatePlanetPositions class.
 bool testApproximatePlanetPositions( )
 {
-    // Test result initialised to true.
+    // Initialize unit test result to false.
     bool isApproximatePlanetPositionsErroneous_ = false;
 
     // Test of ApproximatePlanetPositions class.

@@ -44,7 +44,7 @@
 #define ORBITALELEMENTS_H
 
 // Include statements.
-#include "state.h"
+#include "Astrodynamics/States/state.h"
 
 //! Orbital elements base class.
 /*!
@@ -58,13 +58,13 @@ public:
     /*!
      * Default constructor.
      */
-    OrbitalElements( );
+    OrbitalElements( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~OrbitalElements( );
+    ~OrbitalElements( ) { }
 
 protected:
 

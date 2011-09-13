@@ -45,16 +45,6 @@
 #ifndef UNITTESTAPPROXIMATEPLANETPOSITIONS_H
 #define UNITTESTAPPROXIMATEPLANETPOSITIONS_H
 
-// Include statements.
-#include "approximatePlanetPositionsCircularCoplanar.h"
-#include "basicMathematicsFunctions.h"
-#include "celestialBody.h"
-#include "keplerianElements.h"
-#include "linearAlgebra.h"
-#include "orbitalElementConversions.h"
-#include "planet.h"
-#include "unitConversions.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

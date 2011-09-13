@@ -43,11 +43,6 @@
 #ifndef UNITTESTCARTESIANELEMENTS_H
 #define UNITTESTCARTESIANELEMENTS_H
 
-// Include statements.
-#include "basicMathematicsFunctions.h"
-#include "cartesianElements.h"
-#include "linearAlgebra.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

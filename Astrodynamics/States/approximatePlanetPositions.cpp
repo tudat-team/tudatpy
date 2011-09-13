@@ -45,24 +45,13 @@
  */
 
 // Include statements.
-#include "approximatePlanetPositions.h"
-#include "planet.h"
+#include "Astrodynamics/States/approximatePlanetPositions.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
 using mathematics::raiseToIntegerPower;
-
-//! Default constructor.
-ApproximatePlanetPositions::ApproximatePlanetPositions( )
-{
-}
-
-//! Default destructor.
-ApproximatePlanetPositions::
-        ~ApproximatePlanetPositions( )
-{
-}
 
 //! Get state from ephemeris.
 CartesianElements* ApproximatePlanetPositions::

@@ -42,7 +42,10 @@
  */
 
 // Include statements.
-#include "unitTestCartesianElements.h"
+#include "Astrodynamics/States/unitTestCartesianElements.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 // Using statements.
 using std::cerr;
@@ -61,7 +64,7 @@ bool testCartesianElements( )
     // Test 2: Set Cartesian elements using setState() function; and get
     //         Cartesian elements using getState() function.
 
-    // Test result initialised to true.
+    // Initialize unit test result to false.
     bool isCartesianElementsErroneous = false;
 
     // Create Cartesian elements state objects.

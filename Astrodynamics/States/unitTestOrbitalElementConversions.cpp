@@ -86,7 +86,18 @@
  */
 
 // Include statements.
-#include "unitTestOrbitalElementConversions.h"
+#include <cmath>
+#include "Astrodynamics/States/unitTestOrbitalElementConversions.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h"
+#include "Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
+#include "Astrodynamics/States/orbitalElementConversions.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h"
+#include "Mathematics/unitConversions.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
 
 // Using declarations.
 using std::cerr;
@@ -126,7 +137,7 @@ bool testOrbitalElementConversions( )
     // Test 1: Test of Cartesian-to-Keplerian elements conversion and
     //         Keplerian-to-Cartesian elements conversion.
 
-    // Test result initialised to false.
+    // Initialize unit test result to false.
     bool isOrbitalElementConversionErroneous = false;
 
     // Define tolerance.
