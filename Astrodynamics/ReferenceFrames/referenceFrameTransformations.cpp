@@ -27,7 +27,7 @@
  *    In the future it might be better to change it to write out the complete transformation for
  *    clearity, or work with directional cosine matrices.
  *
- *    Copyright (c) 2010 Delft University of Technology.
+ *    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and

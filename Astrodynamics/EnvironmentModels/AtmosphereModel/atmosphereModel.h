@@ -25,7 +25,7 @@
  *    Notes
  *      Baseclass for standard and reference Atmospheres.
  *
- *    Copyright (c) 2010 Delft University of Technology.
+ *    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and

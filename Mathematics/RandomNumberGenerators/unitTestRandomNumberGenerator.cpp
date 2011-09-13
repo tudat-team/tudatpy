@@ -54,7 +54,7 @@
  *      or Test 2 for the exponential distribution, it is recommended that the
  *      unit test is run again to rule out statistical anomalies.
  *
- *    Copyright (c) 2010 Delft University of Technology.
+ *    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
