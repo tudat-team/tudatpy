@@ -44,13 +44,15 @@
  *      110203    J. Melman         File checked.
  *      110207    K. Kumar          Path changed; moved integrate() function;
  *                                  added ostream overload.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef SINGLESTEP_H
 #define SINGLESTEP_H
 
 // Include statements.
-#include "integrator.h"
+#include "Mathematics/NumericalIntegrators/integrator.h"
 
 //! Single step integration methods class.
 /*!
@@ -64,13 +66,13 @@ public:
     /*!
      * Default constructor.
      */
-    SingleStepIntegrationMethods( );
+    SingleStepIntegrationMethods( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~SingleStepIntegrationMethods( );
+    virtual ~SingleStepIntegrationMethods( ) { }
 
     //! Integrate.
     /*!

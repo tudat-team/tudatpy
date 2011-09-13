@@ -41,24 +41,16 @@
  *      110208    K. Kumar          Updated file header; corrected Doxygen
  *                                  comments; minor changes.
  *      110209    D. Dirkx          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "torus.h"
+#include "Mathematics/GeometricShapes/torus.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-
-//! Default constructor.
-Torus::Torus( )
-{
-}
-
-//! Default destructor.
-Torus::~Torus( )
-{
-}
 
 //! Get surface point on torus.
 VectorXd Torus::getSurfacePoint( const double& majorCircumferentialAngle,
@@ -281,82 +273,6 @@ void Torus::setParameter( const int& index, const double& parameter)
         cerr << "Parameter " << index << " does not exist in Torus";
         break;
     }
-}
-
-//! Get major radius.
-double& Torus::getMajorRadius( )
-{
-    return majorRadius_;
-}
-
-//! Set major radius.
-void Torus::setMajorRadius( const double& majorRadius )
-{
-    majorRadius_ = majorRadius;
-}
-
-//! Get minor radius.
-double& Torus::getMinorRadius( )
-{
-    return minorRadius_;
-}
-
-//! Set minor radius.
-void Torus::setMinorRadius( const double& minorRadius )
-{
-    minorRadius_ = minorRadius;
-}
-
-//! Get maximum of major circumferential angle.
-double Torus::getMaximumMajorCircumferentialAngle( )
-{
-    return getMaximumIndependentVariable( 1 );
-}
-
-//! Get maximum of minor circumferential angle.
-double Torus::getMaximumMinorCircumferentialAngle( )
-{
-    return getMaximumIndependentVariable( 2 );
-}
-
-//! Get minimum of major circumferential angle.
-double Torus::getMinimumMajorCircumferentialAngle( )
-{
-    return getMinimumIndependentVariable( 1 );
-}
-
-//! Get minimum of minor circumferential angle.
-double Torus::getMinimumMinorCircumferentialAngle( )
-{
-    return getMinimumIndependentVariable( 2 );
-}
-
-//! Set maximum of major circumferential angle.
-void Torus::setMaximumMajorCircumferentialAngle( const double&
-                                                 majorCirumferentialAngle )
-{
-    setMaximumIndependentVariable( 1, majorCirumferentialAngle );
-}
-
-//! Set minimum of major circumferential angle.
-void Torus::setMinimumMajorCircumferentialAngle( const double&
-                                                 majorCirumferentialAngle )
-{
-    setMinimumIndependentVariable( 1, majorCirumferentialAngle );
-}
-
-//! Set maximum of minor circumferential angle.
-void Torus::setMaximumMinorCircumferentialAngle( const double&
-                                                 minorCirumferentialAngle )
-{
-    setMaximumIndependentVariable( 2, minorCirumferentialAngle );
-}
-
-//! Set minimum of minor circumferential angle.
-void Torus::setMinimumMinorCircumferentialAngle( const double&
-                                                 minorCirumferentialAngle )
-{
-    setMinimumIndependentVariable( 2, minorCirumferentialAngle );
 }
 
 //! Overload ostream to print class information.

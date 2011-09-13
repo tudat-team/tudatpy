@@ -38,10 +38,13 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110708    K. Kumar          First creation of code.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "exponentialRandomNumberGenerator.h"
+#include <cmath>
+#include "Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.h"
 
 //! Default constructor.
 ExponentialRandomNumberGenerator::ExponentialRandomNumberGenerator(
@@ -50,11 +53,6 @@ ExponentialRandomNumberGenerator::ExponentialRandomNumberGenerator(
             : UniformRandomNumberGenerator( seed ),
               exponentialRandomNumberParameter_(
                       exponentialRandomNumberParameter )
-{
-}
-
-//! Default destructor.
-ExponentialRandomNumberGenerator::~ExponentialRandomNumberGenerator( )
 {
 }
 

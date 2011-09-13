@@ -45,13 +45,15 @@
  *      110207    K. Kumar          Path changed; moved integrat() function
  *                                  to SingleStepIntegrationMethods.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef EULER_H
 #define EULER_H
 
 // Include statements.
-#include "singleStepIntegrationMethods.h"
+#include "Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h"
 
 //! Euler integrator class.
 /*!
@@ -65,13 +67,13 @@ public:
     /*!
      * Default constructor.
      */
-    Euler( );
+    Euler( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~Euler( );
+    ~Euler( ) { }
 
     //! Overload ostream to print class information.
     /*!

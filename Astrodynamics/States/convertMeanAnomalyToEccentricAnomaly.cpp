@@ -40,9 +40,12 @@
  */
 
 // Include statement.
+#include <iostream>
 #include "convertMeanAnomalyToEccentricAnomaly.h"
 
 // Using declarations.
+using std::cerr;
+using std::endl;
 using mathematics::raiseToIntegerPower;
 
 //! Orbital element conversions namespace.

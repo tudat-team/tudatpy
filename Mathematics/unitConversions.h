@@ -56,14 +56,20 @@
  *      110808    J. Melman         Added time conversion templates.
  *      110809    K. Kumar          Minor comment changes; added note over ints.
  *      110810    K. Kumar          Doxygen comment corrections.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNIT_CONVERSIONS_H
 #define UNIT_CONVERSIONS_H
 
 // Include statements.
-#include <cmath>
-#include "physicalConstants.h"
+#ifdef _MSC_VER
+#define _USE_MATH_DEFINES
+#endif
+
+#include "Astrodynamics/physicalConstants.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Unit conversions namespace.
 /*!

@@ -42,10 +42,14 @@
  *                                  comments; minor changes.
  *      110209    D. Dirkx          Minor changes.
  *      110209    K. Kumar          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "conicalFrustum.h"
+#include "Mathematics/GeometricShapes/conicalFrustum.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 // Using declarations.
 using std::cerr;
@@ -56,12 +60,6 @@ ConicalFrustum::ConicalFrustum( )
 {
     minimumIndependentVariable2_ = 0;
     maximumIndependentVariable2_ = 1;
-}
-
-//! Default destructor.
-ConicalFrustum::~ConicalFrustum( )
-{
-
 }
 
 //! Get surface point on conical frustum.
@@ -266,67 +264,6 @@ void ConicalFrustum::setParameter( const int& index, const double& parameter )
              << "ConicalFrustum, returning 0";
         break;
     }
-}
-
-//! Set cone half angle.
-void ConicalFrustum::setConeHalfAngle( const double& coneHalfAngle )
-{
-    coneHalfAngle_ = coneHalfAngle;
-}
-//! Set length.
-//! Function to set the length.
-void ConicalFrustum::setLength( const double& length )
-{
-    length_ = length;
-}
-
-//! Set start radius.
-void ConicalFrustum::setStartRadius( const double& startRadius )
-{
-    startRadius_ = startRadius;
-}
-
-//! Set minimum azimuth angle.
-void ConicalFrustum::setMinimumAzimuthAngle( const double&
-                                             minimumAzimuthAngle )
-{
-    setMinimumIndependentVariable( 1, minimumAzimuthAngle );
-}
-
-//! Set maximum azimuth angle.
-void ConicalFrustum::setMaximumAzimuthAngle( const double&
-                                             maximumAzimuthAngle )
-{
-    setMaximumIndependentVariable( 1, maximumAzimuthAngle );
-}
-
-//! Get cone half angle.
-double& ConicalFrustum::getConeHalfAngle( )
-{
-    return coneHalfAngle_;
-}
-
-double& ConicalFrustum::getLength( )
-{
-    return length_;
-}
-
-//! Get start radius.
-double& ConicalFrustum::getStartRadius( )
-{
-    return startRadius_;
-}
-
-//! Get minimum azimuth angle.
-double ConicalFrustum::getMinimumAzimuthAngle( )
-{
-    return minimumIndependentVariable1_;
-}
-
-//! Get maximum azimuth angle.
-double ConicalFrustum::getMaximumAzimuthAngle( )
-{
-    return maximumIndependentVariable1_;
 }
 
 //! Overload ostream to print class information.

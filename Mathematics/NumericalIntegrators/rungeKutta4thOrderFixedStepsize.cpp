@@ -60,23 +60,15 @@
  *                                  added a note about general RK integrator.
  *      110207    K. Kumar          Path changed; moved integrate() function
  *                                  to SingleStepIntegrationMethods.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "rungeKutta4thOrderFixedStepsize.h"
+#include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
 
 // Using declarations.
 using std::endl;
-
-//! Default constructor.
-RungeKutta4thOrderFixedStepsize::RungeKutta4thOrderFixedStepsize( )
-{
-}
-
-//! Default destructor.
-RungeKutta4thOrderFixedStepsize::~RungeKutta4thOrderFixedStepsize( )
-{
-}
 
 //! Compute next state.
 void RungeKutta4thOrderFixedStepsize::computeNextState_( const double&

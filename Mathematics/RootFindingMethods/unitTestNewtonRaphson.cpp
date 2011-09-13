@@ -57,10 +57,12 @@
  *                                    directly test with adaptor.
  *      110120    K. Kumar            Added global functions test; updated
  *                                    comments; modified layout.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "unitTestNewtonRaphson.h"
+#include "Mathematics/RootFindingMethods/unitTestNewtonRaphson.h"
 
 // Using statements.
 using std::cerr;
@@ -69,16 +71,6 @@ using std::endl;
 //! Namespace for all unit tests.
 namespace unit_tests
 {
-
-//! Default constructor.
-NewtonRaphsonTest::NewtonRaphsonTest( )
-{
-}
-
-//! Default destructor.
-NewtonRaphsonTest::~NewtonRaphsonTest( )
-{
-}
 
 //! Mathematical test function.
 double NewtonRaphsonTest::computeTestFunction( double& inputValue )

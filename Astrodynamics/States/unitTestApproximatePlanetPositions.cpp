@@ -58,9 +58,12 @@
  */
 
 // Include statements.
+#include <iostream>
 #include "unitTestApproximatePlanetPositions.h"
 
 // Using declarations.
+using std::cerr;
+using std::endl;
 using mathematics::computeAbsoluteValue;
 using mathematics::convertCartesianToSpherical;
 using mathematics::MACHINE_PRECISION_DOUBLES;

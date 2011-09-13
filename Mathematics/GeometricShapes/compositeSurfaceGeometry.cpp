@@ -46,10 +46,12 @@
  *      110204    K. Kumar          Minor comment and layout modifications;
  *                                  corrected Doxygen comments.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "compositeSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
 //! Default constructor.
 CompositeSurfaceGeometry::CompositeSurfaceGeometry( )
@@ -111,34 +113,6 @@ void CompositeSurfaceGeometry::setNumberOfCompositeSurfaceGeometries(
     compositeSurfaceGeometryList_
             = new CompositeSurfaceGeometry*[
                     numberOfCompositeSurfaceGeometries_ ];
-}
-
-//! Get pointer to stored SingleSurfaceGeometry object.
-SingleSurfaceGeometry* CompositeSurfaceGeometry::getSingleSurfaceGeometry(
-    const unsigned int& index )
-{
-    // Return surface from given index in list.
-    return singleSurfaceGeometryList_[ index ];
-}
-
-//! Get pointer to a stored CompositeSurfaceGeometry object.
-CompositeSurfaceGeometry* CompositeSurfaceGeometry::getCompositeSurfaceGeometry(
-    const unsigned int& index )
-{
-    // Return surface from given index in list.
-    return compositeSurfaceGeometryList_[index];
-}
-
-//! Get number of single surface geometries.
-unsigned int& CompositeSurfaceGeometry::getNumberOfSingleSurfaceGeometries( )
-{
-    return numberOfSingleSurfaceGeometries_;
-}
-
-//! Get number of composite surface geometries.
-unsigned int& CompositeSurfaceGeometry::getNumberOfCompositeSurfaceGeometries( )
-{
-    return numberOfCompositeSurfaceGeometries_;
 }
 
 //! Overload ostream to print class information.

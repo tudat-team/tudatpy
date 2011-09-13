@@ -51,21 +51,16 @@
  *      110124    E. Iorfida        Added set/get functions for maximum number
  *                                  of iterations.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef ROOTFINDER_H
 #define ROOTFINDER_H
 
 // Include statements.
-#include <ctime>
 #include <iostream>
-#include "basicMathematicsFunctions.h"
-#include "linearAlgebra.h"
-#include "rootFinderBase.h"
-
-// Using declarations.
-using std::cerr;
-using std::endl;
+#include "Mathematics/RootFindingMethods/rootFinderBase.h"
 
 //! Root-finder class.
 /*!
@@ -94,7 +89,7 @@ public:
     /*!
      * Default destructor.
      */
-    virtual ~RootFinder( );
+    virtual ~RootFinder( ) { }
 
     //! Set initial guess of the root of mathematical function.
     /*!
@@ -102,22 +97,31 @@ public:
      * \param initialGuessOfRoot Initial guess of root of mathematical
      *          function.
      */
-    void setInitialGuessOfRoot( const double& initialGuessOfRoot );
+    void setInitialGuessOfRoot( const double& initialGuessOfRoot )
+    {
+        initialGuessOfRoot_ = initialGuessOfRoot;
+        currentValueOfRoot_ = initialGuessOfRoot;
+    }
 
     //! Set maximum number of iterations.
     /*!
      * Sets maximum number of iterations for root-finding method.
      * \param maximumNumberOfIterations Maximum number of iterations.
      */
-    void setMaximumNumberOfIterations( const unsigned int&
-                                       maximumNumberOfIterations );
+    void setMaximumNumberOfIterations( const unsigned int& maximumNumberOfIterations ) 
+    {
+        maximumNumberOfIterations_ = maximumNumberOfIterations;
+    }
 
     //! Set tolerance.
     /*!
      * Sets tolerance for root-finding method.
      * \param tolerance Tolerance.
      */
-    void setTolerance( const double& tolerance );
+    void setTolerance( const double& tolerance ) 
+    {
+        tolerance_ = tolerance;
+    }
 
     //! Set pointer to mathematical function.
     /*!
@@ -125,8 +129,10 @@ public:
      * root-finding method is applied.
      * \param globalFunction Pointer to global mathematical function.
      */
-    void setMathematicalFunction( pointerToDoubleTakingFunction
-                                  globalFunction );
+    void setMathematicalFunction( pointerToDoubleTakingFunction globalFunction )
+    {
+        pointerToGlobalFunction_ = globalFunction;
+    }
 
     //! Set pointer to first-derivative mathematical function.
     /*!
@@ -135,29 +141,41 @@ public:
      * \param globalFirstDerivativeFunction Pointer to global first-derivative
      *           mathematical function.
      */
-    void setFirstDerivativeMathematicalFunction(
-            pointerToDoubleTakingFunction globalFirstDerivativeFunction );
+    void setFirstDerivativeMathematicalFunction( pointerToDoubleTakingFunction 
+                                                    globalFirstDerivativeFunction )
+    {
+        pointerToGlobalFirstDerivativeFunction_ = globalFirstDerivativeFunction;
+    }
 
     //! Get maximum number of iterations.
     /*!
      * Returns the maximum number of iterations.
      * \return Number of iterations.
      */
-    unsigned int& getMaximumNumberOfIterations( );
+    unsigned int& getMaximumNumberOfIterations( ) 
+    {
+        return maximumNumberOfIterations_;
+    }
 
     //! Get tolerance.
     /*!
      * Returns the tolerance.
      * \return Tolerance.
      */
-    double& getTolerance( );
+    double& getTolerance( )
+    {
+        return tolerance_;
+    }
 
     //! Get root of mathematical function.
     /*!
      * Returns the computed root of the mathmatical function.
      * \return Computed root of the mathematical function.
      */
-    double& getComputedRootOfFunction( );
+    double& getComputedRootOfFunction( )
+    {
+        return nextValueOfRoot_;
+    }
 
     //! Execute.
     /*!

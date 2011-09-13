@@ -37,6 +37,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110517    K. Kumar          File created.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTRUNGEKUTTA4THORDERFIXEDSTEPSIZEINTEGRATOR_H
@@ -45,8 +47,8 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
-#include "rungeKutta4thOrderFixedStepsize.h"
-#include "stateDerivativeBase.h"
+#include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
+#include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
 //! Namespace for all unit tests.
 /*!
@@ -75,13 +77,17 @@ public:
     /*!
      * Default constructor.
      */
-    RungeKutta4thOrderFixedStepsizeIntegratorTest( );
+    RungeKutta4thOrderFixedStepsizeIntegratorTest( )
+    {
+    }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~RungeKutta4thOrderFixedStepsizeIntegratorTest( );
+    ~RungeKutta4thOrderFixedStepsizeIntegratorTest( )
+    {
+    }
 
     //! Compute state derivative.
     /*!

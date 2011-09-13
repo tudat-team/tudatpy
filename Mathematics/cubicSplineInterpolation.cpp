@@ -43,20 +43,15 @@
  *      110620    F.M. Engelen      File created and converted to Tudat standards.
  *      110707    E.A.G. Heeren     Minor spelling/lay-out corrections.
  *      110714    E.A.G. Heeren     Minor spelling/lay-out corrections.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "cubicSplineInterpolation.h"
+#include "Mathematics/cubicSplineInterpolation.h"
 
-//! Default constructor.
-CubicSplineInterpolation::CubicSplineInterpolation( )
-{
-}
-
-//! Default destructor.
-CubicSplineInterpolation::~CubicSplineInterpolation( )
-{
-}
+// Using statements.
+using basic_functions::computeNearestLeftNeighborUsingBinarySearch;
 
 //! Initialize cubic spline interpolation.
 void CubicSplineInterpolation::initializeCubicSplineInterpolation( VectorXd& independentVariables,

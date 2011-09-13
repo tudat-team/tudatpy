@@ -48,13 +48,15 @@
  *      101125    D. Dirkx          First version of file.
  *      110127    D. Dirkx          Finalized for code check.
  *      110206    J. Melman         Minor formatting issues.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef QUADRILATERALMESHEDSURFACEGEOMETRY_H
 #define QUADRILATERALMESHEDSURFACEGEOMETRY_H
 
 // Include statements.
-#include "singleSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Class for quadrilateral meshed surface geometry.
 /*!
@@ -89,7 +91,10 @@ public:
      * \param pointIndex Point from line to retrieve.
      * \return Surface point.
      */
-    Vector3d getMeshPoint( const int& lineIndex, const int& pointIndex );
+    Vector3d getMeshPoint( const int& lineIndex, const int& pointIndex )
+    {
+        return meshPoints_[ lineIndex ][ pointIndex ];
+    }
 
     //! Function to retrieve a panel area.
     /*!
@@ -98,7 +103,10 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel area
      */
-    double getPanelArea( const int& lineIndex, const int& pointIndex );
+    double getPanelArea( const int& lineIndex, const int& pointIndex )
+    {
+        return panelAreas_[ lineIndex ][ pointIndex ];
+    }
 
     //! Function to retrieve a panel centroid.
     /*!
@@ -107,7 +115,10 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel centroid.
      */
-    Vector3d getPanelCentroid( const int& lineIndex, const int& pointIndex );
+    Vector3d getPanelCentroid( const int& lineIndex, const int& pointIndex )
+    {
+        return panelCentroids_[ lineIndex ][ pointIndex ];
+    }
 
     //! Function to retrieve an outward panel surface normal
     /*!
@@ -116,28 +127,40 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Outward panel surface normal.
      */
-    Vector3d getPanelSurfaceNormal( const int& lineIndex, const int& pointIndex );
+    Vector3d getPanelSurfaceNormal( const int& lineIndex, const int& pointIndex )
+    {
+        return panelSurfaceNormals_[ lineIndex ][ pointIndex ];
+    }
 
     //! Function to retrieve number of lines.
     /*!
      * Function to retrieve number of lines.
      * \return Number of lines on mesh.
      */
-    int getNumberOfLines( );
+    int getNumberOfLines( )
+    {
+        return numberOfLines_;
+    }
 
     //! Function to retrieve number of points.
     /*!
      * Function to retrieve number of points.
      * \return Number of points on mesh.
      */
-    int getNumberOfPoints( );
+    int getNumberOfPoints( )
+    {
+        return numberOfPoints_;
+    }
 
     //! Returns the total area of the mesh.
     /*!
      * Returns the total area of the mesh.
      * \return Total mesh area.
      */
-    double getTotalArea( );
+    double getTotalArea( )
+    {
+        return totalArea_;
+    }
 
     //! Sets reversal operator.
     /*!

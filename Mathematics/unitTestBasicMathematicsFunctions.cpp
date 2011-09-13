@@ -46,10 +46,16 @@
  *      110701    K. Kumar          Updated failing tests with relative errors.
  *      110708    K. Kumar          Added unit tests for computeSampleMean()
  *                                  and computeSampleVariance() functions.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "unitTestBasicMathematicsFunctions.h"
+#include <iostream> 
+#include <cmath>
+#include "Mathematics/unitTestBasicMathematicsFunctions.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Astrodynamics/States/cartesianPositionElements.h"
 
 // Using declarations.
 using std::cerr;

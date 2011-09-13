@@ -38,9 +38,11 @@
  *      100930    D. Dirkx          Modified to comply with Tudat standards
  *      100930    J. Melman         Implemented namespace, minor comment
  *                                  changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
-#include "linearAlgebra.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Linear algebra namespace.
 namespace linear_algebra

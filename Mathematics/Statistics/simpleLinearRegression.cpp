@@ -41,10 +41,16 @@
  *                                  split code from computeFit(); changed
  *                                  filename and class name.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "simpleLinearRegression.h"
+#include <cmath>
+#include "Mathematics/Statistics/simpleLinearRegression.h"
+
+// Using declarations.
+using std::map;
 
 //! Default constructor.
 SimpleLinearRegression::SimpleLinearRegression( )
@@ -55,48 +61,6 @@ SimpleLinearRegression::SimpleLinearRegression( )
       sumOfDependentVariableData_( -0.0 ),
       sumOfIndependentVariableData_( -0.0 )
 {
-}
-
-//! Default destructor.
-SimpleLinearRegression::~SimpleLinearRegression( )
-{
-}
-
-//! Set input data.
-void SimpleLinearRegression::
-setInputData( const map< double, double >& inputDataToFit )
-{
-    inputDataToFit_ = inputDataToFit;
-}
-
-//! Get coefficient of constant term of fit.
-double& SimpleLinearRegression::getCoefficientOfConstantTerm( )
-{
-    return coefficientOfConstantTerm_;
-}
-
-//! Get coefficient of linear term of fit.
-double& SimpleLinearRegression::getCoefficientOfLinearTerm( )
-{
-    return coefficientOfLinearTerm_;
-}
-
-//! Get chi-squared value.
-double& SimpleLinearRegression::getChiSquared( )
-{
-    return chiSquared_;
-}
-
-//! Get standard deviation of coefficient of constant term of fit.
-double& SimpleLinearRegression::getStandardDeviationOfCoefficientOfConstantTerm( )
-{
-    return standardDeviationOfCoefficientOfConstantTerm_;
-}
-
-//! Get standard deviation of coefficient of linear term of fit.
-double& SimpleLinearRegression::getStandardDeviationOfCoefficientOfLinearTerm( )
-{
-    return standardDeviationOfCoefficientOfLinearTerm_;
 }
 
 //! Compute fit.

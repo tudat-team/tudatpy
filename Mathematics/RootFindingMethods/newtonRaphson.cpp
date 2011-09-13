@@ -49,20 +49,17 @@
  *                                  required; changed filename.
  *      110124    K. Kumar          Added cerr statement for when loop does not
  *                                  converge.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "newtonRaphson.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
-//! Default constructor.
-NewtonRaphson::NewtonRaphson( ) : pointerToNewtonRaphsonBase_( NULL )
-{
-}
-
-//! Default destructor.
-NewtonRaphson::~NewtonRaphson( )
-{
-}
+// Using statements.
+using namespace mathematics;
+using namespace std;
 
 //! Set adaptor class for Newton-Raphson.
 void NewtonRaphson::setNewtonRaphsonAdaptor( NewtonRaphsonBase*

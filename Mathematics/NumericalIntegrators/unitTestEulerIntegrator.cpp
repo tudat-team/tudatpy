@@ -37,10 +37,12 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110515    K. Kumar          File created.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "unitTestEulerIntegrator.h"
+#include "Mathematics/NumericalIntegrators/unitTestEulerIntegrator.h"
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -104,16 +106,6 @@ bool testEulerIntegrator( )
     // Return test result.
     // If test is successful return false; if test fails, return true.
     return isEulerIntegratorErroneous_;
-}
-
-//! Default constructor.
-EulerIntegratorTest::EulerIntegratorTest( )
-{
-}
-
-//! Default destructor.
-EulerIntegratorTest::~EulerIntegratorTest( )
-{
 }
 
 //! Compute state derivative.

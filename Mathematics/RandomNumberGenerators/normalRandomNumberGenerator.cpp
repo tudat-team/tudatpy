@@ -38,10 +38,12 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110726    K. Kumar          First creation of code.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "normalRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/normalRandomNumberGenerator.h"
 
 //! Default constructor.
 NormalRandomNumberGenerator::NormalRandomNumberGenerator(
@@ -51,11 +53,6 @@ NormalRandomNumberGenerator::NormalRandomNumberGenerator(
               standardDeviation_( standardDeviation ),
               ordinateInUnitCircle_( -0.0 ), abscissaInUnitCircle_( -0.0 ),
               storedValue_( 0.0 )
-{
-}
-
-//! Default destructor.
-NormalRandomNumberGenerator::~NormalRandomNumberGenerator( )
 {
 }
 

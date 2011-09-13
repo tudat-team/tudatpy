@@ -63,10 +63,12 @@
  *      110808    J. Melman         Added time conversion unit tests.
  *      110809    K. Kumar          Minor corrections.
  *      110810    J. Melman         Added 3 more time conversion unit tests.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "unitTestUnitConversions.h"
+#include "Mathematics/unitTestUnitConversions.h"
 
 // Using directives.
 using std::cerr;

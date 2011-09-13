@@ -48,10 +48,13 @@
  *      101125    D. Dirkx          First version of file
  *      110127    D. Dirkx          Finalized for code check.
  *      110206    J. Melman         Minor formatting issues.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "quadrilateralMeshedSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Default constructor.
 QuadrilateralMeshedSurfaceGeometry::QuadrilateralMeshedSurfaceGeometry( ) :
@@ -154,56 +157,6 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
             totalArea_ += panelAreas_[ i ][ j ];
         }
     }
-}
-
-//! Function to retrieve a surface point.
-Vector3d QuadrilateralMeshedSurfaceGeometry::getMeshPoint(
-        const int& lineIndex,
-        const int& pointIndex )
-{
-    return meshPoints_[ lineIndex ][ pointIndex ];
-}
-
-//! Function to retrieve a panel area.
-double QuadrilateralMeshedSurfaceGeometry::getPanelArea(
-        const int& lineIndex,
-        const int& pointIndex )
-{
-    return panelAreas_[ lineIndex ][ pointIndex ];
-}
-
-//! Function to retrieve a panel centroid.
-Vector3d QuadrilateralMeshedSurfaceGeometry::getPanelCentroid(
-        const int& lineIndex,
-        const int& pointIndex )
-{
-    return panelCentroids_[ lineIndex ][ pointIndex ];
-}
-
-//! Function to retrieve an outward panel surface normal
-Vector3d QuadrilateralMeshedSurfaceGeometry::getPanelSurfaceNormal(
-        const int& lineIndex,
-        const int& pointIndex )
-{
-    return panelSurfaceNormals_[ lineIndex ][ pointIndex ];
-}
-
-//! Function to retrieve number of lines.
-int QuadrilateralMeshedSurfaceGeometry::getNumberOfLines( )
-{
-    return numberOfLines_;
-}
-
-//! Function to retrieve number of points.
-int QuadrilateralMeshedSurfaceGeometry::getNumberOfPoints( )
-{
-    return numberOfPoints_;
-}
-
-//! Returns the total area of the mesh.
-double QuadrilateralMeshedSurfaceGeometry::getTotalArea( )
-{
-    return totalArea_;
 }
 
 //! Sets reversal operator.

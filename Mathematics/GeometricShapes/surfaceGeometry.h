@@ -47,13 +47,15 @@
  *                                  comment from "Notes"; updated Doxygen
  *`                                 comments.
  *      110204    K. Kumar          Minor comment and layout modifications.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef SURFACEGEOMETRY_H
 #define SURFACEGEOMETRY_H
 
 // Include statements.
-#include "geometricShape.h"
+#include "Mathematics/GeometricShapes/geometricShape.h"
 
 //! Surface geometry base class.
 /*!
@@ -68,13 +70,13 @@ public:
     /*!
      * Default constructor.
      */
-    SurfaceGeometry( );
+    SurfaceGeometry( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~SurfaceGeometry( );
+    virtual ~SurfaceGeometry( ) { }
 
 protected:
 

@@ -57,10 +57,13 @@
  *                                  used. Global functions can no longer be
  *                                  used. StateDerivativeBase used to define
  *                                  classes with state derivative function.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "integrator.h"
+#include "Mathematics/NumericalIntegrators/integrator.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Default constructor.
 Integrator::Integrator( ) : dimensionOfState_( -0 ),
@@ -79,11 +82,6 @@ Integrator::Integrator( ) : dimensionOfState_( -0 ),
                             isIntegrationIntervalStartSet_( false ),
                             isIntegrationIntervalEndSet_( false ),
                             isStateDerivativeSet_( false )
-{
-}
-
-//! Default destructor.
-Integrator::~Integrator( )
 {
 }
 
@@ -154,46 +152,6 @@ void Integrator::setIntegrationIntervalEnd( const double&
 
     // Compute internal derived integration parameters.
     computeInternalDerivedIntegrationParameters_( );
-}
-
-//! Get stepsize.
-double& Integrator::getStepsize( )
-{
-    // Return stepsize for integrator.
-    return stepsize_;
-}
-
-//! Get number of integration steps.
-unsigned int& Integrator::getNumberOfIntegrationSteps( )
-{
-    // Return number of integration steps.
-    return numberOfIntegrationSteps_;
-}
-
-//! Get start of integration interval.
-double& Integrator::getIntegrationIntervalStart( )
-{
-    // Return start of integration interval.
-    return integrationIntervalStart_;
-}
-
-//! Get end of integration interval.
-double& Integrator::getIntegrationIntervalEnd( )
-{
-    // Return end of integration interval.
-    return integrationIntervalEnd_;
-}
-
-//! Get pointer to initial state.
-State* Integrator::getInitialState( )
-{
-    return pointerToInitialState_;
-}
-
-//! Get pointer to final state.
-State* Integrator::getFinalState( )
-{
-    return &finalState_;
 }
 
 //! Compute state derivative.

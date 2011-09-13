@@ -52,24 +52,19 @@
  *                                  corrected; minor changes to functions.
  *      110209    D. Dirkx          Minor changes.
  *      110209    K. Kumar          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "sphereSegment.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/unitConversions.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-
-//! Default constructor.
-SphereSegment::SphereSegment( ) : radius_( -0.0 )
-{
-}
-
-//! Default destructor.
-SphereSegment::~SphereSegment( )
-{
-}
+using unit_conversions::convertRadiansToDegrees;
 
 //! Get surface point on sphere segment.
 VectorXd SphereSegment::getSurfacePoint( const double& azimuthAngle,
@@ -252,67 +247,6 @@ void SphereSegment::setParameter( const int& index, const double& parameter )
     {
         radius_ = parameter;
     }
-}
-
-//! Get radius.
-double& SphereSegment::getRadius( )
-{
-    return radius_;
-}
-
-//! Set radius.
-void SphereSegment::setRadius( const double& radius )
-{
-    radius_ = radius;
-}
-
-//! Set maximum value of azimuth angle.
-void SphereSegment::setMaximumAzimuthAngle( const double& maximumAzimuthAngle )
-{
-    setMaximumIndependentVariable( 1, maximumAzimuthAngle );
-}
-
-//! Set minimum value of azimuth angle.
-void SphereSegment::setMinimumAzimuthAngle( const double& minimumAzimuthAngle )
-{
-    setMinimumIndependentVariable( 1, minimumAzimuthAngle );
-}
-
-//! Set maximum value of zenith angle.
-void SphereSegment::setMaximumZenithAngle( const double& maximumZenithAngle )
-{
-    setMaximumIndependentVariable( 2, maximumZenithAngle );
-}
-
-//! Set minimum value of zenith angle.
-void SphereSegment::setMinimumZenithAngle( const double& minimumZenithAngle )
-{
-    setMinimumIndependentVariable( 2, minimumZenithAngle );
-}
-
-//! Get maximum value of azimuth angle.
-double SphereSegment::getMaximumAzimuthAngle( )
-{
-    return maximumIndependentVariable1_;
-}
-
-//! Get minimum value of azimuth angle.
-double SphereSegment::getMinimumAzimuthAngle( )
-{
-    return minimumIndependentVariable1_;
-
-}
-
-//! Get maximum value of zenith angle.
-double SphereSegment::getMaximumZenithAngle( )
-{
-    return maximumIndependentVariable2_;
-}
-
-//! Get minimum value of the zenith angle.
-double SphereSegment::getMinimumZenithAngle( )
-{
-    return minimumIndependentVariable2_;
 }
 
 //! Overload ostream to print class information.

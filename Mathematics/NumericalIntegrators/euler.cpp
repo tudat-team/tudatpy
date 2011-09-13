@@ -56,23 +56,15 @@
  *      110204    K. Kumar          Added note about consolidating integrate().
  *      110207    K. Kumar          Path changed; moved integrate() function
  *                                  to SingleStepIntegrationMethods.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "euler.h"
+#include "Mathematics/NumericalIntegrators/euler.h"
 
 // Using declarations.
 using std::endl;
-
-//! Default constructor.
-Euler::Euler( )
-{
-}
-
-//! Default destructor.
-Euler::~Euler( )
-{
-}
 
 //! Compute next state.
 void Euler::computeNextState_( const double& stepsize )

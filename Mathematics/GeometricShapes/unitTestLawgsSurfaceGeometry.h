@@ -37,14 +37,16 @@
  *      YYMMDD    Author           Comment
  *      110206    D. Dirkx         First version of file.
  *      110208    D. Dirkx         Finalized for code check.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTLAWGSSURFACEGEOMETRY_H
 #define UNITTESTLAWGSSURFACEGEOMETRY_H
 
 // Include statements.
-#include "lawgsPartGeometry.h"
-#include "sphereSegment.h"
+#include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
 
 //! Namespace for all unit tests.
 /*!

@@ -41,20 +41,12 @@
  *                                  multiple warnings.
  *      110207    D. Dirkx          Fixed warning problems by extending cerr
  *                                  comments.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "lawgsPartGeometry.h"
-
-//! Default constructor.
-LawgsPartGeometry::LawgsPartGeometry( ) : name_( "" )
-{
-}
-
-//! Default destructor.
-LawgsPartGeometry::~LawgsPartGeometry( )
-{
-}
+#include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 //! Constructor from surface geometry (i.e., geometry type conversion).
 void LawgsPartGeometry::setMesh(
@@ -176,18 +168,6 @@ VectorXd LawgsPartGeometry::getSurfacePoint( const double& independentVariable1,
                meshPoints_[ lineIndex ][ pointIndex ]);
 
     return point;
-}
-
-//! Function to retrieve part name.
-std::string LawgsPartGeometry::getName( )
-{
-    return name_;
-}
-
-//! Function to set part name.
-void LawgsPartGeometry::setName( const std::string& name )
-{
-    name_ = name;
 }
 
 //! Function to retrieve surface derivative (currently not implemented).

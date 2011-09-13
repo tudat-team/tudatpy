@@ -55,10 +55,13 @@
  *                                  climits.
  *      110117    K. Kumar          Minor layout modification; path corrected.
  *      110516    K. Kumar          Renamed file and class.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "uniformRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Customized constructor to pass random number generator seed.
 UniformRandomNumberGenerator::UniformRandomNumberGenerator( unsigned long long seed )
@@ -73,11 +76,6 @@ UniformRandomNumberGenerator::UniformRandomNumberGenerator( unsigned long long s
 
     randomNumberParameter3_ = randomNumberParameter2_;
     getUniformlyDistributedRandomInteger( );
-}
-
-//! Default destructor.
-UniformRandomNumberGenerator::~UniformRandomNumberGenerator( )
-{
 }
 
 //! Get uniformly distributed random integer.

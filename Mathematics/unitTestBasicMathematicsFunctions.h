@@ -36,16 +36,12 @@
  *      YYMMDD    Author            Comment
  *      110207    B. Romgens        File created.
  *      110215    K. Kumar          Minor modifications.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTBASICMATHEMATICSFUNCTIONS_H
 #define UNITTESTBASICMATHEMATICSFUNCTIONS_H
-
-// Include statements.
-#include <iostream>
-#include <cmath>
-#include "basicMathematicsFunctions.h"
-#include "cartesianPositionElements.h"
 
 //! Namespace for all unit tests.
 /*!

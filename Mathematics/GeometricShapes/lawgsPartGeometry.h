@@ -41,14 +41,16 @@
  *      101125    D. Dirkx          First version of file.
  *      110127    D. Dirkx          Finalized for code check.
  *      110206    J. Melman         Minor formatting issues.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef LAWGSPARTGEOMETRY_H
 #define LAWGSPARTGEOMETRY_H
 
 // Include statements.
-#include "quadrilateralMeshedSurfaceGeometry.h"
-#include "singleSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Class to defined a mesh accoring to Lawgs standards.
 /*!
@@ -63,13 +65,13 @@ public:
     /*!
      * Default constructor.
      */
-    LawgsPartGeometry( );
+    LawgsPartGeometry( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~LawgsPartGeometry( );
+    virtual ~LawgsPartGeometry( ) { }
 
     //! Function to create a mesh surface on a single-surface geometry.
     /*!
@@ -121,7 +123,10 @@ public:
     /*!
      * Function to set the name of a Lawgs part.
      */
-    void setName( const std::string& name );
+    void setName( const std::string& name ) 
+    {
+        name_ = name;
+    }
 
     //! Non-functional function to retrieve parameter.
     /*!
@@ -147,7 +152,10 @@ public:
     /*!
      *  Function to retrieve part name.
      */
-    std::string getName( );
+    std::string getName( )
+    {
+        return name_;
+    }
 
     //! Overload ostream to print class information.
     /*!

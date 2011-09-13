@@ -48,14 +48,15 @@
  *      110208    K. Kumar          Updated file header; Doxygen comments
  *                                  corrected; minor changes to functions.
  *      110209    D. Dirkx          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef SPHERESEGMENT_H
 #define SPHERESEGMENT_H
 
 // Include statements.
-#include "singleSurfaceGeometry.h"
-#include "conicalFrustum.h"
+#include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Sphere segment class.
 /*!
@@ -75,13 +76,13 @@ public:
     /*!
      *  Default constructor.
      */
-    SphereSegment( );
+    SphereSegment( )  : radius_( -0.0 )  { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~SphereSegment( );
+    ~SphereSegment( ) { }
 
     //! Get surface point on sphere segment.
     /*!
@@ -143,70 +144,100 @@ public:
      * Retrieves the radius of the sphere segment.
      * \return Radius of the sphere segment.
      */
-    double& getRadius( );
+    double& getRadius( )
+    {
+         return radius_;
+    }
 
     //! Set radius.
     /*!
      * Sets the radius of the sphere segment.
      * \param radius Radius of sphere segment.
      */
-    void setRadius( const double& radius );
+    void setRadius( const double& radius )
+    {
+        radius_ = radius;
+    }
 
     //! Set maximum value of azimuth angle.
     /*!
      * Sets the maximum value of the azimuth angle.
      * \param maximumAzimuthAngle Maximum value of azimuth angle.
      */
-    void setMaximumAzimuthAngle( const double& maximumAzimuthAngle );
+    void setMaximumAzimuthAngle( const double& maximumAzimuthAngle )
+    {
+        setMaximumIndependentVariable( 1, maximumAzimuthAngle );
+    }
 
     //! Set minimum value of azimuth angle.
     /*!
      * Sets the minimum value of the azimuth angle.
      * \param minimumAzimuthAngle Minimum value of azimuth angle.
      */
-    void setMinimumAzimuthAngle( const double& minimumAzimuthAngle );
+    void setMinimumAzimuthAngle( const double& minimumAzimuthAngle )
+    {
+        setMinimumIndependentVariable( 1, minimumAzimuthAngle );
+    }
     
     //! Set maximum value of zenith angle.
     /*!
      * Sets the maximum value of the zenith angle.
      * \param maximumZenithAngle Maximum value of zenith angle.
      */
-    void setMaximumZenithAngle( const double& maximumZenithAngle );
+    void setMaximumZenithAngle( const double& maximumZenithAngle )
+    {
+        setMaximumIndependentVariable( 2, maximumZenithAngle );
+    }
     
     //! Set minimum value of zenith angle.
     /*!
      * Sets the minimum value of the zenith angle.
      * \param minimumZenithAngle Minimum value of zenith angle.
      */
-    void setMinimumZenithAngle( const double& minimumZenithAngle );
+    void setMinimumZenithAngle( const double& minimumZenithAngle )
+    {
+        setMinimumIndependentVariable( 2, minimumZenithAngle );
+    }
     
     //! Get maximum value of azimuth angle.
     /*!
      * Returns the maximum values of the azimuth angle.
      * \return Maximum value of azimuth angle.
      */
-    double getMaximumAzimuthAngle( );
+    double getMaximumAzimuthAngle( )
+    {
+        return maximumIndependentVariable1_;
+    }
 
     //! Get minimum value of azimuth angle.
     /*!
      * Returns the minimum value of the azimuth angle.
      * \return Minimum value of azimuth angle.
      */
-    double getMinimumAzimuthAngle( );
+    double getMinimumAzimuthAngle( )
+    {
+        return minimumIndependentVariable1_;
+    }
     
     //! Get maximum value of zenith angle.
     /*!
      * Returns the maximum value of the zenith angle.
      * \return Maximum value of zenith angle.
      */
-    double getMaximumZenithAngle( );
+    double getMaximumZenithAngle( )
+    {
+        return maximumIndependentVariable2_;
+    }
     
     //! Get minimum value of the zenith angle.
     /*!
      * Returns the minimum value of the zenith.
      * \return Minimum value of zenith angle.
      */
-    double getMinimumZenithAngle( );
+    double getMinimumZenithAngle( )
+    {
+        return minimumIndependentVariable2_;
+    }
 
     //! Overload ostream to print class information.
     /*!

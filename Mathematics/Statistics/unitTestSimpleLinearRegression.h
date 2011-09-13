@@ -37,6 +37,8 @@
  *      110702    K. Kumar          First creation of code.
  *      110726    K. Kumar          Changed filename and class name.
  *      110802    K .Kumar          Changed filename
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTSIMPLELINEARREGRESSION_H
@@ -46,8 +48,8 @@
 #include <cmath>
 #include <iostream>
 #include <map>
-#include "basicMathematicsFunctions.h"
-#include "simpleLinearRegression.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/Statistics/simpleLinearRegression.h"
 
 //! Namespace for all unit tests.
 /*!

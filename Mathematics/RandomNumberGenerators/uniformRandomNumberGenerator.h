@@ -61,18 +61,15 @@
  *      110117    K. Kumar          Corrected path.
  *      110121    K. Kumar          Added comment to "Notes".
  *      110516    K. Kumar          Renamed file and class.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNIFORMRANDOMNUMBERGENERATOR_H
 #define UNIFORMRANDOMNUMBERGENERATOR_H
 
 // Include statements.
-#include <cmath>
-#include <exception>
-#include <climits>
-#include <ctime>
-#include "basicMathematicsFunctions.h"
-#include "randomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/randomNumberGenerator.h"
 
 //! Uniform random number generator class.
 /*!
@@ -94,7 +91,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~UniformRandomNumberGenerator( );
+    ~UniformRandomNumberGenerator( ) { }
 
     //! Get uniformly distributed random integer.
     /*!

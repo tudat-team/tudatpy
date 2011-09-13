@@ -89,9 +89,7 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/unitTestBasicMathematicsFunctions.cpp \
     Mathematics/unitTestCubicSplineInterpolation.cpp \
     Mathematics/GeometricShapes/compositeSurfaceGeometry.cpp \
-    Mathematics/GeometricShapes/geometricShape.cpp \
     Mathematics/GeometricShapes/singleSurfaceGeometry.cpp \
-    Mathematics/GeometricShapes/surfaceGeometry.cpp \
     Mathematics/GeometricShapes/torus.cpp \
     Mathematics/GeometricShapes/sphereSegment.cpp \
     Mathematics/GeometricShapes/conicalFrustum.cpp \
@@ -104,12 +102,10 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/NumericalIntegrators/integrator.cpp \
     Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp \
     Mathematics/NumericalIntegrators/singleStepIntegrationMethods.cpp \
-    Mathematics/NumericalIntegrators/stateDerivativeBase.cpp \
     Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.cpp \
     Mathematics/NumericalIntegrators/unitTestEulerIntegrator.cpp \
     Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.cpp \
     Mathematics/RandomNumberGenerators/normalRandomNumberGenerator.cpp \
-    Mathematics/RandomNumberGenerators/randomNumberGenerator.cpp \
     Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.cpp \
     Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.cpp \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.cpp \

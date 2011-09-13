@@ -55,7 +55,12 @@
  */
 
 // Include statements.
+#include <iostream>
 #include "librationPoint.h"
+
+// Using declarations.
+using std::cerr;
+using std::endl;
 
 //! Default constructor.
 LibrationPoint::LibrationPoint( ) : massParameter_( -0.0 ), massParameterSquared_( -0.0 ),
@@ -70,7 +75,7 @@ LibrationPoint::~LibrationPoint( )
 
 //! Set pointer to first CelestialBody object.
 void LibrationPoint::setPrimaryCelestialBody( CelestialBody*
-                                               pointerToPrimaryCelestialBody )
+                                              pointerToPrimaryCelestialBody )
 {
     //  Set pointer to object of CelestialBody class.
     pointerToPrimaryCelestialBody_ = pointerToPrimaryCelestialBody;
@@ -78,7 +83,7 @@ void LibrationPoint::setPrimaryCelestialBody( CelestialBody*
 
 //! Set pointer to second CelestialBody object.
 void LibrationPoint::setSecondaryCelestialBody( CelestialBody*
-                                                 pointerToSecondaryCelestialBody )
+                                                pointerToSecondaryCelestialBody )
 {
     //  Set pointer to object of CelestialBody class.
     pointerToSecondaryCelestialBody_ = pointerToSecondaryCelestialBody;
@@ -241,7 +246,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
 
     default:
 
-        cerr << "The Lagrange libration point requested does not exist" << endl;
+        cerr << "The Lagrange libration point requested does not exist." << endl;
     };
 }
 
