@@ -30,10 +30,6 @@
  *      of a commercial package such as STK, where are initial conditions of
  *      the simulation are known.
  *
- *      The basic_functions::ROOT_PATH variable needs to be set for this unit
- *      test to work. It must be set to the absolute path to the root directory
- *      for Tudat.
- *
  *    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
@@ -80,14 +76,12 @@ bool testKeplerPropagator( )
     // Satellite Toolkit (STK).
 
     // Load file with benchmark data.
-    string relativePathToBenchmarkData
-            = "Astrodynamics/Propagators/twoBodyKeplerData.dat";
+    string relativePathToBenchmarkData = "Astrodynamics/Propagators/twoBodyKeplerData.dat";
 
-    string absolutePathToBenchmarkData = basic_functions::ROOT_PATH
+    string absolutePathToBenchmarkData = basic_functions::getRootPath( )
                                          + relativePathToBenchmarkData;
 
-    std::ifstream twoBodyKeplerBenchmarkFile(
-            absolutePathToBenchmarkData.c_str( ) );
+    std::ifstream twoBodyKeplerBenchmarkFile( absolutePathToBenchmarkData.c_str( ) );
 
     // Check if file could be opened.
     if ( !twoBodyKeplerBenchmarkFile )

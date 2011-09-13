@@ -3,7 +3,7 @@
  *    basic functions contained in Tudat.
  *
  *    Path              : /Basics/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -23,7 +23,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 10 August, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 13 September, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -43,21 +43,20 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      100902    K. Kumar            File header and footer added.
- *      100916    D. Dirkx            Added minor comments and placeholder
- *                                    tag during checking.
- *      100928    K. Kumar            Added reference and adjusted include
- *                                    statements.
- *      100929    K. Kumar            Changed EigenRoutines.h include statement
- *                                    to linearAlgebra.h and removed
- *                                    placeholder comment. Added small comment
- *                                    modifications.
- *      110202    K. Kumar            Added overload for map with State* for
- *                                    computeNearestLeftNeighborUsingBinarySearch().
- *      110803    J. Leloux           Added convertStringToTemplate.
- *      110805    J. Leloux           Added outputCurrentRunningTime.
- *      110810    J. Leloux           Minor comment modifications.
+ *      YYMMDD    Author            Comment
+ *      100902    K. Kumar          File header and footer added.
+ *      100916    D. Dirkx          Added minor comments and placeholder tag during checking.
+ *      100928    K. Kumar          Added reference and adjusted include statements.
+ *      100929    K. Kumar          Changed EigenRoutines.h include statement
+ *                                  to linearAlgebra.h and removed placeholder comment.
+ *                                  Added small comment modifications.
+ *      110202    K. Kumar          Added overload for map with State* for
+ *                                  computeNearestLeftNeighborUsingBinarySearch().
+ *      110803    J. Leloux         Added convertStringToTemplate.
+ *      110805    J. Leloux         Added outputCurrentRunningTime.
+ *      110810    J. Leloux         Minor comment modifications.
+ *      110913    K. Kumar          Implemented automatic root-path functions based on
+ *                                  suggestions by M. Persson.
  */
 
 #ifndef BASICOPERATIONS_H
@@ -66,17 +65,12 @@
 // Include statements.
 #include <ctime>
 #include <iostream>
-#include <iterator>
 #include <map>
 #include <string>
 #include <sstream>
 #include <vector>
-#include "linearAlgebra.h"
-#include "state.h"
-
-// Using declarations.
-using std::string;
-using std::vector;
+#include "Astrodynamics/States/state.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Basic functions namespace.
 /*!
@@ -85,12 +79,27 @@ using std::vector;
 namespace basic_functions
 {
 
-//! Root path of Tudat library.
+// Using declarations.
+using std::string;
+using std::vector;
+using std::map;
+
+//! Get root-path for Tudat library.
 /*!
- * Root path of Tudat library must be set for file-reading/file-writing purposes.
- * Path must include a trailing slash.
+ * Returns root-path corresponding with root-directory of Tudat library as
+ * a string with trailing slash included.
+ * \param Root-path.
  */
-static std::string ROOT_PATH;
+string getRootPath( );
+
+//! Execute root-path auxilliary function.
+/*!
+ * Executes the root-path auxilliary function, necessary for getRootPath().
+ * This function makes use of the __FILE__ pre-processor token.
+ * \param filePath File path.
+ * \param File path string.
+ */
+string executeRootPathAuxilliaryFunction( const char* filePath );
 
 //! Nearest left neighbor binary search.
 /*!
@@ -100,9 +109,8 @@ static std::string ROOT_PATH;
  * \param targetValueInVectorOfSortedData Target value in vector of sorted data.
  * \return Index of nearest left neighbor to target value.
  */
-int computeNearestLeftNeighborUsingBinarySearch(
-        VectorXd& vectorOfSortedData,
-        double& targetValueInVectorOfSortedData );
+int computeNearestLeftNeighborUsingBinarySearch( VectorXd& vectorOfSortedData,
+                                                 double& targetValueInVectorOfSortedData );
 
 //! Nearest left neighbor binary search.
 /*!
@@ -114,7 +122,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
  * \return Index of nearest left neighbor to target value.
  */
 int computeNearestLeftNeighborUsingBinarySearch(
-        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+        map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetValueInMapOfData );
 
 //! Nearest left neighbor binary search.
@@ -127,7 +135,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
  * \return Index of nearest left neighbor to target value.
  */
 int computeNearestLeftNeighborUsingBinarySearch(
-        std::map < double, State* >& sortedIndepedentAndDependentVariables,
+        map < double, State* >& sortedIndepedentAndDependentVariables,
         double& targetValueInMapOfData );
 
 //! Convert string to variable type.
@@ -139,7 +147,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
  * \return Boolean stating the success or failure of the conversion.
  */
 template < class T >
-bool convertStringToTemplate( const std::string& inputString, T& outputTemplate )
+bool convertStringToTemplate( const string& inputString, T& outputTemplate )
 {
     // Create stringstream containing input string.
     std::istringstream inputStringStream( inputString );
