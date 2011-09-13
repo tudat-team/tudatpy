@@ -215,9 +215,8 @@ int main( )
     bool testKeplerianElements =
             unit_tests::testKeplerianElements( );
 
-    // testKeplerPropagator: Tests the Kepler propagator. For this test, the
-    // ROOT_PATH variable must be set in basicFunctions.h to the root
-    // directory for Tudat.
+    // testKeplerPropagator: Tests the Kepler propagator for an Earth-orbiting
+    // satellite.
     bool testKeplerPropagator = unit_tests::testKeplerPropagator( );
 
     // testLambertTargeter: Tests the values of semi major axis,

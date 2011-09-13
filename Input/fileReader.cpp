@@ -76,7 +76,7 @@ void FileReader::setFileName( string fileName )
 void FileReader::openFile( )
 {
     // Set absolute file path.
-    absolutePath_ = basic_functions::ROOT_PATH + relativePath_ + fileName_;
+    absolutePath_ = basic_functions::getRootPath( ) + relativePath_ + fileName_;
 
     // Open data file.
     dataFile_.open( absolutePath_.c_str( ), std::ios::binary );

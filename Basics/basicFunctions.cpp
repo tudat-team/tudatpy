@@ -3,7 +3,7 @@
  *    basic functions contained in Tudat.
  *
  *    Path              : /Basics/
- *    Version           : 9
+ *    Version           : 10
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -23,7 +23,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 1 September, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 13 September, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -45,21 +45,24 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      100902    K. Kumar            File header and footer added.
- *      100916    D. Dirkx            Added minor comments during checking.
- *      100928    K. Kumar            Small comment modifications.
- *      100929    K. Kumar            Small comment modifications.
- *      110202    K. Kumar            Added overload for map with State* for
- *                                    computeNearestLeftNeighborUsingBinarySearch().
- *      110803    J. Leloux           Added convertStringToTemplate.
- *      110805    J. Leloux           Added outputCurrentRunningTime().
- *      110807    K. Kumar            Minor comment modifications.
- *      110810    J. Leloux           Minor comment modifications.
+ *      YYMMDD    Author            Comment
+ *      100902    K. Kumar          File header and footer added.
+ *      100916    D. Dirkx          Added minor comments during checking.
+ *      100928    K. Kumar          Small comment modifications.
+ *      100929    K. Kumar          Small comment modifications.
+ *      110202    K. Kumar          Added overload for map with State* for
+ *                                  computeNearestLeftNeighborUsingBinarySearch().
+ *      110803    J. Leloux         Added convertStringToTemplate.
+ *      110805    J. Leloux         Added outputCurrentRunningTime().
+ *      110807    K. Kumar          Minor comment modifications.
+ *      110810    J. Leloux         Minor comment modifications.
+ *      110913    K. Kumar          Implemented automatic root-path functions based on
+ *                                  suggestions by M. Persson.
  */
 
 // Include statements.
-#include "basicFunctions.h"
+#include <iterator>
+#include "Basics/basicFunctions.h"
 
 // Using declarations.
 using std::string;
@@ -70,6 +73,23 @@ using std::vector;
 //! Basic functions namespace.
 namespace basic_functions
 {
+
+//! Get root-path for Tudat library.
+string getRootPath( )
+{
+    return executeRootPathAuxilliaryFunction( __FILE__ ) + "/";
+}
+
+//! Execute root-path auxilliary function.
+string executeRootPathAuxilliaryFunction( const char* filePath )
+{
+    // Declare file path string assigned to filePath.
+    string filePath_( filePath );
+
+    // Strip filename from temporary string and return root-path string.
+    return filePath_.substr( 0, filePath_.length( )
+                             - string( "/Basics/basicFunctions.cpp" ).length( ) );
+}
 
 //! Nearest left neighbor binary search.
 int computeNearestLeftNeighborUsingBinarySearch(

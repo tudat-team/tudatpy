@@ -29,11 +29,6 @@
  *      of a commercial package such as STK, where are initial conditions of
  *      the simulation are known.
  *
- *      The basic_functions::ROOT_PATH variable does not seem to work
- *      correctly. Currently, this unit test will only work if the executable
- *      is built in the Tudat root directory. A generic method to handle paths
- *      within Tudat must be added in future and must be implemented here.
- *
  *    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
