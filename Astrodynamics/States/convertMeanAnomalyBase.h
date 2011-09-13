@@ -43,13 +43,13 @@
 
 // Include statements.
 #include <ctime>
-#include "basicMathematicsFunctions.h"
-#include "body.h"
-#include "celestialBody.h"
-#include "keplerianElements.h"
-#include "newtonRaphson.h"
-#include "newtonRaphsonAdaptor.h"
-#include "orbitalElementConversions.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Astrodynamics/Bodies/body.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/States/keplerianElements.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
+#include "Astrodynamics/States/orbitalElementConversions.h"
 
 //! Orbital element conversions namespace.
 /*!
@@ -70,34 +70,45 @@ public:
     /*!
      * Default constructor.
      */
-    ConvertMeanAnomalyBase( );
+    ConvertMeanAnomalyBase( ) : eccentricity_( -1.0 ), meanAnomaly_( -1.0 ),
+        pointerToNewtonRaphson_( NULL ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ConvertMeanAnomalyBase( );
+    virtual ~ConvertMeanAnomalyBase( ) { }
 
     //! Set Newton-Raphson method.
     /*!
      * Sets the Newton-Raphson method used.
      * \param pointerToNewtonRaphson Pointer to NewtonRaphson object.
      */
-    void setNewtonRaphson( NewtonRaphson* pointerToNewtonRaphson );
+    void setNewtonRaphson( NewtonRaphson* pointerToNewtonRaphson )
+    {
+        // Set pointer to Newton-Raphson method.
+        pointerToNewtonRaphson_ = pointerToNewtonRaphson;
+    }
 
     //! Set eccentricity.
     /*!
      * Sets eccentricity of orbit.
      * \param eccentricity Eccentricity.
      */
-    void setEccentricity( const double& eccentricity );
+    void setEccentricity( const double& eccentricity )
+    {
+        eccentricity_ = eccentricity;
+    }
 
     //! Set mean anomaly.
     /*!
      * Sets the mean anomaly.
      * \param meanAnomaly Mean anomaly.
      */
-    void setMeanAnomaly( const double& meanAnomaly );
+    void setMeanAnomaly( const double& meanAnomaly )
+    {
+        meanAnomaly_ = meanAnomaly;
+    }
 
 protected:
 

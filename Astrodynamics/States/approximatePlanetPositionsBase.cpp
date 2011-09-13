@@ -56,11 +56,12 @@
  */
 
 // Include statements.
-#include "approximatePlanetPositionsBase.h"
-#include "planet.h"
+#include "Astrodynamics/States/approximatePlanetPositionsBase.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
 
 //! Default constructor.
-ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( )
+ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( ) : julianDate_( -0.0 ),
+    meanLongitudeAtGivenJulianDate_( -0.0 ), numberOfCenturiesPastJ2000_( -0.0 )
 {
     // Set relative path to ephemeris file in file reader.
     ephemerisTextFileReader_.setRelativePath( "External/EphemerisData/" );
@@ -88,12 +89,6 @@ ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( )
 
     // Get container of data from file.
     containerOfDataFromEphemerisFile_ = ephemerisTextFileReader_.getContainerOfData( );
-}
-
-//! Default destructor.
-ApproximatePlanetPositionsBase::
-        ~ApproximatePlanetPositionsBase( )
-{
 }
 
 //! Set planet.

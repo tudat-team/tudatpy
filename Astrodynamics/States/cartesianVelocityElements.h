@@ -41,7 +41,8 @@
 #define CARTESIANVELOCITYELEMENTS_H
 
 // Include statements.
-#include "orbitalElements.h"
+#include <iostream>
+#include "Astrodynamics/States/orbitalElements.h"
 
 //! Cartesian position elements class.
 /*!
@@ -55,55 +56,77 @@ public:
     /*!
      * Default constructor.
      */
-    CartesianVelocityElements( );
+    CartesianVelocityElements( )
+    {
+        // Initialize state to zero.
+        state.setZero( 3 );
+    }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CartesianVelocityElements( );
+    ~CartesianVelocityElements( ) { }
 
     //! Set Cartesian element: xDot.
     /*!
      * Sets the Cartesian element: xDot.
      * \param cartesianElementXDot Cartesian element: xDot.
      */
-    void setCartesianElementXDot( const double& cartesianElementXDot );
+    void setCartesianElementXDot( const double& cartesianElementXDot )
+    {
+        state( 0 ) = cartesianElementXDot;
+    }
 
     //! Set Cartesian element: yDot.
     /*!
      * Sets the Cartesian element: yDot.
      * \param cartesianElementYDot Cartesian element: yDot.
      */
-    void setCartesianElementYDot( const double& cartesianElementYDot );
+    void setCartesianElementYDot( const double& cartesianElementYDot )
+    {
+        state( 1 ) = cartesianElementYDot;
+    }
 
     //! Set Cartesian element: zDot.
     /*!
      * Sets the Cartesian element: zDot.
      * \param cartesianElementZDot Cartesian element: zDot.
      */
-    void setCartesianElementZDot( const double& cartesianElementZDot );
+    void setCartesianElementZDot( const double& cartesianElementZDot )
+    {
+        state( 2 ) = cartesianElementZDot;
+    }
 
     //! Get Cartesian element: xDot.
     /*!
      * Returns the Cartesian element: xDot.
      * \return Cartesian element: xDot.
      */
-    double& getCartesianElementXDot( );
+    double& getCartesianElementXDot( )
+    {
+        return state( 0 );
+    }
 
     //! Get Cartesian element: yDot.
     /*!
      * Returns the Cartesian element: yDot.
      * \return Cartesian element: yDot.
      */
-    double& getCartesianElementYDot( );
+    double& getCartesianElementYDot( )
+    {
+        return state( 1 );
+    }
 
     //! Get Cartesian element: zDot.
     /*!
      * Returns the Cartesian element: zDot.
      * \return Cartesian element: zDot.
      */
-    double& getCartesianElementZDot( );
+    double& getCartesianElementZDot( )
+    {
+        return state( 2 );
+    }
 
     //! Overload ostream to print class information.
     /*!
@@ -114,7 +137,11 @@ public:
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      CartesianVelocityElements&
-                                     cartesianVelocityElements );
+                                     cartesianVelocityElements )
+    {
+        stream << "The state is set to: " << cartesianVelocityElements.state << std::endl;
+        return stream;
+    }
 
 protected:
 

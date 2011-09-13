@@ -43,7 +43,7 @@
  */
 
 // Include statements.
-#include "approximatePlanetPositionsDataContainer.h"
+#include "Astrodynamics/States/approximatePlanetPositionsDataContainer.h"
 
 // Using declarations.
 using std::endl;
@@ -63,12 +63,6 @@ ApproximatePlanetPositionsDataContainer::
               rateOfChangeOfLongitudeOfAscendingNode_( -0.0 ),
               additionalTermB_( -0.0 ), additionalTermC_( -0.0 ),
               additionalTermS_( -0.0 ), additionalTermF_( -0.0 )
-{
-}
-
-//! Default destructor.
-ApproximatePlanetPositionsDataContainer::
-        ~ApproximatePlanetPositionsDataContainer( )
 {
 }
 

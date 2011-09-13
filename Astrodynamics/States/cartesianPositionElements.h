@@ -42,7 +42,8 @@
 #define CARTESIANPOSITIONELEMENTS_H
 
 // Include statements.
-#include "orbitalElements.h"
+#include <iostream>
+#include "Astrodynamics/States/orbitalElements.h"
 
 //! Cartesian position elements class.
 /*!
@@ -56,55 +57,77 @@ public:
     /*!
      * Default constructor.
      */
-    CartesianPositionElements( );
+    CartesianPositionElements( )
+    {
+        // Initialize state to zero.
+        state.setZero( 3 );
+    }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CartesianPositionElements( );
+    ~CartesianPositionElements( ) { }
 
     //! Set Cartesian element: x.
     /*!
      * Sets the Cartesian element: x.
      * \param cartesianElementX Cartesian element: x.
      */
-    void setCartesianElementX( const double& cartesianElementX );
+    void setCartesianElementX( const double& cartesianElementX )
+    {
+        state( 0 ) = cartesianElementX;
+    }
 
     //! Set Cartesian element: y.
     /*!
      * Sets the Cartesian element: y.
      * \param cartesianElementY Cartesian element: y.
      */
-    void setCartesianElementY( const double& cartesianElementY );
+    void setCartesianElementY( const double& cartesianElementY )
+    {
+        state( 1 ) = cartesianElementY;
+    }
 
     //! Set Cartesian element: z.
     /*!
      * Sets the Cartesian element: z.
      * \param cartesianElementZ Cartesian element: z.
      */
-    void setCartesianElementZ( const double& cartesianElementZ );
+    void setCartesianElementZ( const double& cartesianElementZ )
+    {
+        state( 2 ) = cartesianElementZ;
+    }
 
     //! Get Cartesian element: x.
     /*!
      * Returns the Cartesian element: x.
      * \return Cartesian element: x.
      */
-    double& getCartesianElementX( );
+    double& getCartesianElementX( )
+    {
+        return state( 0 );
+    }
 
     //! Get Cartesian element: y.
     /*!
      * Returns the Cartesian element: y.
      * \return Cartesian element: y.
      */
-    double& getCartesianElementY( );
+    double& getCartesianElementY( )
+    {
+        return state( 1 );
+    }
 
     //! Get Cartesian element: z.
     /*!
      * Returns the Cartesian element: z.
      * \return Cartesian element: z.
      */
-    double& getCartesianElementZ( );
+    double& getCartesianElementZ( )
+    {
+        return state( 2 );
+    }
 
     //! Overload ostream to print class information.
     /*!
@@ -115,7 +138,11 @@ public:
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      CartesianPositionElements&
-                                     cartesianPositionElements );
+                                     cartesianPositionElements )
+    {
+        stream << "The state is set to: " << cartesianPositionElements.state << std::endl;
+        return stream;
+    }
 
 protected:
 

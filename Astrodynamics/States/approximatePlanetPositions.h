@@ -49,9 +49,9 @@
 #define APPROXIMATEPLANETPOSITIONS_H
 
 // Include statements.
-#include "approximatePlanetPositionsBase.h"
-#include "convertMeanAnomalyToEccentricAnomaly.h"
-#include "newtonRaphson.h"
+#include "Astrodynamics/States/approximatePlanetPositionsBase.h"
+#include "Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
 
 //! Ephemeris class using JPL "Approximate Positions of Major Planets".
 /*!
@@ -65,13 +65,15 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositions( );
+    ApproximatePlanetPositions( ) : eccentricAnomalyAtGivenJulianDate_(-0.0),
+        longitudeOfPerihelionAtGivenJulianDate_(-0.0), meanAnomalyAtGivenJulianDate_(-0.0),
+        trueAnomalyAtGivenJulianData_(-0.0) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ApproximatePlanetPositions( );
+    ~ApproximatePlanetPositions( ) { }
 
     //! Get state from ephemeris.
     /*!

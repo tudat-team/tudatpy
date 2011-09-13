@@ -64,12 +64,12 @@
 #include <fstream>
 #include <map>
 #include <string>
-#include "approximatePlanetPositionsDataContainer.h"
-#include "basicMathematicsFunctions.h"
-#include "cartesianElements.h"
-#include "ephemeris.h"
-#include "keplerianElements.h"
-#include "unitConversions.h"
+#include "Astrodynamics/States/approximatePlanetPositionsDataContainer.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Astrodynamics/States/ephemeris.h"
+#include "Astrodynamics/States/keplerianElements.h"
+#include "Mathematics/unitConversions.h"
 
 // Using declarations.
 using std::map;
@@ -92,7 +92,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~ApproximatePlanetPositionsBase( );
+    ~ApproximatePlanetPositionsBase( ) { }
 
     //! Set planet.
     /*!

@@ -55,9 +55,7 @@
 
 // Include statements.
 #include <iostream>
-#include <map>
-#include <string>
-#include "linearAlgebra.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! State class.
 /*!
@@ -72,13 +70,13 @@ public:
     /*!
      * Default constructor.
      */
-    State( );
+    State( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~State( );
+    virtual ~State( ) { }
 
     //! State.
     /*!
@@ -94,7 +92,11 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     State& stateObject );
+                                     State& stateObject )
+    {
+        stream << "The state is set to: " << stateObject.state << std::endl;
+        return stream;
+    }
 
 protected:
 

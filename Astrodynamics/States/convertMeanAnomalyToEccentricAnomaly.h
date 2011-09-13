@@ -45,7 +45,7 @@
 #define CONVERTMEANANOMALYTOECCENTRICANOMALY_H
 
 // Include statements.
-#include "convertMeanAnomalyBase.h"
+#include "Astrodynamics/States/convertMeanAnomalyBase.h"
 
 //! Orbital element conversions namespace.
 /*!
@@ -66,13 +66,13 @@ public:
     /*!
      * Default constructor.
      */
-    ConvertMeanAnomalyToEccentricAnomaly( );
+    ConvertMeanAnomalyToEccentricAnomaly( ) : eccentricAnomaly_( -1.0 ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ConvertMeanAnomalyToEccentricAnomaly( );
+    ~ConvertMeanAnomalyToEccentricAnomaly( ) { }
 
     //! Convert mean anomaly to eccentric anomaly.
     /*!

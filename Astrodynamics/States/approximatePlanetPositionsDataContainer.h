@@ -73,7 +73,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~ApproximatePlanetPositionsDataContainer( );
+    ~ApproximatePlanetPositionsDataContainer( ) { }
 
     //! Overload ostream to print class information.
     /*!

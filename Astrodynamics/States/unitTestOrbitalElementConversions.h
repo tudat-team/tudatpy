@@ -53,20 +53,6 @@
 #ifndef UNITTESTORBITALELEMENTCONVERSIONS_H
 #define UNITTESTORBITALELEMENTCONVERSIONS_H
 
-// Include statements.
-#include <cmath>
-#include "basicMathematicsFunctions.h"
-#include "celestialBody.h"
-#include "convertMeanAnomalyToEccentricAnomaly.h"
-#include "convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
-#include "gravityFieldModel.h"
-#include "orbitalElementConversions.h"
-#include "planet.h"
-#include "sphericalHarmonicsGravityField.h"
-#include "unitConversions.h"
-
-#include "newtonRaphson.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

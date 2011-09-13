@@ -43,15 +43,6 @@
 #ifndef UNITTESTKEPLERIANELEMENTS_H
 #define UNITTESTKEPLERIANELEMENTS_H
 
-// Include statements.
-#include "basicMathematicsFunctions.h"
-#include "keplerianElements.h"
-#include "linearAlgebra.h"
-#include "unitConversions.h"
-
-// Using statements.
-using unit_conversions::convertDegreesToRadians;
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

@@ -41,7 +41,7 @@
 
 // Include statement.
 #include <iostream>
-#include "convertMeanAnomalyToEccentricAnomaly.h"
+#include "Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h"
 
 // Using declarations.
 using std::cerr;
@@ -51,17 +51,6 @@ using mathematics::raiseToIntegerPower;
 //! Orbital element conversions namespace.
 namespace orbital_element_conversions
 {
-
-//! Default constructor.
-ConvertMeanAnomalyToEccentricAnomaly::ConvertMeanAnomalyToEccentricAnomaly( )
-    : eccentricAnomaly_( -1.0 )
-{
-}
-
-//! Default destructor.
-ConvertMeanAnomalyToEccentricAnomaly::~ConvertMeanAnomalyToEccentricAnomaly( )
-{
-}
 
 //! Convert mean anomaly to eccentric anomaly.
 double ConvertMeanAnomalyToEccentricAnomaly::convert( )

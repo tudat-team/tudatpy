@@ -52,7 +52,7 @@
 #define APPROXIMATEPLANETPOSITIONSCIRCULARCOPLANAR_H
 
 // Include statements.
-#include "approximatePlanetPositionsBase.h"
+#include "Astrodynamics/States/approximatePlanetPositionsBase.h"
 
 //! Ephemeris class using JPL "Approximate Positions of Major Planets".
 /*!
@@ -67,13 +67,13 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositionsCircularCoplanar( );
+    ApproximatePlanetPositionsCircularCoplanar( ) : constantOrbitalRadius_( -0.0 ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ApproximatePlanetPositionsCircularCoplanar( );
+    ~ApproximatePlanetPositionsCircularCoplanar( ) { }
 
     //! Get state from ephemeris; circular, coplanar case.
     /*!
