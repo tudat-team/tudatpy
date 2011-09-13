@@ -39,11 +39,6 @@
 #ifndef UNITTESTEXPONENTIALATMOSPHERE_H
 #define UNITTESTEXPONENTIALATMOSPHERE_H
 
-// Include statements.
-#include "exponentialAtmosphere.h"
-#include <cmath>
-#include "basicMathematicsFunctions.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

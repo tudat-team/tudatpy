@@ -42,8 +42,8 @@
 #define ENVIRONMENTMODEL_H
 
 // Include statements.
-#include "linearAlgebra.h"
-#include "basicMathematicsFunctions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! EnvironmentModel class.
 /*!
@@ -57,13 +57,13 @@ public:
     /*!
      * Default constructor.
      */
-    EnvironmentModel( ){};
+    EnvironmentModel( ){}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~EnvironmentModel( ){};
+    virtual ~EnvironmentModel( ){}
 
 protected:
 

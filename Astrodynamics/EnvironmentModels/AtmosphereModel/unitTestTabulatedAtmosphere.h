@@ -39,10 +39,6 @@
 #ifndef UNITTESTTABULATEDATMOSPHERE_H
 #define UNITTESTTABULATEDATMOSPHERE_H
 
-// Include statements.
-#include <cmath>
-#include "basicMathematicsFunctions.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

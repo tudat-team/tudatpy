@@ -44,17 +44,6 @@
 #ifndef UNITTESTSPHERICALHARMONICSGRAVITYFIELD_H
 #define UNITTESTSPHERICALHARMONICSGRAVITYFIELD_H
 
-// Include statements.
-#include <cmath>
-#include "basicMathematicsFunctions.h"
-#include "linearAlgebra.h"
-#include "gravityFieldModel.h"
-#include "planet.h"
-#include "sphericalHarmonicsGravityField.h"
-
-// Using directives.
-using mathematics::raiseToIntegerPower;
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

@@ -42,24 +42,9 @@
  */
 
 // Include statements.
-#include "vehicle.h"
+#include "Astrodynamics/Bodies/Vehicles/vehicle.h"
 
-// Using declarations.
-using std::endl;
-
-//! Default constructor.
-Vehicle::Vehicle( )
-{
-    // External model is not set when constructor is called.
-    isExternalModelSet_ = false;
-}
-
-//! Default destructor.
-Vehicle::~Vehicle( )
-{
-}
-
-//! Function to set the external model.
+//! Set external model.
 void Vehicle::setExternalModel( VehicleExternalModel& externalModel )
 {
     // Sets the external mode and the isExternalModelSet_ boolean to true.
@@ -67,7 +52,7 @@ void Vehicle::setExternalModel( VehicleExternalModel& externalModel )
     isExternalModelSet_ = true;
 }
 
-//! Function to retrieve the externalModel.
+//! Get external model.
 VehicleExternalModel* Vehicle::getPointerToExternalModel( )
 {
     // Only return the external model if one is set.
@@ -75,14 +60,19 @@ VehicleExternalModel* Vehicle::getPointerToExternalModel( )
     {
         return pointerToExternalModel_;
     }
+
     else
     {
         return NULL;
     }
 }
 
+//! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, Vehicle& vehicle )
 {
+    // Using declarations.
+    using std::endl;
+
     stream << "This is a vehicle; the following properties have been set: "
            << endl;
 

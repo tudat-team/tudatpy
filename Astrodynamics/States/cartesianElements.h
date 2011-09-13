@@ -67,10 +67,7 @@ public:
      * Default constructor.
      */
     CartesianElements( ) : position_( Vector3d::Zero( ) )
-    {
-        // Initialize state to zero.
-        state.setZero( 6 );
-    }
+    { state.setZero( 6 ); }
 
     //! Default destructor.
     /*!
@@ -84,9 +81,7 @@ public:
      * \param cartesianElementXDot Cartesian element: xDot.
      */
     void setCartesianElementXDot( const double& cartesianElementXDot )
-    {
-        state( 3 ) = cartesianElementXDot;
-    }
+    { state( 3 ) = cartesianElementXDot; }
 
     //! Set Cartesian element: yDot.
     /*!
@@ -94,9 +89,7 @@ public:
      * \param cartesianElementYDot Cartesian element: yDot.
      */
     void setCartesianElementYDot( const double& cartesianElementYDot )
-    {
-        state( 4 ) = cartesianElementYDot;
-    }
+    { state( 4 ) = cartesianElementYDot; }
 
     //! Set Cartesian element: zDot.
     /*!
@@ -104,9 +97,7 @@ public:
      * \param cartesianElementZDot Cartesian element: zDot.
      */
     void setCartesianElementZDot( const double& cartesianElementZDot )
-    {
-        state( 5 ) = cartesianElementZDot;
-    }
+    { state( 5 ) = cartesianElementZDot; }
 
     //! Set position.
     /*!
@@ -114,9 +105,7 @@ public:
      * \return position Position.
      */
     void setPosition( Vector3d& position )
-    {
-        state.segment( 0, 3 ) = position;
-    }
+    { state.segment( 0, 3 ) = position; }
 
     //! Set velocity.
     /*!
@@ -124,9 +113,7 @@ public:
      * \return velocity Velocity.
      */
     void setVelocity( Vector3d& velocity )
-    {
-        state.segment( 3, 3 ) = velocity;
-    }
+    { state.segment( 3, 3 ) = velocity; }
 
     //! Get Cartesian element: xDot.
     /*!
@@ -134,9 +121,7 @@ public:
      * \return Cartesian element: xDot.
      */
     double& getCartesianElementXDot( )
-    {
-        return state( 3 );
-    }
+    { return state( 3 ); }
 
     //! Get Cartesian element: yDot.
     /*!
@@ -144,9 +129,7 @@ public:
      * \return Cartesian element: yDot.
      */
     double& getCartesianElementYDot( )
-    {
-        return state( 4 );
-    }
+    { return state( 4 ); }
 
     //! Get Cartesian element: zDot.
     /*!
@@ -154,9 +137,7 @@ public:
      * \return Cartesian element: zDot.
      */
     double& getCartesianElementZDot( )
-    {
-        return state( 5 );
-    }
+    { return state( 5 ); }
 
     //! Get position.
     /*!

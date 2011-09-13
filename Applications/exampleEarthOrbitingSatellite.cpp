@@ -49,11 +49,18 @@
  */
 
 // Include statements.
-#include "exampleEarthOrbitingSatellite.h"
-
-// Using declarations.
-using std::cout;
-using std::endl;
+#include <cmath>
+#include <iostream>
+#include "Applications/exampleEarthOrbitingSatellite.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
+#include "Astrodynamics/ForceModels/gravitationalForceModel.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/Propagators/seriesPropagator.h"
+#include "Astrodynamics/Bodies/Vehicles/vehicle.h"
+#include "Mathematics/unitConversions.h"
+#include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
+#include "Output/writingOutputToFile.h"
 
 //! Namespace for all applications.
 namespace applications
@@ -62,6 +69,10 @@ namespace applications
 //! Execute example of an Earth-orbiting satellite.
 void executeEarthOrbitingSatelliteExample( )
 {
+    // Using declarations.
+    using std::cout;
+    using std::endl;
+
     // Create the state of Asterix given in Cartesian elements.
     CartesianElements stateOfAsterix;
 

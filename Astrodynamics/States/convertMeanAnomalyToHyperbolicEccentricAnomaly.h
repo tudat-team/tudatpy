@@ -99,8 +99,7 @@ private:
     /*!
      * Pointer to adaptor NewtonRaphsonAdaptor class.
      */
-    NewtonRaphsonAdaptor < ConvertMeanAnomalyToHyperbolicEccentricAnomaly >
-            newtonRaphsonAdaptor_;
+    NewtonRaphsonAdaptor < ConvertMeanAnomalyToHyperbolicEccentricAnomaly > newtonRaphsonAdaptor_;
 
     //! Compute Kepler's function for hyperbolic orbits.
     /*!
@@ -115,8 +114,7 @@ private:
      * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly.
      * \return Value of Kepler's function for hyperbolic orbits.
      */
-    double computeKeplersFunctionForHyperbolicOrbits_(
-            double& hyperbolicEccentricAnomaly );
+    double computeKeplersFunctionForHyperbolicOrbits_( double& hyperbolicEccentricAnomaly );
 
     //! Compute first-derivative of Kepler's function for hyperbolic orbits.
     /*!
@@ -132,7 +130,7 @@ private:
      *          orbits.
      */
     double computeFirstDerivativeKeplersFunctionForHyperbolicOrbits_(
-            double& hyperbolicEccentricAnomaly );
+        double& hyperbolicEccentricAnomaly );
 };
 
 }

@@ -48,21 +48,11 @@
  */
 
 // Include statements.
-#include "centralGravityField.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-
-//! Default constructor.
-CentralGravityField::CentralGravityField( )
-{
-}
-
-//! Default destructor.
-CentralGravityField::~CentralGravityField( )
-{
-}
 
 //! Set predefined central gravity field settings.
 void CentralGravityField::setPredefinedCentralGravityFieldSettings(

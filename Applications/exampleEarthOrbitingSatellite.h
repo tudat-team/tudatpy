@@ -41,19 +41,6 @@
 #ifndef EXAMPLEEARTHORBITINGSATELLITE_H
 #define EXAMPLEEARTHORBITINGSATELLITE_H
 
-// Include statements.
-#include <cmath>
-#include <iostream>
-#include "cartesianElements.h"
-#include "cartesianStateNumericalPropagator.h"
-#include "gravitationalForceModel.h"
-#include "planet.h"
-#include "rungeKutta4thOrderFixedStepsize.h"
-#include "seriesPropagator.h"
-#include "unitConversions.h"
-#include "vehicle.h"
-#include "writingOutputToFile.h"
-
 //! Namespace for all applications.
 /*!
  * Namespace containing all applications.

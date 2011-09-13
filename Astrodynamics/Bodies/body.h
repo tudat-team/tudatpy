@@ -49,7 +49,7 @@
 
 // Include statements.
 #include <iostream>
-#include "geometricShape.h"
+#include "Mathematics/GeometricShapes/geometricShape.h"
 
 //! Body base class.
 /*!
@@ -63,41 +63,42 @@ public:
     /*!
      * Default constructor.
      */
-    Body( );
+    Body( ) : mass_( -0.0 ), bodyGeometricShape_( NULL ){ }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~Body( );
+    virtual ~Body( ) { }
 
     //! Set mass of body.
     /*!
      * Sets the mass of the body.
      * \param mass Mass.
      */
-    void setMass( const double& mass );
+    void setMass( const double& mass ) { mass_ = mass; }
 
     //! Sets the shape model.
     /*!
      * Defines the shape model.
      * \param bodyGeometricShape Pointer to geometric shape of body.
      */
-    void setShapeModel( GeometricShape* bodyGeometricShape );
+    void setShapeModel( GeometricShape* bodyGeometricShape )
+        { bodyGeometricShape_ = bodyGeometricShape; }
 
     //! Get mass of body.
     /*!
      * Returns the mass of the body.
      * \return Mass.
      */
-    double& getMass( );
+    double& getMass( ){ return mass_; }
 
     //! Get the shape model.
     /*!
      * Returns the shape model.
      * \return bodyGeometricShape Pointer to geometric shape of body.
      */
-    GeometricShape* getShapeModel( );
+    GeometricShape* getShapeModel( ) { return bodyGeometricShape_; }
 
 protected:
 

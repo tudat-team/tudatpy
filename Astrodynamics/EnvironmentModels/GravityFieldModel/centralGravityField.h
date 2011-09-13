@@ -41,7 +41,7 @@
 #define CENTRALGRAVITYFIELD_H
 
 // Include statements.
-#include "sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h"
 
 //! Central gravity field class.
 /*!
@@ -73,13 +73,13 @@ public:
     /*!
      * Default constructor.
      */
-    CentralGravityField( );
+    CentralGravityField( ){ }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CentralGravityField( );
+    ~CentralGravityField( ){ }
 
     //! Set predefined central gravity field settings.
     /*!

@@ -113,8 +113,7 @@ private:
      * \param eccentricAnomaly Eccentric anomaly.
      * \return Value of Kepler's function for elliptical orbits.
      */
-    double computeKeplersFunctionForEllipticalOrbits_( double&
-                                                       eccentricAnomaly );
+    double computeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly );
 
     //! Compute first-derivative of Kepler's function for elliptical orbits.
     /*!
@@ -129,8 +128,7 @@ private:
      * \return Value of first-derivative of Kepler's function for elliptical
      *          orbits.
      */
-    double computeFirstDerivativeKeplersFunctionForEllipticalOrbits_(
-            double& eccentricAnomaly );
+    double computeFirstDerivativeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly );
 };
 
 }

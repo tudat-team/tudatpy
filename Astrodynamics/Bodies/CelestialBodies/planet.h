@@ -40,9 +40,9 @@
 #define PLANET_H
 
 // Include statements.
-#include "approximatePlanetPositions.h"
-#include "celestialBody.h"
-#include "centralGravityField.h"
+#include "States/approximatePlanetPositions.h"
+#include "Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.h"
 
 //! Planet class.
 /*!
@@ -74,13 +74,13 @@ public:
     /*!
      * Default constructor.
      */
-    Planet( );
+    Planet( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~Planet( );
+    ~Planet( ) { }
 
     //! Set predefined planet settings.
     /*!

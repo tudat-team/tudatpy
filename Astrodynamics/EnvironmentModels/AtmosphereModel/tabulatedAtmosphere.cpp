@@ -40,18 +40,8 @@
  *      110722    F.M. Engelen      Removed setRelativePath function.
  */
 
+// Include statements.
 #include "tabulatedAtmosphere.h"
-
-//! Default constructor.
-TabulatedAtmosphere::TabulatedAtmosphere( )
-{
-   relativePath_ = "Astrodynamics/EnvironmentModels/AtmosphereModel/AtmosphereTables/";
-}
-
-//! Default destructor.
-TabulatedAtmosphere::~TabulatedAtmosphere( )
-{
-}
 
 //! Initialise the atmosphere table reader.
 void TabulatedAtmosphere::initialize( string atmosphereTableFile )
@@ -108,63 +98,6 @@ void TabulatedAtmosphere::initialize( string atmosphereTableFile )
             altitudeData_, pressureData_ );
     cubicSplineInterpolationForTemperature_.initializeCubicSplineInterpolation(
             altitudeData_, temperatureData_ );
-}
-
-//! Get atmosphere table file name.
-string TabulatedAtmosphere::getAtmosphereTableFile( )
-{
-    return atmosphereTableFile_;
-}
-
-//! Get relative path.
-string TabulatedAtmosphere::getRelativePath( )
-{
-    return relativePath_;
-}
-
-//! Get local density.
-double TabulatedAtmosphere::getDensity( const double& altitude,
-                                        const double& longitude,
-                                        const double& latitude,
-                                        const double& time )
-{
-    return this->getDensity( altitude );
-}
-
-//! Get local density.
-double TabulatedAtmosphere::getDensity( const double& altitude )
-{
-    return cubicSplineInterpolationForDensity_.interpolate( altitude );
-}
-
-//! Get local pressure.
-double TabulatedAtmosphere::getPressure( const double& altitude,
-                                         const double& longitude,
-                                         const double& latitude,
-                                         const double& time )
-{
-    return this->getPressure( altitude );
-}
-
-//! Get local pressure.
-double TabulatedAtmosphere::getPressure( const double& altitude )
-{
-    return cubicSplineInterpolationForPressure_.interpolate( altitude );
-}
-
-//! Get local temperature.
-double TabulatedAtmosphere::getTemperature( const double& altitude,
-                                            const double& longitude,
-                                            const double& latitude,
-                                            const double& time )
-{
-    return this->getTemperature( altitude );
-}
-
-//! Get local temperature.
-double TabulatedAtmosphere::getTemperature( const double& altitude )
-{
-    return cubicSplineInterpolationForTemperature_.interpolate( altitude );
 }
 
 // End of file.
