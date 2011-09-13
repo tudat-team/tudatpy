@@ -55,14 +55,16 @@
  *                                  corrected Doxygen comments.
  *      110207    D. Dirkx          Removed overloaded ostream operator.
  *      110209    D. Dirkx          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef SINGLESURFACEGEOMETRY_H
 #define SINGLESURFACEGEOMETRY_H
 
 // Include statements.
-#include "surfaceGeometry.h"
-#include "linearAlgebra.h"
+#include "Mathematics/GeometricShapes/surfaceGeometry.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Surface geometry base class.
 /*!
@@ -100,28 +102,37 @@ public:
     /*!
      * Default destructor.
      */
-    virtual ~SingleSurfaceGeometry( );
+    virtual ~SingleSurfaceGeometry( ) { }
 
     //! Set offset of the shape.
     /*!
      * Sets the offset of the shape.
      * \param offset Offset.
      */
-    void setOffset( const VectorXd& offset );
+    void setOffset( const VectorXd& offset )
+    {
+        offset_ = offset;
+    }
 
     //! Set rotation matrix of the shape.
     /*!
      * Sets the rotation matrix of the shape.
      * \param rotationMatrix Rotation matrix.
      */
-    void setRotationMatrix( const MatrixXd& rotationMatrix );
+    void setRotationMatrix( const MatrixXd& rotationMatrix )
+    {
+        rotationMatrix_ = rotationMatrix;
+    }
 
     //! Set scaling matrix of the shape.
     /*!
      * Sets the scaling matrix of the shape.
      * \param scalingMatrix Scaling matrix.
      */
-    void setScalingMatrix( const MatrixXd& scalingMatrix );
+    void setScalingMatrix( const MatrixXd& scalingMatrix )
+    {
+        scalingMatrix_ = scalingMatrix;
+    }
 
     //! Set minimum value of independent variable.
     /*!
@@ -167,21 +178,30 @@ public:
      * Retrieves the offset from the shape.
      * \return Offset of the surface.
      */
-    VectorXd getOffset( );
+    VectorXd getOffset( )
+    {
+        return offset_;
+    }
 
     //! Get rotation matrix from the shape.
     /*!
      * Retrieves the rotation matrix from the shape.
      * \return Rotation matrix of the surface.
      */
-    MatrixXd getRotationMatrix( );
+    MatrixXd getRotationMatrix( )
+    {
+        return rotationMatrix_;
+    }
 
     //! Get scaling matrix from the shape.
     /*!
      * Retrieves the scaling matrix from the shape.
      * \return Scaling matrix of the surface.
      */
-    MatrixXd getScalingMatrix( );
+    MatrixXd getScalingMatrix( )
+    {
+        return scalingMatrix_;
+    }
 
     //! Get minimum value of independent variable.
     /*!

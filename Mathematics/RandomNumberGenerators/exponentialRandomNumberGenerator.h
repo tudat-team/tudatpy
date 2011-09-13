@@ -38,13 +38,15 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110708    K. Kumar          First creation of code.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef EXPONENTIALRANDOMNUMBERGENERATOR_H
 #define EXPONENTIALRANDOMNUMBERGENERATOR_H
 
 // Include statements.
-#include "uniformRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h"
 
 //! Exponential random number generator class.
 /*!
@@ -67,7 +69,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~ExponentialRandomNumberGenerator( );
+    ~ExponentialRandomNumberGenerator( ) { }
 
     //! Get exponentially-distributed, normalized, random double.
     /*!

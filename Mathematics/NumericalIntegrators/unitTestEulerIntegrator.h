@@ -37,6 +37,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110515    K. Kumar          File created.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTEULERINTEGRATOR_H
@@ -45,8 +47,8 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
-#include "euler.h"
-#include "stateDerivativeBase.h"
+#include "Mathematics/NumericalIntegrators/euler.h"
+#include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
 //! Namespace for all unit tests.
 /*!
@@ -75,13 +77,17 @@ public:
     /*!
      * Default constructor.
      */
-    EulerIntegratorTest( );
+    EulerIntegratorTest( )
+    {
+    }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~EulerIntegratorTest( );
+    ~EulerIntegratorTest( )
+    {
+    }
 
     //! Compute state derivative.
     /*!

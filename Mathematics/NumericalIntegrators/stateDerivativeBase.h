@@ -39,13 +39,15 @@
  *      110516    K. Kumar          Renamed file and class.
  *      110810    J. Leloux         Corrected doxygen documentation, deleted
  *                                  unused variable.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef STATEDERIVATIVEBASE_H
 #define STATEDERIVATIVEBASE_H
 
 // Include statements.
-#include "state.h"
+#include "Astrodynamics/States/state.h"
 
 //! An abstract base class for state derivative functions.
 /*!
@@ -59,13 +61,13 @@ public:
     /*!
      * Default constructor.
      */
-    StateDerivativeBase( );
+    StateDerivativeBase( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~StateDerivativeBase( );
+    virtual ~StateDerivativeBase( ) { }
 
     //! Compute state derivative.
     /*!

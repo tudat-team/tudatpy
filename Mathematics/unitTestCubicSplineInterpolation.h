@@ -37,16 +37,12 @@
  *      110621    F.M. Engelen      File created.
  *      110707    E.A.G. Heeren     Minor spelling/lay-out corrections.
  *      110714    E.A.G. Heeren     Minor spelling/lay-out corrections.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTCUBICSPLINEINTERPOLATION_H
 #define UNITTESTCUBICSPLINEINTERPOLATION_H
-
-// Include statements.
-#include <cmath>
-#include <iostream>
-#include "cubicSplineInterpolation.h"
-#include "linearAlgebra.h"
 
 //! Namespace for all unit tests.
 /*!

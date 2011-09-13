@@ -43,7 +43,7 @@
 #define NEWTONRAPHSONADAPTOR_H
 
 // Include statements.
-#include "newtonRaphsonBase.h"
+#include "Mathematics/RootFindingMethods/newtonRaphsonBase.h"
 
 //! Template class for the NewtonRaphsonAdaptor.
 /*!

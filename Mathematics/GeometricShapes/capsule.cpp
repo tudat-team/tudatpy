@@ -44,10 +44,18 @@
  *                                  comments; minor changes.
  *      110209    D. Dirkx          Minor changes.
  *      110209    K. Kumar          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "capsule.h"
+#include <cmath>
+
+#include "Mathematics/GeometricShapes/capsule.h"
+#include "Mathematics/GeometricShapes/conicalFrustum.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
+#include "Mathematics/GeometricShapes/torus.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 // Using declarations.
 using std::cerr;
@@ -76,67 +84,6 @@ Capsule::~Capsule( )
     {
         delete singleSurfaceGeometryList_[ i ];
     }
-}
-
-//! Set nose radius.
-void Capsule::setNoseRadius( const double& noseRadius )
-{
-    noseRadius_ = noseRadius;
-}
-
-//! Set middle radius.
-void Capsule::setMiddleRadius( const double& middleRadius )
-{
-    middleRadius_  = middleRadius;
-}
-
-//! Set rear length.
-void Capsule::setRearLength( const double& rearLength )
-{
-    rearLength_ = rearLength;
-}
-
-//! Set rear angle.
-void Capsule::setRearAngle( const double& rearAngle)
-{
-    rearAngle_ = rearAngle;
-}
-
-//! Set side radius.
-void Capsule::setSideRadius( const double& sideRadius )
-{
-    sideRadius_ = sideRadius;
-
-}
-
-//! Get nose radius.
-double& Capsule::getNoseRadius( )
-{
-    return noseRadius_;
-}
-
-//! Get middle radius.
-double& Capsule::getMiddleRadius( )
-{
-    return middleRadius_;
-}
-
-//! Get rear length.
-double& Capsule::getRearLength( )
-{
-    return rearLength_;
-}
-
-//! Get rear angle.
-double& Capsule::getRearAngle( )
-{
-    return rearAngle_;
-}
-
-//! Get side radius.
-double& Capsule::getSideRadius( )
-{
-    return sideRadius_;
 }
 
 //! Create capsule.

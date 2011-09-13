@@ -39,13 +39,15 @@
  *      YYMMDD    Author            Comment
  *      110111    J. Melman         First creation of code.
  *      110124    J. Melman         Adapted to the offical Tudat standards.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
 #include <iostream>
-#include "unitConversions.h"
-#include "physicalConstants.h"
-#include "basicMathematicsFunctions.h"
+#include "Mathematics/unitConversions.h"
+#include "Astrodynamics/physicalConstants.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Namespace for all unit tests.
 /*!

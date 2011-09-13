@@ -45,14 +45,15 @@
  *      110203    J. Melman         File checked.
  *      110207    K. Kumar          Path changed; moved integrate() function
  *                                  to SingleStepIntegrationMethods.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef RUNGEKUTTA4THORDERFIXEDSTEPSIZE_H
 #define RUNGEKUTTA4THORDERFIXEDSTEPSIZE_H
 
 // Include statements.
-#include "singleStepIntegrationMethods.h"
-#include "linearAlgebra.h"
+#include "Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h"
 
 //! 4th-order, fixed stepsize, Runge-Kutta integrator class.
 /*!
@@ -66,13 +67,13 @@ public:
     /*!
      * Default constructor.
      */
-    RungeKutta4thOrderFixedStepsize( );
+    RungeKutta4thOrderFixedStepsize( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~RungeKutta4thOrderFixedStepsize( );
+    ~RungeKutta4thOrderFixedStepsize( ) { }
 
     //! Overload ostream to print class information.
     /*!

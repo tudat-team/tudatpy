@@ -37,10 +37,12 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110517    K. Kumar          File created.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "unitTestRungeKutta4thOrderFixedStepsizeIntegrator.h"
+#include "Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.h"
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -113,16 +115,6 @@ bool testRungeKutta4thOrderFixedStepsizeIntegrator( )
     // Return test result.
     // If test is successful return false; if test fails, return true.
     return isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_;
-}
-
-//! Default constructor.
-RungeKutta4thOrderFixedStepsizeIntegratorTest::RungeKutta4thOrderFixedStepsizeIntegratorTest( )
-{
-}
-
-//! Default destructor.
-RungeKutta4thOrderFixedStepsizeIntegratorTest::~RungeKutta4thOrderFixedStepsizeIntegratorTest( )
-{
 }
 
 //! Compute state derivative.

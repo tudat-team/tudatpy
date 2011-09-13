@@ -45,10 +45,12 @@
  *                                  required.
  *      110124    E. Iorfida        Added set/get functions for maximum number
  *                                  of iterations.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "rootFinder.h"
+#include "Mathematics/RootFindingMethods/rootFinder.h"
 
 //! Default constructor.
 RootFinder::RootFinder( ) : maximumNumberOfIterations_( 100 ),
@@ -59,63 +61,6 @@ RootFinder::RootFinder( ) : maximumNumberOfIterations_( 100 ),
                             pointerToGlobalFunction_( NULL ),
                             pointerToGlobalFirstDerivativeFunction_( NULL )
 {
-}
-
-//! Default destructor.
-RootFinder::~RootFinder( )
-{
-}
-
-//! Set initial guess of the root of mathematical function.
-void RootFinder::setInitialGuessOfRoot( const double& initialGuessOfRoot )
-{
-    initialGuessOfRoot_ = initialGuessOfRoot;
-    currentValueOfRoot_ = initialGuessOfRoot;
-}
-
-//! Set maximum number of iterations.
-void RootFinder::setMaximumNumberOfIterations( const unsigned int&
-                                               maximumNumberOfIterations )
-{
-    maximumNumberOfIterations_ = maximumNumberOfIterations;
-}
-
-//! Set tolerance.
-void RootFinder::setTolerance( const double &tolerance )
-{
-    tolerance_ = tolerance;
-}
-
-//! Set pointer to mathematical function.
-void RootFinder::setMathematicalFunction( pointerToDoubleTakingFunction
-                                          globalFunction )
-{
-    pointerToGlobalFunction_ = globalFunction;
-}
-
-//! Set pointer to first-derivative mathematical function.
-void RootFinder::setFirstDerivativeMathematicalFunction(
-        pointerToDoubleTakingFunction globalFirstDerivativeFunction )
-{
-    pointerToGlobalFirstDerivativeFunction_ = globalFirstDerivativeFunction;
-}
-
-//! Get maximum number of iterations.
-unsigned int& RootFinder::getMaximumNumberOfIterations( )
-{
-    return maximumNumberOfIterations_;
-}
-
-//! Get tolerance.
-double& RootFinder::getTolerance( )
-{
-    return tolerance_;
-}
-
-//! Get root of mathematical function.
-double& RootFinder::getComputedRootOfFunction( )
-{
-    return nextValueOfRoot_;
 }
 
 // End of file.

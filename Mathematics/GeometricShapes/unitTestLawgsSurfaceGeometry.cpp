@@ -38,10 +38,13 @@
  *      110206    D. Dirkx          First version of file.
  *      110208    D. Dirkx          Finalized for code check.
  *      110212    J. Melman         Fixed many minor formatting issues.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "unitTestLawgsSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Namespace for all unit tests.
 bool unit_tests::testLawgsSurfaceGeometry( )

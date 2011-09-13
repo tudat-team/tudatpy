@@ -49,6 +49,8 @@
  *                                  exponential random number generator.
  *      110728    K. Kumar          Added unit test for normal random number
  *                                  generator.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTRANDOMNUMBERGENERATOR_H
@@ -59,10 +61,10 @@
 #include <cmath>
 #include <iostream>
 #include <map>
-#include "basicMathematicsFunctions.h"
-#include "exponentialRandomNumberGenerator.h"
-#include "normalRandomNumberGenerator.h"
-#include "uniformRandomNumberGenerator.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/normalRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h"
 
 //! Namespace for all unit tests.
 /*!

@@ -47,10 +47,12 @@
  */
 
 // Include statements.
+#include <iostream>
 #include "keplerPropagator.h"
 
 // Using declarations.
 using std::endl;
+using std::cerr;
 using mathematics::raiseToIntegerPower;
 
 //! Default constructor.

@@ -39,14 +39,15 @@
  *                                  comments; minor changes to functions.
  *      110209    D. Dirkx          Minor changes.
  *      110209    K. Kumar          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef CONICALFRUSTUM_H
 #define CONICALFRUSTUM_H
 
 // Include statements.
-#include "linearAlgebra.h"
-#include "singleSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! ConicalFrustum class.
 /*!
@@ -69,7 +70,7 @@ public:
     /*!
      *  Default destrcutor.
      */
-    ~ConicalFrustum( );
+    ~ConicalFrustum( ) { }
 
     //! Get surface point on conical frustum.
     /*!
@@ -133,70 +134,100 @@ public:
      * Sets the cone half angle.
      *  \param coneHalfAngle Cone half angle.
      */
-    void setConeHalfAngle( const double& coneHalfAngle );
+    void setConeHalfAngle( const double& coneHalfAngle )
+    {
+        coneHalfAngle_ = coneHalfAngle;
+    }
 
     //! Set length.
     /*!
      * Sets the length.
      * \param length Cone length.
      */
-    void setLength( const double& length );
+    void setLength( const double& length )
+    {
+        length_ = length;
+    }
 
     //! Set start radius.
     /*!
      * Sets the start radius.
      * \param startRadius Start radius.
      */
-    void setStartRadius( const double& startRadius );
+    void setStartRadius( const double& startRadius )
+    {
+        startRadius_ = startRadius;
+    }
 
     //! Set minimum azimuth angle.
     /*!
      * Sets the minimum azimuth angle.
      * \param minimumAzimuthAngle Minimum azimuth angle.
      */
-    void setMinimumAzimuthAngle( const double& minimumAzimuthAngle );
+    void setMinimumAzimuthAngle( const double& minimumAzimuthAngle )
+    {
+         setMinimumIndependentVariable( 1, minimumAzimuthAngle );
+    }
 
     //! Set maximum azimuth angle.
     /*!
      * Sets the maximum azimuth angle.
      * \param maximumAzimuthAngle Maximum azimuth angle.
      */
-    void setMaximumAzimuthAngle( const double& maximumAzimuthAngle );
+    void setMaximumAzimuthAngle( const double& maximumAzimuthAngle )
+    {
+        setMaximumIndependentVariable( 1, maximumAzimuthAngle );
+    }
 
     //! Get cone half angle.
     /*!
      * Returns the cone half angle.
      * \return Cone half angle.
      */
-    double& getConeHalfAngle( );
+    double& getConeHalfAngle( )
+    {
+        return coneHalfAngle_;
+    }
 
     //! Get length.
     /*!
      * Returns the length.
      * \return Cone length.
      */
-    double& getLength( );
+    double& getLength( )
+    {
+        return length_;
+    }
 
     //! Get start radius.
     /*!
      * Returns the start radius.
      * \return Start radius.
      */
-    double& getStartRadius( );
+    double& getStartRadius( ) 
+    {
+        return startRadius_;
+    }
 
     //! Get minimum azimuth angle.
     /*!
      * Retuns the minimum azimuth angle.
      *  \return Minimum azimuth angle.
      */
-    double getMinimumAzimuthAngle( );
+    double getMinimumAzimuthAngle( )
+    {
+        return minimumIndependentVariable1_;
+    }
 
     //! Get maximum azimuth angle.
     /*!
      * Returns the maximum azimuth angle.
      * \return Maximum azimuth angle.
      */
-    double getMaximumAzimuthAngle( );
+    double getMaximumAzimuthAngle( )
+    {
+        return maximumIndependentVariable1_;
+    }
 
     //! Overload ostream to print class information.
     /*!

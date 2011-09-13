@@ -38,13 +38,15 @@
  *      110208    K. Kumar          Updated file header; correct Doxygen
  *                                  comments; minor changes to functions.
  *      110209    D. Dirkx          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef TORUS_H
 #define TORUS_H
 
 // Include statements.
-#include "singleSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Torus class.
 /*!
@@ -63,13 +65,13 @@ public:
     /*!
      *  Default constructor.
      */
-    Torus( );
+    Torus( ) { }
 
     //! Default destructor.
     /*!
      *  Default destructor.
      */
-    ~Torus( );
+    ~Torus( ) { }
 
     //! Get surface point on torus.
     /*!
@@ -134,56 +136,80 @@ public:
      * Returns the major radius.
      * \return Major radius.
      */
-    double& getMajorRadius( );
+    double& getMajorRadius( )
+    {
+        return majorRadius_;
+    }
 
     //! Set major radius.
     /*!
      * Sets the major radius.
      * \param majorRadius Major radius.
      */
-    void setMajorRadius( const double& majorRadius );
+    void setMajorRadius( const double& majorRadius )
+    {
+        majorRadius_ = majorRadius;
+    }
 
     //! Get minor radius.
     /*!
      * Returns the minor radius.
      * \return Minor radius.
      */
-    double& getMinorRadius( );
+    double& getMinorRadius( )
+    {
+        return minorRadius_;
+    }
 
     //! Set minor radius.
     /*!
      * Sets the minor radius.
      * \param minorRadius Minor radius.
      */
-    void setMinorRadius( const double& minorRadius );
+    void setMinorRadius( const double& minorRadius )
+    {
+        minorRadius_ = minorRadius;
+    }
 
     //! Get maximum of major circumferential angle.
     /*!
      * Returns the maximum value of the major circumferential angle.
      * \return Maximum value of major circumferential angle.
      */
-    double getMaximumMajorCircumferentialAngle( );
+    double getMaximumMajorCircumferentialAngle( )
+    {
+        return getMaximumIndependentVariable( 1 );
+    }
 
     //! Get maximum of minor circumferential angle.
     /*!
      * Returns the maximum of the minor circumferential angle.
      * \return Maximum minor circumferential angle.
      */
-    double getMaximumMinorCircumferentialAngle( );
+    double getMaximumMinorCircumferentialAngle( )
+    {
+        return getMaximumIndependentVariable( 2 );
+    }
 
     //! Get minimum of major circumferential angle.
     /*!
      * Returns the minimum value of the major circumferential angle.
      * \return Minimum value of major circumferential angle.
      */
-    double getMinimumMajorCircumferentialAngle( );
+    double getMinimumMajorCircumferentialAngle( )
+    {
+        return getMinimumIndependentVariable( 1 );
+    }
 
     //! Get minimum of minor circumferential angle.
     /*!
      * Returns the minimum value of the minor circumferential angle.
      * \return Minimum value of minor circumferential angle.
      */
-    double getMinimumMinorCircumferentialAngle( );
+    double getMinimumMinorCircumferentialAngle( )
+    {
+        return getMinimumIndependentVariable( 2 );
+    }
 
     //! Set maximum of major circumferential angle.
     /*!
@@ -191,8 +217,10 @@ public:
      * \param maximumMajorCircumferentialAngle Maximum value of major
      *          circumferential angle.
      */
-    void setMaximumMajorCircumferentialAngle(
-            const double& maximumMajorCircumferentialAngle );
+    void setMaximumMajorCircumferentialAngle( const double& maximumMajorCircumferentialAngle )
+    {
+        setMaximumIndependentVariable( 1, maximumMajorCircumferentialAngle );
+    }
 
     //! Set minimum of major circumferential angle.
     /*!
@@ -200,8 +228,10 @@ public:
      * \param minimumMajorCircumferentialAngle Minimum value of major
      *          circumferential angle.
      */
-    void setMinimumMajorCircumferentialAngle(
-            const double& minimumMajorCircumferentialAngle );
+    void setMinimumMajorCircumferentialAngle( const double& minimumMajorCircumferentialAngle )
+    {
+         setMinimumIndependentVariable( 1, minimumMajorCircumferentialAngle );
+    }
 
     //! Set maximum of minor circumferential angle.
     /*!
@@ -209,8 +239,10 @@ public:
      * \param maximumMinorCircumferentialAngle Maximum value of minor
      *          circumferential angle.
      */
-    void setMaximumMinorCircumferentialAngle(
-            const double& maximumMinorCircumferentialAngle );
+    void setMaximumMinorCircumferentialAngle( const double& maximumMinorCircumferentialAngle )
+    {
+        setMaximumIndependentVariable( 2, maximumMinorCircumferentialAngle );
+    }
 
     //! Set minimum of minor circumferential angle.
     /*!
@@ -218,8 +250,10 @@ public:
      * \param minimumMinorCircumferentialAngle Minimum value of minor
      *          circumferential angle.
      */
-    void setMinimumMinorCircumferentialAngle(
-            const double& minimumMinorCircumferentialAngle );
+    void setMinimumMinorCircumferentialAngle( const double& minimumMinorCircumferentialAngle ) 
+    {
+        setMinimumIndependentVariable( 2, minimumMinorCircumferentialAngle );
+    }
 
     //! Overload ostream to print class information.
     /*!

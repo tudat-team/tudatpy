@@ -45,6 +45,8 @@
  *      110120    E. Iorfida          Added necessary class that contains functions,
  *                                    to allow a directly test with adaptor.
  *      110120    K. Kumar            Added global mathematical function test.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTNEWTONRAPHSONMETHOD_H
@@ -52,9 +54,9 @@
 
 // Include statements.
 #include <cmath>
-#include "basicMathematicsFunctions.h"
-#include "newtonRaphson.h"
-#include "newtonRaphsonAdaptor.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 //! Namespace for all unit tests.
 /*!
@@ -75,13 +77,17 @@ public:
     /*!
      * Default constructor.
      */
-    NewtonRaphsonTest( );
+    NewtonRaphsonTest( )
+    {
+    }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~NewtonRaphsonTest( );
+    virtual ~NewtonRaphsonTest( )
+    {
+    }
 
     //! Mathematical test function.
     /*!

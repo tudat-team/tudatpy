@@ -83,10 +83,12 @@
  *                                  generator.
  *      110729    E.A.G. Heeren     Minor changes to comments in normal random
  *                                  number generator.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "unitTestRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.h"
 
 #include <fstream>
 
@@ -99,6 +101,7 @@ using mathematics::computeSampleVariance;
 using std::cerr;
 using std::endl;
 using std::map;
+using std::vector;
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -129,8 +132,7 @@ bool testUniformRandomNumberGenerator( )
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( fmod( computedResultForTest1,
-               static_cast< double >( computedResultForTest1 ) )
+    if ( fmod( computedResultForTest1, static_cast< double >( computedResultForTest1 ) )
          > MACHINE_PRECISION_DOUBLES )
     {
         isUniformRandomNumberGeneratorErroneous = true;
@@ -146,8 +148,7 @@ bool testUniformRandomNumberGenerator( )
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( fmod( computedResultForTest2,
-               static_cast< double >( computedResultForTest2 ) )
+    if ( fmod( computedResultForTest2, static_cast< double >( computedResultForTest2 ) )
          > MACHINE_PRECISION_DOUBLES )
     {
         isUniformRandomNumberGeneratorErroneous = true;

@@ -41,6 +41,7 @@
  */
 
 // Include statements.
+#include <iostream>
 #include "vehicleExternalModel.h"
 
 // Using declarations.

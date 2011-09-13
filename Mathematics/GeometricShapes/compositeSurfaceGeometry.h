@@ -46,14 +46,16 @@
  *      110204    K. Kumar          Minor comment and layout modifications;
  *                                  corrected Doxygen comments.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef COMPOSITESURFACEGEOMETRY_H
 #define COMPOSITESURFACEGEOMETRY_H
 
 // Include statements.
-#include "singleSurfaceGeometry.h"
-#include "surfaceGeometry.h"
+#include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/surfaceGeometry.h"
 
 //! Composite surface geometry class.
 /*!
@@ -61,7 +63,7 @@
  * number of single surface or composite surface geometries, to be set by the
  * user. This class is a container class for surface geometries.
  *
- * SingleSurfaceGeometry objects should be retreived from this class ( or
+ * SingleSurfaceGeometry objects should be retrieved from this class ( or
  * recursively from a member of CompositeSurfaceGeometry objects ) to perform
  * geometric operations.
  */
@@ -136,8 +138,11 @@ public:
      * \return Pointer to SingleSurfaceGeometry object at index location in
      *          singleSurfaceGeometryList_.
      */
-    SingleSurfaceGeometry* getSingleSurfaceGeometry( const unsigned int&
-                                                     index );
+    SingleSurfaceGeometry* getSingleSurfaceGeometry( const unsigned int& index ) 
+    {
+        // Return surface from given index in list.
+        return singleSurfaceGeometryList_[ index ];
+    }
 
     //! Get pointer to a stored CompositeSurfaceGeometry object.
     /*!
@@ -148,8 +153,11 @@ public:
      * \return Pointer to CompositeSurfaceGeometry object at index location in
      *          compositeSurfaceGeometryList_.
      */
-    CompositeSurfaceGeometry* getCompositeSurfaceGeometry( const unsigned int&
-                                                           index );
+    CompositeSurfaceGeometry* getCompositeSurfaceGeometry( const unsigned int& index ) 
+    {
+        // Return surface from given index in list.
+        return compositeSurfaceGeometryList_[index];
+    }
 
     //! Get number of single surface geometries.
     /*!
@@ -157,7 +165,10 @@ public:
      * singleSurfaceGeometryList_.
      * \return Number of SingleSurfaceGeometry objects stored in class.
      */
-    unsigned int& getNumberOfSingleSurfaceGeometries( );
+    unsigned int& getNumberOfSingleSurfaceGeometries( )
+    {
+        return numberOfSingleSurfaceGeometries_;
+    }
 
     //! Get number of composite surface geometries.
     /*!
@@ -165,7 +176,10 @@ public:
      * compositeSurfaceGeometryList_.
      * \return Number of CompositeSurfaceGeometry objects stored in class.
      */
-    unsigned int& getNumberOfCompositeSurfaceGeometries( );
+    unsigned int& getNumberOfCompositeSurfaceGeometries( )
+    {
+        return numberOfCompositeSurfaceGeometries_;
+    }
 
     //! Overload ostream to print class information.
     /*!

@@ -66,6 +66,8 @@
  *                                  used. StateDerivativeBase used to define
  *                                  classes with state derivative function.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef INTEGRATOR_H
@@ -73,9 +75,8 @@
 
 // Include statements.
 #include <vector>
-#include "basicMathematicsFunctions.h"
-#include "state.h"
-#include "stateDerivativeBase.h"
+#include "Astrodynamics/States/state.h"
+#include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
 //! Integrator class.
 /*!
@@ -95,7 +96,7 @@ public:
     /*!
      * Integrator class destructor.
      */
-    virtual ~Integrator( );
+    virtual ~Integrator( ) { }
 
     //! Set object containing state derivative.
     /*!
@@ -148,42 +149,60 @@ public:
      * Returns the stepsize.
      * \return Stepsize.
      */
-    double& getStepsize( );
+    double& getStepsize( ) 
+    {
+        return stepsize_;
+    }
 
     //! Get number of integration steps.
     /*!
      * Returns the number of integration steps.
      * \return Number of integration steps.
      */
-    unsigned int& getNumberOfIntegrationSteps( );
+    unsigned int& getNumberOfIntegrationSteps( ) 
+    {
+        return numberOfIntegrationSteps_;
+    }
 
     //! Get start of integration interval.
     /*!
      * Returns the start of the integration interval.
      * \return Start of integration interval.
      */
-    double& getIntegrationIntervalStart( );
+    double& getIntegrationIntervalStart( )
+    {
+        return integrationIntervalStart_;
+    }
 
     //! Get end of integration interval.
     /*!
      * Returns the end of the integration interval.
      * \return End of integration interval.
      */
-    double& getIntegrationIntervalEnd( );
+    double& getIntegrationIntervalEnd( )
+    {
+        return integrationIntervalEnd_;
+    }
 
     //! Get initial state.
     /*!
      * Returns the initial state as a pointer to a State object.
      * \return Initial state given as pointer to State object.
      */
-    State* getInitialState( );
+    State* getInitialState( )
+    {
+        return pointerToInitialState_;
+    }
 
     //! Get final state.
     /*!
      * Returns the final state as a pointer to a State object.
      * \return Final state given as pointer to State object.
      */
-    State* getFinalState( );
+    State* getFinalState( ) 
+    {
+        return &finalState_;
+    }
 
     //! Integrate.
     /*!

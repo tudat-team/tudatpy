@@ -45,17 +45,15 @@
  *      110802    K. Kumar          Added computeFitErrors() function; removed
  *                                  DataModeling class inheritance; changed
  *                                  filename and class name.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef SIMPLELINEARREGRESSION_H
 #define SIMPLELINEARREGRESSION_H
 
 // Include statements.
-#include <cmath>
 #include <map>
-
-// Using declarations.
-using std::map;
 
 //! Simple linear regression class.
 /*!
@@ -75,49 +73,67 @@ public:
     /*!
      * Default destructor.
      */
-    ~SimpleLinearRegression( );
+    ~SimpleLinearRegression( ) { }
 
     //! Set input data.
     /*!
      * Sets input data to be fitted in a map.
      * \param inputDataToFit Input data to fit.
      */
-    void setInputData( const map< double, double >& inputDataToFit );
+    void setInputData( const std::map< double, double >& inputDataToFit ) 
+    {
+        inputDataToFit_ = inputDataToFit;
+    }
 
     //! Get coefficient of constant term of fit.
     /*!
      * Returns coefficient of constant term of fit.
      * \return Coefficient of constant term.
      */
-    double& getCoefficientOfConstantTerm( );
+    double& getCoefficientOfConstantTerm( ) 
+    {
+        return coefficientOfConstantTerm_;
+    }
 
     //! Get coefficient of linear term of fit.
     /*!
      * Returns coefficient of linear term of fit.
      * \return Coefficient of linear term.
      */
-    double& getCoefficientOfLinearTerm( );
+    double& getCoefficientOfLinearTerm( )
+    {
+        return coefficientOfLinearTerm_;
+    }
 
     //! Get chi-squared value.
     /*!
      * Returns chi-squared value of fit.
      * \return Chi-squared value.
      */
-    double& getChiSquared( );
+    double& getChiSquared( )
+    {
+        return chiSquared_;
+    }
 
     //! Get standard deviation of coefficient of constant term of fit.
     /*!
      * Returns standard deviation of coefficient of constant term of fit.
      * \return Standard deviation of coefficient of constant term.
      */
-    double& getStandardDeviationOfCoefficientOfConstantTerm( );
+    double& getStandardDeviationOfCoefficientOfConstantTerm( )
+    {
+        return standardDeviationOfCoefficientOfConstantTerm_;
+    }
 
     //! Get standard deviation of coefficient of linear term of fit.
     /*!
      * Returns standard deviation of coefficient of linear term of fit.
      * \return Standard deviation of coefficient of linear term.
      */
-    double& getStandardDeviationOfCoefficientOfLinearTerm( );
+    double& getStandardDeviationOfCoefficientOfLinearTerm( )
+    {
+        return standardDeviationOfCoefficientOfLinearTerm_;
+    }
 
     //! Compute fit.
     /*!
@@ -202,13 +218,13 @@ private:
     /*!
      * Input data to fit.
      */
-    map< double, double > inputDataToFit_;
+    std::map< double, double > inputDataToFit_;
 
     //! Iterator for input data to fit.
     /*!
      * Map iterator for input data to fit.
      */
-    map< double, double >::iterator iteratorInputDataToFit_;
+    std::map< double, double >::iterator iteratorInputDataToFit_;
 
     //! Sum independent variable input data.
     /*!

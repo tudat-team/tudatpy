@@ -38,6 +38,8 @@
  *      110620    F.M. Engelen      File created.
  *      110707    E.A.G. Heeren     Minor spelling/lay-out corrections.
  *      110714    E.A.G. Heeren     Minor spelling/lay-out corrections.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef CUBICSPLINEINTERPOLATION_H
@@ -45,11 +47,8 @@
 
 // Include statements.
 #include <cmath>
-#include "basicFunctions.h"
-#include "linearAlgebra.h"
-
-// Using statements.
-using basic_functions::computeNearestLeftNeighborUsingBinarySearch;
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include "Basics/basicFunctions.h"
 
 //! The cubic spline interpolation class.
 /*!
@@ -63,13 +62,13 @@ public:
     /*!
      * Default constructor.
      */
-    CubicSplineInterpolation( );
+    CubicSplineInterpolation( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~CubicSplineInterpolation( );
+    ~CubicSplineInterpolation( ) { }
 
     //! Initialize cubic spline interpolation.
     /*!

@@ -48,21 +48,14 @@
  *                                  "End of line" comment.
  *      110204    K. Kumar          Minor comment and layout modifications.
  *      110207    D. Dirkx          Removed overloaded ostream operator.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef GEOMETRICSHAPE_H
 #define GEOMETRICSHAPE_H
 
 // Include statements.
-#include <cmath>
-#include <cstdio>
-#include <iostream>
-#include "basicMathematicsFunctions.h"
-#include "linearAlgebra.h"
-#include "unitConversions.h"
-
-// Using declarations.
-using unit_conversions::convertRadiansToDegrees;
 
 //! Geometry base class.
 /*!
@@ -76,13 +69,13 @@ public:
     /*!
      * Default constructor.
      */
-    GeometricShape( );
+    GeometricShape( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~GeometricShape( );
+    virtual ~GeometricShape( ) { }
 
 protected:
 

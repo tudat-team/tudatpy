@@ -44,17 +44,15 @@
  *                                  comments; minor changes.
  *      110209    D. Dirkx          Minor changes.
  *      110209    K. Kumar          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef CAPSULE_H
 #define CAPSULE_H
 
 // Include statements.
-#include <cmath>
-#include "compositeSurfaceGeometry.h"
-#include "sphereSegment.h"
-#include "conicalFrustum.h"
-#include "torus.h"
+#include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
 //! Capsule class.
 /*!
@@ -89,70 +87,100 @@ public:
      * Sets the nose radius of the capsule.
      * \param noseRadius Nose radius.
      */
-    void setNoseRadius( const double& noseRadius );
+    void setNoseRadius( const double& noseRadius ) 
+    {
+        noseRadius_ = noseRadius;
+    }
 
     //! Set middle radius.
     /*!
      * Sets the middle radius of the capsule.
      * \param middleRadius middleRadius.
      */
-    void setMiddleRadius( const double& middleRadius );
+    void setMiddleRadius( const double& middleRadius )
+    {
+        middleRadius_ = middleRadius;
+    }
 
     //! Set rear length.
     /*!
      * Sets the rear length of the capsule.
      * \param rearRadius Rear radius.
      */
-    void setRearLength( const double& rearRadius );
+    void setRearLength( const double& rearLength )
+    {
+        rearLength_ = rearLength;
+    }
 
     //! Set rear angle.
     /*!
      * Sets the rear angle of the capsule.
      * \param rearAngle Rear angle.
      */
-    void setRearAngle( const double& rearAngle );
+    void setRearAngle( const double& rearAngle )
+    {
+        rearAngle_ = rearAngle;
+    }
 
     //! Set side radius.
     /*!
      * Sets side radius of the capsule.
      * \param sideRadius Side radius.
      */
-    void setSideRadius( const double& sideRadius );
+    void setSideRadius( const double& sideRadius )
+    {
+        sideRadius_ = sideRadius;
+    }
 
     //! Get nose radius.
     /*!
      * Returns the nose radius of the capsule.
      * \return Nose radius.
      */
-    double& getNoseRadius( );
+    double& getNoseRadius( )
+    {
+        return noseRadius_;
+    }
 
     //! Get middle radius.
     /*!
      * Returns the middle radius of the capsule.
      * \return Middle radius.
      */
-    double& getMiddleRadius( );
+    double& getMiddleRadius( )
+    {
+        return middleRadius_;
+    }
 
     //! Get rear length.
     /*!
      * Returns the rear length of the capsule.
      * \return Rear length.
      */
-    double& getRearLength( );
+    double& getRearLength( )
+    {
+        return rearLength_;
+    }
 
     //! Get rear angle.
     /*!
      * Returns the rear angle.
      * \return Rear angle.
      */
-    double& getRearAngle( );
+    double& getRearAngle( )
+    {
+        return rearAngle_;
+    }
 
     //! Get side radius.
     /*!
      * Returns the side radius.
      * \return side radius.
      */
-    double& getSideRadius( );
+    double& getSideRadius( )
+    {
+        return sideRadius_;
+    }
 
     //! Create capsule.
     /*!

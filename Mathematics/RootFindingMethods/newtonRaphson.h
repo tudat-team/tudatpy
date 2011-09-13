@@ -45,6 +45,8 @@
  *                                  abstract base implementation so that
  *                                  pointer-to-member functions are not
  *                                  required; changed filename.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef NEWTONRAPHSON_H
@@ -52,8 +54,8 @@
 
 // Include statements.
 #include <iostream>
-#include "newtonRaphsonBase.h"
-#include "rootFinder.h"
+#include "Mathematics/RootFindingMethods/newtonRaphsonBase.h"
+#include "Mathematics/RootFindingMethods/rootFinder.h"
 
 //! Newton-Raphson class.
 /*!
@@ -67,13 +69,13 @@ public:
     /*!
      * Default constructor.
      */
-    NewtonRaphson( );
+    NewtonRaphson( ) : pointerToNewtonRaphsonBase_( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~NewtonRaphson( );
+    ~NewtonRaphson( ) { }
 
     //! Set adaptor class for Newton-Raphson.
     /*!

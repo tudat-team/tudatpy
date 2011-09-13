@@ -57,10 +57,12 @@
  *      110204    K. Kumar          Minor comment and layout modifications;
  *                                  corrected Doxygen comments.
  *      110209    D. Dirkx          Minor changes.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "singleSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 // Using declarations.
 using std::cerr;
@@ -78,29 +80,6 @@ SingleSurfaceGeometry::SingleSurfaceGeometry( )
 
     // Declare the size of the vector for use in the getSurfacePoint function.
     cartesianPositionVector_ = VectorXd( 3 );
-}
-
-//! Default destructor.
-SingleSurfaceGeometry::~SingleSurfaceGeometry( )
-{
-}
-
-//! Set offset of the shape.
-void SingleSurfaceGeometry::setOffset( const VectorXd& offset )
-{
-    offset_ = offset;
-}
-
-//! Set rotation matrix of the shape.
-void SingleSurfaceGeometry::setRotationMatrix( const MatrixXd& rotationMatrix )
-{
-    rotationMatrix_ = rotationMatrix;
-}
-
-//! Set scaling matrix of the shape.
-void SingleSurfaceGeometry::setScalingMatrix( const MatrixXd& scalingMatrix)
-{
-    scalingMatrix_ = scalingMatrix;
 }
 
 //! Set minimum value of independent variable.
@@ -164,24 +143,6 @@ void SingleSurfaceGeometry::setMaximumIndependentVariable(
              << parameterIndex << " does not exist when"
              << "setting maximum value"<< endl;
     }
-}
-
-//! Get offset from the shape.
-VectorXd SingleSurfaceGeometry::getOffset( )
-{
-    return offset_;
-}
-
-//! Get rotation matrix from the shape.
-MatrixXd SingleSurfaceGeometry::getRotationMatrix( )
-{
-    return rotationMatrix_;
-}
-
-//! Get scaling matrix from the shape.
-MatrixXd SingleSurfaceGeometry::getScalingMatrix( )
-{
-    return scalingMatrix_;
 }
 
 //! Get minimum value of independent variable.

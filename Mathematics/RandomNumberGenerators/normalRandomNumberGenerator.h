@@ -39,6 +39,8 @@
  *      YYMMDD    Author            Comment
  *      110726    K. Kumar          First creation of code.
  *      110810    J. Leloux         Corrected doxygen documentation (equations).
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef NORMALRANDOMNUMBERGENERATOR_H
@@ -46,7 +48,7 @@
 
 // Include statements.
 #include <cmath>
-#include "uniformRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h"
 
 //! Normal random number generator class.
 /*!
@@ -69,7 +71,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~NormalRandomNumberGenerator( );
+    ~NormalRandomNumberGenerator( ) { }
 
     //! Get normally-distributed, normalized, random double.
     /*!

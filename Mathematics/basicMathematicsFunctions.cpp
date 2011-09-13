@@ -65,15 +65,25 @@
  *                                  convertCartesianToSpherical.
  *      110707    K. Kumar          Added computeSampleMean() and
  *                                  computeSampleVariance() functions.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "basicMathematicsFunctions.h"
+#include <cmath>
+#include <iostream>
+#include <numeric>
+
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Basics/basicFunctions.h"
+
 
 // Using declarations.
+using std::map;
+using std::vector;
+using std::accumulate;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 using mathematics::raiseToIntegerPower;
-using std::accumulate;
 
 //! Mathematics namespace.
 namespace mathematics

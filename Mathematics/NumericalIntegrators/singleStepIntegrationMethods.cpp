@@ -39,20 +39,12 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110207    K. Kumar          First creation of file.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "singleStepIntegrationMethods.h"
-
-//! Default constructor.
-SingleStepIntegrationMethods::SingleStepIntegrationMethods( )
-{
-}
-
-//! Default destructor.
-SingleStepIntegrationMethods::~SingleStepIntegrationMethods( )
-{
-}
+#include "Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h"
 
 //! Integrate.
 void SingleStepIntegrationMethods::integrate( )

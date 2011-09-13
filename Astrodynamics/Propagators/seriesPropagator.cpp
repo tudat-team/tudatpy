@@ -125,14 +125,18 @@ double& SeriesPropagator::getSeriesPropagationEnd( )
 //! Execute.
 void SeriesPropagator::execute( )
 {
-    // Store initial states in maps for each propagated body in associated
-    // propagator data containers.
+    // Clear and store initial states in maps for each propagated body in
+    // associated propagator data containers.
     for ( iteratorPropagatedBodies_
           = pointerToPropagator_->bodiesToPropagate_.begin( );
           iteratorPropagatedBodies_
           != pointerToPropagator_->bodiesToPropagate_.end( );
           iteratorPropagatedBodies_++ )
     {
+        // Clear propagation histories.
+        iteratorPropagatedBodies_->second.propagationHistory_.clear( );
+
+        // Store initial states.
         iteratorPropagatedBodies_->second
                 .propagationHistory_[ seriesPropagationStart_ ]
                 = *iteratorPropagatedBodies_->second.pointerToInitialState_;

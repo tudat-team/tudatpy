@@ -45,10 +45,12 @@
  *      110726    K. Kumar          Changed filename and class name.
  *      110802    K. Kumar          Added standard deviation and chi-squared
  *                                  test; added note; renamed filename.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "unitTestSimpleLinearRegression.h"
+#include "Mathematics/Statistics/unitTestSimpleLinearRegression.h"
 
 // Using declarations.
 using std::cerr;

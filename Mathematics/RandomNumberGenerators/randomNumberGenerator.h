@@ -48,6 +48,8 @@
  *      110117    K. Kumar          Corrected path.
  *      110121    K. Kumar          Added comment to "Notes".
  *      110517    K. Kumar          Converted file into generic base class.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef RANDOMNUMBERGENERATOR_H
@@ -65,13 +67,13 @@ public:
     /*!
      * Default constructor.
      */
-    RandomNumberGenerator( );
+    RandomNumberGenerator( ) {}
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~RandomNumberGenerator( );
+    virtual ~RandomNumberGenerator( )    {}
 
 protected:
 

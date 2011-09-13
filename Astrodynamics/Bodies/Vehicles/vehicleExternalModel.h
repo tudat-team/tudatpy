@@ -44,6 +44,7 @@
 #define VEHICLEEXTERNALMODELS_H
 
 // Include statements.
+#include <iostream>
 #include "geometricShape.h"
 
 //! Vehicle external model class.

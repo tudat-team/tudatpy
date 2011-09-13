@@ -67,25 +67,24 @@
  *                                  computeSampleVariance() functions.
  *      110810    J. Leloux         Corrected doxygen documentation (equations).
  *      110824    J. Leloux         Corrected doxygen documentation.
+ *      110905    S. Billemont      Reorganized includes.
+ *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
 #define BASICMATHEMATICSFUNCTIONS_H
 
 // Include statements.
-#include <iostream>
 #include <map>
-#include <cmath>
 #include <cfloat>
-#include <numeric>
 #include <vector>
-#include "basicFunctions.h"
-#include "linearAlgebra.h"
-#include "state.h"
 
-// Using declarations.
-using std::map;
-using std::vector;
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include "Astrodynamics/States/state.h"
+
+#ifdef _MSC_VER
+#include "Mathematics/win32Math.h"
+#endif
 
 //! Mathematics namespace.
 /*!
@@ -153,7 +152,7 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
  *              value in vector of sorted independent variables.
  */
 VectorXd computeLinearInterpolation(
-        map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue );
 
 //! Compute linear interpolation.
@@ -175,7 +174,7 @@ VectorXd computeLinearInterpolation(
  *              value in vector of sorted independent variables.
  */
 State* computeLinearInterpolation(
-        map < double, State* >& sortedIndepedentAndDependentVariables,
+        std::map < double, State* >& sortedIndepedentAndDependentVariables,
         double& targetIndependentVariableValue );
 
 //! Convert spherical to cartesian coordinates.
@@ -278,7 +277,7 @@ double computeModulo( const double& dividend, const double& divisor );
  * \param sampleData Sample data.
  * \return Sample mean.
  */
-double computeSampleMean( const vector< double >& sampleData );
+double computeSampleMean( const std::vector< double >& sampleData );
 
 //! Compute sample variance.
 /*!
@@ -294,7 +293,7 @@ double computeSampleMean( const vector< double >& sampleData );
  * \param sampleData Map containing sample data.
  * \return Sample variance.
  */
-double computeSampleVariance( const vector< double >& sampleData  );
+double computeSampleVariance( const std::vector< double >& sampleData  );
 
 }
 

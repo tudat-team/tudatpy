@@ -42,7 +42,12 @@
  */
 
 // Include statements.
+#include <iostream>
 #include "convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
+
+// Using declarations.
+using std::cerr;
+using std::endl;
 
 //! Orbital element conversions namespace.
 namespace orbital_element_conversions
