@@ -27,7 +27,7 @@
  *      this could be changed to a CartesianPositionElements type in the
  *      future for consistency with the rest of the code.
  *
- *    Copyright (c) 2010 Delft University of Technology.
+ *    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and

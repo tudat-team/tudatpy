@@ -33,7 +33,7 @@
  *      Validation of the code against benchmark data should be added to
  *      ensure that the output of both simulation cases tested is correct.
  *
- *    Copyright (c) 2010 Delft University of Technology.
+ *    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and

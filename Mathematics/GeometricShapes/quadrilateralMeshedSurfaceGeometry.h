@@ -32,7 +32,7 @@
  *      number of mesh points. The number of panels in the mesh will be
  *      numberOfLines_ - 1 by numberOfPoints_ -1.
  *
- *    Copyright (c) 2010 Delft University of Technology.
+ *    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
