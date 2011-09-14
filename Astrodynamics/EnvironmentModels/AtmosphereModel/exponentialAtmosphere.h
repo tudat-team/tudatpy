@@ -76,14 +76,14 @@ public:
     /*!
      * Default constructor.
      */
-    ExponentialAtmosphere( ):scaleHeight_( -0.0 ), constantTemperature_( -0.0 ),
-                             densityAtZeroAltitude_( -0.0 ), specificGasConstant_( -0.0 ){ }
+    ExponentialAtmosphere( ) : scaleHeight_( -0.0 ), constantTemperature_( -0.0 ),
+                              densityAtZeroAltitude_( -0.0 ), specificGasConstant_( -0.0 ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~ExponentialAtmosphere( ){ }
+    ~ExponentialAtmosphere( ) { }
 
     //! Set predefined exponential atmosphere settings.
     /*!
@@ -92,32 +92,32 @@ public:
      * atmosphere.
      */
     void setPredefinedExponentialAtmosphere( BodiesWithPredefinedExponentialAtmospheres
-                                            bodyWithPredefinedExponentialAtmosphere );
+                                             bodyWithPredefinedExponentialAtmosphere );
 
     //! Set scale height.
     /*!
      * Set scale height (property of exponential atmosphere) in meters.
      */
-    void setScaleHeight( const double& scaleHeight ){ scaleHeight_ = scaleHeight; }
+    void setScaleHeight( const double& scaleHeight ) { scaleHeight_ = scaleHeight; }
 
     //! Get scale height.
     /*!
      * Get scale height (property of exponential atmosphere) in meters.
      */
-    double getScaleHeight( ){ return scaleHeight_; }
+    double getScaleHeight( ) { return scaleHeight_; }
 
     //! Set density at zero altitude.
     /*!
      * Set density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
     void setDensityAtZeroAltitude( const double& densityAtZeroAltitude )
-        { densityAtZeroAltitude_ = densityAtZeroAltitude; }
+    { densityAtZeroAltitude_ = densityAtZeroAltitude; }
 
     //! Get density at zero altitude.
     /*!
      * Get density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
-    double getDensityAtZeroAltitude( ){ return densityAtZeroAltitude_; }
+    double getDensityAtZeroAltitude( ) { return densityAtZeroAltitude_; }
 
     //! Set constant temperature.
     /*!
@@ -125,14 +125,14 @@ public:
      * in Kelvin.
      */
     void setConstantTemperature( const double& constantTemperature )
-        { constantTemperature_ = constantTemperature; }
+    { constantTemperature_ = constantTemperature; }
 
     //! Get constant temperature.
     /*!
      * Get the atmospheric temperature (constant, property of exponential atmosphere)
      * in Kelvin.
      */
-    double getConstantTemperature( ){ return constantTemperature_; }
+    double getConstantTemperature( ) { return constantTemperature_; }
 
     //! Set specific gas constant.
     /*!
@@ -140,16 +140,16 @@ public:
      * due to the assumption of constant atmospheric composition.
      */
     void setSpecificGasConstant( const double& specificGasConstant )
-        { specificGasConstant_ = specificGasConstant; }
+    { specificGasConstant_ = specificGasConstant; }
 
     //! Get specific gas constant.
     /*!
      * Get the specific gas constant of the air in J/(kg K), its value is assumed constant,
      * due to the assumption of constant atmospheric composition.
      */
-    double getSpecificGasConstant( ){ return specificGasConstant_; }
+    double getSpecificGasConstant( ) { return specificGasConstant_; }
 
-    //! Get local density in the general way.
+    //! Get local density.
     /*!
      * Return the local density of the atmosphere in kg per meter^3.
      * \param altitude Altitude.
@@ -161,9 +161,10 @@ public:
     double getDensity( const double& altitude,
                        const double& longitude = 0.0,
                        const double& latitude = 0.0,
-                       const double& time = 0.0 );
+                       const double& time = 0.0 )
+    { return densityAtZeroAltitude_ * exp( - altitude / scaleHeight_ ); }
 
-    //! Get local pressure in the general way.
+    //! Get local pressure.
     /*!
      * Return the local pressure of the atmosphere in Newton per meter^2.
      * \param altitude Altitude.
@@ -175,7 +176,8 @@ public:
     double getPressure( const double& altitude,
                         const double& longitude = 0.0,
                         const double& latitude = 0.0,
-                        const double& time = 0.0 );
+                        const double& time = 0.0 )
+    { return getDensity( altitude ) * specificGasConstant_ * constantTemperature_; }
 
     //! Get local temperature.
     /*!
@@ -189,7 +191,8 @@ public:
     double getTemperature( const double& altitude,
                            const double& longitude = 0.0,
                            const double& latitude = 0.0,
-                           const double& time = 0.0 );
+                           const double& time = 0.0 )
+    { return constantTemperature_; }
 
 protected:
 
