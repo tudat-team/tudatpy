@@ -11,7 +11,6 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/Bodies/CelestialBodies/planet.cpp \
     Astrodynamics/Bodies/Vehicles/vehicle.cpp \
     Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.cpp \

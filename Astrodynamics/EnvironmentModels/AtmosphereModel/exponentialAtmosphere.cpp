@@ -44,9 +44,9 @@
  */
 
 // Include statements.
-#include "Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h"
-#include "Astrodynamics/physicalConstants.h"
 #include <cmath>
+#include "Astrodynamics/physicalConstants.h"
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h"
 
 //! Set predefined exponential atmosphere settings.
 void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
@@ -75,34 +75,6 @@ void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
     default:
         std::cerr << "This is not a body with a predefined exponential atmophere." << std::endl;
     }
-}
-
-//! Get local density in the general way.
-double ExponentialAtmosphere::getDensity( const double& altitude,
-                                          const double& longitude,
-                                          const double& latitude,
-                                          const double& time )
-{
-    return densityAtZeroAltitude_ * exp( - altitude / scaleHeight_ );
-}
-
-//! Get local pressure in the general way.
-double ExponentialAtmosphere::getPressure( const double& altitude,
-                                           const double& longitude,
-                                           const double& latitude,
-                                           const double& time )
-{
-    return getDensity( altitude ) * specificGasConstant_ *
-            constantTemperature_;
-}
-
-//! Get local temperature in the general way.
-double ExponentialAtmosphere::getTemperature( const double& altitude,
-                                              const double& longitude,
-                                              const double& latitude,
-                                              const double& time )
-{
-    return constantTemperature_;
 }
 
 // End of file.
