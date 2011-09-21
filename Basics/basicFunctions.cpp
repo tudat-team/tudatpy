@@ -77,18 +77,18 @@ namespace basic_functions
 //! Get root-path for Tudat library.
 string getRootPath( )
 {
-    return executeRootPathAuxilliaryFunction( __FILE__ ) + "/";
-}
+#ifdef TUDAT_CUSTOM_ROOT_PATH
 
-//! Execute root-path auxilliary function.
-string executeRootPathAuxilliaryFunction( const char* filePath )
-{
+    return string( TUDAT_CUSTOM_ROOT_PATH );
+
+#else
     // Declare file path string assigned to filePath.
-    string filePath_( filePath );
+    string filePath_( __FILE__ );
 
     // Strip filename from temporary string and return root-path string.
     return filePath_.substr( 0, filePath_.length( )
-                             - string( "/Basics/basicFunctions.cpp" ).length( ) );
+                             - string( "/Basics/basicFunctions.cpp" ).length( ) ) + "/";
+#endif
 }
 
 //! Nearest left neighbor binary search.
