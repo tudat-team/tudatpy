@@ -92,15 +92,6 @@ using std::map;
  */
 string getRootPath( );
 
-//! Execute root-path auxilliary function.
-/*!
- * Executes the root-path auxilliary function, necessary for getRootPath().
- * This function makes use of the __FILE__ pre-processor token.
- * \param filePath File path.
- * \param File path string.
- */
-string executeRootPathAuxilliaryFunction( const char* filePath );
-
 //! Nearest left neighbor binary search.
 /*!
  * Searches for the nearest left neighbor in a vector of sorted data using a
