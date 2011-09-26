@@ -88,20 +88,19 @@
  */
 
 // Include statements.
+#include <cmath>
+#include <fstream>
 #include "Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.h"
 
-#include <fstream>
-
 // Using declarations.
-using mathematics::computeAbsoluteValue;
-using mathematics::raiseToIntegerPower;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-using mathematics::computeSampleMean;
-using mathematics::computeSampleVariance;
+using std::fabs;
 using std::cerr;
 using std::endl;
 using std::map;
 using std::vector;
+using mathematics::MACHINE_PRECISION_DOUBLES;
+using mathematics::computeSampleMean;
+using mathematics::computeSampleVariance;
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -180,8 +179,7 @@ bool testUniformRandomNumberGenerator( )
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( computeAbsoluteValue( computedResultForTest4 ) - 1.0
-         > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( computedResultForTest4 ) - 1.0 > MACHINE_PRECISION_DOUBLES )
     {
         isUniformRandomNumberGeneratorErroneous = true;
 
@@ -222,8 +220,7 @@ bool testUniformRandomNumberGenerator( )
     // from 0 to 1 are 1/2 and 1/12 respectively.
     // The tolerances were computed using confidence intervals for the sample
     // mean and variance of a normal distribution and table lookup.
-    if ( computeAbsoluteValue( sampleMean - 0.5 )
-         > 3.49 * 1.0 / sqrt( 12.0 )
+    if ( fabs( sampleMean - 0.5 ) > 3.49 * 1.0 / sqrt( 12.0 )
            * 1.0 / sqrt( static_cast< double >( numberOfSamples ) )
         )
     {
@@ -322,8 +319,7 @@ bool testExponentialRandomNumberGenerator( )
     // with parameter equal to 2.0 are 1/2 and 1/4 respectively.
     // The tolerances were computed using confidence intervals for the sample
     // mean and variance of a normal distribution and table lookup.
-    if ( computeAbsoluteValue( sampleMean - 0.5 )
-         > 3.49 * 1.0 / sqrt( 4.0 )
+    if ( fabs( sampleMean - 0.5 ) > 3.49 * 1.0 / sqrt( 4.0 )
            * 1.0 / sqrt( static_cast< double >( numberOfSamples ) )
         )
     {
@@ -405,8 +401,7 @@ bool testNormalRandomNumberGenerator( )
     // distribution is equal to 1 and 4 respectively.
     // The tolerances were computed using confidence intervals for the sample
     // mean and variance of a normal distribution and table lookup.
-    if ( computeAbsoluteValue( sampleMean - 1.0 )
-         > 3.49 * 4.0
+    if ( fabs( sampleMean - 1.0 ) > 3.49 * 4.0
            * 1.0 / sqrt( static_cast< double >( numberOfSamples ) )
         )
     {

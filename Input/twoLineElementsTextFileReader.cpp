@@ -67,44 +67,28 @@
  */
 
 // Include statements.
-#include "twoLineElementsTextFileReader.h"
+#include <cmath>
+#include <iostream>
+#include <map>
+#include <string>
+#include <utility>
+#include "Basics/basicFunctions.h"
+#include "Input/twoLineElementsTextFileReader.h"
+#include "Astrodynamics/physicalConstants.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/States/orbitalElementConversions.h"
 
 // Using declarations.
 using std::string;
-using std::endl;
 using std::stringstream;
+using std::endl;
 using std::cout;
 using std::cerr;
 using std::vector;
+using std::multimap;
+using std::pair;
 using basic_functions::convertStringToTemplate;
-
-//! Default constructor.
-TwoLineElementsTextFileReader::TwoLineElementsTextFileReader( )
-{
-}
-
-//! Default destructor.
-TwoLineElementsTextFileReader::~TwoLineElementsTextFileReader( )
-{
-}
-
-//! Set current year.
-void TwoLineElementsTextFileReader::setCurrentYear( const unsigned int& currentYear )
-{
-    currentYear_ = currentYear;
-}
-
-//! Get TLE data.
-vector< TwoLineElementData >& TwoLineElementsTextFileReader::getTwoLineElementData( )
-{
-    return twoLineElementData_;
-}
-
-//! Get number of objects.
-unsigned int& TwoLineElementsTextFileReader::getNumberOfObjects( )
-{
-    return numberOfObjects_;
-}
 
 //! Convert and store TLE data.
 void TwoLineElementsTextFileReader::storeTwoLineElementData( )

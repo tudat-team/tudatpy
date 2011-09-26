@@ -45,14 +45,16 @@
  */
 
 // Include statemenets.
+#include <cmath>
 #include "unitTestAerodynamicsNamespace.h"
 #include "basicMathematicsFunctions.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-using mathematics::computeAbsoluteValue;
-using mathematics::raiseToIntegerPower;
+using std::fabs;
+using std::pow;
+using std::sin;
 
 //! Test of aerodynamics namespace.
 bool unit_tests::testAerodynamicsNameSpace( )
@@ -68,8 +70,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
                                          computeLocalToStaticPressureRatio(
                                          machNumber_, ratioOfSpecificHeats_ );
 
-    if ( computeAbsoluteValue( localToStaticPressureRatio_ - 1.0
-                               / ( 0.1445e6 ) ) > 1.0e-8 )
+    if ( fabs( localToStaticPressureRatio_ - 1.0 / ( 0.1445e6 ) ) > 1.0e-8 )
     {
         cerr << "Error in local to static pressure ratio." << endl;
         isAerodynamicsNamespaceBad = true;
@@ -80,27 +81,24 @@ bool unit_tests::testAerodynamicsNameSpace( )
             = aerodynamics::computeStagnationPressure( machNumber_,
                                                        ratioOfSpecificHeats_ );
 
-    if ( computeAbsoluteValue( stagnationPressureCoefficient_ - 1.83402 )
-         > 1.0e-5 )
+    if ( fabs( stagnationPressureCoefficient_ - 1.83402 ) > 1.0e-5 )
     {
         cerr << "Error in stagnation pressure coefficient." << endl;
         isAerodynamicsNamespaceBad = true;
     }
 
     // Test modified Newtonian pressure coefficient.
-    if ( computeAbsoluteValue(
-            aerodynamics::computeModifiedNewtonianPressureCoefficient(
-                    M_PI / 2.0, stagnationPressureCoefficient_ ) -
-            stagnationPressureCoefficient_ ) > 1.0e-15 )
+    if ( fabs( aerodynamics::computeModifiedNewtonianPressureCoefficient(
+                   M_PI / 2.0, stagnationPressureCoefficient_ ) -
+               stagnationPressureCoefficient_ ) > 1.0e-15 )
     {
         cerr << "Error in modified Newtonian pressure coefficient." << endl;
         isAerodynamicsNamespaceBad = true;
     }
 
     // Test empirical Tangent Cone pressure coefficient.
-    if ( computeAbsoluteValue(
-            aerodynamics::computeEmpiricalTangentConePressureCoefficient(
-                    M_PI / 2.0, machNumber_) - 2.08961 ) > 1.0e-5 )
+    if ( fabs( aerodynamics::computeEmpiricalTangentConePressureCoefficient(
+                   M_PI / 2.0, machNumber_) - 2.08961 ) > 1.0e-5 )
     {
         cerr << "Error in empirical Tangent Cone pressure coefficient."
              << endl;
@@ -108,17 +106,15 @@ bool unit_tests::testAerodynamicsNameSpace( )
     }
 
     // Test high Mach base pressure coefficient.
-    if ( computeAbsoluteValue(
-            aerodynamics::computeHighMachBasePressure( machNumber_ )
-            + 1.0 / raiseToIntegerPower( machNumber_, 2 ) ) > 1.0e-15 )
+    if ( fabs( aerodynamics::computeHighMachBasePressure( machNumber_ )
+               + 1.0 / pow( machNumber_, 2.0 ) ) > 1.0e-15 )
     {
         cerr << "Error in high Mach base pressure." << endl;
     }
 
     // Test empirical Tangent Wedge pressure coefficient.
-    if ( computeAbsoluteValue(
-            aerodynamics::computeEmpiricalTangentWedgePressureCoefficient(
-                    M_PI / 2.0, machNumber_ ) - 2.38867 ) > 1.0e-5 )
+    if ( fabs( aerodynamics::computeEmpiricalTangentWedgePressureCoefficient(
+                   M_PI / 2.0, machNumber_ ) - 2.38867 ) > 1.0e-5 )
     {
         cerr << "Error in empirical Tangent Wedge pressure coefficient."
              << endl;
@@ -126,25 +122,20 @@ bool unit_tests::testAerodynamicsNameSpace( )
     }
 
     // Test freestream Prandtl-Meyer function.
-    double freestreamPrandtlMeyerFunction_ = aerodynamics::
-                   computePrandtlMeyerFunction(  machNumber_,
-                                                 ratioOfSpecificHeats_ );
+    double freestreamPrandtlMeyerFunction_ = aerodynamics::computePrandtlMeyerFunction(
+                machNumber_, ratioOfSpecificHeats_ );
 
-    if  (computeAbsoluteValue( freestreamPrandtlMeyerFunction_
-                               - 106.9 * M_PI / 180.0 ) > 1.0e-3 )
+    if  ( fabs( freestreamPrandtlMeyerFunction_ - 106.9 * M_PI / 180.0 ) > 1.0e-3 )
     {
         cerr << "Error in freestream Prandtl-Meyer function." << endl;
         isAerodynamicsNamespaceBad = true;
     }
 
     // Test vacuum pressure coefficient.
-    double vacuumPressureCoefficient_ = aerodynamics::
-                computeVacuumPressureCoefficient( machNumber_,
-                                                    ratioOfSpecificHeats_ );
-    if ( computeAbsoluteValue( vacuumPressureCoefficient_ + 2.0
-                               / ( ratioOfSpecificHeats_
-                                   * raiseToIntegerPower( machNumber_, 2 ) ) )
-         > 1.0e-15 )
+    double vacuumPressureCoefficient_ = aerodynamics::computeVacuumPressureCoefficient(
+                machNumber_, ratioOfSpecificHeats_ );
+    if ( fabs( vacuumPressureCoefficient_ + 2.0 / ( ratioOfSpecificHeats_
+                                                    * pow( machNumber_, 2.0 ) ) ) > 1.0e-15 )
     {
         cerr << "Error in vacuum pressure coefficient." << endl;
         isAerodynamicsNamespaceBad = true;
@@ -165,9 +156,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
         newtonianPressureCoefficient_
                 = aerodynamics::computeNewtonianPressureCoefficient( angle_ );
 
-        if ( computeAbsoluteValue( newtonianPressureCoefficient_ - 2.0
-                                   * raiseToIntegerPower( sin( angle_ ), 2 ) )
-             > 1.0e-15 )
+        if ( fabs( newtonianPressureCoefficient_ - 2.0 * pow( sin( angle_ ), 2.0 ) ) > 1.0e-15 )
         {
             cerr << "Error in Newtonian pressure coefficient." << endl;
             isAerodynamicsNamespaceBad = true;
@@ -178,8 +167,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
         prandtlMeterPressureCoefficient_ = aerodynamics::
             computePrandtlMeyerFreestreamPressureCoefficient( -1.0 * angle_,
             machNumber_, ratioOfSpecificHeats_, freestreamPrandtlMeyerFunction_ );
-        if ( prandtlMeterPressureCoefficient_ - vacuumPressureCoefficient_
-             < -1.0e-15 )
+        if ( prandtlMeterPressureCoefficient_ - vacuumPressureCoefficient_ < -1.0e-15 )
         {
             cerr << "Error, Prandtl-Meyer pressure coefficient "
                  << "lower than vacuum pressure coefficient." << endl;
@@ -188,9 +176,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
     }
 
     // Test shock pressure ratio.
-    if ( computeAbsoluteValue(
-            aerodynamics::computeShockPressureRatio( machNumber_,
-                                                     ratioOfSpecificHeats_ )
+    if ( fabs( aerodynamics::computeShockPressureRatio( machNumber_, ratioOfSpecificHeats_ )
             - 167.8 ) > 0.1 )
     {
         cerr << "Error in shock wave pressure ratio." << endl;
@@ -198,9 +184,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
     }
 
     // Test shock density ratio.
-    if ( computeAbsoluteValue(
-            aerodynamics::computeShockDensityRatio( machNumber_,
-                                                    ratioOfSpecificHeats_ )
+    if ( fabs( aerodynamics::computeShockDensityRatio( machNumber_, ratioOfSpecificHeats_ )
             - 5.799 ) > 0.001 )
     {
         cerr << "Error in shock wave density ratio." << endl;
@@ -208,9 +192,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
     }
 
     // Test shock temperature ratio.
-    if ( computeAbsoluteValue(
-            aerodynamics::computeShockTemperatureRatio( machNumber_,
-                                                        ratioOfSpecificHeats_ )
+    if ( fabs( aerodynamics::computeShockTemperatureRatio( machNumber_, ratioOfSpecificHeats_ )
             - 28.94 ) > 0.01 )
     {
         cerr << " Error in shock wave temperature ratio." << endl;
@@ -218,11 +200,8 @@ bool unit_tests::testAerodynamicsNameSpace( )
     }
 
     // Test shock total pressure ratio.
-    if ( computeAbsoluteValue(
-            aerodynamics::computeShockTotalPressureRatio( machNumber_,
-                                                          ratioOfSpecificHeats_,
-                                                          287.058 )
-            - 0.001287 ) > 1.0e-6 )
+    if ( fabs( aerodynamics::computeShockTotalPressureRatio(
+                   machNumber_, ratioOfSpecificHeats_, 287.058 ) - 0.001287 ) > 1.0e-6 )
     {
         cerr << "Error in shock wave total pressure ratio." << endl;
         isAerodynamicsNamespaceBad = true;

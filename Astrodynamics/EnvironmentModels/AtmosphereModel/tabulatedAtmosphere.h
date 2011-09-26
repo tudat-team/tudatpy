@@ -51,8 +51,8 @@
 #include <string>
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h"
 #include "Input/textFileReader.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Mathematics/cubicSplineInterpolation.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //using statements
 using std::stringstream;
@@ -167,7 +167,7 @@ private:
     /*!
      *  Container to store the read atmosphere table file.
      */
-    map< unsigned int, string > containerOfAtmosphereTableFileData;
+    std::map< unsigned int, std::string > containerOfAtmosphereTableFileData;
 
     //! Vector containing the altitude.
     /*!
@@ -197,7 +197,7 @@ private:
     /*!
      *  Iterator for map container of string data from data file.
      */
-    map< unsigned int, string >::iterator iteratorContainerOfData_;
+    std::map< unsigned int, std::string >::iterator iteratorContainerOfData_;
 
     //! Cubic spline interpolation for density.
     /*!

@@ -60,10 +60,8 @@
 #define ESCAPEANDCAPTURE_H
 
 // Include statements.
-#include "linearAlgebra.h"
-#include "celestialBody.h"
-#include "basicMathematicsFunctions.h"
-#include "sphereSegment.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
 
 //! Escape and capture base class.
 /*!
@@ -77,48 +75,53 @@ public:
     /*!
      * Default constructor.
      */
-    EscapeAndCapture( );
+    EscapeAndCapture( ) : semiMajorAxis_ ( -0.0 ), eccentricity_ ( -1.0 ),
+        periapsisAltitude_ ( -0.0 ), apoapsisAltitude_( -0.0 ), hyperbolicExcessSpeed_( -1.0 ),
+        deltaV_ ( -0.0 ), pointerToCentralBody_( NULL ), pointerToCentralBodySphere_ ( NULL ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~EscapeAndCapture( );
+    virtual ~EscapeAndCapture( ) { }
 
     //! Set semi-major axis of parking orbit.
     /*!
      * Sets semi-major axis of parking orbit.
      * \param semiMajorAxis Semi-major axis of parking orbit.
      */
-    void setSemiMajorAxis( const double& semiMajorAxis );
+    void setSemiMajorAxis( const double &semiMajorAxis ) { semiMajorAxis_ = semiMajorAxis; }
 
     //! Set eccentricity of parking orbit.
     /*!
      * Sets eccentricity of parking orbit.
      * \param eccentricity Eccentricity of parking orbit.
      */
-    void setEccentricity( const double& eccentricity );
+    void setEccentricity( const double &eccentricity ) { eccentricity_ = eccentricity; }
 
     //! Set periapsis altitude of parking orbit.
     /*!
      * Sets periapsis altitude of parking orbit.
      * \param periapsisAltitude Periapsis altitude of parking orbit.
      */
-    void setPeriapsisAltitude( const double& periapsisAltitude );
+    void setPeriapsisAltitude( const double &periapsisAltitude )
+    { periapsisAltitude_ = periapsisAltitude; }
 
     //! Set apoapsis altitude of parking orbit.
     /*!
      * Sets apoapsis altitude of parking orbit.
      * \param apoapsisAltitude Apoapsis altitude of parking orbit.
      */
-    void setApoapsisAltitude( const double& apoapsisAltitude );
+    void setApoapsisAltitude( const double &apoapsisAltitude )
+    { apoapsisAltitude_ = apoapsisAltitude; }
 
     //! Set central body of parking orbit.
     /*!
      * Sets pointer to central body of parking orbit.
      * \param pointerToCentralBody Central body of parking orbit.
      */
-    void setCentralBody( CelestialBody* pointerToCentralBody );
+    void setCentralBody( CelestialBody *pointerToCentralBody )
+    { pointerToCentralBody_ = pointerToCentralBody; }
 
     //! Set hyperbolic excess speed at launch/capture phase.
     /*!
@@ -126,7 +129,8 @@ public:
      * \param hyperbolicExcessSpeed Hyperbolic excess speed at
      *            launch/capture phase in a parking orbit.
      */
-    void setHyperbolicExcessSpeed( const double& hyperbolicExcessSpeed );
+    void setHyperbolicExcessSpeed( const double &hyperbolicExcessSpeed )
+    { hyperbolicExcessSpeed_ = hyperbolicExcessSpeed; }
 
     //! Compute delta-V of launch/capture phase.
     /*!

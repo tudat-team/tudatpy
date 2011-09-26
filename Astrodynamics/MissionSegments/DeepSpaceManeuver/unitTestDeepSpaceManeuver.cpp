@@ -41,7 +41,11 @@
  */
 
 // Include statements.
-#include "unitTestDeepSpaceManeuver.h"
+#include <cmath>
+#include "Astrodynamics/MissionSegments/DeepSpaceManeuver/deepSpaceManeuver.h"
+#include "Astrodynamics/MissionSegments/DeepSpaceManeuver/unitTestDeepSpaceManeuver.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 // Using declarations.
 using std::cerr;
@@ -74,11 +78,10 @@ bool testDeepSpaceManeuver( )
     deepSpaceManeuver_.setTime( timeOfDeepSpaceManeuver_ );
 
     // Test if getTime() function results in set time for DSM.
-    if ( abs( timeOfDeepSpaceManeuver_ - deepSpaceManeuver_.getTime( ) )
-              > MACHINE_PRECISION_DOUBLES )
+    if ( std::fabs( timeOfDeepSpaceManeuver_ - deepSpaceManeuver_.getTime( ) )
+         > MACHINE_PRECISION_DOUBLES )
     {
-        cerr << "The setTime()/getTime() functions do not work properly."
-             << endl;
+        cerr << "The setTime()/getTime() functions do not work properly." << endl;
 
         isDeepSpaceManeuverErroneous_ = true;
     }
@@ -98,13 +101,10 @@ bool testDeepSpaceManeuver( )
     deepSpaceManeuver_.setState( &deepSpaceManeuverState_ );
 
     // Test if getState() function results in set state for DSM.
-    if ( abs( deepSpaceManeuverState_.state.norm( )
-         - deepSpaceManeuver_.getState( )->state.norm( ) )
-              > MACHINE_PRECISION_DOUBLES )
+    if ( std::fabs( deepSpaceManeuverState_.state.norm( )
+                    - deepSpaceManeuver_.getState( )->state.norm( ) ) > MACHINE_PRECISION_DOUBLES )
     {
-        cerr << "The setState()/getState() functions do not work properly."
-             << endl;
-
+        cerr << "The setState()/getState() functions do not work properly." << endl;
         isDeepSpaceManeuverErroneous_ = true;
     }
 
@@ -116,12 +116,10 @@ bool testDeepSpaceManeuver( )
     deepSpaceManeuver_.setDeltaV( deltaVOfDeepSpaceManeuver_ );
 
     // Test if getDeltaV() function results in set deltaV for DSM.
-    if ( abs( deltaVOfDeepSpaceManeuver_ - deepSpaceManeuver_.getDeltaV( ) )
-              > MACHINE_PRECISION_DOUBLES )
+    if ( std::fabs( deltaVOfDeepSpaceManeuver_ - deepSpaceManeuver_.getDeltaV( ) )
+         > MACHINE_PRECISION_DOUBLES )
     {
-        cerr << "The setDeltaV()/getDeltaV() functions do not work properly."
-             << endl;
-
+        cerr << "The setDeltaV()/getDeltaV() functions do not work properly." << endl;
         isDeepSpaceManeuverErroneous_ = true;
     }
 

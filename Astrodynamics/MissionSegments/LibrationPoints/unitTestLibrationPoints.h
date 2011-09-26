@@ -46,13 +46,6 @@
 #ifndef UNITTESTLIBRATIONPOINTS_H
 #define UNITTESTLIBRATIONPOINTS_H
 
-#include <cmath>
-#include <iostream>
-#include "basicMathematicsFunctions.h"
-#include "celestialBody.h"
-#include "librationPoint.h"
-#include "planet.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

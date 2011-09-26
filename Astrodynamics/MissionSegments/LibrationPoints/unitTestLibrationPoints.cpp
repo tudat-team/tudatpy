@@ -52,7 +52,13 @@
  */
 
 // Include statements.
-#include "unitTestLibrationPoints.h"
+#include <cmath>
+#include <iostream>
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/MissionSegments/LibrationPoints/librationPoint.h"
+#include "Astrodynamics/MissionSegments/LibrationPoints/unitTestLibrationPoints.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 // Using declarations.
 using std::cerr;
@@ -98,6 +104,9 @@ bool testLibrationPointLocations( )
     // Set bodies.
     librationPoint.setPrimaryCelestialBody( &predefinedEarth );
     librationPoint.setSecondaryCelestialBody( &predefinedMoon );
+
+    // Compute mass parameter.
+    librationPoint.computeMassParameter( );
 
     // Check if computed Earth-Moon mass parameter is too large and output cerr statements.
     if ( abs( ( librationPoint.getMassParameter( ) ) - 0.01215295290792761 )

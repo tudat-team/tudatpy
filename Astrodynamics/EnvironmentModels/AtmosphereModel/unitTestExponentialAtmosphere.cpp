@@ -57,7 +57,7 @@ bool testExponentialAtmosphere( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using mathematics::computeAbsoluteValue;
+    using std::fabs;
     using mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Declare test variable.
@@ -85,17 +85,12 @@ bool testExponentialAtmosphere( )
     exponentialAtmosphere.setSpecificGasConstant( PhysicalConstants::SPECIFIC_GAS_CONSTANT_AIR );
 
     // Check if set and get functions work well.
-    if ( computeAbsoluteValue( ( exponentialAtmosphere.getConstantTemperature( )
-                               - constantTemperature ) / constantTemperature )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( exponentialAtmosphere.getDensityAtZeroAltitude( )
-                              - densityAtZeroAltitude ) / densityAtZeroAltitude )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( exponentialAtmosphere.getScaleHeight( )  - scaleHeight ) /
-                              scaleHeight )
-        > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( ( exponentialAtmosphere.getConstantTemperature( )
+                 - constantTemperature ) / constantTemperature ) > MACHINE_PRECISION_DOUBLES
+         || fabs( ( exponentialAtmosphere.getDensityAtZeroAltitude( )
+                    - densityAtZeroAltitude ) / densityAtZeroAltitude ) > MACHINE_PRECISION_DOUBLES
+         || fabs( ( exponentialAtmosphere.getScaleHeight( ) - scaleHeight ) / scaleHeight )
+         > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The get or set functions for the constants of the exponential atmosphere ";
         cerr << "do not work correctly." << endl;
@@ -113,17 +108,13 @@ bool testExponentialAtmosphere( )
     double pressureAtZeroAltitude = 101325.0;
 
     // Check whether the atmosphere is calculated correctly at sea level.
-    if ( computeAbsoluteValue( ( exponentialAtmosphere.getTemperature( altitude )
-                               - constantTemperature ) / constantTemperature )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( exponentialAtmosphere.getDensity( altitude )
-                              - densityAtZeroAltitude ) / densityAtZeroAltitude )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( exponentialAtmosphere.getPressure( altitude )
-                              - pressureAtZeroAltitude ) / pressureAtZeroAltitude )
-        > 0.002 * pressureAtZeroAltitude )
+    if ( fabs( ( exponentialAtmosphere.getTemperature( altitude )
+                 - constantTemperature ) / constantTemperature ) > MACHINE_PRECISION_DOUBLES
+         || fabs( ( exponentialAtmosphere.getDensity( altitude )
+                    - densityAtZeroAltitude ) / densityAtZeroAltitude ) > MACHINE_PRECISION_DOUBLES
+         || fabs( ( exponentialAtmosphere.getPressure( altitude )
+                    - pressureAtZeroAltitude ) / pressureAtZeroAltitude )
+         > 0.002 * pressureAtZeroAltitude )
         // Because of different gas constant used in the USSA1976, there is a slight difference.
     {
         cerr << "The exponential atmosphere at sea level is calculated incorrectly." << endl;
@@ -141,20 +132,12 @@ bool testExponentialAtmosphere( )
 
     double expectedDensity  = densityAtZeroAltitude * exp ( - altitude / scaleHeight );
 
-    if ( computeAbsoluteValue( ( exponentialAtmosphere.getTemperature(
-            altitude, longitude, latitude )
-                               - constantTemperature ) / constantTemperature )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( exponentialAtmosphere.getDensity(
-                altitude, longitude, latitude )
-                              - expectedDensity ) / expectedDensity )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( exponentialAtmosphere.getPressure(
-                altitude, longitude, latitude )
-                              - 24526.24934607106 ) )
-        > 1.0e-10 )
+    if ( fabs( ( exponentialAtmosphere.getTemperature( altitude, longitude, latitude )
+                 - constantTemperature ) / constantTemperature ) > MACHINE_PRECISION_DOUBLES
+         || fabs( ( exponentialAtmosphere.getDensity( altitude, longitude, latitude )
+                    - expectedDensity ) / expectedDensity ) > MACHINE_PRECISION_DOUBLES
+         || fabs( ( exponentialAtmosphere.getPressure( altitude, longitude, latitude )
+                    - 24526.24934607106 ) ) > 1.0e-10 )
     {
         cerr << "The exponential atmosphere at 10 km altitude is calculated incorrectly." << endl;
         isExponentialAtmosphereBad_ = true;

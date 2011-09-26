@@ -102,8 +102,8 @@
 // Using declarations.
 using std::cerr;
 using std::endl;
-using mathematics::computeAbsoluteValue;
-using mathematics::raiseToIntegerPower;
+using std::fabs;
+using std::pow;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 using orbital_element_conversions::convertCartesianToKeplerianElements;
 using orbital_element_conversions::convertKeplerianToCartesianElements;
@@ -188,8 +188,7 @@ bool testOrbitalElementConversions( )
     keplerianEllipticalElements1.setTrueAnomaly( M_PI / 3.0 );
     keplerianEllipticalElements1.setSemiLatusRectum(
             keplerianEllipticalElements1.getSemiMajorAxis( )
-            * ( 1.0 - raiseToIntegerPower(
-                    keplerianEllipticalElements1.getEccentricity( ), 2 ) ) );
+            * ( 1.0 - pow( keplerianEllipticalElements1.getEccentricity( ), 2.0 ) ) );
 
     // Compute Cartesian elements.
     CartesianElements cartesianEllipticalElements;
@@ -210,34 +209,27 @@ bool testOrbitalElementConversions( )
     // conversion from Cartesian to Keplerian are equal to the input Keplerian
     // elements of the conversion from Keplerian to Cartesian, within a
     // tolerance limit.
-    if ( computeAbsoluteValue( ( keplerianEllipticalElements2
-                                 .getSemiMajorAxis( ) -
+    if ( fabs( ( keplerianEllipticalElements2.getSemiMajorAxis( ) -
                  keplerianEllipticalElements1.getSemiMajorAxis( ) ) /
                keplerianEllipticalElements1.getSemiMajorAxis( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianEllipticalElements2
-                               .getEccentricity( ) -
+         fabs( keplerianEllipticalElements2.getEccentricity( ) -
                keplerianEllipticalElements1.getEccentricity( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianEllipticalElements2
-                               .getInclination( ) -
+         fabs( keplerianEllipticalElements2.getInclination( ) -
                keplerianEllipticalElements1.getInclination( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianEllipticalElements2
-                               .getArgumentOfPeriapsis( ) -
+         fabs( keplerianEllipticalElements2.getArgumentOfPeriapsis( ) -
                keplerianEllipticalElements1.getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianEllipticalElements2
-               .getLongitudeOfAscendingNode( ) -
+         fabs( keplerianEllipticalElements2.getLongitudeOfAscendingNode( ) -
                keplerianEllipticalElements1.
                getLongitudeOfAscendingNode( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianEllipticalElements2
-                               .getTrueAnomaly( ) -
+         fabs( keplerianEllipticalElements2.getTrueAnomaly( ) -
                keplerianEllipticalElements1.getTrueAnomaly( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( ( keplerianEllipticalElements2
-                                 .getSemiLatusRectum( ) -
+         fabs( ( keplerianEllipticalElements2.getSemiLatusRectum( ) -
                  keplerianEllipticalElements1.getSemiLatusRectum( ) ) /
                keplerianEllipticalElements1.getSemiLatusRectum( ) ) >=
          errorTolerance_ )
@@ -280,30 +272,24 @@ bool testOrbitalElementConversions( )
     // conversion from Cartesian to Keplerian are equal to the input Keplerian
     // elements of the conversion from Keplerian to Cartesian, within a
     // tolerance limit.
-    if ( computeAbsoluteValue( ( keplerianParabolicElements2
-                                 .getSemiLatusRectum( ) -
+    if ( fabs( ( keplerianParabolicElements2.getSemiLatusRectum( ) -
                  keplerianParabolicElements1.getSemiLatusRectum( ) ) /
                keplerianParabolicElements1.getSemiLatusRectum( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianParabolicElements2
-                               .getEccentricity( ) -
+         fabs( keplerianParabolicElements2.getEccentricity( ) -
                keplerianParabolicElements1.getEccentricity( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianParabolicElements2
-                               .getInclination( ) -
+         fabs( keplerianParabolicElements2.getInclination( ) -
                keplerianParabolicElements1.getInclination( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianParabolicElements2
-                               .getArgumentOfPeriapsis( ) -
+         fabs( keplerianParabolicElements2.getArgumentOfPeriapsis( ) -
                keplerianParabolicElements1.getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianParabolicElements2
-                               .getLongitudeOfAscendingNode( ) -
+         fabs( keplerianParabolicElements2.getLongitudeOfAscendingNode( ) -
                keplerianParabolicElements1
                .getLongitudeOfAscendingNode( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianParabolicElements2
-                               .getTrueAnomaly( ) -
+         fabs( keplerianParabolicElements2.getTrueAnomaly( ) -
                keplerianParabolicElements1.getTrueAnomaly( ) ) >=
          errorTolerance_ )
     {
@@ -345,29 +331,23 @@ bool testOrbitalElementConversions( )
     // elements of the conversion from Keplerian to Cartesian, within a
     // tolerance limit.
 
-    if ( computeAbsoluteValue( ( keplerianCircularElements2
-                                 .getSemiMajorAxis( ) -
+    if ( fabs( ( keplerianCircularElements2.getSemiMajorAxis( ) -
                  keplerianCircularElements1.getSemiMajorAxis( ) ) /
                keplerianCircularElements1.getSemiMajorAxis( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianCircularElements2
-                               .getEccentricity( ) -
+         fabs( keplerianCircularElements2.getEccentricity( ) -
                keplerianCircularElements1.getEccentricity( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianCircularElements2
-                               .getInclination( ) -
+         fabs( keplerianCircularElements2.getInclination( ) -
                keplerianCircularElements1.getInclination( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianCircularElements2
-                               .getArgumentOfPeriapsis( ) -
+         fabs( keplerianCircularElements2.getArgumentOfPeriapsis( ) -
                keplerianCircularElements1.getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianCircularElements2
-                               .getLongitudeOfAscendingNode( ) -
+         fabs( keplerianCircularElements2.getLongitudeOfAscendingNode( ) -
                keplerianCircularElements1.getLongitudeOfAscendingNode( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianCircularElements2
-                               .getTrueAnomaly( ) -
+         fabs( keplerianCircularElements2.getTrueAnomaly( ) -
                keplerianCircularElements1.getTrueAnomaly( ) ) >=
          errorTolerance_ )
     {
@@ -410,30 +390,24 @@ bool testOrbitalElementConversions( )
     // elements of the conversion from Keplerian to Cartesian, within a
     // tolerance limit.
 
-    if ( computeAbsoluteValue( ( keplerianHyperbolicElements2
-                                 .getSemiMajorAxis( ) -
+    if ( fabs( ( keplerianHyperbolicElements2.getSemiMajorAxis( ) -
                  keplerianHyperbolicElements1.getSemiMajorAxis( ) ) /
                keplerianHyperbolicElements1.getSemiMajorAxis( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianHyperbolicElements2
-                               .getEccentricity( ) -
+         fabs( keplerianHyperbolicElements2.getEccentricity( ) -
                keplerianHyperbolicElements1.getEccentricity( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianHyperbolicElements2
-                               .getInclination( ) -
+         fabs( keplerianHyperbolicElements2.getInclination( ) -
                keplerianHyperbolicElements1.getInclination( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianHyperbolicElements2
-                               .getArgumentOfPeriapsis( ) -
+         fabs( keplerianHyperbolicElements2.getArgumentOfPeriapsis( ) -
                keplerianHyperbolicElements1.getArgumentOfPeriapsis( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianHyperbolicElements2
-                               .getLongitudeOfAscendingNode( ) -
+         fabs( keplerianHyperbolicElements2.getLongitudeOfAscendingNode( ) -
                keplerianHyperbolicElements1
                .getLongitudeOfAscendingNode( ) ) >=
          errorTolerance_ ||
-         computeAbsoluteValue( keplerianHyperbolicElements2
-                               .getTrueAnomaly( ) -
+         fabs( keplerianHyperbolicElements2.getTrueAnomaly( ) -
                keplerianHyperbolicElements1.getTrueAnomaly( ) ) >=
          errorTolerance_ )
     {
@@ -476,23 +450,17 @@ bool testOrbitalElementConversions( )
     // Set test result to false if the output Keplerian elements of the
     // conversion from Cartesian to Keplerian are equal to the output Keplerian
     // elements of the exercise, within a tolerance limit.
-    if ( computeAbsoluteValue( keplerianElements
-                               .getSemiMajorAxis( ) - 2.265 ) >=
+    if ( fabs( keplerianElements.getSemiMajorAxis( ) - 2.265 ) >=
          errorToleranceBookExample_ ||
-         computeAbsoluteValue( keplerianElements
-                               .getEccentricity( ) - 0.185 ) >=
+         fabs( keplerianElements.getEccentricity( ) - 0.185 ) >=
          errorToleranceBookExample_ ||
-         computeAbsoluteValue( keplerianElements
-                               .getInclination( ) - 1.401 ) >=
+         fabs( keplerianElements.getInclination( ) - 1.401 ) >=
          errorToleranceBookExample_ ||
-         computeAbsoluteValue( keplerianElements
-                               .getArgumentOfPeriapsis( ) - 2.6143 ) >=
+         fabs( keplerianElements.getArgumentOfPeriapsis( ) - 2.6143 ) >=
          errorToleranceBookExample_ ||
-         computeAbsoluteValue( keplerianElements
-                               .getLongitudeOfAscendingNode( ) -
+         fabs( keplerianElements.getLongitudeOfAscendingNode( ) -
                1.0304 ) >= errorToleranceBookExample_ ||
-         computeAbsoluteValue( keplerianElements.getTrueAnomaly( )
-                               - 4.0959 ) >=
+         fabs( keplerianElements.getTrueAnomaly( ) - 4.0959 ) >=
          errorToleranceBookExample_ )
     {
         isOrbitalElementConversionErroneous = true;
@@ -520,8 +488,7 @@ bool testOrbitalElementConversions( )
                                       trueAnomaly, eccentricity );
 
     // Check if computed eccentric anomaly is equal to reference value.
-    if ( computeAbsoluteValue( eccentricAnomaly - 1.061789204 )
-        > toleranceOrbitalElementConversion )
+    if ( fabs( eccentricAnomaly - 1.061789204 ) > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
 
@@ -553,8 +520,7 @@ bool testOrbitalElementConversions( )
                           eccentricAnomaly, eccentricity );
 
     // Check if computed true anomaly is equal to reference value.
-    if ( computeAbsoluteValue( trueAnomaly - unit_conversions::
-                               convertDegreesToRadians( 61.6755418 ) )
+    if ( fabs( trueAnomaly - unit_conversions::convertDegreesToRadians( 61.6755418 ) )
         > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
@@ -587,8 +553,7 @@ bool testOrbitalElementConversions( )
 
     // Check if computed hyperbolic eccentric anomaly is equal to reference
     // value.
-    if ( computeAbsoluteValue( hyperbolicEccentricAnomaly - 0.3879 )
-        > toleranceOrbitalElementConversion )
+    if ( fabs( hyperbolicEccentricAnomaly - 0.3879 ) > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
 
@@ -621,8 +586,7 @@ bool testOrbitalElementConversions( )
                           hyperbolicEccentricAnomaly, eccentricity );
 
     // Check if computed true anomaly is equal to reference value.
-    if ( computeAbsoluteValue( trueAnomaly - 0.5291 )
-        > toleranceOrbitalElementConversion )
+    if ( fabs( trueAnomaly - 0.5291 ) > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
 
@@ -655,8 +619,7 @@ bool testOrbitalElementConversions( )
                                  eccentricAnomaly, eccentricity );
 
     // Check if computed mean anomaly is equal to reference value.
-    if ( computeAbsoluteValue( meanAnomaly - unit_conversions::
-                               convertDegreesToRadians( 60.0 ) )
+    if ( fabs( meanAnomaly - unit_conversions::convertDegreesToRadians( 60.0 ) )
         > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
@@ -702,8 +665,7 @@ bool testOrbitalElementConversions( )
     eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly.convert( );
 
     // Check if computed eccentric anomaly is equal to reference value.
-    if ( computeAbsoluteValue( eccentricAnomaly - 1.061789204 )
-        > toleranceOrbitalElementConversion )
+    if ( fabs( eccentricAnomaly - 1.061789204 ) > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
 
@@ -735,9 +697,8 @@ bool testOrbitalElementConversions( )
                           hyperbolicEccentricAnomaly, eccentricity );
 
     // Check if computed mean anomaly is equal to reference value.
-    if ( computeAbsoluteValue( meanAnomaly - unit_conversions::
-                               convertDegreesToRadians( 235.4  ) )
-        > toleranceOrbitalElementConversion )
+    if ( fabs( meanAnomaly - unit_conversions::convertDegreesToRadians( 235.4  ) )
+         > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
 
@@ -784,8 +745,7 @@ bool testOrbitalElementConversions( )
 
     // Check if computed hyperbolic eccentric anomaly is equal to reference
     // value.
-    if ( computeAbsoluteValue( hyperbolicEccentricAnomaly - 1.6013761449 )
-        > toleranceOrbitalElementConversion )
+    if ( fabs( hyperbolicEccentricAnomaly - 1.6013761449 ) > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
 
@@ -803,7 +763,7 @@ bool testOrbitalElementConversions( )
     // Test 10: Test of elapsed time to mean anomaly for elliptical orbits.
 
     // Set tolerance for conversion.
-    toleranceOrbitalElementConversion = 1e-11;
+    toleranceOrbitalElementConversion = 1.0e-11;
 
     // Expected mean anomaly value;
     double expectedMeanAnomalyForTest10 = 20.203139666972554;
@@ -812,8 +772,7 @@ bool testOrbitalElementConversions( )
     double expectedElapsedTime = 4000.0;
 
     // Set semi-major axis.
-    double semiMajorAxis = unit_conversions::
-                           convertKilometersToMeters( 2500.0 );
+    double semiMajorAxis = unit_conversions::convertKilometersToMeters( 2500.0 );
 
     // Compute mean anomaly.
     meanAnomaly = orbital_element_conversions::
@@ -821,26 +780,20 @@ bool testOrbitalElementConversions( )
                           expectedElapsedTime, &predefinedEarth, semiMajorAxis );
 
     // Declare and compute absolute and relative errors.
-    double absoluteDifference = abs( meanAnomaly
-                                     - expectedMeanAnomalyForTest10 );
+    double absoluteDifference = fabs( meanAnomaly - expectedMeanAnomalyForTest10 );
 
-    double relativeDifference = absoluteDifference
-            / expectedMeanAnomalyForTest10;
+    double relativeDifference = absoluteDifference / expectedMeanAnomalyForTest10;
 
     // Check if relative error is too large.
     if ( relativeDifference > MACHINE_PRECISION_DOUBLES )
     {
-        std::cout << "test:" << std::endl;
-
         isOrbitalElementConversionErroneous = true;
 
         cerr << "The conversion of elapsed time to mean anomaly is erroneous "
              << "as the computed mean anomaly after applying the conversion ( "
-             << unit_conversions::
-                    convertRadiansToDegrees( meanAnomaly )
+             << unit_conversions::convertRadiansToDegrees( meanAnomaly )
              << " ) does not match the expected value of the mean anomaly ( "
-             << unit_conversions::convertRadiansToDegrees(
-                    expectedMeanAnomalyForTest10 )
+             << unit_conversions::convertRadiansToDegrees( expectedMeanAnomalyForTest10 )
              << " ) " << endl;
     }
 
@@ -859,7 +812,7 @@ bool testOrbitalElementConversions( )
                 meanAnomaly, &predefinedEarth, semiMajorAxis );
 
     // Compute absolute and relative errors.
-    absoluteDifference = abs( elapsedTime - expectedElapsedTime);
+    absoluteDifference = fabs( elapsedTime - expectedElapsedTime );
 
     relativeDifference = absoluteDifference / expectedElapsedTime;
 
@@ -892,8 +845,7 @@ bool testOrbitalElementConversions( )
                           elapsedTime, &predefinedEarth, semiMajorAxis );
 
     // Check if computed mean anomaly is equal to reference value.
-    if ( computeAbsoluteValue( meanAnomaly - 0.078918514324112 )
-        > toleranceOrbitalElementConversion )
+    if ( fabs( meanAnomaly - 0.078918514324112 ) > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
 
@@ -923,8 +875,7 @@ bool testOrbitalElementConversions( )
                           meanAnomaly, &predefinedEarth, semiMajorAxis );
 
     // Check if computed elapsed time is equal to reference value.
-    if ( computeAbsoluteValue( elapsedTime - 1000.0 )
-        > toleranceOrbitalElementConversion )
+    if ( fabs( elapsedTime - 1000.0 ) > toleranceOrbitalElementConversion )
     {
         isOrbitalElementConversionErroneous = true;
 

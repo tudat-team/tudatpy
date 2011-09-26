@@ -78,13 +78,9 @@
 #include <map>
 #include <cfloat>
 #include <vector>
-
+#include <climits>
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Astrodynamics/States/state.h"
-
-#ifdef _MSC_VER
-#include "Mathematics/win32Math.h"
-#endif
 
 //! Mathematics namespace.
 /*!
@@ -229,31 +225,6 @@ void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
 void convertCylindricalToCartesian( const double& radius,
                                     const double& azimuthAngle,
                                     VectorXd& cartesianCoordinates );
-
-//! Raise double to integer power.
-/*!
- * This function computes the result of raising floating-point base values to
- * integer powers. This function seems to perform faster than the STL pow()
- * function included in cmath. This function is based on exponentiation by
- * squares.
- */
-double raiseToIntegerPower( const double& baseValue,
-                            const int& integerPower );
-
-//! Compute absolute value of integer.
-/*!
- * Computes the absolute value of a double. This function seems
- * to perform faster than the STL abs() function included in cmath
- * in certain circumstances. Try the abs() function first.
- */
-int computeAbsoluteValue( const int& signedInteger );
-
-//! Compute absolute value of double.
-/*!
- * This function computes the absolute value of an double. This function seems
- * to perform faster than the STL abs() function included in cmath
- */
-double computeAbsoluteValue( const double& signedDouble );
 
 //! Compute modulo of double.
 /*!

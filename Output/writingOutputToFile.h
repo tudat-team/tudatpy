@@ -53,22 +53,15 @@
 
 // Include statements.
 #include <map>
-#include <fstream>
-#include <string>
-#include "compositeSurfaceGeometry.h"
-#include "linearAlgebra.h"
-#include "singleSurfaceGeometry.h"
-#include "state.h"
-#include "outputHandling.h"
-
-// Using declarations.
-using std::map;
+#include "Astrodynamics/States/state.h"
+#include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Writing output to file class.
 /*!
  * Class containing all functionality pertaining to writing output to file.
  */
-class WritingOutputToFile : public OutputHandling
+class WritingOutputToFile
 {
 public:
 
@@ -76,13 +69,13 @@ public:
     /*!
      * Default constructor.
      */
-    WritingOutputToFile( );
+    WritingOutputToFile( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~WritingOutputToFile( );
+    virtual ~WritingOutputToFile( ) { }
 
     //! Write propagation history to file.
     /*!
@@ -91,7 +84,7 @@ public:
      * \param propagationHistory Map of propagation history.
      * \param outputFilename Output filename.
      */
-    void writePropagationHistoryToFile( map< double, State >& propagationHistory,
+    void writePropagationHistoryToFile( std::map< double, State >& propagationHistory,
                                         const std::string& outputFilename );
 
     //! Write single surface geometry to a file.

@@ -63,44 +63,17 @@
 using std::endl;
 
 //! Default constructor.
-TwoLineElementData::TwoLineElementData( ) :
-        objectNameString( "" ),
-        lineNumberLine1( -0 ),
-        objectIdentificationNumber( -0 ),
-        tleClassification( 'x' ),
-        launchYear( -0 ),
-        fourDigitlaunchYear( -0 ),
-        launchNumber( -0 ),
-        launchPart( "" ),
-        epochYear( -0 ),
-        fourDigitEpochYear( -0 ),
-        epochDay( -0.0 ),
-        firstDerivativeOfMeanMotionDividedByTwo( -0.0 ),
-        coefficientOfSecondDerivativeOfMeanMotionDividedBySix( -0.0 ),
-        exponentOfSecondDerivativeOfMeanMotionDividedBySix( -0 ),
-        secondDerivativeOfMeanMotionDividedBySix( -0.0 ),
-        coefficientOfBStar( -0.0 ),
-        exponentOfBStar( -0 ),
-        bStar(-0.0  ),
-        orbitalModel( 1 ),
-        tleNumber( -0 ),
-        modulo10CheckSumLine1( 10 ),
-        lineNumberLine2( 0 ),
-        objectIdentificationNumberLine2( -0 ),
-        meanAnomaly( -0.0 ),
-        meanMotionInRevolutionsPerDay( -0.0 ),
-        revolutionNumber( -0 ),
-        totalRevolutionNumber( -0 ),
-        modulo10CheckSumLine2( 10 ),
-        perigee( -0.0 ),
-        apogee( -0.0 )
-{
-}
-
-//! Default destructor.
-TwoLineElementData::~TwoLineElementData( )
-{
-}
+TwoLineElementData::TwoLineElementData( ) : objectNameString( "" ), lineNumberLine1( -0 ),
+    objectIdentificationNumber( -0 ), tleClassification( 'x' ), launchYear( -0 ),
+    fourDigitlaunchYear( -0 ), launchNumber( -0 ), launchPart( "" ), epochYear( -0 ),
+    fourDigitEpochYear( -0 ), epochDay( -0.0 ), firstDerivativeOfMeanMotionDividedByTwo( -0.0 ),
+    coefficientOfSecondDerivativeOfMeanMotionDividedBySix( -0.0 ),
+    exponentOfSecondDerivativeOfMeanMotionDividedBySix( -0 ),
+    secondDerivativeOfMeanMotionDividedBySix( -0.0 ), coefficientOfBStar( -0.0 ),
+    exponentOfBStar( -0 ), bStar(-0.0  ), orbitalModel( 1 ), tleNumber( -0 ),
+    modulo10CheckSumLine1( 10 ), lineNumberLine2( 0 ), objectIdentificationNumberLine2( -0 ),
+    meanAnomaly( -0.0 ), meanMotionInRevolutionsPerDay( -0.0 ), revolutionNumber( -0 ),
+    totalRevolutionNumber( -0 ), modulo10CheckSumLine2( 10 ), perigee( -0.0 ), apogee( -0.0 ) { }
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,

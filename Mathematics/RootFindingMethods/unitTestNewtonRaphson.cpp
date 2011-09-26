@@ -75,12 +75,11 @@ namespace unit_tests
 //! Mathematical test function.
 double NewtonRaphsonTest::computeTestFunction( double& inputValue )
 {
-    return mathematics::raiseToIntegerPower( inputValue, 2 ) - 3.0;
+    return std::pow( inputValue, 2.0 ) - 3.0;
 }
 
 //! First-derivative of mathematical test function.
-double NewtonRaphsonTest::computeFirstDerivativeTestFunction( double&
-                                                              inputValue )
+double NewtonRaphsonTest::computeFirstDerivativeTestFunction( double& inputValue )
 {
     return 2.0 * inputValue;
 }
@@ -88,7 +87,7 @@ double NewtonRaphsonTest::computeFirstDerivativeTestFunction( double&
 //! Global mathematical test function.
 double computeGlobalTestFunction( double& inputValue )
 {
-    return mathematics::raiseToIntegerPower( inputValue, 2 ) - 3.0;
+    return std::pow( inputValue, 2.0 ) - 3.0;
 }
 
 //! Global first-derivative mathematical test function.
@@ -152,21 +151,16 @@ bool testNewtonRaphsonMethod( )
 
     // Set test result to true if either test does not match the expected
     // result.
-    if ( mathematics::computeAbsoluteValue(
-         pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( )
-         - expectedResult ) >= pointerToMyNewtonRaphsonTest1->getTolerance( )
-        || mathematics::computeAbsoluteValue(
-                pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
-                - expectedResult )
-        >= pointerToMyNewtonRaphsonTest2->getTolerance( ) )
+    if ( std::fabs( pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( )
+                    - expectedResult ) >= pointerToMyNewtonRaphsonTest1->getTolerance( )
+        || std::fabs( pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
+                      - expectedResult ) >= pointerToMyNewtonRaphsonTest2->getTolerance( ) )
     {
         // Set error flag to true.
         isNewtonRaphsonMethodErroneous = true;
 
-        if ( mathematics::computeAbsoluteValue(
-                pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( )
-                - expectedResult )
-            >= pointerToMyNewtonRaphsonTest2->getTolerance( ) )
+        if ( std::fabs( pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( )
+                        - expectedResult ) >= pointerToMyNewtonRaphsonTest2->getTolerance( ) )
         {
             // Generate error statements.
             cerr << "The computed value ( " <<
@@ -175,15 +169,13 @@ bool testNewtonRaphsonMethod( )
                  << "does not match the expected solution ("
                  << expectedResult << " )." << endl;
             cerr << "The difference is: "
-                 << mathematics::computeAbsoluteValue( expectedResult -
-                    pointerToMyNewtonRaphsonTest1
-                    ->getComputedRootOfFunction( ) )
+                 << std::fabs( expectedResult
+                               - pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( ) )
                  << endl;
         }
 
-        if ( mathematics::computeAbsoluteValue(
-                pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
-                - expectedResult ) )
+        if ( std::fabs( pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
+                        - expectedResult ) )
         {
             isNewtonRaphsonMethodErroneous = true;
 
@@ -194,9 +186,8 @@ bool testNewtonRaphsonMethod( )
                  << "does not match the expected solution ("
                  << expectedResult << " )." << endl;
             cerr << "The difference is: "
-                 << mathematics::computeAbsoluteValue( expectedResult -
-                    pointerToMyNewtonRaphsonTest2
-                    ->getComputedRootOfFunction( ) )
+                 << std::fabs( expectedResult -
+                               pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( ) )
                  << endl;
         }
     }

@@ -44,7 +44,8 @@
 #define TEXTFILEREADER_H
 
 // Include statements.
-#include "fileReader.h"
+#include <iostream>
+#include "Input/fileReader.h"
 
 //! Text file reader class.
 /*!
@@ -58,13 +59,13 @@ public:
     /*!
      * Default constructor.
      */
-    TextFileReader( );
+    TextFileReader( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~TextFileReader( );
+    ~TextFileReader( ) { }
 
     //! Read and store data.
     /*!

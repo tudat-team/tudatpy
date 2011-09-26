@@ -52,12 +52,10 @@
 #define LIBRATIONPOINT_H
 
 // Include statements.
-#include "basicMathematicsFunctions.h"
-#include "cartesianPositionElements.h"
-#include "celestialBody.h"
-#include "gravitationalForceModel.h"
-#include "newtonRaphson.h"
-#include "newtonRaphsonAdaptor.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/States/cartesianPositionElements.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 //! Libration point class.
 /*!
@@ -78,35 +76,23 @@ public:
         L2,
         L3,
         L4,
-        L5
-    };
+        L5 };
 
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    LibrationPoint( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~LibrationPoint( );
-
-    //! Set mass parameter.
-    /*!
-     * Sets mass parameter for the CRTBP.
-     * \param massParameter Mass parameter.
-     */
-    void setMassParameter( const double& massParameter );
+    LibrationPoint( ) : massParameter_( -0.0 ), massParameterSquared_( -0.0 ),
+        oneMinusMassParameterSquared_( -0.0 ), pointerToNewtonRaphson_( NULL ),
+        pointerToPrimaryCelestialBody_( NULL ), pointerToSecondaryCelestialBody_( NULL ) { }
 
     //! Set primary celestial body.
     /*!
      * Sets primary celestial body in the CRTBP.
      * \param pointerToPrimaryCelestialBody Pointer to primary celestial body.
      */
-    void setPrimaryCelestialBody( CelestialBody*
-                                  pointerToPrimaryCelestialBody );
+    void setPrimaryCelestialBody( CelestialBody* pointerToPrimaryCelestialBody )
+    { pointerToPrimaryCelestialBody_ = pointerToPrimaryCelestialBody; }
 
     //! Set secondary celestial body.
     /*!
@@ -114,8 +100,8 @@ public:
      * \param pointerToSecondaryCelestialBody Pointer to secondary celestial
      *          body.
      */
-    void setSecondaryCelestialBody( CelestialBody*
-                                    pointerToSecondaryCelestialBody );
+    void setSecondaryCelestialBody( CelestialBody* pointerToSecondaryCelestialBody )
+    { pointerToSecondaryCelestialBody_ = pointerToSecondaryCelestialBody; }
 
     //! Set Newton-Raphson method for Lagrange libration points algorithm.
     /*!
@@ -123,14 +109,22 @@ public:
      * libration points.
      * \param pointerToNewtonRaphson Pointer to Newton-Raphson method.
      */
-    void setNewtonRaphsonMethod( NewtonRaphson* pointerToNewtonRaphson );
+    void setNewtonRaphsonMethod( NewtonRaphson *pointerToNewtonRaphson )
+    { pointerToNewtonRaphson_ = pointerToNewtonRaphson; }
+
+    //! Set mass parameter.
+    /*!
+     * Sets mass parameter for the CRTBP.
+     * \param massParameter Mass parameter.
+     */
+    void setMassParameter( const double& massParameter ) { massParameter_ = massParameter; }
 
     //! Get dimensionless mass parameter.
     /*!
      * Returns the dimensionless mass parameter based on the gravitational
      * parameters of the primary and secondary bodies.
      */
-    const double& getMassParameter( );
+    const double& getMassParameter( ) { return massParameter_; }
 
     //! Get location of Lagrange libration point.
     /*!
@@ -139,7 +133,8 @@ public:
      * called.
      * \return Cartesian position elements of Lagrange libration point.
      */
-    CartesianPositionElements& getLocationOfLagrangeLibrationPoint( );
+    CartesianPositionElements& getLocationOfLagrangeLibrationPoint( )
+    { return positionOfLibrationPoint_; }
 
     //! Compute mass parameter.
     /*!
@@ -191,8 +186,7 @@ private:
      * Pointer to adaptor object of NewtonRaphsonAdaptor class. The template
      * parameter passed is this class.
      */
-    NewtonRaphsonAdaptor< LibrationPoint >
-            newtonRaphsonAdaptorForLibrationPoint_;
+    NewtonRaphsonAdaptor< LibrationPoint > newtonRaphsonAdaptorForLibrationPoint_;
 
     //! Cartesian position elements of a Lagrange libration point.
     /*!

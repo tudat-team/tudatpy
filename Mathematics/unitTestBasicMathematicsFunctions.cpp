@@ -61,8 +61,6 @@
 using std::cerr;
 using std::endl;
 using mathematics::MACHINE_PRECISION_DOUBLES;
-using mathematics::computeAbsoluteValue;
-using mathematics::raiseToIntegerPower;
 using mathematics::computeModulo;
 using mathematics::convertCylindricalToCartesian;
 using mathematics::convertSphericalToCartesian;
@@ -79,115 +77,6 @@ bool testBasicMathematicsFunctions( )
 
     // Test resultUsingModuloFunction initialised to false.
     bool isBasicMathematicsFunctionsErroneous = false;
-
-    // Test absolute value for doubles.
-    // Test 1: Test absolute value function for double value 2.5.
-    // Test 2: Test absolute value function for double value -2.5.
-
-    double absoluteValueDouble = computeAbsoluteValue( 2.5 );
-
-    if ( abs( absoluteValueDouble - 2.5 ) > MACHINE_PRECISION_DOUBLES )
-    {
-        cerr << "The double absolute value function does not "
-             << "function correctly for doubles. The computed value: "
-             << absoluteValueDouble << " does not match the expected value: "
-             << 2.5 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    absoluteValueDouble = computeAbsoluteValue( -2.5 );
-
-    if ( abs( absoluteValueDouble - 2.5 ) > MACHINE_PRECISION_DOUBLES )
-    {
-        cerr << "The double absolute value function does not "
-             << "function correctly for doubles. The computed value: "
-             << absoluteValueDouble << " does not match the expected value: "
-             << 2.5 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    // Test absolute value for integers.
-    // Test 3: Test absolute value function for integer value 2.
-    // Test 4: Test absolute value function for integer value -2.
-
-    int absoluteValueInt = computeAbsoluteValue( 2 );
-
-    if ( absoluteValueInt - 2 > 0 )
-    {
-        cerr << "The double absolute value function does not "
-             << "function correctly for integers. The computed value: "
-             << absoluteValueInt << " does not match the expected value: "
-             << 2 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    absoluteValueInt = computeAbsoluteValue( -2 );
-
-    if ( absoluteValueInt - 2 > 0 )
-    {
-        cerr << "The double absolute value function does not "
-             << "function correctly for integers. The computed value: "
-             << absoluteValueInt << " does not match the expected value: "
-             << 2 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    // Test integer powerValue.
-    // Test 5: Test 0.0^0.
-    // Test 6: Test 1.0^0.
-    // Test 7: Test 0.0^1.
-    // Test 8: Test 2.0^-2.
-    // Test 9: Test 2.0^6.
-
-    double powerValue = raiseToIntegerPower( 0.0, 0 );
-
-    if ( powerValue != powerValue)
-    {
-        cerr << "The raiseToIntegerPower function does not "
-             << "function correctly, as the computed value: " << powerValue
-             << " does not match the expected value: " << 0.0 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    powerValue = raiseToIntegerPower( 1.0, 0 );
-
-    if ( abs( powerValue - 1.0 ) > MACHINE_PRECISION_DOUBLES )
-    {
-        cerr << "The raiseToIntegerPower function does not "
-             << "function correctly, as the computed value: " << powerValue
-             << " does not match the expected value: " << 1.0 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    powerValue = raiseToIntegerPower( 0.0, 1 );
-
-    if ( abs( powerValue - 0.0 ) > MACHINE_PRECISION_DOUBLES )
-    {
-        cerr << "The raiseToIntegerPower function does not "
-             << "function correctly, as the computed value: " << powerValue
-             << " does not match the expected value: " << 0.0 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    powerValue = raiseToIntegerPower( 2.0, -2 );
-
-    if ( abs( powerValue - 0.25 ) > MACHINE_PRECISION_DOUBLES )
-    {
-        cerr << "The raiseToIntegerPower function does not "
-             << "function correctly, as the computed value: " << powerValue
-             << " does not match the expected value: " << 0.25 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    powerValue = raiseToIntegerPower( 2.0, 6 );
-
-    if ( abs( powerValue - 64.0 ) > MACHINE_PRECISION_DOUBLES )
-    {
-        cerr << "The raiseToIntegerPower function does not "
-             << "function correctly, as the computed value: " << powerValue
-             << " does not match the expected value: " << 64.0 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
 
     // Test modulo function.
     // Test 10: Test 0.0 mod 0.0.

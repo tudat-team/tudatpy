@@ -64,10 +64,6 @@
 #define UNIT_CONVERSIONS_H
 
 // Include statements.
-#ifdef _MSC_VER
-#define _USE_MATH_DEFINES
-#endif
-
 #include "Astrodynamics/physicalConstants.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 

@@ -91,9 +91,9 @@ bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
 
     // Error in calculation.
     Vector3d errorInForce;
-    errorInForce( 0 ) = computeAbsoluteValue( expectedForce( 0 ) - force( 0 ) );
-    errorInForce( 1 ) = computeAbsoluteValue( expectedForce( 1 ) - force( 1 ) );
-    errorInForce( 2 ) = computeAbsoluteValue( expectedForce( 2 ) - force( 2 ) );
+    errorInForce( 0 ) = fabs( expectedForce( 0 ) - force( 0 ) );
+    errorInForce( 1 ) = fabs( expectedForce( 1 ) - force( 1 ) );
+    errorInForce( 2 ) = fabs( expectedForce( 2 ) - force( 2 ) );
 
     if ( MACHINE_PRECISION_DOUBLES < errorInForce.sum( ) / 3.0 /
          ( dynamicPressure * referenceArea ) )
@@ -119,9 +119,9 @@ bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
     expectedMoment = dynamicPressure * referenceArea * referenceLength * momentCoefficients;
 
     // Error in calculation.
-    errorInMoment( 0 ) = computeAbsoluteValue( expectedMoment( 0 ) - moment( 0 ) );
-    errorInMoment( 1 ) = computeAbsoluteValue( expectedMoment( 1 ) - moment( 1 ) );
-    errorInMoment( 2 ) = computeAbsoluteValue( expectedMoment( 2 ) - moment( 2 ) );
+    errorInMoment( 0 ) = fabs( expectedMoment( 0 ) - moment( 0 ) );
+    errorInMoment( 1 ) = fabs( expectedMoment( 1 ) - moment( 1 ) );
+    errorInMoment( 2 ) = fabs( expectedMoment( 2 ) - moment( 2 ) );
 
     if ( MACHINE_PRECISION_DOUBLES < errorInMoment.sum( ) / 3.0 /
          ( dynamicPressure * referenceArea * referenceLength ) )
@@ -150,9 +150,9 @@ bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
                      expectedMomentDueToForce ;
 
     // Error in calculation.
-    errorInMoment( 0 ) = computeAbsoluteValue( expectedMoment( 0 ) - moment( 0 ) );
-    errorInMoment( 1 ) = computeAbsoluteValue( expectedMoment( 1 ) - moment( 1 ) );
-    errorInMoment( 2 ) = computeAbsoluteValue( expectedMoment( 2 ) - moment( 2 ) );
+    errorInMoment( 0 ) = fabs( expectedMoment( 0 ) - moment( 0 ) );
+    errorInMoment( 1 ) = fabs( expectedMoment( 1 ) - moment( 1 ) );
+    errorInMoment( 2 ) = fabs( expectedMoment( 2 ) - moment( 2 ) );
 
     if ( MACHINE_PRECISION_DOUBLES < errorInMoment.sum( ) / 3.0 /
          ( dynamicPressure * referenceArea * referenceLength ) )

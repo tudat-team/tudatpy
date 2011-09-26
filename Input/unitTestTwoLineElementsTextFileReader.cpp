@@ -64,7 +64,11 @@
 // Include statements.
 #include <ctime>
 #include <map>
-#include "unitTestTwoLineElementsTextFileReader.h"
+#include <cstdlib>
+#include <string>
+#include <vector>
+#include "Input/twoLineElementsTextFileReader.h"
+#include "Input/unitTestTwoLineElementsTextFileReader.h"
 
 // Using declarations.
 using std::cerr;
@@ -72,6 +76,7 @@ using std::endl;
 using std::cout;
 using std::multimap;
 using std::vector;
+using std::string;
 using basic_functions::outputCurrentRunningTime;
 
 //! Namespace for all unit tests.

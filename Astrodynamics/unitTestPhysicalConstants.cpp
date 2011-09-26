@@ -46,12 +46,16 @@
  */
 
 // Include statements.
-#include "unitTestPhysicalConstants.h"
+#include <cmath>
+#include <iostream>
+#include "Astrodynamics/physicalConstants.h"
+#include "Astrodynamics/unitTestPhysicalConstants.h"
+#include "Mathematics/unitConversions.h"
 
 // Using directives.
 using std::cerr;
 using std::endl;
-using mathematics::computeAbsoluteValue;
+using std::fabs;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 
 //! Namespace for all unit tests.
@@ -66,17 +70,15 @@ bool testPhysicalConstants( )
 
     // Test for time constants.
     // Test for the number of days in a year.
-    if ( computeAbsoluteValue( PhysicalConstants::JULIAN_YEAR_IN_DAYS - 365.25 )
-         > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( PhysicalConstants::JULIAN_YEAR_IN_DAYS - 365.25 ) > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The Julian year in days is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
     }
 
     // Test for the number of seconds in a year.
-    if ( computeAbsoluteValue( PhysicalConstants::JULIAN_YEAR -
-         PhysicalConstants::JULIAN_DAY * PhysicalConstants::JULIAN_YEAR_IN_DAYS )
-         > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( PhysicalConstants::JULIAN_YEAR - PhysicalConstants::JULIAN_DAY
+               * PhysicalConstants::JULIAN_YEAR_IN_DAYS ) > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The Julian year in seconds does not correspond to the Julian "
              << "day in seconds multiplied with the number of days per year."
@@ -85,8 +87,8 @@ bool testPhysicalConstants( )
     }
 
     // Test for gravitational constant.
-    if ( computeAbsoluteValue( PhysicalConstants::GRAVITATIONAL_CONSTANT -
-         6.67259e-11 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( PhysicalConstants::GRAVITATIONAL_CONSTANT - 6.67259e-11 )
+         > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The gravitational constant is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
@@ -94,17 +96,16 @@ bool testPhysicalConstants( )
 
     // Test for the obliquity of the ecliptic.
     // Test for its absolute size (23.5 degrees, from the top of my head).
-    if ( computeAbsoluteValue( PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_DEGREES
-         - 23.439281 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_DEGREES - 23.439281 )
+         > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The obliquity of the ecliptic is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
     }
 
     // Test for its relative size.
-    if ( computeAbsoluteValue( PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_DEGREES
-         - PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_ARCSECONDS / ( 60.0 * 60.0 ) )
-              > 1.0e-6 )
+    if ( fabs( PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_DEGREES
+               - PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_ARCSECONDS / ( 60.0 * 60.0 ) ) > 1.0e-6 )
     {
         cerr << "The obliquity of the ecliptic in arcseconds is not "
              << "set correctly." << endl;
@@ -113,8 +114,8 @@ bool testPhysicalConstants( )
 
     // Test for astronomical unit.
     // As expected, indeed approximately equal to 150 million kilometers.
-    if ( computeAbsoluteValue( PhysicalConstants::ASTRONOMICAL_UNIT -
-         1.49597870691e11 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( PhysicalConstants::ASTRONOMICAL_UNIT - 1.49597870691e11 )
+         > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The astronomical unit is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;

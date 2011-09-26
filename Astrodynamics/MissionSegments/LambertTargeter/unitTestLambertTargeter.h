@@ -43,14 +43,6 @@
 #ifndef UNITTESTLAMBERTTARGETER_H
 #define UNITTESTLAMBERTTARGETER_H
 
-// Include statements.
-#include "lambertTargeter.h"
-#include "cartesianElements.h"
-#include "gravityFieldModel.h"
-#include "planet.h"
-#include "unitConversions.h"
-
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

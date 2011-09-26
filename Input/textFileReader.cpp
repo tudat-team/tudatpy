@@ -44,20 +44,12 @@
  */
 
 // Include statements.
-#include "textFileReader.h"
+#include <string>
+#include "Input/textFileReader.h"
 
 // Using declarations.
+using std::string;
 using std::endl;
-
-//! Default constructor.
-TextFileReader::TextFileReader( )
-{
-}
-
-//! Default destructor.
-TextFileReader::~TextFileReader( )
-{
-}
 
 //! Read and store data.
 void TextFileReader::readAndStoreData( )
@@ -85,7 +77,6 @@ void TextFileReader::readAndStoreData( )
         // Increment line counter.
         lineCounter_++;
     }
-
 }
 
 //! Read and store data.
@@ -151,8 +142,7 @@ std::ostream& operator<<( std::ostream& stream,
                           TextFileReader& pointerToTextFileReader )
 {
     stream << "This is a TextFileReader object." << endl;
-    stream << "The input data file name is: "
-           << pointerToTextFileReader.fileName_ << endl;
+    stream << "The input data file name is: " << pointerToTextFileReader.fileName_ << endl;
     stream << "The absolute path to the input data file is: "
            << pointerToTextFileReader.absolutePath_ << endl;
 

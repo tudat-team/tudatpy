@@ -56,12 +56,17 @@
  */
 
 // Include statements.
-#include "unitTestGravityAssist.h"
+#include <cmath>
+#include <iostream>
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/MissionSegments/GravityAssist/gravityAssist.h"
+#include "Astrodynamics/MissionSegments/GravityAssist/unitTestGravityAssist.h"
+#include "Mathematics/unitConversions.h"
 
 // Using directives.
-using mathematics::computeAbsoluteValue;
 using std::endl;
 using std::cerr;
+using std::fabs;
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -145,21 +150,17 @@ bool testGravityAssist( )
     double deltaV = myGravityAssist.computeDeltaV( );
 
     // Set test result to true if the test does not match the expected results.
-    if ( computeAbsoluteValue( deltaV - expectedDeltaV )
-         >= velocityTolerance )
+    if ( fabs( deltaV - expectedDeltaV ) >= velocityTolerance )
     {
         // Set error flag to true.
         isGravityAssistErroneous = true;
 
         // Generate error statements.
         cerr << "The computed value of delta-V for the "
-                "case of equal hyperbolic excess velocities ( "
-             << deltaV
+                "case of equal hyperbolic excess velocities ( " << deltaV
              << " ) using the powered gravity-assist algorithm "
-             << "does not match the expected solution ( "
-             << expectedDeltaV << " )." << endl;
-        cerr << "The relative error is: "
-             << computeAbsoluteValue( deltaV - expectedDeltaV ) << endl;
+             << "does not match the expected solution ( " << expectedDeltaV << " )." << endl;
+        cerr << "The relative error is: "  << fabs( deltaV - expectedDeltaV ) << endl;
     }
 
     // Return test result.

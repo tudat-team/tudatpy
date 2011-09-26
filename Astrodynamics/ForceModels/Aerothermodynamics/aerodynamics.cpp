@@ -51,10 +51,16 @@
  */
 
 // Include statements.
+#include <cmath>
 #include "aerodynamics.h"
 
 // Using declarations.
-using mathematics::raiseToIntegerPower;
+using std::atan;
+using std::exp;
+using std::log;
+using std::pow;
+using std::sqrt;
+using std::tan;
 
 namespace aerodynamics
 {
@@ -64,8 +70,7 @@ double computeLocalToStaticPressureRatio( const double& machNumber,
                                           const double& ratioOfSpecificHeats )
 {
     // Return local-to-static pressure ratio.
-    return pow( 2.0 / ( 2.0 + ( ratioOfSpecificHeats - 1.0 )
-                        * raiseToIntegerPower( machNumber, 2 ) ),
+    return pow( 2.0 / ( 2.0 + ( ratioOfSpecificHeats - 1.0 ) * pow( machNumber, 2.0 ) ),
                 ratioOfSpecificHeats / ( ratioOfSpecificHeats - 1.0 ) );
 }
 
@@ -75,7 +80,7 @@ double computePrandtlMeyerFunction( const double& machNumber,
 {
     // Declare local variables.
     // Declare Mach number squared.
-    double machNumberSquared_ = raiseToIntegerPower( machNumber, 2 );
+    double machNumberSquared_ = pow( machNumber, 2.0 );
 
     // Return value of Prandtl-Meyer function.
     return sqrt ( ( ratioOfSpecificHeats + 1.0 ) /
@@ -92,12 +97,11 @@ double computeStagnationPressure( const double& machNumber,
 {
     // Declare local variables.
     // Declare Mach number squared.
-    double machNumberSquared_ = raiseToIntegerPower( machNumber, 2 );
+    double machNumberSquared_ = pow( machNumber, 2.0 );
 
     // Return stagnation pressure coefficient.
     return 2.0 / ( ratioOfSpecificHeats * machNumberSquared_ )
-            * ( pow ( raiseToIntegerPower( ( ratioOfSpecificHeats + 1.0 )
-                                           * machNumber, 2 )
+            * ( pow ( pow( ( ratioOfSpecificHeats + 1.0 ) * machNumber, 2.0 )
                       / ( 4.0 * ratioOfSpecificHeats * machNumberSquared_
                           - 2.0 * ( ratioOfSpecificHeats - 1.0 ) ),
                       ratioOfSpecificHeats / ( ratioOfSpecificHeats - 1.0 ) )
@@ -110,7 +114,7 @@ double computeStagnationPressure( const double& machNumber,
 double computeNewtonianPressureCoefficient( const double& inclinationAngle )
 {
     // Return pressure coefficient.
-    return 2.0 * raiseToIntegerPower( sin( inclinationAngle ), 2 );
+    return 2.0 * pow( sin( inclinationAngle ), 2.0 );
 }
 
 //! Compute pressure coefficient based on modified Newtonian theory.
@@ -119,8 +123,7 @@ double computeModifiedNewtonianPressureCoefficient(
         const double& stagnationPressureCoefficient )
 {
     // Return pressure coefficient.
-    return stagnationPressureCoefficient
-            * raiseToIntegerPower( sin( inclinationAngle ), 2 );
+    return stagnationPressureCoefficient * pow( sin( inclinationAngle ), 2.0 );
 }
 
 //! Compute pressure coefficient using empirical tangent wedge method.
@@ -134,9 +137,8 @@ double computeEmpiricalTangentWedgePressureCoefficient(
     machNumberSine_ = machNumber * sin( inclinationAngle );
 
     // Return pressure coefficient approximation.
-    return ( raiseToIntegerPower( 1.2 * machNumberSine_
-                                  + exp( -0.6 * machNumberSine_ ), 2 )
-             - 1.0 ) / ( 0.6 * raiseToIntegerPower( machNumber, 2 ) );
+    return ( pow( 1.2 * machNumberSine_ + exp( -0.6 * machNumberSine_ ), 2.0 )
+             - 1.0 ) / ( 0.6 * pow( machNumber, 2.0 ) );
 }
 
 //! Compute pressure coefficient using empirical tangent cone method.
@@ -149,13 +151,11 @@ double computeEmpiricalTangentConePressureCoefficient(
 
     // Set local variables.
     machNumberSine_ = machNumber * sin ( inclinationAngle );
-    temporaryValue_ = raiseToIntegerPower( ( 1.090909 * machNumberSine_
-                                             +  exp( -0.5454545
-                                                     * machNumberSine_ ) ), 2 );
+    temporaryValue_ = pow( ( 1.090909 * machNumberSine_
+                             +  exp( -0.5454545 * machNumberSine_ ) ), 2.0 );
 
     // Return pressure coefficient approximation.
-    return ( 48.0 * temporaryValue_
-             * raiseToIntegerPower( sin( inclinationAngle), 2 ) )
+    return ( 48.0 * temporaryValue_ * pow( sin( inclinationAngle), 2.0 ) )
             / ( 23.0 * temporaryValue_ - 5.0 );
 }
 
@@ -265,9 +265,8 @@ double computeSmythDeltaWingPressureCoefficient(
 
     // Employ empirical correlation to calculate pressure coefficient.
     // Return pressure coefficient.
-    return 1.66667 * ( raiseToIntegerPower(
-            1.09 * machNumberSine_ + exp( -0.49 * machNumberSine_ ), 2 ) - 1.0 )
-            / raiseToIntegerPower( machNumber, 2 );
+    return 1.66667 * ( pow( 1.09 * machNumberSine_ + exp( -0.49 * machNumberSine_ ), 2.0 ) - 1.0 )
+            / pow( machNumber, 2.0 );
 }
 
 //! Compute pressure coefficient using the van Dyke unified method.
@@ -277,10 +276,8 @@ double computeVanDykeUnifiedPressureCoefficient(
 {
     // Declare and initialize local variables and pre-compute for efficiency.
     double ratioOfSpecificHeatsTerm_ = ( ratioOfSpecificHeats + 1.0 ) / 2.0;
-    double machNumberTerm_ = sqrt( raiseToIntegerPower( machNumber , 2 )
-                                   - 1.0 );
-    double exponent_ = 2.0
-                       * ratioOfSpecificHeats / ( ratioOfSpecificHeats - 1.0 );
+    double machNumberTerm_ = sqrt( pow( machNumber , 2.0 ) - 1.0 );
+    double exponent_ = 2.0 * ratioOfSpecificHeats / ( ratioOfSpecificHeats - 1.0 );
 
     // Declare and initialize value.
     double pressureCoefficient_ = 0.0;
@@ -288,14 +285,9 @@ double computeVanDykeUnifiedPressureCoefficient(
     // Calculate compression pressure coefficient.
     if ( inclinationAngle >= 0 && type == 1 )
     {
-        pressureCoefficient_
-                = raiseToIntegerPower( inclinationAngle, 2 )
-                  * ( ratioOfSpecificHeatsTerm_
-                      + sqrt( raiseToIntegerPower( ratioOfSpecificHeatsTerm_, 2 )
-                              + 4.0
-                              / ( raiseToIntegerPower(  inclinationAngle
-                                                        * machNumberTerm_,
-                                                        2 ) ) ) );
+        pressureCoefficient_ = pow( inclinationAngle, 2.0 )
+                * ( ratioOfSpecificHeatsTerm_ + sqrt( pow( ratioOfSpecificHeatsTerm_, 2.0 )
+                              + 4.0 / ( pow(  inclinationAngle * machNumberTerm_, 2.0 ) ) ) );
     }
 
     // Calculate expansion pressure coefficient.
@@ -315,11 +307,9 @@ double computeVanDykeUnifiedPressureCoefficient(
         else
         {
             pressureCoefficient_
-                    = 2.0 / ( ratioOfSpecificHeats
-                              * raiseToIntegerPower( machNumberTerm_, 2 ) )
+                    = 2.0 / ( ratioOfSpecificHeats * pow( machNumberTerm_, 2.0 ) )
                     * ( pow( 1.0 - ( ratioOfSpecificHeats - 1.0 ) / 2.0
-                             * - 1.0 * inclinationAngle
-                             * machNumberTerm_, exponent_ ) - 1.0 );
+                             * - 1.0 * inclinationAngle * machNumberTerm_, exponent_ ) - 1.0 );
 
             if ( pressureCoefficient_ < vacuumPressureCoefficient_ )
             {
@@ -367,9 +357,8 @@ double computePrandtlMeyerFreestreamPressureCoefficient(
                                                      ratioOfSpecificHeats );
 
         // Form pressure coefficient.
-        pressureCoefficient_ = 2.0 / ( ratioOfSpecificHeats
-                                       *  raiseToIntegerPower( machNumber, 2 ) )
-                               * ( pressureRatio_ - 1.0 ) ;
+        pressureCoefficient_ = 2.0 / ( ratioOfSpecificHeats * pow( machNumber, 2.0 ) )
+                * ( pressureRatio_ - 1.0 );
     }
 
     // Return pressure coefficient.
@@ -381,15 +370,14 @@ double computeVacuumPressureCoefficient(
         const double& machNumber, const double& ratioOfSpecificHeats )
 {
     // Return pressure coefficient.
-    return -2.0 / ( ratioOfSpecificHeats
-                    * raiseToIntegerPower( machNumber, 2 ) );
+    return -2.0 / ( ratioOfSpecificHeats * pow( machNumber, 2.0 ) );
 }
 
 //! Compute high Mach base pressure coefficient.
 double computeHighMachBasePressure( const double& machNumber )
 {
     // Calculate pressure coefficient.
-    return -1.0 / raiseToIntegerPower( machNumber, 2 );
+    return -1.0 / pow( machNumber, 2.0 );
 }
 
 //! Compute pressure coefficient using the ACM empirical method.
@@ -402,12 +390,11 @@ double computeAcmEmpiricalPressureCoefficient(
     double preliminaryPressureCoefficient_;
 
     // Set minimum pressure coefficient.
-    minimumPressureCoefficient_ = -1.0 / raiseToIntegerPower( machNumber, 2 );
+    minimumPressureCoefficient_ = -1.0 / pow( machNumber, 2.0 );
 
     // Calculate preliminary pressure coefficient.
     preliminaryPressureCoefficient_ = 180.0 / M_PI * inclinationAngle
-                                      / ( 16.0 * raiseToIntegerPower(
-                                              machNumber , 2 ) );
+                                      / ( 16.0 * pow( machNumber , 2.0 ) );
 
     // If necessary, correct preliminary pressure coefficient.
     if ( minimumPressureCoefficient_ > preliminaryPressureCoefficient_ )
@@ -470,7 +457,7 @@ double computeShockDensityRatio( const double& normalMachNumber,
     double machNumberSquared_;
 
     // Calculate mach number squared for efficiency.
-    machNumberSquared_ = raiseToIntegerPower( normalMachNumber, 2 );
+    machNumberSquared_ = pow( normalMachNumber, 2.0 );
 
     // Return density ratio.
     return ( ratioOfSpecificHeats + 1.0 ) * machNumberSquared_
@@ -482,10 +469,8 @@ double computeShockTemperatureRatio( const double& normalMachNumber,
                                      const double& ratioOfSpecificHeats )
 {
     // Return temperature ratio from perfect gas law.
-    return 1.0 / computeShockDensityRatio( normalMachNumber,
-                                           ratioOfSpecificHeats )
-           * computeShockPressureRatio( normalMachNumber,
-                                        ratioOfSpecificHeats );
+    return 1.0 / computeShockDensityRatio( normalMachNumber, ratioOfSpecificHeats )
+           * computeShockPressureRatio( normalMachNumber, ratioOfSpecificHeats );
 }
 
 //! Compute jump in entropy across a shock wave.
@@ -497,17 +482,14 @@ double computeShockEntropyJump( const double& normalMachNumber,
     double specificHeatConstantPressure_;
 
     // Calculate specific heat at constant pressure.
-    specificHeatConstantPressure_ = ratioOfSpecificHeats
-                                    * specificGasConstant
-                                    / ( ratioOfSpecificHeats - 1.0 );
+    specificHeatConstantPressure_ = ratioOfSpecificHeats * specificGasConstant
+            / ( ratioOfSpecificHeats - 1.0 );
 
     // Return entropy jump from temperature and pressure ratio.
     return specificHeatConstantPressure_
-            * log( computeShockTemperatureRatio( normalMachNumber,
-                                                 ratioOfSpecificHeats ) )
+            * log( computeShockTemperatureRatio( normalMachNumber, ratioOfSpecificHeats ) )
             - specificGasConstant
-            * log( computeShockPressureRatio( normalMachNumber,
-                                              ratioOfSpecificHeats ) );
+            * log( computeShockPressureRatio( normalMachNumber, ratioOfSpecificHeats ) );
 }
 
 //! Compute post- to pre-shock total pressure ratio.
@@ -516,10 +498,8 @@ double computeShockTotalPressureRatio( const double& normalMachNumber,
                                        const double& specificGasConstant )
 {
     // Return total pressure ratio from entropy jump.
-    return exp( -1.0 * computeShockEntropyJump( normalMachNumber,
-                                                ratioOfSpecificHeats,
-                                                specificGasConstant )
-                / specificGasConstant );
+    return exp( -1.0 * computeShockEntropyJump( normalMachNumber, ratioOfSpecificHeats,
+                                                specificGasConstant ) / specificGasConstant );
 }
 
 //! Compute shock deflection angle.
@@ -531,15 +511,10 @@ double computeShockDeflectionAngle( const double& shockAngle,
     double tangentOfDeflectionAngle_;
 
     // Calculate tangent of deflection angle.
-    tangentOfDeflectionAngle_ = 2.0
-                                * ( raiseToIntegerPower( machNumber
-                                                         * sin( shockAngle ),
-                                                         2 ) - 1.0 )
-                                / ( tan( shockAngle )
-                                    * ( raiseToIntegerPower( machNumber, 2 )
-                                        * ( ratioOfSpecificHeats
-                                            + cos( 2.0 * shockAngle ) )
-                                        + 2.0 ) );
+    tangentOfDeflectionAngle_ = 2.0 * ( pow( machNumber * sin( shockAngle ), 2.0 ) - 1.0 )
+            / ( tan( shockAngle ) * ( pow( machNumber, 2.0 )
+                                      * ( ratioOfSpecificHeats
+                                          + cos( 2.0 * shockAngle ) ) + 2.0 ) );
 
     // Return deflection angle.
     return atan( tangentOfDeflectionAngle_ );

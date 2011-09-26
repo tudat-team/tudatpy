@@ -40,9 +40,6 @@
 #ifndef TRAJECTORYDESIGNMETHOD_H
 #define TRAJECTORYDESIGNMETHOD_H
 
-// Include statements.
-#include "linearAlgebra.h"
-
 //! Trajectory design method base class.
 /*!
  * Trajectory design method class.
@@ -55,13 +52,13 @@ public:
     /*!
      * Default constructor.
      */
-    TrajectoryDesignMethod( );
+    TrajectoryDesignMethod( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~TrajectoryDesignMethod( );
+    virtual ~TrajectoryDesignMethod( ) { }
 
     //! Execute trajectory design method.
     /*!

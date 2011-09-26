@@ -45,13 +45,16 @@
  */
 
 // Include statements.
+#include <cmath>
 #include "Astrodynamics/States/approximatePlanetPositions.h"
 #include "Astrodynamics/Bodies/CelestialBodies/planet.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-using mathematics::raiseToIntegerPower;
+using std::pow;
+using std::sin;
+using std::cos;
 
 //! Get state from ephemeris.
 CartesianElements* ApproximatePlanetPositions::
@@ -123,7 +126,7 @@ CartesianElements* ApproximatePlanetPositions::
             = meanLongitudeAtGivenJulianDate_
               - longitudeOfPerihelionAtGivenJulianDate_
               + ( approximatePlanetPositionsDataContainer_.additionalTermB_
-                  * raiseToIntegerPower( julianDate, 2 ) )
+                  * pow( julianDate, 2.0 ) )
               + ( approximatePlanetPositionsDataContainer_.additionalTermC_
                   * cos( approximatePlanetPositionsDataContainer_
                          .additionalTermF_ * julianDate ) )

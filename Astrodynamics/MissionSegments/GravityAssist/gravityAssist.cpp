@@ -70,77 +70,22 @@
  */
 
 // Include statements.
-#include "gravityAssist.h"
+#include <cmath>
+#include "Astrodynamics/MissionSegments/GravityAssist/gravityAssist.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/unitConversions.h"
 
 // Using directives.
+using std::pow;
+using std::asin;
+using std::sqrt;
+using std::sin;
+using std::fabs;
 using linear_algebra::determineAngleBetweenVectors;
-using mathematics::raiseToIntegerPower;
-using mathematics::computeAbsoluteValue;
 using unit_conversions::convertRadiansToDegrees;
 
 // Using declarations.
 using std::endl;
-
-//! Default constructor.
-GravityAssist::GravityAssist( ) :
-        deltaV_( -0.0 ),
-        bendingAngle_( -0.0 ),
-        incomingEccentricity_( -0.0 ),
-        outgoingEccentricity_( -0.0 ),
-        incomingSemiMajorAxis_( -0.0 ),
-        outgoingSemiMajorAxis_( -0.0 ),
-        bendingEffectDeltaV_( -0.0 ),
-        velocityEffectDeltaV_( -0.0 )
-{
-}
-
-//! Default destructor.
-GravityAssist::~GravityAssist( )
-{
-}
-
-//! Set central body of the swing-by.
-void GravityAssist::setCentralBody( CelestialBody *pointerToCentralBody )
-{
-    pointerToCentralBody_ = pointerToCentralBody;
-}
-
-// Its input will come from the ephemeris class.
-//! Set velocity of the swing-by central body.
-void GravityAssist::setCentralBodyVelocity( Vector3d centralBodyVelocity )
-{
-    centralBodyVelocity_ = centralBodyVelocity;
-}
-
-// TEMPORARY!! Needs to be part of CelestialBody object.
-//! Set smallest periapsis distance factor.
-void GravityAssist::setSmallestPeriapsisDistanceFactor(
-        const double &smallestPeriapsisDistanceFactor )
-{
-    smallestPeriapsisDistanceFactor_ = smallestPeriapsisDistanceFactor;
-}
-
- //! Set pointer to incoming velocity of the satellite.
-void GravityAssist::setPointerToIncomingVelocity(
-        CartesianVelocityElements *pointerToIncomingVelocity )
-{
-    pointerToIncomingVelocity_ = pointerToIncomingVelocity;
-}
-
-//! Set pointer to outgoing velocity of the satellite.
-void GravityAssist::setPointerToOutgoingVelocity(
-        CartesianVelocityElements *pointerToOutgoingVelocity )
-{
-    pointerToOutgoingVelocity_ = pointerToOutgoingVelocity;
-}
-
-//! Set pointer to Newton-Raphson method for gravity assist algorithm.
-void GravityAssist::setNewtonRaphsonMethod(
-        NewtonRaphson *pointerToNewtonRaphson )
-{
-    // Set pointer to object of NewtonRaphson class.
-    pointerToNewtonRaphson_ = pointerToNewtonRaphson;
-}
 
 //! Define root-finder function for the velocity-effect delta-V.
 double GravityAssist::velocityEffectFunction( double &incomingEccentricity_ )
@@ -155,17 +100,12 @@ double GravityAssist::velocityEffectFunction( double &incomingEccentricity_ )
 double GravityAssist::firstDerivativeVelocityEffectFunction(
         double &incomingEccentricity_ )
 {
-    double eccentricitySquareMinusOne_ =
-           raiseToIntegerPower( incomingEccentricity_, 2 ) - 1.0;
-    double semiMajorAxisRatio_ = incomingSemiMajorAxis_ /
-                                 outgoingSemiMajorAxis_ ;
-    double bParameter_ = 1.0 - semiMajorAxisRatio_ * ( 1.0 -
-            incomingEccentricity_ );
+    double eccentricitySquareMinusOne_ = pow( incomingEccentricity_, 2.0 ) - 1.0;
+    double semiMajorAxisRatio_ = incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ ;
+    double bParameter_ = 1.0 - semiMajorAxisRatio_ * ( 1.0 - incomingEccentricity_ );
 
-    return -1.0 / ( incomingEccentricity_ *
-           sqrt( eccentricitySquareMinusOne_ ) ) -
-           semiMajorAxisRatio_ / ( bParameter_ * sqrt(
-           raiseToIntegerPower( bParameter_ , 2 ) - 1.0 ) );
+    return -1.0 / ( incomingEccentricity_ * sqrt( eccentricitySquareMinusOne_ ) ) -
+            semiMajorAxisRatio_ / ( bParameter_ * sqrt( pow( bParameter_, 2.0 ) - 1.0 ) );
 }
 
 //! Compute the delta-V of the powered swing-by.
@@ -177,33 +117,24 @@ const double& GravityAssist::computeDeltaV( )
 
     // Define local velocity vectors.
     Vector3d incomingVelocity_;
-    incomingVelocity_.x( ) =
-            pointerToIncomingVelocity_->getCartesianElementXDot( );
-    incomingVelocity_.y( ) =
-            pointerToIncomingVelocity_->getCartesianElementYDot( );
-    incomingVelocity_.z( ) =
-            pointerToIncomingVelocity_->getCartesianElementZDot( );
+    incomingVelocity_.x( ) = pointerToIncomingVelocity_->getCartesianElementXDot( );
+    incomingVelocity_.y( ) = pointerToIncomingVelocity_->getCartesianElementYDot( );
+    incomingVelocity_.z( ) = pointerToIncomingVelocity_->getCartesianElementZDot( );
 
     Vector3d outgoingVelocity_;
-    outgoingVelocity_.x( ) =
-            pointerToOutgoingVelocity_->getCartesianElementXDot( );
-    outgoingVelocity_.y( ) =
-            pointerToOutgoingVelocity_->getCartesianElementYDot( );
-    outgoingVelocity_.z( ) =
-            pointerToOutgoingVelocity_->getCartesianElementZDot( );
+    outgoingVelocity_.x( ) = pointerToOutgoingVelocity_->getCartesianElementXDot( );
+    outgoingVelocity_.y( ) = pointerToOutgoingVelocity_->getCartesianElementYDot( );
+    outgoingVelocity_.z( ) = pointerToOutgoingVelocity_->getCartesianElementZDot( );
 
     // Compute incoming hyperbolic excess velocity.
-    incomingHyperbolicExcessVelocity_ = incomingVelocity_ -
-                                        centralBodyVelocity_;
+    incomingHyperbolicExcessVelocity_ = incomingVelocity_ - centralBodyVelocity_;
 
     // Compute outgoing hyperbolic excess velocity.
-    outgoingHyperbolicExcessVelocity_ = outgoingVelocity_ -
-                                        centralBodyVelocity_;
+    outgoingHyperbolicExcessVelocity_ = outgoingVelocity_ - centralBodyVelocity_;
 
     // Compute bending angle.
-    bendingAngle_ = determineAngleBetweenVectors(
-            incomingHyperbolicExcessVelocity_ ,
-            outgoingHyperbolicExcessVelocity_ );
+    bendingAngle_ = determineAngleBetweenVectors( incomingHyperbolicExcessVelocity_ ,
+                                                  outgoingHyperbolicExcessVelocity_ );
 
     // Compute smallest allowable periapsis distance.
     double smallestPeriapsisDistance;
@@ -214,11 +145,11 @@ const double& GravityAssist::computeDeltaV( )
     double maximumBendingAngle_;
     maximumBendingAngle_ =
             asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance *
-            incomingHyperbolicExcessVelocity_.squaredNorm( ) /
-            pointerToCentralBody_->getGravitationalParameter( ) ) ) ) +
+                                  incomingHyperbolicExcessVelocity_.squaredNorm( ) /
+                                  pointerToCentralBody_->getGravitationalParameter( ) ) ) ) +
             asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance *
-            outgoingHyperbolicExcessVelocity_.squaredNorm( ) /
-            pointerToCentralBody_->getGravitationalParameter( ) ) ) );
+                                  outgoingHyperbolicExcessVelocity_.squaredNorm( ) /
+                                  pointerToCentralBody_->getGravitationalParameter( ) ) ) );
 
     // Verify necessity to apply an extra swing-by delta-V due to the
     // incapability of the body's gravity to bend the trajectory a
@@ -235,15 +166,12 @@ const double& GravityAssist::computeDeltaV( )
     }
 
     // Compute hyperbolic excess speeds.
-    double incomingHyperbolicExcessSpeed_ =
-            incomingHyperbolicExcessVelocity_.norm( );
-    double outgoingHyperbolicExcessSpeed_ =
-            outgoingHyperbolicExcessVelocity_.norm( );
+    double incomingHyperbolicExcessSpeed_ = incomingHyperbolicExcessVelocity_.norm( );
+    double outgoingHyperbolicExcessSpeed_ = outgoingHyperbolicExcessVelocity_.norm( );
 
     // Compute necessary delta-V due to bending-effect.
-    bendingEffectDeltaV_ = 2.0 * std::min(
-            incomingHyperbolicExcessSpeed_ ,
-            outgoingHyperbolicExcessSpeed_ ) *
+    bendingEffectDeltaV_ = 2.0 * std::min( incomingHyperbolicExcessSpeed_,
+                                           outgoingHyperbolicExcessSpeed_ ) *
             sin( extraBendingAngle_ / 2.0 );
 
     // An excess speed difference of less than 10 cm/s is deemed to be
@@ -252,8 +180,8 @@ const double& GravityAssist::computeDeltaV( )
 
     // Verify necessity to apply a swing-by delta-V due to the effect of
     // a difference in excess speeds.
-    if ( computeAbsoluteValue( incomingHyperbolicExcessSpeed_ -
-         outgoingHyperbolicExcessSpeed_ ) <= speedTolerance_ )
+    if ( fabs( incomingHyperbolicExcessSpeed_ -
+               outgoingHyperbolicExcessSpeed_ ) <= speedTolerance_ )
     {
         // Set delta-V due to velocity effect equal to zero.
         velocityEffectDeltaV_ = 0.0;
@@ -261,11 +189,9 @@ const double& GravityAssist::computeDeltaV( )
     else
     {
         // Compute semi-major axis of hyperbolic legs.
-        incomingSemiMajorAxis_ =
-                -1.0 * pointerToCentralBody_->getGravitationalParameter( ) /
+        incomingSemiMajorAxis_ = -1.0 * pointerToCentralBody_->getGravitationalParameter( ) /
                 incomingHyperbolicExcessVelocity_.squaredNorm( );
-        outgoingSemiMajorAxis_ =
-                -1.0 * pointerToCentralBody_->getGravitationalParameter( ) /
+        outgoingSemiMajorAxis_ = -1.0 * pointerToCentralBody_->getGravitationalParameter( ) /
                 outgoingHyperbolicExcessVelocity_.squaredNorm( );
 
         // Newton-Raphson method implementation.
@@ -274,10 +200,9 @@ const double& GravityAssist::computeDeltaV( )
 
         // Set the functions needed for Newton-Raphson method.
         newtonRaphsonAdaptorForGravityAssist_.setPointerToFunction(
-                &GravityAssist::velocityEffectFunction );
-        newtonRaphsonAdaptorForGravityAssist_.
-                setPointerToFirstDerivativeFunction(
-                &GravityAssist::firstDerivativeVelocityEffectFunction );
+                    &GravityAssist::velocityEffectFunction );
+        newtonRaphsonAdaptorForGravityAssist_.setPointerToFirstDerivativeFunction(
+                    &GravityAssist::firstDerivativeVelocityEffectFunction );
 
         // Set initial guess of the variable computed in Newton-Rapshon method.
         pointerToNewtonRaphson_->setInitialGuessOfRoot( 1.01 );
@@ -287,39 +212,33 @@ const double& GravityAssist::computeDeltaV( )
         pointerToNewtonRaphson_->setMaximumNumberOfIterations( 100 );
 
         // Set tolerance for Newton-Raphson method.
-        pointerToNewtonRaphson_->setTolerance( 10.0 * mathematics::
-                                               MACHINE_PRECISION_DOUBLES );
+        pointerToNewtonRaphson_->setTolerance( 10.0 * mathematics::MACHINE_PRECISION_DOUBLES );
 
         // Set the adaptor for Newton-Raphson method.
-        pointerToNewtonRaphson_->setNewtonRaphsonAdaptor(
-                &newtonRaphsonAdaptorForGravityAssist_ );
+        pointerToNewtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist_ );
 
         // Execute Newton-Raphson method.
         pointerToNewtonRaphson_->execute( );
 
         // Define incoming hyperbolic leg eccentricity as the output value of
         // Newton-Raphson method.
-        incomingEccentricity_ =
-                pointerToNewtonRaphson_->getComputedRootOfFunction( );
+        incomingEccentricity_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );
 
         // Compute outgoing hyperbolic leg eccentricity.
         outgoingEccentricity_ = 1.0 - ( incomingSemiMajorAxis_ /
-                outgoingSemiMajorAxis_ ) * ( 1.0 - incomingEccentricity_ );
+                                        outgoingSemiMajorAxis_ ) * ( 1.0 - incomingEccentricity_ );
 
         // Compute incoming and outgoing velocities at periapsis.
         double incomingVelocityAtPeriapsis_;
         double outgoingVelocityAtPeriapsis_;
 
         incomingVelocityAtPeriapsis_ = incomingHyperbolicExcessSpeed_ *
-                sqrt( ( incomingEccentricity_ + 1.0 ) /
-                      ( incomingEccentricity_ - 1.0 ) );
+                sqrt( ( incomingEccentricity_ + 1.0 ) / ( incomingEccentricity_ - 1.0 ) );
         outgoingVelocityAtPeriapsis_ = outgoingHyperbolicExcessSpeed_ *
-                sqrt( ( outgoingEccentricity_ + 1.0 ) /
-                      ( outgoingEccentricity_ - 1.0 ) );
+                sqrt( ( outgoingEccentricity_ + 1.0 ) / ( outgoingEccentricity_ - 1.0 ) );
 
         // Compute necessary delta-V due to velocity-effect.
-        velocityEffectDeltaV_ =
-                computeAbsoluteValue( outgoingVelocityAtPeriapsis_ -
+        velocityEffectDeltaV_ = fabs( outgoingVelocityAtPeriapsis_ -
                                       incomingVelocityAtPeriapsis_ );
     }
 
@@ -333,12 +252,9 @@ const double& GravityAssist::computeDeltaV( )
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, GravityAssist& gravityAssist )
 {
-    stream << "The incoming velocity is set to: "
-           << gravityAssist.pointerToIncomingVelocity_
-           << "The outgoing velocity is set to: "
-           << gravityAssist.pointerToOutgoingVelocity_
-           << "The computed delta-V is: "
-           << gravityAssist.computeDeltaV( ) << endl;
+    stream << "The incoming velocity is set to: " << gravityAssist.pointerToIncomingVelocity_
+           << "The outgoing velocity is set to: " << gravityAssist.pointerToOutgoingVelocity_
+           << "The computed delta-V is: " << gravityAssist.computeDeltaV( ) << endl;
 
     // Return stream.
     return stream;

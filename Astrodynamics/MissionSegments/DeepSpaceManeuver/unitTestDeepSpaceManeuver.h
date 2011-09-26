@@ -43,12 +43,6 @@
 #ifndef UNITTESTDEEPSPACEMANEUVER_H
 #define UNITTESTDEEPSPACEMANEUVER_H
 
-// Include statements.
-#include <cmath>
-#include "basicMathematicsFunctions.h"
-#include "cartesianElements.h"
-#include "deepSpaceManeuver.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

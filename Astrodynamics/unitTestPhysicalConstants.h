@@ -41,12 +41,6 @@
  *      110111    J. Melman         Adapted to the offical Tudat standards.
  */
 
-// Include statements.
-#include <iostream>
-#include "physicalConstants.h"
-#include "unitConversions.h"
-#include "basicMathematicsFunctions.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.
