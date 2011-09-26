@@ -38,52 +38,15 @@
 */
 
 // Include statements.
-#include "aerodynamicForce.h"
-
-//! Default constructor.
-AerodynamicForce::AerodynamicForce( ): pointerToAerodynamicCoefficientInterface_( NULL ),
-                                       dynamicPressure_( -0.0 )
-{
-}
-
-//! Default destructor.
-AerodynamicForce::~AerodynamicForce( )
-{
-}
-
-//! Set aerodynamic coefficient interface.
-void AerodynamicForce::setAerodynamicCoefficientInterface(
-        AerodynamicCoefficientInterface* pointerToAerodynamicCoefficientInterface )
-{
-    pointerToAerodynamicCoefficientInterface_ = pointerToAerodynamicCoefficientInterface;
-}
-
-//! Get aerodynamic coefficient interface.
-AerodynamicCoefficientInterface*
-        AerodynamicForce::getAerodynamicCoefficientInterface( )
-{
-    return pointerToAerodynamicCoefficientInterface_;
-}
-
-//! Set dynamic pressure.
-void AerodynamicForce::setDynamicPressure( const double& dynamicPressure )
-{
-    dynamicPressure_ = dynamicPressure;
-}
-
-//! Get dynamic pressure.
-double& AerodynamicForce::getDynamicPressure( )
-{
-    return dynamicPressure_;
-}
+#include "Astrodynamics/ForceModels/aerodynamicForce.h"
 
 //! Compute aerodynamic force.
 void AerodynamicForce::computeForce( State* pointerToState )
 {
     // Calculate the aerodynamic forces F_x = 1/2 * C_x * rho * V^2 * S etc...
-    force_ = dynamicPressure_ *
-                        pointerToAerodynamicCoefficientInterface_->getReferenceArea( ) *
-                        pointerToAerodynamicCoefficientInterface_->getCurrentForceCoefficients( );
+    force_ = dynamicPressure_
+            * pointerToAerodynamicCoefficientInterface_->getReferenceArea( )
+            * pointerToAerodynamicCoefficientInterface_->getCurrentForceCoefficients( );
 }
 
 // End of file.

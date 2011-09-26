@@ -41,23 +41,6 @@
 #ifndef UNITTESTAERODYNAMICMOMENTANDAERODYNAMICFORCE_H
 #define UNITTESTAERODYNAMICMOMENTANDAERODYNAMICFORCE_H
 
-// Include statements.
-#include <cmath>
-#include "aerodynamicCoefficientInterface.h"
-#include "aerodynamicForce.h"
-#include "aerodynamicMoment.h"
-#include "basicMathematicsFunctions.h"
-#include "linearAlgebra.h"
-#include "unitConversions.h"
-
-// Using statements.
-using Eigen::Quaternion;
-using Eigen::AngleAxisd;
-using std::cerr;
-using std::endl;
-using std::fabs;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

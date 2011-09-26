@@ -56,7 +56,6 @@
 
 // Include statements.
 #include <cmath>
-#include "basicMathematicsFunctions.h"
 
 namespace aerodynamics
 {
@@ -65,8 +64,7 @@ namespace aerodynamics
 /*!
  * Maximum Prandtl-Meyer function value for ratio of specific heats = 1.4.
  */
-static const double maximumPrandtlMeyerFunctionValue = M_PI / 2.0
-                                                       * ( sqrt( 6 ) - 1.0 );
+static const double maximumPrandtlMeyerFunctionValue = M_PI / 2.0 * ( std::sqrt( 6 ) - 1.0 );
 
 //! Constant for use in inverse Prandtl-Meyer function calculation.
 /*!

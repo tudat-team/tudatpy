@@ -50,9 +50,7 @@
 #define AERODYNAMICCOEFFICIENTGENERATOR_H
 
 // Include statements.
-#include "linearAlgebra.h"
-#include "string.h"
-#include "aerodynamicCoefficientInterface.h"
+#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h"
 
 //! Base class for aerodynamic coefficient generator.
 /*!
@@ -76,290 +74,264 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor, initializes arrays to NULL ans sets number of
-     *  independent variables to 0.
+     * Default constructor, initializes arrays to NULL ans sets number of
+     * independent variables to 0.
      */
-    AerodynamicCoefficientGenerator( );
+    AerodynamicCoefficientGenerator( ) : vehicleCoefficients_( NULL ),
+        numberOfIndependentVariables_( 0 ), numberOfPointsPerIndependentVariables_( NULL ),
+        dataPointsOfIndependentVariables_( NULL ), machIndex_( -0 ), angleOfAttackIndex_( -0 ),
+        angleOfSideslipIndex_( -0 ), reynoldsNumberIndex_( -0 ), numberOfCases_( 0 ) { }
 
-    //! Default destructor.
+    //! Custom destructor.
     /*!
-     *  Default destructor, deletes arrays of data points and values of
-     *  independent variables and resets them to NULL.
+     * Custom destructor, deletes arrays of data points and values of
+     * independent variables and resets them to NULL.
      */
     virtual ~AerodynamicCoefficientGenerator( );
 
-    //! Sets the number of independent variables
+    //! Set the number of independent variables
     /*!
-     *  Sets the number of independent variables.
-     *  \param numberOfVariables Number of independent variables for analysis.
+     * Sets the number of independent variables.
+     * \param numberOfVariables Number of independent variables for analysis.
      */
     void setNumberOfIndependentVariables( const int& numberOfVariables );
 
-    //! Sets the number of points for Mach number.
+    //! Set the number of points for Mach number.
     /*!
-     *  Sets the number of different Mach numbers at which
-     *  coefficients are determined.
-     *  \param numberOfMachPoints Number of data points for Mach number.
+     * Sets the number of different Mach numbers at which coefficients are determined.
+     * \param numberOfMachPoints Number of data points for Mach number.
      */
     void setNumberOfMachPoints( const int& numberOfMachPoints );
 
     //! Sets the number of points for angle of attack.
     /*!
-     *  Sets the number of different angles of attack at which
-     *  coefficients are determined.
-     *  \param numberOfAngleOfAttackPoints Number of data points for angle of
-     *  attack.
+     * Sets the number of different angles of attack at which coefficients are determined.
+     * \param numberOfAngleOfAttackPoints Number of data points for angle of attack.
      */
-    void setNumberOfAngleOfAttackPoints ( const int&
-                                          numberOfAngleOfAttackPoints );
+    void setNumberOfAngleOfAttackPoints( const int& numberOfAngleOfAttackPoints );
 
-    //! Sets the number of points for angle of sideslip.
+    //! Set the number of points for angle of sideslip.
     /*!
-     *  Sets the number of different angles of sideslip at which
-     *  coefficients are determined.
-     *  \param numberOfAngleOfSideslipPoints Number of data points for angle of
-     *  sideslip.
+     * Sets the number of different angles of sideslip at which coefficients are determined.
+     * \param numberOfAngleOfSideslipPoints Number of data points for angle of sideslip.
      */
-    void setNumberOfAngleOfSideslipPoints ( const int&
-                                            numberOfAngleOfSideslipPoints );
+    void setNumberOfAngleOfSideslipPoints( const int& numberOfAngleOfSideslipPoints );
 
-    //! Sets the number of points for the Reynolds Number.
+    //! Set the number of points for the Reynolds Number.
     /*!
-     *  Sets the number of different Reynolds Number. at which
-     *  coefficients are determined.
-     *  \param numberOfReynoldsNumberPoints Number of data points for ReynoldsNumber.
+     * Sets the number of different Reynolds Number. at which coefficients are determined.
+     * \param numberOfReynoldsNumberPoints Number of data points for ReynoldsNumber.
      */
-    void setNumberOfReynoldsNumberPoints(
-            const int& numberOfReynoldsNumberPoints );
+    void setNumberOfReynoldsNumberPoints( const int& numberOfReynoldsNumberPoints );
 
-    //! Gets the number of independent variables
+    //! Get the number of independent variables
     /*!
-     *  Gets the number of independent variables.
-     *  \return numberOfVariables Number of independent variables for analysis.
+     * Returns the number of independent variables.
+     * \return numberOfVariables Number of independent variables for analysis.
      */
-    int getNumberOfIndependentVariables( );
+    int getNumberOfIndependentVariables( ) { return numberOfIndependentVariables_; }
 
-    //! Gets the number of points for an independent variable.
+    //! Get the number of points for an independent variable.
     /*!
-     *  Gets the number of different values of a given independent variable
-     *  at which coefficients are determined.
-     *  \param independentVariable Independent variable from which to retrieve
-     *  number of data points.
-     *  \return Number of data points for Mach number
+     * Returns the number of different values of a given independent variable
+     * at which coefficients are determined.
+     * \param independentVariable Independent variable from which to retrieve
+     * number of data points.
+     * \return Number of data points for Mach number
      */
-    int getNumberOfValuesOfIndependentVariable( const int&
-                                                independentVariable );
+    int getNumberOfValuesOfIndependentVariable( const int& independentVariable )
+    { return numberOfPointsPerIndependentVariables_ [ independentVariable ]; }
 
-    //! Gets the number of points for Mach number.
+    //! Get the number of points for Mach number.
     /*!
-     *  Gets the number of different Mach numbers at which
-     *  coefficients are determined.
-     *  \return Number of data points for Mach number
+     * Returns the number of different Mach numbers at which coefficients are determined.
+     * \return Number of data points for Mach number
      */
-    int getNumberOfMachPoints( );
+    int getNumberOfMachPoints( ) { return numberOfPointsPerIndependentVariables_ [ machIndex_ ]; }
 
-    //! Gets the number of points for angle of attack.
+    //! Get the number of points for angle of attack.
     /*!
-     *  Gets the number of different angles of attack at which
-     *  coefficients are determined.
-     *  \return Number of data points for angle of attack.
+     * Returns the number of different angles of attack at which coefficients are determined.
+     * \return Number of data points for angle of attack.
      */
-    int getNumberOfAngleOfAttackPoints ( );
+    int getNumberOfAngleOfAttackPoints ( )
+    { return numberOfPointsPerIndependentVariables_ [ angleOfAttackIndex_ ]; }
 
-    //! Gets the number of points for angle of sideslip.
+    //! Get the number of points for angle of sideslip.
     /*!
-     *  Gets the number of different angles of sideslip at which
-     *  coefficients are determined.
-     *  \return Number of data points for angle of sideslip.
+     * Returns the number of different angles of sideslip at which coefficients are determined.
+     * \return Number of data points for angle of sideslip.
      */
-    int getNumberOfAngleOfSideslipPoints ( );
+    int getNumberOfAngleOfSideslipPoints ( )
+    { return numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ]; }
 
-
-    //! Gets the number of points for Reynold number.
+    //! Get the number of points for Reynold number.
     /*!
-     *  Gets the number of different Reynolds numbers at which
-     *  coefficients are determined.
-     *  \return Number of data points for Reynold number.
+     * Returns the number of different Reynolds numbers at which coefficients are determined.
+     * \return Number of data points for Reynold number.
      */
-    int getNumberOfReynoldsNumberPoints( );
+    int getNumberOfReynoldsNumberPoints( )
+    { return numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ]; }
 
-    //! Sets a Mach number point.
+    //! Set a Mach number point.
     /*!
-     *  Sets a Mach number at which aerodynamic coefficients are to
-     *  be determined.
-     *  \param index Index in Mach number data point list at which to set the
-     *  value.
-     *  \param machPoint Value of Mach number to set.
+     * Sets a Mach number at which aerodynamic coefficients are to be determined.
+     * \param index Index in Mach number data point list at which to set the value.
+     * \param machPoint Value of Mach number to set.
      */
-    void setMachPoint( const int& index,
-                       const double& machPoint );
+    void setMachPoint( const int& index, const double& machPoint )
+    { dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = machPoint; }
 
-    //! Sets an angle of attack point.
+    //! Set an angle of attack point.
     /*!
-     *  Sets an angle of attack at which aerodynamic coefficients
-     *  are to be determined.
-     *  \param index Index in angle of attack number data point list at which
-     *  to set the value.
-     *  \param angleOfAttackPoint Value of angle of attack to set.
+     * Sets an angle of attack at which aerodynamic coefficients are to be determined.
+     * \param index Index in angle of attack number data point list at which to set the value.
+     * \param angleOfAttackPoint Value of angle of attack to set.
      */
-    void setAngleOfAttackPoint( const int& index,
-                                const double& angleOfAttackPoint );
+    void setAngleOfAttackPoint( const int& index, const double& angleOfAttackPoint )
+    { dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = angleOfAttackPoint; }
 
-    //! Sets an angle of sideslip point.
+    //! Set an angle of sideslip point.
     /*!
-     *  Sets an angle of sideslip at which aerodynamic coefficients
-     *  are to be determined.
-     *  \param index Index in angle of sideslip number data point list at which
-     *  to set the value.
-     *  \param angleOfSideslipPoint Value of angle of sideslip to set.
+     * Sets an angle of sideslip at which aerodynamic coefficients are to be determined.
+     * \param index Index in angle of sideslip number data point list at which to set the value.
+     * \param angleOfSideslipPoint Value of angle of sideslip to set.
      */
-    void setAngleOfSideslipPoint( const int& index,
-                                  const double& angleOfSideslipPoint );
+    void setAngleOfSideslipPoint( const int& index, const double& angleOfSideslipPoint )
+    { dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ] = angleOfSideslipPoint; }
 
-    //! Sets a Reynolds Number point.
+    //! Set a Reynolds Number point.
     /*!
-     *  Sets a ReyNolds Number at which aerodynamic coefficients
-     *  are to be determined.
-     *  \param index Index in Reynold number data point list at which
-     *  to set the value.
-     *  \param reynoldsNumberPoint Value of Reynold number to set.
+     * Sets a ReyNolds Number at which aerodynamic coefficients are to be determined.
+     * \param index Index in Reynold number data point list at which to set the value.
+     * \param reynoldsNumberPoint Value of Reynold number to set.
      */
-    void setReynoldsNumberPoint(
-            const int& index,
-            const double& reynoldsNumberPoint );
+    void setReynoldsNumberPoint( const int& index, const double& reynoldsNumberPoint )
+    { dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ] = reynoldsNumberPoint; }
 
-    //! Gets a Mach number point.
+    //! Get a Mach number point.
     /*!
-     *  Gets a Mach number at which aerodynamic coefficients are to
-     *  be determined.
-     *  \param index Index from Mach number data point list from which
-     *  to retrieve the value.
-     *  \return Value of Mach number at index.
+     * Returns a Mach number at which aerodynamic coefficients are to be determined.
+     * \param index Index from Mach number data point list from which to retrieve the value.
+     * \return Value of Mach number at index.
      */
-    double getMachPoint( const int& index );
+    double getMachPoint( const int& index )
+    { return dataPointsOfIndependentVariables_[ machIndex_ ][ index ]; }
 
-    //! Gets an angle of attack point.
+    //! Get an angle of attack point.
     /*!
-     *  Gets an angle of attack at which aerodynamic coefficients
-     *  are to be determined.
-     *  \param index Index from angle of attack data point list from which
-     *  to retrieve the value.
-     *  \return Value of angle of attack at index.
+     * Returns an angle of attack at which aerodynamic coefficients are to be determined.
+     * \param index Index from angle of attack data point list from which to retrieve the value.
+     * \return Value of angle of attack at index.
      */
-    double getAngleOfAttackPoint( const int& index );
+    double getAngleOfAttackPoint( const int& index )
+    { return dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ]; }
 
-    //! Gets an angle of sideslip point.
+    //! Get an angle of sideslip point.
     /*!
-     *  Gets an angle of sideslip at which aerodynamic coefficients
-     *  are to be determined.
-     *  \param index Index from angle of attack data point list from which
-     *  to retrieve the value.
-     *  \return Value of angle of attack at index.
+     * Returns an angle of sideslip at which aerodynamic coefficients are to be determined.
+     * \param index Index from angle of attack data point list from which to retrieve the value.
+     * \return Value of angle of attack at index.
      */
-    double getAngleOfSideslipPoint( const int& index );
+    double getAngleOfSideslipPoint( const int& index )
+    { return dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ]; }
 
-    //! Gets an Reynold Number point.
+    //! Get an Reynold Number point.
     /*!
-     *  Gets an Reynold Number at which aerodynamic coefficients
-     *  are to be determined.
-     *  \param index Index from Reynold Number data point list from which
-     *  to retrieve the value.
-     *  \return Value of Reynold Number at index.
+     * Returns an Reynold Number at which aerodynamic coefficients are to be determined.
+     * \param index Index from Reynold Number data point list from which to retrieve the value.
+     * \return Value of Reynold Number at index.
      */
-    double getReynoldsNumberPoint( const int& index );
+    double getReynoldsNumberPoint( const int& index )
+    { return dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ]; }
 
-    //! Gets a value of an independent variable.
+    //! Get a value of an independent variable.
     /*!
-     *  Gets a value of an independent variable at which aerodynamic
-     *  coefficients are to be determined.
-     *  \param independentVariable Independent variable index.
-     *  \param index Index from independent variable data point list from
-     *  which to retrieve the value.
-     *  \return Value of angle of attack at index.
+     * Returns a value of an independent variable at which aerodynamic
+     * coefficients are to be determined.
+     * \param independentVariable Independent variable index.
+     * \param index Index from independent variable data point list from which to retrieve the
+     *                  value.
+     * \return Value of angle of attack at index.
      */
-    double getIndependentVariablePoint( const int& independentVariable,
-                                        const int& index );
+    double getIndependentVariablePoint( const int& independentVariable, const int& index )
+    { return dataPointsOfIndependentVariables_[ independentVariable ][ index ]; }
 
-    //! Gets aerodynamic coefficients.
+    //! Get aerodynamic coefficients.
     /*!
-     *  Gets aerodynamic coefficients.
-     *  \param independentVariables Array of values of independent variable
-     *  indices in dataPointsOfIndependentVariables_.
+     * Returns aerodynamic coefficients.
+     * \param independentVariables Array of values of independent variable
+     * indices in dataPointsOfIndependentVariables_.
      */
     virtual VectorXd getAerodynamicCoefficients( int* independentVariables ) = 0;
 
     //! List of pointers to VectorXds containing coefficients.
     /*!
-     *  List of pointers to VectorXds containing coefficients.
+     * List of pointers to VectorXds containing coefficients.
      */
     VectorXd** vehicleCoefficients_;
 
 protected:
 
-    //! Converts the independent variable indices to list index in
-    //! vehicleCoefficients_.
+    //! Convert the independent variable indices to list index in vehicleCoefficients_.
     /*!
-     *  Converts the independent variable indices to list index in
-     *  vehicleCoefficients_.
-     *  \param independentVariableIndices Array of indices of independent
-     *  variables.
-     *  \return Resulting index in vehicleCoefficients_.
+     * Converts the independent variable indices to list index in vehicleCoefficients_.
+     * \param independentVariableIndices Array of indices of independent variables.
+     * \return Resulting index in vehicleCoefficients_.
      */
     int variableIndicesToListIndex( int* independentVariableIndices );
 
     //! Number of independent variables in analysis.
     /*!
-     *  Number of independent variables in analysis. To be set from derived
-     *  class, depending on analysis type.
+     * Number of independent variables in analysis. To be set from derived
+     * class, depending on analysis type.
      */
     int numberOfIndependentVariables_;
 
     //! Array of number of points per independent variable in analysis.
     /*!
-     *  Array of number of points per independent variable. Physical meaning
-     *  of indices are determined by the machIndex, angleOfAttackIndex, etc.
+     * Array of number of points per independent variable. Physical meaning
+     * of indices are determined by the machIndex, angleOfAttackIndex, etc.
      */
     int* numberOfPointsPerIndependentVariables_;
 
     //! Array of arrays of data points for independent variables.
     /*!
-     *  Array of arrays of data points for independent variables. Physical
-     *  meaning of indices are determined by the machIndex,
-     *  angleOfAttackIndex, etc.
+     * Array of arrays of data points for independent variables. Physical
+     * meaning of indices are determined by the machIndex, angleOfAttackIndex, etc.
      */
     double** dataPointsOfIndependentVariables_;
 
     //! Index in independent variables arrays representing Mach number.
     /*!
-     *  Index in independent variables arrays representing Mach number.
+     * Index in independent variables arrays representing Mach number.
      */
     int machIndex_;
 
     //! Index in independent variables arrays representing angle of attack.
     /*!
-     *  Index in independent variables arrays representing angle of attack.
+     * Index in independent variables arrays representing angle of attack.
      */
     int angleOfAttackIndex_;
 
     //! Index in independent variables arrays representing angle of sideslip.
     /*!
-     *  Index in independent variables arrays representing angle of sideslip.
+     * Index in independent variables arrays representing angle of sideslip.
      */
     int angleOfSideslipIndex_;
 
     //! Index in independent variables arrays representing Reynold Number.
     /*!
-     *  Index in independent variables arrays representing Reynold Number.
+     * Index in independent variables arrays representing Reynold Number.
      */
     int reynoldsNumberIndex_;
 
     //! Number of data points in aerodynamic database.
     /*!
-     *  Number of data points in aerodynamic database, should equal product of number of data
-     *  points per independent variables tha are used.
+     * Number of data points in aerodynamic database, should equal product of number of data
+     * points per independent variables tha are used.
      */
     int numberOfCases_;
-
 };
 
 #endif // AERODYNAMICCOEFFICIENTGENERATOR_H

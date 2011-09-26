@@ -60,8 +60,7 @@
 #define FORCEMODEL_H
 
 // Include statements.
-#include "linearAlgebra.h"
-#include "state.h"
+#include "States/state.h"
 
 //! Force model class.
 /*!
@@ -75,29 +74,29 @@ public:
     /*!
      * Default constructor.
      */
-    ForceModel( );
+    ForceModel( ) : force_( Vector3d::Zero( ) ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~ForceModel( );
+    virtual ~ForceModel( ) { }
 
     //! Set force.
     /*!
      * Sets the force.
      * \param force Force.
      */
-    void setForce( const Vector3d& force );
+    void setForce( const Vector3d& force ) { force_ = force; }
 
    //! Get force.
     /*!
      * Returns the force.
      * \return Force.
      */
-    Vector3d& getForce( );
+    Vector3d& getForce( ) { return force_; }
 
-    //! Compute the force.
+    //! Compute force.
     /*!
      * Compute the force.
      * \param pointerToState Pointer to an object of the State class.

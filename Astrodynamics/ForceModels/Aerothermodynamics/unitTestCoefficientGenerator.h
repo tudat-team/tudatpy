@@ -46,12 +46,6 @@
 #ifndef UNITTESTCOEFFICIENTGENERATOR_H
 #define UNITTESTCOEFFICIENTGENERATOR_H
 
-// Include statements.
-#include "sphereSegment.h"
-#include "capsule.h"
-#include "hypersonicLocalInclinationAnalysis.h"
-#include "writingOutputToFile.h"
-
 namespace unit_tests
 {
 

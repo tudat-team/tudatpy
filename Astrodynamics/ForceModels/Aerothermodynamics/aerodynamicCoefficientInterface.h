@@ -1,53 +1,53 @@
-/*! \file aerodynamicCoefficientInterface.cpp
- *    This file contains the definition of the AerodynamicCoefficientInterface
- *    base class included in Tudat.
+/*! \file aerodynamicCoefficientInterface.h
+ *   This file contains the definition of the AerodynamicCoefficientInterface
+ *   base class included in Tudat.
  *
- *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
- *    Version           : 4
- *    Check status      : Checked
+ *   Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
+ *   Version           : 4
+ *   Check status      : Checked
  *
- *    Author           :  F. M. Engelen
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : F.M.Engelen@student.tudelft.nl
+ *   Author           :  F. M. Engelen
+ *   Affiliation       : Delft University of Technology
+ *   E-mail address    : F.M.Engelen@student.tudelft.nl
  *
- *    Checker           : D. Dirkx
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : D.Dirkx@tudelft.nl
+ *   Checker           : D. Dirkx
+ *   Affiliation       : Delft University of Technology
+ *   E-mail address    : D.Dirkx@tudelft.nl
  *
- *    Date created      : 08 June 2011
- *    Last modified     : 10 August 2011
+ *   Date created      : 08 June 2011
+ *   Last modified     : 10 August 2011
  *
- *    References
+ *   References
  *
- *    Notes
+ *   Notes
  *
- *    The computeCoefficients() function is not yet implented in any derived classes and is
- *    therefor not pure virtual in this base class.
+ *   The computeCoefficients() function is not yet implented in any derived classes and is
+ *   therefor not pure virtual in this base class.
  *
- *    Copyright (c) 2010-2011 Delft University of Technology.
+ *   Copyright (c) 2010-2011 Delft University of Technology.
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
+ *   This software is protected by national and international copyright.
+ *   Any unauthorized use, reproduction or modification is unlawful and
+ *   will be prosecuted. Commercial and non-private application of the
+ *   software in any form is strictly prohibited unless otherwise granted
+ *   by the authors.
  *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
+ *   The code is provided without any warranty; without even the implied
+ *   warranty of merchantibility or fitness for a particular purpose.
  *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110608    F.M. Engelen      First creation of code.
- *      110714    D. Dirkx          Class name change and other minor changes during code check.
- *      110715    F.M. Engelen      Added the virtual compute function.
- *      110810    J. Leloux         Corrected doxygen documentation (function variable name).
+ *   Changelog
+ *     YYMMDD    Author            Comment
+ *     110608    F.M. Engelen      First creation of code.
+ *     110714    D. Dirkx          Class name change and other minor changes during code check.
+ *     110715    F.M. Engelen      Added the virtual compute function.
+ *     110810    J. Leloux         Corrected doxygen documentation (function variable name).
  */
 
 #ifndef AERODYNAMICCOEFFICIENTINTERFACE_H
 #define AERODYNAMICCOEFFICIENTINTERFACE_H
 
 //includestatements
-#include "linearAlgebra.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Base class to hold an Aerodynamic Coefficient Interface. This interface can, for instance,
 //! be a database of coefficients or an aerodynamic analysis code which generates coefficients.
@@ -57,129 +57,129 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     * Default constructor.
      */
-    AerodynamicCoefficientInterface( );
+    AerodynamicCoefficientInterface( ) : referenceLength_( 0.0 ), referenceArea_( 0.0 ),
+        lateralReferenceLength_( 0.0 ) { }
 
     //! Default destructor.
     /*!
-     *  Default destructor.
+     * Default destructor.
      */
-    virtual ~AerodynamicCoefficientInterface( );
+    virtual ~AerodynamicCoefficientInterface( ){ }
 
-    //! Sets reference area.
+    //! Set reference area.
     /*!
-     *  Sets reference area used to non-dimensionalize aerodynamic
-     *  forces and moments.
-     *  \param referenceArea Aerodynamic reference area.
+     * Sets reference area used to non-dimensionalize aerodynamic forces and moments.
+     * \param referenceArea Aerodynamic reference area.
      */
-    void setReferenceArea( const double& referenceArea );
+    void setReferenceArea( const double& referenceArea ) { referenceArea_ = referenceArea; }
 
-    //! Gets reference area.
+    //! Get reference area.
     /*!
-     *  Gets reference area used to non-dimensionalize aerodynamic
-     *  forces and moments.
-     *  \return Aerodynamic reference area.
+     * Returns reference area used to non-dimensionalize aerodynamic forces and moments.
+     * \return Aerodynamic reference area.
      */
-    double getReferenceArea( );
+    double getReferenceArea( ) { return referenceArea_; }
 
-    //! Sets reference length.
+    //! Set reference length.
     /*!
-     *  Sets reference length used to non-dimensionalize aerodynamic
-     *  moments.
-     *  \param referenceLength Aerodynamic reference length.
+     * Sets reference length used to non-dimensionalize aerodynamic moments.
+     * \param referenceLength Aerodynamic reference length.
      */
-    void setReferenceLength( const double& referenceLength );
+    void setReferenceLength( const double& referenceLength )
+    { referenceLength_ = referenceLength; }
 
-    //! Gets reference length.
+    //! Get reference length.
     /*!
-     *  Gets reference length used to non-dimensionalize aerodynamic
-     *  moments.
-     *  \return Aerodynamic reference length.
+     * Returns reference length used to non-dimensionalize aerodynamic moments.
+     * \return Aerodynamic reference length.
      */
-    double getReferenceLength( );
+    double getReferenceLength( ) { return referenceLength_; }
 
-    //! Sets lateral reference length.
+    //! Set lateral reference length.
     /*!
-     *  Sets lateral reference length used to non-dimensionalize aerodynamic
-     *  moments.
-     *  \param lateralReferenceLength Aerodynamic reference length.
+     * Sets lateral reference length used to non-dimensionalize aerodynamic moments.
+     * \param lateralReferenceLength Aerodynamic reference length.
      */
-    void setLateralReferenceLength( const double& lateralReferenceLength );
+    void setLateralReferenceLength( const double& lateralReferenceLength )
+    { lateralReferenceLength_ = lateralReferenceLength; }
 
-    //! Gets lateral reference length.
+    //! Get lateral reference length.
     /*!
-     *  Gets lateral reference length used to non-dimensionalize aerodynamic
-     *  moments.
-     *  \return Aerodynamic  lateral reference length.
+     * Returns lateral reference length used to non-dimensionalize aerodynamic moments.
+     * \return Aerodynamic lateral reference length.
      */
-    double getLateralReferenceLength( );
+    double getLateralReferenceLength( ) { return lateralReferenceLength_; }
 
-    //! Sets moment reference point.
+    //! Set moment reference point.
     /*!
-     *  Sets the point w.r.t. which the arm of the aerodynamic
-     *  moment on a vehicle panel is determined.
-     *  \param referencePoint Aerodynamic reference point.
+     * Sets the point w.r.t. which the arm of the aerodynamic moment on a vehicle panel is
+     * determined.
+     * \param referencePoint Aerodynamic reference point.
      */
-    void setMomentReferencePoint( const Vector3d& referencePoint );
+    void setMomentReferencePoint( const Vector3d& momentReferencePoint )
+    { momentReferencePoint_ = momentReferencePoint; }
 
-    //! Gets moment reference point.
+    //! Get moment reference point.
     /*!
-     *  Gets the point w.r.t. which the arm of the aerodynamic
-     *  moment on a vehicle panel is determined.
-     *  \return Aerodynamic reference point.
+     * Returns the point w.r.t. which the arm of the aerodynamic moment on a vehicle panel is
+     * determined.
+     * \return Aerodynamic reference point.
      */
-    VectorXd getMomentReferencePoint( );
+    VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
 
-    //! Retreives the current force coefficients.
+    //! Get the current force coefficients.
     /*!
-     *  Retreives the force coefficients that have been set as the 'current' force coefficients,
-     *  i.e. at the current flight condition.
+     * Returns the force coefficients that have been set as the 'current' force coefficients,
+     * i.e. at the current flight condition.
      * \return current force coefficients.
      */
-    Vector3d getCurrentForceCoefficients( );
+    Vector3d getCurrentForceCoefficients( ) { return currentForceCoefficients_; }
 
     //! Get the moment coefficients
     /*!
-     *  Retreives the moment coefficients that have been set as the 'current' moment coefficients,
-     *  i.e. at the current flight condition.
+     * Return the moment coefficients that have been set as the 'current' moment coefficients,
+     * i.e. at the current flight condition.
      * \return current moment coefficients.
      */
-    Vector3d getCurrentMomentCoefficients( );
+    Vector3d getCurrentMomentCoefficients( ) { return currentMomentCoefficients_; }
 
-    //! Function to set the force Coefficients.
+    //! Set the force coefficients.
     /*!
-     *  Sets the current force coefficients, i.e. at the current flight condition.
+     * Sets the current force coefficients, i.e. at the current flight condition.
      * \param currentForceCoefficients the current force coefficients.
      */
-    void setCurrentForceCoefficients( const Vector3d& currentForceCoefficients );
+    void setCurrentForceCoefficients( const Vector3d& currentForceCoefficients )
+    { currentForceCoefficients_ = currentForceCoefficients; }
 
-    //! Function to set the moment Coefficients.
+    //! Set the moment coefficients.
     /*!
-     *  Sets the current moment coefficients, i.e. at the current flight condition.
+     * Sets the current moment coefficients, i.e. at the current flight condition.
      * \param currentMomentCoefficients the current force coefficients.
      */
-    void setCurrentMomentCoefficients( const Vector3d& currentMomentCoefficients );
+    void setCurrentMomentCoefficients( const Vector3d& currentMomentCoefficients )
+    { currentMomentCoefficients_ = currentMomentCoefficients; }
 
-    //! Function to compute the aerodynamic coefficients at current flight condition.
+    //! Compute the aerodynamic coefficients at current flight condition.
     /*!
-     *  This function calculates the current force and moment coefficients and is to be
-     *  implemented in derived classes. Such a calculation would be performed by, for instance,
-     *  including a pointer to a Vehicle object, from which the current flight condition can
-     *  be retrieved. The function here is not made pure virtual pending the inclusion of
-     *  such functionality in deived classes.
+     * Computes the current force and moment coefficients and is to be
+     * implemented in derived classes. Such a calculation would be performed by, for instance,
+     * including a pointer to a Vehicle object, from which the current flight condition can
+     * be retrieved. The function here is not made pure virtual pending the inclusion of
+     * such functionality in derived classes.
      */
-    virtual void computeCurrentCoefficients( ){}
+    virtual void computeCurrentCoefficients( ) { }
 
 protected:
 
-    //! The current force coefficients
+    //! The current force coefficients.
     /*!
      * The force coefficients at the current flight condition.
      */
     Vector3d currentForceCoefficients_;
 
-    //! The current moment coefficients
+    //! The current moment coefficients.
     /*!
      * The moment coefficients at the current flight condition.
      */
@@ -187,31 +187,27 @@ protected:
 
     //! Aerodynamic reference length.
     /*!
-     *  Reference length with which aerodynamic moments are non-
-     *  dimensionalized.
+     * Reference length with which aerodynamic moments are non-dimensionalized.
      */
-    double referenceLength_ ;
+    double referenceLength_;
 
     //! Aerodynamic reference area.
     /*!
-     *  Reference area with which aerodynamic forces and moments are non-
-     *  dimensionalized.
+     * Reference area with which aerodynamic forces and moments are non-dimensionalized.
      */
-    double referenceArea_ ;
+    double referenceArea_;
 
-    //! Lateral Aerodynamic reference length
+    //! Lateral aerodynamic reference length.
     /*!
-     *  Lateral reference length with which aerodynamic moments are non-
-     *  dimensionalized.
+     * Lateral reference length with which aerodynamic moments are non-dimensionalized.
      */
     double lateralReferenceLength_;
 
     //! Aerodynamic moment reference point.
     /*!
-     *  Point w.r.t. which the arm of the moment on a vehicle panel is
-     *  determined.
+     * Point w.r.t. which the arm of the moment on a vehicle panel is determined.
      */
-    Vector3d momentReferencePoint_ ;
+    Vector3d momentReferencePoint_;
 
 private:
 

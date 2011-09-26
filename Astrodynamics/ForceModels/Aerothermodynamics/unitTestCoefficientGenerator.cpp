@@ -42,13 +42,15 @@
  */
 
 // Include statements.
-#include "unitTestCoefficientGenerator.h"
-#include "writingOutputToFile.h"
+#include "Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.h"
+#include "Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
+#include "Mathematics/GeometricShapes/capsule.h"
+#include "Output/writingOutputToFile.h"
 
 //! Test coefficient Generator.
 bool unit_tests::testCoefficientGenerator( )
 {
-
     // Declare test variable.
     bool isCoefficientGeneratorBad_ = 0;
 
@@ -100,15 +102,15 @@ bool unit_tests::testCoefficientGenerator( )
     double forceCoefficient_;
 
     // Iterate over all angles of attack to verify sphere coefficients.
-    for( int i = 0; i < analysis.getNumberOfMachPoints(); i++ )
+    for ( int i = 0; i < analysis.getNumberOfMachPoints(); i++ )
     {
         independentVariables[ 0 ] = i;
 
-        for( int j = 0; j < analysis.getNumberOfAngleOfAttackPoints( ); j++ )
+        for ( int j = 0; j < analysis.getNumberOfAngleOfAttackPoints( ); j++ )
         {
             independentVariables[ 1 ] = j;
 
-            for( int k = 0; k < analysis.getNumberOfAngleOfSideslipPoints( ); k++ )
+            for ( int k = 0; k < analysis.getNumberOfAngleOfSideslipPoints( ); k++ )
             {
                 independentVariables[ 2 ] = k;
 
@@ -124,7 +126,7 @@ bool unit_tests::testCoefficientGenerator( )
 
                 // Check if 'total' aerodynamic coefficient is always
                 // sufficiently close to zero.
-                if( fabs( forceCoefficient_ - 1.0 ) > 1.0E-2 )
+                if ( fabs( forceCoefficient_ - 1.0 ) > 1.0E-2 )
                 {
                     std::cout<<"Total magnitude of aerodynamic force wrong in "
                             <<"sphere."<<std::endl;
@@ -134,19 +136,19 @@ bool unit_tests::testCoefficientGenerator( )
                 // Check if moment coefficients are approximately zero. Deviations
                 // for pitch moment are greater due to greater range of angles of
                 // attack than sideslip.
-                if( fabs( aerodynamicCoefficients_[ 3 ] ) > 1.0E-4 )
+                if ( fabs( aerodynamicCoefficients_[ 3 ] ) > 1.0E-4 )
                 {
                     std::cerr<<" Error, sphere roll moment coefficient not zero. "
                             <<std::endl;
                     isCoefficientGeneratorBad_ = true;
                 }
-                if( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0E-2 )
+                if ( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0E-2 )
                 {
                     std::cerr<<" Error, sphere pitch moment coefficient not zero. "
                             <<std::endl;
                     isCoefficientGeneratorBad_ = true;
                 }
-                if( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0E-2 )
+                if ( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0E-2 )
                 {
                     std::cerr<<" Error, sphere yaw moment coefficient not zero. "
                             <<std::endl;
@@ -205,7 +207,7 @@ bool unit_tests::testCoefficientGenerator( )
     // Set angle of attack analysis points.
     analysis2.setNumberOfAngleOfAttackPoints( 7 );
     int i;
-    for( i = 0; i < 7; i++ )
+    for ( i = 0; i < 7; i++ )
     {
         analysis2.setAngleOfAttackPoint( i,
                                          static_cast< double >( i - 6 )
@@ -222,32 +224,32 @@ bool unit_tests::testCoefficientGenerator( )
     aerodynamicCoefficients_ = analysis2.getAerodynamicCoefficients( independentVariables );
 
     // Compare values to database values.
-    if( fabs( aerodynamicCoefficients_[ 0 ] - 1.51 ) > 0.1 )
+    if ( fabs( aerodynamicCoefficients_[ 0 ] - 1.51 ) > 0.1 )
     {
         std::cerr<<" Error in Apollo drag coefficient "<<std::endl;
         isCoefficientGeneratorBad_ = true;
     }    
-    if( aerodynamicCoefficients_[ 1 ] > 1.0E-15 )
+    if ( aerodynamicCoefficients_[ 1 ] > 1.0E-15 )
     {
         std::cerr<<" Error in Apollo side force coefficient "<<std::endl;
         isCoefficientGeneratorBad_ = true;
     }
-    if( aerodynamicCoefficients_[ 2 ] > 1.0E-15 )
+    if ( aerodynamicCoefficients_[ 2 ] > 1.0E-15 )
     {
         std::cerr<<" Error in Apollo normal force coefficient "<<std::endl;
         isCoefficientGeneratorBad_ = true;
     }
-    if( aerodynamicCoefficients_[ 3 ] > 1.0E-15 )
+    if ( aerodynamicCoefficients_[ 3 ] > 1.0E-15 )
     {
         std::cerr<<" Error in Apollo roll moment coefficient "<<std::endl;
         isCoefficientGeneratorBad_ = true;
     }
-    if( fabs( aerodynamicCoefficients_[ 4 ] +0.052 ) > 0.01 )
+    if ( fabs( aerodynamicCoefficients_[ 4 ] +0.052 ) > 0.01 )
     {
         std::cerr<<" Error in Apollo pitch moment coefficient "<<std::endl;
         isCoefficientGeneratorBad_ = true;
     }
-    if( aerodynamicCoefficients_[ 5 ] > 1.0E-15 )
+    if ( aerodynamicCoefficients_[ 5 ] > 1.0E-15 )
     {
         std::cerr<<" Error in Apollo yaw moment coefficient "<<std::endl;
         isCoefficientGeneratorBad_ = true;
