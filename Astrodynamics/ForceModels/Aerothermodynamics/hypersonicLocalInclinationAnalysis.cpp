@@ -46,7 +46,12 @@
  */
 
 // Include statements.
-#include "hypersonicLocalInclinationAnalysis.h"
+#include <string>
+#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h"
+#include "Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.h"
+#include "Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h"
+#include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
+#include "Mathematics/GeometricShapes/surfaceGeometry.h"
 
 // Using declarations.
 using std::string;
@@ -55,7 +60,6 @@ using std::endl;
 //! Default constructor.
 HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis( )
 {
-
     // Set number of independent variables.
     setNumberOfIndependentVariables( 3 );
 
@@ -84,8 +88,6 @@ HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis( )
 //! Default destructor.
 HypersonicLocalInclinationAnalysis::~HypersonicLocalInclinationAnalysis( )
 {
-    int i, j;
-
     // Deallocate selected methods.
     delete [ ] selectedMethods_[ 0 ];
     delete [ ] selectedMethods_[ 1 ];
@@ -94,9 +96,9 @@ HypersonicLocalInclinationAnalysis::~HypersonicLocalInclinationAnalysis( )
     delete [ ] selectedMethods_;
 
     // Delete pressure coefficients and inclinations
-    for( i = 0 ; i < numberOfVehicleParts_; i++)
+    for ( int i = 0 ; i < numberOfVehicleParts_; i++)
     {
-        for( j = 0 ; j < vehicleParts_[ i ].getNumberOfLines( ) - 1; j++)
+        for ( int j = 0 ; j < vehicleParts_[ i ].getNumberOfLines( ) - 1; j++)
         {
             delete [ ] inclination_[ i ][ j ];
             delete [ ] pressureCoefficient_[ i ][ j ];
@@ -110,14 +112,9 @@ HypersonicLocalInclinationAnalysis::~HypersonicLocalInclinationAnalysis( )
 }
 
 //! Constructor to set geometry and reference quantities.
-void HypersonicLocalInclinationAnalysis::setVehicle(
-        Vehicle& vehicle,
-        int* numberOfLines ,
-        int* numberOfPoints,
-        bool* invertOrders)
+void HypersonicLocalInclinationAnalysis::setVehicle( Vehicle& vehicle, int* numberOfLines,
+                                                     int* numberOfPoints, bool* invertOrders )
 {
-    int i;
-
     // Retrieve external surface geometry from vehicle.
     VehicleExternalModel* externalModel_ = vehicle.getPointerToExternalModel( );
     GeometricShape* surface_ = externalModel_->getVehicleExternalGeometry( );
@@ -138,6 +135,7 @@ void HypersonicLocalInclinationAnalysis::setVehicle(
 
 
     }
+
     // Set geometry if it is a composite surface.
     else if ( dynamic_cast< CompositeSurfaceGeometry* >( surface_ ) != NULL )
     {
@@ -151,12 +149,11 @@ void HypersonicLocalInclinationAnalysis::setVehicle(
         vehicleParts_ = new LawgsPartGeometry[ numberOfVehicleParts_];
 
         // Iterate through all parts and set them in vehicleParts_ list.
-        for( i = 0; i<numberOfVehicleParts_ ; i++)
+        for ( int i = 0; i<numberOfVehicleParts_ ; i++)
         {
             // If part is not already a LaWGS part, convert it.
             if ( dynamic_cast< LawgsPartGeometry* >(
-                compositeSurfaceGeometry_->getSingleSurfaceGeometry(i) ) ==
-                 NULL )
+                compositeSurfaceGeometry_->getSingleSurfaceGeometry(i) ) == NULL )
             {
                 vehicleParts_[ i ].setReversalOperator( invertOrders[ i ] );
 
@@ -165,8 +162,8 @@ void HypersonicLocalInclinationAnalysis::setVehicle(
                         compositeSurfaceGeometry_->getSingleSurfaceGeometry(i),
                         numberOfLines[ i ],
                         numberOfPoints[ i ] );
-
             }
+
             // Else, set geometry directly.
             else
             {
@@ -174,48 +171,44 @@ void HypersonicLocalInclinationAnalysis::setVehicle(
                    compositeSurfaceGeometry_->getSingleSurfaceGeometry( i ) );
             }
         }
-
     }
+
     // Allocate memory for arrays of pressure coefficients, inclinations
     // and methods.
     allocateArrays( );
 }
 
-//! Allocate pressure coefficient, inclination, and method
-//! arrays.
+//! Allocate pressure coefficient, inclination, and method arrays.
 void HypersonicLocalInclinationAnalysis::allocateArrays( )
 {
-    int i,j;
-
     // Allocate memory for panel inclinations and pressureCoefficient_.
     inclination_ = new double**[ numberOfVehicleParts_ ];
     pressureCoefficient_ = new double**[ numberOfVehicleParts_ ];
-    for( i = 0 ; i < numberOfVehicleParts_ ; i++ )
+    for ( int i = 0 ; i < numberOfVehicleParts_; i++ )
     {
         inclination_[ i ] = new double*[ vehicleParts_[ i ].getNumberOfLines( ) ];
         pressureCoefficient_[ i ] =
                 new double*[ vehicleParts_[ i ].getNumberOfLines( ) ];
-        for ( j = 0 ; j<vehicleParts_[ i ].getNumberOfLines( ) ; j++ )
+        for ( int j = 0 ; j<vehicleParts_[ i ].getNumberOfLines( ) ; j++ )
         {
-            inclination_[ i ][ j ] =
-                    new double[ vehicleParts_[ i ].getNumberOfPoints( ) ];
-            pressureCoefficient_[ i ][ j ] =
-                    new double[ vehicleParts_[ i ].getNumberOfPoints( ) ];
+            inclination_[ i ][ j ] = new double[ vehicleParts_[ i ].getNumberOfPoints( ) ];
+            pressureCoefficient_[ i ][ j ] = new double[ vehicleParts_[ i ].getNumberOfPoints( ) ];
         }
     }
 
     // If methods have not yet been set by user, allocate memory and set
     // defaults.
-    if( selectedMethods_ == NULL )
+    if ( selectedMethods_ == NULL )
     {
         // Set memory for expansion and compression methods.
         selectedMethods_ = new int* [ 4 ];
-        for( i = 0; i < 4 ; i++  )
+        for ( int i = 0; i < 4 ; i++  )
         {
             // Set memory for Low and High hypersonic analysis methods for
             // each vehicle part.
             selectedMethods_[ i ] = new int[ 2 * numberOfVehicleParts_ ];
-            for( j = 0; j < numberOfVehicleParts_ ; j++ )
+
+            for ( int j = 0; j < numberOfVehicleParts_ ; j++ )
             {
                 // Sets all local inclination methods to a default of ( Modified
                 // Newtonian for compression and Newtonian for expansion ).
@@ -227,11 +220,11 @@ void HypersonicLocalInclinationAnalysis::allocateArrays( )
 
 //! Get aerodynamic coefficients.
 VectorXd HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
-        int* independentVariables )
+    int* independentVariables )
 {
     // If coefficients have not been allocated (and independent variables
     // have not been initialized), do so.
-    if( vehicleCoefficients_ == NULL )
+    if ( vehicleCoefficients_ == NULL )
     {
         allocateVehicleCoefficients( );
     }
@@ -241,50 +234,37 @@ VectorXd HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
 
     // If coefficients for data point have not yet been calculated,
     // calculate them.
-    if( vehicleCoefficients_[ coefficientsIndex ] == NULL )
+    if ( vehicleCoefficients_[ coefficientsIndex ] == NULL )
     {
         determineVehicleCoefficients( independentVariables );
     }
 
     // Return requested coefficients.
     return *( vehicleCoefficients_[ coefficientsIndex ] );
-
 }
 
-
-//! Sets local inclination methods for all parts (expansion
-//! and compression).
+//! Set local inclination methods for all parts (expansion and compression).
 void HypersonicLocalInclinationAnalysis::setSelectedMethods(
         int** selectedMethods )
 {
-    int i,j;
     //For loops loop through input methods and set the analysis methods.
-    for( i = 0; i < 4; i++ )
+    for ( int i = 0; i < 4; i++ )
     {
-        for( j = 0; j < numberOfVehicleParts_; j++ )
+        for ( int j = 0; j < numberOfVehicleParts_; j++ )
         {
             selectedMethods_[ i ][ j ] = selectedMethods[ i ][ j ];
         }
     }
 }
 
-//! Sets an analysis method on a single vehicle part.
-void HypersonicLocalInclinationAnalysis::setSelectedMethod( const int& method,
-                                                            const int& type,
-                                                            const int& part)
-{
-    selectedMethods_[ type ][ part ] = method;
-}
-
-//! Generate aerodynamic database
+//! Generate aerodynamic database.
 void HypersonicLocalInclinationAnalysis::generateDatabase( )
 {
     // If coefficients have not been allocated, do so.
-    if( vehicleCoefficients_ == NULL )
+    if ( vehicleCoefficients_ == NULL )
     {
         allocateVehicleCoefficients( );
     }
-
 
     int i, j, k;
     int l = 0;
@@ -294,20 +274,20 @@ void HypersonicLocalInclinationAnalysis::generateDatabase( )
     int* independentVariableIndices = new int[ numberOfIndependentVariables_ ];
 
     // Iterate over all combinations of independent variables.
-    for(i = 0 ; i < numberOfPointsPerIndependentVariables_[ machIndex_ ] ; i++ )
+    for ( i = 0 ; i < numberOfPointsPerIndependentVariables_[ machIndex_ ] ; i++ )
     {
         independentVariableIndices[ machIndex_ ] = i;
-        for( j = 0 ; j < numberOfPointsPerIndependentVariables_[
+        for ( j = 0 ; j < numberOfPointsPerIndependentVariables_[
                 angleOfAttackIndex_ ] ; j++ )
         {
             independentVariableIndices[ angleOfAttackIndex_ ] = j;
-            for( k = 0 ; k < numberOfPointsPerIndependentVariables_[
+            for ( k = 0 ; k < numberOfPointsPerIndependentVariables_[
                     angleOfSideslipIndex_ ] ; k++ )
             {
                 independentVariableIndices[ angleOfSideslipIndex_ ] = k;
 
                 // If coefficient has not yet been set, calculate and set it.
-                if( vehicleCoefficients_[ l ] == NULL )
+                if ( vehicleCoefficients_[ l ] == NULL )
                 {
                     determineVehicleCoefficients( independentVariableIndices );
                 }
@@ -320,24 +300,23 @@ void HypersonicLocalInclinationAnalysis::generateDatabase( )
     delete [ ] independentVariableIndices;
 }
 
-//! Allocates aerodynamic coefficient array and NULL independent
-//! variables.
+//! Allocate aerodynamic coefficient array and NULL independent variables.
 void HypersonicLocalInclinationAnalysis::allocateVehicleCoefficients( )
 {
     // If angle of attack points have not yet been set, use defaults.
-    if( dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ] == NULL )
+    if ( dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ] == NULL )
     {
         setDefaultAngleOfAttackPoints( );
     }
 
     // If angle of sideslip points have not yet been set, use defaults.
-    if( dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ] == NULL)
+    if ( dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ] == NULL)
     {
         setDefaultAngleOfSideslipPoints( );
     }
 
     // If Mach number points have not yet been set, use defaults.
-    if( dataPointsOfIndependentVariables_[ machIndex_ ] == NULL)
+    if ( dataPointsOfIndependentVariables_[ machIndex_ ] == NULL)
     {
         setDefaultMachPoints( );
     }
@@ -350,15 +329,13 @@ void HypersonicLocalInclinationAnalysis::allocateVehicleCoefficients( )
     // Allocate memory for pointers to coefficients and initialize to NULL.
     vehicleCoefficients_ = new VectorXd*[ numberOfCases_ ];
     int i;
-    for( i = 0; i < numberOfCases_ ; i++ )
+    for ( i = 0; i < numberOfCases_ ; i++ )
     {
         vehicleCoefficients_[ i ] = NULL;
     }
 }
 
-
-//! Generates aerodynamic coefficients at a single set of independent
-//! variables.
+//! Generate aerodynamic coefficients at a single set of independent variables.
 void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
         int* independentVariableIndices )
 {
@@ -392,7 +369,7 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
     vehicleCoefficients_[ coefficientsIndex ] = new VectorXd( coefficients );
 }
 
-//! Determines aerodynamic coefficients of a single vehicle part.
+//! Determine aerodynamic coefficients of a single vehicle part.
 VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
         const int& partNumber,
         int* independentVariableIndices )
@@ -424,8 +401,7 @@ VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
     return partCoefficients;
 }
 
-
-//! Determines the pressure coefficients on a single vehicle part
+//! Determine the pressure coefficients on a single vehicle part.
 void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
         const int& partNumber,
         int* independentVariableIndices )
@@ -442,29 +418,24 @@ void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
     updateExpansionPressures( machNumber, partNumber );
 }
 
-//! Determines force coefficients from pressure coefficients
-VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients(
-        const int& partNumber )
+//! Determine force coefficients from pressure coefficients.
+VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( const int& partNumber )
 {
     int i, j;
 
     // Declare force coefficient vector and intialize to zeros.
     Vector3d forceCoefficients;
-    for( i = 0 ; i < 3 ; i++)
+    for ( i = 0 ; i < 3 ; i++)
     {
         forceCoefficients( i ) = 0.0;
     }
     
     // Loop over all panels and add pressures, scaled by panel area, to force 
     // coefficients.
-    for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
+    for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
     {
-        for( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
+        for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
         {
-            if( i == 0 && j == 0 )
-            {
-               //std::cout<<partNumber<<" "<<pressureCoefficient_[ partNumber ][ i ][ j ]<<"wtf"<<std::endl;
-            }
             forceCoefficients = forceCoefficients -
                      pressureCoefficient_[ partNumber ][ i ][ j ] *
                      vehicleParts_[ partNumber ].getPanelArea( i, j ) *
@@ -478,17 +449,14 @@ VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients(
     return forceCoefficients;
 }
 
-
-
-//! Determines moment coefficients from pressure coefficients
-VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
-        const int& partNumber )
+//! Determine moment coefficients from pressure coefficients.
+VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients( const int& partNumber )
 {
     int i, j;
 
     // Declare moment coefficient vector and intialize to zeros.
-    Vector3d momentCoefficients ;
-    for( i = 0 ; i < 3 ; i++ )
+    Vector3d momentCoefficients;
+    for ( i = 0 ; i < 3 ; i++ )
     {
         momentCoefficients( i ) = 0.0;
     }
@@ -497,7 +465,7 @@ VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
     Vector3d referenceDistance ;
 
     // Loop over all panels and add moments due pressures.
-    for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
+    for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
     {
         for( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
         {
@@ -510,7 +478,6 @@ VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
                 vehicleParts_[ partNumber ].getPanelArea( i, j ) *
                 ( referenceDistance.cross( vehicleParts_[ partNumber ].
                                            getPanelSurfaceNormal( i, j ) ) );
-
         }
     }
 
@@ -521,12 +488,12 @@ VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
 }
 
 //! Determines the inclination angle of panels on a single part.
-void HypersonicLocalInclinationAnalysis::determineInclination(
-        const int& partNumber,
-        const double& angleOfAttack,
-        const double& angleOfSideslip )
+void HypersonicLocalInclinationAnalysis::determineInclination( const int& partNumber,
+                                                               const double& angleOfAttack,
+                                                               const double& angleOfSideslip )
 {
     int i, j;
+
     // Declare free-stream velocity vector.
     Vector3d freestreamVelocityDirection;
 
@@ -544,9 +511,9 @@ void HypersonicLocalInclinationAnalysis::determineInclination(
     double cosineOfInclination;
 
     // Loop over all panels of given vehicle part and set inclination angles.
-    for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
+    for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
     {
-        for( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
+        for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
         {
 
             // Determine cosine of inclination angle from inner product between
@@ -562,16 +529,9 @@ void HypersonicLocalInclinationAnalysis::determineInclination(
     }
 }
 
-//! Gets the number of vehicle parts.
-int HypersonicLocalInclinationAnalysis::getNumberOfVehicleParts( )
-{
-    return numberOfVehicleParts_;
-}
-
-//! Determines compression pressure coefficients on all parts.
-void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
-        const double& machNumber,
-        const int& partNumber)
+//! Determine compression pressure coefficients on all parts.
+void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const double& machNumber,
+                                                                     const int& partNumber )
 {
     int i, j;
     int method;
@@ -582,17 +542,19 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
     {
         method = selectedMethods_[ 0 ][ partNumber ];
     }
+
     else
     {
         method = selectedMethods_[ 2 ][ partNumber ];
     }
 
     // Switch to analyze part using correct method.
-    switch(method)
+    switch( method )
     {
     case 0:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
@@ -606,10 +568,13 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
                 }
             }
         }
+
         break;
+
     case 1:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
@@ -626,16 +591,23 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
 
             }
         }
+
         break;
+
     case 2:
+
         // Method currently disabled.
         break;
+
     case 3:
+
         // Method currently disabled.
         break;
+
     case 4:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
@@ -649,10 +621,13 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
                 }
             }
         }
+
         break;
+
     case 5:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
@@ -666,10 +641,13 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
                 }
             }
         }
+
         break;
+
     case 6:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
@@ -683,10 +661,13 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
                 }
             }
         }
+
         break;
+
     case 7:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
@@ -701,10 +682,13 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
                 }
             }
         }
+
         break;
+
     case 8:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
@@ -718,10 +702,13 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
                 }
             }
         }
+
         break;
+
     case 9:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1; i++ )
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
@@ -735,15 +722,18 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures(
                 }
             }
         }
+
+        break;
+
+    default:
+
         break;
     }
-
 }
 
 //! Determines expansion pressure coefficients on all parts.
-void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
-        const double& machNumber,
-        const int& partNumber )
+void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double& machNumber,
+                                                                   const int& partNumber )
 {
     int i,j;
 
@@ -753,6 +743,7 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
     {
         method = selectedMethods_[ 1 ][ partNumber ];
     }
+
     else
     {
         method = selectedMethods_[ 3 ][ partNumber ];
@@ -762,13 +753,14 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
     double freestreamPrandtlMeyerFunction;
 
     // Switch to analyze part using correct method.
-    switch(method)
+    switch( method )
     {
     case 0:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
         {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
+            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
                 // If panel inclination is negative, calculate pressure using
                 // vacuum method.
@@ -780,10 +772,13 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
                 }
             }
         }
+
         break;
+
     case 1:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
             {
@@ -795,18 +790,23 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
                 }
             }
         }
+
         break;
+
     case 2:
+
         // Option currently disabled
         break;
+
     case 3:
+
         // Calculate freestream Prandtl-Meyer function.
         freestreamPrandtlMeyerFunction = aerodynamics::computePrandtlMeyerFunction(
                 machNumber, ratioOfSpecificHeats);
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
         {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
+            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
                 if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
                 {
@@ -821,12 +821,15 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
                 }
             }
         }
+
         break;
+
     case 4:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
         {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
+            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
                 // If panel inclination is negative, calculate pressure using
                 // high Mach base pressure method.
@@ -838,12 +841,15 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
                 }
             }
         }
+
         break;
+
     case 5:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
         {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
+            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
                 if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
                 {
@@ -859,10 +865,13 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
                 }
             }
         }
+
         break;
+
     case 6:
+
         // Iterate over all panels on part.
-        for( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
         {
             for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
             {
@@ -877,16 +886,20 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures(
                 }
             }
         }
+
+        break;
+
+    default:
+
         break;
     }
-
 }
 
-//! Sets the default Mach number points.
+//! Set the default Mach number points.
 void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
 {
     // Set default points for full hypersonic analysis.
-    if( machRegime_ == "Full" )
+    if ( machRegime_ == "Full" )
     {
         numberOfPointsPerIndependentVariables_[ machIndex_ ] = 6;
         dataPointsOfIndependentVariables_[ machIndex_ ] =
@@ -900,7 +913,7 @@ void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
     }
 
     // Set default points for low hypersonic analysis.
-    else if( machRegime_ == "Low" )
+    else if ( machRegime_ == "Low" )
     {
         numberOfPointsPerIndependentVariables_[ machIndex_ ] = 5;
         dataPointsOfIndependentVariables_[ machIndex_ ] =
@@ -913,7 +926,7 @@ void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
     }
 
     // Set default points for high hypersonic analysis.
-    else if( machRegime_ == "High" )
+    else if ( machRegime_ == "High" )
     {
         numberOfPointsPerIndependentVariables_[ machIndex_ ] = 4;
         dataPointsOfIndependentVariables_[ machIndex_ ] =
@@ -925,7 +938,7 @@ void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
     }
 }
 
-//! Sets the default analysis points for angle of attack.
+//! Set the default analysis points for angle of attack.
 void HypersonicLocalInclinationAnalysis::setDefaultAngleOfAttackPoints( )
 {
     //Set number of data points and allocate memory
@@ -936,7 +949,7 @@ void HypersonicLocalInclinationAnalysis::setDefaultAngleOfAttackPoints( )
 
     // Set default values, 0 to 40 degrees, with steps of 5 degrees.
     int i;
-    for( i = 0; i < numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ]; i++ )
+    for ( i = 0; i < numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ]; i++ )
     {
         dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ i ] =
                 ( static_cast< double >( i ) * 5.0 * M_PI / 180.0 );
@@ -944,7 +957,7 @@ void HypersonicLocalInclinationAnalysis::setDefaultAngleOfAttackPoints( )
 
 }
 
-//! Sets the default analysis points for angle of sideslip.
+//! Set the default analysis points for angle of sideslip.
 void HypersonicLocalInclinationAnalysis::setDefaultAngleOfSideslipPoints( )
 {
     //Set number of data points and allocate memory
@@ -959,44 +972,9 @@ void HypersonicLocalInclinationAnalysis::setDefaultAngleOfSideslipPoints( )
             1.0 * M_PI / 180.0 ;
 }
 
-//! Gets a vehicle part.
-LawgsPartGeometry HypersonicLocalInclinationAnalysis::getVehiclePart(
-        const int& vehicleIndex )
-{
-    return vehicleParts_[ vehicleIndex ];
-}
-
-//! Function to set mach regime.
-void HypersonicLocalInclinationAnalysis::setMachRegime(
-        const std::string& machRegime )
-{
-    machRegime_ = machRegime;
-}
-
-//! Gets mach regime.
-std::string HypersonicLocalInclinationAnalysis::getMachRegime( )
-{
-    return machRegime_;
-}
-
-//! Gets the vehicle name.
-void HypersonicLocalInclinationAnalysis::setVehicleName(
-        const std::string& vehicleName )
-{
-   vehicleName_ = vehicleName;
-}
-
-//! Gets the vehicle name.
-std::string HypersonicLocalInclinationAnalysis::getVehicleName( )
-{
-    return vehicleName_;
-}
-
-
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
-                          HypersonicLocalInclinationAnalysis&
-                          hypersonicLocalInclinationAnalysis )
+                          HypersonicLocalInclinationAnalysis& hypersonicLocalInclinationAnalysis )
 {
     stream << "This is a hypersonic local inclination analysis object."<< endl;
     stream << "The Mach regime is "
@@ -1008,12 +986,9 @@ std::ostream& operator<<( std::ostream& stream,
            << " parts in Lawgs format. " << endl;
     stream << "The names of the vehicle parts are ";
 
-    for ( int i = 0;
-          i < hypersonicLocalInclinationAnalysis.getNumberOfVehicleParts( );
-          i++ )
+    for ( int i = 0; i < hypersonicLocalInclinationAnalysis.getNumberOfVehicleParts( ); i++ )
     {
-        stream << hypersonicLocalInclinationAnalysis
-                  .getVehiclePart( i ).getName( ) << ", ";
+        stream << hypersonicLocalInclinationAnalysis.getVehiclePart( i ).getName( ) << ", ";
     }
 
     stream << endl;

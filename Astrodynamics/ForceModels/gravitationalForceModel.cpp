@@ -55,36 +55,7 @@
  */
 
 // Include statements.
-#include "gravitationalForceModel.h"
-
-//! Default constructor.
-GravitationalForceModel::GravitationalForceModel( )
-{
-}
-
-//! Default destructor.
-GravitationalForceModel::~GravitationalForceModel( )
-{
-}
-
-//! Set body subject to force.
-void GravitationalForceModel::setBodySubjectToForce(
-    Body* pointerToBodySubjectToForce )
-{
-    pointerToBodySubjectToForce_ = pointerToBodySubjectToForce;
-}
-
-//! Set body for gravity field expansion.
-void GravitationalForceModel::setGravitationalBody( CelestialBody* pointerToCelestialBody )
-{
-    // Set celestial body.
-    pointerToCelestialBody_ = pointerToCelestialBody;
-
-    // Set pointer to gravity field model to gravity field model stored in
-    // CelestialBody object.
-    pointerToGravityFieldModel_ = pointerToCelestialBody_
-            ->getGravityFieldModel( );
-}
+#include "Astrodynamics/ForceModels/gravitationalForceModel.h"
 
 //! Compute force due to gravity field.
 void GravitationalForceModel::computeForce( State* pointerToState )
@@ -94,8 +65,7 @@ void GravitationalForceModel::computeForce( State* pointerToState )
 
     // Compute forces in Newtons using gradient of potential of gravity
     // expansion and the mass of the body subjected to the force.
-    force_ = pointerToGravityFieldModel_->getGradientOfPotential(
-                &cartesianPositionElements_ )
+    force_ = pointerToGravityFieldModel_->getGradientOfPotential( &cartesianPositionElements_ )
             * pointerToBodySubjectToForce_->getMass( );
 }
 

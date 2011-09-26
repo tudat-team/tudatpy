@@ -47,38 +47,22 @@
  */
 
 // Include statements.
-#include "aerodynamicCoefficientGenerator.h"
-#include "linearAlgebra.h"
+#include <string.h>
+#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-//! Default constructor.
-AerodynamicCoefficientGenerator::AerodynamicCoefficientGenerator( )
-{
-    // Set number if independent variables to 0.
-    numberOfIndependentVariables_ = 0;
-
-    // Set arrays to NULL.
-    numberOfPointsPerIndependentVariables_ = NULL;
-    dataPointsOfIndependentVariables_ = NULL;
-    vehicleCoefficients_ = NULL;
-
-    // Set number of combinations of independent variables.
-    numberOfCases_ = 0;
-}
-
-//! Default destructor.
+//! Custom destructor.
 AerodynamicCoefficientGenerator::~AerodynamicCoefficientGenerator( )
 {
-    int i;
-
     // Delete array of independent variables.
-    for( i = 0; i < numberOfCases_ ; i++ )
+    for( int i = 0; i < numberOfCases_ ; i++ )
     {
         delete vehicleCoefficients_[ i ];
     }
     delete [ ] vehicleCoefficients_;
 
     // Delete data points of each independent variable and reset to NULL.
-    for( i = 0; i < numberOfIndependentVariables_; i++ )
+    for ( int i = 0; i < numberOfIndependentVariables_; i++ )
     {
         delete [ ] dataPointsOfIndependentVariables_[ i ];
         dataPointsOfIndependentVariables_[ i ] = NULL;
@@ -91,11 +75,9 @@ AerodynamicCoefficientGenerator::~AerodynamicCoefficientGenerator( )
     numberOfPointsPerIndependentVariables_ = NULL;
 }
 
-
-
-//! Sets the number of independent variables
+//! Set the number of independent variables
 void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
-        const int& numberOfVariables )
+    const int& numberOfVariables )
 {
     // Set number of variables.
     numberOfIndependentVariables_ = numberOfVariables;
@@ -105,175 +87,61 @@ void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
     dataPointsOfIndependentVariables_ = new double*[ numberOfVariables ];
 
     // Initialize arrays of data points to NULL.
-    int i;
-    for( i = 0; i < numberOfVariables; i++ )
+    for( int i = 0; i < numberOfVariables; i++ )
     {
         dataPointsOfIndependentVariables_[ i ] = NULL;
     }
 }
 
-//! Sets the number of points for Mach number.
-void AerodynamicCoefficientGenerator::setNumberOfMachPoints(
-        const int& numberOfMachPoints )
+//! Set the number of points for Mach number.
+void AerodynamicCoefficientGenerator::setNumberOfMachPoints( const int& numberOfMachPoints )
 {
     // Set value of number of mach points.
     numberOfPointsPerIndependentVariables_ [ machIndex_ ] = numberOfMachPoints;
 
     // Allocate memory for data points.
-    dataPointsOfIndependentVariables_[ machIndex_ ] =
-            new double[ numberOfMachPoints ];
+    dataPointsOfIndependentVariables_[ machIndex_ ] = new double[ numberOfMachPoints ];
 }
 
-//! Sets the number of points for angle of attack.
+//! Set the number of points for angle of attack.
 void AerodynamicCoefficientGenerator::setNumberOfAngleOfAttackPoints(
         const int& numberOfAngleOfAttackPoints )
 {
     // Set value of number of angle of attack points.
-    numberOfPointsPerIndependentVariables_ [ angleOfAttackIndex_ ] =
-            numberOfAngleOfAttackPoints;
+    numberOfPointsPerIndependentVariables_ [ angleOfAttackIndex_ ] = numberOfAngleOfAttackPoints;
 
     // Allocate memory for data points.
-    dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ] =
-            new double[ numberOfAngleOfAttackPoints ];
+    dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ]
+            = new double[ numberOfAngleOfAttackPoints ];
 }
 
-//! Sets the number of points for angle of sideslip.
+//! Set the number of points for angle of sideslip.
 void AerodynamicCoefficientGenerator::setNumberOfAngleOfSideslipPoints(
         const int& numberOfAngleOfSideslipPoints )
 {
     // Set value of number of angle of sideslip points.
-    numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ] =
-            numberOfAngleOfSideslipPoints;
+    numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ]
+            = numberOfAngleOfSideslipPoints;
 
     // Allocate memory for data points.
-    dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ] =
-            new double[ numberOfAngleOfSideslipPoints ];
+    dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ]
+            = new double[ numberOfAngleOfSideslipPoints ];
 }
 
-//! Sets the number of points for the Reynolds Number.
+//! Set the number of points for the Reynolds Number.
 void AerodynamicCoefficientGenerator::setNumberOfReynoldsNumberPoints(
         const int& numberOfReynoldsNumberPoints )
 {
     // Set value of number of Reynolds Number points.
-    numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ] =
-            numberOfReynoldsNumberPoints;
+    numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ] = numberOfReynoldsNumberPoints;
 
     // Allocate memory for data points.
-    dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ] =
-            new double[ numberOfReynoldsNumberPoints ];
+    dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ]
+            = new double[ numberOfReynoldsNumberPoints ];
 }
 
-//! Gets the number of independent variables
-int AerodynamicCoefficientGenerator::getNumberOfIndependentVariables( )
-{
-    return numberOfIndependentVariables_;
-}
-
-//! Gets the number of points for an independent variable.
-int AerodynamicCoefficientGenerator::getNumberOfValuesOfIndependentVariable(
-        const int& independentVariable )
-{
-    return numberOfPointsPerIndependentVariables_ [ independentVariable ];
-
-}
-
-//! Gets the number of points for Mach number.
-int AerodynamicCoefficientGenerator::getNumberOfMachPoints( )
-{
-    return numberOfPointsPerIndependentVariables_ [ machIndex_ ];
-}
-
-//! Gets the number of points for angle of attack.
-int AerodynamicCoefficientGenerator::getNumberOfAngleOfAttackPoints( )
-{
-    return numberOfPointsPerIndependentVariables_ [ angleOfAttackIndex_ ] ;
-}
-
-//! Gets the number of points for angle of sideslip.
-int AerodynamicCoefficientGenerator::getNumberOfAngleOfSideslipPoints( )
-{
-    return numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ];
-}
-
-//! Gets the number of points for Reynold number.
-int AerodynamicCoefficientGenerator::getNumberOfReynoldsNumberPoints( )
-{
-    return numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ];
-}
-
-//! Sets a Mach number point.
-void AerodynamicCoefficientGenerator::setMachPoint( const int& index,
-                                                    const double& machPoint )
-{
-    dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] =
-            machPoint;
-}
-
-//! Sets an angle of attack point.
-void AerodynamicCoefficientGenerator::setAngleOfAttackPoint(
-        const int& index,
-        const double& angleOfAttackPoint )
-{
-    dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] =
-            angleOfAttackPoint;
-}
-
-//! Sets an angle of sideslip point.
-void AerodynamicCoefficientGenerator::setAngleOfSideslipPoint(
-        const int& index,
-        const double& angleOfSideslipPoint )
-{
-    dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ] =
-            angleOfSideslipPoint;
-}
-
-//! Sets an Reynolds Number point.
-void AerodynamicCoefficientGenerator::setReynoldsNumberPoint(
-        const int& index,
-        const double& reynoldsNumberPoint )
-{
-    dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ] =
-            reynoldsNumberPoint;
-}
-
-//! Gets a value of an independent variable.
-double AerodynamicCoefficientGenerator::getIndependentVariablePoint(
-                                    const int& independentVariable,
-                                    const int& index )
-{
-    return dataPointsOfIndependentVariables_[ independentVariable ][ index ];
-}
-
-//! Gets a Mach number point.
-double AerodynamicCoefficientGenerator::getMachPoint( const int& index )
-{
-    return dataPointsOfIndependentVariables_[ machIndex_ ][ index ];
-}
-
-//! Gets an angle of attack point.
-double AerodynamicCoefficientGenerator::getAngleOfAttackPoint( const int& index )
-{
-    return dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ];
-}
-
-//! Gets an angle of sideslip point.
-double AerodynamicCoefficientGenerator::getAngleOfSideslipPoint( const int&
-                                                                 index )
-{
-    return dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ];
-}
-
-//! Gets an Reynold Number point.
-double AerodynamicCoefficientGenerator::getReynoldsNumberPoint( const int&
-                                                                 index )
-{
-    return dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ];
-}
-
-//! Function to convert the independent variable indices to list index in
-//! vehicleCoefficients_.
-int AerodynamicCoefficientGenerator::variableIndicesToListIndex(
-        int* independentVariableIndices )
+//! Convert independent variable indices to list index in vehicleCoefficients_.
+int AerodynamicCoefficientGenerator::variableIndicesToListIndex( int* independentVariableIndices )
 {
     int i ,j;
 
@@ -300,7 +168,6 @@ int AerodynamicCoefficientGenerator::variableIndicesToListIndex(
     }
 
     return coefficientsIndex_;
-
 }
 
 // End of file.

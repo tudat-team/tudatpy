@@ -51,10 +51,6 @@
 #ifndef UNITTESTAERODYNAMICDNAMESPACE_H
 #define UNITTESTAERODYNAMICDNAMESPACE_H
 
-// Include statements.
-#include <iostream>
-#include "aerodynamics.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

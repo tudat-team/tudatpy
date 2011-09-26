@@ -40,7 +40,21 @@
 */
 
 // Include statements.
-#include "unitTestAerodynamicMomentAndAerodynamicForce.h"
+#include "Astrodynamics/ForceModels/unitTestAerodynamicMomentAndAerodynamicForce.h"
+#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h"
+#include "Astrodynamics/ForceModels/aerodynamicForce.h"
+#include "Astrodynamics/MomentModels/aerodynamicMoment.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include "Mathematics/unitConversions.h"
+
+// Using statements.
+using Eigen::Quaternion;
+using Eigen::AngleAxisd;
+using std::cerr;
+using std::endl;
+using std::fabs;
+using mathematics::MACHINE_PRECISION_DOUBLES;
 
 bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
 {

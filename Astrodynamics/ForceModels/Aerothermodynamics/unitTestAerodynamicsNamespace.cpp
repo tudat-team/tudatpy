@@ -46,8 +46,9 @@
 
 // Include statemenets.
 #include <cmath>
-#include "unitTestAerodynamicsNamespace.h"
-#include "basicMathematicsFunctions.h"
+#include <iostream>
+#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h"
+#include "Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.h"
 
 // Using declarations.
 using std::cerr;

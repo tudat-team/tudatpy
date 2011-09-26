@@ -60,12 +60,10 @@
 #define GRAVITATIONALFORCEMODEL_H
 
 // Include statements.
-#include <cmath>
-#include "body.h"
-#include "celestialBody.h"
-#include "forceModel.h"
-#include "gravityFieldModel.h"
-#include "sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/Bodies/body.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/ForceModels/forceModel.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
 
 //! Gravitational force model class.
 /*!
@@ -79,27 +77,27 @@ public:
     /*!
      * Default constructor.
      */
-    GravitationalForceModel( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~GravitationalForceModel( );
+    GravitationalForceModel( ) : pointerToBodySubjectToForce_( NULL ), pointerToCelestialBody_( NULL ),
+        pointerToGravityFieldModel_( NULL ) { }
 
     //! Set body subject to force.
     /*!
      * Sets body subject to force.
      * \param pointerToBodySubjectToForce Pointer to body subject to force.
      */
-    void setBodySubjectToForce( Body* pointerToBodySubjectToForce );
+    void setBodySubjectToForce( Body* pointerToBodySubjectToForce )
+    { pointerToBodySubjectToForce_ = pointerToBodySubjectToForce; }
 
     //! Set body for gravity field expansion.
     /*!
      * Sets the body for gravity field expansion.
      * \param pointerToCelestialBody Celestial body which is set.
      */
-    void setGravitationalBody( CelestialBody* pointerToCelestialBody );
+    void setGravitationalBody( CelestialBody* pointerToCelestialBody )
+    {
+        pointerToCelestialBody_ = pointerToCelestialBody;
+        pointerToGravityFieldModel_ = pointerToCelestialBody_->getGravityFieldModel( );
+    }
 
     //! Compute force due to gravity field.
     /*!

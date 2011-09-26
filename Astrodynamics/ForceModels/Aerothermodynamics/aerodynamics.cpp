@@ -52,7 +52,7 @@
 
 // Include statements.
 #include <cmath>
-#include "aerodynamics.h"
+#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h"
 
 // Using declarations.
 using std::atan;

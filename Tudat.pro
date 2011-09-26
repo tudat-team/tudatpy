@@ -19,13 +19,11 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.cpp \
-    Astrodynamics/ForceModels/forceModel.cpp \
     Astrodynamics/ForceModels/aerodynamicForce.cpp \
     Astrodynamics/ForceModels/gravitationalForceModel.cpp \
     Astrodynamics/ForceModels/unitTestAerodynamicMomentAndAerodynamicForce.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.cpp \
-    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.cpp \
