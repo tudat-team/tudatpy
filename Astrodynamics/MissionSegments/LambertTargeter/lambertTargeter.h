@@ -70,14 +70,12 @@
 #define LAMBERTTARGETER_H
 
 // Include statements.
-#include "trajectoryDesignMethod.h"
-#include "newtonRaphson.h"
-#include "newtonRaphsonAdaptor.h"
-#include "basicMathematicsFunctions.h"
-#include "linearAlgebra.h"
-#include "celestialBody.h"
-#include "cartesianPositionElements.h"
-#include "cartesianVelocityElements.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/MissionSegments/trajectoryDesignMethod.h"
+#include "Astrodynamics/States/cartesianPositionElements.h"
+#include "Astrodynamics/States/cartesianVelocityElements.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 //! Lambert targeting algorithm class.
 /*!
@@ -91,96 +89,100 @@ public:
     /*!
      * Default constructor.
      */
-    LambertTargeter( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    virtual ~LambertTargeter( );
+    LambertTargeter( ): numberOfRevolutions_( -0.0 ), timeOfFlight_( -0.0 ),
+        pointerToCelestialBody_( NULL ), lambertSemiMajorAxis_( -0.0 ), xParameter_( -0.0 ),
+        normalizedTimeOfFlight_( -0.0 ), qParameter_( -0.0 ), radialSpeedAtDeparture_( -0.0 ),
+        radialSpeedAtArrival_( -0.0 ), transverseSpeedAtDeparture_( -0.0 ),
+        transverseSpeedAtArrival_( -0.0 ), pointerToNewtonRaphson_( NULL )
+    {
+        // Initialize variables.
+        pointerToCartesianPositionAtDeparture_ = new CartesianPositionElements;
+        pointerToCartesianPositionAtArrival_ = new CartesianPositionElements;
+        pointerToCartesianVelocityAtDeparture_ = new CartesianVelocityElements;
+        pointerToCartesianVelocityAtArrival_ = new CartesianVelocityElements;
+    }
 
     //! Set position at departure.
     /*!
-     * Sets the position at departure as pointer to object of
-     * CartesianPositionElements class.
+     * Sets the position at departure as pointer to object of CartesianPositionElements class.
      * \param pointerToCartesianPositionAtDeparture Position at departure.
      */
-    void setPositionAtDeparture( CartesianPositionElements*
-                                 pointerToCartesianPositionAtDeparture );
+    void setPositionAtDeparture( CartesianPositionElements *pointerToCartesianPositionAtDeparture )
+    { pointerToCartesianPositionAtDeparture_ = pointerToCartesianPositionAtDeparture; }
 
     //! Set position at arrival.
     /*!
-     * Sets position at arrival as pointer to object of
-     * CartesianPositionElements class.
+     * Sets position at arrival as pointer to object of CartesianPositionElements class.
      * \param pointerToCartesianPositionAtArrival Position at arrival.
      */
-    void setPositionAtArrival( CartesianPositionElements*
-                               pointerToCartesianPositionAtArrival );
+    void setPositionAtArrival( CartesianPositionElements *pointerToCartesianPositionAtArrival )
+    { pointerToCartesianPositionAtArrival_ = pointerToCartesianPositionAtArrival; }
 
     //! Set number of revolutions.
     /*!
      * Sets the number of revolutions.
      * \param numberOfRevolutions Number of Revolutions.
      */
-    void setNumberOfRevolutions( const int& numberOfRevolutions );
+    void setNumberOfRevolutions( const int &numberOfRevolutions )
+    { numberOfRevolutions_ = numberOfRevolutions; }
 
     //! Set time-of-flight.
     /*!
      * Sets the time-of-flight.
      * \param timeOfFlight Time-of-flight.
      */
-    void setTimeOfFlight( const double& timeOfFlight );
+    void setTimeOfFlight( const double &timeOfFlight ) { timeOfFlight_ = timeOfFlight; }
 
     //! Set central body.
     /*!
      * Sets pointer to central body.
      * \param pointerToCelestialBody Central body
      */
-    void setCentralBody( CelestialBody* pointerToCelestialBody );
+    void setCentralBody( CelestialBody *pointerToCelestialBody )
+    { pointerToCelestialBody_ = pointerToCelestialBody; }
 
     //! Set pointer to Newton-Raphson method for Lambert targeting algorithm.
     /*!
-     * Sets a pointer to the Newton-Raphson method for the Lambert targeting
-     * algorithm.
-     * \param pointerToNewtonRaphson Pointer to NewtonRaphson
-     *          object.
+     * Sets a pointer to the Newton-Raphson method for the Lambert targeting algorithm.
+     * \param pointerToNewtonRaphson Pointer to NewtonRaphson object.
      */
-    void setNewtonRaphsonMethod( NewtonRaphson* pointerToNewtonRaphson );
+    void setNewtonRaphsonMethod( NewtonRaphson *pointerToNewtonRaphson )
+    { pointerToNewtonRaphson_ = pointerToNewtonRaphson; }
 
     //! Get Lambert semi-major axis.
     /*!
      * Returns the Lambert semi-major axis.
      * \return Lambert semi-major axis.
      */
-    double& getLambertSemiMajorAxis( );
+    double& getLambertSemiMajorAxis( ) { return lambertSemiMajorAxis_; }
 
     //! Get radial speed at departure.
     /*!
      * Returns the radial speed at departure.
      * \return Radial speed at departure.
      */
-    double& getRadialSpeedAtDeparture( );
+    double& getRadialSpeedAtDeparture( ) { return radialSpeedAtDeparture_; }
 
     //! Get radial speed at arrival.
     /*!
      * Returns the radial speed at arrival.
      * \return Radial speed at arrival.
      */
-    double& getRadialSpeedAtArrival( );
+    double& getRadialSpeedAtArrival( ) { return radialSpeedAtArrival_; }
 
     //! Get transverse speed at departure.
     /*!
      * Returns the transverse speed at departure.
      * \return Transverse speed at departure.
      */
-    double& getTransverseSpeedAtDeparture( );
+    double& getTransverseSpeedAtDeparture( ) { return transverseSpeedAtDeparture_; }
 
     //! Get transverse speed at arrival.
     /*!
      * Returns the transverse speed at arrival.
      * \return Transverse speed at arrival.
      */
-    double& getTransverseSpeedAtArrival( );
+    double& getTransverseSpeedAtArrival( ) { return transverseSpeedAtArrival_; }
 
     //! Get inertial velocity at departure.
     /*!
@@ -188,7 +190,8 @@ public:
      * planetocentric ).
      * \return Inertial velocity at departure.
      */
-    CartesianVelocityElements* getInertialVelocityAtDeparture( );
+    CartesianVelocityElements* getInertialVelocityAtDeparture( )
+    { return pointerToCartesianVelocityAtDeparture_; }
 
     //! Get inertial velocity at arrival.
     /*!
@@ -196,7 +199,8 @@ public:
      * planetocentric ).
      * \return Inertial velocity at arrival.
      */
-    CartesianVelocityElements* getInertialVelocityAtArrival( );
+    CartesianVelocityElements* getInertialVelocityAtArrival( )
+    { return pointerToCartesianVelocityAtArrival_; }
 
     //! Execute Lambert targeting algorithm.
     /*!
@@ -211,8 +215,7 @@ public:
      * \param lambertTargeter Lambert targeter object.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     LambertTargeter& lambertTargeter );
+    friend std::ostream& operator<<( std::ostream& stream, LambertTargeter& lambertTargeter );
 
 protected:
 
@@ -365,7 +368,6 @@ private:
      * Defines first derivative of general Lambert function.
      */
     double lambertFirstDerivativeFunction( double& xParameter_ );
-
 };
 
 #endif // LAMBERTTARGETER_H

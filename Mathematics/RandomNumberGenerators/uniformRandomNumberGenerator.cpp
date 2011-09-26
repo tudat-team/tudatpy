@@ -108,8 +108,7 @@ double UniformRandomNumberGenerator
 ::getUniformlyDistributedNormalizedRandomDouble( )
 {
     // Return uniformly distributed, normalized, random double.
-    return  static_cast< double >( getUniformlyDistributedRandomInteger( ) )
-            / ULLONG_MAX;
+    return static_cast< double >( getUniformlyDistributedRandomInteger( ) ) / ULLONG_MAX;
 }
 
 //! Get uniformly distributed random integer using 32-bit arithmetic.
@@ -117,8 +116,7 @@ unsigned int UniformRandomNumberGenerator::
         getUniformlyDistributedRandom32BitInteger( )
 {
     // Return uniformly distributed random integer using 32-bit arithmetic
-    return static_cast< unsigned int >(
-                getUniformlyDistributedRandomInteger( ) );
+    return static_cast< unsigned int >( getUniformlyDistributedRandomInteger( ) );
 }
 
 //! Get uniformly distributed random plus/minus sign.
@@ -128,12 +126,10 @@ int UniformRandomNumberGenerator::getUniformlyDistributedRandomPlusMinusSign( )
     int randomPlusMinusSign_;
 
     // Get random integer.
-    randomPlusMinusSign_ = static_cast< int >(
-                getUniformlyDistributedRandomInteger( ) );
+    randomPlusMinusSign_ = static_cast< int >( getUniformlyDistributedRandomInteger( ) );
 
     // Normalize to plus/minus 1.
-    randomPlusMinusSign_ /= mathematics::
-                            computeAbsoluteValue( randomPlusMinusSign_ );
+    randomPlusMinusSign_ /= std::fabs( randomPlusMinusSign_ );
 
     // Return random plus/minus sign.
     return randomPlusMinusSign_;

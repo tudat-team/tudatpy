@@ -55,11 +55,10 @@
  */
 
 // Include statements.
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/keplerianElements.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
-#include "Mathematics/basicMathematicsFunctions.h"
-#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
 
 #ifndef ORBITALELEMENTCONVERSIONS_H
 #define ORBITALELEMENTCONVERSIONS_H

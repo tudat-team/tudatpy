@@ -73,17 +73,15 @@
 #include <cmath>
 #include <iostream>
 #include <numeric>
-
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Basics/basicFunctions.h"
-
 
 // Using declarations.
 using std::map;
 using std::vector;
 using std::accumulate;
+using std::pow;
 using mathematics::MACHINE_PRECISION_DOUBLES;
-using mathematics::raiseToIntegerPower;
 
 //! Mathematics namespace.
 namespace mathematics
@@ -269,64 +267,6 @@ void convertCylindricalToCartesian( const double& radius,
     cartesianCoordinates( 1 ) = radius * sin( azimuthAngle );
 }
 
-//! Raise double to integer power.
-double raiseToIntegerPower( const double& baseValue,
-                               const int& integerPower )
-{
-    // Declare local variable.
-    // Declare result of raising base to integer power.
-    // Initialise with value.
-    double resultOfRaisingBaseToIntegerPower = 1;
-    // Declare absolute value of integerPower.
-    int absoluteValueOfIntegerPower
-            = computeAbsoluteValue( integerPower );
-    // Declare copy of base value.
-    double copyOfBaseValue = baseValue;
-
-    // Compute the result here using exponentiation by squares.
-    // Stop loop when absolute value of integer power is equal to zero.
-    while ( absoluteValueOfIntegerPower )
-    {
-        // Check that absolute value of integer power.
-        if ( absoluteValueOfIntegerPower & 1 )
-        {
-          // Compute intermediate result.
-          resultOfRaisingBaseToIntegerPower *= copyOfBaseValue;
-        }
-
-        // Divide integer power by two.
-        absoluteValueOfIntegerPower >>= 1;
-
-        // Square base value.
-        copyOfBaseValue *= copyOfBaseValue;
-    }
-
-    // Check if sign of integerPower is negative.
-    if ( integerPower < 0 )
-    {
-        // Switch sign of result.
-        resultOfRaisingBaseToIntegerPower
-                = 1.0 / resultOfRaisingBaseToIntegerPower;
-    }
-
-    // Return result of raising base to integer power.
-    return resultOfRaisingBaseToIntegerPower;
-}
-
-//! Compute absolute value of integer.
-int computeAbsoluteValue( const int& signedInteger )
-{
-    // Return absolute value of integer.
-    return ( signedInteger > 0 ) ? signedInteger : -signedInteger;
-}
-
-//! Compute absolute value of double.
-double computeAbsoluteValue( const double& signedDouble )
-{
-    // Return absolute value of double.
-    return ( signedDouble > 0 ) ? signedDouble : -signedDouble;
-}
-
 //! Compute modulo of double.
 double computeModulo( const double& dividend, const double& divisor )
 {
@@ -354,9 +294,7 @@ double computeSampleVariance( const vector< double >& sampleData )
     // Compute sum of residuals of sample data squared.
     for ( unsigned int i = 0; i < sampleData.size( ); i++ )
     {
-        sumOfResidualsSquared_ +=
-                raiseToIntegerPower( sampleData.at( i )
-                                     - sampleMean_, 2 );
+        sumOfResidualsSquared_ += pow( sampleData.at( i ) - sampleMean_, 2.0 );
     }
 
     // Return sample variance.

@@ -42,14 +42,6 @@
 #ifndef UNITTESTESCAPEANDCAPTURE_H
 #define UNITTESTESCAPEANDCAPTURE_H
 
-// Include statements.
-#include <cmath>
-#include "escapeAndCapture.h"
-#include "escapePhase.h"
-#include "capturePhase.h"
-#include "planet.h"
-#include "sphereSegment.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

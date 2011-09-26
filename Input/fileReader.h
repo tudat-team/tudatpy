@@ -55,14 +55,8 @@
 // Include statements.
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <map>
-#include "basicFunctions.h"
-
-// Using declarations.
-using std::ifstream;
-using std::string;
-using std::map;
+#include "Basics/basicFunctions.h"
 
 //! File reader class.
 /*!
@@ -76,13 +70,13 @@ public:
     /*!
      * Default constructor.
      */
-    FileReader( );
+    FileReader( ) : lineCounter_( 1 ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~FileReader( );
+    virtual ~FileReader( ) { }
 
     //! Set relative path.
     /*!
@@ -90,14 +84,14 @@ public:
      * root directory of Tudat library.
      * \param relativePath Relative path.
      */
-    void setRelativePath( string relativePath );
+    void setRelativePath( std::string relativePath ) { relativePath_ = relativePath; }
 
     //! Set file name.
     /*!
      * Sets file name of data file.
      * \param fileName File name.
      */
-    void setFileName( string fileName );
+    void setFileName( std::string fileName ) { fileName_ = fileName; }
 
     //! Open data file.
     /*!
@@ -119,7 +113,8 @@ public:
      * used in combination with the skipLines( ) function.
      * \param startingCharacter Starting character.
      */
-    void skipLinesStartingWithCharacter( const string& startingCharacter );
+    void skipLinesStartingWithCharacter( const std::string& startingCharacter )
+    { startingCharacter_ = startingCharacter; }
 
     //! Skip all lines containing a given keyword.
     /*!
@@ -127,7 +122,7 @@ public:
      * used in combination with the skipLines( ) function.
      * \param skipKeyword Keyword to skip line.
      */
-    void skipLinesWithKeyword( const string& skipKeyword );
+    void skipLinesWithKeyword( const std::string& skipKeyword ) { skipKeyword_ = skipKeyword; }
 
     //! Read and store data.
     /*!
@@ -151,14 +146,15 @@ public:
     /*!
      * Closes data file.
      */
-    void closeFile( );
+    void closeFile( ) { dataFile_.close( ); }
 
     //! Get vector container of data from file.
     /*!
      * Returns map container of string data from data file.
      * \return Pointer to map container of data from file.
      */
-    map< unsigned int, string >& getContainerOfData( );
+    std::map< unsigned int, std::string >& getContainerOfData( )
+    { return containerOfDataFromFile_; }
 
 protected:
 
@@ -172,43 +168,43 @@ protected:
     /*!
      * Data file stream.
      */
-    ifstream dataFile_;
+    std::ifstream dataFile_;
 
     //! File name.
     /*!
      * File name for data file.
      */
-    string fileName_;
+    std::string fileName_;
 
     //! String of data.
     /*!
      * String of data.
      */
-    string stringOfData_;
+    std::string stringOfData_;
 
     //! Absolute path to data file.
     /*!
      * Absolute path to data file.
      */
-    string absolutePath_;
+    std::string absolutePath_;
 
     //! Relative path to data file.
     /*!
      * Relative path to data file with respect to root directory of Tudat.
      */
-    string relativePath_;
+    std::string relativePath_;
 
     //! Starting character.
     /*!
      * Starting character.
      */
-    string startingCharacter_;
+    std::string startingCharacter_;
 
     //! Skip keyword.
     /*!
      * Keyword used to skip a line.
      */
-    string skipKeyword_;
+    std::string skipKeyword_;
 
     //! Map container of data from file.
     /*!
@@ -216,13 +212,13 @@ protected:
      * line of data from file using the getline( ) function. The key is the
      * line number from the file and the value is line data.
      */
-    map< unsigned int, string > containerOfDataFromFile_;
+    std::map< unsigned int, std::string > containerOfDataFromFile_;
 
     //! Iterator for map container of data from file.
     /*!
      * Iterator for map container of string data from data file.
      */
-    map< unsigned int, string >::iterator iteratorContainerOfDataFromFile_;
+    std::map< unsigned int, std::string >::iterator iteratorContainerOfDataFromFile_;
 
 private:
 };

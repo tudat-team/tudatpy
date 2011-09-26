@@ -41,7 +41,7 @@
 #define DEEPSPACEMANEUVER_H
 
 // Include statements.
-#include "state.h"
+#include "Astrodynamics/States/state.h"
 
 //! Deep space maneuver base class.
 /*!
@@ -55,55 +55,51 @@ public:
     /*!
      * Default constructor.
      */
-    DeepSpaceManeuver( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    virtual ~DeepSpaceManeuver( );
+    DeepSpaceManeuver( ): deltaV_( -1.0 ), timeOfDeepSpaceManeuver_( 0.0 ),
+        pointerToState_( NULL ) { }
 
     //! Set time of deep space maneuver event.
     /*!
      * Sets time of deep space maneuver event.
      * \param timeOfDeepSpaceManeuver Time of deep space maneuver event.
      */
-    void setTime( const double& timeOfDeepSpaceManeuver );
+    void setTime( const double &timeOfDeepSpaceManeuver )
+    { timeOfDeepSpaceManeuver_ = timeOfDeepSpaceManeuver; }
 
     //! Set state at deep space maneuver event.
     /*!
      * Sets pointer to state at deep space maneuver event.
      * \param pointerToState Pointer to state at deep space maneuver event.
      */
-    void setState( State* pointerToState );
+    void setState( State* pointerToState ) { pointerToState_ = pointerToState; }
 
     //! Set delta-V of deep space maneuver event.
     /*!
      * Sets delta-V of deep space maneuver event.
      * \param deltaV Delta-V of deep space maneuver event.
      */
-    void setDeltaV( const double& deltaV );
+    void setDeltaV( const double &deltaV ) { deltaV_ = deltaV; }
 
     //! Get time of deep space maneuver event.
     /*!
      * Returns the the time of deep space maneuver event.
      * \return Time of deep space maneuver event.
      */
-    double& getTime( );
+    double& getTime( ) { return timeOfDeepSpaceManeuver_; }
 
     //! Get state at deep space maneuver event.
     /*!
      * Returns a pointer to state at deep space maneuver event.
      * \return Pointer to state at deep space maneuver event.
      */
-    State* getState( );
+    State* getState( ) { return pointerToState_; }
 
     //! Get delta-V of deep space maneuver event.
     /*!
      * Returns delta-V of deep space maneuver event.
      * \return Delta-V of deep space maneuver event.
      */
-    double& getDeltaV( );
+    double& getDeltaV( ) { return deltaV_; }
 
 protected:
 

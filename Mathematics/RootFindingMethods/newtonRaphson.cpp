@@ -112,9 +112,7 @@ void NewtonRaphson::execute( )
         // Check if difference between successive iterations of the
         // root-finding method satisfies the set tolerance and break from loop
         // if it is satisfied.
-        if ( mathematics::computeAbsoluteValue( nextValueOfRoot_
-                                                - currentValueOfRoot_ )
-            <= tolerance_ )
+        if ( std::fabs( nextValueOfRoot_ - currentValueOfRoot_ ) <= tolerance_ )
         {
             break;
         }

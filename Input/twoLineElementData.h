@@ -61,14 +61,8 @@
 
 // Include statements.
 #include <cstdlib>
-#include <vector>
-#include <string>
 #include <iostream>
-#include "keplerianElements.h"
-
-// Using declarations.
-using std::vector;
-using std::string;
+#include "Astrodynamics/States/keplerianElements.h"
 
 //! TLE data class.
 /*!
@@ -90,7 +84,7 @@ public:
     /*!
      * Default destructor.
      */
-    ~TwoLineElementData( );
+    virtual ~TwoLineElementData( ) { }
 
     // Line 0 strings.
 
@@ -99,13 +93,13 @@ public:
      * Vector containing the separate words of the name of the object as strings,
      * range could go as far as 10 strings containing parts of the name.
      */
-    vector< string > objectName;
+    std::vector< std::string > objectName;
 
     //! Object name string.
     /*!
      * String containing the name of the object,
      */
-    string objectNameString;
+    std::string objectNameString;
 
     // Line 1 variables.
 
@@ -150,7 +144,7 @@ public:
     /*!
      * Part/piece/fragment of the launch, range AAA - ZZZ.
      */
-    string launchPart;
+    std::string launchPart;
 
     //! TLE epoch year two digits.
     /*!
@@ -310,7 +304,7 @@ public:
     /*!
      * The line numbers of this TLE in the original input file are saved here.
      */
-    vector< unsigned int > lineNumbers;
+    std::vector< unsigned int > lineNumbers;
 
     //! Overloaded ostream to print class information.
     /*!

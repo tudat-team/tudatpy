@@ -48,12 +48,13 @@
  */
 
 // Include statements.
+#include <cmath>
 #include "unitTestReferenceFrameTransformations.h"
 
 //using directives
 using std::cerr;
 using std::endl;
-using mathematics::computeAbsoluteValue;
+using std::fabs;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 using unit_conversions::convertDegreesToRadians;
 
@@ -115,7 +116,7 @@ bool testReferenceFrameTransformations( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( computeAbsoluteValue( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
+        if ( fabs( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
         {
             isFrameTransformationErroneous = true;
 
@@ -141,7 +142,7 @@ bool testReferenceFrameTransformations( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( computeAbsoluteValue( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
+        if ( fabs( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
         {
             isFrameTransformationErroneous = true;
 
@@ -165,7 +166,7 @@ bool testReferenceFrameTransformations( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( computeAbsoluteValue( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
+        if ( fabs( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
         {
             isFrameTransformationErroneous = true;
 
@@ -191,7 +192,7 @@ bool testReferenceFrameTransformations( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( computeAbsoluteValue( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
+        if ( fabs( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
         {
             isFrameTransformationErroneous = true;
 
@@ -230,7 +231,7 @@ bool testReferenceFrameTransformations( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( computeAbsoluteValue( relativeNumericalError ) > 1.0e-14 )
+        if ( fabs( relativeNumericalError ) > 1.0e-14 )
         {
             isFrameTransformationErroneous = true;
 
@@ -280,7 +281,7 @@ bool testReferenceFrameTransformations( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i );
 
-        if ( computeAbsoluteValue( relativeNumericalError ) > 1.0e-14 )
+        if ( fabs( relativeNumericalError ) > 1.0e-14 )
         {
             isFrameTransformationErroneous = true;
 
@@ -304,7 +305,7 @@ bool testReferenceFrameTransformations( )
     relativeNumericalError = absoluteNumericalError( 0 );
 
     // Check if relative error is too large and output cerr statements if necessary.
-    if ( computeAbsoluteValue( relativeNumericalError ) > 1.0e-14 )
+    if ( fabs( relativeNumericalError ) > 1.0e-14 )
     {
         isFrameTransformationErroneous = true;
 
@@ -317,7 +318,7 @@ bool testReferenceFrameTransformations( )
     {
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( computeAbsoluteValue( relativeNumericalError ) > 1.0e-14 )
+        if ( fabs( relativeNumericalError ) > 1.0e-14 )
         {
             isFrameTransformationErroneous = true;
 

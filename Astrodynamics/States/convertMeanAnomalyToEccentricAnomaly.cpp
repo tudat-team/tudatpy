@@ -46,7 +46,6 @@
 // Using declarations.
 using std::cerr;
 using std::endl;
-using mathematics::raiseToIntegerPower;
 
 //! Orbital element conversions namespace.
 namespace orbital_element_conversions

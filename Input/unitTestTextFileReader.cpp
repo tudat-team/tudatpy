@@ -48,9 +48,14 @@
  */
 
 // Include statements.
+#include <cmath>
+#include "textFileReader.h"
 #include "unitTestTextFileReader.h"
 
 // Using directives.
+using std::string;
+using std::map;
+
 using std::cerr;
 using std::endl;
 using std::cout;

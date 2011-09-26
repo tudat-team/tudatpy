@@ -74,13 +74,11 @@
 #define GRAVITYASSIST_H
 
 // Include statements.
-#include "newtonRaphson.h"
-#include "newtonRaphsonAdaptor.h"
-#include "unitConversions.h"
-#include "basicMathematicsFunctions.h"
-#include "celestialBody.h"
-#include "cartesianVelocityElements.h"
-#include "sphereSegment.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/States/cartesianVelocityElements.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 //! Gravity assist method class.
 /*!
@@ -94,39 +92,44 @@ public:
     /*!
      * Default constructor.
      */
-    GravityAssist( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    virtual ~GravityAssist( );
+    GravityAssist( ) : pointerToCentralBody_( NULL ), pointerToCentralBodySphere_( NULL ),
+        centralBodyVelocity_( Vector3d::Zero( ) ), smallestPeriapsisDistanceFactor_( -0.0 ),
+        pointerToIncomingVelocity_( NULL ), pointerToOutgoingVelocity_( NULL ),
+        incomingHyperbolicExcessVelocity_ ( Vector3d::Zero( ) ),
+        outgoingHyperbolicExcessVelocity_ ( Vector3d::Zero( ) ), deltaV_( -0.0 ),
+        bendingAngle_( -0.0 ), incomingEccentricity_( -0.0 ), outgoingEccentricity_( -0.0 ),
+        incomingSemiMajorAxis_( -0.0 ), outgoingSemiMajorAxis_( -0.0 ),
+        bendingEffectDeltaV_( -0.0 ), velocityEffectDeltaV_( -0.0 ),
+        pointerToNewtonRaphson_( NULL ) { }
 
     //! Set central body of the swing-by.
     /*!
      * Sets pointer to central body of the swing-by.
      * \param pointerToCentralBody Central body of the swing-by.
      */
-    void setCentralBody( CelestialBody* pointerToCentralBody );
+    void setCentralBody( CelestialBody *pointerToCentralBody )
+    { pointerToCentralBody_ = pointerToCentralBody; }
 
+    // Its input will come from the ephemeris class.
     //! Set velocity of the swing-by central body.
     /*!
      * Sets the velocity of the central body involved in the swing-by,
      * which will come from the Ephemeris class.
      * \param centralBodyVelocity Velocity of swing-by central body.
      */
-    void setCentralBodyVelocity( Vector3d centralBodyVelocity );
+    void setCentralBodyVelocity( Vector3d centralBodyVelocity )
+    { centralBodyVelocity_ = centralBodyVelocity; }
 
+    // TEMPORARY!! Needs to be part of CelestialBody object.
     //! Set smallest periapsis distance factor.
     /*!
      * Sets the smallest allowable periapsis distance factor that has to be
      * multiplied with the central body radius to find the smallest allowable
      * periapsis distance.
-     * \param smallestPeriapsisDistanceFactor Smallest periapsis distance
-     *          factor.
+     * \param smallestPeriapsisDistanceFactor Smallest periapsis distance factor.
      */
-    void setSmallestPeriapsisDistanceFactor( const double&
-                                             smallestPeriapsisDistanceFactor );
+    void setSmallestPeriapsisDistanceFactor( const double &smallestPeriapsisDistanceFactor )
+    { smallestPeriapsisDistanceFactor_ = smallestPeriapsisDistanceFactor; }
 
     //! Set pointer to incoming velocity of the satellite.
     /*!
@@ -134,17 +137,16 @@ public:
      * \param pointerToIncomingVelocity Pointer to incoming velocity of the
      *          satellite.
      */
-    void setPointerToIncomingVelocity( CartesianVelocityElements*
-                                       pointerToIncomingVelocity );
+    void setPointerToIncomingVelocity( CartesianVelocityElements* pointerToIncomingVelocity )
+    { pointerToIncomingVelocity_ = pointerToIncomingVelocity; }
 
     //! Set pointer to outgoing velocity of the satellite.
     /*!
      * Sets pointer to the outgoing velocity of the satellite.
-     * \param pointerToOutgoingVelocity Pointer to outgoing velocity of the
-     *          satellite.
+     * \param pointerToOutgoingVelocity Pointer to outgoing velocity of the satellite.
      */
-    void setPointerToOutgoingVelocity( CartesianVelocityElements*
-                                       pointerToOutgoingVelocity );
+    void setPointerToOutgoingVelocity( CartesianVelocityElements* pointerToOutgoingVelocity )
+    { pointerToOutgoingVelocity_ = pointerToOutgoingVelocity; }
 
     //! Set pointer to Newton-Raphson method for gravity assist algorithm.
     /*!
@@ -152,7 +154,8 @@ public:
      * algorithm.
      * \param pointerToNewtonRaphson Pointer to NewtonRaphson object.
      */
-    void setNewtonRaphsonMethod( NewtonRaphson* pointerToNewtonRaphson );
+    void setNewtonRaphsonMethod( NewtonRaphson *pointerToNewtonRaphson )
+    { pointerToNewtonRaphson_ = pointerToNewtonRaphson; }
 
     //! Compute the delta-V of a powered swing-by.
     /*!
@@ -168,8 +171,7 @@ public:
      * \param gravityAssist Gravity Assist.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     GravityAssist& gravityAssist );
+    friend std::ostream& operator<<( std::ostream& stream, GravityAssist& gravityAssist );
 
 protected:
 
@@ -285,8 +287,7 @@ private:
      * Pointer to adaptor object of NewtonRaphsonAdaptor class. The template
      * parameter passed is this class.
      */
-    NewtonRaphsonAdaptor< GravityAssist >
-            newtonRaphsonAdaptorForGravityAssist_;
+    NewtonRaphsonAdaptor< GravityAssist > newtonRaphsonAdaptorForGravityAssist_;
 
     //! Define root-finder function.
     /*!
@@ -304,8 +305,7 @@ private:
      * \return Value of first derivative of root-finder function at defined
      * eccentricity.
      */
-    double firstDerivativeVelocityEffectFunction( double&
-                                                  incomingEccentricity );
+    double firstDerivativeVelocityEffectFunction( double& incomingEccentricity );
 
 };
 

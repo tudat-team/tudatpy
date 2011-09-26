@@ -42,7 +42,7 @@
 #define ESCAPEPHASE_H
 
 // Include statements.
-#include "escapeAndCapture.h"
+#include "Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.h"
 
 //! Escape phase class.
 /*!
@@ -56,13 +56,7 @@ public:
     /*!
      * Default constructor.
      */
-    EscapePhase( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~EscapePhase( );
+    EscapePhase( ) { }
 
     //! Overload ostream to print class information.
     /*!
@@ -71,8 +65,11 @@ public:
      * \param escapePhase Escape phase.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     EscapePhase& escapePhase );
+    friend std::ostream& operator<<( std::ostream& stream, EscapePhase& escapePhase )
+    {
+        stream << "The computed delta-V is: " << escapePhase.computeDeltaV( ) << std::endl;
+        return stream;
+    }
 
 protected:
 

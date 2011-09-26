@@ -46,8 +46,8 @@
 #define MOMENTMODEL_H
 
 // Include statements.
-#include "forceModel.h"
-#include "linearAlgebra.h"
+#include "Astrodynamics/ForceModels/forceModel.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Base class for moment models.
 /*!
@@ -61,13 +61,13 @@ public:
     /*!
      * Default constructor.
      */
-    MomentModel( );
+    MomentModel( ) : pointerToForceModel_( NULL ) { forceApplicationArm_.setZero( ); }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~MomentModel( );
+    virtual ~MomentModel( ) { }
 
     //! Set force application point.
     /*!
@@ -75,7 +75,8 @@ public:
      * which the moment is calculated, to the application point of the input force.
      * \param forceApplicationArm Vector arm to application point of force.
      */
-    void setForceApplicationArm( Vector3d& forceApplicationArm );
+    void setForceApplicationArm( Vector3d& forceApplicationArm )
+    { forceApplicationArm_ = forceApplicationArm; }
 
     //! Get force application arm.
     /*!
@@ -83,7 +84,7 @@ public:
      * frame in which the moment is calculated, to the application point of the input force.
      * \return Vector arm to application point of force.
      */
-    Vector3d& getForceApplicationArm( );
+    Vector3d& getForceApplicationArm( ) { return forceApplicationArm_; }
 
     //! Set force model.
     /*!
@@ -91,7 +92,8 @@ public:
      * orientation as the frame the moment is calculated in (normally the body frame).
      * \param pointerToForceModel Pointer to force model.
      */
-    void setForceModel( ForceModel* pointerToForceModel );
+    void setForceModel( ForceModel* pointerToForceModel )
+    { pointerToForceModel_ = pointerToForceModel; }
 
     //! Get force model.
     /*!
@@ -99,21 +101,21 @@ public:
      * orientation as the frame the moment is calculated in (normally the body frame).
      * \return Pointer to force model.
      */
-    ForceModel* getForceModel( );
+    ForceModel* getForceModel( ) { return pointerToForceModel_; }
 
     //! Get moment.
     /*!
      * Returns the moment.
      * \return Moment.
      */
-    Vector3d& getMoment( );
+    Vector3d& getMoment( ) { return moment_; }
 
     //! Set moment.
     /*!
      * Sets the moment.
      * \param moment Moment.
      */
-    void setMoment( Vector3d& moment );
+    void setMoment( Vector3d& moment ) { moment_  = moment; }
 
     //! Compute moment.
      /*!

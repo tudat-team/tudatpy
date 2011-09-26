@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-09-30T01:39:33
 # -------------------------------------------------
-QT -= gui
+QT -= gui core
 TARGET = Tudat
 CONFIG += console
 CONFIG -= app_bundle
@@ -30,7 +30,6 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.cpp \
     Astrodynamics/MomentModels/aerodynamicMoment.cpp \
-    Astrodynamics/MomentModels/momentModel.cpp \
     Astrodynamics/physicalConstants.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
     Astrodynamics/Propagators/cartesianStateNumericalPropagator.cpp \
@@ -54,13 +53,9 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/States/unitTestKeplerianElements.cpp \
     Astrodynamics/States/unitTestCartesianElements.cpp \
     Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
-    Astrodynamics/MissionSegments/trajectoryDesignMethod.cpp \
     Astrodynamics/MissionSegments/DeepSpaceManeuver/unitTestDeepSpaceManeuver.cpp \
-    Astrodynamics/MissionSegments/DeepSpaceManeuver/deepSpaceManeuver.cpp \
     Astrodynamics/MissionSegments/EscapeAndCapture/unitTestEscapeAndCapture.cpp \
-    Astrodynamics/MissionSegments/EscapeAndCapture/escapePhase.cpp \
     Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.cpp \
-    Astrodynamics/MissionSegments/EscapeAndCapture/capturePhase.cpp \
     Astrodynamics/MissionSegments/GravityAssist/unitTestGravityAssist.cpp \
     Astrodynamics/MissionSegments/GravityAssist/gravityAssist.cpp \
     Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.cpp \
@@ -224,9 +219,9 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Mathematics/RootFindingMethods/newtonRaphson.h \
     Mathematics/Statistics/simpleLinearRegression.h \
     Mathematics/Statistics/unitTestSimpleLinearRegression.h \
-    Output/outputHandling.h \
     Output/writingOutputToFile.h
-INCLUDEPATH += Applications \
+INCLUDEPATH += ./ \
+    Applications \
     Astrodynamics \
     Astrodynamics/Bodies \
     Astrodynamics/Bodies/CelestialBodies \

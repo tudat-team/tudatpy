@@ -44,13 +44,15 @@
  */
 
 // Include statements.
+#include <cmath>
 #include "Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h"
 #include "Astrodynamics/Bodies/CelestialBodies/planet.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-using mathematics::raiseToIntegerPower;
+using std::sin;
+using std::cos;
 
 //! Get state from ephemeris; circular, coplanar case
 CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphemeris(
@@ -80,11 +82,9 @@ CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphem
 
     // Convert to Cartesian position.
     VectorXd planetCartesianPositionAtGivenJulianDateX_( 3 );
-    mathematics::convertSphericalToCartesian(
-                constantOrbitalRadius_,
-                meanLongitudeAtGivenJulianDate_,
-                0.5 * M_PI,
-                planetCartesianPositionAtGivenJulianDateX_ );
+    mathematics::convertSphericalToCartesian( constantOrbitalRadius_,
+                                              meanLongitudeAtGivenJulianDate_, 0.5 * M_PI,
+                                              planetCartesianPositionAtGivenJulianDateX_ );
     Vector3d planetCartesianPositionAtGivenJulianDate_ =
             planetCartesianPositionAtGivenJulianDateX_;
 

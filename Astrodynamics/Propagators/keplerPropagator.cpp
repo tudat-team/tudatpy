@@ -53,7 +53,6 @@
 // Using declarations.
 using std::endl;
 using std::cerr;
-using mathematics::raiseToIntegerPower;
 
 //! Default constructor.
 KeplerPropagator::KeplerPropagator( ) : trueAnomaly_( -1.0 )

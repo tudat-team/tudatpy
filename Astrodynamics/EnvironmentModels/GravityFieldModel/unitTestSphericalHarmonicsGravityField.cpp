@@ -77,8 +77,8 @@ bool testSphericalHarmonicsGravityField( )
     // Using directives.
     using std::cerr;
     using std::endl;
-    using mathematics::raiseToIntegerPower;
-    using mathematics::computeAbsoluteValue;
+    using std::pow;
+    using std::fabs;
     using mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Five tests.
@@ -130,20 +130,14 @@ bool testSphericalHarmonicsGravityField( )
     double expectedResultForTest3 = gravitationalParameterOfMyPlanet
                                     / cartesianPosition.state.norm( );
     VectorXd expectedResultForTest4 =  -gravitationalParameterOfMyPlanet
-                                       / raiseToIntegerPower(
-                                               cartesianPosition
-                                               .state.norm( ), 3 )
+                                       / pow( cartesianPosition.state.norm( ), 3.0 )
                                        * cartesianPosition.state;
     Matrix3d expectedResultForTest5 = gravitationalParameterOfMyPlanet
-                                      / raiseToIntegerPower(
-                                              cartesianPosition
-                                              .state.norm( ), 5 )
+                                      / pow( cartesianPosition.state.norm( ), 5.0 )
                                       * ( ( 3.0 * cartesianPosition.state
-                                            * cartesianPosition
-                                            .state.transpose( ) )
-                                          - ( cartesianPosition
-                                              .state.squaredNorm( )
-                                              * identityMatrix ) );
+                                            * cartesianPosition.state.transpose( ) )
+                                          - ( cartesianPosition.state.squaredNorm( ) *
+                                              identityMatrix ) );
 
     // Results computed using implementation of spherical harmonics gravity
     // field class.
@@ -164,15 +158,9 @@ bool testSphericalHarmonicsGravityField( )
     VectorXd differenceBetweenResults( 5 );
     Vector3d differenceBetweenResultsForTest4;
     Matrix3d differenceBetweenResultsForTest5;
-    differenceBetweenResults( 0 ) = computeAbsoluteValue(
-                                      computedResultForTest1
-                                    - expectedResultForTest1 );
-    differenceBetweenResults( 1 ) = computeAbsoluteValue(
-                                      computedResultForTest2
-                                    - expectedResultForTest2 );
-    differenceBetweenResults( 2 ) = computeAbsoluteValue(
-                                      computedResultForTest3
-                                    - expectedResultForTest3 );
+    differenceBetweenResults( 0 ) = fabs( computedResultForTest1 - expectedResultForTest1 );
+    differenceBetweenResults( 1 ) = fabs( computedResultForTest2 - expectedResultForTest2 );
+    differenceBetweenResults( 2 ) = fabs( computedResultForTest3 - expectedResultForTest3 );
     differenceBetweenResultsForTest4 = computedResultForTest4
                                        - expectedResultForTest4;
     differenceBetweenResults( 3 ) =  differenceBetweenResultsForTest4.norm( );

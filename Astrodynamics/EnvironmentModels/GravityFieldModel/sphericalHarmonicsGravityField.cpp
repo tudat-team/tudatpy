@@ -56,16 +56,17 @@
  */
 
 // Include statements.
+#include <cmath>
+#include <iostream>
 #include "sphericalHarmonicsGravityField.h"
 
 // Using declarations.
-using mathematics::raiseToIntegerPower;
 using std::endl;
 using std::cerr;
+using std::pow;
 
 //! Set predefined spherical harmonics gravity field settings.
-void SphericalHarmonicsGravityField::
-setPredefinedSphericalHarmonicsGravityFieldSettings(
+void SphericalHarmonicsGravityField::setPredefinedSphericalHarmonicsGravityFieldSettings(
     BodiesWithPredefinedSphericalHarmonicsGravityFields
     bodyWithPredefinedSphericalHarmonicsGravityField )
 {
@@ -123,12 +124,10 @@ setPredefinedSphericalHarmonicsGravityFieldSettings(
 }
 
 //! Get the gravitational potential.
-double SphericalHarmonicsGravityField::getPotential(
-        CartesianPositionElements* pointerToPosition )
+double SphericalHarmonicsGravityField::getPotential( CartesianPositionElements* pointerToPosition )
 {
     // Compute relative position.
-    relativePosition_.state = pointerToPosition->state
-                              - positionOfOrigin_.state;
+    relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
 
     // Return the gravitational potential for a point mass.
     return gravitationalParameter_ / relativePosition_.state.norm( );
@@ -139,37 +138,31 @@ Vector3d SphericalHarmonicsGravityField::getGradientOfPotential(
         CartesianPositionElements* pointerToPosition )
 {
     // Compute relative position.
-    relativePosition_.state = pointerToPosition->state
-                              - positionOfOrigin_.state;
+    relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
 
     // Compute and return gradient of potential.
     return -gravitationalParameter_ * relativePosition_.state
-            / raiseToIntegerPower( relativePosition_.state.norm(), 3 );
+            / pow( relativePosition_.state.norm( ), 3.0 );
 }
 
 //! Get gradient tensor of the gravitational potential.
 Matrix3d SphericalHarmonicsGravityField::
-        getGradientTensorOfPotential( CartesianPositionElements*
-                                      pointerToPosition )
+        getGradientTensorOfPotential( CartesianPositionElements* pointerToPosition )
 {
-
     // Declare local variables.
     // Declare identity matrix for computations.
     Matrix3d identityMatrix_;
 
     // Compute relative position.
-    relativePosition_.state = pointerToPosition->state
-                              - positionOfOrigin_.state;
+    relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
+
     // Set identity matrix to square size of state.
     identityMatrix_.setIdentity( 3, 3 );
 
     // Compute and return gradient tensor of potential.
-    return gravitationalParameter_
-            / raiseToIntegerPower( relativePosition_.state.norm( ), 5 )
-            * ( ( 3.0 * relativePosition_.state
-                  * relativePosition_.state.transpose( ) )
-                - ( relativePosition_.state.squaredNorm( )
-                    * identityMatrix_ ) );
+    return gravitationalParameter_ / pow( relativePosition_.state.norm( ), 5.0 )
+            * ( ( 3.0 * relativePosition_.state * relativePosition_.state.transpose( ) )
+                - ( relativePosition_.state.squaredNorm( ) * identityMatrix_ ) );
 }
 
 //! Overload ostream to print class information.
@@ -179,15 +172,12 @@ std::ostream& operator<<( std::ostream& stream,
 {
     stream << "This is a SphericalHarmonicsGravityField object." << endl;
     stream << "The gravitational parameter is set to: "
-           << sphericalHarmonicsGravityField.getGravitationalParameter( )
-           << endl;
+           << sphericalHarmonicsGravityField.getGravitationalParameter( ) << endl;
     stream << "The origin of the gravity field is set to: "
            << sphericalHarmonicsGravityField.getOrigin( ) << endl;
-    stream << "The degree of expansion of the spherical harmonics series is "
-           << "set to : "
+    stream << "The degree of expansion of the spherical harmonics series is set to : "
            << sphericalHarmonicsGravityField.getDegreeOfExpansion( ) << endl;
-    stream << "The order of expansion of the spherical harmonics series is "
-           << "set to: "
+    stream << "The order of expansion of the spherical harmonics series is set to: "
            << sphericalHarmonicsGravityField.getOrderOfExpansion( ) << endl;
     stream << "The reference radius is set to: "
            << sphericalHarmonicsGravityField.getReferenceRadius( ) << endl;

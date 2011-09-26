@@ -58,7 +58,7 @@ bool testTabulatedAtmosphere( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using mathematics::computeAbsoluteValue;
+    using std::pow;
     using mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Declare test variable.
@@ -86,17 +86,12 @@ bool testTabulatedAtmosphere( )
     double altitude = 0.0;
 
     // Check whether the atmosphere is calculated correctly at sea level.
-    if ( computeAbsoluteValue( ( tabulatedAtmosphere.getTemperature( altitude )
-                               - 288.15 ) / 288.15 )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( tabulatedAtmosphere.getDensity( altitude )
-                              - 1.225 ) / 1.225 )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( tabulatedAtmosphere.getPressure( altitude )
-                              - 101325.0 ) / 101325.0 )
-        > 1.0e-4 )
+    if ( fabs( ( tabulatedAtmosphere.getTemperature( altitude ) - 288.15 ) / 288.15 )
+         > MACHINE_PRECISION_DOUBLES
+         || fabs( ( tabulatedAtmosphere.getDensity( altitude ) - 1.225 ) / 1.225 )
+         > MACHINE_PRECISION_DOUBLES
+         || fabs( ( tabulatedAtmosphere.getPressure( altitude ) - 101325.0 ) / 101325.0 )
+         > 1.0e-4 )
         // Because of different gas constant used in the USSA1976, there is a slight difference.
     {
         cerr << "The tabulated atmosphere at sea level is calculated incorrectly." << endl;
@@ -117,14 +112,12 @@ bool testTabulatedAtmosphere( )
     double longitude = 0.0;
     double latitude = 0.0;
 
-    if ( computeAbsoluteValue(  tabulatedAtmosphere.getTemperature(
-            altitude, longitude, latitude ) - 223.26 ) > 1.0e-2
-         ||
-         computeAbsoluteValue(  tabulatedAtmosphere.getDensity(
-            altitude, longitude, latitude ) - 0.41351 ) > 1.0e-4
-         ||
-         computeAbsoluteValue(  tabulatedAtmosphere.getPressure(
-            altitude, longitude, latitude ) - 26500  ) > 1.0 )
+    if ( fabs(  tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ) - 223.26 )
+         > 1.0e-2
+         || fabs(  tabulatedAtmosphere.getDensity( altitude, longitude, latitude ) - 0.41351 )
+         > 1.0e-4
+         || fabs(  tabulatedAtmosphere.getPressure( altitude, longitude, latitude ) - 26500  )
+         > 1.0 )
     {
         cerr << "The tabulated atmosphere at 10 km altitude is calculated incorrectly." << endl;
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;
@@ -140,14 +133,9 @@ bool testTabulatedAtmosphere( )
     // The values are linear interpolated values based on book values.
     altitude = 10.05e3 ;
 
-    if ( computeAbsoluteValue(  tabulatedAtmosphere.getTemperature( altitude )
-            - 222.9350 )  > 2.0e-2
-         ||
-         computeAbsoluteValue(  tabulatedAtmosphere.getDensity( altitude )
-            - 0.4110 ) > 1.0e-3
-         ||
-         computeAbsoluteValue(  tabulatedAtmosphere.getPressure( altitude )
-            - 26299 ) > 1.0 )
+    if ( fabs(  tabulatedAtmosphere.getTemperature( altitude ) - 222.9350 )  > 2.0e-2
+         || fabs(  tabulatedAtmosphere.getDensity( altitude ) - 0.4110 ) > 1.0e-3
+         || fabs(  tabulatedAtmosphere.getPressure( altitude ) - 26299 ) > 1.0 )
     {
         cerr << "The tabulated atmosphere at 10.05 km altitude is calculated incorrectly." << endl;
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;
@@ -162,17 +150,10 @@ bool testTabulatedAtmosphere( )
     // Compared with a figure in the US 1976 standard atmosphere document. (coars figure)
     altitude = 1.0e6 ;
 
-    if ( computeAbsoluteValue( ( tabulatedAtmosphere.getTemperature( altitude )
-                               - 1000.0 ) / 1000.0 )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( tabulatedAtmosphere.getDensity( altitude )
-                              - 5.0e-15 ) / 5.0e-15 )
-        > 0.5
-        ||
-        computeAbsoluteValue( ( tabulatedAtmosphere.getPressure( altitude )
-                              - 1.0e-8 ) / 1.0e-8  )
-        > 0.5 )
+    if ( fabs( ( tabulatedAtmosphere.getTemperature( altitude ) - 1000.0 ) / 1000.0 )
+         > MACHINE_PRECISION_DOUBLES
+         || fabs( ( tabulatedAtmosphere.getDensity( altitude ) - 5.0e-15 ) / 5.0e-15 ) > 0.5
+         || fabs( ( tabulatedAtmosphere.getPressure( altitude ) - 1.0e-8 ) / 1.0e-8  ) > 0.5 )
     {
         cerr << "The tabulated atmosphere at 1000 km altitude is calculated incorrectly." << endl;
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;
@@ -186,17 +167,12 @@ bool testTabulatedAtmosphere( )
     // Compared with the input table.
     altitude = 1.0e6;
 
-    if ( computeAbsoluteValue( ( tabulatedAtmosphere.getTemperature( altitude )
-                               - 1000.0 ) / 1000.0 )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( tabulatedAtmosphere.getDensity( altitude )
-                              - 3.5618e-15 ) / 3.5618e-15 )
-        > MACHINE_PRECISION_DOUBLES
-        ||
-        computeAbsoluteValue( ( tabulatedAtmosphere.getPressure( altitude )
-                              - 7.5158e-9 ) / 7.5158e-9  )
-        > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( ( tabulatedAtmosphere.getTemperature( altitude ) - 1000.0 ) / 1000.0 )
+         > MACHINE_PRECISION_DOUBLES
+         || fabs( ( tabulatedAtmosphere.getDensity( altitude ) - 3.5618e-15 ) / 3.5618e-15 )
+         > MACHINE_PRECISION_DOUBLES
+         || fabs( ( tabulatedAtmosphere.getPressure( altitude ) - 7.5158e-9 ) / 7.5158e-9 )
+         > MACHINE_PRECISION_DOUBLES )
     {
         cerr << "The tabulated atmosphere at 1000 km altitude is calculated incorrectly." << endl;
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;

@@ -44,11 +44,6 @@
 #ifndef UNITTESTGRAVITYASSIST_H
 #define UNITTESTGRAVITYASSIST_H
 
-// Include statements.
-#include "gravityAssist.h"
-#include "planet.h"
-#include "unitConversions.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.

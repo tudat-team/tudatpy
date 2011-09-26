@@ -39,44 +39,8 @@
 */
 
 // Include statements.
-#include "aerodynamicMoment.h"
-
-//! Default constructor.
-AerodynamicMoment::AerodynamicMoment( ) : pointerToAerodynamicCoefficientInterface_( NULL ),
-                                          dynamicPressure_( -0.0 )
-{
-}
-
-//! Default destructor.
-AerodynamicMoment::~AerodynamicMoment( )
-{
-}
-
-//! Set aerodynamic coefficient interface.
-void AerodynamicMoment::setAerodynamicCoefficientInterface(
-        AerodynamicCoefficientInterface* pointerToAerodynamicCoefficientInterface )
-{
-    pointerToAerodynamicCoefficientInterface_ = pointerToAerodynamicCoefficientInterface;
-}
-
-//! Set aerodynamic coefficient interface.
-AerodynamicCoefficientInterface*
-        AerodynamicMoment::getAerodynamicCoefficientInterface( )
-{
-    return pointerToAerodynamicCoefficientInterface_;
-}
-
-//! Set dynamic pressure.
-void AerodynamicMoment::setDynamicPressure( const double& dynamicPressure )
-{
-    dynamicPressure_ = dynamicPressure;
-}
-
-//! Get dynamic pressure.
-double& AerodynamicMoment::getDynamicPressure( )
-{
-    return dynamicPressure_;
-}
+#include <cmath>
+#include "Astrodynamics/MomentModels/aerodynamicMoment.h"
 
 //! Compute aerodynamic moment.
 void AerodynamicMoment::computeMoment( State* pointerToState )

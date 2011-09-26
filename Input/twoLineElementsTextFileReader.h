@@ -61,7 +61,7 @@
  *                                  and Tudat rules.
  *      110803    J. Leloux         First setup for codecheck.
  *      110805    K. Kumar          Layout and comment corrections; added
- *                                  get-function for vector container of TLE
+ *                                  get-function for std::vector container of TLE
  *                                  data.
  *      110810    J. Leloux         Tested new setup and changed descriptions.
  */
@@ -70,24 +70,8 @@
 #define TWOLINEELEMENTSTEXTFILEREADER_H
 
 // Include statements.
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <map>
-#include <string>
-#include <utility>
-#include "basicFunctions.h"
-#include "orbitalElementConversions.h"
-#include "physicalConstants.h"
-#include "planet.h"
-#include "sphericalHarmonicsGravityField.h"
-#include "textFileReader.h"
-#include "twoLineElementData.h"
-
-// Using declarations.
-using std::vector;
-using std::multimap;
-using std::pair;
+#include "Input/textFileReader.h"
+#include "Input/twoLineElementData.h"
 
 //! TLE catalog text file reader class.
 /*!
@@ -101,20 +85,20 @@ public:
     /*!
      * Default constructor.
      */
-    TwoLineElementsTextFileReader( );
+    TwoLineElementsTextFileReader( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    ~TwoLineElementsTextFileReader( );
+    virtual ~TwoLineElementsTextFileReader( ) { }
 
     //! Set current year.
     /*!
      * Sets the current year.
      * \param currentYear Current year.
      */
-    void setCurrentYear( const unsigned int& currentYear );
+    void setCurrentYear( const unsigned int& currentYear ) { currentYear_ = currentYear; }
 
     //! Get TLE data.
     /*!
@@ -122,14 +106,14 @@ public:
      * data retrieved from the catalog file and stored in objects.
      * \return TLE data stored in TwoLineElementData objects.
      */
-    vector< TwoLineElementData >& getTwoLineElementData( );
+    std::vector< TwoLineElementData >& getTwoLineElementData( ) { return twoLineElementData_; }
 
     //! Get number of objects.
     /*!
      * Returns number of objects in TLE data catalog file.
      * \return Number of objects in TLE data catalog file.
      */
-    unsigned int& getNumberOfObjects( );
+    unsigned int& getNumberOfObjects( ) { return numberOfObjects_; }
 
     //! Convert and store TLE data.
     /*!
@@ -148,7 +132,7 @@ public:
      * \return 0 for success, integer with number of corrupted objects for
      *          failure (with error output).
      */
-    multimap< int, string > checkTwoLineElementsFileIntegrity( );
+    std::multimap< int, std::string > checkTwoLineElementsFileIntegrity( );
 
 protected:
 
@@ -171,7 +155,7 @@ private:
      * Vector of TwoLineElementData objects, used to store multiple objects
      * with their TLE data from catalog file.
      */
-    vector< TwoLineElementData > twoLineElementData_;
+    std::vector< TwoLineElementData > twoLineElementData_;
 };
 
 #endif // TWOLINEELEMENTSTEXTFILEREADER_H

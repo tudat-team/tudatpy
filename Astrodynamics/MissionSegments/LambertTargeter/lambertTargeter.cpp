@@ -69,7 +69,7 @@
  *                                  use the last version of Newton-Raphson code.
  *      110126    E. Iorfida        Initialized member functions.
  *      110130    J. Melman         Simplified variable names, e.g.,
- *                                  'normOfVelocityVector' became 'speed'.
+ *                                  'normOfdeletVelocityVector' became 'speed'.
  *                                  Requested references to specific formulas.
  *                                  Also corrected 'tangential' to 'transverse'.
  *                                  Simplified computation of radial unit
@@ -95,117 +95,22 @@
  */
 
 // Include statementes.
-#include "lambertTargeter.h"
+#include <cmath>
+#include "Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 // Using declarations.
 using linear_algebra::determineAngleBetweenVectors;
-using mathematics::raiseToIntegerPower;
-using mathematics::computeAbsoluteValue;
+using std::pow;
+using std::sqrt;
+using std::log;
+using std::tan;
+using std::atan;
+using std::cos;
+using std::sin;
 
 // Using declarations.
 using std::endl;
-
-//! Default constructor.
-LambertTargeter::LambertTargeter( ):
-        xParameter_( -0.0 ),
-        normalizedTimeOfFlight_( -0.0 ),
-        qParameter_( -0.0 )
-{
-    // Initialize variables.
-    pointerToCartesianVelocityAtDeparture_ = new CartesianVelocityElements;
-    pointerToCartesianVelocityAtArrival_ = new CartesianVelocityElements;
-}
-
-//! Default destructor.
-LambertTargeter::~LambertTargeter( )
-{
-}
-
-//! Set position at departure.
-void LambertTargeter::setPositionAtDeparture(
-        CartesianPositionElements *pointerToCartesianPositionAtDeparture )
-{
-    pointerToCartesianPositionAtDeparture_ =
-            pointerToCartesianPositionAtDeparture;
-}
-
-//! Set position at arrival.
-void LambertTargeter::setPositionAtArrival(
-        CartesianPositionElements *pointerToCartesianPositionAtArrival )
-{
-    pointerToCartesianPositionAtArrival_ = pointerToCartesianPositionAtArrival;
-}
-
-//! Set number of revolutions.
-void LambertTargeter::setNumberOfRevolutions(
-        const int &numberOfRevolutions )
-{
-    numberOfRevolutions_ = numberOfRevolutions;
-}
-
-//! Set time of flight.
-void LambertTargeter::setTimeOfFlight( const double &timeOfFlight )
-{
-    timeOfFlight_ = timeOfFlight;
-}
-
-//! Set central body.
-void LambertTargeter::setCentralBody(
-        CelestialBody *pointerToCelestialBody )
-{
-    pointerToCelestialBody_ = pointerToCelestialBody;
-}
-
-//! Set pointer to Newton-Raphson method for Lambert targeting algorithm.
-void LambertTargeter::setNewtonRaphsonMethod(
-        NewtonRaphson *pointerToNewtonRaphson )
-{
-    // Set pointer to object of NewtonRaphson class.
-    pointerToNewtonRaphson_ = pointerToNewtonRaphson;
-}
-
-//! Get semi-major axis.
-double& LambertTargeter::getLambertSemiMajorAxis( )
-{
-    return lambertSemiMajorAxis_;
-}
-
-//! Get radial speed at departure.
-double& LambertTargeter::getRadialSpeedAtDeparture( )
-{
-    return radialSpeedAtDeparture_;
-}
-
-//! Get radial speed at arrival.
-double& LambertTargeter::getRadialSpeedAtArrival( )
-{
-    return radialSpeedAtArrival_;
-}
-
-//! Get transverse speed at departure.
-double& LambertTargeter::
-        getTransverseSpeedAtDeparture( )
-{
-    return transverseSpeedAtDeparture_;
-}
-
-//! Get transverse speed at arrival.
-double& LambertTargeter::getTransverseSpeedAtArrival( )
-{
-    return transverseSpeedAtArrival_;
-}
-
-//! Get inertial velocity at departure.
-CartesianVelocityElements* LambertTargeter::getInertialVelocityAtDeparture( )
-{
-    return pointerToCartesianVelocityAtDeparture_;
-}
-
-//! Get inertial velocity at arrival.
-CartesianVelocityElements* LambertTargeter::getInertialVelocityAtArrival( )
-{
-    return pointerToCartesianVelocityAtArrival_;
-}
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
@@ -229,16 +134,12 @@ std::ostream& operator<<( std::ostream& stream,
 //! Define Lambert function for positive lambertEccentricAnomaly_.
 double LambertTargeter::lambertFunctionPositive( double& xParameter_ )
 {
-    double lambertEccentricAnomaly_ =
-            raiseToIntegerPower( xParameter_ , 2 ) - 1.0;
-    double yParameter_ = sqrt( computeAbsoluteValue(
-            lambertEccentricAnomaly_ ) );
-    double zParameter_ = sqrt( 1.0 - raiseToIntegerPower( qParameter_ , 2 ) +
-            raiseToIntegerPower( qParameter_ * xParameter_ , 2 ) );
-    double fParameter_ = yParameter_ * ( zParameter_ - qParameter_ *
-            xParameter_ );
-    double gParameter_ = xParameter_ * zParameter_ - qParameter_ *
-            lambertEccentricAnomaly_;
+    double lambertEccentricAnomaly_ = pow( xParameter_ , 2.0 ) - 1.0;
+    double yParameter_ = sqrt( fabs( lambertEccentricAnomaly_ ) );
+    double zParameter_ = sqrt( 1.0 - pow( qParameter_ , 2.0 ) +
+                               pow( qParameter_ * xParameter_ , 2.0 ) );
+    double fParameter_ = yParameter_ * ( zParameter_ - qParameter_ * xParameter_ );
+    double gParameter_ = xParameter_ * zParameter_ - qParameter_ * lambertEccentricAnomaly_;
     double dParameter_ = log( fParameter_ + gParameter_ );
 
     return normalizedTimeOfFlight_ -
@@ -249,21 +150,16 @@ double LambertTargeter::lambertFunctionPositive( double& xParameter_ )
 //! Define Lambert function for negative lambertEccentricAnomaly_.
 double LambertTargeter::lambertFunctionNegative( double& xParameter_ )
 {
-    double lambertEccentricAnomaly_ =
-            raiseToIntegerPower( xParameter_ , 2 ) - 1.0;
-    double yParameter_ = sqrt( computeAbsoluteValue(
-            lambertEccentricAnomaly_ ) );
-    double zParameter_ = sqrt( 1.0 - raiseToIntegerPower( qParameter_ , 2 ) +
-            raiseToIntegerPower( qParameter_ * xParameter_ , 2 ) );
-    double fParameter_ = yParameter_ * ( zParameter_ - qParameter_ *
-            xParameter_ );
-    double gParameter_ = xParameter_ * zParameter_ - qParameter_ *
-            lambertEccentricAnomaly_;
+    double lambertEccentricAnomaly_ = pow( xParameter_, 2.0 ) - 1.0;
+    double yParameter_ = sqrt( fabs( lambertEccentricAnomaly_ ) );
+    double zParameter_ = sqrt( 1.0 - pow( qParameter_, 2.0 ) +
+                               pow( qParameter_ * xParameter_, 2.0 ) );
+    double fParameter_ = yParameter_ * ( zParameter_ - qParameter_ * xParameter_ );
+    double gParameter_ = xParameter_ * zParameter_ - qParameter_ * lambertEccentricAnomaly_;
     double dParameter_ = atan( fParameter_ / gParameter_ );
 
-    return normalizedTimeOfFlight_ -
-           2.0 * ( xParameter_ - qParameter_ * zParameter_ - dParameter_ /
-           yParameter_ ) / lambertEccentricAnomaly_;
+    return normalizedTimeOfFlight_ - 2.0 * ( xParameter_ - qParameter_ * zParameter_ - dParameter_
+                                             / yParameter_ ) / lambertEccentricAnomaly_;
 }
 
 //! Define first derivative of Lambert function for positive
@@ -271,108 +167,87 @@ double LambertTargeter::lambertFunctionNegative( double& xParameter_ )
 double LambertTargeter::lambertFirstDerivativeFunctionPositive(
          double& xParameter_ )
 {
-    double lambertEccentricAnomaly_ =
-            raiseToIntegerPower( xParameter_ , 2 ) - 1.0;
-    double yParameter_ = sqrt( computeAbsoluteValue(
-            lambertEccentricAnomaly_ ) );
-    double zParameter_ = sqrt( 1.0 - raiseToIntegerPower( qParameter_ , 2 ) +
-            raiseToIntegerPower( qParameter_ * xParameter_ , 2 ) );
-    double fParameter_ = yParameter_ * ( zParameter_ - qParameter_ *
-            xParameter_ );
-    double gParameter_ = xParameter_ * zParameter_ - qParameter_ *
-            lambertEccentricAnomaly_;
+    double lambertEccentricAnomaly_ = pow( xParameter_, 2.0 ) - 1.0;
+    double yParameter_ = sqrt( fabs( lambertEccentricAnomaly_ ) );
+    double zParameter_ = sqrt( 1.0 - pow( qParameter_, 2.0 ) +
+                               pow( qParameter_ * xParameter_, 2.0 ) );
+    double fParameter_ = yParameter_ * ( zParameter_ - qParameter_ * xParameter_ );
+    double gParameter_ = xParameter_ * zParameter_ - qParameter_ * lambertEccentricAnomaly_;
     double dParameter_ = log( fParameter_ + gParameter_ );
     double lambertEccentricAnomalyDerivative_ = 2.0 * xParameter_;
-    double yParameterDerivative_ = xParameter_ /
-            sqrt( raiseToIntegerPower( xParameter_ , 2 ) - 1.0 );
-    double zParameterDerivative_ = raiseToIntegerPower( qParameter_ , 2 ) *
-            xParameter_ / zParameter_;
-    double fParameterDerivative_ = yParameterDerivative_ * ( zParameter_ -
-            xParameter_ * qParameter_ ) + yParameter_ *
+    double yParameterDerivative_ = xParameter_ / sqrt( pow( xParameter_ , 2.0 ) - 1.0 );
+    double zParameterDerivative_ = pow( qParameter_ , 2.0 ) * xParameter_ / zParameter_;
+    double fParameterDerivative_ = yParameterDerivative_  *
+            ( zParameter_ - xParameter_ * qParameter_ ) + yParameter_ *
             ( zParameterDerivative_ - qParameter_ );
     double gParameterDerivative_ = zParameter_ + xParameter_ *
-            zParameterDerivative_ - qParameter_ *
-            lambertEccentricAnomalyDerivative_;
-    double dParameterDerivative_ = ( fParameterDerivative_ +
-            gParameterDerivative_ ) / ( fParameter_ + gParameter_ );
+            zParameterDerivative_ - qParameter_ * lambertEccentricAnomalyDerivative_;
+    double dParameterDerivative_ = ( fParameterDerivative_ + gParameterDerivative_ ) /
+            ( fParameter_ + gParameter_ );
 
     return - 2.0 * ( lambertEccentricAnomaly_ * ( 1.0 - qParameter_ *
            zParameterDerivative_ - ( ( dParameterDerivative_ * yParameter_ -
-           yParameterDerivative_ * dParameter_ ) /
-           raiseToIntegerPower( yParameter_ , 2 ) ) ) - ( ( xParameter_ -
+           yParameterDerivative_ * dParameter_ ) / pow( yParameter_, 2.0 ) ) ) - ( ( xParameter_ -
            qParameter_ * zParameter_ - ( dParameter_ / yParameter_ ) ) *
-           lambertEccentricAnomalyDerivative_ ) ) /
-           ( raiseToIntegerPower( lambertEccentricAnomaly_ , 2 ) );
+           lambertEccentricAnomalyDerivative_ ) ) / ( pow( lambertEccentricAnomaly_, 2.0 ) );
 }
 
-//! Define first derivative of Lambert function for negative
-//! lambertEccentricAnomaly_.
-double LambertTargeter::lambertFirstDerivativeFunctionNegative(
-         double& xParameter_ )
+//! Define first derivative of Lambert function for negative lambertEccentricAnomaly_.
+double LambertTargeter::lambertFirstDerivativeFunctionNegative( double& xParameter_ )
 {
-    double lambertEccentricAnomaly_ =
-            raiseToIntegerPower( xParameter_ , 2 ) - 1.0;
-    double yParameter_ = sqrt( computeAbsoluteValue(
-            lambertEccentricAnomaly_ ) );
-    double zParameter_ = sqrt( 1.0 - raiseToIntegerPower( qParameter_ , 2 ) +
-            raiseToIntegerPower( qParameter_ * xParameter_ , 2 ) );
-    double fParameter_ = yParameter_ * ( zParameter_ - qParameter_ *
-            xParameter_ );
-    double gParameter_ = xParameter_ * zParameter_ - qParameter_ *
-            lambertEccentricAnomaly_;
+    double lambertEccentricAnomaly_ = pow( xParameter_, 2.0 ) - 1.0;
+    double yParameter_ = sqrt( fabs( lambertEccentricAnomaly_ ) );
+    double zParameter_ = sqrt( 1.0 - pow( qParameter_, 2.0 ) +
+                               pow( qParameter_ * xParameter_, 2.0 ) );
+    double fParameter_ = yParameter_ * ( zParameter_ - qParameter_ * xParameter_ );
+    double gParameter_ = xParameter_ * zParameter_ - qParameter_ * lambertEccentricAnomaly_;
     double dParameter_ = atan( fParameter_ / gParameter_ );
     double lambertEccentricAnomalyDerivative_ = 2.0 * xParameter_;
-    double yParameterDerivative_ = -1.0 * xParameter_ /
-            sqrt( 1.0 - raiseToIntegerPower( xParameter_ , 2 ) );
-    double zParameterDerivative_ = raiseToIntegerPower( qParameter_ , 2 ) *
-            xParameter_ / zParameter_;
-    double fParameterDerivative_ = yParameterDerivative_ * ( zParameter_ -
-            xParameter_ * qParameter_ ) + yParameter_ *
+    double yParameterDerivative_ = -1.0 * xParameter_ / sqrt( 1.0 - pow( xParameter_, 2.0 ) );
+    double zParameterDerivative_ = pow( qParameter_, 2.0 ) * xParameter_ / zParameter_;
+    double fParameterDerivative_ = yParameterDerivative_ *
+            ( zParameter_ - xParameter_ * qParameter_ ) + yParameter_ *
             ( zParameterDerivative_ - qParameter_ );
     double gParameterDerivative_ = zParameter_ + xParameter_ *
-            zParameterDerivative_ - qParameter_ *
-            lambertEccentricAnomalyDerivative_;
+            zParameterDerivative_ - qParameter_ *  lambertEccentricAnomalyDerivative_;
     double dParameterDerivative_ = ( fParameterDerivative_ * gParameter_ -
             fParameter_ * gParameterDerivative_ ) /
-            ( raiseToIntegerPower( fParameter_ , 2 ) +
-              raiseToIntegerPower( gParameter_ , 2 ) );
+            ( pow( fParameter_ , 2.0 ) + pow( gParameter_ , 2.0 ) );
 
     return - 2.0 * ( lambertEccentricAnomaly_ * ( 1.0 - qParameter_ *
            zParameterDerivative_ - ( ( dParameterDerivative_ * yParameter_ -
            yParameterDerivative_ * dParameter_ ) /
-           raiseToIntegerPower( yParameter_ , 2 ) ) ) - ( ( xParameter_ -
+           pow( yParameter_, 2.0 ) ) ) - ( ( xParameter_ -
            qParameter_ * zParameter_ - ( dParameter_ / yParameter_ ) ) *
-           lambertEccentricAnomalyDerivative_ ) ) /
-           ( raiseToIntegerPower( lambertEccentricAnomaly_ , 2 ) );
+           lambertEccentricAnomalyDerivative_ ) ) / ( pow( lambertEccentricAnomaly_, 2.0 ) );
 }
 
 //! Define general Lambert function.
 double LambertTargeter::lambertFunction( double &xParameter_ )
 {
-    double lambertEccentricAnomaly_ =
-            raiseToIntegerPower( xParameter_ , 2 ) - 1.0;
+    double lambertEccentricAnomaly_ = pow( xParameter_, 2.0 ) - 1.0;
 
     if ( lambertEccentricAnomaly_ > 0.0 )
     {
-        return LambertTargeter::lambertFunctionPositive( xParameter_);
-    }
-    else
-    {
-        return LambertTargeter::lambertFunctionNegative( xParameter_);
+        return lambertFunctionPositive( xParameter_);
     }
 
+    else
+    {
+        return lambertFunctionNegative( xParameter_);
+    }
 }
 
 //! Define first derivative of general Lambert function.
 double LambertTargeter::lambertFirstDerivativeFunction( double &xParameter_ )
 {
-    double lambertEccentricAnomaly_ =
-            raiseToIntegerPower( xParameter_ , 2 ) - 1.0;
+    double lambertEccentricAnomaly_ = pow( xParameter_, 2 ) - 1.0;
 
     if ( lambertEccentricAnomaly_ > 0.0 )
     {
         return lambertFirstDerivativeFunctionPositive( xParameter_ );
     }
+
     else
     {
         return lambertFirstDerivativeFunctionNegative( xParameter_ );
@@ -424,10 +299,8 @@ void LambertTargeter::execute( )
 
     // Compute chord.
     double chord_;
-    chord_ = sqrt( raiseToIntegerPower( radiusAtDeparture_, 2 ) +
-                   raiseToIntegerPower( radiusAtArrival_, 2 ) -
-                   2.0 * radiusAtDeparture_ * radiusAtArrival_ *
-                   cos( reducedLambertAngle_ ) );
+    chord_ = sqrt( pow( radiusAtDeparture_, 2.0 ) + pow( radiusAtArrival_, 2.0 ) -
+                   2.0 * radiusAtDeparture_ * radiusAtArrival_ * cos( reducedLambertAngle_ ) );
 
     // Compute semi-perimeter.
     double semiPerimeter_;
@@ -436,8 +309,7 @@ void LambertTargeter::execute( )
     // Compute normalized time of flight.
     // Formula (7) [1].
     normalizedTimeOfFlight_ = sqrt( 8.0 * pointerToCelestialBody_->
-            getGravitationalParameter( ) /
-            raiseToIntegerPower( semiPerimeter_ , 3 ) ) * timeOfFlight_;
+            getGravitationalParameter( ) / pow( semiPerimeter_, 3.0 ) ) * timeOfFlight_;
 
     // Compute q-parameter.
     // Formula (5) [1].
@@ -453,7 +325,7 @@ void LambertTargeter::execute( )
     // Compute values of parameters needed to compute the initial guess of
     // x-parameter.
     double zParameterInitial_;
-    zParameterInitial_ = sqrt( 1.0 - raiseToIntegerPower( qParameter_ , 2 ) );
+    zParameterInitial_ = sqrt( 1.0 - pow( qParameter_, 2.0 ) );
 
     // Formula (6.11) [2].
     double lambertEccentricAnomalyInitial_ ;
@@ -461,8 +333,7 @@ void LambertTargeter::execute( )
 
     // Formula (6.12) [2].
     double yParameterInitial_;
-    yParameterInitial_ = sqrt(
-            computeAbsoluteValue( lambertEccentricAnomalyInitial_ ) );
+    yParameterInitial_ = sqrt( fabs( lambertEccentricAnomalyInitial_ ) );
 
     // Formula (6.14) [2].
     double fParameterInitial_;
@@ -478,16 +349,15 @@ void LambertTargeter::execute( )
 
     // Formula (6.9) [2].
     tFunctionInitial_ = -2.0 * ( qParameter_ * zParameterInitial_ +
-            dParameterInitial_ / yParameterInitial_ ) /
-            lambertEccentricAnomalyInitial_;
+            dParameterInitial_ / yParameterInitial_ ) / lambertEccentricAnomalyInitial_;
 
     // Determine initial Lambert guess.
     if ( tFunctionInitial_ > normalizedTimeOfFlight_ )
     {
         // Formula (11) [1].
         initialLambertGuess_ = tFunctionInitial_ *
-           ( tFunctionInitial_ - normalizedTimeOfFlight_ ) /
-           ( 4.0 * normalizedTimeOfFlight_ );
+                ( tFunctionInitial_ - normalizedTimeOfFlight_ ) /
+                ( 4.0 * normalizedTimeOfFlight_ );
     }
     else
     {
@@ -501,9 +371,7 @@ void LambertTargeter::execute( )
                      0.5 * tFunctionInitial_ ) );
 
         // Formula (20) [1].
-        double phi = 2.0 * atan2( ( 1.0 -
-                     raiseToIntegerPower( qParameter_ , 2 ) ) ,
-                     2.0 * qParameter_ );
+        double phi = 2.0 * atan2( ( 1.0 - pow( qParameter_, 2.0 ) ), 2.0 * qParameter_ );
 
         // Formula (16) [1].
         double W = x01 + 1.7 * sqrt( 2.0 - phi / M_PI );
@@ -521,8 +389,7 @@ void LambertTargeter::execute( )
 
         // Formula (19) [1].
         double lambdax;
-        lambdax = 1 + 0.5 * x03 * ( 1 + x01 ) - 0.03 *
-                  raiseToIntegerPower( x03 , 2 ) * sqrt( 1.0 + x01 );
+        lambdax = 1 + 0.5 * x03 * ( 1 + x01 ) - 0.03 * pow( x03 , 2.0 ) * sqrt( 1.0 + x01 );
 
         // Formula (18) [1].
         initialLambertGuess_ = lambdax * x03;
@@ -542,10 +409,11 @@ void LambertTargeter::execute( )
     // A patch for negative initialLambertGuess_ is applied.
     // This has not been stated in the paper by Gooding, but this patch
     // has been found by trial and error.
-    if ( raiseToIntegerPower( initialLambertGuess_ , 2 ) - 1.0 < 0.0 )
+    if ( pow( initialLambertGuess_, 2.0 ) - 1.0 < 0.0 )
     {
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( computeAbsoluteValue( initialLambertGuess_ ) );
+        pointerToNewtonRaphson_->setInitialGuessOfRoot( fabs( initialLambertGuess_ ) );
     }
+
     else
     {
         pointerToNewtonRaphson_->setInitialGuessOfRoot( initialLambertGuess_ );
@@ -569,8 +437,7 @@ void LambertTargeter::execute( )
     xParameter_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );
 
     // Compute semi-major axis of the transfer orbit.
-    lambertSemiMajorAxis_ = semiPerimeter_ / ( 2.0 *
-            ( 1.0 - raiseToIntegerPower( xParameter_ , 2 ) ) );
+    lambertSemiMajorAxis_ = semiPerimeter_ / ( 2.0 * ( 1.0 - pow( xParameter_ , 2.0 ) ) );
 
     // Compute velocities at departure and at arrival.
 
@@ -581,14 +448,12 @@ void LambertTargeter::execute( )
     double zParameter_;
 
     // Formula (8) [1].
-    zParameter_ = sqrt( 1.0 - raiseToIntegerPower( qParameter_, 2 ) +
-            raiseToIntegerPower( qParameter_ , 2 ) *
-            raiseToIntegerPower( xParameter_ , 2 ) );
+    zParameter_ = sqrt( 1.0 - pow( qParameter_, 2.0 ) +
+            pow( qParameter_, 2.0 ) * pow( xParameter_, 2.0 ) );
 
     // Formula (6.23) [2].
     lambertGamma_ = sqrt(
-            pointerToCelestialBody_->getGravitationalParameter( ) *
-            semiPerimeter_ / 2.0 );
+            pointerToCelestialBody_->getGravitationalParameter( ) * semiPerimeter_ / 2.0 );
 
     // Formula (6.24) [2].
     lambertRho_ = ( radiusAtDeparture_ -
@@ -596,8 +461,7 @@ void LambertTargeter::execute( )
 
     // Formula (6.25) [2].
     lambertSigma_ = 2.0 *( sqrt(
-            radiusAtDeparture_ * radiusAtArrival_ /
-            raiseToIntegerPower( chord_ , 2 ) ) ) *
+            radiusAtDeparture_ * radiusAtArrival_ / pow( chord_, 2.0 ) ) ) *
             sin( reducedLambertAngle_ / 2.0 );
 
     // Compute radial speeds at departure and at arrival.
@@ -665,11 +529,9 @@ void LambertTargeter::execute( )
     // Compute transverse heliocentric velocities at departure and
     // at arrival.
     Vector3d transverseInertialVelocityAtDeparture_ =
-            transverseSpeedAtDeparture_ *
-            transverseUnitVectorAtDeparture_;
+            transverseSpeedAtDeparture_ * transverseUnitVectorAtDeparture_;
     Vector3d transverseInertialVelocityAtArrival_ =
-            transverseSpeedAtArrival_ *
-            transverseUnitVectorAtArrival_;
+            transverseSpeedAtArrival_ * transverseUnitVectorAtArrival_;
 
     // Compute heliocentric velocities at departure and at
     // arrival.

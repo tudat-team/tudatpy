@@ -50,69 +50,14 @@
  */
 
 // Include statements.
-#include "escapeAndCapture.h"
-#include "sphereSegment.h"
-
-// Include directives.
-using mathematics::raiseToIntegerPower;
+#include "Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 // Using declarations.
 using std::endl;
-
-//! Default constructor.
-EscapeAndCapture::EscapeAndCapture( ) :
-        semiMajorAxis_ ( -0.0 ),
-        eccentricity_ ( -1.0 ),
-        periapsisAltitude_ ( -0.0 ),
-        apoapsisAltitude_( -0.0 ),
-        hyperbolicExcessSpeed_( -1.0 ),
-        deltaV_ ( -0.0 )
-
-{
-}
-
-//! Default destructor.
-EscapeAndCapture::~EscapeAndCapture( )
-{
-}
-
-//! Set semi-major axis of parking orbit.
-void EscapeAndCapture::setSemiMajorAxis( const double &semiMajorAxis )
-{
-    semiMajorAxis_ = semiMajorAxis;
-}
-
-//! Set eccentricity of parking orbit.
-void EscapeAndCapture::setEccentricity( const double &eccentricity )
-{
-    eccentricity_ = eccentricity;
-}
-
-//! Set periapsis altitude of parking orbit.
-void EscapeAndCapture::setPeriapsisAltitude(
-        const double &periapsisAltitude )
-{
-    periapsisAltitude_ = periapsisAltitude;
-}
-
-//! Set apoapsis altitude of parking orbit.
-void EscapeAndCapture::setApoapsisAltitude( const double &apoapsisAltitude )
-{
-    apoapsisAltitude_ = apoapsisAltitude;
-}
-
-//! Set central body of parking orbit.
-void EscapeAndCapture::setCentralBody( CelestialBody *pointerToCentralBody )
-{
-    pointerToCentralBody_ = pointerToCentralBody;
-}
-
-//! Set hyperbolic excess speed at launch/capture phase.
-void EscapeAndCapture::setHyperbolicExcessSpeed(
-        const double &hyperbolicExcessSpeed )
-{
-    hyperbolicExcessSpeed_ = hyperbolicExcessSpeed;
-}
+using std::pow;
+using std::sqrt;
 
 //! Compute delta-V of launch/capture phase.
 double& EscapeAndCapture::computeDeltaV( )
@@ -164,10 +109,8 @@ double& EscapeAndCapture::computeDeltaV( )
                             getGravitationalParameter( ) / periapsisRadius_ ;
 
     // Compute delta-V.
-    deltaV_ = sqrt( escapeVelocitySquared_ + raiseToIntegerPower(
-                    hyperbolicExcessSpeed_ , 2 ) ) -
-              sqrt( ( escapeVelocitySquared_ / 2.0 ) *
-                    ( 1.0 + eccentricity_ ) );
+    deltaV_ = sqrt( escapeVelocitySquared_ + pow( hyperbolicExcessSpeed_, 2.0 ) ) -
+              sqrt( ( escapeVelocitySquared_ / 2.0 ) * ( 1.0 + eccentricity_ ) );
 
     return deltaV_;
 }

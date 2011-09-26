@@ -227,14 +227,12 @@ bool testKeplerPropagator( )
 
         for ( unsigned int i = 0; i < 6; i++ )
         {
-            differenceKeplerData
-                    += mathematics::computeAbsoluteValue(
-                            asterixKeplerPropagationHistory[
-                                    i * seriesPropagator
-                                    .getFixedOutputInterval( ) ].state( i )
-                            - benchmarkKeplerPropagationHistory[
-                                    i * seriesPropagator
-                                    .getFixedOutputInterval( ) ].state( i ) );
+            differenceKeplerData += std::fabs( asterixKeplerPropagationHistory[
+                                               i * seriesPropagator.getFixedOutputInterval( ) ]
+                                               .state( i )
+                                               - benchmarkKeplerPropagationHistory[
+                                               i * seriesPropagator.getFixedOutputInterval( ) ]
+                                               .state( i ) );
         }
 
         if ( differenceKeplerData

@@ -52,12 +52,18 @@
  */
 
 // Include statements.
-#include "unitTestEscapeAndCapture.h"
+#include <cmath>
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/MissionSegments/EscapeAndCapture/capturePhase.h"
+#include "Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.h"
+#include "Astrodynamics/MissionSegments/EscapeAndCapture/escapePhase.h"
+#include "Astrodynamics/MissionSegments/EscapeAndCapture/unitTestEscapeAndCapture.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-using mathematics::computeAbsoluteValue;
+using std::fabs;
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -117,37 +123,24 @@ bool testEscapeAndCapture( )
     double deltaVCapture_ = capturePhaseTest.computeDeltaV( );
 
     // Set test result to true if the test does not match the expected result.
-    if ( mathematics::computeAbsoluteValue(
-         deltaVEscape_ - expectedDeltaVEscape ) >= tolerance ||
-         mathematics::computeAbsoluteValue(
-         deltaVCapture_ - expectedDeltaVCapture ) >= tolerance )
+    if ( fabs( deltaVEscape_ - expectedDeltaVEscape ) >= tolerance ||
+         fabs( deltaVCapture_ - expectedDeltaVCapture ) >= tolerance )
     {
         isEscapeAndCaptureErroneous = true;
 
-        if ( mathematics::computeAbsoluteValue(
-             deltaVEscape_ - expectedDeltaVEscape ) >= tolerance )
+        if ( fabs( deltaVEscape_ - expectedDeltaVEscape ) >= tolerance )
         {
-            cerr << "The computed value of the delta-V of the launch phase ("
-                 << deltaVEscape_
-                 << ") does not match "
-                 << "the expected solution (" << expectedDeltaVEscape << ")."
-                 << endl;
-            cerr << "The difference is: "
-                 << mathematics::computeAbsoluteValue(
-                    deltaVEscape_ - expectedDeltaVEscape )
-                 << endl;
+            cerr << "The computed value of the delta-V of the launch phase (" << deltaVEscape_
+                 << ") does not match the expected solution ("
+                 << expectedDeltaVEscape << ")." << endl;
+            cerr << "The difference is: " << fabs( deltaVEscape_ - expectedDeltaVEscape ) << endl;
         }
-        else if ( mathematics::computeAbsoluteValue(
-                  deltaVCapture_ - expectedDeltaVCapture ) >= tolerance )
+        else if ( fabs( deltaVCapture_ - expectedDeltaVCapture ) >= tolerance )
         {
-            cerr << "The computed value of the delta-V of the capture phase ("
-                 << deltaVCapture_
-                 << ") does not match "
-                 << "the expected solution (" << expectedDeltaVCapture << ")."
+            cerr << "The computed value of the delta-V of the capture phase (" << deltaVCapture_
+                 << ") does not match the expected solution (" << expectedDeltaVCapture << ")."
                  << endl;
-            cerr << "The difference is: "
-                 << mathematics::computeAbsoluteValue(
-                    deltaVCapture_ - expectedDeltaVCapture )
+            cerr << "The difference is: " << fabs( deltaVCapture_ - expectedDeltaVCapture )
                  << endl;
         }
     }

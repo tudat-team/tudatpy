@@ -87,13 +87,14 @@
  */
 
 // Include statements.
+#include <cmath>
 #include "Astrodynamics/States/orbitalElementConversions.h"
 
 // Using declarations.
+using std::pow;
+using std::fabs;
 using linear_algebra::determineAngleBetweenVectors;
-using mathematics::raiseToIntegerPower;
 using mathematics::computeModulo;
-using mathematics::computeAbsoluteValue;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 
 //! Orbital element conversions namespace.
@@ -140,8 +141,7 @@ CartesianElements convertKeplerianToCartesianElements(
     {
         pointerToKeplerianElements->setSemiLatusRectum(
                 pointerToKeplerianElements->getSemiMajorAxis( )
-                * ( 1.0 - raiseToIntegerPower( pointerToKeplerianElements
-                                               ->getEccentricity( ), 2 ) ) );
+                * ( 1.0 - pow( pointerToKeplerianElements->getEccentricity( ), 2.0 ) ) );
     }
 
     // Definition of position in the perifocal coordinate system.
@@ -218,8 +218,7 @@ CartesianElements convertKeplerianToCartesianElements(
 
 //! Convert Cartesian to Keplerian orbital elements.
 KeplerianElements convertCartesianToKeplerianElements(
-        CartesianElements* pointerToCartesianElements,
-        CelestialBody* pointerToCelestialBody )
+        CartesianElements* pointerToCartesianElements, CelestialBody* pointerToCelestialBody )
 {
     // Declare local variables.
     // Declare the tolerance with which a computed double has to be equal to
@@ -259,9 +258,8 @@ KeplerianElements convertCartesianToKeplerianElements(
     // Compute the total orbital energy.
     double totalOrbitalEnergy_;
     totalOrbitalEnergy_ =
-            raiseToIntegerPower( normOfVelocity_, 2 ) / 2.0 -
-            pointerToCelestialBody->getGravitationalParameter( )
-            / normOfPosition_;
+            pow( normOfVelocity_, 2.0 ) / 2.0
+            - pointerToCelestialBody->getGravitationalParameter( ) / normOfPosition_;
 
     // Compute the value of the eccentricity.
     keplerianElements_.setEccentricity( eccentricityVector_.norm( ) );
@@ -279,8 +277,7 @@ KeplerianElements convertCartesianToKeplerianElements(
 
     // Compute the value of semi-major axis.
     // Non-parabolic orbits.
-    if ( computeAbsoluteValue( keplerianElements_
-                               .getEccentricity( ) - 1.0 ) > tolerance_ )
+    if ( fabs( keplerianElements_.getEccentricity( ) - 1.0 ) > tolerance_ )
     {
         keplerianElements_.setSemiMajorAxis(
                 pointerToCelestialBody->getGravitationalParameter( ) /
@@ -295,9 +292,9 @@ KeplerianElements convertCartesianToKeplerianElements(
     }
 
     // Compute value of semi-latus rectum.
-    keplerianElements_.setSemiLatusRectum( raiseToIntegerPower(
-            normOfOrbitAngularMomentum_, 2 ) / pointerToCelestialBody
-                                           ->getGravitationalParameter( ) );
+    keplerianElements_.setSemiLatusRectum(
+                pow( normOfOrbitAngularMomentum_, 2.0 )
+                / pointerToCelestialBody->getGravitationalParameter( ) );
 
     // Compute the value of argument of periapsis.
     // Range between 0 degrees and 360 degrees.
@@ -409,8 +406,7 @@ double convertTrueAnomalyToEccentricAnomaly( const double& trueAnomaly,
 {
     // Declare and compute sine and cosine of eccentric anomaly.
     double sineOfEccentricAnomaly_
-            = sqrt( 1.0 - raiseToIntegerPower( eccentricity, 2 ) )
-              * sin( trueAnomaly )
+            = sqrt( 1.0 - pow( eccentricity, 2.0 ) ) * sin( trueAnomaly )
               / ( 1.0 + eccentricity * cos( trueAnomaly ) );
 
     double cosineOfEccentricAnomaly_
@@ -427,8 +423,7 @@ double convertEccentricAnomalyToTrueAnomaly( const double& eccentricAnomaly,
 {
     // Compute sine and cosine of true anomaly.
     double sineOfTrueAnomaly_
-            = sqrt( 1.0 - raiseToIntegerPower( eccentricity, 2 ) )
-              * sin( eccentricAnomaly )
+            = sqrt( 1.0 - pow( eccentricity, 2.0 ) ) * sin( eccentricAnomaly )
               / ( 1.0 - eccentricity * cos( eccentricAnomaly ) );
 
     double cosineOfTrueAnomaly_
@@ -446,7 +441,7 @@ double convertTrueAnomalyToHyperbolicEccentricAnomaly(
     // Compute hyperbolic sine and hyperbolic cosine of hyperbolic eccentric
     // anomaly.
     double hyperbolicSineOfHyperbolicEccentricAnomaly_
-            = sqrt( raiseToIntegerPower( eccentricity, 2 ) - 1.0 )
+            = sqrt( pow( eccentricity, 2.0 ) - 1.0 )
               * sin( trueAnomaly ) / ( 1.0 + cos( trueAnomaly ) );
 
     double hyperbolicCosineOfHyperbolicEccentricAnomaly_
@@ -464,8 +459,7 @@ double convertHyperbolicEccentricAnomalyToTrueAnomaly(
 {
     // Compute sine and cosine of true anomaly.
     double sineOfTrueAnomaly_
-            = sqrt( raiseToIntegerPower( eccentricity, 2 ) - 1.0 )
-            * sinh( hyperbolicEccentricAnomaly )
+            = sqrt( pow( eccentricity, 2.0 ) - 1.0 ) * sinh( hyperbolicEccentricAnomaly )
             / ( eccentricity * cosh( hyperbolicEccentricAnomaly ) - 1.0 );
 
     double cosineOfTrueAnomaly_
@@ -499,7 +493,7 @@ double convertElapsedTimeToMeanAnomalyForEllipticalOrbits(
 {
     // Return mean anomaly.
     return sqrt( pointerToCentralBody->getGravitationalParameter( )
-                 / raiseToIntegerPower( semiMajorAxis, 3 ) ) * elapsedTime;
+                 / pow( semiMajorAxis, 3.0 ) ) * elapsedTime;
 }
 
 //! Convert mean anomaly to elapsed time for elliptical orbits.
@@ -508,9 +502,8 @@ double convertMeanAnomalyToElapsedTimeForEllipticalOrbits(
         const double& semiMajorAxis )
 {
     // Return time since last periapsis passage.
-    return meanAnomaly * sqrt( raiseToIntegerPower( semiMajorAxis, 3 )
-                               / pointerToCentralBody
-                               ->getGravitationalParameter( ) );
+    return meanAnomaly * sqrt( pow( semiMajorAxis, 3.0 )
+                               / pointerToCentralBody->getGravitationalParameter( ) );
 }
 
 //! Convert elapsed time to mean anomaly for hyperbolic orbits.
@@ -520,7 +513,7 @@ double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits(
 {
     // Return mean anomaly.
     return sqrt( pointerToCentralBody->getGravitationalParameter( )
-                 / raiseToIntegerPower( -semiMajorAxis, 3 ) ) * elapsedTime;
+                 / pow( -semiMajorAxis, 3.0 ) ) * elapsedTime;
 }
 
 //! Convert mean anomaly to elapsed time for hyperbolic orbits.
@@ -529,8 +522,7 @@ double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits(
         const double& semiMajorAxis )
 {
     // Return time since last periapsis passage.
-    return sqrt( raiseToIntegerPower( -semiMajorAxis, 3 )
-                 / pointerToCentralBody->getGravitationalParameter( ) )
+    return sqrt( pow( -semiMajorAxis, 3.0 ) / pointerToCentralBody->getGravitationalParameter( ) )
             * meanAnomaly;
 }
 

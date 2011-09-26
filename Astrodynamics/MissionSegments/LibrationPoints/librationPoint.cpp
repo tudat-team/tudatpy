@@ -55,75 +55,25 @@
  */
 
 // Include statements.
+#include <cmath>
 #include <iostream>
-#include "librationPoint.h"
+#include "Astrodynamics/ForceModels/gravitationalForceModel.h"
+#include "Astrodynamics/MissionSegments/LibrationPoints/librationPoint.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-
-//! Default constructor.
-LibrationPoint::LibrationPoint( ) : massParameter_( -0.0 ), massParameterSquared_( -0.0 ),
-    oneMinusMassParameterSquared_( -0.0 )
-{
-}
-
-//! Default destructor.
-LibrationPoint::~LibrationPoint( )
-{
-}
-
-//! Set pointer to first CelestialBody object.
-void LibrationPoint::setPrimaryCelestialBody( CelestialBody*
-                                              pointerToPrimaryCelestialBody )
-{
-    //  Set pointer to object of CelestialBody class.
-    pointerToPrimaryCelestialBody_ = pointerToPrimaryCelestialBody;
-}
-
-//! Set pointer to second CelestialBody object.
-void LibrationPoint::setSecondaryCelestialBody( CelestialBody*
-                                                pointerToSecondaryCelestialBody )
-{
-    //  Set pointer to object of CelestialBody class.
-    pointerToSecondaryCelestialBody_ = pointerToSecondaryCelestialBody;
-}
-
-//! Set pointer to Newton-Raphson method for libration points algorithm.
-void LibrationPoint::setNewtonRaphsonMethod(
-        NewtonRaphson *pointerToNewtonRaphson )
-{
-    // Set pointer to object of NewtonRaphson class.
-    pointerToNewtonRaphson_ = pointerToNewtonRaphson;
-}
-
-//! Set mass parameter.
-void LibrationPoint::setMassParameter( const double& massParameter )
-{
-    // Set mass parameter.
-    massParameter_ = massParameter;
-}
+using std::pow;
+using std::sqrt;
 
 //! Compute mass parameter.
 void LibrationPoint::computeMassParameter( )
 {
     // Calculate dimensionless mass parameter for bodies 1 and 2.
-    massParameter_ =  pointerToSecondaryCelestialBody_->getGravitationalParameter( )
+    massParameter_ = pointerToSecondaryCelestialBody_->getGravitationalParameter( )
             / ( pointerToPrimaryCelestialBody_->getGravitationalParameter( )
                 + pointerToSecondaryCelestialBody_->getGravitationalParameter( ) );
-}
-
-//! Get mass parameter.
-const double& LibrationPoint::getMassParameter( )
-{
-    // Return mass parameter.
-    return massParameter_;
-}
-
-//! Get location of Lagrange libration point.
-CartesianPositionElements& LibrationPoint::getLocationOfLagrangeLibrationPoint( )
-{
-    return positionOfLibrationPoint_;
 }
 
 //! Compute location of Lagrange libration point.
@@ -135,7 +85,6 @@ void LibrationPoint::computeLocationOfLibrationPoint(
 
     // Compute ( 1 - mass parameter )^2.
     oneMinusMassParameterSquared_ = pow( 1.0 - massParameter_, 2.0 );
-
 
     // Newton-Raphson method implementation.
     // Set the class that contains the functions needed for Newton-Raphson.
@@ -150,8 +99,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         // Set mathematical functions for determination of libration point L1.
         newtonRaphsonAdaptorForLibrationPoint_.setPointerToFunction(
                     &LibrationPoint::computeL1LocationFunction_ );
-        newtonRaphsonAdaptorForLibrationPoint_.
-                setPointerToFirstDerivativeFunction(
+        newtonRaphsonAdaptorForLibrationPoint_.setPointerToFirstDerivativeFunction(
                     &LibrationPoint::computeL1FirstDerivativeLocationFunction_ );
 
         // Set the adaptor for Newton-Raphson method.
@@ -165,8 +113,8 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         pointerToNewtonRaphson_->execute( );
 
         // Set position vector of L1 in Cartesian elements.
-        positionOfLibrationPoint_.setCartesianElementX( pointerToNewtonRaphson_
-                                                        ->getComputedRootOfFunction( ) );
+        positionOfLibrationPoint_.setCartesianElementX(
+                    pointerToNewtonRaphson_->getComputedRootOfFunction( ) );
         positionOfLibrationPoint_.setCartesianElementY( 0.0 );
         positionOfLibrationPoint_.setCartesianElementZ( 0.0 );
 
@@ -177,8 +125,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         // Set mathematical functions for determination of libration point L2.
         newtonRaphsonAdaptorForLibrationPoint_.setPointerToFunction(
                     &LibrationPoint::computeL2LocationFunction_ );
-        newtonRaphsonAdaptorForLibrationPoint_.
-                setPointerToFirstDerivativeFunction(
+        newtonRaphsonAdaptorForLibrationPoint_.setPointerToFirstDerivativeFunction(
                     &LibrationPoint::computeL2FirstDerivativeLocationFunction_ );
 
         // Set the adaptor for Newton-Raphson method.
@@ -192,8 +139,8 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         pointerToNewtonRaphson_->execute( );
 
         // Set position vector of L1 in Cartesian elements.
-        positionOfLibrationPoint_.setCartesianElementX( pointerToNewtonRaphson_
-                                                        ->getComputedRootOfFunction( ) );
+        positionOfLibrationPoint_.setCartesianElementX(
+                    pointerToNewtonRaphson_->getComputedRootOfFunction( ) );
         positionOfLibrationPoint_.setCartesianElementY( 0.0 );
         positionOfLibrationPoint_.setCartesianElementZ( 0.0 );
 
@@ -204,8 +151,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         // Set mathematical functions for determination of libration point L3.
         newtonRaphsonAdaptorForLibrationPoint_.setPointerToFunction(
                     &LibrationPoint::computeL3LocationFunction_ );
-        newtonRaphsonAdaptorForLibrationPoint_.
-                setPointerToFirstDerivativeFunction(
+        newtonRaphsonAdaptorForLibrationPoint_.setPointerToFirstDerivativeFunction(
                     &LibrationPoint::computeL3FirstDerivativeLocationFunction_ );
 
         // Set the adaptor for Newton-Raphson method.
@@ -219,8 +165,8 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         pointerToNewtonRaphson_->execute( );
 
         // Set position vector of L1 in Cartesian elements.
-        positionOfLibrationPoint_.setCartesianElementX( pointerToNewtonRaphson_
-                                                        ->getComputedRootOfFunction( ) );
+        positionOfLibrationPoint_.setCartesianElementX(
+                    pointerToNewtonRaphson_->getComputedRootOfFunction( ) );
         positionOfLibrationPoint_.setCartesianElementY( 0.0 );
         positionOfLibrationPoint_.setCartesianElementZ( 0.0 );
 

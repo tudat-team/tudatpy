@@ -42,9 +42,8 @@
 #define AERODYNAMICMOMENT_H
 
 // Include statements.
-#include <cmath>
-#include "aerodynamicCoefficientInterface.h"
-#include "momentModel.h"
+#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h"
+#include "Astrodynamics/MomentModels/momentModel.h"
 
 class AerodynamicMoment : public MomentModel
 {
@@ -54,13 +53,14 @@ public:
     /*!
      * Default constructor.
      */
-    AerodynamicMoment( );
+    AerodynamicMoment( ) : pointerToAerodynamicCoefficientInterface_( NULL ),
+        dynamicPressure_( -0.0 ) { }
 
     //! Default destructor.
     /*!
      * Default constructor.
      */
-    ~AerodynamicMoment( );
+    virtual ~AerodynamicMoment( ) { }
 
     //! Set aerodynamic coefficient interface.
     /*!
@@ -68,29 +68,32 @@ public:
      * \param pointerToAerodynamicCoefficientInterface Aerodynamic coefficient interface
      *          used to retrieve aerodynamic coefficients.
      */
-    void setAerodynamicCoefficientInterface(
-            AerodynamicCoefficientInterface* pointerToAerodynamicCoefficientInterface );
+    void setAerodynamicCoefficientInterface( AerodynamicCoefficientInterface*
+                                             pointerToAerodynamicCoefficientInterface )
+    { pointerToAerodynamicCoefficientInterface_ = pointerToAerodynamicCoefficientInterface; }
 
     //! Set aerodynamic coefficient interface.
     /*!
      * Returns the pointer to the AerodunamicCoefficientDatabase object.
      * \return Aerodynamic coefficient interface used to retrieve aerodynamic coefficients.
      */
-    AerodynamicCoefficientInterface* getAerodynamicCoefficientInterface( );
+    AerodynamicCoefficientInterface* getAerodynamicCoefficientInterface( )
+    { return pointerToAerodynamicCoefficientInterface_; }
 
     //! Set dynamic pressure.
     /*!
      * Sets the dynamic pressure.
      * \param dynamicPressure Dynamic pressure.
      */
-    void setDynamicPressure( const double& dynamicPressure );
+    void setDynamicPressure( const double& dynamicPressure )
+    { dynamicPressure_ = dynamicPressure; }
 
     //! Get dynamic pressure.
     /*!
      * Returns the dynamic pressure.
      * \return Dynamic pressure.
      */
-    double& getDynamicPressure( );
+    double& getDynamicPressure( ) { return dynamicPressure_; }
 
     //! Compute aerodynamic moment
     /*!

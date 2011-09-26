@@ -42,10 +42,6 @@
 #ifndef UNITTESTTEXTFILEREADER_H
 #define UNITTESTTEXTFILEREADER_H
 
-// Include statements.
-#include <cmath>
-#include "textFileReader.h"
-
 //! Namespace for all unit tests.
 /*!
  * Namespace containing all unit tests.
