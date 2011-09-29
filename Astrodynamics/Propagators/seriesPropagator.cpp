@@ -164,9 +164,8 @@ void SeriesPropagator::execute( )
               != pointerToPropagator_->bodiesToPropagate_.end( );
               iteratorPropagatedBodies_++ )
         {
-            iteratorPropagatedBodies_->second
-                    .propagationHistory_[ ( i + 1 ) * fixedOutputInterval_ ]
-                    = iteratorPropagatedBodies_->second.finalState_;
+            iteratorPropagatedBodies_->second.propagationHistory_[ ( i + 1 ) * fixedOutputInterval_
+                    + seriesPropagationStart_ ] = iteratorPropagatedBodies_->second.finalState_;
 
             // Set initial state for next propagation segment to final state from
             // current segment.
