@@ -63,38 +63,32 @@
 // Include statements.
 #include "Mathematics/NumericalIntegrators/euler.h"
 
-// Using declarations.
-using std::endl;
-
 //! Compute next state.
 void Euler::computeNextState_( const double& stepsize )
 {
     // Compute state derivative initial given state and initial time.
-    computeStateDerivative_( integrationIntervalCurrentPoint_,
-                             &vectorOfCurrentStates_.at( 0 ),
+    computeStateDerivative_( integrationIntervalCurrentPoint_, &vectorOfCurrentStates_.at( 0 ),
                              &stateDerivative_ );
 
     // Compute next state using Euler algorithm by updating current state
     // stored in vector container.
-    vectorOfCurrentStates_.at( 0 ).state
-            = vectorOfCurrentStates_.at( 0 ).state
-              + stepsize * stateDerivative_.state;
+    vectorOfCurrentStates_.at( 0 ).state = vectorOfCurrentStates_.at( 0 ).state
+            + stepsize * stateDerivative_.state;
 }
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, Euler& eulerIntegrator )
 {
-    stream << "This is an Euler object" << endl;
-    stream << "The initial state is set to: " << endl;
-    stream << eulerIntegrator.getInitialState( )->state << endl;
-    stream << "The stepsize is set to: "
-           << eulerIntegrator.getStepsize( ) << endl;
+    stream << "This is an Euler object" << std::endl;
+    stream << "The initial state is set to: " << std::endl;
+    stream << eulerIntegrator.getInitialState( )->state << std::endl;
+    stream << "The stepsize is set to: " << eulerIntegrator.getStepsize( ) << std::endl;
     stream << "The start of the integration interval is set to: "
-           << eulerIntegrator.getIntegrationIntervalStart( ) << endl;
+           << eulerIntegrator.getIntegrationIntervalStart( ) << std::endl;
     stream << "The end of the integration interval is set to: "
-           << eulerIntegrator.getIntegrationIntervalEnd( ) << endl;
+           << eulerIntegrator.getIntegrationIntervalEnd( ) << std::endl;
     stream << "The number of integration steps required is: "
-           << eulerIntegrator.getNumberOfIntegrationSteps( ) << endl;
+           << eulerIntegrator.getNumberOfIntegrationSteps( ) << std::endl;
 
     // Return stream.
     return stream;

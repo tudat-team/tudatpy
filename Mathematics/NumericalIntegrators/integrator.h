@@ -90,7 +90,14 @@ public:
     /*!
      * Integrator class constructor.
      */
-    Integrator( );
+    Integrator( ) : dimensionOfState_( -0 ), numberOfIntegrationSteps_( -0 ), stepsize_( -0.0 ),
+        initialStepsize_( -0.0 ), integrationIntervalStart_( -0.0 ),
+        integrationIntervalEnd_( -0.0 ), integrationInterval_( -0.0 ),
+        integrationIntervalCurrentPoint_( -0.0 ), lastStepStepsize_( -0.0 ),
+        pointerToInitialState_( NULL ), pointerToStateDerivative_( NULL ),
+        isStepsizeSet_ ( false ), isInitialStateSet_( false ),
+        isIntegrationIntervalStartSet_( false ), isIntegrationIntervalEndSet_( false ),
+        isStateDerivativeSet_( false ) { }
 
     //! Default destructor.
     /*!
@@ -107,8 +114,7 @@ public:
      * \param pointerToStateDerivative Pointer to class containing state
      *          derivative function.
      */
-    void setObjectContainingStateDerivative( StateDerivativeBase*
-                                             pointerToStateDerivative );
+    void setObjectContainingStateDerivative( StateDerivativeBase* pointerToStateDerivative );
 
     //! Set initial state.
     /*!
@@ -149,60 +155,42 @@ public:
      * Returns the stepsize.
      * \return Stepsize.
      */
-    double& getStepsize( ) 
-    {
-        return stepsize_;
-    }
+    double& getStepsize( ) { return stepsize_; }
 
     //! Get number of integration steps.
     /*!
      * Returns the number of integration steps.
      * \return Number of integration steps.
      */
-    unsigned int& getNumberOfIntegrationSteps( ) 
-    {
-        return numberOfIntegrationSteps_;
-    }
+    unsigned int& getNumberOfIntegrationSteps( ) { return numberOfIntegrationSteps_; }
 
     //! Get start of integration interval.
     /*!
      * Returns the start of the integration interval.
      * \return Start of integration interval.
      */
-    double& getIntegrationIntervalStart( )
-    {
-        return integrationIntervalStart_;
-    }
+    double& getIntegrationIntervalStart( ) { return integrationIntervalStart_; }
 
     //! Get end of integration interval.
     /*!
      * Returns the end of the integration interval.
      * \return End of integration interval.
      */
-    double& getIntegrationIntervalEnd( )
-    {
-        return integrationIntervalEnd_;
-    }
+    double& getIntegrationIntervalEnd( ) { return integrationIntervalEnd_; }
 
     //! Get initial state.
     /*!
      * Returns the initial state as a pointer to a State object.
      * \return Initial state given as pointer to State object.
      */
-    State* getInitialState( )
-    {
-        return pointerToInitialState_;
-    }
+    State* getInitialState( ) { return pointerToInitialState_; }
 
     //! Get final state.
     /*!
      * Returns the final state as a pointer to a State object.
      * \return Final state given as pointer to State object.
      */
-    State* getFinalState( ) 
-    {
-        return &finalState_;
-    }
+    State* getFinalState( ) { return &finalState_; }
 
     //! Integrate.
     /*!
@@ -311,8 +299,7 @@ protected:
      *          State object. This is where the computed state derivative is
      *          stored.
      */
-    void computeStateDerivative_( double& integrationIntervalCurrentPoint,
-                                  State* pointerToState,
+    void computeStateDerivative_( double& integrationIntervalCurrentPoint, State* pointerToState,
                                   State* pointerToStateDerivative );
 
 private:

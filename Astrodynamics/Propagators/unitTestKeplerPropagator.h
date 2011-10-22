@@ -1,10 +1,9 @@
 /*! \file unitTestKeplerPropagator.h
- *    Header file that defines a unit test that tests the Kepler propagator
- *    included in Tudat.
+ *    Header file that defines a unit test that tests the Kepler propagator included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 1
- *    Check status      : Checked
+ *    Version           : 2
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 16 February, 2011
- *    Last modified     : 16 Feburary, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -43,27 +42,11 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110216    K. Kumar          First creation of code.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 #ifndef UNITTESTKEPLERPROPAGATOR_H
 #define UNITTESTKEPLERPROPAGATOR_H
-
-// Include statements.
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <string>
-#include "basicFunctions.h"
-#include "basicMathematicsFunctions.h"
-#include "cartesianElements.h"
-#include "celestialBody.h"
-#include "keplerPropagator.h"
-#include "newtonRaphson.h"
-#include "planet.h"
-#include "seriesPropagator.h"
-#include "state.h"
-#include "unitConversions.h"
-#include "vehicle.h"
 
 //! Namespace for all unit tests.
 /*!

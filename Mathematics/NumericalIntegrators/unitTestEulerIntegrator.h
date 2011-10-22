@@ -69,25 +69,9 @@ bool testEulerIntegrator( );
 /*!
  * Euler integrator test class.
  */
-class EulerIntegratorTest : public StateDerivativeBase
+struct EulerIntegratorTest : public StateDerivativeBase
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    EulerIntegratorTest( )
-    {
-    }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~EulerIntegratorTest( )
-    {
-    }
 
     //! Compute state derivative.
     /*!

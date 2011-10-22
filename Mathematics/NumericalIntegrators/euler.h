@@ -69,12 +69,6 @@ public:
      */
     Euler( ) { }
 
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~Euler( ) { }
-
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information.
@@ -82,8 +76,7 @@ public:
      * \param eulerIntegrator Euler integrator.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     Euler& eulerIntegrator );
+    friend std::ostream& operator<<( std::ostream& stream, Euler& eulerIntegrator );
 
 protected:
 

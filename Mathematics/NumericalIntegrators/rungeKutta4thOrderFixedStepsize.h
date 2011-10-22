@@ -67,13 +67,8 @@ public:
     /*!
      * Default constructor.
      */
-    RungeKutta4thOrderFixedStepsize( ) { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~RungeKutta4thOrderFixedStepsize( ) { }
+    RungeKutta4thOrderFixedStepsize( ) : modifiedIntegrationIntervalCurrentPoint_( -0.0 ),
+        kCoefficients_( ) { }
 
     //! Overload ostream to print class information.
     /*!

@@ -62,32 +62,12 @@
  */
 
 // Include statements.
-#include "Mathematics/NumericalIntegrators/integrator.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-
-//! Default constructor.
-Integrator::Integrator( ) : dimensionOfState_( -0 ),
-                            numberOfIntegrationSteps_( -0 ),
-                            stepsize_( -0.0 ),
-                            initialStepsize_( -0.0 ),
-                            integrationIntervalStart_( -0.0 ),
-                            integrationIntervalEnd_( -0.0 ),
-                            integrationInterval_( -0.0 ),
-                            integrationIntervalCurrentPoint_( -0.0 ),
-                            lastStepStepsize_( -0.0 ),
-                            pointerToInitialState_( NULL ),
-                            pointerToStateDerivative_( NULL ),
-                            isStepsizeSet_ ( false ),
-                            isInitialStateSet_( false ),
-                            isIntegrationIntervalStartSet_( false ),
-                            isIntegrationIntervalEndSet_( false ),
-                            isStateDerivativeSet_( false )
-{
-}
+#include "Mathematics/NumericalIntegrators/integrator.h"
 
 //! Set object containing state derivative.
-void Integrator::setObjectContainingStateDerivative(
-    StateDerivativeBase* pointerToStateDerivative )
+void Integrator::setObjectContainingStateDerivative( StateDerivativeBase*
+                                                     pointerToStateDerivative )
 {
     // Set pointer to object containing state derivative function.
     pointerToStateDerivative_ = pointerToStateDerivative;
@@ -126,8 +106,7 @@ void Integrator::setInitialStepsize( const double& initialStepsize )
 }
 
 //! Set start of integration interval.
-void Integrator::setIntegrationIntervalStart( const double&
-                                              integrationIntervalStart )
+void Integrator::setIntegrationIntervalStart( const double& integrationIntervalStart )
 {
     // Set start of integration interval.
     integrationIntervalStart_ = integrationIntervalStart;
@@ -141,8 +120,7 @@ void Integrator::setIntegrationIntervalStart( const double&
 }
 
 //! Set end of integration interval.
-void Integrator::setIntegrationIntervalEnd( const double&
-                                            integrationIntervalEnd )
+void Integrator::setIntegrationIntervalEnd( const double& integrationIntervalEnd )
 {
     // Set end of integration interval.
     integrationIntervalEnd_ = integrationIntervalEnd;
@@ -155,24 +133,20 @@ void Integrator::setIntegrationIntervalEnd( const double&
 }
 
 //! Compute state derivative.
-void Integrator::computeStateDerivative_(
-        double& integrationIntervalCurrentPoint,
-        State* pointerToState, State* pointerToStateDerivative )
+void Integrator::computeStateDerivative_( double& integrationIntervalCurrentPoint,
+                                          State* pointerToState, State* pointerToStateDerivative )
 {
     // Call state derivative function using pointer to abstract base class.
-   pointerToStateDerivative_->computeStateDerivative(
-           integrationIntervalCurrentPoint,
-           pointerToState, pointerToStateDerivative );
+   pointerToStateDerivative_->computeStateDerivative( integrationIntervalCurrentPoint,
+                                                      pointerToState, pointerToStateDerivative );
 }
 
 //! Compute internal derived integration parameters.
 void Integrator::computeInternalDerivedIntegrationParameters_( )
 {
     // Check if internal integration parameters can be computed.
-    if ( isStepsizeSet_ == true &&
-         isInitialStateSet_ == true &&
-         isIntegrationIntervalStartSet_ == true &&
-         isIntegrationIntervalEndSet_ == true &&
+    if ( isStepsizeSet_ == true && isInitialStateSet_ == true &&
+         isIntegrationIntervalStartSet_ == true && isIntegrationIntervalEndSet_ == true &&
          isStateDerivativeSet_ == true )
     {
         // Clear vector of current states.
@@ -182,17 +156,15 @@ void Integrator::computeInternalDerivedIntegrationParameters_( )
         stepsize_ = initialStepsize_;
 
         // Compute size of integration interval.
-        integrationInterval_ = integrationIntervalEnd_
-                               - integrationIntervalStart_;
+        integrationInterval_ = integrationIntervalEnd_ - integrationIntervalStart_;
 
         // Compute number of integration steps for fixed stepsize methods.
         // To prevent numerical instabilities from occuring (e.g., ceil( 4 / 2 ) !=
         // ceil( ( 4 + 1e-16 ) / 2 )), the square root of the machine precision is
         // subtracted before applying the ceil function.
-        numberOfIntegrationSteps_
-                = static_cast < unsigned int >(
+        numberOfIntegrationSteps_ = static_cast < unsigned int >(
                     std::ceil( integrationInterval_ / stepsize_
-                    - sqrt( mathematics::MACHINE_PRECISION_DOUBLES ) ) );
+                               - std::sqrt( mathematics::MACHINE_PRECISION_DOUBLES ) ) );
 
         // Add pointer to initial state to container vector.
         vectorOfCurrentStates_.push_back( *pointerToInitialState_ );

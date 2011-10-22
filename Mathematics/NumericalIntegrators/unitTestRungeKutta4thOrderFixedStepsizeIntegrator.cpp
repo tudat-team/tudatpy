@@ -68,29 +68,24 @@ bool testRungeKutta4thOrderFixedStepsizeIntegrator( )
     State initialState_;
     initialState_.state.setZero( 1 );
     initialState_.state( 0 ) = 0.5;
-    rungeKutta4thOrderFixedStepsizeIntegrator_
-            .setInitialState( &initialState_ );
+    rungeKutta4thOrderFixedStepsizeIntegrator_.setInitialState( &initialState_ );
 
     // Set initial stepsize in Runge-Kutta 4th-order, fixed stepsize
     // integrator.
     rungeKutta4thOrderFixedStepsizeIntegrator_.setInitialStepsize( 0.2 );
 
     // Set start of integration interval.
-    rungeKutta4thOrderFixedStepsizeIntegrator_
-            .setIntegrationIntervalStart( 0.0 );
+    rungeKutta4thOrderFixedStepsizeIntegrator_.setIntegrationIntervalStart( 0.0 );
 
     // Set end of integration interval.
-    rungeKutta4thOrderFixedStepsizeIntegrator_
-            .setIntegrationIntervalEnd( 2.0 );
+    rungeKutta4thOrderFixedStepsizeIntegrator_.setIntegrationIntervalEnd( 2.0 );
 
     // Create Runge-Kutta 4th-order, fixed stepsize integrator test class
     // object.
-    RungeKutta4thOrderFixedStepsizeIntegratorTest
-            rungeKutta4thOrderFixedStepsizeIntegratorTest_;
+    RungeKutta4thOrderFixedStepsizeIntegratorTest rungeKutta4thOrderFixedStepsizeIntegratorTest_;
 
     // Set state derivative for integrator.
-    rungeKutta4thOrderFixedStepsizeIntegrator_
-            .setObjectContainingStateDerivative(
+    rungeKutta4thOrderFixedStepsizeIntegrator_.setObjectContainingStateDerivative(
                 &rungeKutta4thOrderFixedStepsizeIntegratorTest_ );
 
     // Execute test integration.
@@ -98,18 +93,15 @@ bool testRungeKutta4thOrderFixedStepsizeIntegrator( )
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( fabs( rungeKutta4thOrderFixedStepsizeIntegrator_
-              .getFinalState( )->state( 0 ) - 5.3053630 )
-         > tolerance_ )
+    if ( std::fabs( rungeKutta4thOrderFixedStepsizeIntegrator_.getFinalState( )->state( 0 )
+                    - 5.3053630 ) > tolerance_ )
     {
         isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_ = true;
 
         std::cerr << "The computed value ( "
-                  << rungeKutta4thOrderFixedStepsizeIntegrator_
-                     .getFinalState( )->state( 0 )
+                  << rungeKutta4thOrderFixedStepsizeIntegrator_.getFinalState( )->state( 0 )
                   << " ) using the Runge-Kutta 4th-order, fixed stepsize integrator "
-                  << "is not equal to the expected value: "
-                  << 5.3053630 << std::endl;
+                  << "is not equal to the expected value: " << 5.3053630 << std::endl;
     }
 
     // Return test result.
@@ -119,11 +111,10 @@ bool testRungeKutta4thOrderFixedStepsizeIntegrator( )
 
 //! Compute state derivative.
 void RungeKutta4thOrderFixedStepsizeIntegratorTest::computeStateDerivative(
-        double& time, State* pointerToState, State* pointerToStateDerivative )
+    double& time, State* pointerToState, State* pointerToStateDerivative )
 {
     // Compute state derivative.
-    pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 )
-                                           - pow( time, 2.0 ) + 1.0;
+    pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 ) - pow( time, 2.0 ) + 1.0;
 }
 
 }

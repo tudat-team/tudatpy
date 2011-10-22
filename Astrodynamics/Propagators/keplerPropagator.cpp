@@ -1,10 +1,9 @@
 /*! \file keplerPropagator.cpp
- *    Source file that defines the kepler propagator class included in
- *    Tudat.
+ *    Source file that defines the kepler propagator class included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 4
- *    Check status      : Checked
+ *    Version           : 5
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 3 February, 2011
- *    Last modified     : 14 February, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -41,68 +40,39 @@
  *      YYMMDD    Author            Comment
  *      110203    K. Kumar          File created.
  *      110207    E. Iorfida        Minor changes.
- *      110214    K. Kumar          Updated code based on new orbital
- *                                  conversion functions; optimized code.
+ *      110214    K. Kumar          Updated code based on new orbital conversion functions;
+ *                                  optimized code.
  *      110215    E. Iorfida        Minor changes.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 // Include statements.
 #include <iostream>
-#include "keplerPropagator.h"
-
-// Using declarations.
-using std::endl;
-using std::cerr;
-
-//! Default constructor.
-KeplerPropagator::KeplerPropagator( ) : trueAnomaly_( -1.0 )
-{
-}
-
-//! Default destructor
-KeplerPropagator::~KeplerPropagator( )
-{
-}
-
-//! Set central body.
-void KeplerPropagator::setCentralBody( Body* pointerToBody,
-                                       CelestialBody* pointerToCentralBody )
-{
-    // Set pointer to central body for given body to propagate.
-    bodiesToPropagate_[ pointerToBody ].pointerToCentralBody_
-            = pointerToCentralBody;
-}
-
-//! Set Newton-Raphson method.
-void KeplerPropagator::setNewtonRaphson( NewtonRaphson*
-                                         pointerToNewtonRaphson )
-{
-    // Set pointer to Newton-Raphson method.
-    pointerToNewtonRaphson_ = pointerToNewtonRaphson;
-}
+#include "Astrodynamics/Propagators/keplerPropagator.h"
+#include "Astrodynamics/States/orbitalElementConversions.h"
 
 //! Propagate.
 void KeplerPropagator::propagate( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+
     // Loop over map of bodies to be propagated.
     for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
           iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
           iteratorBodiesToPropagate_++ )
     {
-        // Set propagator to this KeplerPropagator object for all bodies.
-        iteratorBodiesToPropagate_
-                ->second.pointerToPropagator_ = this;
-
         // Convert initial state given in Cartesian elements to Keplerian
         // elements.
         keplerianElements_
                 = orbital_element_conversions::
-                  convertCartesianToKeplerianElements(
-                          static_cast< CartesianElements* > (
-                                  iteratorBodiesToPropagate_
-                                  ->second.pointerToInitialState_ ),
-                          iteratorBodiesToPropagate_
-                          ->second.pointerToCentralBody_ );
+                convertCartesianToKeplerianElements( static_cast< CartesianElements* >
+                                                     ( iteratorBodiesToPropagate_
+                                                       ->second.pointerToInitialState ),
+                                                     iteratorBodiesToPropagate_
+                                                     ->second.pointerToCentralBody );
+
 
         if ( keplerianElements_.getEccentricity( ) < 0.8
              && keplerianElements_.getEccentricity( ) >= 0.0 )
@@ -133,10 +103,8 @@ void KeplerPropagator::propagate( )
             meanAnomalyChange_
                     = orbital_element_conversions::
                       convertElapsedTimeToMeanAnomalyForEllipticalOrbits(
-                              ( propagationIntervalEnd_
-                                - propagationIntervalStart_ ),
-                              iteratorBodiesToPropagate_
-                              ->second.pointerToCentralBody_,
+                              ( propagationIntervalEnd_ - propagationIntervalStart_ ),
+                              iteratorBodiesToPropagate_->second.pointerToCentralBody,
                               keplerianElements_.getSemiMajorAxis( ) );
 
             // Set mean anomaly change in mean anomaly to eccentric anomaly
@@ -187,10 +155,8 @@ void KeplerPropagator::propagate( )
             meanAnomalyChange_
                     = orbital_element_conversions::
                       convertElapsedTimeToMeanAnomalyForHyperbolicOrbits(
-                              ( propagationIntervalEnd_
-                                - propagationIntervalStart_ ),
-                              iteratorBodiesToPropagate_
-                              ->second.pointerToCentralBody_,
+                              ( propagationIntervalEnd_ - propagationIntervalStart_ ),
+                              iteratorBodiesToPropagate_->second.pointerToCentralBody,
                               keplerianElements_.getSemiMajorAxis( ) );
 
             // Set mean anomaly change in mean anomaly to eccentric anomaly
@@ -223,21 +189,20 @@ void KeplerPropagator::propagate( )
 
         // Convert Keplerian elements to Cartesian elements.
         cartesianElements_ = orbital_element_conversions::
-                             convertKeplerianToCartesianElements(
-                                     &keplerianElements_,
-                                     iteratorBodiesToPropagate_->second
-                                     .pointerToCentralBody_ );
+                             convertKeplerianToCartesianElements( &keplerianElements_,
+                                     iteratorBodiesToPropagate_->second.pointerToCentralBody );
 
         // Store final state in CartesianElements for given body.
-        iteratorBodiesToPropagate_->second.finalState_
-                = cartesianElements_;
+        iteratorBodiesToPropagate_->second.finalState = cartesianElements_;
     }
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          KeplerPropagator& keplerPropagator )
+std::ostream& operator<<( std::ostream& stream, KeplerPropagator& keplerPropagator )
 {
+    // Using declarations.
+    using std::endl;
+
     stream << "This is a KeplerPropagator object." << endl;
     stream << "The start of the propagation interval is set to: " << endl;
     stream << keplerPropagator.getPropagationIntervalStart( ) << endl;

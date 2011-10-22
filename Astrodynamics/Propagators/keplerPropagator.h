@@ -1,10 +1,9 @@
 /*! \file keplerPropagator.h
- *    Header file that defines the kepler propagator class included in
- *    Tudat.
+ *    Header file that defines the kepler propagator class included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 3
- *    Check status      : Checked
+ *    Version           : 4
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 3 February, 2011
- *    Last modified     : 14 February, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -41,8 +40,8 @@
  *      YYMMDD    Author            Comment
  *      110203    K. Kumar          File created.
  *      110207    E. Iorfida        Minor changes.
- *      110214    K. Kumar          Updated code to use orbital element
- *                                  conversion functions.
+ *      110214    K. Kumar          Updated code to use orbital element conversion functions.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 #ifndef KEPLERPROPAGATOR_H
@@ -51,20 +50,17 @@
 // Include statements.
 #include <iostream>
 #include <cmath>
-#include "basicMathematicsFunctions.h"
-#include "body.h"
-#include "cartesianElements.h"
-#include "convertMeanAnomalyToEccentricAnomaly.h"
-#include "convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
-#include "keplerianElements.h"
-#include "newtonRaphson.h"
-#include "orbitalElementConversions.h"
-#include "propagator.h"
+#include "Astrodynamics/Bodies/body.h"
+#include "Astrodynamics/Propagators/propagator.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h"
+#include "Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
+#include "Astrodynamics/States/keplerianElements.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
 
 // Using declarations.
 using orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
-using orbital_element_conversions::
-        ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
+using orbital_element_conversions::ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
 
 //! Kepler propagator class.
 /*!
@@ -79,13 +75,9 @@ public:
     /*!
      * Default constructor.
      */
-    KeplerPropagator( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~KeplerPropagator( );
+    KeplerPropagator( ) : eccentricAnomaly_( -0.0 ), eccentricAnomalyChange_( -0.0 ),
+        hyperbolicEccentricAnomaly_( -0.0 ), meanAnomaly_( -0.0 ), meanAnomalyChange_( -0.0 ),
+        trueAnomaly_( -1.0 ), pointerToNewtonRaphson_( NULL ) { }
 
     //! Set central body.
     /*!
@@ -94,15 +86,16 @@ public:
      * \param pointerToCentralBody Central body given as pointer to
      *          CelestialBody object.
      */
-    void setCentralBody( Body* pointerToBody,
-                         CelestialBody* pointerToCentralBody );
+    void setCentralBody( Body* pointerToBody, CelestialBody* pointerToCentralBody )
+    { bodiesToPropagate_[ pointerToBody ].pointerToCentralBody = pointerToCentralBody; }
 
     //! Set Newton-Raphson method.
     /*!
      * Sets the Newton-Raphson method used.
      * \param pointerToNewtonRaphson Pointer to NewtonRaphson object.
      */
-    void setNewtonRaphson( NewtonRaphson* pointerToNewtonRaphson );
+    void setNewtonRaphson( NewtonRaphson* pointerToNewtonRaphson )
+    { pointerToNewtonRaphson_ = pointerToNewtonRaphson; }
 
     //! Propagate.
     /*!
@@ -117,8 +110,7 @@ public:
      * \param keplerPropagator Kepler propagator.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     KeplerPropagator& keplerPropagator );
+    friend std::ostream& operator<<( std::ostream& stream, KeplerPropagator& keplerPropagator );
 
 protected:
 
@@ -176,8 +168,7 @@ private:
     /*!
      * Mean anomaly to hyperbolic eccentric anomaly conversion.
      */
-    ConvertMeanAnomalyToHyperbolicEccentricAnomaly
-            convertMeanAnomalyToHyperbolicEccentricAnomaly_;
+    ConvertMeanAnomalyToHyperbolicEccentricAnomaly convertMeanAnomalyToHyperbolicEccentricAnomaly_;
 
     //! Cartesian elements object.
     /*!

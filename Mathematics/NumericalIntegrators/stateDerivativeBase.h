@@ -78,8 +78,7 @@ public:
      *          State object. The computed  state derivative is stored in the
      *          object that this pointer points to.
      */
-    virtual void computeStateDerivative( double& independentVariable,
-                                         State* pointerToState,
+    virtual void computeStateDerivative( double& independentVariable, State* pointerToState,
                                          State* pointerToStateDerivative ) = 0;
 
 protected:

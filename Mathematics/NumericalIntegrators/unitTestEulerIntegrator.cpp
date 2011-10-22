@@ -83,23 +83,19 @@ bool testEulerIntegrator( )
     EulerIntegratorTest eulerIntegratorTest_;
 
     // Set state derivative for integrator.
-    eulerIntegrator_.setObjectContainingStateDerivative(
-                &eulerIntegratorTest_ );
+    eulerIntegrator_.setObjectContainingStateDerivative( &eulerIntegratorTest_ );
 
     // Execute test integration.
     eulerIntegrator_.integrate( );
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( fabs( eulerIntegrator_.getFinalState( )->state( 0 ) - 4.8657845 )
-         > tolerance_  )
+    if ( std::fabs( eulerIntegrator_.getFinalState( )->state( 0 ) - 4.8657845 ) > tolerance_ )
     {
         isEulerIntegratorErroneous_ = true;
 
-        std::cerr << "The computed value ( "
-                  << eulerIntegrator_.getFinalState( )->state( 0 )
-                  << " ) using the Euler integrator "
-                  << "is not equal to the expected value: "
+        std::cerr << "The computed value ( " << eulerIntegrator_.getFinalState( )->state( 0 )
+                  << " ) using the Euler integrator is not equal to the expected value: "
                   << 4.8657845 << std::endl;
     }
 
@@ -109,12 +105,11 @@ bool testEulerIntegrator( )
 }
 
 //! Compute state derivative.
-void EulerIntegratorTest::computeStateDerivative(
-        double& time, State* pointerToState, State* pointerToStateDerivative )
+void EulerIntegratorTest::computeStateDerivative( double& time, State* pointerToState,
+                                                  State* pointerToStateDerivative )
 {
     // Compute state derivative.
-    pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 )
-                                           - pow( time, 2.0 ) + 1.0;
+    pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 ) - pow( time, 2.0 ) + 1.0;
 }
 
 }

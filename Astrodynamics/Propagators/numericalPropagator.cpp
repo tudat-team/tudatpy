@@ -1,10 +1,9 @@
 /*! \file numericalPropagator.cpp
- *    Source file that defines the numerical propagator class included in
- *    Tudat.
+ *    Source file that defines the numerical propagator class included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 7
- *    Check status      : Checked
+ *    Version           : 8
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 15 September, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -38,66 +37,31 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      100915    K. Kumar          File created.
- *      100928    K. Kumar          Modified propagate function; added fixed
- *                                  output interval option.
- *      100929    J. Melman         Corrected several alignments; added some
- *                                  comments.
+ *      100928    K. Kumar          Modified propagate function; added fixed output interval
+ *                                  option.
+ *      100929    J. Melman         Corrected several alignments; added some comments.
  *      100929    K. Kumar          Minor comment modifications.
- *      110202    K. Kumar          Updated code to use Integrator adaptor
- *                                  instead of pointers-to-member functions;
- *                                  Update code to use State class.
- *      110203    J. Melman         Possibly encountered a mistake regarding
- *                                  the addition of the forces.
+ *      110202    K. Kumar          Updated code to use Integrator adaptor instead of
+ *                                  pointers-to-member functions; updated code to use State class.
+ *      110203    J. Melman         Possibly encountered a mistake regarding the addition of the
+ *                                  forces.
  *      110207    K. Kumar          Updated code with corrections.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 // Include statements.
-#include "numericalPropagator.h"
-
-// Using declarations.
-using std::endl;
-
-//! Default constructor.
-NumericalPropagator::NumericalPropagator( ) : sizeOfAssembledState_( 0 )
-{
-}
-
-//! Default destructor.
-NumericalPropagator::~NumericalPropagator( )
-{
-}
-
-//! Set integrator for propagation.
-void NumericalPropagator::setIntegrator( Integrator* pointerToIntegrator )
-{
-    // Set pointer to object of Integrator class.
-    pointerToIntegrator_ = pointerToIntegrator;
-}
-
-//! Add force model for propagation of a body.
-void NumericalPropagator::addForceModel( Body* pointerToBody,
-                                         ForceModel* pointerToForceModel )
-{
-    // Set force model in vector container for given body.
-    bodiesToPropagate_[ pointerToBody ]
-            .vectorContainerOfPointersToForceModels_
-                     .push_back( pointerToForceModel );
-}
+#include "Astrodynamics/Propagators/numericalPropagator.h"
 
 //! Set initial state of body.
-void NumericalPropagator::setInitialState(
-        Body* pointerToBody, State* pointerToInitialState )
+void NumericalPropagator::setInitialState( Body* pointerToBody, State* pointerToInitialState )
 {
     // Set initial state of given body to be propagated.
-    bodiesToPropagate_[ pointerToBody ]
-            .pointerToInitialState_ = pointerToInitialState;
+    bodiesToPropagate_[ pointerToBody ].pointerToInitialState = pointerToInitialState;
 
     // Set size of initial state of given body to propagate.
-    bodiesToPropagate_[ pointerToBody ]
-            .sizeOfState_ = pointerToInitialState->state.size( );
+    bodiesToPropagate_[ pointerToBody ].sizeOfState = pointerToInitialState->state.size( );
 
-    // Increment size of assembled state based on size of initial state of
-    // body to propagate.
+    // Increment size of assembled state based on size of initial state of body to propagate.
     sizeOfAssembledState_ += pointerToInitialState->state.size( );
 
     // Set assembled state to determined size with zero values.
@@ -112,35 +76,25 @@ void NumericalPropagator::propagate( )
     int startAssemblyPositionInState_ = 0;
 
     // Set integration interval start and end.
-    pointerToIntegrator_
-            ->setIntegrationIntervalStart( propagationIntervalStart_ );
-    pointerToIntegrator_
-            ->setIntegrationIntervalEnd( propagationIntervalEnd_ );
+    pointerToIntegrator_->setIntegrationIntervalStart( propagationIntervalStart_ );
+    pointerToIntegrator_->setIntegrationIntervalEnd( propagationIntervalEnd_ );
 
     // Loop over map of bodies to propagate.
     for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
           iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
           iteratorBodiesToPropagate_++ )
     {
-        // Set propagator to this NumericalPropagator object for this body.
-        iteratorBodiesToPropagate_->second.pointerToPropagator_ = this;
-
         // Store start of range of initial state of a given body in assembled
         // initial state.
-        iteratorBodiesToPropagate_->second.stateStartIndex_
-                = startAssemblyPositionInState_;
+        iteratorBodiesToPropagate_->second.stateStartIndex = startAssemblyPositionInState_;
 
         // Assemble state using initial states of bodies to propagate.
-        assembledState_.state.segment( iteratorBodiesToPropagate_
-                                       ->second.stateStartIndex_,
-                                       iteratorBodiesToPropagate_
-                                       ->second.sizeOfState_ )
-                = iteratorBodiesToPropagate_
-                  ->second.pointerToInitialState_->state;
+        assembledState_.state.segment( iteratorBodiesToPropagate_->second.stateStartIndex,
+                                       iteratorBodiesToPropagate_->second.sizeOfState )
+                = iteratorBodiesToPropagate_->second.pointerToInitialState->state;
 
         // Start position in initial state for assembly.
-        startAssemblyPositionInState_ +=
-                iteratorBodiesToPropagate_->second.sizeOfState_;
+        startAssemblyPositionInState_ += iteratorBodiesToPropagate_->second.sizeOfState;
     }
 
     // Set assembled initial state as state for integrator.
@@ -156,12 +110,10 @@ void NumericalPropagator::propagate( )
     {
         // Disassemble assembled initial state by updating final state in
         // respective PropagatorDataContainer objects.
-        iteratorBodiesToPropagate_->second.finalState_.state
-                = pointerToIntegrator_->getFinalState( )->state
-                  .segment( iteratorBodiesToPropagate_
-                            ->second.stateStartIndex_,
-                            iteratorBodiesToPropagate_
-                            ->second.sizeOfState_ );
+        iteratorBodiesToPropagate_->second.finalState.state
+                = pointerToIntegrator_->getFinalState( )->state.segment(
+                    iteratorBodiesToPropagate_->second.stateStartIndex,
+                    iteratorBodiesToPropagate_->second.sizeOfState );
     }
 }
 

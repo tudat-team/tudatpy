@@ -1,10 +1,9 @@
 /*! \file cartesianStateNumericalPropagator.h
- *    Header file that defines the Cartesian state numerical propagator class
- *    included in Tudat.
+ *    Header file that defines the Cartesian state numerical propagator class included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 3
- *    Check status      : Checked
+ *    Version           : 4
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 14 May, 2011
- *    Last modified     : 24 August, 2011
+ *    Last modified     : 30 September, 2011
  *
  *    References
  *
@@ -33,23 +32,25 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      110514    K. Kumar            File created.
- *      110810    J. Leloux           Corrected doxygen documentation, deleted unused variable.
- *      110824    J. Leloux           Corrected doxygen documentation.
+ *      YYMMDD    Author            Comment
+ *      110514    K. Kumar          File created.
+ *      110810    J. Leloux         Corrected doxygen documentation, deleted unused variable.
+ *      110824    J. Leloux         Corrected doxygen documentation.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 #ifndef CARTESIANSTATENUMERICALPROPAGATOR_H
 #define CARTESIANSTATENUMERICALPROPAGATOR_H
 
 // Include statements.
-#include "numericalPropagator.h"
+#include "Astrodynamics/Propagators/numericalPropagator.h"
+#include "Astrodynamics/States/state.h"
 
 //! Cartesian state numerical propagator.
 /*!
  * Definition of numerical propagator that propagates Cartesian state
- * consisting of three position components (x, y, z) and three velocity
- * components (xdot, ydot, zdot).
+ * consisting of three position components (x,y,z) and three velocity
+ * components (xdot,ydot,zdot).
  */
 class CartesianStateNumericalPropagator : public NumericalPropagator
 {
@@ -59,13 +60,7 @@ public:
     /*!
      * Default constructor.
      */
-    CartesianStateNumericalPropagator( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~CartesianStateNumericalPropagator( );
+    CartesianStateNumericalPropagator( ) { }
 
     //! Compute state derivative.
     /*!
@@ -78,8 +73,7 @@ public:
      * \param pointerToAssembledStateDerivative Computed assembled state
      *          derivative given as a pointer to a State object.
      */
-    void computeStateDerivative( double& independentVariable,
-                                 State* pointerToAssembledState,
+    void computeStateDerivative( double& independentVariable, State* pointerToAssembledState,
                                  State* pointerToAssembledStateDerivative );
 
 protected:
