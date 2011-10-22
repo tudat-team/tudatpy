@@ -37,12 +37,17 @@
 *      110822    D.Dirkx           Removed pointer to double member, minor changes.
 */
 
+// Macros.
+#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
+
 // Include statements.
 #include "Astrodynamics/ForceModels/aerodynamicForce.h"
 
 //! Compute aerodynamic force.
 void AerodynamicForce::computeForce( State* pointerToState )
 {
+    TUDAT_UNUSED_PARAMETER( pointerToState );
+
     // Calculate the aerodynamic forces F_x = 1/2 * C_x * rho * V^2 * S etc...
     force_ = dynamicPressure_
             * pointerToAerodynamicCoefficientInterface_->getReferenceArea( )

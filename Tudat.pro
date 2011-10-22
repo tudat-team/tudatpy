@@ -32,8 +32,6 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
     Astrodynamics/Propagators/cartesianStateNumericalPropagator.cpp \
     Astrodynamics/Propagators/keplerPropagator.cpp \
-    Astrodynamics/Propagators/propagatorDataContainer.cpp \
-    Astrodynamics/Propagators/propagator.cpp \
     Astrodynamics/Propagators/seriesPropagator.cpp \
     Astrodynamics/Propagators/numericalPropagator.cpp \
     Astrodynamics/Propagators/unitTestNumericalPropagator.cpp \

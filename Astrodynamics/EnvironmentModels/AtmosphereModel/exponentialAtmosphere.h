@@ -49,6 +49,9 @@
 #ifndef EXPONENTIALATMOSPHERE_H
 #define EXPONENTIALATMOSPHERE_H
 
+// Macros.
+#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
+
 // Include statements.
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h"
 
@@ -77,7 +80,7 @@ public:
      * Default constructor.
      */
     ExponentialAtmosphere( ) : scaleHeight_( -0.0 ), constantTemperature_( -0.0 ),
-                              densityAtZeroAltitude_( -0.0 ), specificGasConstant_( -0.0 ) { }
+        densityAtZeroAltitude_( -0.0 ), specificGasConstant_( -0.0 ) { }
 
     //! Default destructor.
     /*!
@@ -162,7 +165,12 @@ public:
                        const double& longitude = 0.0,
                        const double& latitude = 0.0,
                        const double& time = 0.0 )
-    { return densityAtZeroAltitude_ * exp( - altitude / scaleHeight_ ); }
+    {
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return densityAtZeroAltitude_ * exp( - altitude / scaleHeight_ );
+    }
 
     //! Get local pressure.
     /*!
@@ -177,7 +185,12 @@ public:
                         const double& longitude = 0.0,
                         const double& latitude = 0.0,
                         const double& time = 0.0 )
-    { return getDensity( altitude ) * specificGasConstant_ * constantTemperature_; }
+    {
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return getDensity( altitude ) * specificGasConstant_ * constantTemperature_;
+    }
 
     //! Get local temperature.
     /*!
@@ -192,7 +205,13 @@ public:
                            const double& longitude = 0.0,
                            const double& latitude = 0.0,
                            const double& time = 0.0 )
-    { return constantTemperature_; }
+    {
+        TUDAT_UNUSED_PARAMETER( altitude );
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return constantTemperature_;
+    }
 
 protected:
 

@@ -67,72 +67,60 @@
 // Include statements.
 #include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
 
-// Using declarations.
-using std::endl;
-
 //! Compute next state.
-void RungeKutta4thOrderFixedStepsize::computeNextState_( const double&
-                                                         stepsize )
+void RungeKutta4thOrderFixedStepsize::computeNextState_( const double& stepsize )
 {
     // Clear k-Coefficients.
     kCoefficients_.clear( );
 
     // Set size of state derivative vector.
-    stateDerivative_.state.setZero(
-            vectorOfCurrentStates_.at( 0 ).state.rows( ) );
+    stateDerivative_.state.setZero( vectorOfCurrentStates_.at( 0 ).state.rows( ) );
 
     // Compute k-Coefficients for 4th order, fixed stepsize,
     // Runge-Kutta integration scheme.
     // Compute k1.
-    computeStateDerivative_( integrationIntervalCurrentPoint_,
-                             &vectorOfCurrentStates_.at( 0 ),
+    computeStateDerivative_( integrationIntervalCurrentPoint_, &vectorOfCurrentStates_.at( 0 ),
                              &stateDerivative_ );
 
     kCoefficients_.push_back( stepsize * stateDerivative_.state );
 
     // Compute k2.
     modifiedInitialState_.state = vectorOfCurrentStates_.at( 0 ).state
-                                  + kCoefficients_.at( 0 ) / 2.0;
+            + kCoefficients_.at( 0 ) / 2.0;
 
-    modifiedIntegrationIntervalCurrentPoint_
-            = integrationIntervalCurrentPoint_ + stepsize / 2.0;
+    modifiedIntegrationIntervalCurrentPoint_ = integrationIntervalCurrentPoint_ + stepsize / 2.0;
 
-    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_,
-                             &modifiedInitialState_, &stateDerivative_ );
+    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_, &modifiedInitialState_,
+                             &stateDerivative_ );
 
     kCoefficients_.push_back( stepsize * stateDerivative_.state );
 
     // Compute k3.
     modifiedInitialState_.state = vectorOfCurrentStates_.at( 0 ).state
-                                  + kCoefficients_.at( 1 ) / 2.0;
+            + kCoefficients_.at( 1 ) / 2.0;
 
-    modifiedIntegrationIntervalCurrentPoint_
-            = integrationIntervalCurrentPoint_ + stepsize / 2.0;
+    modifiedIntegrationIntervalCurrentPoint_ = integrationIntervalCurrentPoint_ + stepsize / 2.0;
 
-    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_,
-                             &modifiedInitialState_, &stateDerivative_ );
+    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_, &modifiedInitialState_,
+                             &stateDerivative_ );
 
     kCoefficients_.push_back( stepsize * stateDerivative_.state );
 
     // Compute k4.
-    modifiedInitialState_.state = vectorOfCurrentStates_.at( 0 ).state
-                                  + kCoefficients_.at( 2 );
+    modifiedInitialState_.state = vectorOfCurrentStates_.at( 0 ).state + kCoefficients_.at( 2 );
 
-    modifiedIntegrationIntervalCurrentPoint_
-            = integrationIntervalCurrentPoint_ + stepsize;
+    modifiedIntegrationIntervalCurrentPoint_ = integrationIntervalCurrentPoint_ + stepsize;
 
-    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_,
-                             &modifiedInitialState_, &stateDerivative_ );
+    computeStateDerivative_( modifiedIntegrationIntervalCurrentPoint_, &modifiedInitialState_,
+                             &stateDerivative_ );
 
     kCoefficients_.push_back( stepsize * stateDerivative_.state );
 
     // Compute final state using 4th Order, fixed stepsize Runge-Kutta
     // algorithm.
-    vectorOfCurrentStates_.at( 0 ).state
-            = vectorOfCurrentStates_.at( 0 ).state
-              + ( kCoefficients_.at( 0 ) + 2.0 * kCoefficients_.at( 1 )
-                  + 2.0 * kCoefficients_.at( 2 )
-                  + kCoefficients_.at( 3 ) ) / 6.0;
+    vectorOfCurrentStates_.at( 0 ).state = vectorOfCurrentStates_.at( 0 ).state
+            + ( kCoefficients_.at( 0 ) + 2.0 * kCoefficients_.at( 1 )
+                + 2.0 * kCoefficients_.at( 2 ) + kCoefficients_.at( 3 ) ) / 6.0;
 }
 
 //! Overload ostream to print class information.
@@ -140,21 +128,17 @@ std::ostream& operator<<( std::ostream& stream,
                           RungeKutta4thOrderFixedStepsize&
                           rungeKutta4thOrderFixedStepsize )
 {
-    stream << "This is a RungeKutta4thOrderFixedStepsize object" << endl;
-    stream << "The initial state is set to: " << endl;
-    stream << rungeKutta4thOrderFixedStepsize.getInitialState( )->state
-           << endl;
+    stream << "This is a RungeKutta4thOrderFixedStepsize object" << std::endl;
+    stream << "The initial state is set to: " << std::endl;
+    stream << rungeKutta4thOrderFixedStepsize.getInitialState( )->state << std::endl;
     stream << "The stepsize is set to: "
-           << rungeKutta4thOrderFixedStepsize.getStepsize( ) << endl;
+           << rungeKutta4thOrderFixedStepsize.getStepsize( ) << std::endl;
     stream << "The start of the integration interval is set to: "
-           << rungeKutta4thOrderFixedStepsize.getIntegrationIntervalStart( )
-           << endl;
+           << rungeKutta4thOrderFixedStepsize.getIntegrationIntervalStart( ) << std::endl;
     stream << "The end of the integration interval is set to: "
-           << rungeKutta4thOrderFixedStepsize.getIntegrationIntervalEnd( )
-           << endl;
+           << rungeKutta4thOrderFixedStepsize.getIntegrationIntervalEnd( ) << std::endl;
     stream << "The number of integration steps required is: "
-           << rungeKutta4thOrderFixedStepsize.getNumberOfIntegrationSteps( )
-           << endl;
+           << rungeKutta4thOrderFixedStepsize.getNumberOfIntegrationSteps( ) << std::endl;
 
     // Return stream.
     return stream;

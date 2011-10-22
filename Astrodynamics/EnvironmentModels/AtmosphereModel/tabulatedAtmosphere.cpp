@@ -41,10 +41,11 @@
  */
 
 // Include statements.
-#include "tabulatedAtmosphere.h"
+#include <sstream>
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.h"
 
-//! Initialise the atmosphere table reader.
-void TabulatedAtmosphere::initialize( string atmosphereTableFile )
+//! Initialize atmosphere table reader.
+void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
 {
     // Locally store the atmosphere table file name.
     atmosphereTableFile_ = atmosphereTableFile;
@@ -54,7 +55,7 @@ void TabulatedAtmosphere::initialize( string atmosphereTableFile )
     textFileReader.setFileName( atmosphereTableFile_ );
     textFileReader.openFile( );
 
-    string skipcharacter = "%";
+    std::string skipcharacter = "%";
     textFileReader.skipLinesStartingWithCharacter( skipcharacter );
 
     // Read and store the data file.
@@ -73,7 +74,7 @@ void TabulatedAtmosphere::initialize( string atmosphereTableFile )
     densityData_ = VectorXd( containerOfAtmosphereTableFileData.size( ) );
     pressureData_= VectorXd( containerOfAtmosphereTableFileData.size( ) );
     temperatureData_ = VectorXd( containerOfAtmosphereTableFileData.size( ) );
-    stringstream lineStringStream( stringstream::in | stringstream::out );
+    std::stringstream lineStringStream( std::stringstream::in | std::stringstream::out );
 
     int index = 0;
 
@@ -93,11 +94,11 @@ void TabulatedAtmosphere::initialize( string atmosphereTableFile )
     }
 
     cubicSplineInterpolationForDensity_.initializeCubicSplineInterpolation(
-            altitudeData_, densityData_ );
+                altitudeData_, densityData_ );
     cubicSplineInterpolationForPressure_.initializeCubicSplineInterpolation(
-            altitudeData_, pressureData_ );
+                altitudeData_, pressureData_ );
     cubicSplineInterpolationForTemperature_.initializeCubicSplineInterpolation(
-            altitudeData_, temperatureData_ );
+                altitudeData_, temperatureData_ );
 }
 
 // End of file.

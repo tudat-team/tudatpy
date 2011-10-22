@@ -1,10 +1,9 @@
 /*! \file propagator.h
- *    Header file that defines the base class for all propagators included in
- *    Tudat.
+ *    Header file that defines the base class for all propagators included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 7
- *    Check status      : Checked
+ *    Version           : 8
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 14 September, 2010
- *    Last modified     : 16 February, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -40,16 +39,15 @@
  *      100914    K. Kumar          File created.
  *      100926    K. Kumar          Added Doxygen comments.
  *      100928    K. Kumar          Completed missing comments.
- *      100929    J. Melman         Reference to Integrator::
- *                                  setFixedOutputInterval deleted,
+ *      100929    J. Melman         Reference to Integrator::setFixedOutputInterval deleted,
  *                                  'class' in comments changed into 'object'.
- *      100929    K. Kumar          EigenRoutines.h replaced in include
- *                                  statements by linearAlgebra.h.
- *      110201    K. Kumar          Updated code to make use of State class;
- *                                  moved computeSumOfStateDerivatives_() to
- *                                  NumericalPropagator class.
+ *      100929    K. Kumar          EigenRoutines.h replaced in include statements by
+ *                                  linearAlgebra.h.
+ *      110201    K. Kumar          Updated code to make use of State class; moved
+ *                                  computeSumOfStateDerivatives_() to NumericalPropagator class.
  *      110207    K. Kumar          Added ostream overload.
  *      110216    K. Kumar          Added get function for fixedOutputInterval_.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 #ifndef PROPAGATOR_H
@@ -58,20 +56,12 @@
 // Include statements.
 #include <map>
 #include <vector>
-#include "body.h"
-#include "cartesianElements.h"
-#include "forceModel.h"
-#include "linearAlgebra.h"
-#include "propagatorDataContainer.h"
-#include "seriesPropagator.h"
-#include "state.h"
-
-// Using declarations.
-using std::map;
-
-// Forward declarations.
-class PropagatorDataContainer;
-class SeriesPropagator;
+#include "Astrodynamics/Bodies/body.h"
+#include "Astrodynamics/ForceModels/forceModel.h"
+#include "Astrodynamics/Propagators/propagatorDataContainer.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Astrodynamics/States/state.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Propagator class.
 /*!
@@ -81,50 +71,41 @@ class Propagator
 {
 public:
 
-    // Definition of friendships.
-    // Define SeriesPropagator as friend.
-    friend class SeriesPropagator;
-
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    Propagator( );
+    Propagator( ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~Propagator( );
+    virtual ~Propagator( ) { }
 
     //! Set start of propagation interval.
     /*!
      * Sets the start of the propagation interval.
      * \param propagationIntervalStart Start of propagation interval.
      */
-    void setPropagationIntervalStart( const double& propagationIntervalStart );
+    void setPropagationIntervalStart( const double& propagationIntervalStart )
+    { propagationIntervalStart_ = propagationIntervalStart; }
 
     //! Set end of propagation interval.
     /*!
      * Sets the end of the propagation interval.
      * \param propagationIntervalEnd End of propagation interval.
      */
-    void setPropagationIntervalEnd( const double& propagationIntervalEnd );
+    void setPropagationIntervalEnd( const double& propagationIntervalEnd )
+    { propagationIntervalEnd_ = propagationIntervalEnd; }
 
     //! Add body to be propagated.
     /*!
      * Adds a body to be propagated.
      * \param pointerToBody Pointer to Body object.
      */
-    void addBody( Body* pointerToBody );
-
-    //! Set propagator for propagation of a body.
-    /*!
-     * Sets a propagator for propagation of given body.
-     * \param pointerToBody Pointer to Body object.
-     * \param pointerToPropagator Pointer to Propagator object.
-     */
-    void setPropagator( Body* pointerToBody, Propagator* pointerToPropagator );
+    void addBody( Body* pointerToBody )
+    { bodiesToPropagate_[ pointerToBody ].pointerToBody = pointerToBody; }
 
     //! Set initial state of body.
     /*!
@@ -133,22 +114,33 @@ public:
      * \param pointerToInitialState Initial state given as pointer to a
      *          CartesianElements object.
      */
-    virtual void setInitialState( Body* pointerToBody,
-                                  State* pointerToInitialState );
+    virtual void setInitialState( Body* pointerToBody, State* pointerToInitialState )
+    {
+        bodiesToPropagate_[ pointerToBody ].pointerToInitialState = pointerToInitialState;
+        bodiesToPropagate_[ pointerToBody ].sizeOfState = pointerToInitialState->state.size( );
+    }
+
+    //! Set bodies to propagate.
+    /*!
+     * Set map of bodies to propagate.
+     * \param bodiesToProgate Map of bodies to propagate.
+     */
+    void setBodiesToPropagate( std::map< Body*, PropagatorDataContainer > bodiesToPropagate )
+    { bodiesToPropagate_ = bodiesToPropagate; }
 
     //! Get start of propagation interval.
     /*!
      * Gets the start of the propagation interval.
      * \return Start of propagation interval.
      */
-    double& getPropagationIntervalStart( );
+    double& getPropagationIntervalStart( ) { return propagationIntervalStart_; }
 
     //! Get end of propagation interval.
     /*!
      * Gets the end of the propagation interval.
      * \return End of propagation interval.
      */
-    double& getPropagationIntervalEnd( );
+    double& getPropagationIntervalEnd( ) { return propagationIntervalEnd_; }
 
     //! Get initial state of body.
     /*!
@@ -156,7 +148,8 @@ public:
      * \param pointerToBody Pointer to Body object.
      * \return Initial state.
      */
-    State* getInitialState( Body* pointerToBody );
+    State* getInitialState( Body* pointerToBody )
+    { return bodiesToPropagate_[ pointerToBody ].pointerToInitialState; }
 
     //! Get final state of body.
     /*!
@@ -164,7 +157,16 @@ public:
      * \param pointerToBody Pointer to Body object.
      * \return Final state.
      */
-    State* getFinalState( Body* pointerToBody );
+    State* getFinalState( Body* pointerToBody )
+    { return &bodiesToPropagate_[ pointerToBody ].finalState; }
+
+    //! Get map of bodies to propagate.
+    /*!
+     * Returns map of bodies to propagate.
+     * \return Map of bodies to propagate.
+     */
+    std::map< Body*, PropagatorDataContainer>& getBodiesToPropagate( )
+    { return bodiesToPropagate_; }
 
     //! Propagate.
     /*!
@@ -190,13 +192,13 @@ protected:
     /*!
      * Map of bodies to be propagated and associated data.
      */
-    map< Body*, PropagatorDataContainer > bodiesToPropagate_;
+    std::map< Body*, PropagatorDataContainer > bodiesToPropagate_;
 
     //! Iterator for map of bodies to propagate and associated data.
     /*!
      * Iterator for map of bodies to propagate and associated data.
      */
-    map< Body*, PropagatorDataContainer >::iterator iteratorBodiesToPropagate_;
+    std::map< Body*, PropagatorDataContainer >::iterator iteratorBodiesToPropagate_;
 
 private:
 };

@@ -3,8 +3,8 @@
  *    included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 4
- *    Check status      : Checked
+ *    Version           : 5
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -19,7 +19,7 @@
  *    E-mail address    : F.M.Engelen@student.tudelft.nl
  *
  *    Date created      : 16 February, 2011
- *    Last modified     : 2 June, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -47,19 +47,32 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110216    K. Kumar          First creation of code.
- *      110216    E. Iorfida        Moved "Full Earth gravity case" as first
- *                                  case to test. Set the value of the
- *                                  gravitational parameter of "half Earth
- *                                  gravity case" with (pointerToEarth->
- *                                  getGravitationalParameter( ) / 2.0).
- *      110602    K. Kumar          Updated code to not use dynamic memory
- *                                  allocation and to work with other code
- *                                  updates.
- *      110815    K. Kumar          Included the mass of Astrix.
+ *      110216    E. Iorfida        Moved "Full Earth gravity case" as first case to test. Set the
+ *                                  value of the gravitational parameter of "half-Earth gravity
+ *                                  case" with pointerToEarth->getGravitationalParameter( )/2.0.
+ *      110602    K. Kumar          Updated code to not use dynamic memory allocation and to work
+ *                                  with other code updates.
+ *      110815    K. Kumar          Included the mass of Asterix.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 // Include statements.
-#include "unitTestNumericalPropagator.h"
+#include <iostream>
+#include <map>
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/Bodies/Vehicles/vehicle.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/ForceModels/gravitationalForceModel.h"
+#include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
+#include "Astrodynamics/Propagators/numericalPropagator.h"
+#include "Astrodynamics/Propagators/seriesPropagator.h"
+#include "Astrodynamics/Propagators/unitTestNumericalPropagator.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Astrodynamics/States/cartesianPositionElements.h"
+#include "Astrodynamics/States/state.h"
+#include "Mathematics/unitConversions.h"
+#include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -72,6 +85,9 @@ bool testNumericalPropagator( )
     // the same with 1x the gravity of the Earth and 2x half the gravity of
     // the Earth. In other words, the results from the two cases are compared
     // directly.
+
+    // Using declarations.
+    using unit_conversions::convertKilometersToMeters;
 
     // Test result initialised to false.
     bool isNumericalPropagatorErroneous = false;
@@ -94,9 +110,8 @@ bool testNumericalPropagator( )
 
     // Convert initial state vector to meters from
     // kilometers for both cases.
-    stateOfAsterixForFullEarthGravity.state =
-            unit_conversions::convertKilometersToMeters(
-                    stateOfAsterixForFullEarthGravity.state );
+    stateOfAsterixForFullEarthGravity.state = convertKilometersToMeters(
+                stateOfAsterixForFullEarthGravity.state );
 
     // Create map of propagation history of Asterix for full gravity and half
     // gravity.
@@ -116,8 +131,7 @@ bool testNumericalPropagator( )
     GravitationalForceModel fullEarthGravitationalForceModel;
 
     // Set Asterix as body subject to the full Earth gravitational force.
-    fullEarthGravitationalForceModel.setBodySubjectToForce(
-                &asterixForFullEarthGravity );
+    fullEarthGravitationalForceModel.setBodySubjectToForce( &asterixForFullEarthGravity );
 
     // Set Earth as central body for full Earth gravity.
     fullEarthGravitationalForceModel.setGravitationalBody( &predefinedEarth );
@@ -129,26 +143,22 @@ bool testNumericalPropagator( )
     rk4ForFullEarthGravity.setInitialStepsize( 30.0 );
 
     // Create numerical propagator object for full Earth gravity.
-    CartesianStateNumericalPropagator
-            cartesianStateNumericalPropagatorForFullEarthGravity;
+    CartesianStateNumericalPropagator cartesianStateNumericalPropagatorForFullEarthGravity;
 
     // Set Cartesian state numerical propagator as state derivative class for
     // RK4 integrator.
     rk4ForFullEarthGravity.setObjectContainingStateDerivative(
-            &cartesianStateNumericalPropagatorForFullEarthGravity );
+                &cartesianStateNumericalPropagatorForFullEarthGravity );
 
     // Set the integrator to use RK4.
-    cartesianStateNumericalPropagatorForFullEarthGravity
-            .setIntegrator( &rk4ForFullEarthGravity );
+    cartesianStateNumericalPropagatorForFullEarthGravity.setIntegrator( &rk4ForFullEarthGravity );
 
     // Add Asterix as the body that has to be propagated.
-    cartesianStateNumericalPropagatorForFullEarthGravity
-            .addBody( &asterixForFullEarthGravity );
+    cartesianStateNumericalPropagatorForFullEarthGravity.addBody( &asterixForFullEarthGravity );
 
     // Add full Earth gravity as force acting on Asterix.
-    cartesianStateNumericalPropagatorForFullEarthGravity
-            .addForceModel( &asterixForFullEarthGravity,
-                            &fullEarthGravitationalForceModel );
+    cartesianStateNumericalPropagatorForFullEarthGravity.addForceModel(
+                &asterixForFullEarthGravity, &fullEarthGravitationalForceModel );
 
     // Create series propagator for full Earth gravity.
     SeriesPropagator seriesPropagatorForFullEarthGravity;
@@ -167,18 +177,15 @@ bool testNumericalPropagator( )
             &cartesianStateNumericalPropagatorForFullEarthGravity );
 
     // Set initial state of Asterix for series propagation.
-    seriesPropagatorForFullEarthGravity.setInitialState(
-            &asterixForFullEarthGravity,
-            &stateOfAsterixForFullEarthGravity );
+    seriesPropagatorForFullEarthGravity.setInitialState( &asterixForFullEarthGravity,
+                                                         &stateOfAsterixForFullEarthGravity );
 
     // Run simulation for full Earth.
     seriesPropagatorForFullEarthGravity.execute( );
 
     // Get propagation history of Asterix.
-    asterixPropagationHistoryFullGravity
-            = seriesPropagatorForFullEarthGravity
-              .getPropagationHistoryAtFixedOutputIntervals(
-                      &asterixForFullEarthGravity );
+    asterixPropagationHistoryFullGravity = seriesPropagatorForFullEarthGravity
+              .getPropagationHistoryAtFixedOutputIntervals( &asterixForFullEarthGravity );
 
     // Run half Earth gravity case.
 
@@ -198,9 +205,8 @@ bool testNumericalPropagator( )
 
     // Convert initial state vector to meters from
     // kilometers for both cases.
-    stateOfAsterixForHalfEarthGravity.state =
-            unit_conversions::convertKilometersToMeters(
-                    stateOfAsterixForHalfEarthGravity.state );
+    stateOfAsterixForHalfEarthGravity.state = convertKilometersToMeters(
+                stateOfAsterixForHalfEarthGravity.state );
 
     // Create map of propagation history of Asterix for full gravity and half
     // gravity.
@@ -230,8 +236,8 @@ bool testNumericalPropagator( )
     halfEarthGravityField.setOrigin( &originForHalfEarthGravityField );
 
     // Set gravity parameter for half Earth gravity field.
-    halfEarthGravityField.setGravitationalParameter(
-            predefinedEarth.getGravitationalParameter( ) / 2.0 );
+    halfEarthGravityField.setGravitationalParameter( predefinedEarth
+                                                     .getGravitationalParameter( ) / 2.0 );
 
     // Set gravity field model for half Earth.
     halfEarth.setGravityFieldModel( &halfEarthGravityField );
@@ -240,8 +246,7 @@ bool testNumericalPropagator( )
     GravitationalForceModel halfEarthGravitationalForceModel;
 
     // Set Asterix as body subject to half of the Earth gravitational force.
-    halfEarthGravitationalForceModel.setBodySubjectToForce(
-                &asterixForHalfEarthGravity );
+    halfEarthGravitationalForceModel.setBodySubjectToForce( &asterixForHalfEarthGravity );
 
     // Set half Earth as central body for half Earth gravity.
     halfEarthGravitationalForceModel.setGravitationalBody( &halfEarth );
@@ -253,8 +258,7 @@ bool testNumericalPropagator( )
     rk4ForHalfEarthGravity.setInitialStepsize( 30.0 );
 
     // Create numerical propagator object for full Earth gravity.
-    CartesianStateNumericalPropagator
-            cartesianStateNumericalPropagatorForHalfEarthGravity;
+    CartesianStateNumericalPropagator cartesianStateNumericalPropagatorForHalfEarthGravity;
 
     // Set Cartesian state numerical propagator as state derivative class for
     // RK4 integrator.
@@ -262,20 +266,16 @@ bool testNumericalPropagator( )
             &cartesianStateNumericalPropagatorForHalfEarthGravity );
 
     // Set the integrator to use RK4.
-    cartesianStateNumericalPropagatorForHalfEarthGravity
-            .setIntegrator( &rk4ForHalfEarthGravity );
+    cartesianStateNumericalPropagatorForHalfEarthGravity.setIntegrator( &rk4ForHalfEarthGravity );
 
     // Add Asterix as the body that has to be propagated.
-    cartesianStateNumericalPropagatorForHalfEarthGravity
-            .addBody( &asterixForHalfEarthGravity );
+    cartesianStateNumericalPropagatorForHalfEarthGravity.addBody( &asterixForHalfEarthGravity );
 
     // Add half Earth gravitational force models as forces acting on Asterix.
-    cartesianStateNumericalPropagatorForHalfEarthGravity
-            .addForceModel( &asterixForHalfEarthGravity,
-                            &halfEarthGravitationalForceModel );
-    cartesianStateNumericalPropagatorForHalfEarthGravity
-            .addForceModel( &asterixForHalfEarthGravity,
-                            &halfEarthGravitationalForceModel );
+    cartesianStateNumericalPropagatorForHalfEarthGravity.addForceModel(
+                &asterixForHalfEarthGravity, &halfEarthGravitationalForceModel );
+    cartesianStateNumericalPropagatorForHalfEarthGravity.addForceModel(
+                &asterixForHalfEarthGravity, &halfEarthGravitationalForceModel );
 
     // Create series propagator for half Earth gravity.
     SeriesPropagator seriesPropagatorForHalfEarthGravity;
@@ -291,43 +291,35 @@ bool testNumericalPropagator( )
 
     // Set propagator for series propagation.
     seriesPropagatorForHalfEarthGravity.setPropagator(
-            &cartesianStateNumericalPropagatorForHalfEarthGravity );
+                &cartesianStateNumericalPropagatorForHalfEarthGravity );
 
     // Set initial state of Asterix for series propagation.
-    seriesPropagatorForHalfEarthGravity.setInitialState(
-            &asterixForHalfEarthGravity,
-            &stateOfAsterixForHalfEarthGravity );
+    seriesPropagatorForHalfEarthGravity.setInitialState( &asterixForHalfEarthGravity,
+                                                         &stateOfAsterixForHalfEarthGravity );
 
     // Run simulation for full Earth.
     seriesPropagatorForHalfEarthGravity.execute( );
 
     // Get propagation history of Asterix for half Earth gravity case.
-    asterixPropagationHistoryHalfGravity
-            = seriesPropagatorForHalfEarthGravity
-              .getPropagationHistoryAtFixedOutputIntervals(
-                      &asterixForHalfEarthGravity );
+    asterixPropagationHistoryHalfGravity = seriesPropagatorForHalfEarthGravity
+              .getPropagationHistoryAtFixedOutputIntervals( &asterixForHalfEarthGravity );
 
     // Check if results of full and half Earth gravity cases match.
     for ( unsigned int i = 0;
-          i < seriesPropagatorForHalfEarthGravity
-              .getSeriesPropagationEnd( )
-              / seriesPropagatorForHalfEarthGravity
-              .getFixedOutputInterval( ); i++ )
+          i < ( seriesPropagatorForHalfEarthGravity.getSeriesPropagationEnd( )
+                / seriesPropagatorForHalfEarthGravity.getFixedOutputInterval( ) ); i++ )
     {
         if ( asterixPropagationHistoryFullGravity[
-                i * seriesPropagatorForFullEarthGravity
-                .getFixedOutputInterval( ) ].state
+                i * seriesPropagatorForFullEarthGravity.getFixedOutputInterval( ) ].state
              != asterixPropagationHistoryHalfGravity[
-                     i * seriesPropagatorForHalfEarthGravity
-                     .getFixedOutputInterval( ) ].state )
+                i * seriesPropagatorForHalfEarthGravity.getFixedOutputInterval( ) ].state )
         {
             isNumericalPropagatorErroneous = true;
 
-            std::cerr << "The numerical propagator does not produce "
-                      << "consistent results, as running a simulation with "
-                      << "full Earth gravity does not yield the same results "
-                      << "as running a simulation with twice half Earth "
-                      << "gravity." << std::endl;
+            std::cerr << "The numerical propagator does not produce consistent results, as "
+                      << "running a simulation with full Earth gravity does not yield the "
+                      << "same results as running a simulation with twice half Earth gravity."
+                      << std::endl;
         }
     }
 

@@ -1,10 +1,9 @@
 /*! \file seriesPropagator.cpp
- *    Source file that defines a class that executes a series of propagation
- *    steps.
+ *    Source file that defines a class that executes a series of propagation steps.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 1
- *    Check status      : Checked
+ *    Version           : 2
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 6 May, 2011
- *    Last modified     : 6 May, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -35,152 +34,72 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110506    K. Kumar          File created.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 // Include statements.
-#include "seriesPropagator.h"
-
-// Using declarations.
-using std::floor;
-
-//! Default constructor.
-SeriesPropagator::SeriesPropagator( ) : fixedOutputInterval_( -0.0 )
-{
-}
-
-//! Default destructor.
-SeriesPropagator::~SeriesPropagator( )
-{
-}
-
-//! Set start of series propagation.
-void SeriesPropagator::setSeriesPropagationStart( const double&
-                                                  seriesPropagationStart )
-{
-    seriesPropagationStart_ = seriesPropagationStart;
-}
-
-//! Set end of series propagation.
-void SeriesPropagator::setSeriesPropagationEnd( const double&
-                                                seriesPropagationEnd )
-{
-    seriesPropagationEnd_ = seriesPropagationEnd;
-}
-
-//! Set fixed output interval.
-void SeriesPropagator::setFixedOutputInterval( const double&
-                                               fixedOutputInterval )
-{
-    // Set fixed output interval for propagation output.
-    fixedOutputInterval_ = fixedOutputInterval;
-
-    // Compute number of propagation steps minus one.
-    // This will only lead to a sensible result if setSeriesPropagationStart()
-    // and setSeriesPropagationEnd() have been called.
-    // To prevent numerical instabilities from occuring (e.g., ceil( 4 / 2 ) !=
-    // ceil( ( 4 + 1e-16 ) / 2 )), the square root of the machine precision is
-    // subtracted before applying the ceil function.
-    numberOfPropagationSteps_
-            = static_cast< unsigned int >(
-                ceil( ( seriesPropagationEnd_ - seriesPropagationStart_ )
-                / fixedOutputInterval_
-                - sqrt( mathematics::MACHINE_PRECISION_DOUBLES ) ) );
-}
-
-//! Set initial state of body for series propagation.
-void SeriesPropagator::setInitialState(
-        Body* pointerToBody, State* pointerToInitialState )
-{
-    pointerToPropagator_->setInitialState( pointerToBody,
-                                           pointerToInitialState );
-}
-
-//! Set propagator.
-void SeriesPropagator::setPropagator( Propagator* pointerToPropagator )
-{
-    pointerToPropagator_ = pointerToPropagator;
-}
-
-//! Get fixed output interval.
-double& SeriesPropagator::getFixedOutputInterval( )
-{
-    // Return fixed output interval.
-    return fixedOutputInterval_;
-}
-
-//! Get start of series propagation.
-double& SeriesPropagator::getSeriesPropagationStart( )
-{
-    // Return start of series propagation.
-    return seriesPropagationStart_;
-}
-
-//! Get end of series propagation.
-double& SeriesPropagator::getSeriesPropagationEnd( )
-{
-    // Return end of series propagation.
-    return seriesPropagationEnd_;
-}
+#include "Astrodynamics/Propagators/seriesPropagator.h"
 
 //! Execute.
 void SeriesPropagator::execute( )
 {
+    // Get map of bodies to propagate.
+    bodiesToPropagate_ = pointerToPropagator_->getBodiesToPropagate( );
+
     // Clear and store initial states in maps for each propagated body in
     // associated propagator data containers.
-    for ( iteratorPropagatedBodies_
-          = pointerToPropagator_->bodiesToPropagate_.begin( );
-          iteratorPropagatedBodies_
-          != pointerToPropagator_->bodiesToPropagate_.end( );
-          iteratorPropagatedBodies_++ )
+    for ( iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
+          iteratorPropagatedBodies_ != bodiesToPropagate_.end( ); iteratorPropagatedBodies_++ )
     {
         // Clear propagation histories.
-        iteratorPropagatedBodies_->second.propagationHistory_.clear( );
+        iteratorPropagatedBodies_->second.propagationHistory.clear( );
 
         // Store initial states.
-        iteratorPropagatedBodies_->second
-                .propagationHistory_[ seriesPropagationStart_ ]
-                = *iteratorPropagatedBodies_->second.pointerToInitialState_;
+        iteratorPropagatedBodies_->second.propagationHistory[ seriesPropagationStart_ ]
+                = *iteratorPropagatedBodies_->second.pointerToInitialState;
     }
 
     for ( unsigned int i = 0; i < numberOfPropagationSteps_ - 1; i++ )
     {
         // Set start and end of propagation interval.
-        pointerToPropagator_
-                ->setPropagationIntervalStart( ( i * fixedOutputInterval_ )
-                                               + seriesPropagationStart_);
-        pointerToPropagator_
-                ->setPropagationIntervalEnd( ( ( i + 1 ) * fixedOutputInterval_ )
-                                             + seriesPropagationStart_ );
+        pointerToPropagator_->setPropagationIntervalStart( ( i * fixedOutputInterval_ )
+                                                           + seriesPropagationStart_ );
+        pointerToPropagator_->setPropagationIntervalEnd( ( ( i + 1 ) * fixedOutputInterval_ )
+                                                         + seriesPropagationStart_ );
 
         // Execute propagation.
         pointerToPropagator_->propagate( );
 
+        // Get map of bodies to propagate.
+        bodiesToPropagate_ = pointerToPropagator_->getBodiesToPropagate( );
+
         // Store final states in maps for each propagated body in associated
         // propagator data containers. Set initial states for each propagated
         // body to final states from current propagation segment.
-        for ( iteratorPropagatedBodies_
-              = pointerToPropagator_->bodiesToPropagate_.begin( );
-              iteratorPropagatedBodies_
-              != pointerToPropagator_->bodiesToPropagate_.end( );
-              iteratorPropagatedBodies_++ )
+        for ( iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
+              iteratorPropagatedBodies_ != bodiesToPropagate_.end( ); iteratorPropagatedBodies_++ )
         {
-            iteratorPropagatedBodies_->second.propagationHistory_[ ( i + 1 ) * fixedOutputInterval_
-                    + seriesPropagationStart_ ] = iteratorPropagatedBodies_->second.finalState_;
+            // Store final state.
+            iteratorPropagatedBodies_->second.propagationHistory[
+                    ( i + 1 ) * fixedOutputInterval_ ]
+                    = iteratorPropagatedBodies_->second.finalState;
 
             // Set initial state for next propagation segment to final state from
             // current segment.
-            iteratorPropagatedBodies_->second.pointerToInitialState_->state
-                    = iteratorPropagatedBodies_->second.finalState_.state;
-         }
+            iteratorPropagatedBodies_->second.pointerToInitialState->state
+                    = iteratorPropagatedBodies_->second.finalState.state;
+
+        }
+
+        // Store map of bodies to propagate in propagator.
+        pointerToPropagator_->setBodiesToPropagate( bodiesToPropagate_ );
     }
 
     // Set start and end of propagation interval for last propagation step.
-    pointerToPropagator_
-            ->setPropagationIntervalStart( ( ( numberOfPropagationSteps_ - 1 )
-                                           * fixedOutputInterval_ )
-                                           + seriesPropagationStart_  );
-    pointerToPropagator_
-            ->setPropagationIntervalEnd( seriesPropagationEnd_ );
+    pointerToPropagator_->setPropagationIntervalStart( ( ( numberOfPropagationSteps_ - 1 )
+                                                         * fixedOutputInterval_ )
+                                                       + seriesPropagationStart_  );
+    pointerToPropagator_->setPropagationIntervalEnd( seriesPropagationEnd_ );
 
     // Execute propagation.
     pointerToPropagator_->propagate( );
@@ -188,26 +107,20 @@ void SeriesPropagator::execute( )
     // Store final states in maps for each propagated body in associated
     // propagator data containers. Set initial states for each propagated
     // body to final states from current propagation segment.
-    for ( iteratorPropagatedBodies_
-          = pointerToPropagator_->bodiesToPropagate_.begin( );
-          iteratorPropagatedBodies_
-          != pointerToPropagator_->bodiesToPropagate_.end( );
+    for ( iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
+          iteratorPropagatedBodies_ != bodiesToPropagate_.end( );
           iteratorPropagatedBodies_++ )
     {
-        iteratorPropagatedBodies_->second
-                .propagationHistory_[ seriesPropagationEnd_ ]
-                = iteratorPropagatedBodies_->second.finalState_;
-    }
-}
+        // Get map of bodies to propagate.
+        bodiesToPropagate_ = pointerToPropagator_->getBodiesToPropagate( );
 
-//! Get propagation history of body at fixed output intervals.
-map< double, State >&
-        SeriesPropagator::getPropagationHistoryAtFixedOutputIntervals(
-                Body* pointerToBody )
-{
-    // Return propagation history of given body.
-    return pointerToPropagator_
-            ->bodiesToPropagate_[ pointerToBody ].propagationHistory_;
+        // Store final state.
+        iteratorPropagatedBodies_->second.propagationHistory[ seriesPropagationEnd_ ]
+                = iteratorPropagatedBodies_->second.finalState;
+    }
+
+    // Store map of bodies to propagate in propagator.
+    pointerToPropagator_->setBodiesToPropagate( bodiesToPropagate_ );
 }
 
 // End of file.

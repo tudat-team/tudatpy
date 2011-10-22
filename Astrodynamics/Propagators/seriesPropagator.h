@@ -1,10 +1,9 @@
 /*! \file seriesPropagator.h
- *    Header file that defines a class that executes a series of propagation
- *    steps.
+ *    Header file that defines a class that executes a series of propagation steps.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 1
- *    Check status      : Checked
+ *    Version           : 2
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 6 May, 2011
- *    Last modified     : 6 May, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -35,6 +34,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110506    K. Kumar          File created.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 #ifndef SERIESPROPAGATOR_H
@@ -43,17 +43,10 @@
 // Include statements.
 #include <cmath>
 #include <map>
-#include "body.h"
-#include "cartesianElements.h"
-#include "propagator.h"
-#include "propagatorDataContainer.h"
-
-// Using declarations.
-using std::map;
-
-// Forward declarations.
-class Propagator;
-class PropagatorDataContainer;
+#include "Astrodynamics/Bodies/body.h"
+#include "Astrodynamics/Propagators/propagator.h"
+#include "Astrodynamics/Propagators/propagatorDataContainer.h"
+#include "Astrodynamics/States/cartesianElements.h"
 
 //! Definition of series propagator.
 /*!
@@ -70,37 +63,46 @@ public:
     /*!
      * Default constructor.
      */
-    SeriesPropagator( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~SeriesPropagator( );
+    SeriesPropagator( ) : numberOfPropagationSteps_( 0 ), seriesPropagationStart_( -0.0 ),
+        seriesPropagationEnd_( -0.0 ), fixedOutputInterval_( -0.0 ), pointerToPropagator_( NULL ),
+        bodiesToPropagate_( ), iteratorPropagatedBodies_( NULL ) { }
 
     //! Set start of series propagation.
     /*!
      * Sets the start of the series propagation.
      * \param seriesPropagationStart Start of series propagation.
      */
-    void setSeriesPropagationStart( const double& seriesPropagationStart );
+    void setSeriesPropagationStart( const double& seriesPropagationStart )
+    { seriesPropagationStart_ = seriesPropagationStart; }
 
     //! Set end of series propagation.
     /*!
      * Sets the end of the series propagation.
      * \param seriesPropagationEnd End of series propagation.
      */
-    void setSeriesPropagationEnd( const double& seriesPropagationEnd );
+    void setSeriesPropagationEnd( const double& seriesPropagationEnd )
+    { seriesPropagationEnd_ = seriesPropagationEnd; }
 
     //! Set fixed output interval.
     /*!
      * Sets the fixed output interval at which propagation output should be
      * generated and stored for each body being propagated. This function
      * can only be called after both setSeriesPropagationStart() and
-     * setSeriesPropagationEnd() are called.
+     * setSeriesPropagationEnd() are called. Also computes number of propagation
+     * steps minus one. This will only lead to a sensible result if setSeriesPropagationStart()
+     * and setSeriesPropagationEnd() have been called. To prevent numerical instabilities from
+     * occuring (e.g., ceil( 4 / 2 ) != ceil( ( 4 + 1e-16 ) / 2 )), the square root of the machine
+     * precision is subtracted before applying the ceil function.
      * \param fixedOutputInterval Fixed output interval.
      */
-    void setFixedOutputInterval( const double& fixedOutputInterval );
+    void setFixedOutputInterval( const double& fixedOutputInterval )
+    {
+        fixedOutputInterval_ = fixedOutputInterval;
+        numberOfPropagationSteps_ = static_cast< unsigned int >(
+                    std::ceil( ( seriesPropagationEnd_ - seriesPropagationStart_ )
+                               / fixedOutputInterval_
+                               - std::sqrt( mathematics::MACHINE_PRECISION_DOUBLES ) ) );
+    }
 
     //! Set initial state of body for series propagation.
     /*!
@@ -109,15 +111,16 @@ public:
      * \param pointerToInitialState Initial state at start of series
      *          propagation.
      */
-    void setInitialState( Body* pointerToBody,
-                          State* pointerToInitialState );
+    void setInitialState( Body* pointerToBody, State* pointerToInitialState )
+    { pointerToPropagator_->setInitialState( pointerToBody, pointerToInitialState ); }
 
     //! Set propagator.
     /*!
      * Sets propagator used for series propagation.
      * \param pointerToPropagator Pointer to propagator.
      */
-    void setPropagator( Propagator* pointerToPropagator );
+    void setPropagator( Propagator* pointerToPropagator )
+    { pointerToPropagator_ = pointerToPropagator; }
 
     //! Get fixed output interval.
     /*!
@@ -125,21 +128,21 @@ public:
      * generated and stored in propagationHistory_.
      * \return Fixed output interval.
      */
-    double& getFixedOutputInterval( );
+    double& getFixedOutputInterval( ) { return fixedOutputInterval_; }
 
     //! Get start of series propagation.
     /*!
      * Returns the start of the series propagation.
      * \return Start of series propagation.
      */
-    double& getSeriesPropagationStart( );
+    double& getSeriesPropagationStart( ) { return seriesPropagationStart_; }
 
     //! Get end of series propagation.
     /*!
      * Returns the end of the series propagation.
      * \return End of series propagation.
      */
-    double& getSeriesPropagationEnd( );
+    double& getSeriesPropagationEnd( ) { return seriesPropagationEnd_; }
 
     //! Get propagation history of body at fixed output intervals.
     /*!
@@ -148,8 +151,8 @@ public:
      * \param pointerToBody Pointer to Body object.
      * \return Map of propagation history.
      */
-    map< double, State >&
-            getPropagationHistoryAtFixedOutputIntervals( Body* pointerToBody );
+    std::map< double, State >& getPropagationHistoryAtFixedOutputIntervals( Body* pointerToBody )
+    { return pointerToPropagator_->getBodiesToPropagate( )[ pointerToBody ].propagationHistory; }
 
     //! Execute.
     /*!
@@ -193,17 +196,17 @@ private:
      */
     Propagator* pointerToPropagator_;
 
-    //! Map of propagated bodies and associated data.
+    //! Map of bodies to propagate and associated data.
     /*!
-     * Map of propagated bodies and associated data.
+     * Map of bodies to be propagated and associated data.
      */
-    map< Body*, PropagatorDataContainer > propagatedBodies_;
+    std::map< Body*, PropagatorDataContainer > bodiesToPropagate_;
 
     //! Iterator for map of propagated bodies and associated data.
     /*!
      * Iterator for map of propagated bodies and associated data.
      */
-    map< Body*, PropagatorDataContainer >::iterator iteratorPropagatedBodies_;
+    std::map< Body*, PropagatorDataContainer >::iterator iteratorPropagatedBodies_;
 };
 
 #endif // SERIESPROPAGATOR_H

@@ -69,25 +69,9 @@ bool testRungeKutta4thOrderFixedStepsizeIntegrator( );
 /*!
  *  Runge-Kutta 4th-order, fixed stepsize integrator test class.
  */
-class RungeKutta4thOrderFixedStepsizeIntegratorTest : public StateDerivativeBase
+struct RungeKutta4thOrderFixedStepsizeIntegratorTest : public StateDerivativeBase
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    RungeKutta4thOrderFixedStepsizeIntegratorTest( )
-    {
-    }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~RungeKutta4thOrderFixedStepsizeIntegratorTest( )
-    {
-    }
 
     //! Compute state derivative.
     /*!

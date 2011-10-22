@@ -45,18 +45,16 @@
 #ifndef TABULATEDATMOSPHERE_H
 #define TABULATEDATMOSPHERE_H
 
+// Macros.
+#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
+
 // Include statements.
 #include <iostream>
-#include <sstream>
 #include <string>
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h"
 #include "Input/textFileReader.h"
 #include "Mathematics/cubicSplineInterpolation.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
-
-//using statements
-using std::stringstream;
-using std::string;
 
 //! Tabulated atmosphere class.
 /*!
@@ -82,26 +80,26 @@ public:
      */
     ~TabulatedAtmosphere( ) { }
 
-    //! Initialise the atmosphere table reader.
+    //! Initialize atmosphere table reader.
     /*!
-     * Initialise the atmosphere table reader.
+     * Initialize the atmosphere table reader.
      * \param atmosphereTableFile The name of the atmosphere table.
      */
-    void initialize( string atmosphereTableFile );
+    void initialize( std::string atmosphereTableFile );
 
     //! Get atmosphere table file name.
     /*!
      *  Get atmosphere table file name.
      * \return The atmosphere table file.
      */
-    string getAtmosphereTableFile( ) { return atmosphereTableFile_; }
+    std::string getAtmosphereTableFile( ) { return atmosphereTableFile_; }
 
     //! Get relative path.
     /*!
      * Get relative path.
      * \return The relative path.
      */
-    string getRelativePath( ) { return relativePath_; }
+    std::string getRelativePath( ) { return relativePath_; }
 
     //! Get local density.
     /*!
@@ -114,7 +112,12 @@ public:
      */
     double getDensity( const double& altitude, const double& longitude = 0.0,
                        const double& latitude = 0.0, const double& time = 0.0 )
-    { return cubicSplineInterpolationForDensity_.interpolate( altitude ); }
+    {
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return cubicSplineInterpolationForDensity_.interpolate( altitude );
+    }
 
     //! Get local pressure.
     /*!
@@ -127,7 +130,12 @@ public:
      */
     double getPressure( const double& altitude, const double& longitude = 0.0,
                         const double& latitude = 0.0, const double& time = 0.0 )
-    { return cubicSplineInterpolationForPressure_.interpolate( altitude ); }
+    {
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return cubicSplineInterpolationForPressure_.interpolate( altitude );
+    }
 
     //! Get local temperature.
     /*!
@@ -140,7 +148,12 @@ public:
      */
     double getTemperature( const double& altitude, const double& longitude = 0.0,
                            const double& latitude = 0.0, const double& time = 0.0 )
-    { return cubicSplineInterpolationForTemperature_.interpolate( altitude ); }
+    {
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return cubicSplineInterpolationForTemperature_.interpolate( altitude );
+    }
 
 protected:
 
@@ -149,13 +162,13 @@ private:
     /*!
      *  The relative path
      */
-    string relativePath_;
+    std::string relativePath_;
 
     //! The file name of the atmosphere table.
     /*!
      *  The file name of the atmosphere table.
      */
-    string atmosphereTableFile_;
+    std::string atmosphereTableFile_;
 
     //! The file reader.
     /*!

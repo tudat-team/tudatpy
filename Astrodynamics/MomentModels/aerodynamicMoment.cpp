@@ -38,6 +38,9 @@
 *                                  of mass, minor changes.
 */
 
+// Macros.
+#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
+
 // Include statements.
 #include <cmath>
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
@@ -45,6 +48,8 @@
 //! Compute aerodynamic moment.
 void AerodynamicMoment::computeMoment( State* pointerToState )
 {
+    TUDAT_UNUSED_PARAMETER( pointerToState );
+
     // Calculate moment.
     moment_ = dynamicPressure_ *
               pointerToAerodynamicCoefficientInterface_->getReferenceArea( ) *

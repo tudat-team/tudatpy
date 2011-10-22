@@ -1,10 +1,9 @@
 /*! \file cartesianStateNumericalPropagator.cpp
- *    Source file that implements the Cartesian state numerical propagator
- *    class included in Tudat.
+ *    Source file that implements the Cartesian state numerical propagator class included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 3
- *    Check status      : Checked
+ *    Version           : 4
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -19,7 +18,7 @@
  *    E-mail address    : F.M.Engelen@student.tudelft.nl
  *
  *    Date created      : 14 May, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -37,31 +36,28 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      110514    K. Kumar            File created.
- *      110810    J. Leloux           Corrected doxygen documentation, unused
- *                                    variable deleted.
- *      110815    K. Kumar            Updated equations of motion, implemented mass.
+ *      YYMMDD    Author            Comment
+ *      110514    K. Kumar          File created.
+ *      110810    J. Leloux         Corrected doxygen documentation, unused variable deleted.
+ *      110815    K. Kumar          Updated equations of motion, implemented mass.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
+// Macros.
+#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
+
 // Include statements.
-#include "cartesianStateNumericalPropagator.h"
+#include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-//! Default constructor.
-CartesianStateNumericalPropagator::CartesianStateNumericalPropagator( )
-{
-}
-
-//! Default destructor.
-CartesianStateNumericalPropagator::~CartesianStateNumericalPropagator( )
-{
-}
-
-//! Compute sum of state derivatives.
+//! Compute state derivative.
 void CartesianStateNumericalPropagator::computeStateDerivative(
         double& independentVariable, State* pointerToAssembledState,
         State* pointerToAssembledStateDerivative )
 {
+    // Set independentVariable to unused.
+    TUDAT_UNUSED_PARAMETER( independentVariable );
+
     // Declare local variables.
     // State derivative.
     State stateDerivative_;
@@ -76,30 +72,25 @@ void CartesianStateNumericalPropagator::computeStateDerivative(
     {
         // Set state for body to propagate based on associated segment of
         // assembled state.
-        iteratorBodiesToPropagate_->second.pointerToInitialState_->state
+        iteratorBodiesToPropagate_->second.pointerToInitialState->state
                 = pointerToAssembledState->state.segment(
-                        iteratorBodiesToPropagate_->second.stateStartIndex_,
-                        iteratorBodiesToPropagate_->second.sizeOfState_ );
+                        iteratorBodiesToPropagate_->second.stateStartIndex,
+                        iteratorBodiesToPropagate_->second.sizeOfState );
 
         // Reset sum of forces to zero.
         sumOfForces_.setZero( 3 );
 
         // Loop over container of force models for a given body to propagate.
-        for ( unsigned int i = 0;
-              i < iteratorBodiesToPropagate_->second
-              .vectorContainerOfPointersToForceModels_.size( );
-              i++ )
+        for ( unsigned int i = 0; i < iteratorBodiesToPropagate_
+              ->second.vectorContainerOfPointersToForceModels.size( ); i++ )
         {
             // Compute forces for given force model.
-            iteratorBodiesToPropagate_
-                    ->second.vectorContainerOfPointersToForceModels_.at( i )
-                    ->computeForce( iteratorBodiesToPropagate_
-                                    ->second.pointerToInitialState_ );
+            iteratorBodiesToPropagate_->second.vectorContainerOfPointersToForceModels.at( i )
+                    ->computeForce( iteratorBodiesToPropagate_->second.pointerToInitialState );
 
             // Compute sum of forces.
             sumOfForces_ += iteratorBodiesToPropagate_->second
-                            .vectorContainerOfPointersToForceModels_.at( i )
-                            ->getForce( );
+                    .vectorContainerOfPointersToForceModels.at( i )->getForce( );
         }
 
         // Set state derivative to size of state.
@@ -108,18 +99,16 @@ void CartesianStateNumericalPropagator::computeStateDerivative(
         // Set state derivative elements using state and computed sum of
         // forces.
         // Set derivative of position equal to the velocity.
-        stateDerivative_.state.segment( 0, 3 )
-                = iteratorBodiesToPropagate_->second
-                  .pointerToInitialState_->state.segment( 3, 3 );
+        stateDerivative_.state.segment( 0, 3 ) = iteratorBodiesToPropagate_->second
+                .pointerToInitialState->state.segment( 3, 3 );
 
         // Set derivative of velocity equal to acceleration.
         stateDerivative_.state.segment( 3, 3 ) = sumOfForces_
                 / iteratorBodiesToPropagate_->first->getMass( );
 
         // Add computed state derivatives to assembled state derivative.
-        pointerToAssembledStateDerivative
-                ->state.segment( iteratorBodiesToPropagate_
-                                 ->second.stateStartIndex_, 6 )
+        pointerToAssembledStateDerivative->state.segment( iteratorBodiesToPropagate_
+                                                          ->second.stateStartIndex, 6 )
                 = stateDerivative_.state;
     }
 }

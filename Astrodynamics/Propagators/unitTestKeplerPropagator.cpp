@@ -1,10 +1,9 @@
 /*! \file unitTestKeplerPropagator.cpp
- *    Source file that defines a unit test that tests the Kepler propagator
- *    included in Tudat.
+ *    Source file that defines a unit test that tests the Kepler propagator included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 3
- *    Check status      : Checked
+ *    Version           : 4
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
  *    Date created      : 16 February, 2011
- *    Last modified     : 21 Feburary, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *      Melman, J. Propagate software, J.C.P.Melman@tudelft.nl, 2010.
@@ -45,17 +44,28 @@
  *      YYMMDD    Author            Comment
  *      110216    K. Kumar          First creation of code.
  *      110217    E. Iorfida        Minor changes made.
- *      110221    K. Kumar          Updated variable-naming to comply with
- *                                  protocol.
+ *      110221    K. Kumar          Updated variable-naming to comply with protocol.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 // Include statements.
-#include "unitTestKeplerPropagator.h"
-
-// Using declarations.
-using std::cerr;
-using std::endl;
-using std::string;
+#include <cmath>
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <string>
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/Bodies/Vehicles/vehicle.h"
+#include "Astrodynamics/Propagators/keplerPropagator.h"
+#include "Astrodynamics/Propagators/seriesPropagator.h"
+#include "Astrodynamics/Propagators/unitTestKeplerPropagator.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Astrodynamics/States/state.h"
+#include "Basics/basicFunctions.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Mathematics/unitConversions.h"
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -76,19 +86,19 @@ bool testKeplerPropagator( )
     // Satellite Toolkit (STK).
 
     // Load file with benchmark data.
-    string relativePathToBenchmarkData = "Astrodynamics/Propagators/twoBodyKeplerData.dat";
+    std::string relativePathToBenchmarkData = "Astrodynamics/Propagators/twoBodyKeplerData.dat";
 
-    string absolutePathToBenchmarkData = basic_functions::getRootPath( )
-                                         + relativePathToBenchmarkData;
+    std::string absolutePathToBenchmarkData = basic_functions::getRootPath( )
+            + relativePathToBenchmarkData;
 
     std::ifstream twoBodyKeplerBenchmarkFile( absolutePathToBenchmarkData.c_str( ) );
 
     // Check if file could be opened.
     if ( !twoBodyKeplerBenchmarkFile )
     {
-        cerr << "Error: Two-body Kepler benchmark data file could not be "
-             << "opened." << endl;
-        cerr << absolutePathToBenchmarkData << endl;
+        std::cerr << "Error: Two-body Kepler benchmark data file could not be opened."
+                  << std::endl;
+        std::cerr << absolutePathToBenchmarkData << std::endl;
     }
 
     // Create propagation history map for benchmark data to be stored in.
@@ -109,9 +119,8 @@ bool testKeplerPropagator( )
         // Store state date from file.
         for ( unsigned int i = 0; i < 6; i++ )
         {
-            twoBodyKeplerBenchmarkFile >>
-                    benchmarkKeplerPropagationHistory[
-                            twoBodyKeplerDataCounter * 3600.0 ].state( i );
+            twoBodyKeplerBenchmarkFile >> benchmarkKeplerPropagationHistory[
+                                          twoBodyKeplerDataCounter * 3600.0 ].state( i );
         }
 
         // Increment counter.
@@ -140,15 +149,12 @@ bool testKeplerPropagator( )
 
     // Convert initial state vector to meters from
     // kilometers.
-    stateOfAsterix.state =
-            unit_conversions::convertKilometersToMeters(
-                    stateOfAsterix.state );
+    stateOfAsterix.state = unit_conversions::convertKilometersToMeters( stateOfAsterix.state );
 
     // Create map of propagation history of Asterix using a Kepler propagator
     // and a map iterator.
     std::map < double, State > asterixKeplerPropagationHistory;
-    std::map < double, State >::iterator
-            iteratorAsterixKeplerPropagationHistory;
+    std::map < double, State >::iterator iteratorAsterixKeplerPropagationHistory;
 
     // Create a pointer to new vehicle for Asterix.
     Vehicle asterix;
@@ -199,16 +205,13 @@ bool testKeplerPropagator( )
               .getPropagationHistoryAtFixedOutputIntervals( &asterix );
 
     // Compute propagation history state data from meters to kilometers.
-    for ( iteratorAsterixKeplerPropagationHistory
-          = asterixKeplerPropagationHistory.begin( );
-          iteratorAsterixKeplerPropagationHistory
-          != asterixKeplerPropagationHistory.end( );
+    for ( iteratorAsterixKeplerPropagationHistory = asterixKeplerPropagationHistory.begin( );
+          iteratorAsterixKeplerPropagationHistory != asterixKeplerPropagationHistory.end( );
           iteratorAsterixKeplerPropagationHistory++ )
     {
         iteratorAsterixKeplerPropagationHistory->second.state
                 = unit_conversions::convertMetersToKilometers(
-                        iteratorAsterixKeplerPropagationHistory
-                        ->second.state );
+                    iteratorAsterixKeplerPropagationHistory->second.state );
     }
 
     // Declare tolerance between benchmark data and simulation data.
@@ -218,21 +221,19 @@ bool testKeplerPropagator( )
     double differenceKeplerData;
 
     // Check if results match benchmark data.
-    for ( unsigned int i = 0;
-          i < seriesPropagator.getSeriesPropagationStart( )
-          / seriesPropagator.getFixedOutputInterval( ); i++ )
+    for ( unsigned int i = 0; i < ( seriesPropagator.getSeriesPropagationStart( )
+                                    / seriesPropagator.getFixedOutputInterval( ) ); i++ )
     {
         // Initialize difference in data.
         differenceKeplerData = 0.0;
 
         for ( unsigned int i = 0; i < 6; i++ )
         {
-            differenceKeplerData += std::fabs( asterixKeplerPropagationHistory[
-                                               i * seriesPropagator.getFixedOutputInterval( ) ]
-                                               .state( i )
-                                               - benchmarkKeplerPropagationHistory[
-                                               i * seriesPropagator.getFixedOutputInterval( ) ]
-                                               .state( i ) );
+            differenceKeplerData += std::fabs(
+                        asterixKeplerPropagationHistory[ i * seriesPropagator
+                        .getFixedOutputInterval( ) ].state( i )
+                        - benchmarkKeplerPropagationHistory[  i * seriesPropagator
+                        .getFixedOutputInterval( ) ].state( i ) );
         }
 
         if ( differenceKeplerData
@@ -240,10 +241,9 @@ bool testKeplerPropagator( )
         {
             isKeplerPropagatorErroneous = true;
 
-            cerr << "The Kepler propagator does not produce "
-                 << "consistent results, as running a simulation with "
-                 << "does not yield the same results as the benchmark data "
-                 << "given the same initial condition." << endl;
+            std::cerr << "The Kepler propagator does not produce consistent results, as running a "
+                      << "simulation with does not yield the same results as the benchmark data "
+                      << "given the same initial conditions." << std::endl;
         }
     }
 

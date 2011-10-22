@@ -65,8 +65,7 @@ void SingleStepIntegrationMethods::integrate( )
     }
 
     // Compute stepsize of last step.
-    lastStepStepsize_ = integrationIntervalEnd_
-                        - integrationIntervalCurrentPoint_;
+    lastStepStepsize_ = integrationIntervalEnd_ - integrationIntervalCurrentPoint_;
 
     // Compute final state.
     computeNextState_( lastStepStepsize_ );

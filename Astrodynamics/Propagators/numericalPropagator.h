@@ -1,10 +1,9 @@
 /*! \file numericalPropagator.h
- *    Header file that defines the numerical propagator class included in
- *    Tudat.
+ *    Header file that defines the numerical propagator class included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 7
- *    Check status      : Checked
+ *    Version           : 8
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 14 September, 2010
- *    Last modified     : 12 May, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -33,18 +32,17 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
+ *      YYMMDD    Author            Comment
  *      100915    K. Kumar          File created.
  *      100926    K. Kumar          Doxygen comments added.
  *      100928    K. Kumar          Completed missing comments.
- *      100929    J. Melman         Added a dot behind "Include statements"
+ *      100929    J. Melman         Added a dot behind "Include statements".
  *      100929    K. Kumar          Minor comment modifications.
- *      110201    K. Kumar          Updated code to use Integrator adaptor
- *                                  instead of pointers-to-member functions;
- *                                  Update code to use State class.
- *      110512    K. Kumar          Updated code not to use dynamics memory
- *                                  allocation; split into base and derived
- *                                  class.
+ *      110201    K. Kumar          Updated code to use Integrator adaptor instead of
+ *                                  pointers-to-member functions; updated code to use State class.
+ *      110512    K. Kumar          Updated code not to use dynamics memory allocation; split into
+ *                                  base and derived class.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 #ifndef NUMERICALPROPAGATOR_H
@@ -52,11 +50,10 @@
 
 // Include statements.
 #include <iostream>
-#include "basicMathematicsFunctions.h"
-#include "body.h"
-#include "integrator.h"
-#include "propagator.h"
-#include "stateDerivativeBase.h"
+#include "Astrodynamics/Bodies/body.h"
+#include "Astrodynamics/Propagators/propagator.h"
+#include "Mathematics/NumericalIntegrators/integrator.h"
+#include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
 //! Numerical propagator class.
 /*!
@@ -70,20 +67,16 @@ public:
     /*!
      * Default constructor.
      */
-    NumericalPropagator( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~NumericalPropagator( );
+    NumericalPropagator( ) : sizeOfAssembledState_( 0 ), pointerToIntegrator_( NULL ),
+        iteratorContainerOfPointersToForceModels_( NULL ) { }
 
     //! Set integrator for propagation.
     /*!
      * Sets an integrator for numerical propagation.
      * \param pointerToIntegrator Pointer to Integrator object.
      */
-    void setIntegrator( Integrator* pointerToIntegrator );
+    void setIntegrator( Integrator* pointerToIntegrator )
+    { pointerToIntegrator_ = pointerToIntegrator; }
 
     //! Add force model for propagation of a body.
     /*!
@@ -91,7 +84,9 @@ public:
      * \param pointerToBody Pointer to Body object.
      * \param pointerToForceModel Pointer to ForceModel object.
      */
-    void addForceModel( Body* pointerToBody, ForceModel* pointerToForceModel );
+    void addForceModel( Body* pointerToBody, ForceModel* pointerToForceModel )
+    { bodiesToPropagate_[ pointerToBody ].vectorContainerOfPointersToForceModels
+                .push_back( pointerToForceModel ); }
 
     //! Set initial state of body.
     /*!
@@ -100,24 +95,13 @@ public:
      * \param pointerToInitialState Initial state given as pointer to a
      *          CartesianElements object.
      */
-    void setInitialState( Body* pointerToBody,
-                          State* pointerToInitialState );
+    void setInitialState( Body* pointerToBody, State* pointerToInitialState );
 
     //! Propagate.
     /*!
      * Executes numerical propagation.
      */
     void propagate( );
-
-    //! Overload ostream to print class information.
-    /*!
-     * Overloads ostream to print class information.
-     * \param stream Stream object.
-     * \param numericalPropagator Numerical propagator.
-     * \return Stream object.
-     */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     NumericalPropagator& numericalPropagator );
 
 protected:
 
@@ -143,8 +127,7 @@ protected:
     /*!
      * Iterator for vector container of pointers to force models.
      */
-    std::vector< ForceModel* >::
-            iterator iteratorContainerOfPointersToForceModels_;
+    std::vector< ForceModel* >::iterator iteratorContainerOfPointersToForceModels_;
 
 private:
 };

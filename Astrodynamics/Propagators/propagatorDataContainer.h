@@ -1,10 +1,10 @@
 /*! \file propagatorDataContainer.h
- *    Header file that defines the class that contains all the data required by
- *    the Tudat propagators.
+ *    Header file that defines the class that contains all the data required by the Tudat
+ *    propagators.
  *
  *    Path              : /Astrodynamics/Propagators/
- *    Version           : 8
- *    Check status      : Checked
+ *    Version           : 9
+ *    Check status      : Unchecked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 September, 2010
- *    Last modified     : 23 February, 2011
+ *    Last modified     : 20 September, 2011
  *
  *    References
  *
@@ -42,18 +42,15 @@
  *      YYMMDD    Author            Comment
  *      100920    K. Kumar          File created.
  *      100926    K. Kumar          Filename changed, Doxygen comments added.
- *      100927    K. Kumar          Set functions removed, bodyContainer.cpp
- *                                  merged.
- *      100929    J. Melman         Deleted destructor and constructor
- *                                  implementations.
- *                                  stateVectorRangeStart_ ->
- *                                  stateVectorStartIndex_.
- *      100929    K. Kumar          EigenRoutines.h replaced in include
- *                                  statements by linearAlgebra.h.
- *      110201    K. Kumar          Updated code to make use of State class;
- *                                  changed filename.
+ *      100927    K. Kumar          Set functions removed, bodyContainer.cpp merged.
+ *      100929    J. Melman         Deleted destructor and constructor implementations;
+ *                                  stateVectorRangeStart_->stateVectorStartIndex_.
+ *      100929    K. Kumar          EigenRoutines.h replaced in include statements by
+ *                                  linearAlgebra.h.
+ *      110201    K. Kumar          Updated code to make use of State class; changed filename.
  *      110205    K. Kumar          Added note about use of container.
  *      110223    K. Kumar          Added missing Doxygen comment.
+ *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  */
 
 #ifndef PROPAGATORDATACONTAINER_H
@@ -62,22 +59,11 @@
 // Include statements.
 #include <map>
 #include <vector>
-#include "celestialBody.h"
-#include "forceModel.h"
-#include "propagator.h"
-#include "linearAlgebra.h"
-#include "state.h"
-
-// Forward declarations.
-class Propagator;
-class NumericalPropagator;
-class CartesianStateNumericalPropagator;
-class KeplerPropagator;
-class SeriesPropagator;
-
-// Using declarations.
-using std::map;
-using std::vector;
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/ForceModels/forceModel.h"
+#include "Astrodynamics/Propagators/propagator.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include "Astrodynamics/States/state.h"
 
 //! Propagator data container class.
 /*!
@@ -86,37 +72,71 @@ using std::vector;
  * one body can be propagated simultaneously by defining multiple propagator
  * data containers.
  */
-class PropagatorDataContainer
+struct PropagatorDataContainer
 {
 public:
-
-    // Definition of friendships.
-    // Set Propagator class as friend.
-    friend class Propagator;
-
-    // Set NumericalPropagator class as friend.
-    friend class NumericalPropagator;
-
-    // Set CartesianStateNumericalPropagator class as friend.
-    friend class CartesianStateNumericalPropagator;
-
-    // Set KeplerPropagator class as friend.
-    friend class KeplerPropagator;
-
-    // Set SeriesPropagator class as friend.
-    friend class SeriesPropagator;
 
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    PropagatorDataContainer( );
+    PropagatorDataContainer( ) : stateStartIndex( 0 ), sizeOfState( 0 ), propagationHistory( ),
+        iteratorPropagationHistory( NULL ), vectorContainerOfPointersToForceModels( ),
+        pointerToInitialState( NULL ), pointerToBody( NULL ), pointerToCentralBody( NULL ) { }
 
-    //! Default destructor.
+    //! Starting index of state.
     /*!
-     * Default destructor.
+     * Starting index of state in assembled state.
      */
-    ~PropagatorDataContainer( );
+    unsigned int stateStartIndex;
+
+    //! Size of state.
+    /*!
+     * Size of state in assembled state.
+     */
+    unsigned int sizeOfState;
+
+    //! A map of propagation history.
+    /*!
+     * A map of propagation history with propagation time taken as key.
+     */
+    std::map< double, State > propagationHistory;
+
+    //! Propagation history iterator.
+    /*!
+     * Iterator for map of propagation history.
+     */
+    std::map< double, State >::iterator iteratorPropagationHistory;
+
+    //! Vector container of pointers to force models.
+    /*!
+     * Vector container of pointers to force models.
+     */
+    std::vector< ForceModel* > vectorContainerOfPointersToForceModels;
+
+    //! Final state.
+    /*!
+     * Final state.
+     */
+    State finalState;
+
+    //! Pointer to initial state.
+    /*!
+     * Initial state given as a pointer to a State object.
+     */
+    State* pointerToInitialState;
+
+    //! Pointer to Body class.
+    /*!
+     * Pointer to Body class.
+     */
+    Body* pointerToBody;
+
+    //! Pointer to central body.
+    /*!
+     * Pointer to central body.
+     */
+    CelestialBody* pointerToCentralBody;
 
     //! Overload ostream to print class information.
     /*!
@@ -126,72 +146,18 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     PropagatorDataContainer&
-                                     propagatorDataContainer );
+                                     PropagatorDataContainer& propagatorDataContainer )
+    {
+        stream << "This is a PropagatorDataContainer object." << std::endl;
+        stream << "The initial state is set to: "
+               << propagatorDataContainer.pointerToInitialState << std::endl;
+        stream << "The final state is set to: " << propagatorDataContainer.finalState << std::endl;
+        return stream;
+    }
 
 protected:
 
 private:
-
-    //! Starting index of state.
-    /*!
-     * Starting index of state in assembled state.
-     */
-    unsigned int stateStartIndex_;
-
-    //! Size of state.
-    /*!
-     * Size of state in assembled state.
-     */
-    unsigned int sizeOfState_;
-
-    //! A map of propagation history.
-    /*!
-     * A map of propagation history with propagation time taken as key.
-     */
-    map< double, State > propagationHistory_;
-
-    //! Propagation history iterator.
-    /*!
-     * Iterator for map of propagation history.
-     */
-    map< double, State >::iterator iteratorPropagationHistory_;
-
-    //! Vector container of pointers to force models.
-    /*!
-     * Vector container of pointers to force models.
-     */
-    vector< ForceModel* > vectorContainerOfPointersToForceModels_;
-
-    //! Final state.
-    /*!
-     * Final state.
-     */
-    State finalState_;
-
-    //! Pointer to initial state.
-    /*!
-     * Initial state given as a pointer to a State object.
-     */
-    State* pointerToInitialState_;
-
-    //! Pointer to Body class.
-    /*!
-     * Pointer to Body class.
-     */
-    Body* pointerToBody_;
-
-    //! Pointer to Propagator class.
-    /*!
-     * Pointer to Propagator class.
-     */
-    Propagator* pointerToPropagator_;
-
-    //! Pointer to central body.
-    /*!
-     * Pointer to central body.
-     */
-    CelestialBody* pointerToCentralBody_;
 };
 
 #endif // PROPAGATORDATACONTAINER_H
