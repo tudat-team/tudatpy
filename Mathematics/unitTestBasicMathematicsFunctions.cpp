@@ -3,7 +3,7 @@
  *    containing all basic mathematics functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : B. Romgens
@@ -19,7 +19,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 7 February, 2011
- *    Last modified     : 8 July, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -51,11 +51,11 @@
  */
 
 // Include statements.
-#include <iostream> 
 #include <cmath>
-#include "Mathematics/unitTestBasicMathematicsFunctions.h"
-#include "Mathematics/basicMathematicsFunctions.h"
+#include <iostream> 
 #include "Astrodynamics/States/cartesianPositionElements.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/unitTestBasicMathematicsFunctions.h"
 
 // Using declarations.
 using std::cerr;

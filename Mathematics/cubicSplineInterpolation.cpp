@@ -19,7 +19,7 @@
  *    E-mail address    : e.a.g.heeren@student.tudelft.nl
  *
  *    Date created      : 20 June, 2011
- *    Last modified     : 14 July, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *    Numerical Recipes Third Edition - W.H. Press - page 118

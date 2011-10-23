@@ -3,7 +3,7 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 12
+ *    Version           : 13
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -27,7 +27,7 @@
  *    E-mail address    : d.dirkx@tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 24 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -55,16 +55,13 @@
  *      100929    K. Kumar          Checked code by D. Dirkx added.
  *      101110    K. Kumar          Added raiseToIntegerExponent() function.
  *      102410    D. Dirkx          Minor comment changes during code check.
- *      101213    K. Kumar          Modified raiseToIntegerExponent()
- *                                  function; renamed raiseToIntegerPower().
+ *      101213    K. Kumar          Modified raiseToIntegerExponent() function;
+ *                                  renamed raiseToIntegerPower().
  *                                  Added computeAbsoluteValue() functions.
  *      110111    J. Melman         Added computeModulo() function.
- *      110202    K. Kumar          Added overload for State* for
- *                                  computeLinearInterpolation();
- *      110411    K. Kumar          Added convertCartesianToSpherical()
- *                                  function.
- *      110707    K. Kumar          Added computeSampleMean() and
- *                                  computeSampleVariance() functions.
+ *      110202    K. Kumar          Added overload for State* for computeLinearInterpolation().
+ *      110411    K. Kumar          Added convertCartesianToSpherical() function.
+ *      110707    K. Kumar          Added computeSampleMean(), computeSampleVariance() functions.
  *      110810    J. Leloux         Corrected doxygen documentation (equations).
  *      110824    J. Leloux         Corrected doxygen documentation.
  *      110905    S. Billemont      Reorganized includes.
@@ -75,12 +72,12 @@
 #define BASICMATHEMATICSFUNCTIONS_H
 
 // Include statements.
-#include <map>
 #include <cfloat>
-#include <vector>
 #include <climits>
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include <map>
+#include <vector>
 #include "Astrodynamics/States/state.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Mathematics namespace.
 /*!
@@ -264,7 +261,7 @@ double computeSampleMean( const std::vector< double >& sampleData );
  * \param sampleData Map containing sample data.
  * \return Sample variance.
  */
-double computeSampleVariance( const std::vector< double >& sampleData  );
+double computeSampleVariance( const std::vector< double >& sampleData );
 
 }
 

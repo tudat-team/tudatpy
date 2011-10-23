@@ -59,7 +59,7 @@
 // Using declarations.
 using std::map;
 
-// Ofstream object.
+// Declare ofstream object.
 std::ofstream WritingOutputToFile::outputFile_;
 
 //! Write propagation history to file.

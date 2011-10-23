@@ -5,7 +5,7 @@
  *    panels.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 1
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -17,7 +17,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 6 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
@@ -65,7 +65,7 @@ public:
     /*!
      * Default constructor.
      */
-    LawgsPartGeometry( ) { }
+    LawgsPartGeometry( ) : name_( " " ) { }
 
     //! Default destructor.
     /*!
@@ -73,24 +73,21 @@ public:
      */
     virtual ~LawgsPartGeometry( ) { }
 
-    //! Function to create a mesh surface on a single-surface geometry.
+    //! Create a mesh surface on a single-surface geometry.
     /*!
-     * Function to create a mesh surface on a single-surface geometry. A meshed
-     * surface based on the given surface geometry is created.
+     * Creates a mesh surface on a single-surface geometry. A meshed surface based on the given
+     * surface geometry is created.
      * \param originalSurface surface from which a mesh is to be created.
      * \param numberOfLines Number of points to be sampled from 1st
-     * independent variable.
+     *          independent variable.
      * \param numberOfPoints Number of points to be sampled from 2nd
-     * independent variable.
+     *          independent variable.
      */
-    void setMesh( SingleSurfaceGeometry* originalSurface,
-                  int numberOfLines,
-                  int numberOfPoints );
+    void setMesh( SingleSurfaceGeometry* originalSurface, int numberOfLines, int numberOfPoints );
 
     //! Copy constructor.
     /*!
-     *  Copy constructor to deep-copy contents of a LawgsPartGeomtry
-     *  object to a new one.
+     * Copy constructor to deep-copy contents of a LawgsPartGeomtry object to a new one.
      */
      LawgsPartGeometry( const LawgsPartGeometry& PartIn );
 
@@ -110,52 +107,42 @@ public:
     virtual VectorXd getSurfacePoint( const double& independentVariable1,
                                       const double& independentVariable2 );
 
-    //! Function to retrieve surface derivative (currently not implemented).
+    //! Get surface derivative (currently not implemented).
     /*!
      * Currently unavailable function to return surface derivative.
      */
-    virtual VectorXd getSurfaceDerivative( const double& u ,
-                                           const double& v ,
-                                           const int& uDerivative ,
-                                           const int& vDerivative );
+    virtual VectorXd getSurfaceDerivative( const double& u, const double& v,
+                                           const int& uDerivative, const int& vDerivative );
 
-    //! Function to set the name of a Lawgs part.
+    //! Set name of a Lawgs part.
     /*!
-     * Function to set the name of a Lawgs part.
+     * Sets the name of a Lawgs part.
      */
-    void setName( const std::string& name ) 
-    {
-        name_ = name;
-    }
+    void setName( const std::string& name ) { name_ = name; }
 
-    //! Non-functional function to retrieve parameter.
+    //! Get parameter.
     /*!
-     * Non functional function of base class, could be implemented in future
-     * modification.
+     * Returns parameter.
      */
     virtual double getParameter( const int& i );
 
-    //! Non-functional function to set parameter.
+    //! Set parameter.
     /*!
-     * Non functional function of base class, could be implemented in future
-     * modification.
+     * Sets parameter.
      */
     virtual void setParameter( const int &parameterIndex, const double &value );
 
-    //! Function to de-allocate arrays in object.
+    //! De-allocate arrays in object.
     /*!
-     * Function to de-allocate arrays in object.
+     * De-allocates arrays in object.
      */
     void deAllocateArrays( );
 
-    //! Function to retrieve part name.
+    //! Get part name.
     /*!
-     *  Function to retrieve part name.
+     * Returns part name.
      */
-    std::string getName( )
-    {
-        return name_;
-    }
+    std::string getName( ) { return name_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -165,8 +152,7 @@ public:
      * \param lawgsPartGeometry Lawgs part geometry.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     LawgsPartGeometry& lawgsPartGeometry );
+    friend std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry );
 
 protected:
 

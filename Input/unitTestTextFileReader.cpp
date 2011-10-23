@@ -1,5 +1,5 @@
-/*! \file unitTestTextFileReader.h
- *    This header file contains the definition of a unit test for the text file
+/*! \file unitTestTextFileReader.cpp
+ *    This source file contains the definition of a unit test for the text file
  *    reader class.
  *
  *    Path              : /Input/
@@ -37,25 +37,21 @@
  *      YYMMDD    Author            Comment
  *      110324    J. Leloux         Creation of unit test.
  *      110330    K. Kumar          Minor corrections; test unsuccessful.
- *      110407    J. Leloux         Changed setup/order of file and tests ->
- *                                  successful.
- *      110408    K. Kumar          Added carriage return to string ( temp
- *                                  solution ).
- *      110521    K. Kumar          Updated to reflect changes to
- *                                  stripEndOfLineCharacters().
+ *      110407    J. Leloux         Changed setup/order of file and tests -> successful.
+ *      110408    K. Kumar          Added carriage return to string ( temp solution ).
+ *      110521    K. Kumar          Updated to reflect changes to stripEndOfLineCharacters().
  *      110607    F.M. Engelen      Updated with skipKeyword() test.
  *      110627    K. Kumar          Fixed skipKeyword() test.
  */
 
 // Include statements.
 #include <cmath>
-#include "textFileReader.h"
-#include "unitTestTextFileReader.h"
+#include "Input/textFileReader.h"
+#include "Input/unitTestTextFileReader.h"
 
-// Using directives.
+// Using declarations.
 using std::string;
 using std::map;
-
 using std::cerr;
 using std::endl;
 using std::cout;

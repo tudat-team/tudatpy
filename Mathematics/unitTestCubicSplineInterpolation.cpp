@@ -3,7 +3,7 @@
  *    included in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 5
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
@@ -15,7 +15,7 @@
  *    E-mail address    : e.a.g.heeren@student.tudelft.nl
  *
  *    Date created      : 21 June, 2011
- *    Last modified     : 14 July, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -44,8 +44,8 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
-#include "Mathematics/unitTestCubicSplineInterpolation.h"
 #include "Mathematics/cubicSplineInterpolation.h"
+#include "Mathematics/unitTestCubicSplineInterpolation.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Namespace for all unit tests.

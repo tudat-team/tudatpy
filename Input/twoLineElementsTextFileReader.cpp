@@ -57,12 +57,10 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110221    J. Leloux         Startup of TLE header file and class.
- *      110301    J. Leloux         Adjusting header file to parent classes
- *                                  and tudat rules.
+ *      110301    J. Leloux         Adjusting header file to parent classes and Tudat rules.
  *      110803    J. Leloux         First setup for codecheck.
  *      110805    K. Kumar          Layout and comment corrections; added
- *                                  get-function for vector container of TLE
- *                                  data.
+ *                                  get-function for vector container of TLE data.
  *      110810    J. Leloux         Tested new setup and changed descriptions.
  */
 

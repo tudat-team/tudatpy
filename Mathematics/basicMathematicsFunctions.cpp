@@ -3,7 +3,7 @@
  *    containing all basic functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 10
+ *    Version           : 12
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -27,7 +27,7 @@
  *    E-mail address    : d.dirkx@tudelft.nl
  *
  *    Date created      : 3 September, 2010
- *    Last modified     : 6 June, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -53,18 +53,14 @@
  *      100929    K. Kumar          Checked code by D. Dirkx added.
  *      101110    K. Kumar          Added raiseToExponentPower() function.
  *      102410    D. Dirkx          Minor comment changes as code check.
- *      101213    K. Kumar          Bugfix raiseToIntegerExponent(); renamed
- *                                  raiseToIntegerPower().
+ *      101213    K. Kumar          Bugfix raiseToIntegerExponent(); renamed raiseToIntegerPower().
  *                                  Added computeAbsoluteValue() functions.
- *      110202    K. Kumar          Added overload for State* for
- *                                  computeLinearInterpolation();
+ *      110202    K. Kumar          Added overload for State* for computeLinearInterpolation().
  *      110111    J. Melman         Added computeModulo() function.
- *      110411    K. Kumar          Added convertCartesianToSpherical()
- *                                  function.
+ *      110411    K. Kumar          Added convertCartesianToSpherical() function.
  *      110606    J. Melman         Removed possible singularity from
  *                                  convertCartesianToSpherical.
- *      110707    K. Kumar          Added computeSampleMean() and
- *                                  computeSampleVariance() functions.
+ *      110707    K. Kumar          Added computeSampleMean(), computeSampleVariance() functions.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
@@ -73,8 +69,8 @@
 #include <cmath>
 #include <iostream>
 #include <numeric>
-#include "Mathematics/basicMathematicsFunctions.h"
 #include "Basics/basicFunctions.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 // Using declarations.
 using std::map;
@@ -92,7 +88,6 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
                                    VectorXd& associatedDependentVariables,
                                    double& targetIndependentVariableValue )
 {
-
     // Declare local variables.
     // Declare nearest neighbor.
     int nearestNeighbor;

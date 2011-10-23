@@ -2,7 +2,7 @@
  *    This file contains the implementation of the ConicalFrustum class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 9 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -38,8 +38,7 @@
  *      YYMMDD    Author            Comment
  *      102511    D. Dirkx          First version of file.
  *      110120    D. Dirkx          Finalized for code check.
- *      110208    K. Kumar          Updated file header; corrected Doxygen
- *                                  comments; minor changes.
+ *      110208    K. Kumar          Updated file header; corrected Doxygen comments; minor changes.
  *      110209    D. Dirkx          Minor changes.
  *      110209    K. Kumar          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
@@ -47,32 +46,25 @@
  */
 
 // Include statements.
+#include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/GeometricShapes/conicalFrustum.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
-#include "Mathematics/basicMathematicsFunctions.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
-
-//! Default constructor.
-ConicalFrustum::ConicalFrustum( )
-{
-    minimumIndependentVariable2_ = 0;
-    maximumIndependentVariable2_ = 1;
-}
+using std::sin;
+using std::cos;
 
 //! Get surface point on conical frustum.
 VectorXd ConicalFrustum::getSurfacePoint( const double& azimuthAngle,
                                           const double& lengthFraction )
 {
     // Determines the radius of the cone at the given length fraction.
-    double localRadius_ = startRadius_ + length_ * lengthFraction *
-                          tan( coneHalfAngle_ );
+    double localRadius_ = startRadius_ + length_ * lengthFraction * std::tan( coneHalfAngle_ );
 
     // Set x and y coordinate of untransformed cone.
-    mathematics::convertCylindricalToCartesian( localRadius_,
-                                                azimuthAngle,
+    mathematics::convertCylindricalToCartesian( localRadius_, azimuthAngle,
                                                 cartesianPositionVector_ );
 
     // Set z coordinate of untransformed cone.
@@ -88,16 +80,14 @@ VectorXd ConicalFrustum::getSurfacePoint( const double& azimuthAngle,
 //! Get surface derivative on conical frustum.
 VectorXd ConicalFrustum::getSurfaceDerivative(
         const double& lengthFraction, const double& azimuthAngle,
-        const int& powerOfLengthFractionDerivative,
-        const int& powerOfAzimuthAngleDerivative )
+        const int& powerOfLengthFractionDerivative, const int& powerOfAzimuthAngleDerivative )
 {
     // Declare and set size of derivative vector.
     VectorXd derivative_ = VectorXd( 3 );
 
     // No negative derivatives may be retrieved, a zero vector is returned in
     // this case.
-    if ( powerOfLengthFractionDerivative < 0 ||
-         powerOfAzimuthAngleDerivative < 0 )
+    if ( powerOfLengthFractionDerivative < 0 || powerOfAzimuthAngleDerivative < 0 )
     {
         derivative_( 0 ) = 0;
         derivative_( 1 ) = 0;
@@ -109,8 +99,7 @@ VectorXd ConicalFrustum::getSurfaceDerivative(
 
     // When requesting the zeroth derivative with respect to the two
     // independent variables, the surface point is returned.
-    else if ( powerOfLengthFractionDerivative == 0 &&
-              powerOfAzimuthAngleDerivative == 0 )
+    else if ( powerOfLengthFractionDerivative == 0 && powerOfAzimuthAngleDerivative == 0 )
     {
         derivative_ = getSurfacePoint( lengthFraction, azimuthAngle );
     }
@@ -189,12 +178,9 @@ VectorXd ConicalFrustum::getSurfaceDerivative(
         }
 
         // Combine contributions to derivative.
-        derivative_( 0 ) = derivative1Contribution_( 0 ) *
-                           derivative2Contribution_( 0 );
-        derivative_( 1 ) = derivative1Contribution_( 1 ) *
-                           derivative2Contribution_( 1 );
-        derivative_( 2 ) = derivative1Contribution_( 2 ) *
-                           derivative2Contribution_( 2 );
+        derivative_( 0 ) = derivative1Contribution_( 0 ) * derivative2Contribution_( 0 );
+        derivative_( 1 ) = derivative1Contribution_( 1 ) * derivative2Contribution_( 1 );
+        derivative_( 2 ) = derivative1Contribution_( 2 ) * derivative2Contribution_( 2 );
 
         // Rotate derivatives to take into account rotation of cone.
         derivative_ = scalingMatrix_ * rotationMatrix_ * derivative_;
@@ -227,8 +213,7 @@ double ConicalFrustum::getParameter( const int& index )
 
    default:
 
-       cerr << "Parameter " << index << " does not exist in  "
-            << "ConicalFrustum, returning 0" << endl;
+       cerr << "Parameter " << index << " does not exist in ConicalFrustum, returning 0" << endl;
        parameter_ = 0;
        break;
    }
@@ -267,21 +252,16 @@ void ConicalFrustum::setParameter( const int& index, const double& parameter )
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator<<( std::ostream &stream,
-                          ConicalFrustum& conicalFrustum )
+std::ostream &operator<<( std::ostream &stream, ConicalFrustum& conicalFrustum )
 {
     stream << "This is a conical frustum geometry." << endl;
     stream << "The circumferential angle runs from: "
-           << conicalFrustum.getMinimumAzimuthAngle( ) * 180/M_PI
-           << " degrees to "
-           << conicalFrustum.getMaximumAzimuthAngle( ) * 180/M_PI
-           << " degrees" << endl;
-    stream << "The start radius is: " << conicalFrustum.getStartRadius( )
-            << endl;
+           << conicalFrustum.getMinimumAzimuthAngle( ) * 180/M_PI << " degrees to "
+           << conicalFrustum.getMaximumAzimuthAngle( ) * 180/M_PI << " degrees" << endl;
+    stream << "The start radius is: " << conicalFrustum.getStartRadius( ) << endl;
     stream << "The length is: " << conicalFrustum.getLength( ) << endl;
-    stream << "The cone half angle is: "
-            << conicalFrustum.getConeHalfAngle( ) * 180 / M_PI
-            <<  " degrees" << endl;
+    stream << "The cone half angle is: "  << conicalFrustum.getConeHalfAngle( ) * 180 / M_PI
+           <<  " degrees" << endl;
 
     // Return stream.
     return stream;

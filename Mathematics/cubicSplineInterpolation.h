@@ -3,7 +3,7 @@
  *    included in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 5
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
@@ -15,7 +15,7 @@
  *    E-mail address    : e.a.g.heeren@student.tudelft.nl
  *
  *    Date created      : 20 June, 2011
- *    Last modified     : 14 July, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *    Numerical Recipes Third Edition - W.H. Press - page 118
@@ -62,13 +62,9 @@ public:
     /*!
      * Default constructor.
      */
-    CubicSplineInterpolation( ) { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~CubicSplineInterpolation( ) { }
+    CubicSplineInterpolation( ) : lowerEntry_( -0 ), numberOfDataPoints_( -0 ),
+        targetIndependentVariableValue_( -0.0 ), coefficientb2_( -0.0 ), coefficientA_( -0.0 ),
+        coefficientB_( -0.0 ), coefficientC_( -0.0 ), coefficientD_( -0.0 ) { }
 
     //! Initialize cubic spline interpolation.
     /*!
@@ -99,15 +95,15 @@ private:
      */
     unsigned int lowerEntry_;
 
-    //! The amount of datapoints.
+    //! The number of datapoints.
     /*!
-     *  The amount of datapoints.
+     * The number of datapoints.
      */
     unsigned int numberOfDataPoints_;
 
     //! Target independent variable value.
     /*!
-     *  Target independent variable value.
+     * Target independent variable value.
      */
     double targetIndependentVariableValue_;
 

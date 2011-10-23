@@ -2,7 +2,7 @@
  *    This file contains the implementation of the LawgsPartGeometry class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 6 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
@@ -37,10 +37,8 @@
  *      YYMMDD    Author            Comment
  *      101125    D. Dirkx          First version of file.
  *      110127    D. Dirkx          Finalized for code check.
- *      110206    J. Melman         Minor formatting issues. Identified
- *                                  multiple warnings.
- *      110207    D. Dirkx          Fixed warning problems by extending cerr
- *                                  comments.
+ *      110206    J. Melman         Minor formatting issues. Identified multiple warnings.
+ *      110207    D. Dirkx          Fixed warning problems by extending cerr comments.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
@@ -49,10 +47,8 @@
 #include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 //! Constructor from surface geometry (i.e., geometry type conversion).
-void LawgsPartGeometry::setMesh(
-        SingleSurfaceGeometry* originalSurface,
-        int numberOfLinesIn,
-        int numberOfPointsIn )
+void LawgsPartGeometry::setMesh( SingleSurfaceGeometry* originalSurface,
+                                 int numberOfLinesIn, int numberOfPointsIn )
 {
     // Set (temporary name) of part.
     name_ = "copied surface";
@@ -79,27 +75,23 @@ void LawgsPartGeometry::setMesh(
     double variable1, variable2;
 
     // Declare and set minimum values of independent variables.
-    double minimumIndependentVariable1 =
-            originalSurface->getMinimumIndependentVariable( 1 );
-    double minimumIndependentVariable2 =
-            originalSurface->getMinimumIndependentVariable( 2 );
+    double minimumIndependentVariable1 = originalSurface->getMinimumIndependentVariable( 1 );
+    double minimumIndependentVariable2 = originalSurface->getMinimumIndependentVariable( 2 );
 
     // Loop through the number of lines and points specified and sample
     // geometry at fixed intervals.
     for ( int i = 0; i < numberOfLines_; i++ )
     {
         meshPoints_[ i ] = new Vector3d[ numberOfPoints_ ];
+
         for ( int j = 0; j < numberOfPoints_; j++ )
         {
             // Set sampling point of original geometry.
-            variable1 = minimumIndependentVariable1 +
-                        i * independentVariableGridSize1;
-            variable2 = minimumIndependentVariable2 +
-                        j * independentVariableGridSize2;
+            variable1 = minimumIndependentVariable1 + i * independentVariableGridSize1;
+            variable2 = minimumIndependentVariable2 + j * independentVariableGridSize2;
 
             // Set new mesh point.
-            meshPoints_[ i ][ j ] = originalSurface->getSurfacePoint(
-                    variable1, variable2 );
+            meshPoints_[ i ][ j ] = originalSurface->getSurfacePoint( variable1, variable2 );
         }
     }
 
@@ -122,6 +114,7 @@ LawgsPartGeometry::LawgsPartGeometry( const LawgsPartGeometry& partToCopy )
 
     // Deep copy surface points array.
     meshPoints_ = new Vector3d* [ numberOfLines_ ];
+
     for ( int i = 0; i < numberOfLines_; i++ )
     {
         meshPoints_[ i ] = new Vector3d[ numberOfPoints_ ];
@@ -136,7 +129,7 @@ LawgsPartGeometry::LawgsPartGeometry( const LawgsPartGeometry& partToCopy )
     }
 }
 
-//! Function to retrieve surface point.
+//! Get surface point.
 VectorXd LawgsPartGeometry::getSurfacePoint( const double& independentVariable1,
                                              const double& independentVariable2 )
 {
@@ -159,46 +152,45 @@ VectorXd LawgsPartGeometry::getSurfacePoint( const double& independentVariable1,
 
     // Add contribution of 1st independent variable on panel.
     point += ( independentVariable1 - lineIndex ) *
-             ( meshPoints_[ lineIndex + 1 ][ pointIndex ] -
-               meshPoints_[ lineIndex ][ pointIndex ]);
+             ( meshPoints_[ lineIndex + 1 ][ pointIndex ]
+               - meshPoints_[ lineIndex ][ pointIndex ] );
 
     // Add contribution of 2nd independent variable on panel.
     point += ( independentVariable2 - pointIndex ) *
              ( meshPoints_[ lineIndex ][ pointIndex + 1 ] -
-               meshPoints_[ lineIndex ][ pointIndex ]);
+               meshPoints_[ lineIndex ][ pointIndex ] );
 
     return point;
 }
 
-//! Function to retrieve surface derivative (currently not implemented).
-VectorXd LawgsPartGeometry::getSurfaceDerivative( const double& u ,
-                                       const double& v ,
-                                       const int& uDerivative ,
-                                       const int& vDerivative )
+//! Get surface derivative (currently not implemented).
+VectorXd LawgsPartGeometry::getSurfaceDerivative( const double& u, const double& v,
+                                                  const int& uDerivative, const int& vDerivative )
 {
     std::cerr << "Surface derivative function not implemented in "
-              << "LawgsPartGeometry class. Not able to return the "<<
-              uDerivative<<", "<<vDerivative<<"th derivative at point,"
-              <<u<<", "<<v<<". Returning zero vector." << std::endl;
+              << "LawgsPartGeometry class. Not able to return the "
+              << uDerivative << ", " << vDerivative << "th derivative at point,"
+              << u << ", " << v << ". Returning zero vector." << std::endl;
+
     return Vector3d( 0.0, 0.0, 0.0 );
 }
 
-//! Non-functional function to retrieve parameter.
+//! Get parameter.
 double LawgsPartGeometry::getParameter( const int& parameterIndex )
 {
     std::cerr << "Get parameter function not implemented in LawgsPartGeometry"
-              << "class, unable to retrieve parameter "<<parameterIndex<<
-              ". Returning zero." << std::endl;
+              << "class, unable to retrieve parameter "<< parameterIndex
+              << ". Returning zero." << std::endl;
+
     return 0.0;
 }
 
-//! Non-functional function to set parameter.
-void LawgsPartGeometry::setParameter( const int& parameterIndex,
-                                      const double& value )
+//! Set parameter.
+void LawgsPartGeometry::setParameter( const int& parameterIndex, const double& value )
 {
     std::cerr << "Set parameter function not implemented in LawgsPartGeometry"
-            << "class. Unable to set value of "<<value<<" at parameter index "
-            <<parameterIndex<< std::endl;
+              << "class. Unable to set value of " << value << " at parameter index "
+              << parameterIndex << std::endl;
 }
 
 //! Overload ostream to print class information.

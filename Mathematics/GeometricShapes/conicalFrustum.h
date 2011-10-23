@@ -2,7 +2,7 @@
  *    This file contains the definition of the ConicalFrustum class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 9 Feburary, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -64,13 +64,8 @@ public:
     /*!
      *  Default constructor.
      */
-    ConicalFrustum( );
-
-    //! Default destructor.
-    /*!
-     *  Default destrcutor.
-     */
-    ~ConicalFrustum( ) { }
+    ConicalFrustum( ) : coneHalfAngle_( -0.0 ), startRadius_( -0.0 ), length_( -0.0 )
+    { minimumIndependentVariable2_ = 0; maximumIndependentVariable2_ = 1; }
 
     //! Get surface point on conical frustum.
     /*!
@@ -84,8 +79,7 @@ public:
      *          the surface point.
      * \return Point on conical frustum in Cartesian coordinates.
      */
-    VectorXd getSurfacePoint( const double& lengthFraction,
-                              const double& azimuthAngle );
+    VectorXd getSurfacePoint( const double& lengthFraction, const double& azimuthAngle );
 
     //! Get surface derivative on conical frustum.
     /*!
@@ -104,8 +98,7 @@ public:
      *          azimuth angle.
      * \return Surface derivative on conical frustum.
      */
-    VectorXd getSurfaceDerivative( const double& lengthFraction,
-                                   const double& azimuthAngle,
+    VectorXd getSurfaceDerivative( const double& lengthFraction, const double& azimuthAngle,
                                    const int& powerOfLengthFractionDerivative,
                                    const int& powerOfAzimuthAngleDerivative );
 
@@ -134,30 +127,21 @@ public:
      * Sets the cone half angle.
      *  \param coneHalfAngle Cone half angle.
      */
-    void setConeHalfAngle( const double& coneHalfAngle )
-    {
-        coneHalfAngle_ = coneHalfAngle;
-    }
+    void setConeHalfAngle( const double& coneHalfAngle ) { coneHalfAngle_ = coneHalfAngle; }
 
     //! Set length.
     /*!
      * Sets the length.
      * \param length Cone length.
      */
-    void setLength( const double& length )
-    {
-        length_ = length;
-    }
+    void setLength( const double& length ) { length_ = length; }
 
     //! Set start radius.
     /*!
      * Sets the start radius.
      * \param startRadius Start radius.
      */
-    void setStartRadius( const double& startRadius )
-    {
-        startRadius_ = startRadius;
-    }
+    void setStartRadius( const double& startRadius ) { startRadius_ = startRadius; }
 
     //! Set minimum azimuth angle.
     /*!
@@ -165,9 +149,7 @@ public:
      * \param minimumAzimuthAngle Minimum azimuth angle.
      */
     void setMinimumAzimuthAngle( const double& minimumAzimuthAngle )
-    {
-         setMinimumIndependentVariable( 1, minimumAzimuthAngle );
-    }
+    { setMinimumIndependentVariable( 1, minimumAzimuthAngle ); }
 
     //! Set maximum azimuth angle.
     /*!
@@ -175,59 +157,42 @@ public:
      * \param maximumAzimuthAngle Maximum azimuth angle.
      */
     void setMaximumAzimuthAngle( const double& maximumAzimuthAngle )
-    {
-        setMaximumIndependentVariable( 1, maximumAzimuthAngle );
-    }
+    { setMaximumIndependentVariable( 1, maximumAzimuthAngle ); }
 
     //! Get cone half angle.
     /*!
      * Returns the cone half angle.
      * \return Cone half angle.
      */
-    double& getConeHalfAngle( )
-    {
-        return coneHalfAngle_;
-    }
+    double& getConeHalfAngle( ) { return coneHalfAngle_; }
 
     //! Get length.
     /*!
      * Returns the length.
      * \return Cone length.
      */
-    double& getLength( )
-    {
-        return length_;
-    }
+    double& getLength( ) { return length_; }
 
     //! Get start radius.
     /*!
      * Returns the start radius.
      * \return Start radius.
      */
-    double& getStartRadius( ) 
-    {
-        return startRadius_;
-    }
+    double& getStartRadius( ) { return startRadius_; }
 
     //! Get minimum azimuth angle.
     /*!
      * Retuns the minimum azimuth angle.
      *  \return Minimum azimuth angle.
      */
-    double getMinimumAzimuthAngle( )
-    {
-        return minimumIndependentVariable1_;
-    }
+    double getMinimumAzimuthAngle( ) { return minimumIndependentVariable1_; }
 
     //! Get maximum azimuth angle.
     /*!
      * Returns the maximum azimuth angle.
      * \return Maximum azimuth angle.
      */
-    double getMaximumAzimuthAngle( )
-    {
-        return maximumIndependentVariable1_;
-    }
+    double getMaximumAzimuthAngle( ) { return maximumIndependentVariable1_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -235,8 +200,7 @@ public:
      * the ranges for the azimuth angle, cone half angle, length and the start
      * radius.
      */
-    friend std::ostream &operator<<( std::ostream &stream,
-                                     ConicalFrustum & conicalFrustum );
+    friend std::ostream &operator<<( std::ostream &stream, ConicalFrustum & conicalFrustum );
 
 protected:
 
@@ -250,13 +214,13 @@ private:
 
     //! Start radius.
     /*!
-     *  Start radius.
+     * Start radius.
      */
     double startRadius_;
 
     //!  Cone length.
     /*!
-     *  Cone length.
+     * Cone length.
      */
     double length_;
 };

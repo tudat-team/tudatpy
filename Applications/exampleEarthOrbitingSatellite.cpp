@@ -3,7 +3,7 @@
  *    satellite mission scenario using Tudat.
  *
  *    Path              : /Applications/
- *    Version           : 3
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -19,7 +19,7 @@
  *    E-mail address    : bart.romgens@gmail.com
  *
  *    Date created      : 11 November, 2010
- *    Last modified     : 17 February, 2011
+ *    Last modified     : 15 August, 2011
  *
  *    References
  *
@@ -52,12 +52,12 @@
 #include <cmath>
 #include <iostream>
 #include "Applications/exampleEarthOrbitingSatellite.h"
-#include "Astrodynamics/States/cartesianElements.h"
-#include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
-#include "Astrodynamics/ForceModels/gravitationalForceModel.h"
 #include "Astrodynamics/Bodies/CelestialBodies/planet.h"
-#include "Astrodynamics/Propagators/seriesPropagator.h"
 #include "Astrodynamics/Bodies/Vehicles/vehicle.h"
+#include "Astrodynamics/ForceModels/gravitationalForceModel.h"
+#include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
+#include "Astrodynamics/Propagators/seriesPropagator.h"
+#include "Astrodynamics/States/cartesianElements.h"
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
 #include "Output/writingOutputToFile.h"
@@ -89,9 +89,7 @@ void executeEarthOrbitingSatelliteExample( )
 
     // Convert initial state vector to meters from
     // kilometers.
-    stateOfAsterix.state =
-            unit_conversions::convertKilometersToMeters(
-                    stateOfAsterix.state );
+    stateOfAsterix.state = unit_conversions::convertKilometersToMeters( stateOfAsterix.state );
 
     // Create map of propagation history of Asterix.
     std::map < double, State > asterixPropagationHistory;
@@ -127,8 +125,7 @@ void executeEarthOrbitingSatelliteExample( )
     // Set object containing state derivative function for integrator. In this
     // case the Cartesian state numerical propagator contains the state
     // derivative function.
-    rungeKutta4.setObjectContainingStateDerivative(
-                &cartesianStateNumericalPropagator );
+    rungeKutta4.setObjectContainingStateDerivative( &cartesianStateNumericalPropagator );
 
     // Set the integrator to use RK4.
     cartesianStateNumericalPropagator.setIntegrator( &rungeKutta4 );
@@ -137,8 +134,7 @@ void executeEarthOrbitingSatelliteExample( )
     cartesianStateNumericalPropagator.addBody( &asterix );
 
     // Add Earth gravity as force acting on Asterix.
-    cartesianStateNumericalPropagator.addForceModel( &asterix,
-                                                     &earthGravitiationalForceModel );
+    cartesianStateNumericalPropagator.addForceModel( &asterix, &earthGravitiationalForceModel );
 
     // Create series propagator object to propagate timeseries.
     SeriesPropagator seriesPropagator;
@@ -149,7 +145,7 @@ void executeEarthOrbitingSatelliteExample( )
     // Set start of the timeseries for propagation.
     seriesPropagator.setSeriesPropagationStart( 0.0 );
 
-    // Set start of the timeseries for propagation.
+    // Set end of the timeseries for propagation.
     seriesPropagator.setSeriesPropagationEnd( 86400.0 );
 
     // Set fixed output interval for timeseries propagation
@@ -163,21 +159,18 @@ void executeEarthOrbitingSatelliteExample( )
 
     // Get propagation history of Asterix.
     asterixPropagationHistory
-            = seriesPropagator
-              .getPropagationHistoryAtFixedOutputIntervals( &asterix );
+            = seriesPropagator.getPropagationHistoryAtFixedOutputIntervals( &asterix );
 
     // Output final state vector of Asterix to screen.
     cout << "Asterix final state in km(/s):" << endl;
     cout << unit_conversions::convertMetersToKilometers(
-            asterixPropagationHistory[
-                    seriesPropagator.getSeriesPropagationEnd( ) ].state )
+            asterixPropagationHistory[ seriesPropagator.getSeriesPropagationEnd( ) ].state )
          << endl;
 
     // Write propagation history of Asterix to file.
     WritingOutputToFile fileWriter;
-    fileWriter.writePropagationHistoryToFile(
-                asterixPropagationHistory,
-                "asterixExampleEarthOrbitingSatellite.dat" );
+    fileWriter.writePropagationHistoryToFile( asterixPropagationHistory,
+                                              "asterixExampleEarthOrbitingSatellite.dat" );
 }
 
 }

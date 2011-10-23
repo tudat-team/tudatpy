@@ -70,7 +70,7 @@
  * object, according to the above format definition.
  * See reference for explanation of the variables.
  */
-class TwoLineElementData
+struct TwoLineElementData
 {
 public:
 
@@ -79,12 +79,6 @@ public:
      * Default constructor.
      */
     TwoLineElementData( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    virtual ~TwoLineElementData( ) { }
 
     // Line 0 strings.
 

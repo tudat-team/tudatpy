@@ -1,9 +1,8 @@
 /*! \file unitConversions.h
- *    This file contains a namespace with selected unit conversions
- *    commonly used in astrodynamics.
+ *    This file contains a namespace with selected unit conversions commonly used in astrodynamics.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -27,7 +26,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 6 September, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -51,8 +50,7 @@
  *      100906    J. Melman         First creation of code.
  *      110411    K. Kumar          Added convertDegreesToArcminutes() and
  *                                  convertArcminutesToArcseconds().
- *      110609    F.M. Engelen      Added Rankine, feet, and pound per square feet
- *                                  to SI conversion.
+ *      110609    F.M. Engelen      Added Rankine, feet, pound-per-square-foot to SI conversion.
  *      110808    J. Melman         Added time conversion templates.
  *      110809    K. Kumar          Minor comment changes; added note over ints.
  *      110810    K. Kumar          Doxygen comment corrections.

@@ -2,7 +2,7 @@
  *    This file contains the definition of the CompositeSurfaceGeometry class
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -38,11 +38,9 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      102511    D. Dirkx          First version of file.
- *      110119    K. Kumar          Minor comments changes; path updated;
- *                                  Doxygen comments updated; updated function
- *                                  arguments to use references and unsigned
- *                                  ints; added "End of file" comment; minor
- *                                  changes to layout.
+ *      110119    K. Kumar          Minor comments changes; path updated; Doxygen comments updated;
+ *                                  updated function arguments to use references and unsigned ints;
+ *                                  added "End of file" comment; minor changes to layout.
  *      110204    K. Kumar          Minor comment and layout modifications;
  *                                  corrected Doxygen comments.
  *      110810    J. Leloux         Corrected doxygen documentation.
@@ -76,7 +74,9 @@ public:
      * Default constructor, sets number of single and composite geometries to
      * zero.
      */
-    CompositeSurfaceGeometry( );
+    CompositeSurfaceGeometry( ) : numberOfSingleSurfaceGeometries_( 0 ),
+        numberOfCompositeSurfaceGeometries_( 0 ), singleSurfaceGeometryList_( NULL ),
+        compositeSurfaceGeometryList_( NULL ) { }
 
     //! Default destructor.
     /*!
@@ -93,9 +93,9 @@ public:
      * \param index Index of singleSurfaceGeometryList_ at which the surface is
      *          to be set.
      */
-    void setSingleSurfaceGeometry( SingleSurfaceGeometry*
-                                   pointerToSingleSurfaceGeometry,
-                                   const unsigned int& index );
+    void setSingleSurfaceGeometry( SingleSurfaceGeometry* pointerToSingleSurfaceGeometry,
+                                   const unsigned int& index )
+    { singleSurfaceGeometryList_[ index ] = pointerToSingleSurfaceGeometry; }
 
     //! Set pointer to a CompositeSurfaceGeometry object.
     /*!
@@ -107,9 +107,9 @@ public:
      * \param index Index of compositeSurfaceGeometryList_ at which the surface
      *          is to be set.
      */
-    void setCompositeSurfaceGeometry( CompositeSurfaceGeometry*
-                                      pointerToCompositeSurfaceGeometry,
-                                      const unsigned int& index );
+    void setCompositeSurfaceGeometry( CompositeSurfaceGeometry* pointerToCompositeSurfaceGeometry,
+                                      const unsigned int& index )
+    { compositeSurfaceGeometryList_[ index ] = pointerToCompositeSurfaceGeometry; }
 
     //! Set number of single surface geometries.
     /*!
@@ -117,8 +117,12 @@ public:
      * \param numberOfSingleSurfaceGeometries Number of SingleSurfaceGeometry
      *          objects stored.
      */
-    void setNumberOfSingleSurfaceGeometries( const unsigned int&
-                                             numberOfSingleSurfaceGeometries );
+    void setNumberOfSingleSurfaceGeometries( const unsigned int& numberOfSingleSurfaceGeometries )
+    {
+        numberOfSingleSurfaceGeometries_ = numberOfSingleSurfaceGeometries;
+        singleSurfaceGeometryList_ = new SingleSurfaceGeometry*[
+                numberOfSingleSurfaceGeometries_ ];
+    }
 
     //! Set number of composite surface geometries.
     /*!
@@ -126,8 +130,13 @@ public:
      * \param numberOfCompositeSurfaceGeometries Number of
      *          CompositeSurfaceGeometry objects stored.
      */
-    void setNumberOfCompositeSurfaceGeometries(
-            const unsigned int& numberOfCompositeSurfaceGeometries );
+    void setNumberOfCompositeSurfaceGeometries( const unsigned int&
+                                                numberOfCompositeSurfaceGeometries )
+    {
+        numberOfCompositeSurfaceGeometries_ = numberOfCompositeSurfaceGeometries;
+        compositeSurfaceGeometryList_  = new CompositeSurfaceGeometry*[
+                numberOfCompositeSurfaceGeometries_ ];
+    }
 
     //! Get pointer to stored SingleSurfaceGeometry object.
     /*!
@@ -139,10 +148,7 @@ public:
      *          singleSurfaceGeometryList_.
      */
     SingleSurfaceGeometry* getSingleSurfaceGeometry( const unsigned int& index ) 
-    {
-        // Return surface from given index in list.
-        return singleSurfaceGeometryList_[ index ];
-    }
+    { return singleSurfaceGeometryList_[ index ]; }
 
     //! Get pointer to a stored CompositeSurfaceGeometry object.
     /*!
@@ -154,10 +160,7 @@ public:
      *          compositeSurfaceGeometryList_.
      */
     CompositeSurfaceGeometry* getCompositeSurfaceGeometry( const unsigned int& index ) 
-    {
-        // Return surface from given index in list.
-        return compositeSurfaceGeometryList_[index];
-    }
+    { return compositeSurfaceGeometryList_[index]; }
 
     //! Get number of single surface geometries.
     /*!
@@ -166,9 +169,7 @@ public:
      * \return Number of SingleSurfaceGeometry objects stored in class.
      */
     unsigned int& getNumberOfSingleSurfaceGeometries( )
-    {
-        return numberOfSingleSurfaceGeometries_;
-    }
+    { return numberOfSingleSurfaceGeometries_; }
 
     //! Get number of composite surface geometries.
     /*!
@@ -177,9 +178,7 @@ public:
      * \return Number of CompositeSurfaceGeometry objects stored in class.
      */
     unsigned int& getNumberOfCompositeSurfaceGeometries( )
-    {
-        return numberOfCompositeSurfaceGeometries_;
-    }
+    { return numberOfCompositeSurfaceGeometries_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -191,8 +190,7 @@ public:
      * \return Stream object.
      */
     friend std::ostream &operator<<( std::ostream &stream,
-                                     CompositeSurfaceGeometry&
-                                     compositeSurfaceGeometry );
+                                     CompositeSurfaceGeometry& compositeSurfaceGeometry );
 
 protected:
 

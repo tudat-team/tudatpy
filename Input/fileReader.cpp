@@ -37,8 +37,7 @@
  *      110223    K. Kumar          First creation of code.
  *      110224    K. Kumar          Changed vector container to map container.
  *      110224    J. Leloux         Checked code and fixed typo.
- *      110627    K. Kumar          Moved skipLinesWithKeyword() from
- *                                  TextFileReader.
+ *      110627    K. Kumar          Moved skipLinesWithKeyword() from TextFileReader.
  */
 
 // Include statements.

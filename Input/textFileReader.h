@@ -14,7 +14,7 @@
  *    E-mail address    : J.Leloux@student.tudelft.nl
  *
  *    Date created      : 23 February, 2011
- *    Last modified     : 16 March, 2011
+ *    Last modified     : 27 June, 2011
  *
  *    References
  *
@@ -54,18 +54,6 @@
 class TextFileReader : public FileReader
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    TextFileReader( ) { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~TextFileReader( ) { }
 
     //! Read and store data.
     /*!
