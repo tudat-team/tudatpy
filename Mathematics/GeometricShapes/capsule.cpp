@@ -2,7 +2,7 @@
  *    This file contains the implementation of the Capsule class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 9 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      E.H. Hirschel and C. Weiland, Selected Aerothermodynamic Design Problems
@@ -50,7 +50,6 @@
 
 // Include statements.
 #include <cmath>
-
 #include "Mathematics/GeometricShapes/capsule.h"
 #include "Mathematics/GeometricShapes/conicalFrustum.h"
 #include "Mathematics/GeometricShapes/sphereSegment.h"
@@ -60,9 +59,12 @@
 // Using declarations.
 using std::cerr;
 using std::endl;
+using std::sin;
+using std::cos;
 
 //! Default constructor.
-Capsule::Capsule( )
+Capsule::Capsule( ) : middleRadius_( -0.0 ), noseRadius_( -0.0 ), rearLength_( -0.0 ),
+    sideRadius_( -0.0 ), rearAngle_( -0.0 )
 {
     // Call set functions for number of single and composite surface geometries
     // with predetermined values.
@@ -123,8 +125,7 @@ void Capsule::setCapsule( )
     cone_->setMaximumAzimuthAngle( 2.0 * M_PI );
 
     // Set cone start radius.
-    cone_->setStartRadius( middleRadius_ - sideRadius_
-                           * ( 1.0 - cos( rearAngle_ ) ) );
+    cone_->setStartRadius( middleRadius_ - sideRadius_ * ( 1.0 - cos( rearAngle_ ) ) );
 
     // Set cone length.
     cone_->setLength( rearLength_ );
@@ -133,9 +134,8 @@ void Capsule::setCapsule( )
     cone_->setConeHalfAngle( rearAngle_ );
 
     // Set translation vector of cone.
-    translationVector_( 0 ) = -sideRadius_
-                              * ( sin( M_PI / 2.0 - noseSphereAngle_ )
-                                  + sin ( -rearAngle_ ) );
+    translationVector_( 0 ) = -sideRadius_ * ( sin( M_PI / 2.0 - noseSphereAngle_ )
+                                               + sin ( -rearAngle_ ) );
     cone_->setOffset( translationVector_ );
 
     // Set cone in singleSurfaceList_.
@@ -147,8 +147,7 @@ void Capsule::setCapsule( )
     rearSphere_->setMaximumAzimuthAngle( 2.0 * M_PI );
 
     // Calculate end radius of cone.
-    double endRadius_ = cone_->getStartRadius( )
-                        + rearLength_ * tan( rearAngle_ );
+    double endRadius_ = cone_->getStartRadius( ) + rearLength_ * tan( rearAngle_ );
 
     // Calculate rear sphere radius.
     double rearNoseRadius_ = endRadius_ / cos( -rearAngle_ );
@@ -161,10 +160,8 @@ void Capsule::setCapsule( )
     rearSphere_->setRadius( rearNoseRadius_ );
 
     // Set translation vector of rear sphere.
-    translationVector_( 0 ) =  ( rearNoseRadius_ * sin( -rearAngle_ ) )
-                               - rearLength_ - ( sideRadius_
-                               * ( sin( M_PI / 2.0 - noseSphereAngle_ ) +
-                                   sin ( -rearAngle_ ) ) );
+    translationVector_( 0 ) =  ( rearNoseRadius_ * sin( -rearAngle_ ) ) - rearLength_
+            - ( sideRadius_ * ( sin( M_PI / 2.0 - noseSphereAngle_ ) + sin ( -rearAngle_ ) ) );
     rearSphere_->setOffset( translationVector_ );
     setSingleSurfaceGeometry( rearSphere_, 2 );
 
@@ -176,8 +173,7 @@ void Capsule::setCapsule( )
     torus_->setMaximumIndependentVariable( 2, rearAngle_ );
 
     // Calculate and set major torus radius.
-    double torusMajorRadius_ = ( noseRadius_ - sideRadius_ )
-                               * sin( noseSphereAngle_ );
+    double torusMajorRadius_ = ( noseRadius_ - sideRadius_ ) * sin( noseSphereAngle_ );
     torus_->setParameter( 0, torusMajorRadius_ );
     torus_->setParameter( 1, sideRadius_ );
 

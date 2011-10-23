@@ -3,7 +3,7 @@
  *    constants commonly used in astrodynamics.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -45,7 +45,7 @@
  */
 
 // Include directives.
-#include "physicalConstants.h"
+#include "Astrodynamics/physicalConstants.h"
 
 //! Julian day.
 const double PhysicalConstants::JULIAN_DAY = 86400.0;
@@ -72,15 +72,13 @@ const double PhysicalConstants::SPEED_OF_LIGHT = 299792458;
 const double PhysicalConstants::GRAVITATIONAL_CONSTANT = 6.67259e-11;
 
 //! Uncertainty of the gravitational constant.
-const double PhysicalConstants
-    ::UNCERTAINTY_GRAVITATIONAL_CONSTANT = 0.00030e-11;
+const double PhysicalConstants::UNCERTAINTY_GRAVITATIONAL_CONSTANT = 0.00030e-11;
 
 //! Obliquity of the ecliptic in arcseconds.
 const double PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_ARCSECONDS = 84381.412;
 
 //! Uncertainty of the obliquity of the ecliptic in arcseconds.
-const double PhysicalConstants
-    ::UNCERTAINTY_OBLIQUITY_ECLIPTIC_IN_ARCSECONDS = 0.005;
+const double PhysicalConstants::UNCERTAINTY_OBLIQUITY_ECLIPTIC_IN_ARCSECONDS = 0.005;
 
 //! Obliquity of the ecliptic in degrees.
 const double PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_DEGREES = 23.439281;

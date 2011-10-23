@@ -3,7 +3,7 @@
  *    containing all basic mathematics functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 2
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : B. Romgens
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 7 February, 2011
- *    Last modified     : 15 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *

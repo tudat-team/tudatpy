@@ -2,7 +2,7 @@
  *    Header file that defines the class containing all funtionality pertaining
  *    to writing output to file included in Tudat.
  *
- *    Path              : /Astrodynamics/Output/
+ *    Path              : /Output/
  *    Version           : 5
  *    Check status      : Checked
  *
@@ -64,12 +64,6 @@
 class WritingOutputToFile
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    WritingOutputToFile( ) { }
 
     //! Default destructor.
     /*!

@@ -3,7 +3,7 @@
  *    defined in unitConversions.h.
  *
  *    Path              : /Astrodynamics/
- *    Version           : 1
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : d.dirkx@tudelft.nl
  *
  *    Date created      : 11 January, 2011
- *    Last modified     : 24 January, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -42,12 +42,6 @@
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
-
-// Include statements.
-#include <iostream>
-#include "Mathematics/unitConversions.h"
-#include "Astrodynamics/physicalConstants.h"
-#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Namespace for all unit tests.
 /*!

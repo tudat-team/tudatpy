@@ -2,7 +2,7 @@
  *    This file contains the definition of the CompositeSurfaceGeometry class
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -53,15 +53,6 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
-//! Default constructor.
-CompositeSurfaceGeometry::CompositeSurfaceGeometry( )
-    : numberOfSingleSurfaceGeometries_( 0 ),
-      numberOfCompositeSurfaceGeometries_( 0 ),
-      singleSurfaceGeometryList_( NULL ),
-      compositeSurfaceGeometryList_( NULL )
-{
-}
-
 //! Default destructor.
 CompositeSurfaceGeometry::~CompositeSurfaceGeometry( )
 {
@@ -72,47 +63,6 @@ CompositeSurfaceGeometry::~CompositeSurfaceGeometry( )
     // Delete composite surface geometry list.
     delete [ ] compositeSurfaceGeometryList_ ;
     compositeSurfaceGeometryList_ = NULL;
-}
-
-//! Set pointer to SingleSurfaceGeometry object.
-void CompositeSurfaceGeometry::setSingleSurfaceGeometry(
-    SingleSurfaceGeometry* pointerToSingleSurfaceGeometry,
-    const unsigned int& index )
-{
-    // Put surface in given index in list.
-    singleSurfaceGeometryList_[ index ] = pointerToSingleSurfaceGeometry;
-}
-
-//! Set pointer to a CompositeSurfaceGeometry object.
-void CompositeSurfaceGeometry::setCompositeSurfaceGeometry(
-    CompositeSurfaceGeometry* pointerToCompositeSurfaceGeometry,
-    const unsigned int& index )
-{
-    // Put surface in given index in list.
-    compositeSurfaceGeometryList_[ index ] = pointerToCompositeSurfaceGeometry;
-}
-
-//! Set number of single surface geometries.
-void CompositeSurfaceGeometry::setNumberOfSingleSurfaceGeometries(
-    const unsigned int& numberOfSingleSurfaceGeometries )
-{
-    numberOfSingleSurfaceGeometries_ = numberOfSingleSurfaceGeometries;
-
-    // Allocate memory for singleSurfaceGeometryList_.
-    singleSurfaceGeometryList_
-            = new SingleSurfaceGeometry*[ numberOfSingleSurfaceGeometries_ ];
-}
-
-//! Set number of composite surface geometries.
-void CompositeSurfaceGeometry::setNumberOfCompositeSurfaceGeometries(
-    const unsigned int& numberOfCompositeSurfaceGeometries )
-{
-    numberOfCompositeSurfaceGeometries_ = numberOfCompositeSurfaceGeometries;
-
-    // Allocate memory for compositeSurfaceGeometryList_.
-    compositeSurfaceGeometryList_
-            = new CompositeSurfaceGeometry*[
-                    numberOfCompositeSurfaceGeometries_ ];
 }
 
 //! Overload ostream to print class information.

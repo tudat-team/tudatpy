@@ -2,7 +2,7 @@
  *    This file contains the definitions of the GeometricShape base class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -18,7 +18,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -38,14 +38,11 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      100910    D. Dirkx          First version of file.
- *      100915    D. Dirkx          Modified to correct comments, 80-lines
- *                                  rule, etc.
- *      100928    D. Dirkx          Modifications following first checking
- *                                  iteration.
+ *      100915    D. Dirkx          Modified to correct comments, 80-lines rule, etc.
+ *      100928    D. Dirkx          Modifications following first checking iteration.
  *      100929    D. Dirkx          Creation of separate file for class.
- *      110124    K. Kumar          Updated path; removed "Notes"; minor
- *                                  changes to comments and layout; added
- *                                  "End of line" comment.
+ *      110124    K. Kumar          Updated path; removed "Notes"; minor changes to comments and
+ *                                  layout; added "End of line" comment.
  *      110204    K. Kumar          Minor comment and layout modifications.
  *      110207    D. Dirkx          Removed overloaded ostream operator.
  *      110905    S. Billemont      Reorganized includes.
@@ -55,21 +52,13 @@
 #ifndef GEOMETRICSHAPE_H
 #define GEOMETRICSHAPE_H
 
-// Include statements.
-
 //! Geometry base class.
 /*!
- *  Base class for geometric shapes.
+ * Base class for geometric shapes.
  */
 class GeometricShape
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    GeometricShape( ) { }
 
     //! Default destructor.
     /*!
