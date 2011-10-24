@@ -1,6 +1,5 @@
 /*!   \file hypersonicLocalInclinationAnalysis.cpp
- *    This file contains the definition of the hypersonic local inclination
- *    analysis class.
+ *    This file contains the definition of the hypersonic local inclination analysis class.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *    Version           : 5
@@ -10,13 +9,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : d.dirkx@tudelft.nl
  *
- *    Checker           : B.
- Romgens
+ *    Checker           : B. Romgens
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : B.Romgens@student.tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 4 February,  2011
+ *    Last modified     : 4 February, 2011
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic
@@ -47,43 +45,15 @@
 
 // Include statements.
 #include <string>
+#include "Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h"
 #include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h"
 #include "Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.h"
-#include "Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h"
 #include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 #include "Mathematics/GeometricShapes/surfaceGeometry.h"
 
 // Using declarations.
 using std::string;
 using std::endl;
-
-//! Default constructor.
-HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis( )
-{
-    // Set number of independent variables.
-    setNumberOfIndependentVariables( 3 );
-
-    // Set indices of Mach number and angles of attack and sideslip in data
-    // point arrays.
-    machIndex_ = 0;
-    angleOfAttackIndex_ = 1;
-    angleOfSideslipIndex_ = 2;
-
-    // Initialize inclinations, pressure coefficients, selected methods and
-    // vehicle parts to NULL and set number of vehicle parts to 0.
-    numberOfVehicleParts_ = 0;
-    vehicleParts_ = NULL;
-    selectedMethods_ = NULL;
-    inclination_ = NULL;
-    pressureCoefficient_ = NULL;
-
-    // Set mach regime to default value.
-    machRegime_ = "Full";
-
-    //sets the ratio of specific heats, currently hard-coded, to be modified
-    //in future.
-    ratioOfSpecificHeats = 1.4;
-}
 
 //! Default destructor.
 HypersonicLocalInclinationAnalysis::~HypersonicLocalInclinationAnalysis( )
@@ -120,7 +90,7 @@ void HypersonicLocalInclinationAnalysis::setVehicle( Vehicle& vehicle, int* numb
     GeometricShape* surface_ = externalModel_->getVehicleExternalGeometry( );
 
     // Set geometry if it is a single surface.
-    if ( dynamic_cast< SingleSurfaceGeometry* >( surface_ ) != NULL )
+    if ( dynamic_cast< SingleSurfaceGeometry* > ( surface_ ) != NULL )
     {
         // Set number of geometries and allocate memory.
         numberOfVehicleParts_ = 1;
@@ -132,8 +102,6 @@ void HypersonicLocalInclinationAnalysis::setVehicle( Vehicle& vehicle, int* numb
         vehicleParts_[ 0 ].setMesh(
                 dynamic_cast< SingleSurfaceGeometry* >( surface_ ),
                 numberOfLines[ 0 ], numberOfPoints[ 0 ] );
-
-
     }
 
     // Set geometry if it is a composite surface.
@@ -159,16 +127,15 @@ void HypersonicLocalInclinationAnalysis::setVehicle( Vehicle& vehicle, int* numb
 
                 // Convert geometry to LaWGS and set in list.
                 vehicleParts_[ i ].setMesh(
-                        compositeSurfaceGeometry_->getSingleSurfaceGeometry(i),
-                        numberOfLines[ i ],
-                        numberOfPoints[ i ] );
+                            compositeSurfaceGeometry_->getSingleSurfaceGeometry( i ),
+                            numberOfLines[ i ], numberOfPoints[ i ] );
             }
 
             // Else, set geometry directly.
             else
             {
                 vehicleParts_[ i ] = *dynamic_cast< LawgsPartGeometry* >(
-                   compositeSurfaceGeometry_->getSingleSurfaceGeometry( i ) );
+                            compositeSurfaceGeometry_->getSingleSurfaceGeometry( i ) );
             }
         }
     }
@@ -244,8 +211,7 @@ VectorXd HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
 }
 
 //! Set local inclination methods for all parts (expansion and compression).
-void HypersonicLocalInclinationAnalysis::setSelectedMethods(
-        int** selectedMethods )
+void HypersonicLocalInclinationAnalysis::setSelectedMethods( int** selectedMethods )
 {
     //For loops loop through input methods and set the analysis methods.
     for ( int i = 0; i < 4; i++ )
@@ -371,8 +337,7 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
 
 //! Determine aerodynamic coefficients of a single vehicle part.
 VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
-        const int& partNumber,
-        int* independentVariableIndices )
+        const int& partNumber, int* independentVariableIndices )
 {
     // Declare and determine angles of attack and sideslip for analysis.
     double angleOfAttack = dataPointsOfIndependentVariables_[
@@ -403,8 +368,7 @@ VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
 
 //! Determine the pressure coefficients on a single vehicle part.
 void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
-        const int& partNumber,
-        int* independentVariableIndices )
+        const int& partNumber, int* independentVariableIndices )
 {
     // Retrieve Mach number.
     double machNumber = dataPointsOfIndependentVariables_[ machIndex_ ]
@@ -467,7 +431,7 @@ VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients( const 
     // Loop over all panels and add moments due pressures.
     for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
     {
-        for( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
+        for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
         {
             // Determine moment arm for given panel centroid.
             referenceDistance = ( vehicleParts_[ partNumber ].
@@ -498,11 +462,9 @@ void HypersonicLocalInclinationAnalysis::determineInclination( const int& partNu
     Vector3d freestreamVelocityDirection;
 
     // Set freestream velocity vector in body frame.
-    double freestreamVelocityDirectionX = cos( angleOfAttack )*
-                                          cos( angleOfSideslip );
+    double freestreamVelocityDirectionX = cos( angleOfAttack )* cos( angleOfSideslip );
     double freestreamVelocityDirectionY = sin( angleOfSideslip );
-    double freestreamVelocityDirectionZ = sin( angleOfAttack ) *
-                                          cos( angleOfSideslip );
+    double freestreamVelocityDirectionZ = sin( angleOfAttack ) * cos( angleOfSideslip );
     freestreamVelocityDirection( 0 ) = freestreamVelocityDirectionX;
     freestreamVelocityDirection( 1 ) = freestreamVelocityDirectionY;
     freestreamVelocityDirection( 2 ) = freestreamVelocityDirectionZ;
@@ -523,8 +485,7 @@ void HypersonicLocalInclinationAnalysis::determineInclination( const int& partNu
                                   dot( freestreamVelocityDirection );
 
             // Set inclination angle.
-            inclination_[ partNumber ][ i ][ j ] = M_PI / 2 -
-                                                   acos( cosineOfInclination );
+            inclination_[ partNumber ][ i ][ j ] = M_PI / 2.0 - acos( cosineOfInclination );
         }
     }
 }
@@ -586,7 +547,6 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const doubl
                         aerodynamics::computeModifiedNewtonianPressureCoefficient(
                             inclination_[ partNumber ][ i ][ j ],
                             stagnationPressureCoefficient );
-
                 }
 
             }
@@ -768,7 +728,7 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double&
                 {
                     pressureCoefficient_[ partNumber ][ i ][ j ] =
                             aerodynamics::computeVacuumPressureCoefficient(
-                            machNumber, ratioOfSpecificHeats );
+                                machNumber, ratioOfSpecificHeats );
                 }
             }
         }
@@ -778,9 +738,9 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double&
     case 1:
 
         // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++)
+        for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
         {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++)
+            for ( j = 0 ; j < vehicleParts_[ partNumber ].getNumberOfPoints( ) - 1 ; j++ )
             {
                 // If panel inclination is negative, calculate pressure using
                 // Newtonian expansion method.
@@ -795,14 +755,14 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double&
 
     case 2:
 
-        // Option currently disabled
+        // Option currently disabled.
         break;
 
     case 3:
 
         // Calculate freestream Prandtl-Meyer function.
         freestreamPrandtlMeyerFunction = aerodynamics::computePrandtlMeyerFunction(
-                machNumber, ratioOfSpecificHeats);
+                machNumber, ratioOfSpecificHeats );
         // Iterate over all panels on part.
         for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
         {
@@ -814,10 +774,8 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double&
                     // Prandtl-Meyer expansion from freestream.
                     pressureCoefficient_[ partNumber ][ i ][ j ] =
                             aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient(
-                                inclination_[ partNumber ][ i ][ j ],
-                                machNumber,
-                                ratioOfSpecificHeats,
-                                freestreamPrandtlMeyerFunction );
+                                inclination_[ partNumber ][ i ][ j ], machNumber,
+                                ratioOfSpecificHeats, freestreamPrandtlMeyerFunction );
                 }
             }
         }
@@ -836,8 +794,7 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double&
                 if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
                 {
                     pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeHighMachBasePressure(
-                            machNumber );
+                            aerodynamics::computeHighMachBasePressure( machNumber );
                 }
             }
         }
@@ -857,11 +814,8 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double&
                     // Van Dyke unified method.
                     pressureCoefficient_[ partNumber ][ i ][ j ] =
                             aerodynamics::computeVanDykeUnifiedPressureCoefficient(
-                                    inclination_[ partNumber ][ i ][ j ],
-                                    machNumber,
-                                    ratioOfSpecificHeats,
-                                    -1);
-
+                                    inclination_[ partNumber ][ i ][ j ], machNumber,
+                                    ratioOfSpecificHeats, -1 );
                 }
             }
         }
@@ -881,8 +835,7 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double&
                 {
                     pressureCoefficient_[ partNumber ][ i ][ j ] =
                             aerodynamics::computeAcmEmpiricalPressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ],
-                            machNumber );
+                            inclination_[ partNumber ][ i ][ j ], machNumber );
                 }
             }
         }
@@ -903,7 +856,7 @@ void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
     {
         numberOfPointsPerIndependentVariables_[ machIndex_ ] = 6;
         dataPointsOfIndependentVariables_[ machIndex_ ] =
-            new double[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ];
+                new double[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ];
         dataPointsOfIndependentVariables_[ machIndex_ ][ 0 ] = 3.0;
         dataPointsOfIndependentVariables_[ machIndex_ ][ 1 ] = 4.0;
         dataPointsOfIndependentVariables_[ machIndex_ ][ 2 ] = 5.0;
@@ -917,7 +870,7 @@ void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
     {
         numberOfPointsPerIndependentVariables_[ machIndex_ ] = 5;
         dataPointsOfIndependentVariables_[ machIndex_ ] =
-            new double[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ];
+                new double[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ];
         dataPointsOfIndependentVariables_[ machIndex_ ][ 0 ] = 3.0;
         dataPointsOfIndependentVariables_[ machIndex_ ][ 1 ] = 4.0;
         dataPointsOfIndependentVariables_[ machIndex_ ][ 2 ] = 5.0;
@@ -930,7 +883,7 @@ void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
     {
         numberOfPointsPerIndependentVariables_[ machIndex_ ] = 4;
         dataPointsOfIndependentVariables_[ machIndex_ ] =
-            new double[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ];
+                new double[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ];
         dataPointsOfIndependentVariables_[ machIndex_ ][ 0 ] = 5.0;
         dataPointsOfIndependentVariables_[ machIndex_ ][ 1 ] = 8.0;
         dataPointsOfIndependentVariables_[ machIndex_ ][ 2 ] = 10.0;
@@ -941,11 +894,10 @@ void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
 //! Set the default analysis points for angle of attack.
 void HypersonicLocalInclinationAnalysis::setDefaultAngleOfAttackPoints( )
 {
-    //Set number of data points and allocate memory
+    // Set number of data points and allocate memory.
     numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ] = 11;
     dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ] =
-        new double[ numberOfPointsPerIndependentVariables_[
-                angleOfAttackIndex_ ] ];
+            new double[ numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ] ];
 
     // Set default values, 0 to 40 degrees, with steps of 5 degrees.
     int i;
@@ -960,16 +912,15 @@ void HypersonicLocalInclinationAnalysis::setDefaultAngleOfAttackPoints( )
 //! Set the default analysis points for angle of sideslip.
 void HypersonicLocalInclinationAnalysis::setDefaultAngleOfSideslipPoints( )
 {
-    //Set number of data points and allocate memory
+    // Set number of data points and allocate memory.
     numberOfPointsPerIndependentVariables_[ angleOfSideslipIndex_ ] = 2;
     dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ] =
-            new double[ numberOfPointsPerIndependentVariables_[
-                    angleOfSideslipIndex_ ] ];
+            new double[ numberOfPointsPerIndependentVariables_[ angleOfSideslipIndex_ ] ];
 
     // Set default values, 0 and 1 degrees.
     dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ 0 ] = 0.0;
     dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ 1 ] =
-            1.0 * M_PI / 180.0 ;
+            1.0 * M_PI / 180.0;
 }
 
 //! Overload ostream to print class information.

@@ -1,9 +1,8 @@
 /*!   \file aerodynamicCoefficientGenerator.h
- *    This file contains the definition of the aerodynamic coefficient generator
- *    base class.
+ *    This file contains the definition of the aerodynamic coefficient generator base class.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -15,7 +14,7 @@
  *    E-mail address    : B.Romgens@student.tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 4 February,  2011
+ *    Last modified     : 15 June, 2011
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. The Mark IV Supersonic-Hypersonic
@@ -58,8 +57,8 @@
  *  and data points of independent variables.
  *  Currently supports Mach number, angles of attack sideslip, and Reynold number
  *  as independent variables, but others can be added easily. To do so, only the
- *  interface function need to be added. As an example, for adding the Mach number
- *  , only the  get/set numberOfMachPoints and get/set
+ *  interface function need to be added. As an example, for adding the Mach number,
+ *  only the  get/set numberOfMachPoints and get/set
  *  MachPoint, as well as a machIndex_, to let the code know which index of the
  *  numberOfPointsPerIndependentVariables_ and dataPointsOfIndependentVariables_
  *  arrays represent the Mach number. Coefficients are

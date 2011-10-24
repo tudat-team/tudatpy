@@ -1,6 +1,5 @@
 /*!   \file hypersonicLocalInclinationAnalysis.h
- *    This file contains the definition of the hypersonic local inclination
- *    analysis class.
+ *    This file contains the definition of the hypersonic local inclination analysis class.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *    Version           : 5
@@ -15,7 +14,7 @@
  *    E-mail address    : B.Romgens@student.tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 4 February,  2011
+ *    Last modified     : 4 February, 2011
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. The Mark IV Supersonic-Hypersonic
@@ -75,41 +74,45 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     * Default constructor.
      */
-    HypersonicLocalInclinationAnalysis( );
+    HypersonicLocalInclinationAnalysis( ) : vehicleParts_( NULL ), numberOfVehicleParts_( -0 ),
+        inclination_( NULL ), pressureCoefficient_( NULL ), stagnationPressureCoefficient( -0.0 ),
+        ratioOfSpecificHeats( 1.4 ),  vehicleName_( " " ), machRegime_( "Full" ),
+        selectedMethods_( NULL )
+    {
+        machIndex_ = 0; angleOfAttackIndex_ = 1; angleOfSideslipIndex_ = 2;
+        setNumberOfIndependentVariables( 3 );
+    }
 
     //! Default destructor.
     /*!
-     *  Default destructor.
+     * Default destructor.
      */
     virtual ~HypersonicLocalInclinationAnalysis( );
 
     //! Constructor from a Vehicle.
     /*!
-     *  This constructor sets the geometry which is used for the analysis from
-     *  a Vehicle object. Vehicle must have an external model containing a
-     *  surface geometry. If surface geometry is a CompositeSurfaceGeometry,
-     *  it must not contain any CompositeSurfaceGeometries itself.
-     *  \param vehicle Vehicle which is to be analyzed.
-     *  \param numberOfLines Array of size equal to number of
-     *  SingleSurfaceGeometries to set the number of lines in the resulting
-     *  LaWGS parts.
-     *  \param numberOfPoints Array of size equal to number of
-     *  SingleSurfaceGeometries to set the number of points per line in the
-     *  resulting LaWGS parts.
-     *  \param invertOrders Array of size equal to number of
-     *  SingleSurfaceGeometries to set whether to invert the panel orientation
-     *  of the resulting LaWGS parts.
+     * This constructor sets the geometry which is used for the analysis from
+     * a Vehicle object. Vehicle must have an external model containing a
+     * surface geometry. If surface geometry is a CompositeSurfaceGeometry,
+     * it must not contain any CompositeSurfaceGeometries itself.
+     * \param vehicle Vehicle which is to be analyzed.
+     * \param numberOfLines Array of size equal to number of SingleSurfaceGeometries to set the
+     *          number of lines in the resulting LaWGS parts.
+     * \param numberOfPoints Array of size equal to number of SingleSurfaceGeometries to set the
+     *          number of points per line in the resulting LaWGS parts.
+     * \param invertOrders Array of size equal to number of SingleSurfaceGeometries to set whether
+     *          to invert the panel orientation of the resulting LaWGS parts.
      */
-    void setVehicle( Vehicle& vehicle, int* numberOfLines,
-                     int* numberOfPoints, bool* invertOrders );
+    void setVehicle( Vehicle& vehicle, int* numberOfLines, int* numberOfPoints,
+                     bool* invertOrders );
 
     //! Get aerodynamic coefficients.
     /*!
      * Returns aerodynamic coefficients.
      * \param independentVariables Array of values of independent variable
-     * indices in dataPointsOfIndependentVariables_.
+     *          indices in dataPointsOfIndependentVariables_.
      */
     VectorXd getAerodynamicCoefficients( int* independentVariables );
 
@@ -155,7 +158,7 @@ public:
      * 3 = Low hypersonic expansion.
      * \param part Vehicle part on which to apply method.
      */
-    void setSelectedMethod( const int& method, const int& type,  const int& part)
+    void setSelectedMethod( const int& method, const int& type, const int& part )
     { selectedMethods_[ type ][ part ] = method; }
 
     //! Generate aerodynamic database.
@@ -184,9 +187,8 @@ public:
 
     //! Allocate aerodynamic coefficient array and NULL independent variables.
     /*!
-     * Checks if all independent variables have been set, if not
-     * default values are set, depending on which machRegime_ is selected.
-     * Subsequently, the vehicleCoefficients_ array is allocated.
+     * Checks if all independent variables have been set, if not default values are set, depending
+     * on which machRegime_ is selected. Subsequently, the vehicleCoefficients_ array is allocated.
      */
     void allocateVehicleCoefficients( );
 
@@ -235,11 +237,10 @@ public:
 
     //! Overload ostream to print class information.
     /*!
-     * Overloads ostream to print class information, prints the number
-     * of lawgs geometry parts and names.
+     * Overloads ostream to print class information, prints the number of lawgs geometry parts and
+     * names.
      * \param stream Stream object.
-     * \param hypersonicLocalInclinationAnalysis Hypersonic local inclination
-     *          analysis.
+     * \param hypersonicLocalInclinationAnalysis Hypersonic local inclination analysis.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
@@ -250,9 +251,8 @@ private:
 
     //! Generate aerodynamic coefficients at a single set of independent variables.
     /*!
-     * Generates aerodynamic coefficients at a single set of
-     * independent variables. Determines values and sets corresponding entry
-     * in vehicleCoefficients_ array.
+     * Generates aerodynamic coefficients at a single set of independent variables.
+     * Determines values and sets corresponding entry in vehicleCoefficients_ array.
      * \param independentVariableIndices Array of indices from lists of Mach number,
      *          angle of attack and angle of sideslip points at which to perform analysis.
      */

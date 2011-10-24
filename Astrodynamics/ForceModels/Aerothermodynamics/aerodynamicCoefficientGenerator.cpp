@@ -1,9 +1,8 @@
 /*!   \file aerodynamicCoefficientGenerator.cpp
- *    This file contains the definition of the aerodynamic coefficient generator
- *    base class.
+ *    This file contains the definition of the aerodynamic coefficient generator base class.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -15,7 +14,7 @@
  *    E-mail address    : B.Romgens@student.tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 4 February,  2011
+ *    Last modified     : 15 June, 2011
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic
@@ -47,7 +46,7 @@
  */
 
 // Include statements.
-#include <string.h>
+#include <string>
 #include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
@@ -55,10 +54,11 @@
 AerodynamicCoefficientGenerator::~AerodynamicCoefficientGenerator( )
 {
     // Delete array of independent variables.
-    for( int i = 0; i < numberOfCases_ ; i++ )
+    for ( int i = 0; i < numberOfCases_ ; i++ )
     {
         delete vehicleCoefficients_[ i ];
     }
+
     delete [ ] vehicleCoefficients_;
 
     // Delete data points of each independent variable and reset to NULL.
@@ -75,7 +75,7 @@ AerodynamicCoefficientGenerator::~AerodynamicCoefficientGenerator( )
     numberOfPointsPerIndependentVariables_ = NULL;
 }
 
-//! Set the number of independent variables
+//! Set the number of independent variables.
 void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
     const int& numberOfVariables )
 {
@@ -87,7 +87,7 @@ void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
     dataPointsOfIndependentVariables_ = new double*[ numberOfVariables ];
 
     // Initialize arrays of data points to NULL.
-    for( int i = 0; i < numberOfVariables; i++ )
+    for ( int i = 0; i < numberOfVariables; i++ )
     {
         dataPointsOfIndependentVariables_[ i ] = NULL;
     }
@@ -152,19 +152,18 @@ int AerodynamicCoefficientGenerator::variableIndicesToListIndex( int* independen
     int singleStepContribution_;
 
     // Iterate over all indices and add to coefficientsIndex.
-    for( i = 0; i < numberOfIndependentVariables_; i++ )
+    for ( i = 0; i < numberOfIndependentVariables_; i++ )
     {
         // Determine single step contribution.
         singleStepContribution_ = 1;
-        for( j = i + 1; j < numberOfIndependentVariables_; j++ )
+
+        for ( j = i + 1; j < numberOfIndependentVariables_; j++ )
         {
-            singleStepContribution_ *=
-                    numberOfPointsPerIndependentVariables_[ j ];
+            singleStepContribution_ *= numberOfPointsPerIndependentVariables_[ j ];
         }
 
         // Add contribution to requested index.
-        coefficientsIndex_ += singleStepContribution_ *
-                             independentVariableIndices[ i ];
+        coefficientsIndex_ += singleStepContribution_ * independentVariableIndices[ i ];
     }
 
     return coefficientsIndex_;

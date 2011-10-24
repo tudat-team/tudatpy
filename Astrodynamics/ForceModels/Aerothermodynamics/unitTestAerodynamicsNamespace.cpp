@@ -39,9 +39,8 @@
  *      YYMMDD    Author            Comment
  *      110208    D. Dirkx          First version of file.
  *      110210    L. Adulkadir      Code check.
- *      110211    K. Kumar          Corrected Doxygen errors; corrected layout
- *                                  errors; corrected double precision; updated
- *                                  function-naming.
+ *      110211    K. Kumar          Corrected Doxygen errors; corrected layout errors; corrected
+ *                                  double precision; updated function-naming.
  */
 
 // Include statemenets.
@@ -67,9 +66,8 @@ bool unit_tests::testAerodynamicsNameSpace( )
     double ratioOfSpecificHeats_ = 1.4;
 
     // Test local to static pressure ratio.
-    double localToStaticPressureRatio_ = aerodynamics::
-                                         computeLocalToStaticPressureRatio(
-                                         machNumber_, ratioOfSpecificHeats_ );
+    double localToStaticPressureRatio_ = aerodynamics::computeLocalToStaticPressureRatio(
+                machNumber_, ratioOfSpecificHeats_ );
 
     if ( fabs( localToStaticPressureRatio_ - 1.0 / ( 0.1445e6 ) ) > 1.0e-8 )
     {
@@ -79,8 +77,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
 
     // Test stagnation pressure coefficient.
     double stagnationPressureCoefficient_
-            = aerodynamics::computeStagnationPressure( machNumber_,
-                                                       ratioOfSpecificHeats_ );
+            = aerodynamics::computeStagnationPressure( machNumber_, ratioOfSpecificHeats_ );
 
     if ( fabs( stagnationPressureCoefficient_ - 1.83402 ) > 1.0e-5 )
     {
@@ -101,8 +98,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
     if ( fabs( aerodynamics::computeEmpiricalTangentConePressureCoefficient(
                    M_PI / 2.0, machNumber_) - 2.08961 ) > 1.0e-5 )
     {
-        cerr << "Error in empirical Tangent Cone pressure coefficient."
-             << endl;
+        cerr << "Error in empirical Tangent Cone pressure coefficient." << endl;
         isAerodynamicsNamespaceBad = true;
     }
 
@@ -117,8 +113,7 @@ bool unit_tests::testAerodynamicsNameSpace( )
     if ( fabs( aerodynamics::computeEmpiricalTangentWedgePressureCoefficient(
                    M_PI / 2.0, machNumber_ ) - 2.38867 ) > 1.0e-5 )
     {
-        cerr << "Error in empirical Tangent Wedge pressure coefficient."
-             << endl;
+        cerr << "Error in empirical Tangent Wedge pressure coefficient." << endl;
         isAerodynamicsNamespaceBad = true;
     }
 
@@ -135,8 +130,8 @@ bool unit_tests::testAerodynamicsNameSpace( )
     // Test vacuum pressure coefficient.
     double vacuumPressureCoefficient_ = aerodynamics::computeVacuumPressureCoefficient(
                 machNumber_, ratioOfSpecificHeats_ );
-    if ( fabs( vacuumPressureCoefficient_ + 2.0 / ( ratioOfSpecificHeats_
-                                                    * pow( machNumber_, 2.0 ) ) ) > 1.0e-15 )
+    if ( fabs( vacuumPressureCoefficient_
+               + 2.0 / ( ratioOfSpecificHeats_ * pow( machNumber_, 2.0 ) ) ) > 1.0e-15 )
     {
         cerr << "Error in vacuum pressure coefficient." << endl;
         isAerodynamicsNamespaceBad = true;
