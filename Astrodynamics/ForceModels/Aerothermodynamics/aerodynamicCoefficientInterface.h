@@ -1,6 +1,6 @@
 /*! \file aerodynamicCoefficientInterface.h
- *   This file contains the definition of the AerodynamicCoefficientInterface
- *   base class included in Tudat.
+ *   This file contains the definition of the AerodynamicCoefficientInterface base class included
+ *   in Tudat.
  *
  *   Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *   Version           : 4
@@ -14,7 +14,7 @@
  *   Affiliation       : Delft University of Technology
  *   E-mail address    : D.Dirkx@tudelft.nl
  *
- *   Date created      : 08 June 2011
+ *   Date created      : 8 June 2011
  *   Last modified     : 10 August 2011
  *
  *   References
@@ -46,7 +46,7 @@
 #ifndef AERODYNAMICCOEFFICIENTINTERFACE_H
 #define AERODYNAMICCOEFFICIENTINTERFACE_H
 
-//includestatements
+// Include statements.
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Base class to hold an Aerodynamic Coefficient Interface. This interface can, for instance,
@@ -59,14 +59,16 @@ public:
     /*!
      * Default constructor.
      */
-    AerodynamicCoefficientInterface( ) : referenceLength_( 0.0 ), referenceArea_( 0.0 ),
-        lateralReferenceLength_( 0.0 ) { }
+    AerodynamicCoefficientInterface( ) : currentForceCoefficients_( Vector3d::Zero( ) ),
+        currentMomentCoefficients_( Vector3d::Zero( ) ), referenceLength_( -0.0 ),
+        referenceArea_( -0.0 ), lateralReferenceLength_( -0.0 ),
+        momentReferencePoint_( Vector3d::Zero( ) ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~AerodynamicCoefficientInterface( ){ }
+    virtual ~AerodynamicCoefficientInterface( ) { }
 
     //! Set reference area.
     /*!

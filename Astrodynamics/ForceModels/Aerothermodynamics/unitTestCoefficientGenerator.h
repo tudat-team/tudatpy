@@ -1,6 +1,5 @@
 /*! \file unitTestCoefficientGenerator.h
- *    This file contains the unit test of the aerodynamic coefficient generator
- *    in Tudat.
+ *    This file contains the unit test of the aerodynamic coefficient generator in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *    Version           : 2

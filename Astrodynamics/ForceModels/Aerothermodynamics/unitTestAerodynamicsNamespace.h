@@ -1,6 +1,5 @@
 /*! \file unitTestAerodynamicsNamespace.h
- *    This file contains the definition of the aerodynamics namespace unit
- *    test.
+ *    This file contains the definition of the aerodynamics namespace unit test.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *    Version           : 3
@@ -44,8 +43,7 @@
  *      YYMMDD    Author            Comment
  *      110208    D. Dirkx          First version of file.
  *      110210    L. Abdulkadir     Code check.
- *      110211    K. Kumar          Corrected file header; corrected Doxygen
- *                                  comments
+ *      110211    K. Kumar          Corrected file header; corrected Doxygen comments
  */
 
 #ifndef UNITTESTAERODYNAMICDNAMESPACE_H

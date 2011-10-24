@@ -1,6 +1,5 @@
 /*! \file unitTestCoefficientGenerator.cpp
- *    This file contains the unit test of the aerodynamic coefficient generator
- *    in Tudat.
+ *    This file contains the unit test of the aerodynamic coefficient generator in Tudat.
  *
  *    Path              : /Astrodynamics/ForceModels/Aerothermodynamics/
  *    Version           : 2
@@ -15,7 +14,7 @@
  *    E-mail address    : B.Romgens@student.tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 10 August,  2011
+ *    Last modified     : 10 August, 2011
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic
@@ -44,8 +43,8 @@
 // Include statements.
 #include "Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.h"
-#include "Mathematics/GeometricShapes/sphereSegment.h"
 #include "Mathematics/GeometricShapes/capsule.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
 #include "Output/writingOutputToFile.h"
 
 //! Test coefficient Generator.
@@ -58,17 +57,16 @@ bool unit_tests::testCoefficientGenerator( )
     SphereSegment sphere = SphereSegment( );
     sphere.setRadius( 1.0 );
     sphere.setMinimumAzimuthAngle(  0.0 );
-    sphere.setMaximumAzimuthAngle( 2.0 * M_PI);
+    sphere.setMaximumAzimuthAngle( 2.0 * M_PI );
     sphere.setMinimumZenithAngle( 0.0 );
     sphere.setMaximumZenithAngle( M_PI );
-    VehicleExternalModel externalModel = VehicleExternalModel();
+    VehicleExternalModel externalModel = VehicleExternalModel( );
     externalModel.setVehicleGeometry( sphere );
-    Vehicle vehicle = Vehicle();
+    Vehicle vehicle = Vehicle( );
     vehicle.setExternalModel( externalModel );
 
     // Create analysis object.
-    HypersonicLocalInclinationAnalysis analysis =
-            HypersonicLocalInclinationAnalysis( );
+    HypersonicLocalInclinationAnalysis analysis = HypersonicLocalInclinationAnalysis( );
 
     // Set vehicle in analysis with 10,000 panels.
     int* numberOfLines = new int[ 1 ];
@@ -82,7 +80,7 @@ bool unit_tests::testCoefficientGenerator( )
     // Set reference quantities.
     analysis.setReferenceArea( M_PI );
     analysis.setReferenceLength( 1.0 );
-    analysis.setMomentReferencePoint( Vector3d( 0, 0, 0) );
+    analysis.setMomentReferencePoint( Vector3d::Zero( ) );
 
     // Set pure Newtonian compression method for test purposes.
     analysis.setSelectedMethod( 0, 0, 0 );
@@ -90,8 +88,7 @@ bool unit_tests::testCoefficientGenerator( )
     // Generate sphere database.
     analysis.generateDatabase( );
 
-    // Allocate memory for independent variables
-    // to pass to analysis for retrieval.
+    // Allocate memory for independent variables to pass to analysis for retrieval.
     int* independentVariables = new int[ 3 ];
     independentVariables[ 0 ] = 0;
     independentVariables[ 1 ] = 0;
@@ -102,7 +99,7 @@ bool unit_tests::testCoefficientGenerator( )
     double forceCoefficient_;
 
     // Iterate over all angles of attack to verify sphere coefficients.
-    for ( int i = 0; i < analysis.getNumberOfMachPoints(); i++ )
+    for ( int i = 0; i < analysis.getNumberOfMachPoints( ); i++ )
     {
         independentVariables[ 0 ] = i;
 
@@ -126,32 +123,32 @@ bool unit_tests::testCoefficientGenerator( )
 
                 // Check if 'total' aerodynamic coefficient is always
                 // sufficiently close to zero.
-                if ( fabs( forceCoefficient_ - 1.0 ) > 1.0E-2 )
+                if ( fabs( forceCoefficient_ - 1.0 ) > 1.0e-2 )
                 {
                     std::cout<<"Total magnitude of aerodynamic force wrong in "
-                            <<"sphere."<<std::endl;
+                            << "sphere." << std::endl;
                     isCoefficientGeneratorBad_ = true;
                 }
 
                 // Check if moment coefficients are approximately zero. Deviations
                 // for pitch moment are greater due to greater range of angles of
                 // attack than sideslip.
-                if ( fabs( aerodynamicCoefficients_[ 3 ] ) > 1.0E-4 )
+                if ( fabs( aerodynamicCoefficients_[ 3 ] ) > 1.0e-4 )
                 {
                     std::cerr<<" Error, sphere roll moment coefficient not zero. "
                             <<std::endl;
                     isCoefficientGeneratorBad_ = true;
                 }
-                if ( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0E-2 )
+                if ( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0e-2 )
                 {
-                    std::cerr<<" Error, sphere pitch moment coefficient not zero. "
-                            <<std::endl;
+                    std::cerr << " Error, sphere pitch moment coefficient not zero. "
+                              << std::endl;
                     isCoefficientGeneratorBad_ = true;
                 }
                 if ( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0E-2 )
                 {
-                    std::cerr<<" Error, sphere yaw moment coefficient not zero. "
-                            <<std::endl;
+                    std::cerr << " Error, sphere yaw moment coefficient not zero. "
+                              << std::endl;
                     isCoefficientGeneratorBad_ = true;
                 }
             }
@@ -163,7 +160,7 @@ bool unit_tests::testCoefficientGenerator( )
     Capsule capsule = Capsule( );
     capsule.setNoseRadius( 4.694 );
     capsule.setMiddleRadius( 1.956 );
-    capsule.setRearAngle( -1*33.0 * M_PI / 180.0 );
+    capsule.setRearAngle( -1.0 * 33.0 * M_PI / 180.0 );
     capsule.setRearLength( 2.662 );
     capsule.setSideRadius( 0.196 );
     capsule.setCapsule( );
@@ -171,8 +168,7 @@ bool unit_tests::testCoefficientGenerator( )
     vehicle.setExternalModel( externalModel );
 
     // Declare new analysis object
-    HypersonicLocalInclinationAnalysis analysis2 =
-            HypersonicLocalInclinationAnalysis( );
+    HypersonicLocalInclinationAnalysis analysis2 = HypersonicLocalInclinationAnalysis( );
 
     int * numberOfLines2 = new int[ 4 ];
     int * numberOfPoints2 = new int[ 4 ];
@@ -199,9 +195,9 @@ bool unit_tests::testCoefficientGenerator( )
     analysis2.setReferenceArea( M_PI * pow( capsule.getMiddleRadius( ), 2.0 ) );
     analysis2.setReferenceLength( 3.9116 );
     VectorXd momentReference = VectorXd( 3 );
-    momentReference( 0 ) = 0.6624;//27.334;
-    momentReference( 1 ) = 0;
-    momentReference( 2 ) = 0.1369;//9.398;
+    momentReference( 0 ) = 0.6624;
+    momentReference( 1 ) = 0.0;
+    momentReference( 2 ) = 0.1369;
     analysis2.setMomentReferencePoint( momentReference );
 
     // Set angle of attack analysis points.
@@ -209,8 +205,7 @@ bool unit_tests::testCoefficientGenerator( )
     int i;
     for ( i = 0; i < 7; i++ )
     {
-        analysis2.setAngleOfAttackPoint( i,
-                                         static_cast< double >( i - 6 )
+        analysis2.setAngleOfAttackPoint( i, static_cast< double >( i - 6 )
                                          * 5.0 * M_PI / 180.0 );
     }
 
@@ -226,32 +221,37 @@ bool unit_tests::testCoefficientGenerator( )
     // Compare values to database values.
     if ( fabs( aerodynamicCoefficients_[ 0 ] - 1.51 ) > 0.1 )
     {
-        std::cerr<<" Error in Apollo drag coefficient "<<std::endl;
+        std::cerr << " Error in Apollo drag coefficient " << std::endl;
         isCoefficientGeneratorBad_ = true;
-    }    
+    }
+
     if ( aerodynamicCoefficients_[ 1 ] > 1.0E-15 )
     {
-        std::cerr<<" Error in Apollo side force coefficient "<<std::endl;
+        std::cerr << " Error in Apollo side force coefficient " << std::endl;
         isCoefficientGeneratorBad_ = true;
     }
+
     if ( aerodynamicCoefficients_[ 2 ] > 1.0E-15 )
     {
-        std::cerr<<" Error in Apollo normal force coefficient "<<std::endl;
+        std::cerr << " Error in Apollo normal force coefficient " << std::endl;
         isCoefficientGeneratorBad_ = true;
     }
+
     if ( aerodynamicCoefficients_[ 3 ] > 1.0E-15 )
     {
         std::cerr<<" Error in Apollo roll moment coefficient "<<std::endl;
         isCoefficientGeneratorBad_ = true;
     }
+
     if ( fabs( aerodynamicCoefficients_[ 4 ] +0.052 ) > 0.01 )
     {
-        std::cerr<<" Error in Apollo pitch moment coefficient "<<std::endl;
+        std::cerr << " Error in Apollo pitch moment coefficient " << std::endl;
         isCoefficientGeneratorBad_ = true;
     }
+
     if ( aerodynamicCoefficients_[ 5 ] > 1.0E-15 )
     {
-        std::cerr<<" Error in Apollo yaw moment coefficient "<<std::endl;
+        std::cerr << " Error in Apollo yaw moment coefficient " << std::endl;
         isCoefficientGeneratorBad_ = true;
     }
 

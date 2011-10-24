@@ -47,8 +47,8 @@
  *      102511    D. Dirkx          First version of file.
  *      110501    D. Dirkx          Added more comments.
  *      110203    L. Abdulkadir     Code check.
- *      110211    K. Kumar          Corrected Doxygen errors; corrected layout
- *                                  errors; corrected function-naming.
+ *      110211    K. Kumar          Corrected Doxygen errors; corrected layout errors; corrected
+ *                                  function-naming.
  */
 
 #ifndef AERODYNAMICS_H
@@ -122,8 +122,7 @@ double computeLocalToStaticPressureRatio( const double& machNumber,
  *         specific heat at constant volume.
  * \return Prandtl-Meyer function value.
  */
-double computePrandtlMeyerFunction( const double& machNumber,
-                                    const double& ratioOfSpecificHeats );
+double computePrandtlMeyerFunction( const double& machNumber, const double& ratioOfSpecificHeats );
 
 //! Compute stagnation pressure coefficient in supersonic flow.
 /*!
@@ -134,8 +133,7 @@ double computePrandtlMeyerFunction( const double& machNumber,
  *         specific heat at constant volume.
  * \return Stagnation pressure coefficient.
  */
-double computeStagnationPressure( const double& machNumber,
-                                  const double& ratioOfSpecificHeats );
+double computeStagnationPressure( const double& machNumber, const double& ratioOfSpecificHeats );
 
 //! Compute pressure coefficient based on Newtonian theory.
 /*!
@@ -154,8 +152,7 @@ double computeNewtonianPressureCoefficient( const double& inclinationAngle );
  * \return Newtonian pressure coefficient.
  */
 double computeModifiedNewtonianPressureCoefficient(
-        const double& inclinationAngle,
-        const double& stagnationPressureCoefficient );
+        const double& inclinationAngle, const double& stagnationPressureCoefficient );
 
 //! Compute pressure coefficient using empirical tangent wedge method.
 /*!
@@ -242,8 +239,7 @@ double computeVanDykeUnifiedPressureCoefficient(
  */
 double computePrandtlMeyerFreestreamPressureCoefficient(
         const double& inclinationAngle,  const double& machNumber,
-        const double& ratioOfSpecificHeats,
-        const double& freestreamPrandtlMeyerFunction );
+        const double& ratioOfSpecificHeats, const double& freestreamPrandtlMeyerFunction );
 
 //! Compute pressure coefficient at vacuum.
 /*!
@@ -284,13 +280,11 @@ double computeAcmEmpiricalPressureCoefficient(
  * \param prandtlMeyerFunctionValue Prandyl-Meyer function value.
  * \return Mach number.
  */
-double computeInversePrandtlMeyerFunction( const double&
-                                           prandtlMeyerFunctionValue );
+double computeInversePrandtlMeyerFunction( const double& prandtlMeyerFunctionValue );
 
 //! Compute ratio of post- to pre-shock pressure.
 /*!
- * Computes ratio of post- to pre-shock pressure, assuming thermally and
- * calorically perfect gas.
+ * Computes ratio of post- to pre-shock pressure, assuming thermally and calorically perfect gas.
  * \param normalMachNumber Mach number of flow velocity normal to shock.
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *          specific heat at constant volume.
@@ -300,8 +294,7 @@ double computeShockPressureRatio( const double& normalMachNumber,
 
 //! Compute ratio of post- to pre-shock density.
 /*!
- * Compute ratio of post- to pre-shock density, assuming thermally and
- * calorically perfect gas.
+ * Compute ratio of post- to pre-shock density, assuming thermally and calorically perfect gas.
  * \param normalMachNumber Mach number of flow velocity normal to shock.
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *         specific heat at constant volume.
@@ -311,8 +304,8 @@ double computeShockDensityRatio( const double& normalMachNumber,
 
 //! Compute ratio of post- to pre-shock temperature.
 /*!
- * Computes ratio of post- to pre-shock temperature, assuming thermally and
- * calorically perfect gas.
+ * Computes ratio of post- to pre-shock temperature, assuming thermally and calorically perfect
+ * gas.
  * \param normalMachNumber Mach number of flow velocity normal to shock.
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *         specific heat at constant volume.
@@ -322,15 +315,13 @@ double computeShockTemperatureRatio( const double& normalMachNumber,
 
 //! Compute jump in entropy across a shock wave.
 /*!
- * Compute jump in entropy across a shock wave, assuming thermally and
- * calorically perfect gas.
+ * Compute jump in entropy across a shock wave, assuming thermally and calorically perfect gas.
  * \param normalMachNumber Mach number of flow velocity normal to shock.
  * \param ratioOfSpecificHeats ratio of specific heat at constant pressure to
  *         specific heat at constant volume.
  * \param specificGasConstant gas constant per unit mass for flow composition.
  */
-double computeShockEntropyJump( const double& normalMachNumber,
-                                const double& ratioOfSpecificHeats,
+double computeShockEntropyJump( const double& normalMachNumber, const double& ratioOfSpecificHeats,
                                 const double& specificGasConstant );
 
 //! Compute post- to pre-shock total pressure ratio.
@@ -354,8 +345,7 @@ double computeShockTotalPressureRatio( const double& normalMachNumber,
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *          specific heat at constant volume.
  */
-double computeShockDeflectionAngle( const double& shockAngle,
-                                    const double& machNumber,
+double computeShockDeflectionAngle( const double& shockAngle, const double& machNumber,
                                     const double& ratioOfSpecificHeats );
 
 }
