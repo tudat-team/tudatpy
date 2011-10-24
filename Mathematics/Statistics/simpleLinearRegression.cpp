@@ -2,7 +2,7 @@
  *    Source file that defines the simple linear regression method in Tudat.
  *
  *    Path              : /Mathematics/Statistics/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 1 July, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -49,20 +49,6 @@
 #include <cmath>
 #include "Mathematics/Statistics/simpleLinearRegression.h"
 
-// Using declarations.
-using std::map;
-
-//! Default constructor.
-SimpleLinearRegression::SimpleLinearRegression( )
-    : chiSquared_( -0.0 ), coefficientOfConstantTerm_( -0.0 ),
-      coefficientOfLinearTerm_( -0.0 ),
-      standardDeviationOfCoefficientOfConstantTerm_( -0.0 ),
-      standardDeviationOfCoefficientOfLinearTerm_( -0.0 ),
-      sumOfDependentVariableData_( -0.0 ),
-      sumOfIndependentVariableData_( -0.0 )
-{
-}
-
 //! Compute fit.
 void SimpleLinearRegression::computeFit( )
 {
@@ -83,24 +69,20 @@ void SimpleLinearRegression::computeFit( )
     sumDependentVariableData_( );
 
     // Compute weighted mean of independent variable data.
-    double meanOfIndependentVariableData_
-            = sumOfIndependentVariableData_ / numberOfDataPoints_;
+    double meanOfIndependentVariableData_ = sumOfIndependentVariableData_ / numberOfDataPoints_;
 
     // Loop over input data to fit.
     for ( iteratorInputDataToFit_ = inputDataToFit_.begin( );
-          iteratorInputDataToFit_ != inputDataToFit_.end( );
-          iteratorInputDataToFit_++ )
+          iteratorInputDataToFit_ != inputDataToFit_.end( ); iteratorInputDataToFit_++ )
     {
         // Update value of temporary variable with independent variable value.
-        temporaryVariable_ = iteratorInputDataToFit_->first
-                - meanOfIndependentVariableData_;
+        temporaryVariable_ = iteratorInputDataToFit_->first - meanOfIndependentVariableData_;
 
         // Update sum of squared temporary variable value.
-        sumOfTemporaryVariableSquared_ += pow( temporaryVariable_, 2.0 );
+        sumOfTemporaryVariableSquared_ += std::pow( temporaryVariable_, 2.0 );
 
         // Update value of coefficient of linear term (b).
-        coefficientOfLinearTerm_ += temporaryVariable_
-                * iteratorInputDataToFit_->second;
+        coefficientOfLinearTerm_ += temporaryVariable_ * iteratorInputDataToFit_->second;
     }
 
     // Solve for coefficient of linear term (b).
@@ -108,9 +90,8 @@ void SimpleLinearRegression::computeFit( )
 
     // Compute coefficient of constant term (a).
     coefficientOfConstantTerm_ = ( sumOfDependentVariableData_
-                                   - ( sumOfIndependentVariableData_
-                                       * coefficientOfLinearTerm_ ) )
-                                 / numberOfDataPoints_;
+                                   - ( sumOfIndependentVariableData_ * coefficientOfLinearTerm_ ) )
+            / numberOfDataPoints_;
 }
 
 //! Compute fit errors.
@@ -125,25 +106,21 @@ void SimpleLinearRegression::computeFitErrors( )
 
     // Compute standard deviation of coefficient of constant term (sigma_a).
     standardDeviationOfCoefficientOfConstantTerm_
-            = sqrt( ( 1.0
-                      + ( pow( sumOfIndependentVariableData_, 2.0 )
-                          / ( numberOfDataPoints_
-                              * sumOfTemporaryVariableSquared_ ) ) )
-                    / numberOfDataPoints_ );
+            = std::sqrt( ( 1.0 + ( std::pow( sumOfIndependentVariableData_, 2.0 )
+                                   / ( numberOfDataPoints_ * sumOfTemporaryVariableSquared_ ) ) )
+                         / numberOfDataPoints_ );
 
     // Compute standard deviation of coefficient of linear term (sigma_b).
     standardDeviationOfCoefficientOfLinearTerm_
-            = sqrt( 1.0 / sumOfTemporaryVariableSquared_ );
+            = std::sqrt( 1.0 / sumOfTemporaryVariableSquared_ );
 
     // Compute chi-squared.
     for ( iteratorInputDataToFit_ = inputDataToFit_.begin( );
-          iteratorInputDataToFit_ != inputDataToFit_.end( );
-          iteratorInputDataToFit_++ )
+          iteratorInputDataToFit_ != inputDataToFit_.end( ); iteratorInputDataToFit_++ )
     {
-        chiSquared_ += pow( iteratorInputDataToFit_->second
-                            - coefficientOfConstantTerm_
-                            - ( coefficientOfLinearTerm_
-                                * iteratorInputDataToFit_->first ), 2.0 );
+        chiSquared_ += std::pow( iteratorInputDataToFit_->second - coefficientOfConstantTerm_
+                                 - ( coefficientOfLinearTerm_
+                                     * iteratorInputDataToFit_->first ), 2.0 );
     }
 
     // Adjust standard deviations based on typical standard deviation from
@@ -151,23 +128,19 @@ void SimpleLinearRegression::computeFitErrors( )
     if ( numberOfDataPoints_ > 2 )
     {
         standardDeviationFromChiSquared_
-                = sqrt( chiSquared_
-                        / static_cast< double >( numberOfDataPoints_ - 2 ) );
+                = std::sqrt( chiSquared_ / static_cast< double >( numberOfDataPoints_ - 2 ) );
     }
 
-    standardDeviationOfCoefficientOfConstantTerm_
-            += standardDeviationFromChiSquared_;
+    standardDeviationOfCoefficientOfConstantTerm_ += standardDeviationFromChiSquared_;
 
-    standardDeviationOfCoefficientOfLinearTerm_
-            += standardDeviationFromChiSquared_;
+    standardDeviationOfCoefficientOfLinearTerm_ += standardDeviationFromChiSquared_;
 }
 
 //! Sum independent variable input data.
 void SimpleLinearRegression::sumIndependentVariableData_( )
 {
     for ( iteratorInputDataToFit_ = inputDataToFit_.begin( );
-          iteratorInputDataToFit_ != inputDataToFit_.end( );
-          iteratorInputDataToFit_++ )
+          iteratorInputDataToFit_ != inputDataToFit_.end( ); iteratorInputDataToFit_++ )
     {
         sumOfIndependentVariableData_ += iteratorInputDataToFit_->first;
     }
@@ -177,8 +150,7 @@ void SimpleLinearRegression::sumIndependentVariableData_( )
 void SimpleLinearRegression::sumDependentVariableData_( )
 {
     for ( iteratorInputDataToFit_ = inputDataToFit_.begin( );
-          iteratorInputDataToFit_ != inputDataToFit_.end( );
-          iteratorInputDataToFit_++ )
+          iteratorInputDataToFit_ != inputDataToFit_.end( ); iteratorInputDataToFit_++ )
     {
         sumOfDependentVariableData_ += iteratorInputDataToFit_->second;
     }

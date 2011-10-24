@@ -1,9 +1,8 @@
 /*! \file rungeKutta4thOrderFixedStepsize.cpp
- *    Source file that defines the RungeKutta4thOrderFixedStepsize integrator
- *    implemented in Tudat.
+ *    Source file that defines the RungeKutta4thOrderFixedStepsize integrator implemented in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 6
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -19,7 +18,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -54,8 +53,8 @@
  *      100929    D. Dirkx          File checked.
  *      100929    K. Kumar          Minor comment modifications.
  *      110201    K. Kumar          Updated code to make use of State class.
- *      110203    J. Melman         Suggested two minor code updates, to make
- *                                  it more generally applicable.
+ *      110203    J. Melman         Suggested two minor code updates, to make it more generally
+ *                                  applicable.
  *      110204    K. Kumar          Added note about consolidating integrate();
  *                                  added a note about general RK integrator.
  *      110207    K. Kumar          Path changed; moved integrate() function
@@ -125,8 +124,7 @@ void RungeKutta4thOrderFixedStepsize::computeNextState_( const double& stepsize 
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
-                          RungeKutta4thOrderFixedStepsize&
-                          rungeKutta4thOrderFixedStepsize )
+                          RungeKutta4thOrderFixedStepsize& rungeKutta4thOrderFixedStepsize )
 {
     stream << "This is a RungeKutta4thOrderFixedStepsize object" << std::endl;
     stream << "The initial state is set to: " << std::endl;

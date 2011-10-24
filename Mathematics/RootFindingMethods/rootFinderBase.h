@@ -1,6 +1,5 @@
 /*! \file rootFinderBase.h
- *    This header file contains an abstract base class for the RootFinder
- *    class included in Tudat.
+ *    This header file contains an abstract base class for the RootFinder class included in Tudat.
  *
  *    Path              : /Mathematics/RootFindingMethods/
  *    Version           : 1
@@ -48,17 +47,11 @@ class RootFinderBase
 {
 public:
 
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    RootFinderBase( ){ };
-
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~RootFinderBase( ){ };
+    virtual ~RootFinderBase( ) { }
 
     //! Compute mathematical function value.
     /*!

@@ -3,7 +3,7 @@
  *    This unit test file will test the Newton-Raphson method code.
  *
  *    Path              : /Mathematics/RootFindingMethods/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 11 January, 2011
- *    Last modified     : 20 January, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -39,29 +39,27 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      110111    E. Iorfida          First creation of the code.
- *                                    The code is tested with the
- *                                    function: f(x)= x^2 - 3.
- *      110111    K. Kumar            Updated to use address of global
- *                                    functions instead of pointers for set
- *                                    functions; aligned code as required for
- *                                    namespaces; minor comment changes.
- *      110119    K. Kumar            Updated code to work with adaptor and
- *                                    abstract base implementation so that
- *                                    pointer-to-member functions are not
- *                                    required; filename changed; added cerr
- *                                    statements.
- *      110120    E. Iorfida          Added necessary class that contains
- *                                    functions, and related code, to allow a
- *                                    directly test with adaptor.
- *      110120    K. Kumar            Added global functions test; updated
- *                                    comments; modified layout.
+ *      YYMMDD    Author            Comment
+ *      110111    E. Iorfida        First creation of the code.
+ *                                  The code is tested with the function: f(x)= x^2 - 3.
+ *      110111    K. Kumar          Updated to use address of global  functions instead of
+ *                                  pointers for set functions; aligned code as required for
+ *                                  namespaces; minor comment changes.
+ *      110119    K. Kumar          Updated code to work with adaptor and abstract base
+ *                                  implementation so that pointer-to-member functions are not
+ *                                  required; filename changed; added cerr statements.
+ *      110120    E. Iorfida        Added necessary class that contains functions, and related
+ *                                  code, to allow a directly test with adaptor.
+ *      110120    K. Kumar          Added global functions test; updated comments; modified layout.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
+#include <cmath>
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 #include "Mathematics/RootFindingMethods/unitTestNewtonRaphson.h"
 
 // Using statements.
@@ -71,30 +69,6 @@ using std::endl;
 //! Namespace for all unit tests.
 namespace unit_tests
 {
-
-//! Mathematical test function.
-double NewtonRaphsonTest::computeTestFunction( double& inputValue )
-{
-    return std::pow( inputValue, 2.0 ) - 3.0;
-}
-
-//! First-derivative of mathematical test function.
-double NewtonRaphsonTest::computeFirstDerivativeTestFunction( double& inputValue )
-{
-    return 2.0 * inputValue;
-}
-
-//! Global mathematical test function.
-double computeGlobalTestFunction( double& inputValue )
-{
-    return std::pow( inputValue, 2.0 ) - 3.0;
-}
-
-//! Global first-derivative mathematical test function.
-double computeGlobalFirstDerivativeTestFunction( double& inputValue )
-{
-    return 2.0 * inputValue;
-}
 
 //! Test of Newton-Raphson method code.
 bool testNewtonRaphsonMethod( )
@@ -107,7 +81,7 @@ bool testNewtonRaphsonMethod( )
     bool isNewtonRaphsonMethodErroneous = false;
 
     // Expected test result.
-    double expectedResult = sqrt( 3.0 );
+    double expectedResult = std::sqrt( 3.0 );
 
     // Create pointers to new NewtonRaphson objects.
     NewtonRaphson* pointerToMyNewtonRaphsonTest1 = new NewtonRaphson;
@@ -119,11 +93,9 @@ bool testNewtonRaphsonMethod( )
     pointerToMyNewtonRaphsonTest1->setInitialGuessOfRoot( 5.0 );
 
     // Set mathematical functions.
-    pointerToMyNewtonRaphsonTest1->setMathematicalFunction(
-            &computeGlobalTestFunction );
-    pointerToMyNewtonRaphsonTest1
-            ->setFirstDerivativeMathematicalFunction(
-                    &computeGlobalFirstDerivativeTestFunction );
+    pointerToMyNewtonRaphsonTest1->setMathematicalFunction( &computeGlobalTestFunction );
+    pointerToMyNewtonRaphsonTest1->setFirstDerivativeMathematicalFunction(
+                &computeGlobalFirstDerivativeTestFunction );
 
     // Compute Newton-Raphson method.
     pointerToMyNewtonRaphsonTest1->execute( );
@@ -134,17 +106,15 @@ bool testNewtonRaphsonMethod( )
     pointerToMyNewtonRaphsonTest2->setInitialGuessOfRoot( 5.0 );
 
     // Create pointer to adaptor object of NewtonRaphsonAdaptor class.
-    NewtonRaphsonAdaptor< NewtonRaphsonTest >
-            newtonRaphsonAdaptorForNewtonRaphsonTest_;
+    NewtonRaphsonAdaptor< NewtonRaphsonTest > newtonRaphsonAdaptorForNewtonRaphsonTest_;
 
     // Run code using NewtonRapshonTest class and adaptor class object.
     pointerToMyNewtonRaphsonTest2->setNewtonRaphsonAdaptor(
-            &newtonRaphsonAdaptorForNewtonRaphsonTest_ );
+                &newtonRaphsonAdaptorForNewtonRaphsonTest_ );
     newtonRaphsonAdaptorForNewtonRaphsonTest_.setPointerToFunction(
-            &NewtonRaphsonTest::computeTestFunction );
-    newtonRaphsonAdaptorForNewtonRaphsonTest_.
-            setPointerToFirstDerivativeFunction(
-            &NewtonRaphsonTest::computeFirstDerivativeTestFunction );
+                &NewtonRaphsonTest::computeTestFunction );
+    newtonRaphsonAdaptorForNewtonRaphsonTest_.setPointerToFirstDerivativeFunction(
+                &NewtonRaphsonTest::computeFirstDerivativeTestFunction );
 
     // Compute Newton-Raphson method.
     pointerToMyNewtonRaphsonTest2->execute( );
@@ -153,8 +123,8 @@ bool testNewtonRaphsonMethod( )
     // result.
     if ( std::fabs( pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( )
                     - expectedResult ) >= pointerToMyNewtonRaphsonTest1->getTolerance( )
-        || std::fabs( pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
-                      - expectedResult ) >= pointerToMyNewtonRaphsonTest2->getTolerance( ) )
+         || std::fabs( pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
+                       - expectedResult ) >= pointerToMyNewtonRaphsonTest2->getTolerance( ) )
     {
         // Set error flag to true.
         isNewtonRaphsonMethodErroneous = true;
@@ -163,11 +133,10 @@ bool testNewtonRaphsonMethod( )
                         - expectedResult ) >= pointerToMyNewtonRaphsonTest2->getTolerance( ) )
         {
             // Generate error statements.
-            cerr << "The computed value ( " <<
-                    pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( )
+            cerr << "The computed value ( "
+                 << pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( )
                  << " ) using the Newton-Raphson method and global functions "
-                 << "does not match the expected solution ("
-                 << expectedResult << " )." << endl;
+                 << "does not match the expected solution (" << expectedResult << " )." << endl;
             cerr << "The difference is: "
                  << std::fabs( expectedResult
                                - pointerToMyNewtonRaphsonTest1->getComputedRootOfFunction( ) )
@@ -180,11 +149,10 @@ bool testNewtonRaphsonMethod( )
             isNewtonRaphsonMethodErroneous = true;
 
             // Generate error statements.
-            cerr << "The computed value ( " <<
-                    pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
+            cerr << "The computed value ( "
+                 <<  pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( )
                  << " ) using the Newton-Raphson method and member-functions "
-                 << "does not match the expected solution ("
-                 << expectedResult << " )." << endl;
+                 << "does not match the expected solution (" << expectedResult << " )." << endl;
             cerr << "The difference is: "
                  << std::fabs( expectedResult -
                                pointerToMyNewtonRaphsonTest2->getComputedRootOfFunction( ) )
@@ -196,6 +164,22 @@ bool testNewtonRaphsonMethod( )
     // If test is successful return false; if test fails, return true.
     return isNewtonRaphsonMethodErroneous;
 }
+
+//! Global mathematical test function.
+/*!
+ * Global mathematical test function used by the Newton-Raphson algorithm.
+ * \param inputValue Input value.
+ */
+double computeGlobalTestFunction( double& inputValue )
+{ return std::pow( inputValue, 2.0 ) - 3.0; }
+
+//! Global first-derivative mathematical test function.
+/*!
+ * Global first-derivative mathematical test function used by the
+ * Newton-Raphson algorithm.
+ * \param inputValue Input value.
+ */
+double computeGlobalFirstDerivativeTestFunction( double& inputValue ) { return 2.0 * inputValue; }
 
 }
 

@@ -42,8 +42,8 @@
  */
 
 // Include statements.
-#include <iostream>
 #include <cmath>
+#include <iostream>
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.h"
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestTabulatedAtmosphere.h"
 #include "Mathematics/basicMathematicsFunctions.h"
@@ -59,6 +59,7 @@ bool testTabulatedAtmosphere( )
     using std::cerr;
     using std::endl;
     using std::pow;
+    using std::fabs;
     using mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Declare test variable.
@@ -131,7 +132,7 @@ bool testTabulatedAtmosphere( )
     //         passing the altitude..
     // Check whether the atmosphere is calculated correctly at 10.05 km.
     // The values are linear interpolated values based on book values.
-    altitude = 10.05e3 ;
+    altitude = 10.05e3;
 
     if ( fabs(  tabulatedAtmosphere.getTemperature( altitude ) - 222.9350 )  > 2.0e-2
          || fabs(  tabulatedAtmosphere.getDensity( altitude ) - 0.4110 ) > 1.0e-3

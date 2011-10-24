@@ -1,9 +1,9 @@
 /*! \file rungeKutta4thOrderFixedStepsize.h
- *    Header file that defines the 4th-order, fixed stepsize, Runge-Kutta
- *    integrator implemented in Tudat.
+ *    Header file that defines the 4th-order, fixed stepsize, Runge-Kutta integrator implemented
+*     in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -19,7 +19,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *

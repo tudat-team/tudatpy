@@ -1,9 +1,8 @@
 /*! \file rootFinder.h
- *    This header file contains a base class for all root-finder algorithms
- *    classes in Tudat.
+ *    This header file contains a base class for all root-finder algorithms classes in Tudat.
  *
  *    Path              : /Mathematics/RootFindingMethods/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -15,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 11 November, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -37,19 +36,14 @@
  *      101111    E. Iorfida        First creation of code.
  *      101116    E. Iorfida        Added set-get functions.
  *      101121    E. Iorfida        Added Doxygen comments.
- *      110111    E. Iorfida        Deleted useless lines, and modified
- *                                  punctuation.
- *      110111    K. Kumar          Renamed functions and variables to be
- *                                  more accurate and descriptive; added
- *                                  "End of file." comment; added example of
- *                                  pointer-to-member-function for
- *                                  LambertTargeter.
- *      110119    K. Kumar          Updated code to work with adaptor and
- *                                  abstract base implementation so that
- *                                  pointer-to-member functions are not
+ *      110111    E. Iorfida        Deleted useless lines, and modified punctuation.
+ *      110111    K. Kumar          Renamed functions and variables to be more accurate and
+ *                                  descriptive; added "End of file." comment; added example of
+ *                                  pointer-to-member-function for LambertTargeter.
+ *      110119    K. Kumar          Updated code to work with adaptor and  abstract base
+ *                                  implementation so that pointer-to-member functions are not
  *                                  required.
- *      110124    E. Iorfida        Added set/get functions for maximum number
- *                                  of iterations.
+ *      110124    E. Iorfida        Added set/get functions for maximum number of iterations.
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
@@ -83,7 +77,10 @@ public:
     /*!
      * Default constructor.
      */
-    RootFinder( );
+    RootFinder( ) : maximumNumberOfIterations_( 100 ), initialGuessOfRoot_( -0.0 ),
+        currentValueOfRoot_( -0.0 ), nextValueOfRoot_( -0.0 ), tolerance_( 1.0e-12 ),
+        pointerToGlobalFunction_( NULL ), pointerToGlobalFirstDerivativeFunction_( NULL ),
+        pointerToRootFinderBase_( NULL ) { }
 
     //! Default destructor.
     /*!
@@ -98,10 +95,7 @@ public:
      *          function.
      */
     void setInitialGuessOfRoot( const double& initialGuessOfRoot )
-    {
-        initialGuessOfRoot_ = initialGuessOfRoot;
-        currentValueOfRoot_ = initialGuessOfRoot;
-    }
+    { initialGuessOfRoot_ = initialGuessOfRoot; currentValueOfRoot_ = initialGuessOfRoot; }
 
     //! Set maximum number of iterations.
     /*!
@@ -109,19 +103,14 @@ public:
      * \param maximumNumberOfIterations Maximum number of iterations.
      */
     void setMaximumNumberOfIterations( const unsigned int& maximumNumberOfIterations ) 
-    {
-        maximumNumberOfIterations_ = maximumNumberOfIterations;
-    }
+    { maximumNumberOfIterations_ = maximumNumberOfIterations; }
 
     //! Set tolerance.
     /*!
      * Sets tolerance for root-finding method.
      * \param tolerance Tolerance.
      */
-    void setTolerance( const double& tolerance ) 
-    {
-        tolerance_ = tolerance;
-    }
+    void setTolerance( const double& tolerance ) { tolerance_ = tolerance; }
 
     //! Set pointer to mathematical function.
     /*!
@@ -130,9 +119,7 @@ public:
      * \param globalFunction Pointer to global mathematical function.
      */
     void setMathematicalFunction( pointerToDoubleTakingFunction globalFunction )
-    {
-        pointerToGlobalFunction_ = globalFunction;
-    }
+    { pointerToGlobalFunction_ = globalFunction; }
 
     //! Set pointer to first-derivative mathematical function.
     /*!
@@ -141,41 +128,30 @@ public:
      * \param globalFirstDerivativeFunction Pointer to global first-derivative
      *           mathematical function.
      */
-    void setFirstDerivativeMathematicalFunction( pointerToDoubleTakingFunction 
-                                                    globalFirstDerivativeFunction )
-    {
-        pointerToGlobalFirstDerivativeFunction_ = globalFirstDerivativeFunction;
-    }
+    void setFirstDerivativeMathematicalFunction( pointerToDoubleTakingFunction
+                                                 globalFirstDerivativeFunction )
+    { pointerToGlobalFirstDerivativeFunction_ = globalFirstDerivativeFunction; }
 
     //! Get maximum number of iterations.
     /*!
      * Returns the maximum number of iterations.
      * \return Number of iterations.
      */
-    unsigned int& getMaximumNumberOfIterations( ) 
-    {
-        return maximumNumberOfIterations_;
-    }
+    unsigned int& getMaximumNumberOfIterations( ) { return maximumNumberOfIterations_; }
 
     //! Get tolerance.
     /*!
      * Returns the tolerance.
      * \return Tolerance.
      */
-    double& getTolerance( )
-    {
-        return tolerance_;
-    }
+    double& getTolerance( ) { return tolerance_; }
 
     //! Get root of mathematical function.
     /*!
      * Returns the computed root of the mathmatical function.
      * \return Computed root of the mathematical function.
      */
-    double& getComputedRootOfFunction( )
-    {
-        return nextValueOfRoot_;
-    }
+    double& getComputedRootOfFunction( ) { return nextValueOfRoot_; }
 
     //! Execute.
     /*!

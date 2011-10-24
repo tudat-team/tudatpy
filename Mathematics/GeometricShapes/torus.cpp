@@ -2,7 +2,7 @@
  *    This file contains the implementation of the Torus class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 9 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -38,31 +38,34 @@
  *      YYMMDD    Author            Comment
  *      102511    D. Dirkx          First version of file.
  *      110120    D. Dirkx          Finalized for code check.
- *      110208    K. Kumar          Updated file header; corrected Doxygen
- *                                  comments; minor changes.
+ *      110208    K. Kumar          Updated file header; corrected Doxygen comments; minor changes.
  *      110209    D. Dirkx          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
+#include <iostream>
 #include "Mathematics/GeometricShapes/torus.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
+using std::sin;
+using std::cos;
 
 //! Get surface point on torus.
 VectorXd Torus::getSurfacePoint( const double& majorCircumferentialAngle,
                                  const double& minorCircumferentialAngle )
 {
     // Form cartesian position vector from paranmetrization.
-    cartesianPositionVector_( 0 ) = ( majorRadius_ + ( minorRadius_ *
-         cos( minorCircumferentialAngle ) ) ) * cos( majorCircumferentialAngle );
-    cartesianPositionVector_( 1 ) = ( majorRadius_ + ( minorRadius_ *
-         cos( minorCircumferentialAngle ) ) ) * sin( majorCircumferentialAngle );
-    cartesianPositionVector_( 2 ) = minorRadius_ *
-                                    sin( minorCircumferentialAngle );
+    cartesianPositionVector_( 0 )
+            = ( majorRadius_ + ( minorRadius_ * cos( minorCircumferentialAngle ) ) )
+            * cos( majorCircumferentialAngle );
+    cartesianPositionVector_( 1 )
+            = ( majorRadius_ + ( minorRadius_ * cos( minorCircumferentialAngle ) ) )
+            * sin( majorCircumferentialAngle );
+    cartesianPositionVector_( 2 ) = minorRadius_ *  sin( minorCircumferentialAngle );
 
     // Translate vector.
     transformPoint( cartesianPositionVector_ );
@@ -72,11 +75,10 @@ VectorXd Torus::getSurfacePoint( const double& majorCircumferentialAngle,
 }
 
 //! Get surface derivative on torus.
-VectorXd Torus::getSurfaceDerivative(
-        const double& majorCircumferentialAngle,
-        const double& minorCircumferentialAngle,
-        const int& powerOfMajorCircumferentialAngleDerivative,
-        const int& powerOfMinorCircumferentialAngleDerivative )
+VectorXd Torus::getSurfaceDerivative( const double& majorCircumferentialAngle,
+                                      const double& minorCircumferentialAngle,
+                                      const int& powerOfMajorCircumferentialAngleDerivative,
+                                      const int& powerOfMinorCircumferentialAngleDerivative )
 {
     // Declare and set size of derivative vector.
     VectorXd derivative_ = VectorXd( 3 );
@@ -157,12 +159,9 @@ VectorXd Torus::getSurfaceDerivative(
         {
         case( 0 ):
 
-            derivative2Contribution_( 0 ) = minorRadius_ *
-                                            cos( minorCircumferentialAngle );
-            derivative2Contribution_( 1 ) = minorRadius_ *
-                                            cos( minorCircumferentialAngle );
-            derivative2Contribution_( 2 ) = minorRadius_ *
-                                            sin( minorCircumferentialAngle );
+            derivative2Contribution_( 0 ) = minorRadius_ * cos( minorCircumferentialAngle );
+            derivative2Contribution_( 1 ) = minorRadius_ * cos( minorCircumferentialAngle );
+            derivative2Contribution_( 2 ) = minorRadius_ * sin( minorCircumferentialAngle );
 
             // For the zeroth derivative, a term needs to be added.
             if ( powerOfMinorCircumferentialAngleDerivative == 0 )
@@ -175,32 +174,23 @@ VectorXd Torus::getSurfaceDerivative(
 
         case( 1 ):
 
-            derivative2Contribution_( 0 ) = -minorRadius_ *
-                                            sin( minorCircumferentialAngle );
-            derivative2Contribution_( 1 ) = -minorRadius_ *
-                                            sin( minorCircumferentialAngle );
-            derivative2Contribution_( 2 ) = minorRadius_ *
-                                            cos( minorCircumferentialAngle );
+            derivative2Contribution_( 0 ) = -minorRadius_ * sin( minorCircumferentialAngle );
+            derivative2Contribution_( 1 ) = -minorRadius_ * sin( minorCircumferentialAngle );
+            derivative2Contribution_( 2 ) = minorRadius_ * cos( minorCircumferentialAngle );
             break;
 
         case( 2 ):
 
-            derivative2Contribution_( 0 ) = -minorRadius_ *
-                                            cos( minorCircumferentialAngle );
-            derivative2Contribution_( 1 ) = -minorRadius_ *
-                                            cos( minorCircumferentialAngle );
-            derivative2Contribution_( 2 ) = -minorRadius_ *
-                                            sin( minorCircumferentialAngle );
+            derivative2Contribution_( 0 ) = -minorRadius_ * cos( minorCircumferentialAngle );
+            derivative2Contribution_( 1 ) = -minorRadius_ * cos( minorCircumferentialAngle );
+            derivative2Contribution_( 2 ) = -minorRadius_ * sin( minorCircumferentialAngle );
             break;
 
         case( 3 ):
 
-            derivative2Contribution_( 0 ) =  minorRadius_ *
-                                            sin( minorCircumferentialAngle );
-            derivative2Contribution_( 1 ) =  minorRadius_ *
-                                            sin( minorCircumferentialAngle );
-            derivative2Contribution_( 2 ) = -minorRadius_ *
-                                            cos( minorCircumferentialAngle );
+            derivative2Contribution_( 0 ) =  minorRadius_ * sin( minorCircumferentialAngle );
+            derivative2Contribution_( 1 ) =  minorRadius_ * sin( minorCircumferentialAngle );
+            derivative2Contribution_( 2 ) = -minorRadius_ * cos( minorCircumferentialAngle );
             break;
 
         default:
@@ -210,12 +200,9 @@ VectorXd Torus::getSurfaceDerivative(
         }
 
         // Construct the full derivative.
-        derivative_( 0 ) = derivative1Contribution_( 0 ) *
-                           derivative2Contribution_( 0 );
-        derivative_( 1 ) = derivative1Contribution_( 1 ) *
-                           derivative2Contribution_( 1 );
-        derivative_( 2 ) = derivative1Contribution_( 2 ) *
-                           derivative2Contribution_( 2 );
+        derivative_( 0 ) = derivative1Contribution_( 0 ) * derivative2Contribution_( 0 );
+        derivative_( 1 ) = derivative1Contribution_( 1 ) * derivative2Contribution_( 1 );
+        derivative_( 2 ) = derivative1Contribution_( 2 ) * derivative2Contribution_( 2 );
 
         // Rotate derivatives to take into account rotation of torus.
         derivative_ = rotationMatrix_ * scalingMatrix_ * derivative_;
@@ -243,8 +230,7 @@ double Torus::getParameter( const int& index )
 
     default:
 
-        cerr << "Parameter " << index << " does not exist in Torus, "
-             << "returning 0" << endl;
+        cerr << "Parameter " << index << " does not exist in Torus, returning 0" << endl;
         break;
     }
 
@@ -280,19 +266,16 @@ std::ostream &operator<<( std::ostream &stream, Torus& torus )
 {
     stream << "This is a torus geometry." << endl;
     stream << "The minor angle runs from: "
-           << torus.getMinimumMinorCircumferentialAngle( ) * 180/M_PI
-           << " degrees to "
-           << torus.getMaximumMinorCircumferentialAngle( ) * 180/M_PI
-           << " degrees" << endl;
+           << torus.getMinimumMinorCircumferentialAngle( ) * 180.0 / M_PI << " degrees to "
+           << torus.getMaximumMinorCircumferentialAngle( ) * 180.0 / M_PI << " degrees" << endl;
     stream << "The major angle runs from: "
-           << torus.getMinimumMajorCircumferentialAngle( ) * 180/M_PI
-           << " degrees to "
-           << torus.getMaximumMajorCircumferentialAngle( ) * 180/M_PI
-           << " degrees" << endl;
+           << torus.getMinimumMajorCircumferentialAngle( ) * 180.0 / M_PI << " degrees to "
+           << torus.getMaximumMajorCircumferentialAngle( ) * 180/M_PI << " degrees" << endl;
     stream << "The major radius is: " << torus.getMajorRadius( ) << endl;
-    stream << "The minor ( tube ) radius is: " << torus.getMinorRadius( )
-           << endl;
+    stream << "The minor ( tube ) radius is: " << torus.getMinorRadius( ) << endl;
 
     // Return stream.
     return stream;
 }
+
+// End of file.

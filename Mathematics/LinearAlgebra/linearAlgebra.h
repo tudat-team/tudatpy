@@ -36,8 +36,7 @@
  *      YYMMDD    Author            Comment
  *      090807    J. Melman         First creation of code.
  *      100930    D. Dirkx          Modified to comply with Tudat standards.
- *      100930    J. Melman         Implemented namespace, minor comment
- *                                  changes.
+ *      100930    J. Melman         Implemented namespace, minor comment changes.
  */
 
 #ifndef LINEAR_ALGEBRA_H
@@ -72,16 +71,14 @@ namespace linear_algebra
  * Function to determine the cosine of the angle between two vectors;
  * both vectors must have non-zero norm.
  */
-double determineCosineOfAngleBetweenVectors( const Vector3d& vector0,
-                                             const Vector3d& vector1 );
+double determineCosineOfAngleBetweenVectors( const Vector3d& vector0, const Vector3d& vector1 );
 
 //! Determine the angle between two vectors.
 /*!
  * Function to determine the angle between two vectors;
  * both vectors must have non-zero norm.
  */
-double determineAngleBetweenVectors( const Vector3d& vector0,
-                                     const Vector3d& vector1 );
+double determineAngleBetweenVectors( const Vector3d& vector0, const Vector3d& vector1 );
 
 //! Determine the average of the components of a vector.
 /*!

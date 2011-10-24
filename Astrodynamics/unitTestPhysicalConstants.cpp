@@ -1,6 +1,5 @@
 /*! \file unitTestPhysicalConstants.cpp
- *    This unit test will test the physical constants that are defined in
- *    physicalConstants.h.
+ *    This unit test will test the physical constants that are defined in physicalConstants.h.
  *
  *    Path              : /Astrodynamics/
  *    Version           : 4
@@ -39,10 +38,9 @@
  *      YYMMDD    Author            Comment
  *      100910    J. Melman         First creation of code.
  *      110111    J. Melman         Adapted to the offical Tudat standards.
- *      110124    J. Melman         Further adapted to the offical Tudat
- *                                  standards.
- *      110201    J. Melman         Made the tests for obliquity and
- *                                  astronomical unit more accurate.
+ *      110124    J. Melman         Further adapted to the offical Tudat standards.
+ *      110201    J. Melman         Made the tests for obliquity and astronomical unit more
+ *                                  accurate.
  */
 
 // Include statements.

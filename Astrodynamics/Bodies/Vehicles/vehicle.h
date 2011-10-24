@@ -1,8 +1,7 @@
 /*! \file vehicle.h
- *    This file contains the definition of the VehicleModel class, which is a
- *    container for the different subsystems and characteristics of the
- *    vehicle. Currently only the VehicleExternalModel can be set as a
- *    property.
+ *    This file contains the definition of the VehicleModel class, which is a container for the
+ *    different subsystems and characteristics of the vehicle. Currently only the
+ *    VehicleExternalModel can be set as a property.
  *
  *    Path              : /Astrodynamics/Bodies/Vehicles/
  *    Version           : 4
@@ -17,7 +16,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 10 September, 2010
- *    Last modified     : 11 January, 2011
+ *    Last modified     : 12 January, 2011
  *
  *    References
  *
@@ -38,8 +37,7 @@
  *      YYMMDD    Author            Comment
  *      100910    D. Dirkx          First version of file.
  *      100915    D. Dirkx          Modified comments, 80 lines rule, etc.
- *      100928    D. Dirkx          Modifications following first checking
- *                                  iteration.
+ *      100928    D. Dirkx          Modifications following first checking iteration.
  *      110112    K. Kumar          Minor comment changes.
  */
 
@@ -68,25 +66,20 @@ public:
      */
     Vehicle( ) : pointerToExternalModel_( NULL ), isExternalModelSet_( false ) { }
 
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    virtual ~Vehicle( ) { }
-
     //! Set the external model of the vehicle.
     /*!
      * Sets the external model of the vehicle.
      * \param externalModel Vehicle external model.
      */
-    void setExternalModel( VehicleExternalModel& externalModel );
+    void setExternalModel( VehicleExternalModel& externalModel )
+    { pointerToExternalModel_ = &externalModel; isExternalModelSet_ = true; }
 
     //! Get external model of the vehicle.
     /*!
      * Returns the external model of the vehicle.
      * \return Pointer to vehicle external model.
      */
-    VehicleExternalModel* getPointerToExternalModel( );
+    VehicleExternalModel* getPointerToExternalModel( ) { return pointerToExternalModel_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -96,7 +89,12 @@ public:
      * \param vehicle Vehicle.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream, Vehicle& vehicle );
+    friend std::ostream& operator<<( std::ostream& stream, Vehicle& vehicle )
+    {
+        stream << "This is a vehicle; the following properties have been set: " << std::endl;
+        if ( vehicle.isExternalModelSet_ ) { stream << "External model" << std::endl; }
+        return stream;
+    }
 
 private:
 

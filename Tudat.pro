@@ -7,20 +7,14 @@ CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
-    Astrodynamics/Bodies/CelestialBodies/celestialBody.cpp \
     Astrodynamics/Bodies/CelestialBodies/planet.cpp \
-    Astrodynamics/Bodies/Vehicles/vehicle.cpp \
-    Astrodynamics/Bodies/Vehicles/vehicleExternalModel.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestTabulatedAtmosphere.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.cpp \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
     Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.cpp \
-    Astrodynamics/ForceModels/aerodynamicForce.cpp \
-    Astrodynamics/ForceModels/gravitationalForceModel.cpp \
     Astrodynamics/ForceModels/unitTestAerodynamicMomentAndAerodynamicForce.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.cpp \
     Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.cpp \
@@ -90,7 +84,6 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.cpp \
     Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.cpp \
     Mathematics/RootFindingMethods/unitTestNewtonRaphson.cpp \
-    Mathematics/RootFindingMethods/rootFinder.cpp \
     Mathematics/RootFindingMethods/newtonRaphson.cpp \
     Mathematics/Statistics/simpleLinearRegression.cpp \
     Mathematics/Statistics/unitTestSimpleLinearRegression.cpp \

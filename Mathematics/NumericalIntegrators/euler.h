@@ -2,7 +2,7 @@
  *    Header file that defines the Euler integrator implemented in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -18,7 +18,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 27 July, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -62,12 +62,6 @@
 class Euler : public SingleStepIntegrationMethods
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    Euler( ) { }
 
     //! Overload ostream to print class information.
     /*!

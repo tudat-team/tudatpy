@@ -1,6 +1,5 @@
 /*! \file unitTestAerodynamicMomentAndAerodynamicForce.cpp
-*    This source file contains the unit test for aerodynamic forces model
-*    included in Tudat.
+*    This source file contains the unit test for aerodynamic forces model included in Tudat.
 *
 *    Path              : /Astrodynamics/ForceModels/
 *    Version           : 3
@@ -40,13 +39,13 @@
 */
 
 // Include statements.
+#include "Astrodynamics/ForceModels/aerodynamicForce.h"
 #include "Astrodynamics/ForceModels/unitTestAerodynamicMomentAndAerodynamicForce.h"
 #include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h"
-#include "Astrodynamics/ForceModels/aerodynamicForce.h"
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Mathematics/unitConversions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 // Using statements.
 using Eigen::Quaternion;
@@ -63,14 +62,14 @@ bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
 
     // Initialise objects.
     Vector3d forceCoefficients;
-    forceCoefficients(0) = 1.1;
-    forceCoefficients(1) = 1.2;
-    forceCoefficients(2) = 1.3;
+    forceCoefficients( 0 ) = 1.1;
+    forceCoefficients( 1 ) = 1.2;
+    forceCoefficients( 2 ) = 1.3;
 
     Vector3d momentCoefficients;
-    momentCoefficients(0) = 0.0;
-    momentCoefficients(1) = 1.0;
-    momentCoefficients(2) = 0.0;
+    momentCoefficients( 0 ) = 0.0;
+    momentCoefficients( 1 ) = 1.0;
+    momentCoefficients( 2 ) = 0.0;
 
     double dynamicPressure = 50.0;
     double referenceArea = 2.2;
@@ -83,9 +82,9 @@ bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
     aerodynamicCoefficientInterface.setReferenceLength( referenceLength );
 
     Vector3d momentArm;
-    momentArm(0) = -2.0;
-    momentArm(1) = 0.0;
-    momentArm(2) = 0.0;
+    momentArm( 0 ) = -2.0;
+    momentArm( 1 ) = 0.0;
+    momentArm( 2 ) = 0.0;
 
     AerodynamicForce aerodynamicForce;
     aerodynamicForce.setDynamicPressure( dynamicPressure );

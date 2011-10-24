@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 10 September, 2010
- *    Last modified     : 11 January, 2011
+ *    Last modified     : 12 January, 2011
  *
  *    References
  *
@@ -35,8 +35,7 @@
  *      YYMMDD    Author            Comment
  *      100910    D. Dirkx          First version of file.
  *      100915    D. Dirkx          Modified comments, 80 lines rule, etc.
- *      100928    D. Dirkx          Modifications following first checking
- *                                  iteration.
+ *      100928    D. Dirkx          Modifications following first checking iteration.
  *      110112    K. Kumar          Minor comment changes.
  */
 
@@ -64,26 +63,21 @@ public:
      */
     VehicleExternalModel( ) : pointerToVehicleGeometry_( NULL ), isGeometrySet_( false ) { }
 
-    //! Default destructor.
-    /*!
-     *  Default destructor.
-     */
-    ~VehicleExternalModel( ) { }
-
     //! Function to set external geometry.
     /*!
      * Function to set the external vehicle geometry. Geometry object is to be
      * created externally.
      * \param vehicleGeometry pointer to shape that is to be set.
      */
-    void setVehicleGeometry( GeometricShape& vehicleGeometry );
+    void setVehicleGeometry( GeometricShape& vehicleGeometry )
+    { pointerToVehicleGeometry_ = &vehicleGeometry; isGeometrySet_ = true; }
 
     //! Get external geometry.
     /*!
      * Returns the external geometry.
      * \return Pointer to geometric shape.
      */
-    GeometricShape* getVehicleExternalGeometry( );
+    GeometricShape* getVehicleExternalGeometry( ) { return pointerToVehicleGeometry_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -94,11 +88,17 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     VehicleExternalModel& vehicleExternalModel );
+                                     VehicleExternalModel& vehicleExternalModel )
+    {
+        stream << "This is an external model, the following properties are set:" << std::endl;
+        if ( vehicleExternalModel.isGeometrySet_ == true )
+        { stream << "Surface geometry" << std::endl; }
+        return stream;
+    }
 
 private:
 
-    //! Pointer to vehicle geometry
+    //! Pointer to vehicle geometry.
     /*!
      * Pointer to geometric shape that represents the vehicle's external shape.
      */

@@ -3,7 +3,7 @@
  *    methods included in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -19,7 +19,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 27 July, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -42,8 +42,8 @@
  *      100929    D. Dirkx          File checked.
  *      100929    K. Kumar          Minor comment modifications.
  *      110203    J. Melman         File checked.
- *      110207    K. Kumar          Path changed; moved integrate() function;
- *                                  added ostream overload.
+ *      110207    K. Kumar          Path changed; moved integrate() function; added ostream
+ *                                  overload.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
@@ -61,12 +61,6 @@
 class SingleStepIntegrationMethods : public Integrator
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    SingleStepIntegrationMethods( ) { }
 
     //! Default destructor.
     /*!

@@ -3,7 +3,7 @@
  *    which tests the simple linear regression method implemented in Tudat.
  *
  *    Path              : /Mathematics/Statistics/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 2 July, 2011
- *    Last modified     : 2 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -50,6 +50,11 @@
  */
 
 // Include statements.
+#include <cmath>
+#include <iostream>
+#include <map>
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/Statistics/simpleLinearRegression.h"
 #include "Mathematics/Statistics/unitTestSimpleLinearRegression.h"
 
 // Using declarations.
@@ -84,14 +89,12 @@ bool testSimpleLinearRegression( )
     benchmarkInputData[ 10.0 ] = 15.6;
 
     // Expected coefficients of linear fit.
-    double expectedCoefficientOfConstantTerm = -0.360;
-    double expectedCoefficientOfLinearTerm = 1.538;
+    double expectedCoefficientOfConstantTerm = -0.359999999999999999;
+    double expectedCoefficientOfLinearTerm = 1.5381818181818181818;
 
     // Expected standard deviations of fit coefficients.
-    double expectedStandardDeviationOfCoefficientOfConstantTerm
-            = 1.224508762402819;
-    double expectedStandardDeviationOfCoefficientOfLinearTerm
-            = 0.6514750878514816;
+    double expectedStandardDeviationOfCoefficientOfConstantTerm = 1.224508762402819;
+    double expectedStandardDeviationOfCoefficientOfLinearTerm = 0.6514750878514816;
 
     // Expected chi-squared value.
     double expectedChiSquared = 2.344727272727272;
@@ -106,12 +109,12 @@ bool testSimpleLinearRegression( )
     simpleLinearRegression.computeFit( );
 
     // Check if coefficients of fit are incorrect.
-    if ( abs( simpleLinearRegression.getCoefficientOfConstantTerm( )
-              - expectedCoefficientOfConstantTerm )
-         / expectedCoefficientOfConstantTerm > MACHINE_PRECISION_DOUBLES
-         || abs( simpleLinearRegression.getCoefficientOfLinearTerm( )
-                 - expectedCoefficientOfLinearTerm )
-            / expectedCoefficientOfLinearTerm > MACHINE_PRECISION_DOUBLES )
+    if ( std::fabs( simpleLinearRegression.getCoefficientOfConstantTerm( )
+                    - expectedCoefficientOfConstantTerm )
+         / std::fabs( expectedCoefficientOfConstantTerm ) > 1.0e-14
+         || std::fabs( simpleLinearRegression.getCoefficientOfLinearTerm( )
+                       - expectedCoefficientOfLinearTerm )
+         / std::fabs( expectedCoefficientOfLinearTerm ) > MACHINE_PRECISION_DOUBLES )
     {
         // Set test result to true.
         isSimpleLinearRegressionErroneous = true;
@@ -130,45 +133,38 @@ bool testSimpleLinearRegression( )
     simpleLinearRegression.computeFitErrors( );
 
     // Check if standard deviations of fit coefficients are incorrect.
-    if ( abs( simpleLinearRegression
-              .getStandardDeviationOfCoefficientOfConstantTerm( )
-              - expectedStandardDeviationOfCoefficientOfConstantTerm )
-         / expectedStandardDeviationOfCoefficientOfConstantTerm
+    if ( std::fabs( simpleLinearRegression.getStandardDeviationOfCoefficientOfConstantTerm( )
+                    - expectedStandardDeviationOfCoefficientOfConstantTerm )
+         / std::fabs( expectedStandardDeviationOfCoefficientOfConstantTerm )
          > MACHINE_PRECISION_DOUBLES
-         || abs( simpleLinearRegression
-                 .getStandardDeviationOfCoefficientOfLinearTerm( )
-                 - expectedStandardDeviationOfCoefficientOfLinearTerm )
-            / expectedStandardDeviationOfCoefficientOfLinearTerm
+         || std::fabs( simpleLinearRegression.getStandardDeviationOfCoefficientOfLinearTerm( )
+                       - expectedStandardDeviationOfCoefficientOfLinearTerm )
+         / std::fabs( expectedStandardDeviationOfCoefficientOfLinearTerm )
          > MACHINE_PRECISION_DOUBLES )
     {
         // Set test result to true.
         isSimpleLinearRegressionErroneous = true;
 
         // Cerr statements.
-        cerr << "Computed standard deviations of linear fit coefficient "
-             << "values ( " << simpleLinearRegression
-                .getStandardDeviationOfCoefficientOfConstantTerm( )
-             << ", " << simpleLinearRegression
-                .getStandardDeviationOfCoefficientOfLinearTerm( ) << " ) "
-             << " are not equal to the expected values ( "
+        cerr << "Computed standard deviations of linear fit coefficient values ( "
+             << simpleLinearRegression.getStandardDeviationOfCoefficientOfConstantTerm( )
+             << ", " << simpleLinearRegression.getStandardDeviationOfCoefficientOfLinearTerm( )
+             << " ) are not equal to the expected values ( "
              << expectedStandardDeviationOfCoefficientOfConstantTerm
-             << ", " << expectedStandardDeviationOfCoefficientOfLinearTerm
-             << " )." << endl;
+             << ", " << expectedStandardDeviationOfCoefficientOfLinearTerm << " )." << endl;
         cerr << "Simple linear regression method failed." << endl;
     }
 
     // Check if the chi-squared value is incorrect.
-    if ( abs( simpleLinearRegression.getChiSquared( ) - expectedChiSquared )
+    if ( std::fabs( simpleLinearRegression.getChiSquared( ) - expectedChiSquared )
          / expectedChiSquared > MACHINE_PRECISION_DOUBLES )
     {
         // Set test result to true.
         isSimpleLinearRegressionErroneous = true;
 
         // Cerr statements.
-        cerr << "Computed chi-squared of linear fit ( "
-             << simpleLinearRegression.getChiSquared( ) << " ) "
-             << " is not equal to the expected value ( "
-             << expectedChiSquared << " )." << endl;
+        cerr << "Computed chi-squared of linear fit ( " << simpleLinearRegression.getChiSquared( )
+             << " ) is not equal to the expected value ( " << expectedChiSquared << " )." << endl;
         cerr << "Simple linear regression method failed." << endl;
     }
 

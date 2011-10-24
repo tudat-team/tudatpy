@@ -40,7 +40,11 @@
 #ifndef AERODYNAMICFORCE_H
 #define AERODYNAMICFORCE_H
 
-// Include statements
+// Macros.
+#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
+
+// Include statements.
+#include <iostream>
 #include "Astrodynamics/ForceModels/forceModel.h"
 #include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h"
 
@@ -83,7 +87,8 @@ public:
      * Sets the dynamic pressure.
      * \param dynamicPressure Dynamic pressure.
      */
-    void setDynamicPressure( const double& dynamicPressure ) { dynamicPressure_ = dynamicPressure; }
+    void setDynamicPressure( const double& dynamicPressure )
+    { dynamicPressure_ = dynamicPressure; }
 
     //! Get dynamic pressure.
     /*!
@@ -97,7 +102,12 @@ public:
      * Computes the aerodynamic force.
      * \param pointerToState Pointer to state.
      */
-    void computeForce( State* pointerToState );
+    void computeForce( State* pointerToState )
+    {
+        TUDAT_UNUSED_PARAMETER( pointerToState );
+        force_ = dynamicPressure_ * pointerToAerodynamicCoefficientInterface_->getReferenceArea( )
+                * pointerToAerodynamicCoefficientInterface_->getCurrentForceCoefficients( );
+    }
 
 protected:
 

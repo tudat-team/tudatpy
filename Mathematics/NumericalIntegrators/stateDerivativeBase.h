@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 1 February, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -56,12 +56,6 @@
 class StateDerivativeBase
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    StateDerivativeBase( ) { }
 
     //! Default destructor.
     /*!

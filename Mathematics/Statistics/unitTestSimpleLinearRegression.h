@@ -3,7 +3,7 @@
  *    which tests the simple linear regression method implemented in Tudat.
  *
  *    Path              : /Mathematics/Statistics/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 2 July, 2011
- *    Last modified     : 2 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -43,13 +43,6 @@
 
 #ifndef UNITTESTSIMPLELINEARREGRESSION_H
 #define UNITTESTSIMPLELINEARREGRESSION_H
-
-// Include statements.
-#include <cmath>
-#include <iostream>
-#include <map>
-#include "Mathematics/basicMathematicsFunctions.h"
-#include "Mathematics/Statistics/simpleLinearRegression.h"
 
 //! Namespace for all unit tests.
 /*!

@@ -2,7 +2,7 @@
  *    Header file that defines the tabulatedAtmosphere class included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/AtmosphereModel/
- *    Version           : 3
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
@@ -38,8 +38,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110620    F.M. Engelen      File created.
- *      110721    J. Melman         Comments, file names,
- *                                  and consistency modified.
+ *      110721    J. Melman         Comments, file names, and consistency modified.
  */
 
 #ifndef TABULATEDATMOSPHERE_H
@@ -71,14 +70,9 @@ public:
     /*!
      *  Default constructor
      */
-    TabulatedAtmosphere( )
-    { relativePath_ = "Astrodynamics/EnvironmentModels/AtmosphereModel/AtmosphereTables/"; }
-
-    //! Default destructor.
-    /*!
-     *  Default destructor.
-     */
-    ~TabulatedAtmosphere( ) { }
+    TabulatedAtmosphere( ) :
+        relativePath_( "Astrodynamics/EnvironmentModels/AtmosphereModel/AtmosphereTables/" ),
+        atmosphereTableFile_( " " ), containerOfAtmosphereTableFileData( ) { }
 
     //! Initialize atmosphere table reader.
     /*!

@@ -2,7 +2,7 @@
  *    Source file of the Newton-Raphson method implemented in Tudat.
  *
  *    Path              : /Mathematics/RootFindingMethods/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : E. Iorfida
@@ -14,7 +14,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 11 November, 2010
- *    Last modified     : 24 January, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -35,35 +35,29 @@
  *      YYMMDD    Author            Comment
  *      101111    E. Iorfida        First creation of code.
  *      101118    E. Iorfida        Added algorithm implementation.
- *      101121    E. Iorfida        Modified algorithm and added Doxygen
- *                                  comments.
+ *      101121    E. Iorfida        Modified algorithm and added Doxygen comments.
  *      101216    E. Iorfida        Modified punctuation.
- *      110111    E. Iorfida        Deleted useless lines, and modified
- *                                  punctuation.
- *      110111    K. Kumar          Updated based on changes to .h file;
- *                                  changed do-while loop to for loop to
- *                                  prevent infinite loop; added "End of file."
- *      110119    K. Kumar          Updated code to work with adaptor and
- *                                  abstract base implementation so that
- *                                  pointer-to-member functions are not
+ *      110111    E. Iorfida        Deleted useless lines, and modified punctuation.
+ *      110111    K. Kumar          Updated based on changes to .h file; changed do-while loop to
+ *                                  for loop to prevent infinite loop; added "End of file."
+ *      110119    K. Kumar          Updated code to work with adaptor and abstract base
+ *                                  implementation so that pointer-to-member functions are not
  *                                  required; changed filename.
- *      110124    K. Kumar          Added cerr statement for when loop does not
- *                                  converge.
+ *      110124    K. Kumar          Added cerr statement for when loop does not converge.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 // Include statements.
-#include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/RootFindingMethods/newtonRaphson.h"
 
 // Using statements.
 using namespace mathematics;
 using namespace std;
 
 //! Set adaptor class for Newton-Raphson.
-void NewtonRaphson::setNewtonRaphsonAdaptor( NewtonRaphsonBase*
-                                             pointerToNewtonRaphsonBase )
+void NewtonRaphson::setNewtonRaphsonAdaptor( NewtonRaphsonBase* pointerToNewtonRaphsonBase )
 {
     pointerToNewtonRaphsonBase_ = pointerToNewtonRaphsonBase;
     pointerToGlobalFunction_ = NULL;
@@ -86,15 +80,12 @@ void NewtonRaphson::execute( )
         // x_n+1 = x_n - F(x_n)/F'(x_n).
 
         // Check if necessary global mathematical functions are set.
-        if ( pointerToGlobalFunction_
-             && pointerToGlobalFirstDerivativeFunction_ )
+        if ( pointerToGlobalFunction_ && pointerToGlobalFirstDerivativeFunction_ )
         {
             // Use pointers to global functions.
             nextValueOfRoot_ = currentValueOfRoot_
-                               - ( *pointerToGlobalFunction_ )(
-                                       currentValueOfRoot_ )
-                               / ( *pointerToGlobalFirstDerivativeFunction_ )(
-                                       currentValueOfRoot_ );
+                    - ( *pointerToGlobalFunction_ )( currentValueOfRoot_ )
+                    / ( *pointerToGlobalFirstDerivativeFunction_ )( currentValueOfRoot_ );
         }
 
         // Else check if class with member mathematical functions is set.
@@ -102,11 +93,9 @@ void NewtonRaphson::execute( )
         {
             // Use pointers to member functions.
             nextValueOfRoot_ = currentValueOfRoot_
-                               - pointerToNewtonRaphsonBase_
-                               ->computeFunction( currentValueOfRoot_ )
-                               /  pointerToNewtonRaphsonBase_
-                               ->computeFirstDerivativeFunction(
-                                       currentValueOfRoot_ );
+                    - pointerToNewtonRaphsonBase_->computeFunction( currentValueOfRoot_ )
+                    /  pointerToNewtonRaphsonBase_->computeFirstDerivativeFunction(
+                        currentValueOfRoot_ );
         }
 
         // Check if difference between successive iterations of the
@@ -138,12 +127,9 @@ std::ostream& operator<<( std::ostream& stream, NewtonRaphson& newtonRaphson )
     stream << "This is a NewtonRaphson object" << endl;
     stream << "The maximum number of iterations is set to: "
            << newtonRaphson.getMaximumNumberOfIterations( )
-           << "The tolerance is set to: "
-           << newtonRaphson.getTolerance( )
-           << "The initial guess of root is set to: "
-           << newtonRaphson.initialGuessOfRoot_
-           << "The computed root is: "
-           << newtonRaphson.getComputedRootOfFunction( ) << endl;
+           << "The tolerance is set to: " << newtonRaphson.getTolerance( )
+           << "The initial guess of root is set to: " << newtonRaphson.initialGuessOfRoot_
+           << "The computed root is: " << newtonRaphson.getComputedRootOfFunction( ) << endl;
 
     // Return stream.
     return stream;

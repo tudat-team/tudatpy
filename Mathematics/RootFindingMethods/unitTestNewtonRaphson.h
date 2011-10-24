@@ -36,27 +36,20 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author              Comment
- *      110111    E. Iorfida          First creation of the code.
- *      110119    K. Kumar            Updated code to work with adaptor and
- *                                    abstract base implementation so that
- *                                    pointer-to-member functions are not
- *                                    required; filename changed.
- *      110120    E. Iorfida          Added necessary class that contains functions,
- *                                    to allow a directly test with adaptor.
- *      110120    K. Kumar            Added global mathematical function test.
+ *      YYMMDD    Author            Comment
+ *      110111    E. Iorfida        First creation of the code.
+ *      110119    K. Kumar          Updated code to work with adaptor and abstract base
+ *                                  implementation so that pointer-to-member functions are not
+ *                                  required; filename changed.
+ *      110120    E. Iorfida        Added necessary class that contains functions, to allow a
+ *                                  directly test with adaptor.
+ *      110120    K. Kumar          Added global mathematical function test.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTNEWTONRAPHSONMETHOD_H
 #define UNITTESTNEWTONRAPHSONMETHOD_H
-
-// Include statements.
-#include <cmath>
-#include "Mathematics/basicMathematicsFunctions.h"
-#include "Mathematics/RootFindingMethods/newtonRaphson.h"
-#include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 //! Namespace for all unit tests.
 /*!
@@ -65,49 +58,13 @@
 namespace unit_tests
 {
 
-//! Class for NewtonRaphson unit test code.
+//! Test of Newton-Raphson method code.
 /*!
- * This class contains functions, necessary to test NewtonRaphson method.
+ * Test of Newton-Raphson method code.
+ * \return Boolean indicating success of test
+ * ( false = successful; true = failed ).
  */
-class NewtonRaphsonTest
-{
-public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    NewtonRaphsonTest( )
-    {
-    }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    virtual ~NewtonRaphsonTest( )
-    {
-    }
-
-    //! Mathematical test function.
-    /*!
-     * Mathematical test function used by the Newton-Raphson algorithm.
-     * \param inputValue Input value.
-     */
-    double computeTestFunction( double& inputValue );
-
-    //! First-derivative of mathematical test function.
-    /*!
-     * First-derivative of mathematical test function used by the
-     * Newton-Raphson algorithm.
-     * \param inputValue Input value.
-     */
-    double computeFirstDerivativeTestFunction( double& inputValue );
-
-protected:
-
-private:
-};
+bool testNewtonRaphsonMethod( );
 
 //! Global mathematical test function.
 /*!
@@ -124,13 +81,33 @@ double computeGlobalTestFunction( double& inputValue );
  */
 double computeGlobalFirstDerivativeTestFunction( double& inputValue );
 
-//! Test of Newton-Raphson method code.
+//! Class for NewtonRaphson unit test code.
 /*!
- * Test of Newton-Raphson method code.
- * \return Boolean indicating success of test
- * ( false = successful; true = failed ).
+ * This class contains functions, necessary to test NewtonRaphson method.
  */
-bool testNewtonRaphsonMethod( );
+class NewtonRaphsonTest
+{
+public:
+
+    //! Mathematical test function.
+    /*!
+     * Mathematical test function used by the Newton-Raphson algorithm.
+     * \param inputValue Input value.
+     */
+    double computeTestFunction( double& inputValue ) { return std::pow( inputValue, 2.0 ) - 3.0; }
+
+    //! First-derivative of mathematical test function.
+    /*!
+     * First-derivative of mathematical test function used by the
+     * Newton-Raphson algorithm.
+     * \param inputValue Input value.
+     */
+    double computeFirstDerivativeTestFunction( double& inputValue ) { return 2.0 * inputValue; }
+
+protected:
+
+private:
+};
 
 }
 

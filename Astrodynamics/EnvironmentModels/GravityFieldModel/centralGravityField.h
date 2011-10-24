@@ -1,7 +1,7 @@
 /*! \file centralGravityField.h
  *    Header file that defines the central gravity field class in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Path              : /Astrodynamics/EnvironmentModels/GravityFieldModel/
  *    Version           : 2
  *    Check status      : Checked
  *
@@ -56,30 +56,7 @@ public:
      * Bodies with predefined central gravity fields.
      */
     enum BodiesWithPredefinedCentralGravityFields
-    {
-        sun,
-        mercury,
-        venus,
-        earth,
-        moon,
-        mars,
-        jupiter,
-        saturn,
-        uranus,
-        neptune
-    };
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    CentralGravityField( ){ }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~CentralGravityField( ){ }
+    { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune };
 
     //! Set predefined central gravity field settings.
     /*!
@@ -88,8 +65,7 @@ public:
      *          central gravity field.
      */
     void setPredefinedCentralGravityFieldSettings(
-        BodiesWithPredefinedCentralGravityFields
-        bodyWithPredefinedCentralGravityField );
+        BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField );
 
 protected:
 

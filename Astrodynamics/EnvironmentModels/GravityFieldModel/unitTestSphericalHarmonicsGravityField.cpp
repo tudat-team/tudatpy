@@ -2,7 +2,7 @@
  *   Source file for a unit test that tests the implementation of the spherical
  *   harmonics gravity field class in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Path              : /Astrodynamics/EnvironmentModels/GravityFieldModel/
  *    Version           : 12
  *    Check status      : Checked
  *
@@ -39,33 +39,28 @@
  *      YYMMDD    Author            Comment
  *      101215    K. Kumar          First creation of code.
  *      101216    K. Kumar          Updated to include test of getPotential().
- *      101230    K. Kumar          Updated to include test of getGradient()
- *                                  and getLaplacian().
+ *      101230    K. Kumar          Updated to include test of getGradient() and getLaplacian().
  *      110104    J. Melman         Some minor comment and layout changes.
- *      110106    K. Kumar          Updated test using predefined gravity field
- *                                  and added machine precision variable.
- *      110107    K. Kumar          Updated call to predefined gravity field.
- *                                  Updated unit test to new protocol, added
- *                                  namespace, new filename, new file location.
+ *      110106    K. Kumar          Updated test using predefined gravity field and added machine
+ *                                  precision variable.
+ *      110107    K. Kumar          Updated call to predefined gravity field. Updated unit test to
+ *                                  new protocol, added namespace, new filename, new file location.
  *      110113    K. Kumar          Added cerr statements.
  *      110115    J. Melman         Changed the error messages.
  *      110128    K. Kumar          Updated code to work with pointers.
  *      110202    K. Kumar          Updated code to work with State.
  *      110204    K. Kumar          Removed "vector" from naming.
- *      110310    K. Kumar          Changed naming from Laplacian to gradient
- *                                  tensor.
+ *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
  */
 
 // Include statements.
-#include "Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.h"
-
-// Include statements.
 #include <cmath>
-#include "basicMathematicsFunctions.h"
-#include "linearAlgebra.h"
-#include "gravityFieldModel.h"
-#include "planet.h"
-#include "sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Namespace for all unit tests.
 namespace unit_tests
@@ -83,8 +78,8 @@ bool testSphericalHarmonicsGravityField( )
 
     // Five tests.
     // Test 1: Test setting and getting gravitational parameter.
-    // Test 2: Test getting gravitational parameter for predefined Earth
-    //         central body gravity field.
+    // Test 2: Test getting gravitational parameter for predefined Earth central body gravity
+    //         field.
     // Test 3: Test getting potential given state.
     // Test 4: Test getting gradient of potential given state.
     // Test 5: Test getting gradient tensor of potential given state.
@@ -101,8 +96,7 @@ bool testSphericalHarmonicsGravityField( )
 
     // Set gravitational parameter of myPlanet.
     double gravitationalParameterOfMyPlanet = 22032.00;
-    myPlanetGravityField.setGravitationalParameter(
-            gravitationalParameterOfMyPlanet );
+    myPlanetGravityField.setGravitationalParameter( gravitationalParameterOfMyPlanet );
 
     // Set origin of gravity field of myPlanet with respect to geometric
     // center.
@@ -120,39 +114,32 @@ bool testSphericalHarmonicsGravityField( )
 
     // Create predefined Earth central gravity field.
     CentralGravityField predefinedEarthCentralGravityField;
-    predefinedEarthCentralGravityField
-            .setPredefinedCentralGravityFieldSettings(
+    predefinedEarthCentralGravityField.setPredefinedCentralGravityFieldSettings(
                 CentralGravityField::earth );
 
     // Expected test results.
     double expectedResultForTest1 = gravitationalParameterOfMyPlanet;
     double expectedResultForTest2 = 3.9859383624e+14;
     double expectedResultForTest3 = gravitationalParameterOfMyPlanet
-                                    / cartesianPosition.state.norm( );
+            / cartesianPosition.state.norm( );
     VectorXd expectedResultForTest4 =  -gravitationalParameterOfMyPlanet
-                                       / pow( cartesianPosition.state.norm( ), 3.0 )
-                                       * cartesianPosition.state;
+            / pow( cartesianPosition.state.norm( ), 3.0 ) * cartesianPosition.state;
     Matrix3d expectedResultForTest5 = gravitationalParameterOfMyPlanet
-                                      / pow( cartesianPosition.state.norm( ), 5.0 )
-                                      * ( ( 3.0 * cartesianPosition.state
-                                            * cartesianPosition.state.transpose( ) )
-                                          - ( cartesianPosition.state.squaredNorm( ) *
-                                              identityMatrix ) );
+            / pow( cartesianPosition.state.norm( ), 5.0 )
+            * ( ( 3.0 * cartesianPosition.state * cartesianPosition.state.transpose( ) )
+                - ( cartesianPosition.state.squaredNorm( ) * identityMatrix ) );
 
     // Results computed using implementation of spherical harmonics gravity
     // field class.
-    double computedResultForTest1 = myPlanetGravityField
-                                    .getGravitationalParameter( );
+    double computedResultForTest1 = myPlanetGravityField.getGravitationalParameter( );
     double computedResultForTest2 =
             predefinedEarthCentralGravityField.getGravitationalParameter( );
     double computedResultForTest3 = myPlanetGravityField.getPotential(
-            &cartesianPosition );
-    Vector3d computedResultForTest4 = myPlanetGravityField
-                                      .getGradientOfPotential(
-                                              &cartesianPosition );
-    Matrix3d computedResultForTest5 = myPlanetGravityField
-                                      .getGradientTensorOfPotential(
-                                              &cartesianPosition );
+                &cartesianPosition );
+    Vector3d computedResultForTest4 = myPlanetGravityField.getGradientOfPotential(
+                &cartesianPosition );
+    Matrix3d computedResultForTest5 = myPlanetGravityField.getGradientTensorOfPotential(
+                &cartesianPosition );
 
     // Compute differences between computed and expected results.
     VectorXd differenceBetweenResults( 5 );
@@ -161,11 +148,9 @@ bool testSphericalHarmonicsGravityField( )
     differenceBetweenResults( 0 ) = fabs( computedResultForTest1 - expectedResultForTest1 );
     differenceBetweenResults( 1 ) = fabs( computedResultForTest2 - expectedResultForTest2 );
     differenceBetweenResults( 2 ) = fabs( computedResultForTest3 - expectedResultForTest3 );
-    differenceBetweenResultsForTest4 = computedResultForTest4
-                                       - expectedResultForTest4;
+    differenceBetweenResultsForTest4 = computedResultForTest4 - expectedResultForTest4;
     differenceBetweenResults( 3 ) =  differenceBetweenResultsForTest4.norm( );
-    differenceBetweenResultsForTest5 = computedResultForTest5
-                                       - expectedResultForTest5;
+    differenceBetweenResultsForTest5 = computedResultForTest5 - expectedResultForTest5;
     differenceBetweenResults( 4 ) =  differenceBetweenResultsForTest5.norm( );
 
     // Set test result to false if the test does not match the expected result.

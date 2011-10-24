@@ -47,6 +47,7 @@
 #include "Astrodynamics/Propagators/propagator.h"
 #include "Astrodynamics/Propagators/propagatorDataContainer.h"
 #include "Astrodynamics/States/cartesianElements.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 
 //! Definition of series propagator.
 /*!

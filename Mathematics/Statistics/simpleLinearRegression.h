@@ -2,7 +2,7 @@
  *    Header file that defines the simple linear regression method in Tudat.
  *
  *    Path              : /Mathematics/Statistics/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 1 July, 2011
- *    Last modified     : 2 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -67,53 +67,39 @@ public:
     /*!
      * Default constructor.
      */
-    SimpleLinearRegression( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~SimpleLinearRegression( ) { }
+    SimpleLinearRegression( ) : chiSquared_( -0.0 ), coefficientOfConstantTerm_( -0.0 ),
+        coefficientOfLinearTerm_( -0.0 ), standardDeviationOfCoefficientOfConstantTerm_( -0.0 ),
+        standardDeviationOfCoefficientOfLinearTerm_( -0.0 ), sumOfDependentVariableData_( -0.0 ),
+        sumOfIndependentVariableData_( -0.0 ) { }
 
     //! Set input data.
     /*!
      * Sets input data to be fitted in a map.
      * \param inputDataToFit Input data to fit.
      */
-    void setInputData( const std::map< double, double >& inputDataToFit ) 
-    {
-        inputDataToFit_ = inputDataToFit;
-    }
+    void setInputData( const std::map< double, double >& inputDataToFit )
+    { inputDataToFit_ = inputDataToFit; }
 
     //! Get coefficient of constant term of fit.
     /*!
      * Returns coefficient of constant term of fit.
      * \return Coefficient of constant term.
      */
-    double& getCoefficientOfConstantTerm( ) 
-    {
-        return coefficientOfConstantTerm_;
-    }
+    double& getCoefficientOfConstantTerm( ) { return coefficientOfConstantTerm_; }
 
     //! Get coefficient of linear term of fit.
     /*!
      * Returns coefficient of linear term of fit.
      * \return Coefficient of linear term.
      */
-    double& getCoefficientOfLinearTerm( )
-    {
-        return coefficientOfLinearTerm_;
-    }
+    double& getCoefficientOfLinearTerm( ) { return coefficientOfLinearTerm_; }
 
     //! Get chi-squared value.
     /*!
      * Returns chi-squared value of fit.
      * \return Chi-squared value.
      */
-    double& getChiSquared( )
-    {
-        return chiSquared_;
-    }
+    double& getChiSquared( ) { return chiSquared_; }
 
     //! Get standard deviation of coefficient of constant term of fit.
     /*!
@@ -121,9 +107,7 @@ public:
      * \return Standard deviation of coefficient of constant term.
      */
     double& getStandardDeviationOfCoefficientOfConstantTerm( )
-    {
-        return standardDeviationOfCoefficientOfConstantTerm_;
-    }
+    { return standardDeviationOfCoefficientOfConstantTerm_; }
 
     //! Get standard deviation of coefficient of linear term of fit.
     /*!
@@ -131,9 +115,7 @@ public:
      * \return Standard deviation of coefficient of linear term.
      */
     double& getStandardDeviationOfCoefficientOfLinearTerm( )
-    {
-        return standardDeviationOfCoefficientOfLinearTerm_;
-    }
+    { return standardDeviationOfCoefficientOfLinearTerm_; }
 
     //! Compute fit.
     /*!
