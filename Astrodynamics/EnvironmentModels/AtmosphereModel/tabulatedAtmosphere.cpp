@@ -1,6 +1,5 @@
 /*! \file tabulatedAtmosphere.cpp
- *    Source file that defines the tabulated atmosphere
- *    included in Tudat.
+ *    Source file that defines the tabulated atmosphere included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/AtmosphereModel/
  *    Version           : 3
@@ -35,8 +34,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110620    F.M. Engelen      File created.
- *      110721    J. Melman         Comments, variable names,
- *                                  and consistency modified.
+ *      110721    J. Melman         Comments, variable names, and consistency modified.
  *      110722    F.M. Engelen      Removed setRelativePath function.
  */
 
@@ -85,11 +83,8 @@ void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
           iteratorContainerOfData_++ )
     {
         lineStringStream << iteratorContainerOfData_->second;
-        lineStringStream
-                >> altitudeData_( index )
-                >> densityData_( index )
-                >> pressureData_( index )
-                >> temperatureData_ ( index );
+        lineStringStream >> altitudeData_( index ) >> densityData_( index )
+                         >> pressureData_( index ) >> temperatureData_ ( index );
         index++;
     }
 

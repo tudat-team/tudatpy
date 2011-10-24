@@ -3,7 +3,7 @@
  *    in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -15,11 +15,10 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 15 May, 2011
- *    Last modified     : 15 May, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
- *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole,
- *          2001.
+ *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
  *
  *    Notes
  *
@@ -45,9 +44,7 @@
 #define UNITTESTEULERINTEGRATOR_H
 
 // Include statements.
-#include <cmath>
-#include <iostream>
-#include "Mathematics/NumericalIntegrators/euler.h"
+#include "Astrodynamics/States/state.h"
 #include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
 //! Namespace for all unit tests.

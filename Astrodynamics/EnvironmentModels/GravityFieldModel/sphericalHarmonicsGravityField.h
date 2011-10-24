@@ -2,7 +2,7 @@
  *    Header file that defines the spherical harmonics gravity field model
  *    included in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Path              : /Astrodynamics/EnvironmentModels/GravityFieldModel/
  *    Version           : 8
  *    Check status      : Checked
  *
@@ -41,25 +41,23 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      101116    K. Kumar          File created.
- *      101117    K. Kumar          Added getPotential() and
- *                                  getGradientOfPotential functions.
- *      101214    K. Kumar          Updated getGradientOfPotential() and
- *                                  getLaplacianOfPotential().
- *      110106    K. Kumar          Added order and degree of expansion
- *                                  variables and set/get functions.
- *      110202    K. Kumar          Updated code to make use of the
- *                                  CartesianPositionElements class.
+ *      101117    K. Kumar          Added getPotential() and getGradientOfPotential functions.
+ *      101214    K. Kumar          Updated getGradientOfPotential() and getLaplacianOfPotential().
+ *      110106    K. Kumar          Added order and degree of expansion variables and set/get
+ *                                  functions.
+ *      110202    K. Kumar          Updated code to make use of the CartesianPositionElements
+ *                                  class.
  *      110204    K. Kumar          Removed "vector" from naming.
- *      110310    K. Kumar          Changed naming from Laplacian to gradient
- *                                  tensor.
- *      110805    K. Kumar          Added predefined functionality with WGS-72
- *                                  and WGS-84 predefined Earth gravity fields.
+ *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
+ *      110805    K. Kumar          Added predefined functionality with WGS-72 and WGS-84
+ *                                  predefined Earth gravity fields.
  */
 
 #ifndef SPHERICALHARMONICSGRAVITYFIELD_H
 #define SPHERICALHARMONICSGRAVITYFIELD_H
 
 // Include statements.
+#include <iostream>
 #include "Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
 
 //! SphericalHarmonicsGravityField class.
@@ -75,25 +73,22 @@ public:
      * Bodies with predefined spherical harmonics gravity fields.
      */
     enum BodiesWithPredefinedSphericalHarmonicsGravityFields
-    {
-        earthWorldGeodeticSystem72,
-        earthWorldGeodeticSystem84
-    };
+    { earthWorldGeodeticSystem72, earthWorldGeodeticSystem84 };
 
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    SphericalHarmonicsGravityField( ):degreeOfExpansion_( -0 ), orderOfExpansion_( -0 ),
+    SphericalHarmonicsGravityField( ) : degreeOfExpansion_( -0 ), orderOfExpansion_( -0 ),
         referenceRadius_( -0.0 ), j2SphericalHarmonicsGravityFieldCoefficient_( -0.0 ),
         j3SphericalHarmonicsGravityFieldCoefficient_( -0.0 ),
-        j4SphericalHarmonicsGravityFieldCoefficient_( -0.0 ){ }
+        j4SphericalHarmonicsGravityFieldCoefficient_( -0.0 ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~SphericalHarmonicsGravityField( ){ }
+    virtual ~SphericalHarmonicsGravityField( ) { }
 
     //! Set predefined spherical harmonics gravity field settings.
     /*!
@@ -107,85 +102,83 @@ public:
 
     //! Set the reference radius.
     /*!
-     * Define the reference radius used for the spherical harmonics expansion
-     * in meters.
-     *  \param referenceRadius Reference radius.
+     * Sets the reference radius used for the spherical harmonics expansion in meters.
+     * \param referenceRadius Reference radius.
      */
     void setReferenceRadius( const double& referenceRadius ){ referenceRadius_ = referenceRadius; }
 
     //! Set degree of spherical harmonics gravity field expansion.
     /*!
-     * This function sets the degree of the spherical harmonics
-     * gravity field expansion.
+     * Sets the degree of the spherical harmonics gravity field expansion.
      * \param degreeOfExpansion Degree of spherical harmonics expansion.
      */
     void setDegreeOfExpansion( const unsigned int& degreeOfExpansion )
-        { degreeOfExpansion_ = degreeOfExpansion; }
+    { degreeOfExpansion_ = degreeOfExpansion; }
 
     //! Set order of spherical harmonics gravity field expansion.
     /*!
-     * This function sets the order of the spherical harmonics
-     * gravity field expansion.
+     * Sets the order of the spherical harmonics gravity field expansion.
      * \param orderOfExpansion Order of spherical harmonics expansion.
      */
     void setOrderOfExpansion( const unsigned int& orderOfExpansion )
-        { orderOfExpansion_ = orderOfExpansion; }
+    { orderOfExpansion_ = orderOfExpansion; }
 
     //! Get the reference radius.
     /*!
-     * Return the reference radius used for the spherical harmonics expansion
-     * in meters.
+     * Returns the reference radius used for the spherical harmonics expansion in meters.
      * \return Reference radius.
      */
-    double getReferenceRadius( ){ return referenceRadius_; }
+    double getReferenceRadius( ) { return referenceRadius_; }
 
     //! Get degree of spherical harmonics gravity field expansion.
     /*!
-     * This function gets the degree of the spherical harmonics
-     * gravity field expansion.
+     * Returns the degree of the spherical harmonics gravity field expansion.
      * \return Degree of spherical harmonics expansion.
      */
-    double getDegreeOfExpansion( ){ return degreeOfExpansion_; }
+    double getDegreeOfExpansion( ) { return degreeOfExpansion_; }
 
     //! Get order of spherical harmonics gravity field expansion.
     /*!
-     * This function gets the order of the spherical harmonics
-     * gravity field expansion.
+     * Returns the order of the spherical harmonics gravity field expansion.
      * \return Order of spherical harmonics expansion.
      */
-    double getOrderOfExpansion( ){ return orderOfExpansion_; }
+    double getOrderOfExpansion( ) { return orderOfExpansion_; }
 
     //! Get the gravitational potential.
     /*!
-     * Get the value of the gravitational potential, expressed in spherical
-     * harmonics for the given position.
-     * \param pointerToPosition Position given as a pointer to a
-     *          CartesianPositionElements object.
+     * Returns the value of the gravitational potential, expressed in spherical harmonics for the
+     * given position.
+     * \param pointerToPosition Position given as a pointer to a CartesianPositionElements object.
      * \return Gravitational potential.
      */
-    double getPotential( CartesianPositionElements* pointerToPosition );
+    double getPotential( CartesianPositionElements* pointerToPosition )
+    {
+        relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
+        return gravitationalParameter_ / relativePosition_.state.norm( );
+    }
 
     //! Get the gradient of the gravitational potential.
     /*!
-     * Get the value of the gradient of the gravitational potential, expressed
-     * in spherical harmonics for the given position.
-     * \param pointerToPosition Position given as a pointer to a
-     *          CartesianPositionElements object.
+     * Returns the value of the gradient of the gravitational potential, expressed in spherical
+     * harmonics for the given position.
+     * \param pointerToPosition Position given as a pointer to a CartesianPositionElements object.
      * \return Gradient of gravitational potential.
      */
-    Vector3d getGradientOfPotential( CartesianPositionElements*
-                                     pointerToPosition );
+    Vector3d getGradientOfPotential( CartesianPositionElements* pointerToPosition )
+    {
+        relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
+        return -gravitationalParameter_ * relativePosition_.state
+                / pow( relativePosition_.state.norm( ), 3.0 );
+    }
 
     //! Get gradient tensor of the gravitational potential.
     /*!
-     * Get the value of the gradient tensor of the gravitational potential
-     * expressed in spherical harmonics for the given position.
-     * \param pointerToPosition Position given as a pointer to a
-     *          CartesianPositionElements object.
+     * Returns the value of the gradient tensor of the gravitational potential expressed in
+     * spherical harmonics for the given position.
+     * \param pointerToPosition Position given as a pointer to a CartesianPositionElements object.
      * \return Gradient tensor of gravitational potential.
      */
-    Matrix3d getGradientTensorOfPotential( CartesianPositionElements*
-                                           pointerToPosition );
+    Matrix3d getGradientTensorOfPotential( CartesianPositionElements*  pointerToPosition );
 
     //! Overload ostream to print class information.
     /*!

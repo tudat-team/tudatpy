@@ -2,7 +2,7 @@
  *    Source file that defines the exponential atmosphere model included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/AtmosphereModel/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
@@ -44,7 +44,7 @@
  */
 
 // Include statements.
-#include <cmath>
+#include <iostream>
 #include "Astrodynamics/physicalConstants.h"
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h"
 
@@ -73,6 +73,7 @@ void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
         break;
 
     default:
+
         std::cerr << "This is not a body with a predefined exponential atmophere." << std::endl;
     }
 }

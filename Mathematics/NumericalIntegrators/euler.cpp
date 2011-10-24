@@ -2,7 +2,7 @@
  *    Source file that defines the Euler integrator implemented in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 8
+ *    Version           : 9
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -18,7 +18,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 30 July, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -44,13 +44,11 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      100909    K. Kumar          File header and footer added.
- *      100928    K. Kumar          Added fixed output interval option, added
- *                                  missing comments.
- *      100929    D. Dirkx          File checked, integration loop modified, as
- *                                  it was integrating one step extra.
- *      100929    K. Kumar          Minor comment modifications, modified
- *                                  integration loop to avoid problems with
- *                                  unsigned int values equally 0.
+ *      100928    K. Kumar          Added fixed output interval option, added missing comments.
+ *      100929    D. Dirkx          File checked, integration loop modified, as it was integrating
+ *                                  one step extra.
+ *      100929    K. Kumar          Minor comment modifications, modified integration loop to avoid
+ *                                  problems with unsigned int values equally 0.
  *      110201    K. Kumar          Updated code to make use of State class.
  *      110203    J. Melman         File checked.
  *      110204    K. Kumar          Added note about consolidating integrate().

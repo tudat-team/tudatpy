@@ -2,7 +2,7 @@
  *    This file contains the definition of the Surface Geometry base class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -18,7 +18,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 4 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -65,12 +65,6 @@
 class SurfaceGeometry : public GeometricShape
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    SurfaceGeometry( ) { }
 
     //! Default destructor.
     /*!

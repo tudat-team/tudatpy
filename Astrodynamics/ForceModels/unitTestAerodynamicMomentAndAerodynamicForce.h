@@ -1,6 +1,6 @@
 /*! \file unitTestAerodynamicMomentAndAerodynamicForce.h
-*    This header file contains the unit test for aerodynamic forces model
-*    and aerodynamic moment model included in Tudat.
+*    This header file contains the unit test for aerodynamic forces model and aerodynamic moment
+*    model included in Tudat.
 *
 *    Path              : /Astrodynamics/ForceModels/
 *    Version           : 2

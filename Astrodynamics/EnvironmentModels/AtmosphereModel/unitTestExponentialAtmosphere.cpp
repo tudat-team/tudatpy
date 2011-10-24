@@ -2,7 +2,7 @@
  *    Source file that defines the exponential atmosphere unit test included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/AtmosphereModel/
- *    Version           : 2
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 16 March, 2011
- *    Last modified     : 29 June, 2011
+ *    Last modified     : 5 July, 2011
  *
  *    References
  *
@@ -42,6 +42,7 @@
 
 // Include statements.
 #include <cmath>
+#include <iostream>
 #include "Astrodynamics/physicalConstants.h"
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h"
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.h"
@@ -124,13 +125,14 @@ bool testExponentialAtmosphere( )
     // Test 3: Test exponential atmosphere at 10 km altitude.
     // Check whether the atmosphere is calculated correctly at 10 km.
     // The given value for pressure was calculated off-line with a calculator.
-    altitude = 10.0e3 ;
+    altitude = 10.0e3;
 
     // Also use longitude and latitude to check overloading.
     double longitude = 0.0;
     double latitude = 0.0;
 
-    double expectedDensity  = densityAtZeroAltitude * exp ( - altitude / scaleHeight );
+    // Declare and set expected density.
+    double expectedDensity  = densityAtZeroAltitude * std::exp ( -altitude / scaleHeight );
 
     if ( fabs( ( exponentialAtmosphere.getTemperature( altitude, longitude, latitude )
                  - constantTemperature ) / constantTemperature ) > MACHINE_PRECISION_DOUBLES

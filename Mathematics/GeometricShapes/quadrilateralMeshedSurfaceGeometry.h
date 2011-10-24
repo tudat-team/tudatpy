@@ -3,7 +3,7 @@
  *    geometry class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 1
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 6 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      An example of a heritage code which uses such a mesh is found in:
@@ -70,7 +70,9 @@ public:
     /*!
      * Default constructor.
      */
-    QuadrilateralMeshedSurfaceGeometry( );
+    QuadrilateralMeshedSurfaceGeometry( ) : numberOfLines_( -0 ), numberOfPoints_( -0 ),
+        reversalOperator_( 1 ), meshPoints_( NULL ), panelCentroids_( NULL ),
+        panelSurfaceNormals_( NULL ), panelAreas_( NULL ), totalArea_( -0.0 ) { }
 
     //! Default destructor.
     /*!
@@ -78,99 +80,82 @@ public:
      */
     virtual ~QuadrilateralMeshedSurfaceGeometry( );
 
-    //! Function to calculate panel characteristics.
+    //! Calculate panel characteristics.
     /*!
-     * This function calculates the normal, centroid and area of panels in mesh.
+     * Calculates the normal, centroid and area of panels in mesh.
      */
     void performPanelCalculations( );
 
-    //! Function to retrieve a surface point.
+    //! Get surface point.
     /*!
-     * Function to retrieve a surface point.
+     * Returns a surface point.
      * \param lineIndex Line on which to retrieve point.
      * \param pointIndex Point from line to retrieve.
      * \return Surface point.
      */
     Vector3d getMeshPoint( const int& lineIndex, const int& pointIndex )
-    {
-        return meshPoints_[ lineIndex ][ pointIndex ];
-    }
+    { return meshPoints_[ lineIndex ][ pointIndex ]; }
 
-    //! Function to retrieve a panel area.
+    //! Get panel area.
     /*!
-     * Function to retrieve a panel area.
+     * Returns a panel area.
      * \param lineIndex Line of panels from which to retrieve.
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel area
      */
     double getPanelArea( const int& lineIndex, const int& pointIndex )
-    {
-        return panelAreas_[ lineIndex ][ pointIndex ];
-    }
+    { return panelAreas_[ lineIndex ][ pointIndex ]; }
 
-    //! Function to retrieve a panel centroid.
+    //! Get panel centroid.
     /*!
-     * Function to retrieve a panel centroid.
+     * Returns a panel centroid.
      * \param lineIndex Line of panels from which to retrieve.
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel centroid.
      */
     Vector3d getPanelCentroid( const int& lineIndex, const int& pointIndex )
-    {
-        return panelCentroids_[ lineIndex ][ pointIndex ];
-    }
+    { return panelCentroids_[ lineIndex ][ pointIndex ]; }
 
-    //! Function to retrieve an outward panel surface normal
+    //! Get outward panel surface normal.
     /*!
-     * Function to retrieve an outward panel surface normal.
+     * Returns an outward panel surface normal.
      * \param lineIndex Line of panels from which to retrieve.
      * \param pointIndex Point from line from which to retrieve.
      * \return Outward panel surface normal.
      */
     Vector3d getPanelSurfaceNormal( const int& lineIndex, const int& pointIndex )
-    {
-        return panelSurfaceNormals_[ lineIndex ][ pointIndex ];
-    }
+    { return panelSurfaceNormals_[ lineIndex ][ pointIndex ]; }
 
-    //! Function to retrieve number of lines.
+    //! Get number of lines.
     /*!
-     * Function to retrieve number of lines.
+     * Returns number of lines.
      * \return Number of lines on mesh.
      */
-    int getNumberOfLines( )
-    {
-        return numberOfLines_;
-    }
+    int getNumberOfLines( ) { return numberOfLines_; }
 
-    //! Function to retrieve number of points.
+    //! Get number of points.
     /*!
-     * Function to retrieve number of points.
+     * Returns number of points.
      * \return Number of points on mesh.
      */
-    int getNumberOfPoints( )
-    {
-        return numberOfPoints_;
-    }
+    int getNumberOfPoints( ) { return numberOfPoints_; }
 
-    //! Returns the total area of the mesh.
+    //! Get total area of the mesh.
     /*!
      * Returns the total area of the mesh.
      * \return Total mesh area.
      */
-    double getTotalArea( )
-    {
-        return totalArea_;
-    }
+    double getTotalArea( ) { return totalArea_; }
 
-    //! Sets reversal operator.
+    //! Set reversal operator.
     /*!
-     * Function set if the panels in the mesh are to be inverted.
+     * Sets if the panels in the mesh are to be inverted.
      * \param isMeshInverted Boolean to denote whether the mesh panels are to
      * be inverted.
      */
     void setReversalOperator( bool isMeshInverted );
 
-    //! Returns a boolean denoting if the mesh is inverted.
+    //! Get boolean denoting if the mesh is inverted.
     /*!
      * Returns a boolean denoting if the mesh is inverted.
      * \return Boolean which is true if mesh is inverted, false if not.

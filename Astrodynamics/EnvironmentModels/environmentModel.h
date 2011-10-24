@@ -41,10 +41,6 @@
 #ifndef ENVIRONMENTMODEL_H
 #define ENVIRONMENTMODEL_H
 
-// Include statements.
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
-#include "Mathematics/basicMathematicsFunctions.h"
-
 //! EnvironmentModel class.
 /*!
  * Base class for all environment models included in Tudat.
@@ -52,12 +48,6 @@
 class EnvironmentModel
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    EnvironmentModel( ){}
 
     //! Default destructor.
     /*!

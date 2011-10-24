@@ -2,7 +2,7 @@
  *    Header file that defines the baseclass atmosphere model included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/AtmosphereModel/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
@@ -18,7 +18,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 10 March, 2011
- *    Last modified     : 05 July, 2011
+ *    Last modified     : 5 July, 2011
  *
  *    References
  *
@@ -52,7 +52,8 @@
 #include "Astrodynamics/EnvironmentModels/environmentModel.h"
 
 //! Atmosphere model class.
-/*! Base class for all atmosphere models.
+/*!
+ * Base class for all atmosphere models.
  * To keep the function generic for both reference atmospheres and standard
  * atmospheres, altitude, longitude, latitude, and time are inputs for all functions.
  */
@@ -60,12 +61,6 @@
 class AtmosphereModel : public EnvironmentModel
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    AtmosphereModel( ){ }
 
     //! Default destructor.
     /*!
@@ -75,45 +70,39 @@ public:
 
     //! Get local density.
     /*!
-    * Return the local density parameter of the atmosphere in kg per meter^3.
+    * Returns the local density parameter of the atmosphere in kg per meter^3.
     * \param altitude Altitude.
     * \param longitude Longitude.
     * \param latitude Latitude.
     * \param time Time.
     * \return Atmospheric density.
     */
-    virtual double getDensity( const double& altitude,
-                               const double& longitude,
-                               const double& latitude,
-                               const double& time ) = 0;
+    virtual double getDensity( const double& altitude, const double& longitude,
+                               const double& latitude, const double& time ) = 0;
 
     //! Get local pressure.
     /*!
-    * Return the local pressure of the atmosphere parameter in Newton per meter^2.
+    * Returns the local pressure of the atmosphere parameter in Newton per meter^2.
     * \param altitude Altitude.
     * \param longitude Longitude.
     * \param latitude Latitude.
     * \param time Time.
     * \return Atmospheric pressure.
     */
-    virtual double getPressure( const double& altitude,
-                                const double& longitude,
-                                const double& latitude,
-                                const double& time ) = 0;
+    virtual double getPressure( const double& altitude, const double& longitude,
+                                const double& latitude, const double& time ) = 0;
 
     //! Get local temperature.
     /*!
-    * Return the local temperature of the atmosphere parameter in Kelvin.
+    * Returns the local temperature of the atmosphere parameter in Kelvin.
     * \param altitude Altitude.
     * \param longitude Longitude.
     * \param latitude Latitude.
     * \param time Time.
     * \return Atmospheric temperature.
     */
-    virtual double getTemperature( const double& altitude,
-                                   const double& longitude,
-                                   const double& latitude,
-                                   const double& time ) = 0;
+    virtual double getTemperature( const double& altitude, const double& longitude,
+                                   const double& latitude, const double& time ) = 0;
 
 protected:
 

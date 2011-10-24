@@ -42,18 +42,13 @@
 //! Set predefined planet settings.
 void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 {
-    // Using declarations.
-    using std::cerr;
-    using std::endl;
-
     // Select predefined planet.
     switch( predefinedPlanet )
     {
     case sun:
 
         // Set predefined Sun central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::sun );
 
         break;
@@ -61,124 +56,106 @@ void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
     case mercury:
 
         // Set predefined Mercury central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::mercury );
 
         // Set Mercury as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::mercury );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::mercury );
 
         break;
 
     case venus:
 
         // Set predefined Venus central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::venus );
 
         // Set Venus as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::venus );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::venus );
 
         break;
 
     case earth:
 
         // Set predefined Earth central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::earth );
 
         // Set Earth as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::earthMoonBarycenter );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::earthMoonBarycenter );
 
         break;
 
     case moon:
 
         // Set predefined Moon central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::moon );
 
         // Set Moon as body for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::earthMoonBarycenter );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::earthMoonBarycenter );
 
         break;
 
     case mars:
 
         // Set predefined Mars central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::mars );
 
         // Set Mars as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::mars );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::mars );
 
         break;
 
     case jupiter:
 
         // Set predefined Jupiter central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::jupiter );
 
         // Set Jupiter as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::jupiter );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::jupiter );
 
         break;
 
     case saturn:
 
         // Set predefined Saturn central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::saturn );
 
         // Set Saturn as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::saturn );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::saturn );
 
         break;
 
     case uranus:
 
         // Set predefined Uranus central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::uranus );
 
         // Set Uranus as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::uranus );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::uranus );
 
         break;
 
     case neptune:
 
         // Set predefined Neptune central gravity field.
-        predefinedCentralGravityField_
-                .setPredefinedCentralGravityFieldSettings(
+        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
                     CentralGravityField::neptune );
 
         // Set Neptune as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet(
-                ApproximatePlanetPositions::neptune );
+        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::neptune );
 
         break;
 
     default:
 
         // Print cerr statement.
-        cerr << "Desired predefined planet does not exist." << endl;
+        std::cerr << "Desired predefined planet does not exist." << std::endl;
     };
 
     // Set gravity model to predefined central gravity field.

@@ -53,10 +53,12 @@
 #define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
 
 // Include statements.
+#include <cmath>
 #include "Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h"
 
 //! Exponential atmosphere class.
-/*! Class with an exponential atmosphere. The user has to initialize this class
+/*!
+ * Class with an exponential atmosphere. The user has to initialize this class
  * with a scale altitude, a density at zero meters altitude and a constant
  * temperature. The density is determined by \f$ \rho = \rho_0 e^{-h/H} \f$, with \f$ \rho_0 \f$
  * the density at zero altitude, \f$ h \f$ the altitude, and \f$ H \f$ the scaling
@@ -66,14 +68,12 @@
 class ExponentialAtmosphere : public AtmosphereModel
 {
 public:
+
     //! Bodies with predefined exponential atmospheres.
     /*!
      *  Bodies with predefined exponential atmospheres.
      */
-    enum BodiesWithPredefinedExponentialAtmospheres
-    {
-        earth
-    };
+    enum BodiesWithPredefinedExponentialAtmospheres { earth };
 
     //! Default constructor.
     /*!
@@ -81,12 +81,6 @@ public:
      */
     ExponentialAtmosphere( ) : scaleHeight_( -0.0 ), constantTemperature_( -0.0 ),
         densityAtZeroAltitude_( -0.0 ), specificGasConstant_( -0.0 ) { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ExponentialAtmosphere( ) { }
 
     //! Set predefined exponential atmosphere settings.
     /*!
@@ -99,47 +93,46 @@ public:
 
     //! Set scale height.
     /*!
-     * Set scale height (property of exponential atmosphere) in meters.
+     * Sets the scale height (property of exponential atmosphere) in meters.
      */
     void setScaleHeight( const double& scaleHeight ) { scaleHeight_ = scaleHeight; }
 
     //! Get scale height.
     /*!
-     * Get scale height (property of exponential atmosphere) in meters.
+     * Returns the scale height (property of exponential atmosphere) in meters.
      */
     double getScaleHeight( ) { return scaleHeight_; }
 
     //! Set density at zero altitude.
     /*!
-     * Set density at zero altitude (property of exponential atmosphere) in kg per meter^3.
+     * Sets the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
     void setDensityAtZeroAltitude( const double& densityAtZeroAltitude )
     { densityAtZeroAltitude_ = densityAtZeroAltitude; }
 
     //! Get density at zero altitude.
     /*!
-     * Get density at zero altitude (property of exponential atmosphere) in kg per meter^3.
+     * Returns the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
     double getDensityAtZeroAltitude( ) { return densityAtZeroAltitude_; }
 
     //! Set constant temperature.
     /*!
-     * Set the atmospheric temperature (constant, property of exponential atmosphere)
-     * in Kelvin.
+     * Sets the atmospheric temperature (constant, property of exponential atmosphere) in Kelvin.
      */
     void setConstantTemperature( const double& constantTemperature )
     { constantTemperature_ = constantTemperature; }
 
     //! Get constant temperature.
     /*!
-     * Get the atmospheric temperature (constant, property of exponential atmosphere)
-     * in Kelvin.
+     * Returns the atmospheric temperature (constant, property of exponential atmosphere) in
+     * Kelvin.
      */
     double getConstantTemperature( ) { return constantTemperature_; }
 
     //! Set specific gas constant.
     /*!
-     * Set the specific gas constant of the air in J/(kg K), its value is assumed constant,
+     * Sets the specific gas constant of the air in J/(kg K), its value is assumed constant,
      * due to the assumption of constant atmospheric composition.
      */
     void setSpecificGasConstant( const double& specificGasConstant )
@@ -147,44 +140,40 @@ public:
 
     //! Get specific gas constant.
     /*!
-     * Get the specific gas constant of the air in J/(kg K), its value is assumed constant,
+     * Returns the specific gas constant of the air in J/(kg K), its value is assumed constant,
      * due to the assumption of constant atmospheric composition.
      */
     double getSpecificGasConstant( ) { return specificGasConstant_; }
 
     //! Get local density.
     /*!
-     * Return the local density of the atmosphere in kg per meter^3.
+     * Returns the local density of the atmosphere in kg per meter^3.
      * \param altitude Altitude.
      * \param longitude Longitude.
      * \param latitude Latitude.
      * \param time Time.
      * \return Atmospheric density.
      */
-    double getDensity( const double& altitude,
-                       const double& longitude = 0.0,
-                       const double& latitude = 0.0,
-                       const double& time = 0.0 )
+    double getDensity( const double& altitude, const double& longitude = 0.0,
+                       const double& latitude = 0.0, const double& time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
-        return densityAtZeroAltitude_ * exp( - altitude / scaleHeight_ );
+        return densityAtZeroAltitude_ * std::exp( -altitude / scaleHeight_ );
     }
 
     //! Get local pressure.
     /*!
-     * Return the local pressure of the atmosphere in Newton per meter^2.
+     * Returns the local pressure of the atmosphere in Newton per meter^2.
      * \param altitude Altitude.
      * \param longitude Longitude.
      * \param latitude Latitude.
      * \param time Time.
      * \return Atmospheric pressure.
      */
-    double getPressure( const double& altitude,
-                        const double& longitude = 0.0,
-                        const double& latitude = 0.0,
-                        const double& time = 0.0 )
+    double getPressure( const double& altitude, const double& longitude = 0.0,
+                        const double& latitude = 0.0, const double& time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -194,17 +183,15 @@ public:
 
     //! Get local temperature.
     /*!
-     * Return the local temperature of the atmosphere in Kelvin.
+     * Returns the local temperature of the atmosphere in Kelvin.
      * \param altitude Altitude.
      * \param longitude Longitude.
      * \param latitude Latitude.
      * \param time Time.
      * \return Atmospheric temperature.
      */
-    double getTemperature( const double& altitude,
-                           const double& longitude = 0.0,
-                           const double& latitude = 0.0,
-                           const double& time = 0.0 )
+    double getTemperature( const double& altitude, const double& longitude = 0.0,
+                           const double& latitude = 0.0, const double& time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
@@ -225,8 +212,7 @@ private:
 
     //! Constant temperature.
     /*!
-     * The atmospheric temperature (constant, property of exponential atmosphere)
-     * in Kelvin.
+     * The atmospheric temperature (constant, property of exponential atmosphere) in Kelvin.
      */
     double constantTemperature_;
 
@@ -238,8 +224,8 @@ private:
 
     //! Specific gas constant.
     /*!
-     * Specific gas constant of the air, its value is assumed constant,
-     * due to the assumption of constant atmospheric composition.
+     * Specific gas constant of the air, its value is assumed constant, due to the assumption of
+     * constant atmospheric composition.
      */
     double specificGasConstant_;
 };

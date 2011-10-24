@@ -40,9 +40,9 @@
 #define PLANET_H
 
 // Include statements.
-#include "States/approximatePlanetPositions.h"
-#include "Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
 #include "Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.h"
+#include "Astrodynamics/States/approximatePlanetPositions.h"
 
 //! Planet class.
 /*!
@@ -57,30 +57,7 @@ public:
      * Predefined planets.
      */
     enum PredefinedPlanets
-    {
-        sun,
-        mercury,
-        venus,
-        earth,
-        moon,
-        mars,
-        jupiter,
-        saturn,
-        uranus,
-        neptune
-    };
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    Planet( ) { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~Planet( ) { }
+    { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune };
 
     //! Set predefined planet settings.
     /*!

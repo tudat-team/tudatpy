@@ -40,22 +40,18 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      100908    K. Kumar          File header and footer added.
- *      100926    K. Kumar          Added computeStateDerivatives( ) function
- *                                  and other modifications for pointer-to-
- *                                  member-function solution.
+ *      100926    K. Kumar          Added computeStateDerivatives( ) function and other
+ *                                  modifications for pointer-to-member-function solution.
  *      100928    K. Kumar          Added missing comments.
  *      100929    D. Dirkx          File checked.
  *      100929    K. Kumar          Minor comment modifications.
- *      110201    K. Kumar          Updated code to make use of State class;
- *                                  implemented adaptor class to replace
- *                                  pointer-to-member functions.
+ *      110201    K. Kumar          Updated code to make use of State class; implemented adaptor
+ *                                  class to replace pointer-to-member functions.
  *      110203    J. Melman         Some minor comment corrections.
- *      110204    K. Kumar          Added note about stepsize and order
- *                                  selection.
+ *      110204    K. Kumar          Added note about stepsize and order selection.
  *      110207    K. Kumar          Path changed.
- *      110516    K. Kumar          Changed architecture so adaptor is not
- *                                  used. Global functions can no longer be
- *                                  used. StateDerivativeBase used to define
+ *      110516    K. Kumar          Changed architecture so adaptor is not used. Global functions
+ *                                  can no longer be used. StateDerivativeBase used to define
  *                                  classes with state derivative function.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
@@ -111,8 +107,7 @@ void Integrator::setIntegrationIntervalStart( const double& integrationIntervalS
     // Set start of integration interval.
     integrationIntervalStart_ = integrationIntervalStart;
 
-    // Set boolean flag to check if start of integration interval is set to
-    // true.
+    // Set boolean flag to check if start of integration interval is set to true.
     isIntegrationIntervalStartSet_ = true;
 
     // Compute internal derived integration parameters.

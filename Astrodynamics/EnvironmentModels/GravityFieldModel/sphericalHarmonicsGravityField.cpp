@@ -2,7 +2,7 @@
  *    Source file that defines the spherical harmonics gravity field model
  *    included in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Path              : /Astrodynamics/EnvironmentModels/GravityFieldModel/
  *    Version           : 9
  *    Check status      : Checked
  *
@@ -38,27 +38,23 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      101117    K. Kumar          File created.
- *      101214    K. Kumar          Updated getGradientOfPotential() and
- *                                  getLaplacianOfPotential().
+ *      101214    K. Kumar          Updated getGradientOfPotential() and getLaplacianOfPotential().
  *      101215    K. Kumar          Simplified getGradientOfPotential() and
  *                                  getLaplacianOfPotential().
- *      101216    K. Kumar          Updated functions to use position
- *                                  of origin for relative position.
- *      110106    K. Kumar          Added set/get functions for degree and
- *                                  order of expansion.
- *      110202    K. Kumar          Updated code to make use of the
- *                                  CartesianPositionElements class.
+ *      101216    K. Kumar          Updated functions to use position of origin for relative
+ *                                  position.
+ *      110106    K. Kumar          Added set/get functions for degree and order of expansion.
+ *      110202    K. Kumar          Updated code to make use of the CartesianPositionElements
+ *                                  class.
  *      110204    K. Kumar          Removed "vector" from naming.
- *      110310    K. Kumar          Changed naming from Laplacian to gradient
- *                                  tensor.
- *      110805    K. Kumar          Added predefined functionality with WGS-72
- *                                  and WGS-84 predefined Earth gravity fields.
+ *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
+ *      110805    K. Kumar          Added predefined functionality with WGS-72 and WGS-84 predefined
+ *                                  predefined Earth gravity fields.
  */
 
 // Include statements.
 #include <cmath>
-#include <iostream>
-#include "sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h"
 
 // Using declarations.
 using std::endl;
@@ -118,31 +114,8 @@ void SphericalHarmonicsGravityField::setPredefinedSphericalHarmonicsGravityField
     default:
 
         // Print cerr statement.
-        cerr << "Desired predefined spherical harmonics gravity field does not exist."
-             << endl;
+        cerr << "Desired predefined spherical harmonics gravity field does not exist." << endl;
     };
-}
-
-//! Get the gravitational potential.
-double SphericalHarmonicsGravityField::getPotential( CartesianPositionElements* pointerToPosition )
-{
-    // Compute relative position.
-    relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
-
-    // Return the gravitational potential for a point mass.
-    return gravitationalParameter_ / relativePosition_.state.norm( );
-}
-
-//! Get the gradient of the gravitational potential.
-Vector3d SphericalHarmonicsGravityField::getGradientOfPotential(
-        CartesianPositionElements* pointerToPosition )
-{
-    // Compute relative position.
-    relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
-
-    // Compute and return gradient of potential.
-    return -gravitationalParameter_ * relativePosition_.state
-            / pow( relativePosition_.state.norm( ), 3.0 );
 }
 
 //! Get gradient tensor of the gravitational potential.

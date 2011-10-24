@@ -2,7 +2,7 @@
  *    This file contains the definition of the Sphere Segment class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -18,7 +18,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 9 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -38,15 +38,12 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      100910    D. Dirkx          First version of file.
- *      100915    D. Dirkx          Modified to correct comments, 80-lines
- *                                  rule, etc.
- *      100928    D. Dirkx          Modifications following first checking
- *                                  iteration.
+ *      100915    D. Dirkx          Modified to correct comments, 80-lines rule, etc.
+ *      100928    D. Dirkx          Modifications following first checking iteration.
  *      100929    D. Dirkx          Creation of separate file for class.
- *      101125    D. Dirkx          Update of class, better get and set
- *                                  functions.
- *      110208    K. Kumar          Updated file header; Doxygen comments
- *                                  corrected; minor changes to functions.
+ *      101125    D. Dirkx          Update of class, better get and set functions.
+ *      110208    K. Kumar          Updated file header; Doxygen comments corrected; minor changes
+ *                                  to functions.
  *      110209    D. Dirkx          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
@@ -76,13 +73,7 @@ public:
     /*!
      *  Default constructor.
      */
-    SphereSegment( )  : radius_( -0.0 )  { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~SphereSegment( ) { }
+    SphereSegment( ) : radius_( -0.0 )  { }
 
     //! Get surface point on sphere segment.
     /*!
@@ -95,8 +86,7 @@ public:
      * \param zenithAngle Zenith angle.
      * \return Surface point on sphere.
      */
-    VectorXd getSurfacePoint( const double& azimuthAngle,
-                              const double& zenithAngle );
+    VectorXd getSurfacePoint( const double& azimuthAngle, const double& zenithAngle );
 
     //! Get surface derivative on sphere segment.
     /*!
@@ -115,14 +105,13 @@ public:
      *          zenith angle.
      * \return Surface derivative on sphere.
      */
-    VectorXd getSurfaceDerivative( const double& azimuthAngle,
-                                   const double& zenithAngle,
+    VectorXd getSurfaceDerivative( const double& azimuthAngle, const double& zenithAngle,
                                    const int& powerOfZenithAngleDerivative,
                                    const int& powerOfAzimuthAngleDerivative );
 
     //! Get parameter of sphere segment.
     /*!
-     * Retrieves a parameter of the sphere segment.
+     * Returns a parameter of the sphere segment.
      * Function uses parameter_ member variable to prevent multiple
      * declarations.
      * \param index Index of parameter to return ( index = 0: returns radius ).
@@ -141,23 +130,17 @@ public:
 
     //! Get radius.
     /*!
-     * Retrieves the radius of the sphere segment.
+     * Returns the radius of the sphere segment.
      * \return Radius of the sphere segment.
      */
-    double& getRadius( )
-    {
-         return radius_;
-    }
+    double& getRadius( ) { return radius_; }
 
     //! Set radius.
     /*!
      * Sets the radius of the sphere segment.
      * \param radius Radius of sphere segment.
      */
-    void setRadius( const double& radius )
-    {
-        radius_ = radius;
-    }
+    void setRadius( const double& radius ) { radius_ = radius; }
 
     //! Set maximum value of azimuth angle.
     /*!
@@ -165,9 +148,7 @@ public:
      * \param maximumAzimuthAngle Maximum value of azimuth angle.
      */
     void setMaximumAzimuthAngle( const double& maximumAzimuthAngle )
-    {
-        setMaximumIndependentVariable( 1, maximumAzimuthAngle );
-    }
+    { setMaximumIndependentVariable( 1, maximumAzimuthAngle ); }
 
     //! Set minimum value of azimuth angle.
     /*!
@@ -175,9 +156,7 @@ public:
      * \param minimumAzimuthAngle Minimum value of azimuth angle.
      */
     void setMinimumAzimuthAngle( const double& minimumAzimuthAngle )
-    {
-        setMinimumIndependentVariable( 1, minimumAzimuthAngle );
-    }
+    { setMinimumIndependentVariable( 1, minimumAzimuthAngle ); }
     
     //! Set maximum value of zenith angle.
     /*!
@@ -185,9 +164,7 @@ public:
      * \param maximumZenithAngle Maximum value of zenith angle.
      */
     void setMaximumZenithAngle( const double& maximumZenithAngle )
-    {
-        setMaximumIndependentVariable( 2, maximumZenithAngle );
-    }
+    { setMaximumIndependentVariable( 2, maximumZenithAngle ); }
     
     //! Set minimum value of zenith angle.
     /*!
@@ -195,49 +172,35 @@ public:
      * \param minimumZenithAngle Minimum value of zenith angle.
      */
     void setMinimumZenithAngle( const double& minimumZenithAngle )
-    {
-        setMinimumIndependentVariable( 2, minimumZenithAngle );
-    }
+    { setMinimumIndependentVariable( 2, minimumZenithAngle ); }
     
     //! Get maximum value of azimuth angle.
     /*!
      * Returns the maximum values of the azimuth angle.
      * \return Maximum value of azimuth angle.
      */
-    double getMaximumAzimuthAngle( )
-    {
-        return maximumIndependentVariable1_;
-    }
+    double getMaximumAzimuthAngle( ) { return maximumIndependentVariable1_; }
 
     //! Get minimum value of azimuth angle.
     /*!
      * Returns the minimum value of the azimuth angle.
      * \return Minimum value of azimuth angle.
      */
-    double getMinimumAzimuthAngle( )
-    {
-        return minimumIndependentVariable1_;
-    }
+    double getMinimumAzimuthAngle( ) { return minimumIndependentVariable1_; }
     
     //! Get maximum value of zenith angle.
     /*!
      * Returns the maximum value of the zenith angle.
      * \return Maximum value of zenith angle.
      */
-    double getMaximumZenithAngle( )
-    {
-        return maximumIndependentVariable2_;
-    }
+    double getMaximumZenithAngle( ) {  return maximumIndependentVariable2_; }
     
     //! Get minimum value of the zenith angle.
     /*!
      * Returns the minimum value of the zenith.
      * \return Minimum value of zenith angle.
      */
-    double getMinimumZenithAngle( )
-    {
-        return minimumIndependentVariable2_;
-    }
+    double getMinimumZenithAngle( ) { return minimumIndependentVariable2_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -247,8 +210,7 @@ public:
      * \param sphereSegment Sphere segment.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     SphereSegment& sphereSegment );
+    friend std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment );
 
 protected:
 

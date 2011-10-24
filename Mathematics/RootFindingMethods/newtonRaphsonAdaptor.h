@@ -65,13 +65,8 @@ public:
     /*!
      * Default constructor.
      */
-    NewtonRaphsonAdaptor( ){ };
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~NewtonRaphsonAdaptor( ){ };
+    NewtonRaphsonAdaptor( ) : pointerToTClass_( NULL ), pointerToFunction_( NULL ),
+        pointerToFirstDerivativeFunction_( NULL ) { }
 
     //! Compute mathematical function.
     /*!
@@ -160,11 +155,9 @@ double NewtonRaphsonAdaptor< TClass >::computeFunction( double& inputValue )
 
 //! Compute first-derivative mathematical function.
 template < class TClass >
-double NewtonRaphsonAdaptor< TClass >::
-        computeFirstDerivativeFunction( double& inputValue )
+double NewtonRaphsonAdaptor< TClass >::computeFirstDerivativeFunction( double& inputValue )
 {
-    return ( pointerToTClass_
-             ->*pointerToFirstDerivativeFunction_ )( inputValue );
+    return ( pointerToTClass_->*pointerToFirstDerivativeFunction_ )( inputValue );
 }
 
 //! Set class that contains mathematical functions.
@@ -176,17 +169,15 @@ void NewtonRaphsonAdaptor< TClass >::setClass( TClass* pointerToClass )
 
 //! Set pointer to mathematical function contained in target class.
 template < class TClass >
-void NewtonRaphsonAdaptor< TClass >::
-        setPointerToFunction( pointerToTClassMemberFunction function )
+void NewtonRaphsonAdaptor< TClass >::setPointerToFunction( pointerToTClassMemberFunction function )
 {
     pointerToFunction_ = function;
 }
 
 //! Set pointer to first-derivative mathematical function in target class.
 template < class TClass >
-void NewtonRaphsonAdaptor< TClass >::
-        setPointerToFirstDerivativeFunction( pointerToTClassMemberFunction
-                                             firstDerivativeFunction )
+void NewtonRaphsonAdaptor< TClass >::setPointerToFirstDerivativeFunction(
+    pointerToTClassMemberFunction firstDerivativeFunction )
 {
     pointerToFirstDerivativeFunction_ = firstDerivativeFunction;
 }

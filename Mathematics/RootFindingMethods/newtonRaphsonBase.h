@@ -48,17 +48,11 @@ class NewtonRaphsonBase
 {
 public:
 
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    NewtonRaphsonBase( ){ };
-
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~NewtonRaphsonBase( ){ };
+    virtual ~NewtonRaphsonBase( ) { }
 
     //! Compute mathematical function value.
     /*!

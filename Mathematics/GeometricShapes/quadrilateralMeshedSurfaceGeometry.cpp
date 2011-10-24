@@ -3,7 +3,7 @@
  *    Geometry class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -15,7 +15,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 25 November, 2010
- *    Last modified     : 6 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      An example of a heritage code which uses such a mesh is found in:
@@ -30,7 +30,7 @@
  *
  *      The numberOfLines_ and numberOfPoints_ member variables denote the
  *      number of mesh points. The number of panels in the mesh will be
- *      numberOfLines_  - 1 by numberOfPoints_ -1.
+ *      numberOfLines_ - 1 by numberOfPoints_ - 1.
  *
  *    Copyright (c) 2010-2011 Delft University of Technology.
  *
@@ -53,16 +53,8 @@
  */
 
 // Include statements.
-#include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-
-//! Default constructor.
-QuadrilateralMeshedSurfaceGeometry::QuadrilateralMeshedSurfaceGeometry( ) :
-        numberOfLines_( -0 ), numberOfPoints_( -0 ), reversalOperator_( 1 ),
-        meshPoints_( NULL ), panelCentroids_( NULL ),
-        panelSurfaceNormals_( NULL ), panelAreas_( NULL ), totalArea_( -0.0 )
-{
-}
+#include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
 
 //! Default destructor.
 QuadrilateralMeshedSurfaceGeometry::~QuadrilateralMeshedSurfaceGeometry( )
@@ -97,7 +89,7 @@ QuadrilateralMeshedSurfaceGeometry::~QuadrilateralMeshedSurfaceGeometry( )
     panelAreas_ = NULL;
 }
 
-//! Function to calculate panel characteristics.
+//! Calculate panel characteristics.
 void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
 {
     // Allocate memory for panel properties.
@@ -159,39 +151,40 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
     }
 }
 
-//! Sets reversal operator.
-void QuadrilateralMeshedSurfaceGeometry::setReversalOperator(
-        bool isMeshInverted )
+//! Set reversal operator.
+void QuadrilateralMeshedSurfaceGeometry::setReversalOperator( bool isMeshInverted )
 {
-    if( isMeshInverted == 0 )
+    if ( isMeshInverted == 0 )
     {
         reversalOperator_ = 1;
     }
+
     else
     {
         reversalOperator_ = 0;
     }
 }
 
-//! Returns a boolean denoting if the mesh is inverted.
+//! Get boolean denoting if the mesh is inverted.
  bool QuadrilateralMeshedSurfaceGeometry::getReversalOperator( )
  {
      bool isMeshInverted;
-     if( reversalOperator_ == 1 )
+     if ( reversalOperator_ == 1 )
      {
          isMeshInverted = 0;
      }
+
      else
      {
          isMeshInverted = 1;
      }
+
      return isMeshInverted;
  }
 
  //! Overload ostream to print class information.
  std::ostream& operator<<( std::ostream& stream,
-                           QuadrilateralMeshedSurfaceGeometry&
-                           quadrilateralMeshedSurfaceGeometry )
+                           QuadrilateralMeshedSurfaceGeometry& quadrilateralMeshedSurfaceGeometry )
  {
      stream << "This is a quadrilateral meshed surface geometry"
             << " of a single part." << std::endl;

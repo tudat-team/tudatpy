@@ -2,7 +2,7 @@
  *    This file contains the definition of the LawgsPartGeometry unit test.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 1
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 6 February, 2011
- *    Last modified     : 8 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
@@ -34,19 +34,15 @@
  *    warranty of merchantibility or fitness for a particular purpose.
  *
  *    Changelog
- *      YYMMDD    Author           Comment
- *      110206    D. Dirkx         First version of file.
- *      110208    D. Dirkx         Finalized for code check.
+ *      YYMMDD    Author            Comment
+ *      110206    D. Dirkx          First version of file.
+ *      110208    D. Dirkx          Finalized for code check.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  */
 
 #ifndef UNITTESTLAWGSSURFACEGEOMETRY_H
 #define UNITTESTLAWGSSURFACEGEOMETRY_H
-
-// Include statements.
-#include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
-#include "Mathematics/GeometricShapes/sphereSegment.h"
 
 //! Namespace for all unit tests.
 /*!

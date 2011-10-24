@@ -1,6 +1,5 @@
 /*! \file celestialBody.h
- *    This file contains a class that describes celestial bodies
- *    with all their characteristics.
+ *    This file contains a class that describes celestial bodies with all their characteristics.
  *
  *    Path              : /Astrodynamics/Bodies/CelestialBodies/
  *    Version           : 6
@@ -37,8 +36,7 @@
  *      100906    J. Melman         First creation of code.
  *      100910    J. Melman         No more switch statement and enum.
  *      100929    K. Kumar          Minor comment changes.
- *      110112    K. Kumar          Modified to use GravityFieldModel;
- *                                  corrected path.
+ *      110112    K. Kumar          Modified to use GravityFieldModel; corrected path.
  *      110113    K. Kumar          Added getGravityFieldModel() function.
  *      110310    K. Kumar          Added ephemeris; added missing destructor.
  */
@@ -49,10 +47,10 @@
 // Include statements.
 #include <iostream>
 #include "Astrodynamics/Bodies/body.h"
-#include "States/cartesianElements.h"
-#include "States/ephemeris.h"
-#include "EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
-#include "EnvironmentModels/AtmosphereModel/atmosphereModel.h"
+#include "Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
+#include "Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h"
+#include "Astrodynamics/States/cartesianElements.h"
+#include "Astrodynamics/States/ephemeris.h"
 
 //! Celestial body class.
 /*!
@@ -67,7 +65,7 @@ public:
      * Default constructor.
      */
     CelestialBody( ) : pointerToEphemeris_( NULL ), pointerToGravityFieldModel_( NULL ),
-                       pointerToAtmosphereModel_( NULL ) { }
+        pointerToAtmosphereModel_( NULL ) { }
 
     //! Default destructor.
     /*!
@@ -80,7 +78,8 @@ public:
      * Sets the ephemeris.
      * \param pointerToEphemeris Pointer to ephemeris.
      */
-    void setEphemeris( Ephemeris* pointerToEphemeris ){ pointerToEphemeris_ = pointerToEphemeris; }
+    void setEphemeris( Ephemeris* pointerToEphemeris )
+    { pointerToEphemeris_ = pointerToEphemeris; }
 
     //! Set gravity field model.
     /*!
@@ -88,7 +87,7 @@ public:
      * \param pointerToGravityFieldModel Pointer to gravity field model.
      */
     void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel )
-        { pointerToGravityFieldModel_ = pointerToGravityFieldModel; }
+    { pointerToGravityFieldModel_ = pointerToGravityFieldModel; }
 
     //! Set atmosphere model.
     /*!
@@ -96,7 +95,7 @@ public:
      * \param pointerToAtmosphereModel Pointer to an atmosphere model.
      */
     void setAtmosphereModel( AtmosphereModel* pointerToAtmosphereModel )
-        { pointerToAtmosphereModel_ = pointerToAtmosphereModel; }
+    { pointerToAtmosphereModel_ = pointerToAtmosphereModel; }
 
     //! Get gravitational parameter.
     /*!
@@ -104,7 +103,7 @@ public:
      * \return Gravitational parameter.
      */
     const double getGravitationalParameter( ) const
-        { return pointerToGravityFieldModel_->getGravitationalParameter( ); }
+    { return pointerToGravityFieldModel_->getGravitationalParameter( ); }
 
     //! Get state from ephemeris at given Julian date.
     /*!
@@ -113,7 +112,7 @@ public:
      * \return Pointer to Cartesian elements.
      */
     CartesianElements* getStateFromEphemeris( const double& julianDate )
-        { return pointerToEphemeris_->getStateFromEphemeris( julianDate ); }
+    { return pointerToEphemeris_->getStateFromEphemeris( julianDate ); }
 
     //! Get ephemeris.
     /*!
@@ -131,7 +130,7 @@ public:
 
     //! Get atmosphere model.
     /*!
-     * Gets the atmosphere model.
+     * Returns the atmosphere model.
      * \return Pointer to the atmosphere model.
      */
     AtmosphereModel* getAtmospheremodel( ) { return pointerToAtmosphereModel_; }
@@ -143,8 +142,12 @@ public:
      * \param celestialBody Celestial body.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     CelestialBody& celestialBody );
+    friend std::ostream& operator<<( std::ostream& stream, CelestialBody& celestialBody )
+    {
+        stream << "This is a CelestialBody object. The gravitational parameter is set to: "
+               << celestialBody.getGravitationalParameter( ) << std::endl;
+        return stream;
+    }
 
 protected:
 

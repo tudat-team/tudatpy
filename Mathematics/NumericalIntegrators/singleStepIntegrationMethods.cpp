@@ -1,9 +1,9 @@
-/*! \file singleStepIntegrationMethods.h
- *    Header file that defines the base class for all single step integration
- *    methods included in Tudat.
+/*! \file singleStepIntegrationMethods.cpp
+ *    Source file that defines the base class for all single step integration methods included
+ *    in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 1
+ *    Version           : 2
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -19,7 +19,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 7 February, 2011
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *

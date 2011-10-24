@@ -2,7 +2,7 @@
  *    This file contains the implemtation of the LawgsPartGeometry unit test.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 6 February, 2011
- *    Last modified     : 12 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
@@ -43,6 +43,8 @@
  */
 
 // Include statements.
+#include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
 #include "Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
@@ -73,8 +75,7 @@ bool unit_tests::testLawgsSurfaceGeometry( )
 
     if ( std::fabs( totalArea_ - 4.0 * M_PI * ( pow( sphereRadius_, 2.0 ) ) ) > 0.6 )
     {
-        std::cerr << "Total mesh area does not match sphere area "
-                  << "sufficiently well." << std::endl;
+        std::cerr << "Total mesh area does not match sphere area sufficiently well." << std::endl;
         isLawgsSurfaceGeometryBad_ = true;
     }
 
@@ -110,13 +111,12 @@ bool unit_tests::testLawgsSurfaceGeometry( )
     // Test whether centroid and normal are collinear for panel 0, 0.
     if ( std::fabs( testCentroid_.normalized( ).dot( testNormal_.normalized( ) ) - 1.0 ) > 1.0e-5 )
     {
-        std::cerr << "Normal and centroid of sphere segment mesh not collinear."
-                  << std::endl;
+        std::cerr << "Normal and centroid of sphere segment mesh not collinear." << std::endl;
         isLawgsSurfaceGeometryBad_ = true;
     }
 
     // Test if the position of the x- and y-coordinate of panel 0, 0 is correct.
-    if ( std::fabs( atan( testCentroid_.y( ) / testCentroid_.x( ) ) - M_PI / 20.0 ) >
+    if ( std::fabs( std::atan( testCentroid_.y( ) / testCentroid_.x( ) ) - M_PI / 20.0 ) >
          mathematics::MACHINE_PRECISION_DOUBLES )
     {
         std::cerr << "x- and y-coordinate of centroid of panel 0, 0 of "

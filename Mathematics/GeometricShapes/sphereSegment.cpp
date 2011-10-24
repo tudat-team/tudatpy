@@ -57,22 +57,23 @@
  */
 
 // Include statements.
-#include "Mathematics/GeometricShapes/sphereSegment.h"
+#include <cmath>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
+#include "Mathematics/GeometricShapes/sphereSegment.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
+using std::cos;
+using std::sin;
 using unit_conversions::convertRadiansToDegrees;
 
 //! Get surface point on sphere segment.
-VectorXd SphereSegment::getSurfacePoint( const double& azimuthAngle,
-                                         const double& zenithAngle )
+VectorXd SphereSegment::getSurfacePoint( const double& azimuthAngle, const double& zenithAngle )
 {
     // Gets surface point on sphere, unrotated and centered at origin.
-    mathematics::convertSphericalToCartesian( radius_, azimuthAngle,
-                                              zenithAngle,
+    mathematics::convertSphericalToCartesian( radius_, azimuthAngle, zenithAngle,
                                               cartesianPositionVector_ );
 
     // Translate point.
@@ -84,31 +85,27 @@ VectorXd SphereSegment::getSurfacePoint( const double& azimuthAngle,
 
 //! Get surface derivative on sphere segment.
 VectorXd SphereSegment::getSurfaceDerivative(
-        const double& azimuthAngle, const double& zenithAngle,
-        const int& powerOfAzimuthAngleDerivative,
-        const int& powerOfZenithAngleDerivative )
+    const double& azimuthAngle, const double& zenithAngle,
+    const int& powerOfAzimuthAngleDerivative, const int& powerOfZenithAngleDerivative )
 {
     // Declare and set size of derivative vector.
     VectorXd derivative_ = VectorXd( 3 );
 
     // Go through the different possibilities for the values of the power
     // of the derivative.
-    if ( powerOfAzimuthAngleDerivative < 0
-         || powerOfZenithAngleDerivative < 0 )
+    if ( powerOfAzimuthAngleDerivative < 0 || powerOfZenithAngleDerivative < 0 )
     {
         derivative_( 0 ) = 0.0;
         derivative_( 1 ) = 0.0;
         derivative_( 2 ) = 0.0;
 
-        cerr << "No negative power of derivatives allowed, "
-             << "returning 0,0,0" << endl;
+        cerr << "No negative power of derivatives allowed, returning 0,0,0" << endl;
     }
 
     // When requesting the zeroth derivative with respect to the two
     // independent variables, the surface point is returned. Note that this
     // does include the offset.
-    else if ( powerOfAzimuthAngleDerivative == 0
-              && powerOfZenithAngleDerivative == 0 )
+    else if ( powerOfAzimuthAngleDerivative == 0 && powerOfZenithAngleDerivative == 0 )
     {
         derivative_ = getSurfacePoint( azimuthAngle, zenithAngle );
     }
@@ -201,12 +198,9 @@ VectorXd SphereSegment::getSurfaceDerivative(
         }
 
         // Construct the full derivative.
-        derivative_( 0 ) = derivative1Contribution_( 0 )
-                           * derivative2Contribution_( 0 );
-        derivative_( 1 ) = derivative1Contribution_( 1 )
-                           * derivative2Contribution_( 1 );
-        derivative_( 2 ) = derivative1Contribution_( 2 )
-                           * derivative2Contribution_( 2 );
+        derivative_( 0 ) = derivative1Contribution_( 0 ) * derivative2Contribution_( 0 );
+        derivative_( 1 ) = derivative1Contribution_( 1 ) * derivative2Contribution_( 1 );
+        derivative_( 2 ) = derivative1Contribution_( 2 ) * derivative2Contribution_( 2 );
 
         // Scale vector by radius.
         derivative_ = derivative_ * radius_;
@@ -255,21 +249,16 @@ std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment )
     stream << "This is a sphere segment geometry." << endl;
     stream << "The range of the independent variables are: " << endl;
     stream << "Azimuth angle: "
-           << convertRadiansToDegrees( sphereSegment
-                                       .getMinimumIndependentVariable( 1 ) )
+           << convertRadiansToDegrees( sphereSegment.getMinimumIndependentVariable( 1 ) )
            << " degrees to "
-           << convertRadiansToDegrees( sphereSegment
-                                       .getMaximumIndependentVariable( 1 ) )
+           << convertRadiansToDegrees( sphereSegment.getMaximumIndependentVariable( 1 ) )
            << " degrees" << endl;
     stream << "Zenith angle: "
-           << convertRadiansToDegrees( sphereSegment
-                                       .getMinimumIndependentVariable( 2 ) )
+           << convertRadiansToDegrees( sphereSegment.getMinimumIndependentVariable( 2 ) )
            << " degrees to "
-           << convertRadiansToDegrees( sphereSegment
-                                       .getMaximumIndependentVariable( 2 ) )
+           << convertRadiansToDegrees( sphereSegment.getMaximumIndependentVariable( 2 ) )
            << " degrees" << endl;
-    stream << "The radius is: " << sphereSegment.getRadius( ) << " meter."
-           << endl;
+    stream << "The radius is: " << sphereSegment.getRadius( ) << " meter." << endl;
 
     // Return stream.
     return stream;

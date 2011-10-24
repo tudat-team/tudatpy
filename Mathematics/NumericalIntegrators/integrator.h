@@ -3,7 +3,7 @@
  *    included in Tudat.
  *
  *    Path              : /Mathematics/NumericalIntegrators/
- *    Version           : 12
+ *    Version           : 13
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -19,7 +19,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 28 July, 2010
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -44,26 +44,20 @@
  *      YYMMDD    Author            Comment
  *      100907    K. Kumar          File header and footer added.
  *      100908    K. Kumar          Edited to conform to protocols.
- *                                  Changed variable/function names to more
- *                                  suitable choices.
- *      100926    K. Kumar          Added solution to pointer-to-member-
- *                                  function problem and comments under
- *                                  Notes, removed fixed output interval
- *                                  option.
+ *                                  Changed variable/function names to more suitable choices.
+ *      100926    K. Kumar          Added solution to pointer-to-member-function problem and
+ *                                  comments under Notes, removed fixed output interval option.
  *      100928    K. Kumar          Added missing comments.
  *      100929    D. Dirkx          File checked.
  *      100929    K. Kumar          Minor comment modifications.
- *      110201    K. Kumar          Updated code to make use of State class;
- *                                  implemented adaptor class to replace
- *                                  pointer-to-member functions.
+ *      110201    K. Kumar          Updated code to make use of State class; implemented adaptor
+ *                                  class to replace pointer-to-member functions.
  *      110203    J. Melman         Some minor comment corrections.
  *      110206    J. Melman         isSaveIntegrationHistory changed into
  *                                  isIntegrationHistoryToBeSaved.
- *      110207    K. Kumar          Path changed; added integrate() virtual
- *                                  function.
- *      110516    K. Kumar          Changed architecture so adaptor is not
- *                                  used. Global functions can no longer be
- *                                  used. StateDerivativeBase used to define
+ *      110207    K. Kumar          Path changed; added integrate() virtual function.
+ *      110516    K. Kumar          Changed architecture so adaptor is not used. Global functions
+ *                                  can no longer be used. StateDerivativeBase used to define
  *                                  classes with state derivative function.
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110905    S. Billemont      Reorganized includes.

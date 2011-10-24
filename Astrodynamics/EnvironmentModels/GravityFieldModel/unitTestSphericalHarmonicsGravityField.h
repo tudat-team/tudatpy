@@ -2,7 +2,7 @@
  *   Header file for a unit test that tests the implementation of the spherical
  *   harmonics gravity field class in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Path              : /Astrodynamics/EnvironmentModels/GravityFieldModel/
  *    Version           : 1
  *    Check status      : Checked
  *

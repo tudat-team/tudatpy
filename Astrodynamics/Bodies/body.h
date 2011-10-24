@@ -63,7 +63,7 @@ public:
     /*!
      * Default constructor.
      */
-    Body( ) : mass_( -0.0 ), bodyGeometricShape_( NULL ){ }
+    Body( ) : mass_( -0.0 ), pointerToGeometricShape_( NULL ) { }
 
     //! Default destructor.
     /*!
@@ -78,27 +78,27 @@ public:
      */
     void setMass( const double& mass ) { mass_ = mass; }
 
-    //! Sets the shape model.
+    //! Set the shape model.
     /*!
-     * Defines the shape model.
+     * Sets the shape model.
      * \param bodyGeometricShape Pointer to geometric shape of body.
      */
-    void setShapeModel( GeometricShape* bodyGeometricShape )
-        { bodyGeometricShape_ = bodyGeometricShape; }
+    void setShapeModel( GeometricShape* pointerToGeometricShape )
+    { pointerToGeometricShape_ = pointerToGeometricShape; }
 
     //! Get mass of body.
     /*!
      * Returns the mass of the body.
      * \return Mass.
      */
-    double& getMass( ){ return mass_; }
+    double& getMass( ) { return mass_; }
 
-    //! Get the shape model.
+    //! Get shape model.
     /*!
      * Returns the shape model.
      * \return bodyGeometricShape Pointer to geometric shape of body.
      */
-    GeometricShape* getShapeModel( ) { return bodyGeometricShape_; }
+    GeometricShape* getShapeModel( ) { return pointerToGeometricShape_; }
 
 protected:
 
@@ -114,7 +114,7 @@ private:
     /*!
      * Pointer to GeometricShape object.
      */
-    GeometricShape* bodyGeometricShape_;
+    GeometricShape* pointerToGeometricShape_;
 };
 
 #endif // BODY_H

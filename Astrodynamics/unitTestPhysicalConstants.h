@@ -37,8 +37,8 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110111    J. Melman         First creation of code.
- *      110111    J. Melman         Adapted to the offical Tudat standards.
+ *      110910    J. Melman         First creation of code.
+ *      110112    J. Melman         Adapted to the offical Tudat standards.
  */
 
 //! Namespace for all unit tests.

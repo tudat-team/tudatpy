@@ -2,7 +2,7 @@
  *    This file contains the definition of the SingleSurfaceGeometry base class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 9
+ *    Version           : 10
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -18,7 +18,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 9 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -68,23 +68,9 @@
 using std::cerr;
 using std::endl;
 
-//! Default constructor.
-SingleSurfaceGeometry::SingleSurfaceGeometry( )
-{
-    // Declare the size of the offset vector and scaling and roation matrices.
-    // The offset is initialized to zero and the rotation and scaling matrices
-    // are initialized to the identity matrix.
-    offset_ = VectorXd::Zero( 3 );
-    rotationMatrix_ = MatrixXd::Identity( 3, 3 );
-    scalingMatrix_ = MatrixXd::Identity( 3, 3 );
-
-    // Declare the size of the vector for use in the getSurfacePoint function.
-    cartesianPositionVector_ = VectorXd( 3 );
-}
-
 //! Set minimum value of independent variable.
-void SingleSurfaceGeometry::setMinimumIndependentVariable(
-    const int& parameterIndex, const double& minimumValue )
+void SingleSurfaceGeometry::setMinimumIndependentVariable( const int& parameterIndex,
+                                                           const double& minimumValue )
 {
     independentVariable_ = IndependentVariables( parameterIndex );
 

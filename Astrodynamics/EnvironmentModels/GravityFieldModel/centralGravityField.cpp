@@ -1,7 +1,7 @@
 /*! \file centralGravityField.cpp
  *    Source file that defines the central gravity field class in Tudat.
  *
- *    Path              : /Astrodynamics/EnvironmentModels/
+ *    Path              : /Astrodynamics/EnvironmentModels/GravityFieldModel/
  *    Version           : 1
  *    Check status      : Checked
  *
@@ -18,8 +18,7 @@
  *
  *    References
  *      Solar System Dynamics, Jet Propulsion Laboratory. Astrodynamic
- *          Constants, http://ssd.jpl.nasa.gov/?constants#ref, last accessed:
- *          1 July, 2011.
+ *          Constants, http://ssd.jpl.nasa.gov/?constants#ref, last accessed: 1 July, 2011.
  *      de Pater, I., Lissauer, J.J. Planetary Sciences, 2nd Edition, Cambridge
  *      University Press, Cambridge, UK, 2010.
  *      Wikipedia. Standard gravitational parameter,
@@ -43,8 +42,8 @@
  *      YYMMDD    Author            Comment
  *      110627    K. Kumar          File created; ported code from previous
  *                                  predefined_gravity_field_models namespace.
- *      110701    K. Kumar          Updated references; added central gravity
- *                                  fields for Mercury, Saturn, Neptune.
+ *      110701    K. Kumar          Updated references; added central gravity fields for Mercury,
+ *                                  Saturn, Neptune.
  */
 
 // Include statements.
@@ -56,8 +55,7 @@ using std::endl;
 
 //! Set predefined central gravity field settings.
 void CentralGravityField::setPredefinedCentralGravityFieldSettings(
-    BodiesWithPredefinedCentralGravityFields
-    bodyWithPredefinedCentralGravityField )
+    BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField )
 {
     // Set degree of expansion.
     degreeOfExpansion_ = 0;
@@ -173,8 +171,7 @@ void CentralGravityField::setPredefinedCentralGravityFieldSettings(
     default:
 
         // Print cerr statement.
-        cerr << "Desired predefined central gravity field does not exist."
-                << endl;
+        cerr << "Desired predefined central gravity field does not exist." << endl;
     };
 }
 

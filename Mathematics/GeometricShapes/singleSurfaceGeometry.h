@@ -3,7 +3,7 @@
  *    class.
  *
  *    Path              : /Mathematics/GeometricShapes/
- *    Version           : 9
+ *    Version           : 10
  *    Check status      : Checked
  *
  *    Author            : D. Dirkx
@@ -19,7 +19,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 29 September, 2010
- *    Last modified     : 9 February, 2011
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -88,7 +88,7 @@ public:
     enum IndependentVariables
     {
         firstIndependentVariable = 1,
-        secondIndependentVariable = 2,
+        secondIndependentVariable = 2
     };
 
     //! Default constructor.
@@ -96,7 +96,13 @@ public:
      * Default constructor; sets the initial offset equal to zero and sets the
      * rotation matrix and scaling matrix equal to the identity matrix.
      */
-    SingleSurfaceGeometry( );
+    SingleSurfaceGeometry( ) : minimumIndependentVariable1_( -0.0 ),
+        maximumIndependentVariable1_( -0.0 ), minimumIndependentVariable2_( -0.0 ),
+        maximumIndependentVariable2_( -0.0 ), parameter_( -0.0 ),
+        independentVariable_( firstIndependentVariable ),
+        cartesianPositionVector_( VectorXd::Zero( 3 ) ), offset_( VectorXd::Zero( 3 ) ),
+        rotationMatrix_( MatrixXd::Identity( 3, 3 ) ),
+        scalingMatrix_( MatrixXd::Identity( 3, 3 ) ) { }
 
     //! Default destructor.
     /*!
@@ -109,30 +115,21 @@ public:
      * Sets the offset of the shape.
      * \param offset Offset.
      */
-    void setOffset( const VectorXd& offset )
-    {
-        offset_ = offset;
-    }
+    void setOffset( const VectorXd& offset ) { offset_ = offset; }
 
     //! Set rotation matrix of the shape.
     /*!
      * Sets the rotation matrix of the shape.
      * \param rotationMatrix Rotation matrix.
      */
-    void setRotationMatrix( const MatrixXd& rotationMatrix )
-    {
-        rotationMatrix_ = rotationMatrix;
-    }
+    void setRotationMatrix( const MatrixXd& rotationMatrix ) { rotationMatrix_ = rotationMatrix; }
 
     //! Set scaling matrix of the shape.
     /*!
      * Sets the scaling matrix of the shape.
      * \param scalingMatrix Scaling matrix.
      */
-    void setScalingMatrix( const MatrixXd& scalingMatrix )
-    {
-        scalingMatrix_ = scalingMatrix;
-    }
+    void setScalingMatrix( const MatrixXd& scalingMatrix ) { scalingMatrix_ = scalingMatrix; }
 
     //! Set minimum value of independent variable.
     /*!
@@ -141,8 +138,7 @@ public:
                 minimum value.
      * \param minimumValue Minimum value for given independent variable.
      */
-    void setMinimumIndependentVariable( const int& parameterIndex,
-                                        const double& minimumValue );
+    void setMinimumIndependentVariable( const int& parameterIndex, const double& minimumValue );
 
     //! Set maximum value of independent variable.
     /*!
@@ -151,8 +147,7 @@ public:
      *          maximum value.
      * \param maximumValue Maximum value for given independent variable.
      */
-    void setMaximumIndependentVariable( const int& parameterIndex,
-                                        const double& maximumValue );
+    void setMaximumIndependentVariable( const int& parameterIndex, const double& maximumValue );
 
     //! Set parameter.
     /*!
@@ -161,12 +156,11 @@ public:
      * \param parameterIndex Index of parameter to set for a specific shape.
      * \param parameterValue Parameter value to set.
      */
-    virtual void setParameter( const int& parameterIndex,
-                               const double& parameterValue ) = 0;
+    virtual void setParameter( const int& parameterIndex, const double& parameterValue ) = 0;
 
     //! Get parameter.
     /*!
-     * Retrieves parameter from the shape. It returns 0 by default for the base
+     * Returns parameter from the shape. It returns 0 by default for the base
      * class.
      * \param parameterIndex Index of parameter to set for a specific shape.
      * \return Specific parameter from a shape.
@@ -175,33 +169,24 @@ public:
 
     //! Get offset from the shape.
     /*!
-     * Retrieves the offset from the shape.
+     * Returns the offset from the shape.
      * \return Offset of the surface.
      */
-    VectorXd getOffset( )
-    {
-        return offset_;
-    }
+    VectorXd getOffset( ) { return offset_; }
 
     //! Get rotation matrix from the shape.
     /*!
-     * Retrieves the rotation matrix from the shape.
+     * Returns the rotation matrix from the shape.
      * \return Rotation matrix of the surface.
      */
-    MatrixXd getRotationMatrix( )
-    {
-        return rotationMatrix_;
-    }
+    MatrixXd getRotationMatrix( ) { return rotationMatrix_; }
 
     //! Get scaling matrix from the shape.
     /*!
-     * Retrieves the scaling matrix from the shape.
+     * Returns the scaling matrix from the shape.
      * \return Scaling matrix of the surface.
      */
-    MatrixXd getScalingMatrix( )
-    {
-        return scalingMatrix_;
-    }
+    MatrixXd getScalingMatrix( ) { return scalingMatrix_; }
 
     //! Get minimum value of independent variable.
     /*!
@@ -223,7 +208,7 @@ public:
 
     //! Get surface point.
     /*!
-     * Retrieves a surface point. This function is defined separately for
+     * Returns a surface point. This function is defined separately for
      * each derived class. It contains no functionality for this base class.
      * \param independentVariable1 Independent variable 1.
      * \param independentVariable2 Independent variable 2.
@@ -234,7 +219,7 @@ public:
 
     //! Get surface derivative.
     /*!
-     * Retrieves a surface derivative. This function is defined separately for
+     * Returns a surface derivative. This function is defined separately for
      * each derived class. It contains no functionality for this base class.
      * \param independentVariable1 Independent variable 1.
      * \param independentVariable2 Independent variable 2.

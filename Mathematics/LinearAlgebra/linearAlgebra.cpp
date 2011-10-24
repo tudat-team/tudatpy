@@ -3,7 +3,7 @@
  *    typedef for vectors and a number of useful vector operation definitions.
  *
  *    Path              : /Mathematics/LinearAlgebra/
- *    Version           : 3
+ *    Version           : 4
  *    Check status      : Checked
  *
  *    Author            : J. Melman
@@ -15,7 +15,7 @@
  *    E-mail address    : d.dirkx@tudelft.nl
  *
  *    Date created      : 7 August, 2009
- *    Last modified     : 30 September, 2010
+ *    Last modified     : 5 September, 2011
  *
  *    References
  *
@@ -42,6 +42,8 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  */
 
+// Include statements.
+#include <cmath>
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Linear algebra namespace.
@@ -49,8 +51,7 @@ namespace linear_algebra
 {
 
 //! Determine the cosine of the angle between two vectors.
-double determineCosineOfAngleBetweenVectors( const Vector3d& vector0,
-                                             const Vector3d& vector1 )
+double determineCosineOfAngleBetweenVectors( const Vector3d& vector0, const Vector3d& vector1 )
 {
     // Determine the length of the vectors.
     double normOfVector0 = vector0.norm( );
@@ -61,32 +62,36 @@ double determineCosineOfAngleBetweenVectors( const Vector3d& vector0,
     Vector3d vector1Normalized = vector1 / normOfVector1;
 
     // Get the cosine of the angle by dotting the normalized vectors.
-    double dotProductOfNormalizedVectors =
-    vector0Normalized.dot( vector1Normalized );
+    double dotProductOfNormalizedVectors = vector0Normalized.dot( vector1Normalized );
 
-    // Explicitly define the extreme cases, which can give problems
-    // with the acos function.
+    // Explicitly define the extreme cases, which can give problems with the acos function.
     if ( dotProductOfNormalizedVectors >= 1.0 )
+    {
         return 1.0;
+    }
+
     else if ( dotProductOfNormalizedVectors <= -1.0 )
+    {
         return -1.0;
+    }
 
     // Determine the actual angle.
     else
+    {
         return dotProductOfNormalizedVectors;
+    }
 
 }
 
 //! Determine the angle between two vectors.
-double determineAngleBetweenVectors( const Vector3d& vector0,
-                                     const Vector3d& vector1 )
+double determineAngleBetweenVectors( const Vector3d& vector0, const Vector3d& vector1 )
 {
     // Determine the cosine of the angle by using another routine.
-    double dotProductOfNormalizedVectors =
-    determineCosineOfAngleBetweenVectors( vector0, vector1 );
+    double dotProductOfNormalizedVectors = determineCosineOfAngleBetweenVectors( vector0,
+                                                                                 vector1 );
 
     // Return arccosine of the above, which is effectively the angle.
-    return acos( dotProductOfNormalizedVectors );
+    return std::acos( dotProductOfNormalizedVectors );
 }
 
 //! Determine the average of the components of a vector.
@@ -104,14 +109,15 @@ double determineStandardDeviationOfVectorComponents( const VectorXd& vector0 )
     double averageOfEntries = determineAverageOfVectorComponents( vector0 );
 
     // Determine variance of entries.
-    for( int i = 0 ; i < vector0.rows( ) ; i++ )
+    for ( int i = 0 ; i < vector0.rows( ) ; i++ )
     {
-        varianceOfEntries += pow( ( vector0( i ) - averageOfEntries ), 2.0 );
+        varianceOfEntries += std::pow( ( vector0( i ) - averageOfEntries ), 2.0 );
     }
+
     varianceOfEntries /= vector0.rows( ) - 1;
 
     // Return square root of variance ( = standard deviation ).
-    return sqrt( varianceOfEntries );
+    return std::sqrt( varianceOfEntries );
 }
 
 }

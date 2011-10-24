@@ -42,28 +42,26 @@
  *      100916    K. Kumar          File created.
  *      100916    K. Kumar          Filename modified.
  *      100929    D. Dirkx          File checked.
- *      100929    K. Kumar          Minor corrections to include statements
- *                                  and comments.
- *      110113    K. Kumar          Changed setBody() argument to pointer;
- *                                  added pointer to GravityFieldModel.
- *      110119    K. Kumar          Changed computeStateDerivatives() to
- *                                  computeForce().
+ *      100929    K. Kumar          Minor corrections to include statements and comments.
+ *      110113    K. Kumar          Changed setBody() argument to pointer; added pointer to
+ *                                  GravityFieldModel.
+ *      110119    K. Kumar          Changed computeStateDerivatives() to computeForce().
  *      110202    K. Kumar          Updated code to make use of the State and
  *                                  CartesianPositionElements classes.
  *      110810    J. Leloux         Corrected doxygen documentation.
- *      110815    K. Kumar          Changed filename and class name; changed
- *                                  computeForce() function and added
- *                                  setMass() function.
+ *      110815    K. Kumar          Changed filename and class name; changed computeForce()
+ *                                  function and added setMass() function.
  */
 
 #ifndef GRAVITATIONALFORCEMODEL_H
 #define GRAVITATIONALFORCEMODEL_H
 
 // Include statements.
+#include <iostream>
 #include "Astrodynamics/Bodies/body.h"
 #include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
-#include "Astrodynamics/ForceModels/forceModel.h"
 #include "Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
+#include "Astrodynamics/ForceModels/forceModel.h"
 
 //! Gravitational force model class.
 /*!
@@ -77,8 +75,8 @@ public:
     /*!
      * Default constructor.
      */
-    GravitationalForceModel( ) : pointerToBodySubjectToForce_( NULL ), pointerToCelestialBody_( NULL ),
-        pointerToGravityFieldModel_( NULL ) { }
+    GravitationalForceModel( ) : pointerToBodySubjectToForce_( NULL ),
+        pointerToCelestialBody_( NULL ), pointerToGravityFieldModel_( NULL ) { }
 
     //! Set body subject to force.
     /*!
@@ -101,10 +99,15 @@ public:
 
     //! Compute force due to gravity field.
     /*!
-     * Computes the force due to the gravity field.
+     * Computes the force due to the gravity field in Newtons.
      * \param pointerToState Pointer to an object of the State class.
      */
-    void computeForce( State* pointerToState );
+    void computeForce( State* pointerToState )
+    {
+        cartesianPositionElements_.state = pointerToState->state.segment( 0, 3 );
+        force_ = pointerToGravityFieldModel_->getGradientOfPotential( &cartesianPositionElements_ )
+                * pointerToBodySubjectToForce_->getMass( );
+    }
 
 protected:
 
