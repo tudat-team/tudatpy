@@ -1,8 +1,7 @@
 /*! \file approximatePlanetPositionsBase.h
- *    This header file contains the definition of an ephemeris base class that makes
- *    use of the JPL "Approximate Positions of Major Planets"
- *    ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve ephemeris data for a
- *    specific planet. The ephemeris file used is for the period 3000 BC to
+ *    This header file contains the definition of an ephemeris base class that makes use of the JPL
+ *    "Approximate Positions of Major Planets" ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve
+ *    ephemeris data for a specific planet. The ephemeris file used is for the period 3000 BC to
  *    3000 AD.
  *
  *    Path              : /Astrodynamics/States/
@@ -65,10 +64,10 @@
 #include <map>
 #include <string>
 #include "Astrodynamics/States/approximatePlanetPositionsDataContainer.h"
-#include "Mathematics/basicMathematicsFunctions.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/ephemeris.h"
 #include "Astrodynamics/States/keplerianElements.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
 
 // Using declarations.
@@ -87,12 +86,6 @@ public:
      * Default constructor.
      */
     ApproximatePlanetPositionsBase( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ApproximatePlanetPositionsBase( ) { }
 
     //! Set planet.
     /*!

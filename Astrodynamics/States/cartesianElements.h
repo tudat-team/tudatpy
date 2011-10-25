@@ -34,16 +34,15 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      101020    K. Kumar          First creation of code.
- *      101026    K. Kumar          Added position and velocity vectors,
- *                                  modified existing comments.
+ *      101026    K. Kumar          Added position and velocity vectors, modified existing
+ *                                  comments.
  *      101201    E. Iorfida        Modified punctuation.
- *      101202    J. Melman         Corrected some Doxygen comments, changed
- *                                  Cartesian into Cartesian. Private variables
- *                                  are obsolete now, since everything is done
- *                                  with state_ from base class.
+ *      101202    J. Melman         Corrected some Doxygen comments, changed Cartesian into
+ *                                  Cartesian. Private variables are obsolete now, since everything
+ *                                  is done with state_ from base class.
  *      110110    K. Kumar          Minor modifications.
- *      110131    K. Kumar          Moved code to CartesianPositionElements
- *                                  class; added inheritance.
+ *      110131    K. Kumar          Moved code to CartesianPositionElements  class; added
+ *                                  inheritance.
  *      110204    K. Kumar          Removed "vector" from naming.
  */
 
@@ -66,14 +65,7 @@ public:
     /*!
      * Default constructor.
      */
-    CartesianElements( ) : position_( Vector3d::Zero( ) )
-    { state.setZero( 6 ); }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~CartesianElements( ) { }
+    CartesianElements( ) : position_( Vector3d::Zero( ) ) { state.setZero( 6 ); }
 
     //! Set Cartesian element: xDot.
     /*!
@@ -104,62 +96,49 @@ public:
      * Sets the position.
      * \return position Position.
      */
-    void setPosition( Vector3d& position )
-    { state.segment( 0, 3 ) = position; }
+    void setPosition( Vector3d& position ) { state.segment( 0, 3 ) = position; }
 
     //! Set velocity.
     /*!
      * Sets the velocity.
      * \return velocity Velocity.
      */
-    void setVelocity( Vector3d& velocity )
-    { state.segment( 3, 3 ) = velocity; }
+    void setVelocity( Vector3d& velocity ) { state.segment( 3, 3 ) = velocity; }
 
     //! Get Cartesian element: xDot.
     /*!
      * Returns the Cartesian element: xDot.
      * \return Cartesian element: xDot.
      */
-    double& getCartesianElementXDot( )
-    { return state( 3 ); }
+    double& getCartesianElementXDot( ) { return state( 3 ); }
 
     //! Get Cartesian element: yDot.
     /*!
      * Returns the Cartesian element: yDot.
      * \return Cartesian element: yDot.
      */
-    double& getCartesianElementYDot( )
-    { return state( 4 ); }
+    double& getCartesianElementYDot( ) { return state( 4 ); }
 
     //! Get Cartesian element: zDot.
     /*!
      * Returns the Cartesian element: zDot.
      * \return Cartesian element: zDot.
      */
-    double& getCartesianElementZDot( )
-    { return state( 5 ); }
+    double& getCartesianElementZDot( ) { return state( 5 ); }
 
     //! Get position.
     /*!
      * Returns the position.
      * \return Position.
      */
-    Vector3d& getPosition( )
-    {
-        position_ = state.segment( 0, 3 );
-        return position_;
-    }
+    Vector3d& getPosition( ) { position_ = state.segment( 0, 3 ); return position_; }
 
     //! Get velocity.
     /*!
      * Returns the velocity.
      * \return Velocity.
      */
-    Vector3d& getVelocity( )
-    {
-        velocity_ = state.segment( 3, 3 );
-        return velocity_;
-    }
+    Vector3d& getVelocity( ) { velocity_ = state.segment( 3, 3 ); return velocity_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -168,12 +147,8 @@ public:
      * \param cartesianElements CartesianElements object.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     CartesianElements& cartesianElements )
-    {
-        stream << "The state is set to: " << cartesianElements.state << std::endl;
-        return stream;
-    }
+    friend std::ostream& operator<<( std::ostream& stream, CartesianElements& cartesianElements )
+    { stream << "The state is set to: " << cartesianElements.state << std::endl; return stream; }
 
 protected:
 

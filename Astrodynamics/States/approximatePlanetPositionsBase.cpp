@@ -1,8 +1,7 @@
 /*! \file approximatePlanetPositionsBase.cpp
- *    This source file contains the definition of an ephemeris class that makes
- *    use of the JPL "Approximate Positions of Major Planets"
- *    ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve ephemeris data for a
- *    specific planet. The ephemeris file used is for the period 3000 BC to
+ *    This source file contains the definition of an ephemeris class that makes use of the JPL
+ *    "Approximate Positions of Major Planets" ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve
+ *    ephemeris data for a specific planet. The ephemeris file used is for the period 3000 BC to
  *    3000 AD.
  *
  *    Path              : /Astrodynamics/States/
@@ -56,8 +55,8 @@
  */
 
 // Include statements.
+#include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/States/approximatePlanetPositionsBase.h"
-#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
 
 //! Default constructor.
 ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( ) : julianDate_( -0.0 ),
@@ -92,8 +91,7 @@ ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( ) : julianDate_(
 }
 
 //! Set planet.
-void ApproximatePlanetPositionsBase::
-        setPlanet( BodiesWithEphemerisData bodyWithEphemerisData )
+void ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData bodyWithEphemerisData )
 {
     bodyWithEphemerisData_ = bodyWithEphemerisData;
 
@@ -156,8 +154,7 @@ void ApproximatePlanetPositionsBase::
 }
 
 //! Parse ephemeris line data.
-void ApproximatePlanetPositionsBase::parseEphemerisLineData_(
-        const unsigned int& firstLineNumber )
+void ApproximatePlanetPositionsBase::parseEphemerisLineData_( const unsigned int& firstLineNumber )
 {
     // Parse data from container of strings using a string stream.
 
@@ -165,11 +162,9 @@ void ApproximatePlanetPositionsBase::parseEphemerisLineData_(
     ephemerisLineData_.clear( );
 
     // Read first line of data.
-    ephemerisLineData_
-            << containerOfDataFromEphemerisFile_[ firstLineNumber ];
+    ephemerisLineData_ << containerOfDataFromEphemerisFile_[ firstLineNumber ];
 
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_.planetName_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.planetName_;
 
     // Check if the line number corresponds to that for "EM Bary".
     if ( firstLineNumber == 22 )
@@ -177,73 +172,47 @@ void ApproximatePlanetPositionsBase::parseEphemerisLineData_(
         string earthMoonBarycenter_;
 
         ephemerisLineData_ >> earthMoonBarycenter_;
-        approximatePlanetPositionsDataContainer_.planetName_
-                += " " + earthMoonBarycenter_;
+        approximatePlanetPositionsDataContainer_.planetName_ += " " + earthMoonBarycenter_;
     }
 
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_.semiMajorAxis_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_.eccentricity_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_.inclination_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_.meanLongitude_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_
-            .longitudeOfPerihelion_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_
-            .longitudeOfAscendingNode_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.semiMajorAxis_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.eccentricity_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.inclination_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.meanLongitude_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.longitudeOfPerihelion_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.longitudeOfAscendingNode_;
 
     // Clear stringstream.
     ephemerisLineData_.clear( );
 
     // Read second line of data.
-    ephemerisLineData_
-            << containerOfDataFromEphemerisFile_[ firstLineNumber + 1 ];
+    ephemerisLineData_ << containerOfDataFromEphemerisFile_[ firstLineNumber + 1 ];
 
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_
-            .rateOfChangeOfSemiMajorAxis_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_
-            .rateOfChangeOfEccentricity_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_
-            .rateOfChangeOfInclination_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_
-            .rateOfChangeOfMeanLongitude_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_
-            .rateOfChangeOfLongitudeOfPerihelion_;
-    ephemerisLineData_ >>
-            approximatePlanetPositionsDataContainer_
-            .rateOfChangeOfLongitudeOfAscendingNode_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfSemiMajorAxis_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfEccentricity_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfInclination_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.rateOfChangeOfMeanLongitude_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
+                          .rateOfChangeOfLongitudeOfPerihelion_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
+                          .rateOfChangeOfLongitudeOfAscendingNode_;
 }
 
 //! Parse line data for extra terms for ephemeris.
 void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
-        const unsigned int& lineNumber )
+    const unsigned int& lineNumber )
 {
     // Clear stringstream.
     ephemerisLineData_.clear( );
 
     // Read second line of data.
-    ephemerisLineData_
-            << containerOfDataFromEphemerisFile_[ lineNumber ];
+    ephemerisLineData_<< containerOfDataFromEphemerisFile_[ lineNumber ];
 
-    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
-                            .planetName_;
-    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
-                            .additionalTermB_;
-    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
-                            .additionalTermC_;
-    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
-                            .additionalTermS_;
-    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_
-                            .additionalTermF_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.planetName_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermB_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermC_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermS_;
+    ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermF_;
 }
 
 // End of file.

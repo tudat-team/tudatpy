@@ -1,6 +1,6 @@
 /*! \file convertMeanAnomalyToEccentricAnomaly.cpp
- *    This source file contains a class to convert mean anomly to eccentric
- *    anomaly for elliptical and hyperbolic orbits.
+ *    This source file contains a class to convert mean anomly to eccentric anomaly for elliptical
+ *    orbits.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 1
@@ -18,8 +18,7 @@
  *    Last modified     : 10 February, 2011
  *
  *    References
- *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series,
- *          VA, 2002.
+ *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
  *
  *    Notes
  *
@@ -64,13 +63,11 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
     if ( eccentricity_ < 0.8 )
     {
         // Set mathematical functions.
-        newtonRaphsonAdaptor_.setPointerToFunction(
-                &ConvertMeanAnomalyToEccentricAnomaly::
-                computeKeplersFunctionForEllipticalOrbits_ );
-        newtonRaphsonAdaptor_
-                .setPointerToFirstDerivativeFunction(
-                        &ConvertMeanAnomalyToEccentricAnomaly::
-                   computeFirstDerivativeKeplersFunctionForEllipticalOrbits_ );
+        newtonRaphsonAdaptor_.setPointerToFunction( &ConvertMeanAnomalyToEccentricAnomaly::
+                                                    computeKeplersFunctionForEllipticalOrbits_ );
+        newtonRaphsonAdaptor_.setPointerToFirstDerivativeFunction(
+                    &ConvertMeanAnomalyToEccentricAnomaly::
+                    computeFirstDerivativeKeplersFunctionForEllipticalOrbits_ );
 
         // Set initial guess of eccentric anomaly to the mean anomaly.
         pointerToNewtonRaphson_->setInitialGuessOfRoot( meanAnomaly_ );
@@ -80,16 +77,14 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
 
         // Set eccentric anomaly based on result of Newton-Raphson
         // root-finding algorithm.
-        eccentricAnomaly_ = pointerToNewtonRaphson_
-                            ->getComputedRootOfFunction( );
+        eccentricAnomaly_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );
     }
 
     // Check if orbit is near-parabolic.
     else if ( eccentricity_ >= 0.8 )
     {
-        cerr << "Orbit is near-parabolic and, at present conversion, "
-             << "between eccentric anomaly and mean anomaly is not "
-             << "possible for eccentricities in the range: "
+        cerr << "Orbit is near-parabolic and, at present conversion, between eccentric anomaly  "
+             << "and mean anomaly is not possible for eccentricities in the range: "
              << "0.8 < eccentricity < 1.2." << endl;
 
         // Set eccentric anomaly to error value.
@@ -98,25 +93,6 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
 
     // Return eccentric anomaly.
     return eccentricAnomaly_;
-}
-
-//! Compute Kepler's function for elliptical orbits.
-double ConvertMeanAnomalyToEccentricAnomaly::
-        computeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly )
-{
-    // Return value of Kepler's function for elliptical orbits.
-    return eccentricAnomaly - eccentricity_ * sin( eccentricAnomaly )
-            - meanAnomaly_;
-}
-
-//! Compute first-derivative of Kepler's function for elliptical orbits.
-double ConvertMeanAnomalyToEccentricAnomaly::
-        computeFirstDerivativeKeplersFunctionForEllipticalOrbits_(
-                double& eccentricAnomaly )
-{
-    // Return value of first-derivative of Kepler's function for
-    // elliptical orbits.
-    return 1.0 - eccentricity_ * cos( eccentricAnomaly );
 }
 
 }

@@ -3,7 +3,7 @@
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 8
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -75,7 +75,8 @@ public:
     /*!
      * Default constructor.
      */
-    Propagator( ) { }
+    Propagator( ) : propagationIntervalStart_( -0.0 ), propagationIntervalEnd_( -0.0 ),
+        bodiesToPropagate_( ) { }
 
     //! Default destructor.
     /*!

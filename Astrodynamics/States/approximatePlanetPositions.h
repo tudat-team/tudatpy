@@ -1,8 +1,7 @@
 /*! \file approximatePlanetPositions.h
- *    This header file contains the definition of an ephemeris class that makes
- *    use of the JPL "Approximate Positions of Major Planets"
- *    ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve ephemeris data for a
- *    specific planet. The ephemeris file used is for the period 3000 BC to
+ *    This header file contains the definition of an ephemeris class that makes use of the JPL
+ *    "Approximate Positions of Major Planets" ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve
+ *    ephemeris data for a specific planet. The ephemeris file used is for the period 3000 BC to
  *    3000 AD.
  *
  *    Path              : /Astrodynamics/States/
@@ -65,15 +64,9 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositions( ) : eccentricAnomalyAtGivenJulianDate_(-0.0),
-        longitudeOfPerihelionAtGivenJulianDate_(-0.0), meanAnomalyAtGivenJulianDate_(-0.0),
-        trueAnomalyAtGivenJulianData_(-0.0) { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ApproximatePlanetPositions( ) { }
+    ApproximatePlanetPositions( ) : eccentricAnomalyAtGivenJulianDate_( -0.0 ),
+        longitudeOfPerihelionAtGivenJulianDate_( -0.0 ), meanAnomalyAtGivenJulianDate_( -0.0 ),
+        trueAnomalyAtGivenJulianData_( -0.0 ) { }
 
     //! Get state from ephemeris.
     /*!

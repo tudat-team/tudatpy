@@ -7,20 +7,20 @@ CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
-    Astrodynamics/Bodies/CelestialBodies/planet.cpp \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.cpp \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.cpp \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.cpp \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestTabulatedAtmosphere.cpp \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.cpp \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.cpp \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.cpp \
+    Astrodynamics/Bodies/planet.cpp \
+    Astrodynamics/EnvironmentModels/exponentialAtmosphere.cpp \
+    Astrodynamics/EnvironmentModels/tabulatedAtmosphere.cpp \
+    Astrodynamics/EnvironmentModels/unitTestExponentialAtmosphere.cpp \
+    Astrodynamics/EnvironmentModels/unitTestTabulatedAtmosphere.cpp \
+    Astrodynamics/EnvironmentModels/centralGravityField.cpp \
+    Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.cpp \
+    Astrodynamics/EnvironmentModels/unitTestSphericalHarmonicsGravityField.cpp \
     Astrodynamics/ForceModels/unitTestAerodynamicMomentAndAerodynamicForce.cpp \
-    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.cpp \
-    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.cpp \
-    Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.cpp \
-    Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.cpp \
-    Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.cpp \
+    Astrodynamics/ForceModels/aerodynamics.cpp \
+    Astrodynamics/ForceModels/aerodynamicCoefficientGenerator.cpp \
+    Astrodynamics/ForceModels/hypersonicLocalInclinationAnalysis.cpp \
+    Astrodynamics/ForceModels/unitTestAerodynamicsNamespace.cpp \
+    Astrodynamics/ForceModels/unitTestCoefficientGenerator.cpp \
     Astrodynamics/MomentModels/aerodynamicMoment.cpp \
     Astrodynamics/physicalConstants.cpp \
     Astrodynamics/unitTestPhysicalConstants.cpp \
@@ -35,7 +35,6 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/States/approximatePlanetPositions.cpp \
     Astrodynamics/States/approximatePlanetPositionsBase.cpp \
     Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.cpp \
-    Astrodynamics/States/approximatePlanetPositionsDataContainer.cpp \
     Astrodynamics/States/orbitalElementConversions.cpp \
     Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.cpp \
     Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp \
@@ -43,15 +42,15 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     Astrodynamics/States/unitTestKeplerianElements.cpp \
     Astrodynamics/States/unitTestCartesianElements.cpp \
     Astrodynamics/States/unitTestOrbitalElementConversions.cpp \
-    Astrodynamics/MissionSegments/DeepSpaceManeuver/unitTestDeepSpaceManeuver.cpp \
-    Astrodynamics/MissionSegments/EscapeAndCapture/unitTestEscapeAndCapture.cpp \
-    Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.cpp \
-    Astrodynamics/MissionSegments/GravityAssist/unitTestGravityAssist.cpp \
-    Astrodynamics/MissionSegments/GravityAssist/gravityAssist.cpp \
-    Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.cpp \
-    Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.cpp \
-    Astrodynamics/MissionSegments/LibrationPoints/librationPoint.cpp \
-    Astrodynamics/MissionSegments/LibrationPoints/unitTestLibrationPoints.cpp \
+    Astrodynamics/MissionSegments/escapeAndCapture.cpp \
+    Astrodynamics/MissionSegments/gravityAssist.cpp \
+    Astrodynamics/MissionSegments/lambertTargeter.cpp \
+    Astrodynamics/MissionSegments/librationPoint.cpp \
+    Astrodynamics/MissionSegments/unitTestDeepSpaceManeuver.cpp \
+    Astrodynamics/MissionSegments/unitTestEscapeAndCapture.cpp \
+    Astrodynamics/MissionSegments/unitTestGravityAssist.cpp \
+    Astrodynamics/MissionSegments/unitTestLambertTargeter.cpp \
+    Astrodynamics/MissionSegments/unitTestLibrationPoints.cpp \
     Basics/basicFunctions.cpp \
     Input/textFileReader.cpp \
     Input/fileReader.cpp \
@@ -93,30 +92,30 @@ SOURCES += Applications/exampleEarthOrbitingSatellite.cpp \
     unitTestMain.cpp
 HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/Bodies/body.h \
-    Astrodynamics/Bodies/CelestialBodies/celestialBody.h \
-    Astrodynamics/Bodies/CelestialBodies/planet.h \
-    Astrodynamics/Bodies/Vehicles/vehicle.h \
-    Astrodynamics/Bodies/Vehicles/vehicleExternalModel.h \
+    Astrodynamics/Bodies/celestialBody.h \
+    Astrodynamics/Bodies/planet.h \
+    Astrodynamics/Bodies/vehicle.h \
+    Astrodynamics/Bodies/vehicleExternalModel.h \
     Astrodynamics/EnvironmentModels/environmentModel.h \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/atmosphereModel.h \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/exponentialAtmosphere.h \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/tabulatedAtmosphere.h \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestExponentialAtmosphere.h \
-    Astrodynamics/EnvironmentModels/AtmosphereModel/unitTestTabulatedAtmosphere.h \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/centralGravityField.h \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h \
-    Astrodynamics/EnvironmentModels/GravityFieldModel/unitTestSphericalHarmonicsGravityField.h \
+    Astrodynamics/EnvironmentModels.h \
+    Astrodynamics/EnvironmentModels/exponentialAtmosphere.h \
+    Astrodynamics/EnvironmentModels/tabulatedAtmosphere.h \
+    Astrodynamics/EnvironmentModels/unitTestExponentialAtmosphere.h \
+    Astrodynamics/EnvironmentModels/unitTestTabulatedAtmosphere.h \
+    Astrodynamics/EnvironmentModels/centralGravityField.h \
+    Astrodynamics/EnvironmentModels.h \
+    Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h \
+    Astrodynamics/EnvironmentModels/unitTestSphericalHarmonicsGravityField.h \
     Astrodynamics/ForceModels/forceModel.h \
     Astrodynamics/ForceModels/aerodynamicForce.h \
     Astrodynamics/ForceModels/gravitationalForceModel.h \
     Astrodynamics/ForceModels/unitTestAerodynamicMomentAndAerodynamicForce.h \
-    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamics.h \
-    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientGenerator.h \
-    Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h \
-    Astrodynamics/ForceModels/Aerothermodynamics/hypersonicLocalInclinationAnalysis.h \
-    Astrodynamics/ForceModels/Aerothermodynamics/unitTestAerodynamicsNamespace.h \
-    Astrodynamics/ForceModels/Aerothermodynamics/unitTestCoefficientGenerator.h \
+    Astrodynamics/ForceModels/aerodynamics.h \
+    Astrodynamics/ForceModels/aerodynamicCoefficientGenerator.h \
+    Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h \
+    Astrodynamics/ForceModels/hypersonicLocalInclinationAnalysis.h \
+    Astrodynamics/ForceModels/unitTestAerodynamicsNamespace.h \
+    Astrodynamics/ForceModels/unitTestCoefficientGenerator.h \
     Astrodynamics/MomentModels/aerodynamicMoment.h \
     Astrodynamics/MomentModels/momentModel.h \
     Astrodynamics/physicalConstants.h \
@@ -150,19 +149,19 @@ HEADERS += Applications/exampleEarthOrbitingSatellite.h \
     Astrodynamics/States/unitTestKeplerianElements.h \
     Astrodynamics/States/unitTestCartesianElements.h \
     Astrodynamics/States/unitTestOrbitalElementConversions.h \
+    Astrodynamics/MissionSegments/capturePhase.h \
+    Astrodynamics/MissionSegments/deepSpaceManeuver.h \
+    Astrodynamics/MissionSegments/escapeAndCapture.h \
+    Astrodynamics/MissionSegments/escapePhase.h \
+    Astrodynamics/MissionSegments/gravityAssist.h \
+    Astrodynamics/MissionSegments/lambertTargeter.h \
+    Astrodynamics/MissionSegments/librationPoint.h \
     Astrodynamics/MissionSegments/trajectoryDesignMethod.h \
-    Astrodynamics/MissionSegments/DeepSpaceManeuver/deepSpaceManeuver.h \
-    Astrodynamics/MissionSegments/DeepSpaceManeuver/unitTestDeepSpaceManeuver.h \
-    Astrodynamics/MissionSegments/EscapeAndCapture/unitTestEscapeAndCapture.h \
-    Astrodynamics/MissionSegments/EscapeAndCapture/escapePhase.h \
-    Astrodynamics/MissionSegments/EscapeAndCapture/escapeAndCapture.h \
-    Astrodynamics/MissionSegments/EscapeAndCapture/capturePhase.h \
-    Astrodynamics/MissionSegments/GravityAssist/unitTestGravityAssist.h \
-    Astrodynamics/MissionSegments/GravityAssist/gravityAssist.h \
-    Astrodynamics/MissionSegments/LambertTargeter/lambertTargeter.h \
-    Astrodynamics/MissionSegments/LambertTargeter/unitTestLambertTargeter.h \
-    Astrodynamics/MissionSegments/LibrationPoints/librationPoint.h \
-    Astrodynamics/MissionSegments/LibrationPoints/unitTestLibrationPoints.h \
+    Astrodynamics/MissionSegments/unitTestDeepSpaceManeuver.h \
+    Astrodynamics/MissionSegments/unitTestEscapeAndCapture.h \
+    Astrodynamics/MissionSegments/unitTestGravityAssist.h \
+    Astrodynamics/MissionSegments/unitTestLambertTargeter.h \
+    Astrodynamics/MissionSegments/unitTestLibrationPoints.h \
     Basics/basicFunctions.h \
     Input/textFileReader.h \
     Input/fileReader.h \
@@ -213,23 +212,13 @@ INCLUDEPATH += ./ \
     Applications \
     Astrodynamics \
     Astrodynamics/Bodies \
-    Astrodynamics/Bodies/CelestialBodies \
-    Astrodynamics/Bodies/Vehicles \
     Astrodynamics/EnvironmentModels \
-    Astrodynamics/EnvironmentModels/AtmosphereModel \
-    Astrodynamics/EnvironmentModels/GravityFieldModel \
     Astrodynamics/ForceModels \
-    Astrodynamics/ForceModels/Aerothermodynamics \
     Astrodynamics/MomentModels \
     Astrodynamics/Propagators \
     Astrodynamics/ReferenceFrames \
     Astrodynamics/States \
     Astrodynamics/MissionSegments \
-    Astrodynamics/MissionSegments/DeepSpaceManeuver \
-    Astrodynamics/MissionSegments/EscapeAndCapture \
-    Astrodynamics/MissionSegments/GravityAssist \
-    Astrodynamics/MissionSegments/LambertTargeter \
-    Astrodynamics/MissionSegments/LibrationPoints \
     Basics \
     External/Eigen-2.0.15 \
     Input \

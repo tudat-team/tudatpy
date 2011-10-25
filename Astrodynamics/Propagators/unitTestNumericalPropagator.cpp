@@ -1,10 +1,9 @@
 /*! \file unitTestNumericalPropagator.cpp
- *    Source file that defines a unit test that tests the numerical propagator
- *    included in Tudat.
+ *    Source file that defines a unit test that tests the numerical propagator included in Tudat.
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 5
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -59,10 +58,10 @@
 // Include statements.
 #include <iostream>
 #include <map>
-#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
-#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
-#include "Astrodynamics/Bodies/Vehicles/vehicle.h"
-#include "Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/Bodies/celestialBody.h"
+#include "Astrodynamics/Bodies/planet.h"
+#include "Astrodynamics/Bodies/vehicle.h"
+#include "Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h"
 #include "Astrodynamics/ForceModels/gravitationalForceModel.h"
 #include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
 #include "Astrodynamics/Propagators/numericalPropagator.h"

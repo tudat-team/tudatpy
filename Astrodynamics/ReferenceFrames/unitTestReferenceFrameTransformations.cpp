@@ -49,12 +49,21 @@
 
 // Include statements.
 #include <cmath>
-#include "unitTestReferenceFrameTransformations.h"
+#include <iostream>
+#include "Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
+#include "Astrodynamics/ReferenceFrames/unitTestReferenceFrameTransformations.h"
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/unitConversions.h"
 
-//using directives
+// Using declarations.
+using std::atan2;
+using std::cos;
+using std::sin;
 using std::cerr;
 using std::endl;
 using std::fabs;
+using std::pow;
+using std::sqrt;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 using unit_conversions::convertDegreesToRadians;
 
@@ -85,10 +94,11 @@ bool testReferenceFrameTransformations( )
     startLocation( 1 ) = 1.0;
     startLocation( 2 ) = 5.0;
 
-    double horizontalStartLocationSize = sqrt( pow( startLocation( 0 ), 2.0 ) + pow( startLocation( 1 ), 2.0 ) );
+    double horizontalStartLocationSize = sqrt( pow( startLocation( 0 ), 2.0 )
+                                               + pow( startLocation( 1 ), 2.0 ) );
 
     // Declare and initialize angle between vector and XR-axis.
-    double startAngle = atan2( startLocation( 1 ) , startLocation( 0 ) );
+    double startAngle = atan2( startLocation( 1 ), startLocation( 0 ) );
 
     // Rotate by 10 degrees around the positive Z-axis
     double angleInTime = convertDegreesToRadians( 10.0 );
@@ -107,7 +117,7 @@ bool testReferenceFrameTransformations( )
             getInertialToPlanetocentricFrameTransformationMatrix( angleInTime ) * startLocation;
 
     // Compute the error in the calculation.
-    Vector3d absoluteNumericalError =  transformedLocation - expectedLocation;
+    Vector3d absoluteNumericalError = transformedLocation - expectedLocation;
     double relativeNumericalError;
 
     // Check if relative errors are too large and output cerr statements if necessary.
@@ -133,8 +143,7 @@ bool testReferenceFrameTransformations( )
             getRotatingPlanetocentricToInertialFrameTransformationMatrix( angleInTime ) *
             reference_frame_transformations::
             getInertialToPlanetocentricFrameTransformationMatrix( angleInTime )
-            * startLocation
-            - startLocation;
+            * startLocation - startLocation;
 
     // Check if relative errors are too large and output cerr statements if necessary.
     for ( int i = 0; i < absoluteNumericalError.size( ); i++ )
@@ -155,7 +164,8 @@ bool testReferenceFrameTransformations( )
     // Test 3: Same test as Test 1 for the transformation quaternion.
     // Compute location of the point in the Rotating frame subject to the transformation matrix.
     transformedLocation = reference_frame_transformations::
-            getInertialToPlanetocentricFrameTransformationQuaternion( angleInTime ) * startLocation;
+            getInertialToPlanetocentricFrameTransformationQuaternion( angleInTime )
+            * startLocation;
 
     // Compute the error in the calculation.
     absoluteNumericalError = transformedLocation - expectedLocation;
@@ -183,8 +193,7 @@ bool testReferenceFrameTransformations( )
             getRotatingPlanetocentricToInertialFrameTransformationQuaternion( angleInTime ) *
             reference_frame_transformations::
             getInertialToPlanetocentricFrameTransformationQuaternion( angleInTime )
-            * startLocation
-            - startLocation;
+            * startLocation - startLocation;
 
     // Check if relative errors are too large and output cerr statements if necessary.
     for ( int i = 0; i < absoluteNumericalError.size( ); i++ )
@@ -242,7 +251,6 @@ bool testReferenceFrameTransformations( )
         }
     }
 
-
     // Test 6: Test Rotating planetocentric to local vertical frame transformation quaternion.
 
     // Initialize initial location vector.
@@ -269,7 +277,8 @@ bool testReferenceFrameTransformations( )
 
     // Compute location of the point in the inertial frame subject to the transformation matrix.
     transformedLocation = reference_frame_transformations::
-            getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion( longitude, latitude )
+            getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion( longitude,
+                                                                                   latitude )
             * startLocation;
 
     // Compute the error in the calculation.
@@ -296,9 +305,11 @@ bool testReferenceFrameTransformations( )
     // Compute the error in the calculation.
     absoluteNumericalError =
             reference_frame_transformations::
-            getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( longitude, latitude )
+            getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion( longitude,
+                                                                                   latitude )
             * reference_frame_transformations::
-            getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion( longitude, latitude )
+            getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion( longitude,
+                                                                                   latitude )
             * startLocation - startLocation;
 
     // Compute relative error in first component.

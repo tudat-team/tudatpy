@@ -47,7 +47,6 @@
  */
 
 // Include statements.
-#include <iostream>
 #include "Astrodynamics/Propagators/keplerPropagator.h"
 #include "Astrodynamics/States/orbitalElementConversions.h"
 
@@ -60,8 +59,7 @@ void KeplerPropagator::propagate( )
 
     // Loop over map of bodies to be propagated.
     for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
-          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
-          iteratorBodiesToPropagate_++ )
+          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( ); iteratorBodiesToPropagate_++ )
     {
         // Convert initial state given in Cartesian elements to Keplerian
         // elements.

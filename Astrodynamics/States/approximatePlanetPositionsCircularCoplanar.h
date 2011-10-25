@@ -1,8 +1,8 @@
 /*! \file approximatePlanetPositionsCircularCoplanar.h
- *    This header file contains the definition of an ephemeris class that makes
- *    use of the JPL "Approximate Positions of Major Planets"
- *    ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve initial ephemeris data for a
- *    specific planet. The ephemeris is valid for circular, coplanar orbits.
+ *    This header file contains the definition of an ephemeris class that makes use of the JPL
+ *   "Approximate Positions of Major Planets" ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve
+ *    initial ephemeris data for a specific planet. The ephemeris is valid for circular, coplanar
+ *    orbits.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -68,12 +68,6 @@ public:
      * Default constructor.
      */
     ApproximatePlanetPositionsCircularCoplanar( ) : constantOrbitalRadius_( -0.0 ) { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ApproximatePlanetPositionsCircularCoplanar( ) { }
 
     //! Get state from ephemeris; circular, coplanar case.
     /*!

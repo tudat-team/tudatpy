@@ -67,8 +67,7 @@ void CartesianStateNumericalPropagator::computeStateDerivative(
 
     // Loop over map of bodies to propagate.
     for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
-          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
-          iteratorBodiesToPropagate_++ )
+          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( ); iteratorBodiesToPropagate_++ )
     {
         // Set state for body to propagate based on associated segment of
         // assembled state.
@@ -96,8 +95,7 @@ void CartesianStateNumericalPropagator::computeStateDerivative(
         // Set state derivative to size of state.
         stateDerivative_.state.setZero( 6 );
 
-        // Set state derivative elements using state and computed sum of
-        // forces.
+        // Set state derivative elements using state and computed sum of forces.
         // Set derivative of position equal to the velocity.
         stateDerivative_.state.segment( 0, 3 ) = iteratorBodiesToPropagate_->second
                 .pointerToInitialState->state.segment( 3, 3 );

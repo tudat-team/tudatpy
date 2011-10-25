@@ -1,6 +1,6 @@
 /*! \file unitTestApproximatePlanetPositions.h
- *    Header file for a unit test that tests the implementation of the
- *    ApproximatePlanetPositions class in Tudat.
+ *    Header file for a unit test that tests the implementation of the ApproximatePlanetPositions
+ *    class in Tudat.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -38,8 +38,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110405    K. Kumar          File created.
- *      110701    K. Kumar          Updated to use new predefined planets
- *                                  architecture.
+ *      110701    K. Kumar          Updated to use new predefined planets architecture.
  */
 
 #ifndef UNITTESTAPPROXIMATEPLANETPOSITIONS_H

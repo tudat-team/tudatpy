@@ -52,8 +52,8 @@
 #include <cmath>
 #include <iostream>
 #include "Applications/exampleEarthOrbitingSatellite.h"
-#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
-#include "Astrodynamics/Bodies/Vehicles/vehicle.h"
+#include "Astrodynamics/Bodies/planet.h"
+#include "Astrodynamics/Bodies/vehicle.h"
 #include "Astrodynamics/ForceModels/gravitationalForceModel.h"
 #include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
 #include "Astrodynamics/Propagators/seriesPropagator.h"

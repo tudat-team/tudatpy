@@ -1,6 +1,6 @@
 /*! \file convertMeanAnomalyBase.h
- *    This header file contains a base class to convert mean anomaly to
- *    eccentric and hyperbolic eccentric anomalies.
+ *    This header file contains a base class to convert mean anomaly to eccentric and hyperbolic
+ *    eccentric anomalies.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -43,13 +43,13 @@
 
 // Include statements.
 #include <ctime>
-#include "Mathematics/basicMathematicsFunctions.h"
 #include "Astrodynamics/Bodies/body.h"
-#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/States/keplerianElements.h"
+#include "Astrodynamics/States/orbitalElementConversions.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
-#include "Astrodynamics/States/orbitalElementConversions.h"
 
 //! Orbital element conversions namespace.
 /*!
@@ -92,16 +92,14 @@ public:
      * Sets eccentricity of orbit.
      * \param eccentricity Eccentricity.
      */
-    void setEccentricity( const double& eccentricity )
-    { eccentricity_ = eccentricity; }
+    void setEccentricity( const double& eccentricity ) { eccentricity_ = eccentricity; }
 
     //! Set mean anomaly.
     /*!
      * Sets the mean anomaly.
      * \param meanAnomaly Mean anomaly.
      */
-    void setMeanAnomaly( const double& meanAnomaly )
-    { meanAnomaly_ = meanAnomaly; }
+    void setMeanAnomaly( const double& meanAnomaly ) { meanAnomaly_ = meanAnomaly; }
 
 protected:
 

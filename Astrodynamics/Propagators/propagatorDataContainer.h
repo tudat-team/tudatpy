@@ -4,7 +4,7 @@
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 9
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -57,9 +57,10 @@
 #define PROPAGATORDATACONTAINER_H
 
 // Include statements.
+#include <iostream>
 #include <map>
 #include <vector>
-#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/ForceModels/forceModel.h"
 #include "Astrodynamics/Propagators/propagator.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"

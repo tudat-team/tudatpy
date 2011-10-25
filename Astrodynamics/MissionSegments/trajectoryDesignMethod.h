@@ -1,6 +1,5 @@
 /*! \file trajectoryDesignMethod.h
- *    This header file contains a base class for all trajectory design methods
- *    classes in Tudat.
+ *    This header file contains a base class for all trajectory design methods classes in Tudat.
  *
  *    Path              : /Astrodynamics/MissionSegments/
  *    Version           : 1
@@ -47,12 +46,6 @@
 class TrajectoryDesignMethod
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    TrajectoryDesignMethod( ) { }
 
     //! Default destructor.
     /*!

@@ -42,7 +42,6 @@
 #define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
 
 // Include statements.
-#include <cmath>
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
 
 //! Compute aerodynamic moment.
@@ -51,10 +50,9 @@ void AerodynamicMoment::computeMoment( State* pointerToState )
     TUDAT_UNUSED_PARAMETER( pointerToState );
 
     // Calculate moment.
-    moment_ = dynamicPressure_ *
-              pointerToAerodynamicCoefficientInterface_->getReferenceArea( ) *
-              pointerToAerodynamicCoefficientInterface_->getReferenceLength( ) *
-              pointerToAerodynamicCoefficientInterface_->getCurrentMomentCoefficients( );
+    moment_ = dynamicPressure_ * pointerToAerodynamicCoefficientInterface_->getReferenceArea( ) *
+            pointerToAerodynamicCoefficientInterface_->getReferenceLength( ) *
+            pointerToAerodynamicCoefficientInterface_->getCurrentMomentCoefficients( );
 
     // Check if pointer to forcemodel is set.
     if ( pointerToForceModel_ != NULL )

@@ -1,6 +1,5 @@
 /*! \file cartesianPositionElements.h
- *    This header file contains the Cartesian position elements class included
- *    in Tudat.
+ *    This header file contains the Cartesian position elements class included in Tudat.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -57,14 +56,7 @@ public:
     /*!
      * Default constructor.
      */
-    CartesianPositionElements( )
-    { state.setZero( 3 ); }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~CartesianPositionElements( ) { }
+    CartesianPositionElements( ) { state.setZero( 3 ); }
 
     //! Set Cartesian element: x.
     /*!
@@ -95,24 +87,21 @@ public:
      * Returns the Cartesian element: x.
      * \return Cartesian element: x.
      */
-    double& getCartesianElementX( )
-    { return state( 0 ); }
+    double& getCartesianElementX( ) { return state( 0 ); }
 
     //! Get Cartesian element: y.
     /*!
      * Returns the Cartesian element: y.
      * \return Cartesian element: y.
      */
-    double& getCartesianElementY( )
-    { return state( 1 ); }
+    double& getCartesianElementY( ) { return state( 1 ); }
 
     //! Get Cartesian element: z.
     /*!
      * Returns the Cartesian element: z.
      * \return Cartesian element: z.
      */
-    double& getCartesianElementZ( )
-    { return state( 2 ); }
+    double& getCartesianElementZ( ) { return state( 2 ); }
 
     //! Overload ostream to print class information.
     /*!
@@ -122,8 +111,7 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     CartesianPositionElements&
-                                     cartesianPositionElements )
+                                     CartesianPositionElements& cartesianPositionElements )
     {
         stream << "The state is set to: " << cartesianPositionElements.state << std::endl;
         return stream;

@@ -73,7 +73,6 @@
 // Using declarations.
 using std::cerr;
 using std::endl;
-using std::cout;
 using std::multimap;
 using std::vector;
 using std::string;

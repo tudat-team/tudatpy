@@ -54,7 +54,6 @@ using std::string;
 using std::map;
 using std::cerr;
 using std::endl;
-using std::cout;
 
 //! Namespace for all unit tests.
 namespace unit_tests

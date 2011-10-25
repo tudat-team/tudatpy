@@ -1,6 +1,5 @@
 /*! \file ephemeris.h
- *    This header file contains the definition of a base class for all
- *    ephemeris classes in Tudat.
+ *    This header file contains the definition of a base class for all ephemeris classes in Tudat.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -35,8 +34,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110128    K. Kumar          First creation of code.
- *      110221    K. Kumar          Updated code to work as base class for
- *                                  derived ephemeris classes.
+ *      110221    K. Kumar          Updated code to work as base class for derived ephemeris
+ *                                  classes.
  */
 
 #ifndef EPHEMERIS_H
@@ -60,23 +59,13 @@ public:
      * Bodies with ephemeris data.
      */
     enum BodiesWithEphemerisData
-    {
-        mercury,
-        venus,
-        earthMoonBarycenter,
-        mars,
-        jupiter,
-        saturn,
-        uranus,
-        neptune,
-        pluto
-    };
+    { mercury, venus, earthMoonBarycenter, mars, jupiter, saturn, uranus, neptune, pluto };
 
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    Ephemeris( ) { }
+    Ephemeris( ) : ephemerisLineData_( ) { }
 
     //! Default destructor.
     /*!

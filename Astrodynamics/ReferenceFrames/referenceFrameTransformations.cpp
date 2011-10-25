@@ -1,6 +1,6 @@
 /*! \file referenceFrameTransformations.cpp
- *    This file contains the implementation of the reference frame transformations
- *    namespace included in Tudat.
+ *    This file contains the implementation of the reference frame transformations namespace
+ *    included in Tudat.
  *
  *    Path              : /Astrodynamics/ReferenceFrames/
  *    Version           : 6
@@ -15,7 +15,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 19 May, 2011
- *    Last modified     : 26 July, 2011
+ *    Last modified     : 9 August, 2011
  *
  *    References
  *      Muller, J.A., et al. Flight Dynamics Lecture Notes, TU Delft, February 2007.
@@ -52,12 +52,11 @@
  */
 
 // Include statements.
-#include "referenceFrameTransformations.h"
+#include "Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Matrix3d reference_frame_transformations::
-getRotatingPlanetocentricToInertialFrameTransformationMatrix(
-        const double& angleFromXItoXR )
+getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double& angleFromXItoXR )
 {
     // Declare local variables.
     // Declare local matrix.
@@ -68,13 +67,12 @@ getRotatingPlanetocentricToInertialFrameTransformationMatrix(
             getInertialToPlanetocentricFrameTransformationMatrix( angleFromXItoXR );
 
     // Return transformation matrix.
-    return localMatrix_.transpose();
+    return localMatrix_.transpose( );
 }
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation quaternion.
 Quaterniond reference_frame_transformations::
-getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
-    const double& angleFromXItoXR )
+getRotatingPlanetocentricToInertialFrameTransformationQuaternion( const double& angleFromXItoXR )
 {
     // Compute transformation quaternion
     // Note the sign change, because how angleAxisd is defined.
@@ -87,10 +85,10 @@ getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 Matrix3d reference_frame_transformations::getInertialToPlanetocentricFrameTransformationMatrix(
-        const double& angleFromXItoXR )
+    const double& angleFromXItoXR )
 {
     // Compute rotation about Z-Axis.
-     // Note the sign change, because how angleAxisd is defined.
+    // Note the sign change, because how angleAxisd is defined.
     AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * angleFromXItoXR, Vector3d::UnitZ( ) );
 
     // Return transformation matrix.
@@ -99,8 +97,8 @@ Matrix3d reference_frame_transformations::getInertialToPlanetocentricFrameTransf
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
 Quaterniond
-  reference_frame_transformations::getInertialToPlanetocentricFrameTransformationQuaternion(
-        const double& angleFromXItoXR )
+reference_frame_transformations::getInertialToPlanetocentricFrameTransformationQuaternion(
+    const double& angleFromXItoXR )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
@@ -111,23 +109,21 @@ Quaterniond
     return frameTransformationQuaternion;
 }
 
-//! Creates a Quaterniond rotation state object from four quaternion values in a Vector4d
+//! Create a Quaterniond rotation state object from four quaternion values in a Vector4d
 Quaterniond reference_frame_transformations::
 getQuaternionObjectFromQuaternionValues(
     const Vector4d& vectorWithQuaternion )
 {
     // Set transformation quaternion.
     Quaterniond frameTransformationQuaternion = Quaterniond(
-            vectorWithQuaternion( 0 ),
-            vectorWithQuaternion( 1 ),
-            vectorWithQuaternion( 2 ),
-            vectorWithQuaternion( 3 ) );
+                vectorWithQuaternion( 0 ), vectorWithQuaternion( 1 ),
+                vectorWithQuaternion( 2 ), vectorWithQuaternion( 3 ) );
 
     // Return transformation quaternion.
     return frameTransformationQuaternion;
 }
 
-//! Get Aerodynamic (airspeed based) (AA) to body reference frame (B) tranformation matrix.
+//! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
 Matrix3d reference_frame_transformations::
 getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( const double& angleOfAttack,
                                                             const double& angleOfSideslip )
@@ -136,7 +132,7 @@ getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( const double& angleO
     // attack angle about Y-Axis.
     // Note the sign change, because how angleAxisd is defined.
     AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * angleOfAttack, Vector3d::UnitY( ) ) *
-                            AngleAxisd( -1.0 * -angleOfSideslip, Vector3d::UnitZ( ) );
+            AngleAxisd( -1.0 * -angleOfSideslip, Vector3d::UnitZ( ) );
 
     // Return transformation matrix.
     return eigenRotationObject.toRotationMatrix( );
@@ -144,16 +140,16 @@ getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( const double& angleO
 
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
 Quaterniond reference_frame_transformations::
-        getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-            const double& longitude, const double& latitude )
+getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+    const double& longitude, const double& latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
     AngleAxisd RotationAroundZaxis = AngleAxisd( -1.0 * longitude, Vector3d::UnitZ( ) );
     AngleAxisd RotationAroundYaxis = AngleAxisd(
-            -1.0 * ( -latitude - M_PI / 2.0 ), Vector3d::UnitY( ) );
+                -1.0 * ( -latitude - M_PI / 2.0 ), Vector3d::UnitY( ) );
     Quaterniond frameTransformationQuaternion = Quaterniond(
-            ( RotationAroundYaxis * RotationAroundZaxis ) );
+                ( RotationAroundYaxis * RotationAroundZaxis ) );
 
     // Return transformation quaternion.
     return frameTransformationQuaternion;
@@ -161,8 +157,8 @@ Quaterniond reference_frame_transformations::
 
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 Quaterniond reference_frame_transformations::
-        getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-            const double& longitude, const double& latitude )
+getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+    const double& longitude, const double& latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change (-1.0), because how angleAxisd is defined.
@@ -170,7 +166,7 @@ Quaterniond reference_frame_transformations::
     AngleAxisd RotationAroundYaxis =
             AngleAxisd( -1.0 * ( latitude + M_PI / 2.0 ), Vector3d::UnitY( ) );
     Quaterniond  frameTransformationQuaternion = Quaterniond(
-            ( RotationAroundZaxis * RotationAroundYaxis ) );
+                ( RotationAroundZaxis * RotationAroundYaxis ) );
 
     // Return transformation quaternion.
     return frameTransformationQuaternion;

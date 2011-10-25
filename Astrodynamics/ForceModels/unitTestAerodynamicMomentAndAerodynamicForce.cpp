@@ -41,7 +41,7 @@
 // Include statements.
 #include "Astrodynamics/ForceModels/aerodynamicForce.h"
 #include "Astrodynamics/ForceModels/unitTestAerodynamicMomentAndAerodynamicForce.h"
-#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h"
+#include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"

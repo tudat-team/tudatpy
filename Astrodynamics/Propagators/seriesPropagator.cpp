@@ -3,7 +3,7 @@
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 2
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -108,8 +108,7 @@ void SeriesPropagator::execute( )
     // propagator data containers. Set initial states for each propagated
     // body to final states from current propagation segment.
     for ( iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
-          iteratorPropagatedBodies_ != bodiesToPropagate_.end( );
-          iteratorPropagatedBodies_++ )
+          iteratorPropagatedBodies_ != bodiesToPropagate_.end( ); iteratorPropagatedBodies_++ )
     {
         // Get map of bodies to propagate.
         bodiesToPropagate_ = pointerToPropagator_->getBodiesToPropagate( );

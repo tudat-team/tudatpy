@@ -1,6 +1,6 @@
 /*! \file referenceFrameTransformations.h
- *    This file contains the definition of the reference frame transformations
- *    namespace included in Tudat.
+ *    This file contains the definition of the reference frame transformations namespace included
+ *    in Tudat.
  *
  *    Path              : /Astrodynamics/ReferenceFrames/
  *    Version           : 7
@@ -39,9 +39,8 @@
  *      110519    F.M. Engelen      First creation of code.
  *      110628    K. Kumar          Minor comment and layout changes; changed
  *                                  input arguments to pass-by-reference.
- *      110701    K. Kumar          Removed function definitions to be
- *                                  implemented in a future code-check;
- *                                  updated file path.
+ *      110701    K. Kumar          Removed function definitions to be implemented in a future
+ *                                  code-check; updated file path.
  *      110718    F.M. Engelen      Added Quaternion transformations and ItoE tranformation.
  *      110726    K. Kumar          Minor modifications.
  *      110809    F.M. Engelen      Replaced the normal planet fixed, with local vertical frame.
@@ -53,9 +52,9 @@
 
 // Include statements.
 #include <cmath>
-#include "linearAlgebra.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-// Using statments.
+// Using statements.
 using Eigen::AngleAxisd;
 using Eigen::Quaterniond;
 
@@ -111,7 +110,7 @@ Matrix3d getInertialToPlanetocentricFrameTransformationMatrix( const double& ang
 Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
         const double& angleFromXItoXR );
 
-//! Creates a Quaterniond rotation state object from four quaternion values in vector 4d.
+//! Create a Quaterniond rotation state object from four quaternion values in vector 4d.
 /*!
  * Creates a Quaterniond rotation state object from four quaternion values.
  * This function is not related to any specific rotation matrix, but can be used for general
@@ -120,19 +119,18 @@ Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
  * Note that is also possible to create a quaternion object directly from a vector4d,
  * but Eigen will rearrange the order of the coefficients ([q2 q3 q4 q1]). This function
  * retreives the individual entries of the Vector4d an uses them as four doubles as input
- * arguments for the constructor of the Quateriond
- * From the Eigen code documentation:
+ * arguments for the constructor of the Quateriond. From the Eigen code documentation:
  * \warning Note the order of the arguments: the real \a w coefficient first,
- * while internally the coefficients are stored in the following order:
- * [\c x, \c y, \c z, \c w]
+ *              while internally the coefficients are stored in the following order:
+ *              [\c x, \c y, \c z, \c w]
  * \param vectorWithQuaternion A vector containing the quaternions of the rotation state
  * \return Transformation quaternion.
  */
 Quaterniond getQuaternionObjectFromQuaternionValues( const Vector4d& vectorWithQuaternion );
 
-//! Get Aerodynamic (airspeed based) (AA) to body reference frame (B) tranformation matrix.
+//! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
 /*!
- * Returns transformation matrix from Aerodynamic (airspeed based) (AA) to body reference
+ * Returns transformation matrix from Aerodynamic (airspeed-based) (AA) to body reference
  * frame (B).
  * \param angleOfAttack Angle of attack [rad].
  * \param angleOfSideslip Angle of sideslip [rad].
@@ -141,9 +139,9 @@ Quaterniond getQuaternionObjectFromQuaternionValues( const Vector4d& vectorWithQ
 Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
         const double& angleOfAttack, const double& angleOfSideslip );
 
-//! Get Aerodynamic (airspeed based) (AA) to body reference frame (B) tranformation quaternion.
+//! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation quaternion.
 /*!
- * Returns transformation quaternion from Aerodynamic (airspeed based) (AA) to body reference
+ * Returns transformation quaternion from Aerodynamic (airspeed-based) (AA) to body reference
  * frame (B).
  * \param angleOfAttack Angle of attack [rad].
  * \param angleOfSideslip Angle of sideslip [rad].
@@ -154,7 +152,7 @@ Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
 
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
 /*!
- * Get the frame transformation quaternion from the Planetocentric (R) to the Local vertical
+ * Returns the frame transformation quaternion from the Planetocentric (R) to the Local vertical
  * (V) reference frame. The Z axis is alligned with the local gravity vector. Whether or not,
  * this is in the direction of the center of the central body, depedens which kind of latitude
  * is provided (geocentric, geodetic, gravitation latitude)
@@ -168,11 +166,11 @@ Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternio
 
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 /*!
- * Get the frame transformation quaternion from the local vertical (V) to the
- * Planetocentric frame (R)reference frame. The Z axis is alligned with the local gravity vector. Whether or not,
- * this is in the direction of the center of the central body, depedens which kind of latitude
- * is provided (geocentric, geodetic, gravitation latitude)
- * The X axis is directed to the north.
+ * Returns the frame transformation quaternion from the local vertical (V) to the
+ * Planetocentric frame (R)reference frame. The Z axis is alligned with the local gravity vector.
+ * Whether or not, this is in the direction of the center of the central body, depedens which kind
+ * of latitude is provided (geocentric, geodetic, gravitation latitude) The X-axis is directed to
+ * the north.
  * \param longitude The longitude in the planetocentric reference frame in [rad].
  * \param latitude The planetocentric latitude in [rad].
  * \return Transformation quaternion from local vertical (V) to the Planetocentric (R) frame.

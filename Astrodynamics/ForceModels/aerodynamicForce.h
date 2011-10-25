@@ -46,7 +46,7 @@
 // Include statements.
 #include <iostream>
 #include "Astrodynamics/ForceModels/forceModel.h"
-#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h"
+#include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 
 //! Aerodynamic force model.
 /*!

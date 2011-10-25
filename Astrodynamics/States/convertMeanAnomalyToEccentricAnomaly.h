@@ -1,6 +1,6 @@
 /*! \file convertMeanAnomalyToEccentricAnomaly.h
- *    This header file contains a class to convert mean anomly to eccentric
- *    anomaly for elliptical orbits.
+ *    This header file contains a class to convert mean anomly to eccentric anomaly for elliptical
+ *    orbits.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 3
@@ -18,8 +18,7 @@
  *    Last modified     : 10 August, 2011
  *
  *    References
- *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series,
- *          VA, 2002.
+ *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
  *
  *    Notes
  *
@@ -68,17 +67,10 @@ public:
      */
     ConvertMeanAnomalyToEccentricAnomaly( ) : eccentricAnomaly_( -1.0 ) { }
 
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ConvertMeanAnomalyToEccentricAnomaly( ) { }
-
     //! Convert mean anomaly to eccentric anomaly.
     /*!
-     * Converts mean anomaly to eccentric anomaly for elliptical orbits.
-     * Currently, the conversion does not work for near-parabolic
-     * orbits ( 0.8 < eccentricity < 1.2 ).
+     * Converts mean anomaly to eccentric anomaly for elliptical orbits. Currently, the conversion
+     * does not work for near-parabolic orbits ( 0.8 < eccentricity < 1.2 ).
      * \return Eccentric anomaly.
      */
     double convert( );
@@ -97,8 +89,7 @@ private:
     /*!
      * Pointer to adaptor NewtonRaphsonAdaptor class.
      */
-    NewtonRaphsonAdaptor< ConvertMeanAnomalyToEccentricAnomaly >
-            newtonRaphsonAdaptor_;
+    NewtonRaphsonAdaptor< ConvertMeanAnomalyToEccentricAnomaly > newtonRaphsonAdaptor_;
 
     //! Compute Kepler's function for elliptical orbits.
     /*!
@@ -106,14 +97,14 @@ private:
      * \f[
      *      f( E ) = E - e * sin( E ) - M
      * \f]
-     * for elliptical orbits, where \f$ E \f$ is the eccentric anomaly,
-     * \f$ e \f$ is the eccentricity, \f$ M \f$ is the mean anomaly. Currently,
-     * the case for near-parabolic orbits is not included
-     * ( 0.8 < eccentricity < 1.2 ).
+     * for elliptical orbits, where \f$ E \f$ is the eccentric anomaly, \f$ e \f$ is the
+     * eccentricity, \f$ M \f$ is the mean anomaly. Currently, the case for near-parabolic orbits
+     * is not included ( 0.8 < eccentricity < 1.2 ).
      * \param eccentricAnomaly Eccentric anomaly.
      * \return Value of Kepler's function for elliptical orbits.
      */
-    double computeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly );
+    double computeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly )
+    {     return eccentricAnomaly - eccentricity_ * sin( eccentricAnomaly ) - meanAnomaly_; }
 
     //! Compute first-derivative of Kepler's function for elliptical orbits.
     /*!
@@ -121,14 +112,14 @@ private:
      * \f[
      *      \frac{ df( E ) } { dE } = 1 - e * cos( E )
      * \f]
-     * for elliptical orbits, where \f$ E \f$ is the eccentric anomaly, and
-     * \f$ e \f$ is the eccentricity. Currently, the case for near-parabolic
-     * orbits is not included ( 0.8 < eccentricity < 1.2 ).
+     * for elliptical orbits, where \f$ E \f$ is the eccentric anomaly, and \f$ e \f$ is the
+     * eccentricity. Currently, the case for near-parabolic orbits is not included
+     * ( 0.8 < eccentricity < 1.2 ).
      * \param eccentricAnomaly Eccentric anomaly.
-     * \return Value of first-derivative of Kepler's function for elliptical
-     *          orbits.
+     * \return Value of first-derivative of Kepler's function for elliptical orbits.
      */
-    double computeFirstDerivativeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly );
+    double computeFirstDerivativeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly )
+    { return 1.0 - eccentricity_ * cos( eccentricAnomaly ); }
 };
 
 }

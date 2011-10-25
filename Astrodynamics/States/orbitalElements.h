@@ -1,6 +1,5 @@
 /*! \file orbitalElements.h
- *    This header file contains a base class for all orbital element classes in
- *    Tudat.
+ *    This header file contains a base class for all orbital element classes in Tudat.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 3
@@ -35,8 +34,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      101020    K. Kumar          First creation of code.
- *      101022    K. Kumar          Completed constructor and set/get state
- *                                  functions. Added code comments.
+ *      101022    K. Kumar          Completed constructor and set/get state functions. Added code
+ *                                  comments.
  *      101026    K. Kumar          Moved set/get state functions to base class.
  */
 
@@ -53,18 +52,6 @@
 class OrbitalElements : public State
 {
 public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    OrbitalElements( ) { }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~OrbitalElements( ) { }
 
 protected:
 
