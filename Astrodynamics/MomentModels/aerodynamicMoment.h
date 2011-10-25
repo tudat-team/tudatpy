@@ -42,7 +42,8 @@
 #define AERODYNAMICMOMENT_H
 
 // Include statements.
-#include "Astrodynamics/ForceModels/Aerothermodynamics/aerodynamicCoefficientInterface.h"
+#include <iostream>
+#include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 #include "Astrodynamics/MomentModels/momentModel.h"
 
 class AerodynamicMoment : public MomentModel
@@ -55,12 +56,6 @@ public:
      */
     AerodynamicMoment( ) : pointerToAerodynamicCoefficientInterface_( NULL ),
         dynamicPressure_( -0.0 ) { }
-
-    //! Default destructor.
-    /*!
-     * Default constructor.
-     */
-    virtual ~AerodynamicMoment( ) { }
 
     //! Set aerodynamic coefficient interface.
     /*!

@@ -3,7 +3,7 @@
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 8
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -81,8 +81,7 @@ void NumericalPropagator::propagate( )
 
     // Loop over map of bodies to propagate.
     for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
-          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
-          iteratorBodiesToPropagate_++ )
+          iteratorBodiesToPropagate_ != bodiesToPropagate_.end( ); iteratorBodiesToPropagate_++ )
     {
         // Store start of range of initial state of a given body in assembled
         // initial state.

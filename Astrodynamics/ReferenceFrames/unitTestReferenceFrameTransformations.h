@@ -1,6 +1,6 @@
 /*! \file unitTestReferenceFrameTransformations.h
- *    This file contains the definition of the reference frame transformations
- *    unit test included in Tudat.
+ *    This file contains the definition of the reference frame transformations unit test included
+ *    in Tudat.
  *
  *    Path              : /Astrodynamics/ReferenceFrames/
  *    Version           : 3
@@ -41,12 +41,6 @@
 
 #ifndef UNITTESTFRAMETRANSFORMATION_H
 #define UNITTESTFRAMETRANSFORMATION_H
-
-// Include statements.
-#include <iostream>
-#include "basicMathematicsFunctions.h"
-#include "referenceFrameTransformations.h"
-#include "unitConversions.h"
 
 //! Namespace for all unit tests.
 /*!

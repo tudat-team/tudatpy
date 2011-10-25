@@ -1,8 +1,7 @@
 /*! \file approximatePlanetPositions.cpp
- *    This source file contains the definition of an ephemeris class that makes
- *    use of the JPL "Approximate Positions of Major Planets"
- *    ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve ephemeris data for a
- *    specific planet. The ephemeris file used is for the period 3000 BC to
+ *    This source file contains the definition of an ephemeris class that makes use of the JPL
+ *    "Approximate Positions of Major Planets" ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve
+ *    ephemeris data for a specific planet. The ephemeris file used is for the period 3000 BC to
  *    3000 AD.
  *
  *    Path              : /Astrodynamics/States/
@@ -47,7 +46,7 @@
 // Include statements.
 #include <cmath>
 #include "Astrodynamics/States/approximatePlanetPositions.h"
-#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/Bodies/planet.h"
 
 // Using declarations.
 using std::cerr;
@@ -68,76 +67,60 @@ CartesianElements* ApproximatePlanetPositions::
 
     // Compute and set semi-major axis of planet at given Julian date.
     planetKeplerianElementsAtGivenJulianDate_
-            .setSemiMajorAxis( approximatePlanetPositionsDataContainer_
-                               .semiMajorAxis_
+            .setSemiMajorAxis( approximatePlanetPositionsDataContainer_.semiMajorAxis_
                                + ( approximatePlanetPositionsDataContainer_
-                                   .rateOfChangeOfSemiMajorAxis_
-                                   * numberOfCenturiesPastJ2000_ ) );
+                                   .rateOfChangeOfSemiMajorAxis_ * numberOfCenturiesPastJ2000_ ) );
 
     // Compute and set eccentricity of planet at given Julian date.
     planetKeplerianElementsAtGivenJulianDate_
-            .setEccentricity( approximatePlanetPositionsDataContainer_
-                              .eccentricity_
+            .setEccentricity( approximatePlanetPositionsDataContainer_.eccentricity_
                               + ( approximatePlanetPositionsDataContainer_
-                                  .rateOfChangeOfEccentricity_
-                                  * numberOfCenturiesPastJ2000_ ) );
+                                  .rateOfChangeOfEccentricity_ * numberOfCenturiesPastJ2000_ ) );
 
     // Compute and set inclination of planet at given Julian date.
     planetKeplerianElementsAtGivenJulianDate_
-            .setInclination( approximatePlanetPositionsDataContainer_
-                             .inclination_
+            .setInclination( approximatePlanetPositionsDataContainer_.inclination_
                              + ( approximatePlanetPositionsDataContainer_
-                                 .rateOfChangeOfInclination_
-                                 * numberOfCenturiesPastJ2000_ ) );
+                                 .rateOfChangeOfInclination_ * numberOfCenturiesPastJ2000_ ) );
 
     // Compute and set longitude of ascending node of planet at given
     // Julian date.
     planetKeplerianElementsAtGivenJulianDate_
             .setLongitudeOfAscendingNode(
-                    approximatePlanetPositionsDataContainer_
-                    .longitudeOfAscendingNode_
-                    + ( approximatePlanetPositionsDataContainer_
-                        .rateOfChangeOfLongitudeOfAscendingNode_
-                        * numberOfCenturiesPastJ2000_ ) );
+                approximatePlanetPositionsDataContainer_.longitudeOfAscendingNode_
+                + ( approximatePlanetPositionsDataContainer_
+                    .rateOfChangeOfLongitudeOfAscendingNode_ * numberOfCenturiesPastJ2000_ ) );
 
     // Compute longitude of perihelion of planet at given Julian date.
     longitudeOfPerihelionAtGivenJulianDate_
             = approximatePlanetPositionsDataContainer_.longitudeOfPerihelion_
-              + ( approximatePlanetPositionsDataContainer_
-                  .rateOfChangeOfLongitudeOfPerihelion_
-                  * numberOfCenturiesPastJ2000_ );
+            + ( approximatePlanetPositionsDataContainer_.rateOfChangeOfLongitudeOfPerihelion_
+                * numberOfCenturiesPastJ2000_ );
 
     // Compute and set argument of periapsis of planet at given Julian date.
-    planetKeplerianElementsAtGivenJulianDate_
-            .setArgumentOfPeriapsis(
-                    longitudeOfPerihelionAtGivenJulianDate_
-                    - planetKeplerianElementsAtGivenJulianDate_
-                    .getLongitudeOfAscendingNode( ) );
+    planetKeplerianElementsAtGivenJulianDate_.setArgumentOfPeriapsis(
+                longitudeOfPerihelionAtGivenJulianDate_
+                - planetKeplerianElementsAtGivenJulianDate_.getLongitudeOfAscendingNode( ) );
 
     // Compute mean longitude of planet at given Julian date.
-    meanLongitudeAtGivenJulianDate_
-            = approximatePlanetPositionsDataContainer_.meanLongitude_
-              + ( approximatePlanetPositionsDataContainer_
-                  .rateOfChangeOfMeanLongitude_
-                  * numberOfCenturiesPastJ2000_ );
+    meanLongitudeAtGivenJulianDate_ = approximatePlanetPositionsDataContainer_.meanLongitude_
+            + ( approximatePlanetPositionsDataContainer_.rateOfChangeOfMeanLongitude_
+                * numberOfCenturiesPastJ2000_ );
 
     // Compute mean anomaly of planet at given Julian date.
-    meanAnomalyAtGivenJulianDate_
-            = meanLongitudeAtGivenJulianDate_
-              - longitudeOfPerihelionAtGivenJulianDate_
-              + ( approximatePlanetPositionsDataContainer_.additionalTermB_
-                  * pow( julianDate, 2.0 ) )
-              + ( approximatePlanetPositionsDataContainer_.additionalTermC_
-                  * cos( approximatePlanetPositionsDataContainer_
-                         .additionalTermF_ * julianDate ) )
-              + ( approximatePlanetPositionsDataContainer_.additionalTermS_
-                  * sin( approximatePlanetPositionsDataContainer_
-                         .additionalTermF_ * julianDate ) );
+    meanAnomalyAtGivenJulianDate_ = meanLongitudeAtGivenJulianDate_
+            - longitudeOfPerihelionAtGivenJulianDate_
+            + ( approximatePlanetPositionsDataContainer_.additionalTermB_
+                * pow( julianDate, 2.0 ) )
+            + ( approximatePlanetPositionsDataContainer_.additionalTermC_
+                * cos( approximatePlanetPositionsDataContainer_.additionalTermF_ * julianDate ) )
+            + ( approximatePlanetPositionsDataContainer_.additionalTermS_
+                * sin( approximatePlanetPositionsDataContainer_.additionalTermF_ * julianDate ) );
 
     // Compute modulo of mean anomaly for interval :
     // 0 <= meanAnomalyAtGivenJulianDate_ < 360.
     meanAnomalyAtGivenJulianDate_ = mathematics::computeModulo(
-             meanAnomalyAtGivenJulianDate_, 360.0 );
+                meanAnomalyAtGivenJulianDate_, 360.0 );
 
     // Translate mean anomaly to:
     // -180 < meanAnomalyAtGivenJulianDate_ <= 180 bounds.
@@ -148,56 +131,48 @@ CartesianElements* ApproximatePlanetPositions::
 
     // Set eccentricty for mean anomaly to eccentric anomaly conversion.
     convertMeanAnomalyToEccentricAnomaly_.setEccentricity(
-            planetKeplerianElementsAtGivenJulianDate_.getEccentricity( ) );
+                planetKeplerianElementsAtGivenJulianDate_.getEccentricity( ) );
 
     // Set mean anomaly for conversion to eccentric anomaly.
     convertMeanAnomalyToEccentricAnomaly_.setMeanAnomaly(
-            unit_conversions::convertDegreesToRadians(
-                    meanAnomalyAtGivenJulianDate_ ) );
+                unit_conversions::convertDegreesToRadians( meanAnomalyAtGivenJulianDate_ ) );
 
     // Set Newton-Raphson method to use for mean anomaly to eccentric
     // anomaly conversion.
     convertMeanAnomalyToEccentricAnomaly_.setNewtonRaphson( &newtonRaphson_ );
 
-    eccentricAnomalyAtGivenJulianDate_ = convertMeanAnomalyToEccentricAnomaly_
-                                         .convert( );
+    eccentricAnomalyAtGivenJulianDate_ = convertMeanAnomalyToEccentricAnomaly_.convert( );
 
     // Convert eccentric anomaly to true anomaly and set in planet elements.
     trueAnomalyAtGivenJulianData_
-            = orbital_element_conversions::
-              convertEccentricAnomalyToTrueAnomaly(
-                      eccentricAnomalyAtGivenJulianDate_,
-                      planetKeplerianElementsAtGivenJulianDate_
-                      .getEccentricity( ) );
+            = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+                eccentricAnomalyAtGivenJulianDate_,
+                planetKeplerianElementsAtGivenJulianDate_.getEccentricity( ) );
 
     planetKeplerianElementsAtGivenJulianDate_.setTrueAnomaly(
-            trueAnomalyAtGivenJulianData_ );
+                trueAnomalyAtGivenJulianData_ );
 
     // Convert Keplerian elements to standard units.
     // Convert semi-major axis from AU to meters.
     planetKeplerianElementsAtGivenJulianDate_.setSemiMajorAxis(
-            unit_conversions::convertAstronomicalUnitsToMeters(
-                    planetKeplerianElementsAtGivenJulianDate_
-                    .getSemiMajorAxis( ) ) );
+                unit_conversions::convertAstronomicalUnitsToMeters(
+                    planetKeplerianElementsAtGivenJulianDate_.getSemiMajorAxis( ) ) );
 
     // Convert inclination from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_.setInclination(
-            unit_conversions::convertDegreesToRadians(
-                    planetKeplerianElementsAtGivenJulianDate_
-                    .getInclination( ) ) );
+                unit_conversions::convertDegreesToRadians(
+                    planetKeplerianElementsAtGivenJulianDate_.getInclination( ) ) );
 
     // Convert longitude of ascending node from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_
             .setLongitudeOfAscendingNode(
-                    unit_conversions::convertDegreesToRadians(
-                            planetKeplerianElementsAtGivenJulianDate_
-                            .getLongitudeOfAscendingNode( ) ) );
+                unit_conversions::convertDegreesToRadians(
+                    planetKeplerianElementsAtGivenJulianDate_.getLongitudeOfAscendingNode( ) ) );
 
     // Convert argument of periapsis from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_.setArgumentOfPeriapsis(
-            unit_conversions::convertDegreesToRadians(
-                    planetKeplerianElementsAtGivenJulianDate_
-                    .getArgumentOfPeriapsis( ) ) );
+                unit_conversions::convertDegreesToRadians(
+                    planetKeplerianElementsAtGivenJulianDate_.getArgumentOfPeriapsis( ) ) );
 
     // Create predefined Sun.
     Planet predefinedSun_;
@@ -205,10 +180,8 @@ CartesianElements* ApproximatePlanetPositions::
 
     // Convert planet Elements in Keplerian elements to Cartesian elements.
     planetCartesianElementsAtGivenJulianDate_
-            = orbital_element_conversions::
-              convertKeplerianToCartesianElements(
-                      &planetKeplerianElementsAtGivenJulianDate_,
-                      &predefinedSun_ );
+            = orbital_element_conversions::convertKeplerianToCartesianElements(
+                &planetKeplerianElementsAtGivenJulianDate_, &predefinedSun_ );
 
     // Return Cartesian elements of planet at given Julian date.
     return &planetCartesianElementsAtGivenJulianDate_;

@@ -1,7 +1,7 @@
 /*! \file momentModel.h
  *    This header file contains the moment model base class included in Tudat.
  *
- *    Path              : /Astrodynamics/ForceAndMomentModels/
+ *    Path              : /Astrodynamics/MomentModels/
  *    Version           : 3
  *    Check status      : Checked
  *
@@ -37,8 +37,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110510    F.M. Engelen      First creation of code.
- *      110810    K. Kumar          Minor corrections; changed function names
- *                                  and removed redundant functions.
+ *      110810    K. Kumar          Minor corrections; changed function names and removed redundant
+ *                                  functions.
  *      110824    J. Leloux         Corrected doxygen documentation.
  */
 
@@ -46,6 +46,7 @@
 #define MOMENTMODEL_H
 
 // Include statements.
+#include <iostream>
 #include "Astrodynamics/ForceModels/forceModel.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
@@ -115,7 +116,7 @@ public:
      * Sets the moment.
      * \param moment Moment.
      */
-    void setMoment( Vector3d& moment ) { moment_  = moment; }
+    void setMoment( Vector3d& moment ) { moment_ = moment; }
 
     //! Compute moment.
      /*!

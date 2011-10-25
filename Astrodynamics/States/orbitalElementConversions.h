@@ -1,6 +1,5 @@
 /*! \file orbitalElementConversions.h
- *    This header file contains a namespace with orbital element conversion
- *    functions.
+ *    This header file contains a namespace with orbital element conversion functions.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 10
@@ -37,25 +36,20 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      101020    K. Kumar          First creation of code.
- *      101025    E. Iorfida        Fulfillment of the code with gravitational
- *                                  parameter.
+ *      101025    E. Iorfida        Fulfillment of the code with gravitational parameter.
  *      101130    E. Iorfida        Gravitational parameter removed.
- *      101202    J. Melman         Replaced endif statement and changed.
- *                                  Doxygen return statement.
+ *      101202    J. Melman         Replaced endif statement and changed. Doxygen return statement.
  *      101203    E. Iorfida        Gravitational parameter added.
- *      101219    J. Melman         Doxygen comment on gravitational parameter
- *                                  added.
- *      110128    K. Kumar          Changed references to pointers for
- *                                  functions.
- *      110510    K. Kumar          Updated conversion functions to not use
- *                                  dynamic memory allocation.
- *      110805    K. Kumar          Added mean motion to semi-major axis
- *                                  conversion.
+ *      101219    J. Melman         Doxygen comment on gravitational parameter added.
+ *      110128    K. Kumar          Changed references to pointers for functions.
+ *      110510    K. Kumar          Updated conversion functions to not use dynamic memory
+ *                                  allocation.
+ *      110805    K. Kumar          Added mean motion to semi-major axis conversion.
  *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
 // Include statements.
-#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
+#include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/keplerianElements.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
@@ -78,8 +72,7 @@ namespace orbital_element_conversions
  * \return CartesianElements object.
  */
 CartesianElements convertKeplerianToCartesianElements(
-        KeplerianElements* pointerToKeplerianElements,
-        CelestialBody* pointerToCelestialBody );
+        KeplerianElements* pointerToKeplerianElements, CelestialBody* pointerToCelestialBody );
 
 //! Convert Cartesian to Keplerian orbital elements.
 /*!
@@ -89,14 +82,12 @@ CartesianElements convertKeplerianToCartesianElements(
  * \return KeplerianElements object.
  */
 KeplerianElements convertCartesianToKeplerianElements(
-        CartesianElements* pointerToCartesianElements,
-        CelestialBody* pointerToCelestialBody );
+        CartesianElements* pointerToCartesianElements, CelestialBody* pointerToCelestialBody );
 
 //! Convert true anomaly to eccentric anomaly.
 /*!
- * Converts true anomaly to eccentric anomaly for elliptical orbits
- * ( 0 <= eccentricity < 1.0 ). The equations used can be found in
- * ( Chobotov, 2000 ).
+ * Converts true anomaly to eccentric anomaly for elliptical orbits ( 0 <= eccentricity < 1.0 ).
+ * The equations used can be found in ( Chobotov, 2000 ).
  * \param trueAnomaly True anomaly.
  * \param eccentricity Eccentricity.
  * \return Eccentric anomaly.
@@ -106,9 +97,8 @@ double convertTrueAnomalyToEccentricAnomaly( const double& trueAnomaly,
 
 //! Convert eccentric anomaly to true anomaly.
 /*!
- * Converts eccentric anomaly to true anomaly for elliptical orbits
- * ( 0 <= eccentricity < 1.0 ). The equations used can be found in
- * ( Chobotov, 2000 ).
+ * Converts eccentric anomaly to true anomaly for elliptical orbits ( 0 <= eccentricity < 1.0 ).
+ * The equations used can be found in ( Chobotov, 2000 ).
  * \param eccentricAnomaly Eccentric anomaly.
  * \param eccentricity Eccentricity.
  * \return True anomaly.
@@ -119,32 +109,29 @@ double convertEccentricAnomalyToTrueAnomaly( const double& eccentricAnomaly,
 //! Convert true anomaly to hyperbolic eccentric anomaly.
 /*!
  * Converts true anomaly to hyperbolic eccentric anomaly for hyperbolic orbits
- * ( eccentricity > 1.0 ). The equations used can be found in
- * ( Chobotov, 2000 ).
+ * ( eccentricity > 1.0 ). The equations used can be found in ( Chobotov, 2000 ).
  * \param trueAnomaly True anomaly.
  * \param eccentricity Eccentricity.
  * \return Hyperbolic eccentric anomaly.
  */
-double convertTrueAnomalyToHyperbolicEccentricAnomaly(
-        const double& trueAnomaly, const double& eccentricity );
+double convertTrueAnomalyToHyperbolicEccentricAnomaly( const double& trueAnomaly,
+                                                       const double& eccentricity );
 
 //! Convert hyperbolic eccentric anomaly to true anomaly.
 /*!
  * Converts hyperbolic eccentric anomaly to true anomaly for hyperbolic orbits
- * ( eccentricity > 1.0 ). The equations used can be found in
- * ( Chobotov, 2000 ).
+ * ( eccentricity > 1.0 ). The equations used can be found in ( Chobotov, 2000 ).
  * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly.
  * \param eccentricity Eccentricity.
  * \return True anomaly.
  */
-double convertHyperbolicEccentricAnomalyToTrueAnomaly(
-        const double& hyperbolicEccentricAnomaly, const double& eccentricity );
+double convertHyperbolicEccentricAnomalyToTrueAnomaly( const double& hyperbolicEccentricAnomaly,
+                                                       const double& eccentricity );
 
 //! Convert eccentric anomaly to mean anomaly.
 /*!
- * Converts eccentric anomaly to mean anomaly for elliptical orbits
- * ( 0 <= eccentricity < 1.0 ). The equations used can be found in
- * ( Chobotov, 2000 ).
+ * Converts eccentric anomaly to mean anomaly for elliptical orbits ( 0 <= eccentricity < 1.0 ).
+ * The equations used can be found in ( Chobotov, 2000 ).
  * \param eccentricity Eccentricity.
  * \param eccentricAnomaly Eccentric anomaly.
  * \return Mean anomaly.
@@ -154,89 +141,82 @@ double convertEccentricAnomalyToMeanAnomaly( const double& eccentricAnomaly,
 
 //! Class to convert mean anomaly to eccentric anomaly.
 /*!
- * This class is defines and implements conversion from mean anomaly to
- * eccentric anomaly for elliptical orbits. The conversion does not work
- * for near-parabolic orbits at present, hence the range of eccentricity is
- * restricted to: 0 <= eccentricity < 0.8.
+ * This class is defines and implements conversion from mean anomaly to eccentric anomaly for
+ * elliptical orbits. The conversion does not work for near-parabolic orbits at present, hence the
+ * range of eccentricity is restricted to: 0 <= eccentricity < 0.8.
  */
 class convertMeanAnomalyToEccentricAnomaly;
 
 //! Convert hyperbolic eccentric anomaly to mean anomaly.
 /*!
  * Converts hyperbolic eccentric anomaly to mean anomaly for hyperbolic orbits
- * ( eccentricity > 1.0 ). The equations used can be found in
- * ( Chobotov, 2000 ).
+ * ( eccentricity > 1.0 ). The equations used can be found in ( Chobotov, 2000 ).
  * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly.
  * \param eccentricity Eccentricity.
  * \return Mean anomaly.
  */
-double convertHyperbolicEccentricAnomalyToMeanAnomaly(
-        const double& hyperbolicEccentricAnomaly, const double& eccentricity );
+double convertHyperbolicEccentricAnomalyToMeanAnomaly( const double& hyperbolicEccentricAnomaly,
+                                                       const double& eccentricity );
 
 //! Class to convert mean anomaly to hyperbolic eccentric anomaly.
 /*!
- * This class is defines and implements conversion from mean anomaly to
- * hyperbolic eccentric anomaly for hyperbolic orbits. The conversion does
- * not work for near-parabolic orbits at present, hence the range of
- * eccentricity is restricted to: eccentricity > 1.2.
+ * This class is defines and implements conversion from mean anomaly to hyperbolic eccentric
+ * anomaly for hyperbolic orbits. The conversion does not work for near-parabolic orbits at
+ * present, hence the range of eccentricity is restricted to: eccentricity > 1.2.
  */
 class convertMeanAnomalyToHyperbolicEccentricAnomaly;
 
 //! Convert elapsed time to mean anomaly for elliptical orbits.
 /*!
- * Converts elapsed time to mean anomaly for elliptical orbits
- * ( 0 <= eccentricity < 1.0 ). The equation used can be found in
- * ( Chobotov, 2000 ).
+ * Converts elapsed time to mean anomaly for elliptical orbits ( 0 <= eccentricity < 1.0 ).
+ * The equation used can be found in ( Chobotov, 2000 ).
  * \param elapsedTime Elapsed time.
  * \param pointerToCentralBody Pointer to central body.
  * \param semiMajorAxis Semi-major axis.
  * \return Mean anomaly.
  */
-double convertElapsedTimeToMeanAnomalyForEllipticalOrbits(
-        const double& elapsedTime, CelestialBody* pointerToCentralBody,
-        const double& semiMajorAxis );
+double convertElapsedTimeToMeanAnomalyForEllipticalOrbits( const double& elapsedTime,
+                                                           CelestialBody* pointerToCentralBody,
+                                                           const double& semiMajorAxis );
 
 //! Convert mean anomaly to elapsed time.
 /*!
- * Converts mean anomaly to elapsed time for elliptical orbits
- * ( 0 <= eccentricity < 1.0 ). The equation used can be found in
- * ( Chobotov, 2000 ).
+ * Converts mean anomaly to elapsed time for elliptical orbits ( 0 <= eccentricity < 1.0 ).
+ * The equation used can be found in ( Chobotov, 2000 ).
  * \param meanAnomaly Mean anomaly.
  * \param pointerToCentralBody Pointer to central body.
  * \param semiMajorAxis Semi-major axis.
  * \return Elapsed time.
  */
-double convertMeanAnomalyToElapsedTimeForEllipticalOrbits(
-        const double& meanAnomaly, CelestialBody* pointerToCentralBody,
-        const double& semiMajorAxis );
+double convertMeanAnomalyToElapsedTimeForEllipticalOrbits( const double& meanAnomaly,
+                                                           CelestialBody* pointerToCentralBody,
+                                                           const double& semiMajorAxis );
 
 //! Convert elapsed time to mean anomaly for hyperbolic orbits.
 /*!
- * Converts elapsed time to mean anomaly for hyperbolic orbits
- * ( eccentricity > 1.0 ). The equation used can be found in
- * ( Chobotov, 2000 ).
+ * Converts elapsed time to mean anomaly for hyperbolic orbits ( eccentricity > 1.0 ).
+ * The equation used can be found in ( Chobotov, 2000 ).
  * \param elapsedTime Elapsed time.
  * \param pointerToCentralBody Pointer to central body.
  * \param semiMajorAxis Semi-major axis.
  * \return Mean anomaly.
  */
-double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits(
-        const double& elapsedTime, CelestialBody* pointerToCentralBody,
-        const double& semiMajorAxis );
+double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits( const double& elapsedTime,
+                                                           CelestialBody* pointerToCentralBody,
+                                                           const double& semiMajorAxis );
 
 //! Convert mean anomaly to elapsed time for hyperbolic orbits.
 /*!
- * Converts mean anomaly to elapsed time for hyperbolic orbits
- * ( eccentricity > 1.0 ). The equation used can be found in
- * ( Chobotov, 2000 ).
+ * Converts mean anomaly to elapsed time for hyperbolic orbits ( eccentricity > 1.0 ).
+ * The equation used can be found in ( Chobotov, 2000 ).
  * \param meanAnomaly Mean anomaly.
  * \param pointerToCentralBody Pointer to central body.
  * \param semiMajorAxis Semi-major axis.
  * \return Elapsed time.
  */
-double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits(
-        const double& meanAnomaly, CelestialBody* pointerToCentralBody,
-        const double& semiMajorAxis );
+double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits( const double& meanAnomaly,
+                                                           CelestialBody* pointerToCentralBody,
+                                                           const double& semiMajorAxis );
 
 //! Convert mean motion to semi-major axis.
 /*!

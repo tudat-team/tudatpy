@@ -1,6 +1,6 @@
 /*! \file unitTestOrbitalElementConversions.h
- *    Header file of unit test for the orbitalElementConversion, from Cartesian
- *    to Keplerian and viceversa.
+ *    Header file of unit test for the orbitalElementConversion, from Cartesian to Keplerian and
+ *    viceversa.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -46,8 +46,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110111    E. Iorfida        First creation of the code.
- *      110216    K. Kumar          Added include statements for new orbital
- *                                  element conversion functions.
+ *      110216    K. Kumar          Added include statements for new orbital element conversion
+ *                                  functions.
  */
 
 #ifndef UNITTESTORBITALELEMENTCONVERSIONS_H

@@ -73,15 +73,14 @@
 #include "Basics/basicFunctions.h"
 #include "Input/twoLineElementsTextFileReader.h"
 #include "Astrodynamics/physicalConstants.h"
-#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
-#include "Astrodynamics/EnvironmentModels/GravityFieldModel/sphericalHarmonicsGravityField.h"
+#include "Astrodynamics/Bodies/planet.h"
+#include "Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h"
 #include "Astrodynamics/States/orbitalElementConversions.h"
 
 // Using declarations.
 using std::string;
 using std::stringstream;
 using std::endl;
-using std::cout;
 using std::cerr;
 using std::vector;
 using std::multimap;

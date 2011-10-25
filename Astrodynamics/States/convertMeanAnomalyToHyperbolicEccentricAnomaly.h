@@ -1,6 +1,6 @@
 /*! \file convertMeanAnomalyToHyperbolicEccentricAnomaly.h
- *    This header file contains a class to convert mean anomaly to hyperbolic
- *    eccentric anomaly for hyperbolic orbits.
+ *    This header file contains a class to convert mean anomaly to hyperbolic eccentric anomaly for
+ *    hyperbolic orbits.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -18,10 +18,8 @@
  *    Last modified     : 10 August, 2011
  *
  *    References
- *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series,
- *          VA, 2002.
- *      http://www.cdeagle.com/omnum/pdf/demokep1.pdf, last accessed:
- *          16th February, 2011.
+ *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
+ *      http://www.cdeagle.com/omnum/pdf/demokep1.pdf, last accessed: 16th February, 2011.
  *
  *    Notes
  *
@@ -59,8 +57,7 @@ namespace orbital_element_conversions
 /*!
  * Definition of mean anomaly to hyperbolic eccentric anomaly converter class.
  */
-class ConvertMeanAnomalyToHyperbolicEccentricAnomaly
-    : public ConvertMeanAnomalyBase
+class ConvertMeanAnomalyToHyperbolicEccentricAnomaly : public ConvertMeanAnomalyBase
 {
 public:
 
@@ -70,17 +67,10 @@ public:
      */
     ConvertMeanAnomalyToHyperbolicEccentricAnomaly( ) : hyperbolicEccentricAnomaly_( -1.0 ) { }
 
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ConvertMeanAnomalyToHyperbolicEccentricAnomaly( ) { }
-
     //! Convert mean anomaly to hyperbolic eccentric anomaly.
     /*!
-     * Converts mean anomaly to hyperbolic eccentric anomaly for hyperbolic
-     * orbits. Currently, the conversion does not work for near-parabolic
-     * orbits ( 0.8 < eccentricity < 1.2 ).
+     * Converts mean anomaly to hyperbolic eccentric anomaly for hyperbolic orbits. Currently, the
+     * conversion does not work for near-parabolic orbits ( 0.8 < eccentricity < 1.2 ).
      * \return Hyperbolic eccentric anomaly.
      */
     double convert( );
@@ -107,14 +97,17 @@ private:
      * \f[
      *      f( F ) = e * sinh( F ) - F - M
      * \f]
-     * for hyperbolic orbits, where \f$ F \f$ is the hyperbolic eccentric
-     * anomaly, \f$ e \f$ is the eccentricity, \f$ M \f$ is the mean anomaly.
-     * Currently, the case for near-parabolic orbits is not included
-     * ( 0.8 < eccentricity < 1.2 ).
+     * for hyperbolic orbits, where \f$ F \f$ is the hyperbolic eccentric anomaly, \f$ e \f$ is the
+     * eccentricity, \f$ M \f$ is the mean anomaly. Currently, the case for near-parabolic orbits
+     * is not included ( 0.8 < eccentricity < 1.2 ).
      * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly.
      * \return Value of Kepler's function for hyperbolic orbits.
      */
-    double computeKeplersFunctionForHyperbolicOrbits_( double& hyperbolicEccentricAnomaly );
+    double computeKeplersFunctionForHyperbolicOrbits_( double& hyperbolicEccentricAnomaly )
+    {
+        return eccentricity_ * sinh( hyperbolicEccentricAnomaly )
+                - hyperbolicEccentricAnomaly - meanAnomaly_;
+    }
 
     //! Compute first-derivative of Kepler's function for hyperbolic orbits.
     /*!
@@ -122,15 +115,15 @@ private:
      * \f[
      *      \frac{ df( F ) } { dF } = e * cosh( F ) - 1
      * \f]
-     * for hyperbolic orbits, where \f$ F \f$ is the hyperbolic eccentric
-     * anomaly, and \f$ e \f$ is the eccentricity. Currently, the case for
-     * near-parabolic orbits is not included ( 0.8 < eccentricity < 1.2 ).
+     * for hyperbolic orbits, where \f$ F \f$ is the hyperbolic eccentric anomaly, and \f$ e \f$ is
+     * the eccentricity. Currently, the case for near-parabolic orbits is not included
+     * ( 0.8 < eccentricity < 1.2 ).
      * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly
-     * \return Value of first-derivative of Kepler's function for hyperbolic
-     *          orbits.
+     * \return Value of first-derivative of Kepler's function for hyperbolic orbits.
      */
     double computeFirstDerivativeKeplersFunctionForHyperbolicOrbits_(
-        double& hyperbolicEccentricAnomaly );
+        double& hyperbolicEccentricAnomaly )
+    { return eccentricity_ * cosh( hyperbolicEccentricAnomaly ) - 1.0; }
 };
 
 }

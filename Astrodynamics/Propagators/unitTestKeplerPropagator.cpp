@@ -3,7 +3,7 @@
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 4
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -54,9 +54,9 @@
 #include <fstream>
 #include <map>
 #include <string>
-#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
-#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
-#include "Astrodynamics/Bodies/Vehicles/vehicle.h"
+#include "Astrodynamics/Bodies/celestialBody.h"
+#include "Astrodynamics/Bodies/planet.h"
+#include "Astrodynamics/Bodies/vehicle.h"
 #include "Astrodynamics/Propagators/keplerPropagator.h"
 #include "Astrodynamics/Propagators/seriesPropagator.h"
 #include "Astrodynamics/Propagators/unitTestKeplerPropagator.h"
@@ -236,8 +236,7 @@ bool testKeplerPropagator( )
                         .getFixedOutputInterval( ) ].state( i ) );
         }
 
-        if ( differenceKeplerData
-             > toleranceBetweenBenchmarkAndSimulationData )
+        if ( differenceKeplerData > toleranceBetweenBenchmarkAndSimulationData )
         {
             isKeplerPropagatorErroneous = true;
 

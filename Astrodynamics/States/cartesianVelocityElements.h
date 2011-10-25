@@ -1,6 +1,5 @@
 /*! \file cartesianVelocityElements.h
- *    This header file contains the Cartesian velocity elements class included
- *    in Tudat.
+ *    This header file contains the Cartesian velocity elements class included in Tudat.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 1
@@ -56,14 +55,7 @@ public:
     /*!
      * Default constructor.
      */
-    CartesianVelocityElements( )
-    { state.setZero( 3 ); }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~CartesianVelocityElements( ) { }
+    CartesianVelocityElements( ) { state.setZero( 3 ); }
 
     //! Set Cartesian element: xDot.
     /*!
@@ -94,24 +86,21 @@ public:
      * Returns the Cartesian element: xDot.
      * \return Cartesian element: xDot.
      */
-    double& getCartesianElementXDot( )
-    { return state( 0 ); }
+    double& getCartesianElementXDot( ) { return state( 0 ); }
 
     //! Get Cartesian element: yDot.
     /*!
      * Returns the Cartesian element: yDot.
      * \return Cartesian element: yDot.
      */
-    double& getCartesianElementYDot( )
-    { return state( 1 ); }
+    double& getCartesianElementYDot( ) { return state( 1 ); }
 
     //! Get Cartesian element: zDot.
     /*!
      * Returns the Cartesian element: zDot.
      * \return Cartesian element: zDot.
      */
-    double& getCartesianElementZDot( )
-    { return state( 2 ); }
+    double& getCartesianElementZDot( ) { return state( 2 ); }
 
     //! Overload ostream to print class information.
     /*!
@@ -121,8 +110,7 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
-                                     CartesianVelocityElements&
-                                     cartesianVelocityElements )
+                                     CartesianVelocityElements& cartesianVelocityElements )
     {
         stream << "The state is set to: " << cartesianVelocityElements.state << std::endl;
         return stream;

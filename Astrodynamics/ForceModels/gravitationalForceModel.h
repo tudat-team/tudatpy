@@ -59,8 +59,8 @@
 // Include statements.
 #include <iostream>
 #include "Astrodynamics/Bodies/body.h"
-#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
-#include "Astrodynamics/EnvironmentModels/GravityFieldModel/gravityFieldModel.h"
+#include "Astrodynamics/Bodies/celestialBody.h"
+#include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 #include "Astrodynamics/ForceModels/forceModel.h"
 
 //! Gravitational force model class.

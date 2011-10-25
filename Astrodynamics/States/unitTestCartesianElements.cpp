@@ -1,6 +1,6 @@
 /*! \file unitTestCartesianElements.cpp
- *    Source file for a unit test that tests the implementation of the
- *    Cartesian elements state class in Tudat.
+ *    Source file for a unit test that tests the implementation of the Cartesian elements state
+ *    class in Tudat.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -42,9 +42,9 @@
  */
 
 // Include statements.
+#include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/unitTestCartesianElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-#include "Astrodynamics/States/cartesianElements.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 // Using statements.
@@ -82,39 +82,29 @@ bool testCartesianElements( )
     vectorOfCartesianElements( 5 ) = 50.0;
 
     // Test 1: Set Cartesian elements in state object.
-    cartesianElementsStateTest1.setCartesianElementX(
-            vectorOfCartesianElements( 0 ) );
-    cartesianElementsStateTest1.setCartesianElementY(
-            vectorOfCartesianElements( 1 ) );
-    cartesianElementsStateTest1.setCartesianElementZ(
-            vectorOfCartesianElements( 2 ) );
-    cartesianElementsStateTest1.setCartesianElementXDot(
-            vectorOfCartesianElements( 3 ) );
-    cartesianElementsStateTest1.setCartesianElementYDot(
-            vectorOfCartesianElements( 4 ) );
-    cartesianElementsStateTest1.setCartesianElementZDot(
-            vectorOfCartesianElements( 5 ) );
+    cartesianElementsStateTest1.setCartesianElementX( vectorOfCartesianElements( 0 ) );
+    cartesianElementsStateTest1.setCartesianElementY( vectorOfCartesianElements( 1 ) );
+    cartesianElementsStateTest1.setCartesianElementZ( vectorOfCartesianElements( 2 ) );
+    cartesianElementsStateTest1.setCartesianElementXDot( vectorOfCartesianElements( 3 ) );
+    cartesianElementsStateTest1.setCartesianElementYDot( vectorOfCartesianElements( 4 ) );
+    cartesianElementsStateTest1.setCartesianElementZDot( vectorOfCartesianElements( 5 ) );
 
     // Test 1: Get Cartesian elements and store in a state vector.
     VectorXd cartesianElementsStateVectorTest1( 6 );
-    cartesianElementsStateVectorTest1( 0 ) = cartesianElementsStateTest1
-                                             .getCartesianElementX( );
-    cartesianElementsStateVectorTest1( 1 ) = cartesianElementsStateTest1
-                                             .getCartesianElementY( );
-    cartesianElementsStateVectorTest1( 2 ) = cartesianElementsStateTest1
-                                             .getCartesianElementZ( );
-    cartesianElementsStateVectorTest1( 3 ) = cartesianElementsStateTest1
-                                             .getCartesianElementXDot( );
-    cartesianElementsStateVectorTest1( 4 ) = cartesianElementsStateTest1
-                                             .getCartesianElementYDot( );
-    cartesianElementsStateVectorTest1( 5 ) = cartesianElementsStateTest1
-                                             .getCartesianElementZDot( );
+    cartesianElementsStateVectorTest1( 0 ) = cartesianElementsStateTest1.getCartesianElementX( );
+    cartesianElementsStateVectorTest1( 1 ) = cartesianElementsStateTest1.getCartesianElementY( );
+    cartesianElementsStateVectorTest1( 2 ) = cartesianElementsStateTest1.getCartesianElementZ( );
+    cartesianElementsStateVectorTest1( 3 )
+            = cartesianElementsStateTest1.getCartesianElementXDot( );
+    cartesianElementsStateVectorTest1( 4 )
+            = cartesianElementsStateTest1.getCartesianElementYDot( );
+    cartesianElementsStateVectorTest1( 5 )
+            = cartesianElementsStateTest1.getCartesianElementZDot( );
 
     // Test 1: Difference between setting each Cartesian element and the
     // expected values.
     VectorXd differenceBetweenResultsTest1( 6 );
-    differenceBetweenResultsTest1 =
-            cartesianElementsStateVectorTest1 - vectorOfCartesianElements;
+    differenceBetweenResultsTest1 = cartesianElementsStateVectorTest1 - vectorOfCartesianElements;
 
     // Test 2: Set Cartesian elements using setState() function.
     cartesianElementsStateTest2.state = vectorOfCartesianElements;
@@ -122,13 +112,11 @@ bool testCartesianElements( )
     // Test 2: Difference between setting the Cartesian state as a whole and
     // the expected values.
     VectorXd differenceBetweenResultsTest2;
-    differenceBetweenResultsTest2 = cartesianElementsStateTest2.state
-                                    - vectorOfCartesianElements;
+    differenceBetweenResultsTest2 = cartesianElementsStateTest2.state - vectorOfCartesianElements;
 
     // Set test result to true if the test does not match the expected result.
 
-    if ( differenceBetweenResultsTest1.norm( )
-         > mathematics::MACHINE_PRECISION_DOUBLES )
+    if ( differenceBetweenResultsTest1.norm( ) > mathematics::MACHINE_PRECISION_DOUBLES )
     {
         isCartesianElementsErroneous = true;
 
@@ -136,30 +124,24 @@ bool testCartesianElements( )
         cerr << "The computed value " << endl;
         cerr << "( " << cartesianElementsStateVectorTest1 << " )" << endl;
         cerr << "using individual set/get functions for the "
-             << "CartesianElements class does not match the expected "
-             << "solution " << endl;
+             << "CartesianElements class does not match the expected solution " << endl;
         cerr << "( " << vectorOfCartesianElements << " )." << endl;
         cerr << "The difference is: "
-             << vectorOfCartesianElements
-                - cartesianElementsStateVectorTest1 << endl;
+             << vectorOfCartesianElements - cartesianElementsStateVectorTest1 << endl;
     }
 
-    if ( differenceBetweenResultsTest2.norm( )
-         > mathematics::MACHINE_PRECISION_DOUBLES )
+    if ( differenceBetweenResultsTest2.norm( ) > mathematics::MACHINE_PRECISION_DOUBLES )
     {
         isCartesianElementsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed value " << endl;
-        cerr << "( " << cartesianElementsStateTest2.state << " )"
-             << endl;
+        cerr << "( " << cartesianElementsStateTest2.state << " )" << endl;
         cerr << "using set/get functions for the whole state for the "
-             << "CartesianElements class does not match the expected "
-             << "solution " << endl;
+             << "CartesianElements class does not match the expected solution " << endl;
         cerr << "( " << vectorOfCartesianElements << " )." << endl;
         cerr << "The difference is: "
-             << vectorOfCartesianElements
-                - cartesianElementsStateTest2.state << endl;
+             << vectorOfCartesianElements - cartesianElementsStateTest2.state << endl;
     }
 
     // Return test result.

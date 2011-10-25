@@ -1,8 +1,7 @@
 /*! \file state.h
- *    This header file contains a base class for all state classes in Tudat.
- *    This base class provides an interface for the rest of the Tudat library
- *    to ensure consistent implementation of state vectors, matrices etc. All
- *    state classes in Tudat are derived from this base class.
+ *    This header file contains a base class for all state classes in Tudat. This base class
+ *    provides an interface for the rest of the Tudat library to ensure consistent implementation
+ *    of state vectors, matrices etc. All state classes in Tudat are derived from this base class.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 7
@@ -43,9 +42,8 @@
  *      101110    K. Kumar          Added setState() function for matrices.
  *      101202    J. Melman         Changed path and blank line removed.
  *      110110    K. Kumar          Changed matrices to vectors.
- *      110202    K. Kumar          Removed set/get functions for state and
- *                                  made state a public variable for
- *                                  functionality.
+ *      110202    K. Kumar          Removed set/get functions for state and made state a public
+ *                                  variable for functionality.
  *      110204    K. Kumar          Note added about public state variable.
  *      110207    K. Kumar          Added ostream overload.
  */
@@ -66,12 +64,6 @@ class State
 {
 public:
 
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    State( ) { }
-
     //! Default destructor.
     /*!
      * Default destructor.
@@ -91,12 +83,8 @@ public:
      * \param stateObject State object.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     State& stateObject )
-    {
-        stream << "The state is set to: " << stateObject.state << std::endl;
-        return stream;
-    }
+    friend std::ostream& operator<<( std::ostream& stream, State& stateObject )
+    { stream << "The state is set to: " << stateObject.state << std::endl; return stream; }
 
 protected:
 

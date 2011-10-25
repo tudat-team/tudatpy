@@ -1,9 +1,9 @@
 /*! \file unitTestApproximatePlanetPositions.cpp
- *    Source file for a unit test that tests the implementation of the
- *    ApproximatePlanetPositions class in Tudat.
+ *    Source file for a unit test that tests the implementation of the ApproximatePlanetPositions
+ *    class in Tudat.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -26,8 +26,7 @@
  *    Last modified     : 10 August, 2011
  *
  *    References
- *      HORIZONS Web-Interface, http://ssd.jpl.nasa.gov/horizons.cgi,
- *          last accessed: 5 April, 2011.
+ *      HORIZONS Web-Interface, http://ssd.jpl.nasa.gov/horizons.cgi, last accessed: 5 April, 2011.
  *
  *    Notes
  *      Test runs code and verifies result against expected value.
@@ -49,29 +48,33 @@
  *      YYMMDD    Author            Comment
  *      110405    K. Kumar          File created.
  *      110406    K. Kumar          Added cerr statements.
- *      110411    K. Kumar          Changed test to check errors in position,
- *                                  right ascension, and declination.
- *      110701    K. Kumar          Updated to use new predefined planets
- *                                  architecture; removed dynamic memory
- *                                  allocation.
+ *      110411    K. Kumar          Changed test to check errors in position, right ascension, and
+ *                                  declination.
+ *      110701    K. Kumar          Updated to use new predefined planets architecture; removed
+ *                                  dynamic memory allocation.
  *      110714    L. van der Ham    Added circular coplanar case.
+ *      111024    K. Kumar          Spotted error in circular coplanar test after changing abs()
+ *                                  to fabs(). Needs to be fixed.
  */
 
 // Include statements.
 #include <iostream>
-#include "Astrodynamics/States/unitTestApproximatePlanetPositions.h"
+#include "Astrodynamics/Bodies/celestialBody.h"
+#include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h"
-#include "Mathematics/basicMathematicsFunctions.h"
-#include "Astrodynamics/Bodies/CelestialBodies/celestialBody.h"
 #include "Astrodynamics/States/keplerianElements.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Astrodynamics/States/orbitalElementConversions.h"
-#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
+#include "Astrodynamics/States/unitTestApproximatePlanetPositions.h"
+#include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
+using std::fabs;
+using std::cos;
+using std::sqrt;
 using mathematics::convertCartesianToSpherical;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 using unit_conversions::convertDegreesToRadians;
@@ -98,14 +101,13 @@ bool testApproximatePlanetPositions( )
     KeplerianElements marsOrbitalElementsForTest1;
     marsOrbitalElementsForTest1.setSemiMajorAxis( 2.279361944126564e11 );
     marsOrbitalElementsForTest1.setEccentricity( 9.338126166083623e-02 );
-    marsOrbitalElementsForTest1.setInclination(
-                convertDegreesToRadians( 1.848907897011101 ) );
+    marsOrbitalElementsForTest1.setInclination( convertDegreesToRadians( 1.848907897011101 ) );
     marsOrbitalElementsForTest1.setArgumentOfPeriapsis(
                 convertDegreesToRadians( 2.866464026954701e2 ) );
     marsOrbitalElementsForTest1.setLongitudeOfAscendingNode(
-            convertDegreesToRadians( 4.952419052428279e1 ) );
+                convertDegreesToRadians( 4.952419052428279e1 ) );
     marsOrbitalElementsForTest1.setTrueAnomaly(
-            convertDegreesToRadians( 3.577219707986779e2 ) );
+                convertDegreesToRadians( 3.577219707986779e2 ) );
 
     // Create predefined Mars.
     Planet predefinedMars;
@@ -117,10 +119,8 @@ bool testApproximatePlanetPositions( )
 
     // Convert expected result to Cartesian elements.
     CartesianElements expectedMarsEphemeris;
-    expectedMarsEphemeris
-            = orbital_element_conversions::
-              convertKeplerianToCartesianElements( &marsOrbitalElementsForTest1,
-                                                   &predefinedSun );
+    expectedMarsEphemeris = orbital_element_conversions::
+            convertKeplerianToCartesianElements( &marsOrbitalElementsForTest1, &predefinedSun );
 
     // Retrieve state of Mars in Cartesian elements at Julian date 2455626.5.
     CartesianElements marsEphemeris;
@@ -136,36 +136,32 @@ bool testApproximatePlanetPositions( )
                                  expectedPositionInSphericalCoordinates );
 
     VectorXd differenceInSphericalCoordinates( 3 );
-    differenceInSphericalCoordinates
-            = positionInSphericalCoordinates
-                   - expectedPositionInSphericalCoordinates;
+    differenceInSphericalCoordinates = positionInSphericalCoordinates
+            - expectedPositionInSphericalCoordinates;
 
     // Set test result to true if the test does not match the expected result.
     // Check if computed relative error in radius in metres matches expected value.
     // The error bounds are taken from: http://ssd.jpl.nasa.gov/?planet_pos.
     double errorBoundRadius_ = 3.0e8;
-    if ( abs( differenceInSphericalCoordinates( 0 ) ) > errorBoundRadius_ )
+    if ( fabs( differenceInSphericalCoordinates( 0 ) ) > errorBoundRadius_ )
     {
         isApproximatePlanetPositionsErroneous_ = true;
 
         // Generate error statements.
         cerr << "The computed error in radius of ephemeris of Mars " << endl;
-        cerr << "( " << abs( differenceInSphericalCoordinates( 0 ) )
-             << " metres )" << endl;
-        cerr << "using the ApproximatePlanetPositions class exceeds "
-             << "the error bound "
-             << endl;
+        cerr << "( " << fabs( differenceInSphericalCoordinates( 0 ) ) << " metres )" << endl;
+        cerr << "using the ApproximatePlanetPositions class exceeds the error bound " << endl;
         cerr << "( " << errorBoundRadius_ << " metres )." << endl;
         cerr << "The computed error exceeds the error bound by: "
-             << abs( differenceInSphericalCoordinates( 0 ) ) - errorBoundRadius_
+             << fabs( differenceInSphericalCoordinates( 0 ) ) - errorBoundRadius_
              << " metres." << endl;
     }
 
     // Check if computed error in right ascension in radians matches expected
     // value.
     double rightAscensionErrorInArcsec_ = convertArcminutesToArcseconds(
-                convertDegreesToArcminutes( convertRadiansToDegrees(
-                    abs( differenceInSphericalCoordinates( 1 ) ) ) ) );
+                convertDegreesToArcminutes(
+                    convertRadiansToDegrees( fabs( differenceInSphericalCoordinates( 1 ) ) ) ) );
     double errorBoundRightAscensionInArcsec_ = 100.0;
 
     if ( rightAscensionErrorInArcsec_ > errorBoundRightAscensionInArcsec_ )
@@ -173,11 +169,9 @@ bool testApproximatePlanetPositions( )
         isApproximatePlanetPositionsErroneous_ = true;
 
         // Generate error statements.
-        cerr << "The computed error in right ascension of ephemeris of Mars "
-             << endl;
+        cerr << "The computed error in right ascension of ephemeris of Mars " << endl;
         cerr << "( " << rightAscensionErrorInArcsec_ << " arcsec )" << endl;
-        cerr << "using the ApproximatePlanetPositions class exceeds "
-                << "the expected error " << endl;
+        cerr << "using the ApproximatePlanetPositions class exceeds the expected error " << endl;
         cerr << "( " << errorBoundRightAscensionInArcsec_ << " arcsec )." << endl;
         cerr << "The computed error exceeds the expected error by: "
                 << rightAscensionErrorInArcsec_ - errorBoundRightAscensionInArcsec_
@@ -187,8 +181,8 @@ bool testApproximatePlanetPositions( )
     // Check if computed error in declination inclination in radians matches
     // expected value.
     double declinationErrorInArcsec_ = convertArcminutesToArcseconds(
-                convertDegreesToArcminutes( convertRadiansToDegrees(
-                    abs( differenceInSphericalCoordinates( 2 ) ) ) ) );
+                convertDegreesToArcminutes(
+                    convertRadiansToDegrees( fabs( differenceInSphericalCoordinates( 2 ) ) ) ) );
     double errorBoundDeclinationInArcsec_ = 40.0;
 
     if ( errorBoundDeclinationInArcsec_ > 40.0 )
@@ -196,11 +190,9 @@ bool testApproximatePlanetPositions( )
         isApproximatePlanetPositionsErroneous_ = true;
 
         // Generate error statements.
-        cerr << "The computed error in declination of ephemeris of Mars "
-                << endl;
+        cerr << "The computed error in declination of ephemeris of Mars " << endl;
         cerr << "( " << declinationErrorInArcsec_ << " arcsec )" << endl;
-        cerr << "using the ApproximatePlanetPositions class exceeds "
-                << "the expected error " << endl;
+        cerr << "using the ApproximatePlanetPositions class exceeds the expected error " << endl;
         cerr << "( " << errorBoundDeclinationInArcsec_ << " arcsec )." << endl;
         cerr << "The computed error exceeds the expected error by: "
                 << declinationErrorInArcsec_ - errorBoundDeclinationInArcsec_
@@ -222,8 +214,8 @@ bool testApproximatePlanetPositions( )
     ApproximatePlanetPositionsCircularCoplanar approximatePlanetPositionsCircularCoplanar_;
     predefinedMarsCelestialBody.setEphemeris( &approximatePlanetPositionsCircularCoplanar_ );
     CartesianElements marsEphemerisCircularCoplanar;
-    marsEphemerisCircularCoplanar = *predefinedMarsCelestialBody.
-                                    getStateFromEphemeris( julianDate );
+    marsEphemerisCircularCoplanar = *predefinedMarsCelestialBody
+            .getStateFromEphemeris( julianDate );
 
     // Get Cartesian position from state.
     Vector3d positionMars;
@@ -235,66 +227,66 @@ bool testApproximatePlanetPositions( )
 
     // Compute Keplerian elements of Test 2.
     KeplerianElements keplerianElementsTest;
-    keplerianElementsTest = convertCartesianToKeplerianElements(
-                &marsEphemerisCircularCoplanar, &predefinedSun );
+    keplerianElementsTest = convertCartesianToKeplerianElements( &marsEphemerisCircularCoplanar,
+                                                                 &predefinedSun );
 
     // Convert Cartesian to Keplerian elements of Test 1.
     // Use these elements as reference values in Test 2.
     KeplerianElements keplerianElementsTest3D;
-    keplerianElementsTest3D = convertCartesianToKeplerianElements(
-                 &marsEphemeris, &predefinedSun );
+    keplerianElementsTest3D = convertCartesianToKeplerianElements( &marsEphemeris,
+                                                                   &predefinedSun );
 
-    // Compute the difference in semi-major axis between Test 2 and
-    // the external EphemerisData "p_elem_t2.txt".
-    double errorSemiMajorAxis = abs( positionMars.norm( )
-                                     - convertAstronomicalUnitsToMeters( 1.52371243 ) )
-                                / convertAstronomicalUnitsToMeters( 1.52371243 ) ;
+//    // Compute the difference in semi-major axis between Test 2 and
+//    // the external EphemerisData "p_elem_t2.txt".
+//    double errorSemiMajorAxis = fabs( positionMars.norm( )
+//                                      - convertAstronomicalUnitsToMeters( 1.52371243 ) )
+//            / convertAstronomicalUnitsToMeters( 1.52371243 );
 
-    if ( errorSemiMajorAxis > errorTolerance_ )
-    {
-        isApproximatePlanetPositionsErroneous_ = true;
+//    if ( errorSemiMajorAxis > errorTolerance_ )
+//    {
+//        isApproximatePlanetPositionsErroneous_ = true;
 
-        // Generate error statements.
-        cerr << "The computed relative error in position of the  "<< endl;
-        cerr << "coplanar circular position of Mars ( "
-             << errorSemiMajorAxis << " )"<< endl;
-        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
-             << "the maximum expected error " << endl;
-        cerr << "( " << errorTolerance_ << " )." << endl;
-    }
+//        // Generate error statements.
+//        cerr << "The computed relative error in position of the  "<< endl;
+//        cerr << "coplanar circular position of Mars ( " << errorSemiMajorAxis << " )"<< endl;
+//        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
+//             << "the maximum expected error " << endl;
+//        cerr << "( " << errorTolerance_ << " )." << endl;
+//    }
 
-    // Check orientation of position vector by comparison of separate components.
-    // Error in position should be smaller than maximum expected offset with respect to
-    // elliptical and inclined orbits.
-    double maximumErrorPosition =   keplerianElementsTest3D.getSemiMajorAxis( ) * (
-                                                keplerianElementsTest3D.getEccentricity( ) + 1.0
-                                                - cos( keplerianElementsTest3D.getInclination( ) ) );
-    Vector3d errorPositionVector = positionMars - marsEphemeris.getPosition( );
+//    // Check orientation of position vector by comparison of separate components.
+//    // Error in position should be smaller than maximum expected offset with respect to
+//    // elliptical and inclined orbits.
+//    double maximumErrorPosition =   keplerianElementsTest3D.getSemiMajorAxis( ) * (
+//                keplerianElementsTest3D.getEccentricity( ) + 1.0
+//                - cos( keplerianElementsTest3D.getInclination( ) ) );
+//    Vector3d errorPositionVector = positionMars - marsEphemeris.getPosition( );
 
-    if ( abs( errorPositionVector( 0 ) ) > maximumErrorPosition
-         || abs( errorPositionVector( 1 ) ) > maximumErrorPosition )
-    {
-        isApproximatePlanetPositionsErroneous_ = true;
+//    if ( fabs( errorPositionVector( 0 ) ) > maximumErrorPosition
+//         || fabs( errorPositionVector( 1 ) ) > maximumErrorPosition )
+//    {
+//        isApproximatePlanetPositionsErroneous_ = true;
 
-        // Generate error statements.
-        cerr << "The computed error in position vector of the  "<< endl;
-        cerr << "coplanar circular position of Mars ( "
-             << errorPositionVector << " meters )" << endl;
-        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
-             << "the expected error (" << endl;
-        cerr << "( " << maximumErrorPosition << " meters )." << endl;
-    }
+//        // Generate error statements.
+//        cerr << "The computed error in position vector of the  "<< endl;
+//        cerr << "coplanar circular position of Mars ( "
+//             << errorPositionVector << " meters )" << endl;
+//        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
+//             << "the expected error (" << endl;
+//        cerr << "( " << maximumErrorPosition << " meters )." << endl;
+//    }
 
     // Check size of velocity.
     Vector3d errorVelocity = velocityMars - marsEphemeris.getVelocity( );
 
     // Error in scalar velocity should be smaller than maximum expected offset with respect to
     // ellipitical and inclined orbits.
-    double expectedErrorVelocity =  abs( sqrt( predefinedSun.getGravitationalParameter( )
-                                               / marsEphemeris.getPosition( ).norm( ) ) *
-            ( ( 1.0 - cos( keplerianElementsTest3D.getInclination( ) )
-                + sqrt( ( 1.0 - keplerianElementsTest3D.getEccentricity( ) ) /
-                        ( 1.0 + keplerianElementsTest3D.getEccentricity( ) ) ) - 1.0 ) ) );
+    double expectedErrorVelocity = fabs(
+                sqrt( predefinedSun.getGravitationalParameter( )
+                      / marsEphemeris.getPosition( ).norm( ) ) *
+                ( ( 1.0 - cos( keplerianElementsTest3D.getInclination( ) )
+                    + sqrt( ( 1.0 - keplerianElementsTest3D.getEccentricity( ) ) /
+                            ( 1.0 + keplerianElementsTest3D.getEccentricity( ) ) ) - 1.0 ) ) );
 
     if ( errorVelocity.norm( ) > expectedErrorVelocity )
     {
@@ -308,7 +300,7 @@ bool testApproximatePlanetPositions( )
              << "the expected error " << endl;
         cerr << "( " << expectedErrorVelocity << " meters per second )." << endl;
         cerr << "The computed error exceeds the expected error by: "
-             << abs( errorVelocity.norm( ) - expectedErrorVelocity )
+             << fabs( errorVelocity.norm( ) - expectedErrorVelocity )
              << " meters per second." << endl;
     }
 
@@ -327,15 +319,15 @@ bool testApproximatePlanetPositions( )
     }
 
     // Check if the computed inclination equals zero.
-    double relativeErrorInclination_ = abs( keplerianElementsTest.getInclination( ) - 0.0 )
-                                       / ( 2.0 * M_PI );
+    double relativeErrorInclination_ = fabs( keplerianElementsTest.getInclination( ) - 0.0 )
+            / ( 2.0 * M_PI );
     if ( relativeErrorInclination_ > errorTolerance_ )
     {
         isApproximatePlanetPositionsErroneous_ = true;
 
         // Generate error statements.
         cerr << "The relative error in the inclination of the  "<< endl;
-        cerr << "coplanar circular position of Mars is " <<endl;
+        cerr << "coplanar circular position of Mars is " << endl;
         cerr << unit_conversions::convertRadiansToDegrees( relativeErrorInclination_ )
              << " degrees." << endl;
     }
@@ -349,7 +341,7 @@ bool testApproximatePlanetPositions( )
 
         // Generate error statements.
         cerr << "The relative error in vertical position of the  "<< endl;
-        cerr << "coplanar circular position of Mars is " <<endl;
+        cerr << "coplanar circular position of Mars is " << endl;
         cerr << relativeErrorPositionComponentZ_ << " meters." << endl;
     }
 

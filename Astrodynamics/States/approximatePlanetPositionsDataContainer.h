@@ -1,8 +1,8 @@
 /*! \file approximatePlanetPositionsDataContainer.h
- *    This header file contains the definition of a data container class for
- *    data extracted from the JPL "Approximate Positions of Major Planets"
- *    ephemeris for a specific planet ( http://ssd.jpl.nasa.gov/?planet_pos ).
- *    The ephemeris file used is for the period 3000 BC to 3000 AD.
+ *    This header file contains the definition of a data container class for data extracted from
+ *    the JPL "Approximate Positions of Major Planets" ephemeris for a specific planet
+ *    ( http://ssd.jpl.nasa.gov/?planet_pos ). The ephemeris file used is for the period 3000 BC to
+ *    3000 AD.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -56,10 +56,9 @@ using std::endl;
 
 //! JPL "Approximate Positions of Major Planets" data container class.
 /*!
- * Data container class for JPL "Approximate Positions of Major Planets"
- * ephemeris data.
+ * Data container class for JPL "Approximate Positions of Major Planets" ephemeris data.
  */
-class ApproximatePlanetPositionsDataContainer
+struct ApproximatePlanetPositionsDataContainer
 {
 public:
 
@@ -67,13 +66,13 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositionsDataContainer( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ApproximatePlanetPositionsDataContainer( ) { }
+    ApproximatePlanetPositionsDataContainer( ) : semiMajorAxis_( -0.0 ), eccentricity_( -0.0 ),
+        inclination_( -0.0 ), meanLongitude_( -0.0 ), longitudeOfPerihelion_( -0.0 ),
+        longitudeOfAscendingNode_( -0.0 ), rateOfChangeOfSemiMajorAxis_( -0.0 ),
+        rateOfChangeOfEccentricity_( -0.0 ), rateOfChangeOfInclination_( -0.0 ),
+        rateOfChangeOfMeanLongitude_( -0.0 ), rateOfChangeOfLongitudeOfPerihelion_( -0.0 ),
+        rateOfChangeOfLongitudeOfAscendingNode_( -0.0 ),  additionalTermB_( -0.0 ),
+        additionalTermC_( -0.0 ), additionalTermS_( -0.0 ), additionalTermF_( -0.0 ) { }
 
     //! Overload ostream to print class information.
     /*!
@@ -85,7 +84,57 @@ public:
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      ApproximatePlanetPositionsDataContainer&
-                                     approximatePlanetPositionsDataContainer );
+                                     approximatePlanetPositionsDataContainer )
+    {
+
+        // Using declarations.
+        using std::endl;
+
+        stream << "This is an ApproximatePlanetPositionsDataContainer object. " << endl;
+        stream << "The data corresponds to the table entry for "
+               << approximatePlanetPositionsDataContainer.planetName_ << endl;
+        stream << "The semi-major axis in AU is set to: "
+               << approximatePlanetPositionsDataContainer.semiMajorAxis_ << endl;
+        stream << "The eccentricity in radians is set to: "
+               << approximatePlanetPositionsDataContainer.eccentricity_ << endl;
+        stream << "The inclination in degrees is set to: "
+               << approximatePlanetPositionsDataContainer.inclination_ << endl;
+        stream << "The mean longitude in degrees is set to: "
+               << approximatePlanetPositionsDataContainer.meanLongitude_ << endl;
+        stream << "The longitude of perihelion in degrees is set to: "
+               << approximatePlanetPositionsDataContainer.longitudeOfPerihelion_ << endl;
+        stream << "The longitude of the ascending node in degrees is set to: "
+               << approximatePlanetPositionsDataContainer.longitudeOfAscendingNode_<< endl;
+        stream << "The rate of change of semi-major axis AU per century is set to: "
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfSemiMajorAxis_ << endl;
+        stream << "The rate of change of eccentricity in radians per century is set to: "
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfEccentricity_ << endl;
+        stream << "The rate of change of inclination in degrees per century is set to: "
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfInclination_ << endl;
+        stream << "The rate of change of mean longitude in degrees per century is set to: "
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfMeanLongitude_ << endl;
+        stream << "The rate of change of longitude of perihelion in degrees per century is set to: "
+               << approximatePlanetPositionsDataContainer.rateOfChangeOfLongitudeOfPerihelion_ << endl;
+        stream << "The rate of change of longitude of ascending node in degrees per century is set "
+               << "to: " << approximatePlanetPositionsDataContainer
+                  .rateOfChangeOfLongitudeOfAscendingNode_ << endl;
+
+        // Check if additional terms are defined for outer planets.
+        if ( approximatePlanetPositionsDataContainer.additionalTermB_ != -0.0 )
+        {
+            stream << "The additional term B is set to: "
+                   << approximatePlanetPositionsDataContainer.additionalTermB_ << endl;
+            stream << "The additional term C is set to: "
+                   << approximatePlanetPositionsDataContainer.additionalTermC_ << endl;
+            stream << "The additional term S is set to: "
+                   << approximatePlanetPositionsDataContainer.additionalTermS_ << endl;
+            stream << "The additional term F is set to: "
+                   << approximatePlanetPositionsDataContainer .additionalTermF_ << endl;
+        }
+
+        // Return stream.
+        return stream;
+    }
 
     //! Planet name.
     /*!

@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 20 October, 2010
- *    Last modified     : 10 March, 201`
+ *    Last modified     : 10 March, 2011`
  *
  *    References
  *
@@ -34,13 +34,11 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      101020    K. Kumar          First creation of code.
- *      101022    K. Kumar          Added set/get functions and completed code
- *                                  comments.
- *      101110    K. Kumar          Added get functions for auxilliary
- *                                  parameters.
+ *      101022    K. Kumar          Added set/get functions and completed code comments.
+ *      101110    K. Kumar          Added get functions for auxilliary parameters.
  *      101130    E. Iorfida        Added set function for semi-latus rectum.
- *      110310    K. Kumar          Changed right ascension of ascending node
- *                                  to longitude of ascending node.
+ *      110310    K. Kumar          Changed right ascension of ascending node to longitude of
+ *                                  ascending node.
  */
 
 #ifndef KEPLERIANELEMENTS_H
@@ -62,38 +60,28 @@ public:
     /*!
      * Default constructor.
      */
-    KeplerianElements( ) : semiLatusRectum_( -0.0 )
-    { state.setZero( 6 ); }
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~KeplerianElements( ) { }
+    KeplerianElements( ) : semiLatusRectum_( -0.0 ) { state.setZero( 6 ); }
 
     //! Set semi-major axis.
     /*!
      * Sets semi-major axis.
      * \param semiMajorAxis Semi-major axis.
      */
-    void setSemiMajorAxis( const double& semiMajorAxis )
-    { state( 0 ) = semiMajorAxis; }
+    void setSemiMajorAxis( const double& semiMajorAxis ) { state( 0 ) = semiMajorAxis; }
 
     //! Set eccentricity.
     /*!
      * Sets eccentricity.
      * \param eccentricity Eccentricity.
      */
-    void setEccentricity( const double& eccentricity )
-    { state( 1 ) = eccentricity; }
+    void setEccentricity( const double& eccentricity ) { state( 1 ) = eccentricity; }
 
     //! Set inclination.
     /*!
      * Sets inclination.
      * \param inclination Inclination.
      */
-    void setInclination( const double& inclination )
-    { state( 2 ) = inclination; }
+    void setInclination( const double& inclination ) { state( 2 ) = inclination; }
 
     //! Set argument of periapsis.
     /*!
@@ -116,15 +104,13 @@ public:
      * Sets true anomaly.
      * \param trueAnomaly True anomaly.
      */
-    void setTrueAnomaly( const double& trueAnomaly )
-    { state( 5 ) = trueAnomaly; }
+    void setTrueAnomaly( const double& trueAnomaly ) { state( 5 ) = trueAnomaly; }
 
     //! Set semi-latus rectum ( for parabolic orbits ).
     /*!
-     * This function sets the semi-latus rectum for parabolic orbits.
-     * The semi-latus rectum is not computed from the orbital parameters
-     * since for a parabola the semi-major axis is undefined. This function
-     * must only be used in conjunction with parabolic orbits.
+     * This function sets the semi-latus rectum for parabolic orbits. The semi-latus rectum is not
+     * computed from the orbital parameters since for a parabola the semi-major axis is undefined.
+     * This function must only be used in conjunction with parabolic orbits.
      * \param semiLatusRectum Semi-latus rectum.
      */
     void setSemiLatusRectum( const double& semiLatusRectum )
@@ -135,48 +121,42 @@ public:
      * Get semi-major axis.
      * \return Semi-major axis.
      */
-    double& getSemiMajorAxis( )
-    { return state( 0 ); }
+    double& getSemiMajorAxis( ) { return state( 0 ); }
 
     //! Get eccentricity.
     /*!
      * Get eccentricity.
      * \return Eccentricity.
      */
-    double& getEccentricity( )
-    { return state( 1 ); }
+    double& getEccentricity( ) { return state( 1 ); }
 
     //! Get inclination.
     /*!
      * Get inclination.
      * \return Inclination.
      */
-    double& getInclination( )
-    { return state( 2 ); }
+    double& getInclination( ) { return state( 2 ); }
 
     //! Get argument of periapsis.
     /*!
      * Get argument of periapsis.
      * \return Argument of periapsis.
      */
-    double& getArgumentOfPeriapsis( )
-    { return state( 3 ); }
+    double& getArgumentOfPeriapsis( ) { return state( 3 ); }
 
     //! Get longitude of ascending node.
     /*!
      * Get longitude of ascending node.
      * \return Longitude of ascending node.
      */
-    double& getLongitudeOfAscendingNode( )
-    { return state( 4 ); }
+    double& getLongitudeOfAscendingNode( ) { return state( 4 ); }
 
     //! Get true anomaly.
     /*!
      * Get true anomaly.
      * \return True anomaly.
      */
-    double& getTrueAnomaly( )
-    { return state( 5 ); }
+    double& getTrueAnomaly( ) { return state( 5 ); }
 
     //! Get longitude of periapsis.
     /*!
@@ -199,8 +179,7 @@ public:
      * Get argument of latitude.
      * \return Argument of latitude.
      */
-    double getArgumentOfLatitude( )
-    { return getArgumentOfPeriapsis( ) + getTrueAnomaly( ); }
+    double getArgumentOfLatitude( ) { return getArgumentOfPeriapsis( ) + getTrueAnomaly( ); }
 
     //! Get semi-latus rectum.
     /*!
@@ -209,8 +188,7 @@ public:
      * since in the case of a parabola, the semi-major axis is not defined.
      * \return Semi-latus rectum.
      */
-    double getSemiLatusRectum( )
-    { return semiLatusRectum_; }
+    double getSemiLatusRectum( ) { return semiLatusRectum_; }
 
 protected:
 

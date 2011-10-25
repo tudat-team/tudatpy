@@ -3,7 +3,7 @@
  *
  *    Path              : /Astrodynamics/Propagators/
  *    Version           : 2
- *    Check status      : Unchecked
+ *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
@@ -42,6 +42,7 @@
 
 // Include statements.
 #include <cmath>
+#include <iostream>
 #include <map>
 #include "Astrodynamics/Bodies/body.h"
 #include "Astrodynamics/Propagators/propagator.h"

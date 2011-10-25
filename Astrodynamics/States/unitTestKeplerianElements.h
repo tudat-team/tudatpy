@@ -1,6 +1,6 @@
 /*! \file unitTestKeplerianElements.h
- *    Header file for a unit test that tests the implementation of the
- *    Keplerian elements state class in Tudat.
+ *    Header file for a unit test that tests the implementation of the Keplerian elements state
+ *    class in Tudat.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 1

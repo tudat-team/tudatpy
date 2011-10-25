@@ -1,8 +1,8 @@
 /*! \file approximatePlanetPositionsCircularCoplanar.cpp
- *    This source file contains the definition of an ephemeris class that makes
- *    use of the JPL "Approximate Positions of Major Planets"
- *    ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve initial ephemeris data for a
- *    specific planet. The ephemeris is valid for circular, coplanar orbits.
+ *    This source file contains the definition of an ephemeris class that makes use of the JPL
+ *    "Approximate Positions of Major Planets" ( http://ssd.jpl.nasa.gov/?planet_pos ) to retrieve
+ *    initial ephemeris data for a specific planet. The ephemeris is valid for circular, coplanar
+ *    orbits.
  *
  *    Path              : /Astrodynamics/States/
  *    Version           : 2
@@ -45,8 +45,8 @@
 
 // Include statements.
 #include <cmath>
+#include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h"
-#include "Astrodynamics/Bodies/CelestialBodies/planet.h"
 
 // Using declarations.
 using std::cerr;
@@ -65,20 +65,17 @@ CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphem
     numberOfCenturiesPastJ2000_ = ( julianDate_ - 2451545.0 ) / 36525.0;
 
     // Compute mean longitude of planet at given Julian date.
-    meanLongitudeAtGivenJulianDate_
-            = approximatePlanetPositionsDataContainer_.meanLongitude_
-              + ( approximatePlanetPositionsDataContainer_.rateOfChangeOfMeanLongitude_
-                  * numberOfCenturiesPastJ2000_ );
+    meanLongitudeAtGivenJulianDate_ = approximatePlanetPositionsDataContainer_.meanLongitude_
+            + ( approximatePlanetPositionsDataContainer_.rateOfChangeOfMeanLongitude_
+                * numberOfCenturiesPastJ2000_ );
 
     // Convert mean longitude at given Julian date from degrees to radians.
-    meanLongitudeAtGivenJulianDate_
-            = unit_conversions::convertDegreesToRadians(
-                    meanLongitudeAtGivenJulianDate_);
+    meanLongitudeAtGivenJulianDate_ = unit_conversions::convertDegreesToRadians(
+                meanLongitudeAtGivenJulianDate_);
 
     // Get semi-major axis at J2000 and assume constant radius of circular orbit.
-    constantOrbitalRadius_ =
-            unit_conversions::convertAstronomicalUnitsToMeters(
-                    approximatePlanetPositionsDataContainer_.semiMajorAxis_ );
+    constantOrbitalRadius_ = unit_conversions::convertAstronomicalUnitsToMeters(
+                approximatePlanetPositionsDataContainer_.semiMajorAxis_ );
 
     // Convert to Cartesian position.
     VectorXd planetCartesianPositionAtGivenJulianDateX_( 3 );
@@ -93,23 +90,22 @@ CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphem
     predefinedSun_.setPredefinedPlanetSettings( Planet::sun );
 
     // Compute orbital velocity.
-    double circularOrbitalVelocity = sqrt(
-                predefinedSun_.getGravitationalParameter( ) /
-                constantOrbitalRadius_ );
+    double circularOrbitalVelocity = sqrt( predefinedSun_.getGravitationalParameter( ) /
+                                           constantOrbitalRadius_ );
 
     // Convert to Cartesian velocity.
     Vector3d planetCartesianVelocityAtGivenJulianDate_;
-    planetCartesianVelocityAtGivenJulianDate_( 0 ) = - sin( meanLongitudeAtGivenJulianDate_ ) *
-                                                   circularOrbitalVelocity;
+    planetCartesianVelocityAtGivenJulianDate_( 0 ) = -sin( meanLongitudeAtGivenJulianDate_ ) *
+            circularOrbitalVelocity;
     planetCartesianVelocityAtGivenJulianDate_( 1 ) = cos( meanLongitudeAtGivenJulianDate_ ) *
-                                                   circularOrbitalVelocity;
+            circularOrbitalVelocity;
     planetCartesianVelocityAtGivenJulianDate_( 2 ) = 0.0;
 
     // Set Cartesian state elements.
     planetCartesianElementsAtGivenJulianDate_.setPosition(
-                        planetCartesianPositionAtGivenJulianDate_ );
+                planetCartesianPositionAtGivenJulianDate_ );
     planetCartesianElementsAtGivenJulianDate_.setVelocity(
-                        planetCartesianVelocityAtGivenJulianDate_ );
+                planetCartesianVelocityAtGivenJulianDate_ );
 
     // Return Cartesian state of planet at given Julian date.
     return &planetCartesianElementsAtGivenJulianDate_;
