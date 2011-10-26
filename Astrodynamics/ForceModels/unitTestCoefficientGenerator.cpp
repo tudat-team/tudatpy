@@ -42,16 +42,15 @@
 
 // Include statements.
 #include "Astrodynamics/ForceModels/hypersonicLocalInclinationAnalysis.h"
-#include "Astrodynamics/ForceModels/unitTestCoefficientGenerator.h"
 #include "Mathematics/GeometricShapes/capsule.h"
 #include "Mathematics/GeometricShapes/sphereSegment.h"
 #include "Output/writingOutputToFile.h"
 
-//! Test coefficient Generator.
-bool unit_tests::testCoefficientGenerator( )
+//! Test coefficient generator.
+int main( )
 {
     // Declare test variable.
-    bool isCoefficientGeneratorBad_ = 0;
+    bool isCoefficientGeneratorBad = 0;
 
     // Create test sphere.
     SphereSegment sphere = SphereSegment( );
@@ -127,7 +126,7 @@ bool unit_tests::testCoefficientGenerator( )
                 {
                     std::cerr << "Total magnitude of aerodynamic force wrong in sphere."
                               << std::endl;
-                    isCoefficientGeneratorBad_ = true;
+                    isCoefficientGeneratorBad = true;
                 }
 
                 // Check if moment coefficients are approximately zero. Deviations
@@ -137,19 +136,19 @@ bool unit_tests::testCoefficientGenerator( )
                 {
                     std::cerr<<" Error, sphere roll moment coefficient not zero. "
                             <<std::endl;
-                    isCoefficientGeneratorBad_ = true;
+                    isCoefficientGeneratorBad = true;
                 }
                 if ( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0e-2 )
                 {
                     std::cerr << " Error, sphere pitch moment coefficient not zero. "
                               << std::endl;
-                    isCoefficientGeneratorBad_ = true;
+                    isCoefficientGeneratorBad = true;
                 }
                 if ( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0E-2 )
                 {
                     std::cerr << " Error, sphere yaw moment coefficient not zero. "
                               << std::endl;
-                    isCoefficientGeneratorBad_ = true;
+                    isCoefficientGeneratorBad = true;
                 }
             }
         }
@@ -221,41 +220,46 @@ bool unit_tests::testCoefficientGenerator( )
     // Compare values to database values.
     if ( fabs( aerodynamicCoefficients_[ 0 ] - 1.51 ) > 0.1 )
     {
-        std::cerr << " Error in Apollo drag coefficient " << std::endl;
-        isCoefficientGeneratorBad_ = true;
+        std::cerr << " Error in Apollo drag coefficient." << std::endl;
+        isCoefficientGeneratorBad = true;
     }
 
     if ( aerodynamicCoefficients_[ 1 ] > 1.0E-15 )
     {
-        std::cerr << " Error in Apollo side force coefficient " << std::endl;
-        isCoefficientGeneratorBad_ = true;
+        std::cerr << " Error in Apollo side force coefficient." << std::endl;
+        isCoefficientGeneratorBad = true;
     }
 
     if ( aerodynamicCoefficients_[ 2 ] > 1.0E-15 )
     {
-        std::cerr << " Error in Apollo normal force coefficient " << std::endl;
-        isCoefficientGeneratorBad_ = true;
+        std::cerr << " Error in Apollo normal force coefficient." << std::endl;
+        isCoefficientGeneratorBad = true;
     }
 
     if ( aerodynamicCoefficients_[ 3 ] > 1.0E-15 )
     {
-        std::cerr<<" Error in Apollo roll moment coefficient "<<std::endl;
-        isCoefficientGeneratorBad_ = true;
+        std::cerr<<" Error in Apollo roll moment coefficient."<<std::endl;
+        isCoefficientGeneratorBad = true;
     }
 
     if ( fabs( aerodynamicCoefficients_[ 4 ] +0.052 ) > 0.01 )
     {
-        std::cerr << " Error in Apollo pitch moment coefficient " << std::endl;
-        isCoefficientGeneratorBad_ = true;
+        std::cerr << " Error in Apollo pitch moment coefficient." << std::endl;
+        isCoefficientGeneratorBad = true;
     }
 
     if ( aerodynamicCoefficients_[ 5 ] > 1.0E-15 )
     {
-        std::cerr << " Error in Apollo yaw moment coefficient " << std::endl;
-        isCoefficientGeneratorBad_ = true;
+        std::cerr << " Error in Apollo yaw moment coefficient." << std::endl;
+        isCoefficientGeneratorBad = true;
     }
 
-    return isCoefficientGeneratorBad_;
+    if ( isCoefficientGeneratorBad )
+    {
+        std::cerr << "testCoefficientGenerator failed!" << std::endl;
+    }
+
+    return isCoefficientGeneratorBad;
 }
 
 // End of file.

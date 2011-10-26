@@ -51,17 +51,17 @@
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-// Using declarations.
-using std::endl;
-using std::pow;
-using std::sqrt;
-
 //! Compute delta-V of launch/capture phase.
 double& EscapeAndCapture::computeDeltaV( )
 {
+    // Using declarations.
+    using std::endl;
+    using std::pow;
+    using std::sqrt;
+
     // Local variables.
-    double periapsisRadius_;
-    double apoapsisRadius_;
+    double periapsisRadius_ = -0.0;
+    double apoapsisRadius_ = -0.0;
 
     // Get shape model of central body.
     pointerToCentralBodySphere_ = static_cast< SphereSegment* >

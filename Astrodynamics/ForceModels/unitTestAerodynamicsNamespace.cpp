@@ -43,22 +43,21 @@
  *                                  double precision; updated function-naming.
  */
 
-// Include statemenets.
+// Include statements.
 #include <cmath>
 #include <iostream>
 #include "Astrodynamics/ForceModels/aerodynamics.h"
-#include "Astrodynamics/ForceModels/unitTestAerodynamicsNamespace.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using std::fabs;
-using std::pow;
-using std::sin;
-
-//! Test of aerodynamics namespace.
-bool unit_tests::testAerodynamicsNameSpace( )
+//! Test aerodynamics namespace.
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using std::fabs;
+    using std::pow;
+    using std::sin;
+
     bool isAerodynamicsNamespaceBad = false;
 
     // Set default test conditions.
@@ -205,6 +204,11 @@ bool unit_tests::testAerodynamicsNameSpace( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
+    if ( isAerodynamicsNamespaceBad )
+    {
+        cerr << "testAerodynamicsNamespace failed!" << std::endl;
+    }
+
     return isAerodynamicsNamespaceBad;
 }
 

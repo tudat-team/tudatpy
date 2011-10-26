@@ -78,7 +78,6 @@ string getRootPath( )
 #ifdef TUDAT_CUSTOM_ROOT_PATH
 
     return string( TUDAT_CUSTOM_ROOT_PATH );
-
 #else
     // Declare file path string assigned to filePath.
     string filePath_( __FILE__ );

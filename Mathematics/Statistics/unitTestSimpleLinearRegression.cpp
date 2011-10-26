@@ -55,20 +55,20 @@
 #include <map>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/Statistics/simpleLinearRegression.h"
-#include "Mathematics/Statistics/unitTestSimpleLinearRegression.h"
 
 // Using declarations.
 using std::cerr;
 using std::endl;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test implementation of simple linear regression method.
-bool testSimpleLinearRegression( )
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+
     // Test implementation of simple linear regression method against benchmark
     // data from pg. 487, example 1 of (Burden and Faires, 2001).
 
@@ -170,9 +170,12 @@ bool testSimpleLinearRegression( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isSimpleLinearRegressionErroneous;
-}
+    if ( isSimpleLinearRegressionErroneous )
+    {
+        cerr << "testSimpleLinearRegression failed!" << std::endl;
+    }
 
+    return isSimpleLinearRegressionErroneous;
 }
 
 // End of file.

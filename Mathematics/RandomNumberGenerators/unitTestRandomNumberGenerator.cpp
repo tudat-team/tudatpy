@@ -90,7 +90,14 @@
 // Include statements.
 #include <cmath>
 #include <fstream>
-#include "Mathematics/RandomNumberGenerators/unitTestRandomNumberGenerator.h"
+#include <iostream>
+#include <map>
+#include <vector>
+#include "Mathematics/basicMathematicsFunctions.h"
+#include "Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/normalRandomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/randomNumberGenerator.h"
+#include "Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h"
 
 // Using declarations.
 using std::fabs;
@@ -101,10 +108,6 @@ using std::vector;
 using mathematics::MACHINE_PRECISION_DOUBLES;
 using mathematics::computeSampleMean;
 using mathematics::computeSampleVariance;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
 
 //! Test implementation of uniform random number generator class.
 bool testUniformRandomNumberGenerator( )
@@ -381,8 +384,7 @@ bool testNormalRandomNumberGenerator( )
     for ( unsigned int i = 0; i < numberOfSamples; i++ )
     {
         sampleOfNormalRandomValues.push_back(
-                    normalRandomNumbers
-                    .getNormallyDistributedNormalizedRandomDouble( ) );
+                    normalRandomNumbers.getNormallyDistributedNormalizedRandomDouble( ) );
     }
 
     // Estimate sample mean of the distribution.
@@ -401,9 +403,8 @@ bool testNormalRandomNumberGenerator( )
     // distribution is equal to 1 and 4 respectively.
     // The tolerances were computed using confidence intervals for the sample
     // mean and variance of a normal distribution and table lookup.
-    if ( fabs( sampleMean - 1.0 ) > 3.49 * 4.0
-           * 1.0 / sqrt( static_cast< double >( numberOfSamples ) )
-        )
+    if ( fabs( sampleMean - 1.0 ) > 3.49 * 4.0 * 1.0
+         / std::sqrt( static_cast< double >( numberOfSamples ) ) )
     {
         isNormalRandomNumberGeneratorErroneous = true;
 
@@ -416,10 +417,8 @@ bool testNormalRandomNumberGenerator( )
              << "to statistical anomaly. " << endl;
     }
 
-    if ( 4.0 / sampleVariance
-         < static_cast< double >( numberOfSamples - 1 ) / 101590
-         || 4.0 / sampleVariance
-         > static_cast< double>( numberOfSamples - 1 ) / 98424 )
+    if ( 4.0 / sampleVariance < static_cast< double >( numberOfSamples - 1 ) / 101590
+         || 4.0 / sampleVariance > static_cast< double>( numberOfSamples - 1 ) / 98424 )
     {
         isNormalRandomNumberGeneratorErroneous = true;
 
@@ -437,6 +436,10 @@ bool testNormalRandomNumberGenerator( )
     return isNormalRandomNumberGeneratorErroneous;
 }
 
+int main( )
+{
+    return testUniformRandomNumberGenerator( ) || testExponentialRandomNumberGenerator( )
+            || testNormalRandomNumberGenerator( );
 }
 
 // End of file.

@@ -39,19 +39,19 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      101111    K. Kumar          File created.
- *      110113    K. Kumar          Scenario updated to use latest version of
- *                                  code; added file header and footer.
- *      110202    K. Kumar          Scenario updated to use latest version of
- *                                  code.
+ *      110113    K. Kumar          Scenario updated to use latest version of code; added file
+ *                                  header and footer.
+ *      110202    K. Kumar          Scenario updated to use latest version of code.
  *      110216    K. Kumar          Migrated to applications namespace.
  *      110217    K. Kumar          Function name changed.
  *      110815    K. Kumar          Updated with mass of Asterix.
+ *      111024    K. Kumar          Modified to be executable program with main-function as
+ *                                  suggested by M. Persson.
  */
 
 // Include statements.
 #include <cmath>
 #include <iostream>
-#include "Applications/exampleEarthOrbitingSatellite.h"
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/Bodies/vehicle.h"
 #include "Astrodynamics/ForceModels/gravitationalForceModel.h"
@@ -62,12 +62,8 @@
 #include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
 #include "Output/writingOutputToFile.h"
 
-//! Namespace for all applications.
-namespace applications
-{
-
 //! Execute example of an Earth-orbiting satellite.
-void executeEarthOrbitingSatelliteExample( )
+int main( )
 {
     // Using declarations.
     using std::cout;
@@ -171,8 +167,8 @@ void executeEarthOrbitingSatelliteExample( )
     WritingOutputToFile fileWriter;
     fileWriter.writePropagationHistoryToFile( asterixPropagationHistory,
                                               "asterixExampleEarthOrbitingSatellite.dat" );
-}
 
+    return 0;
 }
 
 // End of file.

@@ -55,25 +55,19 @@
 #include <iostream> 
 #include "Astrodynamics/States/cartesianPositionElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-#include "Mathematics/unitTestBasicMathematicsFunctions.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-using mathematics::computeModulo;
-using mathematics::convertCylindricalToCartesian;
-using mathematics::convertSphericalToCartesian;
-using mathematics::computeLinearInterpolation;
-using mathematics::convertCartesianToSpherical;
-
-//! Namespace for all unit tests.
-namespace unit_tests
+//! Test implementation of basic mathematics functions.
+int main( )
 {
-
-//! Test of implementation of basic mathematics functions.
-bool testBasicMathematicsFunctions( )
-{
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using mathematics::computeModulo;
+    using mathematics::convertCylindricalToCartesian;
+    using mathematics::convertSphericalToCartesian;
+    using mathematics::computeLinearInterpolation;
+    using mathematics::convertCartesianToSpherical;
 
     // Test resultUsingModuloFunction initialised to false.
     bool isBasicMathematicsFunctionsErroneous = false;
@@ -694,10 +688,12 @@ bool testBasicMathematicsFunctions( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
+    if ( isBasicMathematicsFunctionsErroneous )
+    {
+        cerr << "testBasicMathematicsFunctions failed!" << endl;
+    }
+
     return isBasicMathematicsFunctionsErroneous;
 }
 
-}
-
 // End of file.
-

@@ -58,7 +58,6 @@
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/MissionSegments/librationPoint.h"
-#include "Astrodynamics/MissionSegments/unitTestLibrationPoints.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
 // Using declarations.
@@ -66,92 +65,6 @@ using std::cerr;
 using std::endl;
 using std::fabs;
 using mathematics::MACHINE_PRECISION_DOUBLES;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
-//! Test determination of libration point locations.
-bool testLibrationPointLocations( )
-{
-    // Summary of tests.
-    // Test 1: Test dimensionless mass parameter computation. Benchmark data is obtained through
-    //         manually calculation.
-    // Test 2: Compute location of L1 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-    // Test 3: Compute location of L2 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-    // Test 4: Compute location of L3 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-    // Test 5: Compute location of L4 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-    // Test 6: Compute location of L5 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-
-    // Test result initialised to false.
-    bool isLibrationPointComputationErroneous = false;
-
-    // Test 1: Test dimensionless mass parameter computation.
-    // Declare Libration Point object.
-    LibrationPoint librationPoint;
-
-    // Create predefined Earth object.
-    Planet predefinedEarth;
-    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
-
-    // Create predefined Moon object.
-    Planet predefinedMoon;
-    predefinedMoon.setPredefinedPlanetSettings( Planet::moon );
-
-    // Set bodies.
-    librationPoint.setPrimaryCelestialBody( &predefinedEarth );
-    librationPoint.setSecondaryCelestialBody( &predefinedMoon );
-
-    // Compute mass parameter.
-    librationPoint.computeMassParameter( );
-
-    // Check if computed Earth-Moon mass parameter is too large and output cerr statements.
-    if ( fabs( ( librationPoint.getMassParameter( ) ) - 0.01215295290792761 )
-         / 0.01215295290792761 > 1.0e-15 )
-    {
-        isLibrationPointComputationErroneous = true;
-
-        cerr << "The computation of the mass parameter does not function well." << endl;
-    }
-
-    // Declare and initialize Earth-Moon mass parameter from (James, 2006).
-    double earthMoonMassParameter = 0.012277471;
-
-    // Test 2: Compute location of L1 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006). Set boolean to true if test fails.
-    isLibrationPointComputationErroneous = testL1LibrationPointLocation(
-                isLibrationPointComputationErroneous, earthMoonMassParameter );
-
-    // Test 3: Compute location of L2 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-    isLibrationPointComputationErroneous = testL2LibrationPointLocation(
-                isLibrationPointComputationErroneous, earthMoonMassParameter );
-
-
-    // Test 4: Compute location of L3 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-    isLibrationPointComputationErroneous = testL3LibrationPointLocation(
-                isLibrationPointComputationErroneous, earthMoonMassParameter );
-
-    // Test 5: Compute location of L4 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-    isLibrationPointComputationErroneous = testL4LibrationPointLocation(
-                isLibrationPointComputationErroneous, earthMoonMassParameter );
-
-    // Test 6: Compute location of L5 Lagrange libration point. Benchmark data is obtained from
-    //         (James, 2006).
-    isLibrationPointComputationErroneous = testL5LibrationPointLocation(
-                isLibrationPointComputationErroneous, earthMoonMassParameter );
-
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    return isLibrationPointComputationErroneous;
-}
 
 //! Test determination of L1 location.
 bool testL1LibrationPointLocation( bool isLibrationPointComputationErroneous,
@@ -339,6 +252,91 @@ bool testL5LibrationPointLocation( bool isLibrationPointComputationErroneous,
     return isLibrationPointComputationErroneous;
 }
 
+//! Test determination of libration point locations.
+int main( )
+{
+    // Summary of tests.
+    // Test 1: Test dimensionless mass parameter computation. Benchmark data is obtained through
+    //         manually calculation.
+    // Test 2: Compute location of L1 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+    // Test 3: Compute location of L2 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+    // Test 4: Compute location of L3 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+    // Test 5: Compute location of L4 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+    // Test 6: Compute location of L5 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+
+    // Test result initialised to false.
+    bool isLibrationPointComputationErroneous = false;
+
+    // Test 1: Test dimensionless mass parameter computation.
+    // Declare Libration Point object.
+    LibrationPoint librationPoint;
+
+    // Create predefined Earth object.
+    Planet predefinedEarth;
+    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
+
+    // Create predefined Moon object.
+    Planet predefinedMoon;
+    predefinedMoon.setPredefinedPlanetSettings( Planet::moon );
+
+    // Set bodies.
+    librationPoint.setPrimaryCelestialBody( &predefinedEarth );
+    librationPoint.setSecondaryCelestialBody( &predefinedMoon );
+
+    // Compute mass parameter.
+    librationPoint.computeMassParameter( );
+
+    // Check if computed Earth-Moon mass parameter is too large and output cerr statements.
+    if ( fabs( ( librationPoint.getMassParameter( ) ) - 0.01215295290792761 )
+         / 0.01215295290792761 > 1.0e-15 )
+    {
+        isLibrationPointComputationErroneous = true;
+
+        cerr << "The computation of the mass parameter does not function well." << endl;
+    }
+
+    // Declare and initialize Earth-Moon mass parameter from (James, 2006).
+    double earthMoonMassParameter = 0.012277471;
+
+    // Test 2: Compute location of L1 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006). Set boolean to true if test fails.
+    isLibrationPointComputationErroneous = testL1LibrationPointLocation(
+                isLibrationPointComputationErroneous, earthMoonMassParameter );
+
+    // Test 3: Compute location of L2 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+    isLibrationPointComputationErroneous = testL2LibrationPointLocation(
+                isLibrationPointComputationErroneous, earthMoonMassParameter );
+
+
+    // Test 4: Compute location of L3 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+    isLibrationPointComputationErroneous = testL3LibrationPointLocation(
+                isLibrationPointComputationErroneous, earthMoonMassParameter );
+
+    // Test 5: Compute location of L4 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+    isLibrationPointComputationErroneous = testL4LibrationPointLocation(
+                isLibrationPointComputationErroneous, earthMoonMassParameter );
+
+    // Test 6: Compute location of L5 Lagrange libration point. Benchmark data is obtained from
+    //         (James, 2006).
+    isLibrationPointComputationErroneous = testL5LibrationPointLocation(
+                isLibrationPointComputationErroneous, earthMoonMassParameter );
+
+    // Return test result.
+    // If test is successful return false; if test fails, return true.
+    if ( isLibrationPointComputationErroneous )
+    {
+        cerr << "testLibrationPointLocations failed!" << endl;
+    }
+
+    return isLibrationPointComputationErroneous;
 }
 
 // End of file.

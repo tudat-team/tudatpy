@@ -40,23 +40,23 @@
 
 // Include statements.
 #include "Astrodynamics/ForceModels/aerodynamicForce.h"
-#include "Astrodynamics/ForceModels/unitTestAerodynamicMomentAndAerodynamicForce.h"
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-// Using statements.
-using Eigen::Quaternion;
-using Eigen::AngleAxisd;
-using std::cerr;
-using std::endl;
-using std::fabs;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-
-bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
+//! Test implemntation of aerodynamic moment and aerodynamic force.
+int main( )
 {
+    // Using statements.
+    using Eigen::Quaternion;
+    using Eigen::AngleAxisd;
+    using std::cerr;
+    using std::endl;
+    using std::fabs;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+
     bool isAerodynamicMomentBroken = false;
     bool isAerodynamicForceBroken = false;
 
@@ -160,7 +160,7 @@ bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
     expectedMomentDueToForce( 2 ) = momentArm( 0 ) * intermediateExpectedForce( 1 );
 
     expectedMoment = dynamicPressure * referenceArea * referenceLength * momentCoefficients +
-                     expectedMomentDueToForce ;
+            expectedMomentDueToForce ;
 
     // Error in calculation.
     errorInMoment( 0 ) = fabs( expectedMoment( 0 ) - moment( 0 ) );
@@ -172,6 +172,11 @@ bool unit_tests::testAerodynamicMomentAndAerodynamicForce( )
     {
         isAerodynamicMomentBroken = true;
         cerr << "Test 3 of unitTestAerodynamicMomentAndAerodynamicForce failed" << endl;
+    }
+
+    if ( isAerodynamicMomentBroken || isAerodynamicForceBroken )
+    {
+        cerr << "testAerodynamicMomentAndAerodynamicForce failed!" << std::endl;
     }
 
     return ( isAerodynamicMomentBroken || isAerodynamicForceBroken );

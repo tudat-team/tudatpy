@@ -68,23 +68,18 @@
 #include <string>
 #include <vector>
 #include "Input/twoLineElementsTextFileReader.h"
-#include "Input/unitTestTwoLineElementsTextFileReader.h"
-
-// Using declarations.
-using std::cerr;
-using std::endl;
-using std::multimap;
-using std::vector;
-using std::string;
-using basic_functions::outputCurrentRunningTime;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
 
 //! Test implementation of TLE text file reader class.
-bool testTwoLineElementsTextFileReader( )
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using std::multimap;
+    using std::vector;
+    using std::string;
+    using basic_functions::outputCurrentRunningTime;
+
     // Starting clock initialised.
     clock_t start_clock = clock( );
 
@@ -180,9 +175,12 @@ bool testTwoLineElementsTextFileReader( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isTwoLineElementsTextFileReaderErroneous;
-}
+    if ( isTwoLineElementsTextFileReaderErroneous )
+    {
+        cerr << "testTwoLineElementsTextFileReader failed!" << std::endl;
+    }
 
+    return isTwoLineElementsTextFileReaderErroneous;
 }
 
 // End of file.

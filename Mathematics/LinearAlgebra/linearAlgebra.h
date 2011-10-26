@@ -48,7 +48,7 @@
 // save cost, define EIGEN_NO_DEBUG, and it won't check assertions.
 //#ifndef EIGEN_NO_DEBUG
 //#define EIGEN_NO_DEBUG
-//#endif
+//
 
 // Include statements.
 #include <Eigen/Core>

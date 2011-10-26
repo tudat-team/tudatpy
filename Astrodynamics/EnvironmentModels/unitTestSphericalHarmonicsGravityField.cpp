@@ -58,16 +58,11 @@
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 #include "Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h"
-#include "Astrodynamics/EnvironmentModels/unitTestSphericalHarmonicsGravityField.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
-//! Test of implementation of spherical harmonics gravity field class.
-bool testSphericalHarmonicsGravityField( )
+//! Test implementation of spherical harmonics gravity field class.
+int main( )
 {
     // Using directives.
     using std::cerr;
@@ -205,10 +200,8 @@ bool testSphericalHarmonicsGravityField( )
         {
             cerr << "The computed value ( " << computedResultForTest5
                  <<  ") for the gravitational gradient tensor does not match "
-                 << "the expected solution ( " << expectedResultForTest5
-                 << " )." << endl;
-            cerr << "The difference is: "
-                 << differenceBetweenResults( 4 ) << endl;
+                 << "the expected solution ( " << expectedResultForTest5 << " )." << endl;
+            cerr << "The difference is: " << differenceBetweenResults( 4 ) << endl;
         }
 
         isSphericalHarmonicsGravityFieldErroneous = true;
@@ -216,9 +209,12 @@ bool testSphericalHarmonicsGravityField( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isSphericalHarmonicsGravityFieldErroneous;
-}
+    if ( isSphericalHarmonicsGravityFieldErroneous )
+    {
+        cerr << "testSphericalHarmonicsGravityField failed!" << std::endl;
+    }
 
+    return isSphericalHarmonicsGravityFieldErroneous;
 }
 
 // End of file.
