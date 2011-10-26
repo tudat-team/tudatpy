@@ -59,6 +59,10 @@
 #include "Astrodynamics/MissionSegments/librationPoint.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::cerr;
 using std::endl;
@@ -306,6 +310,8 @@ double LibrationPoint::computeL3FirstDerivativeLocationFunction_( double& xLocat
     // Return value of first-deriavtive of the location function.
     return 5.0 * pow( xLocationEstimate, 4.0 ) + 4.0 * a_ * pow( xLocationEstimate, 3.0 )
             + 3.0 * b_ * pow( xLocationEstimate, 2.0 ) + 2.0 * c_ * xLocationEstimate + d_;
+}
+
 }
 
 // End of file.

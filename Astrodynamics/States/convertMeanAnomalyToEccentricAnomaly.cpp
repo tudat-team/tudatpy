@@ -42,6 +42,10 @@
 #include <iostream>
 #include "Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::cerr;
 using std::endl;
@@ -93,6 +97,8 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
 
     // Return eccentric anomaly.
     return eccentricAnomaly_;
+}
+
 }
 
 }

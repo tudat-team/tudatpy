@@ -50,6 +50,13 @@
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Definition of series propagator.
 /*!
  * Definition of series propagator, which loops calls to a propagator to
@@ -209,8 +216,9 @@ private:
      * Map of bodies to be propagated and associated data.
      */
     BodyPropagatorDataMap bodiesToPropagate_;
-
 };
+
+}
 
 #endif // SERIESPROPAGATOR_H
 

@@ -49,6 +49,9 @@
 //! Test coefficient generator.
 int main( )
 {
+    // Using declarations.
+    using namespace tudat;
+
     // Declare test variable.
     bool isCoefficientGeneratorBad = 0;
 

@@ -44,15 +44,16 @@
 # Add source files.
 set(ROOTFINDINGMETHODS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphson.cpp"
+
+  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphsonAdaptor.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphsonBase.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/rootFinder.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/rootFinderBase.h"
 )
 
 # Add header files.
 set(ROOTFINDINGMETHODS_HEADERS 
   "${MATHEMATICSDIR}/RootFindingMethods/newtonRaphson.h"
-  "${MATHEMATICSDIR}/RootFindingMethods/newtonRaphsonAdaptor.h"
-  "${MATHEMATICSDIR}/RootFindingMethods/newtonRaphsonBase.h"
-  "${MATHEMATICSDIR}/RootFindingMethods/rootFinder.h"
-  "${MATHEMATICSDIR}/RootFindingMethods/rootFinderBase.h"
 )
 
 # Add static libraries.

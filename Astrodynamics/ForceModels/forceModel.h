@@ -60,6 +60,13 @@
 // Include statements.
 #include "Astrodynamics/States/state.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Force model class.
 /*!
  * Base class for all force models.
@@ -111,6 +118,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // FORCEMODEL_H
 

@@ -62,12 +62,16 @@
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/GeometricShapes/sphereSegment.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::cerr;
 using std::endl;
 using std::cos;
 using std::sin;
-using unit_conversions::convertRadiansToDegrees;
+using tudat::unit_conversions::convertRadiansToDegrees;
 
 //! Get surface point on sphere segment.
 VectorXd SphereSegment::getSurfacePoint( const double& azimuthAngle, const double& zenithAngle )
@@ -262,6 +266,8 @@ std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment )
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

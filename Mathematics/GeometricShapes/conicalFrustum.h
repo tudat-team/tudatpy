@@ -49,6 +49,13 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! ConicalFrustum class.
 /*!
  * Class that defines the conical frustum shape. The independent variables are
@@ -224,6 +231,8 @@ private:
      */
     double length_;
 };
+
+}
 
 #endif // CONICALFRUSTUM_H
 

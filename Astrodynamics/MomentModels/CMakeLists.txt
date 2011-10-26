@@ -44,12 +44,13 @@
 # Add source files.
 set(MOMENTMODELS_SOURCES
   "${SRCROOT}${MOMENTMODELSDIR}/aerodynamicMoment.cpp"
+
+  "${SRCROOT}${MOMENTMODELSDIR}/momentModel.h"
 )
 
 # Add header files.
 set(MOMENTMODELS_HEADERS 
   "${MOMENTMODELSDIR}/aerodynamicMoment.h"
-  "${MOMENTMODELSDIR}/momentModel.h"
 )
 
 # Add static libraries.

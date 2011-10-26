@@ -54,6 +54,13 @@
 // Include statements.
 #include "Astrodynamics/States/approximatePlanetPositionsBase.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Ephemeris class using JPL "Approximate Positions of Major Planets".
 /*!
  * Ephemeris class using JPL "Approximate Positions of Major Planets".
@@ -86,6 +93,8 @@ private:
      */
     double constantOrbitalRadius_;
 };
+
+}
 
 #endif // APPROXIMATEPLANETPOSITIONSCIRCULARCOPLANAR_H
 

@@ -79,7 +79,8 @@ int main( )
     using std::fabs;
     using std::endl;
     using std::cerr;
-    using unit_conversions::convertAstronomicalUnitsToMeters;
+    using tudat::unit_conversions::convertAstronomicalUnitsToMeters;
+    using namespace tudat;
 
     // Test result initialised to false.
     bool isLambertTargeterErroneous = false;

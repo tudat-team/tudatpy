@@ -55,8 +55,9 @@ int main( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
-    using unit_conversions::convertDegreesToRadians;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::unit_conversions::convertDegreesToRadians;
+    using namespace tudat;
 
     // Three tests.
     // Test 1: Set Keplerian elements using individual set functions; and get

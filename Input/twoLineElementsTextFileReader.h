@@ -71,6 +71,13 @@
 #include "Input/textFileReader.h"
 #include "Input/twoLineElementData.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! TLE catalog text file reader class.
 /*!
  * Definition of TLE catalog text file reader class.
@@ -150,6 +157,8 @@ private:
      */
     std::vector< TwoLineElementData > twoLineElementData_;
 };
+
+}
 
 #endif // TWOLINEELEMENTSTEXTFILEREADER_H
 

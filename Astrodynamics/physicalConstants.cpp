@@ -44,8 +44,12 @@
  *      110629    F.M. Engelen      Added specific gas constants.
  */
 
-// Include directives.
+// Include statements.
 #include "Astrodynamics/physicalConstants.h"
+
+//! Tudat library namespace.
+namespace tudat
+{
 
 //! Julian day.
 const double PhysicalConstants::JULIAN_DAY = 86400.0;
@@ -97,5 +101,7 @@ const double PhysicalConstants::SPECIFIC_GAS_CONSTANT_AIR = 2.87e2;
 
 //! Ratio of specific heats of air/diatomic gases.
 const double PhysicalConstants::RATIO_OF_SPECIFIC_HEATS_AIR = 1.4;
+
+}
 
 // End of file.

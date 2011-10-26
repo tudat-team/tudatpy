@@ -53,6 +53,10 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Default destructor.
 CompositeSurfaceGeometry::~CompositeSurfaceGeometry( )
 {
@@ -79,6 +83,8 @@ std::ostream &operator<<( std::ostream &stream,
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

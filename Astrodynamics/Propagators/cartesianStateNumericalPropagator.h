@@ -46,6 +46,13 @@
 #include "Astrodynamics/Propagators/numericalPropagator.h"
 #include "Astrodynamics/States/state.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Cartesian state numerical propagator.
 /*!
  * Definition of numerical propagator that propagates Cartesian state
@@ -74,6 +81,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // CARTESIANSTATENUMERICALPROPAGATOR_H
 

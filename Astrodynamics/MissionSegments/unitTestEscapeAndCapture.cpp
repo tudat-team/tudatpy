@@ -65,6 +65,7 @@ int main( )
     using std::cerr;
     using std::endl;
     using std::fabs;
+    using namespace tudat;
 
     // Test result initialised to false.
     bool isEscapeAndCaptureErroneous = false;

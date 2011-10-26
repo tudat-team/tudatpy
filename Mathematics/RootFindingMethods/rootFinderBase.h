@@ -39,9 +39,16 @@
 #ifndef ROOTFINDERBASE_H
 #define ROOTFINDERBASE_H
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! An abstract base class for RootFinder.
 /*!
- * This is an abstract base class for the RootFinder class.
+ * An abstract base class for the RootFinder class.
  */
 class RootFinderBase
 {
@@ -65,6 +72,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // ROOTFINDERBASE_H
 

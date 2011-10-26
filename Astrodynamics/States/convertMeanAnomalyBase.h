@@ -51,9 +51,16 @@
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Orbital element conversions namespace.
 /*!
- *  Orbital element conversions namespace.
+ * Orbital element conversions namespace.
  */
 namespace orbital_element_conversions
 {
@@ -123,6 +130,8 @@ protected:
 
 private:
 };
+
+}
 
 }
 

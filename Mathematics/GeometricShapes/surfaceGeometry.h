@@ -57,6 +57,13 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/geometricShape.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Surface geometry base class.
 /*!
  * Base class for surface geometry representations in terms of two
@@ -76,6 +83,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // SURFACEGEOMETRY_H
 

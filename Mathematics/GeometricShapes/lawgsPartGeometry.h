@@ -52,6 +52,13 @@
 #include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Class to defined a mesh accoring to Lawgs standards.
 /*!
  * Class to define a surface mesh accoring to the Langley Wireframe Geometry
@@ -164,6 +171,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // LAWGSPARTGEOMETRY_H
 

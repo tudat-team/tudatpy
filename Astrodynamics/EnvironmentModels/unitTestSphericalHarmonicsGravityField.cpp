@@ -69,7 +69,8 @@ int main( )
     using std::endl;
     using std::pow;
     using std::fabs;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using namespace tudat;
 
     // Five tests.
     // Test 1: Test setting and getting gravitational parameter.

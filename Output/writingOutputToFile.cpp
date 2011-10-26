@@ -56,19 +56,20 @@
 #include "Output/writingOutputToFile.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-// Using declarations.
-using std::map;
+//! Tudat library namespace.
+namespace tudat
+{
 
 // Declare ofstream object.
 std::ofstream WritingOutputToFile::outputFile_;
 
 //! Write propagation history to file.
-void WritingOutputToFile::writePropagationHistoryToFile( map< double, State >& propagationHistory,
-                                                         const std::string& outputFilename )
+void WritingOutputToFile::writePropagationHistoryToFile(
+    std::map< double, State >& propagationHistory, const std::string& outputFilename )
 {
     // Declare local variables.
     // Declare iterator for propagation history.
-    map< double, State >::iterator iteratorPropagationHistory_;
+    std::map< double, State >::iterator iteratorPropagationHistory_;
 
     // Open output file.
     outputFile_.open( outputFilename.c_str( ) );
@@ -87,8 +88,7 @@ void WritingOutputToFile::writePropagationHistoryToFile( map< double, State >& p
         {
             // Print map data to file.
             outputFile_.precision( 10 );
-            outputFile_ << ", "
-                        << iteratorPropagationHistory_->second.state( i );
+            outputFile_ << ", " << iteratorPropagationHistory_->second.state( i );
         }
 
         // End line of output file.
@@ -224,6 +224,8 @@ void WritingOutputToFile:: writeCompositeSurfaceGeometryPointsToFile(
                     arrayOfNumberOfLines[ i ], arrayOfNumberOfPoints[ i ],
                     filename, 1, isIndependentVariableInvertedArray[ i ] );
     }
+}
+
 }
 
 // End of file.

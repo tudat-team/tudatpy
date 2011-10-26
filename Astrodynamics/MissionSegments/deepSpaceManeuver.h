@@ -44,6 +44,13 @@
 #include <iostream>
 #include "Astrodynamics/States/state.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Deep space maneuver base class.
 /*!
  * Deep space maneuver class.
@@ -124,6 +131,8 @@ private:
      */
     State* pointerToState_;
 };
+
+}
 
 #endif // DEEPSPACEMANEUVER_H
 

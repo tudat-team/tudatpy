@@ -61,6 +61,10 @@
 // Include statements.
 #include "Mathematics/NumericalIntegrators/euler.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Compute next state.
 void Euler::computeNextState_( const double& stepsize )
 {
@@ -90,6 +94,8 @@ std::ostream& operator<<( std::ostream& stream, Euler& eulerIntegrator )
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

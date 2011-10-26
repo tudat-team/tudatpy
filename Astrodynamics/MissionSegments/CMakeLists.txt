@@ -47,18 +47,19 @@ set(MISSIONSEGMENTS_SOURCES
   "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeter.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/librationPoint.cpp"
+
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/capturePhase.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/deepSpaceManeuver.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/escapePhase.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/trajectoryDesignMethod.h"
 )
 
 # Set the header files.
 set(MISSIONSEGMENTS_HEADERS 
-  "${MISSIONSEGMENTSDIR}/capturePhase.h"
-  "${MISSIONSEGMENTSDIR}/deepSpaceManeuver.h"
   "${MISSIONSEGMENTSDIR}/escapeAndCapture.h"
-  "${MISSIONSEGMENTSDIR}/escapePhase.h"
   "${MISSIONSEGMENTSDIR}/gravityAssist.h"
   "${MISSIONSEGMENTSDIR}/lambertTargeter.h"
   "${MISSIONSEGMENTSDIR}/librationPoint.h"
-  "${MISSIONSEGMENTSDIR}/trajectoryDesignMethod.h"
 )
 
 # Add static libraries.

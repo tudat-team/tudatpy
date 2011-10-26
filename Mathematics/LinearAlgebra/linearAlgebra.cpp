@@ -46,6 +46,10 @@
 #include <cmath>
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Linear algebra namespace.
 namespace linear_algebra
 {
@@ -118,6 +122,8 @@ double determineStandardDeviationOfVectorComponents( const VectorXd& vector0 )
 
     // Return square root of variance ( = standard deviation ).
     return std::sqrt( varianceOfEntries );
+}
+
 }
 
 }

@@ -50,6 +50,13 @@
 #include "Astrodynamics/ForceModels/forceModel.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+/*!
+ *  The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Base class for moment models.
 /*!
  * Base class for the moment models used in Tudat.
@@ -146,6 +153,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // MOMENTMODEL_H
 

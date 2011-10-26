@@ -66,6 +66,13 @@
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Astrodynamics/States/state.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Propagator data container class.
 /*!
  * Class containing properties required by Tudat propagators. It contains all
@@ -166,6 +173,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // PROPAGATORDATACONTAINER_H
 

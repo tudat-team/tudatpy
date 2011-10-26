@@ -47,8 +47,12 @@
 
 // Include statements.
 #include <cmath>
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Basics/basicFunctions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+
+//! Tudat library namespace.
+namespace tudat
+{
 
 //! The cubic spline interpolation class.
 /*!
@@ -209,6 +213,8 @@ private:
      */
     void computeSecondDerivativeOfCurvature_( );
 };
+
+}
 
 #endif // CUBICSPLINEINTERPOLATION_H
 

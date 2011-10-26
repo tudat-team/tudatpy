@@ -65,9 +65,16 @@
 #include "Astrodynamics/physicalConstants.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Unit conversions namespace.
 /*!
- *  Unit conversions namespace.
+ * Unit conversions namespace.
  */
 namespace unit_conversions
 {
@@ -322,6 +329,8 @@ template < typename T >
 T convertPoundPerSquareFeetToPascal( T pressureInPoundPerSquareFeet )
 {
     return pressureInPoundPerSquareFeet * 47.880259;
+}
+
 }
 
 }

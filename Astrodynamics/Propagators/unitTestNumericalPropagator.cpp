@@ -75,13 +75,16 @@
 //! Test implementation of numerical propagator class.
 int main( )
 {
+    // Using declarations.
+    using namespace tudat;
+
     // Test to see if the orbit of a satellite around the Earth is reproduced
     // the same with 1x the gravity of the Earth and 2x half the gravity of
     // the Earth. In other words, the results from the two cases are compared
     // directly.
 
     // Using declarations.
-    using unit_conversions::convertKilometersToMeters;
+    using tudat::unit_conversions::convertKilometersToMeters;
 
     // Test result initialised to false.
     bool isNumericalPropagatorErroneous = false;

@@ -46,9 +46,16 @@
 // Include statements.
 #include "Astrodynamics/States/convertMeanAnomalyBase.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Orbital element conversions namespace.
 /*!
- *  Orbital element conversions namespace.
+ * Orbital element conversions namespace.
  */
 namespace orbital_element_conversions
 {
@@ -125,6 +132,8 @@ private:
         double& hyperbolicEccentricAnomaly )
     { return eccentricity_ * cosh( hyperbolicEccentricAnomaly ) - 1.0; }
 };
+
+}
 
 }
 

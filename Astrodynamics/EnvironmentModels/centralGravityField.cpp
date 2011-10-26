@@ -53,6 +53,10 @@
 using std::cerr;
 using std::endl;
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Set predefined central gravity field settings.
 void CentralGravityField::setPredefinedCentralGravityFieldSettings(
     BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField )
@@ -175,4 +179,5 @@ void CentralGravityField::setPredefinedCentralGravityFieldSettings(
     };
 }
 
+}
 // End of file.

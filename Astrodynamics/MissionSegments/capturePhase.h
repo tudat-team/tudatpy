@@ -44,6 +44,13 @@
 // Include statements.
 #include "Astrodynamics/MissionSegments/escapeAndCapture.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Capture phase class.
 /*!
  * Capture phase class.
@@ -69,6 +76,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // CAPTUREPHASE_H
 

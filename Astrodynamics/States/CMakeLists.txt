@@ -49,6 +49,15 @@ set(STATES_SOURCES
   "${SRCROOT}${STATESDIR}/convertMeanAnomalyToEccentricAnomaly.cpp"
   "${SRCROOT}${STATESDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp"
   "${SRCROOT}${STATESDIR}/orbitalElementConversions.cpp"
+
+  "${SRCROOT}${STATESDIR}/approximatePlanetPositionsDataContainer.h"
+  "${SRCROOT}${STATESDIR}/cartesianElements.h"
+  "${SRCROOT}${STATESDIR}/cartesianPositionElements.h"
+  "${SRCROOT}${STATESDIR}/cartesianVelocityElements.h"
+  "${SRCROOT}${STATESDIR}/convertMeanAnomalyBase.h"
+  "${SRCROOT}${STATESDIR}/ephemeris.h"
+  "${SRCROOT}${STATESDIR}/keplerianElements.h"
+  "${SRCROOT}${STATESDIR}/state.h"
 )
 
 # Add header files.
@@ -56,18 +65,9 @@ set(STATES_HEADERS
   "${STATESDIR}/approximatePlanetPositions.h"
   "${STATESDIR}/approximatePlanetPositionsBase.h"
   "${STATESDIR}/approximatePlanetPositionsCircularCoplanar.h"
-  "${STATESDIR}/approximatePlanetPositionsDataContainer.h"
-  "${STATESDIR}/cartesianElements.h"
-  "${STATESDIR}/cartesianPositionElements.h"
-  "${STATESDIR}/cartesianVelocityElements.h"
-  "${STATESDIR}/convertMeanAnomalyBase.h"
   "${STATESDIR}/convertMeanAnomalyToEccentricAnomaly.h"
   "${STATESDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
-  "${STATESDIR}/ephemeris.h"
-  "${STATESDIR}/keplerianElements.h"
   "${STATESDIR}/orbitalElementConversions.h"
-  "${STATESDIR}/orbitalElements.h"
-  "${STATESDIR}/state.h"
 )
 
 # Add static libraries.

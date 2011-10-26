@@ -69,6 +69,7 @@ int main( )
     using std::endl;
     using std::cerr;
     using std::fabs;
+    using namespace tudat;
 
     // Test result initialised to false.
     bool isGravityAssistErroneous = false;

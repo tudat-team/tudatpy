@@ -44,15 +44,16 @@
 # Set the source files.
 set(BODIES_SOURCES
   "${SRCROOT}${BODIESDIR}/planet.cpp"
+
+  "${SRCROOT}${BODIESDIR}/body.h"
+  "${SRCROOT}${BODIESDIR}/celestialBody.h"
+  "${SRCROOT}${BODIESDIR}/vehicle.h"
+  "${SRCROOT}${BODIESDIR}/vehicleExternalModel.h"
 )
 
 # Set the header files.
 set(BODIES_HEADERS 
-  "${BODIESDIR}/body.h"
-  "${BODIESDIR}/celestialBody.h"
   "${BODIESDIR}/planet.h"
-  "${BODIESDIR}/vehicle.h"
-  "${BODIESDIR}/vehicleExternalModel.h"
 )
 
 # Add static libraries.

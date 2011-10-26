@@ -61,6 +61,13 @@
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Mathematics/GeometricShapes/sphereSegment.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Escape and capture base class.
 /*!
  * Escape and capture class.
@@ -190,6 +197,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // ESCAPEANDCAPTURE_H
 

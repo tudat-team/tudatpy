@@ -50,6 +50,10 @@
 #include "Astrodynamics/Propagators/keplerPropagator.h"
 #include "Astrodynamics/States/orbitalElementConversions.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Propagate.
 void KeplerPropagator::propagate( )
 {
@@ -209,6 +213,8 @@ std::ostream& operator<<( std::ostream& stream, KeplerPropagator& keplerPropagat
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

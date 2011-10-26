@@ -61,6 +61,10 @@ using std::endl;
 using std::cerr;
 using std::pow;
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Set predefined spherical harmonics gravity field settings.
 void SphericalHarmonicsGravityField::setPredefinedSphericalHarmonicsGravityFieldSettings(
     BodiesWithPredefinedSphericalHarmonicsGravityFields
@@ -157,6 +161,8 @@ std::ostream& operator<<( std::ostream& stream,
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

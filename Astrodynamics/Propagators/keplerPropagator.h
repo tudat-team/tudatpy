@@ -58,9 +58,16 @@
 #include "Astrodynamics/States/keplerianElements.h"
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 // Using declarations.
-using orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
-using orbital_element_conversions::ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
+using tudat::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
+using tudat::orbital_element_conversions::ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
 
 //! Kepler propagator class.
 /*!
@@ -182,6 +189,8 @@ private:
      */
     KeplerianElements keplerianElements_;
 };
+
+}
 
 #endif // KEPLERPROPAGATOR_H
 

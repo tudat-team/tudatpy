@@ -52,9 +52,14 @@
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 
-// Using statements.
-using namespace mathematics;
-using namespace std;
+//! Tudat library namespace.
+namespace tudat
+{
+
+// Using declarations.
+using std::cerr;
+using std::endl;
+using namespace tudat::mathematics;
 
 //! Set adaptor class for Newton-Raphson.
 void NewtonRaphson::setNewtonRaphsonAdaptor( NewtonRaphsonBase* pointerToNewtonRaphsonBase )
@@ -133,6 +138,8 @@ std::ostream& operator<<( std::ostream& stream, NewtonRaphson& newtonRaphson )
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

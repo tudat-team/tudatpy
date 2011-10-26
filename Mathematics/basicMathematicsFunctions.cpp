@@ -72,16 +72,20 @@
 #include "Basics/basicFunctions.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
+//! Mathematics namespace.
+namespace mathematics
+{
+
 // Using declarations.
 using std::map;
 using std::vector;
 using std::accumulate;
 using std::pow;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-
-//! Mathematics namespace.
-namespace mathematics
-{
+using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
 
 //! Compute linear interpolation.
 double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
@@ -295,6 +299,8 @@ double computeSampleVariance( const vector< double >& sampleData )
     // Return sample variance.
     return 1.0 / ( static_cast< double >( sampleData.size( ) ) - 1.0 )
             * sumOfResidualsSquared_;
+}
+
 }
 
 }

@@ -60,6 +60,13 @@
 #include <iostream>
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! SphericalHarmonicsGravityField class.
 /*!
  * Spherical harmonics gravity field model class included in Tudat.
@@ -232,6 +239,8 @@ private:
      */
     double j4SphericalHarmonicsGravityFieldCoefficient_;
 };
+
+}
 
 #endif // SPHERICALHARMONICSGRAVITYFIELD_H
 

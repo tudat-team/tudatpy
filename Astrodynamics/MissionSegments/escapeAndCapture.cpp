@@ -51,6 +51,10 @@
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Compute delta-V of launch/capture phase.
 double& EscapeAndCapture::computeDeltaV( )
 {
@@ -107,6 +111,8 @@ double& EscapeAndCapture::computeDeltaV( )
               sqrt( ( escapeVelocitySquared_ / 2.0 ) * ( 1.0 + eccentricity_ ) );
 
     return deltaV_;
+}
+
 }
 
 // End of file.

@@ -44,6 +44,10 @@
 // Include statements.
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Compute aerodynamic moment.
 void AerodynamicMoment::computeMoment( State* pointerToState )
 {
@@ -61,6 +65,8 @@ void AerodynamicMoment::computeMoment( State* pointerToState )
         Vector3d force_ = pointerToForceModel_->getForce( );
         moment_ += forceApplicationArm_.cross( force_ );
     }
+}
+
 }
 
 // End of file.

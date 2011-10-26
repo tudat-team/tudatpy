@@ -68,6 +68,7 @@ int main( )
     // Using declarations.
     using std::cout;
     using std::endl;
+    using namespace tudat;
 
     // Create the state of Asterix given in Cartesian elements.
     CartesianElements stateOfAsterix;

@@ -41,13 +41,20 @@
 
 // Include statements.
 #include <iostream>
-#include "Astrodynamics/States/orbitalElements.h"
+#include "Astrodynamics/States/state.h"
+
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
 
 //! Cartesian position elements class.
 /*!
  * This class contains the Cartesian position elements.
  */
-class CartesianVelocityElements : public OrbitalElements
+class CartesianVelocityElements : public State
 {
 public:
 
@@ -120,6 +127,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // CARTESIANVELOCITYELEMENTS_H
 

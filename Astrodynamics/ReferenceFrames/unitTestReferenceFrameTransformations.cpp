@@ -66,8 +66,9 @@ int main( )
     using std::fabs;
     using std::pow;
     using std::sqrt;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
-    using unit_conversions::convertDegreesToRadians;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::unit_conversions::convertDegreesToRadians;
+    using namespace tudat;
 
     // Summary of tests.
     // Test 1: Test inertial to rotating planetocentric frame transformation.

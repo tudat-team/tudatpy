@@ -49,6 +49,13 @@
 // Include statements.
 #include "Astrodynamics/States/state.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! An abstract base class for state derivative functions.
 /*!
  * An abstract base class for state derivative functions.
@@ -79,6 +86,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // STATEDERIVATIVEBASE_H
 

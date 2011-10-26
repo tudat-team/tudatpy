@@ -50,6 +50,13 @@
 #include <iostream>
 #include <string>
 
+//! Tudat library namespace.
+/*!
+ * Tudat library namespace.
+ */
+namespace tudat
+{
+
 // Using declarations.
 using std::string;
 using std::endl;
@@ -248,6 +255,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // APPROXIMATEPLANETPOSITIONSDATACONTAINER_H
 

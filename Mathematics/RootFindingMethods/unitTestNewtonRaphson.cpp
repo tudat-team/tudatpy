@@ -61,10 +61,6 @@
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
-// Using statements.
-using std::cerr;
-using std::endl;
-
 //! Struct for NewtonRaphson unit test code.
 /*!
  * This struct contains functions, necessary to test NewtonRaphson method.
@@ -103,6 +99,11 @@ double computeGlobalFirstDerivativeTestFunction( double& inputValue ) { return 2
 //! Test of Newton-Raphson method code.
 int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using namespace tudat;
+
     // Two tests.
     // Test 1: Test of Newton-Raphson code using global functions.
     // Test 2: Test of Newton-Raphson code using member-functions.

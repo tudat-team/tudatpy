@@ -50,6 +50,10 @@
 #include "Mathematics/GeometricShapes/conicalFrustum.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::cerr;
 using std::endl;
@@ -265,6 +269,8 @@ std::ostream &operator<<( std::ostream &stream, ConicalFrustum& conicalFrustum )
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

@@ -78,7 +78,8 @@ int main( )
     using std::multimap;
     using std::vector;
     using std::string;
-    using basic_functions::outputCurrentRunningTime;
+    using tudat::basic_functions::outputCurrentRunningTime;
+    using namespace tudat;
 
     // Starting clock initialised.
     clock_t start_clock = clock( );

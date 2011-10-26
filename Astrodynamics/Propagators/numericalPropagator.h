@@ -55,6 +55,13 @@
 #include "Mathematics/NumericalIntegrators/integrator.h"
 #include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Numerical propagator class.
 /*!
  * Numerical propagator class.
@@ -124,6 +131,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // NUMERICALPROPAGATOR_H
 

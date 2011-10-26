@@ -52,6 +52,10 @@
 // Include statements.
 #include "Astrodynamics/Propagators/numericalPropagator.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Set initial state of body.
 void NumericalPropagator::setInitialState( Body* pointerToBody, State* pointerToInitialState )
 {
@@ -114,6 +118,8 @@ void NumericalPropagator::propagate( )
                     iteratorBodiesToPropagate_->second.stateStartIndex,
                     iteratorBodiesToPropagate_->second.sizeOfState );
     }
+}
+
 }
 
 // End of file.

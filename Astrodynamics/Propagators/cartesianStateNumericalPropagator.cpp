@@ -50,6 +50,10 @@
 #include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Compute state derivative.
 void CartesianStateNumericalPropagator::computeStateDerivative(
         double& independentVariable, State* pointerToAssembledState,
@@ -109,6 +113,8 @@ void CartesianStateNumericalPropagator::computeStateDerivative(
                                                           ->second.stateStartIndex, 6 )
                 = stateDerivative_.state;
     }
+}
+
 }
 
 // End of file.

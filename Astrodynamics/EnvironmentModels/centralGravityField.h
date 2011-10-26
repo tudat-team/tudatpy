@@ -43,6 +43,13 @@
 // Include statements.
 #include "Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Central gravity field class.
 /*!
  * Class that defines a central gravity field.
@@ -71,6 +78,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // CENTRALGRAVITYFIELD_H
 

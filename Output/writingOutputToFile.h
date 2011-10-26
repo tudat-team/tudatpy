@@ -57,6 +57,13 @@
 #include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Writing output to file class.
 /*!
  * Class containing all functionality pertaining to writing output to file.
@@ -138,6 +145,8 @@ private:
      */
     static std::ofstream outputFile_;
 };
+
+}
 
 #endif // WRITINGOUTPUTTOFILE_H
 

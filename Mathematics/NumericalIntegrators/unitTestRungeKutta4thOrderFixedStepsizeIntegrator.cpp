@@ -50,7 +50,7 @@
 /*!
  *  Runge-Kutta 4th-order, fixed stepsize integrator test class.
  */
-struct RungeKutta4thOrderFixedStepsizeIntegratorTest : public StateDerivativeBase
+struct RungeKutta4thOrderFixedStepsizeIntegratorTest : public tudat::StateDerivativeBase
 {
 public:
 
@@ -68,9 +68,12 @@ public:
      * \param pointerToStateDerivative Computed state derivative given as a
      *          pointer to a State object.
      */
-    void computeStateDerivative( double& time, State* pointerToState,
-                                 State* pointerToStateDerivative )
-    { pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 ) - pow( time, 2.0 ) + 1.0; }
+    void computeStateDerivative( double& time, tudat::State* pointerToState,
+                                 tudat::State* pointerToStateDerivative )
+    {
+        pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 )
+                - std::pow( time, 2.0 ) + 1.0;
+    }
 
 protected:
 
@@ -80,6 +83,9 @@ private:
 //! Test implementation of 4th-order, fixed stepsize, Runge-Kutta integrator.
 int main( )
 {
+    // Using declarations.
+    using namespace tudat;
+
     // One test.
     // Test 1: Integration of initial-value problem given on pg. 278 of (Burden and Faires, 2001).
 

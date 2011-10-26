@@ -51,6 +51,13 @@
 // Include statements.
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Base class for aerodynamic coefficient generator.
 /*!
  *  Abstract base class for aerodynamic analysis method. Stores independent variable values
@@ -332,6 +339,8 @@ protected:
      */
     int numberOfCases_;
 };
+
+}
 
 #endif // AERODYNAMICCOEFFICIENTGENERATOR_H
 

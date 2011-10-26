@@ -56,18 +56,14 @@
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/Statistics/simpleLinearRegression.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-
 //! Test implementation of simple linear regression method.
 int main( )
 {
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using namespace tudat;
 
     // Test implementation of simple linear regression method against benchmark
     // data from pg. 487, example 1 of (Burden and Faires, 2001).

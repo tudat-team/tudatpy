@@ -39,6 +39,10 @@
 // Include statements.
 #include "Astrodynamics/Bodies/planet.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Set predefined planet settings.
 void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 {
@@ -163,6 +167,8 @@ void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 
     // Set ephemeris.
     pointerToEphemeris_ = &approximatePlanetPositions_;
+}
+
 }
 
 // End of file.

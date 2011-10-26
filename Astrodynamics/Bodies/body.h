@@ -51,6 +51,13 @@
 #include <iostream>
 #include "Mathematics/GeometricShapes/geometricShape.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat Library namespace.
+ */
+namespace tudat
+{
+
 //! Body base class.
 /*!
  * Body base class.
@@ -116,6 +123,8 @@ private:
      */
     GeometricShape* pointerToGeometricShape_;
 };
+
+}
 
 #endif // BODY_H
 

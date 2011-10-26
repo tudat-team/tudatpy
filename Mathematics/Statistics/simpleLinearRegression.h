@@ -55,6 +55,13 @@
 // Include statements.
 #include <map>
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Simple linear regression class.
 /*!
  * Simple linear regression class.
@@ -224,6 +231,8 @@ private:
      */
     void sumDependentVariableData_( );
 };
+
+}
 
 #endif // LINEARREGRESSION_H
 

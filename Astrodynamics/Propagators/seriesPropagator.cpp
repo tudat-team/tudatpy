@@ -40,6 +40,10 @@
 // Include statements.
 #include "Astrodynamics/Propagators/seriesPropagator.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Execute.
 void SeriesPropagator::execute( )
 {
@@ -121,6 +125,8 @@ void SeriesPropagator::execute( )
 
     // Store map of bodies to propagate in propagator.
     pointerToPropagator_->setBodiesToPropagate( bodiesToPropagate_ );
+}
+
 }
 
 // End of file.

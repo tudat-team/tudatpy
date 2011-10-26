@@ -69,6 +69,9 @@
 //! Test implementation of Kepler propagator class.
 int main( )
 {
+    // Using declarations.
+    using namespace tudat;
+
     // Test to see if the orbit of a satellite around the Earth is correctly
     // reproduced with respect to benchmark reference data.
 

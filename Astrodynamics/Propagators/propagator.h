@@ -63,6 +63,13 @@
 #include "Astrodynamics/States/state.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Propagator class.
 /*!
  * Base class for all propagators included in Tudat.
@@ -203,6 +210,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // PROPAGATOR_H
 

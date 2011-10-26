@@ -45,14 +45,21 @@
 #define KEPLERIANELEMENTS_H
 
 // Include statements.
-#include "Astrodynamics/States/orbitalElements.h"
+#include "Astrodynamics/States/state.h"
 #include "Mathematics/basicMathematicsFunctions.h"
+
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
 
 //! Keplerian elements class.
 /*!
  * Keplerian elements class.
  */
-class KeplerianElements : public OrbitalElements
+class KeplerianElements : public State
 {
 public:
 
@@ -200,6 +207,8 @@ private:
      */
     double semiLatusRectum_;
 };
+
+}
 
 #endif // KEPLERIANELEMENTS_H
 

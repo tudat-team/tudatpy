@@ -45,13 +45,14 @@
 set(MATHEMATICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/basicMathematicsFunctions.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/cubicSplineInterpolation.cpp"
+
+  "${SRCROOT}${MATHEMATICSDIR}/unitConversions.h"
 )
 
 # Add header files.
 set(MATHEMATICS_HEADERS 
   "${MATHEMATICSDIR}/basicMathematicsFunctions.h"
   "${MATHEMATICSDIR}/cubicSplineInterpolation.h"
-  "${MATHEMATICSDIR}/unitConversions.h"
 )
 
 # Add sub-directories.

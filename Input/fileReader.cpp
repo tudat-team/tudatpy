@@ -43,6 +43,10 @@
 // Include statements.
 #include "Input/fileReader.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::ifstream;
 using std::string;
@@ -79,6 +83,8 @@ void FileReader::skipLines( unsigned int numberOfLines )
         // Increment line counter.
         lineCounter_++;
     }
+}
+
 }
 
 // End of file.

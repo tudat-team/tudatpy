@@ -57,6 +57,13 @@
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Libration point class.
 /*!
  * This class includes functions to compute the location of a Lagrange
@@ -254,6 +261,8 @@ private:
      */
     double computeL3FirstDerivativeLocationFunction_( double& xLocationEstimate );
 };
+
+}
 
 #endif // LIBRATIONPOINT_H
 

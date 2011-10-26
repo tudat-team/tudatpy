@@ -55,6 +55,13 @@
 #include <iostream>
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! State class.
 /*!
  * Definition of State class. This is a base class for all state classes
@@ -90,6 +97,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // STATE_H
 

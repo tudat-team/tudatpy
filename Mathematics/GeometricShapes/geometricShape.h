@@ -52,6 +52,13 @@
 #ifndef GEOMETRICSHAPE_H
 #define GEOMETRICSHAPE_H
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Geometry base class.
 /*!
  * Base class for geometric shapes.
@@ -70,6 +77,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // GEOMETRICSHAPE_H
 

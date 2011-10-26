@@ -42,6 +42,10 @@
 #include <sstream>
 #include "Astrodynamics/EnvironmentModels/tabulatedAtmosphere.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Initialize atmosphere table reader.
 void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
 {
@@ -95,6 +99,8 @@ void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
                 altitudeData_, pressureData_ );
     cubicSplineInterpolationForTemperature_.initializeCubicSplineInterpolation(
                 altitudeData_, temperatureData_ );
+}
+
 }
 
 // End of file.

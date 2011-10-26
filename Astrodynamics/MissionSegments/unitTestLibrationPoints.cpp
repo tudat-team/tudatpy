@@ -64,7 +64,8 @@
 using std::cerr;
 using std::endl;
 using std::fabs;
-using mathematics::MACHINE_PRECISION_DOUBLES;
+using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+using namespace tudat;
 
 //! Test determination of L1 location.
 bool testL1LibrationPointLocation( bool isLibrationPointComputationErroneous,

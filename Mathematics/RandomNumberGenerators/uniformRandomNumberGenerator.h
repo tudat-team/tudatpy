@@ -69,7 +69,15 @@
 #define UNIFORMRANDOMNUMBERGENERATOR_H
 
 // Include statements.
+#include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/RandomNumberGenerators/randomNumberGenerator.h"
+
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
 
 //! Uniform random number generator class.
 /*!
@@ -87,12 +95,6 @@ public:
      */
     UniformRandomNumberGenerator( unsigned long long seed );
 
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~UniformRandomNumberGenerator( ) { }
-
     //! Get uniformly distributed random integer.
     /*!
      * Returns an uniformly distributed random integer using 64-bit arithmetic.
@@ -106,7 +108,9 @@ public:
      * interval [0,1].
      * \return Uniformly distributed, normalized, random double.
      */
-    double getUniformlyDistributedNormalizedRandomDouble( );
+    double getUniformlyDistributedNormalizedRandomDouble( )
+    { return static_cast< double >( getUniformlyDistributedRandomInteger( ) ) / ULLONG_MAX; }
+
 
     //! Get uniformly distributed random plus/minus sign.
     /*!
@@ -121,7 +125,8 @@ public:
      * 32-bit arithmetic.
      * \return Uniformly distributed random integer.
      */
-    unsigned int getUniformlyDistributedRandom32BitInteger( );
+    unsigned int getUniformlyDistributedRandom32BitInteger( )
+    { return static_cast< unsigned int >( getUniformlyDistributedRandomInteger( ) ); }
 
 protected:
 
@@ -145,6 +150,8 @@ private:
      */
     unsigned long long randomNumberParameter3_;
 };
+
+}
 
 #endif // UNIFORMRANDOMNUMBERGENERATOR_H
 

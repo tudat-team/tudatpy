@@ -56,6 +56,13 @@
 #include <cmath>
 #include "Astrodynamics/EnvironmentModels/atmosphereModel.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Exponential atmosphere class.
 /*!
  * Class with an exponential atmosphere. The user has to initialize this class
@@ -229,6 +236,8 @@ private:
      */
     double specificGasConstant_;
 };
+
+}
 
 #endif // EXPONENTIALATMOSPHERE_H
 

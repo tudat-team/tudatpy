@@ -55,6 +55,13 @@
 // Include statements.
 #include "Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! 4th-order, fixed stepsize, Runge-Kutta integrator class.
 /*!
  * Implementation of 4th-order, fixed stepsize, Runge-Kutta integrator.
@@ -114,6 +121,8 @@ private:
      */
     void computeNextState_( const double& stepsize );
 };
+
+}
 
 #endif // RUNGEKUTTA4THORDERFIXEDSTEPSIZE_H
 

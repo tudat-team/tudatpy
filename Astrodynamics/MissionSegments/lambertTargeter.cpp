@@ -87,8 +87,11 @@
 #include "Astrodynamics/MissionSegments/lambertTargeter.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
-using linear_algebra::determineAngleBetweenVectors;
 using std::pow;
 using std::sqrt;
 using std::log;
@@ -96,9 +99,8 @@ using std::tan;
 using std::atan;
 using std::cos;
 using std::sin;
-
-// Using declarations.
 using std::endl;
+using linear_algebra::determineAngleBetweenVectors;
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, LambertTargeter& lambertTargeter )
@@ -534,6 +536,8 @@ void LambertTargeter::execute( )
     // Define output velocities.
     pointerToCartesianVelocityAtDeparture_->state = velocityAtDeparture_;
     pointerToCartesianVelocityAtArrival_->state = velocityAtArrival_;
+}
+
 }
 
 // End of file.

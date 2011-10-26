@@ -47,15 +47,16 @@ set(ENVIRONMENTMODELS_SOURCES
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/exponentialAtmosphere.cpp"
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/sphericalHarmonicsGravityField.cpp"
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/tabulatedAtmosphere.cpp"
+
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/atmosphereModel.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/environmentModel.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/gravityFieldModel.h"
 )
 
 # Set the header files.
 set(ENVIRONMENTMODELS_HEADERS 
-  "${ENVIRONMENTMODELSDIR}/atmosphereModel.h"
   "${ENVIRONMENTMODELSDIR}/centralGravityField.h"
-  "${ENVIRONMENTMODELSDIR}/environmentModel.h"
   "${ENVIRONMENTMODELSDIR}/exponentialAtmosphere.h"
-  "${ENVIRONMENTMODELSDIR}/gravityFieldModel.h"
   "${ENVIRONMENTMODELSDIR}/sphericalHarmonicsGravityField.h"
   "${ENVIRONMENTMODELSDIR}/tabulatedAtmosphere.h"
 )

@@ -41,6 +41,13 @@
 #ifndef ENVIRONMENTMODEL_H
 #define ENVIRONMENTMODEL_H
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! EnvironmentModel class.
 /*!
  * Base class for all environment models included in Tudat.
@@ -53,12 +60,14 @@ public:
     /*!
      * Default destructor.
      */
-    virtual ~EnvironmentModel( ){}
+    virtual ~EnvironmentModel( ) { }
 
 protected:
 
 private:
 };
+
+}
 
 #endif // ENVIRONMENTMODEL_H
 

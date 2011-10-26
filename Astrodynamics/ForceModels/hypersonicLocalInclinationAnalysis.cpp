@@ -55,6 +55,10 @@
 using std::string;
 using std::endl;
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Default destructor.
 HypersonicLocalInclinationAnalysis::~HypersonicLocalInclinationAnalysis( )
 {
@@ -946,6 +950,8 @@ std::ostream& operator<<( std::ostream& stream,
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

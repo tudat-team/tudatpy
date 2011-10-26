@@ -54,7 +54,7 @@ int main( )
     using std::cerr;
     using std::endl;
     using std::fabs;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Declare test variable.
     bool isExponentialAtmosphereBad_ = false;
@@ -72,13 +72,14 @@ int main( )
     double scaleHeight = 7.050e3;
 
     // Create an exponential atmosphere object.
-    ExponentialAtmosphere exponentialAtmosphere;
+    tudat::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
     exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
     exponentialAtmosphere.setScaleHeight( scaleHeight );
-    exponentialAtmosphere.setSpecificGasConstant( PhysicalConstants::SPECIFIC_GAS_CONSTANT_AIR );
+    exponentialAtmosphere.setSpecificGasConstant(
+                tudat::PhysicalConstants::SPECIFIC_GAS_CONSTANT_AIR );
 
     // Check if set and get functions work well.
     if ( fabs( ( exponentialAtmosphere.getConstantTemperature( )

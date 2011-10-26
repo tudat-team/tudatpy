@@ -40,9 +40,16 @@
 #ifndef NEWTONRAPHSONBASE_H
 #define NEWTONRAPHSONBASE_H
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! An abstract base class for NewtonRaphson.
 /*!
- * This is an abstract base class for the NewtonRaphson class.
+ * An abstract base class for the NewtonRaphson class.
  */
 class NewtonRaphsonBase
 {
@@ -74,6 +81,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // NEWTONRAPHSONBASE_H
 

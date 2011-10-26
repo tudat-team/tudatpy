@@ -77,6 +77,10 @@
 #include "Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h"
 #include "Astrodynamics/States/orbitalElementConversions.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::string;
 using std::stringstream;
@@ -85,7 +89,7 @@ using std::cerr;
 using std::vector;
 using std::multimap;
 using std::pair;
-using basic_functions::convertStringToTemplate;
+using tudat::basic_functions::convertStringToTemplate;
 
 //! Convert and store TLE data.
 void TwoLineElementsTextFileReader::storeTwoLineElementData( )
@@ -576,6 +580,8 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
 
     // Return the amount of corrupted TLEs
     return corruptedTwoLineElementDataErrors_;
+}
+
 }
 
 // End of file.

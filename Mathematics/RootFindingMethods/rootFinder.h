@@ -56,6 +56,13 @@
 #include <iostream>
 #include "Mathematics/RootFindingMethods/rootFinderBase.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Root-finder class.
 /*!
  * This class serves as a base class for all root-finder algorithms included in
@@ -214,6 +221,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // ROOTFINDER_H
 

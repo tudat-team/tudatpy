@@ -57,6 +57,17 @@
 // Include statements.
 #include <cmath>
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
+//! Aerodynamics namespace.
+/*!
+ * The aerodynamics namespace.
+ */
 namespace aerodynamics
 {
 
@@ -347,6 +358,8 @@ double computeShockTotalPressureRatio( const double& normalMachNumber,
  */
 double computeShockDeflectionAngle( const double& shockAngle, const double& machNumber,
                                     const double& ratioOfSpecificHeats );
+
+}
 
 }
 

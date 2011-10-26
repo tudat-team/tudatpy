@@ -55,6 +55,13 @@
 #include "Mathematics/cubicSplineInterpolation.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Tabulated atmosphere class.
 /*!
  * Tabulated atmospheres class, for example US1976. The default path
@@ -227,6 +234,8 @@ private:
     CubicSplineInterpolation cubicSplineInterpolationForTemperature_;
 
 };
+
+}
 
 #endif // TABULATEDATMOSPHERE_H
 

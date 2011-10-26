@@ -48,6 +48,13 @@
 // Include statements.
 #include "Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Exponential random number generator class.
 /*!
  * Definition of class that generates random numbers with an exponential
@@ -61,15 +68,10 @@ public:
     /*!
      * Default constructor.
      */
-    ExponentialRandomNumberGenerator(
-            const double& exponentialRandomNumberParameter,
-            unsigned long long seed );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~ExponentialRandomNumberGenerator( ) { }
+    ExponentialRandomNumberGenerator( const double& exponentialRandomNumberParameter,
+                                      unsigned long long seed )
+        : UniformRandomNumberGenerator( seed ),
+          exponentialRandomNumberParameter_( exponentialRandomNumberParameter ) { }
 
     //! Get exponentially-distributed, normalized, random double.
     /*!
@@ -93,8 +95,9 @@ private:
      * \f]
      */
     double exponentialRandomNumberParameter_;
-
 };
+
+}
 
 #endif // EXPONENTIALRANDOMNUMBERGENERATOR_H
 

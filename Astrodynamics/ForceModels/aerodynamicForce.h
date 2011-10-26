@@ -48,6 +48,13 @@
 #include "Astrodynamics/ForceModels/forceModel.h"
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Aerodynamic force model.
 /*!
  * Calculates the aerodynamic force based on C_D C_S and C_L, a reference lenght or area, the
@@ -125,6 +132,8 @@ private:
      */
     double dynamicPressure_;
 };
+
+}
 
 #endif // AERODYNAMICFORCE_H
 

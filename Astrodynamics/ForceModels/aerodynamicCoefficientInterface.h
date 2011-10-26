@@ -49,8 +49,18 @@
 // Include statements.
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-//! Base class to hold an Aerodynamic Coefficient Interface. This interface can, for instance,
-//! be a database of coefficients or an aerodynamic analysis code which generates coefficients.
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
+//! Base class to hold an aerodynamic coefficient interface.
+/*!
+ * This interface can, for instance, be a database of coefficients or an aerodynamic analysis code
+ * which generates coefficients.
+ */
 class AerodynamicCoefficientInterface
 {
 public:
@@ -214,6 +224,8 @@ protected:
 private:
 
 };
+
+}
 
 #endif // AERODYNAMICCOEFFICIENTINTERFACE_H
 
