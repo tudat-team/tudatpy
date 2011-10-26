@@ -47,6 +47,11 @@ cmake_minimum_required( VERSION 2.6 )
 # Specific Tudat project name.
 project( Tudat )
 
+# Set full-path to Tudat trunk directory.
+# This should be used in case the FILE token does not given the full-path in the getRootPath()
+# function in basicFunctions.cpp.
+#add_definitions(-DTUDAT_CUSTOM_ROOT_PATH="C:\My\Custom\Path\To\Tudat\trunk")
+
 # Set root-directory for code to current source directory.
 set(CODEROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
@@ -61,7 +66,7 @@ enable_testing()
 
 if (WIN32)
   if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Ox /W3 -D_SCL_SECURE_NO_WARNINGS")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
     set(LIBROOT "${CODEROOT}/lib_msvc")
     set(INCLUDEROOT "${CODEROOT}/include")
     set(BINROOT "${CODEROOT}/bin_msvc")
