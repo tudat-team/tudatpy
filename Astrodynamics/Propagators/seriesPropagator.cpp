@@ -48,7 +48,7 @@ void SeriesPropagator::execute( )
 
     // Clear and store initial states in maps for each propagated body in
     // associated propagator data containers.
-    for ( iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
+    for ( BodyPropagatorDataMap::iterator iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
           iteratorPropagatedBodies_ != bodiesToPropagate_.end( ); iteratorPropagatedBodies_++ )
     {
         // Clear propagation histories.
@@ -76,7 +76,8 @@ void SeriesPropagator::execute( )
         // Store final states in maps for each propagated body in associated
         // propagator data containers. Set initial states for each propagated
         // body to final states from current propagation segment.
-        for ( iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
+        for ( BodyPropagatorDataMap::iterator iteratorPropagatedBodies_
+              = bodiesToPropagate_.begin( );
               iteratorPropagatedBodies_ != bodiesToPropagate_.end( ); iteratorPropagatedBodies_++ )
         {
             // Store final state.
@@ -107,7 +108,7 @@ void SeriesPropagator::execute( )
     // Store final states in maps for each propagated body in associated
     // propagator data containers. Set initial states for each propagated
     // body to final states from current propagation segment.
-    for ( iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
+    for ( BodyPropagatorDataMap::iterator iteratorPropagatedBodies_ = bodiesToPropagate_.begin( );
           iteratorPropagatedBodies_ != bodiesToPropagate_.end( ); iteratorPropagatedBodies_++ )
     {
         // Get map of bodies to propagate.

@@ -177,6 +177,12 @@ public:
 
 protected:
 
+    //! Type definition of map of body propagator data.
+    /*!
+     * Type definition of map of body propagator data.
+     */
+    typedef std::map< Body*, PropagatorDataContainer > BodyPropagatorDataMap;
+
     //! Set start of propagation interval.
     /*!
      * Set start of propagation interval.
@@ -193,13 +199,7 @@ protected:
     /*!
      * Map of bodies to be propagated and associated data.
      */
-    std::map< Body*, PropagatorDataContainer > bodiesToPropagate_;
-
-    //! Iterator for map of bodies to propagate and associated data.
-    /*!
-     * Iterator for map of bodies to propagate and associated data.
-     */
-    std::map< Body*, PropagatorDataContainer >::iterator iteratorBodiesToPropagate_;
+    BodyPropagatorDataMap bodiesToPropagate_;
 
 private:
 };

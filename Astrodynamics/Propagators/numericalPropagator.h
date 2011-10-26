@@ -67,8 +67,7 @@ public:
     /*!
      * Default constructor.
      */
-    NumericalPropagator( ) : sizeOfAssembledState_( 0 ), pointerToIntegrator_( NULL ),
-        iteratorContainerOfPointersToForceModels_( NULL ) { }
+    NumericalPropagator( ) : sizeOfAssembledState_( 0 ), pointerToIntegrator_( NULL ) { }
 
     //! Set integrator for propagation.
     /*!
@@ -122,12 +121,6 @@ protected:
      * Pointer to Integrator object.
      */
     Integrator* pointerToIntegrator_;
-
-    //! Iterator for vector container of pointers to force models.
-    /*!
-     * Iterator for vector container of pointers to force models.
-     */
-    std::vector< ForceModel* >::iterator iteratorContainerOfPointersToForceModels_;
 
 private:
 };

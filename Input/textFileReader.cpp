@@ -108,7 +108,8 @@ void TextFileReader::stripEndOfLineCharacters( )
     string::iterator iteratorString_;
 
     // Loop through all the strings stored in the container.
-    for ( iteratorContainerOfDataFromFile_ = containerOfDataFromFile_.begin( );
+    for ( LineBasedStringDataMap::iterator iteratorContainerOfDataFromFile_
+          = containerOfDataFromFile_.begin( );
           iteratorContainerOfDataFromFile_ != containerOfDataFromFile_.end( );
           iteratorContainerOfDataFromFile_++ )
     {
@@ -150,8 +151,7 @@ std::ostream& operator<<( std::ostream& stream,
     {
         stream << "The starting character to skip when reading the file "
                << "contents has been defined as: "
-               << pointerToTextFileReader.startingCharacter_
-               << endl;
+               << pointerToTextFileReader.startingCharacter_ << endl;
     }
 
     stream << "The line counter is set currently to: "
