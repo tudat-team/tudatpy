@@ -56,21 +56,16 @@
 #include "Astrodynamics/MissionSegments/capturePhase.h"
 #include "Astrodynamics/MissionSegments/escapeAndCapture.h"
 #include "Astrodynamics/MissionSegments/escapePhase.h"
-#include "Astrodynamics/MissionSegments/unitTestEscapeAndCapture.h"
 #include "Mathematics/GeometricShapes/sphereSegment.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using std::fabs;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test patched conics implementation.
-bool testEscapeAndCapture( )
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using std::fabs;
+
     // Test result initialised to false.
     bool isEscapeAndCaptureErroneous = false;
 
@@ -146,9 +141,12 @@ bool testEscapeAndCapture( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isEscapeAndCaptureErroneous;
-}
+    if ( isEscapeAndCaptureErroneous )
+    {
+        cerr << "testEscapeAndCapture failed!" << endl;
+    }
 
+    return isEscapeAndCaptureErroneous;
 }
 
 // End of file.

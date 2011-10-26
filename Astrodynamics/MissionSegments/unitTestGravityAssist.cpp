@@ -60,21 +60,16 @@
 #include <iostream>
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/MissionSegments/gravityAssist.h"
-#include "Astrodynamics/MissionSegments/unitTestGravityAssist.h"
 #include "Mathematics/unitConversions.h"
 
-// Using directives.
-using std::endl;
-using std::cerr;
-using std::fabs;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test of gravity assist code.
-bool testGravityAssist( )
+int main( )
 {
+    // Using declarations.
+    using std::endl;
+    using std::cerr;
+    using std::fabs;
+
     // Test result initialised to false.
     bool isGravityAssistErroneous = false;
 
@@ -159,9 +154,12 @@ bool testGravityAssist( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isGravityAssistErroneous;
-}
+    if ( isGravityAssistErroneous )
+    {
+        cerr << "testGravityAssist failed!" << endl;
+    }
 
+    return isGravityAssistErroneous;
 }
 
 // End of file.

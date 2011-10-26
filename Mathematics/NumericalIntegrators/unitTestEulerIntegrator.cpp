@@ -44,18 +44,44 @@
 #include <cmath>
 #include <iostream>
 #include "Mathematics/NumericalIntegrators/euler.h"
-#include "Mathematics/NumericalIntegrators/unitTestEulerIntegrator.h"
+#include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
-//! Namespace for all unit tests.
-namespace unit_tests
+//! Euler integrator test class.
+/*!
+ * Euler integrator test class.
+ */
+struct EulerIntegratorTest : public StateDerivativeBase
 {
+public:
+
+    //! Compute state derivative.
+    /*!
+     * Computes state derivative. The state derivative function defined
+     * corresponds to Example 1, pg. 258 in (Burden and Faires, 2001).
+     * The initial-value problem is:
+     * \f[
+     *      y' = y - t^{ 2 } + 1
+     * \f]
+     * with \f$ 0 \leq t \leq 2 \f$ and \f$ y( 0 ) = 0.5 \f$.
+     * \param time Time.
+     * \param pointerToState Pointer to State object.
+     * \param pointerToStateDerivative Computed state derivative given as a
+     *          pointer to a State object.
+     */
+    void computeStateDerivative( double& time, State* pointerToState,
+                                 State* pointerToStateDerivative )
+    { pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 ) - pow( time, 2.0 ) + 1.0; }
+
+protected:
+
+private:
+};
 
 //! Test implementation of Euler integrator.
-bool testEulerIntegrator( )
+int main( )
 {
     // One test.
-    // Test 1: Integration of initial-value problem given on pg. 258 of
-    //         (Burden and Faires, 2001).
+    // Test 1: Integration of initial-value problem given on pg. 258 of (Burden and Faires, 2001).
 
     // Test result initialised to false.
     bool isEulerIntegratorErroneous_ = false;
@@ -103,17 +129,12 @@ bool testEulerIntegrator( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
+    if ( isEulerIntegratorErroneous_ )
+    {
+        std::cerr << "testEulerIntegrator failed!" << std::endl;
+    }
+
     return isEulerIntegratorErroneous_;
-}
-
-//! Compute state derivative.
-void EulerIntegratorTest::computeStateDerivative( double& time, State* pointerToState,
-                                                  State* pointerToStateDerivative )
-{
-    // Compute state derivative.
-    pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 ) - pow( time, 2.0 ) + 1.0;
-}
-
 }
 
 // End of file.

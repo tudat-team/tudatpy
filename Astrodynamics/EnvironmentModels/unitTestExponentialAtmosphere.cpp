@@ -45,15 +45,10 @@
 #include <iostream>
 #include "Astrodynamics/physicalConstants.h"
 #include "Astrodynamics/EnvironmentModels/exponentialAtmosphere.h"
-#include "Astrodynamics/EnvironmentModels/unitTestExponentialAtmosphere.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test of implementation of the exponential atmosphere.
-bool testExponentialAtmosphere( )
+int main( )
 {
     // Using declarations.
     using std::cerr;
@@ -145,9 +140,12 @@ bool testExponentialAtmosphere( )
         isExponentialAtmosphereBad_ = true;
     }
 
-    return isExponentialAtmosphereBad_;
-}
+    if ( isExponentialAtmosphereBad_ )
+    {
+        cerr << "testExponentialAtmosphere failed!" << std::endl;
+    }
 
+    return isExponentialAtmosphereBad_;
 }
 
 // End of file.

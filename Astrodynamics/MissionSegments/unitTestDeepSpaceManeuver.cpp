@@ -44,22 +44,17 @@
 #include <cmath>
 #include <iostream>
 #include "Astrodynamics/MissionSegments/deepSpaceManeuver.h"
-#include "Astrodynamics/MissionSegments/unitTestDeepSpaceManeuver.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test deep space maneuver.
-bool testDeepSpaceManeuver( )
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+
     // Summary of tests.
     // Test 1: Test setTime() and getTime() functions.
     // Test 2: Test setState() and getState() functions with Cartesian elements state.
@@ -125,9 +120,12 @@ bool testDeepSpaceManeuver( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isDeepSpaceManeuverErroneous_;
-}
+    if ( isDeepSpaceManeuverErroneous_ )
+    {
+        cerr << "testDeepSpaceManeuver failed!" << endl;
+    }
 
+    return isDeepSpaceManeuverErroneous_;
 }
 
 // End of file.

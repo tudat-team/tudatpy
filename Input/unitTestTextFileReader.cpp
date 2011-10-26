@@ -47,21 +47,16 @@
 // Include statements.
 #include <cmath>
 #include "Input/textFileReader.h"
-#include "Input/unitTestTextFileReader.h"
-
-// Using declarations.
-using std::string;
-using std::map;
-using std::cerr;
-using std::endl;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
 
 //! Test implementation of textFileReader class.
-bool testTextFileReader( )
+int main( )
 {
+    // Using declarations.
+    using std::string;
+    using std::map;
+    using std::cerr;
+    using std::endl;
+
     // Test result initialised to false.
     bool isTextFileReaderErroneous = false;
 
@@ -183,8 +178,7 @@ bool testTextFileReader( )
          testContainerOfData3.at( 8 ) != line8 )
     {
         isTextFileReaderErroneous = true;
-        cerr << "Test text file reading with skipping of lines with a keyword "
-                "was unsuccessful."
+        cerr << "Test text file reading with skipping of lines with a keyword was unsuccessful."
              << endl;
     }
 
@@ -193,9 +187,10 @@ bool testTextFileReader( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isTextFileReaderErroneous;
-}
-
+    if ( isTextFileReaderErroneous )
+    {
+        cerr << "testTextFileReader failed!" << std::endl;
+    }
 }
 
 // End of file.

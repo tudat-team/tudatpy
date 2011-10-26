@@ -44,18 +44,44 @@
 #include <cmath>
 #include <iostream>
 #include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
-#include "Mathematics/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.h"
+#include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
-//! Namespace for all unit tests.
-namespace unit_tests
+//! Runge-Kutta 4th-order, fixed stepsize integrator test class.
+/*!
+ *  Runge-Kutta 4th-order, fixed stepsize integrator test class.
+ */
+struct RungeKutta4thOrderFixedStepsizeIntegratorTest : public StateDerivativeBase
 {
+public:
+
+    //! Compute state derivative.
+    /*!
+     * Computes state derivative. The state derivative function defined
+     * corresponds to Example 3, pg. 278 in (Burden and Faires, 2001).
+     * The initial-value problem is:
+     * \f[
+     *      y' = y - t^{ 2 } + 1
+     * \f]
+     * with \f$ 0 \leq t \leq 2 \f$ and \f$ y( 0 ) = 0.5 \f$.
+     * \param time Time.
+     * \param pointerToState Pointer to State object.
+     * \param pointerToStateDerivative Computed state derivative given as a
+     *          pointer to a State object.
+     */
+    void computeStateDerivative( double& time, State* pointerToState,
+                                 State* pointerToStateDerivative )
+    { pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 ) - pow( time, 2.0 ) + 1.0; }
+
+protected:
+
+private:
+};
 
 //! Test implementation of 4th-order, fixed stepsize, Runge-Kutta integrator.
-bool testRungeKutta4thOrderFixedStepsizeIntegrator( )
+int main( )
 {
     // One test.
-    // Test 1: Integration of initial-value problem given on pg. 278 of
-    //         (Burden and Faires, 2001).
+    // Test 1: Integration of initial-value problem given on pg. 278 of (Burden and Faires, 2001).
 
     // Test result initialised to false.
     bool isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_ = false;
@@ -108,17 +134,12 @@ bool testRungeKutta4thOrderFixedStepsizeIntegrator( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
+    if ( isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_ )
+    {
+        std::cerr << "testRungeKutta4thOrderFixedStepsizeIntegrator failed!" << std::endl;
+    }
+
     return isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_;
-}
-
-//! Compute state derivative.
-void RungeKutta4thOrderFixedStepsizeIntegratorTest::computeStateDerivative(
-    double& time, State* pointerToState, State* pointerToStateDerivative )
-{
-    // Compute state derivative.
-    pointerToStateDerivative->state( 0 ) = pointerToState->state( 0 ) - pow( time, 2.0 ) + 1.0;
-}
-
 }
 
 // End of file.

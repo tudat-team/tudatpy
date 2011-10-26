@@ -51,29 +51,24 @@
 #include <cmath>
 #include <iostream>
 #include "Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
-#include "Astrodynamics/ReferenceFrames/unitTestReferenceFrameTransformations.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
 
-// Using declarations.
-using std::atan2;
-using std::cos;
-using std::sin;
-using std::cerr;
-using std::endl;
-using std::fabs;
-using std::pow;
-using std::sqrt;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-using unit_conversions::convertDegreesToRadians;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test reference frame transformations.
-bool testReferenceFrameTransformations( )
+int main( )
 {
+    // Using declarations.
+    using std::atan2;
+    using std::cos;
+    using std::sin;
+    using std::cerr;
+    using std::endl;
+    using std::fabs;
+    using std::pow;
+    using std::sqrt;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using unit_conversions::convertDegreesToRadians;
+
     // Summary of tests.
     // Test 1: Test inertial to rotating planetocentric frame transformation.
     // Test 2: Check if the transformed matrix of Test 1 is also correct.
@@ -342,9 +337,12 @@ bool testReferenceFrameTransformations( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isFrameTransformationErroneous;
-}
+    if ( isFrameTransformationErroneous )
+    {
+        cerr << "referenceFrameTransformations failed" << endl;
+    }
 
+    return isFrameTransformationErroneous;
 }
 
 // End of file.

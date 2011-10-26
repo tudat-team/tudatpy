@@ -45,15 +45,10 @@
 #include <cmath>
 #include <iostream>
 #include "Astrodynamics/EnvironmentModels/tabulatedAtmosphere.h"
-#include "Astrodynamics/EnvironmentModels/unitTestTabulatedAtmosphere.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
-//! Test of implementation of the Tabulated atmosphere.
-bool testTabulatedAtmosphere( )
+//! Test implementation of the tabulated atmosphere.
+int main( )
 {
     // Using declarations.
     using std::cerr;
@@ -63,7 +58,7 @@ bool testTabulatedAtmosphere( )
     using mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Declare test variable.
-    bool isTabulatedAtmosphereBad_ = false;
+    bool isTabulatedAtmosphereBad = false;
 
     // Test 1: Test tabulated atmosphere at sea level.
     // Test 2: Test tabulated atmosphere at 10.0 km altitude including
@@ -100,7 +95,7 @@ bool testTabulatedAtmosphere( )
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
 
-        isTabulatedAtmosphereBad_ = true;
+        isTabulatedAtmosphereBad = true;
     }
 
     // Test 2: Test tabulated atmosphere at 10 km altitude including
@@ -125,7 +120,7 @@ bool testTabulatedAtmosphere( )
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
 
-        isTabulatedAtmosphereBad_ = true;
+        isTabulatedAtmosphereBad = true;
     }
 
     // Test 3: Test tabulated atmosphere at 10.05 km altitude when just
@@ -143,7 +138,7 @@ bool testTabulatedAtmosphere( )
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
 
-        isTabulatedAtmosphereBad_ = true;
+        isTabulatedAtmosphereBad = true;
     }
 
     // Test 4: Test tabulated atmosphere at 1000 km altitude.
@@ -160,7 +155,7 @@ bool testTabulatedAtmosphere( )
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
-        isTabulatedAtmosphereBad_ = true;
+        isTabulatedAtmosphereBad = true;
     }
 
     // Test 5: Test tabulated atmosphere at 1000 km altitude.
@@ -179,12 +174,15 @@ bool testTabulatedAtmosphere( )
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
-        isTabulatedAtmosphereBad_ = true;
+        isTabulatedAtmosphereBad = true;
     }
 
-    return isTabulatedAtmosphereBad_;
-}
+    if ( isTabulatedAtmosphereBad )
+    {
+        cerr << "testTabulatedAtmosphere failed!" << std::endl;
+    }
 
+    return isTabulatedAtmosphereBad;
 }
 
 // End of file.

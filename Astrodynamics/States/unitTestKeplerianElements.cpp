@@ -44,25 +44,20 @@
  */
 
 // Include statements.
-#include "Astrodynamics/States/unitTestKeplerianElements.h"
 #include "Astrodynamics/States/keplerianElements.h"
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-using unit_conversions::convertDegreesToRadians;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test Keplerian elements state class.
-bool testKeplerianElements( )
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using unit_conversions::convertDegreesToRadians;
+
     // Three tests.
     // Test 1: Set Keplerian elements using individual set functions; and get
     //         Keplerian elements using individual get functions.
@@ -203,9 +198,8 @@ bool testKeplerianElements( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
+    if ( isKeplerianElementsErroneous_ ) { cerr << "testKeplerianElements failed!" << endl; }
     return isKeplerianElementsErroneous_;
-}
-
 }
 
 // End of file.

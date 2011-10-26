@@ -59,7 +59,6 @@
 #include "Astrodynamics/Bodies/vehicle.h"
 #include "Astrodynamics/Propagators/keplerPropagator.h"
 #include "Astrodynamics/Propagators/seriesPropagator.h"
-#include "Astrodynamics/Propagators/unitTestKeplerPropagator.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/state.h"
 #include "Basics/basicFunctions.h"
@@ -67,12 +66,8 @@
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/unitConversions.h"
 
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
-//! Test of implementation of Kepler propagator class.
-bool testKeplerPropagator( )
+//! Test implementation of Kepler propagator class.
+int main( )
 {
     // Test to see if the orbit of a satellite around the Earth is correctly
     // reproduced with respect to benchmark reference data.
@@ -248,9 +243,12 @@ bool testKeplerPropagator( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isKeplerPropagatorErroneous;
-}
+    if ( isKeplerPropagatorErroneous )
+    {
+        std::cerr << "testKeplerPropagator failed!" << endl;
+    }
 
+    return isKeplerPropagatorErroneous;
 }
 
 // End of file.

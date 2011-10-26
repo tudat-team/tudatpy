@@ -43,21 +43,16 @@
 
 // Include statements.
 #include "Astrodynamics/States/cartesianElements.h"
-#include "Astrodynamics/States/unitTestCartesianElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-// Using statements.
-using std::cerr;
-using std::endl;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test Cartesian elements state class.
-bool testCartesianElements( )
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+
     // Two tests.
     // Test 1: Set Cartesian elements using individual set functions; and get
     //         Cartesian elements using individual get functions.
@@ -146,9 +141,12 @@ bool testCartesianElements( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isCartesianElementsErroneous;
-}
+    if ( isCartesianElementsErroneous )
+    {
+        cerr << "testCartesianElements failed!" << endl;
+    }
 
+    return isCartesianElementsErroneous;
 }
 
 // End of file.

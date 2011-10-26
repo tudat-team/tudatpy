@@ -73,21 +73,16 @@
 #include "Astrodynamics/physicalConstants.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
-#include "Mathematics/unitTestUnitConversions.h"
-
-// Using directives.
-using std::cerr;
-using std::endl;
-using std::fabs;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
 
 //! Test unit conversions.
-bool testUnitConversions( )
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using std::fabs;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+
     // Test result initialised to false.
     bool isUnitConversionsErroneous = false;
 
@@ -244,10 +239,12 @@ bool testUnitConversions( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
+    if ( isUnitConversionsErroneous )
+    {
+        cerr << "testUnitConversions failed!" << endl;
+    }
+
     return isUnitConversionsErroneous;
 }
-
-}
-
 
 // End of file.

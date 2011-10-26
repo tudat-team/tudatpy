@@ -84,29 +84,24 @@
 #include "Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Astrodynamics/States/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
 #include "Astrodynamics/States/orbitalElementConversions.h"
-#include "Astrodynamics/States/unitTestOrbitalElementConversions.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using std::fabs;
-using std::pow;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-using orbital_element_conversions::convertCartesianToKeplerianElements;
-using orbital_element_conversions::convertKeplerianToCartesianElements;
-using orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
-using orbital_element_conversions::ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
-
-//! Namespace for all unit tests.
-namespace unit_tests
+//! Test orbital element conversion code.
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using std::fabs;
+    using std::pow;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using orbital_element_conversions::convertCartesianToKeplerianElements;
+    using orbital_element_conversions::convertKeplerianToCartesianElements;
+    using orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
+    using orbital_element_conversions::ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
 
-//! Test of orbitalElementConversion code.
-bool testOrbitalElementConversions( )
-{
     // Test of orbital element conversion methods imeplemented in Tudat.
     // Test 1: Test of Cartesian-to-Keplerian elements conversion and
     //         Keplerian-to-Cartesian elements conversion.
@@ -792,9 +787,11 @@ bool testOrbitalElementConversions( )
              << 1000.0 << " ) " << endl;
     }
 
+    // Return test result.
+    // If test is successful return false; if test fails, return true.
+    if ( isOrbitalElementConversionErroneous )
+    { cerr << "testOrbitalElementConversions failed!" << endl; }
     return isOrbitalElementConversionErroneous;
-}
-
 }
 
 // End of file.

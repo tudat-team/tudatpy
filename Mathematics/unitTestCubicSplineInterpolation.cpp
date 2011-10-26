@@ -45,15 +45,10 @@
 #include <cmath>
 #include <iostream>
 #include "Mathematics/cubicSplineInterpolation.h"
-#include "Mathematics/unitTestCubicSplineInterpolation.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test implementation of cubic spline class.
-bool testCubicSplineInterpolation( )
+int main( )
 {
     // Summary of tests.
     // Test 1: Compare with analytical function 2 + 3x + 5x^2.
@@ -100,18 +95,21 @@ bool testCubicSplineInterpolation( )
                 targetIndependentVariableValue );
 
     // Check if test result match analytical result or output cerr statements.
-    if ( abs( analyticalValue - interpolatedDependentVariableValue ) / analyticalValue > 1.0e-2 )
+    if ( std::fabs( analyticalValue - interpolatedDependentVariableValue )
+         / analyticalValue > 1.0e-2 )
     {
         isCubicSplineInterpolationBad = true;
-
-        std::cerr << " Cubic Spline Interpolation is malfunctioning. " << std::endl;
+        std::cerr << "Cubic spline interpolation is malfunctioning." << std::endl;
     }
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isCubicSplineInterpolationBad;
-}
+    if ( isCubicSplineInterpolationBad )
+    {
+        std::cerr << "cubicSplineInterpolation failed! " << std::endl;
+    }
 
+    return isCubicSplineInterpolationBad;
 }
 
 // End of file.

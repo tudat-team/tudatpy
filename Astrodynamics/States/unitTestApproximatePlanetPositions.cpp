@@ -64,35 +64,30 @@
 #include "Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h"
 #include "Astrodynamics/States/keplerianElements.h"
 #include "Astrodynamics/States/orbitalElementConversions.h"
-#include "Astrodynamics/States/unitTestApproximatePlanetPositions.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using std::fabs;
-using std::cos;
-using std::sqrt;
-using mathematics::convertCartesianToSpherical;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-using unit_conversions::convertDegreesToRadians;
-using unit_conversions::convertRadiansToDegrees;
-using unit_conversions::convertDegreesToArcminutes;
-using unit_conversions::convertArcminutesToArcseconds;
-using unit_conversions::convertAstronomicalUnitsToMeters;
-using orbital_element_conversions::convertCartesianToKeplerianElements;
-
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
 //! Test ApproximatePlanetPositions class.
-bool testApproximatePlanetPositions( )
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using std::fabs;
+    using std::cos;
+    using std::sqrt;
+    using mathematics::convertCartesianToSpherical;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using unit_conversions::convertDegreesToRadians;
+    using unit_conversions::convertRadiansToDegrees;
+    using unit_conversions::convertDegreesToArcminutes;
+    using unit_conversions::convertArcminutesToArcseconds;
+    using unit_conversions::convertAstronomicalUnitsToMeters;
+    using orbital_element_conversions::convertCartesianToKeplerianElements;
+
     // Initialize unit test result to false.
-    bool isApproximatePlanetPositionsErroneous_ = false;
+    bool isApproximatePlanetPositionsErroneous = false;
 
     // Test of ApproximatePlanetPositions class.
     // Test 1: Get orbital elements of Mars at Julian date 2455626.5.
@@ -145,7 +140,7 @@ bool testApproximatePlanetPositions( )
     double errorBoundRadius_ = 3.0e8;
     if ( fabs( differenceInSphericalCoordinates( 0 ) ) > errorBoundRadius_ )
     {
-        isApproximatePlanetPositionsErroneous_ = true;
+        isApproximatePlanetPositionsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed error in radius of ephemeris of Mars " << endl;
@@ -166,7 +161,7 @@ bool testApproximatePlanetPositions( )
 
     if ( rightAscensionErrorInArcsec_ > errorBoundRightAscensionInArcsec_ )
     {
-        isApproximatePlanetPositionsErroneous_ = true;
+        isApproximatePlanetPositionsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed error in right ascension of ephemeris of Mars " << endl;
@@ -187,7 +182,7 @@ bool testApproximatePlanetPositions( )
 
     if ( errorBoundDeclinationInArcsec_ > 40.0 )
     {
-        isApproximatePlanetPositionsErroneous_ = true;
+        isApproximatePlanetPositionsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed error in declination of ephemeris of Mars " << endl;
@@ -244,7 +239,7 @@ bool testApproximatePlanetPositions( )
 
 //    if ( errorSemiMajorAxis > errorTolerance_ )
 //    {
-//        isApproximatePlanetPositionsErroneous_ = true;
+//        isApproximatePlanetPositionsErroneous = true;
 
 //        // Generate error statements.
 //        cerr << "The computed relative error in position of the  "<< endl;
@@ -265,7 +260,7 @@ bool testApproximatePlanetPositions( )
 //    if ( fabs( errorPositionVector( 0 ) ) > maximumErrorPosition
 //         || fabs( errorPositionVector( 1 ) ) > maximumErrorPosition )
 //    {
-//        isApproximatePlanetPositionsErroneous_ = true;
+//        isApproximatePlanetPositionsErroneous = true;
 
 //        // Generate error statements.
 //        cerr << "The computed error in position vector of the  "<< endl;
@@ -290,7 +285,7 @@ bool testApproximatePlanetPositions( )
 
     if ( errorVelocity.norm( ) > expectedErrorVelocity )
     {
-        isApproximatePlanetPositionsErroneous_ = true;
+        isApproximatePlanetPositionsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed error in velocity of the "<< endl;
@@ -309,7 +304,7 @@ bool testApproximatePlanetPositions( )
 
     if ( errorEccentricity > errorTolerance_ )
     {
-        isApproximatePlanetPositionsErroneous_ = true;
+        isApproximatePlanetPositionsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed error in eccentricity of the  "<< endl;
@@ -323,7 +318,7 @@ bool testApproximatePlanetPositions( )
             / ( 2.0 * M_PI );
     if ( relativeErrorInclination_ > errorTolerance_ )
     {
-        isApproximatePlanetPositionsErroneous_ = true;
+        isApproximatePlanetPositionsErroneous = true;
 
         // Generate error statements.
         cerr << "The relative error in the inclination of the  "<< endl;
@@ -337,7 +332,7 @@ bool testApproximatePlanetPositions( )
 
     if ( relativeErrorPositionComponentZ_ > errorTolerance_ )
     {
-        isApproximatePlanetPositionsErroneous_ = true;
+        isApproximatePlanetPositionsErroneous = true;
 
         // Generate error statements.
         cerr << "The relative error in vertical position of the  "<< endl;
@@ -347,9 +342,12 @@ bool testApproximatePlanetPositions( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isApproximatePlanetPositionsErroneous_;
-}
+    if ( isApproximatePlanetPositionsErroneous )
+    {
+        cerr << "testApproximatePlanetPositions failed!" << endl;
+    }
 
+    return isApproximatePlanetPositionsErroneous;
 }
 
 // End of file.

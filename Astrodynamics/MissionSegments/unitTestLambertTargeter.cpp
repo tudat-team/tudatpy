@@ -69,23 +69,18 @@
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 #include "Astrodynamics/MissionSegments/lambertTargeter.h"
-#include "Astrodynamics/MissionSegments/unitTestLambertTargeter.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Mathematics/unitConversions.h"
 
-// Using directives.
-using std::fabs;
-using std::endl;
-using std::cerr;
-using unit_conversions::convertAstronomicalUnitsToMeters;
-
-//! Namespace for all unit tests.
-namespace unit_tests
+//! Test Lambert targeting algorithm code.
+int main( )
 {
+    // Using directives.
+    using std::fabs;
+    using std::endl;
+    using std::cerr;
+    using unit_conversions::convertAstronomicalUnitsToMeters;
 
-//! Test of Lambert targeting algorithm code.
-bool testLambertTargeter( )
-{
     // Test result initialised to false.
     bool isLambertTargeterErroneous = false;
 
@@ -370,9 +365,12 @@ bool testLambertTargeter( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isLambertTargeterErroneous;
-}
+    if ( isLambertTargeterErroneous )
+    {
+        cerr << "testLambertTargeter failed!" << endl;
+    }
 
+    return isLambertTargeterErroneous;
 }
 
 // End of file.

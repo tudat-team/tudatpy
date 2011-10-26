@@ -60,18 +60,48 @@
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
-#include "Mathematics/RootFindingMethods/unitTestNewtonRaphson.h"
 
 // Using statements.
 using std::cerr;
 using std::endl;
 
-//! Namespace for all unit tests.
-namespace unit_tests
+//! Struct for NewtonRaphson unit test code.
+/*!
+ * This struct contains functions, necessary to test NewtonRaphson method.
+ */
+struct NewtonRaphsonTest
 {
+public:
+
+    //! Mathematical test function.
+    /*!
+     * Mathematical test function used by the Newton-Raphson algorithm.
+     * \param inputValue Input value.
+     */
+    double computeTestFunction( double& inputValue ) { return std::pow( inputValue, 2.0 ) - 3.0; }
+
+    //! First-derivative of mathematical test function.
+    /*!
+     * First-derivative of mathematical test function used by the
+     * Newton-Raphson algorithm.
+     * \param inputValue Input value.
+     */
+    double computeFirstDerivativeTestFunction( double& inputValue ) { return 2.0 * inputValue; }
+
+protected:
+
+private:
+};
+
+//! Global mathematical test function.
+double computeGlobalTestFunction( double& inputValue )
+{ return std::pow( inputValue, 2.0 ) - 3.0; }
+
+//! Global first-derivative mathematical test function.
+double computeGlobalFirstDerivativeTestFunction( double& inputValue ) { return 2.0 * inputValue; }
 
 //! Test of Newton-Raphson method code.
-bool testNewtonRaphsonMethod( )
+int main( )
 {
     // Two tests.
     // Test 1: Test of Newton-Raphson code using global functions.
@@ -162,25 +192,12 @@ bool testNewtonRaphsonMethod( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
+    if ( isNewtonRaphsonMethodErroneous )
+    {
+        cerr << "testNewtonRaphsonMethod failed!" << std::endl;
+    }
+
     return isNewtonRaphsonMethodErroneous;
-}
-
-//! Global mathematical test function.
-/*!
- * Global mathematical test function used by the Newton-Raphson algorithm.
- * \param inputValue Input value.
- */
-double computeGlobalTestFunction( double& inputValue )
-{ return std::pow( inputValue, 2.0 ) - 3.0; }
-
-//! Global first-derivative mathematical test function.
-/*!
- * Global first-derivative mathematical test function used by the
- * Newton-Raphson algorithm.
- * \param inputValue Input value.
- */
-double computeGlobalFirstDerivativeTestFunction( double& inputValue ) { return 2.0 * inputValue; }
-
 }
 
 // End of file.

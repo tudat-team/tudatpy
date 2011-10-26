@@ -47,22 +47,17 @@
 #include <cmath>
 #include <iostream>
 #include "Astrodynamics/physicalConstants.h"
-#include "Astrodynamics/unitTestPhysicalConstants.h"
 #include "Mathematics/unitConversions.h"
 
-// Using directives.
-using std::cerr;
-using std::endl;
-using std::fabs;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-
-//! Namespace for all unit tests.
-namespace unit_tests
+//! Test physical constants header file.
+int main( )
 {
+    // Using declarations.
+    using std::cerr;
+    using std::endl;
+    using std::fabs;
+    using mathematics::MACHINE_PRECISION_DOUBLES;
 
-//! Test of physical constants header file.
-bool testPhysicalConstants( )
-{
     // Test result initialised to false.
     bool isPhysicalConstantsErroneous = false;
 
@@ -121,9 +116,8 @@ bool testPhysicalConstants( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
+    if ( isPhysicalConstantsErroneous ) { cerr << "testPhysicalConstants failed!" << endl; }
     return isPhysicalConstantsErroneous;
-}
-
 }
 
 // End of file.

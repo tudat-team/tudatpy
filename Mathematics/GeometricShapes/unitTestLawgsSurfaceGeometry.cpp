@@ -43,19 +43,18 @@
  */
 
 // Include statements.
+#include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
 #include "Mathematics/GeometricShapes/sphereSegment.h"
-#include "Mathematics/GeometricShapes/unitTestLawgsSurfaceGeometry.h"
-#include "Mathematics/basicMathematicsFunctions.h"
 
-//! Namespace for all unit tests.
-bool unit_tests::testLawgsSurfaceGeometry( )
+//! Test implementation of Lawgs surface geometry.
+int main( )
 {
     // Test result initialised to false.
     bool isLawgsSurfaceGeometryBad_ = false;
 
     // Create a full sphere as test geometry.
-    SphereSegment sphere = SphereSegment( );
+    SphereSegment sphere;
     double sphereRadius_ = 2.0;
     sphere.setRadius( sphereRadius_ );
     sphere.setMaximumAzimuthAngle( 2.0 * M_PI );
@@ -126,6 +125,11 @@ bool unit_tests::testLawgsSurfaceGeometry( )
 
     // Return test result.
     // If test is succesful return 0, if test fails, return 1.
+    if ( isLawgsSurfaceGeometryBad_ )
+    {
+        std::cerr << "testLawgsSurfaceGeometry failed!" << std::endl;
+    }
+
     return  isLawgsSurfaceGeometryBad_;
 }
 

@@ -66,19 +66,14 @@
 #include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
 #include "Astrodynamics/Propagators/numericalPropagator.h"
 #include "Astrodynamics/Propagators/seriesPropagator.h"
-#include "Astrodynamics/Propagators/unitTestNumericalPropagator.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/cartesianPositionElements.h"
 #include "Astrodynamics/States/state.h"
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
 
-//! Namespace for all unit tests.
-namespace unit_tests
-{
-
-//! Test of implementation of numerical propagator class.
-bool testNumericalPropagator( )
+//! Test implementation of numerical propagator class.
+int main( )
 {
     // Test to see if the orbit of a satellite around the Earth is reproduced
     // the same with 1x the gravity of the Earth and 2x half the gravity of
@@ -324,9 +319,12 @@ bool testNumericalPropagator( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isNumericalPropagatorErroneous;
-}
+    if ( isNumericalPropagatorErroneous )
+    {
+        std::cerr << "testNumericalPropagator failed!" << std::endl;
+    }
 
+    return isNumericalPropagatorErroneous;
 }
 
 // End of file.
