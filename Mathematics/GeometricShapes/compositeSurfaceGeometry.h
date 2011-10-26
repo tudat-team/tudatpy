@@ -55,6 +55,10 @@
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 #include "Mathematics/GeometricShapes/surfaceGeometry.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Composite surface geometry class.
 /*!
  * Class for a composite surface geometry, which can be composed of any
@@ -220,6 +224,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // COMPOSITESURFACEGEOMETRY_H
 

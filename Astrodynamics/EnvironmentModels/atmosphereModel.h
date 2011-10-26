@@ -51,13 +51,19 @@
 // Include statements.
 #include "Astrodynamics/EnvironmentModels/environmentModel.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Atmosphere model class.
 /*!
  * Base class for all atmosphere models.
  * To keep the function generic for both reference atmospheres and standard
  * atmospheres, altitude, longitude, latitude, and time are inputs for all functions.
  */
-
 class AtmosphereModel : public EnvironmentModel
 {
 public:
@@ -108,6 +114,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // ATMOSPHEREMODEL_H
 

@@ -96,11 +96,12 @@ int main( )
     using std::endl;
     using std::fabs;
     using std::pow;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
-    using orbital_element_conversions::convertCartesianToKeplerianElements;
-    using orbital_element_conversions::convertKeplerianToCartesianElements;
-    using orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
-    using orbital_element_conversions::ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::orbital_element_conversions::convertCartesianToKeplerianElements;
+    using tudat::orbital_element_conversions::convertKeplerianToCartesianElements;
+    using tudat::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
+    using tudat::orbital_element_conversions::ConvertMeanAnomalyToHyperbolicEccentricAnomaly;
+    using namespace tudat;
 
     // Test of orbital element conversion methods imeplemented in Tudat.
     // Test 1: Test of Cartesian-to-Keplerian elements conversion and

@@ -51,6 +51,9 @@ set(GEOMETRICSHAPES_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/singleSurfaceGeometry.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/sphereSegment.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/torus.cpp"
+
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/geometricShape.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/surfaceGeometry.h"
 )
 
 # Add header files.
@@ -58,12 +61,10 @@ set(GEOMETRICSHAPES_HEADERS
   "${MATHEMATICSDIR}/GeometricShapes/capsule.h"
   "${MATHEMATICSDIR}/GeometricShapes/compositeSurfaceGeometry.h"
   "${MATHEMATICSDIR}/GeometricShapes/conicalFrustum.h"
-  "${MATHEMATICSDIR}/GeometricShapes/geometricShape.h"
   "${MATHEMATICSDIR}/GeometricShapes/lawgsPartGeometry.h"
   "${MATHEMATICSDIR}/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
   "${MATHEMATICSDIR}/GeometricShapes/singleSurfaceGeometry.h"
   "${MATHEMATICSDIR}/GeometricShapes/sphereSegment.h"
-  "${MATHEMATICSDIR}/GeometricShapes/surfaceGeometry.h"
   "${MATHEMATICSDIR}/GeometricShapes/torus.h"
 )
 

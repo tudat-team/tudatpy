@@ -49,6 +49,10 @@
 #include <cmath>
 #include "Mathematics/Statistics/simpleLinearRegression.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Compute fit.
 void SimpleLinearRegression::computeFit( )
 {
@@ -154,6 +158,8 @@ void SimpleLinearRegression::sumDependentVariableData_( )
     {
         sumOfDependentVariableData_ += iteratorInputDataToFit_->second;
     }
+}
+
 }
 
 // End of file.

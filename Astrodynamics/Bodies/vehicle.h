@@ -49,6 +49,13 @@
 #include "Astrodynamics/Bodies/vehicleExternalModel.h"
 #include "Astrodynamics/Bodies/body.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat Library namespace.
+ */
+namespace tudat
+{
+
 //! Vehicle class.
 /*!
  * Class that represents the physical model of the vehicle. Subsystem
@@ -110,6 +117,8 @@ private:
      */
     bool isExternalModelSet_;
 };
+
+}
 
 #endif // VEHICLEMODELS_H
 

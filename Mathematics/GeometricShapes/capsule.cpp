@@ -56,6 +56,10 @@
 #include "Mathematics/GeometricShapes/torus.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::cerr;
 using std::endl;
@@ -216,6 +220,8 @@ std::ostream &operator<<( std::ostream &stream, Capsule& capsule )
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

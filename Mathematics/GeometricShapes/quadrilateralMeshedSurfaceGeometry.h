@@ -58,6 +58,13 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Class for quadrilateral meshed surface geometry.
 /*!
  * Base class for quadrilateral meshed surface geometry.
@@ -226,6 +233,8 @@ protected:
      */
     double totalArea_;
 };
+
+}
 
 #endif // QUADRILATERALMESHEDSURFACEGEOMETRY_H
 

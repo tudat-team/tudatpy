@@ -62,12 +62,13 @@ int main( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
-    using mathematics::computeModulo;
-    using mathematics::convertCylindricalToCartesian;
-    using mathematics::convertSphericalToCartesian;
-    using mathematics::computeLinearInterpolation;
-    using mathematics::convertCartesianToSpherical;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::mathematics::computeModulo;
+    using tudat::mathematics::convertCylindricalToCartesian;
+    using tudat::mathematics::convertSphericalToCartesian;
+    using tudat::mathematics::computeLinearInterpolation;
+    using tudat::mathematics::convertCartesianToSpherical;
+    using namespace tudat;
 
     // Test resultUsingModuloFunction initialised to false.
     bool isBasicMathematicsFunctionsErroneous = false;

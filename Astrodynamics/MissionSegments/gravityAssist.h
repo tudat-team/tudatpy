@@ -76,6 +76,13 @@
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Gravity assist method class.
 /*!
  * Gravity assist method class.
@@ -302,8 +309,9 @@ private:
      * eccentricity.
      */
     double firstDerivativeVelocityEffectFunction( double& incomingEccentricity );
-
 };
+
+}
 
 #endif // GRAVITYASSIST_H
 

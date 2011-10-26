@@ -52,6 +52,13 @@
 #include "Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Ephemeris class using JPL "Approximate Positions of Major Planets".
 /*!
  * Ephemeris class using JPL "Approximate Positions of Major Planets".
@@ -116,6 +123,8 @@ private:
      */
     NewtonRaphson newtonRaphson_;
 };
+
+}
 
 #endif // APPROXIMATEPLANETPOSITIONS_H
 

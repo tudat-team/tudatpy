@@ -53,6 +53,13 @@
 #include <iostream>
 #include "Astrodynamics/States/cartesianPositionElements.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Cartesian elements class.
 /*!
  * Cartesian elements class.
@@ -166,6 +173,8 @@ private:
      */
     Vector3d velocity_;
 };
+
+}
 
 #endif // CARTESIANELEMENTS_H
 

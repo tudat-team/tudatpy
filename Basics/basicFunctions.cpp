@@ -64,9 +64,9 @@
 #include <iterator>
 #include "Basics/basicFunctions.h"
 
-// Using declarations.
-using std::string;
-using std::vector;
+//! Tudat library namespace.
+namespace tudat
+{
 
 //! Basic functions namespace.
 namespace basic_functions
@@ -274,6 +274,8 @@ vector< string > outputCurrentRunningTime( clock_t start_clock, const string& st
 
     // Return string container.
     return runningTimeAndStatusContainer_;
+}
+
 }
 
 }

@@ -46,6 +46,13 @@
 #include <iostream>
 #include "Mathematics/GeometricShapes/geometricShape.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat Library namespace.
+ */
+namespace tudat
+{
+
 //! Vehicle external model class.
 /*!
  * Class that contains the properties of the external portion of the
@@ -110,6 +117,8 @@ private:
      */
     bool isGeometrySet_;
 };
+
+}
 
 #endif // VEHICLEEXTERNALMODELS_H
 

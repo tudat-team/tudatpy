@@ -50,6 +50,10 @@
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientGenerator.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Custom destructor.
 AerodynamicCoefficientGenerator::~AerodynamicCoefficientGenerator( )
 {
@@ -167,6 +171,8 @@ int AerodynamicCoefficientGenerator::variableIndicesToListIndex( int* independen
     }
 
     return coefficientsIndex_;
+}
+
 }
 
 // End of file.

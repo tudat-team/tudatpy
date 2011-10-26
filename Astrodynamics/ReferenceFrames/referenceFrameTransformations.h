@@ -54,7 +54,14 @@
 #include <cmath>
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
-// Using statements.
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
+// Using declarations.
 using Eigen::AngleAxisd;
 using Eigen::Quaterniond;
 
@@ -177,6 +184,8 @@ Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternio
  */
 Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
     const double& longitude, const double& latitude );
+
+}
 
 }
 

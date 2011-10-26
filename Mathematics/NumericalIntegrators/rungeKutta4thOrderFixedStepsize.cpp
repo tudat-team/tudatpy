@@ -66,6 +66,10 @@
 // Include statements.
 #include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Compute next state.
 void RungeKutta4thOrderFixedStepsize::computeNextState_( const double& stepsize )
 {
@@ -140,6 +144,8 @@ std::ostream& operator<<( std::ostream& stream,
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

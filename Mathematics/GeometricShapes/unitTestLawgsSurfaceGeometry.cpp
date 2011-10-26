@@ -50,6 +50,9 @@
 //! Test implementation of Lawgs surface geometry.
 int main( )
 {
+    // Using declarations.
+    using namespace tudat;
+
     // Test result initialised to false.
     bool isLawgsSurfaceGeometryBad_ = false;
 

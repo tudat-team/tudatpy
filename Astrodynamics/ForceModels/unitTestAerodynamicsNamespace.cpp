@@ -57,6 +57,7 @@ int main( )
     using std::fabs;
     using std::pow;
     using std::sin;
+    using namespace tudat;
 
     bool isAerodynamicsNamespaceBad = false;
 

@@ -55,6 +55,13 @@
 #ifndef RANDOMNUMBERGENERATOR_H
 #define RANDOMNUMBERGENERATOR_H
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Random number generator base class.
 /*!
  * Base class for random number generators in Tudat.
@@ -63,22 +70,18 @@ class RandomNumberGenerator
 {
 public:
 
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    RandomNumberGenerator( ) {}
-
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~RandomNumberGenerator( )    {}
+    virtual ~RandomNumberGenerator( ) { }
 
 protected:
 
 private:
 };
+
+}
 
 #endif // RANDOMNUMBERGENERATOR_H
 

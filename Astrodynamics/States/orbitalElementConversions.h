@@ -57,9 +57,16 @@
 #ifndef ORBITALELEMENTCONVERSIONS_H
 #define ORBITALELEMENTCONVERSIONS_H
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Orbital element conversions namespace.
 /*!
- *  Orbital element conversions namespace.
+ * Orbital element conversions namespace.
  */
 namespace orbital_element_conversions
 {
@@ -227,6 +234,9 @@ double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits( const double& meanAno
  */
 double convertMeanMotionToSemiMajorAxis( const double& meanMotion,
                                          CelestialBody* pointerToCentralBody );
+
+}
+
 }
 
 #endif // ORBITALELEMENTCONVERSIONS_H

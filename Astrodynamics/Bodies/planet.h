@@ -44,6 +44,13 @@
 #include "Astrodynamics/EnvironmentModels/centralGravityField.h"
 #include "Astrodynamics/States/approximatePlanetPositions.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Planet class.
 /*!
  * Class that contains planet properties.
@@ -82,6 +89,8 @@ private:
      */
     ApproximatePlanetPositions approximatePlanetPositions_;
 };
+
+}
 
 #endif // PLANET_H
 

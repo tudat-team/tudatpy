@@ -54,6 +54,13 @@
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientGenerator.h"
 #include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Class for inviscid hypersonic aerodynamic analysis using local inclination
 //! methods.
 /*! Class for inviscid hypersonic aerodynamic analysis using local inclination
@@ -389,6 +396,8 @@ private:
      */
     int** selectedMethods_;
 };
+
+}
 
 #endif // HYPERSONICLOCALINCLINATIONANALYSIS_H
 

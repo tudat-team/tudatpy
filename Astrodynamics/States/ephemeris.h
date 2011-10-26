@@ -46,6 +46,13 @@
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Input/textFileReader.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Ephemeris base class.
 /*!
  * Ephemeris base class.
@@ -103,6 +110,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // EPHEMERIS_H
 

@@ -52,6 +52,7 @@ int main( )
     // Using declarations.
     using std::cerr;
     using std::endl;
+    using namespace tudat;
 
     // Two tests.
     // Test 1: Set Cartesian elements using individual set functions; and get

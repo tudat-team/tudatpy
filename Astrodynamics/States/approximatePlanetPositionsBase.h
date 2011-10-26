@@ -70,6 +70,13 @@
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 // Using declarations.
 using std::map;
 
@@ -156,6 +163,8 @@ protected:
 private:
 
 };
+
+}
 
 #endif // APPROXIMATEPLANETPOSITIONSBASE_H
 

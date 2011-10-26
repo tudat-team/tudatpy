@@ -46,6 +46,10 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Constructor from surface geometry (i.e., geometry type conversion).
 void LawgsPartGeometry::setMesh( SingleSurfaceGeometry* originalSurface,
                                  int numberOfLinesIn, int numberOfPointsIn )
@@ -207,6 +211,8 @@ std::ostream& operator<<( std::ostream& stream,
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

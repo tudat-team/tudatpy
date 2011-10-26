@@ -64,6 +64,10 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::cerr;
 using std::endl;
@@ -209,6 +213,8 @@ void SingleSurfaceGeometry::transformPoint( VectorXd& point )
     point = scalingMatrix_ * point;
     point = rotationMatrix_ * point;
     point = point + offset_;
+}
+
 }
 
 // End of file.

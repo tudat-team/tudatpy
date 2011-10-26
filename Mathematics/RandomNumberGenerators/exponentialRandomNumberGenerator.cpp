@@ -46,15 +46,9 @@
 #include <cmath>
 #include "Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.h"
 
-//! Default constructor.
-ExponentialRandomNumberGenerator::ExponentialRandomNumberGenerator(
-        const double& exponentialRandomNumberParameter,
-        unsigned long long seed )
-            : UniformRandomNumberGenerator( seed ),
-              exponentialRandomNumberParameter_(
-                      exponentialRandomNumberParameter )
+//! Tudat library namespace.
+namespace tudat
 {
-}
 
 //! Get exponentially-distributed, normalized, random double.
 double ExponentialRandomNumberGenerator::
@@ -72,7 +66,9 @@ getExponentiallyDistributedNormalizedRandomDouble( )
     while ( uniformRandomNumber_ == 0.0 );
 
     // Return exponentially0distributed, normalized, random double.
-    return -log( uniformRandomNumber_ ) / exponentialRandomNumberParameter_;
+    return -std::log( uniformRandomNumber_ ) / exponentialRandomNumberParameter_;
+}
+
 }
 
 // End of file.

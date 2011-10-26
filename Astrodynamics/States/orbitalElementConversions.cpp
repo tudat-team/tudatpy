@@ -76,6 +76,10 @@
 #include <cmath>
 #include "Astrodynamics/States/orbitalElementConversions.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::acos;
 using std::atan2;
@@ -87,8 +91,8 @@ using std::sqrt;
 using std::pow;
 using std::fabs;
 using linear_algebra::determineAngleBetweenVectors;
-using mathematics::computeModulo;
-using mathematics::MACHINE_PRECISION_DOUBLES;
+using tudat::mathematics::computeModulo;
+using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
 
 //! Orbital element conversions namespace.
 namespace orbital_element_conversions
@@ -482,6 +486,8 @@ double convertMeanMotionToSemiMajorAxis( const double& meanMotion,
     // Return semi-major axis.
     return pow( pointerToCentralBody->getGravitationalParameter( )
                 / pow( meanMotion, 2.0 ), 1.0 / 3.0 );
+
+}
 
 }
 

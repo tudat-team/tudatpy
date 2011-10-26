@@ -46,13 +46,14 @@ set(RANDOMNUMBERGENERATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/exponentialRandomNumberGenerator.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/normalRandomNumberGenerator.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/uniformRandomNumberGenerator.cpp"
+
+  "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/randomNumberGenerator.h"
 )
 
 # Add header files.
 set(RANDOMNUMBERGENERATORS_HEADERS 
   "${MATHEMATICSDIR}/RandomNumberGenerators/exponentialRandomNumberGenerator.h"
   "${MATHEMATICSDIR}/RandomNumberGenerators/normalRandomNumberGenerator.h"
-  "${MATHEMATICSDIR}/RandomNumberGenerators/randomNumberGenerator.h"
   "${MATHEMATICSDIR}/RandomNumberGenerators/uniformRandomNumberGenerator.h"
 )
 

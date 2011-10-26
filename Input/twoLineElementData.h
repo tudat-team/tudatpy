@@ -64,6 +64,13 @@
 #include <iostream>
 #include "Astrodynamics/States/keplerianElements.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! TLE data class.
 /*!
  * Class containing all variables of one TLE for one space debris
@@ -312,6 +319,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // TWOLINEELEMENTDATA_H
 

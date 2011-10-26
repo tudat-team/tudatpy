@@ -51,6 +51,13 @@
 #include "Astrodynamics/EnvironmentModels/environmentModel.h"
 #include "Astrodynamics/States/cartesianPositionElements.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! GravityFieldModel class.
 /*!
  * Gravity field model class included in Tudat.
@@ -154,6 +161,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // GRAVITYFIELDMODEL_H
 

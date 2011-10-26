@@ -60,6 +60,11 @@ using std::pow;
 using std::sqrt;
 using std::tan;
 
+//! Tudat library namespace.
+namespace tudat
+{
+
+//! Aerodynamics namespace.
 namespace aerodynamics
 {
 
@@ -501,6 +506,8 @@ double computeShockDeflectionAngle( const double& shockAngle, const double& mach
 
     // Return deflection angle.
     return atan( tangentOfDeflectionAngle_ );
+}
+
 }
 
 }

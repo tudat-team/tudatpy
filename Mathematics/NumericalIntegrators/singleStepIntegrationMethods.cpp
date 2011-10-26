@@ -46,6 +46,10 @@
 // Include statements.
 #include "Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Integrate.
 void SingleStepIntegrationMethods::integrate( )
 {
@@ -72,6 +76,8 @@ void SingleStepIntegrationMethods::integrate( )
 
     // Set final state.
     finalState_ = vectorOfCurrentStates_.at( 0 );
+}
+
 }
 
 // End of file.

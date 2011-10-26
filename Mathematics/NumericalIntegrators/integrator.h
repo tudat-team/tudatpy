@@ -72,6 +72,13 @@
 #include "Astrodynamics/States/state.h"
 #include "Mathematics/NumericalIntegrators/stateDerivativeBase.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Integrator class.
 /*!
  * Base class for all integration methods included in Tudat.
@@ -335,6 +342,8 @@ private:
      */
     void computeInternalDerivedIntegrationParameters_( );
 };
+
+}
 
 #endif // INTEGRATOR_H
 

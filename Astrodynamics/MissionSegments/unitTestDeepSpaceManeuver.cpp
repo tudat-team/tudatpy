@@ -53,7 +53,8 @@ int main( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using namespace tudat;
 
     // Summary of tests.
     // Test 1: Test setTime() and getTime() functions.

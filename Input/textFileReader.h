@@ -47,6 +47,13 @@
 #include <iostream>
 #include "Input/fileReader.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Text file reader class.
 /*!
  * Definition of text file reader class.
@@ -91,6 +98,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // TEXTFILEREADER_H
 

@@ -54,6 +54,10 @@
 // Include statements.
 #include "Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Matrix3d reference_frame_transformations::
 getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double& angleFromXItoXR )
@@ -170,6 +174,8 @@ getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
 
     // Return transformation quaternion.
     return frameTransformationQuaternion;
+}
+
 }
 
 // End of file.

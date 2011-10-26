@@ -66,6 +66,13 @@
 #include "Mathematics/GeometricShapes/surfaceGeometry.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Surface geometry base class.
 /*!
  * Base class for single surface geometry representations in terms of two
@@ -309,6 +316,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // SINGLESURFACEGEOMETRY_H
 

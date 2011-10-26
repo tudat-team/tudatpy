@@ -46,16 +46,17 @@ set(FORCEMODELS_SOURCES
   "${SRCROOT}${FORCEMODELSDIR}/aerodynamicCoefficientGenerator.cpp"
   "${SRCROOT}${FORCEMODELSDIR}/aerodynamics.cpp"
   "${SRCROOT}${FORCEMODELSDIR}/hypersonicLocalInclinationAnalysis.cpp"
+
+  "${SRCROOT}${FORCEMODELSDIR}/aerodynamicCoefficientInterface.h"
+  "${SRCROOT}${FORCEMODELSDIR}/aerodynamicForce.h"
+  "${SRCROOT}${FORCEMODELSDIR}/forceModel.h"
+  "${SRCROOT}${FORCEMODELSDIR}/gravitationalForceModel.h"
 )
 
 # Set the header files.
 set(FORCEMODELS_HEADERS 
   "${FORCEMODELSDIR}/aerodynamicCoefficientGenerator.h"
-  "${FORCEMODELSDIR}/aerodynamicCoefficientInterface.h"
-  "${FORCEMODELSDIR}/aerodynamicForce.h"
   "${FORCEMODELSDIR}/aerodynamics.h"
-  "${FORCEMODELSDIR}/forceModel.h"
-  "${FORCEMODELSDIR}/gravitationalForceModel.h"
   "${FORCEMODELSDIR}/hypersonicLocalInclinationAnalysis.h"
 )
 

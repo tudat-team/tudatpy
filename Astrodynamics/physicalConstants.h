@@ -52,6 +52,13 @@
 #ifndef PHYSICAL_CONSTANTS_H
 #define PHYSICAL_CONSTANTS_H
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Physical constants structure.
 /*!
  * Physical constants structure.
@@ -194,6 +201,8 @@ public:
      */
     const static double RATIO_OF_SPECIFIC_HEATS_AIR;
 };
+
+}
 
 #endif // PHYSICAL_CONSTANTS_H
 

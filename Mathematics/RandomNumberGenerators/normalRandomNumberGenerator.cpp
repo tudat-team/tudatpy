@@ -43,18 +43,12 @@
  */
 
 // Include statements.
+#include <cmath>
 #include "Mathematics/RandomNumberGenerators/normalRandomNumberGenerator.h"
 
-//! Default constructor.
-NormalRandomNumberGenerator::NormalRandomNumberGenerator(
-        const double& mean, const double& standardDeviation,
-        unsigned long long seed )
-            : UniformRandomNumberGenerator( seed ), mean_( mean ),
-              standardDeviation_( standardDeviation ),
-              ordinateInUnitCircle_( -0.0 ), abscissaInUnitCircle_( -0.0 ),
-              storedValue_( 0.0 )
+//! Tudat library namespace.
+namespace tudat
 {
-}
 
 //! Get normally-distributed, normalized, random double.
 double NormalRandomNumberGenerator::
@@ -63,10 +57,10 @@ getNormallyDistributedNormalizedRandomDouble( )
     // Box-Muller algorithm is taken from pg. 364-365 of (Press et al, 2002).
     // Declare local variables.
     // Declare squared radius of point in unit circle.
-    double squaredRadius_;
+    double squaredRadius_ = -0.0;
 
     // Declare Box-Muller factor.
-    double boxMullerFactor_;
+    double boxMullerFactor_ = -0.0;
 
     // Check if a stored deviate exists.
     if ( storedValue_ == 0.0 )
@@ -75,31 +69,27 @@ getNormallyDistributedNormalizedRandomDouble( )
         {
             // Pick two uniform numbers in the square extending from -1 to +1
             // in each direction.
-            ordinateInUnitCircle_
-                    = getUniformlyDistributedNormalizedRandomDouble( )
+            ordinateInUnitCircle_ = getUniformlyDistributedNormalizedRandomDouble( )
                     * getUniformlyDistributedRandomPlusMinusSign( );
-            abscissaInUnitCircle_
-                    = getUniformlyDistributedNormalizedRandomDouble( )
+            abscissaInUnitCircle_ = getUniformlyDistributedNormalizedRandomDouble( )
                     * getUniformlyDistributedRandomPlusMinusSign( );
 
             // Determine the squared radius.
-            squaredRadius_ = pow( ordinateInUnitCircle_, 2.0 )
-                    + pow( abscissaInUnitCircle_, 2.0 );
+            squaredRadius_ = std::pow( ordinateInUnitCircle_, 2.0 )
+                    + std::pow( abscissaInUnitCircle_, 2.0 );
 
         }
         // Check if they are in the unit circle.
         while ( squaredRadius_ >= 1.0 || squaredRadius_ == 0.0 );
 
         // Perform Box-Muller transformation to get two normal deviates.
-        boxMullerFactor_ = sqrt( -2.0 * log( squaredRadius_ )
-                                 / squaredRadius_ );
+        boxMullerFactor_ = std::sqrt( -2.0 * log( squaredRadius_ ) / squaredRadius_ );
 
         // Save one deviate for next time.
         storedValue_ = ordinateInUnitCircle_ * boxMullerFactor_;
 
         // Return normal random number.
-        return abscissaInUnitCircle_ * boxMullerFactor_ * standardDeviation_
-                + mean_;
+        return abscissaInUnitCircle_ * boxMullerFactor_ * standardDeviation_ + mean_;
     }
 
     // If there is a value known from before.
@@ -114,6 +104,8 @@ getNormallyDistributedNormalizedRandomDouble( )
         // Return normal random number.
         return boxMullerFactor_ * standardDeviation_ + mean_;
     }
+}
+
 }
 
 // End of file.

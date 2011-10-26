@@ -48,6 +48,13 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Torus class.
 /*!
  * Class that defines the torus shape. The parameters are the majorRadius_,
@@ -238,6 +245,8 @@ private:
      */
     double minorRadius_;
 };
+
+}
 
 #endif // TORUS_H
 

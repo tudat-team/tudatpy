@@ -45,9 +45,16 @@
 // Include statements.
 #include "Mathematics/RootFindingMethods/newtonRaphsonBase.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Template class for the NewtonRaphsonAdaptor.
 /*!
- * This is a template class for an adaptor used by the NewtonRaphson class.
+ * A template class for an adaptor used by the NewtonRaphson class.
  */
 template < class TClass >
 class NewtonRaphsonAdaptor : public NewtonRaphsonBase
@@ -180,6 +187,8 @@ void NewtonRaphsonAdaptor< TClass >::setPointerToFirstDerivativeFunction(
     pointerToTClassMemberFunction firstDerivativeFunction )
 {
     pointerToFirstDerivativeFunction_ = firstDerivativeFunction;
+}
+
 }
 
 #endif // NEWTONRAPHSONADAPTOR_H

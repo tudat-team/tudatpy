@@ -55,6 +55,13 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Sphere segment class.
 /*!
  * Class that defines the sphere ( segment ) shape. Parametrization is based
@@ -222,6 +229,8 @@ private:
      */
     double radius_;
 };
+
+}
 
 #endif // SPHERESEGMENT_H
 

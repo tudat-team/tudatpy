@@ -61,6 +61,10 @@
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/NumericalIntegrators/integrator.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Set object containing state derivative.
 void Integrator::setObjectContainingStateDerivative( StateDerivativeBase*
                                                      pointerToStateDerivative )
@@ -175,6 +179,8 @@ void Integrator::computeInternalDerivedIntegrationParameters_( )
         // initial state.
         stateDerivative_.state.setZero( dimensionOfState_ );
     }
+}
+
 }
 
 // End of file.

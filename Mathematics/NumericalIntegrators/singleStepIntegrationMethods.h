@@ -54,6 +54,13 @@
 // Include statements.
 #include "Mathematics/NumericalIntegrators/integrator.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Single step integration methods class.
 /*!
  * Base class for all single-step integration methods included in Tudat.
@@ -86,6 +93,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // SINGLESTEP_H
 

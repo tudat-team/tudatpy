@@ -56,6 +56,10 @@
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Default destructor.
 QuadrilateralMeshedSurfaceGeometry::~QuadrilateralMeshedSurfaceGeometry( )
 {
@@ -166,35 +170,37 @@ void QuadrilateralMeshedSurfaceGeometry::setReversalOperator( bool isMeshInverte
 }
 
 //! Get boolean denoting if the mesh is inverted.
- bool QuadrilateralMeshedSurfaceGeometry::getReversalOperator( )
- {
-     bool isMeshInverted;
-     if ( reversalOperator_ == 1 )
-     {
-         isMeshInverted = 0;
-     }
+bool QuadrilateralMeshedSurfaceGeometry::getReversalOperator( )
+{
+    bool isMeshInverted;
+    if ( reversalOperator_ == 1 )
+    {
+        isMeshInverted = 0;
+    }
 
-     else
-     {
-         isMeshInverted = 1;
-     }
+    else
+    {
+        isMeshInverted = 1;
+    }
 
-     return isMeshInverted;
- }
+    return isMeshInverted;
+}
 
- //! Overload ostream to print class information.
- std::ostream& operator<<( std::ostream& stream,
-                           QuadrilateralMeshedSurfaceGeometry& quadrilateralMeshedSurfaceGeometry )
- {
-     stream << "This is a quadrilateral meshed surface geometry"
-            << " of a single part." << std::endl;
-     stream << "The number of lines ( contours ) is: "
-            << quadrilateralMeshedSurfaceGeometry.numberOfLines_ << std::endl;
-     stream << "The number of points per line is: "
-            << quadrilateralMeshedSurfaceGeometry.numberOfPoints_ << std::endl;
+//! Overload ostream to print class information.
+std::ostream& operator<<( std::ostream& stream,
+                          QuadrilateralMeshedSurfaceGeometry& quadrilateralMeshedSurfaceGeometry )
+{
+    stream << "This is a quadrilateral meshed surface geometry"
+           << " of a single part." << std::endl;
+    stream << "The number of lines ( contours ) is: "
+           << quadrilateralMeshedSurfaceGeometry.numberOfLines_ << std::endl;
+    stream << "The number of points per line is: "
+           << quadrilateralMeshedSurfaceGeometry.numberOfPoints_ << std::endl;
 
-     // Return stream.
-     return stream;
- }
+    // Return stream.
+    return stream;
+}
+
+}
 
  // End of file.

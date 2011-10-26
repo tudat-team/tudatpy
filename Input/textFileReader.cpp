@@ -47,6 +47,10 @@
 #include <string>
 #include "Input/textFileReader.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::string;
 using std::endl;
@@ -159,6 +163,8 @@ std::ostream& operator<<( std::ostream& stream,
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

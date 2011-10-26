@@ -50,8 +50,9 @@
 // Include statements.
 #include "Mathematics/cubicSplineInterpolation.h"
 
-// Using statements.
-using basic_functions::computeNearestLeftNeighborUsingBinarySearch;
+//! Tudat library namespace.
+namespace tudat
+{
 
 //! Initialize cubic spline interpolation.
 void CubicSplineInterpolation::initializeCubicSplineInterpolation( VectorXd& independentVariables,
@@ -79,7 +80,7 @@ double CubicSplineInterpolation::interpolate( const double& targetIndependentVar
 
     // Determine the lower entry in the table corresponding to the target independent variable
     // value.
-    lowerEntry_ = computeNearestLeftNeighborUsingBinarySearch(
+    lowerEntry_ = tudat::basic_functions::computeNearestLeftNeighborUsingBinarySearch(
             independentVariables_, targetIndependentVariableValue_ );
 
     // Calculate coefficients A,B,C,D.
@@ -170,6 +171,8 @@ void CubicSplineInterpolation::computeSecondDerivativeOfCurvature_( )
 
     // Set y''.
     secondDerivativeOfCurvature_ << 0.0, intermediateSecondDerivativeOfCurvature_, 0.0;
+}
+
 }
 
 // End of file.

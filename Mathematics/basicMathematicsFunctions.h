@@ -79,6 +79,13 @@
 #include "Astrodynamics/States/state.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Mathematics namespace.
 /*!
  *  Mathematics namespace.
@@ -262,6 +269,8 @@ double computeSampleMean( const std::vector< double >& sampleData );
  * \return Sample variance.
  */
 double computeSampleVariance( const std::vector< double >& sampleData );
+
+}
 
 }
 

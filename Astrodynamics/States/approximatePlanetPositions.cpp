@@ -55,6 +55,10 @@ using std::pow;
 using std::sin;
 using std::cos;
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Get state from ephemeris.
 CartesianElements* ApproximatePlanetPositions::
         getStateFromEphemeris( const double& julianDate )
@@ -185,6 +189,8 @@ CartesianElements* ApproximatePlanetPositions::
 
     // Return Cartesian elements of planet at given Julian date.
     return &planetCartesianElementsAtGivenJulianDate_;
+}
+
 }
 
 // End of file.

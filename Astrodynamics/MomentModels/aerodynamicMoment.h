@@ -46,6 +46,13 @@
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 #include "Astrodynamics/MomentModels/momentModel.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 class AerodynamicMoment : public MomentModel
 {
 public:
@@ -113,6 +120,8 @@ private:
      */
     double dynamicPressure_;
 };
+
+}
 
 #endif // AERODYNAMICMOMENT_H
 

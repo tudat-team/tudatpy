@@ -47,8 +47,14 @@
 #define NORMALRANDOMNUMBERGENERATOR_H
 
 // Include statements.
-#include <cmath>
 #include "Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h"
+
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
 
 //! Normal random number generator class.
 /*!
@@ -63,15 +69,11 @@ public:
     /*!
      * Default constructor.
      */
-    NormalRandomNumberGenerator( const double& mean,
-                                 const double& standardDeviation,
-                                 unsigned long long seed );
-
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    ~NormalRandomNumberGenerator( ) { }
+    NormalRandomNumberGenerator( const double& mean, const double& standardDeviation,
+                                 unsigned long long seed )
+        : UniformRandomNumberGenerator( seed ), mean_( mean ),
+          standardDeviation_( standardDeviation ), ordinateInUnitCircle_( -0.0 ),
+          abscissaInUnitCircle_( -0.0 ), storedValue_( 0.0 ) { }
 
     //! Get normally-distributed, normalized, random double.
     /*!
@@ -126,6 +128,8 @@ private:
      */
     double storedValue_;
 };
+
+}
 
 #endif // NORMALRANDOMNUMBERGENERATOR_H
 

@@ -52,6 +52,13 @@
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/ephemeris.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat Library namespace.
+ */
+namespace tudat
+{
+
 //! Celestial body class.
 /*!
  * Celestial body class.
@@ -169,6 +176,8 @@ protected:
      */
     AtmosphereModel* pointerToAtmosphereModel_;
 };
+
+}
 
 #endif // CELESTIAL_BODY_H
 

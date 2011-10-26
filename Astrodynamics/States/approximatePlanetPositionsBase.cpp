@@ -58,6 +58,10 @@
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/States/approximatePlanetPositionsBase.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 //! Default constructor.
 ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( ) : julianDate_( -0.0 ),
     meanLongitudeAtGivenJulianDate_( -0.0 ), numberOfCenturiesPastJ2000_( -0.0 )
@@ -215,5 +219,6 @@ void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermF_;
 }
 
-// End of file.
+}
 
+// End of file.

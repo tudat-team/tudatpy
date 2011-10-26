@@ -50,6 +50,9 @@
 //! Test implementation of cubic spline class.
 int main( )
 {
+    // Using declarations.
+    using namespace tudat;
+
     // Summary of tests.
     // Test 1: Compare with analytical function 2 + 3x + 5x^2.
 

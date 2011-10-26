@@ -48,6 +48,13 @@
 #include "Astrodynamics/physicalConstants.h"
 #include "Astrodynamics/EnvironmentModels/exponentialAtmosphere.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Set predefined exponential atmosphere settings.
 void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
         BodiesWithPredefinedExponentialAtmospheres bodyWithPredefindExponentialAtmosphere )
@@ -76,6 +83,8 @@ void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
 
         std::cerr << "This is not a body with a predefined exponential atmophere." << std::endl;
     }
+}
+
 }
 
 // End of file.

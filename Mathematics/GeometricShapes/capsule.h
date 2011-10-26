@@ -53,6 +53,13 @@
 // Include statements.
 #include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Capsule class.
 /*!
  * Class that defines a Capsule shape, like that of the Apollo or ARD (Advanced
@@ -198,6 +205,8 @@ private:
      */
     double rearAngle_;
 };
+
+}
 
 #endif // CAPSULE_H
 

@@ -72,6 +72,13 @@
 #include "Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Lambert targeting algorithm class.
 /*!
  * Implementation of Lambert targeting algorithm in Tudat.
@@ -364,6 +371,8 @@ private:
      */
     double lambertFirstDerivativeFunction( double& xParameter_ );
 };
+
+}
 
 #endif // LAMBERTTARGETER_H
 

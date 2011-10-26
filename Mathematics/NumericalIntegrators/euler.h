@@ -55,6 +55,13 @@
 // Include statements.
 #include "Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Euler integrator class.
 /*!
  * Implementation of Euler integrator.
@@ -84,6 +91,8 @@ private:
      */
     void computeNextState_( const double& stepsize );
 };
+
+}
 
 #endif // EULER_H
 

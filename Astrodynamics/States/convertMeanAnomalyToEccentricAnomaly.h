@@ -46,9 +46,16 @@
 // Include statements.
 #include "Astrodynamics/States/convertMeanAnomalyBase.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Orbital element conversions namespace.
 /*!
- *  Orbital element conversions namespace.
+ * Orbital element conversions namespace.
  */
 namespace orbital_element_conversions
 {
@@ -121,6 +128,8 @@ private:
     double computeFirstDerivativeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly )
     { return 1.0 - eccentricity_ * cos( eccentricAnomaly ); }
 };
+
+}
 
 }
 

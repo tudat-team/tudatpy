@@ -78,11 +78,15 @@ using std::asin;
 using std::sqrt;
 using std::sin;
 using std::fabs;
-using linear_algebra::determineAngleBetweenVectors;
-using unit_conversions::convertRadiansToDegrees;
+using tudat::linear_algebra::determineAngleBetweenVectors;
+using tudat::unit_conversions::convertRadiansToDegrees;
 
 // Using declarations.
 using std::endl;
+
+//! Tudat library namespace.
+namespace tudat
+{
 
 //! Define root-finder function for the velocity-effect delta-V.
 double GravityAssist::velocityEffectFunction( double &incomingEccentricity_ )
@@ -254,6 +258,8 @@ std::ostream& operator<<( std::ostream& stream, GravityAssist& gravityAssist )
 
     // Return stream.
     return stream;
+}
+
 }
 
 // End of file.

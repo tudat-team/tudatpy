@@ -47,6 +47,9 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/keplerPropagator.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/numericalPropagator.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/seriesPropagator.cpp"
+
+  "${SRCROOT}${PROPAGATORSDIR}/propagator.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagatorDataContainer.h"
 )
 
 # Add header files.
@@ -54,8 +57,6 @@ set(PROPAGATORS_HEADERS
   "${PROPAGATORSDIR}/cartesianStateNumericalPropagator.h"
   "${PROPAGATORSDIR}/keplerPropagator.h"
   "${PROPAGATORSDIR}/numericalPropagator.h"
-  "${PROPAGATORSDIR}/propagator.h"
-  "${PROPAGATORSDIR}/propagatorDataContainer.h"
   "${PROPAGATORSDIR}/seriesPropagator.h"
 )
 

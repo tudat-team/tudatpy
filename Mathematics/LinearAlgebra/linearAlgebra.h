@@ -59,6 +59,13 @@
 // Import most common Eigen types.
 USING_PART_OF_NAMESPACE_EIGEN
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Linear algebra namespace.
 /*!
  *  Linear algebra namespace.
@@ -93,6 +100,8 @@ double determineAverageOfVectorComponents( const VectorXd& vector0 );
  */
 double determineStandardDeviationOfVectorComponents( const VectorXd& vector0 );
     
+}
+
 }
 
 #endif // LINEAR_ALGEBRA_H

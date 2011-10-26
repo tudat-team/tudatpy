@@ -93,6 +93,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <ctime>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/RandomNumberGenerators/exponentialRandomNumberGenerator.h"
 #include "Mathematics/RandomNumberGenerators/normalRandomNumberGenerator.h"
@@ -105,9 +106,10 @@ using std::cerr;
 using std::endl;
 using std::map;
 using std::vector;
-using mathematics::MACHINE_PRECISION_DOUBLES;
-using mathematics::computeSampleMean;
-using mathematics::computeSampleVariance;
+using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+using tudat::mathematics::computeSampleMean;
+using tudat::mathematics::computeSampleVariance;
+using namespace tudat;
 
 //! Test implementation of uniform random number generator class.
 bool testUniformRandomNumberGenerator( )
@@ -134,7 +136,7 @@ bool testUniformRandomNumberGenerator( )
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( fmod( computedResultForTest1, static_cast< double >( computedResultForTest1 ) )
+    if ( std::fmod( computedResultForTest1, static_cast< double >( computedResultForTest1 ) )
          > MACHINE_PRECISION_DOUBLES )
     {
         isUniformRandomNumberGeneratorErroneous = true;

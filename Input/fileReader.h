@@ -57,6 +57,13 @@
 #include <map>
 #include "Basics/basicFunctions.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! File reader class.
 /*!
  * Definition of file reader class.
@@ -223,6 +230,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // FILEREADER_H
 

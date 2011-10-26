@@ -55,6 +55,13 @@
 #include "Mathematics/RootFindingMethods/newtonRaphsonBase.h"
 #include "Mathematics/RootFindingMethods/rootFinder.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Newton-Raphson class.
 /*!
  * Implementation of Newton-Raphson class in Tudat.
@@ -105,6 +112,8 @@ private:
      */
     NewtonRaphsonBase* pointerToNewtonRaphsonBase_;
 };
+
+}
 
 #endif // NEWTONRAPHSON_H
 

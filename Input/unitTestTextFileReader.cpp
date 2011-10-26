@@ -56,6 +56,7 @@ int main( )
     using std::map;
     using std::cerr;
     using std::endl;
+    using namespace tudat;
 
     // Test result initialised to false.
     bool isTextFileReaderErroneous = false;

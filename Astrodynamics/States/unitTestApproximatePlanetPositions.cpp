@@ -77,14 +77,15 @@ int main( )
     using std::fabs;
     using std::cos;
     using std::sqrt;
-    using mathematics::convertCartesianToSpherical;
-    using mathematics::MACHINE_PRECISION_DOUBLES;
-    using unit_conversions::convertDegreesToRadians;
-    using unit_conversions::convertRadiansToDegrees;
-    using unit_conversions::convertDegreesToArcminutes;
-    using unit_conversions::convertArcminutesToArcseconds;
-    using unit_conversions::convertAstronomicalUnitsToMeters;
-    using orbital_element_conversions::convertCartesianToKeplerianElements;
+    using tudat::mathematics::convertCartesianToSpherical;
+    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using tudat::unit_conversions::convertDegreesToRadians;
+    using tudat::unit_conversions::convertRadiansToDegrees;
+    using tudat::unit_conversions::convertDegreesToArcminutes;
+    using tudat::unit_conversions::convertArcminutesToArcseconds;
+    using tudat::unit_conversions::convertAstronomicalUnitsToMeters;
+    using tudat::orbital_element_conversions::convertCartesianToKeplerianElements;
+    using namespace tudat;
 
     // Initialize unit test result to false.
     bool isApproximatePlanetPositionsErroneous = false;

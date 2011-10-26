@@ -39,6 +39,13 @@
 #ifndef TRAJECTORYDESIGNMETHOD_H
 #define TRAJECTORYDESIGNMETHOD_H
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Trajectory design method base class.
 /*!
  * Trajectory design method class.
@@ -63,6 +70,8 @@ protected:
 
 private:
 };
+
+}
 
 #endif // TRAJECTORYDESIGNMETHOD_H
 

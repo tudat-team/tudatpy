@@ -72,6 +72,13 @@
 #include "Astrodynamics/States/state.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Basic functions namespace.
 /*!
  * Basic functions namespace.
@@ -158,6 +165,8 @@ bool convertStringToTemplate( const string& inputString, T& outputTemplate )
  *          running time statement.
  */
 vector< string > outputCurrentRunningTime( clock_t start_clock, const string& status );
+
+}
 
 }
 

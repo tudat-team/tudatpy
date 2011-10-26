@@ -61,12 +61,14 @@
 
 // Include statements.
 #include "Mathematics/RandomNumberGenerators/uniformRandomNumberGenerator.h"
-#include "Mathematics/basicMathematicsFunctions.h"
+
+//! Tudat library namespace.
+namespace tudat
+{
 
 //! Customized constructor to pass random number generator seed.
 UniformRandomNumberGenerator::UniformRandomNumberGenerator( unsigned long long seed )
-    : randomNumberParameter2_( 4101842887655102017LL ),
-      randomNumberParameter3_( 1 )
+    : randomNumberParameter2_( 4101842887655102017LL ), randomNumberParameter3_( 1 )
 {
     randomNumberParameter1_ = seed ^ randomNumberParameter2_;
     getUniformlyDistributedRandomInteger( );
@@ -79,44 +81,25 @@ UniformRandomNumberGenerator::UniformRandomNumberGenerator( unsigned long long s
 }
 
 //! Get uniformly distributed random integer.
-unsigned long long UniformRandomNumberGenerator
-::getUniformlyDistributedRandomInteger( )
+unsigned long long UniformRandomNumberGenerator::getUniformlyDistributedRandomInteger( )
 {
     randomNumberParameter1_ = randomNumberParameter1_ * 2862933555777941757LL
-                             + 7046029254386353087LL;
+            + 7046029254386353087LL;
 
     randomNumberParameter2_ ^= randomNumberParameter2_ >> 17;
     randomNumberParameter2_ ^= randomNumberParameter2_ << 31;
     randomNumberParameter2_ ^= randomNumberParameter2_ >> 8;
 
-    randomNumberParameter3_ = 4294957665U
-                             * ( randomNumberParameter3_ & 0xffffffff )
-                             + ( randomNumberParameter3_ >> 32 );
+    randomNumberParameter3_ = 4294957665U * ( randomNumberParameter3_ & 0xffffffff )
+            + ( randomNumberParameter3_ >> 32 );
 
     unsigned long long randomNumberParameter4_ = randomNumberParameter1_
-                            ^ ( randomNumberParameter1_ << 21 );
+            ^ ( randomNumberParameter1_ << 21 );
     randomNumberParameter4_ ^= randomNumberParameter4_ >> 35;
     randomNumberParameter4_ ^= randomNumberParameter4_ << 4;
 
     // Return uniformly distributed random integer using 64-bit arithmetic.
-    return ( randomNumberParameter4_ + randomNumberParameter2_ )
-            ^ randomNumberParameter3_;
-}
-
-//! Get uniformly distributed, normalized, random double.
-double UniformRandomNumberGenerator
-::getUniformlyDistributedNormalizedRandomDouble( )
-{
-    // Return uniformly distributed, normalized, random double.
-    return static_cast< double >( getUniformlyDistributedRandomInteger( ) ) / ULLONG_MAX;
-}
-
-//! Get uniformly distributed random integer using 32-bit arithmetic.
-unsigned int UniformRandomNumberGenerator::
-        getUniformlyDistributedRandom32BitInteger( )
-{
-    // Return uniformly distributed random integer using 32-bit arithmetic
-    return static_cast< unsigned int >( getUniformlyDistributedRandomInteger( ) );
+    return ( randomNumberParameter4_ + randomNumberParameter2_ ) ^ randomNumberParameter3_;
 }
 
 //! Get uniformly distributed random plus/minus sign.
@@ -133,6 +116,8 @@ int UniformRandomNumberGenerator::getUniformlyDistributedRandomPlusMinusSign( )
 
     // Return random plus/minus sign.
     return randomPlusMinusSign_;
+}
+
 }
 
 // End of file.

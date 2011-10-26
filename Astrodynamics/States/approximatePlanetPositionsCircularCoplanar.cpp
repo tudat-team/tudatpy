@@ -48,6 +48,10 @@
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h"
 
+//! Tudat library namespace.
+namespace tudat
+{
+
 // Using declarations.
 using std::cerr;
 using std::endl;
@@ -109,6 +113,8 @@ CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphem
 
     // Return Cartesian state of planet at given Julian date.
     return &planetCartesianElementsAtGivenJulianDate_;
+}
+
 }
 
 // End of file.

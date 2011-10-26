@@ -47,6 +47,8 @@ set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/integrator.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/singleStepIntegrationMethods.cpp"
+
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/stateDerivativeBase.h"
 )
 
 # Add header files.
@@ -55,7 +57,6 @@ set(NUMERICALINTEGRATORS_HEADERS
   "${MATHEMATICSDIR}/NumericalIntegrators/integrator.h"
   "${MATHEMATICSDIR}/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
   "${MATHEMATICSDIR}/NumericalIntegrators/singleStepIntegrationMethods.h"
-  "${MATHEMATICSDIR}/NumericalIntegrators/stateDerivativeBase.h"
 )
 
 # Add static libraries.

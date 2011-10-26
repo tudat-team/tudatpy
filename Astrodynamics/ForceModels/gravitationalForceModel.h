@@ -63,6 +63,13 @@
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 #include "Astrodynamics/ForceModels/forceModel.h"
 
+//! Tudat library namespace.
+/*!
+ * The Tudat library namespace.
+ */
+namespace tudat
+{
+
 //! Gravitational force model class.
 /*!
  * Class containing the gravitational force model.
@@ -137,6 +144,8 @@ private:
      */
     CartesianPositionElements cartesianPositionElements_;
 };
+
+}
 
 #endif // GRAVITATIONALFORCEMODEL_H
 
