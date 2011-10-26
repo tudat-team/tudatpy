@@ -129,7 +129,7 @@ int UniformRandomNumberGenerator::getUniformlyDistributedRandomPlusMinusSign( )
     randomPlusMinusSign_ = static_cast< int >( getUniformlyDistributedRandomInteger( ) );
 
     // Normalize to plus/minus 1.
-    randomPlusMinusSign_ /= std::fabs( randomPlusMinusSign_ );
+    randomPlusMinusSign_ /= std::abs( randomPlusMinusSign_ );
 
     // Return random plus/minus sign.
     return randomPlusMinusSign_;

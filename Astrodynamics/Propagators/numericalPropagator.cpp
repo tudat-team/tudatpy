@@ -80,7 +80,7 @@ void NumericalPropagator::propagate( )
     pointerToIntegrator_->setIntegrationIntervalEnd( propagationIntervalEnd_ );
 
     // Loop over map of bodies to propagate.
-    for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+    for ( BodyPropagatorDataMap::iterator iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
           iteratorBodiesToPropagate_ != bodiesToPropagate_.end( ); iteratorBodiesToPropagate_++ )
     {
         // Store start of range of initial state of a given body in assembled
@@ -103,7 +103,7 @@ void NumericalPropagator::propagate( )
     pointerToIntegrator_->integrate( );
 
     // Loop over map of bodies to be propagated.
-    for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+    for ( BodyPropagatorDataMap::iterator iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
           iteratorBodiesToPropagate_ != bodiesToPropagate_.end( );
           iteratorBodiesToPropagate_++ )
     {

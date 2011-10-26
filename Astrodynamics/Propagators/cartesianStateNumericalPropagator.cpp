@@ -66,7 +66,7 @@ void CartesianStateNumericalPropagator::computeStateDerivative(
     VectorXd sumOfForces_( 3 );
 
     // Loop over map of bodies to propagate.
-    for ( iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
+    for ( BodyPropagatorDataMap::iterator iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );
           iteratorBodiesToPropagate_ != bodiesToPropagate_.end( ); iteratorBodiesToPropagate_++ )
     {
         // Set state for body to propagate based on associated segment of

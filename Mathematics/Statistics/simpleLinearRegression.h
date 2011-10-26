@@ -143,6 +143,12 @@ protected:
 
 private:
 
+    //! Type definition of map of input data.
+    /*!
+     * Type definition of map of input data.
+     */
+    typedef std::map< double, double > InputDataMap;
+
     //! Chi-squared value.
     /*!
      * Chi-squared value of simple linear regression fit.
@@ -200,13 +206,7 @@ private:
     /*!
      * Input data to fit.
      */
-    std::map< double, double > inputDataToFit_;
-
-    //! Iterator for input data to fit.
-    /*!
-     * Map iterator for input data to fit.
-     */
-    std::map< double, double >::iterator iteratorInputDataToFit_;
+    InputDataMap inputDataToFit_;
 
     //! Sum independent variable input data.
     /*!

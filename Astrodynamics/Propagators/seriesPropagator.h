@@ -67,7 +67,7 @@ public:
      */
     SeriesPropagator( ) : numberOfPropagationSteps_( 0 ), seriesPropagationStart_( -0.0 ),
         seriesPropagationEnd_( -0.0 ), fixedOutputInterval_( -0.0 ), pointerToPropagator_( NULL ),
-        bodiesToPropagate_( ), iteratorPropagatedBodies_( NULL ) { }
+        bodiesToPropagate_( ) { }
 
     //! Set start of series propagation.
     /*!
@@ -166,6 +166,12 @@ protected:
 
 private:
 
+    //! Type definition of map of body propagator data.
+    /*!
+     * Type definition of map of body propagator data.
+     */
+    typedef std::map< Body*, PropagatorDataContainer > BodyPropagatorDataMap;
+
     //! Number of propagation steps.
     /*!
      * Number of propagation steps. This value is computed internally
@@ -202,13 +208,8 @@ private:
     /*!
      * Map of bodies to be propagated and associated data.
      */
-    std::map< Body*, PropagatorDataContainer > bodiesToPropagate_;
+    BodyPropagatorDataMap bodiesToPropagate_;
 
-    //! Iterator for map of propagated bodies and associated data.
-    /*!
-     * Iterator for map of propagated bodies and associated data.
-     */
-    std::map< Body*, PropagatorDataContainer >::iterator iteratorPropagatedBodies_;
 };
 
 #endif // SERIESPROPAGATOR_H

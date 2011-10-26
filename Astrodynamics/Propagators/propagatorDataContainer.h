@@ -77,13 +77,25 @@ struct PropagatorDataContainer
 {
 public:
 
+    //! Type definition of vector of ForceModel pointers.
+    /*!
+     * Type definition of vector of ForceModel pointers.
+     */
+    typedef std::vector< ForceModel* > ForceModelPointerVector;
+
+    //! Type definition of map of state propagation data.
+    /*!
+     * Type definition of map of state propagation data.
+     */
+    typedef std::map< double, State > StatePropagationMap;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
     PropagatorDataContainer( ) : stateStartIndex( 0 ), sizeOfState( 0 ), propagationHistory( ),
-        iteratorPropagationHistory( NULL ), vectorContainerOfPointersToForceModels( ),
-        pointerToInitialState( NULL ), pointerToBody( NULL ), pointerToCentralBody( NULL ) { }
+        vectorContainerOfPointersToForceModels( ), pointerToInitialState( NULL ), 
+        pointerToBody( NULL ), pointerToCentralBody( NULL ) { }
 
     //! Starting index of state.
     /*!
@@ -101,19 +113,13 @@ public:
     /*!
      * A map of propagation history with propagation time taken as key.
      */
-    std::map< double, State > propagationHistory;
-
-    //! Propagation history iterator.
-    /*!
-     * Iterator for map of propagation history.
-     */
-    std::map< double, State >::iterator iteratorPropagationHistory;
+    StatePropagationMap propagationHistory;
 
     //! Vector container of pointers to force models.
     /*!
      * Vector container of pointers to force models.
      */
-    std::vector< ForceModel* > vectorContainerOfPointersToForceModels;
+    ForceModelPointerVector vectorContainerOfPointersToForceModels;
 
     //! Final state.
     /*!

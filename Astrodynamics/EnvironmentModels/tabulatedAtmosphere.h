@@ -66,9 +66,10 @@
 class TabulatedAtmosphere : public AtmosphereModel
 {
 public:
+
     //! Default constructor.
     /*!
-     *  Default constructor
+     * Default constructor
      */
     TabulatedAtmosphere( ) :
         relativePath_( "Astrodynamics/EnvironmentModels/AtmosphereTables/" ),
@@ -152,6 +153,13 @@ public:
 protected:
 
 private:
+
+    //! Type definition for map of line-based string data.
+    /*!
+     * Type definition for map of line-based string data.
+     */
+    typedef FileReader::LineBasedStringDataMap DatafileLinesMap;
+
     //! The relative path
     /*!
      *  The relative path
@@ -174,7 +182,7 @@ private:
     /*!
      *  Container to store the read atmosphere table file.
      */
-    std::map< unsigned int, std::string > containerOfAtmosphereTableFileData;
+    DatafileLinesMap containerOfAtmosphereTableFileData;
 
     //! Vector containing the altitude.
     /*!
@@ -199,12 +207,6 @@ private:
      *  Vector containing the temperature data as a function of the altitude.
      */
     VectorXd temperatureData_;
-
-    //! Iterator for map container of data from file.
-    /*!
-     *  Iterator for map container of string data from data file.
-     */
-    std::map< unsigned int, std::string >::iterator iteratorContainerOfData_;
 
     //! Cubic spline interpolation for density.
     /*!

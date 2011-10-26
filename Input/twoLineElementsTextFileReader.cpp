@@ -274,7 +274,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Calculate B* double from the above two.
         twoLineElementData_[ objectNumberCounter_ ].bStar =
             twoLineElementData_[ objectNumberCounter_ ].coefficientOfBStar
-                * pow( 10, twoLineElementData_[ objectNumberCounter_ ].exponentOfBStar);
+                * pow( 10.0, twoLineElementData_[ objectNumberCounter_ ].exponentOfBStar );
 
         // Get orbital model integer from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 62, 1 ),

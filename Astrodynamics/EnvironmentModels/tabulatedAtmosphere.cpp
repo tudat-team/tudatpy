@@ -78,7 +78,8 @@ void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
 
     // Loop through all the strings stored in the container and store the data
     // in the right VectorXd.
-    for ( iteratorContainerOfData_  = containerOfAtmosphereTableFileData.begin( );
+    for ( DatafileLinesMap::iterator iteratorContainerOfData_
+          = containerOfAtmosphereTableFileData.begin( );
           iteratorContainerOfData_ != containerOfAtmosphereTableFileData.end( );
           iteratorContainerOfData_++ )
     {

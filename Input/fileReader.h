@@ -65,11 +65,19 @@ class FileReader
 {
 public:
 
+    //! Type definition of map of line-based string data.
+    /*!
+     * Type definition of map of line-based string data.
+     */
+    typedef std::map< unsigned int, std::string > LineBasedStringDataMap;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    FileReader( ) : lineCounter_( 1 ) { }
+    FileReader( ) : lineCounter_( 1 ), dataFile_( ), fileName_( " " ), stringOfData_( " " ),
+        absolutePath_( " " ), relativePath_( " " ), startingCharacter_( " " ), skipKeyword_( " " ),
+        containerOfDataFromFile_( ) { }
 
     //! Default destructor.
     /*!
@@ -152,7 +160,7 @@ public:
      * Returns map container of string data from data file.
      * \return Pointer to map container of data from file.
      */
-    std::map< unsigned int, std::string >& getContainerOfData( )
+    LineBasedStringDataMap& getContainerOfData( )
     { return containerOfDataFromFile_; }
 
 protected:
@@ -211,13 +219,7 @@ protected:
      * line of data from file using the getline( ) function. The key is the
      * line number from the file and the value is line data.
      */
-    std::map< unsigned int, std::string > containerOfDataFromFile_;
-
-    //! Iterator for map container of data from file.
-    /*!
-     * Iterator for map container of string data from data file.
-     */
-    std::map< unsigned int, std::string >::iterator iteratorContainerOfDataFromFile_;
+    LineBasedStringDataMap containerOfDataFromFile_;
 
 private:
 };
