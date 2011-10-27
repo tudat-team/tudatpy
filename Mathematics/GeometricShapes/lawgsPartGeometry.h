@@ -49,6 +49,7 @@
 #define LAWGSPARTGEOMETRY_H
 
 // Include statements.
+#include <iostream>
 #include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 

@@ -51,6 +51,7 @@
 #define CAPSULE_H
 
 // Include statements.
+#include <iostream>
 #include "Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
 //! Tudat library namespace.

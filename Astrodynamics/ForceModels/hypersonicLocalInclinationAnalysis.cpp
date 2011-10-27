@@ -361,7 +361,7 @@ VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
     determinePressureCoefficients( partNumber, independentVariableIndices );
 
     // Calculate force coefficients from pressure coefficients.
-    partCoefficients.start( 3 ) = calculateForceCoefficients( partNumber );
+    partCoefficients.head( 3 ) = calculateForceCoefficients( partNumber );
 
     // Calculate moment coefficients from pressure coefficients.
     partCoefficients.segment( 3, 3 ) = calculateMomentCoefficients(

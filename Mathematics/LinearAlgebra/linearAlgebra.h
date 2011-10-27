@@ -57,7 +57,7 @@
 #include <Eigen/Cholesky>
 
 // Import most common Eigen types.
-USING_PART_OF_NAMESPACE_EIGEN
+using namespace Eigen;
 
 //! Tudat library namespace.
 /*!

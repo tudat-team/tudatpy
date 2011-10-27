@@ -62,6 +62,7 @@
  */
 
 // Include statements.
+#include <iostream>
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Tudat library namespace.

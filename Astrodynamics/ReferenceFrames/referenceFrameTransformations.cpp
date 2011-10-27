@@ -132,14 +132,18 @@ Matrix3d reference_frame_transformations::
 getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( const double& angleOfAttack,
                                                             const double& angleOfSideslip )
 {
+    // Declare local variables.
+    // Declare local transformation matrix.
+    Matrix3d transformationMatrix_;
+
     // Compute rotation by side-slip angle about Z-Axis, followed by rotation negative angle of
     // attack angle about Y-Axis.
     // Note the sign change, because how angleAxisd is defined.
-    AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * angleOfAttack, Vector3d::UnitY( ) ) *
-            AngleAxisd( -1.0 * -angleOfSideslip, Vector3d::UnitZ( ) );
+    transformationMatrix_ = AngleAxisd( -1.0 * angleOfAttack, Vector3d::UnitY( ) )
+            * AngleAxisd( -1.0 * -angleOfSideslip, Vector3d::UnitZ( ) );
 
     // Return transformation matrix.
-    return eigenRotationObject.toRotationMatrix( );
+    return transformationMatrix_;
 }
 
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
