@@ -47,6 +47,9 @@ cmake_minimum_required( VERSION 2.6 )
 # Specific Tudat project name.
 project( Tudat )
 
+# Set module path to local CMake scripts.
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/External/Cmake)
+
 # Set full-path to Tudat trunk directory.
 # This should be used in case the FILE token does not given the full-path in the getRootPath()
 # function in basicFunctions.cpp.
@@ -102,10 +105,10 @@ macro(setup_custom_test_program target_name CUSTOM_OUTPUT_PATH)
 endmacro(setup_custom_test_program)
 
 macro(setup_headers HEADER_FILES HEADER_PATH)
-  foreach(CURRENT_HEADER_FILE ${HEADER_FILES})
-    install(FILES "${SRCROOT}${CURRENT_HEADER_FILE}" DESTINATION "${INCLUDEROOT}${HEADER_PATH}")
-  endforeach(CURRENT_HEADER_FILE)
-endmacro(setup_headers)
+    foreach(CURRENT_HEADER_FILE ${HEADER_FILES})
+      install(FILES "${CURRENT_HEADER_FILE}" DESTINATION "${INCLUDEROOT}${HEADER_PATH}")
+    endforeach(CURRENT_HEADER_FILE)
+  endmacro(setup_headers)
 
 # Set the main sub-directories
 set(APPLICATIONSDIR "/Applications")
@@ -115,18 +118,26 @@ set(EXTERNALDIR "/External")
 set(INPUTDIR "/Input")
 set(MATHEMATICSDIR "/Mathematics")
 set(OUTPUTDIR "/Output")
-set(EIGENDIR "/External/Eigen-2.0.15")
 
 # Include the top-level directories.
 include_directories(AFTER
   "${SRCROOT}"
 )
 
+# Find Eigen3 library on local system.
+find_package(Eigen3 REQUIRED)
+# If Eigen3 is not found, use the following to manually set the path to the Eigen3 directory.
+# A default location is given as an example.
+#set(EIGEN3_INCLUDE_DIR "${SRCROOT}/External/eigen3")
+
+# Set Eigen2 support on.
+#set(EIGEN2_SUPPORT ON)
+
 # Set CMake flag to suppress Eigen warnings (platform-dependent solution).
 if(NOT APPLE)
-  include_directories(SYSTEM AFTER "${SRCROOT}${EIGENDIR}")
+  include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${SRCROOT}${EIGENDIR}\"")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
 endif()
 
 # Set sub-directories.
