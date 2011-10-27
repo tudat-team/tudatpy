@@ -2,7 +2,7 @@
  #    This is the CMake file for the Mathematics sub-directory.
  #
  #    Path              : /Mathematics/
- #    Version           : 3
+ #    Version           : 4
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 26 October, 2011
+ #    Last modified     : 27 October, 2011
  #
  #    References
  #
@@ -40,6 +40,7 @@
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
+ #      111027    K. Kumar          Removed RandomNumberGenerators as sub-directory.
  #/
 
 # Add source files.
@@ -59,7 +60,6 @@ set(MATHEMATICS_HEADERS
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/GeometricShapes")
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/LinearAlgebra")
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
-add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators")
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods")
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/Statistics")
 
@@ -67,12 +67,11 @@ add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/Statistics")
 get_target_property(GEOMETRICSHAPESSOURCES tudat_geometric_shapes SOURCES)
 get_target_property(LINEARALGEBRASOURCES tudat_linear_algebra SOURCES)
 get_target_property(NUMERICALINTEGRATORSSOURCES tudat_numerical_integrators SOURCES)
-get_target_property(RANDOMNUMBERGENERATORSSOURCES tudat_random_number_generators SOURCES)
 get_target_property(ROOTFINDINGMETHODSSOURCES tudat_root_finding_methods SOURCES)
 get_target_property(STATISTICSSOURCES tudat_statistics SOURCES)
 
 # Add static libraries.
-add_library(tudat_mathematics STATIC ${MATHEMATICS_SOURCES} ${MATHEMATICS_HEADERS} ${GEOMETRICSHAPESSOURCES} ${LINEARALGEBRASOURCES} ${NUMERICALINTEGRATORSSOURCES} ${RANDOMNUMBERGENERATORSSOURCES} ${ROOTFINDINGMETHODSSOURCES} ${STATISTICSSOURCES})
+add_library(tudat_mathematics STATIC ${MATHEMATICS_SOURCES} ${MATHEMATICS_HEADERS} ${GEOMETRICSHAPESSOURCES} ${LINEARALGEBRASOURCES} ${NUMERICALINTEGRATORSSOURCES} ${ROOTFINDINGMETHODSSOURCES} ${STATISTICSSOURCES})
 setup_tudat_library_target(tudat_mathematics "${SRCROOT}${MATHEMATICSDIR}")
 setup_headers("${MATHEMATICS_HEADERS}" "${MATHEMATICSDIR}")
 
