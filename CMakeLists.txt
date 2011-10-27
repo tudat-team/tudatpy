@@ -2,7 +2,7 @@
  #    This is the main CMake file for the Tudat project.
  #
  #    Path              : /
- #    Version           : 3
+ #    Version           : 4
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -41,6 +41,7 @@
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111027    K. Kumar          Updated to auto-search for Eigen3 and Boost; manual setting
  #                                  examples included as comments.
+ #                                  Added suppression of warnings from Boost.
  #/
 
 # Specify minimum CMake version required to compile Tudat.
@@ -132,6 +133,7 @@ find_package(Eigen3 REQUIRED)
 # A default location is given as an example.
 #set(EIGEN3_INCLUDE_DIR "${SRCROOT}/External/eigen3")
 
+# Include Eigen3 directories.
 # Set CMake flag to suppress Eigen warnings (platform-dependent solution).
 if(NOT APPLE)
   include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
@@ -151,8 +153,13 @@ find_package(Boost 1.45.0 COMPONENTS thread date_time REQUIRED)
 #SET(BOOST_INCLUDEDIR "C:\My\Custom\Path\To\Boost\Include\Directory")
 #SET(BOOST_LIBRARYDIR "C:\My\Custom\Path\To\Boost\Library\Directory")
 
-# Include Boost directory.
-include_directories(${Boost_INCLUDE_DIRS})
+# Include Boost directories.
+# Set CMake flag to suppress Boost warnings (platform-dependent solution).
+if(NOT APPLE)
+  include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
+endif()
 
 # Set sub-directories.
 set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTDIR} ${MATHEMATICSDIR} ${OUTPUTDIR})
