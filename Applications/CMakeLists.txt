@@ -2,7 +2,7 @@
  #    This is the CMake file for the Applications sub-directory.
  #
  #    Path              : /Applications/
- #    Version           : 1
+ #    Version           : 2
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson

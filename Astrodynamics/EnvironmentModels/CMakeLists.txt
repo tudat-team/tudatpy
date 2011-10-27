@@ -2,7 +2,7 @@
  #    This is the CMake file for the EnvironmentModels sub-directory.
  #
  #    Path              : /Astrodynamics/EnvironmentModels/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Set the source files.
@@ -47,22 +48,21 @@ set(ENVIRONMENTMODELS_SOURCES
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/exponentialAtmosphere.cpp"
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/sphericalHarmonicsGravityField.cpp"
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/tabulatedAtmosphere.cpp"
-
-  "${SRCROOT}${ENVIRONMENTMODELSDIR}/atmosphereModel.h"
-  "${SRCROOT}${ENVIRONMENTMODELSDIR}/environmentModel.h"
-  "${SRCROOT}${ENVIRONMENTMODELSDIR}/gravityFieldModel.h"
 )
 
 # Set the header files.
 set(ENVIRONMENTMODELS_HEADERS 
-  "${ENVIRONMENTMODELSDIR}/centralGravityField.h"
-  "${ENVIRONMENTMODELSDIR}/exponentialAtmosphere.h"
-  "${ENVIRONMENTMODELSDIR}/sphericalHarmonicsGravityField.h"
-  "${ENVIRONMENTMODELSDIR}/tabulatedAtmosphere.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/atmosphereModel.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/centralGravityField.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/environmentModel.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/exponentialAtmosphere.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/gravityFieldModel.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/sphericalHarmonicsGravityField.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/tabulatedAtmosphere.h"
 )
 
 # Add static libraries
-add_library(tudat_environment_models STATIC ${ENVIRONMENTMODELS_SOURCES})
+add_library(tudat_environment_models STATIC ${ENVIRONMENTMODELS_SOURCES} ${ENVIRONMENTMODELS_HEADERS})
 setup_tudat_library_target(tudat_environment_models "${SRCROOT}${ENVIRONMENTMODELSDIR}")
 setup_headers("${ENVIRONMENTMODELS_HEADERS}" "${ENVIRONMENTMODELSDIR}")
 

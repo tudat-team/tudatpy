@@ -2,7 +2,7 @@
  #    This is the CMake file for the ForceModels sub-directory.
  #
  #    Path              : /Astrodynamics/ForceModels/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Set the source files.
@@ -46,22 +47,21 @@ set(FORCEMODELS_SOURCES
   "${SRCROOT}${FORCEMODELSDIR}/aerodynamicCoefficientGenerator.cpp"
   "${SRCROOT}${FORCEMODELSDIR}/aerodynamics.cpp"
   "${SRCROOT}${FORCEMODELSDIR}/hypersonicLocalInclinationAnalysis.cpp"
-
-  "${SRCROOT}${FORCEMODELSDIR}/aerodynamicCoefficientInterface.h"
-  "${SRCROOT}${FORCEMODELSDIR}/aerodynamicForce.h"
-  "${SRCROOT}${FORCEMODELSDIR}/forceModel.h"
-  "${SRCROOT}${FORCEMODELSDIR}/gravitationalForceModel.h"
 )
 
 # Set the header files.
 set(FORCEMODELS_HEADERS 
-  "${FORCEMODELSDIR}/aerodynamicCoefficientGenerator.h"
-  "${FORCEMODELSDIR}/aerodynamics.h"
-  "${FORCEMODELSDIR}/hypersonicLocalInclinationAnalysis.h"
+  "${SRCROOT}${FORCEMODELSDIR}/aerodynamicCoefficientGenerator.h"
+  "${SRCROOT}${FORCEMODELSDIR}/aerodynamicCoefficientInterface.h"
+  "${SRCROOT}${FORCEMODELSDIR}/aerodynamicForce.h"
+  "${SRCROOT}${FORCEMODELSDIR}/aerodynamics.h"
+  "${SRCROOT}${FORCEMODELSDIR}/forceModel.h"
+  "${SRCROOT}${FORCEMODELSDIR}/gravitationalForceModel.h"
+  "${SRCROOT}${FORCEMODELSDIR}/hypersonicLocalInclinationAnalysis.h"
 )
 
 # Add static libraries.
-add_library(tudat_force_models STATIC ${FORCEMODELS_SOURCES})
+add_library(tudat_force_models STATIC ${FORCEMODELS_SOURCES} ${FORCEMODELS_HEADERS})
 setup_tudat_library_target(tudat_force_models "${SRCROOT}${FORCEMODELSDIR}")
 setup_headers("${FORCEMODELS_HEADERS}" "${FORCEMODELSDIR}")
 

@@ -2,7 +2,7 @@
  #    This is the CMake file for the NumericalIntegrators sub-directory.
  #
  #    Path              : /Mathematics/NumericalIntegrators/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
@@ -47,20 +48,19 @@ set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/integrator.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/singleStepIntegrationMethods.cpp"
-
-  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/stateDerivativeBase.h"
 )
 
 # Add header files.
 set(NUMERICALINTEGRATORS_HEADERS 
-  "${MATHEMATICSDIR}/NumericalIntegrators/euler.h"
-  "${MATHEMATICSDIR}/NumericalIntegrators/integrator.h"
-  "${MATHEMATICSDIR}/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
-  "${MATHEMATICSDIR}/NumericalIntegrators/singleStepIntegrationMethods.h"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/euler.h"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/integrator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/singleStepIntegrationMethods.h"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/stateDerivativeBase.h"
 )
 
 # Add static libraries.
-add_library(tudat_numerical_integrators STATIC ${NUMERICALINTEGRATORS_SOURCES})
+add_library(tudat_numerical_integrators STATIC ${NUMERICALINTEGRATORS_SOURCES} ${NUMERICALINTEGRATORS_HEADERS})
 setup_tudat_library_target(tudat_numerical_integrators "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
 setup_headers("${NUMERICALINTEGRATORS_HEADERS}" "${MATHEMATICSDIR}/NumericalIntegrators")
 

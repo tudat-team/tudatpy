@@ -2,7 +2,7 @@
  #    This is the CMake file for the MissionSegments sub-directory.
  #
  #    Path              : /Astrodynamics/MissionSegments/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Set the source files.
@@ -47,23 +48,22 @@ set(MISSIONSEGMENTS_SOURCES
   "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeter.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/librationPoint.cpp"
-
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/capturePhase.h"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/deepSpaceManeuver.h"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/escapePhase.h"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/trajectoryDesignMethod.h"
 )
 
 # Set the header files.
 set(MISSIONSEGMENTS_HEADERS 
-  "${MISSIONSEGMENTSDIR}/escapeAndCapture.h"
-  "${MISSIONSEGMENTSDIR}/gravityAssist.h"
-  "${MISSIONSEGMENTSDIR}/lambertTargeter.h"
-  "${MISSIONSEGMENTSDIR}/librationPoint.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/capturePhase.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/deepSpaceManeuver.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/escapeAndCapture.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/escapePhase.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeter.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/librationPoint.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/trajectoryDesignMethod.h"
 )
 
 # Add static libraries.
-add_library(tudat_mission_segments STATIC ${MISSIONSEGMENTS_SOURCES})
+add_library(tudat_mission_segments STATIC ${MISSIONSEGMENTS_SOURCES} ${MISSIONSEGMENTS_HEADERS})
 setup_tudat_library_target(tudat_mission_segments "${SRCROOT}${MISSIONSEGMENTSDIR}")
 setup_headers("${MISSIONSEGMENTS_HEADERS}" "${MISSIONSEGMENTSDIR}")
 

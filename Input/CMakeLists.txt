@@ -2,7 +2,7 @@
  #    This is the CMake file for the Input sub-directory.
  #
  #    Path              : /Astrodynamics/Input/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
@@ -51,14 +52,14 @@ set(INPUT_SOURCES
 
 # Add header files.
 set(INPUT_HEADERS 
-  "${INPUTDIR}/fileReader.h"
-  "${INPUTDIR}/textFileReader.h"
-  "${INPUTDIR}/twoLineElementData.h"
-  "${INPUTDIR}/twoLineElementsTextFileReader.h"
+  "${SRCROOT}${INPUTDIR}/fileReader.h"
+  "${SRCROOT}${INPUTDIR}/textFileReader.h"
+  "${SRCROOT}${INPUTDIR}/twoLineElementData.h"
+  "${SRCROOT}${INPUTDIR}/twoLineElementsTextFileReader.h"
 )
 
 # Add static libraries.
-add_library(tudat_input STATIC ${INPUT_SOURCES})
+add_library(tudat_input STATIC ${INPUT_SOURCES} ${INPUT_HEADERS})
 setup_tudat_library_target(tudat_input "${SRCROOT}${INPUTDIR}")
 setup_headers("${INPUT_HEADERS}" "${INPUTDIR}")
 

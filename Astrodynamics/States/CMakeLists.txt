@@ -2,7 +2,7 @@
  #    This is the CMake file for the States sub-directory.
  #
  #    Path              : /Astrodynamics/States/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
@@ -49,29 +50,28 @@ set(STATES_SOURCES
   "${SRCROOT}${STATESDIR}/convertMeanAnomalyToEccentricAnomaly.cpp"
   "${SRCROOT}${STATESDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp"
   "${SRCROOT}${STATESDIR}/orbitalElementConversions.cpp"
+)
 
+# Add header files.
+set(STATES_HEADERS 
+  "${SRCROOT}${STATESDIR}/approximatePlanetPositions.h"
+  "${SRCROOT}${STATESDIR}/approximatePlanetPositionsBase.h"
+  "${SRCROOT}${STATESDIR}/approximatePlanetPositionsCircularCoplanar.h"
   "${SRCROOT}${STATESDIR}/approximatePlanetPositionsDataContainer.h"
   "${SRCROOT}${STATESDIR}/cartesianElements.h"
   "${SRCROOT}${STATESDIR}/cartesianPositionElements.h"
   "${SRCROOT}${STATESDIR}/cartesianVelocityElements.h"
   "${SRCROOT}${STATESDIR}/convertMeanAnomalyBase.h"
+  "${SRCROOT}${STATESDIR}/convertMeanAnomalyToEccentricAnomaly.h"
+  "${SRCROOT}${STATESDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
   "${SRCROOT}${STATESDIR}/ephemeris.h"
   "${SRCROOT}${STATESDIR}/keplerianElements.h"
+  "${SRCROOT}${STATESDIR}/orbitalElementConversions.h"
   "${SRCROOT}${STATESDIR}/state.h"
 )
 
-# Add header files.
-set(STATES_HEADERS 
-  "${STATESDIR}/approximatePlanetPositions.h"
-  "${STATESDIR}/approximatePlanetPositionsBase.h"
-  "${STATESDIR}/approximatePlanetPositionsCircularCoplanar.h"
-  "${STATESDIR}/convertMeanAnomalyToEccentricAnomaly.h"
-  "${STATESDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
-  "${STATESDIR}/orbitalElementConversions.h"
-)
-
 # Add static libraries.
-add_library(tudat_states STATIC ${STATES_SOURCES})
+add_library(tudat_states STATIC ${STATES_SOURCES} ${STATES_HEADERS})
 setup_tudat_library_target(tudat_states "${SRCROOT}${STATESDIR}")
 setup_headers("${STATES_HEADERS}" "${STATESDIR}")
 

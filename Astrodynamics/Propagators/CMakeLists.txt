@@ -2,7 +2,7 @@
  #    This is the CMake file for the Propagators sub-directory.
  #
  #    Path              : /Astrodynamics/Propagators/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
@@ -47,21 +48,20 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/keplerPropagator.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/numericalPropagator.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/seriesPropagator.cpp"
-
-  "${SRCROOT}${PROPAGATORSDIR}/propagator.h"
-  "${SRCROOT}${PROPAGATORSDIR}/propagatorDataContainer.h"
 )
 
 # Add header files.
 set(PROPAGATORS_HEADERS 
-  "${PROPAGATORSDIR}/cartesianStateNumericalPropagator.h"
-  "${PROPAGATORSDIR}/keplerPropagator.h"
-  "${PROPAGATORSDIR}/numericalPropagator.h"
-  "${PROPAGATORSDIR}/seriesPropagator.h"
+  "${SRCROOT}${PROPAGATORSDIR}/cartesianStateNumericalPropagator.h"
+  "${SRCROOT}${PROPAGATORSDIR}/keplerPropagator.h"
+  "${SRCROOT}${PROPAGATORSDIR}/numericalPropagator.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagator.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagatorDataContainer.h"
+  "${SRCROOT}${PROPAGATORSDIR}/seriesPropagator.h"
 )
 
 # Add static libraries.
-add_library(tudat_propagators STATIC ${PROPAGATORS_SOURCES})
+add_library(tudat_propagators STATIC ${PROPAGATORS_SOURCES} ${PROPAGATORS_HEADERS})
 setup_tudat_library_target(tudat_propagators "${SRCROOT}${PROPAGATORSDIR}")
 setup_headers("${PROPAGATORS_HEADERS}" "${PROPAGATORSDIR}")
 

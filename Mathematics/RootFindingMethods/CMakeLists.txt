@@ -2,7 +2,7 @@
  #    This is the CMake file for the RootFindingMethods sub-directory.
  #
  #    Path              : /Mathematics/RootFindingMethods/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,25 +39,25 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
 set(ROOTFINDINGMETHODS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphson.cpp"
+)
 
+# Add header files.
+set(ROOTFINDINGMETHODS_HEADERS 
+  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphson.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphsonAdaptor.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphsonBase.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/rootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/rootFinderBase.h"
 )
 
-# Add header files.
-set(ROOTFINDINGMETHODS_HEADERS 
-  "${MATHEMATICSDIR}/RootFindingMethods/newtonRaphson.h"
-)
-
 # Add static libraries.
-add_library(tudat_root_finding_methods STATIC ${ROOTFINDINGMETHODS_SOURCES})
+add_library(tudat_root_finding_methods STATIC ${ROOTFINDINGMETHODS_SOURCES} ${ROOTFINDINGMETHODS_HEADERS})
 setup_tudat_library_target(tudat_root_finding_methods "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods")
 setup_headers("${ROOTFINDINGMETHODS_HEADERS}" "${MATHEMATICSDIR}/RootFindingMethods")
 

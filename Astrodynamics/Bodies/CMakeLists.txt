@@ -2,7 +2,7 @@
  #    This is the CMake file for the Bodies sub-directory.
  #
  #    Path              : /Astrodynamics/Bodies/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,25 +39,25 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Set the source files.
 set(BODIES_SOURCES
   "${SRCROOT}${BODIESDIR}/planet.cpp"
-
-  "${SRCROOT}${BODIESDIR}/body.h"
-  "${SRCROOT}${BODIESDIR}/celestialBody.h"
-  "${SRCROOT}${BODIESDIR}/vehicle.h"
-  "${SRCROOT}${BODIESDIR}/vehicleExternalModel.h"
 )
 
 # Set the header files.
 set(BODIES_HEADERS 
-  "${BODIESDIR}/planet.h"
+  "${SRCROOT}${BODIESDIR}/body.h"
+  "${SRCROOT}${BODIESDIR}/celestialBody.h"
+  "${SRCROOT}${BODIESDIR}/planet.h"
+  "${SRCROOT}${BODIESDIR}/vehicle.h"
+  "${SRCROOT}${BODIESDIR}/vehicleExternalModel.h"
 )
 
 # Add static libraries.
-add_library(tudat_bodies STATIC ${BODIES_SOURCES})
+add_library(tudat_bodies STATIC ${BODIES_SOURCES} ${BODIES_HEADERS})
 setup_tudat_library_target(tudat_bodies "${SRCROOT}${BODIESDIR}")
 setup_headers("${BODIES_HEADERS}" "${BODIESDIR}")
 

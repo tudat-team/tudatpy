@@ -2,7 +2,7 @@
  #    This is the CMake file for the Astrodynamics sub-directory.
  #
  #    Path              : /Astrodynamics/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Define the main sub-directories.
@@ -58,7 +59,7 @@ set(ASTRODYNAMICS_SOURCES
 
 # Set the header files.
 set(ASTRODYNAMICS_HEADERS 
-  "${ASTRODYNAMICSDIR}/physicalConstants.h"
+  "${SRCROOT}${ASTRODYNAMICSDIR}/physicalConstants.h"
 )
 
 # Add subdirectories.
@@ -82,7 +83,7 @@ get_target_property(REFERENCEFRAMESSOURCES tudat_reference_frames SOURCES)
 get_target_property(STATESSOURCES tudat_states SOURCES)
 
 # Add static libraries.
-add_library(tudat_astrodynamics STATIC ${ASTRODYNAMICS_SOURCES} ${BODIESSOURCES} ${ENVIRONMENTMODELSSOURCES} ${FORCEMODELSSOURCES} ${MISSIONSEGMENTSSOURCES} ${MOMENTMODELSSOURCE} ${PROPAGATORSSOURCES} ${REFERENCEFRAMESSOURCES} ${STATESSOURCES})
+add_library(tudat_astrodynamics STATIC ${ASTRODYNAMICS_SOURCES} ${ASTRODYNAMICS_HEADERS} ${BODIESSOURCES} ${ENVIRONMENTMODELSSOURCES} ${FORCEMODELSSOURCES} ${MISSIONSEGMENTSSOURCES} ${MOMENTMODELSSOURCE} ${PROPAGATORSSOURCES} ${REFERENCEFRAMESSOURCES} ${STATESSOURCES})
 setup_tudat_library_target(tudat_astrodynamics "${SRCROOT}${ASTRODYNAMICSDIR}")
 setup_headers("${ASTRODYNAMICS_HEADERS}" "${ASTRODYNAMICSDIR}")
 

@@ -2,7 +2,7 @@
  #    This is the CMake file for the GeometricShapes sub-directory.
  #
  #    Path              : /Mathematics/GeometricShapes/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
@@ -51,21 +52,20 @@ set(GEOMETRICSHAPES_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/singleSurfaceGeometry.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/sphereSegment.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/torus.cpp"
-
-  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/geometricShape.h"
-  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/surfaceGeometry.h"
 )
 
 # Add header files.
 set(GEOMETRICSHAPES_HEADERS 
-  "${MATHEMATICSDIR}/GeometricShapes/capsule.h"
-  "${MATHEMATICSDIR}/GeometricShapes/compositeSurfaceGeometry.h"
-  "${MATHEMATICSDIR}/GeometricShapes/conicalFrustum.h"
-  "${MATHEMATICSDIR}/GeometricShapes/lawgsPartGeometry.h"
-  "${MATHEMATICSDIR}/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
-  "${MATHEMATICSDIR}/GeometricShapes/singleSurfaceGeometry.h"
-  "${MATHEMATICSDIR}/GeometricShapes/sphereSegment.h"
-  "${MATHEMATICSDIR}/GeometricShapes/torus.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/capsule.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/compositeSurfaceGeometry.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/conicalFrustum.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/geometricShape.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/lawgsPartGeometry.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/singleSurfaceGeometry.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/sphereSegment.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/surfaceGeometry.h"
+  "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/torus.h"
 )
 
 # Add static libraries.
