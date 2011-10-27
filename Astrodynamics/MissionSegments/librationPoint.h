@@ -3,7 +3,7 @@
  *    the Circular Restricted Three-Body Problem (CRTBP).
  *
  *    Path              : /Astrodynamics/MissionSegments/
- *    Version           : 6
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : L. van der Ham
@@ -15,12 +15,12 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 27 May, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 27 October, 2011
  *
  *    References:
- *      Mireles James, J.D., "Celestial Mechanics Notes Set 4: The Circular
- *          Restricted Three Body Problem",
- *          http://www.math.utexas.edu/users/jjames/celestMech, 2006.
+ *      van der Ham, L., TBD
+ *      Mireles James, J.D., "Celestial Mechanics Notes Set 4: The Circular Restricted Three Body
+ *          Problem", http://www.math.utexas.edu/users/jjames/celestMech, 2006.
  *
  *    Notes
  *
@@ -45,6 +45,9 @@
  *                                  modified libration point compute-functions; changed filename
  *                                  and class; added enum.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110927    L. van der Ham    Reverted to full equations of motion for determination location
+ *                                  of colinear libration points.
+ *      111027    K. Kumar          Moved 1-line functions from source file.
  */
 
 #ifndef LIBRATIONPOINT_H
@@ -142,7 +145,12 @@ public:
      * Computes dimensionless mass parameter. This requires that the setPrimaryCelestialBody() and
      * setSecondaryCelestialBody() functions have been called.
      */
-    void computeMassParameter( );
+    void computeMassParameter( )
+    {
+        massParameter_ = pointerToSecondaryCelestialBody_->getGravitationalParameter( )
+                / ( pointerToPrimaryCelestialBody_->getGravitationalParameter( )
+                    + pointerToSecondaryCelestialBody_->getGravitationalParameter( ) );
+    }
 
     //! Compute location of Lagrange libration point.
     /*!
@@ -207,59 +215,89 @@ private:
      */
     CelestialBody* pointerToSecondaryCelestialBody_;
 
-    //! Compute 5th-order polynomial for location of L1 libration point.
+    //! Compute equation of motion for location of L1 libration point.
     /*!
-     * Computes 5th-order polynomial, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L1 in the CRTBP (James, 2006).
+     * Computes equation of motion, whose root is the x-location in dimensionless
+     * coordinates of colinear libration point L1 in the CRTBP (van der Ham, TBD).
      * \param xLocationEstimate Estimate of x-location of L1 libration point.
      * \return Value of location function.
      */
-    double computeL1LocationFunction_( double& xLocationEstimate );
+    double computeL1LocationFunction_( double& xLocationEstimate )
+    {
+        return xLocationEstimate -
+                ( 1.0 - massParameter_ ) / pow( massParameter_ + xLocationEstimate, 2.0 )
+                + massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
+    }
 
-    //! Compute derivative of 5th-order polynomial for location of L1 libration point.
+    //! Compute derivative of equation of motion for location of L1 libration point.
     /*!
-     * Computes derivative of 5th-order polynomial, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L1 in the CRTBP (James, 2006).
+     * Computes derivative of equation of motion, whose root is the x-location in dimensionless
+     * coordinates of colinear libration point L1 in the CRTBP (van der Ham, TBD).
      * \param xLocationEstimate Estimate of x-location of L1 libration point.
      * \return Value of first derivative of location function.
      */
-    double computeL1FirstDerivativeLocationFunction_( double& xLocationEstimate );
+    double computeL1FirstDerivativeLocationFunction_( double& xLocationEstimate )
+    {
+        return 1.0 + 2.0 * ( 1.0 - massParameter_ )
+                / pow( massParameter_ + xLocationEstimate, 3.0 )
+                + 2.0 * massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
+    }
 
-    //! Compute 5th-order polynomial for location of L2 libration point.
+    //! Compute equation of motion for location of L2 libration point.
     /*!
-     * Computes 5th-order polynomial, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L2 in the CRTBP (James, 2006).
+     * Computes equation of motion, whose root is the x-location in dimensionless
+     * coordinates of colinear libration point L2 in the CRTBP (van der Ham, TBD).
      * \param xLocationEstimate Estimate of x-location of L2 libration point.
      * \return Value of location function.
      */
-    double computeL2LocationFunction_( double& xLocationEstimate );
+    double computeL2LocationFunction_( double& xLocationEstimate )
+    {
+        return xLocationEstimate
+                - ( 1.0 - massParameter_ ) / pow( massParameter_ + xLocationEstimate, 2.0 )
+                - massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
+    }
 
-    //! Compute derivative of 5th-order polynomial for location of L2 libration point.
+    //! Compute derivative of equation of motion for location of L2 libration point.
     /*!
-     * Computes derivative of 5th-order polynomial, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L2 in the CRTBP (James, 2006).
+     * Computes derivative of equation of motion, whose root is the x-location in dimensionless
+     * coordinates of colinear libration point L2 in the CRTBP (van der Ham, TBD).
      * \param xLocationEstimate Estimate of x-location of L2 libration point.
      * \return Value of first derivative of location function.
      */
-    double computeL2FirstDerivativeLocationFunction_( double& xLocationEstimate );
+    double computeL2FirstDerivativeLocationFunction_( double& xLocationEstimate )
+    {
+        return 1.0 + 2.0 * ( 1.0 - massParameter_ )
+                / pow( massParameter_ + xLocationEstimate, 3.0 )
+                - 2.0 * massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
+    }
 
-    //! Compute 5th-order polynomial for location of L3 libration point.
+    //! Compute equation of motion for location of L3 libration point.
     /*!
-     * Computes 5th-order polynomial, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L3 in the CRTBP (James, 2006).
+     * Computes equation of motion, whose root is the x-location in dimensionless
+     * coordinates of colinear libration point L3 in the CRTBP (van der Ham, TBD).
      * \param xLocationEstimate Estimate of x-location of L3 libration point.
      * \return Value of location function.
      */
-    double computeL3LocationFunction_( double& xLocationEstimate );
+    double computeL3LocationFunction_( double& xLocationEstimate )
+    {
+        return xLocationEstimate
+                + ( 1.0 - massParameter_ ) / pow( massParameter_ + xLocationEstimate, 2.0 )
+                - massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
+    }
 
-    //! Compute derivative of 5th-order polynomial for location of L3 libration point.
+    //! Compute derivative of equation of motion for location of L3 libration point.
     /*!
-     * Computes derivative of 5th-order polynomial, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L3 in the CRTBP (James, 2006).
+     * Computes derivative of equation of motion, whose root is the x-location in dimensionless
+     * coordinates of colinear libration point L3 in the CRTBP (van der Ham, TBD).
      * \param xLocationEstimate Estimate of x-location of L3 libration point.
      * \return Value of first derivative of location function.
      */
-    double computeL3FirstDerivativeLocationFunction_( double& xLocationEstimate );
+    double computeL3FirstDerivativeLocationFunction_( double& xLocationEstimate )
+    {
+        return 1.0 - 2.0 * ( 1.0 - massParameter_ )
+                / pow( massParameter_ + xLocationEstimate, 3.0 )
+                -2.0 * massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
+    }
 };
 
 }

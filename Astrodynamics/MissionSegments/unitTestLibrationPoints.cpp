@@ -16,12 +16,11 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 1 June, 2011
- *    Last modified     : 10 July, 2011
+ *    Last modified     : 27 October, 2011
  *
  *    References:
- *      Mireles James, J.D., "Celestial Mechanics Notes Set 4: The Circular
- *          Restricted Three Body Problem",
- *          http://www.math.utexas.edu/users/jjames/celestMech, 2006.
+ *      Mireles James, J.D., "Celestial Mechanics Notes Set 4: The Circular Restricted Three Body
+ *          Problem", http://www.math.utexas.edu/users/jjames/celestMech, 2006.
  *
  *    Notes
  *      Test runs code and verifies result against expected value.
@@ -50,6 +49,7 @@
  *      110710    K. Kumar          Restructured code; added subtests.
  *      111024    K. Kumar          Error spotted in L1/L2 tests; locations seem swapped.
  *                                  Tests commented out; needs to be fixed.
+ *      111027    K. Kumar          Uncommented out tests as bugs fixed by L. van der Ham.
  */
 
 // Include statements.
@@ -90,16 +90,16 @@ bool testL1LibrationPointLocation( bool isLibrationPointComputationErroneous,
     CartesianPositionElements positionOflibrationPointL1 = librationPointL1
             .getLocationOfLagrangeLibrationPoint( );
 
-//    // Test determination of location of L1 and output cerr statements if the test fails.
-//    if ( fabs( positionOflibrationPointL1.getCartesianElementX( ) - 0.83629259089993 )
-//         / 0.83629259089993 > 1.0e-15
-//         || fabs( positionOflibrationPointL1.getCartesianElementY( ) ) > 0.0
-//         || fabs( positionOflibrationPointL1.getCartesianElementZ( ) ) > 0.0 )
-//    {
-//        isLibrationPointComputationErroneous = true;
+    // Test determination of location of L1 and output cerr statements if the test fails.
+    if ( fabs( positionOflibrationPointL1.getCartesianElementX( ) - 0.83629259089993 )
+         / 0.83629259089993 > 1.0e-14
+         || fabs( positionOflibrationPointL1.getCartesianElementY( ) ) > 0.0
+         || fabs( positionOflibrationPointL1.getCartesianElementZ( ) ) > 0.0 )
+    {
+        isLibrationPointComputationErroneous = true;
 
-//        cerr << "The determination of the libration point L1 does not function well" << endl;
-//    }
+        cerr << "The determination of the libration point L1 does not function well" << endl;
+    }
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
@@ -130,16 +130,16 @@ bool testL2LibrationPointLocation( bool isLibrationPointComputationErroneous,
     CartesianPositionElements positionOflibrationPointL2 = librationPointL2
             .getLocationOfLagrangeLibrationPoint( );
 
-//    // Test determination of location of L2 and output cerr statements if the test fails.
-//    if ( fabs( positionOflibrationPointL2.getCartesianElementX( ) - 1.15616816590553 )
-//         / 1.15616816590553 > 1.0e-15
-//         || fabs( positionOflibrationPointL2.getCartesianElementY( ) ) > 0.0
-//         || fabs( positionOflibrationPointL2.getCartesianElementZ( ) ) > 0.0 )
-//    {
-//        isLibrationPointComputationErroneous = true;
+    // Test determination of location of L2 and output cerr statements if the test fails.
+    if ( fabs( positionOflibrationPointL2.getCartesianElementX( ) - 1.15616816590553 )
+         / 1.15616816590553 > 1.0e-14
+         || fabs( positionOflibrationPointL2.getCartesianElementY( ) ) > 0.0
+         || fabs( positionOflibrationPointL2.getCartesianElementZ( ) ) > 0.0 )
+    {
+        isLibrationPointComputationErroneous = true;
 
-//        cerr << "The determination of the libration point L2 does not function well" << endl;
-//    }
+        cerr << "The determination of the libration point L2 does not function well" << endl;
+    }
 
     // Return test result.
     // If test is successful return false; if test fails, return true.

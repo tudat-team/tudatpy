@@ -3,7 +3,7 @@
  *    Circular Restricted Three-Body Problem (CRTBP).
  *
  *    Path              : /Astrodynamics/MissionSegments/
- *    Version           : 6
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : L. van der Ham
@@ -15,20 +15,14 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 7 June, 2011
- *    Last modified     : 12 July, 2011
+ *    Last modified     : 27 October, 2011
  *
  *    References
  *      van der Ham, L. TBD.
- *      Mireles James, J.D., "Celestial Mechanics Notes Set 4: The Circular
- *          Restricted Three Body Problem",
- *          http://www.math.utexas.edu/users/jjames/celestMech, 2006.
+ *      Mireles James, J.D., "Celestial Mechanics Notes Set 4: The Circular Restricted Three Body
+ *          Problem", http://www.math.utexas.edu/users/jjames/celestMech, 2006.
  *
  *    Notes
- *      Determination of x-location of colinear libration points
- *      via 5th-order polynomials is based on method given in (James, 2006).
- *      However, coefficients of these polynomials are erroneous in
- *      (James, 2006). Derivation of the correct coefficients is given in
- *      (van der Ham, TBD).
  *
  *    Copyright (c) 2010-2011 Delft University of Technology.
  *
@@ -51,6 +45,9 @@
  *                                  compute-functions; changed filename and class; L1 and L2
  *                                  function coefficient discrepancies spotted.
  *      110712    L. van der Ham    Changed L1, L2 and L3 function coefficients.
+ *      110927    L. van der Ham    Reverted to full equations of motion for determination location
+ *                                  of colinear libration points.
+ *      111027    K. Kumar          Moved 1-line functions to header file.
  */
 
 // Include statements.
@@ -69,25 +66,10 @@ using std::endl;
 using std::pow;
 using std::sqrt;
 
-//! Compute mass parameter.
-void LibrationPoint::computeMassParameter( )
-{
-    // Calculate dimensionless mass parameter for bodies 1 and 2.
-    massParameter_ = pointerToSecondaryCelestialBody_->getGravitationalParameter( )
-            / ( pointerToPrimaryCelestialBody_->getGravitationalParameter( )
-                + pointerToSecondaryCelestialBody_->getGravitationalParameter( ) );
-}
-
 //! Compute location of Lagrange libration point.
 void LibrationPoint::computeLocationOfLibrationPoint(
     LagrangeLibrationPoints lagrangeLibrationPoint )
 {
-    // Compute mass parameter squared.
-    massParameterSquared_ = pow( massParameter_, 2.0 );
-
-    // Compute ( 1 - mass parameter )^2.
-    oneMinusMassParameterSquared_ = pow( 1.0 - massParameter_, 2.0 );
-
     // Newton-Raphson method implementation.
     // Set the class that contains the functions needed for Newton-Raphson.
     newtonRaphsonAdaptorForLibrationPoint_.setClass( this );
@@ -108,7 +90,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         pointerToNewtonRaphson_->setNewtonRaphsonAdaptor(
                     &newtonRaphsonAdaptorForLibrationPoint_ );
 
-        // Set initial guess for root of 5th-order polynomial.
+        // Set initial guess for root of equation of motion for L1.
         pointerToNewtonRaphson_->setInitialGuessOfRoot( 1.0 );
 
         // Compute root of equation for L1 via Newton-Raphson method.
@@ -134,13 +116,13 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         pointerToNewtonRaphson_->setNewtonRaphsonAdaptor(
                     &newtonRaphsonAdaptorForLibrationPoint_ );
 
-        // Set initial guess for root of 5th-order polynomial.
+        // Set initial guess for root of equation of motion in L2.
         pointerToNewtonRaphson_->setInitialGuessOfRoot( 1.0 );
 
         // Compute root of equation for L2 via Newton-Raphson method.
         pointerToNewtonRaphson_->execute( );
 
-        // Set position vector of L1 in Cartesian elements.
+        // Set position vector of L2 in Cartesian elements.
         positionOfLibrationPoint_.setCartesianElementX(
                     pointerToNewtonRaphson_->getComputedRootOfFunction( ) );
         positionOfLibrationPoint_.setCartesianElementY( 0.0 );
@@ -160,13 +142,13 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         pointerToNewtonRaphson_->setNewtonRaphsonAdaptor(
                     &newtonRaphsonAdaptorForLibrationPoint_ );
 
-        // Set initial guess for root of 5th-order polynomial.
+        // Set initial guess for root of equation of motion in L3.
         pointerToNewtonRaphson_->setInitialGuessOfRoot( -1.0 );
 
-        // Compute root of equation for L1 via Newton-Raphson method.
+        // Compute root of equation for L3 via Newton-Raphson method.
         pointerToNewtonRaphson_->execute( );
 
-        // Set position vector of L1 in Cartesian elements.
+        // Set position vector of L3 in Cartesian elements.
         positionOfLibrationPoint_.setCartesianElementX(
                     pointerToNewtonRaphson_->getComputedRootOfFunction( ) );
         positionOfLibrationPoint_.setCartesianElementY( 0.0 );
@@ -196,120 +178,6 @@ void LibrationPoint::computeLocationOfLibrationPoint(
 
         cerr << "The Lagrange libration point requested does not exist." << endl;
     };
-}
-
-//! Compute 5th-order polynomial for location of L1 libration point.
-double LibrationPoint::computeL1LocationFunction_( double& xLocationEstimate )
-{
-    // Coefficients of the 5th-order polynomial for L1 (James, 2006).
-    double a_ = 2.0 * ( ( 2.0 * massParameter_ ) - 1.0 );
-    double b_ = oneMinusMassParameterSquared_ - 4.0 * massParameter_
-            * ( 1.0 - massParameter_ ) + massParameterSquared_;
-    double c_ = 2.0 * massParameter_ * ( 1.0 - massParameter_ )
-            * ( 1.0 - ( 2.0 * massParameter_ ) ) - 1.0;
-    double d_ = massParameterSquared_ * oneMinusMassParameterSquared_
-            + 2.0 * ( massParameterSquared_ + oneMinusMassParameterSquared_ )
-            -4.0 * massParameterSquared_;
-    double e_ = -pow( massParameter_, 3.0 ) - pow( 1.0 - massParameter_, 3.0 );
-
-    // Return value of the location function.
-    return pow( xLocationEstimate, 5.0 ) + a_ * pow( xLocationEstimate, 4.0 )
-            + b_ * pow( xLocationEstimate, 3.0 ) +  c_ * pow( xLocationEstimate, 2.0 )
-            + d_ * xLocationEstimate + e_;
-}
-
-//! Compute derivative of 5th-order polynomial for location of L1 libration point.
-double LibrationPoint::computeL1FirstDerivativeLocationFunction_( double& xLocationEstimate )
-{
-    // Coefficients of first-derivative of the 5th-order polynomial for L1 (James, 2006).
-    double a_ = 2.0 * ( ( 2.0 * massParameter_ ) - 1.0 );
-    double b_ = oneMinusMassParameterSquared_ - 4.0 * massParameter_
-            * ( 1.0 - massParameter_ ) + massParameterSquared_;
-    double c_ = 2.0 * massParameter_ * ( 1.0 - massParameter_ )
-            * ( 1.0 - ( 2.0 * massParameter_ ) ) - 1.0 ;
-    double d_ = massParameterSquared_ * oneMinusMassParameterSquared_
-            + 2.0 * ( massParameterSquared_ + oneMinusMassParameterSquared_ )
-            -4.0 * massParameterSquared_;
-
-    // Return value of first-deriavtive of the location function.
-    return 5.0 * pow( xLocationEstimate, 4.0 ) + 4.0 * a_ * pow( xLocationEstimate, 3.0 )
-            + 3.0 * b_ * pow( xLocationEstimate, 2.0 ) + 2.0 * c_ * xLocationEstimate + d_;
-}
-
-//! Compute 5th-order polynomial for location of L2 libration point.
-double LibrationPoint::computeL2LocationFunction_( double& xLocationEstimate )
-{
-    // Coefficients of the 5th-order polynomial for L2 (James, 2006).
-    double a_ = 2.0 * ( 2.0 * massParameter_ - 1.0 );
-    double b_ = oneMinusMassParameterSquared_ - 4.0 * massParameter_
-            * ( 1.0 - massParameter_ ) + massParameterSquared_;
-    double c_ = 2.0 * massParameter_ * ( 1.0 - massParameter_ )
-            * ( 1.0 -  2.0 * massParameter_ ) - 1.0 + 2.0 * massParameter_;
-    double d_ = massParameterSquared_ * oneMinusMassParameterSquared_
-            + 2.0 * ( massParameterSquared_  - oneMinusMassParameterSquared_ )
-            + 4.0 * massParameterSquared_ - 8.0 * massParameter_ + 4.0;
-    double e_ = - pow( 1.0 - massParameter_, 3.0 ) + pow( massParameter_, 3.0 ) ;
-
-    // Return value of the location function.
-    return pow( xLocationEstimate, 5.0 ) + a_ * pow( xLocationEstimate, 4.0 )
-            + b_ * pow( xLocationEstimate, 3.0 ) +  c_ * pow( xLocationEstimate, 2.0 )
-            + d_ * xLocationEstimate + e_;
-}
-
-//! Compute derivative of 5th-order polynomial for location of L2 libration point.
-double LibrationPoint::computeL2FirstDerivativeLocationFunction_( double& xLocationEstimate )
-{
-    // Coefficients of the first-derivative of the 5th-order polynomial for L2 (James, 2006).
-    double a_ = 2.0 * ( 2.0 * massParameter_ - 1.0 );
-    double b_ = oneMinusMassParameterSquared_ - 4.0 * massParameter_
-            * ( 1.0 - massParameter_ ) + massParameterSquared_;
-    double c_ = 2.0 * massParameter_ * ( 1.0 - massParameter_ )
-            * ( 1.0 -  2.0 * massParameter_ ) - 1.0 + 2.0 * massParameter_;
-    double d_ = massParameterSquared_ * oneMinusMassParameterSquared_
-            + 2.0 * ( massParameterSquared_  - oneMinusMassParameterSquared_ )
-            + 4.0 * massParameterSquared_ - 8.0 * massParameter_ + 4.0;
-
-    // Return value of first-deriavtive of the location function.
-    return 5.0 * pow( xLocationEstimate, 4.0 ) + 4.0 * a_ * pow( xLocationEstimate, 3.0 )
-            + 3.0 * b_ * pow( xLocationEstimate, 2.0 ) + 2.0 * c_ * xLocationEstimate + d_;
-}
-
-//! Compute 5th-order polynomial for location of L3 libration point.
-double LibrationPoint::computeL3LocationFunction_( double& xLocationEstimate )
-{
-    // Coefficients of the 5th-order polynomial for L3 (James, 2006).
-    double a_ = 2.0 * ( 2.0 * massParameter_ - 1.0 );
-    double b_ = oneMinusMassParameterSquared_ - 4.0 * massParameter_
-            * ( 1.0 - massParameter_ ) + massParameterSquared_;
-    double c_ = 2.0 * massParameter_ * ( 1.0 - massParameter_ )
-            * ( 1.0 -  2.0 * massParameter_ ) + 1.0 - 2.0 * massParameter_;
-    double d_ = massParameterSquared_ * oneMinusMassParameterSquared_
-            + 2.0 * ( massParameterSquared_ + oneMinusMassParameterSquared_ )
-            -8.0 * massParameterSquared_ + 8.0 * massParameter_ - 4.0;
-    double e_ = pow ( 1.0 - massParameter_, 3.0 ) - pow( massParameter_, 3.0 );
-
-    // Return value of the location function.
-    return pow( xLocationEstimate, 5.0 ) + a_ * pow( xLocationEstimate, 4.0 )
-            + b_ * pow( xLocationEstimate, 3.0 ) +  c_ * pow( xLocationEstimate, 2.0 )
-            + d_ * xLocationEstimate + e_;
-}
-
-//! Compute derivative of 5th-order polynomial for location of L3 libration point.
-double LibrationPoint::computeL3FirstDerivativeLocationFunction_( double& xLocationEstimate )
-{
-    // Coefficients of the first-derivative of the 5th-order polynomial for L3 (James, 2006).
-    double a_ = 2.0 * ( 2.0 * massParameter_ - 1.0 );
-    double b_ = oneMinusMassParameterSquared_ - 4.0 * massParameter_
-            * ( 1.0 - massParameter_ ) + massParameterSquared_;
-    double c_ = 2.0 * massParameter_ * ( 1.0 - massParameter_ )
-            * ( 1.0 -  2.0 * massParameter_ ) + 1.0 - 2.0 * massParameter_;
-    double d_ = massParameterSquared_ * oneMinusMassParameterSquared_
-            + 2.0 * ( massParameterSquared_ + oneMinusMassParameterSquared_ )
-            -8.0 * massParameterSquared_ + 8.0 * massParameter_ - 4.0;
-
-    // Return value of first-deriavtive of the location function.
-    return 5.0 * pow( xLocationEstimate, 4.0 ) + 4.0 * a_ * pow( xLocationEstimate, 3.0 )
-            + 3.0 * b_ * pow( xLocationEstimate, 2.0 ) + 2.0 * c_ * xLocationEstimate + d_;
 }
 
 }
