@@ -2,7 +2,7 @@
  #    This is the main CMake file for the Tudat project.
  #
  #    Path              : /
- #    Version           : 2
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 27 October, 2011
  #
  #    References
  #
@@ -39,6 +39,8 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111027    K. Kumar          Updated to auto-search for Eigen3 and Boost; manual setting
+ #                                  examples included as comments.
  #/
 
 # Specify minimum CMake version required to compile Tudat.
@@ -130,15 +132,27 @@ find_package(Eigen3 REQUIRED)
 # A default location is given as an example.
 #set(EIGEN3_INCLUDE_DIR "${SRCROOT}/External/eigen3")
 
-# Set Eigen2 support on.
-#set(EIGEN2_SUPPORT ON)
-
 # Set CMake flag to suppress Eigen warnings (platform-dependent solution).
 if(NOT APPLE)
   include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
 endif()
+
+# Configure Boost libraries.
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_RUNTIME ON)
+
+# Find Boost libraries on local system.
+find_package(Boost 1.45.0 COMPONENTS thread date_time REQUIRED)
+# If Boost is not found, use the following to manually set the path to the Boost include and
+# library directories.
+#SET(BOOST_INCLUDEDIR "C:\My\Custom\Path\To\Boost\Include\Directory")
+#SET(BOOST_LIBRARYDIR "C:\My\Custom\Path\To\Boost\Library\Directory")
+
+# Include Boost directory.
+include_directories(${Boost_INCLUDE_DIRS})
 
 # Set sub-directories.
 set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTDIR} ${MATHEMATICSDIR} ${OUTPUTDIR})
