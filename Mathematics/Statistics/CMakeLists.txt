@@ -2,7 +2,7 @@
  #    This is the CMake file for the Statistics sub-directory.
  #
  #    Path              : /Mathematics/Statistics/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
@@ -48,11 +49,11 @@ set(STATISTICS_SOURCES
 
 # Add header files.
 set(STATISTICS_HEADERS 
-  "${MATHEMATICSDIR}/Statistics/simpleLinearRegression.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/simpleLinearRegression.h"
 )
 
 # Add static libraries.
-add_library(tudat_statistics STATIC ${STATISTICS_SOURCES})
+add_library(tudat_statistics STATIC ${STATISTICS_SOURCES} ${STATISTICS_HEADERS})
 setup_tudat_library_target(tudat_statistics "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 setup_headers("${STATISTICS_HEADERS}" "${MATHEMATICSDIR}/Statistics")
 

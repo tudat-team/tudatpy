@@ -2,7 +2,7 @@
  #    This is the CMake file for the Mathematics sub-directory.
  #
  #    Path              : /Mathematics/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,20 +39,20 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
 set(MATHEMATICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/basicMathematicsFunctions.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/cubicSplineInterpolation.cpp"
-
-  "${SRCROOT}${MATHEMATICSDIR}/unitConversions.h"
 )
 
 # Add header files.
 set(MATHEMATICS_HEADERS 
-  "${MATHEMATICSDIR}/basicMathematicsFunctions.h"
-  "${MATHEMATICSDIR}/cubicSplineInterpolation.h"
+  "${SRCROOT}${MATHEMATICSDIR}/basicMathematicsFunctions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/cubicSplineInterpolation.h"
+  "${SRCROOT}${MATHEMATICSDIR}/unitConversions.h"
 )
 
 # Add sub-directories.
@@ -72,7 +72,7 @@ get_target_property(ROOTFINDINGMETHODSSOURCES tudat_root_finding_methods SOURCES
 get_target_property(STATISTICSSOURCES tudat_statistics SOURCES)
 
 # Add static libraries.
-add_library(tudat_mathematics STATIC ${MATHEMATICS_SOURCES} ${GEOMETRICSHAPESSOURCES} ${LINEARALGEBRASOURCES} ${NUMERICALINTEGRATORSSOURCES} ${RANDOMNUMBERGENERATORSSOURCES} ${ROOTFINDINGMETHODSSOURCES} ${STATISTICSSOURCES})
+add_library(tudat_mathematics STATIC ${MATHEMATICS_SOURCES} ${MATHEMATICS_HEADERS} ${GEOMETRICSHAPESSOURCES} ${LINEARALGEBRASOURCES} ${NUMERICALINTEGRATORSSOURCES} ${RANDOMNUMBERGENERATORSSOURCES} ${ROOTFINDINGMETHODSSOURCES} ${STATISTICSSOURCES})
 setup_tudat_library_target(tudat_mathematics "${SRCROOT}${MATHEMATICSDIR}")
 setup_headers("${MATHEMATICS_HEADERS}" "${MATHEMATICSDIR}")
 

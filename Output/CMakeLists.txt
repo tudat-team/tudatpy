@@ -2,7 +2,7 @@
  #    This is the CMake file for the Output sub-directory.
  #
  #    Path              : /Output/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
@@ -48,11 +49,11 @@ set(OUTPUT_SOURCES
 
 # Add header files.
 set(OUTPUT_HEADERS 
-  "${OUTPUTDIR}/writingOutputToFile.h"
+  "${SRCROOT}${OUTPUTDIR}/writingOutputToFile.h"
 )
 
 # Add static libraries.
-add_library(tudat_output STATIC ${OUTPUT_SOURCES})
+add_library(tudat_output STATIC ${OUTPUT_SOURCES} ${OUTPUT_HEADERS})
 setup_tudat_library_target(tudat_output "${SRCROOT}${OUTPUTDIR}")
 setup_headers("${OUTPUT_HEADERS}" "${OUTPUTDIR}")
 

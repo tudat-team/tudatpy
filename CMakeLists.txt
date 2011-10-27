@@ -2,7 +2,7 @@
  #    This is the main CMake file for the Tudat project.
  #
  #    Path              : /
- #    Version           : 1
+ #    Version           : 2
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson

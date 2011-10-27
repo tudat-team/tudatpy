@@ -2,7 +2,7 @@
  #    This is the CMake file for the RandomNumberGenerators sub-directory.
  #
  #    Path              : /Mathematics/RandomNumberGenerators/
- #    Version           : 1
+ #    Version           : 3
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 25 October, 2011
+ #    Last modified     : 26 October, 2011
  #
  #    References
  #
@@ -39,6 +39,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
+ #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
 # Add source files.
@@ -46,19 +47,18 @@ set(RANDOMNUMBERGENERATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/exponentialRandomNumberGenerator.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/normalRandomNumberGenerator.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/uniformRandomNumberGenerator.cpp"
-
-  "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/randomNumberGenerator.h"
 )
 
 # Add header files.
 set(RANDOMNUMBERGENERATORS_HEADERS 
-  "${MATHEMATICSDIR}/RandomNumberGenerators/exponentialRandomNumberGenerator.h"
-  "${MATHEMATICSDIR}/RandomNumberGenerators/normalRandomNumberGenerator.h"
-  "${MATHEMATICSDIR}/RandomNumberGenerators/uniformRandomNumberGenerator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/exponentialRandomNumberGenerator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/normalRandomNumberGenerator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/randomNumberGenerator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators/uniformRandomNumberGenerator.h"
 )
 
 # Add static libraries.
-add_library(tudat_random_number_generators STATIC ${RANDOMNUMBERGENERATORS_SOURCES})
+add_library(tudat_random_number_generators STATIC ${RANDOMNUMBERGENERATORS_SOURCES} ${RANDOMNUMBERGENERATORS_HEADERS})
 setup_tudat_library_target(tudat_random_number_generators "${SRCROOT}${MATHEMATICSDIR}/RandomNumberGenerators")
 setup_headers("${RANDOMNUMBERGENERATORS_HEADERS}" "${MATHEMATICSDIR}/RandomNumberGenerators")
 
