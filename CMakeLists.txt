@@ -111,7 +111,7 @@ macro(setup_headers HEADER_FILES HEADER_PATH)
     foreach(CURRENT_HEADER_FILE ${HEADER_FILES})
       install(FILES "${CURRENT_HEADER_FILE}" DESTINATION "${INCLUDEROOT}${HEADER_PATH}")
     endforeach(CURRENT_HEADER_FILE)
-  endmacro(setup_headers)
+endmacro(setup_headers)
 
 # Set the main sub-directories
 set(APPLICATIONSDIR "/Applications")

@@ -90,62 +90,62 @@ int main( )
     // Test 1: Integration of initial-value problem given on pg. 278 of (Burden and Faires, 2001).
 
     // Test result initialised to false.
-    bool isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_ = false;
+    bool isRungeKutta4thOrderFixedStepsizeIntegratorErroneous = false;
 
     // Define tolerance for difference between computed and expected results.
-    double tolerance_ = 1.0e-8;
+    double tolerance = 1.0e-8;
 
     // Create Runge-Kutta 4th-order, fixed stepsize integrator.
-    RungeKutta4thOrderFixedStepsize rungeKutta4thOrderFixedStepsizeIntegrator_;
+    RungeKutta4thOrderFixedStepsize rungeKutta4thOrderFixedStepsizeIntegrator;
 
     // Set initial state in Runge-Kutta 4th-order, fixed stepsize integrator.
-    State initialState_;
-    initialState_.state.setZero( 1 );
-    initialState_.state( 0 ) = 0.5;
-    rungeKutta4thOrderFixedStepsizeIntegrator_.setInitialState( &initialState_ );
+    State initialState;
+    initialState.state.setZero( 1 );
+    initialState.state( 0 ) = 0.5;
+    rungeKutta4thOrderFixedStepsizeIntegrator.setInitialState( &initialState );
 
     // Set initial stepsize in Runge-Kutta 4th-order, fixed stepsize
     // integrator.
-    rungeKutta4thOrderFixedStepsizeIntegrator_.setInitialStepsize( 0.2 );
+    rungeKutta4thOrderFixedStepsizeIntegrator.setInitialStepsize( 0.2 );
 
     // Set start of integration interval.
-    rungeKutta4thOrderFixedStepsizeIntegrator_.setIntegrationIntervalStart( 0.0 );
+    rungeKutta4thOrderFixedStepsizeIntegrator.setIntegrationIntervalStart( 0.0 );
 
     // Set end of integration interval.
-    rungeKutta4thOrderFixedStepsizeIntegrator_.setIntegrationIntervalEnd( 2.0 );
+    rungeKutta4thOrderFixedStepsizeIntegrator.setIntegrationIntervalEnd( 2.0 );
 
     // Create Runge-Kutta 4th-order, fixed stepsize integrator test class
     // object.
-    RungeKutta4thOrderFixedStepsizeIntegratorTest rungeKutta4thOrderFixedStepsizeIntegratorTest_;
+    RungeKutta4thOrderFixedStepsizeIntegratorTest rungeKutta4thOrderFixedStepsizeIntegratorTest;
 
     // Set state derivative for integrator.
-    rungeKutta4thOrderFixedStepsizeIntegrator_.setObjectContainingStateDerivative(
-                &rungeKutta4thOrderFixedStepsizeIntegratorTest_ );
+    rungeKutta4thOrderFixedStepsizeIntegrator.setObjectContainingStateDerivative(
+                &rungeKutta4thOrderFixedStepsizeIntegratorTest );
 
     // Execute test integration.
-    rungeKutta4thOrderFixedStepsizeIntegrator_.integrate( );
+    rungeKutta4thOrderFixedStepsizeIntegrator.integrate( );
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( std::fabs( rungeKutta4thOrderFixedStepsizeIntegrator_.getFinalState( )->state( 0 )
-                    - 5.3053630 ) > tolerance_ )
+    if ( std::fabs( rungeKutta4thOrderFixedStepsizeIntegrator.getFinalState( )->state( 0 )
+                    - 5.3053630 ) / 5.3053630 > tolerance )
     {
-        isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_ = true;
+        isRungeKutta4thOrderFixedStepsizeIntegratorErroneous = true;
 
         std::cerr << "The computed value ( "
-                  << rungeKutta4thOrderFixedStepsizeIntegrator_.getFinalState( )->state( 0 )
+                  << rungeKutta4thOrderFixedStepsizeIntegrator.getFinalState( )->state( 0 )
                   << " ) using the Runge-Kutta 4th-order, fixed stepsize integrator "
                   << "is not equal to the expected value: " << 5.3053630 << std::endl;
     }
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    if ( isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_ )
+    if ( isRungeKutta4thOrderFixedStepsizeIntegratorErroneous )
     {
         std::cerr << "testRungeKutta4thOrderFixedStepsizeIntegrator failed!" << std::endl;
     }
 
-    return isRungeKutta4thOrderFixedStepsizeIntegratorErroneous_;
+    return isRungeKutta4thOrderFixedStepsizeIntegratorErroneous;
 }
 
 // End of file.

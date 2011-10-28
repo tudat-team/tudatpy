@@ -90,57 +90,57 @@ int main( )
     // Test 1: Integration of initial-value problem given on pg. 258 of (Burden and Faires, 2001).
 
     // Test result initialised to false.
-    bool isEulerIntegratorErroneous_ = false;
+    bool isEulerIntegratorErroneous = false;
 
     // Define tolerance for difference between computed and expected results.
-    double tolerance_ = 1.0e-8;
+    double tolerance = 1.0e-8;
 
     // Create Euler integrator.
-    Euler eulerIntegrator_;
+    Euler eulerIntegrator;
 
     // Set initial state in Euler integrator.
     State initialState_;
     initialState_.state.setZero( 1 );
     initialState_.state( 0 ) = 0.5;
-    eulerIntegrator_.setInitialState( &initialState_ );
+    eulerIntegrator.setInitialState( &initialState_ );
 
     // Set initial stepsize in Euler integrator.
-    eulerIntegrator_.setInitialStepsize( 0.2 );
+    eulerIntegrator.setInitialStepsize( 0.2 );
 
     // Set start of integration interval.
-    eulerIntegrator_.setIntegrationIntervalStart( 0.0 );
+    eulerIntegrator.setIntegrationIntervalStart( 0.0 );
 
     // Set end of integration interval.
-    eulerIntegrator_.setIntegrationIntervalEnd( 2.0 );
+    eulerIntegrator.setIntegrationIntervalEnd( 2.0 );
 
     // Create Euler integrator test class object.
-    EulerIntegratorTest eulerIntegratorTest_;
+    EulerIntegratorTest eulerIntegratorTest;
 
     // Set state derivative for integrator.
-    eulerIntegrator_.setObjectContainingStateDerivative( &eulerIntegratorTest_ );
+    eulerIntegrator.setObjectContainingStateDerivative( &eulerIntegratorTest );
 
     // Execute test integration.
-    eulerIntegrator_.integrate( );
+    eulerIntegrator.integrate( );
 
     // Compute differences between computed and expected results and generate
     // cerr statement if test fails.
-    if ( std::fabs( eulerIntegrator_.getFinalState( )->state( 0 ) - 4.8657845 ) > tolerance_ )
+    if ( std::fabs( eulerIntegrator.getFinalState( )->state( 0 ) - 4.8657845 ) > tolerance )
     {
-        isEulerIntegratorErroneous_ = true;
+        isEulerIntegratorErroneous = true;
 
-        std::cerr << "The computed value ( " << eulerIntegrator_.getFinalState( )->state( 0 )
+        std::cerr << "The computed value ( " << eulerIntegrator.getFinalState( )->state( 0 )
                   << " ) using the Euler integrator is not equal to the expected value: "
                   << 4.8657845 << std::endl;
     }
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    if ( isEulerIntegratorErroneous_ )
+    if ( isEulerIntegratorErroneous )
     {
         std::cerr << "testEulerIntegrator failed!" << std::endl;
     }
 
-    return isEulerIntegratorErroneous_;
+    return isEulerIntegratorErroneous;
 }
 
 // End of file.

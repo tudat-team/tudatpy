@@ -47,6 +47,7 @@ set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/euler.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/integrator.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaFehlberg78VariableStepsize.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/singleStepIntegrationMethods.cpp"
 )
 
@@ -55,6 +56,7 @@ set(NUMERICALINTEGRATORS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/euler.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/integrator.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaFehlberg78VariableStepsize.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/singleStepIntegrationMethods.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/stateDerivativeBase.h"
 )
@@ -72,5 +74,9 @@ target_link_libraries(test_EulerIntegrator tudat_input tudat_output tudat_mathem
 add_executable(test_RungeKutta4thOrderFixedStepsizeIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/unitTestRungeKutta4thOrderFixedStepsizeIntegrator.cpp")
 setup_custom_test_program(test_RungeKutta4thOrderFixedStepsizeIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
 target_link_libraries(test_RungeKutta4thOrderFixedStepsizeIntegrator tudat_input tudat_output tudat_mathematics tudat_astrodynamics tudat_basics)
+
+add_executable(test_RungeKuttaFehlberg78VariableStepsizeIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/unitTestRungeKuttaFehlberg78VariableStepsizeIntegrator.cpp")
+setup_custom_test_program(test_RungeKuttaFehlberg78VariableStepsizeIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
+target_link_libraries(test_RungeKuttaFehlberg78VariableStepsizeIntegrator tudat_input tudat_output tudat_mathematics tudat_astrodynamics tudat_basics)
 
 # End of file.
