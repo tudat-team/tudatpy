@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 27 October, 2011
+ #    Last modified     : 28 October, 2011
  #
  #    References
  #
@@ -40,8 +40,9 @@
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111027    K. Kumar          Updated to auto-search for Eigen3 and Boost; manual setting
- #                                  examples included as comments.
- #                                  Added suppression of warnings from Boost.
+ #                                  examples included as comments. Added suppression of warnings
+ #                                  from Boost.
+ #      111028    K. Kumar          Corrected Boost variables and changed build-type to Debug.
  #/
 
 # Specify minimum CMake version required to compile Tudat.
@@ -64,26 +65,27 @@ set(CODEROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 # Deine the basic input (trunk) and output (lib & include) directories.
 set(SRCROOT "${CODEROOT}/trunk")
 
-# Set CMake build-type to release.
-set(CMAKE_BUILD_TYPE Release)
+# Set CMake build-type.
+set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Release)
 
 # Set testing options based on platform.
 enable_testing()
 
 if (WIN32)
   if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Ox /W3 /FC -g -D_SCL_SECURE_NO_WARNINGS")
     set(LIBROOT "${CODEROOT}/lib_msvc")
     set(INCLUDEROOT "${CODEROOT}/include")
     set(BINROOT "${CODEROOT}/bin_msvc")
   else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
     set(LIBROOT "${CODEROOT}/lib_w32")
     set(INCLUDEROOT "${CODEROOT}/include")
     set(BINROOT "${CODEROOT}/bin_w32")
   endif()
 else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
   set(LIBROOT "${CODEROOT}/lib")
   set(INCLUDEROOT "${CODEROOT}/include")
   set(BINROOT "${CODEROOT}/bin")
@@ -150,8 +152,8 @@ set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost 1.45.0 COMPONENTS thread date_time REQUIRED)
 # If Boost is not found, use the following to manually set the path to the Boost include and
 # library directories.
-#SET(BOOST_INCLUDEDIR "C:\My\Custom\Path\To\Boost\Include\Directory")
-#SET(BOOST_LIBRARYDIR "C:\My\Custom\Path\To\Boost\Library\Directory")
+#SET(Boost_INCLUDE_DIRS "C:\My\Custom\Path\To\Boost\Include\Directory")
+#SET(Boost_LIBRARY_DIRS "C:\My\Custom\Path\To\Boost\Library\Directory")
 
 # Include Boost directories.
 # Set CMake flag to suppress Boost warnings (platform-dependent solution).
