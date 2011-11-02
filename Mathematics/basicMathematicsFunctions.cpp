@@ -87,6 +87,14 @@ using std::accumulate;
 using std::pow;
 using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
 
+//! Get global random number generator.
+globalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( )
+{
+  static globalRandomNumberGeneratorType globalRandomNumberGenerator(
+              static_cast< unsigned int >( std::time( 0 ) ) );
+  return globalRandomNumberGenerator;
+}
+
 //! Compute linear interpolation.
 double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
                                    VectorXd& associatedDependentVariables,

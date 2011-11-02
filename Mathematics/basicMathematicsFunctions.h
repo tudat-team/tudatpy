@@ -72,8 +72,10 @@
 #define BASICMATHEMATICSFUNCTIONS_H
 
 // Include statements.
+#include <boost/random/mersenne_twister.hpp>
 #include <cfloat>
 #include <climits>
+#include <ctime>
 #include <map>
 #include <vector>
 #include "Astrodynamics/States/state.h"
@@ -93,6 +95,14 @@ namespace tudat
 namespace mathematics
 {
 
+//! Random number generator typedef.
+/*!
+ * Random number generator typedef. This can be modified to any other Boost random number
+ * generator type
+ * (http://www.boost.org/doc/libs/1_47_0/doc/html/boost_random/reference.html.
+ */
+typedef boost::mt19937 globalRandomNumberGeneratorType;
+
 //! Machine precision for floats.
 /*!
  * Machine precision for floats from the standard float library <cfloat>.
@@ -110,6 +120,13 @@ const static double MACHINE_PRECISION_DOUBLES = DBL_EPSILON;
  * Machine precision for long doubles from the standard float library <cfloat>.
  */
 const static double MACHINE_PRECISION_LONG_DOUBLES = LDBL_EPSILON;
+
+//! Get global random number generator.
+/*!
+ * Returns global random number generator. The default seed is set to the current time.
+ * \return Global random number generator.
+ */
+globalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( );
 
 //! Compute linear interpolation.
 /*!
