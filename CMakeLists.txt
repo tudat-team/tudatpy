@@ -2,7 +2,7 @@
  #    This is the main CMake file for the Tudat project.
  #
  #    Path              : /
- #    Version           : 4
+ #    Version           : 5
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 28 October, 2011
+ #    Last modified     : 3 November, 2011
  #
  #    References
  #
@@ -43,6 +43,7 @@
  #                                  examples included as comments. Added suppression of warnings
  #                                  from Boost.
  #      111028    K. Kumar          Corrected Boost variables and changed build-type to Debug.
+ #      111103    K. Kumar          Updated CMake directory name in module path.
  #/
 
 # Specify minimum CMake version required to compile Tudat.
@@ -52,7 +53,7 @@ cmake_minimum_required( VERSION 2.6 )
 project( Tudat )
 
 # Set module path to local CMake scripts.
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/External/Cmake)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/External/CMake)
 
 # Set full-path to Tudat trunk directory.
 # This should be used in case the FILE token does not given the full-path in the getRootPath()

@@ -2,7 +2,7 @@
  *    Source file that defines the simple linear regression method in Tudat.
  *
  *    Path              : /Mathematics/Statistics/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 1 July, 2011
- *    Last modified     : 5 September, 2011
+ *    Last modified     : 3 November, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -43,6 +43,7 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      111103    K. Kumar          Updated size_t to std::size_t.
  */
 
 // Include statements.
@@ -66,7 +67,7 @@ void SimpleLinearRegression::computeFit( )
     sumOfTemporaryVariableSquared_ = 0.0;
 
     // Declare and initialize number of data points.
-    size_t numberOfDataPoints_ = inputDataToFit_.size( );
+    std::size_t numberOfDataPoints_ = inputDataToFit_.size( );
 
     // Compute sum of independent and dependent variable data.
     sumIndependentVariableData_( );
@@ -103,7 +104,7 @@ void SimpleLinearRegression::computeFitErrors( )
 {
     // Declare local variables.
     // Declare and initialize number of data points.
-    size_t numberOfDataPoints_ = inputDataToFit_.size( );
+    std::size_t numberOfDataPoints_ = inputDataToFit_.size( );
 
     // Declare standard deviation obtained from chi-squared distribution.
     double standardDeviationFromChiSquared_ = 0.0;
