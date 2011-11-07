@@ -5,7 +5,7 @@
  *    objects being valid.
  *
  *    Path              : /Input/
- *    Version           : 4
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : J. Leloux
@@ -18,7 +18,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 4 March, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 27 October, 2011
  *
  *    References
  *      Leloux, J. Filtering Techniques for Orbital Debris Conjunction Analysis
@@ -31,16 +31,15 @@
  *      Space Track. TLE Format, http://www.space-track.org/tle_format.html,
  *          2004. Last accessed: 5 August, 2011.
  *      Celestrak (b). FAQs: Two-Line Element Set Format,
- *          http://celestrak.com/columns/v04n03/, 2006. Last accessed:
- *          5 August, 2011.
+ *          http://celestrak.com/columns/v04n03/, 2006. Last accessed: 5 August, 2011.
  *      Celestrak (c). NORAD Two-Line Element Set Format,
  *          http://celestrak.com/NORAD/documentation/tle-fmt.asp, 2004. Last
  *          accessed: 5 August, 2011.
  *
  *    Notes
- *      Raw TLE data can be obtained from (Celestrak (a), 2011). Explanations
- *      of the TLE data format can be viewed in (Space Track, 2004),
- *      (Celestrak (b), 2006), and (Celestrak (c), 2004).
+ *      Raw TLE data can be obtained from (Celestrak (a), 2011). Explanations of the TLE data
+ *      format can be viewed in (Space Track, 2004), (Celestrak (b), 2006), and
+ *      (Celestrak (c), 2004).
  *
  *    Copyright (c) 2010-2011 Delft University of Technology.
  *
@@ -59,6 +58,8 @@
  *      110805    J. Leloux         Unit test made Tudat-ready for codecheck.
  *      110807    K. Kumar          Minor layout and comment corrections.
  *      110810    J. Leloux         Minor comment corrections.
+ *      110826    J. Leloux         Updated test for 2-line and 3-line cases.
+ *      111027    K. Kumar          Removed dynamic memory allocation.
  */
 
 // Include statements.
@@ -90,95 +91,116 @@ int main( )
     // Declare multimap of corrupted TLE data errors.
     multimap< int, string > corruptedTwoLineElementDataErrors_;
 
-    // Initialization of TLE text file reader.
-    TwoLineElementsTextFileReader twoLineElementsTextFileReader;
+    // Initialization of two TLE text file reader, one two-line and one three-line.
+    TwoLineElementsTextFileReader twoLineElementsTextFileReaderForTwoLine;
+    TwoLineElementsTextFileReader twoLineElementsTextFileReaderForThreeLine;
+    twoLineElementsTextFileReaderForTwoLine.setLineNumberTypeForTwoLineElementInputData(
+                TwoLineElementsTextFileReader::twoLineType );
+    twoLineElementsTextFileReaderForThreeLine.setLineNumberTypeForTwoLineElementInputData(
+                TwoLineElementsTextFileReader::threeLineType );
 
-    // Set input directory, file name, then open file and store data strings
-    // with Textfilereader class, and finally close file.
-    twoLineElementsTextFileReader.setRelativePath( "Input/" );
-    twoLineElementsTextFileReader.setFileName( "testTwoLineElementsTextFile.txt" );
-    twoLineElementsTextFileReader.openFile( );
-    twoLineElementsTextFileReader.readAndStoreData( );
-    twoLineElementsTextFileReader.stripEndOfLineCharacters( );
-    twoLineElementsTextFileReader.closeFile( );
+    // Create vector to store TLE text file readers and add the file readers.
+    vector< TwoLineElementsTextFileReader* > twoLineElementsTextFileReaders;
+    twoLineElementsTextFileReaders.push_back( &twoLineElementsTextFileReaderForTwoLine );
+    twoLineElementsTextFileReaders.push_back( &twoLineElementsTextFileReaderForThreeLine );
 
-    // Store TLE data variables from input file using TLE data class container.
-    twoLineElementsTextFileReader.setCurrentYear( 2011 );
-    twoLineElementsTextFileReader.storeTwoLineElementData( );
-
-    // Get TLE data object.
-    vector< TwoLineElementData > twoLineElementData =
-            twoLineElementsTextFileReader.getTwoLineElementData( );
-
-    // Some random checks of TLE data variables of (corrupt) object 9 to see if
-    // the data is stored correctly.
-    if ( twoLineElementData.at( 8 ).objectName.at( 1 ) != "R/B" ||
-         twoLineElementData.at( 8 ).fourDigitEpochYear != 2011 ||
-         twoLineElementData.at( 8 ).exponentOfBStar != -2 ||
-         twoLineElementData.at( 8 ).objectIdentificationNumberLine2 != 30303 ||
-         twoLineElementData.at( 8 ).TLEKeplerianElements.getInclination( ) != 24.6237 )
+    for ( unsigned int i = 0; i < 2; i++ )
     {
-        isTwoLineElementsTextFileReaderErroneous = true;
+        // Set input directory, file name, then open file and store data strings
+        // with Textfilereader class, and finally close file.
+        twoLineElementsTextFileReaders[ i ]->setRelativePath( "Input/" );
 
-        cerr << "TLE input data of (corrupt) object 9 vs stored variables mismatch." << endl;
-        cerr << "TLE text file reader unit test failed!" << endl;
-    }
+        if ( i == 0 )
+        {
+            twoLineElementsTextFileReaders[ i ]->setFileName(
+                        "testTwoLineElementsTextFile2Line.txt" );
+        }
 
-    // Current running time and status written to vector.
-    vector< string > runningTimeAndStatusContainer;
-    runningTimeAndStatusContainer = outputCurrentRunningTime(
-                start_clock, "Storing of TwoLineElement data is done." );
+        else if ( i == 1 )
+        {
+            twoLineElementsTextFileReaders[ i ]->setFileName(
+                        "testTwoLineElementsTextFile3Line.txt" );
+        }
 
-    // Stored TLE data is checked for integrity and number of corrupted TLEs is saved,
-    // while the corrupted TLEs have been erased from the data
-    // and the reason and the corrupt objects involved are written to output.
-    // First object is stored as #0!
-    corruptedTwoLineElementDataErrors_
-            = twoLineElementsTextFileReader.checkTwoLineElementsFileIntegrity( );
+        // Set input directory, file name, then open file and store data strings
+        // with Textfilereader class, and finally close file.
+        twoLineElementsTextFileReaders[ i ]->openFile( );
+        twoLineElementsTextFileReaders[ i ]->readAndStoreData( );
+        twoLineElementsTextFileReaders[ i ]->stripEndOfLineCharacters( );
+        twoLineElementsTextFileReaders[ i ]->closeFile( );
 
-    // Get updated TLE data object.
-    vector< TwoLineElementData > twoLineElementDataAfterIntegrityCheck =
-            twoLineElementsTextFileReader.getTwoLineElementData( );
+        // Store TLE data variables from input file using TLE data class container.
+        twoLineElementsTextFileReaders[ i ]->setCurrentYear( 2011 );
+        twoLineElementsTextFileReaders[ i ]->storeTwoLineElementData( );
 
-    // Current running time and status written to vector.
-    runningTimeAndStatusContainer = outputCurrentRunningTime(
-                start_clock, "Checking of TwoLineElement file integrity is done." );
+        // Get TLE data object.
+        vector< TwoLineElementData > twoLineElementData =
+                twoLineElementsTextFileReaders[ i ]->getTwoLineElementData( );
 
-    // Test input file has been setup to contain 7 corrupted TLEs,
-    // if this is not detected the test fails.
-    unsigned int numberOfObjects = twoLineElementsTextFileReader.getNumberOfObjects( );
-    if ( numberOfObjects != 3 )
-    {
-        isTwoLineElementsTextFileReaderErroneous = true;
-        cerr << "Amount of corrupt TLEs or number of valid TLEs does not match the predefined 7."
-             << endl;
-    }
+        // Some random checks of TLE data variables of (corrupt) object 9 to see if
+        // the data is stored correctly.
+        if ( twoLineElementData.at( 8 ).fourDigitEpochYear != 2011 ||
+             twoLineElementData.at( 8 ).exponentOfBStar != -2 ||
+             twoLineElementData.at( 8 ).tleNumber != 26 ||
+             twoLineElementData.at( 8 ).objectIdentificationNumberLine2 != 30303 ||
+             twoLineElementData.at( 8 ).TLEKeplerianElements.getInclination( ) != 24.6237 )
+        {
+            isTwoLineElementsTextFileReaderErroneous = true;
 
-    // Some random checks of TLE data variables to see if the corrupted TLEs were in fact deleted
-    // and the valid one are still stored correctly.
-    if ( twoLineElementDataAfterIntegrityCheck.at( 0 ).objectNameString
-         != "VANGUARD 1              " ||
-         twoLineElementDataAfterIntegrityCheck.at( 0 ).launchNumber != 2 ||
-         twoLineElementDataAfterIntegrityCheck.at( 1 ).launchPart != "B  " ||
-         twoLineElementDataAfterIntegrityCheck.at( 1 ).TLEKeplerianElements.getEccentricity( )
-         != 0.0024687 ||
-         twoLineElementDataAfterIntegrityCheck.at( 2 ).revolutionNumber != 57038 )
-    {
-        isTwoLineElementsTextFileReaderErroneous = true;
+            cerr << "TLE input data of (corrupt) object 9 vs stored variables mismatch." << endl;
+            cerr << "TLE text file reader unit test failed!" << endl;
+        }
 
-        cerr << "Valid TLE input data vs stored variables mismatch." << endl;
-        cerr << "TLE text file reader (file integrity) unit test failed!" << endl;
-    }
+        // Current running time and status written to vector.
+        vector< string > runningTimeAndStatusContainer;
+        runningTimeAndStatusContainer = outputCurrentRunningTime(
+                    start_clock, "Storing of TwoLineElement data is done." );
 
-    // Current running time and status written to vector.
-    runningTimeAndStatusContainer = outputCurrentRunningTime(
-                start_clock, "Unit test for TwoLineElementsTextFileReader is done.");
+        // Stored TLE data is checked for integrity and number of corrupted TLEs is saved,
+        // while the corrupted TLEs have been erased from the data
+        // and the reason and the corrupt objects involved are written to output.
+        // First object is stored as #0!
+        corruptedTwoLineElementDataErrors_
+                = twoLineElementsTextFileReaders[ i ]->checkTwoLineElementsFileIntegrity( );
 
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    if ( isTwoLineElementsTextFileReaderErroneous )
-    {
-        cerr << "testTwoLineElementsTextFileReader failed!" << std::endl;
+        // Get updated TLE data object.
+        vector< TwoLineElementData > twoLineElementDataAfterIntegrityCheck =
+                twoLineElementsTextFileReaders[ i ]->getTwoLineElementData( );
+
+        // Current running time and status written to vector.
+        runningTimeAndStatusContainer = outputCurrentRunningTime(
+                    start_clock, "Checking of TwoLineElement file integrity is done." );
+
+        // Test input file has been setup to contain 7 corrupted TLEs,
+        // if this is not detected the test fails.
+        unsigned int numberOfObjects = twoLineElementsTextFileReaders[ i ]->getNumberOfObjects( );
+
+        if ( numberOfObjects != 3 )
+        {
+            isTwoLineElementsTextFileReaderErroneous = true;
+            cerr << "Amount of corrupt TLEs or number of valid TLEs does not match the "
+                 << "predefined 7." << endl;
+        }
+
+        // Some random checks of TLE data variables to see if the corrupted TLEs were in fact
+        // deleted and the valid one are still stored correctly.
+        if ( twoLineElementDataAfterIntegrityCheck.at( 0 ).launchNumber != 2 ||
+             twoLineElementDataAfterIntegrityCheck.at( 0 ).firstDerivativeOfMeanMotionDividedByTwo
+             != 0.00000290 ||
+             twoLineElementDataAfterIntegrityCheck.at( 1 ).launchPart != "B  " ||
+             twoLineElementDataAfterIntegrityCheck.at( 1 ).TLEKeplerianElements.getEccentricity( )
+             != 0.0024687 ||
+             twoLineElementDataAfterIntegrityCheck.at( 2 ).revolutionNumber != 57038 )
+        {
+            isTwoLineElementsTextFileReaderErroneous = true;
+
+            cerr << "Valid TLE input data vs stored variables mismatch." << endl;
+            cerr << "TLE text file reader (file integrity) unit test failed!" << endl;
+        }
+
+        // Current running time and status written to vector.
+        runningTimeAndStatusContainer = outputCurrentRunningTime(
+                    start_clock, "Unit test for TwoLineElementsTextFileReader is done.");
     }
 
     return isTwoLineElementsTextFileReaderErroneous;

@@ -5,7 +5,7 @@
  *    Note that 2-line TLE handling still has to be added.
  *
  *    Path              : /Input/
- *    Version           : 5
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : J. Leloux
@@ -18,7 +18,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 21 February, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 27 October, 2011
  *
  *    References
  *      Leloux, J. Filtering Techniques for Orbital Debris Conjunction Analysis
@@ -62,6 +62,8 @@
  *      110805    K. Kumar          Layout and comment corrections; added
  *                                  get-function for vector container of TLE data.
  *      110810    J. Leloux         Tested new setup and changed descriptions.
+ *      110826    J. Leloux         Added functionality for 2-line and 3-line data.
+ *      111027    K. Kumar          Modified 2-line and 3-line options using enum.
  */
 
 // Include statements.
@@ -94,8 +96,8 @@ using tudat::basic_functions::convertStringToTemplate;
 //! Convert and store TLE data.
 void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 {
-    // Calculate number of objects in catalog file
-    numberOfObjects_ = static_cast< int >( lineCounter_ / 3 );
+    // Calculate number of objects in catalog file.
+    numberOfObjects_ = static_cast< int >( lineCounter_ / numberOfLinesPerTwoLineElementDatum_ );
 
     // Set TLE data vector size.
     twoLineElementData_.resize( numberOfObjects_ );
@@ -122,8 +124,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
     SphericalHarmonicsGravityField earthWorldGeodeticSystem72GravityField_;
 
     // Set predefined settings for World Geodetic System (WGS) 72 gravity field.
-    earthWorldGeodeticSystem72GravityField_
-            .setPredefinedSphericalHarmonicsGravityFieldSettings(
+    earthWorldGeodeticSystem72GravityField_.setPredefinedSphericalHarmonicsGravityFieldSettings(
                 SphericalHarmonicsGravityField::earthWorldGeodeticSystem72 );
 
     // Create Earth object and add WGS-72 gravity field.
@@ -133,19 +134,35 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
     // For every 3 lines, read the data from 3 consecutive strings of TLE data
     // and convert them to the TLE data variables
-    for ( unsigned int i = 1; i < lineCounter_; i+=3 )
+    for ( unsigned int i = 1; i < lineCounter_; i += numberOfLinesPerTwoLineElementDatum_ )
     {
-        // General set-up for variable storing.
+        // General setup for variable storing.
         //---------------------------------------------------------------------
 
         // Fill the vector with the line strings from the data container.
-        twoLineElementString_.at( 0 ) = containerOfDataFromFile_.at( i );
-        twoLineElementString_.at( 1 ) = containerOfDataFromFile_.at( i + 1 );
-        twoLineElementString_.at( 2 ) = containerOfDataFromFile_.at( i + 2 );
+        if ( numberOfLinesPerTwoLineElementDatum_ == 3 )
+        {
+            twoLineElementString_.at( 0 ) = containerOfDataFromFile_.at( i );
+            twoLineElementString_.at( 1 ) = containerOfDataFromFile_.at( i + 1 );
+            twoLineElementString_.at( 2 ) = containerOfDataFromFile_.at( i + 2 );
+        }
 
+        else if ( numberOfLinesPerTwoLineElementDatum_ == 2 )
+        {
+            twoLineElementString_.at( 1 ) = containerOfDataFromFile_.at( i );
+            twoLineElementString_.at( 2 ) = containerOfDataFromFile_.at( i + 1 );
+        }
+
+        // Push the TLE strings to the TLE data container.
+        twoLineElementData_[ objectNumberCounter_ ].twoLineElementStrings = twoLineElementString_;
+
+        // Push the line numbers to the TLE data container.
         twoLineElementData_[ objectNumberCounter_ ].lineNumbers.push_back( i );
         twoLineElementData_[ objectNumberCounter_ ].lineNumbers.push_back( i + 1 );
-        twoLineElementData_[ objectNumberCounter_ ].lineNumbers.push_back( i + 2 );
+        if ( numberOfLinesPerTwoLineElementDatum_ == 3 )
+        {
+            twoLineElementData_[ objectNumberCounter_ ].lineNumbers.push_back( i + 2 );
+        }
 
         // Initiate a stringstream for each line.
         stringstream line0StringStream_( stringstream::in | stringstream::out );
@@ -153,26 +170,31 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         stringstream line2StringStream_( stringstream::in | stringstream::out );
 
         // Insert the strings into the stringstreams
-        line0StringStream_ << twoLineElementString_.at( 0 );
+        if ( numberOfLinesPerTwoLineElementDatum_ == 3 )
+        {
+            line0StringStream_ << twoLineElementString_.at( 0 );
+        }
         line1StringStream_ << twoLineElementString_.at( 1 );
         line2StringStream_ << twoLineElementString_.at( 2 );
 
         // Line-0 variable storing.
         //---------------------------------------------------------------------
-
-        // Declare string containing part of name of object.
-        string namePart_;
-
-        // Loop through the stringstream and read words that constitute name of
-        // object. Store name parts in objectName storage container.
-        while ( line0StringStream_ >> namePart_ )
+        if ( numberOfLinesPerTwoLineElementDatum_ == 3 )
         {
-            twoLineElementData_[ objectNumberCounter_ ].objectName.push_back( namePart_ );
-        }
+            // Declare string containing part of name of object.
+            string namePart_;
 
-        // Insert the entire line-0 string in the object name string.
-        twoLineElementData_[ objectNumberCounter_ ].objectNameString
-                = twoLineElementString_.at( 0 );
+            // Loop through the stringstream and read words that constitute name of
+            // object. Store name parts in objectName storage container.
+            while ( line0StringStream_ >> namePart_ )
+            {
+                twoLineElementData_[ objectNumberCounter_ ].objectName.push_back( namePart_ );
+            }
+
+            // Insert the entire line-0 string in the object name string.
+            twoLineElementData_[ objectNumberCounter_ ].objectNameString
+                    = twoLineElementString_.at( 0 );
+        }
 
         // Line-1 variable storing.
         //---------------------------------------------------------------------
@@ -183,19 +205,20 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get line number integer of line-1 from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 0, 1 ),
-            twoLineElementData_[ objectNumberCounter_ ].lineNumberLine1 );
+                                 twoLineElementData_[ objectNumberCounter_ ].lineNumberLine1 );
 
         // Get object indentification number integer of line-1 from string
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 2, 5 ),
-            twoLineElementData_[ objectNumberCounter_ ].objectIdentificationNumber );
+                                 twoLineElementData_[ objectNumberCounter_ ]
+                                 .objectIdentificationNumber );
 
         // Get classification character from string.
         twoLineElementData_[ objectNumberCounter_ ].tleClassification =
-            twoLineElementString_.at( 1 ) [ 7 ];
+                twoLineElementString_.at( 1 ) [ 7 ];
 
         // Get launch year integer from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 9, 2 ),
-            twoLineElementData_[ objectNumberCounter_ ].launchYear );
+                                 twoLineElementData_[ objectNumberCounter_ ].launchYear );
 
         // Calculate four-digit launch year from the above.
         if ( twoLineElementData_[ objectNumberCounter_ ].launchYear > 56 )
@@ -220,7 +243,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get epoch year integer from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 18, 2 ),
-            twoLineElementData_[ objectNumberCounter_ ].epochYear );
+                                 twoLineElementData_[ objectNumberCounter_ ].epochYear );
 
         // Calculate four-digit epoch year from the above.
         if ( twoLineElementData_[ objectNumberCounter_ ].epochYear > 56 )
@@ -237,17 +260,18 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get epoch day double from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 20, 12 ),
-            twoLineElementData_[ objectNumberCounter_ ].epochDay );
+                                 twoLineElementData_[ objectNumberCounter_ ].epochDay );
 
         // Get "first-derivative of mean motion divided by two" double from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 33, 10 ),
-            twoLineElementData_[ objectNumberCounter_].firstDerivativeOfMeanMotionDividedByTwo );
+                                 twoLineElementData_[ objectNumberCounter_]
+                                 .firstDerivativeOfMeanMotionDividedByTwo );
 
-        // gGt coefficient of scientific notation of "second-derivative of mean motion divided
+        // Get coefficient of scientific notation of "second-derivative of mean motion divided
         // by six" double from string,
         // Apply implied leading decimal point.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 44, 6 ),
-            twoLineElementData_[ objectNumberCounter_ ]
+                                 twoLineElementData_[ objectNumberCounter_ ]
                                  .coefficientOfSecondDerivativeOfMeanMotionDividedBySix );
         twoLineElementData_[ objectNumberCounter_ ]
                 .coefficientOfSecondDerivativeOfMeanMotionDividedBySix /= 100000;
@@ -255,7 +279,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Get exponent of scientific notation of "second-derivative of mean motion divided
         // by six" integer from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 50, 2 ),
-            twoLineElementData_[ objectNumberCounter_]
+                                 twoLineElementData_[ objectNumberCounter_]
                                  .exponentOfSecondDerivativeOfMeanMotionDividedBySix );
 
         // Calculate "second-derivative of mean motion divided by six" double from the above two.
@@ -268,29 +292,30 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Get coefficient of scientific notation of "B* divided by six" double
         // from string; apply implied leading decimal point.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 53, 6 ),
-            twoLineElementData_[ objectNumberCounter_ ].coefficientOfBStar );
+                                 twoLineElementData_[ objectNumberCounter_ ].coefficientOfBStar );
         twoLineElementData_[ objectNumberCounter_ ].coefficientOfBStar /= 100000;
 
         // Get exponent of scientific notation of B* integer from string
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 59, 2 ),
-            twoLineElementData_[ objectNumberCounter_ ].exponentOfBStar );
+                                 twoLineElementData_[ objectNumberCounter_ ].exponentOfBStar );
 
         // Calculate B* double from the above two.
         twoLineElementData_[ objectNumberCounter_ ].bStar =
-            twoLineElementData_[ objectNumberCounter_ ].coefficientOfBStar
+                twoLineElementData_[ objectNumberCounter_ ].coefficientOfBStar
                 * pow( 10.0, twoLineElementData_[ objectNumberCounter_ ].exponentOfBStar );
 
         // Get orbital model integer from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 62, 1 ),
-            twoLineElementData_[ objectNumberCounter_ ].orbitalModel );
+                                 twoLineElementData_[ objectNumberCounter_ ].orbitalModel );
 
         // Get TLE number integer from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 64, 4 ),
-            twoLineElementData_[ objectNumberCounter_ ].tleNumber );
+                                 twoLineElementData_[ objectNumberCounter_ ].tleNumber );
 
         // Get modulo-10 checksum integer from string.
         convertStringToTemplate( twoLineElementString_.at( 1 ).substr( 68, 1 ),
-            twoLineElementData_[ objectNumberCounter_ ].modulo10CheckSumLine1 );
+                                 twoLineElementData_[ objectNumberCounter_ ]
+                                 .modulo10CheckSumLine1 );
 
         // Line-2 variable storing.
         //---------------------------------------------------------------------
@@ -332,21 +357,24 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get mean motion double from line-2 string.
         convertStringToTemplate( twoLineElementString_[ 2 ].substr( 52, 11 ),
-            twoLineElementData_[ objectNumberCounter_ ].meanMotionInRevolutionsPerDay );
+                                 twoLineElementData_[ objectNumberCounter_ ]
+                                 .meanMotionInRevolutionsPerDay );
 
         // Get revolution number integer from line-2 string.
         convertStringToTemplate( twoLineElementString_[ 2 ].substr( 63, 5 ),
-            twoLineElementData_[ objectNumberCounter_ ].revolutionNumber );
+                                 twoLineElementData_[ objectNumberCounter_ ].revolutionNumber );
 
         // Get modulo-10 checksum integer of line-2 from line-2 string.
         convertStringToTemplate( twoLineElementString_[ 2 ].substr( 68, 1 ),
-            twoLineElementData_[ objectNumberCounter_ ].modulo10CheckSumLine2 );
+                                 twoLineElementData_[ objectNumberCounter_ ]
+                                 .modulo10CheckSumLine2 );
 
         // Calculate the approximate total number of revolutions, as the counter resets to 0 after
         // passing by 99999, insert the current year in the following equation.
         approximateNumberOfRevolutions_ = twoLineElementData_[ objectNumberCounter_ ]
                 .meanMotionInRevolutionsPerDay
-                * ( currentYear_ - twoLineElementData_[ objectNumberCounter_ ].fourDigitlaunchYear )
+                * ( currentYear_
+                    - twoLineElementData_[ objectNumberCounter_ ].fourDigitlaunchYear )
                 * PhysicalConstants::JULIAN_YEAR_IN_DAYS;
         approximateNumberOfRevolutionsRemainder_ = approximateNumberOfRevolutions_ % 100000;
         lostNumberOfRevolutions_ = approximateNumberOfRevolutions_
@@ -379,7 +407,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Semi-major axis of the object is calculated from the other TLE variables.
         meanMotion_ = twoLineElementData_[ objectNumberCounter_ ].meanMotionInRevolutionsPerDay
-                 * 2.0 * M_PI / PhysicalConstants::JULIAN_DAY;
+                * 2.0 * M_PI / PhysicalConstants::JULIAN_DAY;
         twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements.setSemiMajorAxis(
                     orbital_element_conversions::convertMeanMotionToSemiMajorAxis(
                         meanMotion_, &earthWithWorldGeodeticSystem72GravityField_ ) );
@@ -423,9 +451,17 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
     for ( unsigned int i = 0; i < numberOfObjects_; i++ )
     {
         // Fill the vector with the line strings from the data container.
-        twoLineElementString_.at( 0 ) = containerOfDataFromFile_[ i + ( i * 2 ) + 1 ];
-        twoLineElementString_.at( 1 ) = containerOfDataFromFile_[ i + ( i * 2 ) + 2 ];
-        twoLineElementString_.at( 2 ) = containerOfDataFromFile_[ i + ( i * 2 ) + 3 ];
+        if ( numberOfLinesPerTwoLineElementDatum_ == 3 )
+        {
+            twoLineElementString_.at( 1 ) = containerOfDataFromFile_[ i + 1 + ( i * 2 ) + 1 ];
+            twoLineElementString_.at( 2 ) = containerOfDataFromFile_[ i + 1 + ( i * 2 ) + 2 ];
+        }
+
+        else if ( numberOfLinesPerTwoLineElementDatum_ == 2 )
+        {
+            twoLineElementString_.at( 1 ) = containerOfDataFromFile_[ 2 * i + 1 ];
+            twoLineElementString_.at( 2 ) = containerOfDataFromFile_[ 2 * i + 1 + 1 ];
+        }
 
         // Set boolean to false.
         isObjectErroneous = false;
@@ -483,10 +519,7 @@ multimap< int, string > TwoLineElementsTextFileReader::checkTwoLineElementsFileI
                  twoLineElementString_.at( 1 )[ j ] != '.' &&
                  twoLineElementString_.at( 1 )[ j ] != '+' &&
                  twoLineElementString_.at( 1 )[ j ] != '-' &&
-                 j != 7 &&
-                 j != 14 &&
-                 j != 15 &&
-                 j != 16 )
+                 j != 7 && j != 14 && j != 15 && j != 16 )
             {
                 // Convert char to int.
                 convertStringToTemplate( twoLineElementString_.at( 1 ).substr( j , 1 ),

@@ -3,7 +3,7 @@
  *    read by the TwoLineElementsTextFileReader.
  *
  *    Path              : /Input/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : J. Leloux
@@ -16,7 +16,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 4 March, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 26 August, 2011
  *
  *    References
  *      Literature research including information on TLE's:
@@ -48,12 +48,13 @@
  *      YYMMDD    Author            Comment
  *      110304    J. Leloux         First setup of TLE data class.
  *      110415    K. Kumar          Minor corrections.
- *      110722    J. Leloux         Added variables and changed variables into
- *                                  the KeplerianElements class.
+ *      110722    J. Leloux         Added variables and changed variables into the
+ *                                  KeplerianElements class.
  *      110802    K. Kumar          Minor changes.
- *      110802    J. Leloux         Minor correction and checked for compliance
- *                                  with TLEreader in rev 138.
+ *      110802    J. Leloux         Minor correction and checked for compliance with TLEreader in
+ *                                  rev 138.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      110826    J. Leloux         Added TLE string vector container.
  */
 
 #ifndef TWOLINEELEMENTDATA_H
@@ -62,6 +63,8 @@
 // Include statements.
 #include <cstdlib>
 #include <iostream>
+#include <string>
+#include <vector>
 #include "Astrodynamics/States/keplerianElements.h"
 
 //! Tudat library namespace.
@@ -86,6 +89,12 @@ public:
      * Default constructor.
      */
     TwoLineElementData( );
+
+    //! TLE strings vector.
+    /*!
+     * Vector containing all strings of the TLE.
+     */
+    std::vector< std::string > twoLineElementStrings;
 
     // Line 0 strings.
 

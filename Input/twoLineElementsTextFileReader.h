@@ -5,7 +5,7 @@
  *    Note that 2-line TLE handling still has to be added.
  *
  *    Path              : /Input/
- *    Version           : 5
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : J. Leloux
@@ -18,7 +18,7 @@
  *    E-mail address    : K.Kumar@tudelft.nl
  *
  *    Date created      : 21 February, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 27 October, 2011
  *
  *    References
  *      Leloux, J. Filtering Techniques for Orbital Debris Conjunction Analysis
@@ -62,6 +62,8 @@
  *      110805    K. Kumar          Layout and comment corrections; added
  *                                  get-function for std::vector container of TLE data.
  *      110810    J. Leloux         Tested new setup and changed descriptions.
+ *      110826    J. Leloux         Added functionality for 2-line and 3-line data.
+ *      111027    K. Kumar          Modified 2-line and 3-line options using enum.
  */
 
 #ifndef TWOLINEELEMENTSTEXTFILEREADER_H
@@ -86,12 +88,18 @@ class TwoLineElementsTextFileReader : public TextFileReader
 {
 public:
 
+    //! Line-number types for TLE input data.
+    /*!
+     * Line-number types for TLE input data.
+     */
+    enum LineNumberTypesForTwoLineElementInputData { twoLineType, threeLineType };
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
     TwoLineElementsTextFileReader( ) : currentYear_( -0 ), numberOfObjects_( -0 ),
-        twoLineElementData_( ) { }
+        numberOfLinesPerTwoLineElementDatum_( 3 ), twoLineElementData_( ) { }
 
     //! Set current year.
     /*!
@@ -134,6 +142,17 @@ public:
      */
     std::multimap< int, std::string > checkTwoLineElementsFileIntegrity( );
 
+    //! Set line number type for TLE input data.
+    /*!
+      * Sets the line number type for TLE input data. This can be either 2-line or 3-line.
+      */
+    void setLineNumberTypeForTwoLineElementInputData(
+        LineNumberTypesForTwoLineElementInputData lineNumberType )
+    {
+        if ( lineNumberType == twoLineType ) { numberOfLinesPerTwoLineElementDatum_ = 2; }
+        else if ( lineNumberType == threeLineType ) { numberOfLinesPerTwoLineElementDatum_ = 3; }
+    }
+
 protected:
 
 private:
@@ -149,6 +168,12 @@ private:
      * Number of objects in input file, linecounter divided by 3.
      */
     unsigned int numberOfObjects_;
+
+    //! Number of lines per TLE datum.
+    /*!
+     * Number of lines per TLE datum. (Can be 2 or 3).
+     */
+    unsigned int numberOfLinesPerTwoLineElementDatum_;
 
     //! Vector of TwoLineElementData objects.
     /*!
