@@ -73,6 +73,7 @@
  */
 
 // Include statements.
+#include <boost/math/special_functions/atanh.hpp>
 #include <cmath>
 #include "Astrodynamics/States/orbitalElementConversions.h"
 
@@ -408,7 +409,7 @@ double convertTrueAnomalyToHyperbolicEccentricAnomaly( const double& trueAnomaly
             / ( 1.0 + cos( trueAnomaly ) );
 
     // Return hyperbolic eccentric anomaly.
-    return atanh( hyperbolicSineOfHyperbolicEccentricAnomaly_
+    return boost::math::atanh( hyperbolicSineOfHyperbolicEccentricAnomaly_
                   / hyperbolicCosineOfHyperbolicEccentricAnomaly_ );
 }
 
