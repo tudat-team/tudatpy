@@ -45,17 +45,14 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110722    E.A.G. Heeren     File created.
- *      110803    K. Kumar          Updated unit test to use Matlab rkf78
- *                                  integrator output.
+ *      110803    K. Kumar          Updated unit test to use Matlab rkf78 integrator output.
  *      110811    E.A.G. Heeren     Added setTruncationErrorTolerance.
- *      110826    K. Kumar          Minor layout and comment modifications;
- *                                  changed setTruncationErrorTolerance to
- *                                  setRelativeErrorTolerance; updated
- *                                  benchmark data; moved includes from header
- *                                  file; added using-statement for fabs.
- *      110909    E.A.G. Heeren     Minor changes to ensure compatibility with
- *                                  updated rungeKuttaFehlberg78VariableStepsize
- *                                  code.
+ *      110826    K. Kumar          Minor layout and comment modifications; changed
+ *                                  setTruncationErrorTolerance to setRelativeErrorTolerance;
+ *                                  updated benchmark data; moved includes from header file; added
+ *                                  using-statement for fabs.
+ *      110909    E.A.G. Heeren     Minor changes to ensure compatibility with updated
+ *                                  rungeKuttaFehlberg78VariableStepsize code.
  *      110912    K. Kumar          Minor changes.
  */
 
@@ -68,7 +65,7 @@
 
 //! Runge-Kutta-Fehlberg 7(8)th-order, variable stepsize integrator test class.
 /*!
- *  Runge-Kutta-Fehlberg 7(8)th-order, variable stepsize integrator test class.
+ * Runge-Kutta-Fehlberg 7(8)th-order, variable stepsize integrator test class.
  */
 class RungeKuttaFehlberg78VariableStepsizeIntegratorTest : public tudat::StateDerivativeBase
 {

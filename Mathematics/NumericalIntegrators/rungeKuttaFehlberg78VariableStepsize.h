@@ -117,12 +117,13 @@ public:
     /*!
      * Overloads ostream to print class information.
      * \param stream Stream object.
-     * \param RKF78 Runge-Kutta 7(8)th-order variable-stepsize integrator.
+     * \param rungeKuttaFehlberg78VariableStepsize Runge-Kutta 7(8)th-order
+     *        variable-stepsize integrator.
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      RungeKuttaFehlberg78VariableStepsize&
-                                     RungeKuttaFehlberg78VariableStepsize );
+                                     rungeKuttaFehlberg78VariableStepsize );
 
 protected:
 
