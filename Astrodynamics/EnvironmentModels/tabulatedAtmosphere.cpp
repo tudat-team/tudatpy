@@ -53,7 +53,7 @@ void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
     atmosphereTableFile_ = atmosphereTableFile;
 
     // Set the file reader.
-    textFileReader.setRelativePath( relativePath_ );
+    textFileReader.setRelativeDirectoryPath( relativeDirectoryPath_ );
     textFileReader.setFileName( atmosphereTableFile_ );
     textFileReader.openFile( );
 

@@ -3,7 +3,7 @@
  *    basic functions contained in Tudat.
  *
  *    Path              : /Basics/
- *    Version           : 10
+ *    Version           : 11
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -22,8 +22,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Checker           : S. Billemont
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : simon@angelcorp.be
+ *
  *    Date created      : 1 September, 2010
- *    Last modified     : 13 September, 2011
+ *    Last modified     : 17 November, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -58,6 +62,7 @@
  *      110810    J. Leloux         Minor comment modifications.
  *      110913    K. Kumar          Implemented automatic root-path functions based on
  *                                  suggestions by M. Persson.
+ *      111117    K. Kumar          Added listAllFilesInDirectory() function.
  */
 
 // Include statements.
@@ -274,6 +279,39 @@ vector< string > outputCurrentRunningTime( clock_t start_clock, const string& st
 
     // Return string container.
     return runningTimeAndStatusContainer_;
+}
+
+//! Lists all files in directory.
+std::vector< boost::filesystem3::path > listAllFilesInDirectory(
+    const boost::filesystem3::path& directory, bool isRecurseIntoSubdirectories )
+{
+    // Declare local variables.
+    std::vector < boost::filesystem3::path > listOfFileNamesWithPath_;
+
+    if ( boost::filesystem3::exists( directory ) )
+    {
+        boost::filesystem3::directory_iterator iteratorPastEndOfDirectory_;
+
+        for ( boost::filesystem3::directory_iterator directoryIterator_( directory );
+              directoryIterator_ != iteratorPastEndOfDirectory_ ; ++directoryIterator_ )
+        {
+            if ( boost::filesystem3::is_directory( *directoryIterator_ ) )
+            {
+                if ( isRecurseIntoSubdirectories )
+                {
+                    listAllFilesInDirectory( *directoryIterator_ );
+                }
+            }
+
+            else
+            {
+                listOfFileNamesWithPath_.push_back( directoryIterator_->path( ).filename( ) );
+            }
+        }
+    }
+
+    // Return container of filenames.
+    return listOfFileNamesWithPath_;
 }
 
 }

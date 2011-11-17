@@ -76,6 +76,6 @@ setup_headers("${GEOMETRICSHAPES_HEADERS}" "${MATHEMATICSDIR}/GeometricShapes")
 # Add unit tests.
 add_executable(test_LawgsSurfaceGeometry "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/unitTestLawgsSurfaceGeometry.cpp")
 setup_custom_test_program(test_LawgsSurfaceGeometry "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes")
-target_link_libraries(test_LawgsSurfaceGeometry tudat_input tudat_output tudat_mathematics tudat_astrodynamics tudat_basics)
+target_link_libraries(test_LawgsSurfaceGeometry tudat_input tudat_output tudat_mathematics tudat_astrodynamics tudat_basics ${Boost_LIBRARIES})
 
 # End of file.

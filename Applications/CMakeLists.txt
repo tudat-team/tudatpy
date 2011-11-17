@@ -58,6 +58,6 @@
 
 add_executable(application_ExampleEarthOrbitingSatellite "${SRCROOT}${APPLICATIONSDIR}/exampleEarthOrbitingSatellite.cpp")
 setup_tudat_executable_target(application_ExampleEarthOrbitingSatellite "${SRCROOT}${APPLICATIONSDIR}")
-target_link_libraries(application_ExampleEarthOrbitingSatellite tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics)
+target_link_libraries(application_ExampleEarthOrbitingSatellite tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
 
 # End of file.

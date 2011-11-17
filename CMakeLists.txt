@@ -2,7 +2,7 @@
  #    This is the main CMake file for the Tudat project.
  #
  #    Path              : /
- #    Version           : 5
+ #    Version           : 6
  #    Check status      : Checked
  #
  #    Author            : S.M. Persson
@@ -18,7 +18,7 @@
  #    E-mail address    : mikael.s.persson@gmail.com
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 3 November, 2011
+ #    Last modified     : 17 November, 2011
  #
  #    References
  #
@@ -44,6 +44,7 @@
  #                                  from Boost.
  #      111028    K. Kumar          Corrected Boost variables and changed build-type to Debug.
  #      111103    K. Kumar          Updated CMake directory name in module path.
+ #      111117    K. Kumar          Added system and filesystem Boost components.
  #/
 
 # Specify minimum CMake version required to compile Tudat.
@@ -75,7 +76,7 @@ enable_testing()
 
 if (WIN32)
   if (MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Ox /W3 /FC -g -D_SCL_SECURE_NO_WARNINGS")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -g -D_SCL_SECURE_NO_WARNINGS")
     set(LIBROOT "${CODEROOT}/lib_msvc")
     set(INCLUDEROOT "${CODEROOT}/include")
     set(BINROOT "${CODEROOT}/bin_msvc")
@@ -150,7 +151,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 
 # Find Boost libraries on local system.
-find_package(Boost 1.45.0 COMPONENTS thread date_time REQUIRED)
+find_package(Boost 1.45.0 COMPONENTS thread date_time system filesystem REQUIRED)
 # If Boost is not found, use the following to manually set the path to the Boost include and
 # library directories.
 #SET(Boost_INCLUDE_DIRS "C:\My\Custom\Path\To\Boost\Include\Directory")

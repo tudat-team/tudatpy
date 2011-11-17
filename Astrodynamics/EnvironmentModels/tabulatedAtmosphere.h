@@ -76,36 +76,36 @@ public:
 
     //! Default constructor.
     /*!
-     * Default constructor
+     * Default constructor.
      */
     TabulatedAtmosphere( ) :
-        relativePath_( "Astrodynamics/EnvironmentModels/AtmosphereTables/" ),
+        relativeDirectoryPath_( "Astrodynamics/EnvironmentModels/AtmosphereTables/" ),
         atmosphereTableFile_( " " ), containerOfAtmosphereTableFileData( ) { }
 
     //! Initialize atmosphere table reader.
     /*!
-     * Initialize the atmosphere table reader.
+     * Initializes the atmosphere table reader.
      * \param atmosphereTableFile The name of the atmosphere table.
      */
     void initialize( std::string atmosphereTableFile );
 
     //! Get atmosphere table file name.
     /*!
-     *  Get atmosphere table file name.
+     * Returns atmosphere table file name.
      * \return The atmosphere table file.
      */
     std::string getAtmosphereTableFile( ) { return atmosphereTableFile_; }
 
-    //! Get relative path.
+    //! Get relative directory path.
     /*!
-     * Get relative path.
-     * \return The relative path.
+     * Returns relative directory path.
+     * \return Relative directory path.
      */
-    std::string getRelativePath( ) { return relativePath_; }
+    std::string getRelativeDirectoryPath( ) { return relativeDirectoryPath_; }
 
     //! Get local density.
     /*!
-     * Return the local density parameter of the atmosphere in kg per meter^3.
+     * Returns the local density parameter of the atmosphere in kg per meter^3.
      * \param altitude Altitude.
      * \param longitude Longitude.
      * \param latitude Latitude.
@@ -123,7 +123,7 @@ public:
 
     //! Get local pressure.
     /*!
-     * Return the local pressure of the atmosphere in Newton per meter^2.
+     * Returns the local pressure of the atmosphere in Newton per meter^2.
      * \param altitude Altitude.
      * \param longitude Longitude.
      * \param latitude Latitude.
@@ -141,7 +141,7 @@ public:
 
     //! Get local temperature.
     /*!
-     * Return the local temperature of the atmosphere in Kelvin.
+     * Returns the local temperature of the atmosphere in Kelvin.
      * \param altitude Altitude.
      * \param longitude Longitude.
      * \param latitude Latitude.
@@ -167,11 +167,11 @@ private:
      */
     typedef FileReader::LineBasedStringDataMap DatafileLinesMap;
 
-    //! The relative path
+    //! The relative directory path.
     /*!
-     *  The relative path
+     *  The relative path directory path.
      */
-    std::string relativePath_;
+    std::string relativeDirectoryPath_;
 
     //! The file name of the atmosphere table.
     /*!
