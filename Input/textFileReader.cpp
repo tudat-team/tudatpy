@@ -2,7 +2,7 @@
  *    This source file contains the definition of a text file reader class.
  *
  *    Path              : /Input/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -13,8 +13,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.Leloux@student.tudelft.nl
  *
+ *    Checker           : S. Billemont
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : simon@angelcorp.be
+ *
  *    Date created      : 24 February, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 17 November, 2011
  *
  *    References
  *      ASCII Table, http://www.asciitable.com/, last accessed: 21st May, 2011.
@@ -41,6 +45,7 @@
  *      110607    F.M. Engelen      Added skipKeyWord Feature.
  *      110627    K. Kumar          Moved skipLinesWithKeyword() to FileReader.
  *      110810    J. Leloux         Changed if-statement of readAndStoreData function.
+ *      111117    K. Kumar          Modified stripEndOfLineCharacters() function.
  */
 
 // Include statements.
@@ -65,17 +70,28 @@ void TextFileReader::readAndStoreData( )
         // Get next line of data from data file and store in a string.
         getline( dataFile_, stringOfData_ );
 
-        // Check if string doesn't start with set starting character, if string
-        // is not empty, and if the skip keyword is not in the string.
-        if ( ( ( !startingCharacter_.empty( ) && stringOfData_.substr( 0, 1 )
-                 .compare( startingCharacter_ ) != 0 )
-               || ( !skipKeyword_.empty( ) && stringOfData_.find( skipKeyword_ )
-                    == string::npos )
-               || ( startingCharacter_.empty( ) && skipKeyword_.empty( ) ) )
-             && !stringOfData_.empty( ) )
+        // Check if line of data is header line.
+        if ( lineCounter_ <= numberOfHeaderLines_ )
         {
-            // Store string in container.
-            containerOfDataFromFile_[ lineCounter_ ] = stringOfData_;
+            // Store header line data.
+            containerOfHeaderDataFromFile_[ lineCounter_ ] = stringOfData_;
+        }
+
+        // Else process non-header data line.
+        else
+        {
+            // Check if string doesn't start with set starting character, if string
+            // is not empty, and if the skip keyword is not in the string.
+            if ( ( ( !startingCharacter_.empty( ) && stringOfData_.substr( 0, 1 )
+                     .compare( startingCharacter_ ) != 0 )
+                   || ( !skipKeyword_.empty( ) && stringOfData_.find( skipKeyword_ )
+                        == string::npos )
+                   || ( startingCharacter_.empty( ) && skipKeyword_.empty( ) ) )
+                 && !stringOfData_.empty( ) )
+            {
+                // Store string in container.
+                containerOfDataFromFile_[ lineCounter_ ] = stringOfData_;
+            }
         }
 
         // Increment line counter.
@@ -105,7 +121,7 @@ void TextFileReader::readAndStoreData( unsigned int numberOfLines )
 }
 
 //! Strip End-Of-Line characters.
-void TextFileReader::stripEndOfLineCharacters( )
+void TextFileReader::stripEndOfLineCharacters( LineBasedStringDataMap& containerOfLinesOfData )
 {
     // Declare local variables.
     // Declare string iterator.
@@ -113,15 +129,13 @@ void TextFileReader::stripEndOfLineCharacters( )
 
     // Loop through all the strings stored in the container.
     for ( LineBasedStringDataMap::iterator iteratorContainerOfDataFromFile_
-          = containerOfDataFromFile_.begin( );
-          iteratorContainerOfDataFromFile_ != containerOfDataFromFile_.end( );
+          = containerOfLinesOfData.begin( );
+          iteratorContainerOfDataFromFile_ != containerOfLinesOfData.end( );
           iteratorContainerOfDataFromFile_++ )
     {
         // Loop through all the characters in the string.
-        for ( iteratorString_ = iteratorContainerOfDataFromFile_
-                                ->second.begin( );
-              iteratorString_ != iteratorContainerOfDataFromFile_
-                                 ->second.end( );
+        for ( iteratorString_ = iteratorContainerOfDataFromFile_->second.begin( );
+              iteratorString_ != iteratorContainerOfDataFromFile_->second.end( );
               iteratorString_++ )
         {
             // Check if end-of-line characters are present in string.
@@ -131,11 +145,9 @@ void TextFileReader::stripEndOfLineCharacters( )
                  || static_cast< int >( *iteratorString_ ) == 13 )
             {
                 // Strip end-of-line character from string.
-                iteratorContainerOfDataFromFile_
-                        ->second.erase( iteratorString_ );
+                iteratorContainerOfDataFromFile_->second.erase( iteratorString_ );
 
-                // Decrement string iterator since character was erased from
-                // string.
+                // Decrement string iterator since character was erased from string.
                 iteratorString_--;
             }
         }
@@ -143,13 +155,12 @@ void TextFileReader::stripEndOfLineCharacters( )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          TextFileReader& pointerToTextFileReader )
+std::ostream& operator<<( std::ostream& stream, TextFileReader& pointerToTextFileReader )
 {
     stream << "This is a TextFileReader object." << endl;
     stream << "The input data file name is: " << pointerToTextFileReader.fileName_ << endl;
     stream << "The absolute path to the input data file is: "
-           << pointerToTextFileReader.absolutePath_ << endl;
+           << pointerToTextFileReader.absoluteFilePath_ << endl;
 
     if ( pointerToTextFileReader.startingCharacter_.empty( ) )
     {

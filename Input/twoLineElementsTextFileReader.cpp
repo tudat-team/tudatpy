@@ -96,6 +96,9 @@ using tudat::basic_functions::convertStringToTemplate;
 //! Convert and store TLE data.
 void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 {
+    // Strip End-Of-Line characters from data container.
+    stripEndOfLineCharacters( containerOfDataFromFile_ );
+
     // Calculate number of objects in catalog file.
     numberOfObjects_ = static_cast< int >( lineCounter_ / numberOfLinesPerTwoLineElementDatum_ );
 

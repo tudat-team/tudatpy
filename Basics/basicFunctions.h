@@ -3,10 +3,10 @@
  *    basic functions contained in Tudat.
  *
  *    Path              : /Basics/
- *    Version           : 9
+ *    Version           : 10
  *    Check status      : Checked
  *
- *    Author            : K. Kumar
+ *    Author/Checker    : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
@@ -18,12 +18,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : d.dirkx@tudelft.nl
  *
- *    Checker           : K. Kumar
+ *    Checker           : S. Billemont
  *    Affiliation       : Delft University of Technology
- *    E-mail address    : K.Kumar@tudelft.nl
+ *    E-mail address    : simon@angelcorp.be
  *
  *    Date created      : 10 August, 2010
- *    Last modified     : 13 September, 2011
+ *    Last modified     : 17 November, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -57,12 +57,15 @@
  *      110810    J. Leloux         Minor comment modifications.
  *      110913    K. Kumar          Implemented automatic root-path functions based on
  *                                  suggestions by M. Persson.
+ *      111117    K. Kumar          Added listAllFilesInDirectory() function.
  */
 
 #ifndef BASICOPERATIONS_H
 #define BASICOPERATIONS_H
 
 // Include statements.
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <ctime>
 #include <iostream>
 #include <map>
@@ -165,6 +168,18 @@ bool convertStringToTemplate( const string& inputString, T& outputTemplate )
  *          running time statement.
  */
 vector< string > outputCurrentRunningTime( clock_t start_clock, const string& status );
+
+//! List all files in directory.
+/*!
+ * Lists all files in a given directory. There is a recursion option to allow
+ * all files in subdirectories to be listed as well.
+ * \param directory Absolute directory path.
+ * \param isRecurseIntoSubdirectories Flag to set if algorithm should recurse through
+ *          subdirectories. Set to false by default.
+ * \return Container of filenames in directory, stored as Boost path variables.
+ */
+std::vector< boost::filesystem3::path > listAllFilesInDirectory(
+    const boost::filesystem3::path& directory, bool isRecurseIntoSubdirectories = false );
 
 }
 

@@ -3,7 +3,7 @@
  *    readers included in Tudat.
  *
  *    Path              : /Input/
- *    Version           : 4
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -14,8 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.Leloux@student.tudelft.nl
  *
+ *    Checker           : S. Billemont
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : simon@angelcorp.be
+ *
  *    Date created      : 24 February, 2011
- *    Last modified     : 27 June, 2011
+ *    Last modified     : 17 November, 2011
  *
  *    References
  *
@@ -46,6 +50,7 @@
  *      110224    K. Kumar          Changed vector container to map container.
  *      110224    J. Leloux         Checked code and fixed typo.
  *      110627    K. Kumar          Moved skipLinesWithKeyword() from TextFileReader.
+ *      111117    K. Kumar          Added header-line functionality.
  */
 
 #ifndef FILEREADER_H
@@ -82,8 +87,9 @@ public:
     /*!
      * Default constructor.
      */
-    FileReader( ) : lineCounter_( 1 ), dataFile_( ), fileName_( " " ), stringOfData_( " " ),
-        absolutePath_( " " ), relativePath_( " " ), startingCharacter_( " " ), skipKeyword_( " " ),
+    FileReader( ) : lineCounter_( 1 ), numberOfHeaderLines_( 0 ), dataFile_( ), fileName_( "" ),
+        stringOfData_( "" ), absoluteFilePath_( "" ), absoluteDirectoryPath_( "" ),
+        relativeDirectoryPath_( "" ), startingCharacter_( "" ), skipKeyword_( "" ),
         containerOfDataFromFile_( ) { }
 
     //! Default destructor.
@@ -92,13 +98,23 @@ public:
      */
     virtual ~FileReader( ) { }
 
-    //! Set relative path.
+    //! Set absolute directory path.
+    /*!
+     * Sets absolute path to directory containing data file. If this is set, the
+     * relative path will be cleared.
+     * \param absoluteDirectoryPath Absolute path to directory containing data file.
+     */
+    void setAbsoluteDirectoryPath( std::string absoluteDirectoryPath )
+    { relativeDirectoryPath_ = ""; absoluteDirectoryPath_ = absoluteDirectoryPath; }
+
+    //! Set relative directory path.
     /*!
      * Sets relative path to directory containing data file, with respect to
-     * root directory of Tudat library.
-     * \param relativePath Relative path.
+     * root directory of Tudat library. If this is set, the absolute path will be cleared.
+     * \param relativeDirectoryPath Relative directory path.
      */
-    void setRelativePath( std::string relativePath ) { relativePath_ = relativePath; }
+    void setRelativeDirectoryPath( std::string relativeDirectoryPath )
+    { absoluteDirectoryPath_ = ""; relativeDirectoryPath_ = relativeDirectoryPath; }
 
     //! Set file name.
     /*!
@@ -138,6 +154,17 @@ public:
      */
     void skipLinesWithKeyword( const std::string& skipKeyword ) { skipKeyword_ = skipKeyword; }
 
+    //! Set number of lines for file header.
+    /*!
+     * Sets number of lines for file header. This function defines the number of
+     * lines of the file header, starting from the beginning of the file.
+     * This function cannot be used in combination with the skipLines( ),
+     * skipLinesStartingWithCharacter( ), and skipLinesWithKeyword( ) functions.
+     * \param numberOfHeaderLines Number of lines for file header.
+     */
+    void setNumberOfHeaderLines( unsigned int numberOfHeaderLines )
+    { numberOfHeaderLines_ = numberOfHeaderLines; }
+
     //! Read and store data.
     /*!
      * Reads and stores data from data file. When used in combination with the
@@ -167,8 +194,14 @@ public:
      * Returns map container of string data from data file.
      * \return Pointer to map container of data from file.
      */
-    LineBasedStringDataMap& getContainerOfData( )
-    { return containerOfDataFromFile_; }
+    LineBasedStringDataMap& getContainerOfData( ) { return containerOfDataFromFile_; }
+
+    //! Get container of header data from file.
+    /*!
+     * Returns container of header data from file.
+     * \return Container of header data from file.
+     */
+    LineBasedStringDataMap& getContainerOfHeaderData( ) { return containerOfHeaderDataFromFile_; }
 
 protected:
 
@@ -177,6 +210,12 @@ protected:
      * Line counter.
      */
     unsigned int lineCounter_;
+
+    //! Number of header lines.
+    /*!
+     * Number of lines for file header.
+     */
+    unsigned int numberOfHeaderLines_;
 
     //! Data file stream.
     /*!
@@ -200,17 +239,23 @@ protected:
     /*!
      * Absolute path to data file.
      */
-    std::string absolutePath_;
+    std::string absoluteFilePath_;
 
-    //! Relative path to data file.
+    //! Absolute path to directory.
     /*!
-     * Relative path to data file with respect to root directory of Tudat.
+     * Absolute path to directory containing data file.
      */
-    std::string relativePath_;
+    std::string absoluteDirectoryPath_;
+
+    //! Relative path to directory.
+    /*!
+     * Relative path to directory containing data file.
+     */
+    std::string relativeDirectoryPath_;
 
     //! Starting character.
     /*!
-     * Starting character.
+     * Starting character used by the skipLinesStartingWithCharacter() function.
      */
     std::string startingCharacter_;
 
@@ -227,6 +272,14 @@ protected:
      * line number from the file and the value is line data.
      */
     LineBasedStringDataMap containerOfDataFromFile_;
+
+    //! Container of header data from file.
+    /*!
+     * Map container of string header data from data file, obtained by reading each
+     * line of header data from file using the getline( ) function. The key is the
+     * line number from the file and the value is header line data.
+     */
+    LineBasedStringDataMap containerOfHeaderDataFromFile_;
 
 private:
 };

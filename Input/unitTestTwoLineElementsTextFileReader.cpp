@@ -108,7 +108,7 @@ int main( )
     {
         // Set input directory, file name, then open file and store data strings
         // with Textfilereader class, and finally close file.
-        twoLineElementsTextFileReaders[ i ]->setRelativePath( "Input/" );
+        twoLineElementsTextFileReaders[ i ]->setRelativeDirectoryPath( "Input/" );
 
         if ( i == 0 )
         {
@@ -126,7 +126,6 @@ int main( )
         // with Textfilereader class, and finally close file.
         twoLineElementsTextFileReaders[ i ]->openFile( );
         twoLineElementsTextFileReaders[ i ]->readAndStoreData( );
-        twoLineElementsTextFileReaders[ i ]->stripEndOfLineCharacters( );
         twoLineElementsTextFileReaders[ i ]->closeFile( );
 
         // Store TLE data variables from input file using TLE data class container.

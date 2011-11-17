@@ -73,10 +73,10 @@ target_link_libraries(test_ExponentialAtmosphere tudat_input tudat_output tudat_
 
 add_executable(test_TabulatedAtmosphere "${SRCROOT}${ENVIRONMENTMODELSDIR}/unitTestTabulatedAtmosphere.cpp")
 setup_custom_test_program(test_TabulatedAtmosphere "${SRCROOT}${ENVIRONMENTMODELSDIR}")
-target_link_libraries(test_TabulatedAtmosphere tudat_input tudat_output tudat_mathematics tudat_astrodynamics tudat_basics tudat_output tudat_input)
+target_link_libraries(test_TabulatedAtmosphere tudat_input tudat_output tudat_mathematics tudat_astrodynamics tudat_basics tudat_output tudat_input ${Boost_LIBRARIES})
 
 add_executable(test_SphericalHarmonicsGravityField "${SRCROOT}${ENVIRONMENTMODELSDIR}/unitTestSphericalHarmonicsGravityField.cpp")
 setup_custom_test_program(test_SphericalHarmonicsGravityField "${SRCROOT}${ENVIRONMENTMODELSDIR}")
-target_link_libraries(test_SphericalHarmonicsGravityField tudat_input tudat_output tudat_mathematics tudat_astrodynamics tudat_basics)
+target_link_libraries(test_SphericalHarmonicsGravityField tudat_input tudat_output tudat_mathematics tudat_astrodynamics tudat_basics ${Boost_LIBRARIES})
 
 # End of file.

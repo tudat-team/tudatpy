@@ -2,7 +2,7 @@
  *    This header file contains the definition of a text file reader class.
  *
  *    Path              : /Input/
- *    Version           : 5
+ *    Version           : 6
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
@@ -13,8 +13,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.Leloux@student.tudelft.nl
  *
+ *    Checker           : S. Billemont
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : simon@angelcorp.be
+ *
  *    Date created      : 23 February, 2011
- *    Last modified     : 27 June, 2011
+ *    Last modified     : 17 November, 2011
  *
  *    References
  *
@@ -38,6 +42,7 @@
  *      110316    K. Kumar          Added ostream >> operator overload.
  *      110607    F.M. Engelen      Added skipKeyWord Feature.
  *      110627    K. Kumar          Moved skipLinesWithKeyword() to FileReader.
+ *      111117    K. Kumar          Modified stripEndOfLineCharacters() function.
  */
 
 #ifndef TEXTFILEREADER_H
@@ -77,12 +82,14 @@ public:
 
     //! Strip End-Of-Line characters.
     /*!
-     * Strips End-Of-Line (EOL) characters from string data stored in
-     * containerOfDataFromFile_. The EOL characters removed are "\r" and "\n".
+     * Strips End-Of-Line (EOL) characters from string data stored in data container.
+     * The EOL characters removed are "\r" and "\n".
      * This function should only be used once data input data from the assigned
      * data file has been read and stored.
+     * \param containerOfLinesOfData Container of lines of data (can be container of header lines
+     *          or of data lines from input file).
      */
-    void stripEndOfLineCharacters( );
+    void stripEndOfLineCharacters( LineBasedStringDataMap& containerOfLinesOfData );
 
     //! Overload ostream to print class information.
     /*!

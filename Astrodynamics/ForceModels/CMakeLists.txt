@@ -76,6 +76,6 @@ target_link_libraries(test_AerodynamicsNamespace tudat_input tudat_output tudat_
 
 add_executable(test_CoefficientGenerator "${SRCROOT}${FORCEMODELSDIR}/unitTestCoefficientGenerator.cpp")
 setup_custom_test_program(test_CoefficientGenerator "${SRCROOT}${FORCEMODELSDIR}")
-target_link_libraries(test_CoefficientGenerator tudat_input tudat_output tudat_astrodynamics tudat_mathematics tudat_astrodynamics tudat_basics tudat_force_models)
+target_link_libraries(test_CoefficientGenerator tudat_input tudat_output tudat_astrodynamics tudat_mathematics tudat_astrodynamics tudat_basics tudat_force_models ${Boost_LIBRARIES})
 
 # End of file.

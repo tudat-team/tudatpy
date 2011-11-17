@@ -68,10 +68,10 @@ setup_headers("${PROPAGATORS_HEADERS}" "${PROPAGATORSDIR}")
 # Add unit tests.
 add_executable(test_KeplerPropagator "${SRCROOT}${PROPAGATORSDIR}/unitTestKeplerPropagator.cpp")
 setup_custom_test_program(test_KeplerPropagator "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_KeplerPropagator tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics)
+target_link_libraries(test_KeplerPropagator tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
 
 add_executable(test_NumericalPropagator "${SRCROOT}${PROPAGATORSDIR}/unitTestNumericalPropagator.cpp")
 setup_custom_test_program(test_NumericalPropagator "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_NumericalPropagator tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics)
+target_link_libraries(test_NumericalPropagator tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
 
 # End of file.

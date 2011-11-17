@@ -66,8 +66,8 @@ namespace tudat
 ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( ) : julianDate_( -0.0 ),
     meanLongitudeAtGivenJulianDate_( -0.0 ), numberOfCenturiesPastJ2000_( -0.0 )
 {
-    // Set relative path to ephemeris file in file reader.
-    ephemerisTextFileReader_.setRelativePath( "External/EphemerisData/" );
+    // Set relative directory path to ephemeris file in file reader.
+    ephemerisTextFileReader_.setRelativeDirectoryPath( "External/EphemerisData/" );
 
     // Set file name of ephemeris data file.
     ephemerisTextFileReader_.setFileName( "p_elem_t2.txt" );
