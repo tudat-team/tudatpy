@@ -101,11 +101,29 @@ public:
      */
     void setPlanet( BodiesWithEphemerisData bodyWithEphemerisData );
 
-    //! Approximate planet positions data container.
+    //! Parse ephemeris line data.
     /*!
-     * Approximate planet positions data container.
+     * Parse ephemeris line data.
+     * \param firstLineNumber First line number.
      */
-    ApproximatePlanetPositionsDataContainer approximatePlanetPositionsDataContainer_;
+    void parseEphemerisLineData_( const unsigned int& firstLineNumber );
+
+    //! Parse line data for extra terms for ephemeris.
+    /*!
+     * Parse ephemeris line data.
+     * \param lineNumber Line number.
+     */
+    void parseExtraTermsEphemerisLineData_( const unsigned int& lineNumber );
+
+    //! Get Cartesian state at the given Julian date from ephemeris.
+    /*!
+     * Returns state in Cartesian elements from ephemeris at the given Kulian date (UT1).
+     * \param julianDate Get the ephemeris at this Julian date, UT1.
+     * \return State in Cartesian elements from ephemeris.
+     */
+    CartesianElements* getStateFromEphemeris( const double& julianDate ) = 0;
+
+protected:
 
     //! Julian date.
     /*!
@@ -132,6 +150,12 @@ public:
      */
     map< unsigned int, string > containerOfDataFromEphemerisFile_;
 
+    //! Approximate planet positions data container.
+    /*!
+     * Approximate planet positions data container.
+     */
+    ApproximatePlanetPositionsDataContainer approximatePlanetPositionsDataContainer_;
+
     //! Cartesian elements of planet at given Julian date.
     /*!
      * Cartesian elements of planet at given Julian date.
@@ -143,22 +167,6 @@ public:
      * Keplerian elements of planet at given Julian date.
      */
     KeplerianElements planetKeplerianElementsAtGivenJulianDate_;
-
-    //! Parse ephemeris line data.
-    /*!
-     * Parse ephemeris line data.
-     * \param firstLineNumber First line number.
-     */
-    void parseEphemerisLineData_( const unsigned int& firstLineNumber );
-
-    //! Parse line data for extra terms for ephemeris.
-    /*!
-     * Parse ephemeris line data.
-     * \param lineNumber Line number.
-     */
-    void parseExtraTermsEphemerisLineData_( const unsigned int& lineNumber );
-
-protected:
 
 private:
 
