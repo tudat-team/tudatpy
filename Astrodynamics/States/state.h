@@ -4,19 +4,23 @@
  *    of state vectors, matrices etc. All state classes in Tudat are derived from this base class.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 7
+ *    Version           : 8
  *    Check status      : Checked
  *
- *    Checker           : K. Kumar
+ *    Author/Checker    : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
+ *
+ *    Author            : B. Tong Minh
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : b.tongminh@student.tudelft.nl
  *
  *    Checker           : J. Melman
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 26 October, 2010
- *    Last modified     : 7 February, 2011
+ *    Last modified     : 23 November, 2011
  *
  *    References
  *
@@ -46,6 +50,7 @@
  *                                  variable for functionality.
  *      110204    K. Kumar          Note added about public state variable.
  *      110207    K. Kumar          Added ostream overload.
+ *      111123    B. Tong Minh      Added custom constructors.
  */
 
 #ifndef STATE_H
@@ -70,6 +75,26 @@ namespace tudat
 class State
 {
 public:
+
+    //! Default constructor.
+    /*!
+     * Default constructor, leaves the internal state vector uninitialized.
+     */
+    State( ) { }
+
+    //! Constructor with state vector.
+    /*!
+     * Custom constructor ,which sets the internal state vector to the specified vector.
+     * \param state_ State vector
+     */
+    State( const VectorXd& stateToSet ) : state( stateToSet ) { }
+
+    //! Constructor with initial length.
+    /*!
+     * Custom constructor, which sets the internal state vector to the specified length.
+     * \param stateLength_ Length of the state vector
+     */
+    State( int stateLength ) : state( stateLength ) { }
 
     //! Default destructor.
     /*!

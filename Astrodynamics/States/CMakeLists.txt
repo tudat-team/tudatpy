@@ -2,23 +2,23 @@
  #    This is the CMake file for the States sub-directory.
  #
  #    Path              : /Astrodynamics/States/
- #    Version           : 3
+ #    Version           : 4
  #    Check status      : Checked
  #
- #    Author            : S.M. Persson
+ #    Author/Checker    : S.M. Persson
  #    Affiliation       : McGill University, Department of Mechanical Engineering
  #    E-mail address    : mikael.s.persson@gmail.com
  #
- #    Author            : K. Kumar
+ #    Author/Checker    : K. Kumar
  #    Affiliation       : Delft University of Technology
  #    E-mail address    : K.Kumar@tudelft.nl
  #
- #    Author            : S.M. Persson
- #    Affiliation       : McGill University, Department of Mechanical Engineering
- #    E-mail address    : mikael.s.persson@gmail.com
+ #    Author            : B. Tong Minh
+ #    Affiliation       : Delft University of Technology
+ #    E-mail address    : b.tongminh@student.tudelft.nl
  #
  #    Date created      : 20 August, 2011
- #    Last modified     : 26 October, 2011
+ #    Last modified     : 23 November, 2011
  #
  #    References
  #
@@ -40,6 +40,7 @@
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
+ #      111123    B. Tong Minh      Added unit test for State.
  #/
 
 # Add source files.
@@ -91,5 +92,9 @@ target_link_libraries(test_KeplerianElements tudat_astrodynamics tudat_input tud
 add_executable(test_OrbitalElementConversions "${SRCROOT}${STATESDIR}/unitTestOrbitalElementConversions.cpp")
 setup_custom_test_program(test_OrbitalElementConversions "${SRCROOT}${STATESDIR}")
 target_link_libraries(test_OrbitalElementConversions tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
+
+add_executable(test_State "${SRCROOT}${STATESDIR}/unitTestState.cpp")
+setup_custom_test_program(test_State "${SRCROOT}${STATESDIR}")
+target_link_libraries(test_State tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
 
 # End of file.
