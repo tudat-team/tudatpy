@@ -64,6 +64,9 @@ void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
     textFileReader.readAndStoreData( );
     containerOfAtmosphereTableFileData = textFileReader.getContainerOfData( );
 
+    // Close data file.
+    textFileReader.closeFile( );
+
     // Check whether data is present in the file.
     if ( containerOfAtmosphereTableFileData.size( ) < 1 )
     {
