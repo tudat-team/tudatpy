@@ -96,7 +96,7 @@ public:
     /*!
      * Default destructor.
      */
-    virtual ~FileReader( ) { }
+    virtual ~FileReader( ) { if ( dataFile_.is_open( ) ) closeFile( ); }
 
     //! Set absolute directory path.
     /*!

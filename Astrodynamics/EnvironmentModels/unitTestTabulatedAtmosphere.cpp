@@ -68,6 +68,7 @@ int main( )
     //         passing the altitude.
     // Test 4: Test tabulated atmosphere at 1000 km altitude with figure.
     // Test 5: Test tabulated atmosphere at 1000 km altitude with table.
+    // Test 6: Test if the atmosphere file can be read multiple times.
 
     // Create a tabulated atmosphere object.
     TabulatedAtmosphere tabulatedAtmosphere;
@@ -178,6 +179,20 @@ int main( )
         isTabulatedAtmosphereBad = true;
     }
 
+    // Test 6: Test if the atmosphere file can be read multiple times.
+    try
+    {
+        tabulatedAtmosphere.initialize( "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    }
+
+    catch ( std::runtime_error multipleFileReadError )
+    {
+        cerr << "Caught exception while opening the atmosphere file for a second time." << endl;
+        isTabulatedAtmosphereBad = true;
+    }
+
+    // Return test result.
+    // If test is successful return false; if test fails, return true.
     if ( isTabulatedAtmosphereBad )
     {
         cerr << "testTabulatedAtmosphere failed!" << std::endl;
