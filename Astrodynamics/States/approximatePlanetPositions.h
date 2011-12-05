@@ -80,7 +80,7 @@ public:
      * Returns state in Cartesian elements from ephemeris.
      * \return State in Cartesian elements from ephemeris.
      */
-    CartesianElements* getStateFromEphemeris( const double& julianDate );
+    CartesianElements* getStateFromEphemeris( double julianDate );
 
 protected:
 

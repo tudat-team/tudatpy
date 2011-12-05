@@ -86,7 +86,7 @@ public:
      *          the surface point.
      * \return Point on conical frustum in Cartesian coordinates.
      */
-    VectorXd getSurfacePoint( const double& lengthFraction, const double& azimuthAngle );
+    VectorXd getSurfacePoint( double lengthFraction, double azimuthAngle );
 
     //! Get surface derivative on conical frustum.
     /*!
@@ -105,9 +105,9 @@ public:
      *          azimuth angle.
      * \return Surface derivative on conical frustum.
      */
-    VectorXd getSurfaceDerivative( const double& lengthFraction, const double& azimuthAngle,
-                                   const int& powerOfLengthFractionDerivative,
-                                   const int& powerOfAzimuthAngleDerivative );
+    VectorXd getSurfaceDerivative( double lengthFraction, double azimuthAngle,
+                                   int powerOfLengthFractionDerivative,
+                                   int powerOfAzimuthAngleDerivative );
 
     //! Get parameter of conical frustum.
     /*!
@@ -117,7 +117,7 @@ public:
      *          length ).
      * \return Selected parameter.
      */
-    double getParameter( const int& index );
+    double getParameter( int index );
 
     //! Set parameter of conical frustum.
     /*!
@@ -127,35 +127,35 @@ public:
      *          angle; index = 1: sets start radius; index = 2: sets length ).
      * \param parameter Value of parameter to set.
      */
-    void setParameter( const int& index, const double& parameter );
+    void setParameter( int index, double parameter );
 
     //! Set cone half angle.
     /*!
      * Sets the cone half angle.
      *  \param coneHalfAngle Cone half angle.
      */
-    void setConeHalfAngle( const double& coneHalfAngle ) { coneHalfAngle_ = coneHalfAngle; }
+    void setConeHalfAngle( double coneHalfAngle ) { coneHalfAngle_ = coneHalfAngle; }
 
     //! Set length.
     /*!
      * Sets the length.
      * \param length Cone length.
      */
-    void setLength( const double& length ) { length_ = length; }
+    void setLength( double length ) { length_ = length; }
 
     //! Set start radius.
     /*!
      * Sets the start radius.
      * \param startRadius Start radius.
      */
-    void setStartRadius( const double& startRadius ) { startRadius_ = startRadius; }
+    void setStartRadius( double startRadius ) { startRadius_ = startRadius; }
 
     //! Set minimum azimuth angle.
     /*!
      * Sets the minimum azimuth angle.
      * \param minimumAzimuthAngle Minimum azimuth angle.
      */
-    void setMinimumAzimuthAngle( const double& minimumAzimuthAngle )
+    void setMinimumAzimuthAngle( double minimumAzimuthAngle )
     { setMinimumIndependentVariable( 1, minimumAzimuthAngle ); }
 
     //! Set maximum azimuth angle.
@@ -163,7 +163,7 @@ public:
      * Sets the maximum azimuth angle.
      * \param maximumAzimuthAngle Maximum azimuth angle.
      */
-    void setMaximumAzimuthAngle( const double& maximumAzimuthAngle )
+    void setMaximumAzimuthAngle( double maximumAzimuthAngle )
     { setMaximumIndependentVariable( 1, maximumAzimuthAngle ); }
 
     //! Get cone half angle.

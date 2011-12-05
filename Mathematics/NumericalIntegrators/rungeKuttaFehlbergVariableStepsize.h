@@ -102,7 +102,7 @@ public:
      * Sets the relative error tolerance.
      * \param relativeErrorTolerance Relative error tolerance.
      */
-    void setRelativeErrorTolerance( const double& relativeErrorTolerance )
+    void setRelativeErrorTolerance( double relativeErrorTolerance )
     { relativeErrorTolerance_ = relativeErrorTolerance; }
 
     //! Set minimum stepsize.
@@ -110,8 +110,7 @@ public:
      * Sets the minimum stepsize.
      * \param minimumStepsize Minimum stepsize.
      */
-    void setMinimumStepsize( const double& minimumStepsize )
-    { minimumStepsize_ = minimumStepsize; }
+    void setMinimumStepsize( double minimumStepsize ) { minimumStepsize_ = minimumStepsize; }
 
     //! Integrate.
     /*!
@@ -231,7 +230,6 @@ private:
      * Runge-Kutta integration scheme.
      */
     void setCoefficients_( RungeKuttaFehlbergVariableStepsizeIntegratorType coefficientSet );
-
 };
 
 }

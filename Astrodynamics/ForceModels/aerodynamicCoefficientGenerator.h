@@ -100,35 +100,35 @@ public:
      * Sets the number of independent variables.
      * \param numberOfVariables Number of independent variables for analysis.
      */
-    void setNumberOfIndependentVariables( const int& numberOfVariables );
+    void setNumberOfIndependentVariables( int numberOfVariables );
 
     //! Set the number of points for Mach number.
     /*!
      * Sets the number of different Mach numbers at which coefficients are determined.
      * \param numberOfMachPoints Number of data points for Mach number.
      */
-    void setNumberOfMachPoints( const int& numberOfMachPoints );
+    void setNumberOfMachPoints( int numberOfMachPoints );
 
     //! Sets the number of points for angle of attack.
     /*!
      * Sets the number of different angles of attack at which coefficients are determined.
      * \param numberOfAngleOfAttackPoints Number of data points for angle of attack.
      */
-    void setNumberOfAngleOfAttackPoints( const int& numberOfAngleOfAttackPoints );
+    void setNumberOfAngleOfAttackPoints( int numberOfAngleOfAttackPoints );
 
     //! Set the number of points for angle of sideslip.
     /*!
      * Sets the number of different angles of sideslip at which coefficients are determined.
      * \param numberOfAngleOfSideslipPoints Number of data points for angle of sideslip.
      */
-    void setNumberOfAngleOfSideslipPoints( const int& numberOfAngleOfSideslipPoints );
+    void setNumberOfAngleOfSideslipPoints( int numberOfAngleOfSideslipPoints );
 
     //! Set the number of points for the Reynolds Number.
     /*!
      * Sets the number of different Reynolds Number. at which coefficients are determined.
      * \param numberOfReynoldsNumberPoints Number of data points for ReynoldsNumber.
      */
-    void setNumberOfReynoldsNumberPoints( const int& numberOfReynoldsNumberPoints );
+    void setNumberOfReynoldsNumberPoints( int numberOfReynoldsNumberPoints );
 
     //! Get the number of independent variables
     /*!
@@ -145,7 +145,7 @@ public:
      * number of data points.
      * \return Number of data points for Mach number
      */
-    int getNumberOfValuesOfIndependentVariable( const int& independentVariable )
+    int getNumberOfValuesOfIndependentVariable( int independentVariable )
     { return numberOfPointsPerIndependentVariables_ [ independentVariable ]; }
 
     //! Get the number of points for Mach number.
@@ -185,7 +185,7 @@ public:
      * \param index Index in Mach number data point list at which to set the value.
      * \param machPoint Value of Mach number to set.
      */
-    void setMachPoint( const int& index, const double& machPoint )
+    void setMachPoint( int index, double machPoint )
     { dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = machPoint; }
 
     //! Set an angle of attack point.
@@ -194,7 +194,7 @@ public:
      * \param index Index in angle of attack number data point list at which to set the value.
      * \param angleOfAttackPoint Value of angle of attack to set.
      */
-    void setAngleOfAttackPoint( const int& index, const double& angleOfAttackPoint )
+    void setAngleOfAttackPoint( int index, double angleOfAttackPoint )
     { dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = angleOfAttackPoint; }
 
     //! Set an angle of sideslip point.
@@ -203,7 +203,7 @@ public:
      * \param index Index in angle of sideslip number data point list at which to set the value.
      * \param angleOfSideslipPoint Value of angle of sideslip to set.
      */
-    void setAngleOfSideslipPoint( const int& index, const double& angleOfSideslipPoint )
+    void setAngleOfSideslipPoint( int index, double angleOfSideslipPoint )
     { dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ] = angleOfSideslipPoint; }
 
     //! Set a Reynolds Number point.
@@ -212,7 +212,7 @@ public:
      * \param index Index in Reynold number data point list at which to set the value.
      * \param reynoldsNumberPoint Value of Reynold number to set.
      */
-    void setReynoldsNumberPoint( const int& index, const double& reynoldsNumberPoint )
+    void setReynoldsNumberPoint( int index, double reynoldsNumberPoint )
     { dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ] = reynoldsNumberPoint; }
 
     //! Get a Mach number point.
@@ -221,7 +221,7 @@ public:
      * \param index Index from Mach number data point list from which to retrieve the value.
      * \return Value of Mach number at index.
      */
-    double getMachPoint( const int& index )
+    double getMachPoint( int index )
     { return dataPointsOfIndependentVariables_[ machIndex_ ][ index ]; }
 
     //! Get an angle of attack point.
@@ -230,7 +230,7 @@ public:
      * \param index Index from angle of attack data point list from which to retrieve the value.
      * \return Value of angle of attack at index.
      */
-    double getAngleOfAttackPoint( const int& index )
+    double getAngleOfAttackPoint( int index )
     { return dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ]; }
 
     //! Get an angle of sideslip point.
@@ -239,7 +239,7 @@ public:
      * \param index Index from angle of attack data point list from which to retrieve the value.
      * \return Value of angle of attack at index.
      */
-    double getAngleOfSideslipPoint( const int& index )
+    double getAngleOfSideslipPoint( int index )
     { return dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ]; }
 
     //! Get an Reynold Number point.
@@ -248,7 +248,7 @@ public:
      * \param index Index from Reynold Number data point list from which to retrieve the value.
      * \return Value of Reynold Number at index.
      */
-    double getReynoldsNumberPoint( const int& index )
+    double getReynoldsNumberPoint( int index )
     { return dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ]; }
 
     //! Get a value of an independent variable.
@@ -260,7 +260,7 @@ public:
      *                  value.
      * \return Value of angle of attack at index.
      */
-    double getIndependentVariablePoint( const int& independentVariable, const int& index )
+    double getIndependentVariablePoint( int independentVariable, int index )
     { return dataPointsOfIndependentVariables_[ independentVariable ][ index ]; }
 
     //! Get aerodynamic coefficients.

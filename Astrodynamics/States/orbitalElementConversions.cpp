@@ -367,8 +367,8 @@ KeplerianElements convertCartesianToKeplerianElements(
 }
 
 //! Convert true anomaly to eccentric anomaly.
-double convertTrueAnomalyToEccentricAnomaly( const double& trueAnomaly,
-                                             const double& eccentricity )
+double convertTrueAnomalyToEccentricAnomaly( double trueAnomaly,
+                                             double eccentricity )
 {
     // Declare and compute sine and cosine of eccentric anomaly.
     double sineOfEccentricAnomaly_ = sqrt( 1.0 - pow( eccentricity, 2.0 ) ) * sin( trueAnomaly )
@@ -382,8 +382,8 @@ double convertTrueAnomalyToEccentricAnomaly( const double& trueAnomaly,
 }
 
 //! Convert eccentric anomaly to true anomaly.
-double convertEccentricAnomalyToTrueAnomaly( const double& eccentricAnomaly,
-                                             const double& eccentricity )
+double convertEccentricAnomalyToTrueAnomaly( double eccentricAnomaly,
+                                             double eccentricity )
 {
     // Compute sine and cosine of true anomaly.
     double sineOfTrueAnomaly_ = sqrt( 1.0 - pow( eccentricity, 2.0 ) ) * sin( eccentricAnomaly )
@@ -397,8 +397,8 @@ double convertEccentricAnomalyToTrueAnomaly( const double& eccentricAnomaly,
 }
 
 //! Convert true anomaly to hyperbolic eccentric anomaly.
-double convertTrueAnomalyToHyperbolicEccentricAnomaly( const double& trueAnomaly,
-                                                       const double& eccentricity )
+double convertTrueAnomalyToHyperbolicEccentricAnomaly( double trueAnomaly,
+                                                       double eccentricity )
 {
     // Compute hyperbolic sine and hyperbolic cosine of hyperbolic eccentric
     // anomaly.
@@ -414,8 +414,8 @@ double convertTrueAnomalyToHyperbolicEccentricAnomaly( const double& trueAnomaly
 }
 
 //! Convert hyperbolic eccentric anomaly to true anomaly.
-double convertHyperbolicEccentricAnomalyToTrueAnomaly( const double& hyperbolicEccentricAnomaly,
-                                                       const double& eccentricity )
+double convertHyperbolicEccentricAnomalyToTrueAnomaly( double hyperbolicEccentricAnomaly,
+                                                       double eccentricity )
 {
     // Compute sine and cosine of true anomaly.
     double sineOfTrueAnomaly_
@@ -431,22 +431,22 @@ double convertHyperbolicEccentricAnomalyToTrueAnomaly( const double& hyperbolicE
 }
 
 //! Convert eccentric anomaly to mean anomaly.
-double convertEccentricAnomalyToMeanAnomaly( const double& eccentricAnomaly,
-                                             const double& eccentricity )
+double convertEccentricAnomalyToMeanAnomaly( double eccentricAnomaly,
+                                             double eccentricity )
 {
     return eccentricAnomaly - eccentricity * sin( eccentricAnomaly );
 }
 
 //! Convert hyperbolic eccentric anomaly to mean anomaly.
 double convertHyperbolicEccentricAnomalyToMeanAnomaly(
-    const double& hyperbolicEccentricAnomaly, const double& eccentricity )
+    double hyperbolicEccentricAnomaly, double eccentricity )
 {
     return eccentricity * sinh( hyperbolicEccentricAnomaly ) - hyperbolicEccentricAnomaly;
 }
 
 //! Convert elapsed time to mean anomaly for elliptical orbits.
 double convertElapsedTimeToMeanAnomalyForEllipticalOrbits(
-    const double& elapsedTime, CelestialBody* pointerToCentralBody, const double& semiMajorAxis )
+    double elapsedTime, CelestialBody* pointerToCentralBody, double semiMajorAxis )
 {
     // Return mean anomaly.
     return sqrt( pointerToCentralBody->getGravitationalParameter( )
@@ -455,7 +455,7 @@ double convertElapsedTimeToMeanAnomalyForEllipticalOrbits(
 
 //! Convert mean anomaly to elapsed time for elliptical orbits.
 double convertMeanAnomalyToElapsedTimeForEllipticalOrbits(
-    const double& meanAnomaly, CelestialBody* pointerToCentralBody, const double& semiMajorAxis )
+    double meanAnomaly, CelestialBody* pointerToCentralBody, double semiMajorAxis )
 {
     // Return time since last periapsis passage.
     return meanAnomaly * sqrt( pow( semiMajorAxis, 3.0 )
@@ -464,7 +464,7 @@ double convertMeanAnomalyToElapsedTimeForEllipticalOrbits(
 
 //! Convert elapsed time to mean anomaly for hyperbolic orbits.
 double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits(
-    const double& elapsedTime, CelestialBody* pointerToCentralBody, const double& semiMajorAxis )
+    double elapsedTime, CelestialBody* pointerToCentralBody, double semiMajorAxis )
 {
     // Return mean anomaly.
     return sqrt( pointerToCentralBody->getGravitationalParameter( )
@@ -473,7 +473,7 @@ double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits(
 
 //! Convert mean anomaly to elapsed time for hyperbolic orbits.
 double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits(
-    const double& meanAnomaly, CelestialBody* pointerToCentralBody, const double& semiMajorAxis )
+    double meanAnomaly, CelestialBody* pointerToCentralBody, double semiMajorAxis )
 {
     // Return time since last periapsis passage.
     return sqrt( pow( -semiMajorAxis, 3.0 ) / pointerToCentralBody->getGravitationalParameter( ) )
@@ -481,7 +481,7 @@ double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits(
 }
 
 //! Convert mean motion to semi-major axis.
-double convertMeanMotionToSemiMajorAxis( const double& meanMotion,
+double convertMeanMotionToSemiMajorAxis( double meanMotion,
                                          CelestialBody* pointerToCentralBody )
 {
     // Return semi-major axis.

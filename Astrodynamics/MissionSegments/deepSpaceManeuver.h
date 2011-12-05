@@ -71,7 +71,7 @@ public:
      * Sets time of deep space maneuver event.
      * \param timeOfDeepSpaceManeuver Time of deep space maneuver event.
      */
-    void setTime( const double &timeOfDeepSpaceManeuver )
+    void setTime( double timeOfDeepSpaceManeuver )
     { timeOfDeepSpaceManeuver_ = timeOfDeepSpaceManeuver; }
 
     //! Set state at deep space maneuver event.
@@ -86,7 +86,7 @@ public:
      * Sets delta-V of deep space maneuver event.
      * \param deltaV Delta-V of deep space maneuver event.
      */
-    void setDeltaV( const double &deltaV ) { deltaV_ = deltaV; }
+    void setDeltaV( double deltaV ) { deltaV_ = deltaV; }
 
     //! Get time of deep space maneuver event.
     /*!

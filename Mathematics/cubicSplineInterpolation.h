@@ -87,7 +87,7 @@ public:
      *          the interpolation is performed.
      * \return Interpolated dependent variable value.
      */
-    double interpolate( const double& targetIndependentVariableValue );
+    double interpolate( double targetIndependentVariableValue );
 
 protected:
 

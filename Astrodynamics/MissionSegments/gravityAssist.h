@@ -131,7 +131,7 @@ public:
      * periapsis distance.
      * \param smallestPeriapsisDistanceFactor Smallest periapsis distance factor.
      */
-    void setSmallestPeriapsisDistanceFactor( const double &smallestPeriapsisDistanceFactor )
+    void setSmallestPeriapsisDistanceFactor( double smallestPeriapsisDistanceFactor )
     { smallestPeriapsisDistanceFactor_ = smallestPeriapsisDistanceFactor; }
 
     //! Set pointer to incoming velocity of the satellite.
@@ -165,7 +165,7 @@ public:
      * Computes the necessary delta-V to perform a powered swing-by.
      * \return deltaV Necessary delta-V of swing-by.
      */
-    const double& computeDeltaV( );
+    double computeDeltaV( );
 
     //! Overload ostream to print class information.
     /*!

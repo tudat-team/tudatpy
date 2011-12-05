@@ -207,9 +207,9 @@ State* computeLinearInterpolation(
 *      z &=& r\cos\phi \\
 * \f}
 */
-void convertSphericalToCartesian( const double& radius,
-                                  const double& azimuthAngle,
-                                  const double& zenithAngle,
+void convertSphericalToCartesian( double radius,
+                                  double azimuthAngle,
+                                  double zenithAngle,
                                   VectorXd& cartesianCoordinates );
 
 //! Convert cartesian to spherical coordinates.
@@ -243,8 +243,8 @@ void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
 * Since the value of z is left unaffected by this transformation,
 * it is not set or changed by this function.
 */
-void convertCylindricalToCartesian( const double& radius,
-                                    const double& azimuthAngle,
+void convertCylindricalToCartesian( double radius,
+                                    double azimuthAngle,
                                     VectorXd& cartesianCoordinates );
 
 //! Compute modulo of double.
@@ -255,7 +255,7 @@ void convertCylindricalToCartesian( const double& radius,
  * \param divisor Number that is divided by.
  * \return Remainder of division of dividend by divisor.
  */
-double computeModulo( const double& dividend, const double& divisor );
+double computeModulo( double dividend, double divisor );
 
 //! Compute sample mean.
 /*!

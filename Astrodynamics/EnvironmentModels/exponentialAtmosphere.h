@@ -102,7 +102,7 @@ public:
     /*!
      * Sets the scale height (property of exponential atmosphere) in meters.
      */
-    void setScaleHeight( const double& scaleHeight ) { scaleHeight_ = scaleHeight; }
+    void setScaleHeight( double scaleHeight ) { scaleHeight_ = scaleHeight; }
 
     //! Get scale height.
     /*!
@@ -114,7 +114,7 @@ public:
     /*!
      * Sets the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
-    void setDensityAtZeroAltitude( const double& densityAtZeroAltitude )
+    void setDensityAtZeroAltitude( double densityAtZeroAltitude )
     { densityAtZeroAltitude_ = densityAtZeroAltitude; }
 
     //! Get density at zero altitude.
@@ -127,7 +127,7 @@ public:
     /*!
      * Sets the atmospheric temperature (constant, property of exponential atmosphere) in Kelvin.
      */
-    void setConstantTemperature( const double& constantTemperature )
+    void setConstantTemperature( double constantTemperature )
     { constantTemperature_ = constantTemperature; }
 
     //! Get constant temperature.
@@ -142,7 +142,7 @@ public:
      * Sets the specific gas constant of the air in J/(kg K), its value is assumed constant,
      * due to the assumption of constant atmospheric composition.
      */
-    void setSpecificGasConstant( const double& specificGasConstant )
+    void setSpecificGasConstant( double specificGasConstant )
     { specificGasConstant_ = specificGasConstant; }
 
     //! Get specific gas constant.
@@ -161,8 +161,8 @@ public:
      * \param time Time.
      * \return Atmospheric density.
      */
-    double getDensity( const double& altitude, const double& longitude = 0.0,
-                       const double& latitude = 0.0, const double& time = 0.0 )
+    double getDensity( double altitude, double longitude = 0.0,
+                       double latitude = 0.0, double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -179,8 +179,8 @@ public:
      * \param time Time.
      * \return Atmospheric pressure.
      */
-    double getPressure( const double& altitude, const double& longitude = 0.0,
-                        const double& latitude = 0.0, const double& time = 0.0 )
+    double getPressure( double altitude, double longitude = 0.0,
+                        double latitude = 0.0, double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -197,8 +197,8 @@ public:
      * \param time Time.
      * \return Atmospheric temperature.
      */
-    double getTemperature( const double& altitude, const double& longitude = 0.0,
-                           const double& latitude = 0.0, const double& time = 0.0 )
+    double getTemperature( double altitude, double longitude = 0.0,
+                           double latitude = 0.0, double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );

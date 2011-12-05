@@ -74,28 +74,28 @@ public:
      * Sets semi-major axis.
      * \param semiMajorAxis Semi-major axis.
      */
-    void setSemiMajorAxis( const double& semiMajorAxis ) { state( 0 ) = semiMajorAxis; }
+    void setSemiMajorAxis( double semiMajorAxis ) { state( 0 ) = semiMajorAxis; }
 
     //! Set eccentricity.
     /*!
      * Sets eccentricity.
      * \param eccentricity Eccentricity.
      */
-    void setEccentricity( const double& eccentricity ) { state( 1 ) = eccentricity; }
+    void setEccentricity( double eccentricity ) { state( 1 ) = eccentricity; }
 
     //! Set inclination.
     /*!
      * Sets inclination.
      * \param inclination Inclination.
      */
-    void setInclination( const double& inclination ) { state( 2 ) = inclination; }
+    void setInclination( double inclination ) { state( 2 ) = inclination; }
 
     //! Set argument of periapsis.
     /*!
      * Sets argument of periapsis.
      * \param argumentOfPeriapsis Argument of periapsis.
      */
-    void setArgumentOfPeriapsis( const double& argumentOfPeriapsis )
+    void setArgumentOfPeriapsis( double argumentOfPeriapsis )
     { state( 3 ) = argumentOfPeriapsis; }
 
     //! Sets longitude of ascending node.
@@ -103,7 +103,7 @@ public:
      * Set longitude of ascending node.
      * \param longitudeOfAscendingNode Longitude of ascending node.
      */
-    void setLongitudeOfAscendingNode( const double& longitudeOfAscendingNode )
+    void setLongitudeOfAscendingNode( double longitudeOfAscendingNode )
     { state( 4 ) = longitudeOfAscendingNode; }
 
     //! Set true anomaly.
@@ -111,7 +111,7 @@ public:
      * Sets true anomaly.
      * \param trueAnomaly True anomaly.
      */
-    void setTrueAnomaly( const double& trueAnomaly ) { state( 5 ) = trueAnomaly; }
+    void setTrueAnomaly( double trueAnomaly ) { state( 5 ) = trueAnomaly; }
 
     //! Set semi-latus rectum ( for parabolic orbits ).
     /*!
@@ -120,7 +120,7 @@ public:
      * This function must only be used in conjunction with parabolic orbits.
      * \param semiLatusRectum Semi-latus rectum.
      */
-    void setSemiLatusRectum( const double& semiLatusRectum )
+    void setSemiLatusRectum( double semiLatusRectum )
     { semiLatusRectum_ = semiLatusRectum; }
 
     //! Get semi-major axis.

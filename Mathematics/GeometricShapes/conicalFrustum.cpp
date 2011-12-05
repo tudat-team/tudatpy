@@ -61,8 +61,8 @@ using std::sin;
 using std::cos;
 
 //! Get surface point on conical frustum.
-VectorXd ConicalFrustum::getSurfacePoint( const double& azimuthAngle,
-                                          const double& lengthFraction )
+VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle,
+                                          double lengthFraction )
 {
     // Determines the radius of the cone at the given length fraction.
     double localRadius_ = startRadius_ + length_ * lengthFraction * std::tan( coneHalfAngle_ );
@@ -83,8 +83,8 @@ VectorXd ConicalFrustum::getSurfacePoint( const double& azimuthAngle,
 
 //! Get surface derivative on conical frustum.
 VectorXd ConicalFrustum::getSurfaceDerivative(
-        const double& lengthFraction, const double& azimuthAngle,
-        const int& powerOfLengthFractionDerivative, const int& powerOfAzimuthAngleDerivative )
+        double lengthFraction, double azimuthAngle,
+        int powerOfLengthFractionDerivative, int powerOfAzimuthAngleDerivative )
 {
     // Declare and set size of derivative vector.
     VectorXd derivative_ = VectorXd( 3 );
@@ -195,7 +195,7 @@ VectorXd ConicalFrustum::getSurfaceDerivative(
 }
 
 //! Get parameter of conical frustum.
-double ConicalFrustum::getParameter( const int& index )
+double ConicalFrustum::getParameter( int index )
 {
    // Check which parameter is selected.
    switch( index )
@@ -227,7 +227,7 @@ double ConicalFrustum::getParameter( const int& index )
 }
 
 //! Set a parameter of conical frustum.
-void ConicalFrustum::setParameter( const int& index, const double& parameter )
+void ConicalFrustum::setParameter( int index, double parameter )
 {
     // Check which parameter is to be set and set value.
     switch( index )

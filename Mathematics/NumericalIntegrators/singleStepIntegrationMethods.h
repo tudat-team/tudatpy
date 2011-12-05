@@ -89,7 +89,7 @@ protected:
      * integration step.
      * \param stepsize Stepsize.
      */
-    virtual void computeNextState_( const double& stepsize ) = 0;
+    virtual void computeNextState_( double stepsize ) = 0;
 
 private:
 };

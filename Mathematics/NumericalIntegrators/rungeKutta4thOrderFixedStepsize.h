@@ -119,7 +119,7 @@ private:
      * integration step.
      * \param stepsize Stepsize.
      */
-    void computeNextState_( const double& stepsize );
+    void computeNextState_( double stepsize );
 };
 
 }

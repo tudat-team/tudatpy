@@ -145,7 +145,7 @@ public:
                 minimum value.
      * \param minimumValue Minimum value for given independent variable.
      */
-    void setMinimumIndependentVariable( const int& parameterIndex, const double& minimumValue );
+    void setMinimumIndependentVariable( int parameterIndex, double minimumValue );
 
     //! Set maximum value of independent variable.
     /*!
@@ -154,7 +154,7 @@ public:
      *          maximum value.
      * \param maximumValue Maximum value for given independent variable.
      */
-    void setMaximumIndependentVariable( const int& parameterIndex, const double& maximumValue );
+    void setMaximumIndependentVariable( int parameterIndex, double maximumValue );
 
     //! Set parameter.
     /*!
@@ -163,7 +163,7 @@ public:
      * \param parameterIndex Index of parameter to set for a specific shape.
      * \param parameterValue Parameter value to set.
      */
-    virtual void setParameter( const int& parameterIndex, const double& parameterValue ) = 0;
+    virtual void setParameter( int parameterIndex, double parameterValue ) = 0;
 
     //! Get parameter.
     /*!
@@ -172,7 +172,7 @@ public:
      * \param parameterIndex Index of parameter to set for a specific shape.
      * \return Specific parameter from a shape.
      */
-    virtual double getParameter( const int& parameterIndex ) = 0;
+    virtual double getParameter( int parameterIndex ) = 0;
 
     //! Get offset from the shape.
     /*!
@@ -202,7 +202,7 @@ public:
      *          retrieve minimum.
      * \return minimumValue Minimum value for given independent variable.
      */
-    double getMinimumIndependentVariable( const int& parameterIndex );
+    double getMinimumIndependentVariable( int parameterIndex );
 
     //! Get maximum value of independent variable.
     /*!
@@ -211,7 +211,7 @@ public:
      *          retrieve maximum.
      * \return maximumValue Maximum value for given independent variable.
      */
-    double getMaximumIndependentVariable( const int& parameterIndex );
+    double getMaximumIndependentVariable( int parameterIndex );
 
     //! Get surface point.
     /*!
@@ -221,8 +221,8 @@ public:
      * \param independentVariable2 Independent variable 2.
      * \return Surface point.
      */
-    virtual VectorXd getSurfacePoint( const double& independentVariable1,
-                                      const double& independentVariable2 ) = 0;
+    virtual VectorXd getSurfacePoint( double independentVariable1,
+                                      double independentVariable2 ) = 0;
 
     //! Get surface derivative.
     /*!
@@ -234,10 +234,10 @@ public:
      * \param powerOfDerivative2 Power of derivative wrt independent variable 2.
      * \return Surface derivative.
      */
-    virtual VectorXd getSurfaceDerivative( const double& independentVariable1,
-                                           const double& independentVariable2,
-                                           const int& powerOfDerivative1,
-                                           const int& powerOfDerivative2 ) = 0;
+    virtual VectorXd getSurfaceDerivative( double independentVariable1,
+                                           double independentVariable2,
+                                           int powerOfDerivative1,
+                                           int powerOfDerivative2 ) = 0;
 
     //! Apply transformation to vehicle part.
     /*!

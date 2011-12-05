@@ -69,8 +69,8 @@ namespace aerodynamics
 {
 
 //! Compute local-to-static pressure ratio.
-double computeLocalToStaticPressureRatio( const double& machNumber,
-                                          const double& ratioOfSpecificHeats )
+double computeLocalToStaticPressureRatio( double machNumber,
+                                          double ratioOfSpecificHeats )
 {
     // Return local-to-static pressure ratio.
     return pow( 2.0 / ( 2.0 + ( ratioOfSpecificHeats - 1.0 ) * pow( machNumber, 2.0 ) ),
@@ -78,7 +78,7 @@ double computeLocalToStaticPressureRatio( const double& machNumber,
 }
 
 //! Compute Prandtl-Meyer function.
-double computePrandtlMeyerFunction( const double& machNumber, const double& ratioOfSpecificHeats )
+double computePrandtlMeyerFunction( double machNumber, double ratioOfSpecificHeats )
 {
     // Declare local variables.
     // Declare Mach number squared.
@@ -92,8 +92,8 @@ double computePrandtlMeyerFunction( const double& machNumber, const double& rati
 }
 
 //! Compute stagnation pressure coefficient in supersonic flow.
-double computeStagnationPressure( const double& machNumber,
-                                  const double& ratioOfSpecificHeats )
+double computeStagnationPressure( double machNumber,
+                                  double ratioOfSpecificHeats )
 {
     // Declare local variables.
     // Declare Mach number squared.
@@ -111,7 +111,7 @@ double computeStagnationPressure( const double& machNumber,
 }
 
 //! Compute pressure coefficient based on Newtonian theory.
-double computeNewtonianPressureCoefficient( const double& inclinationAngle )
+double computeNewtonianPressureCoefficient( double inclinationAngle )
 {
     // Return pressure coefficient.
     return 2.0 * pow( sin( inclinationAngle ), 2.0 );
@@ -119,7 +119,7 @@ double computeNewtonianPressureCoefficient( const double& inclinationAngle )
 
 //! Compute pressure coefficient based on modified Newtonian theory.
 double computeModifiedNewtonianPressureCoefficient(
-    const double& inclinationAngle, const double& stagnationPressureCoefficient )
+    double inclinationAngle, double stagnationPressureCoefficient )
 {
     // Return pressure coefficient.
     return stagnationPressureCoefficient * pow( sin( inclinationAngle ), 2.0 );
@@ -127,7 +127,7 @@ double computeModifiedNewtonianPressureCoefficient(
 
 //! Compute pressure coefficient using empirical tangent wedge method.
 double computeEmpiricalTangentWedgePressureCoefficient(
-    const double& inclinationAngle, const double& machNumber )
+    double inclinationAngle, double machNumber )
 {
     // Declare local variable.
     double machNumberSine_;
@@ -142,7 +142,7 @@ double computeEmpiricalTangentWedgePressureCoefficient(
 
 //! Compute pressure coefficient using empirical tangent cone method.
 double computeEmpiricalTangentConePressureCoefficient(
-    const double& inclinationAngle, const double& machNumber )
+    double inclinationAngle, double machNumber )
 {
     // Declare local variables.
     double machNumberSine_;
@@ -160,7 +160,7 @@ double computeEmpiricalTangentConePressureCoefficient(
 
 //! Compute pressure coefficient using modified Dahlem-Buck method.
 double computeModifiedDahlemBuckPressureCoefficient(
-    const double& inclinationAngle, const double& machNumber )
+    double inclinationAngle, double machNumber )
 {
     // Declare local variables.
     double checkAngle_ = 22.5 * M_PI / 180.0;
@@ -208,7 +208,7 @@ double computeModifiedDahlemBuckPressureCoefficient(
 
 //! Compute pressure coefficient using the Hankey flat surface method.
 double computeHankeyFlatSurfacePressureCoefficient(
-    const double& inclinationAngle, const double& machNumber )
+    double inclinationAngle, double machNumber )
 {
     // Declare local variables.
     double stagnationPressureCoefficient_;
@@ -236,7 +236,7 @@ double computeHankeyFlatSurfacePressureCoefficient(
 
 //! Compute pressure coefficient using the Smyth delta wing method.
 double computeSmythDeltaWingPressureCoefficient(
-    const double& inclinationAngle, const double& machNumber )
+    double inclinationAngle, double machNumber )
 {
     // Declare local variables.
     double machNumberSine_;
@@ -265,8 +265,8 @@ double computeSmythDeltaWingPressureCoefficient(
 
 //! Compute pressure coefficient using the van Dyke unified method.
 double computeVanDykeUnifiedPressureCoefficient(
-    const double& inclinationAngle, const double& machNumber,
-    const double& ratioOfSpecificHeats, const int& type )
+    double inclinationAngle, double machNumber,
+    double ratioOfSpecificHeats, int type )
 {
     // Declare and initialize local variables and pre-compute for efficiency.
     double ratioOfSpecificHeatsTerm_ = ( ratioOfSpecificHeats + 1.0 ) / 2.0;
@@ -319,8 +319,8 @@ double computeVanDykeUnifiedPressureCoefficient(
 
 //! Compute pressure coefficient using Prandtl-Meyer expansion.
 double computePrandtlMeyerFreestreamPressureCoefficient(
-    const double& inclinationAngle, const double& machNumber,
-    const double& ratioOfSpecificHeats, const double& freestreamPrandtlMeyerFunction )
+    double inclinationAngle, double machNumber,
+    double ratioOfSpecificHeats, double freestreamPrandtlMeyerFunction )
 {
     // Declare local variables.
     double prandtlMeyerFunction_;
@@ -361,14 +361,14 @@ double computePrandtlMeyerFreestreamPressureCoefficient(
 
 //! Compute pressure coefficient at vacuum.
 double computeVacuumPressureCoefficient(
-    const double& machNumber, const double& ratioOfSpecificHeats )
+    double machNumber, double ratioOfSpecificHeats )
 {
     // Return pressure coefficient.
     return -2.0 / ( ratioOfSpecificHeats * pow( machNumber, 2.0 ) );
 }
 
 //! Compute high Mach base pressure coefficient.
-double computeHighMachBasePressure( const double& machNumber )
+double computeHighMachBasePressure( double machNumber )
 {
     // Calculate pressure coefficient.
     return -1.0 / pow( machNumber, 2.0 );
@@ -376,7 +376,7 @@ double computeHighMachBasePressure( const double& machNumber )
 
 //! Compute pressure coefficient using the ACM empirical method.
 double computeAcmEmpiricalPressureCoefficient(
-    const double& inclinationAngle, const double& machNumber )
+    double inclinationAngle, double machNumber )
 {
     // Declare local variables.
     double pressureCoefficient_;
@@ -406,7 +406,7 @@ double computeAcmEmpiricalPressureCoefficient(
 }
 
 //! Compute Mach number from Prandtl-Meyer function.
-double computeInversePrandtlMeyerFunction( const double& prandtlMeyerFunctionValue )
+double computeInversePrandtlMeyerFunction( double prandtlMeyerFunctionValue )
 {
     // Declare local variables.
     double inputVariableForCorrelation_;
@@ -430,8 +430,8 @@ double computeInversePrandtlMeyerFunction( const double& prandtlMeyerFunctionVal
 }
 
 //! Compute ratio of post- to pre-shock pressure.
-double computeShockPressureRatio( const double& normalMachNumber,
-                                  const double& ratioOfSpecificHeats )
+double computeShockPressureRatio( double normalMachNumber,
+                                  double ratioOfSpecificHeats )
 {
     // Return pressure ratio.
     return 1.0 + 2.0 * ratioOfSpecificHeats / ( ratioOfSpecificHeats + 1.0 )
@@ -439,8 +439,8 @@ double computeShockPressureRatio( const double& normalMachNumber,
 }
 
 //! Compute ratio of post- to pre-shock density.
-double computeShockDensityRatio( const double& normalMachNumber,
-                                 const double& ratioOfSpecificHeats )
+double computeShockDensityRatio( double normalMachNumber,
+                                 double ratioOfSpecificHeats )
 {
     // Declare local variables.
     double machNumberSquared_;
@@ -454,8 +454,8 @@ double computeShockDensityRatio( const double& normalMachNumber,
 }
 
 //! Compute ratio of post- to pre-shock temperature.
-double computeShockTemperatureRatio( const double& normalMachNumber,
-                                     const double& ratioOfSpecificHeats )
+double computeShockTemperatureRatio( double normalMachNumber,
+                                     double ratioOfSpecificHeats )
 {
     // Return temperature ratio from perfect gas law.
     return 1.0 / computeShockDensityRatio( normalMachNumber, ratioOfSpecificHeats )
@@ -463,9 +463,9 @@ double computeShockTemperatureRatio( const double& normalMachNumber,
 }
 
 //! Compute jump in entropy across a shock wave.
-double computeShockEntropyJump( const double& normalMachNumber,
-                                const double& ratioOfSpecificHeats,
-                                const double& specificGasConstant )
+double computeShockEntropyJump( double normalMachNumber,
+                                double ratioOfSpecificHeats,
+                                double specificGasConstant )
 {
     // Declare local variables.
     double specificHeatConstantPressure_;
@@ -482,9 +482,9 @@ double computeShockEntropyJump( const double& normalMachNumber,
 }
 
 //! Compute post- to pre-shock total pressure ratio.
-double computeShockTotalPressureRatio( const double& normalMachNumber,
-                                       const double& ratioOfSpecificHeats,
-                                       const double& specificGasConstant )
+double computeShockTotalPressureRatio( double normalMachNumber,
+                                       double ratioOfSpecificHeats,
+                                       double specificGasConstant )
 {
     // Return total pressure ratio from entropy jump.
     return exp( -1.0 * computeShockEntropyJump( normalMachNumber, ratioOfSpecificHeats,
@@ -492,8 +492,8 @@ double computeShockTotalPressureRatio( const double& normalMachNumber,
 }
 
 //! Compute shock deflection angle.
-double computeShockDeflectionAngle( const double& shockAngle, const double& machNumber,
-                                    const double& ratioOfSpecificHeats )
+double computeShockDeflectionAngle( double shockAngle, double machNumber,
+                                    double ratioOfSpecificHeats )
 {
     // Declare local variables.
     double tangentOfDeflectionAngle_;

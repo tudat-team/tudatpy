@@ -60,7 +60,7 @@ using std::cos;
 
 //! Get state from ephemeris; circular, coplanar case
 CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphemeris(
-        const double& julianDate )
+        double julianDate )
 {
     // Set Julian date.
     julianDate_ = julianDate;

@@ -96,7 +96,7 @@ public:
      * Sets the start of the propagation interval.
      * \param propagationIntervalStart Start of propagation interval.
      */
-    void setPropagationIntervalStart( const double& propagationIntervalStart )
+    void setPropagationIntervalStart( double propagationIntervalStart )
     { propagationIntervalStart_ = propagationIntervalStart; }
 
     //! Set end of propagation interval.
@@ -104,7 +104,7 @@ public:
      * Sets the end of the propagation interval.
      * \param propagationIntervalEnd End of propagation interval.
      */
-    void setPropagationIntervalEnd( const double& propagationIntervalEnd )
+    void setPropagationIntervalEnd( double propagationIntervalEnd )
     { propagationIntervalEnd_ = propagationIntervalEnd; }
 
     //! Add body to be propagated.

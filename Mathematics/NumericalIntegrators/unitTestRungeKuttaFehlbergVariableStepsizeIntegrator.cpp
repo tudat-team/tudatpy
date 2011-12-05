@@ -109,17 +109,16 @@ public:
                 - std::pow( time, 2.0 ) + 1.0;
     }
 
-    //! Compute the analytic answer
+    //! Compute the analytic answer.
     /*!
      * Analytic answer to problem, from same source as the state derivative.
-     *
      * \f[
      *      y(t) = (t+1)^{ 2 } - 0.5e^{t}
      * \f]
      * \param time Time
-     * \return analytic answer
+     * \return Analytic answer.
      */
-    double computeAnalyticAnswer( const double& time )
+    double computeAnalyticAnswer( double time )
     { return std::pow( ( time + 1.0 ), 2.0 ) - 0.5 * std::exp( time ); }
 
 
@@ -138,9 +137,9 @@ int main( )
 
     // Summary of tests.
     // Test 1: Integration of initial-value problem given on pg. 278 of
-    //         (Burden and Faires, 2001) for the RKF78.
-    // Test 2: same for the RKF45
-    // Test 3: same for the RKF56
+    //         (Burden and Faires, 2001) for the RKF78 integrator.
+    // Test 2: Same as Test 1 for the RKF45 integrator.
+    // Test 3: Same as Test 1 for the RKF56 integrator.
 
     // Test result initialized to false.
     bool isVariableStepsizeIntegratorErroneous_ = false;

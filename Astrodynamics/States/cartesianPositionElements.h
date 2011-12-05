@@ -70,7 +70,7 @@ public:
      * Sets the Cartesian element: x.
      * \param cartesianElementX Cartesian element: x.
      */
-    void setCartesianElementX( const double& cartesianElementX )
+    void setCartesianElementX( double cartesianElementX )
     { state( 0 ) = cartesianElementX; }
 
     //! Set Cartesian element: y.
@@ -78,7 +78,7 @@ public:
      * Sets the Cartesian element: y.
      * \param cartesianElementY Cartesian element: y.
      */
-    void setCartesianElementY( const double& cartesianElementY )
+    void setCartesianElementY( double cartesianElementY )
     { state( 1 ) = cartesianElementY; }
 
     //! Set Cartesian element: z.
@@ -86,7 +86,7 @@ public:
      * Sets the Cartesian element: z.
      * \param cartesianElementZ Cartesian element: z.
      */
-    void setCartesianElementZ( const double& cartesianElementZ )
+    void setCartesianElementZ( double cartesianElementZ )
     { state( 2 ) = cartesianElementZ; }
 
     //! Get Cartesian element: x.

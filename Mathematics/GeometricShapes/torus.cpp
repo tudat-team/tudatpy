@@ -59,8 +59,8 @@ using std::sin;
 using std::cos;
 
 //! Get surface point on torus.
-VectorXd Torus::getSurfacePoint( const double& majorCircumferentialAngle,
-                                 const double& minorCircumferentialAngle )
+VectorXd Torus::getSurfacePoint( double majorCircumferentialAngle,
+                                 double minorCircumferentialAngle )
 {
     // Form cartesian position vector from paranmetrization.
     cartesianPositionVector_( 0 )
@@ -79,10 +79,10 @@ VectorXd Torus::getSurfacePoint( const double& majorCircumferentialAngle,
 }
 
 //! Get surface derivative on torus.
-VectorXd Torus::getSurfaceDerivative( const double& majorCircumferentialAngle,
-                                      const double& minorCircumferentialAngle,
-                                      const int& powerOfMajorCircumferentialAngleDerivative,
-                                      const int& powerOfMinorCircumferentialAngleDerivative )
+VectorXd Torus::getSurfaceDerivative( double majorCircumferentialAngle,
+                                      double minorCircumferentialAngle,
+                                      int powerOfMajorCircumferentialAngleDerivative,
+                                      int powerOfMinorCircumferentialAngleDerivative )
 {
     // Declare and set size of derivative vector.
     VectorXd derivative_ = VectorXd( 3 );
@@ -217,7 +217,7 @@ VectorXd Torus::getSurfaceDerivative( const double& majorCircumferentialAngle,
 }
 
 //! Get parameter of torus.
-double Torus::getParameter( const int& index )
+double Torus::getParameter( int index )
 {
     // Set parameter based on index.
     switch( index )
@@ -243,7 +243,7 @@ double Torus::getParameter( const int& index )
 }
 
 //! Set parameter of torus.
-void Torus::setParameter( const int& index, const double& parameter)
+void Torus::setParameter( int index, double parameter)
 {
     // Check which parameter is to be set and set value.
     switch( index )

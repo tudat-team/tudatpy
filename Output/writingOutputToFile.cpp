@@ -102,8 +102,8 @@ void WritingOutputToFile::writePropagationHistoryToFile(
 //! Write single surface geometry to a file.
 void WritingOutputToFile::writeSingleSurfaceGeometryPointsToFile(
     SingleSurfaceGeometry* pointerToSingleSurfaceGeometry,
-    const int& numberOfLines, const int& numberOfPoints,
-    const std::string& filename, const int& writeType, const bool& isIndependentVariableInverted )
+    int numberOfLines, int numberOfPoints,
+    const std::string& filename, int writeType, const bool& isIndependentVariableInverted )
 {
     // Declare local variables.
     // Declare grid sizes.
@@ -205,7 +205,7 @@ void WritingOutputToFile::writeSingleSurfaceGeometryPointsToFile(
 //! Write composite surface geometry to a file.
 void WritingOutputToFile:: writeCompositeSurfaceGeometryPointsToFile(
     CompositeSurfaceGeometry* pointerToCompositeSurfaceGeometry, int* arrayOfNumberOfLines,
-    int* arrayOfNumberOfPoints, const std::string& filename,  const int& writeType,
+    int* arrayOfNumberOfPoints, const std::string& filename,  int writeType,
     bool* isIndependentVariableInvertedArray )
 {
     // Remove file of same name, if writeType is not append.

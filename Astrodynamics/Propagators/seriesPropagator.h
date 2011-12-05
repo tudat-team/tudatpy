@@ -81,7 +81,7 @@ public:
      * Sets the start of the series propagation.
      * \param seriesPropagationStart Start of series propagation.
      */
-    void setSeriesPropagationStart( const double& seriesPropagationStart )
+    void setSeriesPropagationStart( double seriesPropagationStart )
     { seriesPropagationStart_ = seriesPropagationStart; }
 
     //! Set end of series propagation.
@@ -89,7 +89,7 @@ public:
      * Sets the end of the series propagation.
      * \param seriesPropagationEnd End of series propagation.
      */
-    void setSeriesPropagationEnd( const double& seriesPropagationEnd )
+    void setSeriesPropagationEnd( double seriesPropagationEnd )
     { seriesPropagationEnd_ = seriesPropagationEnd; }
 
     //! Set fixed output interval.
@@ -104,7 +104,7 @@ public:
      * precision is subtracted before applying the ceil function.
      * \param fixedOutputInterval Fixed output interval.
      */
-    void setFixedOutputInterval( const double& fixedOutputInterval )
+    void setFixedOutputInterval( double fixedOutputInterval )
     {
         fixedOutputInterval_ = fixedOutputInterval;
         numberOfPropagationSteps_ = static_cast< unsigned int >(

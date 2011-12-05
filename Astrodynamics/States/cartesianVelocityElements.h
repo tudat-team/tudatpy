@@ -69,7 +69,7 @@ public:
      * Sets the Cartesian element: xDot.
      * \param cartesianElementXDot Cartesian element: xDot.
      */
-    void setCartesianElementXDot( const double& cartesianElementXDot )
+    void setCartesianElementXDot( double cartesianElementXDot )
     { state( 0 ) = cartesianElementXDot; }
 
     //! Set Cartesian element: yDot.
@@ -77,7 +77,7 @@ public:
      * Sets the Cartesian element: yDot.
      * \param cartesianElementYDot Cartesian element: yDot.
      */
-    void setCartesianElementYDot( const double& cartesianElementYDot )
+    void setCartesianElementYDot( double cartesianElementYDot )
     { state( 1 ) = cartesianElementYDot; }
 
     //! Set Cartesian element: zDot.
@@ -85,7 +85,7 @@ public:
      * Sets the Cartesian element: zDot.
      * \param cartesianElementZDot Cartesian element: zDot.
      */
-    void setCartesianElementZDot( const double& cartesianElementZDot )
+    void setCartesianElementZDot( double cartesianElementZDot )
     { state( 2 ) = cartesianElementZDot; }
 
     //! Get Cartesian element: xDot.

@@ -68,7 +68,7 @@ void CubicSplineInterpolation::initializeCubicSplineInterpolation( VectorXd& ind
 }
 
 //! Interpolate a point.
-double CubicSplineInterpolation::interpolate( const double& targetIndependentVariableValue )
+double CubicSplineInterpolation::interpolate( double targetIndependentVariableValue )
 {
     if ( independentVariables_.size( ) == 0 || dependentVariables_.size( ) == 0 )
     {

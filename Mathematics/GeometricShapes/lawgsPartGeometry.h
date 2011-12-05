@@ -73,7 +73,7 @@ public:
     /*!
      * Default constructor.
      */
-    LawgsPartGeometry( ) : name_( " " ) { }
+    LawgsPartGeometry( ) : name_( "" ) { }
 
     //! Default destructor.
     /*!
@@ -112,15 +112,14 @@ public:
      * between) which points to retrieve a point.
      * \return point on mesh panel.
      */
-    virtual VectorXd getSurfacePoint( const double& independentVariable1,
-                                      const double& independentVariable2 );
+    virtual VectorXd getSurfacePoint( double independentVariable1,
+                                      double independentVariable2 );
 
     //! Get surface derivative (currently not implemented).
     /*!
      * Currently unavailable function to return surface derivative.
      */
-    virtual VectorXd getSurfaceDerivative( const double& u, const double& v,
-                                           const int& uDerivative, const int& vDerivative );
+    virtual VectorXd getSurfaceDerivative( double u, double v, int uDerivative, int vDerivative );
 
     //! Set name of a Lawgs part.
     /*!
@@ -132,13 +131,13 @@ public:
     /*!
      * Returns parameter.
      */
-    virtual double getParameter( const int& i );
+    virtual double getParameter( int i );
 
     //! Set parameter.
     /*!
      * Sets parameter.
      */
-    virtual void setParameter( const int &parameterIndex, const double &value );
+    virtual void setParameter( int parameterIndex, double value );
 
     //! De-allocate arrays in object.
     /*!

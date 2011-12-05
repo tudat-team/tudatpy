@@ -90,7 +90,7 @@ public:
      * Sets the relative error tolerance.
      * \param relativeErrorTolerance Relative error tolerance.
      */
-    void setRelativeErrorTolerance( const double& relativeErrorTolerance )
+    void setRelativeErrorTolerance( double relativeErrorTolerance )
     {
         // Set relative error tolerance.
         relativeErrorTolerance_ = relativeErrorTolerance;
@@ -101,7 +101,7 @@ public:
      * Sets the minimum stepsize.
      * \param minimumStepsize Minimum stepsize.
      */
-    void setMinimumStepsize( const double& minimumStepsize )
+    void setMinimumStepsize( double minimumStepsize )
     {
         // Set minimumStepsize.
         minimumStepsize_ = minimumStepsize;

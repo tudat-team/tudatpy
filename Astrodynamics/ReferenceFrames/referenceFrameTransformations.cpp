@@ -60,7 +60,7 @@ namespace tudat
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Matrix3d reference_frame_transformations::
-getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double& angleFromXItoXR )
+getRotatingPlanetocentricToInertialFrameTransformationMatrix( double angleFromXItoXR )
 {
     // Declare local variables.
     // Declare local matrix.
@@ -76,7 +76,7 @@ getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double& angl
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation quaternion.
 Quaterniond reference_frame_transformations::
-getRotatingPlanetocentricToInertialFrameTransformationQuaternion( const double& angleFromXItoXR )
+getRotatingPlanetocentricToInertialFrameTransformationQuaternion( double angleFromXItoXR )
 {
     // Compute transformation quaternion
     // Note the sign change, because how angleAxisd is defined.
@@ -89,7 +89,7 @@ getRotatingPlanetocentricToInertialFrameTransformationQuaternion( const double& 
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 Matrix3d reference_frame_transformations::getInertialToPlanetocentricFrameTransformationMatrix(
-    const double& angleFromXItoXR )
+    double angleFromXItoXR )
 {
     // Compute rotation about Z-Axis.
     // Note the sign change, because how angleAxisd is defined.
@@ -102,7 +102,7 @@ Matrix3d reference_frame_transformations::getInertialToPlanetocentricFrameTransf
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
 Quaterniond
 reference_frame_transformations::getInertialToPlanetocentricFrameTransformationQuaternion(
-    const double& angleFromXItoXR )
+    double angleFromXItoXR )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
@@ -129,8 +129,8 @@ getQuaternionObjectFromQuaternionValues(
 
 //! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
 Matrix3d reference_frame_transformations::
-getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( const double& angleOfAttack,
-                                                            const double& angleOfSideslip )
+getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( double angleOfAttack,
+                                                            double angleOfSideslip )
 {
     // Declare local variables.
     // Declare local transformation matrix.
@@ -149,7 +149,7 @@ getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( const double& angleO
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
 Quaterniond reference_frame_transformations::
 getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-    const double& longitude, const double& latitude )
+    double longitude, double latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
@@ -166,7 +166,7 @@ getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 Quaterniond reference_frame_transformations::
 getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-    const double& longitude, const double& latitude )
+    double longitude, double latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change (-1.0), because how angleAxisd is defined.

@@ -166,7 +166,7 @@ public:
      * 3 = Low hypersonic expansion.
      * \param part Vehicle part on which to apply method.
      */
-    void setSelectedMethod( const int& method, const int& type, const int& part )
+    void setSelectedMethod( int method, int type, int part )
     { selectedMethods_[ type ][ part ] = method; }
 
     //! Generate aerodynamic database.
@@ -184,8 +184,8 @@ public:
      * \param angleOfAttack Angle of attack at which to determine inclination angles.
      * \param angleOfSideslip Angle of sideslip at which to determine inclination angles.
      */
-    virtual void determineInclination( const int& partNumber, const double& angleOfAttack,
-                                       const double& angleOfSideslip );
+    virtual void determineInclination( int partNumber, double angleOfAttack,
+                                       double angleOfSideslip );
 
     //! Get the number of vehicle parts.
     /*!
@@ -212,8 +212,7 @@ public:
      * \param vehicleIndex Index in vehicleParts_ to be retrieved.
      * \return Requested vehicle part.
      */
-     LawgsPartGeometry getVehiclePart( const int& vehicleIndex )
-     { return vehicleParts_[ vehicleIndex ]; }
+     LawgsPartGeometry getVehiclePart( int vehicleIndex ) { return vehicleParts_[ vehicleIndex ]; }
 
     //! Set mach regime.
     /*!
@@ -273,7 +272,7 @@ private:
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
      */
-    VectorXd determinePartCoefficients( const int& partNumber, int* independentVariableIndices );
+    VectorXd determinePartCoefficients( int partNumber, int* independentVariableIndices );
 
     //! Determine pressure coefficients on a given part.
     /*!
@@ -282,7 +281,7 @@ private:
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
      */
-    void determinePressureCoefficients( const int& partNumber, int* independentVariableIndices );
+    void determinePressureCoefficients( int partNumber, int* independentVariableIndices );
 
     //! Determine force coefficients of a part.
     /*!
@@ -290,7 +289,7 @@ private:
      * non-dimensionalization with reference area.
      * \param partNumber Index from vehicleParts_ array for which determine coefficients.
      */
-    VectorXd calculateForceCoefficients( const int& partNumber );
+    VectorXd calculateForceCoefficients( int partNumber );
 
     //! Determine moment coefficients of a part.
     /*!
@@ -299,7 +298,7 @@ private:
      * dimensionalization is performed by product of referenceLength and referenceArea.
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      */
-    VectorXd calculateMomentCoefficients( const int& partNumber );
+    VectorXd calculateMomentCoefficients( int partNumber );
 
     //! Determine the compression pressure coefficients of a given part.
     /*!
@@ -308,7 +307,7 @@ private:
      * \param machNumber Mach number at which to perform analysis.
      * \param partNumber of part from vehicleParts_ which is to be analyzed.
      */
-    void updateCompressionPressures( const double& machNumber, const int& partNumber );
+    void updateCompressionPressures( double machNumber, int partNumber );
 
     //! Determine the expansion pressure coefficients of a given part.
     /*!
@@ -317,7 +316,7 @@ private:
      * \param machNumber Mach number at which to perform analysis.
      * \param partNumber of part from vehicleParts_ which is to be analyzed.
      */
-    void updateExpansionPressures( const double& machNumber, const int& partNumber );
+    void updateExpansionPressures( double machNumber, int partNumber );
 
     //! Set the default analysis points for Mach number.
     /*!

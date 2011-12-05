@@ -78,7 +78,7 @@ namespace reference_frame_transformations
  * \return Reference frame (R) to inertial reference frame (I) transformation matrix.
  */
 Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
-    const double& angleFromXItoXR );
+    double angleFromXItoXR );
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation quaternion.
 /*!
@@ -91,7 +91,7 @@ Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
  * \return Reference frame (R) to inertial reference frame (I) transformation quaternion.
  */
 Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
-    const double& angleFromXItoXR );
+    double angleFromXItoXR );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 /*!
@@ -102,7 +102,7 @@ Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
  *          the rotational rate of the central body [rad/s] times the time from epoch [s].
  * \return Inertial (I) to planetocentric reference frame (R) transformation matrix.
  */
-Matrix3d getInertialToPlanetocentricFrameTransformationMatrix( const double& angleFromXItoXR );
+Matrix3d getInertialToPlanetocentricFrameTransformationMatrix( double angleFromXItoXR );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
 /*!
@@ -115,7 +115,7 @@ Matrix3d getInertialToPlanetocentricFrameTransformationMatrix( const double& ang
  * \return Inertial (I) to planetocentric reference frame (R) transformation quaternion.
  */
 Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
-        const double& angleFromXItoXR );
+        double angleFromXItoXR );
 
 //! Create a Quaterniond rotation state object from four quaternion values in vector 4d.
 /*!
@@ -144,7 +144,7 @@ Quaterniond getQuaternionObjectFromQuaternionValues( const Vector4d& vectorWithQ
  * \return Transformation matrix.
  */
 Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
-        const double& angleOfAttack, const double& angleOfSideslip );
+        double angleOfAttack, double angleOfSideslip );
 
 //! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation quaternion.
 /*!
@@ -155,7 +155,7 @@ Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
  * \return Transformation quaternion.
  */
 Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
-        const double& angleOfAttack, const double& angleOfSideslip );
+        double angleOfAttack, double angleOfSideslip );
 
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
 /*!
@@ -169,7 +169,7 @@ Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
  * \return Transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
  */
 Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-    const double& longitude, const double& latitude );
+    double longitude, double latitude );
 
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 /*!
@@ -183,7 +183,7 @@ Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternio
  * \return Transformation quaternion from local vertical (V) to the Planetocentric (R) frame.
  */
 Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-    const double& longitude, const double& latitude );
+    double longitude, double latitude );
 
 }
 

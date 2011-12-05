@@ -121,7 +121,7 @@ public:
      * \param julianDate Get the ephemeris at this Julian date, UT1.
      * \return State in Cartesian elements from ephemeris.
      */
-    CartesianElements* getStateFromEphemeris( const double& julianDate ) = 0;
+    CartesianElements* getStateFromEphemeris( double julianDate ) = 0;
 
 protected:
 

@@ -93,7 +93,7 @@ void Integrator::setInitialState( State* pointerToInitialState )
 }
 
 //! Set initial stepsize.
-void Integrator::setInitialStepsize( const double& initialStepsize )
+void Integrator::setInitialStepsize( double initialStepsize )
 {
     // Set stepsize for integrator.
     initialStepsize_ = initialStepsize;
@@ -106,7 +106,7 @@ void Integrator::setInitialStepsize( const double& initialStepsize )
 }
 
 //! Set start of integration interval.
-void Integrator::setIntegrationIntervalStart( const double& integrationIntervalStart )
+void Integrator::setIntegrationIntervalStart( double integrationIntervalStart )
 {
     // Set start of integration interval.
     integrationIntervalStart_ = integrationIntervalStart;
@@ -119,7 +119,7 @@ void Integrator::setIntegrationIntervalStart( const double& integrationIntervalS
 }
 
 //! Set end of integration interval.
-void Integrator::setIntegrationIntervalEnd( const double& integrationIntervalEnd )
+void Integrator::setIntegrationIntervalEnd( double integrationIntervalEnd )
 {
     // Set end of integration interval.
     integrationIntervalEnd_ = integrationIntervalEnd;

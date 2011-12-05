@@ -134,8 +134,8 @@ LawgsPartGeometry::LawgsPartGeometry( const LawgsPartGeometry& partToCopy )
 }
 
 //! Get surface point.
-VectorXd LawgsPartGeometry::getSurfacePoint( const double& independentVariable1,
-                                             const double& independentVariable2 )
+VectorXd LawgsPartGeometry::getSurfacePoint( double independentVariable1,
+                                             double independentVariable2 )
 {
     // Declare local variables denoting 'start' of panel.
     int pointIndex, lineIndex;
@@ -168,8 +168,8 @@ VectorXd LawgsPartGeometry::getSurfacePoint( const double& independentVariable1,
 }
 
 //! Get surface derivative (currently not implemented).
-VectorXd LawgsPartGeometry::getSurfaceDerivative( const double& u, const double& v,
-                                                  const int& uDerivative, const int& vDerivative )
+VectorXd LawgsPartGeometry::getSurfaceDerivative( double u, double v,
+                                                  int uDerivative, int vDerivative )
 {
     std::cerr << "Surface derivative function not implemented in "
               << "LawgsPartGeometry class. Not able to return the "
@@ -180,7 +180,7 @@ VectorXd LawgsPartGeometry::getSurfaceDerivative( const double& u, const double&
 }
 
 //! Get parameter.
-double LawgsPartGeometry::getParameter( const int& parameterIndex )
+double LawgsPartGeometry::getParameter( int parameterIndex )
 {
     std::cerr << "Get parameter function not implemented in LawgsPartGeometry"
               << "class, unable to retrieve parameter "<< parameterIndex
@@ -190,7 +190,7 @@ double LawgsPartGeometry::getParameter( const int& parameterIndex )
 }
 
 //! Set parameter.
-void LawgsPartGeometry::setParameter( const int& parameterIndex, const double& value )
+void LawgsPartGeometry::setParameter( int parameterIndex, double value )
 {
     std::cerr << "Set parameter function not implemented in LawgsPartGeometry"
               << "class. Unable to set value of " << value << " at parameter index "

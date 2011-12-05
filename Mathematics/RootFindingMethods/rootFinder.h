@@ -101,7 +101,7 @@ public:
      * \param initialGuessOfRoot Initial guess of root of mathematical
      *          function.
      */
-    void setInitialGuessOfRoot( const double& initialGuessOfRoot )
+    void setInitialGuessOfRoot( double initialGuessOfRoot )
     { initialGuessOfRoot_ = initialGuessOfRoot; currentValueOfRoot_ = initialGuessOfRoot; }
 
     //! Set maximum number of iterations.
@@ -117,7 +117,7 @@ public:
      * Sets tolerance for root-finding method.
      * \param tolerance Tolerance.
      */
-    void setTolerance( const double& tolerance ) { tolerance_ = tolerance; }
+    void setTolerance( double tolerance ) { tolerance_ = tolerance; }
 
     //! Set pointer to mathematical function.
     /*!

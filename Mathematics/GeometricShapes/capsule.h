@@ -94,35 +94,35 @@ public:
      * Sets the nose radius of the capsule.
      * \param noseRadius Nose radius.
      */
-    void setNoseRadius( const double& noseRadius ) { noseRadius_ = noseRadius; }
+    void setNoseRadius( double noseRadius ) { noseRadius_ = noseRadius; }
 
     //! Set middle radius.
     /*!
      * Sets the middle radius of the capsule.
      * \param middleRadius middleRadius.
      */
-    void setMiddleRadius( const double& middleRadius ) { middleRadius_ = middleRadius; }
+    void setMiddleRadius( double middleRadius ) { middleRadius_ = middleRadius; }
 
     //! Set rear length.
     /*!
      * Sets the rear length of the capsule.
      * \param rearRadius Rear radius.
      */
-    void setRearLength( const double& rearLength ) { rearLength_ = rearLength; }
+    void setRearLength( double rearLength ) { rearLength_ = rearLength; }
 
     //! Set rear angle.
     /*!
      * Sets the rear angle of the capsule.
      * \param rearAngle Rear angle.
      */
-    void setRearAngle( const double& rearAngle ) { rearAngle_ = rearAngle; }
+    void setRearAngle( double rearAngle ) { rearAngle_ = rearAngle; }
 
     //! Set side radius.
     /*!
      * Sets side radius of the capsule.
      * \param sideRadius Side radius.
      */
-    void setSideRadius( const double& sideRadius ) { sideRadius_ = sideRadius; }
+    void setSideRadius( double sideRadius ) { sideRadius_ = sideRadius; }
 
     //! Get nose radius.
     /*!

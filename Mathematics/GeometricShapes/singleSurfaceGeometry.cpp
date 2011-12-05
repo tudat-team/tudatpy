@@ -74,8 +74,8 @@ using std::cerr;
 using std::endl;
 
 //! Set minimum value of independent variable.
-void SingleSurfaceGeometry::setMinimumIndependentVariable( const int& parameterIndex,
-                                                           const double& minimumValue )
+void SingleSurfaceGeometry::setMinimumIndependentVariable( int parameterIndex,
+                                                           double minimumValue )
 {
     independentVariable_ = IndependentVariables( parameterIndex );
 
@@ -106,7 +106,7 @@ void SingleSurfaceGeometry::setMinimumIndependentVariable( const int& parameterI
 
 //! Set maximum value of independent variable.
 void SingleSurfaceGeometry::setMaximumIndependentVariable(
-    const int& parameterIndex, const double& maximumValue )
+    int parameterIndex, double maximumValue )
 {
 
     independentVariable_ = IndependentVariables( parameterIndex );
@@ -138,7 +138,7 @@ void SingleSurfaceGeometry::setMaximumIndependentVariable(
 
 //! Get minimum value of independent variable.
 double SingleSurfaceGeometry::getMinimumIndependentVariable(
-    const int& parameterIndex )
+    int parameterIndex )
 {
     // Declare local variables.
     double minimumValue_;
@@ -174,7 +174,7 @@ double SingleSurfaceGeometry::getMinimumIndependentVariable(
 
 //! Get maximum value of independent variable.
 double SingleSurfaceGeometry::getMaximumIndependentVariable(
-    const int& parameterIndex )
+    int parameterIndex )
 {
     // Declare local variables.
     double maximumValue_;

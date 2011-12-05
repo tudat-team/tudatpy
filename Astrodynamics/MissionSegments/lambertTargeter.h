@@ -125,7 +125,7 @@ public:
      * Sets the number of revolutions.
      * \param numberOfRevolutions Number of Revolutions.
      */
-    void setNumberOfRevolutions( const int &numberOfRevolutions )
+    void setNumberOfRevolutions( int numberOfRevolutions )
     { numberOfRevolutions_ = numberOfRevolutions; }
 
     //! Set time-of-flight.
@@ -133,7 +133,7 @@ public:
      * Sets the time-of-flight.
      * \param timeOfFlight Time-of-flight.
      */
-    void setTimeOfFlight( const double &timeOfFlight ) { timeOfFlight_ = timeOfFlight; }
+    void setTimeOfFlight( double timeOfFlight ) { timeOfFlight_ = timeOfFlight; }
 
     //! Set central body.
     /*!
