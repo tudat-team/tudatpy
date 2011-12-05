@@ -86,7 +86,7 @@ public:
      * \param julianDate Julian date given in Julian days.
      * \return State from ephemeris.
      */
-    virtual CartesianElements* getStateFromEphemeris( const double& julianDate ) = 0;
+    virtual CartesianElements* getStateFromEphemeris( double julianDate ) = 0;
 
 protected:
 

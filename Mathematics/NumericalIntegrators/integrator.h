@@ -110,7 +110,7 @@ public:
     /*!
      * Sets class object containing the function to compute the state
      * derivative. The state derivative function must have the following form:
-     * void computeStateDerivative( const double&, State*, State* ). The name
+     * void computeStateDerivative( double , State*, State* ). The name
      * of the function must be 'computeStateDerivative'.
      * \param pointerToStateDerivative Pointer to class containing state
      *          derivative function.
@@ -133,7 +133,7 @@ public:
      * must be called at least once for integration to proceed.
      * \param initialStepsize Initial stepsize for integration method.
      */
-    void setInitialStepsize( const double& initialStepsize );
+    void setInitialStepsize( double initialStepsize );
 
     //! Set start of integration interval.
     /*!
@@ -141,7 +141,7 @@ public:
      * at least once for integration to proceed.
      * \param integrationIntervalStart Start of integration interval.
      */
-    void setIntegrationIntervalStart( const double& integrationIntervalStart );
+    void setIntegrationIntervalStart( double integrationIntervalStart );
 
     //! Set end of integration interval.
     /*!
@@ -149,7 +149,7 @@ public:
      * at least once for integration to proceed.
      * \param integrationIntervalEnd End of integration interval.
      */
-    void setIntegrationIntervalEnd( const double& integrationIntervalEnd );
+    void setIntegrationIntervalEnd( double integrationIntervalEnd );
 
     //! Get stepsize.
     /*!

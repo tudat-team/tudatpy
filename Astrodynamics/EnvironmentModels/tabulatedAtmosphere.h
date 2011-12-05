@@ -112,8 +112,8 @@ public:
      * \param time Time.
      * \return Atmospheric density.
      */
-    double getDensity( const double& altitude, const double& longitude = 0.0,
-                       const double& latitude = 0.0, const double& time = 0.0 )
+    double getDensity( double altitude, double longitude = 0.0,
+                       double latitude = 0.0, double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -130,8 +130,8 @@ public:
      * \param time Time.
      * \return Atmospheric pressure.
      */
-    double getPressure( const double& altitude, const double& longitude = 0.0,
-                        const double& latitude = 0.0, const double& time = 0.0 )
+    double getPressure( double altitude, double longitude = 0.0,
+                        double latitude = 0.0, double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -148,8 +148,8 @@ public:
      * \param time Time.
      * \return Atmospheric temperature.
      */
-    double getTemperature( const double& altitude, const double& longitude = 0.0,
-                           const double& latitude = 0.0, const double& time = 0.0 )
+    double getTemperature( double altitude, double longitude = 0.0,
+                           double latitude = 0.0, double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );

@@ -118,7 +118,7 @@ public:
      * the given Julian date in Cartesian elements.
      * \return Pointer to Cartesian elements.
      */
-    CartesianElements* getStateFromEphemeris( const double& julianDate )
+    CartesianElements* getStateFromEphemeris( double julianDate )
     { return pointerToEphemeris_->getStateFromEphemeris( julianDate ); }
 
     //! Get ephemeris.

@@ -99,8 +99,8 @@ KeplerianElements convertCartesianToKeplerianElements(
  * \param eccentricity Eccentricity.
  * \return Eccentric anomaly.
  */
-double convertTrueAnomalyToEccentricAnomaly( const double& trueAnomaly,
-                                             const double& eccentricity );
+double convertTrueAnomalyToEccentricAnomaly( double trueAnomaly,
+                                             double eccentricity );
 
 //! Convert eccentric anomaly to true anomaly.
 /*!
@@ -110,8 +110,8 @@ double convertTrueAnomalyToEccentricAnomaly( const double& trueAnomaly,
  * \param eccentricity Eccentricity.
  * \return True anomaly.
  */
-double convertEccentricAnomalyToTrueAnomaly( const double& eccentricAnomaly,
-                                             const double& eccentricity );
+double convertEccentricAnomalyToTrueAnomaly( double eccentricAnomaly,
+                                             double eccentricity );
 
 //! Convert true anomaly to hyperbolic eccentric anomaly.
 /*!
@@ -121,8 +121,8 @@ double convertEccentricAnomalyToTrueAnomaly( const double& eccentricAnomaly,
  * \param eccentricity Eccentricity.
  * \return Hyperbolic eccentric anomaly.
  */
-double convertTrueAnomalyToHyperbolicEccentricAnomaly( const double& trueAnomaly,
-                                                       const double& eccentricity );
+double convertTrueAnomalyToHyperbolicEccentricAnomaly( double trueAnomaly,
+                                                       double eccentricity );
 
 //! Convert hyperbolic eccentric anomaly to true anomaly.
 /*!
@@ -132,8 +132,8 @@ double convertTrueAnomalyToHyperbolicEccentricAnomaly( const double& trueAnomaly
  * \param eccentricity Eccentricity.
  * \return True anomaly.
  */
-double convertHyperbolicEccentricAnomalyToTrueAnomaly( const double& hyperbolicEccentricAnomaly,
-                                                       const double& eccentricity );
+double convertHyperbolicEccentricAnomalyToTrueAnomaly( double hyperbolicEccentricAnomaly,
+                                                       double eccentricity );
 
 //! Convert eccentric anomaly to mean anomaly.
 /*!
@@ -143,8 +143,8 @@ double convertHyperbolicEccentricAnomalyToTrueAnomaly( const double& hyperbolicE
  * \param eccentricAnomaly Eccentric anomaly.
  * \return Mean anomaly.
  */
-double convertEccentricAnomalyToMeanAnomaly( const double& eccentricAnomaly,
-                                             const double& eccentricity );
+double convertEccentricAnomalyToMeanAnomaly( double eccentricAnomaly,
+                                             double eccentricity );
 
 //! Class to convert mean anomaly to eccentric anomaly.
 /*!
@@ -162,8 +162,8 @@ class convertMeanAnomalyToEccentricAnomaly;
  * \param eccentricity Eccentricity.
  * \return Mean anomaly.
  */
-double convertHyperbolicEccentricAnomalyToMeanAnomaly( const double& hyperbolicEccentricAnomaly,
-                                                       const double& eccentricity );
+double convertHyperbolicEccentricAnomalyToMeanAnomaly( double hyperbolicEccentricAnomaly,
+                                                       double eccentricity );
 
 //! Class to convert mean anomaly to hyperbolic eccentric anomaly.
 /*!
@@ -182,9 +182,9 @@ class convertMeanAnomalyToHyperbolicEccentricAnomaly;
  * \param semiMajorAxis Semi-major axis.
  * \return Mean anomaly.
  */
-double convertElapsedTimeToMeanAnomalyForEllipticalOrbits( const double& elapsedTime,
+double convertElapsedTimeToMeanAnomalyForEllipticalOrbits( double elapsedTime,
                                                            CelestialBody* pointerToCentralBody,
-                                                           const double& semiMajorAxis );
+                                                           double semiMajorAxis );
 
 //! Convert mean anomaly to elapsed time.
 /*!
@@ -195,9 +195,9 @@ double convertElapsedTimeToMeanAnomalyForEllipticalOrbits( const double& elapsed
  * \param semiMajorAxis Semi-major axis.
  * \return Elapsed time.
  */
-double convertMeanAnomalyToElapsedTimeForEllipticalOrbits( const double& meanAnomaly,
+double convertMeanAnomalyToElapsedTimeForEllipticalOrbits( double meanAnomaly,
                                                            CelestialBody* pointerToCentralBody,
-                                                           const double& semiMajorAxis );
+                                                           double semiMajorAxis );
 
 //! Convert elapsed time to mean anomaly for hyperbolic orbits.
 /*!
@@ -208,9 +208,9 @@ double convertMeanAnomalyToElapsedTimeForEllipticalOrbits( const double& meanAno
  * \param semiMajorAxis Semi-major axis.
  * \return Mean anomaly.
  */
-double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits( const double& elapsedTime,
+double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits( double elapsedTime,
                                                            CelestialBody* pointerToCentralBody,
-                                                           const double& semiMajorAxis );
+                                                           double semiMajorAxis );
 
 //! Convert mean anomaly to elapsed time for hyperbolic orbits.
 /*!
@@ -221,9 +221,9 @@ double convertElapsedTimeToMeanAnomalyForHyperbolicOrbits( const double& elapsed
  * \param semiMajorAxis Semi-major axis.
  * \return Elapsed time.
  */
-double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits( const double& meanAnomaly,
+double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits( double meanAnomaly,
                                                            CelestialBody* pointerToCentralBody,
-                                                           const double& semiMajorAxis );
+                                                           double semiMajorAxis );
 
 //! Convert mean motion to semi-major axis.
 /*!
@@ -232,7 +232,7 @@ double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits( const double& meanAno
  * \param pointerToCentralBody Pointer to central body.
  * \return semiMajorAxis Semi-major axis.
  */
-double convertMeanMotionToSemiMajorAxis( const double& meanMotion,
+double convertMeanMotionToSemiMajorAxis( double meanMotion,
                                          CelestialBody* pointerToCentralBody );
 
 }

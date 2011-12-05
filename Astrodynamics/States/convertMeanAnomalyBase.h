@@ -99,14 +99,14 @@ public:
      * Sets eccentricity of orbit.
      * \param eccentricity Eccentricity.
      */
-    void setEccentricity( const double& eccentricity ) { eccentricity_ = eccentricity; }
+    void setEccentricity( double eccentricity ) { eccentricity_ = eccentricity; }
 
     //! Set mean anomaly.
     /*!
      * Sets the mean anomaly.
      * \param meanAnomaly Mean anomaly.
      */
-    void setMeanAnomaly( const double& meanAnomaly ) { meanAnomaly_ = meanAnomaly; }
+    void setMeanAnomaly( double meanAnomaly ) { meanAnomaly_ = meanAnomaly; }
 
 protected:
 

@@ -108,7 +108,7 @@ double GravityAssist::firstDerivativeVelocityEffectFunction( double &incomingEcc
 }
 
 //! Compute the delta-V of the powered swing-by.
-const double& GravityAssist::computeDeltaV( )
+double GravityAssist::computeDeltaV( )
 {
     // Get shape model of central body.
     pointerToCentralBodySphere_ = static_cast< SphereSegment* >

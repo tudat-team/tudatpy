@@ -93,7 +93,7 @@ public:
      * \param zenithAngle Zenith angle.
      * \return Surface point on sphere.
      */
-    VectorXd getSurfacePoint( const double& azimuthAngle, const double& zenithAngle );
+    VectorXd getSurfacePoint( double azimuthAngle, double zenithAngle );
 
     //! Get surface derivative on sphere segment.
     /*!
@@ -112,9 +112,9 @@ public:
      *          zenith angle.
      * \return Surface derivative on sphere.
      */
-    VectorXd getSurfaceDerivative( const double& azimuthAngle, const double& zenithAngle,
-                                   const int& powerOfZenithAngleDerivative,
-                                   const int& powerOfAzimuthAngleDerivative );
+    VectorXd getSurfaceDerivative( double azimuthAngle, double zenithAngle,
+                                   int powerOfZenithAngleDerivative,
+                                   int powerOfAzimuthAngleDerivative );
 
     //! Get parameter of sphere segment.
     /*!
@@ -124,7 +124,7 @@ public:
      * \param index Index of parameter to return ( index = 0: returns radius ).
      * \return Selected parameter.
      */
-    double getParameter( const int& index );
+    double getParameter( int index );
 
     //! Set parameter of sphere segment.
     /*!
@@ -133,7 +133,7 @@ public:
      *          index = 0 is valid, which sets the radius.
      * \param parameter Value of parameter which is set.
      */
-    void setParameter( const int& index, const double& parameter );
+    void setParameter( int index, double parameter );
 
     //! Get radius.
     /*!
@@ -147,14 +147,14 @@ public:
      * Sets the radius of the sphere segment.
      * \param radius Radius of sphere segment.
      */
-    void setRadius( const double& radius ) { radius_ = radius; }
+    void setRadius( double radius ) { radius_ = radius; }
 
     //! Set maximum value of azimuth angle.
     /*!
      * Sets the maximum value of the azimuth angle.
      * \param maximumAzimuthAngle Maximum value of azimuth angle.
      */
-    void setMaximumAzimuthAngle( const double& maximumAzimuthAngle )
+    void setMaximumAzimuthAngle( double maximumAzimuthAngle )
     { setMaximumIndependentVariable( 1, maximumAzimuthAngle ); }
 
     //! Set minimum value of azimuth angle.
@@ -162,7 +162,7 @@ public:
      * Sets the minimum value of the azimuth angle.
      * \param minimumAzimuthAngle Minimum value of azimuth angle.
      */
-    void setMinimumAzimuthAngle( const double& minimumAzimuthAngle )
+    void setMinimumAzimuthAngle( double minimumAzimuthAngle )
     { setMinimumIndependentVariable( 1, minimumAzimuthAngle ); }
     
     //! Set maximum value of zenith angle.
@@ -170,7 +170,7 @@ public:
      * Sets the maximum value of the zenith angle.
      * \param maximumZenithAngle Maximum value of zenith angle.
      */
-    void setMaximumZenithAngle( const double& maximumZenithAngle )
+    void setMaximumZenithAngle( double maximumZenithAngle )
     { setMaximumIndependentVariable( 2, maximumZenithAngle ); }
     
     //! Set minimum value of zenith angle.
@@ -178,7 +178,7 @@ public:
      * Sets the minimum value of the zenith angle.
      * \param minimumZenithAngle Minimum value of zenith angle.
      */
-    void setMinimumZenithAngle( const double& minimumZenithAngle )
+    void setMinimumZenithAngle( double minimumZenithAngle )
     { setMinimumIndependentVariable( 2, minimumZenithAngle ); }
     
     //! Get maximum value of azimuth angle.

@@ -107,8 +107,8 @@ public:
      */
     void writeSingleSurfaceGeometryPointsToFile(
             SingleSurfaceGeometry* pointerToSingleSurfaceGeometry,
-            const int& numberOfLines, const int& numberOfPoints,
-            const std::string& filename, const int& writeType,
+            int numberOfLines, int numberOfPoints,
+            const std::string& filename, int writeType,
             const bool& isIndependentVariableInverted );
 
     //! Write composite surface geometry to a file.
@@ -132,7 +132,7 @@ public:
     void writeCompositeSurfaceGeometryPointsToFile(
             CompositeSurfaceGeometry* pointerToCompositeSurfaceGeometry,
             int* arrayOfNumberOfLines, int* arrayOfNumberOfPoints,
-            const std::string& filename, const int& writeType,
+            const std::string& filename, int writeType,
             bool* isIndependentVariableInvertedArray );
 
 protected:

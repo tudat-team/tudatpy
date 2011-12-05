@@ -71,7 +71,7 @@ namespace tudat
 {
 
 //! Compute next state.
-void RungeKutta4thOrderFixedStepsize::computeNextState_( const double& stepsize )
+void RungeKutta4thOrderFixedStepsize::computeNextState_( double stepsize )
 {
     // Clear k-Coefficients.
     kCoefficients_.clear( );

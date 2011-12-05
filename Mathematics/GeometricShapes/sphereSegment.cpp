@@ -74,7 +74,7 @@ using std::sin;
 using tudat::unit_conversions::convertRadiansToDegrees;
 
 //! Get surface point on sphere segment.
-VectorXd SphereSegment::getSurfacePoint( const double& azimuthAngle, const double& zenithAngle )
+VectorXd SphereSegment::getSurfacePoint( double azimuthAngle, double zenithAngle )
 {
     // Gets surface point on sphere, unrotated and centered at origin.
     mathematics::convertSphericalToCartesian( radius_, azimuthAngle, zenithAngle,
@@ -89,8 +89,8 @@ VectorXd SphereSegment::getSurfacePoint( const double& azimuthAngle, const doubl
 
 //! Get surface derivative on sphere segment.
 VectorXd SphereSegment::getSurfaceDerivative(
-    const double& azimuthAngle, const double& zenithAngle,
-    const int& powerOfAzimuthAngleDerivative, const int& powerOfZenithAngleDerivative )
+    double azimuthAngle, double zenithAngle,
+    int powerOfAzimuthAngleDerivative, int powerOfZenithAngleDerivative )
 {
     // Declare and set size of derivative vector.
     VectorXd derivative_ = VectorXd( 3 );
@@ -217,7 +217,7 @@ VectorXd SphereSegment::getSurfaceDerivative(
 }
 
 //! Get parameter of sphere segment.
-double SphereSegment::getParameter( const int& index )
+double SphereSegment::getParameter( int index )
 {
     // Check if parameter is radius.
     if ( index == 0 )
@@ -239,7 +239,7 @@ double SphereSegment::getParameter( const int& index )
 }
 
 //! Set parameter of sphere segment.
-void SphereSegment::setParameter( const int& index, const double& parameter )
+void SphereSegment::setParameter( int index, double parameter )
 {
     if ( index == 0 )
     {

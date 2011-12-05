@@ -66,7 +66,7 @@ namespace tudat
 {
 
 //! Compute next state.
-void Euler::computeNextState_( const double& stepsize )
+void Euler::computeNextState_( double stepsize )
 {
     // Compute state derivative initial given state and initial time.
     computeStateDerivative_( integrationIntervalCurrentPoint_, &vectorOfCurrentStates_.at( 0 ),

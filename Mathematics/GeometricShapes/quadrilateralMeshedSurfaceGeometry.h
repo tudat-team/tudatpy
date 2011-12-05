@@ -100,7 +100,7 @@ public:
      * \param pointIndex Point from line to retrieve.
      * \return Surface point.
      */
-    Vector3d getMeshPoint( const int& lineIndex, const int& pointIndex )
+    Vector3d getMeshPoint( int lineIndex, int pointIndex )
     { return meshPoints_[ lineIndex ][ pointIndex ]; }
 
     //! Get panel area.
@@ -110,7 +110,7 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel area
      */
-    double getPanelArea( const int& lineIndex, const int& pointIndex )
+    double getPanelArea( int lineIndex, int pointIndex )
     { return panelAreas_[ lineIndex ][ pointIndex ]; }
 
     //! Get panel centroid.
@@ -120,7 +120,7 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel centroid.
      */
-    Vector3d getPanelCentroid( const int& lineIndex, const int& pointIndex )
+    Vector3d getPanelCentroid( int lineIndex, int pointIndex )
     { return panelCentroids_[ lineIndex ][ pointIndex ]; }
 
     //! Get outward panel surface normal.
@@ -130,7 +130,7 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Outward panel surface normal.
      */
-    Vector3d getPanelSurfaceNormal( const int& lineIndex, const int& pointIndex )
+    Vector3d getPanelSurfaceNormal( int lineIndex, int pointIndex )
     { return panelSurfaceNormals_[ lineIndex ][ pointIndex ]; }
 
     //! Get number of lines.

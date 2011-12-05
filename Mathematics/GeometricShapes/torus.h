@@ -86,8 +86,8 @@ public:
      *         torus at which to retrieve the surface point.
      * \return Point on torus in Cartesian coordinates.
      */
-    VectorXd getSurfacePoint( const double& majorCircumferentialAngle,
-                              const double& minorCircumferentialAngle );
+    VectorXd getSurfacePoint( double majorCircumferentialAngle,
+                              double minorCircumferentialAngle );
 
     //! Get surface derivative on torus.
     /*!
@@ -106,10 +106,10 @@ public:
      *          with respect to the minor circumferential angle.
      * \return Surface derivative on torus.
      */
-    VectorXd getSurfaceDerivative( const double& majorCircumferentialAngle,
-                                   const double& minorCircumferentialAngle,
-                                   const int& powerOfMajorCircumferentialAngleDerivative,
-                                   const int& powerOfMinorCircumferentialAngleDerivative );
+    VectorXd getSurfaceDerivative( double majorCircumferentialAngle,
+                                   double minorCircumferentialAngle,
+                                   int powerOfMajorCircumferentialAngleDerivative,
+                                   int powerOfMinorCircumferentialAngleDerivative );
 
     //! Get parameter of torus.
     /*!
@@ -120,7 +120,7 @@ public:
      *          radius; index = 1: returns minor radius ).
      * \return Selected parameter.
      */
-    double getParameter( const int& index );
+    double getParameter( int index );
 
     //! Set parameter of torus.
     /*!
@@ -129,7 +129,7 @@ public:
      *          radius; index = 1: returns minor radius ).
      * \param parameter Value of parameter to set.
      */
-    void setParameter( const int& index, const double& parameter );
+    void setParameter( int index, double parameter );
 
     //! Get major radius.
     /*!
@@ -143,7 +143,7 @@ public:
      * Sets the major radius.
      * \param majorRadius Major radius.
      */
-    void setMajorRadius( const double& majorRadius ) { majorRadius_ = majorRadius; }
+    void setMajorRadius( double majorRadius ) { majorRadius_ = majorRadius; }
 
     //! Get minor radius.
     /*!
@@ -157,7 +157,7 @@ public:
      * Sets the minor radius.
      * \param minorRadius Minor radius.
      */
-    void setMinorRadius( const double& minorRadius ) { minorRadius_ = minorRadius; }
+    void setMinorRadius( double minorRadius ) { minorRadius_ = minorRadius; }
 
     //! Get maximum of major circumferential angle.
     /*!
@@ -193,7 +193,7 @@ public:
      * \param maximumMajorCircumferentialAngle Maximum value of major
      *          circumferential angle.
      */
-    void setMaximumMajorCircumferentialAngle( const double& maximumMajorCircumferentialAngle )
+    void setMaximumMajorCircumferentialAngle( double maximumMajorCircumferentialAngle )
     { setMaximumIndependentVariable( 1, maximumMajorCircumferentialAngle ); }
 
     //! Set minimum of major circumferential angle.
@@ -202,7 +202,7 @@ public:
      * \param minimumMajorCircumferentialAngle Minimum value of major
      *          circumferential angle.
      */
-    void setMinimumMajorCircumferentialAngle( const double& minimumMajorCircumferentialAngle )
+    void setMinimumMajorCircumferentialAngle( double minimumMajorCircumferentialAngle )
     { setMinimumIndependentVariable( 1, minimumMajorCircumferentialAngle ); }
 
     //! Set maximum of minor circumferential angle.
@@ -211,7 +211,7 @@ public:
      * \param maximumMinorCircumferentialAngle Maximum value of minor
      *          circumferential angle.
      */
-    void setMaximumMinorCircumferentialAngle( const double& maximumMinorCircumferentialAngle )
+    void setMaximumMinorCircumferentialAngle( double maximumMinorCircumferentialAngle )
     { setMaximumIndependentVariable( 2, maximumMinorCircumferentialAngle ); }
 
     //! Set minimum of minor circumferential angle.
@@ -220,7 +220,7 @@ public:
      * \param minimumMinorCircumferentialAngle Minimum value of minor
      *          circumferential angle.
      */
-    void setMinimumMinorCircumferentialAngle( const double& minimumMinorCircumferentialAngle ) 
+    void setMinimumMinorCircumferentialAngle( double minimumMinorCircumferentialAngle ) 
     { setMinimumIndependentVariable( 2, minimumMinorCircumferentialAngle ); }
 
     //! Overload ostream to print class information.

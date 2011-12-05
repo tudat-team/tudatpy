@@ -83,7 +83,7 @@ public:
      * Define the gravitational parameter in meter^3 per second^2.
      * \param gravitationalParameter
      */
-    void setGravitationalParameter( const double& gravitationalParameter )
+    void setGravitationalParameter( double gravitationalParameter )
     { gravitationalParameter_ = gravitationalParameter; }
 
     //! Set origin of gravity field.

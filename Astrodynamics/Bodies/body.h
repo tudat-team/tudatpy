@@ -83,7 +83,7 @@ public:
      * Sets the mass of the body.
      * \param mass Mass.
      */
-    void setMass( const double& mass ) { mass_ = mass; }
+    void setMass( double mass ) { mass_ = mass; }
 
     //! Set the shape model.
     /*!

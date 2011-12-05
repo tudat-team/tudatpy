@@ -121,8 +121,8 @@ static const double PrandtlMeyerParameter5 = -0.3278;
  *         specific heat at constant volume.
  * \return Local-to-static pressure ratio.
  */
-double computeLocalToStaticPressureRatio( const double& machNumber,
-                                          const double& ratioOfSpecificHeats );
+double computeLocalToStaticPressureRatio( double machNumber,
+                                          double ratioOfSpecificHeats );
 
 //! Compute Prandtl-Meyer function.
 /*!
@@ -133,7 +133,7 @@ double computeLocalToStaticPressureRatio( const double& machNumber,
  *         specific heat at constant volume.
  * \return Prandtl-Meyer function value.
  */
-double computePrandtlMeyerFunction( const double& machNumber, const double& ratioOfSpecificHeats );
+double computePrandtlMeyerFunction( double machNumber, double ratioOfSpecificHeats );
 
 //! Compute stagnation pressure coefficient in supersonic flow.
 /*!
@@ -144,7 +144,7 @@ double computePrandtlMeyerFunction( const double& machNumber, const double& rati
  *         specific heat at constant volume.
  * \return Stagnation pressure coefficient.
  */
-double computeStagnationPressure( const double& machNumber, const double& ratioOfSpecificHeats );
+double computeStagnationPressure( double machNumber, double ratioOfSpecificHeats );
 
 //! Compute pressure coefficient based on Newtonian theory.
 /*!
@@ -152,7 +152,7 @@ double computeStagnationPressure( const double& machNumber, const double& ratioO
  * \param inclinationAngle Angle between wall and freestream velocity vector.
  * \return Newtonian pressure coefficient.
  */
-double computeNewtonianPressureCoefficient( const double& inclinationAngle );
+double computeNewtonianPressureCoefficient( double inclinationAngle );
 
 //! Compute pressure coefficient based on modified Newtonian theory.
 /*!
@@ -163,7 +163,7 @@ double computeNewtonianPressureCoefficient( const double& inclinationAngle );
  * \return Newtonian pressure coefficient.
  */
 double computeModifiedNewtonianPressureCoefficient(
-        const double& inclinationAngle, const double& stagnationPressureCoefficient );
+        double inclinationAngle, double stagnationPressureCoefficient );
 
 //! Compute pressure coefficient using empirical tangent wedge method.
 /*!
@@ -174,7 +174,7 @@ double computeModifiedNewtonianPressureCoefficient(
  * \return Empirical tangent wedge pressure coefficient.
  */
 double computeEmpiricalTangentWedgePressureCoefficient(
-        const double& inclinationAngle, const double& machNumber );
+        double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using empirical tangent cone method.
 /*!
@@ -185,7 +185,7 @@ double computeEmpiricalTangentWedgePressureCoefficient(
  * \return Empirical tangent wedge pressure coefficient.
  */
 double computeEmpiricalTangentConePressureCoefficient(
-        const double& inclinationAngle, const double& machNumber );
+        double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using modified Dahlem-Buck method.
 /*!
@@ -196,7 +196,7 @@ double computeEmpiricalTangentConePressureCoefficient(
  * \return Dahlem-Buck pressure coefficient.
  */
 double computeModifiedDahlemBuckPressureCoefficient(
-        const double& inclinationAngle, const double& machNumber );
+        double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using the Hankey flat surface method.
 /*!
@@ -207,7 +207,7 @@ double computeModifiedDahlemBuckPressureCoefficient(
  * \return Hankey Flat surface pressure coefficient.
  */
 double computeHankeyFlatSurfacePressureCoefficient(
-        const double& inclinationAngle, const double& machNumber );
+        double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using the Smyth delta wing method.
 /*!
@@ -218,7 +218,7 @@ double computeHankeyFlatSurfacePressureCoefficient(
  * \return Smyth delta wing pressure coefficient.
  */
 double computeSmythDeltaWingPressureCoefficient(
-        const double& inclinationAngle, const double& machNumber );
+        double inclinationAngle, double machNumber );
 
 //! Compute pressure coefficient using the van Dyke unified method.
 /*!
@@ -232,8 +232,8 @@ double computeSmythDeltaWingPressureCoefficient(
  * \return Hankey Flat surface pressure coefficient.
  */
 double computeVanDykeUnifiedPressureCoefficient(
-        const double& inclinationAngle, const double& machNumber,
-        const double& ratioOfSpecificHeats, const int& type );
+        double inclinationAngle, double machNumber,
+        double ratioOfSpecificHeats, int type );
 
 //! Compute pressure coefficient using Prandtl-Meyer expansion.
 /*!
@@ -249,8 +249,8 @@ double computeVanDykeUnifiedPressureCoefficient(
  * \return Prandtl-Meyer pressure coefficient.
  */
 double computePrandtlMeyerFreestreamPressureCoefficient(
-        const double& inclinationAngle,  const double& machNumber,
-        const double& ratioOfSpecificHeats, const double& freestreamPrandtlMeyerFunction );
+        double inclinationAngle,  double machNumber,
+        double ratioOfSpecificHeats, double freestreamPrandtlMeyerFunction );
 
 //! Compute pressure coefficient at vacuum.
 /*!
@@ -262,7 +262,7 @@ double computePrandtlMeyerFreestreamPressureCoefficient(
  * \return Vacuum pressure coefficient.
  */
 double computeVacuumPressureCoefficient(
-        const double& machNumber, const double& ratioOfSpecificHeats );
+        double machNumber, double ratioOfSpecificHeats );
 
 //! Compute high Mach base pressure coefficient.
 /*!
@@ -271,7 +271,7 @@ double computeVacuumPressureCoefficient(
  * \param machNumber Flow Mach number.
  * \return Vacuum pressure coefficient.
  */
-double computeHighMachBasePressure( const double& machNumber );
+double computeHighMachBasePressure( double machNumber );
 
 //! Compute pressure coefficient using the ACM empirical method.
 /*! Computes tangent cone pressure coefficient based on the ACM empirical
@@ -281,7 +281,7 @@ double computeHighMachBasePressure( const double& machNumber );
  * \return ACM empirical surface pressure coefficient.
  */
 double computeAcmEmpiricalPressureCoefficient(
-        const double& inclinationAngle, const double& machNumber );
+        double inclinationAngle, double machNumber );
 
 //! Compute Mach number from Prandtl-Meyer function.
 /*!
@@ -291,7 +291,7 @@ double computeAcmEmpiricalPressureCoefficient(
  * \param prandtlMeyerFunctionValue Prandyl-Meyer function value.
  * \return Mach number.
  */
-double computeInversePrandtlMeyerFunction( const double& prandtlMeyerFunctionValue );
+double computeInversePrandtlMeyerFunction( double prandtlMeyerFunctionValue );
 
 //! Compute ratio of post- to pre-shock pressure.
 /*!
@@ -300,8 +300,8 @@ double computeInversePrandtlMeyerFunction( const double& prandtlMeyerFunctionVal
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *          specific heat at constant volume.
  */
-double computeShockPressureRatio( const double& normalMachNumber,
-                                  const double& ratioOfSpecificHeats );
+double computeShockPressureRatio( double normalMachNumber,
+                                  double ratioOfSpecificHeats );
 
 //! Compute ratio of post- to pre-shock density.
 /*!
@@ -310,8 +310,8 @@ double computeShockPressureRatio( const double& normalMachNumber,
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *         specific heat at constant volume.
  */
-double computeShockDensityRatio( const double& normalMachNumber,
-                                 const double& ratioOfSpecificHeats );
+double computeShockDensityRatio( double normalMachNumber,
+                                 double ratioOfSpecificHeats );
 
 //! Compute ratio of post- to pre-shock temperature.
 /*!
@@ -321,8 +321,8 @@ double computeShockDensityRatio( const double& normalMachNumber,
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *         specific heat at constant volume.
  */
-double computeShockTemperatureRatio( const double& normalMachNumber,
-                                     const double& ratioOfSpecificHeats );
+double computeShockTemperatureRatio( double normalMachNumber,
+                                     double ratioOfSpecificHeats );
 
 //! Compute jump in entropy across a shock wave.
 /*!
@@ -332,8 +332,8 @@ double computeShockTemperatureRatio( const double& normalMachNumber,
  *         specific heat at constant volume.
  * \param specificGasConstant gas constant per unit mass for flow composition.
  */
-double computeShockEntropyJump( const double& normalMachNumber, const double& ratioOfSpecificHeats,
-                                const double& specificGasConstant );
+double computeShockEntropyJump( double normalMachNumber, double ratioOfSpecificHeats,
+                                double specificGasConstant );
 
 //! Compute post- to pre-shock total pressure ratio.
 /*!
@@ -344,9 +344,9 @@ double computeShockEntropyJump( const double& normalMachNumber, const double& ra
  *         specific heat at constant volume.
  * \param specificGasConstant gas constant per unit mass for flow composition.
  */
-double computeShockTotalPressureRatio( const double& normalMachNumber,
-                                       const double& ratioOfSpecificHeats,
-                                       const double& specificGasConstant );
+double computeShockTotalPressureRatio( double normalMachNumber,
+                                       double ratioOfSpecificHeats,
+                                       double specificGasConstant );
 
 //! Compute shock deflection angle.
 /*!
@@ -356,8 +356,8 @@ double computeShockTotalPressureRatio( const double& normalMachNumber,
  * \param ratioOfSpecificHeats Ratio of specific heat at constant pressure to
  *          specific heat at constant volume.
  */
-double computeShockDeflectionAngle( const double& shockAngle, const double& machNumber,
-                                    const double& ratioOfSpecificHeats );
+double computeShockDeflectionAngle( double shockAngle, double machNumber,
+                                    double ratioOfSpecificHeats );
 
 }
 

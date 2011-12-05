@@ -81,7 +81,7 @@ public:
      * Returns state in Cartesian elements from ephemeris for circular and coplanar orbit.
      * \return State in Cartesian elements from ephemeris for circular and coplanar orbit.
      */
-    CartesianElements* getStateFromEphemeris( const double& julianDate );
+    CartesianElements* getStateFromEphemeris( double julianDate );
 
 protected:
 

@@ -221,9 +221,9 @@ State* computeLinearInterpolation(
 }
 
 //! Convert spherical to cartesian coordinates.
-void convertSphericalToCartesian( const double& radius,
-                                  const double& azimuthAngle,
-                                  const double& zenithAngle,
+void convertSphericalToCartesian( double radius,
+                                  double azimuthAngle,
+                                  double zenithAngle,
                                   VectorXd& cartesianCoordinates )
 {
     // Declaring sine and cosine which have multiple usages to save computation
@@ -265,8 +265,8 @@ void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
 }
 
 //! Convert cylindrical to cartesian coordinates, z value left unaffected.
-void convertCylindricalToCartesian( const double& radius,
-                                    const double& azimuthAngle,
+void convertCylindricalToCartesian( double radius,
+                                    double azimuthAngle,
                                     VectorXd& cartesianCoordinates )
 {
     // Perform transformation, z value should be set outside function.
@@ -275,7 +275,7 @@ void convertCylindricalToCartesian( const double& radius,
 }
 
 //! Compute modulo of double.
-double computeModulo( const double& dividend, const double& divisor )
+double computeModulo( double dividend, double divisor )
 {
     return dividend - divisor * floor( dividend / divisor );
 }

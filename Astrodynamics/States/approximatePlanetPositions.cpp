@@ -61,7 +61,7 @@ namespace tudat
 
 //! Get state from ephemeris.
 CartesianElements* ApproximatePlanetPositions::
-        getStateFromEphemeris( const double& julianDate )
+        getStateFromEphemeris( double julianDate )
 {
     // Set Julian date.
     julianDate_ = julianDate;

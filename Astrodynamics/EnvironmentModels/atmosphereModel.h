@@ -83,8 +83,8 @@ public:
     * \param time Time.
     * \return Atmospheric density.
     */
-    virtual double getDensity( const double& altitude, const double& longitude,
-                               const double& latitude, const double& time ) = 0;
+    virtual double getDensity( double altitude, double longitude,
+                               double latitude, double time ) = 0;
 
     //! Get local pressure.
     /*!
@@ -95,8 +95,8 @@ public:
     * \param time Time.
     * \return Atmospheric pressure.
     */
-    virtual double getPressure( const double& altitude, const double& longitude,
-                                const double& latitude, const double& time ) = 0;
+    virtual double getPressure( double altitude, double longitude,
+                                double latitude, double time ) = 0;
 
     //! Get local temperature.
     /*!
@@ -107,8 +107,8 @@ public:
     * \param time Time.
     * \return Atmospheric temperature.
     */
-    virtual double getTemperature( const double& altitude, const double& longitude,
-                                   const double& latitude, const double& time ) = 0;
+    virtual double getTemperature( double altitude, double longitude,
+                                   double latitude, double time ) = 0;
 
 protected:
 

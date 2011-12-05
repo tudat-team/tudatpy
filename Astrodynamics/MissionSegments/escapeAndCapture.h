@@ -95,21 +95,21 @@ public:
      * Sets semi-major axis of parking orbit.
      * \param semiMajorAxis Semi-major axis of parking orbit.
      */
-    void setSemiMajorAxis( const double &semiMajorAxis ) { semiMajorAxis_ = semiMajorAxis; }
+    void setSemiMajorAxis( double semiMajorAxis ) { semiMajorAxis_ = semiMajorAxis; }
 
     //! Set eccentricity of parking orbit.
     /*!
      * Sets eccentricity of parking orbit.
      * \param eccentricity Eccentricity of parking orbit.
      */
-    void setEccentricity( const double &eccentricity ) { eccentricity_ = eccentricity; }
+    void setEccentricity( double eccentricity ) { eccentricity_ = eccentricity; }
 
     //! Set periapsis altitude of parking orbit.
     /*!
      * Sets periapsis altitude of parking orbit.
      * \param periapsisAltitude Periapsis altitude of parking orbit.
      */
-    void setPeriapsisAltitude( const double &periapsisAltitude )
+    void setPeriapsisAltitude( double periapsisAltitude )
     { periapsisAltitude_ = periapsisAltitude; }
 
     //! Set apoapsis altitude of parking orbit.
@@ -117,7 +117,7 @@ public:
      * Sets apoapsis altitude of parking orbit.
      * \param apoapsisAltitude Apoapsis altitude of parking orbit.
      */
-    void setApoapsisAltitude( const double &apoapsisAltitude )
+    void setApoapsisAltitude( double apoapsisAltitude )
     { apoapsisAltitude_ = apoapsisAltitude; }
 
     //! Set central body of parking orbit.
@@ -134,7 +134,7 @@ public:
      * \param hyperbolicExcessSpeed Hyperbolic excess speed at
      *            launch/capture phase in a parking orbit.
      */
-    void setHyperbolicExcessSpeed( const double &hyperbolicExcessSpeed )
+    void setHyperbolicExcessSpeed( double hyperbolicExcessSpeed )
     { hyperbolicExcessSpeed_ = hyperbolicExcessSpeed; }
 
     //! Compute delta-V of launch/capture phase.

@@ -81,7 +81,7 @@ AerodynamicCoefficientGenerator::~AerodynamicCoefficientGenerator( )
 
 //! Set the number of independent variables.
 void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
-    const int& numberOfVariables )
+    int numberOfVariables )
 {
     // Set number of variables.
     numberOfIndependentVariables_ = numberOfVariables;
@@ -98,7 +98,7 @@ void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
 }
 
 //! Set the number of points for Mach number.
-void AerodynamicCoefficientGenerator::setNumberOfMachPoints( const int& numberOfMachPoints )
+void AerodynamicCoefficientGenerator::setNumberOfMachPoints( int numberOfMachPoints )
 {
     // Set value of number of mach points.
     numberOfPointsPerIndependentVariables_ [ machIndex_ ] = numberOfMachPoints;
@@ -109,7 +109,7 @@ void AerodynamicCoefficientGenerator::setNumberOfMachPoints( const int& numberOf
 
 //! Set the number of points for angle of attack.
 void AerodynamicCoefficientGenerator::setNumberOfAngleOfAttackPoints(
-        const int& numberOfAngleOfAttackPoints )
+        int numberOfAngleOfAttackPoints )
 {
     // Set value of number of angle of attack points.
     numberOfPointsPerIndependentVariables_ [ angleOfAttackIndex_ ] = numberOfAngleOfAttackPoints;
@@ -121,7 +121,7 @@ void AerodynamicCoefficientGenerator::setNumberOfAngleOfAttackPoints(
 
 //! Set the number of points for angle of sideslip.
 void AerodynamicCoefficientGenerator::setNumberOfAngleOfSideslipPoints(
-        const int& numberOfAngleOfSideslipPoints )
+        int numberOfAngleOfSideslipPoints )
 {
     // Set value of number of angle of sideslip points.
     numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ]
@@ -134,7 +134,7 @@ void AerodynamicCoefficientGenerator::setNumberOfAngleOfSideslipPoints(
 
 //! Set the number of points for the Reynolds Number.
 void AerodynamicCoefficientGenerator::setNumberOfReynoldsNumberPoints(
-        const int& numberOfReynoldsNumberPoints )
+        int numberOfReynoldsNumberPoints )
 {
     // Set value of number of Reynolds Number points.
     numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ] = numberOfReynoldsNumberPoints;

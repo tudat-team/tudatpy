@@ -121,14 +121,14 @@ public:
      * Sets mass parameter for the CRTBP.
      * \param massParameter Mass parameter.
      */
-    void setMassParameter( const double& massParameter ) { massParameter_ = massParameter; }
+    void setMassParameter( double massParameter ) { massParameter_ = massParameter; }
 
     //! Get dimensionless mass parameter.
     /*!
      * Returns the dimensionless mass parameter based on the gravitational
      * parameters of the primary and secondary bodies.
      */
-    const double& getMassParameter( ) { return massParameter_; }
+    double getMassParameter( ) { return massParameter_; }
 
     //! Get location of Lagrange libration point.
     /*!

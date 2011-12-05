@@ -94,7 +94,7 @@ public:
      * Sets the dynamic pressure.
      * \param dynamicPressure Dynamic pressure.
      */
-    void setDynamicPressure( const double& dynamicPressure )
+    void setDynamicPressure( double dynamicPressure )
     { dynamicPressure_ = dynamicPressure; }
 
     //! Get dynamic pressure.

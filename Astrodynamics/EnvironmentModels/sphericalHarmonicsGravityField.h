@@ -112,7 +112,7 @@ public:
      * Sets the reference radius used for the spherical harmonics expansion in meters.
      * \param referenceRadius Reference radius.
      */
-    void setReferenceRadius( const double& referenceRadius ){ referenceRadius_ = referenceRadius; }
+    void setReferenceRadius( double referenceRadius ){ referenceRadius_ = referenceRadius; }
 
     //! Set degree of spherical harmonics gravity field expansion.
     /*!

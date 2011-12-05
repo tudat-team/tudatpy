@@ -341,7 +341,7 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
 
 //! Determine aerodynamic coefficients of a single vehicle part.
 VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
-        const int& partNumber, int* independentVariableIndices )
+        int partNumber, int* independentVariableIndices )
 {
     // Declare and determine angles of attack and sideslip for analysis.
     double angleOfAttack = dataPointsOfIndependentVariables_[
@@ -372,7 +372,7 @@ VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
 
 //! Determine the pressure coefficients on a single vehicle part.
 void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
-        const int& partNumber, int* independentVariableIndices )
+        int partNumber, int* independentVariableIndices )
 {
     // Retrieve Mach number.
     double machNumber = dataPointsOfIndependentVariables_[ machIndex_ ]
@@ -387,7 +387,7 @@ void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
 }
 
 //! Determine force coefficients from pressure coefficients.
-VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( const int& partNumber )
+VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( int partNumber )
 {
     int i, j;
 
@@ -418,7 +418,7 @@ VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( const i
 }
 
 //! Determine moment coefficients from pressure coefficients.
-VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients( const int& partNumber )
+VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients( int partNumber )
 {
     int i, j;
 
@@ -456,9 +456,9 @@ VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients( const 
 }
 
 //! Determines the inclination angle of panels on a single part.
-void HypersonicLocalInclinationAnalysis::determineInclination( const int& partNumber,
-                                                               const double& angleOfAttack,
-                                                               const double& angleOfSideslip )
+void HypersonicLocalInclinationAnalysis::determineInclination( int partNumber,
+                                                               double angleOfAttack,
+                                                               double angleOfSideslip )
 {
     int i, j;
 
@@ -495,8 +495,8 @@ void HypersonicLocalInclinationAnalysis::determineInclination( const int& partNu
 }
 
 //! Determine compression pressure coefficients on all parts.
-void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const double& machNumber,
-                                                                     const int& partNumber )
+void HypersonicLocalInclinationAnalysis::updateCompressionPressures( double machNumber,
+                                                                     int partNumber )
 {
     int i, j;
     int method;
@@ -696,8 +696,8 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const doubl
 }
 
 //! Determines expansion pressure coefficients on all parts.
-void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double& machNumber,
-                                                                   const int& partNumber )
+void HypersonicLocalInclinationAnalysis::updateExpansionPressures( double machNumber,
+                                                                   int partNumber )
 {
     int i,j;
 

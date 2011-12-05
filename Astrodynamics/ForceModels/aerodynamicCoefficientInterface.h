@@ -85,7 +85,7 @@ public:
      * Sets reference area used to non-dimensionalize aerodynamic forces and moments.
      * \param referenceArea Aerodynamic reference area.
      */
-    void setReferenceArea( const double& referenceArea ) { referenceArea_ = referenceArea; }
+    void setReferenceArea( double referenceArea ) { referenceArea_ = referenceArea; }
 
     //! Get reference area.
     /*!
@@ -99,7 +99,7 @@ public:
      * Sets reference length used to non-dimensionalize aerodynamic moments.
      * \param referenceLength Aerodynamic reference length.
      */
-    void setReferenceLength( const double& referenceLength )
+    void setReferenceLength( double referenceLength )
     { referenceLength_ = referenceLength; }
 
     //! Get reference length.
@@ -114,7 +114,7 @@ public:
      * Sets lateral reference length used to non-dimensionalize aerodynamic moments.
      * \param lateralReferenceLength Aerodynamic reference length.
      */
-    void setLateralReferenceLength( const double& lateralReferenceLength )
+    void setLateralReferenceLength( double lateralReferenceLength )
     { lateralReferenceLength_ = lateralReferenceLength; }
 
     //! Get lateral reference length.
