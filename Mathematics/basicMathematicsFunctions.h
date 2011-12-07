@@ -73,8 +73,6 @@
 
 // Include statements.
 #include <boost/random/mersenne_twister.hpp>
-#include <cfloat>
-#include <climits>
 #include <ctime>
 #include <map>
 #include <vector>
@@ -102,24 +100,6 @@ namespace mathematics
  * (http://www.boost.org/doc/libs/1_47_0/doc/html/boost_random/reference.html.
  */
 typedef boost::mt19937 globalRandomNumberGeneratorType;
-
-//! Machine precision for floats.
-/*!
- * Machine precision for floats from the standard float library <cfloat>.
- */
-const static double MACHINE_PRECISION_FLOATS = FLT_EPSILON;
-
-//! Machine precision for doubles.
-/*!
- * Machine precision for doubles from the standard float library <cfloat>.
- */
-const static double MACHINE_PRECISION_DOUBLES = DBL_EPSILON;
-
-//! Machine precision for long doubles.
-/*!
- * Machine precision for long doubles from the standard float library <cfloat>.
- */
-const static double MACHINE_PRECISION_LONG_DOUBLES = LDBL_EPSILON;
 
 //! Get global random number generator.
 /*!
@@ -149,7 +129,7 @@ globalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( );
  */
 double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
                                    VectorXd& associatedDependentVariables,
-                                   double& targetIndependentVariableValue );
+                                   double targetIndependentVariableValue );
 //! Compute linear interpolation.
 /*!
  * Computes linear interpolation of data provided in the form of a map of
@@ -170,7 +150,7 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
  */
 VectorXd computeLinearInterpolation(
         std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
-        double& targetIndependentVariableValue );
+        double targetIndependentVariableValue );
 
 //! Compute linear interpolation.
 /*!
@@ -192,7 +172,7 @@ VectorXd computeLinearInterpolation(
  */
 State* computeLinearInterpolation(
         std::map < double, State* >& sortedIndepedentAndDependentVariables,
-        double& targetIndependentVariableValue );
+        double targetIndependentVariableValue );
 
 //! Convert spherical to cartesian coordinates.
 /*!
@@ -207,9 +187,7 @@ State* computeLinearInterpolation(
 *      z &=& r\cos\phi \\
 * \f}
 */
-void convertSphericalToCartesian( double radius,
-                                  double azimuthAngle,
-                                  double zenithAngle,
+void convertSphericalToCartesian( double radius, double azimuthAngle, double zenithAngle,
                                   VectorXd& cartesianCoordinates );
 
 //! Convert cartesian to spherical coordinates.
@@ -243,8 +221,7 @@ void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
 * Since the value of z is left unaffected by this transformation,
 * it is not set or changed by this function.
 */
-void convertCylindricalToCartesian( double radius,
-                                    double azimuthAngle,
+void convertCylindricalToCartesian( double radius, double azimuthAngle,
                                     VectorXd& cartesianCoordinates );
 
 //! Compute modulo of double.

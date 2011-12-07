@@ -55,6 +55,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/MissionSegments/librationPoint.h"
@@ -64,7 +65,6 @@
 using std::cerr;
 using std::endl;
 using std::fabs;
-using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
 using namespace tudat;
 
 //! Test determination of L1 location.
@@ -204,7 +204,7 @@ bool testL4LibrationPointLocation( bool isLibrationPointComputationErroneous,
 
     // Test determination of location of L4 and output cerr statements if the test fails.
     if ( fabs( positionOflibrationPointL4.getCartesianElementX( ) - 0.487722529 )
-         / 0.487722529 > MACHINE_PRECISION_DOUBLES
+         / 0.487722529 > std::numeric_limits< double >::epsilon( )
          || fabs( positionOflibrationPointL4.getCartesianElementY( ) - 0.86602540378444 )
          / 0.86602540378444 > 1.0e-14
          || fabs( positionOflibrationPointL4.getCartesianElementZ( ) ) > 0.0 )

@@ -68,6 +68,7 @@
 
 // Include statements.
 #include <cmath>
+#include <limits>
 #include "Astrodynamics/MissionSegments/gravityAssist.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
@@ -212,7 +213,7 @@ double GravityAssist::computeDeltaV( )
         pointerToNewtonRaphson_->setMaximumNumberOfIterations( 100 );
 
         // Set tolerance for Newton-Raphson method.
-        pointerToNewtonRaphson_->setTolerance( 10.0 * mathematics::MACHINE_PRECISION_DOUBLES );
+        pointerToNewtonRaphson_->setTolerance( 10.0 * std::numeric_limits< double >::epsilon( ) );
 
         // Set the adaptor for Newton-Raphson method.
         pointerToNewtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist_ );

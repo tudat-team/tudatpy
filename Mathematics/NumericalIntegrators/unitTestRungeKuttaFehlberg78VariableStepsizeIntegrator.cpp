@@ -131,7 +131,7 @@ int main( )
     // Set truncation Error Tolerance in Runge-Kutta Fehlberg 7(8)th-order, variable stepsize
     // integrator.
     rungeKuttaFehlberg78VariableStepsizeIntegrator.setRelativeErrorTolerance(
-                mathematics::MACHINE_PRECISION_DOUBLES );
+                std::numeric_limits< double >::epsilon( ) );
 
     // Set minimum stepsize in Runge-Kutta Fehlberg 7(8)th-order, variable stepsize
     // integrator.

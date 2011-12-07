@@ -53,6 +53,7 @@
  */
 
 // Include statements.
+#include <limits>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
 
@@ -136,7 +137,7 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
 
             // Set panel area (not yet correct size).
             panelAreas_[ i ][ j ] = panelSurfaceNormals_[ i ][ j ].norm( );
-            if ( panelAreas_[ i ][ j ] < mathematics::MACHINE_PRECISION_DOUBLES )
+            if ( panelAreas_[ i ][ j ] < std::numeric_limits< double >::epsilon( ) )
             {
                 std::cerr << "WARNING panel area is zero in part at panel" << i
                           << ", " << j << std::endl;               

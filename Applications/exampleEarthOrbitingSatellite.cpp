@@ -62,6 +62,8 @@
 #include "Mathematics/NumericalIntegrators/rungeKutta4thOrderFixedStepsize.h"
 #include "Output/writingOutputToFile.h"
 
+#include "Astrodynamics/astrodynamicsFunctions.h"
+
 //! Execute example of an Earth-orbiting satellite.
 int main( )
 {

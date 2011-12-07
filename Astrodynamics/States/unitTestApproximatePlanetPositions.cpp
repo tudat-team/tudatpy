@@ -59,6 +59,7 @@
 
 // Include statements.
 #include <iostream>
+#include <limits>
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/States/approximatePlanetPositionsCircularCoplanar.h"
@@ -78,7 +79,6 @@ int main( )
     using std::cos;
     using std::sqrt;
     using tudat::mathematics::convertCartesianToSpherical;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using tudat::unit_conversions::convertDegreesToRadians;
     using tudat::unit_conversions::convertRadiansToDegrees;
     using tudat::unit_conversions::convertDegreesToArcminutes;
@@ -198,7 +198,7 @@ int main( )
     // Test 2: Get circular coplanar position of Mars at Julian date 2455626.5.
 
     // Define tolerance.
-    double errorTolerance_ = MACHINE_PRECISION_DOUBLES;
+    double errorTolerance_ = std::numeric_limits< double >::epsilon( );
 
     // Set Julian Date of test data.
     double julianDate = 2455626.5;

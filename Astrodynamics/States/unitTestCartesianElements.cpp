@@ -42,6 +42,8 @@
  */
 
 // Include statements.
+#include <iostream>
+#include <limits>
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
@@ -112,7 +114,7 @@ int main( )
 
     // Set test result to true if the test does not match the expected result.
 
-    if ( differenceBetweenResultsTest1.norm( ) > mathematics::MACHINE_PRECISION_DOUBLES )
+    if ( differenceBetweenResultsTest1.norm( ) > std::numeric_limits< double >::epsilon( ) )
     {
         isCartesianElementsErroneous = true;
 
@@ -126,7 +128,7 @@ int main( )
              << vectorOfCartesianElements - cartesianElementsStateVectorTest1 << endl;
     }
 
-    if ( differenceBetweenResultsTest2.norm( ) > mathematics::MACHINE_PRECISION_DOUBLES )
+    if ( differenceBetweenResultsTest2.norm( ) > std::numeric_limits< double >::epsilon( ) )
     {
         isCartesianElementsErroneous = true;
 

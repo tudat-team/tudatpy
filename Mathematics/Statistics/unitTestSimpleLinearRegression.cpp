@@ -52,6 +52,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <map>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/Statistics/simpleLinearRegression.h"
@@ -62,13 +63,12 @@ int main( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using namespace tudat;
 
     // Test implementation of simple linear regression method against benchmark
     // data from pg. 487, example 1 of (Burden and Faires, 2001).
 
-    // Test result initialised to false.
+    // Declare and initialize test result to false.
     bool isSimpleLinearRegressionErroneous = false;
 
     // Benchmark data.
@@ -110,7 +110,8 @@ int main( )
          / std::fabs( expectedCoefficientOfConstantTerm ) > 1.0e-14
          || std::fabs( simpleLinearRegression.getCoefficientOfLinearTerm( )
                        - expectedCoefficientOfLinearTerm )
-         / std::fabs( expectedCoefficientOfLinearTerm ) > MACHINE_PRECISION_DOUBLES )
+         / std::fabs( expectedCoefficientOfLinearTerm )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         // Set test result to true.
         isSimpleLinearRegressionErroneous = true;
@@ -132,11 +133,11 @@ int main( )
     if ( std::fabs( simpleLinearRegression.getStandardDeviationOfCoefficientOfConstantTerm( )
                     - expectedStandardDeviationOfCoefficientOfConstantTerm )
          / std::fabs( expectedStandardDeviationOfCoefficientOfConstantTerm )
-         > MACHINE_PRECISION_DOUBLES
+         > std::numeric_limits< double >::epsilon( )
          || std::fabs( simpleLinearRegression.getStandardDeviationOfCoefficientOfLinearTerm( )
                        - expectedStandardDeviationOfCoefficientOfLinearTerm )
          / std::fabs( expectedStandardDeviationOfCoefficientOfLinearTerm )
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         // Set test result to true.
         isSimpleLinearRegressionErroneous = true;
@@ -153,7 +154,7 @@ int main( )
 
     // Check if the chi-squared value is incorrect.
     if ( std::fabs( simpleLinearRegression.getChiSquared( ) - expectedChiSquared )
-         / expectedChiSquared > MACHINE_PRECISION_DOUBLES )
+         / expectedChiSquared > std::numeric_limits< double >::epsilon( ) )
     {
         // Set test result to true.
         isSimpleLinearRegressionErroneous = true;

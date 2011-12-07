@@ -68,6 +68,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <numeric>
 #include "Basics/basicFunctions.h"
 #include "Mathematics/basicMathematicsFunctions.h"
@@ -85,7 +86,6 @@ using std::map;
 using std::vector;
 using std::accumulate;
 using std::pow;
-using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
 
 //! Get global random number generator.
 globalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( )
@@ -98,7 +98,7 @@ globalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( )
 //! Compute linear interpolation.
 double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
                                    VectorXd& associatedDependentVariables,
-                                   double& targetIndependentVariableValue )
+                                   double targetIndependentVariableValue )
 {
     // Declare local variables.
     // Declare nearest neighbor.
@@ -130,7 +130,7 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
 //! Compute linear interpolation.
 VectorXd computeLinearInterpolation(
         std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
-        double& targetIndependentVariableValue )
+        double targetIndependentVariableValue )
 {
     // Declare local variables.
     // Declare nearest neighbor.
@@ -172,7 +172,7 @@ VectorXd computeLinearInterpolation(
 //! Compute linear interpolation.
 State* computeLinearInterpolation(
         std::map < double, State* >& sortedIndepedentAndDependentVariables,
-        double& targetIndependentVariableValue )
+        double targetIndependentVariableValue )
 {
     // Declare local variables.
     // Declare nearest neighbor.
@@ -221,34 +221,28 @@ State* computeLinearInterpolation(
 }
 
 //! Convert spherical to cartesian coordinates.
-void convertSphericalToCartesian( double radius,
-                                  double azimuthAngle,
-                                  double zenithAngle,
+void convertSphericalToCartesian( double radius, double azimuthAngle, double zenithAngle,
                                   VectorXd& cartesianCoordinates )
 {
-    // Declaring sine and cosine which have multiple usages to save computation
-    // time.
-    double cosineOfAzimuthAngle = cos ( azimuthAngle );
-    double sineOfZenithAngle = sin( zenithAngle );
+    // Declaring sine and cosine which have multiple usages to save computation time.
+    double cosineOfAzimuthAngle = std::cos( azimuthAngle );
+    double sineOfZenithAngle = std::sin( zenithAngle );
 
     // Perform transformation.
-    cartesianCoordinates( 0 ) = radius * cosineOfAzimuthAngle
-                                * sineOfZenithAngle;
-    cartesianCoordinates( 1 ) = radius * sin( azimuthAngle )
-                                * sineOfZenithAngle;
-    cartesianCoordinates( 2 ) = radius * cos( zenithAngle );
+    cartesianCoordinates( 0 ) = radius * cosineOfAzimuthAngle * sineOfZenithAngle;
+    cartesianCoordinates( 1 ) = radius * std::sin( azimuthAngle ) * sineOfZenithAngle;
+    cartesianCoordinates( 2 ) = radius * std::cos( zenithAngle );
 }
 
 //! Convert cartesian to spherical coordinates.
 void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
                                   VectorXd& sphericalCoordinates )
 {
-    // Compute transformation of Cartesian coordinates to spherical
-    // coordinates.
+    // Compute transformation of Cartesian coordinates to spherical coordinates.
     sphericalCoordinates( 0 ) = cartesianCoordinates.norm( );
 
     // Check if coordinates are at origin.
-    if ( sphericalCoordinates( 0 ) < MACHINE_PRECISION_DOUBLES )
+    if ( sphericalCoordinates( 0 ) < std::numeric_limits< double >::epsilon( ) )
     {
         sphericalCoordinates( 1 ) = 0.0;
         sphericalCoordinates( 2 ) = 0.0;
@@ -257,28 +251,25 @@ void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
     // Else compute coordinates using trigonometric relationships.
     else
     {
-        sphericalCoordinates( 1 ) = atan2( cartesianCoordinates( 1 ),
-                                       cartesianCoordinates( 0 ) );
-        sphericalCoordinates( 2 ) = acos( cartesianCoordinates( 2 )
-                                      / sphericalCoordinates( 0 ) );
+        sphericalCoordinates( 1 ) = std::atan2( cartesianCoordinates( 1 ),
+                                                cartesianCoordinates( 0 ) );
+        sphericalCoordinates( 2 ) = std::acos( cartesianCoordinates( 2 )
+                                               / sphericalCoordinates( 0 ) );
     }
 }
 
 //! Convert cylindrical to cartesian coordinates, z value left unaffected.
-void convertCylindricalToCartesian( double radius,
-                                    double azimuthAngle,
+void convertCylindricalToCartesian( double radius, double azimuthAngle,
                                     VectorXd& cartesianCoordinates )
 {
     // Perform transformation, z value should be set outside function.
-    cartesianCoordinates( 0 ) = radius * cos( azimuthAngle );
-    cartesianCoordinates( 1 ) = radius * sin( azimuthAngle );
+    cartesianCoordinates( 0 ) = radius * std::cos( azimuthAngle );
+    cartesianCoordinates( 1 ) = radius * std::sin( azimuthAngle );
 }
 
 //! Compute modulo of double.
 double computeModulo( double dividend, double divisor )
-{
-    return dividend - divisor * floor( dividend / divisor );
-}
+{ return dividend - divisor * floor( dividend / divisor ); }
 
 //! Compute sample mean.
 double computeSampleMean( const vector< double >& sampleData )
@@ -305,8 +296,7 @@ double computeSampleVariance( const vector< double >& sampleData )
     }
 
     // Return sample variance.
-    return 1.0 / ( static_cast< double >( sampleData.size( ) ) - 1.0 )
-            * sumOfResidualsSquared_;
+    return 1.0 / ( static_cast< double >( sampleData.size( ) ) - 1.0 ) * sumOfResidualsSquared_;
 }
 
 }

@@ -50,6 +50,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
@@ -66,7 +67,6 @@ int main( )
     using std::fabs;
     using std::pow;
     using std::sqrt;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using tudat::unit_conversions::convertDegreesToRadians;
     using namespace tudat;
 
@@ -122,7 +122,7 @@ int main( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( fabs( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
+        if ( fabs( relativeNumericalError ) > std::numeric_limits< double >::epsilon( ) )
         {
             isFrameTransformationErroneous = true;
 
@@ -147,7 +147,7 @@ int main( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( fabs( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
+        if ( fabs( relativeNumericalError ) > std::numeric_limits< double >::epsilon( ) )
         {
             isFrameTransformationErroneous = true;
 
@@ -172,7 +172,7 @@ int main( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( fabs( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
+        if ( fabs( relativeNumericalError ) > std::numeric_limits< double >::epsilon( ) )
         {
             isFrameTransformationErroneous = true;
 
@@ -197,7 +197,7 @@ int main( )
         // Compute relative error of given component.
         relativeNumericalError = absoluteNumericalError( i ) / expectedLocation.norm( );
 
-        if ( fabs( relativeNumericalError ) > MACHINE_PRECISION_DOUBLES )
+        if ( fabs( relativeNumericalError ) > std::numeric_limits< double >::epsilon( ) )
         {
             isFrameTransformationErroneous = true;
 
@@ -243,7 +243,8 @@ int main( )
             cerr << "Frame transformation Test 5." << i << " failed " << endl;
             cerr << transformedLocation( i ) << endl;
             cerr << expectedLocation( i ) << endl;
-            cerr << relativeNumericalError << " " << MACHINE_PRECISION_DOUBLES << endl;
+            cerr << relativeNumericalError << " " << std::numeric_limits< double >::epsilon( )
+                 << endl;
         }
     }
 
@@ -293,7 +294,8 @@ int main( )
             cerr << "Frame transformation Test 6." << i << " failed " << endl;
             cerr << transformedLocation( i ) << endl;
             cerr << expectedLocation( i ) << endl;
-            cerr << relativeNumericalError << "  " << MACHINE_PRECISION_DOUBLES << endl;
+            cerr << relativeNumericalError << "  " << std::numeric_limits< double >::epsilon( )
+                 << endl;
         }
     }
 
@@ -332,7 +334,8 @@ int main( )
             cerr << "Frame transformation Test 7." << i << " failed " << endl;
             cerr << transformedLocation( i ) << endl;
             cerr << expectedLocation( i ) << endl;
-            cerr << relativeNumericalError << "  " << MACHINE_PRECISION_DOUBLES << endl;
+            cerr << relativeNumericalError << "  " << std::numeric_limits< double >::epsilon( )
+                 << endl;
         }
     }
 
@@ -340,7 +343,7 @@ int main( )
     // If test is successful return false; if test fails, return true.
     if ( isFrameTransformationErroneous )
     {
-        cerr << "referenceFrameTransformations failed" << endl;
+        cerr << "referenceFrameTransformations failed!" << endl;
     }
 
     return isFrameTransformationErroneous;

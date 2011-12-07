@@ -43,6 +43,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <map>
 #include "Astrodynamics/Bodies/body.h"
 #include "Astrodynamics/Propagators/propagator.h"
@@ -110,7 +111,7 @@ public:
         numberOfPropagationSteps_ = static_cast< unsigned int >(
                     std::ceil( ( seriesPropagationEnd_ - seriesPropagationStart_ )
                                / fixedOutputInterval_
-                               - std::sqrt( mathematics::MACHINE_PRECISION_DOUBLES ) ) );
+                               - std::sqrt( std::numeric_limits< double >::epsilon( ) ) ) );
     }
 
     //! Set initial state of body for series propagation.

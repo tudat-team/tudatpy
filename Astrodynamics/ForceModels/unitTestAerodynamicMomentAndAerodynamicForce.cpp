@@ -39,6 +39,9 @@
 */
 
 // Include statements.
+#include <cmath>
+#include <iostream>
+#include <limits>
 #include "Astrodynamics/ForceModels/aerodynamicForce.h"
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
@@ -55,7 +58,6 @@ int main( )
     using std::cerr;
     using std::endl;
     using std::fabs;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using namespace tudat;
 
     bool isAerodynamicMomentBroken = false;
@@ -109,7 +111,7 @@ int main( )
     errorInForce( 1 ) = fabs( expectedForce( 1 ) - force( 1 ) );
     errorInForce( 2 ) = fabs( expectedForce( 2 ) - force( 2 ) );
 
-    if ( MACHINE_PRECISION_DOUBLES < errorInForce.sum( ) / 3.0 /
+    if ( std::numeric_limits< double >::epsilon( ) < errorInForce.sum( ) / 3.0 /
          ( dynamicPressure * referenceArea ) )
     {
         isAerodynamicForceBroken = true;
@@ -137,7 +139,7 @@ int main( )
     errorInMoment( 1 ) = fabs( expectedMoment( 1 ) - moment( 1 ) );
     errorInMoment( 2 ) = fabs( expectedMoment( 2 ) - moment( 2 ) );
 
-    if ( MACHINE_PRECISION_DOUBLES < errorInMoment.sum( ) / 3.0 /
+    if ( std::numeric_limits< double >::epsilon( ) < errorInMoment.sum( ) / 3.0 /
          ( dynamicPressure * referenceArea * referenceLength ) )
     {
         isAerodynamicMomentBroken = true;
@@ -168,7 +170,7 @@ int main( )
     errorInMoment( 1 ) = fabs( expectedMoment( 1 ) - moment( 1 ) );
     errorInMoment( 2 ) = fabs( expectedMoment( 2 ) - moment( 2 ) );
 
-    if ( MACHINE_PRECISION_DOUBLES < errorInMoment.sum( ) / 3.0 /
+    if ( std::numeric_limits< double >::epsilon( ) < errorInMoment.sum( ) / 3.0 /
          ( dynamicPressure * referenceArea * referenceLength ) )
     {
         isAerodynamicMomentBroken = true;

@@ -132,7 +132,6 @@ int main( )
 {
     // Using declarations.
     using std::fabs;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using tudat::State;
 
     // Summary of tests.
@@ -142,7 +141,7 @@ int main( )
     // Test 3: Same as Test 1 for the RKF56 integrator.
 
     // Test result initialized to false.
-    bool isVariableStepsizeIntegratorErroneous_ = false;
+    bool isVariableStepsizeIntegratorErroneous = false;
 
     // Define tolerance for difference between computed and expected results.
     double tolerance_ = 1.0e-14;
@@ -178,7 +177,7 @@ int main( )
     // Set truncation Error Tolerance in Runge-Kutta Fehlberg 7(8)th-order, variable stepsize
     // integrator.
     rungeKuttaFehlberg78VariableStepsizeIntegrator_.setRelativeErrorTolerance(
-                MACHINE_PRECISION_DOUBLES );
+                std::numeric_limits< double >::epsilon( ) );
 
     // Set minimum stepsize in Runge-Kutta Fehlberg 7(8)th-order, variable stepsize
     // integrator.
@@ -205,7 +204,7 @@ int main( )
     if ( fabs( rungeKuttaFehlberg78VariableStepsizeIntegrator_
               .getFinalState( )->state( 0 ) - analyticResult ) > tolerance_ )
     {
-        isVariableStepsizeIntegratorErroneous_ = true;
+        isVariableStepsizeIntegratorErroneous = true;
 
         std::cerr << "The computed value ( "
                   << rungeKuttaFehlberg78VariableStepsizeIntegrator_
@@ -234,7 +233,7 @@ int main( )
     // Set truncation Error Tolerance in Runge-Kutta Fehlberg 4(5)th-order, variable stepsize
     // integrator.
     rungeKuttaFehlberg45VariableStepsizeIntegrator_.setRelativeErrorTolerance(
-                MACHINE_PRECISION_DOUBLES );
+                std::numeric_limits< double >::epsilon( ) );
 
     // Set minimum stepsize in Runge-Kutta Fehlberg 4(5)th-order, variable stepsize
     // integrator.
@@ -261,7 +260,7 @@ int main( )
     if ( fabs( rungeKuttaFehlberg45VariableStepsizeIntegrator_
               .getFinalState( )->state( 0 ) - analyticResult ) > tolerance_ )
     {
-        isVariableStepsizeIntegratorErroneous_ = true;
+        isVariableStepsizeIntegratorErroneous = true;
 
         std::cerr << "The computed value ( "
                   << rungeKuttaFehlberg45VariableStepsizeIntegrator_
@@ -289,7 +288,7 @@ int main( )
     // Set truncation Error Tolerance in Runge-Kutta Fehlberg 5(6)th-order, variable stepsize
     // integrator.
     rungeKuttaFehlberg56VariableStepsizeIntegrator_.setRelativeErrorTolerance(
-                MACHINE_PRECISION_DOUBLES );
+                std::numeric_limits< double >::epsilon( ) );
 
     // Set minimum stepsize in Runge-Kutta Fehlberg 5(6)th-order, variable stepsize
     // integrator.
@@ -317,7 +316,7 @@ int main( )
     if ( fabs( rungeKuttaFehlberg56VariableStepsizeIntegrator_
               .getFinalState( )->state( 0 ) - analyticResult ) > tolerance_ )
     {
-        isVariableStepsizeIntegratorErroneous_ = true;
+        isVariableStepsizeIntegratorErroneous = true;
 
         std::cerr << "The computed value ( "
                   << rungeKuttaFehlberg56VariableStepsizeIntegrator_
@@ -329,7 +328,12 @@ int main( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    return isVariableStepsizeIntegratorErroneous_;
+    if ( isVariableStepsizeIntegratorErroneous )
+    {
+        std::cerr << "testVariableStepsizeIntegratorErroneous failed!" << std::endl;
+    }
+
+    return isVariableStepsizeIntegratorErroneous;
 }
 
 // End of file.

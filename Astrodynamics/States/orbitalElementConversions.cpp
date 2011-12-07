@@ -75,6 +75,7 @@
 // Include statements.
 #include <boost/math/special_functions/atanh.hpp>
 #include <cmath>
+#include <limits>
 #include "Astrodynamics/States/orbitalElementConversions.h"
 
 //! Tudat library namespace.
@@ -93,7 +94,6 @@ using std::pow;
 using std::fabs;
 using linear_algebra::determineAngleBetweenVectors;
 using tudat::mathematics::computeModulo;
-using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
 
 //! Orbital element conversions namespace.
 namespace orbital_element_conversions
@@ -106,7 +106,7 @@ CartesianElements convertKeplerianToCartesianElements(
     // Declare local variables.
     // Declare the tolerance with which a defined double has to be equal to
     // a specific value.
-    double tolerance_ = 10.0 * MACHINE_PRECISION_DOUBLES;
+    double tolerance_ = 10.0 * std::numeric_limits< double >::epsilon( );
 
     // Declare CartesianElements object.
     CartesianElements cartesianElements_;
@@ -195,7 +195,7 @@ KeplerianElements convertCartesianToKeplerianElements(
     // Declare local variables.
     // Declare the tolerance with which a computed double has to be equal to
     // a specific value.
-    double tolerance_ = 10.0 * MACHINE_PRECISION_DOUBLES;
+    double tolerance_ = 10.0 * std::numeric_limits< double >::epsilon( );
 
     // Declare KeplerianElements object.
     KeplerianElements keplerianElements_;

@@ -46,6 +46,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Astrodynamics/physicalConstants.h"
 #include "Mathematics/unitConversions.h"
 
@@ -56,7 +57,6 @@ int main( )
     using std::cerr;
     using std::endl;
     using std::fabs;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using namespace tudat;
 
     // Test result initialised to false.
@@ -64,7 +64,8 @@ int main( )
 
     // Test for time constants.
     // Test for the number of days in a year.
-    if ( fabs( PhysicalConstants::JULIAN_YEAR_IN_DAYS - 365.25 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( PhysicalConstants::JULIAN_YEAR_IN_DAYS - 365.25 )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The Julian year in days is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
@@ -72,7 +73,8 @@ int main( )
 
     // Test for the number of seconds in a year.
     if ( fabs( PhysicalConstants::JULIAN_YEAR - PhysicalConstants::JULIAN_DAY
-               * PhysicalConstants::JULIAN_YEAR_IN_DAYS ) > MACHINE_PRECISION_DOUBLES )
+               * PhysicalConstants::JULIAN_YEAR_IN_DAYS )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The Julian year in seconds does not correspond to the Julian "
              << "day in seconds multiplied with the number of days per year."
@@ -82,7 +84,7 @@ int main( )
 
     // Test for gravitational constant.
     if ( fabs( PhysicalConstants::GRAVITATIONAL_CONSTANT - 6.67259e-11 )
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The gravitational constant is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
@@ -91,7 +93,7 @@ int main( )
     // Test for the obliquity of the ecliptic.
     // Test for its absolute size (23.5 degrees, from the top of my head).
     if ( fabs( PhysicalConstants::OBLIQUITY_ECLIPTIC_IN_DEGREES - 23.439281 )
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The obliquity of the ecliptic is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
@@ -109,7 +111,7 @@ int main( )
     // Test for astronomical unit.
     // As expected, indeed approximately equal to 150 million kilometers.
     if ( fabs( PhysicalConstants::ASTRONOMICAL_UNIT - 1.49597870691e11 )
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The astronomical unit is not set correctly." << endl;
         isPhysicalConstantsErroneous = true;
@@ -117,7 +119,11 @@ int main( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    if ( isPhysicalConstantsErroneous ) { cerr << "testPhysicalConstants failed!" << endl; }
+    if ( isPhysicalConstantsErroneous )
+    {
+        cerr << "testPhysicalConstants failed!" << endl;
+    }
+
     return isPhysicalConstantsErroneous;
 }
 
