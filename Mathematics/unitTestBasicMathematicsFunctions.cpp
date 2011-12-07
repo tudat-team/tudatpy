@@ -3,7 +3,7 @@
  *    containing all basic mathematics functions contained in Tudat.
  *
  *    Path              : /Mathematics/
- *    Version           : 6
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : B. Romgens
@@ -48,11 +48,15 @@
  *                                  and computeSampleVariance() functions.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      111111    K. Kumar          Strange error with convertCylindricalToCartesian function;
+ *                                  achieved precision of results is less than machine precision,
+ *                                  fixed by using slightly larger precision tolerance.
  */
 
 // Include statements.
 #include <cmath>
 #include <iostream> 
+#include <limits>
 #include "Astrodynamics/States/cartesianPositionElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
@@ -62,7 +66,12 @@ int main( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
+    using std::fabs;
+    using std::acos;
+    using std::asin;
+    using std::atan2;
+    using std::cos;
+    using std::sin;
     using tudat::mathematics::computeModulo;
     using tudat::mathematics::convertCylindricalToCartesian;
     using tudat::mathematics::convertSphericalToCartesian;
@@ -70,7 +79,7 @@ int main( )
     using tudat::mathematics::convertCartesianToSpherical;
     using namespace tudat;
 
-    // Test resultUsingModuloFunction initialised to false.
+    // Declare and initialize test result to false.
     bool isBasicMathematicsFunctionsErroneous = false;
 
     // Test modulo function.
@@ -81,7 +90,7 @@ int main( )
     // Test 14: Test 3.0 mod -2.5.
     double resultUsingModuloFunction = computeModulo( 0.0, 0.0 );
 
-    if ( abs( resultUsingModuloFunction - 0.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( resultUsingModuloFunction - 0.0 ) > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeModulo function does not "
              << "function correctly, as the computed value: "
@@ -92,7 +101,7 @@ int main( )
 
     resultUsingModuloFunction = computeModulo( 2.0, 0.0 );
 
-    if ( abs( resultUsingModuloFunction - 2.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( resultUsingModuloFunction - 2.0 ) > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeModulo function does not "
              << "function correctly, as the computed value: "
@@ -103,7 +112,7 @@ int main( )
 
     resultUsingModuloFunction = computeModulo( 2.0, 2.0 );
 
-    if ( abs( resultUsingModuloFunction - 0.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( resultUsingModuloFunction - 0.0 ) > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeModulo function does not "
              << "function correctly, as the computed value: "
@@ -114,7 +123,7 @@ int main( )
 
     resultUsingModuloFunction = computeModulo( 3.0, 2.5 );
 
-    if ( abs( resultUsingModuloFunction -0.5 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( resultUsingModuloFunction - 0.5 ) > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeModulo function does not "
              << "function correctly, as the computed value: "
@@ -125,7 +134,7 @@ int main( )
 
     resultUsingModuloFunction = computeModulo( 3.0, -2.5 );
 
-    if ( abs( resultUsingModuloFunction + 2.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( resultUsingModuloFunction + 2.0 ) > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeModulo function does not "
              << "function correctly, as the computed value: "
@@ -145,8 +154,8 @@ int main( )
 
     convertCylindricalToCartesian( 2.0, 0.0, cartesianCoordinates );
 
-    if ( abs( cartesianCoordinates( 0 ) - 2.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates( 1 ) - 0.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates( 0 ) - 2.0 ) / 2.0 > 1.0e-15 ||
+         fabs( cartesianCoordinates( 1 ) - 0.0 ) > 1.0e-15 )
     {
         cerr << "The convertCylindricalToCartesian, no z, function does not "
              << "function correctly, as the computed coordinates: ( "
@@ -158,8 +167,8 @@ int main( )
 
     convertCylindricalToCartesian( 2.0, M_PI, cartesianCoordinates );
 
-    if ( abs( cartesianCoordinates( 0 ) + 2.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates( 1 ) - 0.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates( 0 ) + 2.0 ) > 1.0e-15 ||
+         fabs( cartesianCoordinates( 1 ) - 0.0 ) > 1.0e-15 )
     {
         cerr << "The convertCylindricalToCartesian, no z, function does not "
              << "function correctly, as the computed coordinates: ( "
@@ -171,8 +180,8 @@ int main( )
 
     convertCylindricalToCartesian( 2.0, -2.0*M_PI, cartesianCoordinates );
 
-    if ( abs( cartesianCoordinates( 0 ) - 2.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates( 1 ) - 0.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates( 0 ) - 2.0 ) > 1.0e-15 ||
+         fabs( cartesianCoordinates( 1 ) - 0.0 ) > 1.0e-15 )
     {
         cerr << "The convertCylindricalToCartesian, no z, function does not "
              << "function correctly, as the computed coordinates: ( "
@@ -182,10 +191,12 @@ int main( )
         isBasicMathematicsFunctionsErroneous = true;
     }
 
-    convertCylindricalToCartesian( 2.0, 225.0/180.0*M_PI, cartesianCoordinates );
+    convertCylindricalToCartesian( 2.0, 225.0 / 180.0 * M_PI, cartesianCoordinates );
 
-    if ( abs( cartesianCoordinates( 0 ) + sqrt( 2.0 ) ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates( 1 ) + sqrt( 2.0 )) >  MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates( 0 ) + sqrt( 2.0 ) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinates( 1 ) + sqrt( 2.0 ))
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCylindricalToCartesian, no z, function does not "
              << "function correctly, as the computed coordinates: ( "
@@ -195,12 +206,12 @@ int main( )
         isBasicMathematicsFunctionsErroneous = true;
     }
 
-    convertCylindricalToCartesian( 2.0, -225.0/180.0*M_PI, cartesianCoordinates );
+    convertCylindricalToCartesian( 2.0, -225.0 / 180.0 * M_PI, cartesianCoordinates );
 
-    if ( abs( cartesianCoordinates( 0 ) + sqrt( 2.0 ) ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates( 1 ) - sqrt( 2.0 )) >
-         MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates( 0 ) + sqrt( 2.0 ) ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinates( 1 ) - sqrt( 2.0 )) >
+         std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCylindricalToCartesian, no z, function does not "
              << "function correctly, as the computed coordinates: ( "
@@ -219,12 +230,12 @@ int main( )
 
     convertSphericalToCartesian( 0.0, 0.0, 0.0, cartesianCoordinates3 );
 
-    if ( abs( cartesianCoordinates3( 0 ) + 0.0 ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates3( 1 ) - 0.0 ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates3( 2 ) - 0.0 ) >
-         MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates3( 0 ) + 0.0 ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinates3( 1 ) - 0.0 ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinates3( 2 ) - 0.0 ) >
+         std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCylindricalToCartesian, function does not "
              << "function correctly. (test1)" << endl;
@@ -234,10 +245,10 @@ int main( )
     convertSphericalToCartesian( 2.0, 225.0 / 180.0 * M_PI,
                                  225.0 / 180.0 * M_PI, cartesianCoordinates3 );
 
-    if ( abs( cartesianCoordinates3( 0 ) - 1.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates3( 1 ) - 1.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates3( 2 ) + sqrt( 2.0 ) ) >
-         MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates3( 0 ) - 1.0 ) > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinates3( 1 ) - 1.0 ) > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinates3( 2 ) + sqrt( 2.0 ) ) >
+         std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCylindricalToCartesian function does not "
              << "function correctly, as the computed coordinates: ( "
@@ -248,14 +259,13 @@ int main( )
         isBasicMathematicsFunctionsErroneous = true;
     }
 
-    convertSphericalToCartesian( 2.0, -225.0 / 180.0 * M_PI,
-                                 -225.0 / 180.0 * M_PI,
+    convertSphericalToCartesian( 2.0, -225.0 / 180.0 * M_PI, -225.0 / 180.0 * M_PI,
                                  cartesianCoordinates3 );
 
-    if ( abs( cartesianCoordinates3( 0 ) + 1.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates3( 1 ) - 1.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates3( 2 ) + sqrt( 2.0 ) ) >
-         MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates3( 0 ) + 1.0 ) > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinates3( 1 ) - 1.0 ) > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinates3( 2 ) + sqrt( 2.0 ) ) >
+         std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCylindricalToCartesian function does not "
              << "function correctly, as the computed coordinates: ( "
@@ -269,9 +279,9 @@ int main( )
     convertSphericalToCartesian( 2.0, 180.0 / 180.0 * M_PI,
                                  180.0 / 180.0 * M_PI, cartesianCoordinates3 );
 
-    if ( abs( cartesianCoordinates3( 0 ) - 0.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates3( 1 ) - 0.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( cartesianCoordinates3( 2 ) + 2.0 ) >  MACHINE_PRECISION_DOUBLES )
+    if ( fabs( cartesianCoordinates3( 0 ) - 0.0 ) > 1.0e-15 ||
+         fabs( cartesianCoordinates3( 1 ) - 0.0 ) > 1.0e-15 ||
+         fabs( cartesianCoordinates3( 2 ) + 2.0 ) / 2.0 > 1.0e-15 )
     {
         cerr << "The convertCylindricalToCartesian function does not "
              << "function correctly, as the computed coordinates: ( "
@@ -361,14 +371,14 @@ int main( )
                                  sphericalCoordinates_ );
 
     // Compute absolute and relative differences.
-    absoluteDifference_ = abs( sphericalCoordinates_.norm( )
+    absoluteDifference_ = fabs( sphericalCoordinates_.norm( )
             - expectedSphericalCoordinatesTest24_.norm( ) );
 
     relativeDifference_ = absoluteDifference_
             / expectedSphericalCoordinatesTest24_.norm( );
 
     // Check if relative error is too large.
-    if ( relativeDifference_  > MACHINE_PRECISION_DOUBLES )
+    if ( relativeDifference_  > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCartesianToSpherical, function does not "
              << "function correctly. ( Test 24 )." << endl;
@@ -382,13 +392,13 @@ int main( )
                                  sphericalCoordinates_ );
 
     // Compute absolute and relative differences.
-    absoluteDifference_ = abs( sphericalCoordinates_.norm( )
+    absoluteDifference_ = fabs( sphericalCoordinates_.norm( )
                                - expectedSphericalCoordinatesTest25_.norm( ) );
 
     relativeDifference_ = absoluteDifference_
             / expectedSphericalCoordinatesTest25_.norm( );
 
-    if ( relativeDifference_ > MACHINE_PRECISION_DOUBLES )
+    if ( relativeDifference_ > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCartesianToSpherical, function does not "
              << "function correctly. ( Test 25 )." << endl;
@@ -401,12 +411,12 @@ int main( )
     convertCartesianToSpherical( cartesianCoordinatesTest26_, sphericalCoordinates_ );
 
     // Compute absolute and relative differences.
-    absoluteDifference_ = abs( sphericalCoordinates_.norm( )
+    absoluteDifference_ = fabs( sphericalCoordinates_.norm( )
                                - expectedSphericalCoordinatesTest26_.norm( ) );
 
     relativeDifference_ = absoluteDifference_ / expectedSphericalCoordinatesTest26_.norm( );
 
-    if ( relativeDifference_ > MACHINE_PRECISION_DOUBLES )
+    if ( relativeDifference_ > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCartesianToSpherical, function does not "
              << "function correctly. ( Test 26 )." << endl;
@@ -419,13 +429,13 @@ int main( )
     convertCartesianToSpherical( cartesianCoordinatesTest27_, sphericalCoordinates_ );
 
     // Compute absolute and relative differences.
-    absoluteDifference_ = abs( sphericalCoordinates_.norm( )
+    absoluteDifference_ = fabs( sphericalCoordinates_.norm( )
                                - expectedSphericalCoordinatesTest27_.norm( ) );
 
     relativeDifference_ = absoluteDifference_
             / expectedSphericalCoordinatesTest27_.norm( );
 
-    if ( relativeDifference_ > MACHINE_PRECISION_DOUBLES )
+    if ( relativeDifference_ > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The convertCartesianToSpherical, function does not "
              << "function correctly. ( Test 27 )." << endl;
@@ -461,7 +471,7 @@ int main( )
             sortedIndependentVariables, associatedDependentVariables,
             targetIndependentVariableValue );
 
-    if ( abs( interpolatedValue - 0.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( interpolatedValue - 0.0 ) > std::numeric_limits< double >::epsilon( ) )
     {
        cerr << "The computeLinearInterpolation function for vector data does "
             << "not function correctly, as the computed value: "
@@ -484,7 +494,7 @@ int main( )
             sortedIndependentVariables, associatedDependentVariables,
             targetIndependentVariableValue );
 
-    if ( abs( interpolatedValue - 20.5 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( interpolatedValue - 20.5 ) > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeLinearInterpolation function for vector data does "
              << "not function correctly, as the computed value: "
@@ -533,9 +543,9 @@ int main( )
             sortedIndepedentAndDependentVariables,
             targetIndependentVariableValue );
 
-    if ( abs( interpolatedVector( 0 ) - 25.0 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( interpolatedVector( 1 ) - 27.5 ) > MACHINE_PRECISION_DOUBLES ||
-         abs( interpolatedVector( 2 ) - 85.0 ) > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( interpolatedVector( 0 ) - 25.0 ) > std::numeric_limits< double >::epsilon( ) ||
+         fabs( interpolatedVector( 1 ) - 27.5 ) > std::numeric_limits< double >::epsilon( ) ||
+         fabs( interpolatedVector( 2 ) - 85.0 ) > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeLinearInterpolation function for a map of "
              << "vectors, does not function correctly, as the compute vector "
@@ -585,12 +595,12 @@ int main( )
     interpolatedState = computeLinearInterpolation(
             stateMap, targetIndependentVariableValue );
 
-    if ( abs( interpolatedState->state( 0 ) - 0.0 ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( interpolatedState->state( 1 ) - 0.0 ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( interpolatedState->state( 2)  - 0.0 ) >
-         MACHINE_PRECISION_DOUBLES )
+    if ( fabs( interpolatedState->state( 0 ) - 0.0 ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( interpolatedState->state( 1 ) - 0.0 ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( interpolatedState->state( 2)  - 0.0 ) >
+         std::numeric_limits< double >::epsilon( ) )
     {
        cerr << "The computeLinearInterpolation function for a map of State "
             << "objects does not function correctly, as the computed state: "
@@ -606,12 +616,12 @@ int main( )
     interpolatedState = computeLinearInterpolation(
             stateMap, targetIndependentVariableValue );
 
-    if ( abs( interpolatedState->state( 0 ) - 3.5 ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( interpolatedState->state( 1 ) - 1.5 ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( interpolatedState->state( 2 ) - 0.5 ) >
-         MACHINE_PRECISION_DOUBLES )
+    if ( fabs( interpolatedState->state( 0 ) - 3.5 ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( interpolatedState->state( 1 ) - 1.5 ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( interpolatedState->state( 2 ) - 0.5 ) >
+         std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeLinearInterpolation function for a map of State "
              << "objects does not function correctly, as the computed state: "
@@ -627,12 +637,12 @@ int main( )
     interpolatedState = computeLinearInterpolation(
             stateMap, targetIndependentVariableValue );
 
-    if ( abs( interpolatedState->state( 0 ) + 7.0 ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( interpolatedState->state( 1 ) + 3.0 ) >
-         MACHINE_PRECISION_DOUBLES ||
-         abs( interpolatedState->state( 2 ) + 1.0 ) >
-         MACHINE_PRECISION_DOUBLES )
+    if ( fabs( interpolatedState->state( 0 ) + 7.0 ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( interpolatedState->state( 1 ) + 3.0 ) >
+         std::numeric_limits< double >::epsilon( ) ||
+         fabs( interpolatedState->state( 2 ) + 1.0 ) >
+         std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The computeLinearInterpolation function for a map of State "
              << "objects does not function correctly, as the computed state: "
@@ -671,10 +681,10 @@ int main( )
 
     // Check if differences between computed and expected sample means and
     // variances are too large; if so print cerr statements.
-    if ( abs( computedSampleMean - expectedSampleMean) / expectedSampleMean
-         > MACHINE_PRECISION_DOUBLES
-         || abs( computedSampleVariance - expectedSampleVariance )
-         / expectedSampleVariance > MACHINE_PRECISION_DOUBLES )
+    if ( fabs( computedSampleMean - expectedSampleMean) / expectedSampleMean
+         > std::numeric_limits< double >::epsilon( )
+         || fabs( computedSampleVariance - expectedSampleVariance )
+         / expectedSampleVariance > std::numeric_limits< double >::epsilon( ) )
     {
         isBasicMathematicsFunctionsErroneous = true;
 

@@ -270,7 +270,12 @@ int main( )
     // Return test result.
     // If test is successful return false; if test fails, return true.
     if ( isTextFileReaderErroneous )
-    { cerr << "testTextFileReader failed!" << std::endl; }
+    {
+        cerr << "testTextFileReader failed!" << std::endl;
+    }
+
+    return isTextFileReaderErroneous;
+
 }
 
 // End of file.

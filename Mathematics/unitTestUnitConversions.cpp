@@ -70,6 +70,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Astrodynamics/physicalConstants.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
@@ -81,7 +82,6 @@ int main( )
     using std::cerr;
     using std::endl;
     using std::fabs;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using namespace tudat;
 
     // Test result initialised to false.
@@ -89,7 +89,7 @@ int main( )
 
     // Test conversion from kilometers to meters.
     if ( fabs( unit_conversions::convertKilometersToMeters( 1.0e6 ) -
-               1.0e6 * 1.0e3 ) / 1.0e9  > MACHINE_PRECISION_DOUBLES )
+               1.0e6 * 1.0e3 ) / 1.0e9  > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from kilometers to meters does not "
              << "function correctly." << endl;
@@ -109,7 +109,7 @@ int main( )
 
     // Test conversion from degrees to arcminutes.
     if ( fabs( unit_conversions::convertDegreesToArcminutes( 43.2 ) -
-               43.2 * 60.0 ) / ( 43.2 * 60.0 )  > MACHINE_PRECISION_DOUBLES )
+               43.2 * 60.0 ) / ( 43.2 * 60.0 )  > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from degrees to arcminutes does not "
              << "function correctly." << endl;
@@ -122,7 +122,7 @@ int main( )
 
     // Test conversion from arcminutes to arcseconds.
     if ( fabs( unit_conversions::convertArcminutesToArcseconds( 125.9 ) -
-               125.9 * 60.0 ) / ( 125.9 * 60.0 )  > MACHINE_PRECISION_DOUBLES )
+               125.9 * 60.0 ) / ( 125.9 * 60.0 )  > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from arcminutes to arcseconds does not function correctly."
              << endl;
@@ -141,7 +141,7 @@ int main( )
 
     // Test conversion from minutes to seconds.
     if ( fabs( unit_conversions::convertMinutesToSeconds( 12.0 ) -
-               12.0 * 60.0 ) / ( 12.0 * 60.0 )  > MACHINE_PRECISION_DOUBLES )
+               12.0 * 60.0 ) / ( 12.0 * 60.0 )  > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from minutes to seconds does not function correctly." << endl;
         isUnitConversionsErroneous = true;
@@ -149,7 +149,7 @@ int main( )
 
     // Test conversion from seconds to minutes.
     if ( fabs( unit_conversions::convertSecondsToMinutes( 12.0 ) - 0.2 ) /
-         0.2 > MACHINE_PRECISION_DOUBLES )
+         0.2 > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from seconds to minutes does not function correctly." << endl;
         isUnitConversionsErroneous = true;
@@ -160,7 +160,7 @@ int main( )
     if ( fabs( unit_conversions::convertJulianDaysToJulianYears(
                    unit_conversions::convertSecondsToJulianDays(
                        unit_conversions::convertHoursToSeconds( 24.0 ) ) ) -
-               1.0 / 365.25 ) / ( 1.0 / 365.25 )  > MACHINE_PRECISION_DOUBLES )
+               1.0 / 365.25 ) / ( 1.0 / 365.25 )  > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from hours to Julian years does not function correctly." << endl;
         isUnitConversionsErroneous = true;
@@ -171,7 +171,7 @@ int main( )
     if ( fabs( unit_conversions::convertSecondsToHours(
                    unit_conversions::convertJulianDaysToSeconds(
                        unit_conversions::convertJulianYearsToJulianDays( 1.0 / 365.25 ) ) ) -
-               24.0 ) / ( 24.0 )  > MACHINE_PRECISION_DOUBLES )
+               24.0 ) / ( 24.0 )  > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from Julian years to hours does not "
              << "function correctly." << endl;
@@ -181,7 +181,7 @@ int main( )
     // Test conversion from sidereal days to seconds.
     if ( fabs( unit_conversions::convertSiderealDaysToSeconds( 7.0 ) -
                7.0 * PhysicalConstants::SIDEREAL_DAY )
-         / ( 7.0 * PhysicalConstants::SIDEREAL_DAY )  > MACHINE_PRECISION_DOUBLES )
+         / ( 7.0 * PhysicalConstants::SIDEREAL_DAY )  > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from sidereal days to seconds does not "
              << "function correctly." << endl;
@@ -196,7 +196,8 @@ int main( )
     // Test conversion from seconds to sidereal days.
     if ( fabs( unit_conversions::convertSecondsToSiderealDays( 100.0 ) -
                100.0 / PhysicalConstants::SIDEREAL_DAY )
-         / ( 100.0 / PhysicalConstants::SIDEREAL_DAY )  > MACHINE_PRECISION_DOUBLES )
+         / ( 100.0 / PhysicalConstants::SIDEREAL_DAY )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from seconds to sidereal days does not "
              << "function correctly." << endl;
@@ -211,7 +212,7 @@ int main( )
     // Test conversion from temperature in Rankine to Kelvin.
     // meltingtemperature ice (source wikipedia).
     if ( fabs( unit_conversions::convertRankineToKelvin( 491.67 ) - 273.15 ) / 273.15
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from temperature in Rankine to Kelvin does not "
              << "function correctly." << endl;
@@ -221,7 +222,7 @@ int main( )
     // Test conversion from distance in feet to meters.
     // Case: length of a statute mile (source wikipedia).
     if ( fabs( unit_conversions::convertFeetToMeter( 5280.0 ) - 1609.344 ) / 1609.344
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The conversion from distance in feet to meters does not "
              << "function correctly." << endl;

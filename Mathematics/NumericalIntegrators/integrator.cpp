@@ -58,6 +58,7 @@
  */
 
 // Include statements.
+#include <limits>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/NumericalIntegrators/integrator.h"
 
@@ -163,7 +164,7 @@ void Integrator::computeInternalDerivedIntegrationParameters_( )
         // subtracted before applying the ceil function.
         numberOfIntegrationSteps_ = static_cast < unsigned int >(
                     std::ceil( integrationInterval_ / stepsize_
-                               - std::sqrt( mathematics::MACHINE_PRECISION_DOUBLES ) ) );
+                               - std::sqrt( std::numeric_limits< double >::epsilon( ) ) ) );
 
         // Add pointer to initial state to container vector.
         vectorOfCurrentStates_.push_back( *pointerToInitialState_ );

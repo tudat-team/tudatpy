@@ -44,6 +44,8 @@
  */
 
 // Include statements.
+#include <iostream>
+#include <limits>
 #include "Astrodynamics/States/keplerianElements.h"
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/basicMathematicsFunctions.h"
@@ -55,7 +57,6 @@ int main( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using tudat::unit_conversions::convertDegreesToRadians;
     using namespace tudat;
 
@@ -67,7 +68,7 @@ int main( )
     // Test 3: Get auxilliary Keplerian elements.
 
     // Initialize unit test result to false.
-    bool isKeplerianElementsErroneous_ = false;
+    bool isKeplerianElementsErroneous = false;
 
     // Create Keplerian elements state objects.
     KeplerianElements keplerianElementsStateTest1_;
@@ -154,9 +155,9 @@ int main( )
             - auxilliaryKeplerianElementsVectorTest3_;
 
     // Set test result to true if the test does not match the expected result.
-    if ( differenceBetweenResultsTest1_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    if ( differenceBetweenResultsTest1_.norm( ) > std::numeric_limits< double >::epsilon( ) )
     {
-        isKeplerianElementsErroneous_ = true;
+        isKeplerianElementsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed value " << endl;
@@ -168,9 +169,9 @@ int main( )
              << vectorOfKeplerianElements_ - keplerianElementsStateVectorTest1 << endl;
     }
 
-    if ( differenceBetweenResultsTest2_.norm( ) > MACHINE_PRECISION_DOUBLES )
+    if ( differenceBetweenResultsTest2_.norm( ) > std::numeric_limits< double >::epsilon( ) )
     {
-        isKeplerianElementsErroneous_ = true;
+        isKeplerianElementsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed value " << endl;
@@ -182,9 +183,9 @@ int main( )
              << vectorOfKeplerianElements_ - keplerianElementsStateTest2_.state << endl;
     }
 
-    if ( differenceBetweenResultsTest3.norm( ) > MACHINE_PRECISION_DOUBLES )
+    if ( differenceBetweenResultsTest3.norm( ) > std::numeric_limits< double >::epsilon( ) )
     {
-        isKeplerianElementsErroneous_ = true;
+        isKeplerianElementsErroneous = true;
 
         // Generate error statements.
         cerr << "The computed value " << endl;
@@ -199,8 +200,12 @@ int main( )
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    if ( isKeplerianElementsErroneous_ ) { cerr << "testKeplerianElements failed!" << endl; }
-    return isKeplerianElementsErroneous_;
+    if ( isKeplerianElementsErroneous )
+    {
+        cerr << "testKeplerianElements failed!" << endl;
+    }
+
+    return isKeplerianElementsErroneous;
 }
 
 // End of file.

@@ -57,6 +57,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/NumericalIntegrators/rungeKuttaFehlberg78VariableStepsize.h"
 
@@ -118,7 +119,7 @@ void RungeKuttaFehlberg78VariableStepsize::integrate( )
 
         // Check for end of integration period and break from loop if end is reached.
         if ( fabs( integrationIntervalCurrentPoint_ - integrationIntervalEnd_ )
-             < mathematics::MACHINE_PRECISION_DOUBLES )
+             < std::numeric_limits< double >::epsilon( ) )
         {
             break;
         }

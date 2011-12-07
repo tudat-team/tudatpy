@@ -43,6 +43,8 @@
  */
 
 // Include statements.
+#include <cmath>
+#include <iostream>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
 #include "Mathematics/GeometricShapes/sphereSegment.h"
@@ -54,12 +56,12 @@ int main( )
     using namespace tudat;
 
     // Test result initialised to false.
-    bool isLawgsSurfaceGeometryBad_ = false;
+    bool isLawgsSurfaceGeometryBad = false;
 
     // Create a full sphere as test geometry.
     SphereSegment sphere;
-    double sphereRadius_ = 2.0;
-    sphere.setRadius( sphereRadius_ );
+    double sphereRadius = 2.0;
+    sphere.setRadius( sphereRadius );
     sphere.setMaximumAzimuthAngle( 2.0 * M_PI );
     sphere.setMinimumAzimuthAngle( 0.0 );
     sphere.setMaximumZenithAngle( M_PI );
@@ -75,24 +77,24 @@ int main( )
     // to the expected value.
     double totalArea_ = lawgsSurface.getTotalArea( );
 
-    if ( std::fabs( totalArea_ - 4.0 * M_PI * ( pow( sphereRadius_, 2.0 ) ) ) > 0.6 )
+    if ( std::fabs( totalArea_ - 4.0 * M_PI * ( std::pow( sphereRadius, 2.0 ) ) ) > 0.6 )
     {
         std::cerr << "Total mesh area does not match sphere area sufficiently well." << std::endl;
-        isLawgsSurfaceGeometryBad_ = true;
+        isLawgsSurfaceGeometryBad = true;
     }
 
     // Test if number of lines on mesh is correct.
     if ( lawgsSurface.getNumberOfLines( ) != numberOfLines )
     {
         std::cerr << " Number of lines in mesh incorrect." << std::endl;
-        isLawgsSurfaceGeometryBad_ = true;
+        isLawgsSurfaceGeometryBad = true;
     }
 
     // Test if number of points per line on mesh is correct.
     if ( lawgsSurface.getNumberOfPoints( ) != numberOfPoints )
     {
         std::cerr << " Number of points in mesh is incorrect." << std::endl;
-        isLawgsSurfaceGeometryBad_ = true;
+        isLawgsSurfaceGeometryBad = true;
     }
 
     // Set part name.
@@ -100,10 +102,10 @@ int main( )
     lawgsSurface.setName( partName_ );
 
     // Test if part name is properly retrieved.
-    if ( lawgsSurface.getName() != partName_ )
+    if ( lawgsSurface.getName () != partName_ )
     {
         std::cerr << " Error in part name of mesh." << std::endl;
-        isLawgsSurfaceGeometryBad_ = true;
+        isLawgsSurfaceGeometryBad = true;
     }
 
     // Retrieve normal and centroid for panel 0, 0.
@@ -114,26 +116,26 @@ int main( )
     if ( std::fabs( testCentroid_.normalized( ).dot( testNormal_.normalized( ) ) - 1.0 ) > 1.0e-5 )
     {
         std::cerr << "Normal and centroid of sphere segment mesh not collinear." << std::endl;
-        isLawgsSurfaceGeometryBad_ = true;
+        isLawgsSurfaceGeometryBad = true;
     }
 
     // Test if the position of the x- and y-coordinate of panel 0, 0 is correct.
     if ( std::fabs( std::atan( testCentroid_.y( ) / testCentroid_.x( ) ) - M_PI / 20.0 ) >
-         mathematics::MACHINE_PRECISION_DOUBLES )
+         std::numeric_limits< double >::epsilon( ) )
     {
         std::cerr << "x- and y-coordinate of centroid of panel 0, 0 of "
                   << "sphere mesh is incorrect." << std::endl;
-        isLawgsSurfaceGeometryBad_ = true;
+        isLawgsSurfaceGeometryBad = true;
     }
 
     // Return test result.
     // If test is succesful return 0, if test fails, return 1.
-    if ( isLawgsSurfaceGeometryBad_ )
+    if ( isLawgsSurfaceGeometryBad )
     {
         std::cerr << "testLawgsSurfaceGeometry failed!" << std::endl;
     }
 
-    return  isLawgsSurfaceGeometryBad_;
+    return  isLawgsSurfaceGeometryBad;
 }
 
 // End of file.

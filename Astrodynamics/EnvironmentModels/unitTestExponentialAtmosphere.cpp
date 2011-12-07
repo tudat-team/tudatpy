@@ -43,6 +43,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Astrodynamics/physicalConstants.h"
 #include "Astrodynamics/EnvironmentModels/exponentialAtmosphere.h"
 #include "Mathematics/basicMathematicsFunctions.h"
@@ -54,7 +55,6 @@ int main( )
     using std::cerr;
     using std::endl;
     using std::fabs;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
 
     // Declare test variable.
     bool isExponentialAtmosphereBad_ = false;
@@ -83,11 +83,13 @@ int main( )
 
     // Check if set and get functions work well.
     if ( fabs( ( exponentialAtmosphere.getConstantTemperature( )
-                 - constantTemperature ) / constantTemperature ) > MACHINE_PRECISION_DOUBLES
+                 - constantTemperature ) / constantTemperature )
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( exponentialAtmosphere.getDensityAtZeroAltitude( )
-                    - densityAtZeroAltitude ) / densityAtZeroAltitude ) > MACHINE_PRECISION_DOUBLES
+                    - densityAtZeroAltitude ) / densityAtZeroAltitude )
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( exponentialAtmosphere.getScaleHeight( ) - scaleHeight ) / scaleHeight )
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The get or set functions for the constants of the exponential atmosphere ";
         cerr << "do not work correctly." << endl;
@@ -106,9 +108,11 @@ int main( )
 
     // Check whether the atmosphere is calculated correctly at sea level.
     if ( fabs( ( exponentialAtmosphere.getTemperature( altitude )
-                 - constantTemperature ) / constantTemperature ) > MACHINE_PRECISION_DOUBLES
+                 - constantTemperature ) / constantTemperature )
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( exponentialAtmosphere.getDensity( altitude )
-                    - densityAtZeroAltitude ) / densityAtZeroAltitude ) > MACHINE_PRECISION_DOUBLES
+                    - densityAtZeroAltitude ) / densityAtZeroAltitude )
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( exponentialAtmosphere.getPressure( altitude )
                     - pressureAtZeroAltitude ) / pressureAtZeroAltitude )
          > 0.002 * pressureAtZeroAltitude )
@@ -131,9 +135,11 @@ int main( )
     double expectedDensity  = densityAtZeroAltitude * std::exp ( -altitude / scaleHeight );
 
     if ( fabs( ( exponentialAtmosphere.getTemperature( altitude, longitude, latitude )
-                 - constantTemperature ) / constantTemperature ) > MACHINE_PRECISION_DOUBLES
+                 - constantTemperature ) / constantTemperature )
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( exponentialAtmosphere.getDensity( altitude, longitude, latitude )
-                    - expectedDensity ) / expectedDensity ) > MACHINE_PRECISION_DOUBLES
+                    - expectedDensity ) / expectedDensity )
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( exponentialAtmosphere.getPressure( altitude, longitude, latitude )
                     - 24526.24934607106 ) ) > 1.0e-10 )
     {

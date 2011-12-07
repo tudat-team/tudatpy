@@ -44,6 +44,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Astrodynamics/EnvironmentModels/tabulatedAtmosphere.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 
@@ -55,17 +56,15 @@ int main( )
     using std::endl;
     using std::pow;
     using std::fabs;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using tudat::TabulatedAtmosphere;
 
     // Declare test variable.
     bool isTabulatedAtmosphereBad = false;
 
     // Test 1: Test tabulated atmosphere at sea level.
-    // Test 2: Test tabulated atmosphere at 10.0 km altitude including
-    //         passing arbitrary longitude and latitude.
-    // Test 3: Test tabulated atmosphere at 10.1 km altitude when just
-    //         passing the altitude.
+    // Test 2: Test tabulated atmosphere at 10.0 km altitude including passing arbitrary longitude
+    //         and latitude.
+    // Test 3: Test tabulated atmosphere at 10.1 km altitude when just passing the altitude.
     // Test 4: Test tabulated atmosphere at 1000 km altitude with figure.
     // Test 5: Test tabulated atmosphere at 1000 km altitude with table.
     // Test 6: Test if the atmosphere file can be read multiple times.
@@ -85,9 +84,9 @@ int main( )
 
     // Check whether the atmosphere is calculated correctly at sea level.
     if ( fabs( ( tabulatedAtmosphere.getTemperature( altitude ) - 288.15 ) / 288.15 )
-         > MACHINE_PRECISION_DOUBLES
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( tabulatedAtmosphere.getDensity( altitude ) - 1.225 ) / 1.225 )
-         > MACHINE_PRECISION_DOUBLES
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( tabulatedAtmosphere.getPressure( altitude ) - 101325.0 ) / 101325.0 )
          > 1.0e-4 )
         // Because of different gas constant used in the USSA1976, there is a slight difference.
@@ -149,7 +148,7 @@ int main( )
     altitude = 1.0e6 ;
 
     if ( fabs( ( tabulatedAtmosphere.getTemperature( altitude ) - 1000.0 ) / 1000.0 )
-         > MACHINE_PRECISION_DOUBLES
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( tabulatedAtmosphere.getDensity( altitude ) - 5.0e-15 ) / 5.0e-15 ) > 0.5
          || fabs( ( tabulatedAtmosphere.getPressure( altitude ) - 1.0e-8 ) / 1.0e-8  ) > 0.5 )
     {
@@ -166,11 +165,11 @@ int main( )
     altitude = 1.0e6;
 
     if ( fabs( ( tabulatedAtmosphere.getTemperature( altitude ) - 1000.0 ) / 1000.0 )
-         > MACHINE_PRECISION_DOUBLES
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( tabulatedAtmosphere.getDensity( altitude ) - 3.5618e-15 ) / 3.5618e-15 )
-         > MACHINE_PRECISION_DOUBLES
+         > std::numeric_limits< double >::epsilon( )
          || fabs( ( tabulatedAtmosphere.getPressure( altitude ) - 7.5158e-9 ) / 7.5158e-9 )
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The tabulated atmosphere at 1000 km altitude is calculated incorrectly." << endl;
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;

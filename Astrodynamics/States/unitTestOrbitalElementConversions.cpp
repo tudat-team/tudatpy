@@ -77,6 +77,8 @@
 
 // Include statements.
 #include <cmath>
+#include <iostream>
+#include <limits>
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
@@ -96,7 +98,6 @@ int main( )
     using std::endl;
     using std::fabs;
     using std::pow;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using tudat::orbital_element_conversions::convertCartesianToKeplerianElements;
     using tudat::orbital_element_conversions::convertKeplerianToCartesianElements;
     using tudat::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly;
@@ -126,7 +127,7 @@ int main( )
     bool isOrbitalElementConversionErroneous = false;
 
     // Define tolerance.
-    double errorTolerance_ = 1.0e2 * MACHINE_PRECISION_DOUBLES;
+    double errorTolerance_ = 1.0e2 * std::numeric_limits< double >::epsilon( );
 
     // Create predefind Earth and set different gravitational parameter value.
     Planet predefinedEarth;
@@ -691,7 +692,7 @@ int main( )
     double relativeDifference = absoluteDifference / expectedMeanAnomalyForTest10;
 
     // Check if relative error is too large.
-    if ( relativeDifference > MACHINE_PRECISION_DOUBLES )
+    if ( relativeDifference > std::numeric_limits< double >::epsilon( ) )
     {
         isOrbitalElementConversionErroneous = true;
 
@@ -791,7 +792,10 @@ int main( )
     // Return test result.
     // If test is successful return false; if test fails, return true.
     if ( isOrbitalElementConversionErroneous )
-    { cerr << "testOrbitalElementConversions failed!" << endl; }
+    {
+        cerr << "testOrbitalElementConversions failed!" << endl;
+    }
+
     return isOrbitalElementConversionErroneous;
 }
 

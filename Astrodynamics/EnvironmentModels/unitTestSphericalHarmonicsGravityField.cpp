@@ -55,6 +55,7 @@
 
 // Include statements.
 #include <cmath>
+#include <limits>
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 #include "Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h"
@@ -69,7 +70,6 @@ int main( )
     using std::endl;
     using std::pow;
     using std::fabs;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using namespace tudat;
 
     // Five tests.
@@ -150,10 +150,10 @@ int main( )
     differenceBetweenResults( 4 ) =  differenceBetweenResultsForTest5.norm( );
 
     // Set test result to false if the test does not match the expected result.
-    if ( differenceBetweenResults.norm( ) > MACHINE_PRECISION_DOUBLES )
+    if ( differenceBetweenResults.norm( ) > std::numeric_limits< double >::epsilon( ) )
     {
         // Check if the source of the error is Test 1.
-        if ( differenceBetweenResults( 0 ) > MACHINE_PRECISION_DOUBLES )
+        if ( differenceBetweenResults( 0 ) > std::numeric_limits< double >::epsilon( ) )
         {
             cerr << "The computed value ( " << computedResultForTest1
                  << " ) for a user-defined gravitational parameter does not "
@@ -164,7 +164,7 @@ int main( )
         }
 
         // Check if the source of the error is Test 2.
-        if ( differenceBetweenResults( 1 ) > MACHINE_PRECISION_DOUBLES )
+        if ( differenceBetweenResults( 1 ) > std::numeric_limits< double >::epsilon( ) )
         {
             cerr << "The retrieved value ( " << computedResultForTest2
                  << " ) for a predefined gravitational parameter does not "
@@ -175,7 +175,7 @@ int main( )
         }
 
         // Check if the source of the error is Test 3.
-        if ( differenceBetweenResults( 2 ) > MACHINE_PRECISION_DOUBLES )
+        if ( differenceBetweenResults( 2 ) > std::numeric_limits< double >::epsilon( ) )
         {
             cerr << "The computed value ( " << computedResultForTest3
                  << " ) for the gravitational potential does not match "
@@ -186,7 +186,7 @@ int main( )
         }
 
         // Check if the source of the error is Test 4.
-        if ( differenceBetweenResults( 3 ) > MACHINE_PRECISION_DOUBLES )
+        if ( differenceBetweenResults( 3 ) > std::numeric_limits< double >::epsilon( ) )
         {
             cerr << "The computed value ( " << computedResultForTest3
                  << " ) for the gravitational gradient does not match "
@@ -197,7 +197,7 @@ int main( )
         }
 
         // Check if the source of the error is Test 5.
-        if ( differenceBetweenResults( 4 ) > MACHINE_PRECISION_DOUBLES )
+        if ( differenceBetweenResults( 4 ) > std::numeric_limits< double >::epsilon( ) )
         {
             cerr << "The computed value ( " << computedResultForTest5
                  <<  ") for the gravitational gradient tensor does not match "

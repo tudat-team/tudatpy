@@ -43,6 +43,7 @@
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Astrodynamics/MissionSegments/deepSpaceManeuver.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
@@ -53,7 +54,6 @@ int main( )
     // Using declarations.
     using std::cerr;
     using std::endl;
-    using tudat::mathematics::MACHINE_PRECISION_DOUBLES;
     using namespace tudat;
 
     // Summary of tests.
@@ -75,7 +75,7 @@ int main( )
 
     // Test if getTime() function results in set time for DSM.
     if ( std::fabs( timeOfDeepSpaceManeuver_ - deepSpaceManeuver_.getTime( ) )
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The setTime()/getTime() functions do not work properly." << endl;
 
@@ -98,7 +98,8 @@ int main( )
 
     // Test if getState() function results in set state for DSM.
     if ( std::fabs( deepSpaceManeuverState_.state.norm( )
-                    - deepSpaceManeuver_.getState( )->state.norm( ) ) > MACHINE_PRECISION_DOUBLES )
+                    - deepSpaceManeuver_.getState( )->state.norm( ) )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The setState()/getState() functions do not work properly." << endl;
         isDeepSpaceManeuverErroneous_ = true;
@@ -113,7 +114,7 @@ int main( )
 
     // Test if getDeltaV() function results in set deltaV for DSM.
     if ( std::fabs( deltaVOfDeepSpaceManeuver_ - deepSpaceManeuver_.getDeltaV( ) )
-         > MACHINE_PRECISION_DOUBLES )
+         > std::numeric_limits< double >::epsilon( ) )
     {
         cerr << "The setDeltaV()/getDeltaV() functions do not work properly." << endl;
         isDeepSpaceManeuverErroneous_ = true;
