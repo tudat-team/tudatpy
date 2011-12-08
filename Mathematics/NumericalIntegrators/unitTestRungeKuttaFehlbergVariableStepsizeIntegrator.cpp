@@ -6,7 +6,7 @@
  *    Version           : 2
  *    Check status      : Checked
  *
- *    Author            : E.A.G. Heeren
+ *    Author/Checker    : E.A.G. Heeren
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : E.A.G.Heeren@student.tudelft.nl
  *
@@ -17,10 +17,6 @@
  *    Checker           : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
- *
- *    Checker           : E.A.G. Heeren
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : E.A.G.Heeren@student.tudelft.nl
  *
  *    Date created      : 22 July, 2011
  *    Last modified     : 10 November, 2011
@@ -63,6 +59,7 @@
  *      110912    K. Kumar          Minor changes.
  *      111021    F.M. Engelen      Added test for rkf45 and rkf56.
  *      111110    E.A.G Heeren      Minor changes.
+ *      111118    F.M. Engelen      Execute every integration twice to check if bug is solved.
  */
 
 // Include statements.
@@ -196,6 +193,9 @@ int main( )
     // Execute test integration.
     rungeKuttaFehlberg78VariableStepsizeIntegrator_.integrate( );
 
+    // Redo the integration.
+    rungeKuttaFehlberg78VariableStepsizeIntegrator_.integrate( );
+
     double analyticResult = rungeKuttaFehlbergVariableStesizeIntegratorTest
             .computeAnalyticAnswer( intervalEnd_ );
 
@@ -214,7 +214,7 @@ int main( )
                   <<  analyticResult << std::endl;
     }
 
-    //Test 2: Test the Runge-Kutta 4(5)th-order, variable stepsize integrator.
+    // Test 2: Test the Runge-Kutta 4(5)th-order, variable stepsize integrator.
 
     // Create Runge-Kutta 4(5)th-order, variable stepsize integrator.
     tudat::RungeKuttaFehlBergVariableStepsizeIntegrator
@@ -250,6 +250,9 @@ int main( )
                 &rungeKuttaFehlbergVariableStesizeIntegratorTest );
 
     // Execute test integration.
+    rungeKuttaFehlberg45VariableStepsizeIntegrator_.integrate( );
+
+    // Redo the integration.
     rungeKuttaFehlberg45VariableStepsizeIntegrator_.integrate( );
 
     analyticResult = rungeKuttaFehlbergVariableStesizeIntegratorTest
@@ -305,6 +308,9 @@ int main( )
                 &rungeKuttaFehlbergVariableStesizeIntegratorTest );
 
     // Execute test integration.
+    rungeKuttaFehlberg56VariableStepsizeIntegrator_.integrate( );
+
+    // Redo the integration.
     rungeKuttaFehlberg56VariableStepsizeIntegrator_.integrate( );
 
     // Calculate the analytic result

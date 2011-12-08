@@ -54,6 +54,8 @@
  *      110909    E.A.G. Heeren     Minor changes to ensure compatibility with updated
  *                                  rungeKuttaFehlberg78VariableStepsize code.
  *      110912    K. Kumar          Minor changes.
+ *      111118    F.M. Engelen      Execute integration twice to check if there is no bug when
+ *                                  reusing the integrator.
  */
 
 // Include statements.
@@ -154,6 +156,9 @@ int main( )
                 &rungeKuttaFehlberg78VariableStepsizeIntegratorTest );
 
     // Execute test integration.
+    rungeKuttaFehlberg78VariableStepsizeIntegrator.integrate( );
+
+    // Redo the integration.
     rungeKuttaFehlberg78VariableStepsizeIntegrator.integrate( );
 
     // Compute differences between computed and expected results and generate

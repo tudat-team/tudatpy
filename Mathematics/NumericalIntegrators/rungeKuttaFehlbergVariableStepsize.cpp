@@ -6,25 +6,17 @@
  *    Version           : 3
  *    Check status      : Checked
  *
- *    Author            : K. Kumar
+ *    Author/Checker    : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
- *    Author            : E.A.G. Heeren
+ *    Author/Checker    : E.A.G. Heeren
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : E.A.G.Heeren@student.tudelft.nl
  *
  *    Author            : F.M. Engelen
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : F.M.Engelen@student.tudelft.nl
- *
- *    Checker           : K. Kumar
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : K.Kumar@tudelft.nl
-
- *    Checker           : E.A.G. Heeren
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : E.A.G.Heeren@student.tudelft.nl
  *
  *    Date created      : 26 August, 2011
  *    Last modified     : 10 November, 2011
@@ -58,6 +50,7 @@
  *      110912    K. Kumar          Minor changes.
  *      111021    F.M. Engelen      Generalised and added coefficients for RKF45 and RKF56
  *      111110    E.A.G Heeren      Minor changes.
+ *      111118    F.M. Engelen      Solved bug, not resetting previousStepsize_.
  */
 
 // Include statements.
@@ -123,6 +116,9 @@ void RungeKuttaFehlBergVariableStepsizeIntegrator::integrate( )
 
     // Set stepsize to value of initial stepsize.
     stepsize_ = initialStepsize_;
+
+    // Set the previous stepsize to zero.
+    previousStepsize_ = -0.0;
 
     // Compute size of integration interval.
     integrationInterval_ = integrationIntervalEnd_ - integrationIntervalStart_;
