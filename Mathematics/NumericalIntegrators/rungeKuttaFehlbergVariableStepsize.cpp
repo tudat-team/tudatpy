@@ -29,7 +29,9 @@
  *          28 August, 2011.
  *
  *    Notes
- *      This is a translation of the rkf78.m Matlab integrator.
+ *      This is a translation of the rkf78.m Matlab integrator, and generalized
+ *      for the 45 and 56 Fehlberg coefficients. This version is roughly 5% slower
+ *      than the original version (but generic).
  *
  *    Copyright (c) 2010-2011 Delft University of Technology.
  *
@@ -51,11 +53,15 @@
  *      111021    F.M. Engelen      Generalised and added coefficients for RKF45 and RKF56
  *      111110    E.A.G Heeren      Minor changes.
  *      111118    F.M. Engelen      Solved bug, not resetting previousStepsize_.
+ *      111124    F.M. Engelen      Removed bugs, no reset of previous stepsize, wrong stop
+ *                                  conditions due to minimumstepsize instead of
+ *                                  machine_double_precision.
  */
 
 // Include statements.
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/NumericalIntegrators/rungeKuttaFehlbergVariableStepsize.h"
 
@@ -161,19 +167,15 @@ void RungeKuttaFehlBergVariableStepsizeIntegrator::integrate( )
             stepsize_ = integrationIntervalEnd_ - integrationIntervalCurrentPoint_;
         }
 
-
         // Check for end of integration period and break from loop if end is reached.
-        // Removed fabs statement, to prevent overrun (although this should not be possible)
-        // Changed
-        if (  integrationIntervalEnd_ - integrationIntervalCurrentPoint_
-             < minimumStepsize_ )
+        if ( fabs( integrationIntervalCurrentPoint_ - integrationIntervalEnd_ )
+             < std::numeric_limits< double >::epsilon( )  )
         {
             break;
         }
 
         // Compute state derivative.
-        computeStateDerivative_( integrationIntervalCurrentPoint_,
-                                 &vectorOfCurrentStates_.at( 0 ),
+        computeStateDerivative_( integrationIntervalCurrentPoint_, &vectorOfCurrentStates_.at( 0 ),
                                  &stateDerivative_ );
 
         // Copy computed state derivative to first column of fMatrix.
