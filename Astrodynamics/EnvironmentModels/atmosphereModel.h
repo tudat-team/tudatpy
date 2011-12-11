@@ -72,7 +72,7 @@ public:
     /*!
     * Default destructor.
     */
-    virtual ~AtmosphereModel( ){ }
+    virtual ~AtmosphereModel( ) { }
 
     //! Get local density.
     /*!

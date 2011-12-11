@@ -58,6 +58,7 @@ set(ENVIRONMENTMODELS_HEADERS
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/exponentialAtmosphere.h"
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/gravityFieldModel.h"
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/sphericalHarmonicsGravityField.h"
+  "${SRCROOT}${ENVIRONMENTMODELSDIR}/standardAtmosphere.h"
   "${SRCROOT}${ENVIRONMENTMODELSDIR}/tabulatedAtmosphere.h"
 )
 
