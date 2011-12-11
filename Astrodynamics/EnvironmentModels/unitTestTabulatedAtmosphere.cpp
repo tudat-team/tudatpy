@@ -2,7 +2,7 @@
  *    Source file that defines the Tabulated atmosphere unit test included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/
- *    Version           : 3
+ *    Version           : 5
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
@@ -14,11 +14,10 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 13 July, 2011
- *    Last modified     : 22 July, 2011
+ *    Last modified     : 11 December, 2011
  *
  *    References
- *    Introduction to Flight, Fifth edition, Appendix A, John D. Anderson Jr., McGraw Hill,
- *    2005
+ *      Introduction to Flight, Fifth edition, Appendix A, John D. Anderson Jr., McGraw Hill, 2005.
  *
  *    Notes
  *
@@ -36,9 +35,10 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110713    F.M. Engelen      File created.
- *      110721    J. Melman         Alignment, comments, error messages,
- *                                  and consistency modified.
+ *      110721    J. Melman         Alignment, comments, error messages, and consistency modified.
  *      110722    F.M. Engelen      Replaced values in to book values.
+ *      111128    B. Tong Minh      Added location-independent function test.
+ *      111211    K. Kumar          Minor corrections to location-independent function test.
  */
 
 // Include statements.
@@ -59,15 +59,16 @@ int main( )
     using tudat::TabulatedAtmosphere;
 
     // Declare test variable.
-    bool isTabulatedAtmosphereBad = false;
+    bool isTabulatedAtmosphereErroneous = false;
 
     // Test 1: Test tabulated atmosphere at sea level.
     // Test 2: Test tabulated atmosphere at 10.0 km altitude including passing arbitrary longitude
     //         and latitude.
-    // Test 3: Test tabulated atmosphere at 10.1 km altitude when just passing the altitude.
+    // Test 3: Test tabulated atmosphere at 10.05 km altitude when just passing the altitude..
     // Test 4: Test tabulated atmosphere at 1000 km altitude with figure.
     // Test 5: Test tabulated atmosphere at 1000 km altitude with table.
     // Test 6: Test if the atmosphere file can be read multiple times.
+    // Test 7: Test if the position-independent functions work.
 
     // Create a tabulated atmosphere object.
     TabulatedAtmosphere tabulatedAtmosphere;
@@ -96,11 +97,11 @@ int main( )
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
 
-        isTabulatedAtmosphereBad = true;
+        isTabulatedAtmosphereErroneous = true;
     }
 
-    // Test 2: Test tabulated atmosphere at 10 km altitude including
-    //         passing arbitrary longitude and latitude.
+    // Test 2: Test tabulated atmosphere at 10.0 km altitude including passing arbitrary longitude
+    //         and latitude.
     // Check whether the atmosphere is calculated correctly at 10 km.
     // The given value for pressure was obtained from table in book
     altitude = 10.0e3 ;
@@ -108,29 +109,29 @@ int main( )
     // Also use longitude and latitude to check overloading.
     double longitude = 0.0;
     double latitude = 0.0;
+    double time = 0.0;
 
-    if ( fabs(  tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ) - 223.26 )
+    if ( fabs( tabulatedAtmosphere.getTemperature( altitude, longitude, latitude, time ) - 223.26 )
          > 1.0e-2
-         || fabs(  tabulatedAtmosphere.getDensity( altitude, longitude, latitude ) - 0.41351 )
+         || fabs( tabulatedAtmosphere.getDensity( altitude, longitude, latitude, time ) - 0.41351 )
          > 1.0e-4
-         || fabs(  tabulatedAtmosphere.getPressure( altitude, longitude, latitude ) - 26500  )
+         || fabs( tabulatedAtmosphere.getPressure( altitude, longitude, latitude, time ) - 26500  )
          > 1.0 )
     {
         cerr << "The tabulated atmosphere at 10 km altitude is calculated incorrectly." << endl;
-        cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;
-        cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
-        cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
+        cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K."<< endl;
+        cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3." << endl;
+        cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2." << endl;
 
-        isTabulatedAtmosphereBad = true;
+        isTabulatedAtmosphereErroneous = true;
     }
 
-    // Test 3: Test tabulated atmosphere at 10.05 km altitude when just
-    //         passing the altitude..
+    // Test 3: Test tabulated atmosphere at 10.05 km altitude when just passing the altitude..
     // Check whether the atmosphere is calculated correctly at 10.05 km.
     // The values are linear interpolated values based on book values.
     altitude = 10.05e3;
 
-    if ( fabs(  tabulatedAtmosphere.getTemperature( altitude ) - 222.9350 )  > 2.0e-2
+    if ( fabs(  tabulatedAtmosphere.getTemperature( altitude ) - 222.9350 ) > 2.0e-2
          || fabs(  tabulatedAtmosphere.getDensity( altitude ) - 0.4110 ) > 1.0e-3
          || fabs(  tabulatedAtmosphere.getPressure( altitude ) - 26299 ) > 1.0 )
     {
@@ -139,7 +140,7 @@ int main( )
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
 
-        isTabulatedAtmosphereBad = true;
+        isTabulatedAtmosphereErroneous = true;
     }
 
     // Test 4: Test tabulated atmosphere at 1000 km altitude.
@@ -156,7 +157,7 @@ int main( )
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
-        isTabulatedAtmosphereBad = true;
+        isTabulatedAtmosphereErroneous = true;
     }
 
     // Test 5: Test tabulated atmosphere at 1000 km altitude.
@@ -175,7 +176,7 @@ int main( )
         cerr << "Temperature = " << tabulatedAtmosphere.getTemperature( altitude ) << " K"<< endl;
         cerr << "Density = " << tabulatedAtmosphere.getDensity( altitude ) << " kg/m^3" << endl;
         cerr << "Pressure = " << tabulatedAtmosphere.getPressure( altitude ) << " N/m^2" << endl;
-        isTabulatedAtmosphereBad = true;
+        isTabulatedAtmosphereErroneous = true;
     }
 
     // Test 6: Test if the atmosphere file can be read multiple times.
@@ -187,17 +188,45 @@ int main( )
     catch ( std::runtime_error multipleFileReadError )
     {
         cerr << "Caught exception while opening the atmosphere file for a second time." << endl;
-        isTabulatedAtmosphereBad = true;
+        isTabulatedAtmosphereErroneous = true;
+    }
+
+    // Test 7: Test if the position-independent functions work.
+    double density1 = tabulatedAtmosphere.getDensity( altitude );
+    double density2 = tabulatedAtmosphere.getDensity( altitude, longitude, latitude, time );
+
+    double pressure1 = tabulatedAtmosphere.getPressure( altitude );
+    double pressure2 = tabulatedAtmosphere.getPressure( altitude, longitude, latitude, time );
+
+    double temperature1 = tabulatedAtmosphere.getTemperature( altitude );
+    double temperature2 = tabulatedAtmosphere.getTemperature( altitude, longitude,
+                                                              latitude, time );
+
+    if ( fabs( density1 - density2 ) > std::numeric_limits< double >::epsilon( )
+         || fabs( pressure1 - pressure2 ) > std::numeric_limits< double >::epsilon( )
+         || fabs( temperature1 - temperature2 ) > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "Location-dependent and location-independent functions did not give the same "
+             << "result." << endl;
+
+        // For some reason if you don't use the temporary variables, the optimizer will do weird
+        // stuff causing density1 != density2 to hold true...
+
+        cerr << "Density difference: " << ( density1 - density2 ) << endl
+             << "Pressure difference: " << ( pressure1 - pressure2 ) << endl
+             << "Temperature difference: " << ( temperature1 - temperature2 ) << endl;
+
+        isTabulatedAtmosphereErroneous = true;
     }
 
     // Return test result.
     // If test is successful return false; if test fails, return true.
-    if ( isTabulatedAtmosphereBad )
+    if ( isTabulatedAtmosphereErroneous )
     {
         cerr << "testTabulatedAtmosphere failed!" << std::endl;
     }
 
-    return isTabulatedAtmosphereBad;
+    return isTabulatedAtmosphereErroneous;
 }
 
 // End of file.

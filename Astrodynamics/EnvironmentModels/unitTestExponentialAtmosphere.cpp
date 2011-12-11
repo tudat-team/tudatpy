@@ -2,7 +2,7 @@
  *    Source file that defines the exponential atmosphere unit test included in Tudat.
  *
  *    Path              : /Astrodynamics/EnvironmentModels/
- *    Version           : 5
+ *    Version           : 7
  *    Check status      : Checked
  *
  *    Author            : F.M. Engelen
@@ -14,7 +14,7 @@
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
  *    Date created      : 16 March, 2011
- *    Last modified     : 5 July, 2011
+ *    Last modified     : 11 December, 2011
  *
  *    References
  *
@@ -38,6 +38,8 @@
  *      110427    F.M. Engelen      Changed input arguments for functions.
  *      110629    F.M. Engelen      Simplified unit test, removed dependency on other classes.
  *      110705    F.M. Engelen      Update to relative numerical errors.
+ *      111128    B. Tong Minh      Added location-independent function test.
+ *      111211    K. Kumar          Minor corrections to location-independent function test.
  */
 
 // Include statements.
@@ -57,15 +59,15 @@ int main( )
     using std::fabs;
 
     // Declare test variable.
-    bool isExponentialAtmosphereBad_ = false;
+    bool isExponentialAtmosphereErroneous = false;
 
-    // Three tests.
-    // Test 1: Test set and get functions of constants.
+    // Summary of tests tests.
+    // Test 1: Test set- and get-functions of constants.
     // Test 2: Test exponential atmosphere at sea level.
     // Test 3: Test exponential atmosphere at 10 km altitude.
+    // Test 4: Test if the position-independent functions work.
 
-    // Test 1: check set and get functions of constants.
-
+    // Test 1: Test set- and get-functions of constants.
     // Initialize constants that need to be set.
     double constantTemperature = 288.16;
     double densityAtZeroAltitude = 1.225;
@@ -93,7 +95,7 @@ int main( )
     {
         cerr << "The get or set functions for the constants of the exponential atmosphere ";
         cerr << "do not work correctly." << endl;
-        isExponentialAtmosphereBad_ = true;
+        isExponentialAtmosphereErroneous = true;
     }
 
     // Test 2: Check if the atmosphere is calculated correctly at sea level.
@@ -119,7 +121,7 @@ int main( )
         // Because of different gas constant used in the USSA1976, there is a slight difference.
     {
         cerr << "The exponential atmosphere at sea level is calculated incorrectly." << endl;
-        isExponentialAtmosphereBad_ = true;
+        isExponentialAtmosphereErroneous = true;
     }
 
     // Test 3: Test exponential atmosphere at 10 km altitude.
@@ -130,29 +132,59 @@ int main( )
     // Also use longitude and latitude to check overloading.
     double longitude = 0.0;
     double latitude = 0.0;
+    double time = 0.0;
 
     // Declare and set expected density.
     double expectedDensity  = densityAtZeroAltitude * std::exp ( -altitude / scaleHeight );
 
-    if ( fabs( ( exponentialAtmosphere.getTemperature( altitude, longitude, latitude )
+    if ( fabs( ( exponentialAtmosphere.getTemperature( altitude, longitude, latitude, time )
                  - constantTemperature ) / constantTemperature )
          > std::numeric_limits< double >::epsilon( )
-         || fabs( ( exponentialAtmosphere.getDensity( altitude, longitude, latitude )
+         || fabs( ( exponentialAtmosphere.getDensity( altitude, longitude, latitude, time )
                     - expectedDensity ) / expectedDensity )
          > std::numeric_limits< double >::epsilon( )
-         || fabs( ( exponentialAtmosphere.getPressure( altitude, longitude, latitude )
+         || fabs( ( exponentialAtmosphere.getPressure( altitude, longitude, latitude, time )
                     - 24526.24934607106 ) ) > 1.0e-10 )
     {
         cerr << "The exponential atmosphere at 10 km altitude is calculated incorrectly." << endl;
-        isExponentialAtmosphereBad_ = true;
+        isExponentialAtmosphereErroneous = true;
     }
 
-    if ( isExponentialAtmosphereBad_ )
+    // Test 4: Test if the position-independent functions work.
+    double density1 = exponentialAtmosphere.getDensity( altitude );
+    double density2 = exponentialAtmosphere.getDensity( altitude, longitude, latitude, time );
+
+    double pressure1 = exponentialAtmosphere.getPressure( altitude );
+    double pressure2 = exponentialAtmosphere.getPressure( altitude, longitude, latitude, time );
+
+    double temperature1 = exponentialAtmosphere.getTemperature( altitude );
+    double temperature2 = exponentialAtmosphere.getTemperature( altitude, longitude, latitude, time );
+
+    if ( fabs( density1 - density2 ) > std::numeric_limits< double >::epsilon( )
+         || fabs( pressure1 - pressure2 ) > std::numeric_limits< double >::epsilon( )
+         || fabs( temperature1 - temperature2 ) > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "Location-dependent and location-independent functions did not give the same "
+             << "result." << endl;
+
+        // For some reason if you don't use the temporary variables, the optimizer will do weird
+        // stuff causing density1 != density2 to hold true...
+
+        cerr << "Density difference: " << ( density1 - density2 ) << endl
+             << "Pressure difference: " << ( pressure1 - pressure2 ) << endl
+             << "Temperature difference: " << ( temperature1 - temperature2 ) << endl;
+
+        isExponentialAtmosphereErroneous = true;
+    }
+
+    // Return test result.
+    // If test is successful return false; if test fails, return true.
+    if ( isExponentialAtmosphereErroneous )
     {
         cerr << "testExponentialAtmosphere failed!" << std::endl;
     }
 
-    return isExponentialAtmosphereBad_;
+    return isExponentialAtmosphereErroneous;
 }
 
 // End of file.
