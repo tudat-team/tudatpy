@@ -75,16 +75,16 @@ void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
     }
 
     // Initialize vectors.
-    altitudeData_ = VectorXd( containerOfAtmosphereTableFileData.size( ) );
-    densityData_ = VectorXd( containerOfAtmosphereTableFileData.size( ) );
-    pressureData_= VectorXd( containerOfAtmosphereTableFileData.size( ) );
-    temperatureData_ = VectorXd( containerOfAtmosphereTableFileData.size( ) );
+    altitudeData_ = Eigen::VectorXd( containerOfAtmosphereTableFileData.size( ) );
+    densityData_ = Eigen::VectorXd( containerOfAtmosphereTableFileData.size( ) );
+    pressureData_= Eigen::VectorXd( containerOfAtmosphereTableFileData.size( ) );
+    temperatureData_ = Eigen::VectorXd( containerOfAtmosphereTableFileData.size( ) );
     std::stringstream lineStringStream( std::stringstream::in | std::stringstream::out );
 
     int index = 0;
 
     // Loop through all the strings stored in the container and store the data
-    // in the right VectorXd.
+    // in the right Eigen::VectorXd.
     for ( DatafileLinesMap::iterator iteratorContainerOfData_
           = containerOfAtmosphereTableFileData.begin( );
           iteratorContainerOfData_ != containerOfAtmosphereTableFileData.end( );

@@ -57,8 +57,8 @@
 #define STATE_H
 
 // Include statements.
+#include <Eigen/Core>
 #include <iostream>
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 /*!
@@ -87,7 +87,7 @@ public:
      * Custom constructor ,which sets the internal state vector to the specified vector.
      * \param state_ State vector
      */
-    State( const VectorXd& stateToSet ) : state( stateToSet ) { }
+    State( const Eigen::VectorXd& stateToSet ) : state( stateToSet ) { }
 
     //! Constructor with initial length.
     /*!
@@ -106,7 +106,7 @@ public:
     /*!
      * State.
      */
-    VectorXd state;
+    Eigen::VectorXd state;
 
     //! Overload ostream to print class information.
     /*!

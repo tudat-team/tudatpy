@@ -52,7 +52,8 @@
 
 // Include statements.
 #include <cmath>
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
 //! Tudat library namespace.
 /*!
@@ -77,8 +78,8 @@ namespace reference_frame_transformations
  *          the rotational rate of the central body [rad/s] times the time from epoch [s].
  * \return Reference frame (R) to inertial reference frame (I) transformation matrix.
  */
-Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
-    double angleFromXItoXR );
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
+        double angleFromXItoXR );
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation quaternion.
 /*!
@@ -102,7 +103,7 @@ Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
  *          the rotational rate of the central body [rad/s] times the time from epoch [s].
  * \return Inertial (I) to planetocentric reference frame (R) transformation matrix.
  */
-Matrix3d getInertialToPlanetocentricFrameTransformationMatrix( double angleFromXItoXR );
+Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix( double angleFromXItoXR );
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
 /*!
@@ -123,7 +124,7 @@ Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
  * This function is not related to any specific rotation matrix, but can be used for general
  * purposes. It's an eigen library transformation and can be applied
  * directly to a vector Vector_new = Quaternion * Vector_old.
- * Note that is also possible to create a quaternion object directly from a vector4d,
+ * Note that is also possible to create a quaternion object directly from a Vector4d,
  * but Eigen will rearrange the order of the coefficients ([q2 q3 q4 q1]). This function
  * retreives the individual entries of the Vector4d an uses them as four doubles as input
  * arguments for the constructor of the Quateriond. From the Eigen code documentation:
@@ -133,7 +134,7 @@ Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
  * \param vectorWithQuaternion A vector containing the quaternions of the rotation state
  * \return Transformation quaternion.
  */
-Quaterniond getQuaternionObjectFromQuaternionValues( const Vector4d& vectorWithQuaternion );
+Quaterniond getQuaternionObjectFromQuaternionValues( const Eigen::Vector4d& vectorWithQuaternion );
 
 //! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
 /*!
@@ -143,7 +144,7 @@ Quaterniond getQuaternionObjectFromQuaternionValues( const Vector4d& vectorWithQ
  * \param angleOfSideslip Angle of sideslip [rad].
  * \return Transformation matrix.
  */
-Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
+Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
         double angleOfAttack, double angleOfSideslip );
 
 //! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation quaternion.

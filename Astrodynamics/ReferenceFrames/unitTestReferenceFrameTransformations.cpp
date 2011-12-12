@@ -49,6 +49,7 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
 #include <iostream>
 #include <limits>
 #include "Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -85,7 +86,7 @@ int main( )
     bool isFrameTransformationErroneous = false;
 
     // Initialize initial location vector in inertial frame.
-    Vector3d startLocation;
+    Eigen::Vector3d startLocation;
     startLocation( 0 ) = 4.0;
     startLocation( 1 ) = 1.0;
     startLocation( 2 ) = 5.0;
@@ -103,17 +104,17 @@ int main( )
     double endAngle = startAngle - angleInTime;
 
     // Declare the expected location of the point in the planetocentric reference frame.
-    Vector3d expectedLocation;
+    Eigen::Vector3d expectedLocation;
     expectedLocation( 0 ) = horizontalStartLocationSize * cos( endAngle );
     expectedLocation( 1 ) = horizontalStartLocationSize * sin( endAngle );
     expectedLocation( 2 ) = startLocation( 2 );
 
     // Compute location of the point in the totating frame subject to the transformation matrix.
-    Vector3d transformedLocation = reference_frame_transformations::
+    Eigen::Vector3d transformedLocation = reference_frame_transformations::
             getInertialToPlanetocentricFrameTransformationMatrix( angleInTime ) * startLocation;
 
     // Compute the error in the calculation.
-    Vector3d absoluteNumericalError = transformedLocation - expectedLocation;
+    Eigen::Vector3d absoluteNumericalError = transformedLocation - expectedLocation;
     double relativeNumericalError;
 
     // Check if relative errors are too large and output cerr statements if necessary.

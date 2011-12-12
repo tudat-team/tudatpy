@@ -52,7 +52,6 @@
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/keplerianElements.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 #ifndef ORBITALELEMENTCONVERSIONS_H
 #define ORBITALELEMENTCONVERSIONS_H
@@ -99,8 +98,7 @@ KeplerianElements convertCartesianToKeplerianElements(
  * \param eccentricity Eccentricity.
  * \return Eccentric anomaly.
  */
-double convertTrueAnomalyToEccentricAnomaly( double trueAnomaly,
-                                             double eccentricity );
+double convertTrueAnomalyToEccentricAnomaly( double trueAnomaly, double eccentricity );
 
 //! Convert eccentric anomaly to true anomaly.
 /*!
@@ -110,8 +108,7 @@ double convertTrueAnomalyToEccentricAnomaly( double trueAnomaly,
  * \param eccentricity Eccentricity.
  * \return True anomaly.
  */
-double convertEccentricAnomalyToTrueAnomaly( double eccentricAnomaly,
-                                             double eccentricity );
+double convertEccentricAnomalyToTrueAnomaly( double eccentricAnomaly, double eccentricity );
 
 //! Convert true anomaly to hyperbolic eccentric anomaly.
 /*!
@@ -121,8 +118,7 @@ double convertEccentricAnomalyToTrueAnomaly( double eccentricAnomaly,
  * \param eccentricity Eccentricity.
  * \return Hyperbolic eccentric anomaly.
  */
-double convertTrueAnomalyToHyperbolicEccentricAnomaly( double trueAnomaly,
-                                                       double eccentricity );
+double convertTrueAnomalyToHyperbolicEccentricAnomaly( double trueAnomaly, double eccentricity );
 
 //! Convert hyperbolic eccentric anomaly to true anomaly.
 /*!
@@ -143,8 +139,7 @@ double convertHyperbolicEccentricAnomalyToTrueAnomaly( double hyperbolicEccentri
  * \param eccentricAnomaly Eccentric anomaly.
  * \return Mean anomaly.
  */
-double convertEccentricAnomalyToMeanAnomaly( double eccentricAnomaly,
-                                             double eccentricity );
+double convertEccentricAnomalyToMeanAnomaly( double eccentricAnomaly, double eccentricity );
 
 //! Class to convert mean anomaly to eccentric anomaly.
 /*!
@@ -232,8 +227,7 @@ double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits( double meanAnomaly,
  * \param pointerToCentralBody Pointer to central body.
  * \return semiMajorAxis Semi-major axis.
  */
-double convertMeanMotionToSemiMajorAxis( double meanMotion,
-                                         CelestialBody* pointerToCentralBody );
+double convertMeanMotionToSemiMajorAxis( double meanMotion, CelestialBody* pointerToCentralBody );
 
 }
 

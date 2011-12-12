@@ -53,6 +53,7 @@
 #define RUNGEKUTTA4THORDERFIXEDSTEPSIZE_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Mathematics/NumericalIntegrators/singleStepIntegrationMethods.h"
 
 //! Tudat library namespace.
@@ -104,7 +105,7 @@ private:
      * k-Coefficients for 4th-order, fixed stepsize, Runge-Kutta integration
      * scheme.
      */
-    std::vector< VectorXd > kCoefficients_;
+    std::vector< Eigen::VectorXd > kCoefficients_;
 
     //! Modified initial state.
     /*!

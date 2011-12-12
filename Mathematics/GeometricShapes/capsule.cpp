@@ -50,11 +50,11 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
 #include "Mathematics/GeometricShapes/capsule.h"
 #include "Mathematics/GeometricShapes/conicalFrustum.h"
 #include "Mathematics/GeometricShapes/sphereSegment.h"
 #include "Mathematics/GeometricShapes/torus.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 namespace tudat
@@ -112,7 +112,7 @@ void Capsule::setCapsule( )
     noseSphere_->setRadius( noseRadius_ );
 
     // Declare translation vector.
-    VectorXd translationVector_ = VectorXd( 3 );
+    Eigen::VectorXd translationVector_ = Eigen::VectorXd( 3 );
     translationVector_( 2 ) = 0.0;
     translationVector_( 1 ) = 0.0;
     translationVector_( 0 ) = - noseRadius_ * cos( noseSphereAngle_ );
@@ -188,7 +188,7 @@ void Capsule::setCapsule( )
 
     // Set rotation matrix fo each part to be compatible with flow direction in
     // aerodynamic analysis.
-    MatrixXd rotationMatrix = MatrixXd( 3, 3 );
+    Eigen::MatrixXd rotationMatrix = Eigen::MatrixXd( 3, 3 );
     double angle_ = M_PI / 2.0;
     rotationMatrix( 0, 0 ) = cos( angle_ );
     rotationMatrix( 0, 1 ) = 0.0;

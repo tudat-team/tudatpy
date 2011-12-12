@@ -55,12 +55,12 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
 #include <limits>
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 #include "Astrodynamics/EnvironmentModels/sphericalHarmonicsGravityField.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Test implementation of spherical harmonics gravity field class.
 int main( )
@@ -72,7 +72,7 @@ int main( )
     using std::fabs;
     using namespace tudat;
 
-    // Five tests.
+    // Summary of tests.
     // Test 1: Test setting and getting gravitational parameter.
     // Test 2: Test getting gravitational parameter for predefined Earth central body gravity
     //         field.
@@ -84,7 +84,7 @@ int main( )
     bool isSphericalHarmonicsGravityFieldErroneous = false;
 
     // Set identity matrix.
-    Matrix3d identityMatrix;
+    Eigen::Matrix3d identityMatrix;
     identityMatrix.setIdentity( 3, 3 );
 
     // Create gravity field for myPlanet.
@@ -97,7 +97,7 @@ int main( )
     // Set origin of gravity field of myPlanet with respect to geometric
     // center.
     CartesianPositionElements cartesianPositionOfOrigin;
-    VectorXd positionOfOrigin( 3 );
+    Eigen::VectorXd positionOfOrigin( 3 );
     positionOfOrigin.setZero( );
     cartesianPositionOfOrigin.state = positionOfOrigin;
     myPlanetGravityField.setOrigin( &cartesianPositionOfOrigin );
@@ -118,9 +118,9 @@ int main( )
     double expectedResultForTest2 = 3.9859383624e+14;
     double expectedResultForTest3 = gravitationalParameterOfMyPlanet
             / cartesianPosition.state.norm( );
-    VectorXd expectedResultForTest4 =  -gravitationalParameterOfMyPlanet
+    Eigen::VectorXd expectedResultForTest4 =  -gravitationalParameterOfMyPlanet
             / pow( cartesianPosition.state.norm( ), 3.0 ) * cartesianPosition.state;
-    Matrix3d expectedResultForTest5 = gravitationalParameterOfMyPlanet
+    Eigen::Matrix3d expectedResultForTest5 = gravitationalParameterOfMyPlanet
             / pow( cartesianPosition.state.norm( ), 5.0 )
             * ( ( 3.0 * cartesianPosition.state * cartesianPosition.state.transpose( ) )
                 - ( cartesianPosition.state.squaredNorm( ) * identityMatrix ) );
@@ -132,15 +132,15 @@ int main( )
             predefinedEarthCentralGravityField.getGravitationalParameter( );
     double computedResultForTest3 = myPlanetGravityField.getPotential(
                 &cartesianPosition );
-    Vector3d computedResultForTest4 = myPlanetGravityField.getGradientOfPotential(
+    Eigen::Vector3d computedResultForTest4 = myPlanetGravityField.getGradientOfPotential(
                 &cartesianPosition );
-    Matrix3d computedResultForTest5 = myPlanetGravityField.getGradientTensorOfPotential(
+    Eigen::Matrix3d computedResultForTest5 = myPlanetGravityField.getGradientTensorOfPotential(
                 &cartesianPosition );
 
     // Compute differences between computed and expected results.
-    VectorXd differenceBetweenResults( 5 );
-    Vector3d differenceBetweenResultsForTest4;
-    Matrix3d differenceBetweenResultsForTest5;
+    Eigen::VectorXd differenceBetweenResults( 5 );
+    Eigen::Vector3d differenceBetweenResultsForTest4;
+    Eigen::Matrix3d differenceBetweenResultsForTest5;
     differenceBetweenResults( 0 ) = fabs( computedResultForTest1 - expectedResultForTest1 );
     differenceBetweenResults( 1 ) = fabs( computedResultForTest2 - expectedResultForTest2 );
     differenceBetweenResults( 2 ) = fabs( computedResultForTest3 - expectedResultForTest3 );

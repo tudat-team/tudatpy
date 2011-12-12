@@ -48,12 +48,12 @@
 #define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
 
 // Include statements.
+#include <Eigen/Core>
 #include <iostream>
 #include <string>
 #include "Astrodynamics/EnvironmentModels/atmosphereModel.h"
 #include "Input/textFileReader.h"
 #include "Mathematics/cubicSplineInterpolation.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 /*!
@@ -80,7 +80,7 @@ public:
      */
     TabulatedAtmosphere( ) :
         relativeDirectoryPath_( "Astrodynamics/EnvironmentModels/AtmosphereTables/" ),
-        atmosphereTableFile_( " " ), containerOfAtmosphereTableFileData( ) { }
+        atmosphereTableFile_( "" ), containerOfAtmosphereTableFileData( ) { }
 
     //! Initialize atmosphere table reader.
     /*!
@@ -195,25 +195,25 @@ private:
     /*!
      *  Vector containing the altitude.
      */
-    VectorXd altitudeData_;
+    Eigen::VectorXd altitudeData_;
 
     //! Vector containing the density data as a function of the altitude.
     /*!
      *  Vector containing the density data as a function of the altitude.
      */
-    VectorXd densityData_;
+    Eigen::VectorXd densityData_;
 
     //! Vector containing the pressure data as a function of the altitude.
     /*!
      *  Vector containing the pressure data as a function of the altitude.
      */
-    VectorXd pressureData_;
+    Eigen::VectorXd pressureData_;
 
     //! Vector containing the temperature data as a function of the altitude.
     /*!
      *  Vector containing the temperature data as a function of the altitude.
      */
-    VectorXd temperatureData_;
+    Eigen::VectorXd temperatureData_;
 
     //! Cubic spline interpolation for density.
     /*!
@@ -232,7 +232,6 @@ private:
      *  Cubic spline interpolation for temperature.
      */
     CubicSplineInterpolation cubicSplineInterpolationForTemperature_;
-
 };
 
 }

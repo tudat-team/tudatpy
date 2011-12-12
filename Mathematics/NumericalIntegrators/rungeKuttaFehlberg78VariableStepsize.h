@@ -55,8 +55,8 @@
 #define RUNGEKUTTAFEHLBERG78VARIABLESTEPSIZE_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Mathematics/NumericalIntegrators/integrator.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Astrodynamics/States/state.h"
 
 //! Tudat library namespace.
@@ -82,8 +82,9 @@ public:
         minimumStepsize_( 1.0e-15 ), relativeErrorTolerance_( 1.0e-12 ), currentTime_( -0.0 ),
         errorInState_( -0.0 ), previousStepsize_( -0.0 ), truncationError_( -0.0 ),
         dampedAbsoluteTolerance_( -0.0 ), relativeTruncationError_( -0.0 ),
-        aCoefficients_( MatrixXd::Zero( 13, 13 ) ), bCoefficients_( VectorXd::Zero( 13 ) ),
-        cCoefficients_( VectorXd::Zero( 13 ) ), fMatrix( ) { setCoefficients_( ); }
+        aCoefficients_( Eigen::MatrixXd::Zero( 13, 13 ) ),
+        bCoefficients_( Eigen::VectorXd::Zero( 13 ) ),
+        cCoefficients_( Eigen::VectorXd::Zero( 13 ) ), fMatrix( ) { setCoefficients_( ); }
 
     //! Set relative error tolerance.
     /*!
@@ -182,27 +183,27 @@ private:
     * MatrixXd containing the a-coefficients for the Runge-Kutta-Fehlberg
     * 7(8)th-order integration method.
     */
-    MatrixXd aCoefficients_;
+    Eigen::MatrixXd aCoefficients_;
 
     //! b-Coefficients.
     /*!
-    * MatrixXd containing the b-coefficients for the Runge-Kutta-Fehlberg
+    * RowVectorXd containing the b-coefficients for the Runge-Kutta-Fehlberg
     * 7(8)th-order integration method.
     */
-    RowVectorXd bCoefficients_;
+    Eigen::RowVectorXd bCoefficients_;
 
     //! c-Coefficients.
     /*!
     * VectorXd containing the c-coefficients for the Runge-Kutta-Fehlberg
     * 7(8)th-order integration method.
     */
-    VectorXd cCoefficients_;
+    Eigen::VectorXd cCoefficients_;
 
     //! f-Matrix.
     /*!
     * f-Matrix for the Runge-Kutta-Fehlberg 7(8)th-order integration method.
     */
-    MatrixXd fMatrix;
+    Eigen::MatrixXd fMatrix;
 
     //! Current state.
     /*!

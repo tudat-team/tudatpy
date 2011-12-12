@@ -56,6 +56,7 @@
 #define QUADRILATERALMESHEDSURFACEGEOMETRY_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Tudat library namespace.
@@ -100,7 +101,7 @@ public:
      * \param pointIndex Point from line to retrieve.
      * \return Surface point.
      */
-    Vector3d getMeshPoint( int lineIndex, int pointIndex )
+    Eigen::Vector3d getMeshPoint( int lineIndex, int pointIndex )
     { return meshPoints_[ lineIndex ][ pointIndex ]; }
 
     //! Get panel area.
@@ -120,7 +121,7 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel centroid.
      */
-    Vector3d getPanelCentroid( int lineIndex, int pointIndex )
+    Eigen::Vector3d getPanelCentroid( int lineIndex, int pointIndex )
     { return panelCentroids_[ lineIndex ][ pointIndex ]; }
 
     //! Get outward panel surface normal.
@@ -130,7 +131,7 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Outward panel surface normal.
      */
-    Vector3d getPanelSurfaceNormal( int lineIndex, int pointIndex )
+    Eigen::Vector3d getPanelSurfaceNormal( int lineIndex, int pointIndex )
     { return panelSurfaceNormals_[ lineIndex ][ pointIndex ]; }
 
     //! Get number of lines.
@@ -207,19 +208,19 @@ protected:
     /*!
      * 2-Dimensional array containing mesh point locations.
      */
-    Vector3d** meshPoints_;
+    Eigen::Vector3d** meshPoints_;
 
     //! Panel centroids.
     /*!
      * 2-Dimensional array containing panel centroid locations.
      */
-    Vector3d** panelCentroids_;
+    Eigen::Vector3d** panelCentroids_;
 
     //! Panel surface normals.
     /*!
      * 2-Dimensional array containing outward panel surface normal vectors.
      */
-    Vector3d** panelSurfaceNormals_;
+    Eigen::Vector3d** panelSurfaceNormals_;
 
     //! Panel doubles.
     /*!

@@ -61,7 +61,6 @@
 #include "Astrodynamics/Propagators/propagatorDataContainer.h"
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Astrodynamics/States/state.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 /*!

@@ -47,8 +47,8 @@
 #define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
 
 // Include statements.
+#include <Eigen/Core>
 #include "Astrodynamics/Propagators/cartesianStateNumericalPropagator.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 namespace tudat
@@ -67,7 +67,7 @@ void CartesianStateNumericalPropagator::computeStateDerivative(
     State stateDerivative_;
 
     // Vector of sum of forces.
-    VectorXd sumOfForces_( 3 );
+    Eigen::VectorXd sumOfForces_( 3 );
 
     // Loop over map of bodies to propagate.
     for ( BodyPropagatorDataMap::iterator iteratorBodiesToPropagate_ = bodiesToPropagate_.begin( );

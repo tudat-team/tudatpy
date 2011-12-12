@@ -57,6 +57,7 @@
 #define SPHERICALHARMONICSGRAVITYFIELD_H
 
 // Include statements.
+#include <Eigen/Core>
 #include <iostream>
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 
@@ -171,7 +172,7 @@ public:
      * \param pointerToPosition Position given as a pointer to a CartesianPositionElements object.
      * \return Gradient of gravitational potential.
      */
-    Vector3d getGradientOfPotential( CartesianPositionElements* pointerToPosition )
+    Eigen::Vector3d getGradientOfPotential( CartesianPositionElements* pointerToPosition )
     {
         relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
         return -gravitationalParameter_ * relativePosition_.state
@@ -185,7 +186,7 @@ public:
      * \param pointerToPosition Position given as a pointer to a CartesianPositionElements object.
      * \return Gradient tensor of gravitational potential.
      */
-    Matrix3d getGradientTensorOfPotential( CartesianPositionElements*  pointerToPosition );
+    Eigen::Matrix3d getGradientTensorOfPotential( CartesianPositionElements*  pointerToPosition );
 
     //! Overload ostream to print class information.
     /*!

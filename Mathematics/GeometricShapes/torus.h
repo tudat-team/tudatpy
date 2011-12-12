@@ -46,6 +46,7 @@
 #define TORUS_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Tudat library namespace.
@@ -86,8 +87,8 @@ public:
      *         torus at which to retrieve the surface point.
      * \return Point on torus in Cartesian coordinates.
      */
-    VectorXd getSurfacePoint( double majorCircumferentialAngle,
-                              double minorCircumferentialAngle );
+    Eigen::VectorXd getSurfacePoint( double majorCircumferentialAngle,
+                                     double minorCircumferentialAngle );
 
     //! Get surface derivative on torus.
     /*!
@@ -106,10 +107,10 @@ public:
      *          with respect to the minor circumferential angle.
      * \return Surface derivative on torus.
      */
-    VectorXd getSurfaceDerivative( double majorCircumferentialAngle,
-                                   double minorCircumferentialAngle,
-                                   int powerOfMajorCircumferentialAngleDerivative,
-                                   int powerOfMinorCircumferentialAngleDerivative );
+    Eigen::VectorXd getSurfaceDerivative( double majorCircumferentialAngle,
+                                          double minorCircumferentialAngle,
+                                          int powerOfMajorCircumferentialAngleDerivative,
+                                          int powerOfMinorCircumferentialAngleDerivative );
 
     //! Get parameter of torus.
     /*!

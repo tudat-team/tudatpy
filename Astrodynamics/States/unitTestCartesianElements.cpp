@@ -46,7 +46,6 @@
 #include <limits>
 #include "Astrodynamics/States/cartesianElements.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Test Cartesian elements state class.
 int main( )
@@ -71,7 +70,7 @@ int main( )
 
     // Expected test result.
     // Create vector of Cartesian elements: x, y, z, xdot, ydot, zdot.
-    VectorXd vectorOfCartesianElements( 6 );
+    Eigen::VectorXd vectorOfCartesianElements( 6 );
     vectorOfCartesianElements( 0 ) = 2.5e6;
     vectorOfCartesianElements( 1 ) = 0.5e6;
     vectorOfCartesianElements( 2 ) = 0.1e6;
@@ -88,7 +87,7 @@ int main( )
     cartesianElementsStateTest1.setCartesianElementZDot( vectorOfCartesianElements( 5 ) );
 
     // Test 1: Get Cartesian elements and store in a state vector.
-    VectorXd cartesianElementsStateVectorTest1( 6 );
+    Eigen::VectorXd cartesianElementsStateVectorTest1( 6 );
     cartesianElementsStateVectorTest1( 0 ) = cartesianElementsStateTest1.getCartesianElementX( );
     cartesianElementsStateVectorTest1( 1 ) = cartesianElementsStateTest1.getCartesianElementY( );
     cartesianElementsStateVectorTest1( 2 ) = cartesianElementsStateTest1.getCartesianElementZ( );
@@ -101,7 +100,7 @@ int main( )
 
     // Test 1: Difference between setting each Cartesian element and the
     // expected values.
-    VectorXd differenceBetweenResultsTest1( 6 );
+    Eigen::VectorXd differenceBetweenResultsTest1( 6 );
     differenceBetweenResultsTest1 = cartesianElementsStateVectorTest1 - vectorOfCartesianElements;
 
     // Test 2: Set Cartesian elements using setState() function.
@@ -109,7 +108,7 @@ int main( )
 
     // Test 2: Difference between setting the Cartesian state as a whole and
     // the expected values.
-    VectorXd differenceBetweenResultsTest2;
+    Eigen::VectorXd differenceBetweenResultsTest2;
     differenceBetweenResultsTest2 = cartesianElementsStateTest2.state - vectorOfCartesianElements;
 
     // Set test result to true if the test does not match the expected result.

@@ -58,6 +58,7 @@
 #define FORCEMODEL_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Astrodynamics/States/state.h"
 
 //! Tudat library namespace.
@@ -79,7 +80,7 @@ public:
     /*!
      * Default constructor.
      */
-    ForceModel( ) : force_( Vector3d::Zero( ) ) { }
+    ForceModel( ) : force_( Eigen::Vector3d::Zero( ) ) { }
 
     //! Default destructor.
     /*!
@@ -92,14 +93,14 @@ public:
      * Sets the force.
      * \param force Force.
      */
-    void setForce( const Vector3d& force ) { force_ = force; }
+    void setForce( const Eigen::Vector3d& force ) { force_ = force; }
 
    //! Get force.
     /*!
      * Returns the force.
      * \return Force.
      */
-    Vector3d& getForce( ) { return force_; }
+    Eigen::Vector3d& getForce( ) { return force_; }
 
     //! Compute force.
     /*!
@@ -114,7 +115,7 @@ protected:
     /*!
      * Force given in [N].
      */
-    Vector3d force_;
+    Eigen::Vector3d force_;
 
 private:
 };

@@ -59,8 +59,8 @@ using std::sin;
 using std::cos;
 
 //! Get surface point on torus.
-VectorXd Torus::getSurfacePoint( double majorCircumferentialAngle,
-                                 double minorCircumferentialAngle )
+Eigen::VectorXd Torus::getSurfacePoint( double majorCircumferentialAngle,
+                                        double minorCircumferentialAngle )
 {
     // Form cartesian position vector from paranmetrization.
     cartesianPositionVector_( 0 )
@@ -79,13 +79,13 @@ VectorXd Torus::getSurfacePoint( double majorCircumferentialAngle,
 }
 
 //! Get surface derivative on torus.
-VectorXd Torus::getSurfaceDerivative( double majorCircumferentialAngle,
-                                      double minorCircumferentialAngle,
-                                      int powerOfMajorCircumferentialAngleDerivative,
-                                      int powerOfMinorCircumferentialAngleDerivative )
+Eigen::VectorXd Torus::getSurfaceDerivative( double majorCircumferentialAngle,
+                                             double minorCircumferentialAngle,
+                                             int powerOfMajorCircumferentialAngleDerivative,
+                                             int powerOfMinorCircumferentialAngleDerivative )
 {
     // Declare and set size of derivative vector.
-    VectorXd derivative_ = VectorXd( 3 );
+    Eigen::VectorXd derivative_ = Eigen::VectorXd( 3 );
 
     // Go through the different possibilities for the values of the power
     // of the derivative.
@@ -112,8 +112,8 @@ VectorXd Torus::getSurfaceDerivative( double majorCircumferentialAngle,
     else
     {
         // Declare and set sizes of contribution vectors.
-        VectorXd derivative1Contribution_ = VectorXd( 3 );
-        VectorXd derivative2Contribution_ = VectorXd( 3 );
+        Eigen::VectorXd derivative1Contribution_ = Eigen::VectorXd( 3 );
+        Eigen::VectorXd derivative2Contribution_ = Eigen::VectorXd( 3 );
 
         // Since this derivative is "cyclical", as it is
         // only dependent on sines and cosines, only the "modulo 4"th
@@ -260,7 +260,7 @@ void Torus::setParameter( int index, double parameter)
 
     default:
 
-        cerr << "Parameter " << index << " does not exist in Torus";
+        cerr << "Parameter " << index << " does not exist in Torus.";
         break;
     }
 }

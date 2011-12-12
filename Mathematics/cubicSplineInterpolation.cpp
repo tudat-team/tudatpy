@@ -55,8 +55,8 @@ namespace tudat
 {
 
 //! Initialize cubic spline interpolation.
-void CubicSplineInterpolation::initializeCubicSplineInterpolation( VectorXd& independentVariables,
-                                                                   VectorXd& dependentVariables )
+void CubicSplineInterpolation::initializeCubicSplineInterpolation(
+        Eigen::VectorXd& independentVariables, Eigen::VectorXd& dependentVariables )
 {
     // Set the vectors.
     independentVariables_ = independentVariables;

@@ -50,11 +50,11 @@
  */
 
 // Include statements.
+#include <Eigen/Core>
 #include <map>
 #include <fstream>
 #include <string>
 #include "Output/writingOutputToFile.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 namespace tudat
@@ -112,7 +112,7 @@ void WritingOutputToFile::writeSingleSurfaceGeometryPointsToFile(
 
     // Declaration of vector which will be iteratively retrieved from geometry
     // and written to file.
-    VectorXd point = VectorXd( 3 );
+    Eigen::VectorXd point = Eigen::VectorXd( 3 );
 
     // Open the file to which writing will take place if it is to overwrite any
     // existing content.

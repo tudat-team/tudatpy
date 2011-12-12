@@ -47,6 +47,7 @@
 #define CONICALFRUSTUM_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Tudat library namespace.
@@ -86,7 +87,7 @@ public:
      *          the surface point.
      * \return Point on conical frustum in Cartesian coordinates.
      */
-    VectorXd getSurfacePoint( double lengthFraction, double azimuthAngle );
+    Eigen::VectorXd getSurfacePoint( double lengthFraction, double azimuthAngle );
 
     //! Get surface derivative on conical frustum.
     /*!
@@ -105,9 +106,9 @@ public:
      *          azimuth angle.
      * \return Surface derivative on conical frustum.
      */
-    VectorXd getSurfaceDerivative( double lengthFraction, double azimuthAngle,
-                                   int powerOfLengthFractionDerivative,
-                                   int powerOfAzimuthAngleDerivative );
+    Eigen::VectorXd getSurfaceDerivative( double lengthFraction, double azimuthAngle,
+                                          int powerOfLengthFractionDerivative,
+                                          int powerOfAzimuthAngleDerivative );
 
     //! Get parameter of conical frustum.
     /*!

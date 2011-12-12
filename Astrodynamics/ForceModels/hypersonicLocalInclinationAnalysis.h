@@ -49,6 +49,7 @@
 #define HYPERSONICLOCALINCLINATIONANALYSIS_H
 
 // Include statements.
+#include <Eigen/Core>
 #include <iostream>
 #include "Astrodynamics/Bodies/vehicle.h"
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientGenerator.h"
@@ -122,7 +123,7 @@ public:
      * \param independentVariables Array of values of independent variable
      *          indices in dataPointsOfIndependentVariables_.
      */
-    VectorXd getAerodynamicCoefficients( int* independentVariables );
+    Eigen::VectorXd getAerodynamicCoefficients( int* independentVariables );
 
     //! Set local inclination methods for all parts (expansion and compression).
     /*!
@@ -272,7 +273,7 @@ private:
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
      */
-    VectorXd determinePartCoefficients( int partNumber, int* independentVariableIndices );
+    Eigen::VectorXd determinePartCoefficients( int partNumber, int* independentVariableIndices );
 
     //! Determine pressure coefficients on a given part.
     /*!
@@ -289,7 +290,7 @@ private:
      * non-dimensionalization with reference area.
      * \param partNumber Index from vehicleParts_ array for which determine coefficients.
      */
-    VectorXd calculateForceCoefficients( int partNumber );
+    Eigen::VectorXd calculateForceCoefficients( int partNumber );
 
     //! Determine moment coefficients of a part.
     /*!
@@ -298,7 +299,7 @@ private:
      * dimensionalization is performed by product of referenceLength and referenceArea.
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      */
-    VectorXd calculateMomentCoefficients( int partNumber );
+    Eigen::VectorXd calculateMomentCoefficients( int partNumber );
 
     //! Determine the compression pressure coefficients of a given part.
     /*!

@@ -49,7 +49,6 @@
 #include "Astrodynamics/States/keplerianElements.h"
 #include "Mathematics/unitConversions.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Test Keplerian elements state class.
 int main( )
@@ -78,7 +77,7 @@ int main( )
     // Create vector of Keplerian elements: semi-major axis, eccentricity,
     // inclination, argument of periapsis, longitude of the ascending node,
     // true anomaly.
-    VectorXd vectorOfKeplerianElements_( 6 );
+    Eigen::VectorXd vectorOfKeplerianElements_( 6 );
     vectorOfKeplerianElements_( 0 ) = 2.5e6;
     vectorOfKeplerianElements_( 1 ) = 0.1;
     vectorOfKeplerianElements_( 2 ) = convertDegreesToRadians( 102.3 );
@@ -88,7 +87,7 @@ int main( )
 
     // Create vector of auxilliary Keplerian elements: longitude of periapsis,
     // true longitude, argument of latitude, semi-latus rectum.
-    VectorXd vectorOfAuxilliaryKeplerianElements_( 4 );
+    Eigen::VectorXd vectorOfAuxilliaryKeplerianElements_( 4 );
     vectorOfAuxilliaryKeplerianElements_( 0 ) = vectorOfKeplerianElements_( 3 )
             + vectorOfKeplerianElements_( 4 );
     vectorOfAuxilliaryKeplerianElements_( 1 ) = vectorOfKeplerianElements_( 3 )
@@ -106,7 +105,7 @@ int main( )
     keplerianElementsStateTest1_.setTrueAnomaly( vectorOfKeplerianElements_( 5 ) );
 
     // Test 1: Get Keplerian elements and store in a state vector.
-    VectorXd keplerianElementsStateVectorTest1( 6 );
+    Eigen::VectorXd keplerianElementsStateVectorTest1( 6 );
     keplerianElementsStateVectorTest1( 0 ) = keplerianElementsStateTest1_.getSemiMajorAxis( );
     keplerianElementsStateVectorTest1( 1 ) = keplerianElementsStateTest1_.getEccentricity( );
     keplerianElementsStateVectorTest1( 2 ) = keplerianElementsStateTest1_.getInclination( );
@@ -118,7 +117,7 @@ int main( )
 
     // Test 1: Difference between setting each Keplerian element and the
     // expected values.
-    VectorXd differenceBetweenResultsTest1_( 6 );
+    Eigen::VectorXd differenceBetweenResultsTest1_( 6 );
     differenceBetweenResultsTest1_
             = keplerianElementsStateVectorTest1 - vectorOfKeplerianElements_;
 
@@ -127,7 +126,7 @@ int main( )
 
     // Test 2: Difference between setting the Keplerian state as a whole and
     // the expected values.
-    VectorXd differenceBetweenResultsTest2_;
+    Eigen::VectorXd differenceBetweenResultsTest2_;
     differenceBetweenResultsTest2_
             = keplerianElementsStateTest2_.state - vectorOfKeplerianElements_;
 
@@ -138,7 +137,7 @@ int main( )
                 vectorOfAuxilliaryKeplerianElements_( 3 ) );
 
     // Test 3: Get auxilliary Keplerian elements and store in a vector.
-    VectorXd auxilliaryKeplerianElementsVectorTest3_( 4 );
+    Eigen::VectorXd auxilliaryKeplerianElementsVectorTest3_( 4 );
     auxilliaryKeplerianElementsVectorTest3_( 0 )
             = keplerianElementsStateTest2_.getLongitudeOfPeriapsis( );
     auxilliaryKeplerianElementsVectorTest3_( 1 )
@@ -150,7 +149,7 @@ int main( )
 
     // Test 3: Difference between getting each auxilliary Keplerian element and
     // the expected values.
-    VectorXd differenceBetweenResultsTest3( 4 );
+    Eigen::VectorXd differenceBetweenResultsTest3( 4 );
     differenceBetweenResultsTest3 = vectorOfAuxilliaryKeplerianElements_
             - auxilliaryKeplerianElementsVectorTest3_;
 

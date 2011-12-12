@@ -52,12 +52,6 @@
 
 // Include statements.
 #include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <Eigen/QR>
-#include <Eigen/Cholesky>
-
-// Import most common Eigen types.
-using namespace Eigen;
 
 //! Tudat library namespace.
 /*!
@@ -78,27 +72,29 @@ namespace linear_algebra
  * Function to determine the cosine of the angle between two vectors;
  * both vectors must have non-zero norm.
  */
-double determineCosineOfAngleBetweenVectors( const Vector3d& vector0, const Vector3d& vector1 );
+double determineCosineOfAngleBetweenVectors( const Eigen::Vector3d& vector0,
+                                             const Eigen::Vector3d& vector1 );
 
 //! Determine the angle between two vectors.
 /*!
  * Function to determine the angle between two vectors;
  * both vectors must have non-zero norm.
  */
-double determineAngleBetweenVectors( const Vector3d& vector0, const Vector3d& vector1 );
+double determineAngleBetweenVectors( const Eigen::Vector3d& vector0,
+                                     const Eigen::Vector3d& vector1 );
 
 //! Determine the average of the components of a vector.
 /*!
  * Function to determine the average (arithmetic mean) of the components of a
  * vector.
  */
-double determineAverageOfVectorComponents( const VectorXd& vector0 );
+double determineAverageOfVectorComponents( const Eigen::VectorXd& vector0 );
 
 //! Determine the standard deviation of the components of a vector.
 /*!
  * Function to determine the standard deviation of the components of a vector.
  */
-double determineStandardDeviationOfVectorComponents( const VectorXd& vector0 );
+double determineStandardDeviationOfVectorComponents( const Eigen::VectorXd& vector0 );
     
 }
 

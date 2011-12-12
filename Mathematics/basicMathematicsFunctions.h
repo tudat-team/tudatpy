@@ -74,10 +74,10 @@
 // Include statements.
 #include <boost/random/mersenne_twister.hpp>
 #include <ctime>
+#include <Eigen/Core>
 #include <map>
 #include <vector>
 #include "Astrodynamics/States/state.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 /*!
@@ -127,8 +127,8 @@ globalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( );
  * \return Value of dependent variable associated with target independent
  *          value in vector of sorted independent variables.
  */
-double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
-                                   VectorXd& associatedDependentVariables,
+double computeLinearInterpolation( Eigen::VectorXd& sortedIndependentVariables,
+                                   Eigen::VectorXd& associatedDependentVariables,
                                    double targetIndependentVariableValue );
 //! Compute linear interpolation.
 /*!
@@ -148,8 +148,8 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
  * \return Vector of dependent variable associated with target independent
  *              value in vector of sorted independent variables.
  */
-VectorXd computeLinearInterpolation(
-        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+Eigen::VectorXd computeLinearInterpolation(
+        std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
         double targetIndependentVariableValue );
 
 //! Compute linear interpolation.
@@ -188,7 +188,7 @@ State* computeLinearInterpolation(
 * \f}
 */
 void convertSphericalToCartesian( double radius, double azimuthAngle, double zenithAngle,
-                                  VectorXd& cartesianCoordinates );
+                                  Eigen::VectorXd& cartesianCoordinates );
 
 //! Convert cartesian to spherical coordinates.
 /*!
@@ -203,8 +203,8 @@ void convertSphericalToCartesian( double radius, double azimuthAngle, double zen
 *      \phi &=& \arccos\frac{ z }{ r } \\
 * \f}
 */
-void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
-                                  VectorXd& sphericalCoordinates );
+void convertCartesianToSpherical( const Eigen::VectorXd& cartesianCoordinates,
+                                  Eigen::VectorXd& sphericalCoordinates );
 
 //! Convert cylindrical to cartesian coordinates, z value unaffected.
 /*!
@@ -222,7 +222,7 @@ void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
 * it is not set or changed by this function.
 */
 void convertCylindricalToCartesian( double radius, double azimuthAngle,
-                                    VectorXd& cartesianCoordinates );
+                                    Eigen::VectorXd& cartesianCoordinates );
 
 //! Compute modulo of double.
 /*!

@@ -67,7 +67,6 @@
 #include "Astrodynamics/States/orbitalElementConversions.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Test ApproximatePlanetPositions class.
 int main( )
@@ -123,15 +122,15 @@ int main( )
     marsEphemeris = *predefinedMars.getStateFromEphemeris( 2455626.5 );
 
     // Compute absolute differences in position in spherical coordinates.
-    VectorXd positionInSphericalCoordinates( 3 );
+    Eigen::VectorXd positionInSphericalCoordinates( 3 );
     convertCartesianToSpherical( marsEphemeris.state.segment( 0, 3 ),
                                  positionInSphericalCoordinates );
 
-    VectorXd expectedPositionInSphericalCoordinates( 3 );
+    Eigen::VectorXd expectedPositionInSphericalCoordinates( 3 );
     convertCartesianToSpherical( expectedMarsEphemeris.state.segment( 0, 3 ),
                                  expectedPositionInSphericalCoordinates );
 
-    VectorXd differenceInSphericalCoordinates( 3 );
+    Eigen::VectorXd differenceInSphericalCoordinates( 3 );
     differenceInSphericalCoordinates = positionInSphericalCoordinates
             - expectedPositionInSphericalCoordinates;
 
@@ -214,11 +213,11 @@ int main( )
             .getStateFromEphemeris( julianDate );
 
     // Get Cartesian position from state.
-    Vector3d positionMars;
+    Eigen::Vector3d positionMars;
     positionMars = marsEphemerisCircularCoplanar.getPosition( );
 
     // Get Cartesian velocity from state.
-    Vector3d velocityMars;
+    Eigen::Vector3d velocityMars;
     velocityMars = marsEphemerisCircularCoplanar.getVelocity( );
 
     // Compute Keplerian elements of Test 2.
@@ -273,7 +272,7 @@ int main( )
 //    }
 
     // Check size of velocity.
-    Vector3d errorVelocity = velocityMars - marsEphemeris.getVelocity( );
+    Eigen::Vector3d errorVelocity = velocityMars - marsEphemeris.getVelocity( );
 
     // Error in scalar velocity should be smaller than maximum expected offset with respect to
     // ellipitical and inclined orbits.

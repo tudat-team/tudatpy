@@ -43,9 +43,9 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
 #include <iostream>
 #include "Mathematics/cubicSplineInterpolation.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Test implementation of cubic spline class.
 int main( )
@@ -60,7 +60,7 @@ int main( )
     bool isCubicSplineInterpolationBad = false;
 
     // Declare and initialize independent variable values.
-    VectorXd independentVariables = VectorXd( 6 );
+    Eigen::VectorXd independentVariables = Eigen::VectorXd( 6 );
     independentVariables( 0 ) = 1.0;
     independentVariables( 1 ) = 3.0;
     independentVariables( 2 ) = 5.0;
@@ -69,7 +69,7 @@ int main( )
     independentVariables( 5 ) = 11.0;
 
     // Declare and initialize dependent variable values.
-    VectorXd dependentVariables = VectorXd( 6 );
+    Eigen::VectorXd dependentVariables = Eigen::VectorXd( 6 );
     dependentVariables( 0 ) = 10.0;
     dependentVariables( 1 ) = 56.0;
     dependentVariables( 2 ) = 142.0;

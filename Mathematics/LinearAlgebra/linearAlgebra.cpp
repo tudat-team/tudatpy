@@ -55,15 +55,16 @@ namespace linear_algebra
 {
 
 //! Determine the cosine of the angle between two vectors.
-double determineCosineOfAngleBetweenVectors( const Vector3d& vector0, const Vector3d& vector1 )
+double determineCosineOfAngleBetweenVectors( const Eigen::Vector3d& vector0,
+                                             const Eigen::Vector3d& vector1 )
 {
     // Determine the length of the vectors.
     double normOfVector0 = vector0.norm( );
     double normOfVector1 = vector1.norm( );
 
     // Normalize both vectors.
-    Vector3d vector0Normalized = vector0 / normOfVector0;
-    Vector3d vector1Normalized = vector1 / normOfVector1;
+    Eigen::Vector3d vector0Normalized = vector0 / normOfVector0;
+    Eigen::Vector3d vector1Normalized = vector1 / normOfVector1;
 
     // Get the cosine of the angle by dotting the normalized vectors.
     double dotProductOfNormalizedVectors = vector0Normalized.dot( vector1Normalized );
@@ -84,11 +85,11 @@ double determineCosineOfAngleBetweenVectors( const Vector3d& vector0, const Vect
     {
         return dotProductOfNormalizedVectors;
     }
-
 }
 
 //! Determine the angle between two vectors.
-double determineAngleBetweenVectors( const Vector3d& vector0, const Vector3d& vector1 )
+double determineAngleBetweenVectors( const Eigen::Vector3d& vector0,
+                                     const Eigen::Vector3d& vector1 )
 {
     // Determine the cosine of the angle by using another routine.
     double dotProductOfNormalizedVectors = determineCosineOfAngleBetweenVectors( vector0,
@@ -99,13 +100,13 @@ double determineAngleBetweenVectors( const Vector3d& vector0, const Vector3d& ve
 }
 
 //! Determine the average of the components of a vector.
-double determineAverageOfVectorComponents( const VectorXd& vector0 )
+double determineAverageOfVectorComponents( const Eigen::VectorXd& vector0 )
 {
     return vector0.sum( ) / vector0.rows( );
 }
 
 //! Determine the standard deviation of the components of a vector.
-double determineStandardDeviationOfVectorComponents( const VectorXd& vector0 )
+double determineStandardDeviationOfVectorComponents( const Eigen::VectorXd& vector0 )
 {
     double varianceOfEntries = 0.0;
 

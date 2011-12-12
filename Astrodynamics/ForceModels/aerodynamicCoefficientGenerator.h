@@ -49,6 +49,7 @@
 #define AERODYNAMICCOEFFICIENTGENERATOR_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Astrodynamics/ForceModels/aerodynamicCoefficientInterface.h"
 
 //! Tudat library namespace.
@@ -269,13 +270,13 @@ public:
      * \param independentVariables Array of values of independent variable
      * indices in dataPointsOfIndependentVariables_.
      */
-    virtual VectorXd getAerodynamicCoefficients( int* independentVariables ) = 0;
+    virtual Eigen::VectorXd getAerodynamicCoefficients( int* independentVariables ) = 0;
 
     //! List of pointers to VectorXds containing coefficients.
     /*!
      * List of pointers to VectorXds containing coefficients.
      */
-    VectorXd** vehicleCoefficients_;
+    Eigen::VectorXd** vehicleCoefficients_;
 
 protected:
 

@@ -44,6 +44,7 @@
  */
 
 // Include statements.
+#include <Eigen/Geometry>
 #include <string>
 #include "Astrodynamics/Bodies/vehicleExternalModel.h"
 #include "Astrodynamics/ForceModels/aerodynamics.h"
@@ -190,7 +191,7 @@ void HypersonicLocalInclinationAnalysis::allocateArrays( )
 }
 
 //! Get aerodynamic coefficients.
-VectorXd HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
+Eigen::VectorXd HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
     int* independentVariables )
 {
     // If coefficients have not been allocated (and independent variables
@@ -297,7 +298,7 @@ void HypersonicLocalInclinationAnalysis::allocateVehicleCoefficients( )
                         numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ];
 
     // Allocate memory for pointers to coefficients and initialize to NULL.
-    vehicleCoefficients_ = new VectorXd*[ numberOfCases_ ];
+    vehicleCoefficients_ = new Eigen::VectorXd*[ numberOfCases_ ];
     int i;
     for ( i = 0; i < numberOfCases_ ; i++ )
     {
@@ -317,14 +318,14 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
             independentVariableIndices );
 
     // Declare coefficients vector and initialize to zeros.
-    VectorXd coefficients = VectorXd( 6 );
+    Eigen::VectorXd coefficients = Eigen::VectorXd( 6 );
     for ( i = 0 ; i < 6 ; i++ )
     {
         coefficients[ i ] = 0;
     }
 
     // Declare vehicle part coefficients variable.
-    VectorXd partCoefficients;
+    Eigen::VectorXd partCoefficients;
 
     // Loop over all vehicle parts, calculate aerodynamic coefficients and add
     // to vehicleCoefficients_.
@@ -336,11 +337,11 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
     }
 
     // Allocate and set vehicle coefficients at given independent variables.
-    vehicleCoefficients_[ coefficientsIndex ] = new VectorXd( coefficients );
+    vehicleCoefficients_[ coefficientsIndex ] = new Eigen::VectorXd( coefficients );
 }
 
 //! Determine aerodynamic coefficients of a single vehicle part.
-VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
+Eigen::VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
         int partNumber, int* independentVariableIndices )
 {
     // Declare and determine angles of attack and sideslip for analysis.
@@ -352,7 +353,7 @@ VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
                     angleOfSideslipIndex_ ] ];
 
     // Declare partCoefficient vector.
-    VectorXd partCoefficients = VectorXd( 6 );
+    Eigen::VectorXd partCoefficients = Eigen::VectorXd( 6 );
 
     // Determine panel inclinations for part.
     determineInclination( partNumber, angleOfAttack, angleOfSideslip );
@@ -387,12 +388,12 @@ void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
 }
 
 //! Determine force coefficients from pressure coefficients.
-VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( int partNumber )
+Eigen::VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( int partNumber )
 {
     int i, j;
 
     // Declare force coefficient vector and intialize to zeros.
-    Vector3d forceCoefficients;
+    Eigen::Vector3d forceCoefficients;
     for ( i = 0 ; i < 3 ; i++)
     {
         forceCoefficients( i ) = 0.0;
@@ -418,19 +419,19 @@ VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( int par
 }
 
 //! Determine moment coefficients from pressure coefficients.
-VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients( int partNumber )
+Eigen::VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients( int partNumber )
 {
     int i, j;
 
     // Declare moment coefficient vector and intialize to zeros.
-    Vector3d momentCoefficients;
+    Eigen::Vector3d momentCoefficients;
     for ( i = 0 ; i < 3 ; i++ )
     {
         momentCoefficients( i ) = 0.0;
     }
 
     // Declare moment arm for panel moment determination.
-    Vector3d referenceDistance ;
+    Eigen::Vector3d referenceDistance ;
 
     // Loop over all panels and add moments due pressures.
     for ( i = 0 ; i < vehicleParts_[ partNumber ].getNumberOfLines( ) - 1 ; i++ )
@@ -463,7 +464,7 @@ void HypersonicLocalInclinationAnalysis::determineInclination( int partNumber,
     int i, j;
 
     // Declare free-stream velocity vector.
-    Vector3d freestreamVelocityDirection;
+    Eigen::Vector3d freestreamVelocityDirection;
 
     // Set freestream velocity vector in body frame.
     double freestreamVelocityDirectionX = cos( angleOfAttack )* cos( angleOfSideslip );

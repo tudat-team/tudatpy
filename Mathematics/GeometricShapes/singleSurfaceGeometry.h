@@ -63,8 +63,8 @@
 #define SINGLESURFACEGEOMETRY_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Mathematics/GeometricShapes/surfaceGeometry.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 /*!
@@ -107,9 +107,10 @@ public:
         maximumIndependentVariable1_( -0.0 ), minimumIndependentVariable2_( -0.0 ),
         maximumIndependentVariable2_( -0.0 ), parameter_( -0.0 ),
         independentVariable_( firstIndependentVariable ),
-        cartesianPositionVector_( VectorXd::Zero( 3 ) ), offset_( VectorXd::Zero( 3 ) ),
-        rotationMatrix_( MatrixXd::Identity( 3, 3 ) ),
-        scalingMatrix_( MatrixXd::Identity( 3, 3 ) ) { }
+        cartesianPositionVector_( Eigen::VectorXd::Zero( 3 ) ),
+        offset_( Eigen::VectorXd::Zero( 3 ) ),
+        rotationMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) ),
+        scalingMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) ) { }
 
     //! Default destructor.
     /*!
@@ -122,21 +123,21 @@ public:
      * Sets the offset of the shape.
      * \param offset Offset.
      */
-    void setOffset( const VectorXd& offset ) { offset_ = offset; }
+    void setOffset( const Eigen::VectorXd& offset ) { offset_ = offset; }
 
     //! Set rotation matrix of the shape.
     /*!
      * Sets the rotation matrix of the shape.
      * \param rotationMatrix Rotation matrix.
      */
-    void setRotationMatrix( const MatrixXd& rotationMatrix ) { rotationMatrix_ = rotationMatrix; }
+    void setRotationMatrix( const Eigen::MatrixXd& rotationMatrix ) { rotationMatrix_ = rotationMatrix; }
 
     //! Set scaling matrix of the shape.
     /*!
      * Sets the scaling matrix of the shape.
      * \param scalingMatrix Scaling matrix.
      */
-    void setScalingMatrix( const MatrixXd& scalingMatrix ) { scalingMatrix_ = scalingMatrix; }
+    void setScalingMatrix( const Eigen::MatrixXd& scalingMatrix ) { scalingMatrix_ = scalingMatrix; }
 
     //! Set minimum value of independent variable.
     /*!
@@ -179,21 +180,21 @@ public:
      * Returns the offset from the shape.
      * \return Offset of the surface.
      */
-    VectorXd getOffset( ) { return offset_; }
+    Eigen::VectorXd getOffset( ) { return offset_; }
 
     //! Get rotation matrix from the shape.
     /*!
      * Returns the rotation matrix from the shape.
      * \return Rotation matrix of the surface.
      */
-    MatrixXd getRotationMatrix( ) { return rotationMatrix_; }
+    Eigen::MatrixXd getRotationMatrix( ) { return rotationMatrix_; }
 
     //! Get scaling matrix from the shape.
     /*!
      * Returns the scaling matrix from the shape.
      * \return Scaling matrix of the surface.
      */
-    MatrixXd getScalingMatrix( ) { return scalingMatrix_; }
+    Eigen::MatrixXd getScalingMatrix( ) { return scalingMatrix_; }
 
     //! Get minimum value of independent variable.
     /*!
@@ -221,7 +222,7 @@ public:
      * \param independentVariable2 Independent variable 2.
      * \return Surface point.
      */
-    virtual VectorXd getSurfacePoint( double independentVariable1,
+    virtual Eigen::VectorXd getSurfacePoint( double independentVariable1,
                                       double independentVariable2 ) = 0;
 
     //! Get surface derivative.
@@ -234,7 +235,7 @@ public:
      * \param powerOfDerivative2 Power of derivative wrt independent variable 2.
      * \return Surface derivative.
      */
-    virtual VectorXd getSurfaceDerivative( double independentVariable1,
+    virtual Eigen::VectorXd getSurfaceDerivative( double independentVariable1,
                                            double independentVariable2,
                                            int powerOfDerivative1,
                                            int powerOfDerivative2 ) = 0;
@@ -246,7 +247,7 @@ public:
      * global translation.
      * \param point Point which is transformed.
      */
-    void transformPoint( VectorXd& point );
+    void transformPoint( Eigen::VectorXd& point );
 
 protected:
 
@@ -294,25 +295,25 @@ protected:
      * Variable is declared here to prevent it being created multiple times
      * in local scope.
      */
-    VectorXd cartesianPositionVector_;
+    Eigen::VectorXd cartesianPositionVector_;
 
     //! Offset vector.
     /*!
      * Vector by which to translate the center of the geometric shape.
      */
-    VectorXd offset_;
+    Eigen::VectorXd offset_;
 
     //! Rotation matrix.
     /*!
      * Rotation matrix to be applied to geometry to obtain correct orientation.
      */
-    MatrixXd rotationMatrix_;
+    Eigen::MatrixXd rotationMatrix_;
 
     //! Scaling matrix.
     /*!
      * Scaling matrix of surface points.
      */
-    MatrixXd scalingMatrix_;
+    Eigen::MatrixXd scalingMatrix_;
 
 private:
 };

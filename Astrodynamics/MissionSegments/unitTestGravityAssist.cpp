@@ -57,6 +57,7 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
 #include <iostream>
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/MissionSegments/gravityAssist.h"
@@ -103,7 +104,7 @@ int main( )
 
     // Define planet heliocentric velocity vector.
     // The orbit is considered to be circular.
-    Vector3d marsVelocity;
+    Eigen::Vector3d marsVelocity;
     marsVelocity.x( ) = 0.0;
     marsVelocity.y( ) = sqrt( gravitationalParameterSun / distanceMarsToSun );
     marsVelocity.z( ) = 0.0;

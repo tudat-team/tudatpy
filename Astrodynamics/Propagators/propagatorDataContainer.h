@@ -63,7 +63,6 @@
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/ForceModels/forceModel.h"
 #include "Astrodynamics/Propagators/propagator.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Astrodynamics/States/state.h"
 
 //! Tudat library namespace.

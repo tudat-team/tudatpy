@@ -48,7 +48,6 @@
 // Include statements.
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/GeometricShapes/conicalFrustum.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 namespace tudat
@@ -61,8 +60,7 @@ using std::sin;
 using std::cos;
 
 //! Get surface point on conical frustum.
-VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle,
-                                          double lengthFraction )
+Eigen::VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle, double lengthFraction )
 {
     // Determines the radius of the cone at the given length fraction.
     double localRadius_ = startRadius_ + length_ * lengthFraction * std::tan( coneHalfAngle_ );
@@ -82,12 +80,12 @@ VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle,
 }
 
 //! Get surface derivative on conical frustum.
-VectorXd ConicalFrustum::getSurfaceDerivative(
+Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
         double lengthFraction, double azimuthAngle,
         int powerOfLengthFractionDerivative, int powerOfAzimuthAngleDerivative )
 {
     // Declare and set size of derivative vector.
-    VectorXd derivative_ = VectorXd( 3 );
+    Eigen::VectorXd derivative_ = Eigen::VectorXd( 3 );
 
     // No negative derivatives may be retrieved, a zero vector is returned in
     // this case.
@@ -113,8 +111,8 @@ VectorXd ConicalFrustum::getSurfaceDerivative(
     else
     {
         // Declare and set sizes of contribution vectors.
-        VectorXd derivative1Contribution_ = VectorXd( 3 );
-        VectorXd derivative2Contribution_ = VectorXd( 3 );
+        Eigen::VectorXd derivative1Contribution_ = Eigen::VectorXd( 3 );
+        Eigen::VectorXd derivative2Contribution_ = Eigen::VectorXd( 3 );
 
         switch( powerOfLengthFractionDerivative )
         {
