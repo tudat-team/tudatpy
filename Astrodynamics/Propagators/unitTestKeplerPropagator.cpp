@@ -57,6 +57,7 @@
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/Bodies/vehicle.h"
+#include "Astrodynamics/EnvironmentModels/centralGravityField.h"
 #include "Astrodynamics/Propagators/keplerPropagator.h"
 #include "Astrodynamics/Propagators/seriesPropagator.h"
 #include "Astrodynamics/States/cartesianElements.h"
@@ -157,9 +158,15 @@ int main( )
     // Create a pointer to new vehicle for Asterix.
     Vehicle asterix;
 
-    // Create pre-defined Earth object.
-    Planet predefinedEarth;
-    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
+    // Create Earth central gravity field.
+    CentralGravityField earthCentralGravityField;
+
+    // Set Earth gravitational parameter.
+    earthCentralGravityField.setGravitationalParameter( 3.986004415e14 );
+
+    // Create Earth object and set central gravity field.
+    Planet earth;
+    earth.setGravityFieldModel( &earthCentralGravityField );
 
     // Create Newton-Raphson object.
     NewtonRaphson newtonRaphson;
@@ -174,7 +181,7 @@ int main( )
     keplerPropagator.addBody( &asterix );
 
     // Set the central body for Asterix
-    keplerPropagator.setCentralBody( &asterix, &predefinedEarth );
+    keplerPropagator.setCentralBody( &asterix, &earth );
 
     // Create series propagator.
     SeriesPropagator seriesPropagator;
@@ -213,25 +220,25 @@ int main( )
     }
 
     // Declare tolerance between benchmark data and simulation data.
-    double toleranceBetweenBenchmarkAndSimulationData = 1e-6;
+    double toleranceBetweenBenchmarkAndSimulationData = 1e-5;
 
     // Declare difference between benchmark data and simulation data.
     double differenceKeplerData;
 
     // Check if results match benchmark data.
-    for ( unsigned int i = 0; i < ( seriesPropagator.getSeriesPropagationStart( )
+    for ( unsigned int i = 1; i < ( seriesPropagator.getSeriesPropagationEnd( )
                                     / seriesPropagator.getFixedOutputInterval( ) ); i++ )
     {
         // Initialize difference in data.
         differenceKeplerData = 0.0;
 
-        for ( unsigned int i = 0; i < 6; i++ )
+        for ( unsigned int j = 0; j < 6; j++ )
         {
             differenceKeplerData += std::fabs(
                         asterixKeplerPropagationHistory[ i * seriesPropagator
-                        .getFixedOutputInterval( ) ].state( i )
+                        .getFixedOutputInterval( ) ].state( j )
                         - benchmarkKeplerPropagationHistory[  i * seriesPropagator
-                        .getFixedOutputInterval( ) ].state( i ) );
+                        .getFixedOutputInterval( ) ].state( j ) );
         }
 
         if ( differenceKeplerData > toleranceBetweenBenchmarkAndSimulationData )
@@ -241,6 +248,13 @@ int main( )
             std::cerr << "The Kepler propagator does not produce consistent results, as running a "
                       << "simulation with does not yield the same results as the benchmark data "
                       << "given the same initial conditions." << std::endl;
+            std::cerr << "Expected: " << benchmarkKeplerPropagationHistory
+                         [ i * seriesPropagator.getFixedOutputInterval( ) ].state.transpose( )
+                      << std::endl
+                      << "Actual: " << asterixKeplerPropagationHistory
+                         [ i * seriesPropagator.getFixedOutputInterval( ) ].state.transpose( )
+                      << std::endl
+                      << "Difference: " << differenceKeplerData << std::endl;
         }
     }
 
