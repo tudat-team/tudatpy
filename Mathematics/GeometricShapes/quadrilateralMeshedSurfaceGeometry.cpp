@@ -53,6 +53,7 @@
  */
 
 // Include statements.
+#include <Eigen/Geometry>
 #include <limits>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
@@ -98,21 +99,21 @@ QuadrilateralMeshedSurfaceGeometry::~QuadrilateralMeshedSurfaceGeometry( )
 void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
 {
     // Allocate memory for panel properties.
-    panelCentroids_ = new Vector3d* [ numberOfLines_ - 1 ];
-    panelSurfaceNormals_ = new Vector3d* [ numberOfLines_ - 1 ];
+    panelCentroids_ = new Eigen::Vector3d* [ numberOfLines_ - 1 ];
+    panelSurfaceNormals_ = new Eigen::Vector3d* [ numberOfLines_ - 1 ];
     panelAreas_ = new double* [ numberOfLines_ - 1 ];
 
     // Allocate memory for panel properties per line.
     for ( int i = 0; i < numberOfLines_ - 1 ; i++ )
     {
-        panelCentroids_[ i ] = new Vector3d[ numberOfPoints_ - 1 ];
-        panelSurfaceNormals_[ i ] = new Vector3d[ numberOfPoints_ - 1 ];
+        panelCentroids_[ i ] = new Eigen::Vector3d[ numberOfPoints_ - 1 ];
+        panelSurfaceNormals_[ i ] = new Eigen::Vector3d[ numberOfPoints_ - 1 ];
         panelAreas_[ i ] = new double[ numberOfPoints_ - 1 ];
     }
 
     // Declare local variables for normal and area determination.
-    Vector3d crossVector1;
-    Vector3d crossVector2;
+    Eigen::Vector3d crossVector1;
+    Eigen::Vector3d crossVector2;
 
     // Reset total area.
     totalArea_ = 0.0;

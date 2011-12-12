@@ -40,6 +40,8 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <iostream>
 #include <limits>
 #include "Astrodynamics/ForceModels/aerodynamicForce.h"
@@ -47,7 +49,6 @@
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Test implemntation of aerodynamic moment and aerodynamic force.
 int main( )
@@ -64,12 +65,12 @@ int main( )
     bool isAerodynamicForceBroken = false;
 
     // Initialise objects.
-    Vector3d forceCoefficients;
+    Eigen::Vector3d forceCoefficients;
     forceCoefficients( 0 ) = 1.1;
     forceCoefficients( 1 ) = 1.2;
     forceCoefficients( 2 ) = 1.3;
 
-    Vector3d momentCoefficients;
+    Eigen::Vector3d momentCoefficients;
     momentCoefficients( 0 ) = 0.0;
     momentCoefficients( 1 ) = 1.0;
     momentCoefficients( 2 ) = 0.0;
@@ -84,7 +85,7 @@ int main( )
     aerodynamicCoefficientInterface.setReferenceArea( referenceArea );
     aerodynamicCoefficientInterface.setReferenceLength( referenceLength );
 
-    Vector3d momentArm;
+    Eigen::Vector3d momentArm;
     momentArm( 0 ) = -2.0;
     momentArm( 1 ) = 0.0;
     momentArm( 2 ) = 0.0;
@@ -93,7 +94,7 @@ int main( )
     aerodynamicForce.setDynamicPressure( dynamicPressure );
     aerodynamicForce.setAerodynamicCoefficientInterface( &aerodynamicCoefficientInterface );
 
-    Vector3d force;
+    Eigen::Vector3d force;
 
     // Test 1. Test the force model without setting a transformation.
 
@@ -103,10 +104,10 @@ int main( )
     force = aerodynamicForce.getForce( );
 
     // Expected force.
-    Vector3d expectedForce = forceCoefficients * dynamicPressure * referenceArea;
+    Eigen::Vector3d expectedForce = forceCoefficients * dynamicPressure * referenceArea;
 
     // Error in calculation.
-    Vector3d errorInForce;
+    Eigen::Vector3d errorInForce;
     errorInForce( 0 ) = fabs( expectedForce( 0 ) - force( 0 ) );
     errorInForce( 1 ) = fabs( expectedForce( 1 ) - force( 1 ) );
     errorInForce( 2 ) = fabs( expectedForce( 2 ) - force( 2 ) );
@@ -123,9 +124,9 @@ int main( )
     aerodynamicMoment.setDynamicPressure( dynamicPressure );
     aerodynamicMoment.setAerodynamicCoefficientInterface( &aerodynamicCoefficientInterface );
 
-    Vector3d moment;
-    Vector3d expectedMoment;
-    Vector3d errorInMoment;
+    Eigen::Vector3d moment;
+    Eigen::Vector3d expectedMoment;
+    Eigen::Vector3d errorInMoment;
 
     // Calculate moment.
     aerodynamicMoment.computeMoment( &dummyState );
@@ -150,20 +151,21 @@ int main( )
     aerodynamicMoment.setForceModel( &aerodynamicForce );
     aerodynamicMoment.setForceApplicationArm( momentArm );
 
-    Vector3d intermediateExpectedForce =  ( forceCoefficients * dynamicPressure * referenceArea );
+    Eigen::Vector3d intermediateExpectedForce
+            = forceCoefficients * dynamicPressure * referenceArea;
 
     // Calculate moment.
     aerodynamicMoment.computeMoment( &dummyState );
     moment = aerodynamicMoment.getMoment( );
 
     // Calculate expected moment.
-    Vector3d expectedMomentDueToForce;
+    Eigen::Vector3d expectedMomentDueToForce;
     expectedMomentDueToForce( 0 ) = 0.0;
     expectedMomentDueToForce( 1 ) = -1.0 * momentArm( 0 ) * intermediateExpectedForce( 2 );
     expectedMomentDueToForce( 2 ) = momentArm( 0 ) * intermediateExpectedForce( 1 );
 
     expectedMoment = dynamicPressure * referenceArea * referenceLength * momentCoefficients +
-            expectedMomentDueToForce ;
+            expectedMomentDueToForce;
 
     // Error in calculation.
     errorInMoment( 0 ) = fabs( expectedMoment( 0 ) - moment( 0 ) );
@@ -174,7 +176,7 @@ int main( )
          ( dynamicPressure * referenceArea * referenceLength ) )
     {
         isAerodynamicMomentBroken = true;
-        cerr << "Test 3 of unitTestAerodynamicMomentAndAerodynamicForce failed" << endl;
+        cerr << "Test 3 of unitTestAerodynamicMomentAndAerodynamicForce failed.s" << endl;
     }
 
     if ( isAerodynamicMomentBroken || isAerodynamicForceBroken )

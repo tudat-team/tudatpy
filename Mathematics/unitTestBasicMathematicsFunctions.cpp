@@ -55,6 +55,7 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
 #include <iostream> 
 #include <limits>
 #include "Astrodynamics/States/cartesianPositionElements.h"
@@ -150,7 +151,7 @@ int main( )
     // Test 17: Test conversion of ( 2.0, -2pi ).
     // Test 18: Test conversion of ( 2.0, 225 deg ).
     // Test 19: Test conversion of ( 2.0, -225 deg ).
-    VectorXd cartesianCoordinates( 2 );
+    Eigen::VectorXd cartesianCoordinates( 2 );
 
     convertCylindricalToCartesian( 2.0, 0.0, cartesianCoordinates );
 
@@ -226,7 +227,7 @@ int main( )
     // Test 21: Test conversion of: ( 2.0, 225, 225 ).
     // Test 22: Test conversion of: ( 2.0, -225, -225 ).
     // Test 23: Test conversion of: ( 2.0, 180, 180 ).
-    VectorXd cartesianCoordinates3( 3 );
+    Eigen::VectorXd cartesianCoordinates3( 3 );
 
     convertSphericalToCartesian( 0.0, 0.0, 0.0, cartesianCoordinates3 );
 
@@ -299,29 +300,29 @@ int main( )
     // Test 27: Test conversion of: ( 0.0, 12.2, -0.9 ).
 
     // Cartesian coordinates.
-    VectorXd cartesianCoordinatesTest24_( 3 );
+    Eigen::VectorXd cartesianCoordinatesTest24_( 3 );
     cartesianCoordinatesTest24_.setZero( 3 );
 
-    VectorXd cartesianCoordinatesTest25_( 3 );
+    Eigen::VectorXd cartesianCoordinatesTest25_( 3 );
     cartesianCoordinatesTest25_( 0 ) = 2.0;
     cartesianCoordinatesTest25_( 1 ) = 3.5;
     cartesianCoordinatesTest25_( 2 ) = -4.1;
 
-    VectorXd cartesianCoordinatesTest26_( 3 );
+    Eigen::VectorXd cartesianCoordinatesTest26_( 3 );
     cartesianCoordinatesTest26_( 0 ) = 5.2;
     cartesianCoordinatesTest26_( 1 ) = -6.3;
     cartesianCoordinatesTest26_( 2 ) = 0.0;
 
-    VectorXd cartesianCoordinatesTest27_( 3 );
+    Eigen::VectorXd cartesianCoordinatesTest27_( 3 );
     cartesianCoordinatesTest27_( 0 ) = 0.0;
     cartesianCoordinatesTest27_( 1 ) = 12.2;
     cartesianCoordinatesTest27_( 2 ) = -0.9;
 
     // Expected vectors in spherical coordinates.
-    VectorXd expectedSphericalCoordinatesTest24_( 3 );
+    Eigen::VectorXd expectedSphericalCoordinatesTest24_( 3 );
     expectedSphericalCoordinatesTest24_.setZero( 3 );
 
-    VectorXd expectedSphericalCoordinatesTest25_( 3 );
+    Eigen::VectorXd expectedSphericalCoordinatesTest25_( 3 );
     expectedSphericalCoordinatesTest25_( 0 )
             = sqrt( pow( cartesianCoordinatesTest25_( 0 ), 2.0 )
                     + pow( cartesianCoordinatesTest25_( 1 ), 2.0 )
@@ -333,7 +334,7 @@ int main( )
             = acos( cartesianCoordinatesTest25_( 2 ) /
                      expectedSphericalCoordinatesTest25_( 0 ) );
 
-    VectorXd expectedSphericalCoordinatesTest26_( 3 );
+    Eigen::VectorXd expectedSphericalCoordinatesTest26_( 3 );
     expectedSphericalCoordinatesTest26_( 0 )
             = sqrt( pow( cartesianCoordinatesTest26_( 0 ), 2.0 )
                     + pow( cartesianCoordinatesTest26_( 1 ), 2.0 )
@@ -345,7 +346,7 @@ int main( )
             = acos( cartesianCoordinatesTest26_( 2 ) /
                      expectedSphericalCoordinatesTest26_( 0 ) );
 
-    VectorXd expectedSphericalCoordinatesTest27_( 3 );
+    Eigen::VectorXd expectedSphericalCoordinatesTest27_( 3 );
     expectedSphericalCoordinatesTest27_( 0 )
             = sqrt( pow( cartesianCoordinatesTest27_( 0 ), 2.0 )
                     + pow( cartesianCoordinatesTest27_( 1 ), 2.0 )
@@ -358,7 +359,7 @@ int main( )
                      expectedSphericalCoordinatesTest27_( 0 ) );
 
     // Result vector in spherical coordinates.
-    VectorXd sphericalCoordinates_( 3 );
+    Eigen::VectorXd sphericalCoordinates_( 3 );
 
     // Test 24: Test conversion of: ( 0.0, 0.0, 0.0 ).
 
@@ -448,8 +449,8 @@ int main( )
 
     // Declare variables.
     // Vectors of data.
-    VectorXd sortedIndependentVariables( 3 );
-    VectorXd associatedDependentVariables( 3 );
+    Eigen::VectorXd sortedIndependentVariables( 3 );
+    Eigen::VectorXd associatedDependentVariables( 3 );
 
     // Target independent value in vector data.
     double targetIndependentVariableValue = 0.0;
@@ -508,11 +509,11 @@ int main( )
     // Test 30: Test map of data.
 
     // Declare map of data and vectors for map value.
-    std::map < double, VectorXd > sortedIndepedentAndDependentVariables;
-    VectorXd vectorOne( 3 );
-    VectorXd vectorTwo( 3 );
-    VectorXd vectorThree( 3 );
-    VectorXd interpolatedVector( 3 );
+    std::map < double, Eigen::VectorXd > sortedIndepedentAndDependentVariables;
+    Eigen::VectorXd vectorOne( 3 );
+    Eigen::VectorXd vectorTwo( 3 );
+    Eigen::VectorXd vectorThree( 3 );
+    Eigen::VectorXd interpolatedVector( 3 );
 
     // Initialize vectors for map value.
     // Initialize first vector.

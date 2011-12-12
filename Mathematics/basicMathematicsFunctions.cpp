@@ -96,8 +96,8 @@ globalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( )
 }
 
 //! Compute linear interpolation.
-double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
-                                   VectorXd& associatedDependentVariables,
+double computeLinearInterpolation( Eigen::VectorXd& sortedIndependentVariables,
+                                   Eigen::VectorXd& associatedDependentVariables,
                                    double targetIndependentVariableValue )
 {
     // Declare local variables.
@@ -128,8 +128,8 @@ double computeLinearInterpolation( VectorXd& sortedIndependentVariables,
 }
 
 //! Compute linear interpolation.
-VectorXd computeLinearInterpolation(
-        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+Eigen::VectorXd computeLinearInterpolation(
+        std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
         double targetIndependentVariableValue )
 {
     // Declare local variables.
@@ -140,8 +140,8 @@ VectorXd computeLinearInterpolation(
     double locationTargetIndependentVariableValueInInterval;
 
     // Declare map iterators
-    std::map < double, VectorXd >::iterator mapIteratorIntervalLeft;
-    std::map < double, VectorXd >::iterator mapIteratorIntervalRight;
+    std::map < double, Eigen::VectorXd >::iterator mapIteratorIntervalLeft;
+    std::map < double, Eigen::VectorXd >::iterator mapIteratorIntervalRight;
 
     // Compute nearest neighbor in map of data.
     // Result is always to the left of the target independent variable value.
@@ -222,7 +222,7 @@ State* computeLinearInterpolation(
 
 //! Convert spherical to cartesian coordinates.
 void convertSphericalToCartesian( double radius, double azimuthAngle, double zenithAngle,
-                                  VectorXd& cartesianCoordinates )
+                                  Eigen::VectorXd& cartesianCoordinates )
 {
     // Declaring sine and cosine which have multiple usages to save computation time.
     double cosineOfAzimuthAngle = std::cos( azimuthAngle );
@@ -235,8 +235,8 @@ void convertSphericalToCartesian( double radius, double azimuthAngle, double zen
 }
 
 //! Convert cartesian to spherical coordinates.
-void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
-                                  VectorXd& sphericalCoordinates )
+void convertCartesianToSpherical( const Eigen::VectorXd& cartesianCoordinates,
+                                  Eigen::VectorXd& sphericalCoordinates )
 {
     // Compute transformation of Cartesian coordinates to spherical coordinates.
     sphericalCoordinates( 0 ) = cartesianCoordinates.norm( );
@@ -260,7 +260,7 @@ void convertCartesianToSpherical( const VectorXd& cartesianCoordinates,
 
 //! Convert cylindrical to cartesian coordinates, z value left unaffected.
 void convertCylindricalToCartesian( double radius, double azimuthAngle,
-                                    VectorXd& cartesianCoordinates )
+                                    Eigen::VectorXd& cartesianCoordinates )
 {
     // Perform transformation, z value should be set outside function.
     cartesianCoordinates( 0 ) = radius * std::cos( azimuthAngle );

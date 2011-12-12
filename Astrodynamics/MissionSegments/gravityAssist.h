@@ -69,6 +69,7 @@
 #define GRAVITYASSIST_H
 
 // Include statements.
+#include <Eigen/Core>
 #include <iostream>
 #include "Astrodynamics/Bodies/celestialBody.h"
 #include "Astrodynamics/States/cartesianVelocityElements.h"
@@ -96,10 +97,10 @@ public:
      * Default constructor.
      */
     GravityAssist( ) : pointerToCentralBody_( NULL ), pointerToCentralBodySphere_( NULL ),
-        centralBodyVelocity_( Vector3d::Zero( ) ), smallestPeriapsisDistanceFactor_( -0.0 ),
+        centralBodyVelocity_( Eigen::Vector3d::Zero( ) ), smallestPeriapsisDistanceFactor_( -0.0 ),
         pointerToIncomingVelocity_( NULL ), pointerToOutgoingVelocity_( NULL ),
-        incomingHyperbolicExcessVelocity_ ( Vector3d::Zero( ) ),
-        outgoingHyperbolicExcessVelocity_ ( Vector3d::Zero( ) ), deltaV_( -0.0 ),
+        incomingHyperbolicExcessVelocity_ ( Eigen::Vector3d::Zero( ) ),
+        outgoingHyperbolicExcessVelocity_ ( Eigen::Vector3d::Zero( ) ), deltaV_( -0.0 ),
         bendingAngle_( -0.0 ), incomingEccentricity_( -0.0 ), outgoingEccentricity_( -0.0 ),
         incomingSemiMajorAxis_( -0.0 ), outgoingSemiMajorAxis_( -0.0 ),
         bendingEffectDeltaV_( -0.0 ), velocityEffectDeltaV_( -0.0 ),
@@ -120,7 +121,7 @@ public:
      * which will come from the Ephemeris class.
      * \param centralBodyVelocity Velocity of swing-by central body.
      */
-    void setCentralBodyVelocity( Vector3d centralBodyVelocity )
+    void setCentralBodyVelocity( Eigen::Vector3d centralBodyVelocity )
     { centralBodyVelocity_ = centralBodyVelocity; }
 
     // TEMPORARY!! Needs to be part of CelestialBody object.
@@ -196,7 +197,7 @@ private:
     /*!
      * Velocity vector of the central body involved in the swing-by.
      */
-    Vector3d centralBodyVelocity_;
+    Eigen::Vector3d centralBodyVelocity_;
 
     //! Smallest periapsisDistanceFactor.
     /*!
@@ -222,13 +223,13 @@ private:
     /*!
      * Hyperbolic excess velocity of the incoming leg.
      */
-    Vector3d incomingHyperbolicExcessVelocity_;
+    Eigen::Vector3d incomingHyperbolicExcessVelocity_;
 
     //! Hyperbolic excess velocity of the outgoing leg.
     /*!
      * Hyperbolic excess velocity of the outgoing leg.
      */
-    Vector3d outgoingHyperbolicExcessVelocity_;
+    Eigen::Vector3d outgoingHyperbolicExcessVelocity_;
 
     //! Delta-V of powered gravity assist.
     /*!

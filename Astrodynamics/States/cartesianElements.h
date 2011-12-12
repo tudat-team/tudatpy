@@ -72,7 +72,7 @@ public:
     /*!
      * Default constructor.
      */
-    CartesianElements( ) : position_( Vector3d::Zero( ) ) { state.setZero( 6 ); }
+    CartesianElements( ) : position_( Eigen::Vector3d::Zero( ) ) { state.setZero( 6 ); }
 
     //! Set Cartesian element: xDot.
     /*!
@@ -103,14 +103,14 @@ public:
      * Sets the position.
      * \return position Position.
      */
-    void setPosition( Vector3d& position ) { state.segment( 0, 3 ) = position; }
+    void setPosition( Eigen::Vector3d& position ) { state.segment( 0, 3 ) = position; }
 
     //! Set velocity.
     /*!
      * Sets the velocity.
      * \return velocity Velocity.
      */
-    void setVelocity( Vector3d& velocity ) { state.segment( 3, 3 ) = velocity; }
+    void setVelocity( Eigen::Vector3d& velocity ) { state.segment( 3, 3 ) = velocity; }
 
     //! Get Cartesian element: xDot.
     /*!
@@ -138,14 +138,14 @@ public:
      * Returns the position.
      * \return Position.
      */
-    Vector3d& getPosition( ) { position_ = state.segment( 0, 3 ); return position_; }
+    Eigen::Vector3d& getPosition( ) { position_ = state.segment( 0, 3 ); return position_; }
 
     //! Get velocity.
     /*!
      * Returns the velocity.
      * \return Velocity.
      */
-    Vector3d& getVelocity( ) { velocity_ = state.segment( 3, 3 ); return velocity_; }
+    Eigen::Vector3d& getVelocity( ) { velocity_ = state.segment( 3, 3 ); return velocity_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -165,13 +165,13 @@ private:
     /*!
      * Position.
      */
-    Vector3d position_;
+    Eigen::Vector3d position_;
 
     //! Velocity.
     /*!
      * Velocity.
      */
-    Vector3d velocity_;
+    Eigen::Vector3d velocity_;
 };
 
 }

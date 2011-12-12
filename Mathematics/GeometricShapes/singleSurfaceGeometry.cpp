@@ -106,7 +106,7 @@ void SingleSurfaceGeometry::setMinimumIndependentVariable( int parameterIndex,
 
 //! Set maximum value of independent variable.
 void SingleSurfaceGeometry::setMaximumIndependentVariable(
-    int parameterIndex, double maximumValue )
+        int parameterIndex, double maximumValue )
 {
 
     independentVariable_ = IndependentVariables( parameterIndex );
@@ -137,8 +137,7 @@ void SingleSurfaceGeometry::setMaximumIndependentVariable(
 }
 
 //! Get minimum value of independent variable.
-double SingleSurfaceGeometry::getMinimumIndependentVariable(
-    int parameterIndex )
+double SingleSurfaceGeometry::getMinimumIndependentVariable( int parameterIndex )
 {
     // Declare local variables.
     double minimumValue_;
@@ -173,8 +172,7 @@ double SingleSurfaceGeometry::getMinimumIndependentVariable(
 }
 
 //! Get maximum value of independent variable.
-double SingleSurfaceGeometry::getMaximumIndependentVariable(
-    int parameterIndex )
+double SingleSurfaceGeometry::getMaximumIndependentVariable( int parameterIndex )
 {
     // Declare local variables.
     double maximumValue_;
@@ -198,9 +196,8 @@ double SingleSurfaceGeometry::getMaximumIndependentVariable(
 
         maximumValue_ = -0.0;
 
-        cerr << " Only 2 independent variables, variable "
-             <<  parameterIndex << " does not exist when"
-             << "getting maximum value, returning -0.0" << endl;
+        cerr << "Only 2 independent variables, variable " << parameterIndex << " does not exist "
+             << "when getting maximum value, returning -0.0" << endl;
     }
 
     // Return maximum value.
@@ -208,7 +205,7 @@ double SingleSurfaceGeometry::getMaximumIndependentVariable(
 }
 
 //! Apply transformation to vehicle part.
-void SingleSurfaceGeometry::transformPoint( VectorXd& point )
+void SingleSurfaceGeometry::transformPoint( Eigen::VectorXd& point )
 {
     // Apply scaling, rotation and translation operations.
     point = scalingMatrix_ * point;

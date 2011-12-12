@@ -81,7 +81,6 @@ namespace basic_functions
 string getRootPath( )
 {
 #ifdef TUDAT_CUSTOM_ROOT_PATH
-
     return string( TUDAT_CUSTOM_ROOT_PATH );
 #else
     // Declare file path string assigned to filePath.
@@ -95,7 +94,7 @@ string getRootPath( )
 
 //! Nearest left neighbor binary search.
 int computeNearestLeftNeighborUsingBinarySearch(
-        VectorXd& vectorOfSortedData,
+        Eigen::VectorXd& vectorOfSortedData,
         double& targetValueInVectorOfSortedData )
 {
     // Declare local variables.
@@ -146,7 +145,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
 
 //! Nearest left neighbor binary search.
 int computeNearestLeftNeighborUsingBinarySearch(
-        std::map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+        std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetValueInMapOfData )
 {
     // Declare local variables.
@@ -157,7 +156,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
     int currentPositionInKeyOfMapOfData;
 
     // Declare map iterator
-    std::map < double, VectorXd >::iterator mapIterator;
+    std::map < double, Eigen::VectorXd >::iterator mapIterator;
 
     // Loop through vector of sorted data until left and right limits
     // are neighbours

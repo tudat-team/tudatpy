@@ -47,8 +47,8 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
 #include "Basics/basicFunctions.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 namespace tudat
@@ -76,8 +76,8 @@ public:
      * \param independentVariables Vector with the independent variables.
      * \param dependentVariables Vector with the dependent variables.
      */
-    void initializeCubicSplineInterpolation( VectorXd& independentVariables,
-                                             VectorXd& dependentVariables );
+    void initializeCubicSplineInterpolation( Eigen::VectorXd& independentVariables,
+                                             Eigen::VectorXd& dependentVariables );
 
     //! Interpolate.
     /*!
@@ -145,61 +145,61 @@ private:
     /*!
      * Vector with dependent variables.
      */
-    VectorXd dependentVariables_;
+    Eigen::VectorXd dependentVariables_;
 
     //! Vector with independent variables.
     /*!
      * Vector with independent variables.
      */
-    VectorXd independentVariables_;
+    Eigen::VectorXd independentVariables_;
 
     //! Vector filled with intermediate version of the second derivative of curvature.
     /*!
      *  Vector filled with intermediate version of the second derivative of curvature.
      */
-    VectorXd intermediateSecondDerivativeOfCurvature_;
+    Eigen::VectorXd intermediateSecondDerivativeOfCurvature_;
 
     //! Vector filled with second derivative of curvature of each point.
     /*!
      *  Vector filled with second derivative of curvature of each point.
      */
-    VectorXd secondDerivativeOfCurvature_;
+    Eigen::VectorXd secondDerivativeOfCurvature_;
 
     //! Vector filled with the h coefficient ( math variable ).
     /*!
      *  Vector filled with the h coefficient ( math variable ).
      */
-    VectorXd hCoefficients_;
+    Eigen::VectorXd hCoefficients_;
 
     //! Vector filled with the a coefficient ( math variable ).
     /*!
      *  Vector filled with the a coefficient ( math variable ).
      */
-    VectorXd aCoefficients_;
+    Eigen::VectorXd aCoefficients_;
 
     //! Vector filled with the b coefficient ( math variable ).
     /*!
      *  Vector filled with the b coefficient ( math variable ).
      */
-    VectorXd bCoefficients_;
+    Eigen::VectorXd bCoefficients_;
 
     //! Vector filled with the c coefficient ( math variable ).
     /*!
      *  Vector filled with the c coefficient ( math variable ).
      */
-    VectorXd cCoefficients_;
+    Eigen::VectorXd cCoefficients_;
 
     //! Vector filled with the r coefficient ( math variable ).
     /*!
      *  Vector filled with the r coefficient ( math variable ).
      */
-    VectorXd rCoefficients_;
+    Eigen::VectorXd rCoefficients_;
 
     //! Vector filled with the g coefficient ( math variable ).
     /*!
      *  Vector filled with the g coefficient ( math variable ).
      */
-    VectorXd gCoefficients_;
+    Eigen::VectorXd gCoefficients_;
 
     //! Initialize tridiagonal matrix.
     /*!

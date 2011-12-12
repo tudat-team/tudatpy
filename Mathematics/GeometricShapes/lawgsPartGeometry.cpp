@@ -62,7 +62,7 @@ void LawgsPartGeometry::setMesh( SingleSurfaceGeometry* originalSurface,
     numberOfPoints_ = numberOfPointsIn;
 
     // Allocate mesh points.
-    meshPoints_ = new Vector3d*[ numberOfLines_ ];
+    meshPoints_ = new Eigen::Vector3d*[ numberOfLines_ ];
 
     // Set grid sizes from requested number of sample points.
     double independentVariableGridSize1 =
@@ -86,7 +86,7 @@ void LawgsPartGeometry::setMesh( SingleSurfaceGeometry* originalSurface,
     // geometry at fixed intervals.
     for ( int i = 0; i < numberOfLines_; i++ )
     {
-        meshPoints_[ i ] = new Vector3d[ numberOfPoints_ ];
+        meshPoints_[ i ] = new Eigen::Vector3d[ numberOfPoints_ ];
 
         for ( int j = 0; j < numberOfPoints_; j++ )
         {
@@ -117,11 +117,11 @@ LawgsPartGeometry::LawgsPartGeometry( const LawgsPartGeometry& partToCopy )
     offset_= partToCopy.offset_;
 
     // Deep copy surface points array.
-    meshPoints_ = new Vector3d* [ numberOfLines_ ];
+    meshPoints_ = new Eigen::Vector3d* [ numberOfLines_ ];
 
     for ( int i = 0; i < numberOfLines_; i++ )
     {
-        meshPoints_[ i ] = new Vector3d[ numberOfPoints_ ];
+        meshPoints_[ i ] = new Eigen::Vector3d[ numberOfPoints_ ];
     }
 
     for ( int i = 0; i < numberOfLines_; i++ )
@@ -134,14 +134,14 @@ LawgsPartGeometry::LawgsPartGeometry( const LawgsPartGeometry& partToCopy )
 }
 
 //! Get surface point.
-VectorXd LawgsPartGeometry::getSurfacePoint( double independentVariable1,
-                                             double independentVariable2 )
+Eigen::VectorXd LawgsPartGeometry::getSurfacePoint( double independentVariable1,
+                                                    double independentVariable2 )
 {
     // Declare local variables denoting 'start' of panel.
     int pointIndex, lineIndex;
 
     // Declare local variable denoting surface point.
-    VectorXd point = VectorXd( 3 );
+    Eigen::VectorXd point = Eigen::VectorXd( 3 );
 
     // Set local variables.
     pointIndex = static_cast< int > ( floor( independentVariable2 ) );
@@ -168,15 +168,15 @@ VectorXd LawgsPartGeometry::getSurfacePoint( double independentVariable1,
 }
 
 //! Get surface derivative (currently not implemented).
-VectorXd LawgsPartGeometry::getSurfaceDerivative( double u, double v,
-                                                  int uDerivative, int vDerivative )
+Eigen::VectorXd LawgsPartGeometry::getSurfaceDerivative( double u, double v,
+                                                         int uDerivative, int vDerivative )
 {
     std::cerr << "Surface derivative function not implemented in "
               << "LawgsPartGeometry class. Not able to return the "
               << uDerivative << ", " << vDerivative << "th derivative at point,"
               << u << ", " << v << ". Returning zero vector." << std::endl;
 
-    return Vector3d( 0.0, 0.0, 0.0 );
+    return Eigen::Vector3d( 0.0, 0.0, 0.0 );
 }
 
 //! Get parameter.

@@ -23,7 +23,7 @@
  *    References
  *
  *    Notes
- *      The getSurfacePoint currently uses a VectorXd as a return type,
+ *      The getSurfacePoint currently uses a Eigen::VectorXd as a return type,
  *      this could be changed to a CartesianPositionElements type in the
  *      future for consistency with the rest of the code.
  *
@@ -74,7 +74,7 @@ using std::sin;
 using tudat::unit_conversions::convertRadiansToDegrees;
 
 //! Get surface point on sphere segment.
-VectorXd SphereSegment::getSurfacePoint( double azimuthAngle, double zenithAngle )
+Eigen::VectorXd SphereSegment::getSurfacePoint( double azimuthAngle, double zenithAngle )
 {
     // Gets surface point on sphere, unrotated and centered at origin.
     mathematics::convertSphericalToCartesian( radius_, azimuthAngle, zenithAngle,
@@ -88,12 +88,12 @@ VectorXd SphereSegment::getSurfacePoint( double azimuthAngle, double zenithAngle
 }
 
 //! Get surface derivative on sphere segment.
-VectorXd SphereSegment::getSurfaceDerivative(
-    double azimuthAngle, double zenithAngle,
-    int powerOfAzimuthAngleDerivative, int powerOfZenithAngleDerivative )
+Eigen::VectorXd SphereSegment::getSurfaceDerivative(
+        double azimuthAngle, double zenithAngle,
+        int powerOfAzimuthAngleDerivative, int powerOfZenithAngleDerivative )
 {
     // Declare and set size of derivative vector.
-    VectorXd derivative_ = VectorXd( 3 );
+    Eigen::VectorXd derivative_ = Eigen::VectorXd( 3 );
 
     // Go through the different possibilities for the values of the power
     // of the derivative.
@@ -119,8 +119,8 @@ VectorXd SphereSegment::getSurfaceDerivative(
     else
     {
         // Declare and set sizes contribution vectors.
-        VectorXd derivative1Contribution_ = VectorXd( 3 );
-        VectorXd derivative2Contribution_ = VectorXd( 3 );
+        Eigen::VectorXd derivative1Contribution_ = Eigen::VectorXd( 3 );
+        Eigen::VectorXd derivative2Contribution_ = Eigen::VectorXd( 3 );
 
         // Since this derivative is "cyclical", as it is
         // only dependent on sines and cosines, only the "modulo 4"th

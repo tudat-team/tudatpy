@@ -82,11 +82,11 @@ CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphem
                 approximatePlanetPositionsDataContainer_.semiMajorAxis_ );
 
     // Convert to Cartesian position.
-    VectorXd planetCartesianPositionAtGivenJulianDateX_( 3 );
+    Eigen::VectorXd planetCartesianPositionAtGivenJulianDateX_( 3 );
     mathematics::convertSphericalToCartesian( constantOrbitalRadius_,
                                               meanLongitudeAtGivenJulianDate_, 0.5 * M_PI,
                                               planetCartesianPositionAtGivenJulianDateX_ );
-    Vector3d planetCartesianPositionAtGivenJulianDate_ =
+    Eigen::Vector3d planetCartesianPositionAtGivenJulianDate_ =
             planetCartesianPositionAtGivenJulianDateX_;
 
     // Create predefined Sun.
@@ -94,11 +94,11 @@ CartesianElements* ApproximatePlanetPositionsCircularCoplanar::getStateFromEphem
     predefinedSun_.setPredefinedPlanetSettings( Planet::sun );
 
     // Compute orbital velocity.
-    double circularOrbitalVelocity = sqrt( predefinedSun_.getGravitationalParameter( ) /
-                                           constantOrbitalRadius_ );
+    double circularOrbitalVelocity = std::sqrt( predefinedSun_.getGravitationalParameter( ) /
+                                                constantOrbitalRadius_ );
 
     // Convert to Cartesian velocity.
-    Vector3d planetCartesianVelocityAtGivenJulianDate_;
+    Eigen::Vector3d planetCartesianVelocityAtGivenJulianDate_;
     planetCartesianVelocityAtGivenJulianDate_( 0 ) = -sin( meanLongitudeAtGivenJulianDate_ ) *
             circularOrbitalVelocity;
     planetCartesianVelocityAtGivenJulianDate_( 1 ) = cos( meanLongitudeAtGivenJulianDate_ ) *

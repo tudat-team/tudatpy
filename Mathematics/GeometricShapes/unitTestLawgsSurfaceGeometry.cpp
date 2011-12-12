@@ -44,6 +44,7 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
 #include <iostream>
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/GeometricShapes/lawgsPartGeometry.h"
@@ -109,8 +110,8 @@ int main( )
     }
 
     // Retrieve normal and centroid for panel 0, 0.
-    Vector3d testNormal_ = lawgsSurface.getPanelSurfaceNormal( 0, 0 );
-    Vector3d testCentroid_ = lawgsSurface.getPanelCentroid( 0, 0 );
+    Eigen::Vector3d testNormal_ = lawgsSurface.getPanelSurfaceNormal( 0, 0 );
+    Eigen::Vector3d testCentroid_ = lawgsSurface.getPanelCentroid( 0, 0 );
 
     // Test whether centroid and normal are collinear for panel 0, 0.
     if ( std::fabs( testCentroid_.normalized( ).dot( testNormal_.normalized( ) ) - 1.0 ) > 1.0e-5 )

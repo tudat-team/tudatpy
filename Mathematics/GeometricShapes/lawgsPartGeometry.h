@@ -49,6 +49,7 @@
 #define LAWGSPARTGEOMETRY_H
 
 // Include statements.
+#include <Eigen/Core>
 #include <iostream>
 #include "Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
@@ -112,14 +113,15 @@ public:
      * between) which points to retrieve a point.
      * \return point on mesh panel.
      */
-    virtual VectorXd getSurfacePoint( double independentVariable1,
-                                      double independentVariable2 );
+     virtual Eigen::VectorXd getSurfacePoint( double independentVariable1,
+                                              double independentVariable2 );
 
     //! Get surface derivative (currently not implemented).
     /*!
      * Currently unavailable function to return surface derivative.
      */
-    virtual VectorXd getSurfaceDerivative( double u, double v, int uDerivative, int vDerivative );
+    virtual Eigen::VectorXd getSurfaceDerivative( double u, double v,
+                                                  int uDerivative, int vDerivative );
 
     //! Set name of a Lawgs part.
     /*!

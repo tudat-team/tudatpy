@@ -66,6 +66,8 @@
 
 // Include statements.
 #include <cmath>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include "Astrodynamics/Bodies/planet.h"
 #include "Astrodynamics/EnvironmentModels/gravityFieldModel.h"
 #include "Astrodynamics/MissionSegments/lambertTargeter.h"
@@ -176,14 +178,14 @@ int main( )
     lambertTargeterEllipse.execute( );
 
     // Create local vectors for position and velocity.
-    Vector3d positionDepartureHyperbola = positionAtDepartureHyperbola.state;
+    Eigen::Vector3d positionDepartureHyperbola = positionAtDepartureHyperbola.state;
 
-    Vector3d velocityDepartureHyperbola =
+    Eigen::Vector3d velocityDepartureHyperbola =
             lambertTargeterHyperbola.getInertialVelocityAtDeparture( )->state;
 
-    Vector3d positionDepartureEllipse = positionAtDepartureEllipse.state;
+    Eigen::Vector3d positionDepartureEllipse = positionAtDepartureEllipse.state;
 
-    Vector3d velocityDepartureEllipse =
+    Eigen::Vector3d velocityDepartureEllipse =
             lambertTargeterEllipse.getInertialVelocityAtDeparture( )->state;
 
     // Set test result to true if the test does not match the expected result.

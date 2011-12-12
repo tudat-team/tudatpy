@@ -72,6 +72,7 @@
 #include "Astrodynamics/MissionSegments/gravityAssist.h"
 #include "Mathematics/basicMathematicsFunctions.h"
 #include "Mathematics/unitConversions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 // Using directives.
 using std::pow;
@@ -116,12 +117,12 @@ double GravityAssist::computeDeltaV( )
             ( pointerToCentralBody_->getShapeModel( ) );
 
     // Define local velocity vectors.
-    Vector3d incomingVelocity_;
+    Eigen::Vector3d incomingVelocity_;
     incomingVelocity_.x( ) = pointerToIncomingVelocity_->getCartesianElementXDot( );
     incomingVelocity_.y( ) = pointerToIncomingVelocity_->getCartesianElementYDot( );
     incomingVelocity_.z( ) = pointerToIncomingVelocity_->getCartesianElementZDot( );
 
-    Vector3d outgoingVelocity_;
+    Eigen::Vector3d outgoingVelocity_;
     outgoingVelocity_.x( ) = pointerToOutgoingVelocity_->getCartesianElementXDot( );
     outgoingVelocity_.y( ) = pointerToOutgoingVelocity_->getCartesianElementYDot( );
     outgoingVelocity_.z( ) = pointerToOutgoingVelocity_->getCartesianElementZDot( );

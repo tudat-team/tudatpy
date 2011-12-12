@@ -42,6 +42,8 @@
 #define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
 
 // Include statements.
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include "Astrodynamics/MomentModels/aerodynamicMoment.h"
 
 //! Tudat library namespace.
@@ -62,7 +64,7 @@ void AerodynamicMoment::computeMoment( State* pointerToState )
     if ( pointerToForceModel_ != NULL )
     {
         // Update moment with additional moment due to force.
-        Vector3d force_ = pointerToForceModel_->getForce( );
+        Eigen::Vector3d force_ = pointerToForceModel_->getForce( );
         moment_ += forceApplicationArm_.cross( force_ );
     }
 }

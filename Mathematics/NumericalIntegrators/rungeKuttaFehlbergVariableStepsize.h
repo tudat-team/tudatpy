@@ -60,8 +60,8 @@
 #define RUNGEKUTTAFEHLBERGVARIABLESTEPSIZE_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Astrodynamics/States/state.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 #include "Mathematics/NumericalIntegrators/integrator.h"
 
 //! Tudat library namespace.
@@ -197,26 +197,26 @@ private:
     /*!
     * MatrixXd containing the a-coefficients for the Runge-Kutta integration method.
     */
-    MatrixXd aCoefficients_;
+    Eigen::MatrixXd aCoefficients_;
 
     //! b-Coefficients.
     /*!
     * MatrixXd containing the b-coefficients for the Runge-Kutta integration method.
     */
-    MatrixXd bCoefficients_;
+    Eigen::MatrixXd bCoefficients_;
 
     //! c-Coefficients.
     /*!
     * VectorXd containing the c-coefficients for the Runge-Kutta-Fehlberg
     * 7(8)th-order integration method.
     */
-    VectorXd cCoefficients_;
+    Eigen::VectorXd cCoefficients_;
 
     //! f-Matrix.
     /*!
     * f-Matrix for the General Runge-Kutta integration method.
     */
-    MatrixXd fMatrix;
+    Eigen::MatrixXd fMatrix;
 
     //! Current state.
     /*!

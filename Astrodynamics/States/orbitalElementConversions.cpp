@@ -73,10 +73,13 @@
  */
 
 // Include statements.
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <boost/math/special_functions/atanh.hpp>
 #include <cmath>
 #include <limits>
 #include "Astrodynamics/States/orbitalElementConversions.h"
+#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 namespace tudat
@@ -137,7 +140,7 @@ CartesianElements convertKeplerianToCartesianElements(
     }
 
     // Definition of position in the perifocal coordinate system.
-    Vector2d positionPerifocal_;
+    Eigen::Vector2d positionPerifocal_;
     positionPerifocal_.x( ) =  pointerToKeplerianElements->getSemiLatusRectum( )
             * cosineOfTrueAnomaly_ / ( 1.0 + pointerToKeplerianElements->getEccentricity( )
                                        * cosineOfTrueAnomaly_ );
@@ -146,7 +149,7 @@ CartesianElements convertKeplerianToCartesianElements(
                                      * cosineOfTrueAnomaly_ );
 
     // Definition of velocity in the perifocal coordinate system.
-    Vector2d velocityPerifocal_;
+    Eigen::Vector2d velocityPerifocal_;
     velocityPerifocal_.x( ) = - sqrt( pointerToCelestialBody->getGravitationalParameter( ) /
                                       pointerToKeplerianElements->getSemiLatusRectum( ) ) *
             sineOfTrueAnomaly_;
@@ -155,7 +158,7 @@ CartesianElements convertKeplerianToCartesianElements(
             ( pointerToKeplerianElements->getEccentricity( ) + cosineOfTrueAnomaly_ );
 
     // Definition of the transformation matrix.
-    MatrixXd transformationMatrix_;
+    Eigen::MatrixXd transformationMatrix_;
     transformationMatrix_.setZero( 3, 2 );
 
     // Compute the transformation matrix.
@@ -175,12 +178,12 @@ CartesianElements convertKeplerianToCartesianElements(
     transformationMatrix_( 2, 1 ) = cosineOfArgumentOfPeriapsis_ * sineOfInclination_;
 
     // Compute value of position in Cartesian coordinates.
-    Vector3d position_;
+    Eigen::Vector3d position_;
     position_ = ( transformationMatrix_ * positionPerifocal_ );
     cartesianElements_.setPosition( position_ );
 
     // Compute value of velocity in Cartesian coordinates.
-    Vector3d velocity_;
+    Eigen::Vector3d velocity_;
     velocity_ = ( transformationMatrix_ * velocityPerifocal_ );
     cartesianElements_.setVelocity( velocity_ );
 
@@ -209,17 +212,18 @@ KeplerianElements convertCartesianToKeplerianElements(
     normOfVelocity_ = pointerToCartesianElements->getVelocity( ).norm( );
 
     // Definition of orbit angular momentum.
-    Vector3d orbitAngularMomentum_;
+    Eigen::Vector3d orbitAngularMomentum_;
     orbitAngularMomentum_ = pointerToCartesianElements->getPosition( ).
             cross( pointerToCartesianElements->getVelocity( ) );
     double normOfOrbitAngularMomentum_ = orbitAngularMomentum_.norm( );
 
     // Definition of the (unit) vector to the ascending node.
-    Vector3d unitVectorToAscendingNode_;
-    unitVectorToAscendingNode_ = Vector3d::UnitZ( ).cross( orbitAngularMomentum_.normalized( ) );
+    Eigen::Vector3d unitVectorToAscendingNode_;
+    unitVectorToAscendingNode_ = Eigen::Vector3d::UnitZ( ).cross(
+                orbitAngularMomentum_.normalized( ) );
 
     // Definition of eccentricity vector.
-    Vector3d eccentricityVector_;
+    Eigen::Vector3d eccentricityVector_;
     eccentricityVector_ =
             ( ( pointerToCartesianElements->getVelocity( ).cross( orbitAngularMomentum_ ) )
               / pointerToCelestialBody->getGravitationalParameter( ) ) -
@@ -367,8 +371,7 @@ KeplerianElements convertCartesianToKeplerianElements(
 }
 
 //! Convert true anomaly to eccentric anomaly.
-double convertTrueAnomalyToEccentricAnomaly( double trueAnomaly,
-                                             double eccentricity )
+double convertTrueAnomalyToEccentricAnomaly( double trueAnomaly, double eccentricity )
 {
     // Declare and compute sine and cosine of eccentric anomaly.
     double sineOfEccentricAnomaly_ = sqrt( 1.0 - pow( eccentricity, 2.0 ) ) * sin( trueAnomaly )
@@ -382,8 +385,7 @@ double convertTrueAnomalyToEccentricAnomaly( double trueAnomaly,
 }
 
 //! Convert eccentric anomaly to true anomaly.
-double convertEccentricAnomalyToTrueAnomaly( double eccentricAnomaly,
-                                             double eccentricity )
+double convertEccentricAnomalyToTrueAnomaly( double eccentricAnomaly, double eccentricity )
 {
     // Compute sine and cosine of true anomaly.
     double sineOfTrueAnomaly_ = sqrt( 1.0 - pow( eccentricity, 2.0 ) ) * sin( eccentricAnomaly )
@@ -397,8 +399,7 @@ double convertEccentricAnomalyToTrueAnomaly( double eccentricAnomaly,
 }
 
 //! Convert true anomaly to hyperbolic eccentric anomaly.
-double convertTrueAnomalyToHyperbolicEccentricAnomaly( double trueAnomaly,
-                                                       double eccentricity )
+double convertTrueAnomalyToHyperbolicEccentricAnomaly( double trueAnomaly, double eccentricity )
 {
     // Compute hyperbolic sine and hyperbolic cosine of hyperbolic eccentric
     // anomaly.
@@ -431,8 +432,7 @@ double convertHyperbolicEccentricAnomalyToTrueAnomaly( double hyperbolicEccentri
 }
 
 //! Convert eccentric anomaly to mean anomaly.
-double convertEccentricAnomalyToMeanAnomaly( double eccentricAnomaly,
-                                             double eccentricity )
+double convertEccentricAnomalyToMeanAnomaly( double eccentricAnomaly, double eccentricity )
 {
     return eccentricAnomaly - eccentricity * sin( eccentricAnomaly );
 }
@@ -481,13 +481,11 @@ double convertMeanAnomalyToElapsedTimeForHyperbolicOrbits(
 }
 
 //! Convert mean motion to semi-major axis.
-double convertMeanMotionToSemiMajorAxis( double meanMotion,
-                                         CelestialBody* pointerToCentralBody )
+double convertMeanMotionToSemiMajorAxis( double meanMotion, CelestialBody* pointerToCentralBody )
 {
     // Return semi-major axis.
     return pow( pointerToCentralBody->getGravitationalParameter( )
                 / pow( meanMotion, 2.0 ), 1.0 / 3.0 );
-
 }
 
 }

@@ -49,7 +49,6 @@
 // Include statements.
 #include "Astrodynamics/MissionSegments/escapeAndCapture.h"
 #include "Mathematics/basicMathematicsFunctions.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 namespace tudat

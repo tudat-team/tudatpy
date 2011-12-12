@@ -59,12 +59,12 @@ namespace tudat
 {
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
-Matrix3d reference_frame_transformations::
+Eigen::Matrix3d reference_frame_transformations::
 getRotatingPlanetocentricToInertialFrameTransformationMatrix( double angleFromXItoXR )
 {
     // Declare local variables.
     // Declare local matrix.
-    Matrix3d localMatrix_;
+    Eigen::Matrix3d localMatrix_;
 
     // Set local matrix.
     localMatrix_ = reference_frame_transformations::
@@ -80,7 +80,8 @@ getRotatingPlanetocentricToInertialFrameTransformationQuaternion( double angleFr
 {
     // Compute transformation quaternion
     // Note the sign change, because how angleAxisd is defined.
-    AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * -angleFromXItoXR, Vector3d::UnitZ( ) );
+    AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * -angleFromXItoXR,
+                                                 Eigen::Vector3d::UnitZ( ) );
     Quaterniond frameTransformationQuaternion = Quaterniond( eigenRotationObject );
 
     // Return transformation quaternion.
@@ -88,25 +89,26 @@ getRotatingPlanetocentricToInertialFrameTransformationQuaternion( double angleFr
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
-Matrix3d reference_frame_transformations::getInertialToPlanetocentricFrameTransformationMatrix(
-    double angleFromXItoXR )
+Eigen::Matrix3d reference_frame_transformations::
+getInertialToPlanetocentricFrameTransformationMatrix( double angleFromXItoXR )
 {
     // Compute rotation about Z-Axis.
     // Note the sign change, because how angleAxisd is defined.
-    AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * angleFromXItoXR, Vector3d::UnitZ( ) );
+    AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * angleFromXItoXR,
+                                                 Eigen::Vector3d::UnitZ( ) );
 
     // Return transformation matrix.
     return eigenRotationObject.toRotationMatrix( );
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
-Quaterniond
-reference_frame_transformations::getInertialToPlanetocentricFrameTransformationQuaternion(
-    double angleFromXItoXR )
+Quaterniond reference_frame_transformations::
+getInertialToPlanetocentricFrameTransformationQuaternion( double angleFromXItoXR )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
-    AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * angleFromXItoXR, Vector3d::UnitZ( ) );
+    AngleAxisd eigenRotationObject = AngleAxisd( -1.0 * angleFromXItoXR,
+                                                 Eigen::Vector3d::UnitZ( ) );
     Quaterniond  frameTransformationQuaternion = Quaterniond( eigenRotationObject );
 
     // Return transformation quaternion.
@@ -115,8 +117,7 @@ reference_frame_transformations::getInertialToPlanetocentricFrameTransformationQ
 
 //! Create a Quaterniond rotation state object from four quaternion values in a Vector4d
 Quaterniond reference_frame_transformations::
-getQuaternionObjectFromQuaternionValues(
-    const Vector4d& vectorWithQuaternion )
+getQuaternionObjectFromQuaternionValues( const Eigen::Vector4d& vectorWithQuaternion )
 {
     // Set transformation quaternion.
     Quaterniond frameTransformationQuaternion = Quaterniond(
@@ -128,19 +129,19 @@ getQuaternionObjectFromQuaternionValues(
 }
 
 //! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
-Matrix3d reference_frame_transformations::
+Eigen::Matrix3d reference_frame_transformations::
 getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( double angleOfAttack,
                                                             double angleOfSideslip )
 {
     // Declare local variables.
     // Declare local transformation matrix.
-    Matrix3d transformationMatrix_;
+    Eigen::Matrix3d transformationMatrix_;
 
     // Compute rotation by side-slip angle about Z-Axis, followed by rotation negative angle of
     // attack angle about Y-Axis.
     // Note the sign change, because how angleAxisd is defined.
-    transformationMatrix_ = AngleAxisd( -1.0 * angleOfAttack, Vector3d::UnitY( ) )
-            * AngleAxisd( -1.0 * -angleOfSideslip, Vector3d::UnitZ( ) );
+    transformationMatrix_ = AngleAxisd( -1.0 * angleOfAttack, Eigen::Vector3d::UnitY( ) )
+            * AngleAxisd( -1.0 * -angleOfSideslip, Eigen::Vector3d::UnitZ( ) );
 
     // Return transformation matrix.
     return transformationMatrix_;
@@ -149,13 +150,13 @@ getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( double angleOfAttack
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
 Quaterniond reference_frame_transformations::
 getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-    double longitude, double latitude )
+        double longitude, double latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
-    AngleAxisd RotationAroundZaxis = AngleAxisd( -1.0 * longitude, Vector3d::UnitZ( ) );
+    AngleAxisd RotationAroundZaxis = AngleAxisd( -1.0 * longitude, Eigen::Vector3d::UnitZ( ) );
     AngleAxisd RotationAroundYaxis = AngleAxisd(
-                -1.0 * ( -latitude - M_PI / 2.0 ), Vector3d::UnitY( ) );
+                -1.0 * ( -latitude - M_PI / 2.0 ), Eigen::Vector3d::UnitY( ) );
     Quaterniond frameTransformationQuaternion = Quaterniond(
                 ( RotationAroundYaxis * RotationAroundZaxis ) );
 
@@ -170,9 +171,9 @@ getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
 {
     // Compute transformation quaternion.
     // Note the sign change (-1.0), because how angleAxisd is defined.
-    AngleAxisd RotationAroundZaxis = AngleAxisd( -1.0 * -longitude, Vector3d::UnitZ( ) );
+    AngleAxisd RotationAroundZaxis = AngleAxisd( -1.0 * -longitude, Eigen::Vector3d::UnitZ( ) );
     AngleAxisd RotationAroundYaxis =
-            AngleAxisd( -1.0 * ( latitude + M_PI / 2.0 ), Vector3d::UnitY( ) );
+            AngleAxisd( -1.0 * ( latitude + M_PI / 2.0 ), Eigen::Vector3d::UnitY( ) );
     Quaterniond  frameTransformationQuaternion = Quaterniond(
                 ( RotationAroundZaxis * RotationAroundYaxis ) );
 

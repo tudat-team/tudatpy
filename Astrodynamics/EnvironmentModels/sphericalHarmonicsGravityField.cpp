@@ -123,12 +123,12 @@ void SphericalHarmonicsGravityField::setPredefinedSphericalHarmonicsGravityField
 }
 
 //! Get gradient tensor of the gravitational potential.
-Matrix3d SphericalHarmonicsGravityField::
+Eigen::Matrix3d SphericalHarmonicsGravityField::
         getGradientTensorOfPotential( CartesianPositionElements* pointerToPosition )
 {
     // Declare local variables.
     // Declare identity matrix for computations.
-    Matrix3d identityMatrix_;
+    Eigen::Matrix3d identityMatrix_;
 
     // Compute relative position.
     relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;

@@ -48,6 +48,7 @@
 #define GRAVITYFIELDMODEL_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Astrodynamics/EnvironmentModels/environmentModel.h"
 #include "Astrodynamics/States/cartesianPositionElements.h"
 
@@ -126,7 +127,8 @@ public:
      *          CartesianPositionElements object.
      * \return Gradient of potential.
      */
-    virtual Vector3d getGradientOfPotential( CartesianPositionElements* pointerToPosition ) = 0;
+    virtual Eigen::Vector3d getGradientOfPotential(
+            CartesianPositionElements* pointerToPosition ) = 0;
 
     //! Get gradient tensor of the potential.
     /*!
@@ -136,8 +138,8 @@ public:
      *          CartesianPositionElements object.
      * \return Gradient tensor of potential.
      */
-    virtual Matrix3d getGradientTensorOfPotential( CartesianPositionElements*
-                                                   pointerToPosition ) = 0;
+    virtual Eigen::Matrix3d getGradientTensorOfPotential( CartesianPositionElements*
+                                                          pointerToPosition ) = 0;
 
 protected:
 

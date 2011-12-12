@@ -101,9 +101,9 @@ RungeKuttaFehlBergVariableStepsizeIntegrator::RungeKuttaFehlBergVariableStepsize
     }
 
     // Initialize coefficient vectors/matrices.
-    aCoefficients_ = MatrixXd::Zero( numberOfStages_, numberOfStages_ );
-    bCoefficients_ = MatrixXd::Zero( 2, numberOfStages_ );
-    cCoefficients_ = VectorXd::Zero( numberOfStages_ );
+    aCoefficients_ = Eigen::MatrixXd::Zero( numberOfStages_, numberOfStages_ );
+    bCoefficients_ = Eigen::MatrixXd::Zero( 2, numberOfStages_ );
+    cCoefficients_ = Eigen::VectorXd::Zero( numberOfStages_ );
 
     // Set Runge-Kutta-Fehlberg coefficients.
     setCoefficients_( rungeKuttaFehlbergVariableStepsizeIntegratorType );

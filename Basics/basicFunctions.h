@@ -67,13 +67,13 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <ctime>
+#include <Eigen/Core>
 #include <iostream>
 #include <map>
 #include <string>
 #include <sstream>
 #include <vector>
 #include "Astrodynamics/States/state.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 /*!
@@ -110,7 +110,7 @@ string getRootPath( );
  * \param targetValueInVectorOfSortedData Target value in vector of sorted data.
  * \return Index of nearest left neighbor to target value.
  */
-int computeNearestLeftNeighborUsingBinarySearch( VectorXd& vectorOfSortedData,
+int computeNearestLeftNeighborUsingBinarySearch( Eigen::VectorXd& vectorOfSortedData,
                                                  double& targetValueInVectorOfSortedData );
 
 //! Nearest left neighbor binary search.
@@ -123,7 +123,7 @@ int computeNearestLeftNeighborUsingBinarySearch( VectorXd& vectorOfSortedData,
  * \return Index of nearest left neighbor to target value.
  */
 int computeNearestLeftNeighborUsingBinarySearch(
-        map < double, VectorXd >& sortedIndepedentAndDependentVariables,
+        map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
         double& targetValueInMapOfData );
 
 //! Nearest left neighbor binary search.

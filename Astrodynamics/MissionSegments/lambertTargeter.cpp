@@ -84,6 +84,8 @@
 
 // Include statementes.
 #include <cmath>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include "Astrodynamics/MissionSegments/lambertTargeter.h"
 #include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
@@ -249,7 +251,7 @@ void LambertTargeter::execute( )
     // Implement Lambert targeting method.
 
     // Define local position vectors.
-    Vector3d positionAtDeparture_;
+    Eigen::Vector3d positionAtDeparture_;
     positionAtDeparture_.x( ) = pointerToCartesianPositionAtDeparture_->
                                 getCartesianElementX( );
     positionAtDeparture_.y( ) = pointerToCartesianPositionAtDeparture_->
@@ -257,7 +259,7 @@ void LambertTargeter::execute( )
     positionAtDeparture_.z( ) = pointerToCartesianPositionAtDeparture_->
                                 getCartesianElementZ( );
 
-    Vector3d positionAtArrival_;
+    Eigen::Vector3d positionAtArrival_;
     positionAtArrival_.x( ) = pointerToCartesianPositionAtArrival_->
                               getCartesianElementX( );
     positionAtArrival_.y( ) = pointerToCartesianPositionAtArrival_->
@@ -274,7 +276,7 @@ void LambertTargeter::execute( )
     // Compute angle between positions.
     double reducedLambertAngle_;
 
-    Vector3d planeNormalPosition_;
+    Eigen::Vector3d planeNormalPosition_;
     planeNormalPosition_ = positionAtDeparture_.
                   cross( positionAtArrival_ ).normalized( );
 
@@ -482,15 +484,15 @@ void LambertTargeter::execute( )
     // planetocentric).
 
     // Compute radial unit vectors at departure and at arrival.
-    Vector3d radialUnitVectorAtDeparture_ = positionAtDeparture_.normalized( );
-    Vector3d radialUnitVectorAtArrival_ = positionAtArrival_.normalized( );
+    Eigen::Vector3d radialUnitVectorAtDeparture_ = positionAtDeparture_.normalized( );
+    Eigen::Vector3d radialUnitVectorAtArrival_ = positionAtArrival_.normalized( );
 
-    Vector3d unitZVector_;
+    Eigen::Vector3d unitZVector_;
     unitZVector_.x( ) = 0.0;
     unitZVector_.y( ) = 0.0;
     unitZVector_.z( ) = 1.0;
 
-    Vector3d planeNormal_;
+    Eigen::Vector3d planeNormal_;
     planeNormal_ =
             ( ( positionAtDeparture_.cross( unitZVector_ ) ).cross(
                     positionAtDeparture_ ) ).normalized( );
@@ -503,31 +505,31 @@ void LambertTargeter::execute( )
     }
 
     // Compute transverse unit vectors at departure and at arrival.
-    Vector3d transverseUnitVectorAtDeparture_ = planeNormal_.cross(
+    Eigen::Vector3d transverseUnitVectorAtDeparture_ = planeNormal_.cross(
             positionAtDeparture_.normalized( ) );
-    Vector3d transverseUnitVectorAtArrival_   = planeNormal_.cross(
+    Eigen::Vector3d transverseUnitVectorAtArrival_   = planeNormal_.cross(
             positionAtArrival_.normalized( ) );
 
     // Compute radial inertial velocities at departure and
     // at arrival.
-    Vector3d radialInertialVelocityAtDeparture_ =
+    Eigen::Vector3d radialInertialVelocityAtDeparture_ =
             radialSpeedAtDeparture_ * radialUnitVectorAtDeparture_;
-    Vector3d radialInertialVelocityAtArrival_ =
+    Eigen::Vector3d radialInertialVelocityAtArrival_ =
             radialSpeedAtArrival_ * radialUnitVectorAtArrival_;
 
     // Compute transverse heliocentric velocities at departure and
     // at arrival.
-    Vector3d transverseInertialVelocityAtDeparture_ =
+    Eigen::Vector3d transverseInertialVelocityAtDeparture_ =
             transverseSpeedAtDeparture_ * transverseUnitVectorAtDeparture_;
-    Vector3d transverseInertialVelocityAtArrival_ =
+    Eigen::Vector3d transverseInertialVelocityAtArrival_ =
             transverseSpeedAtArrival_ * transverseUnitVectorAtArrival_;
 
     // Compute heliocentric velocities at departure and at
     // arrival.
 
     // Define local velocities.
-    Vector3d velocityAtDeparture_;
-    Vector3d velocityAtArrival_;
+    Eigen::Vector3d velocityAtDeparture_;
+    Eigen::Vector3d velocityAtArrival_;
     velocityAtDeparture_ = radialInertialVelocityAtDeparture_ +
                            transverseInertialVelocityAtDeparture_;
     velocityAtArrival_ = radialInertialVelocityAtArrival_ +

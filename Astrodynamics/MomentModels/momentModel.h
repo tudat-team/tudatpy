@@ -46,9 +46,9 @@
 #define MOMENTMODEL_H
 
 // Include statements.
+#include <Eigen/Core>
 #include <iostream>
 #include "Astrodynamics/ForceModels/forceModel.h"
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
 
 //! Tudat library namespace.
 /*!
@@ -83,7 +83,7 @@ public:
      * which the moment is calculated, to the application point of the input force.
      * \param forceApplicationArm Vector arm to application point of force.
      */
-    void setForceApplicationArm( Vector3d& forceApplicationArm )
+    void setForceApplicationArm( Eigen::Vector3d& forceApplicationArm )
     { forceApplicationArm_ = forceApplicationArm; }
 
     //! Get force application arm.
@@ -92,7 +92,7 @@ public:
      * frame in which the moment is calculated, to the application point of the input force.
      * \return Vector arm to application point of force.
      */
-    Vector3d& getForceApplicationArm( ) { return forceApplicationArm_; }
+    Eigen::Vector3d& getForceApplicationArm( ) { return forceApplicationArm_; }
 
     //! Set force model.
     /*!
@@ -116,14 +116,14 @@ public:
      * Returns the moment.
      * \return Moment.
      */
-    Vector3d& getMoment( ) { return moment_; }
+    Eigen::Vector3d& getMoment( ) { return moment_; }
 
     //! Set moment.
     /*!
      * Sets the moment.
      * \param moment Moment.
      */
-    void setMoment( Vector3d& moment ) { moment_ = moment; }
+    void setMoment( Eigen::Vector3d& moment ) { moment_ = moment; }
 
     //! Compute moment.
      /*!
@@ -143,13 +143,13 @@ protected:
     /*!
      * Moment.
      */
-    Vector3d moment_;
+    Eigen::Vector3d moment_;
 
     //! Force application point.
     /*!
      * Force application point, which can also be considered the force arm.
      */
-    Vector3d forceApplicationArm_;
+    Eigen::Vector3d forceApplicationArm_;
 
 private:
 };

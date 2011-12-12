@@ -53,6 +53,7 @@
 #define SPHERESEGMENT_H
 
 // Include statements.
+#include <Eigen/Core>
 #include "Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 //! Tudat library namespace.
@@ -93,7 +94,7 @@ public:
      * \param zenithAngle Zenith angle.
      * \return Surface point on sphere.
      */
-    VectorXd getSurfacePoint( double azimuthAngle, double zenithAngle );
+    Eigen::VectorXd getSurfacePoint( double azimuthAngle, double zenithAngle );
 
     //! Get surface derivative on sphere segment.
     /*!
@@ -112,7 +113,7 @@ public:
      *          zenith angle.
      * \return Surface derivative on sphere.
      */
-    VectorXd getSurfaceDerivative( double azimuthAngle, double zenithAngle,
+    Eigen::VectorXd getSurfaceDerivative( double azimuthAngle, double zenithAngle,
                                    int powerOfZenithAngleDerivative,
                                    int powerOfAzimuthAngleDerivative );
 

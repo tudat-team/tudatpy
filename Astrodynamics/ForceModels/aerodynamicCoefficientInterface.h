@@ -47,7 +47,7 @@
 #define AERODYNAMICCOEFFICIENTINTERFACE_H
 
 // Include statements.
-#include "Mathematics/LinearAlgebra/linearAlgebra.h"
+#include <Eigen/Core>
 
 //! Tudat library namespace.
 /*!
@@ -69,10 +69,10 @@ public:
     /*!
      * Default constructor.
      */
-    AerodynamicCoefficientInterface( ) : currentForceCoefficients_( Vector3d::Zero( ) ),
-        currentMomentCoefficients_( Vector3d::Zero( ) ), referenceLength_( -0.0 ),
+    AerodynamicCoefficientInterface( ) : currentForceCoefficients_( Eigen::Vector3d::Zero( ) ),
+        currentMomentCoefficients_( Eigen::Vector3d::Zero( ) ), referenceLength_( -0.0 ),
         referenceArea_( -0.0 ), lateralReferenceLength_( -0.0 ),
-        momentReferencePoint_( Vector3d::Zero( ) ) { }
+        momentReferencePoint_( Eigen::Vector3d::Zero( ) ) { }
 
     //! Default destructor.
     /*!
@@ -130,7 +130,7 @@ public:
      * determined.
      * \param referencePoint Aerodynamic reference point.
      */
-    void setMomentReferencePoint( const Vector3d& momentReferencePoint )
+    void setMomentReferencePoint( const Eigen::Vector3d& momentReferencePoint )
     { momentReferencePoint_ = momentReferencePoint; }
 
     //! Get moment reference point.
@@ -139,7 +139,7 @@ public:
      * determined.
      * \return Aerodynamic reference point.
      */
-    VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
+    Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
 
     //! Get the current force coefficients.
     /*!
@@ -147,7 +147,7 @@ public:
      * i.e. at the current flight condition.
      * \return current force coefficients.
      */
-    Vector3d getCurrentForceCoefficients( ) { return currentForceCoefficients_; }
+    Eigen::Vector3d getCurrentForceCoefficients( ) { return currentForceCoefficients_; }
 
     //! Get the moment coefficients
     /*!
@@ -155,14 +155,14 @@ public:
      * i.e. at the current flight condition.
      * \return current moment coefficients.
      */
-    Vector3d getCurrentMomentCoefficients( ) { return currentMomentCoefficients_; }
+    Eigen::Vector3d getCurrentMomentCoefficients( ) { return currentMomentCoefficients_; }
 
     //! Set the force coefficients.
     /*!
      * Sets the current force coefficients, i.e. at the current flight condition.
      * \param currentForceCoefficients the current force coefficients.
      */
-    void setCurrentForceCoefficients( const Vector3d& currentForceCoefficients )
+    void setCurrentForceCoefficients( const Eigen::Vector3d& currentForceCoefficients )
     { currentForceCoefficients_ = currentForceCoefficients; }
 
     //! Set the moment coefficients.
@@ -170,7 +170,7 @@ public:
      * Sets the current moment coefficients, i.e. at the current flight condition.
      * \param currentMomentCoefficients the current force coefficients.
      */
-    void setCurrentMomentCoefficients( const Vector3d& currentMomentCoefficients )
+    void setCurrentMomentCoefficients( const Eigen::Vector3d& currentMomentCoefficients )
     { currentMomentCoefficients_ = currentMomentCoefficients; }
 
     //! Compute the aerodynamic coefficients at current flight condition.
@@ -189,13 +189,13 @@ protected:
     /*!
      * The force coefficients at the current flight condition.
      */
-    Vector3d currentForceCoefficients_;
+    Eigen::Vector3d currentForceCoefficients_;
 
     //! The current moment coefficients.
     /*!
      * The moment coefficients at the current flight condition.
      */
-    Vector3d currentMomentCoefficients_;
+    Eigen::Vector3d currentMomentCoefficients_;
 
     //! Aerodynamic reference length.
     /*!
@@ -219,7 +219,7 @@ protected:
     /*!
      * Point w.r.t. which the arm of the moment on a vehicle panel is determined.
      */
-    Vector3d momentReferencePoint_;
+    Eigen::Vector3d momentReferencePoint_;
 
 private:
 
