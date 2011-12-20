@@ -66,38 +66,16 @@ namespace tudat
 ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( ) : julianDate_( -0.0 ),
     meanLongitudeAtGivenJulianDate_( -0.0 ), numberOfCenturiesPastJ2000_( -0.0 )
 {
-    // Set relative directory path to ephemeris file in file reader.
-    ephemerisTextFileReader_.setRelativeDirectoryPath( "External/EphemerisData/" );
-
-    // Set file name of ephemeris data file.
-    ephemerisTextFileReader_.setFileName( "p_elem_t2.txt" );
-
-    // Open ephemeris file.
-    ephemerisTextFileReader_.openFile( );
-
-    // Skip first 17 lines of file.
-    ephemerisTextFileReader_.skipLines( 17 );
-
-    // Read and store next 18 lines of file.
-    ephemerisTextFileReader_.readAndStoreData( 18 );
-
-    // Skip next 12 lines of file.
-    ephemerisTextFileReader_.skipLines( 12 );
-
-    // Read and store next 5 lines of file.
-    ephemerisTextFileReader_.readAndStoreData( 5 );
-
-    // Close file.
-    ephemerisTextFileReader_.closeFile( );
-
-    // Get container of data from file.
-    containerOfDataFromEphemerisFile_ = ephemerisTextFileReader_.getContainerOfData( );
 }
 
 //! Set planet.
 void ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData bodyWithEphemerisData )
 {
-    bodyWithEphemerisData_ = bodyWithEphemerisData;
+    // Check if ephemeris data has been loaded, and reload data if not.
+    if ( containerOfDataFromEphemerisFile_.size( ) == 0 )
+    {
+        reloadData( );
+    }
 
     switch ( bodyWithEphemerisData )
     {
@@ -217,6 +195,37 @@ void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermC_;
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermS_;
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermF_;
+}
+
+//! Load in ephemeris data for planets.
+void ApproximatePlanetPositionsBase::reloadData( )
+{
+    // Set relative directory path to ephemeris file in file reader.
+    ephemerisTextFileReader_.setRelativeDirectoryPath( "External/EphemerisData/" );
+
+    // Set file name of ephemeris data file.
+    ephemerisTextFileReader_.setFileName( "p_elem_t2.txt" );
+
+    // Open ephemeris file.
+    ephemerisTextFileReader_.openFile( );
+
+    // Skip first 17 lines of file.
+    ephemerisTextFileReader_.skipLines( 17 );
+
+    // Read and store next 18 lines of file.
+    ephemerisTextFileReader_.readAndStoreData( 18 );
+
+    // Skip next 12 lines of file.
+    ephemerisTextFileReader_.skipLines( 12 );
+
+    // Read and store next 5 lines of file.
+    ephemerisTextFileReader_.readAndStoreData( 5 );
+
+    // Close file.
+    ephemerisTextFileReader_.closeFile( );
+
+    // Get container of data from file.
+    containerOfDataFromEphemerisFile_ = ephemerisTextFileReader_.getContainerOfData( );
 }
 
 }

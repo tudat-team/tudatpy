@@ -122,6 +122,16 @@ public:
      * \return State in Cartesian elements from ephemeris.
      */
     CartesianElements* getStateFromEphemeris( double julianDate ) = 0;
+    
+    //! Load in ephemeris data for planets.
+    /*!
+     * This method opens and parses the p_elem_t2.txt ephemeris files for the planet positions.
+     * The resulting data is stored in 
+     * ApproximatePlanetPositionsBase::containerOfDataFromEphemerisFile_ to be used in the
+     * generation of planet ephemeris. This method is automatically invoked if you call 
+     * ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData ).
+     */
+    void reloadData( );
 
 protected:
 
