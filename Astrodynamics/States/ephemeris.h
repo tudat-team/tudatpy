@@ -90,12 +90,6 @@ public:
 
 protected:
 
-    //! Bodies with ephemeris data.
-    /*!
-     * Bodies with ephemeris data.
-     */
-    BodiesWithEphemerisData bodyWithEphemerisData_;
-
     //! Ephemeris text file reader.
     /*!
      * Ephemeris text file reader.
