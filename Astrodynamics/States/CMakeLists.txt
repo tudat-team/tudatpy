@@ -97,4 +97,8 @@ add_executable(test_State "${SRCROOT}${STATESDIR}/unitTestState.cpp")
 setup_custom_test_program(test_State "${SRCROOT}${STATESDIR}")
 target_link_libraries(test_State tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
 
+add_executable(test_MeanToEccenticAnomalyConversion "${SRCROOT}${STATESDIR}/unitTestConvertMeanAnomalyToEccentricAnomaly.cpp")
+setup_custom_test_program(test_MeanToEccenticAnomalyConversion "${SRCROOT}${STATESDIR}")
+target_link_libraries(test_MeanToEccenticAnomalyConversion tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
+
 # End of file.

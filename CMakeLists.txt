@@ -151,7 +151,7 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 
 # Find Boost libraries on local system.
-find_package(Boost 1.45.0 COMPONENTS thread date_time system filesystem REQUIRED)
+find_package(Boost 1.45.0 COMPONENTS thread date_time system unit_test_framework filesystem REQUIRED)
 # If Boost is not found, use the following to manually set the path to the Boost include and
 # library directories.
 #SET(Boost_INCLUDE_DIRS "C:\My\Custom\Path\To\Boost\Include\Directory")

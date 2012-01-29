@@ -1,26 +1,36 @@
 /*! \file convertMeanAnomalyToEccentricAnomaly.cpp
  *    This source file contains a class to convert mean anomly to eccentric anomaly for elliptical
- *    orbits.
+ *    orbits. It makes use of the simple iterative method to solve Kepler's equation.
  *
  *    Path              : /Astrodynamics/States/
- *    Version           : 1
+ *    Version           : 3
  *    Check status      : Checked
  *
  *    Author            : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Author            : T. Secretin
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : T.A.LeitePintoSecretin@student.tudelft.nl
+ *
  *    Checker           : E. Iorfida
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
+ *    Checker           : Simon Billemont
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : simon@angelcorp.be
+ *
  *    Date created      : 10 February, 2011
- *    Last modified     : 10 February, 2011
+ *    Last modified     : 21 December, 2011
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
  *
  *    Notes
+ *      Currently, this conversion is only valid for eccentricities up to 0.97 due to the
+ *      difficulties of the iterative method to converge for eccentricities close to 1.
  *
  *    Copyright (c) 2010-2011 Delft University of Technology.
  *
@@ -36,9 +46,12 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110210    K. Kumar          First creation of code.
+ *      111209    T. Secretin       Relaxed constraints on near-parabolic check.
+ *      111221    T. Secretin       Added zero eccentricity case and check for negative
+ *                                  eccentricities.
  */
 
-// Include statement.
+// Include statements.
 #include <iostream>
 #include "Astrodynamics/States/convertMeanAnomalyToEccentricAnomaly.h"
 
@@ -63,8 +76,14 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
     // Set NewtonRaphson adaptor class.
     pointerToNewtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptor_ );
 
+    // Check if orbit is circular.
+    if ( eccentricity_ == 0.0 )
+    {
+        // If orbit is circular mean anomaly and eccentric anomaly are equal.
+        eccentricAnomaly_ = meanAnomaly_;
+    }
     // Check if orbit is elliptical, and not near-parabolic.
-    if ( eccentricity_ < 0.8 )
+    else if ( eccentricity_ < 0.98 && eccentricity_ > 0.0 )
     {
         // Set mathematical functions.
         newtonRaphsonAdaptor_.setPointerToFunction( &ConvertMeanAnomalyToEccentricAnomaly::
@@ -79,28 +98,25 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
         // Execute Newton-Raphon method.
         pointerToNewtonRaphson_->execute( );
 
-        // Set eccentric anomaly based on result of Newton-Raphson
-        // root-finding algorithm.
+        // Set eccentric anomaly based on result of Newton-Raphson root-finding algorithm.
         eccentricAnomaly_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );
     }
-
-    // Check if orbit is near-parabolic.
-    else if ( eccentricity_ >= 0.8 )
+    // Check if orbit is near-parabolic, i.e. eccentricity >= 0.98.
+    else
     {
-        cerr << "Orbit is near-parabolic and, at present conversion, between eccentric anomaly  "
-             << "and mean anomaly is not possible for eccentricities in the range: "
-             << "0.8 < eccentricity < 1.2." << endl;
+        cerr << "Orbit is near-parabolic and, at present conversion, between eccentric anomaly "
+             << "and mean anomaly is not possible for eccentricities larger than: 0.98" << endl;
 
         // Set eccentric anomaly to error value.
-        eccentricAnomaly_ = -1.0;
+        eccentricAnomaly_ = std::numeric_limits<double>::signaling_NaN() ;
     }
 
     // Return eccentric anomaly.
     return eccentricAnomaly_;
 }
 
-}
+} // Namespace orbital_element_conversions.
 
-}
+} // Namespace tudat.
 
 // End of file.
