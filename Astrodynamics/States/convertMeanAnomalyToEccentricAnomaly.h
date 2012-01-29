@@ -14,8 +14,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : elisabetta_iorfida@yahoo.it
  *
+ *    Checker           : S. Billemont
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : simon@angelcorp.be
+ *
  *    Date created      : 10 February, 2011
- *    Last modified     : 10 August, 2011
+ *    Last modified     : 26 January, 2011
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
@@ -40,8 +44,8 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  */
 
-#ifndef CONVERTMEANANOMALYTOECCENTRICANOMALY_H
-#define CONVERTMEANANOMALYTOECCENTRICANOMALY_H
+#ifndef TUDAT_CONVERTMEANANOMALYTOECCENTRICANOMALY_H
+#define TUDAT_CONVERTMEANANOMALYTOECCENTRICANOMALY_H
 
 // Include statements.
 #include "Astrodynamics/States/convertMeanAnomalyBase.h"
@@ -55,30 +59,39 @@ namespace tudat
 
 //! Orbital element conversions namespace.
 /*!
- * Orbital element conversions namespace.
+ * The orbital element conversions namespace that contains free functions and classes to
+ * convert between orbital elements e.g., mean anomaly to eccentric anomaly, eccentric anomaly to
+ * true anomaly etc.
  */
 namespace orbital_element_conversions
 {
 
-//! Definition of mean anomaly to eccentric anomaly converter class.
+//! Converter for Mean to Eccentric anomaly.
 /*!
- * Definition of mean anomaly to eccentric anomaly converter class.
+ * Conversion utility to convert the mean anomaly to eccentric anomaly for elliptical orbits.
  */
 class ConvertMeanAnomalyToEccentricAnomaly : public ConvertMeanAnomalyBase
 {
 public:
 
-    //! Default constructor.
+    //! Construct converter with eccentricity and Eccentric Anomaly
     /*!
-     * Default constructor.
+     * This constructor initializes the eccentricity and the Eccentric Anomaly for the conversion 
+     * routine.
+     * \param eccentricity The eccentricity of the orbit (default=0) [-].
+     * \param eccentricAnomaly The eccentric anomaly to convert to Mean anomaly (default=0) [rad].
      */
-    ConvertMeanAnomalyToEccentricAnomaly( ) : eccentricAnomaly_( -1.0 ) { }
+    ConvertMeanAnomalyToEccentricAnomaly( double eccentricity = 0.0,
+                                          double eccentricAnomaly = 0.0 )
+        :  eccentricAnomaly_( eccentricAnomaly ) { setEccentricity( eccentricity ); }
 
     //! Convert mean anomaly to eccentric anomaly.
     /*!
      * Converts mean anomaly to eccentric anomaly for elliptical orbits. Currently, the conversion
-     * does not work for near-parabolic orbits ( 0.8 < eccentricity < 1.2 ).
-     * \return Eccentric anomaly.
+     * does not work for near-parabolic orbits ( only for eccentricity < 0.98 ).
+     * If the conversion fails or the eccentricity falls outside the valid range, then double::NaN
+     * is returned.
+     * \return Eccentric anomaly [rad].
      */
     double convert( );
 
@@ -129,10 +142,10 @@ private:
     { return 1.0 - eccentricity_ * cos( eccentricAnomaly ); }
 };
 
-}
+} // Namespace orbital_element_conversions.
 
-}
+} // Namespace tudat.
 
-#endif // CONVERTMEANANOMALYTOECCENTRICANOMALY_H
+#endif // TUDAT_CONVERTMEANANOMALYTOECCENTRICANOMALY_H
 
 // End of file.
