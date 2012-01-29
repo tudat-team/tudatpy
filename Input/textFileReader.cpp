@@ -46,6 +46,7 @@
  *      110627    K. Kumar          Moved skipLinesWithKeyword() to FileReader.
  *      110810    J. Leloux         Changed if-statement of readAndStoreData function.
  *      111117    K. Kumar          Modified stripEndOfLineCharacters() function.
+ *      111220    F.M. Engelen      Solved minor bug when reusing the code.
  */
 
 // Include statements.
@@ -63,6 +64,9 @@ using std::endl;
 //! Read and store data.
 void TextFileReader::readAndStoreData( )
 {
+    // Reset the datafile.
+    containerOfDataFromFile_.clear( );
+
     // Whilst the end of the data file has not been reached, continue reading
     // from lines from data file.
     while( !dataFile_.eof( ) )

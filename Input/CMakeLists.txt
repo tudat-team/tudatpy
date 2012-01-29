@@ -45,6 +45,7 @@
 # Add source files.
 set(INPUT_SOURCES
   "${SRCROOT}${INPUTDIR}/fileReader.cpp"
+  "${SRCROOT}${INPUTDIR}/matrixTextFileReader.cpp"
   "${SRCROOT}${INPUTDIR}/textFileReader.cpp"
   "${SRCROOT}${INPUTDIR}/twoLineElementData.cpp"
   "${SRCROOT}${INPUTDIR}/twoLineElementsTextFileReader.cpp"
@@ -53,6 +54,7 @@ set(INPUT_SOURCES
 # Add header files.
 set(INPUT_HEADERS 
   "${SRCROOT}${INPUTDIR}/fileReader.h"
+  "${SRCROOT}${INPUTDIR}/matrixTextFileReader.h"
   "${SRCROOT}${INPUTDIR}/textFileReader.h"
   "${SRCROOT}${INPUTDIR}/twoLineElementData.h"
   "${SRCROOT}${INPUTDIR}/twoLineElementsTextFileReader.h"
@@ -64,6 +66,10 @@ setup_tudat_library_target(tudat_input "${SRCROOT}${INPUTDIR}")
 setup_headers("${INPUT_HEADERS}" "${INPUTDIR}")
 
 # Add unit tests.
+add_executable(test_MatrixTextFileReader "${SRCROOT}${INPUTDIR}/unitTestMatrixTextFileReader.cpp")
+setup_custom_test_program(test_MatrixTextFileReader "${SRCROOT}${INPUTDIR}")
+target_link_libraries(test_MatrixTextFileReader tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
+
 add_executable(test_TextFileReader "${SRCROOT}${INPUTDIR}/unitTestTextFileReader.cpp")
 setup_custom_test_program(test_TextFileReader "${SRCROOT}${INPUTDIR}")
 target_link_libraries(test_TextFileReader tudat_astrodynamics tudat_input tudat_output tudat_mathematics tudat_basics ${Boost_LIBRARIES})
