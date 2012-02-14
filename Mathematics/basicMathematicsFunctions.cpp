@@ -18,6 +18,10 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
+ *    Author            : D. Gondelach
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : d.gondelach@student.tudelft.nl
+ *
  *    Checker           : L. Abdulkadir
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : L.Abdulkadir@student.tudelft.nl
@@ -26,8 +30,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : d.dirkx@tudelft.nl
  *
+ *    Checker           : T. Secretin
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : T.A.LeitePintoSecretin@student.tudelft.nl
+ *
  *    Date created      : 3 September, 2010
- *    Last modified     : 5 September, 2011
+ *    Last modified     : 18 January, 2011
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -63,6 +71,11 @@
  *      110707    K. Kumar          Added computeSampleMean(), computeSampleVariance() functions.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120118    D. Gondelach      Added convertCylindricalToCartesianCoordinates,
+ *                                  convertCylindricalToCartesianState,
+ *                                  convertCartesianToCylindricalCoordinates and
+ *                                  convertCartesianToCylindricalState functions.
+ *                                  Removed convertCylindricalToCartesian function.
  */
 
 // Include statements.
@@ -258,13 +271,161 @@ void convertCartesianToSpherical( const Eigen::VectorXd& cartesianCoordinates,
     }
 }
 
-//! Convert cylindrical to cartesian coordinates, z value left unaffected.
-void convertCylindricalToCartesian( double radius, double azimuthAngle,
-                                    Eigen::VectorXd& cartesianCoordinates )
+//! Convert cylindrical to Cartesian coordinates.
+Eigen::Vector3d convertCylindricalToCartesianCoordinates( double radius,
+                                                          double azimuthAngle, double z )
 {
-    // Perform transformation, z value should be set outside function.
-    cartesianCoordinates( 0 ) = radius * std::cos( azimuthAngle );
-    cartesianCoordinates( 1 ) = radius * std::sin( azimuthAngle );
+    // Create Cartesian coordinates vector.
+    Eigen::Vector3d cartesianCoordinates;
+
+    // If radius < 0, then give warning.
+    if ( radius < 0.0 )
+    {
+        std::cerr << "Warning: cylindrical radial coordinate is negative!\n"
+                  << "This could give incorrect results!\n";
+    }
+
+    // Compute and set Cartesian coordinates.
+    cartesianCoordinates << radius * std::cos( azimuthAngle ),   // x-coordinate
+                            radius * std::sin( azimuthAngle ),   // y-coordinate
+                            z;                                   // z-coordinate
+
+    return cartesianCoordinates;
+}
+
+//! Convert cylindrical to Cartesian coordinates.
+Eigen::Vector3d convertCylindricalToCartesianCoordinates( Eigen::Vector3d cylindricalCoordinates )
+{
+    // Create Cartesian coordinates vector.
+    Eigen::Vector3d cartesianCoordinates;
+
+    // If radius < 0, then give warning.
+    if ( cylindricalCoordinates( 0 ) < 0.0 )
+    {
+        std::cerr << "Warning: cylindrical radial coordinate is negative! "
+                  << "This could give incorrect results!\n";
+    }
+
+    // Compute and set Cartesian coordinates.
+    cartesianCoordinates
+            << cylindricalCoordinates( 0 )
+               * std::cos( cylindricalCoordinates( 1 ) ), // x-coordinate
+            cylindricalCoordinates( 0 )
+            * std::sin( cylindricalCoordinates( 1 ) ),    // y-coordinate
+            cylindricalCoordinates( 2 );                  // z-coordinate
+
+    return cartesianCoordinates;
+}
+
+//! Convert cylindrical to Cartesian state.
+Eigen::VectorXd convertCylindricalToCartesianState( Eigen::VectorXd cylindricalState )
+{
+    // Create Cartesian state vector, initialized with zero entries.
+    Eigen::VectorXd cartesianState = Eigen::VectorXd::Zero( 6 );
+
+    // Get azimuth angle, theta.
+    double azimuthAngle = cylindricalState( 1 );
+
+    // Compute and set Cartesian coordinates.
+    cartesianState.head( 3 ) = convertCylindricalToCartesianCoordinates(
+                cylindricalState.head( 3 ) );
+
+    // If r = 0 AND Vtheta > 0, then give warning and assume Vtheta=0.
+    if ( std::fabs(cylindricalState( 0 )) <= std::numeric_limits< double >::epsilon( )
+         && std::fabs(cylindricalState( 4 )) > std::numeric_limits< double >::epsilon( ) )
+    {
+        std::cerr << "Warning: cylindrical velocity Vtheta (r*thetadot) does not equal zero while "
+                  << "the radius (r) is zero! Vtheta is taken equal to zero!\n";
+
+        // Compute and set Cartesian velocities.
+        cartesianState.tail( 3 )
+                << cylindricalState( 3 ) * std::cos( azimuthAngle ),   // xdot
+                   cylindricalState( 3 ) * std::sin( azimuthAngle ),   // ydot
+                   cylindricalState( 5 );                              // zdot
+    }
+
+    else
+    {
+        // Compute and set Cartesian velocities.
+        cartesianState.tail( 3 )
+                << cylindricalState( 3 ) * std::cos( azimuthAngle )
+                   - cylindricalState( 4 ) * std::sin( azimuthAngle ),   // xdot
+                   cylindricalState( 3 ) * std::sin( azimuthAngle )
+                   + cylindricalState( 4 ) * std::cos( azimuthAngle ),   // ydot
+                   cylindricalState( 5 );                                // zdot
+    }
+
+    return cartesianState;
+}
+
+//! Convert Cartesian to cylindrical coordinates.
+Eigen::Vector3d convertCartesianToCylindricalCoordinates( Eigen::Vector3d cartesianCoordinates )
+{
+    // Create cylindrical coordinates vector.
+    Eigen::Vector3d cylindricalCoordinates;
+
+    // Declare new variable, the azimuth angle.
+    double azimuthAngle;
+
+    // Compute azimuth angle, theta.
+    /* If x = 0, then azimuthAngle = pi/2 (y>0) or 3*pi/2 (y<0) or 0 (y=0),
+       else azimuthAngle = arctan(y/x).
+    */
+    if ( std::fabs(cartesianCoordinates( 0 ) ) <= std::numeric_limits< double >::epsilon( ) )
+    {
+        azimuthAngle = computeModulo( static_cast< double >(
+                                      boost::math::sign( cartesianCoordinates( 1 ) ) )
+                                      * 0.5 * M_PI, 2.0 * M_PI );
+    }
+
+    else
+    {
+        azimuthAngle = computeModulo( std::atan2( cartesianCoordinates( 1 ),
+                                                  cartesianCoordinates( 0 ) ), 2.0 * M_PI );
+    }
+
+    // Compute and set cylindrical coordinates.
+    cylindricalCoordinates <<
+        std::sqrt( pow( cartesianCoordinates( 0 ), 2 )
+                   + pow( cartesianCoordinates( 1 ), 2 ) ), // Radius
+        azimuthAngle,                                       // Azimuth angle, theta
+        cartesianCoordinates( 2 );                          // z-coordinate
+
+    return cylindricalCoordinates;
+}
+
+//! Convert Cartesian to cylindrical state.
+Eigen::VectorXd convertCartesianToCylindricalState( Eigen::VectorXd cartesianState )
+{
+    // Create cylindrical state vector, initialized with zero entries.
+    Eigen::VectorXd cylindricalState = Eigen::VectorXd::Zero( 6 );
+
+    // Compute and set cylindrical coordinates.
+    cylindricalState.head( 3 ) = convertCartesianToCylindricalCoordinates(
+                cartesianState.head( 3 ) );
+
+    // Compute and set cylindrical velocities.
+    /* If radius = 0, then Vr = sqrt(xdot^2+ydot^2) and Vtheta = 0,
+       else Vr = (x*xdot+y*ydot)/radius and Vtheta = (x*ydot-y*xdot)/radius.
+    */
+    if ( cylindricalState( 0 ) <= std::numeric_limits< double >::epsilon( ) )
+    {
+        cylindricalState.tail( 3 ) <<
+            std::sqrt( pow( cartesianState( 3 ), 2 ) + pow( cartesianState( 4 ), 2 ) ), // Vr
+            0.0,                                                                        // Vtheta
+            cartesianState( 5 );                                                        // Vz
+    }
+    else
+    {
+        cylindricalState.tail( 3 ) <<
+            ( cartesianState( 0 ) * cartesianState( 3 )
+              + cartesianState( 1 ) * cartesianState( 4 ) ) / cylindricalState( 0 ),    // Vr
+            ( cartesianState( 0 ) * cartesianState( 4 )
+              - cartesianState( 1 ) * cartesianState( 3 ) ) / cylindricalState( 0 ),    // Vtheta
+                cartesianState( 5 );                                                    // Vz
+    }
+
+    return cylindricalState;
 }
 
 //! Compute modulo of double.
