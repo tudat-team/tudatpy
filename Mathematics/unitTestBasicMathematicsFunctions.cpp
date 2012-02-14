@@ -14,12 +14,20 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Author            : D. Gondelach
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : d.gondelach@student.tudelft.nl
+ *
  *    Checker           : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Checker           : T. Secretin
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : T.A.LeitePintoSecretin@student.tudelft.nl
+ *
  *    Date created      : 7 February, 2011
- *    Last modified     : 5 September, 2011
+ *    Last modified     : 18 January, 2012
  *
  *    References
  *
@@ -51,6 +59,11 @@
  *      111111    K. Kumar          Strange error with convertCylindricalToCartesian function;
  *                                  achieved precision of results is less than machine precision,
  *                                  fixed by using slightly larger precision tolerance.
+ *      120118    D. Gondelach      Added unit tests for convertCylindricalToCartesianCoordinates,
+ *                                  convertCylindricalToCartesianState,
+ *                                  convertCartesianToCylindricalCoordinates and
+ *                                  convertCartesianToCylindricalState functions.
+ *                                  Removed unit test for convertCylindricalToCartesian function.
  */
 
 // Include statements.
@@ -73,11 +86,14 @@ int main( )
     using std::atan2;
     using std::cos;
     using std::sin;
-    using tudat::mathematics::computeModulo;
-    using tudat::mathematics::convertCylindricalToCartesian;
-    using tudat::mathematics::convertSphericalToCartesian;
     using tudat::mathematics::computeLinearInterpolation;
+    using tudat::mathematics::computeModulo;
+    using tudat::mathematics::convertSphericalToCartesian;
     using tudat::mathematics::convertCartesianToSpherical;
+    using tudat::mathematics::convertCartesianToCylindricalCoordinates;
+    using tudat::mathematics::convertCartesianToCylindricalState;
+    using tudat::mathematics::convertCylindricalToCartesianCoordinates;
+    using tudat::mathematics::convertCylindricalToCartesianState;
     using namespace tudat;
 
     // Declare and initialize test result to false.
@@ -141,84 +157,6 @@ int main( )
              << "function correctly, as the computed value: "
              << resultUsingModuloFunction
              << " does not match the expected value: " << -2.0 << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    // Test conversion from cylindrical to Cartesian coordinates,
-    // z value left unaffected.
-    // Test 15: Test conversion of ( 2.0, 0.0 ).
-    // Test 16: Test conversion of ( 2.0, pi ).
-    // Test 17: Test conversion of ( 2.0, -2pi ).
-    // Test 18: Test conversion of ( 2.0, 225 deg ).
-    // Test 19: Test conversion of ( 2.0, -225 deg ).
-    Eigen::VectorXd cartesianCoordinates( 2 );
-
-    convertCylindricalToCartesian( 2.0, 0.0, cartesianCoordinates );
-
-    if ( fabs( cartesianCoordinates( 0 ) - 2.0 ) / 2.0 > 1.0e-15 ||
-         fabs( cartesianCoordinates( 1 ) - 0.0 ) > 1.0e-15 )
-    {
-        cerr << "The convertCylindricalToCartesian, no z, function does not "
-             << "function correctly, as the computed coordinates: ( "
-             << cartesianCoordinates( 0 ) << ", " << cartesianCoordinates( 1 )
-             << " ) do not match the expected coordinates: ( 2.0, 0.0 )"
-             << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    convertCylindricalToCartesian( 2.0, M_PI, cartesianCoordinates );
-
-    if ( fabs( cartesianCoordinates( 0 ) + 2.0 ) > 1.0e-15 ||
-         fabs( cartesianCoordinates( 1 ) - 0.0 ) > 1.0e-15 )
-    {
-        cerr << "The convertCylindricalToCartesian, no z, function does not "
-             << "function correctly, as the computed coordinates: ( "
-             << cartesianCoordinates( 0 ) << ", " << cartesianCoordinates( 1 )
-             << " ) do not match the expected coordinates: ( -2.0, 0.0 )"
-             << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    convertCylindricalToCartesian( 2.0, -2.0*M_PI, cartesianCoordinates );
-
-    if ( fabs( cartesianCoordinates( 0 ) - 2.0 ) > 1.0e-15 ||
-         fabs( cartesianCoordinates( 1 ) - 0.0 ) > 1.0e-15 )
-    {
-        cerr << "The convertCylindricalToCartesian, no z, function does not "
-             << "function correctly, as the computed coordinates: ( "
-             << cartesianCoordinates( 0 ) << ", " << cartesianCoordinates( 1 )
-             << " ) do not match the expected coordinates: ( 2.0, 0.0 )"
-             << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    convertCylindricalToCartesian( 2.0, 225.0 / 180.0 * M_PI, cartesianCoordinates );
-
-    if ( fabs( cartesianCoordinates( 0 ) + sqrt( 2.0 ) )
-         > std::numeric_limits< double >::epsilon( ) ||
-         fabs( cartesianCoordinates( 1 ) + sqrt( 2.0 ))
-         > std::numeric_limits< double >::epsilon( ) )
-    {
-        cerr << "The convertCylindricalToCartesian, no z, function does not "
-             << "function correctly, as the computed coordinates: ( "
-             << cartesianCoordinates( 0 ) << ", " << cartesianCoordinates( 1 )
-             << " ) do not match the expected coordinates: ( "
-             << -sqrt( 2.0 ) << ", " << -sqrt( 2.0 ) << " )" << endl;
-        isBasicMathematicsFunctionsErroneous = true;
-    }
-
-    convertCylindricalToCartesian( 2.0, -225.0 / 180.0 * M_PI, cartesianCoordinates );
-
-    if ( fabs( cartesianCoordinates( 0 ) + sqrt( 2.0 ) ) >
-         std::numeric_limits< double >::epsilon( ) ||
-         fabs( cartesianCoordinates( 1 ) - sqrt( 2.0 )) >
-         std::numeric_limits< double >::epsilon( ) )
-    {
-        cerr << "The convertCylindricalToCartesian, no z, function does not "
-             << "function correctly, as the computed coordinates: ( "
-             << cartesianCoordinates( 0 ) << ", " << cartesianCoordinates( 1 )
-             << " ) do not match the expected coordinates: ( "
-             << -sqrt( 2.0 ) << ", " << sqrt( 2.0 ) << " )" << endl;
         isBasicMathematicsFunctionsErroneous = true;
     }
 
@@ -696,6 +634,374 @@ int main( )
              << "equal to the expected sample mean ( " << expectedSampleMean
              << " ) and/or expected sample variance ( "
              << expectedSampleVariance << " )." << endl;
+    }
+
+    // Test conversion from cylindrical (r, theta, z) to Cartesian (x, y, z) coordinates.
+    // Test 33: Test conversion of ( 0.0, pi, 1.2 ).
+    // Test 34: Test conversion of ( 2.3, -pi/2, -3.5 ).
+
+    // Cylindrical coordinates (r,theta,z).
+    Eigen::Vector3d cylindricalCoordinatesTest33, cylindricalCoordinatesTest34;
+    cylindricalCoordinatesTest33 << 0.0, M_PI, 1.2;
+    cylindricalCoordinatesTest34 << 2.3, -M_PI / 2.0, -3.5;
+
+    // Expected Cartesian coordinates (x, y, z).
+    Eigen::Vector3d expectedCartesianCoordinatesTest33, expectedCartesianCoordinatesTest34;
+    expectedCartesianCoordinatesTest33 << 0.0, 0.0, 1.2;
+    expectedCartesianCoordinatesTest34 << 2.3 * cos( -M_PI / 2.0 ), 2.3*sin( -M_PI / 2.0 ), -3.5;
+
+    // Test Cartesian coordinates (x, y, z).
+    Eigen::Vector3d cartesianCoordinatesTest33 = convertCylindricalToCartesianCoordinates(
+                                                        cylindricalCoordinatesTest33 );
+    Eigen::Vector3d cartesianCoordinatesTest34 = convertCylindricalToCartesianCoordinates(
+                                                        cylindricalCoordinatesTest34 );
+
+    if ( fabs( cartesianCoordinatesTest33(0) - expectedCartesianCoordinatesTest33(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinatesTest33(1) - expectedCartesianCoordinatesTest33(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinatesTest33(2) - expectedCartesianCoordinatesTest33(2) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCylindricalToCartesianCoordinates function does not "
+             << "function correctly, as the computed coordinates: ( "
+             << cartesianCoordinatesTest33(0) << ", " << cartesianCoordinatesTest33(1)
+             << ", " << cartesianCoordinatesTest33(2)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCartesianCoordinatesTest33(0) << ", "
+             << expectedCartesianCoordinatesTest33(1) << ", "
+             << expectedCartesianCoordinatesTest33(2) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    if ( fabs( cartesianCoordinatesTest34(0) - expectedCartesianCoordinatesTest34(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinatesTest34(1) - expectedCartesianCoordinatesTest34(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianCoordinatesTest34(2) - expectedCartesianCoordinatesTest34(2) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCylindricalToCartesianCoordinates function does not "
+             << "function correctly, as the computed coordinates: ( "
+             << cartesianCoordinatesTest34(0) << ", " << cartesianCoordinatesTest34(1)
+             << ", " << cartesianCoordinatesTest34(2)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCartesianCoordinatesTest34(0) << ", "
+             << expectedCartesianCoordinatesTest34(1) << ", "
+             << expectedCartesianCoordinatesTest34(2) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    // Test conversion from cylindrical (r, theta, z, Vr, Vtheta, Vz) to
+    // Cartesian (x, y, z, xdot, ydot, zdot) state.
+    // Test 35: Test conversion of (2.1, pi/2.0, 1.2, 5.4, 4.5, -3.9)
+    // Test 36: Test conversion of (0.0, 8.2*pi/3.0, -2.5, -5.8, 0.0, 1.7)
+
+    // Cylindrical states (r, theta, z, Vr, Vtheta, Vz).
+    Eigen::VectorXd cylindricalStateTest35( 6 ), cylindricalStateTest36( 6 );
+    cylindricalStateTest35 << 2.1, M_PI / 2.0, 1.2, 5.4, 4.5, -3.9;
+    cylindricalStateTest36 << 0.0, 8.2 * M_PI / 3.0, -2.5, -5.8, 0.0, 1.7;
+
+    // Expected Cartesian states (x, y, z, xdot, ydot, zdot).
+    Eigen::VectorXd expectedCartesianStateTest35( 6 ), expectedCartesianStateTest36( 6 );
+    expectedCartesianStateTest35 << 2.1 * cos( M_PI / 2.0 ),
+                                    2.1 * sin( M_PI / 2.0 ),
+                                    1.2,
+                                    5.4 * cos( M_PI / 2.0 ) - 4.5 * sin( M_PI / 2.0 ),
+                                    5.4 * sin( M_PI / 2.0 ) + 4.5 * cos( M_PI / 2.0 ),
+                                    -3.9;
+    expectedCartesianStateTest36 << 0.0,
+                                    0.0,
+                                    -2.5,
+                                    -5.8 * cos( 8.2 * M_PI / 3.0 ),
+                                    -5.8 * sin( 8.2 * M_PI / 3.0 ),
+                                    1.7;
+
+    // Test Cartesian states (x, y, z, xdot, ydot, zdot).
+    Eigen::VectorXd cartesianStateTest35 = convertCylindricalToCartesianState(
+                                                        cylindricalStateTest35 );
+    Eigen::VectorXd cartesianStateTest36 = convertCylindricalToCartesianState(
+                                                        cylindricalStateTest36 );
+
+    if ( fabs( cartesianStateTest35(0) - expectedCartesianStateTest35(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest35(1) - expectedCartesianStateTest35(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest35(2) - expectedCartesianStateTest35(2) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest35(3) - expectedCartesianStateTest35(3) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest35(4) - expectedCartesianStateTest35(4) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest35(5) - expectedCartesianStateTest35(5) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCylindricalToCartesianState function does not "
+             << "function correctly, as the computed sate: ( "
+             << cartesianStateTest35(0) << ", " << cartesianStateTest35(1) << ", "
+             << cartesianStateTest35(2) << ", " << cartesianStateTest35(3) << ", "
+             << cartesianStateTest35(4) << ", " << cartesianStateTest35(5)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCartesianStateTest35(0) << ", " << expectedCartesianStateTest35(1) << ", "
+             << expectedCartesianStateTest35(2) << ", " << expectedCartesianStateTest35(3) << ", "
+             << expectedCartesianStateTest35(4) << ", " << expectedCartesianStateTest35(5)
+             << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    if ( fabs( cartesianStateTest36(0) - expectedCartesianStateTest36(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest36(1) - expectedCartesianStateTest36(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest36(2) - expectedCartesianStateTest36(2) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest36(3) - expectedCartesianStateTest36(3) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest36(4) - expectedCartesianStateTest36(4) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cartesianStateTest36(5) - expectedCartesianStateTest36(5) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCylindricalToCartesianState function does not "
+             << "function correctly, as the computed sate: ( "
+             << cartesianStateTest36(0) << ", " << cartesianStateTest36(1) << ", "
+             << cartesianStateTest36(2) << ", " << cartesianStateTest36(3) << ", "
+             << cartesianStateTest36(4) << ", " << cartesianStateTest36(5)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCartesianStateTest36(0) << ", " << expectedCartesianStateTest36(1) << ", "
+             << expectedCartesianStateTest36(2) << ", " << expectedCartesianStateTest36(3) << ", "
+             << expectedCartesianStateTest36(4) << ", " << expectedCartesianStateTest36(5)
+             << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    // Test conversion from Cartesian (x, y, z) to cylindrical (r, theta, z) coordinates.
+    // Test 37: Test conversion of ( 0.0, 0.0, 1.0 ).
+    // Test 38: Test conversion of ( 0.0, 2.0, 1.0 ).
+    // Test 39: Test conversion of ( 0.0, -2.0, -1.0 ).
+    // Test 40: Test conversion of ( -5.0, -8.0, 5.0 ).
+
+    // Cartesian coordinates (x, y, z).
+    Eigen::Vector3d cartesianCoordinatesTest37, cartesianCoordinatesTest38,
+                    cartesianCoordinatesTest39, cartesianCoordinatesTest40;
+    cartesianCoordinatesTest37 << 0.0, 0.0, 0.0;
+    cartesianCoordinatesTest38 << 0.0, 2.0, 1.0;
+    cartesianCoordinatesTest39 << 0.0, -2.0, -1.0;
+    cartesianCoordinatesTest40 << -5.0, -8.0, 5.0;
+
+    // Expected cylindrical coordinates (r, theta, z).
+    Eigen::Vector3d expectedCylindricalCoordinatesTest37, expectedCylindricalCoordinatesTest38,
+                    expectedCylindricalCoordinatesTest39, expectedCylindricalCoordinatesTest40;
+    expectedCylindricalCoordinatesTest37 << 0.0, 0.0, 0.0;
+    expectedCylindricalCoordinatesTest38 << 2.0, M_PI / 2.0, 1.0;
+    expectedCylindricalCoordinatesTest39 << 2.0, 3.0 * M_PI / 2.0, -1.0;
+    expectedCylindricalCoordinatesTest40 << sqrt( 25.0 + 64.0 ), atan2(-8.0,-5.0) + 2.0 * M_PI, 5.0;
+
+    // Test cylindrical coordinates (r, theta, z).
+    Eigen::Vector3d cylindricalCoordinatesTest37 = convertCartesianToCylindricalCoordinates(
+                                                                    cartesianCoordinatesTest37 );
+    Eigen::Vector3d cylindricalCoordinatesTest38 = convertCartesianToCylindricalCoordinates(
+                                                                    cartesianCoordinatesTest38 );
+    Eigen::Vector3d cylindricalCoordinatesTest39 = convertCartesianToCylindricalCoordinates(
+                                                                    cartesianCoordinatesTest39 );
+    Eigen::Vector3d cylindricalCoordinatesTest40 = convertCartesianToCylindricalCoordinates(
+                                                                    cartesianCoordinatesTest40 );
+
+    if ( fabs( cylindricalCoordinatesTest37(0) - expectedCylindricalCoordinatesTest37(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalCoordinatesTest37(1) - expectedCylindricalCoordinatesTest37(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalCoordinatesTest37(2) - expectedCylindricalCoordinatesTest37(2) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCartesianToCylindricalCoordinates function does not "
+             << "function correctly, as the computed coordinates: ( "
+             << cylindricalCoordinatesTest37(0) << ", " << cylindricalCoordinatesTest37(1)
+             << ", " << cylindricalCoordinatesTest37(2)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCylindricalCoordinatesTest37(0) << ", "
+             << expectedCylindricalCoordinatesTest37(1) << ", "
+             << expectedCylindricalCoordinatesTest37(2) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    if ( fabs( cylindricalCoordinatesTest38(0) - expectedCylindricalCoordinatesTest38(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalCoordinatesTest38(1) - expectedCylindricalCoordinatesTest38(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalCoordinatesTest38(2) - expectedCylindricalCoordinatesTest38(2) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCartesianToCylindricalCoordinates function does not "
+             << "function correctly, as the computed coordinates: ( "
+             << cylindricalCoordinatesTest38(0) << ", " << cylindricalCoordinatesTest38(1)
+             << ", " << cylindricalCoordinatesTest38(2)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCylindricalCoordinatesTest38(0) << ", "
+             << expectedCylindricalCoordinatesTest38(1) << ", "
+             << expectedCylindricalCoordinatesTest38(2) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    if ( fabs( cylindricalCoordinatesTest39(0) - expectedCylindricalCoordinatesTest39(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalCoordinatesTest39(1) - expectedCylindricalCoordinatesTest39(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalCoordinatesTest39(2) - expectedCylindricalCoordinatesTest39(2) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCartesianToCylindricalCoordinates function does not "
+             << "function correctly, as the computed coordinates: ( "
+             << cylindricalCoordinatesTest39(0) << ", " << cylindricalCoordinatesTest39(1)
+             << ", " << cylindricalCoordinatesTest39(2)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCylindricalCoordinatesTest39(0) << ", "
+             << expectedCylindricalCoordinatesTest39(1) << ", "
+             << expectedCylindricalCoordinatesTest39(2) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    if ( fabs( cylindricalCoordinatesTest40(0) - expectedCylindricalCoordinatesTest40(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalCoordinatesTest40(1) - expectedCylindricalCoordinatesTest40(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalCoordinatesTest40(2) - expectedCylindricalCoordinatesTest40(2) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCartesianToCylindricalCoordinates function does not "
+             << "function correctly, as the computed coordinates: ( "
+             << cylindricalCoordinatesTest40(0) << ", " << cylindricalCoordinatesTest40(1)
+             << ", " << cylindricalCoordinatesTest40(2)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCylindricalCoordinatesTest40(0) << ", "
+             << expectedCylindricalCoordinatesTest40(1) << ", "
+             << expectedCylindricalCoordinatesTest40(2) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    // Test conversion from Cartesian (x, y, z, xdot, ydot, zdot) to
+    // cylindrical (r, theta, z, Vr, Vtheta, Vz) state.
+    // Test 41: Test conversion of ( 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).
+    // Test 42: Test conversion of ( 2.0, 0.0, -5.0, -4.0, 6.0, -6.0 ).
+    // Test 43: Test conversion of ( -7.0, -4.0, 3.0, 5.0, -3.0, 7.0 ).
+
+    // Cartesian states (x,y,z,xdot,ydot,zdot).
+    Eigen::VectorXd cartesianStateTest41( 6 ), cartesianStateTest42( 6 ),
+                    cartesianStateTest43( 6 );
+    cartesianStateTest41 << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0;
+    cartesianStateTest42 << 2.0, 0.0, -5.0, -4.0, 6.0, -6.0;
+    cartesianStateTest43 << -7.0, -4.0, 3.0, 5.0, -3.0, 7.0;
+
+    // Expected cylindrical states (r, theta, z, Vr, Vtheta, Vz).
+    Eigen::VectorXd expectedCylindricalStateTest41( 6 ), expectedCylindricalStateTest42( 6 ),
+                    expectedCylindricalStateTest43( 6 );
+    expectedCylindricalStateTest41 << 0.0, 0.0, 1.0, sqrt( 25.0 + 36.0 ), 0.0, -9.0;
+    expectedCylindricalStateTest42 << 2.0, 0.0, -5.0, -4.0, 6.0, -6.0;
+    expectedCylindricalStateTest43 << sqrt(49.0+16.0), atan2( -4.0, -7.0 ) + 2.0 * M_PI, 3.0,
+            ( -7.0 * 5.0 + ( -4.0 ) * -3.0 ) / sqrt( 49.0 + 16.0),
+            ( -7.0 * -3.0 - ( -4.0 ) * 5.0 ) / sqrt( 49.0 + 16.0), 7.0;
+
+    // Test cylindrical states (r, theta, z, Vr, Vtheta, Vz).
+    Eigen::VectorXd cylindricalStateTest41 = convertCartesianToCylindricalState(
+                                                            cartesianStateTest41 );
+    Eigen::VectorXd cylindricalStateTest42 = convertCartesianToCylindricalState(
+                                                            cartesianStateTest42 );
+    Eigen::VectorXd cylindricalStateTest43 = convertCartesianToCylindricalState(
+                                                            cartesianStateTest43 );
+
+    if ( fabs( cylindricalStateTest41(0) - expectedCylindricalStateTest41(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest41(1) - expectedCylindricalStateTest41(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest41(2) - expectedCylindricalStateTest41(2) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest41(3) - expectedCylindricalStateTest41(3) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest41(4) - expectedCylindricalStateTest41(4) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest41(5) - expectedCylindricalStateTest41(5) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCartesianToCylindricalState function does not "
+             << "function correctly, as the computed sate: ( "
+             << cylindricalStateTest41(0) << ", " << cylindricalStateTest41(1) << ", "
+             << cylindricalStateTest41(2) << ", " << cylindricalStateTest41(3) << ", "
+             << cylindricalStateTest41(4) << ", " << cylindricalStateTest41(5)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCylindricalStateTest41(0) << ", "
+             << expectedCylindricalStateTest41(1) << ", "
+             << expectedCylindricalStateTest41(2) << ", "
+             << expectedCylindricalStateTest41(3) << ", "
+             << expectedCylindricalStateTest41(4) << ", "
+             << expectedCylindricalStateTest41(5) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    if ( fabs( cylindricalStateTest42(0) - expectedCylindricalStateTest42(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest42(1) - expectedCylindricalStateTest42(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest42(2) - expectedCylindricalStateTest42(2) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest42(3) - expectedCylindricalStateTest42(3) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest42(4) - expectedCylindricalStateTest42(4) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest42(5) - expectedCylindricalStateTest42(5) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCartesianToCylindricalState function does not "
+             << "function correctly, as the computed sate: ( "
+             << cylindricalStateTest42(0) << ", " << cylindricalStateTest42(1) << ", "
+             << cylindricalStateTest42(2) << ", " << cylindricalStateTest42(3) << ", "
+             << cylindricalStateTest42(4) << ", " << cylindricalStateTest42(5)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCylindricalStateTest42(0) << ", "
+             << expectedCylindricalStateTest42(1) << ", "
+             << expectedCylindricalStateTest42(2) << ", "
+             << expectedCylindricalStateTest42(3) << ", "
+             << expectedCylindricalStateTest42(4) << ", "
+             << expectedCylindricalStateTest42(5) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
+    }
+
+    if ( fabs( cylindricalStateTest43(0) - expectedCylindricalStateTest43(0) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest43(1) - expectedCylindricalStateTest43(1) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest43(2) - expectedCylindricalStateTest43(2) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest43(3) - expectedCylindricalStateTest43(3) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest43(4) - expectedCylindricalStateTest43(4) )
+         > std::numeric_limits< double >::epsilon( ) ||
+         fabs( cylindricalStateTest43(5) - expectedCylindricalStateTest43(5) )
+         > std::numeric_limits< double >::epsilon( ) )
+    {
+        cerr << "The convertCartesianToCylindricalState function does not "
+             << "function correctly, as the computed sate: ( "
+             << cylindricalStateTest43(0) << ", " << cylindricalStateTest43(1) << ", "
+             << cylindricalStateTest43(2) << ", " << cylindricalStateTest43(3) << ", "
+             << cylindricalStateTest43(4) << ", " << cylindricalStateTest43(5)
+             << " ) do not match the expected coordinates: ( "
+             << expectedCylindricalStateTest43(0) << ", "
+             << expectedCylindricalStateTest43(1) << ", "
+             << expectedCylindricalStateTest43(2) << ", "
+             << expectedCylindricalStateTest43(3) << ", "
+             << expectedCylindricalStateTest43(4) << ", "
+             << expectedCylindricalStateTest43(5) << " )" << endl;
+
+        isBasicMathematicsFunctionsErroneous = true;
     }
 
     // Return test result.

@@ -18,6 +18,10 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : J.C.P.Melman@tudelft.nl
  *
+ *    Author            : D.J. Gondelach
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : D.J.Gondelach@student.tudelft.nl
+ *
  *    Checker           : L. Abdulkadir
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : L.Abdulkadir@student.tudelft.nl
@@ -26,8 +30,12 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : d.dirkx@tudelft.nl
  *
+ *    Checker           : T. Secretin
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : T.A.LeitePintoSecretin@student.tudelft.nl
+ *
  *    Date created      : 3 September, 2010
- *    Last modified     : 5 September, 2011
+ *    Last modified     : 18 January, 2012
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -66,12 +74,18 @@
  *      110824    J. Leloux         Corrected doxygen documentation.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120118    D. Gondelach      Added convertCylindricalToCartesianCoordinates,
+ *                                  convertCylindricalToCartesianState,
+ *                                  convertCartesianToCylindricalCoordinates and
+ *                                  convertCartesianToCylindricalState functions.
+ *                                  Removed convertCylindricalToCartesian function.
  */
 
 #ifndef BASICMATHEMATICSFUNCTIONS_H
 #define BASICMATHEMATICSFUNCTIONS_H
 
 // Include statements.
+#include <boost/math/special_functions/sign.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <ctime>
 #include <Eigen/Core>
@@ -206,23 +220,103 @@ void convertSphericalToCartesian( double radius, double azimuthAngle, double zen
 void convertCartesianToSpherical( const Eigen::VectorXd& cartesianCoordinates,
                                   Eigen::VectorXd& sphericalCoordinates );
 
-//! Convert cylindrical to cartesian coordinates, z value unaffected.
+//! Convert cylindrical to Cartesian coordinates.
 /*!
-* Function to convert cylindrical to cartesian coordinates.
+* Function to convert cylindrical to Cartesian coordinates.
 * Schematic representation can be found on, e.g.,
 * http://mathworld.wolfram.com/CylindricalCoordinates.html.
-* The transformation equations are the following, with \f$ r \f$  the radius and
-* \f$ \theta \f$ the azimuth angle:
+* The transformation equations are the following, with \f$ r \f$ the radius and
+* \f$ \theta \f$ the azimuth angle [rad]:
 * \f{eqnarray*}{
 *      x &=& r\cos\theta \\
 *      y &=& r\sin\theta \\
 *      z &=& z \\
 * \f}
-* Since the value of z is left unaffected by this transformation,
-* it is not set or changed by this function.
+* \param radius Cylindrical radial coordinate r.
+* \param azimuthAngle Cylindrical azimuthal coordinate \theta [rad].
+* \param z Cylindrical height coordinate z.
+* \return Vector of Cartesian coordinates [x,y,z].
 */
-void convertCylindricalToCartesian( double radius, double azimuthAngle,
-                                    Eigen::VectorXd& cartesianCoordinates );
+Eigen::Vector3d convertCylindricalToCartesianCoordinates(
+        double radius, double azimuthAngle, double z );
+
+//! Convert cylindrical to cartesian coordinates.
+/*!
+* Function to convert cylindrical to cartesian coordinates.
+* Schematic representation can be found on, e.g.,
+* http://mathworld.wolfram.com/CylindricalCoordinates.html.
+* The transformation equations are the following, with \f$ r \f$ the radius and
+* \f$ \theta \f$ the azimuth angle [rad]:
+* \f{eqnarray*}{
+*      x &=& r\cos\theta \\
+*      y &=& r\sin\theta \\
+*      z &=& z \\
+* \f}
+* \param cylindricalCoordinates Vector of cylindrical coordinates [r,theta,z].
+* \return Vector of Cartesian coordinates [x,y,z].
+*/
+Eigen::Vector3d convertCylindricalToCartesianCoordinates( Eigen::Vector3d cylindricalCoordinates );
+
+//! Convert cylindrical to Cartesian state.
+/*!
+* Function to convert cylindrical to Cartesian state.
+* Schematic representation can be found on, e.g.,
+* http://mathworld.wolfram.com/CylindricalCoordinates.html and
+* http://staffweb.cms.gre.ac.uk/~ct02/research/thesis/node26.html.
+* The transformation equations are the following, with \f$ r \f$ the radius and
+* \f$ \theta \f$ the azimuth angle [rad]:
+* \f{eqnarray*}{
+*      x &=& r\cos\theta \\
+*      y &=& r\sin\theta \\
+*      z &=& z \\
+*      \dot{x} &=& V_r\cos{\theta} - V_{\theta}\sin{theta} \\
+*      \dot{y} &=& V_r\sin{\theta} + V_{\theta}\cos{theta} \\
+*      \dot{z} &=& V_z
+* \f}
+* \param cylindricalState Vector of cylindrical state [r,theta,z,Vr,Vtheta,Vz],
+*           where Vtheta = r*thetadot.
+* \return Vector of Cartesian state [x,y,z,xdot,ydot,zdot].
+*/
+Eigen::VectorXd convertCylindricalToCartesianState( Eigen::VectorXd cylindricalState );
+
+//! Convert Cartesian to cylindrical coordinates.
+/*!
+* Function to convert Cartesian to cylindrical coordinates.
+* Schematic representation can be found on, e.g.,
+* http://mathworld.wolfram.com/CylindricalCoordinates.html.
+* The transformation equations are the following, with \f$ r \f$ the radius and
+* \f$ \theta \f$ the azimuth angle [rad] [0,2\f$ \pi \f$]:
+* \f{eqnarray*}{
+*      r &=& \sqrt{x^2+y^2} \\
+*      \theta &=& \arctan{\frac{y}{x}} \\
+*      z &=& z
+* \f}
+* \param cartesianCoordinates Vector of Cartesian coordinates [x,y,z].
+* \return Vector of cylindrical coordinates [r,theta,z].
+*/
+Eigen::Vector3d convertCartesianToCylindricalCoordinates( Eigen::Vector3d cartesianCoordinates );
+
+//! Convert Cartesian to cylindrical state.
+/*!
+* Function to convert Cartesian to cylindrical state.
+* Schematic representation can be found on, e.g.,
+* http://mathworld.wolfram.com/CylindricalCoordinates.html and
+* http://staffweb.cms.gre.ac.uk/~ct02/research/thesis/node26.html.
+* The transformation equations are the following, with \f$ r \f$  the radius,
+* \f$ \theta \f$ the azimuth angle [rad] [0,2\pi] and \f$ V_r \f$, \f$ V_{\theta} \f$ and
+* \f$ V_z \f$ the linear cylindrical velocities:
+* \f{eqnarray*}{
+*      r &=& \sqrt{x^2+y^2} \\
+*      \theta &=& \arctan{\frac{y}{x}} \\
+*      z &=& z \\
+*      V_r = \dot{r} &=& \frac{x\dot{x}+y\dot{y}}{\sqrt{x^2+y^2}} \\
+*      V_{\theta} = r\dot{\theta} &=& \frac{x\dot{y}-y\dot{x}}{\sqrt{x^2+y^2}} \\
+*      V_z = \dot{z}
+* \f}
+* \param cylindricalState Vector of Cartesian state [x,y,z,xdot,ydot,zdot].
+* \return Vector of cylindrical state [r,theta,z,Vr,Vtheta,Vz], where Vtheta = r*thetadot.
+*/
+Eigen::VectorXd convertCartesianToCylindricalState( Eigen::VectorXd cartesianState );
 
 //! Compute modulo of double.
 /*!

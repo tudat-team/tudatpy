@@ -9,12 +9,20 @@
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : d.dirkx@tudelft.nl
  *
+ *    Author            : D. Gondelach
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : d.gondelach@student.tudelft.nl
+ *
  *    Checker           : K. Kumar
  *    Affiliation       : Delft University of Technology
  *    E-mail address    : K.Kumar@tudelft.nl
  *
+ *    Checker           : T. Secretin
+ *    Affiliation       : Delft University of Technology
+ *    E-mail address    : T.A.LeitePintoSecretin@student.tudelft.nl
+ *
  *    Date created      : 25 November, 2010
- *    Last modified     : 5 September, 2011
+ *    Last modified     : 18 January, 2012
  *
  *    References
  *
@@ -43,6 +51,7 @@
  *      110209    K. Kumar          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120118    D. Gondelach      Implemented new convertCylindricalToCartesianCoordinates.
  */
 
 // Include statements.
@@ -63,14 +72,14 @@ using std::cos;
 Eigen::VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle, double lengthFraction )
 {
     // Determines the radius of the cone at the given length fraction.
-    double localRadius_ = startRadius_ + length_ * lengthFraction * std::tan( coneHalfAngle_ );
+    double localRadius = startRadius_ + length_ * lengthFraction * std::tan( coneHalfAngle_ );
 
-    // Set x and y coordinate of untransformed cone.
-    mathematics::convertCylindricalToCartesian( localRadius_, azimuthAngle,
-                                                cartesianPositionVector_ );
+    // Compute x, y and z coordinates of untransformed cone.
+    Eigen::Vector3d cartesianPosition = mathematics::convertCylindricalToCartesianCoordinates(
+                localRadius, azimuthAngle, -length_ * lengthFraction );
 
-    // Set z coordinate of untransformed cone.
-    cartesianPositionVector_( 2 ) = -length_ * lengthFraction;
+    // Set Cartesian coordinates of untransformed cone.
+    cartesianPositionVector_.head( 3 ) = cartesianPosition;
 
     // Transform conical frustum to desired position and orientation.
     transformPoint( cartesianPositionVector_ );
