@@ -1,0 +1,158 @@
+/*    Copyright (c) 2010-2012 Delft University of Technology.
+ *
+ *    This software is protected by national and international copyright.
+ *    Any unauthorized use, reproduction or modification is unlawful and
+ *    will be prosecuted. Commercial and non-private application of the
+ *    software in any form is strictly prohibited unless otherwise granted
+ *    by the authors.
+ *
+ *    The code is provided without any warranty; without even the implied
+ *    warranty of merchantibility or fitness for a particular purpose.
+ *
+ *    Changelog
+ *      YYMMDD    Author            Comment
+ *      100906    J. Melman         First creation of code.
+ *      100910    J. Melman         No more switch statement and enum.
+ *      100929    K. Kumar          Minor comment changes.
+ *      110112    K. Kumar          Modified to use GravityFieldModel; corrected path.
+ *      110113    K. Kumar          Added getGravityFieldModel( ) function.
+ *      110310    K. Kumar          Added ephemeris; added missing destructor.
+ *
+ *    References
+ *
+ */
+
+#ifndef TUDAT_CELESTIAL_BODY_H
+#define TUDAT_CELESTIAL_BODY_H
+
+#include <iostream>
+#include "Tudat/Astrodynamics/Bodies/body.h"
+#include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
+#include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/States/cartesianElements.h"
+#include "Tudat/Astrodynamics/Bodies/Ephemeris/ephemeris.h"
+
+namespace tudat
+{
+
+//! Celestial body class.
+/*!
+ * Celestial body class.
+ */
+class CelestialBody : public Body
+{
+public:
+
+    //! Default constructor.
+    /*!
+     * Default constructor.
+     */
+    CelestialBody( ) : pointerToEphemeris_( NULL ), pointerToGravityFieldModel_( NULL ),
+        pointerToAtmosphereModel_( NULL ) { }
+
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    virtual ~CelestialBody( ) { }
+
+    //! Set ephemeris.
+    /*!
+     * Sets the ephemeris.
+     * \param pointerToEphemeris Pointer to ephemeris.
+     */
+    void setEphemeris( Ephemeris* pointerToEphemeris )
+    { pointerToEphemeris_ = pointerToEphemeris; }
+
+    //! Set gravity field model.
+    /*!
+     * Sets the gravity field model.
+     * \param pointerToGravityFieldModel Pointer to gravity field model.
+     */
+    void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel )
+    { pointerToGravityFieldModel_ = pointerToGravityFieldModel; }
+
+    //! Set atmosphere model.
+    /*!
+     * Sets the atmosphere model.
+     * \param pointerToAtmosphereModel Pointer to an atmosphere model.
+     */
+    void setAtmosphereModel( AtmosphereModel* pointerToAtmosphereModel )
+    { pointerToAtmosphereModel_ = pointerToAtmosphereModel; }
+
+    //! Get gravitational parameter.
+    /*!
+     * Returns the gravitational parameter in meter^3 per second^2.
+     * \return Gravitational parameter.
+     */
+    const double getGravitationalParameter( ) const
+    { return pointerToGravityFieldModel_->getGravitationalParameter( ); }
+
+    //! Get state from ephemeris at given Julian date.
+    /*!
+     * Returns the state of the celestial body from the defined ephemeris at
+     * the given Julian date in Cartesian elements.
+     * \return Pointer to Cartesian elements.
+     */
+    CartesianElements* getStateFromEphemeris( double julianDate )
+    { return pointerToEphemeris_->getStateFromEphemeris( julianDate ); }
+
+    //! Get ephemeris.
+    /*!
+     * Gets the ephemeris.
+     * \return Pointer to ephemeris.
+     */
+    Ephemeris* getEphemeris( ) { return pointerToEphemeris_; }
+
+    //! Get gravity field model.
+    /*!
+     * Returns the gravity field model.
+     * \return Gravity field model.
+     */
+    GravityFieldModel* getGravityFieldModel( ) { return pointerToGravityFieldModel_; }
+
+    //! Get atmosphere model.
+    /*!
+     * Returns the atmosphere model.
+     * \return Pointer to the atmosphere model.
+     */
+    AtmosphereModel* getAtmospheremodel( ) { return pointerToAtmosphereModel_; }
+
+    //! Overload ostream to print class information.
+    /*!
+     * Overloads ostream to print class information.
+     * \param stream Stream object.
+     * \param celestialBody Celestial body.
+     * \return Stream object.
+     */
+    friend std::ostream& operator<<( std::ostream& stream, CelestialBody& celestialBody )
+    {
+        stream << "This is a CelestialBody object. The gravitational parameter is set to: "
+               << celestialBody.getGravitationalParameter( ) << std::endl;
+        return stream;
+    }
+
+protected:
+
+    //! Pointer to ephemeris.
+    /*!
+     * Pointer to ephemeris.
+     */
+    Ephemeris* pointerToEphemeris_;
+
+    //! Pointer to gravity field model.
+    /*!
+     * Pointer to gravity field model.
+     */
+    GravityFieldModel* pointerToGravityFieldModel_;
+
+    //! Pointer to atmosphere model.
+    /*!
+     * Pointer to atmosphere model.
+     */
+    AtmosphereModel* pointerToAtmosphereModel_;
+};
+
+} // namespace tudat
+
+#endif // TUDAT_CELESTIAL_BODY_H

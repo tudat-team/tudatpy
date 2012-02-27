@@ -1,0 +1,71 @@
+#    Copyright (c) 2010-2011 Delft University of Technology.
+#
+#    This software is protected by national and international copyright.
+#    Any unauthorized use, reproduction or modification is unlawful and
+#    will be prosecuted. Commercial and non-private application of the
+#    software in any form is strictly prohibited unless otherwise granted
+#    by the authors.
+#
+#    The code is provided without any warranty; without even the implied
+#    warranty of merchantibility or fitness for a particular purpose.
+#
+#    Changelog
+#      YYMMDD    Author            Comment
+#      170210    S.Billemont       File created.
+#
+#
+#    Information
+#      This file contains all the settings that the user can override to allow for the detection
+#      of various required components and customization of the Tudat installation.
+#
+#      If you want to use this file, rename to "UserSettings.txt"
+#
+
+#--------------------------------------
+# Tudat;
+#--------------------------------------
+
+# If TudatCore auto properties are not found, you can set this path to the TudatCoreEnvironment.cmake directory
+#SET(TUDAT_CORE_ENVIRONMENT_PATH "C:/path/to/TudatCore/..")
+
+# If TudatCore is not found, use the following to manually set the path to the TudatCore.
+#SET(TUDAT_CORE_BASE_PATH "C:/path/to/TudatCore")
+
+# Enforce a rootpath for either packages or core directory
+# This should be used in case the FILE token does not given the full-path in the getRootPath() function in basicFunctions.h.
+#add_definitions(-DTUDAT_CUSTOM_ROOT_PATH="C:/My/Custom/Path/To/Tudat")
+#add_definitions(-DTUDAT_CORE_CUSTOM_ROOT_PATH="C:/My/Custom/Path/To/TudatCore")
+
+#--------------------------------------
+# Boost settings;
+#--------------------------------------
+
+# Set Boost paths manually:
+# If Boost is not found, use the following to manually set the path to the Boost include and library directories.
+#SET(BOOST_ROOT       "C:/path/to/boost")
+#SET(BOOST_INCLUDEDIR "C:/path/to/boost")
+# Set the path to where your build libraries (*.a *.lib) are located
+#SET(BOOST_LIBRARYDIR "C:/path/to/boost/stage/lib")
+
+# Additional boost debug settings, to check where things might be wrong:
+# Show details for every boost step performed:
+#SET(Boost_DEBUG      "TRUE")
+# Give more detailed cmake boost error messages:
+#SET(Boost_DETAILED_FAILURE_MSG "TRUE")
+
+#--------------------------------------
+# Eigen 3;
+#--------------------------------------
+
+# If Eigen3 is not found, use the following to manually set the path to the Eigen3 directory.
+#SET(EIGEN3_INCLUDE_DIR "C:/path/to/eigen3")          # Set to the path where you extracted eigen3
+#SET(EIGEN3_INCLUDE_DIR "${SRCROOT}/External/eigen3") # Or uncomment this if you extracted eigen in the External/eigen3 folder
+
+#--------------------------------------
+# Other CMakeSettings;
+#--------------------------------------
+
+# Force build in debug or release mode:
+#SET(CMAKE_BUILD_TYPE Debug)
+#SET(CMAKE_BUILD_TYPE Release)
+
