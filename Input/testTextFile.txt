@@ -1,9 +1,0 @@
-% Starting character % or skip line 1.
-% Starting character % or skip line 2.
-Test line 1.
-Test line 2.
-Test line 3.
-Test line 4 with KEYWORD in the line.
-% Starting character % or skip line 3.
-Test line 5.
-Test line 6.
