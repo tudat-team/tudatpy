@@ -38,6 +38,8 @@
 
 namespace tudat
 {
+namespace circular_restricted_three_body_problem
+{
 
 // Using declarations.
 using std::cerr;
@@ -159,4 +161,5 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     };
 }
 
+} // namespace circular_restricted_three_body_problem
 } // namespace tudat

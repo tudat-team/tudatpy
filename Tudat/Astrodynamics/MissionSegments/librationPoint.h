@@ -43,6 +43,8 @@
 
 namespace tudat
 {
+namespace circular_restricted_three_body_problem
+{
 
 //! Libration point class.
 /*!
@@ -277,6 +279,7 @@ private:
     }
 };
 
+} // namespace circular_restricted_three_body_problem
 } // namespace tudat
 
 #endif // TUDAT_LIBRATION_POINT_H
