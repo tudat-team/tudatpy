@@ -33,6 +33,16 @@ namespace aerodynamics
 
 } // namespace aerodynamics
 
+//! Circular Restricted Three Body Problem namespace.
+/*!
+ * Circular Restricted Three Body Problem namespace contain a function to compute the Jacobi
+ * energy, and a class to compute the location of the five Lagrange libration points.
+ */
+namespace circular_restricted_three_body_problem
+{
+
+} // namespace circular_restricted_three_body_problem
+
 //! Orbital element conversions namespace.
 /*!
  * The orbital element conversions namespace that contains free functions and classes to

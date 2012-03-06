@@ -38,13 +38,17 @@
 #include <limits>
 #include "Tudat/Astrodynamics/Bodies/celestialBody.h"
 #include "Tudat/Astrodynamics/Bodies/planet.h"
+#include "Tudat/Astrodynamics/States/cartesianPositionElements.h"
 #include "Tudat/Astrodynamics/MissionSegments/librationPoint.h"
+#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 
-// Using declarations.
 using std::cerr;
 using std::endl;
 using std::fabs;
-using namespace tudat;
+using tudat::circular_restricted_three_body_problem::LibrationPoint;
+using tudat::NewtonRaphson;
+using tudat::CartesianPositionElements;
+using tudat::Planet;
 
 //! Test determination of L1 location.
 bool testL1LibrationPointLocation( bool isLibrationPointComputationErroneous,
