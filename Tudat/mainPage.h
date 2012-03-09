@@ -1,5 +1,5 @@
 /*! \mainpage
- * Tudat is an astrodynamics library, providing various features, including numerical
+ * Tudat is an astrodynamics library, providing a number of features, including numerical
  * integrators, orbital element conversions, mission segments, gravitational and aerodynamic forces,
  * environment models, unit conversions, and various other functionality used by astrodynamicists.
  *
