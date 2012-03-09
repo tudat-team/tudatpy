@@ -15,6 +15,7 @@
  *      110901    L. van der Ham    First creation of code.
  *      120221    L. van der Ham    Fixed bug and up to date with latest standards.
  *      120227    K. Kumar          Boostified unit test; renamed file.
+ *      120307    K. Kumar          Moved file.
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -28,7 +29,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Astrodynamics/MissionSegments/jacobiEnergy.h"
+#include "Tudat/Astrodynamics/Gravitation/jacobiEnergy.h"
 
 namespace tudat
 {

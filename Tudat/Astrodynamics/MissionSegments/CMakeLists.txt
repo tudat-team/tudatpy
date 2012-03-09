@@ -20,9 +20,7 @@
 set(MISSIONSEGMENTS_SOURCES
   "${SRCROOT}${MISSIONSEGMENTSDIR}/escapeAndCapture.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.cpp"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/jacobiEnergy.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeter.cpp"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/librationPoint.cpp"
 )
 
 # Set the header files.
@@ -32,9 +30,7 @@ set(MISSIONSEGMENTS_HEADERS
   "${SRCROOT}${MISSIONSEGMENTSDIR}/escapeAndCapture.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/escapePhase.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.h"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/jacobiEnergy.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeter.h"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/librationPoint.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/trajectoryDesignMethod.h"
 )
 
@@ -59,11 +55,3 @@ target_link_libraries(test_GravityAssist tudat_bodies tudat_gravitation tudat_mi
 add_executable(test_LambertTargeter "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestLambertTargeter.cpp")
 setup_custom_test_program(test_LambertTargeter "${SRCROOT}${MISSIONSEGMENTSDIR}")
 target_link_libraries(test_LambertTargeter tudat_bodies tudat_gravitation tudat_mission_segments tudat_root_finding_methods tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
-add_executable(test_LibrationPoints "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestLibrationPoints.cpp")
-setup_custom_test_program(test_LibrationPoints "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_LibrationPoints tudat_bodies tudat_mission_segments tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
-add_executable(test_JacobiEnergy "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestJacobiEnergy.cpp")
-setup_custom_test_program(test_JacobiEnergy "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_JacobiEnergy tudat_bodies tudat_mission_segments tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

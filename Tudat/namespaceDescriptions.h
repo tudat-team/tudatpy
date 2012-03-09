@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -11,7 +11,8 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120220    A.Ronse           File created.
+ *      120220    A. Ronse          File created.
+ *      120307    K. Kumar          Updated description of circular restricted three-body problem.
  *
  *    References
  */
@@ -36,7 +37,8 @@ namespace aerodynamics
 //! Circular Restricted Three Body Problem namespace.
 /*!
  * Circular Restricted Three Body Problem namespace contain a function to compute the Jacobi
- * energy, and a class to compute the location of the five Lagrange libration points.
+ * energy, functions to convert from dimensionless Cartesian state and time to dimensional
+ * counterparts, and a class to compute the location of the five Lagrange libration points.
  */
 namespace circular_restricted_three_body_problem
 {
