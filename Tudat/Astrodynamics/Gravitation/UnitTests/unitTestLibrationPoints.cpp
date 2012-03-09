@@ -18,6 +18,7 @@
  *      111024    K. Kumar          Error spotted in L1/L2 tests; locations seem swapped.
  *                                  Tests commented out; needs to be fixed.
  *      111027    K. Kumar          Uncommented out tests as bugs fixed by L. van der Ham.
+ *      120307    K. Kumar          Moved file.
  *
  *    References:
  */
@@ -39,7 +40,7 @@
 #include "Tudat/Astrodynamics/Bodies/celestialBody.h"
 #include "Tudat/Astrodynamics/Bodies/planet.h"
 #include "Tudat/Astrodynamics/States/cartesianPositionElements.h"
-#include "Tudat/Astrodynamics/MissionSegments/librationPoint.h"
+#include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 
 using std::cerr;

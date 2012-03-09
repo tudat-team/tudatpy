@@ -22,6 +22,7 @@
  *      110927    L. van der Ham    Reverted to full equations of motion for determination location
  *                                  of colinear libration points.
  *      111027    K. Kumar          Moved 1-line functions from source file.
+ *      120307    K. Kumar          Moved file.
  *
  *    References:
  *      van der Ham, L., TBD

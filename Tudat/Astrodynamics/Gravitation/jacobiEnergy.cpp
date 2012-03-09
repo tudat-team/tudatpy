@@ -16,6 +16,7 @@
  *      120227    K. Kumar          Updated code to new Tudat N Commandments; added enum to
  *                                  replace "magic numbers"; renamed file.
  *      120306    K. Kumar          Removed erroneous Doxygen comments.
+ *      120307    K. Kumar          Moved file.
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -24,7 +25,7 @@
 
 #include <cmath>
 
-#include "Tudat/Astrodynamics/MissionSegments/jacobiEnergy.h"
+#include "Tudat/Astrodynamics/Gravitation/jacobiEnergy.h"
 
 namespace tudat
 {
