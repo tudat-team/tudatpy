@@ -39,6 +39,7 @@
 #include <Eigen/Core>
 
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/Gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
 
@@ -104,6 +105,8 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
 //! Test if time conversion for CRTBP is computed correctly.
 BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
 {
+    using mathematics::PI;
+
     // Test 1: conversion of dimensionless to dimensional time for test particle in Sun-Jupiter
     // system [s] (Koon, 2006).
     {
@@ -118,7 +121,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
 
         // Compute dimensional time for one complete orbit.
         double computedDimensionalTime = tudat::circular_restricted_three_body_problem
-                ::convertDimensionlessTimeToDimensionalTime( 2.0 * M_PI, gravitationalParameterSun,
+                ::convertDimensionlessTimeToDimensionalTime( 2.0 * PI, gravitationalParameterSun,
                                                              gravitationalParameterJupiter,
                                                              distanceSunJupiter );
 
