@@ -19,6 +19,7 @@
 # Set the source files.
 set(GRAVITATION_SOURCES
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityField.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/gravitationalAccelerationModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/gravitationalForceModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/jacobiEnergy.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/librationPoint.cpp"
@@ -30,6 +31,7 @@ set(GRAVITATION_SOURCES
 set(GRAVITATION_HEADERS 
   "${SRCROOT}${GRAVITATIONDIR}/gravityFieldModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityField.h"
+  "${SRCROOT}${GRAVITATIONDIR}/gravitationalAccelerationModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/gravitationalForceModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/jacobiEnergy.h"
   "${SRCROOT}${GRAVITATIONDIR}/librationPoint.h"
@@ -46,6 +48,14 @@ setup_headers("${GRAVITATION_HEADERS}" "${GRAVITATIONDIR}")
 add_executable(test_SphericalHarmonicsGravityField "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestSphericalHarmonicsGravityField.cpp")
 setup_custom_test_program(test_SphericalHarmonicsGravityField "${SRCROOT}${GRAVITATIONDIR}")
 target_link_libraries(test_SphericalHarmonicsGravityField tudat_gravitation tudat_bodies ${Boost_LIBRARIES})
+
+add_executable(test_GravitationalForce "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravitationalForce.cpp")
+setup_custom_test_program(test_GravitationalForce "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_GravitationalForce tudat_gravitation tudat_bodies ${Boost_LIBRARIES})
+
+add_executable(test_GravitationalAcceleration "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravitationalAcceleration.cpp")
+setup_custom_test_program(test_GravitationalAcceleration "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_GravitationalAcceleration tudat_gravitation tudat_bodies ${Boost_LIBRARIES})
 
 add_executable(test_UnitConversionsCircularRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestUnitConversionsCircularRestrictedThreeBodyProblem.cpp")
 setup_custom_test_program(test_UnitConversionsCircularRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}")
