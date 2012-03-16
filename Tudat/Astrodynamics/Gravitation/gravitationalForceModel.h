@@ -23,6 +23,9 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110815    K. Kumar          Changed filename and class name; changed computeForce( )
  *                                  function and added setMass( ) function.
+ *      120209    K. Kumar          Changed class into free functions.
+ *      120316    D. Dirkx          Added old GravitationalForceModel class, with note that this
+ *                                  will be removed shortly.
  *
  *    References
  *
@@ -36,6 +39,8 @@
 #ifndef TUDAT_GRAVITATIONAL_FORCE_MODEL_H
 #define TUDAT_GRAVITATIONAL_FORCE_MODEL_H
 
+#include <Eigen/Core>
+
 #include "Tudat/Astrodynamics/Bodies/body.h"
 #include "Tudat/Astrodynamics/Bodies/celestialBody.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
@@ -43,12 +48,63 @@
 
 namespace tudat
 {
+namespace force_models
+{
 
+//! Compute gravitational force.
+/*!
+ * Computes gravitational force experienced by body1, due to its interaction with body2.
+ * The basis for this gravitational force is that both body1 and body2 are point masses,
+ * generating Newton's gravitational force:
+ * \f[
+ *      \bar{F}_{gravity} = -\frac{G * m_{1} * m_{2}}{r_{12}^{3}} * \bar{r}_{12}
+ * \f]
+ * where \f$G\f$ is the universal gravitational constant, \f$m_{1}\f$ is the mass of body1,
+ * \f$m_{2}\f$ is the mass of body2, and \f$\bar{r}_{12}\f$ is the relative position vector
+ * from body1 to body 2, with respect to an inertial (barycentric) reference frame.
+ * \param universalGravitationalParameter Universal gravitational constant [m^3 kg^-1 s^-2].
+ * \param massOfBodySubjectToForce Mass of body subject to force (body1) [kg].
+ * \param positionOfBodySubjectToForce Position vector of body subject to force (body1) [m].
+ * \param massOfBodyExertingForce Mass of body exerting force (body2) [kg].
+ * \param positionOfBodyExertingForce Position vector of body exerting force (body2) [m].
+ * \return Gravitational force exerted on body1 [N].
+ * \sa computeGravitationalAcceleration.
+ */
+Eigen::Vector3d computeGravitationalForce(
+        const double universalGravitationalParameter, const double massOfBodySubjectToForce,
+        const Eigen::Vector3d& positionOfBodySubjectToForce,
+        const double massOfBodyExertingForce, const Eigen::Vector3d& positionOfBodyExertingForce );
+
+//! Compute gravitational force.
+/*!
+ * Computes gravitational force experienced by body1, due to its interaction with another body
+ * (body2) The basis for this gravitational force is that both body1 and body2 are point masses,
+ * generating Newton's gravitational force:
+ * \f[
+ *      \bar{F}_{gravity} = -\frac{m_{1} * \mu_{2}}{r_{12}^{3}} * \bar{r}_{12}
+ * \f]
+ * where \f$m_{1}\f$ is the mass of body1, \f$\mu_{2}\f$ is the gravitational parameter of the
+ * central body (body2), and \f$\bar{r}_{12}\f$ is the relative position vector from body1 to
+ * the body exerting the force (body2), with respect to an inertial (barycentric) reference frame.
+ * \param massOfBodySubjectToForce Mass of body subject to force (body1) [kg].
+ * \param positionOfBodySubjectToForce Position vector of body subject to force (body1) [m].
+ * \param gravitationalParameterOfBodyExertingForce Gravitational parameter of body exerting
+ *          force (body2) [m^3 s^-2].
+ * \param positionOfBodyExertingForce Position vector of body exerting force (body2) [m].
+ * \return Gravitational force exerted on body1 [N].
+ * \sa computeGravitationalAcceleration.
+ */
+Eigen::Vector3d computeGravitationalForce(
+        const double massOfBodySubjectToForce, const Eigen::Vector3d& positionOfBodySubjectToForce,
+        const double gravitationalParameterOfBodyExertingForce,
+        const Eigen::Vector3d& positionOfBodyExertingForce );
+
+// WARNING: The following class will most likely be removed before May-2012.
 //! Gravitational force model class.
 /*!
  * Class containing the gravitational force model.
  */
- class GravitationalForceModel : public ForceModel
+class GravitationalForceModel : public ForceModel
 {
 public:
 
@@ -103,6 +159,7 @@ private:
     GravityFieldModel* pointerToGravityFieldModel_;
 };
 
+} // namespace force_models
 } // namespace tudat
 
 #endif // TUDAT_GRAVITATIONAL_FORCE_MODEL_H

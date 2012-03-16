@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2011 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -23,21 +23,43 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110815    K. Kumar          Changed filename and class name; changed computeForce( )
  *                                  function and added setMass( ) function.
- *
- *    References
- *
+ *      120209    K. Kumar          Changed class into free functions.
+ *      120316    D. Dirkx          Added old GravitationalForceModel class, with note that this
+ *                                  will be removed shortly.
  */
 
-// Temporary notes (move to class/function doxygen):
-// The mass and state of the body on which the force acts should be
-// transferred to the Body class.
-// 
-
-#include <iostream>
+#include <cmath>
+#include "Tudat/Astrodynamics/Gravitation/gravitationalAccelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/gravitationalForceModel.h"
 
 namespace tudat
 {
+namespace force_models
+{
+
+//! Compute gravitational force.
+Eigen::Vector3d computeGravitationalForce(
+        const double universalGravitationalParameter, const double massOfBodySubjectToForce,
+        const Eigen::Vector3d& positionOfBodySubjectToForce,
+        const double massOfBodyExertingForce, const Eigen::Vector3d& positionOfBodyExertingForce )
+{
+    return massOfBodySubjectToForce *
+            tudat::acceleration_models::computeGravitationalAcceleration(
+                universalGravitationalParameter, positionOfBodySubjectToForce,
+                massOfBodyExertingForce, positionOfBodyExertingForce );
+}
+
+//! Compute gravitational force.
+Eigen::Vector3d computeGravitationalForce(
+        const double massOfBodySubjectToForce, const Eigen::Vector3d& positionOfBodySubjectToForce,
+        const double gravitationalParameterOfBodyExertingForce,
+        const Eigen::Vector3d& positionOfBodyExertingForce )
+{
+    return massOfBodySubjectToForce *
+            tudat::acceleration_models::computeGravitationalAcceleration(
+                positionOfBodySubjectToForce, gravitationalParameterOfBodyExertingForce,
+                positionOfBodyExertingForce );
+}
 
 //! Compute force due to gravity field.
 void GravitationalForceModel::computeForce( State* pointerToState, double time = 0.0 )
@@ -48,4 +70,5 @@ void GravitationalForceModel::computeForce( State* pointerToState, double time =
             * pointerToBodySubjectToForce_->getMass( );
 }
 
+} // namespace force_models
 } // namespace tudat
