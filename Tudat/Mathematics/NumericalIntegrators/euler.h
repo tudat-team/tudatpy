@@ -23,6 +23,7 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120207    B. Tong Minh      Updated to TudatCore compatibility.
  *      120213    K. Kumar          Modified getCurrentInterval() to getIndependentVariable().
+ *      120321    K. Kumar          Corrected bug in performIntegrationStep().
  *
  *    References
  *
@@ -122,11 +123,11 @@ public:
         lastIndependentVariable_ = currentIndependentVariable_;
         lastState_ = currentState_;
 
-        stepSize_ = stepSize;
-        currentIndependentVariable_ += stepSize_;
-
         currentState_ += stepSize * stateDerivativeFunction_(
                     currentIndependentVariable_, currentState_ );
+
+        stepSize_ = stepSize;
+        currentIndependentVariable_ += stepSize_;
 
         // Return the integration result.
         return currentState_;

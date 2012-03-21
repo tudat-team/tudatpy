@@ -54,6 +54,8 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
     // Test 1: conversion of dimensionless to dimensional Cartesian state vector for test particle
     // in Sun-Jupiter system [m, m/s] (Koon, 2006).
     {
+        namespace crtbp = astrodynamics::gravitation::circular_restricted_three_body_problem;
+
         // Set distance between Sun and Jupiter [m] [NASA, 2010].
         double distanceSunJupiter = 7.784e11;
 
@@ -87,8 +89,8 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
 
         // Convert dimensionless to dimensional Cartesian state vector for test particle [m, m/s].
         Eigen::VectorXd computedDimensionalStateOfTestParticle( 6 );
-        computedDimensionalStateOfTestParticle = tudat::circular_restricted_three_body_problem
-                ::convertDimensionlessCartesianStateToDimensionalUnits(
+        computedDimensionalStateOfTestParticle =
+                crtbp::convertDimensionlessCartesianStateToDimensionalUnits(
                     dimensionlessStateOfTestParticle, gravitationalParameterSun,
                     gravitationalParameterJupiter, distanceSunJupiter );
 
@@ -105,6 +107,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
 //! Test if time conversion for CRTBP is computed correctly.
 BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
 {
+    namespace crtbp = astrodynamics::gravitation::circular_restricted_three_body_problem;
     using mathematics::PI;
 
     // Test 1: conversion of dimensionless to dimensional time for test particle in Sun-Jupiter
@@ -120,10 +123,10 @@ BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
         double gravitationalParameterSun = 1.32712440018e20;
 
         // Compute dimensional time for one complete orbit.
-        double computedDimensionalTime = tudat::circular_restricted_three_body_problem
-                ::convertDimensionlessTimeToDimensionalTime( 2.0 * PI, gravitationalParameterSun,
-                                                             gravitationalParameterJupiter,
-                                                             distanceSunJupiter );
+        double computedDimensionalTime =
+                crtbp::convertDimensionlessTimeToDimensionalTime(
+                    2.0 * PI, gravitationalParameterSun, gravitationalParameterJupiter,
+                    distanceSunJupiter );
 
         // Set expected orbital period of system [s].
         double expectedOrbitalPeriodOfSunJupiterSystem = 3.733e08;
