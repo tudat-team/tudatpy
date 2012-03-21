@@ -43,10 +43,10 @@
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 
+namespace crtbp = tudat::astrodynamics::gravitation::circular_restricted_three_body_problem;
 using std::cerr;
 using std::endl;
 using std::fabs;
-using tudat::circular_restricted_three_body_problem::LibrationPoint;
 using tudat::NewtonRaphson;
 using tudat::CartesianPositionElements;
 using tudat::Planet;
@@ -56,7 +56,7 @@ bool testL1LibrationPointLocation( bool isLibrationPointComputationErroneous,
                                    double massParameter )
 {
     // Declare L1 Libration Point object.
-    LibrationPoint librationPointL1;
+    crtbp::LibrationPoint librationPointL1;
 
     // Set mass parameter.
     librationPointL1.setMassParameter( massParameter );
@@ -68,7 +68,7 @@ bool testL1LibrationPointLocation( bool isLibrationPointComputationErroneous,
     librationPointL1.setNewtonRaphsonMethod( &newtonRaphsonForL1 );
 
     // Compute location of Lagrange libration point.
-    librationPointL1.computeLocationOfLibrationPoint( LibrationPoint::L1 );
+    librationPointL1.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L1 );
 
     // Determine location of libration point in Earth-Moon system:
     CartesianPositionElements positionOflibrationPointL1 = librationPointL1
@@ -96,7 +96,7 @@ bool testL2LibrationPointLocation( bool isLibrationPointComputationErroneous,
                                    double massParameter )
 {
     // Declare L2 Libration Point object.
-    LibrationPoint librationPointL2;
+    crtbp::LibrationPoint librationPointL2;
 
     // Set mass parameter.
     librationPointL2.setMassParameter( massParameter );
@@ -108,7 +108,7 @@ bool testL2LibrationPointLocation( bool isLibrationPointComputationErroneous,
     librationPointL2.setNewtonRaphsonMethod( &newtonRaphsonForL2 );
 
     // Compute location of Lagrange libration point.
-    librationPointL2.computeLocationOfLibrationPoint( LibrationPoint::L2 );
+    librationPointL2.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L2 );
 
     // Determine location of libration point in Earth-Moon system:
     CartesianPositionElements positionOflibrationPointL2 = librationPointL2
@@ -135,7 +135,7 @@ bool testL3LibrationPointLocation( bool isLibrationPointComputationErroneous,
                                    double massParameter )
 {
     // Declare L3 Libration Point object.
-    LibrationPoint librationPointL3;
+    crtbp::LibrationPoint librationPointL3;
 
     // Set mass parameter.
     librationPointL3.setMassParameter( massParameter );
@@ -147,7 +147,7 @@ bool testL3LibrationPointLocation( bool isLibrationPointComputationErroneous,
     librationPointL3.setNewtonRaphsonMethod( &newtonRaphsonForL3 );
 
     // Compute location of Lagrange libration point.
-    librationPointL3.computeLocationOfLibrationPoint( LibrationPoint::L3 );
+    librationPointL3.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L3 );
 
     // Determine location of libration point in Earth-Moon system:
     CartesianPositionElements positionOflibrationPointL3 = librationPointL3
@@ -174,13 +174,13 @@ bool testL4LibrationPointLocation( bool isLibrationPointComputationErroneous,
                                    double massParameter )
 {
     // Declare L4 Libration Point object.
-    LibrationPoint librationPointL4;
+    crtbp::LibrationPoint librationPointL4;
 
     // Set mass parameter.
     librationPointL4.setMassParameter( massParameter );
 
     // Compute location of Lagrange libration point.
-    librationPointL4.computeLocationOfLibrationPoint( LibrationPoint::L4 );
+    librationPointL4.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L4 );
 
     // Determine location of libration point in Earth-Moon system:
     CartesianPositionElements positionOflibrationPointL4 = librationPointL4
@@ -208,13 +208,13 @@ bool testL5LibrationPointLocation( bool isLibrationPointComputationErroneous,
                                    double massParameter )
 {
     // Declare L5 Libration Point object.
-    LibrationPoint librationPointL5;
+    crtbp::LibrationPoint librationPointL5;
 
     // Set mass parameter.
     librationPointL5.setMassParameter( massParameter );
 
     // Compute location of Lagrange libration point.
-    librationPointL5.computeLocationOfLibrationPoint( LibrationPoint::L5 );
+    librationPointL5.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L5 );
 
     // Determine location of libration point in Earth-Moon system:
     CartesianPositionElements positionOflibrationPointL5 = librationPointL5
@@ -259,7 +259,7 @@ int main( )
 
     // Test 1: Test dimensionless mass parameter computation.
     // Declare Libration Point object.
-    LibrationPoint librationPoint;
+    crtbp::LibrationPoint librationPoint;
 
     // Create predefined Earth object.
     Planet predefinedEarth;

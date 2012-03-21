@@ -13,6 +13,8 @@
  *      YYMMDD    Author            Comment
  *      120220    A. Ronse          File created.
  *      120307    K. Kumar          Updated description of circular restricted three-body problem.
+ *      120321    K. Kumar          Moved circular restricted three-body problem inside gravitation
+ *                                  namespace, which is inside a new astrodynamics namespace.
  *
  *    References
  */
@@ -22,6 +24,41 @@
 
 namespace tudat
 {
+
+//! Astrodynamics namespace.
+/*!
+ * The astrodynamics namespace contains the gravitation namespace.
+ */
+namespace astrodynamics
+{
+
+//! Gravitation namespace.
+/*!
+ * The gravitation namespace contains a base class for gravity field models. Derived classes to
+ * generate a spherical harmonics (only interface implemented) and central gravity field are also
+ * included. The namespace also includes functions to compute the gravitational force and
+ * acceleration resulting from point masses. For the Circular Restricted Three-Body Problem
+ * (CRTBP), this namespace also includes a function to compute Jacobi energy, a class to compute
+ * the locations of the five Lagrange libration points, functions to convert from normalized,
+ * dimensionless units to dimensional units, and a class to compute the state derivatives.
+ */
+namespace gravitation
+{
+
+//! Circular Restricted Three-Body Problem (CRTBP) namespace.
+/*!
+ * This namespace includes a function to compute Jacobi energy, a class to compute the locations of
+ * the five Lagrange libration points, functions to convert from normalized, dimensionless state
+ * and time to dimensional counterparts, and a class to compute the state derivatives.
+ */
+namespace circular_restricted_three_body_problem
+{
+
+} // namespace circular_restricted_three_body_problem
+
+} // namespace gravitation
+
+} // namespace astrodynamics
 
 //! Aerodynamics namespace.
 /*!
@@ -33,17 +70,6 @@ namespace aerodynamics
 {
 
 } // namespace aerodynamics
-
-//! Circular Restricted Three Body Problem namespace.
-/*!
- * Circular Restricted Three Body Problem namespace contain a function to compute the Jacobi
- * energy, functions to convert from dimensionless Cartesian state and time to dimensional
- * counterparts, and a class to compute the location of the five Lagrange libration points.
- */
-namespace circular_restricted_three_body_problem
-{
-
-} // namespace circular_restricted_three_body_problem
 
 //! Orbital element conversions namespace.
 /*!

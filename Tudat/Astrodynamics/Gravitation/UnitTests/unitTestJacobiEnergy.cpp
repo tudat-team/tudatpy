@@ -11,7 +11,6 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      YYMMDD    Author            Comment
  *      110901    L. van der Ham    First creation of code.
  *      120221    L. van der Ham    Fixed bug and up to date with latest standards.
  *      120227    K. Kumar          Boostified unit test; renamed file.
@@ -41,19 +40,20 @@ BOOST_AUTO_TEST_CASE( testJacobiEnergy )
 {
     // Test 1: test Jacobi energy at L1.
     {
+        namespace crtbp = astrodynamics::gravitation::circular_restricted_three_body_problem;
+
         // Set mass parameter for Earth-moon system. Value from Table 3.1 (Wakker, 2007).
         double massParameter = 0.01215;
 
         // Initialize position L1, from Table 3.4 (Wakker, 2007).
         Eigen::VectorXd stateAtL1 = Eigen::VectorXd::Zero( 6 );
-        stateAtL1( circular_restricted_three_body_problem::normalizedXPositionIndex ) = 0.836914;
+        stateAtL1( crtbp::normalizedXPositionIndex ) = 0.836914;
 
         // Set expected value of Jacobi energy at L1.
         double expectedJacobiEnergy = 3.1883;
 
         // Compute Jacobi energy.
-        double computedJacobiEnergy = circular_restricted_three_body_problem::
-                computeJacobiEnergy( massParameter, stateAtL1 );
+        double computedJacobiEnergy = crtbp::computeJacobiEnergy( massParameter, stateAtL1 );
 
         // Check if expected Jacobi energy matches computed.
         BOOST_CHECK_CLOSE_FRACTION( expectedJacobiEnergy,  computedJacobiEnergy, 1.0e-4 );
@@ -61,20 +61,21 @@ BOOST_AUTO_TEST_CASE( testJacobiEnergy )
 
     // Test 2: test Jacobi energy at L4.
     {
+        namespace crtbp = astrodynamics::gravitation::circular_restricted_three_body_problem;
+
         // Set mass parameter for Earth-moon system. Value from Table 3.1 (Wakker, 2007).
         double massParameter = 0.01215;
 
         // Initialize position L4, from Table 3.4 (Wakker, 2007).
         Eigen::VectorXd stateAtL4 = Eigen::VectorXd::Zero( 6 );
-        stateAtL4( circular_restricted_three_body_problem::normalizedXPositionIndex ) = 0.487849;
-        stateAtL4( circular_restricted_three_body_problem::normalizedYPositionIndex ) = 0.866025;
+        stateAtL4( crtbp::normalizedXPositionIndex ) = 0.487849;
+        stateAtL4( crtbp::normalizedYPositionIndex ) = 0.866025;
 
         // Set expected value of Jacobi energy at L4.
         double expectedJacobiEnergy = 2.9880;
 
         // Compute Jacobi energy.
-        double computedJacobiEnergy = circular_restricted_three_body_problem::
-                computeJacobiEnergy( massParameter, stateAtL4 );
+        double computedJacobiEnergy = crtbp::computeJacobiEnergy( massParameter, stateAtL4 );
 
         // Check if expected Jacobi energy matches computed.
         BOOST_CHECK_CLOSE_FRACTION( expectedJacobiEnergy,  computedJacobiEnergy, 1.0e-6 );

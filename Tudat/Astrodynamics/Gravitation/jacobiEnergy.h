@@ -17,6 +17,8 @@
  *                                  replace "magic numbers"; renamed file.
  *      120306    K. Kumar          Added Doxygen equation.
  *      120307    K. Kumar          Moved file.
+ *      120321    K. Kumar          Moved enum for state element indices to
+ *                                  stateDerivativeCircularRestrictedThreeBodyProblem.h.
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -28,25 +30,16 @@
 
 #include <Eigen/Core>
 
+#include <Tudat/Astrodynamics/Gravitation/stateDerivativeCircularRestrictedThreeBodyProblem.h>
+
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace gravitation
 {
 namespace circular_restricted_three_body_problem
 {
-
-//! State elements indices in CRTBP.
-/*!
- * State elements indices in CRTBP. These are indices for Cartesian elements in normalized units,
- * in a co-rotating reference frame (co-rotating with the primaries).
- */
-enum StateElementIndices
-{
-    normalizedXPositionIndex,
-    normalizedYPositionIndex,
-    normalizedZPositionIndex,
-    normalizedXVelocityIndex,
-    normalizedYVelocityIndex,
-    normalizedZVelocityIndex
-};
 
 //! Compute Jacobi energy.
 /*!
@@ -68,6 +61,8 @@ double computeJacobiEnergy( const double massParameter,
                             const Eigen::VectorXd& stateInNormalizedUnits );
 
 } // namespace circular_restricted_three_body_problem
-} // tudat
+} // namespace gravitation
+} // namespace astrodynamics
+} // namespace tudat
 
 #endif // TUDAT_JACOBI_ENERGY_H

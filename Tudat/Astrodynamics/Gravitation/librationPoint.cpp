@@ -39,6 +39,10 @@
 
 namespace tudat
 {
+namespace astrodynamics
+{
+namespace gravitation
+{
 namespace circular_restricted_three_body_problem
 {
 
@@ -163,4 +167,6 @@ void LibrationPoint::computeLocationOfLibrationPoint(
 }
 
 } // namespace circular_restricted_three_body_problem
+} // namespace gravitation
+} // namespace astrodynamics
 } // namespace tudat
