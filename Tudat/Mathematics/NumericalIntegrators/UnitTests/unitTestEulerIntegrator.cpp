@@ -213,11 +213,11 @@ BOOST_AUTO_TEST_CASE( testEulerIntegrator )
     // Case 5: test with an example from Burden and Faires.
     {
         BOOST_CHECK( testValidityOfEulerIntegrator(
-                    benchmarkFunctions[ BurdenAndFairesEuler ].pointerToStateDerivativeFunction_,
-                    benchmarkFunctions[ BurdenAndFairesEuler ].intervalStart_,
-                    benchmarkFunctions[ BurdenAndFairesEuler ].intervalEnd_, 0.2,
-                    benchmarkFunctions[ BurdenAndFairesEuler ].initialState_,
-                    benchmarkFunctions[ BurdenAndFairesEuler ].finalState_, 1.0e-9 ) );
+                    benchmarkFunctions[ BurdenAndFaires ].pointerToStateDerivativeFunction_,
+                    benchmarkFunctions[ BurdenAndFaires ].intervalStart_,
+                    benchmarkFunctions[ BurdenAndFaires ].intervalEnd_, 0.001,
+                    benchmarkFunctions[ BurdenAndFaires ].initialState_,
+                    benchmarkFunctions[ BurdenAndFaires ].finalState_,  1.0e-2 ) );
     }
 
     // Case 6: test if difference in type between state and state derivative works.

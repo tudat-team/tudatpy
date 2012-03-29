@@ -15,7 +15,6 @@
  *      120207    K. Kumar          Adapted to use modified benchmark functions in Tudat Core.
  *      120213    K. Kumar          Modified getCurrentInterval() to getIndependentVariable();
  *                                  transferred to Boost unit test framework.
- *      120321    K. Kumar          Updated (Burden and Faires, 2011) benchmark function call.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -224,12 +223,11 @@ bool testValidityOfRungeKuttaVariableStepsizeIntegrator(
     {
         testRungeKuttaVariableStepsizeIsOk &= testValidityOfRungeKuttaVariableStepsizeIntegrator(
                     coefficients,
-                    benchmarkFunctions[ BurdenAndFairesRungeKuttaFehlberg ]
-                    .pointerToStateDerivativeFunction_,
-                    benchmarkFunctions[ BurdenAndFairesRungeKuttaFehlberg ].intervalStart_,
-                    benchmarkFunctions[ BurdenAndFairesRungeKuttaFehlberg ].intervalEnd_, 0.1,
-                    benchmarkFunctions[ BurdenAndFairesRungeKuttaFehlberg ].initialState_,
-                    benchmarkFunctions[ BurdenAndFairesRungeKuttaFehlberg ].finalState_, 1.0e-5 );
+                    benchmarkFunctions[ BurdenAndFaires ].pointerToStateDerivativeFunction_,
+                    benchmarkFunctions[ BurdenAndFaires ].intervalStart_,
+                    benchmarkFunctions[ BurdenAndFaires ].intervalEnd_, 0.1,
+                    benchmarkFunctions[ BurdenAndFaires ].initialState_,
+                    benchmarkFunctions[ BurdenAndFaires ].finalState_, 1.0e-4 );
     }
 
     return testRungeKuttaVariableStepsizeIsOk;
