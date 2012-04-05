@@ -1,0 +1,70 @@
+%    Copyright (c) 2010-2012 Delft University of Technology.
+%
+%    This software is protected by national and international copyright.
+%    Any unauthorized use,  reproduction or modification is unlawful and
+%    will be prosecuted. Commercial and non-private application of the
+%    software in any form is strictly prohibited unless otherwise granted
+%    by the authors.
+%
+%    The code is provided without any warranty; without even the implied
+%    warranty of merchantibility or fitness for a particular purpose.
+%
+%    Changelog
+%      YYMMDD    Author            Comment
+%      120404    K. Kumar          File created and data generated.
+%
+%    References
+%      The Mathworks,  Inc. DOPRI87,  Symbolic Math Toolbox,  2012. 
+%
+%    This file contains output data generated using the DOPRI87 numerical integrator in the 
+%    Symbolic Math toolbox. The ordinary differential equation used is:
+%    
+%    dy/dt = y - t^2 + 1 with y(0) = 0.5 for -1 <= t <= 1
+%
+%    The settings used for the integrator are:
+%    initialTime: -1.0
+%    finalTime: 1.0
+%    initialState: 0.7
+%    minimumStepSize: 1.0-16
+%    maximumStepSize: 10.0
+%    relativeError: 1.0e-15
+%    absoluteError: 1.0e-16
+%
+%    This data is used to test the discrete events functionality available in the Runge-Kutta  
+%    variable-step size numerical integrator available in Tudat.
+% 
+%  --------------------------------------
+%           t         |        y
+%  --------------------------------------
+-1.0, 0.5
+-0.926416195686067828, 0.543593944456174343
+-0.852832391372135655, 0.600932369739099492
+-0.779248587058203483, 0.672237886634874105
+-0.705664782744271311, 0.757750104207931837
+-0.632080978430339139, 0.85772692776809594
+-0.558497174116406966, 0.97244595594875803
+-0.5, 1.07436063535007175
+-0.5, 1.0
+-0.426732333285893355, 1.13564970223371099
+-0.353464666571786711, 1.28636981714507009
+-0.280196999857680066, 1.45248981738389026
+-0.206929333143573421, 1.63436422162080244
+-0.133661666429466776, 1.83237449850850751
+-0.0603939997153601316, 2.04693111537933086
+0.0, 2.23654095302510405
+0.0, -0.6
+0.078964526307674981, -0.567301043718559859
+0.157929052615349962, -0.532933279471949151
+0.236893578923024943, -0.497784262424492783
+0.315858105230699924, -0.462814474538653041
+0.394822631538374905, -0.429063316673436928
+0.473787157846049886, -0.397655593029159567
+0.5, -0.38795403312019872
+0.5, -0.1
+0.582220513898658511, -0.0479619520381124849
+0.664441027797317023, 0.000338905862951649899
+0.746661541695975534, 0.0434236789576013368
+0.828882055594634046, 0.0796867383276509013
+0.911102569493292557, 0.107384860372773238
+0.993323083391951068, 0.124625435607477012
+1.0, 0.125505013854704156
