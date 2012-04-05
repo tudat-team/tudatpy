@@ -11,7 +11,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120203    B. Tong Minh      File created
+ *      120203    B. Tong Minh      File created.
+ *      120327    K. Kumar          Added Runge-Kutta 87 (Dormand and Prince) enum option; added
+ *                                  lower-, higher-order, and order to integrate variables.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -36,6 +38,9 @@ namespace numerical_integrators
  */
 struct RungeKuttaCoefficients
 {
+    //! Enum of order estimates that can be integrated.
+    enum OrderEstimateToIntegrate { lower, higher };
+
     //! Main table of the Butcher tableau.
     Eigen::MatrixXd aCoefficients;
 
@@ -45,19 +50,27 @@ struct RungeKuttaCoefficients
     //! First column of the Butcher tableau.
     Eigen::VectorXd cCoefficients;
 
-    //! Order of the integrator.
+    //! Order of the higher order estimate.
     unsigned int higherOrder;
 
-    //! Order of the embedded low-order integrator.
+    //! Order of the lower order estimate.
     unsigned int lowerOrder;
+
+    //! Order estimate to integrate.
+    OrderEstimateToIntegrate orderEstimateToIntegrate;
 
     //! Default constructor.
     /*!
      * Default constructor that initializes coefficients to 0.
      */
     RungeKuttaCoefficients( ) :
-        aCoefficients( ), bCoefficients( ), cCoefficients( ),
-        higherOrder( 0 ), lowerOrder( 0 ) { }
+        aCoefficients( ),
+        bCoefficients( ),
+        cCoefficients( ),
+        higherOrder( 0 ),
+        lowerOrder( 0 ),
+        orderEstimateToIntegrate( lower )
+    { }
 
     //! Constructor.
     /*!
@@ -72,17 +85,23 @@ struct RungeKuttaCoefficients
                             const Eigen::MatrixXd& bCoefficients_,
                             const Eigen::MatrixXd& cCoefficients_,
                             const unsigned int higherOrder_,
-                            const unsigned int lowerOrder_ ) :
-        aCoefficients( aCoefficients_ ), bCoefficients( bCoefficients_ ),
+                            const unsigned int lowerOrder_,
+                            OrderEstimateToIntegrate order ) :
+        aCoefficients( aCoefficients_ ),
+        bCoefficients( bCoefficients_ ),
         cCoefficients( cCoefficients_ ),
-        higherOrder( higherOrder_ ), lowerOrder( lowerOrder_ )  { }
+        higherOrder( higherOrder_ ),
+        lowerOrder( lowerOrder_ ),
+        orderEstimateToIntegrate( order )
+    { }
 
     //! Enum of predefined coefficient sets.
     enum CoefficientSets
     {
         rungeKuttaFehlberg45,
         rungeKuttaFehlberg56,
-        rungeKuttaFehlberg78
+        rungeKuttaFehlberg78,
+        rungeKutta87DormandPrince
     };
 
     //! Get coefficients for a specified coefficient set.

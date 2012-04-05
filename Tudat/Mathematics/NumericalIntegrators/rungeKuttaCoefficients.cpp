@@ -11,14 +11,22 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120203    B. Tong Minh      File created
+ *      120203    B. Tong Minh      File created.
+ *      120327    K. Kumar          Added Runge-Kutta 87 (Dormand and Prince) coefficients; added
+ *                                  lower-, higher-order, and order to integrate variables.
  *
  *    References
- *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
+ *      The Mathworks, Inc. RKF78, Symbolic Math Toolbox, 2012.
+ *      Fehlberg, E. Classical Fifth-, Sixth-, Seventh-, and Eighth-Order Runge-Kutta Formulas With
+ *          Stepsize Control, Marshall Spaceflight Center, NASA TR R-278, 1968.
+ *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
+ *
+ *    The naming of the coefficient sets follows (Montenbruck and Gill, 2005).
  *
  */
 
 #include <Eigen/Core>
+
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 
 namespace tudat
@@ -32,11 +40,15 @@ namespace numerical_integrators
 void initializeRungeKuttaFehlberg45Coefficients( RungeKuttaCoefficients&
                                                  rungeKuttaFehlberg45Coefficients )
 {
-    rungeKuttaFehlberg45Coefficients.higherOrder = 5;
+    // Define characteristics of coefficient set.
     rungeKuttaFehlberg45Coefficients.lowerOrder = 4;
+    rungeKuttaFehlberg45Coefficients.higherOrder = 5;
+    rungeKuttaFehlberg45Coefficients.orderEstimateToIntegrate = RungeKuttaCoefficients::lower;
+
+    // This coefficient set is taken from (Fehlberg, 1968).
 
     // Define a-coefficients for the Runge-Kutta-Fehlberg method of order 5
-    // with an embedded 4th-order method for stepsize cont rol and a total of 6 stages.
+    // with an embedded 4th-order method for stepsize control and a total of 6 stages.
     rungeKuttaFehlberg45Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 6, 5 );
     rungeKuttaFehlberg45Coefficients.aCoefficients( 1, 0 ) = 1.0 / 4.0;
 
@@ -89,8 +101,12 @@ void initializeRungeKuttaFehlberg45Coefficients( RungeKuttaCoefficients&
 void initializeRungeKuttaFehlberg56Coefficients( RungeKuttaCoefficients&
                                                  rungeKuttaFehlberg56Coefficients )
 {
-    rungeKuttaFehlberg56Coefficients.higherOrder = 6;
+    // Define characteristics of coefficient set.
     rungeKuttaFehlberg56Coefficients.lowerOrder = 5;
+    rungeKuttaFehlberg56Coefficients.higherOrder = 6;
+    rungeKuttaFehlberg56Coefficients.orderEstimateToIntegrate = RungeKuttaCoefficients::lower;
+
+    // This coefficient set is taken from (Fehlberg, 1968).
 
     // Define a-coefficients for the Runge-Kutta-Fehlberg method of order 6
     // with an embedded 5th-order method for stepsize control and a total of 8 stages.
@@ -161,11 +177,15 @@ void initializeRungeKuttaFehlberg56Coefficients( RungeKuttaCoefficients&
 void initializeRungeKuttaFehlberg78Coefficients( RungeKuttaCoefficients&
                                                  rungeKuttaFehlberg78Coefficients )
 {
-    rungeKuttaFehlberg78Coefficients.higherOrder = 8;
+    // Define characteristics of coefficient set.
     rungeKuttaFehlberg78Coefficients.lowerOrder = 7;
+    rungeKuttaFehlberg78Coefficients.higherOrder = 8;
+    rungeKuttaFehlberg78Coefficients.orderEstimateToIntegrate = RungeKuttaCoefficients::lower;
 
-    // Define a-coefficients for the Runge-Kutta-Fehlberg method of order 8
-    // with an embedded 7th-order method for stepsize control and a total of 13 stages.
+    // This coefficient set is taken from (Fehlberg, 1968).
+
+    // Define a-coefficients for the Runge-Kutta-Fehlberg method of order 7
+    // with an embedded 8th-order method for stepsize control and a total of 13 stages.
     rungeKuttaFehlberg78Coefficients.aCoefficients = Eigen::MatrixXd::Zero( 13, 12 );
     rungeKuttaFehlberg78Coefficients.aCoefficients( 1, 0 ) = 2.0 / 27.0;
 
@@ -299,38 +319,204 @@ void initializeRungeKuttaFehlberg78Coefficients( RungeKuttaCoefficients&
             rungeKuttaFehlberg78Coefficients.bCoefficients( 1, 11 );
 }
 
+//! Initialize RK87 (Dormand and Prince) coefficients.
+void initializerungeKutta87DormandPrinceCoefficients(
+        RungeKuttaCoefficients& rungeKutta87DormandPrinceCoefficients )
+{
+    // Define characteristics of coefficient set.
+    rungeKutta87DormandPrinceCoefficients.lowerOrder = 7;
+    rungeKutta87DormandPrinceCoefficients.higherOrder = 8;
+    rungeKutta87DormandPrinceCoefficients.orderEstimateToIntegrate
+            = RungeKuttaCoefficients::higher;
+
+    // This coefficient set is taken from (Montenbruck and Gill, 2005).
+
+    // a-coefficients for the Runge-Kutta method of order 8
+    // with an embedded 7th-order method for stepsize control and a total of 13 stages.
+    rungeKutta87DormandPrinceCoefficients.aCoefficients = Eigen::MatrixXd::Zero( 13, 12 );
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 1, 0 ) = 1./18.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 2, 0 ) = 1./48.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 2, 1 ) = 1./16.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 3, 0 ) = 1./32.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 3, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 3, 2 ) = 3./32.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 4, 0 ) = 5./16.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 4, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 4, 2 ) = -75./64.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 4, 3 ) = 75./64.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 5, 0 ) = 3./80.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 5, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 5, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 5, 3 ) = 3./16.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 5, 4 ) = 3./20.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 6, 0 ) = 29443841./614563906.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 6, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 6, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 6, 3 ) = 77736538./692538347.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 6, 4 ) = -28693883./1125000000.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 6, 5 ) = 23124283./1800000000.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 7, 0 ) = 16016141./946692911.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 7, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 7, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 7, 3 ) = 61564180./158732637.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 7, 4 ) = 22789713./633445777.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 7, 5 ) = 545815736./2771057229.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 7, 6 ) = -180193667./1043307555.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 8, 0 ) = 39632708./573591083.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 8, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 8, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 8, 3 ) = -433636366./683701615.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 8, 4 ) = -421739975./2616292301.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 8, 5 ) = 100302831./723423059.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 8, 6 ) = 790204164./839813087.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 8, 7 ) = 800635310./3783071287.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 0 ) = 246121993./1340847787.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 3 ) = -37695042795./15268766246.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 4 ) = -309121744./1061227803.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 5 ) = -12992083./490766935.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 6 ) = 6005943493./2108947869.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 7 ) = 393006217./1396673457.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 9, 8 ) = 123872331./1001029789.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 0 ) = -1028468189./846180014.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 3 ) = 8478235783./508512852.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 4 ) = 1311729495./1432422823.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 5 ) = -10304129995./1701304382.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 6 ) = -48777925059./3047939560.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 7 ) = 15336726248./1032824649.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 8 ) = -45442868181./3398467696.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 10, 9 ) = 3065993473./597172653.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 0 ) = 185892177./718116043.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 3 ) = -3185094517./667107341.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 4 ) = -477755414./1098053517.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 5 ) = -703635378./230739211.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 6 ) = 5731566787./1027545527.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 7 ) = 5232866602./850066563.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 8 ) = -4093664535./808688257.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 9 ) = 3962137247./1805957418.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 11, 10 ) = 65686358./487910083.;
+
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 0 ) = 403863854./491063109.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 3 ) = -5068492393./434740067.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 4 ) = -411421997./543043805.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 5 ) = 652783627./914296604.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 6 ) = 11173962825./925320556.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 7 ) = -13158990841./6184727034.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 8 ) = 3936647629./1978049680.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 9 ) = -160528059./685178525.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 10 ) = 248638103./1413531060.;
+    rungeKutta87DormandPrinceCoefficients.aCoefficients( 12, 11 ) = 0.;
+
+    // c-coefficients for the Runge-Kutta method of order 8
+    // with an embedded 7th-order method for stepsize control and a total of 13 stages.
+    rungeKutta87DormandPrinceCoefficients.cCoefficients = Eigen::VectorXd::Zero( 13 );
+
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 0 ) = 0;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 1 ) = 1./18.;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 2 ) = 1./12.;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 3 ) = 1./8.;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 4 ) = 5./16.;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 5 ) = 3./8.;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 6 ) = 59./400.;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 7 ) = 93./200.;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 8 ) = 5490023248./9719169821. ;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 9 ) = 13./20.;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 10 ) = 1201146811./1299019798. ;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 11 ) = 1.0;
+    rungeKutta87DormandPrinceCoefficients.cCoefficients( 12 ) = 1.0;
+
+    // b-coefficients for the Runge-Kutta method of order 8
+    // with an embedded 7th-order method for stepsize control and a total of 13 stages.
+    rungeKutta87DormandPrinceCoefficients.bCoefficients = Eigen::MatrixXd::Zero( 2, 13 );
+
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 0 ) = 14005451./335480064.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 3 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 4 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 5 ) = -59238493./1068277825.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 6 ) = 181606767./758867731.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 7 ) = 561292985./797845732.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 8 ) = -1041891430./1371343529.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 9 ) = 760417239./1151165299.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 10 ) = 118820643./751138087.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 11 ) = -528747749./2220607170.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 0, 12 ) = 1./4.;
+
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 0 ) = 13451932./455176623.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 1 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 2 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 3 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 4 ) = 0.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 5 ) = -808719846./976000145.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 6 ) = 1757004468./5645159321.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 7 ) = 656045339./265891186.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 8 ) = -3867574721./1518517206.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 9 ) = 465885868./322736535.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 10 ) = 53011238./667516719.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 11 ) = 2./45.;
+    rungeKutta87DormandPrinceCoefficients.bCoefficients( 1, 12 ) = 0.;
+}
+
 //! Get coefficients for a specified coefficient set
 const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
         RungeKuttaCoefficients::CoefficientSets coefficientSet )
 {
     static RungeKuttaCoefficients rungeKuttaFehlberg45Coefficients,
-            rungeKuttaFehlberg56Coefficients, rungeKuttaFehlberg78Coefficients;
+            rungeKuttaFehlberg56Coefficients, rungeKuttaFehlberg78Coefficients,
+            rungeKutta87DormandPrinceCoefficients;
 
     switch ( coefficientSet )
     {
-        case rungeKuttaFehlberg45:
-            if ( rungeKuttaFehlberg45Coefficients.higherOrder != 5 )
-            {
-                initializeRungeKuttaFehlberg45Coefficients( rungeKuttaFehlberg45Coefficients );
-            }
-            return rungeKuttaFehlberg45Coefficients;
+    case rungeKuttaFehlberg45:
+        if ( rungeKuttaFehlberg45Coefficients.higherOrder != 5 )
+        {
+            initializeRungeKuttaFehlberg45Coefficients( rungeKuttaFehlberg45Coefficients );
+        }
+        return rungeKuttaFehlberg45Coefficients;
 
-        case rungeKuttaFehlberg56:
-            if ( rungeKuttaFehlberg56Coefficients.higherOrder != 6 )
-            {
-                initializeRungeKuttaFehlberg56Coefficients( rungeKuttaFehlberg56Coefficients );
-            }
-            return rungeKuttaFehlberg56Coefficients;
+    case rungeKuttaFehlberg56:
+        if ( rungeKuttaFehlberg56Coefficients.higherOrder != 6 )
+        {
+            initializeRungeKuttaFehlberg56Coefficients( rungeKuttaFehlberg56Coefficients );
+        }
+        return rungeKuttaFehlberg56Coefficients;
 
-        case rungeKuttaFehlberg78:
-            if ( rungeKuttaFehlberg78Coefficients.higherOrder != 8 )
-            {
-                initializeRungeKuttaFehlberg78Coefficients( rungeKuttaFehlberg78Coefficients );
-            }
-            return rungeKuttaFehlberg78Coefficients;
+    case rungeKuttaFehlberg78:
+        if ( rungeKuttaFehlberg78Coefficients.higherOrder != 8 )
+        {
+            initializeRungeKuttaFehlberg78Coefficients( rungeKuttaFehlberg78Coefficients );
+        }
+        return rungeKuttaFehlberg78Coefficients;
 
-        default: // The default case will never occur because CoefficientsSet is an enum
-            throw RungeKuttaCoefficients( );
+    case rungeKutta87DormandPrince:
+        if ( rungeKutta87DormandPrinceCoefficients.higherOrder != 8 )
+        {
+            initializerungeKutta87DormandPrinceCoefficients(
+                        rungeKutta87DormandPrinceCoefficients );
+        }
+        return rungeKutta87DormandPrinceCoefficients;
+
+    default: // The default case will never occur because CoefficientsSet is an enum.
+        throw RungeKuttaCoefficients( );
     }
 }
 
