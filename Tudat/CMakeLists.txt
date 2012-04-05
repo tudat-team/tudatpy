@@ -103,7 +103,7 @@ install(DIRECTORY "${SRCROOT}/"
         FILES_MATCHING
             PATTERN "*.*"
             PATTERN "CMakeLists.txt.user" EXCLUDE
-)
+) 
 
 # Set the global macros for setting up targets.
 macro(setup_tudat_library_target target_name CUSTOM_OUTPUT_PATH)

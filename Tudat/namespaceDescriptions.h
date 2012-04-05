@@ -126,8 +126,9 @@ namespace interpolators
 //! Numerical integrators namespace.
 /*!
  * The numerical integrators namespace, containing a class that implements the Euler integrator,
- * a struct that defines the coefficients of a Runge-Kutta integrator and a class that implements
- * the Runge-Kutta variable stepsize integrator.
+ * a struct that defines the coefficients of various Runge-Kutta integrators
+ * ( RKF45, RKF56, RKF78, DOPRI87 ) and a class that implements the Runge-Kutta variable
+ * step size integrator.
  */
 namespace numerical_integrators
 {
