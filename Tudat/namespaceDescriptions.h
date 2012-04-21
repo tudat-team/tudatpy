@@ -27,10 +27,33 @@ namespace tudat
 
 //! Astrodynamics namespace.
 /*!
- * The astrodynamics namespace contains the gravitation namespace.
+ * The astrodynamics namespace is the top-level namespace for namespace related to astrodynamics
+ * functionality.
  */
 namespace astrodynamics
 {
+
+//! Acceleration models namespace.
+/*!
+ * In the acceleration models namespace, the various models for computing accelerations
+ * (gravitational, aerodynamic, etc. ) are defined as free functions. In future, these will be
+ * wrapped in classes too.
+ */
+namespace acceleration_models
+{
+
+} // namespace acceleration_models
+
+//! Force models namespace.
+/*!
+ * In the force models namespace, the various models for computing forces
+ * (gravitational, aerodynamic, etc. ) are defined as free functions. In future, these will be
+ * wrapped in classes too.
+ */
+namespace force_models
+{
+
+} // namespace force_models
 
 //! Gravitation namespace.
 /*!
@@ -58,13 +81,35 @@ namespace circular_restricted_three_body_problem
 
 } // namespace gravitation
 
+//! Moment models namespace.
+/*!
+ * In the moment models namespace, the various models for computing moments
+ * (aerodynamic, due to general resultant force, etc. ) are defined as free functions. In future,
+ * these will be wrapped in classes too.
+ */
+namespace moment_models
+{
+
+} // namespace moment_models
+
+//! Rotational acceleration models namespace
+/*!
+ * In the rotational acceleration models namespace, the various models for computing
+ * rotational accelerations (aerodynamic, etc. ) are defined as free functions. In future, these
+ * will be wrapped in classes too.
+ */
+namespace rotational_acceleration_models
+{
+
+} // namespace rotational_acceleration_models
+
 } // namespace astrodynamics
 
 //! Aerodynamics namespace.
 /*!
  * The aerodynamics namespace, containing constants and functions to compute flow characteristics
-   in super- and hypersonic flows, e.g., the Prandtl-Meyer function, various local surface
-   inclination methods, shock equations etc.
+ * in super- and hypersonic flows, e.g., the Prandtl-Meyer function, various local surface
+ * inclination methods, shock equations etc.
  */
 namespace aerodynamics
 {

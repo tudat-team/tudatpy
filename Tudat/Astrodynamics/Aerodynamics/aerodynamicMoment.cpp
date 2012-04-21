@@ -19,23 +19,35 @@
  *
  */
 
-#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
-
-#include <Eigen/Core>
 #include <Eigen/Geometry>
+
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicMoment.h"
 
 namespace tudat
 {
-
-//! Compute aerodynamic moment.
-void AerodynamicMoment::computeMoment( State* pointerToState, double time )
+namespace astrodynamics
+{
+namespace moment_models
 {
 
-    // Calculate moment.
-    moment_ = dynamicPressure_ * pointerToAerodynamicCoefficientInterface_->getReferenceArea( ) *
-            pointerToAerodynamicCoefficientInterface_->getReferenceLength( ) *
-            pointerToAerodynamicCoefficientInterface_->getCurrentMomentCoefficients( );
+//! Compute the aerodynamic moment in same reference frame as input coefficients.
+Eigen::MatrixXd computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
+                                          const double referenceLength,
+                                          const Eigen::Vector3d& momentCoefficients )
+{
+    return dynamicPressure * referenceArea * referenceLength * momentCoefficients;
 }
 
+//! Calculates the aerodynamic moment in same reference frame as input coefficients.
+Eigen::MatrixXd computeAerodynamicMoment(
+        const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface )
+{
+    return computeAerodynamicMoment( dynamicPressure,
+                                     coefficientInterface.getReferenceArea( ),
+                                     coefficientInterface.getReferenceLength( ),
+                                     coefficientInterface.getCurrentMomentCoefficients( ) );
+}
+
+} // namespace moment_models
+} // namespace astrodynamics
 } // namespace tudat
