@@ -14,6 +14,8 @@
  *      111215    T. Secretin       First creation of the code.
  *      111221    T. Secretin       Removed memory leaks. Added test for circular and
  *                                  near-parabolic orbits, as well as for negative eccentricities.
+ *      120421    K. Kumar          Updated test fixtures and cases to use updated conversion
+ *                                  object.
  *
  *    References
  *      http://www.esa.int/gsp/ACT/doc/INF/Code/globopt/GTOPtoolbox.rar
@@ -50,7 +52,6 @@ public:
     conversion_test_fixture( )
     {
         toleranceOrbitalElementConversion = 1e-8;
-        meanToEccentricAnomaly.setNewtonRaphson( &newtonRaphson );
     }
 
     //! Conversion tolerance to test against.
@@ -59,18 +60,31 @@ public:
      */
     double toleranceOrbitalElementConversion;
 
-    //! Conversion object to test; mean anomaly to eccentric anomaly conversion.
-    /*!
-     * Conversion object to test; mean anomaly to eccentric anomaly conversion.
-     */
-    tudat::orbital_element_conversions
-    ::ConvertMeanAnomalyToEccentricAnomaly meanToEccentricAnomaly;
-
     //! Rootfinder to use in the tests; Newton-Raphson object.
     /*!
      * Rootfinder to use in the tests; Newton-Raphson object.
      */
     tudat::NewtonRaphson newtonRaphson;
+
+    //! Convert mean anomaly to eccentric anomaly.
+    /*!
+     * Converts mean anomaly to eccentric anomaly by creating a conversion object to test and
+     * executing the conversion.
+     * \param eccentricity Eccentricity [-].
+     * \param meanAnomaly Mean anomaly [rad].
+     * \return eccentricAnomaly Eccentric anomaly [rad].
+     */
+    double convertMeanAnomalyToEccentricAnomaly( const double eccentricity,
+                                                 const double meanAnomaly )
+    {
+        // Conversion object to test; mean anomaly to eccentric anomaly conversion.
+        tudat::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
+                meanToEccentricAnomaly( eccentricity, meanAnomaly, &newtonRaphson );
+
+        // Convert to eccentric anomaly and return.
+        return meanToEccentricAnomaly.convert( );
+
+    }
 
 protected:
 
@@ -92,14 +106,9 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_circular )
     // Set reference value for eccentric anomaly;
     double referenceEccentricAnomaly = 1.0472;
 
-    // Set eccentricity.
-    meanToEccentricAnomaly.setEccentricity( testEccentricity );
-
-    // Set mean anomaly.
-    meanToEccentricAnomaly.setMeanAnomaly( testMeanAnomaly );
-
     // Compute eccentric anomaly.
-    double eccentricAnomaly = meanToEccentricAnomaly.convert( );
+    double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
+                testEccentricity, testMeanAnomaly );
 
     // Check if computed eccentric anomaly is less than error tolerance.
     BOOST_CHECK_CLOSE( eccentricAnomaly, 
@@ -129,14 +138,9 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_range )
     // Loop over sets of data.
     for ( int i = 0; i < 4; i++ )
     {
-        // Set eccentricity.
-        meanToEccentricAnomaly.setEccentricity( arrayOfTestEccentricities[ i ] );
-
-        // Set mean anomaly.
-        meanToEccentricAnomaly.setMeanAnomaly( arrayOfTestMeanAnomalies[ i ] );
-
         // Compute eccentric anomaly.
-        double eccentricAnomaly = meanToEccentricAnomaly.convert( );
+        double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
+                    arrayOfTestEccentricities[ i ], arrayOfTestMeanAnomalies[ i ] );
 
         // Check if computed eccentric anomaly is less than error tolerance.
         BOOST_CHECK_CLOSE( eccentricAnomaly,
@@ -154,14 +158,9 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_negative )
     // Set test value for mean anomaly.
     double testMeanAnomaly = 1.0472;
 
-    // Set eccentricity.
-    meanToEccentricAnomaly.setEccentricity( testEccentricity );
-
-    // Set mean anomaly.
-    meanToEccentricAnomaly.setMeanAnomaly( testMeanAnomaly );
-
     // Compute eccentric anomaly.
-    double eccentricAnomaly = meanToEccentricAnomaly.convert( );
+    double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
+                testEccentricity, testMeanAnomaly );
 
     // Check if computed eccentric anomaly is NaN for negative eccentricity.
     BOOST_CHECK( boost::math::isnan( eccentricAnomaly ) );
@@ -176,14 +175,9 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic )
     // Set test value for mean anomaly.
     double testMeanAnomaly = 1.0472;
 
-    // Set eccentricity.
-    meanToEccentricAnomaly.setEccentricity( testEccentricity );
-
-    // Set mean anomaly.
-    meanToEccentricAnomaly.setMeanAnomaly( testMeanAnomaly );
-
     // Compute eccentric anomaly.
-    double eccentricAnomaly = meanToEccentricAnomaly.convert( );
+    double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
+                testEccentricity, testMeanAnomaly );
 
     // Check if computed eccentric anomaly is NaN for parabolic orbits.
     BOOST_CHECK( boost::math::isnan( eccentricAnomaly ) );

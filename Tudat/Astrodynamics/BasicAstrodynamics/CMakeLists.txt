@@ -28,7 +28,6 @@ set(BASICASTRODYNAMICS_SOURCES
 # Set the header files.
 set(BASICASTRODYNAMICS_HEADERS 
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.h"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyBase.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToEccentricAnomaly.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/pureMomentModel.h"

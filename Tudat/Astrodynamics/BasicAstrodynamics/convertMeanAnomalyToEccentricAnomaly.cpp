@@ -41,6 +41,9 @@ using std::endl;
 //! Convert mean anomaly to eccentric anomaly.
 double ConvertMeanAnomalyToEccentricAnomaly::convert( )
 {
+    // Declare eccentric anomaly.
+    double eccentricAnomaly_ = std::numeric_limits<double>::signaling_NaN( );
+
     // Set the class that contains the functions needed for Newton-Raphson.
     newtonRaphsonAdaptor_.setClass( this );
 
@@ -53,12 +56,14 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
         // If orbit is circular mean anomaly and eccentric anomaly are equal.
         eccentricAnomaly_ = meanAnomaly_;
     }
+
     // Check if orbit is elliptical, and not near-parabolic.
     else if ( eccentricity_ < 0.98 && eccentricity_ > 0.0 )
     {
         // Set mathematical functions.
         newtonRaphsonAdaptor_.setPointerToFunction( &ConvertMeanAnomalyToEccentricAnomaly::
                                                     computeKeplersFunctionForEllipticalOrbits_ );
+
         newtonRaphsonAdaptor_.setPointerToFirstDerivativeFunction(
                     &ConvertMeanAnomalyToEccentricAnomaly::
                     computeFirstDerivativeKeplersFunctionForEllipticalOrbits_ );
@@ -72,14 +77,12 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
         // Set eccentric anomaly based on result of Newton-Raphson root-finding algorithm.
         eccentricAnomaly_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );
     }
+
     // Check if orbit is near-parabolic, i.e. eccentricity >= 0.98.
     else
     {
         cerr << "Orbit is near-parabolic and, at present conversion, between eccentric anomaly "
              << "and mean anomaly is not possible for eccentricities larger than: 0.98" << endl;
-
-        // Set eccentric anomaly to error value.
-        eccentricAnomaly_ = std::numeric_limits<double>::signaling_NaN( ) ;
     }
 
     // Return eccentric anomaly.

@@ -34,6 +34,9 @@ using std::endl;
 //! Convert mean anomaly to hyperbolic eccentric anomaly.
 double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
 {
+    // Declare hyperbolic eccentric anomaly.
+    double hyperbolicEccentricAnomaly_ = std::numeric_limits< double >::signaling_NaN( );
+
     // Set the class that contains the functions needed for Newton-Raphson.
     newtonRaphsonAdaptor_.setClass( this );
 
@@ -52,7 +55,8 @@ double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
                     computeFirstDerivativeKeplersFunctionForHyperbolicOrbits_ );
 
         // Set initial guess of hyperbolic eccentric anomaly to the mean anomaly.
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( 2.0 * meanAnomaly_ / eccentricity_ - 1.8 );
+        pointerToNewtonRaphson_->setInitialGuessOfRoot(
+                    2.0 * hyperbolicMeanAnomaly_ / eccentricity_ - 1.8 );
 
         // Execute Newton-Raphon method.
         pointerToNewtonRaphson_->execute( );
@@ -68,9 +72,6 @@ double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
         cerr << "Orbit is near-parabolic and, at present conversion, between hyperbolic eccentric "
              << "anomaly and hyperbolic mean anomaly is not possible for eccentricities in the "
              << "range: 0.8 < eccentricity < 1.2." << endl;
-
-        // Set hyperbolic eccentric anomaly to error value.
-        hyperbolicEccentricAnomaly_ = -1.0;
     }
 
     // Return hyperbolic eccentric anomaly.
