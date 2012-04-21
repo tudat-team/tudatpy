@@ -13,6 +13,7 @@
  *      YYMMDD    Author            Comment
  *      110214    K. Kumar          First creation of code.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      120421    K. Kumar          Removed base class; updated to set values through constructor.
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
@@ -23,7 +24,10 @@
 #ifndef TUDAT_CONVERT_MEAN_ANOMALY_TO_HYPERBOLIC_ECCENTRIC_ANOMALY_H
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_HYPERBOLIC_ECCENTRIC_ANOMALY_H
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyBase.h"
+#include <cmath>
+
+#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 namespace tudat
 {
@@ -34,7 +38,7 @@ namespace orbital_element_conversions
 /*!
  * Definition of mean anomaly to hyperbolic eccentric anomaly converter class.
  */
-class ConvertMeanAnomalyToHyperbolicEccentricAnomaly : public ConvertMeanAnomalyBase
+class ConvertMeanAnomalyToHyperbolicEccentricAnomaly
 {
 public:
 
@@ -42,7 +46,12 @@ public:
     /*!
      * Default constructor.
      */
-    ConvertMeanAnomalyToHyperbolicEccentricAnomaly( ) : hyperbolicEccentricAnomaly_( -1.0 ) { }
+    ConvertMeanAnomalyToHyperbolicEccentricAnomaly( const double eccentricity,
+                                                    const double hyperbolicMeanAnomaly,
+                                                    NewtonRaphson* pointerToNewtonRaphson )
+        : eccentricity_( eccentricity ), hyperbolicMeanAnomaly_( hyperbolicMeanAnomaly ),
+          pointerToNewtonRaphson_( pointerToNewtonRaphson )
+    { }
 
     //! Convert mean anomaly to hyperbolic eccentric anomaly.
     /*!
@@ -56,11 +65,23 @@ protected:
 
 private:
 
-    //! Hyperbolic eccentric anomaly.
+    //! Eccentricity.
     /*!
-     * Hyperbolic eccentric anomaly.
+     * Eccentricity.
      */
-    double hyperbolicEccentricAnomaly_;
+    double eccentricity_;
+
+    //! Mean anomaly.
+    /*!
+     * Mean anomaly.
+     */
+    double hyperbolicMeanAnomaly_;
+
+    //! Pointer to Newton-Raphson.
+    /*!
+     * Pointer to Newton-Raphson method.
+     */
+    NewtonRaphson* pointerToNewtonRaphson_;
 
     //! Pointer to adaptor NewtonRaphsonAdaptor.
     /*!
@@ -82,8 +103,8 @@ private:
      */
     double computeKeplersFunctionForHyperbolicOrbits_( double& hyperbolicEccentricAnomaly )
     {
-        return eccentricity_ * sinh( hyperbolicEccentricAnomaly )
-                - hyperbolicEccentricAnomaly - meanAnomaly_;
+        return eccentricity_ * std::sinh( hyperbolicEccentricAnomaly )
+                - hyperbolicEccentricAnomaly - hyperbolicMeanAnomaly_;
     }
 
     //! Compute first-derivative of Kepler's function for hyperbolic orbits.
@@ -100,7 +121,9 @@ private:
      */
     double computeFirstDerivativeKeplersFunctionForHyperbolicOrbits_(
         double& hyperbolicEccentricAnomaly )
-    { return eccentricity_ * cosh( hyperbolicEccentricAnomaly ) - 1.0; }
+    {
+        return eccentricity_ * std::cosh( hyperbolicEccentricAnomaly ) - 1.0;
+    }
 };
 
 } // namespace orbital_element_conversions

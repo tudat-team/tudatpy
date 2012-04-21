@@ -83,13 +83,6 @@ private:
      */
     double trueAnomalyAtGivenJulianData_;
 
-    //! Convert mean anomaly to eccentric anomaly.
-    /*!
-     * Convert mean anomaly to eccentric anomaly.
-     */
-    orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
-            convertMeanAnomalyToEccentricAnomaly_;
-
     //! Newton-Raphson method.
     /*!
      * Newton-Raphson method.

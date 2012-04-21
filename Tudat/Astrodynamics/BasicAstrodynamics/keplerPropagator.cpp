@@ -106,24 +106,17 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
                     initialEccentricAnomaly_,
                     initialStateInKeplerianElements( eccentricityIndex ) );
 
-        // Set Keplerian elements for mean anomaly to eccentric anomaly
-        // conversion.
-        ConvertMeanAnomalyToEccentricAnomaly convertMeanAnomalyToEccentricAnomaly_;
-        convertMeanAnomalyToEccentricAnomaly_.setEccentricity(
-                    initialStateInKeplerianElements( eccentricityIndex ) );
-
-        // Set Newton-Raphson method.
-        convertMeanAnomalyToEccentricAnomaly_.setNewtonRaphson( &newtonRaphson_ );
-
         // Compute change of mean anomaly between start and end of propagation.
         double meanAnomalyChange_ = convertElapsedTimeToEllipticalMeanAnomalyChange(
                     elapsedTime_, centralBodyGravitationalParameter,
                     initialStateInKeplerianElements( semiMajorAxisIndex ) );
 
-        // Set mean anomaly change in mean anomaly to eccentric anomaly
-        // conversions.
-        convertMeanAnomalyToEccentricAnomaly_.setMeanAnomaly( initialMeanAnomaly_
-                                                              + meanAnomalyChange_ );
+        // Set Keplerian elements and Newton-Raphson root-finder for mean anomaly to eccentric
+        // anomaly conversion.
+        ConvertMeanAnomalyToEccentricAnomaly convertMeanAnomalyToEccentricAnomaly_(
+                    initialStateInKeplerianElements( eccentricityIndex ),
+                    initialMeanAnomaly_ + meanAnomalyChange_,
+                    &newtonRaphson_ );
 
         // Compute eccentric anomaly for mean anomaly.
         double finalEccentricAnomaly_ = convertMeanAnomalyToEccentricAnomaly_.convert( );

@@ -14,6 +14,7 @@
  *      110210    K. Kumar          First creation of code.
  *      110215    E. Iorfida        Minor changes made.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      120421    K. Kumar          Removed base class; updated to set values through constructor.
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
@@ -23,7 +24,10 @@
 #ifndef TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyBase.h"
+#include <cmath>
+
+#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 namespace tudat
 {
@@ -41,20 +45,22 @@ namespace orbital_element_conversions
 /*!
  * Conversion utility to convert the mean anomaly to eccentric anomaly for elliptical orbits.
  */
-class ConvertMeanAnomalyToEccentricAnomaly : public ConvertMeanAnomalyBase
+class ConvertMeanAnomalyToEccentricAnomaly
 {
 public:
 
-    //! Construct converter with eccentricity and Eccentric Anomaly
+    //! Construct converter with eccentricity and mean anomaly.
     /*!
-     * This constructor initializes the eccentricity and the Eccentric Anomaly for the conversion 
+     * This constructor initializes the eccentricity and the mean anomaly for the conversion
      * routine.
-     * \param eccentricity The eccentricity of the orbit (default=0) [-].
-     * \param eccentricAnomaly The eccentric anomaly to convert to Mean anomaly (default=0) [rad].
+     * \param eccentricity The eccentricity of the orbit [-].
+     * \param eccentricAnomaly The mean anomaly to convert to eccentric anomaly [rad].
      */
-    ConvertMeanAnomalyToEccentricAnomaly( double eccentricity = 0.0,
-                                          double eccentricAnomaly = 0.0 )
-        :  eccentricAnomaly_( eccentricAnomaly ) { setEccentricity( eccentricity ); }
+    ConvertMeanAnomalyToEccentricAnomaly( const double eccentricity, const double meanAnomaly,
+                                          NewtonRaphson* pointerToNewtonRaphson )
+        : eccentricity_( eccentricity ), meanAnomaly_( meanAnomaly ),
+          pointerToNewtonRaphson_( pointerToNewtonRaphson )
+    { }
 
     //! Convert mean anomaly to eccentric anomaly.
     /*!
@@ -70,11 +76,23 @@ protected:
 
 private:
 
-    //! Eccentric anomaly.
+    //! Eccentricity.
     /*!
-     * Eccentric anomaly.
+     * Eccentricity.
      */
-    double eccentricAnomaly_;
+    double eccentricity_;
+
+    //! Mean anomaly.
+    /*!
+     * Mean anomaly.
+     */
+    double meanAnomaly_;
+
+    //! Pointer to Newton-Raphson.
+    /*!
+     * Pointer to Newton-Raphson method.
+     */
+    NewtonRaphson* pointerToNewtonRaphson_;
 
     //! Pointer to adaptor NewtonRaphsonAdaptor.
     /*!
@@ -95,7 +113,9 @@ private:
      * \return Value of Kepler's function for elliptical orbits.
      */
     double computeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly )
-    {     return eccentricAnomaly - eccentricity_ * sin( eccentricAnomaly ) - meanAnomaly_; }
+    {
+        return eccentricAnomaly - eccentricity_ * std::sin( eccentricAnomaly ) - meanAnomaly_;
+    }
 
     //! Compute first-derivative of Kepler's function for elliptical orbits.
     /*!
@@ -110,7 +130,9 @@ private:
      * \return Value of first-derivative of Kepler's function for elliptical orbits.
      */
     double computeFirstDerivativeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly )
-    { return 1.0 - eccentricity_ * cos( eccentricAnomaly ); }
+    {
+        return 1.0 - eccentricity_ * std::cos( eccentricAnomaly );
+    }
 };
 
 } // namespace orbital_element_conversions

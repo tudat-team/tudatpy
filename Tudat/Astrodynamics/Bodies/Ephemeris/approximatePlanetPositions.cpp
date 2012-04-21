@@ -42,7 +42,7 @@ namespace tudat
 //! Get state from ephemeris.
 CartesianElements* ApproximatePlanetPositions::
         getStateFromEphemeris( double julianDate )
-{
+{  
     // Set Julian date.
     julianDate_ = julianDate;
 
@@ -113,17 +113,12 @@ CartesianElements* ApproximatePlanetPositions::
         meanAnomalyAtGivenJulianDate_ -= 360.0;
     }
 
-    // Set eccentricty for mean anomaly to eccentric anomaly conversion.
-    convertMeanAnomalyToEccentricAnomaly_.setEccentricity(
-                planetKeplerianElementsAtGivenJulianDate_.getEccentricity( ) );
-
-    // Set mean anomaly for conversion to eccentric anomaly.
-    convertMeanAnomalyToEccentricAnomaly_.setMeanAnomaly(
-                unit_conversions::convertDegreesToRadians( meanAnomalyAtGivenJulianDate_ ) );
-
-    // Set Newton-Raphson method to use for mean anomaly to eccentric
-    // anomaly conversion.
-    convertMeanAnomalyToEccentricAnomaly_.setNewtonRaphson( &newtonRaphson_ );
+    // Declare for mean anomaly to eccentric anomaly conversion.
+    orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
+            convertMeanAnomalyToEccentricAnomaly_(
+                planetKeplerianElementsAtGivenJulianDate_.getEccentricity( ),
+                unit_conversions::convertDegreesToRadians( meanAnomalyAtGivenJulianDate_ ),
+                &newtonRaphson_ );
 
     eccentricAnomalyAtGivenJulianDate_ = convertMeanAnomalyToEccentricAnomaly_.convert( );
 

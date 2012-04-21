@@ -90,24 +90,18 @@ int main( )
     // Set tolerance for conversion.
     double toleranceOrbitalElementConversion = 1e-8;
 
+    // Set eccentricity.
+    double eccentricity = 0.01671;
+
     // Set mean anomaly.
     double meanAnomaly = unit_conversions::convertDegreesToRadians( 60.0 );
 
+    // Create Newton-Raphson object.
+    NewtonRaphson newtonRaphson;
+
     // Create object for mean anomaly to eccentric anomaly conversion.
     orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
-            convertMeanAnomalyToEccentricAnomaly;
-
-    // Create pointer to Newton-Raphson object.
-    NewtonRaphson* pointerToNewtonRaphson = new NewtonRaphson;
-
-    // Set eccentricity.
-    convertMeanAnomalyToEccentricAnomaly.setEccentricity( 0.01671 );
-
-    // Set mean anomaly.
-    convertMeanAnomalyToEccentricAnomaly.setMeanAnomaly( meanAnomaly );
-
-    // Set Newton-Raphson method.
-    convertMeanAnomalyToEccentricAnomaly.setNewtonRaphson( pointerToNewtonRaphson );
+            convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly, &newtonRaphson );
 
     // Compute eccentric anomaly.
     double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly.convert( );
