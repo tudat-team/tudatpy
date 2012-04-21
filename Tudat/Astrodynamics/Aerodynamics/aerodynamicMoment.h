@@ -22,12 +22,52 @@
 #ifndef TUDAT_AERODYNAMIC_MOMENT_H
 #define TUDAT_AERODYNAMIC_MOMENT_H
 
-#include <iostream>
+#include <Eigen/Core>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/pureMomentModel.h"
 
 namespace tudat
 {
+namespace astrodynamics
+{
+namespace moment_models
+{
+
+//! Compute the aerodynamic moment in same reference frame as input coefficients.
+/*!
+ * This function calculates the aerodynamic moment. It takes primitive types as arguments to
+ * perform the calculations. Therefor, these quantities (dynamic pressure, reference area and
+ * aerodynamic coefficients) have to computed before passing them to this function.
+ * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
+ * \param referenceArea Reference area of the aerodynamic coefficients.
+ * \param referenceLength Reference length of the aerodynamic coefficients. Note that this
+ *          reference length is used for all three independent directions.
+ * \param aerodynamicCoefficients. Aerodynamic moment coefficients in right-handed reference frame.
+ * \return Resultant aerodynamic moment, given in reference frame in which the
+ *          aerodynamic coefficients were given, but with opposite sign. i.e., a positive drag
+ *          coefficient will give a negative force in -x direction (in the aerodynamic frame).
+ */
+Eigen::MatrixXd computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
+                                          const double referenceLength,
+                                          const Eigen::Vector3d& momentCoefficients );
+
+//! Compute the aerodynamic moment in same reference frame as input coefficients.
+/*!
+ * This function calculates the aerodynamic moment. It takes the dynamic pressure and an
+ * aerodynamic coefficient interface as input. The coefficient interface has to have been
+ * updated with current vehicle conditions before being passed to this function. Aerodynamic
+ * coefficients and reference area and length are then retrieved from it.
+ * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
+ * \param coefficientInterface AerodynamicCoefficientInterface class from which reference area
+ *          and length, and the moment coefficients are retrieved.
+ * \return Resultant aerodynamic moment, given in reference frame in which the
+ *          aerodynamic coefficients were given.
+ */
+Eigen::MatrixXd computeAerodynamicMoment(
+        const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface );
 
 class AerodynamicMoment : public PureMomentModel
 {
@@ -39,7 +79,8 @@ public:
      */
     AerodynamicMoment( AerodynamicCoefficientInterface* pointerToAerodynamicCoefficientInterface ) :
         pointerToAerodynamicCoefficientInterface_( pointerToAerodynamicCoefficientInterface ),
-        dynamicPressure_( -0.0 ) { }
+        dynamicPressure_( TUDAT_NAN )
+    { }
 
     //! Set aerodynamic coefficient interface.
     /*!
@@ -47,15 +88,16 @@ public:
      * \return Aerodynamic coefficient interface used to retrieve aerodynamic coefficients.
      */
     AerodynamicCoefficientInterface* getAerodynamicCoefficientInterface( )
-    { return pointerToAerodynamicCoefficientInterface_; }
+    {
+        return pointerToAerodynamicCoefficientInterface_;
+    }
 
     //! Set dynamic pressure.
     /*!
      * Sets the dynamic pressure.
      * \param dynamicPressure Dynamic pressure.
      */
-    void setDynamicPressure( double dynamicPressure )
-    { dynamicPressure_ = dynamicPressure; }
+    void setDynamicPressure( const double dynamicPressure ) { dynamicPressure_ = dynamicPressure; }
 
     //! Get dynamic pressure.
     /*!
@@ -64,13 +106,19 @@ public:
      */
     double getDynamicPressure( ) { return dynamicPressure_; }
 
-    //! Compute aerodynamic moment
+    //! Compute aerodynamic moment.
     /*!
      * Computes the force due to the gravity field in Newtons.
      * \param pointerToState Pointer to an object of the State class containing current state.
      * \param time Current time.
      */
-    void computeMoment( State* pointerToState = NULL, double time = 0.0 );
+    void computeMoment( State* pointerToState = NULL, double time = 0.0 )
+    {
+        moment_ = computeAerodynamicMoment( dynamicPressure_,
+                pointerToAerodynamicCoefficientInterface_->getReferenceArea( ),
+                pointerToAerodynamicCoefficientInterface_->getReferenceLength( ),
+                pointerToAerodynamicCoefficientInterface_->getCurrentMomentCoefficients( ) );
+    }
 
 protected:
 
@@ -89,6 +137,8 @@ private:
     double dynamicPressure_;
 };
 
+} // namespace moment_models
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_MOMENT_H

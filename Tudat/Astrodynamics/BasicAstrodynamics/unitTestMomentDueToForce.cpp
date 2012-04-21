@@ -21,12 +21,13 @@
  *
  */
 
-// Include statements.
 #include <cmath>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
 #include <iostream>
 #include <limits>
+
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/momentDueToForceModel.h"
 
 //! Test implementation of moment due to force.
@@ -36,8 +37,9 @@ int main( )
     using std::endl;
     using std::fabs;
     using namespace tudat;
+    using namespace tudat::astrodynamics::moment_models;
 
-    bool isMomentDueToForceBroken = true;
+    bool isMomentDueToForceBroken = false;
 
     // Initialise objects.
     Eigen::Vector3d forceCoefficients;
@@ -78,6 +80,24 @@ int main( )
          errorInMoment( 2 ) > std::numeric_limits< double >::epsilon( ) )
     {
         isMomentDueToForceBroken = true;
-        cerr << "Test momentDueToForce failed." << endl;
+        cerr << "Test momentDueToForce using class failed." << endl;
     }
+
+    moment = computeMomentDueToForce( intermediateExpectedForce, momentArm );
+
+    // Error in calculation.
+    errorInMoment( 0 ) = fabs( ( expectedMomentDueToForce( 0 ) - moment( 0 ) ) / moment( 0 ) );
+    errorInMoment( 1 ) = fabs( ( expectedMomentDueToForce( 1 ) - moment( 1 ) ) / moment( 1 ) );
+    errorInMoment( 2 ) = fabs( ( expectedMomentDueToForce( 2 ) - moment( 2 ) ) / moment( 2 ) ) ;
+
+    if ( errorInMoment( 0 ) > std::numeric_limits< double >::epsilon( ) ||
+         errorInMoment( 1 ) > std::numeric_limits< double >::epsilon( ) ||
+         errorInMoment( 2 ) > std::numeric_limits< double >::epsilon( ) )
+    {
+        isMomentDueToForceBroken = true;
+        cerr << "Test momentDueToForce using class failed." << endl;
+    }
+
+
+    return isMomentDueToForceBroken;
 }

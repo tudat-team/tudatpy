@@ -20,6 +20,7 @@
 set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientGenerator.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.cpp"
@@ -31,7 +32,9 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientGenerator.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientInterface.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicRotationalAcceleration.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.h"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.h"
@@ -49,7 +52,7 @@ setup_headers("${AERODYNAMICS_HEADERS}" "${AERODYNAMICSDIR}")
 # Add unit tests.
 add_executable(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp")
 setup_custom_test_program(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_AerodynamicMomentAndAerodynamicForce tudat_aerodynamics)
+target_link_libraries(test_AerodynamicMomentAndAerodynamicForce tudat_aerodynamics ${Boost_LIBRARIES})
 
 add_executable(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicsNamespace.cpp")
 setup_custom_test_program(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}")
