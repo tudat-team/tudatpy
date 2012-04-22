@@ -15,36 +15,40 @@
  *      110131    E. Iorfida        Added pointerToCentralBody.
  *      110202    E. Iorfida        Modified structure of the code, unique base class for launch
  *                                  and capture paths.
- *      110208    E. Iorfida        Deleted inheritance from TrajectoryDesignMethod, and execute( ),
- *                                  function too. Modified getDeltaV into computeDeltaV.
+ *      110208    E. Iorfida        Deleted inheritance from TrajectoryDesignMethod, and
+ *                                  execute( ), function too. Modified getDeltaV into
+ *                                  computeDeltaV.
  *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element of
  *                                  GeometricShapes.
+ *      120416    T. Secretin       Corrected if-statements to detect NaN values.
  *
  *    References
  *
  */
 
+#include <boost/math/special_functions/fpclassify.hpp>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Astrodynamics/MissionSegments/escapeAndCapture.h"
 
 namespace tudat
 {
+namespace astrodynamics
+{
+namespace mission_segments
+{
 
 //! Default constructor.
-EscapeAndCapture::EscapeAndCapture( ) : 
-    centralBodyGravityfield_( NULL ), 
-    semiMajorAxis_ ( std::numeric_limits<double>::signaling_NaN( ) ), 
-    eccentricity_ ( std::numeric_limits<double>::signaling_NaN( ) ),
-    periapsisAltitude_ ( std::numeric_limits<double>::signaling_NaN( ) ), 
-    apoapsisAltitude_( std::numeric_limits<double>::signaling_NaN( ) ), 
-    hyperbolicExcessSpeed_( std::numeric_limits<double>::signaling_NaN( ) ),
-    deltaV_ ( std::numeric_limits<double>::signaling_NaN( ) ), 
-    parkingOrbitRadius_( std::numeric_limits<double>::signaling_NaN( ) ),
-    pointerToCentralBodySphere_ ( NULL )
-{
-}
+EscapeAndCapture::EscapeAndCapture( )
+    : centralBodyGravityfield_( NULL ), semiMajorAxis_( TUDAT_NAN ), eccentricity_( TUDAT_NAN ),
+      periapsisAltitude_( TUDAT_NAN ), apoapsisAltitude_( TUDAT_NAN ),
+      hyperbolicExcessSpeed_( TUDAT_NAN ), deltaV_ ( TUDAT_NAN ), parkingOrbitRadius_( TUDAT_NAN ),
+      pointerToCentralBodySphere_ ( NULL )
+{ }
 
 //! Compute delta-V of launch/capture phase.
-double& EscapeAndCapture::computeDeltaV( )
+double EscapeAndCapture::computeDeltaV( )
 {
     // Using declarations.
     using std::endl;
@@ -59,15 +63,15 @@ double& EscapeAndCapture::computeDeltaV( )
     // For the correct functioning of this routine, the periapsis
     // radius and the eccentricity will have to be known.
     // Eccentricity and semi-major axis set by user.
-    if ( eccentricity_ != ( -1.0 ) && semiMajorAxis_ != ( -0.0 ) )
+    if ( !( boost::math::isnan )( eccentricity_ ) && !( boost::math::isnan )( semiMajorAxis_ ) )
     {
         // Compute periapsis radius.
         periapsisRadius_ = semiMajorAxis_ * ( 1.0 - eccentricity_ );
 
     }
     // Periapsis and apoapsis altitudes set by user.
-    else if ( periapsisAltitude_ != ( -0.0 ) &&
-              apoapsisAltitude_ != ( -0.0 ) )
+    else if ( !( boost::math::isnan )( periapsisAltitude_ ) &&
+              !( boost::math::isnan )( apoapsisAltitude_ ) )
     {
         // Compute periapsis and apoapsis radii.
         periapsisRadius_ = periapsisAltitude_ + parkingOrbitRadius_;
@@ -79,10 +83,12 @@ double& EscapeAndCapture::computeDeltaV( )
 
     }
     // Periapsis altitude and eccentricy set by user.
-    else if ( periapsisAltitude_ != ( -0.0 ) && eccentricity_ != ( -1.0 ) )
+    else if ( !( boost::math::isnan )( periapsisAltitude_ ) &&
+              !( boost::math::isnan )( eccentricity_ ) )
     {
         // Compute periapsis radius.
         periapsisRadius_ = periapsisAltitude_ + parkingOrbitRadius_;
+
     }
 
     // Compute escape velocity squared.
@@ -97,4 +103,6 @@ double& EscapeAndCapture::computeDeltaV( )
     return deltaV_;
 }
 
+} // namespace mission_segments
+} // namespace astrodynamics
 } // namespace tudat

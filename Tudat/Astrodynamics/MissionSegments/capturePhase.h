@@ -25,6 +25,10 @@
 
 namespace tudat
 {
+namespace astrodynamics
+{
+namespace mission_segments
+{
 
 //! Capture phase class.
 /*!
@@ -52,6 +56,8 @@ protected:
 private:
 };
 
+} // namespace mission_segments
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_CAPTURE_PHASE_H

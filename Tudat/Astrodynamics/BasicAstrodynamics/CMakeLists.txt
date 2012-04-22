@@ -42,11 +42,7 @@ setup_tudat_library_target(tudat_basic_astrodynamics "${SRCROOT}${BASICASTRODYNA
 setup_headers("${BASICASTRODYNAMICS_HEADERS}" "${BASICASTRODYNAMICSDIR}")
 
 # Add unit tests.
-add_executable(test_OrbitalElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/unitTestOrbitalElementConversions.cpp")
-setup_custom_test_program(test_OrbitalElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_OrbitalElementConversions tudat_basic_astrodynamics tudat_gravitation tudat_bodies tudat_root_finding_methods ${TUDAT_CORE_LIBRARIES})
-
-add_executable(test_MeanToEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/unitTestConvertMeanAnomalyToEccentricAnomaly.cpp")
+add_executable(test_MeanToEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToEccentricAnomaly.cpp")
 setup_custom_test_program(test_MeanToEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_MeanToEccenticAnomalyConversion tudat_basic_astrodynamics tudat_root_finding_methods ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
@@ -54,6 +50,6 @@ add_executable(test_KeplerPropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTes
 setup_custom_test_program(test_KeplerPropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_KeplerPropagator tudat_input_output tudat_bodies tudat_gravitation tudat_basic_astrodynamics tudat_states tudat_root_finding_methods ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(test_MomentDueToForce "${SRCROOT}${BASICASTRODYNAMICSDIR}/unitTestMomentDueToForce.cpp")
+add_executable(test_MomentDueToForce "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestMomentDueToForce.cpp")
 setup_custom_test_program(test_MomentDueToForce "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_MomentDueToForce tudat_basic_astrodynamics)

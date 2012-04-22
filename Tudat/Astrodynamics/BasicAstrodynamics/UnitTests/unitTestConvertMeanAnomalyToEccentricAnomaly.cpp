@@ -22,19 +22,19 @@
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// Test runs code and verifies result against expected value.
-// If the tested code is erroneous, the test function returns a boolean
-// true; if the code is correct, the function returns a boolean false.
-// 
-
-// Required Boost unit test framework define.
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
+
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
+
+namespace tudat
+{
+namespace unit_tests
+{
 
 //! Conversion test fixture.
 /*!
@@ -185,3 +185,6 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic )
 
 // End Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat

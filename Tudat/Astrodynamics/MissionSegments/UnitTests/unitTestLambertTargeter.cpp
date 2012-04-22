@@ -25,6 +25,7 @@
  *                                  CartesianVelocityElements objects as output.
  *      110512    K. Kumar          Updated code not to use dynamic memory allocation.
  *      110627    K. Kumar          Updated to use new predefined planets code.
+ *      120416    T. Secretin       Boostified unit test.
  *
  *    References        :
  *      Mengali, G., and A.A. Quarta, Fondamenti di Meccanica del volo Spaziale.
@@ -46,36 +47,123 @@
 // ( Mengali, Quarta ). The hyperbolic case was taken from ( Noomen, R. ).
 // 
 
+#define BOOST_TEST_MAIN
+
 #include <cmath>
+
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+
 #include "Tudat/Astrodynamics/Bodies/planet.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
 #include "Tudat/Astrodynamics/States/cartesianElements.h"
 
-//! Test Lambert targeting algorithm code.
-int main( )
+namespace tudat
 {
-    // Using directives.
-    using std::fabs;
-    using std::endl;
-    using std::cerr;
-    using tudat::unit_conversions::convertAstronomicalUnitsToMeters;
-    using namespace tudat;
+namespace unit_tests
+{
 
-    // Test result initialised to false.
-    bool isLambertTargeterErroneous = false;
+//! Test Lambert targeting algorithm code.
+BOOST_AUTO_TEST_SUITE( test_lambert_targeter )
 
+//! Test hyperbolic case.
+BOOST_AUTO_TEST_CASE( testHyperbolicCase )
+{
     // Expected test result in meters.
     // Hyperbolic test case (results from excel file [1]).
-    double expectedValueOfSemiMajorAxisHyperbola = -1270129.3602e3;
-    double expectedValueOfRadialSpeedAtDepartureHyperbola = -0.74546e3;
-    double expectedValueOfRadialSpeedAtArrivalHyperbola = 0.69321e3;
-    double expectedValueOfTransverseSpeedAtDepartureHyperbola = 0.15674e3;
-    double expectedValueOfTransverseSpeedAtArrivalHyperbola = 0.10450e3;
+    const double expectedValueOfSemiMajorAxisHyperbola = -1270129.3602e3;
+    const double expectedValueOfRadialSpeedAtDepartureHyperbola = -0.74546e3;
+    const double expectedValueOfRadialSpeedAtArrivalHyperbola = 0.69321e3;
+    const double expectedValueOfTransverseSpeedAtDepartureHyperbola = 0.15674e3;
+    const double expectedValueOfTransverseSpeedAtArrivalHyperbola = 0.10450e3;
 
+    // Tolerance in absolute units.
+    const double toleranceSemiMajorAxisHyperbola = 1.0e2;
+    const double toleranceVelocity = 1.0e-02;
+
+    // Time conversions.
+    const double timeOfFlightInDaysHyperbola = 100.0;
+    const double timeOfFlightHyperbola = unit_conversions::convertJulianDaysToSeconds(
+            timeOfFlightInDaysHyperbola );
+
+    // Central bodies parameters.
+    Planet predefinedEarth;
+    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
+    GravityFieldModel* pointerToEarthGravityField = predefinedEarth.getGravityFieldModel( );
+    pointerToEarthGravityField->setGravitationalParameter( 398600.4418e9 );
+
+    // Hyperbolic orbit case.
+    LambertTargeter lambertTargeterHyperbola;
+
+    // The starting point is twice as far as L1 and L2, which is not really
+    // realistic, but it is not about the case, but about the verification.
+    CartesianPositionElements positionAtDepartureHyperbola;
+    positionAtDepartureHyperbola.setCartesianElementX(
+                tudat::unit_conversions::convertAstronomicalUnitsToMeters( 0.02 ) );
+    positionAtDepartureHyperbola.setCartesianElementY( 0.0 );
+    positionAtDepartureHyperbola.setCartesianElementZ( 0.0 );
+
+    CartesianPositionElements positionAtArrivalHyperbola;
+    positionAtArrivalHyperbola.setCartesianElementX( 0.0 );
+    positionAtArrivalHyperbola.setCartesianElementY(
+                tudat::unit_conversions::convertAstronomicalUnitsToMeters( -0.03 ) );
+    positionAtArrivalHyperbola.setCartesianElementZ( 0.0 );
+
+    lambertTargeterHyperbola.setPositionAtDeparture( &positionAtDepartureHyperbola );
+    lambertTargeterHyperbola.setPositionAtArrival( &positionAtArrivalHyperbola );
+    lambertTargeterHyperbola.setNumberOfRevolutions( 0 );
+    lambertTargeterHyperbola.setTimeOfFlight( timeOfFlightHyperbola );
+    lambertTargeterHyperbola.setCentralBody( &predefinedEarth );
+
+    // Create pointers to new NewtonRaphson object.
+    NewtonRaphson newtonRaphsonLambertHyperbola;
+    lambertTargeterHyperbola.setNewtonRaphsonMethod( &newtonRaphsonLambertHyperbola );
+
+    // Compute Lambert targeting algorithms.
+    lambertTargeterHyperbola.execute( );
+
+    // Create local vectors for position and velocity.
+    Eigen::Vector3d positionDepartureHyperbola = positionAtDepartureHyperbola.state;
+
+    Eigen::Vector3d velocityDepartureHyperbola =
+            lambertTargeterHyperbola.getInertialVelocityAtDeparture( )->state;
+
+    // Test if the computed semi-major axis corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getLambertSemiMajorAxis( ),
+                                expectedValueOfSemiMajorAxisHyperbola,
+                                toleranceSemiMajorAxisHyperbola );
+
+    // Test if the computed velocity components corresponds to the expected value within the
+    // specified tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getRadialSpeedAtDeparture( ),
+                                expectedValueOfRadialSpeedAtDepartureHyperbola,
+                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getRadialSpeedAtArrival( ),
+                                expectedValueOfRadialSpeedAtArrivalHyperbola,
+                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getTransverseSpeedAtDeparture( ),
+                                expectedValueOfTransverseSpeedAtDepartureHyperbola,
+                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getTransverseSpeedAtArrival( ),
+                                expectedValueOfTransverseSpeedAtArrivalHyperbola,
+                                toleranceVelocity );
+
+    // Test if the computed solution is anti-clockwise, if the z-component of the angular momentum
+    // (h = r \times v) is positive.
+    BOOST_CHECK_GT( positionDepartureHyperbola.cross( velocityDepartureHyperbola ).z( ),
+                    std::numeric_limits< double >::epsilon( ) );
+}
+
+//! Test elliptical case.
+BOOST_AUTO_TEST_CASE( testEllipticalCase )
+{
     // Elliptical test case (results from example 6.1 page 159-162 [2]).
     // Set canonical units for Earth (see page 29 [2]).
     double distanceUnit = 6.378136e6;
@@ -88,14 +176,10 @@ int main( )
     double expectedValueOfTransverseSpeedAtArrivalEllipse = 3.29715e3;
 
     // Tolerance in absolute units.
-    double toleranceSemiMajorAxisHyperbola = 1.0e2;
     double toleranceSemiMajorAxisEllipse = 1.0e4;
     double toleranceVelocity = 1.0e-02;
 
     // Time conversions.
-    double timeOfFlightInDaysHyperbola = 100.0;
-    double timeOfFlightHyperbola = unit_conversions::convertJulianDaysToSeconds(
-            timeOfFlightInDaysHyperbola );
     double timeOfFlightEllipse = 5.0 * timeUnit;
 
     // Central bodies parameters.
@@ -103,33 +187,6 @@ int main( )
     predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
     GravityFieldModel* pointerToEarthGravityField = predefinedEarth.getGravityFieldModel( );
     pointerToEarthGravityField->setGravitationalParameter( 398600.4418e9 );
-
-    // Compute Lambert targeting algorithm.
-
-    // Hyperbolic orbit case.
-    LambertTargeter lambertTargeterHyperbola;
-
-    // The starting point is twice as far as L1 and L2, which is not really
-    // realistic, but it is not about the case, but about the verification.
-    CartesianPositionElements positionAtDepartureHyperbola;
-    positionAtDepartureHyperbola.setCartesianElementX( convertAstronomicalUnitsToMeters( 0.02 ) );
-    positionAtDepartureHyperbola.setCartesianElementY( 0.0 );
-    positionAtDepartureHyperbola.setCartesianElementZ( 0.0 );
-
-    CartesianPositionElements positionAtArrivalHyperbola;
-    positionAtArrivalHyperbola.setCartesianElementX( 0.0 );
-    positionAtArrivalHyperbola.setCartesianElementY( convertAstronomicalUnitsToMeters( -0.03 ) );
-    positionAtArrivalHyperbola.setCartesianElementZ( 0.0 );
-
-    lambertTargeterHyperbola.setPositionAtDeparture( &positionAtDepartureHyperbola );
-    lambertTargeterHyperbola.setPositionAtArrival( &positionAtArrivalHyperbola );
-    lambertTargeterHyperbola.setNumberOfRevolutions( 0 );
-    lambertTargeterHyperbola.setTimeOfFlight( timeOfFlightHyperbola );
-    lambertTargeterHyperbola.setCentralBody( &predefinedEarth );
-
-    // Create pointers to new NewtonRaphson object.
-    NewtonRaphson newtonRaphsonLambertHyperbola;
-    lambertTargeterHyperbola.setNewtonRaphsonMethod( &newtonRaphsonLambertHyperbola );
 
     // Elliptical orbit case.
     LambertTargeter lambertTargeterEllipse;
@@ -155,204 +212,41 @@ int main( )
     lambertTargeterEllipse.setNewtonRaphsonMethod( &newtonRaphsonLambertEllipse );
 
     // Compute Lambert targeting algorithms.
-    lambertTargeterHyperbola.execute( );
     lambertTargeterEllipse.execute( );
 
     // Create local vectors for position and velocity.
-    Eigen::Vector3d positionDepartureHyperbola = positionAtDepartureHyperbola.state;
-
-    Eigen::Vector3d velocityDepartureHyperbola =
-            lambertTargeterHyperbola.getInertialVelocityAtDeparture( )->state;
-
     Eigen::Vector3d positionDepartureEllipse = positionAtDepartureEllipse.state;
-
     Eigen::Vector3d velocityDepartureEllipse =
             lambertTargeterEllipse.getInertialVelocityAtDeparture( )->state;
 
-    // Set test result to true if the test does not match the expected result.
-    if ( ( fabs( lambertTargeterHyperbola.getLambertSemiMajorAxis( ) -
-                 expectedValueOfSemiMajorAxisHyperbola ) >= toleranceSemiMajorAxisHyperbola ) ||
-         ( fabs( lambertTargeterHyperbola.getRadialSpeedAtDeparture( ) -
-                 expectedValueOfRadialSpeedAtDepartureHyperbola ) >= toleranceVelocity ) ||
-         ( fabs( lambertTargeterHyperbola.getRadialSpeedAtArrival( )-
-                 expectedValueOfRadialSpeedAtArrivalHyperbola ) >= toleranceVelocity ) ||
-         ( fabs( lambertTargeterHyperbola.getTransverseSpeedAtDeparture( ) -
-                 expectedValueOfTransverseSpeedAtDepartureHyperbola ) >= toleranceVelocity ) ||
-         ( fabs( lambertTargeterHyperbola.getTransverseSpeedAtArrival( ) -
-                 expectedValueOfTransverseSpeedAtArrivalHyperbola ) >= toleranceVelocity ) ||
-         ( fabs( lambertTargeterEllipse.getLambertSemiMajorAxis( ) -
-                 expectedValueOfSemiMajorAxisEllipse ) >= toleranceSemiMajorAxisEllipse ) ||
-         ( fabs( lambertTargeterEllipse.getRadialSpeedAtDeparture( ) -
-                 expectedValueOfRadialSpeedAtDepartureEllipse ) >= toleranceVelocity ) ||
-         ( fabs( lambertTargeterEllipse.getRadialSpeedAtArrival( ) -
-                 expectedValueOfRadialSpeedAtArrivalEllipse ) >= toleranceVelocity ) ||
-         ( fabs( lambertTargeterEllipse.getTransverseSpeedAtDeparture( ) -
-                 expectedValueOfTransverseSpeedAtDepartureEllipse ) >= toleranceVelocity ) ||
-         ( fabs( lambertTargeterEllipse.getTransverseSpeedAtArrival( ) -
-                 expectedValueOfTransverseSpeedAtArrivalEllipse ) >= toleranceVelocity ) ||
+    // Test if the computed semi-major axis corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getLambertSemiMajorAxis( ),
+                                expectedValueOfSemiMajorAxisEllipse,
+                                toleranceSemiMajorAxisEllipse );
 
-         // Check anti-clockwise direction of the computed orbit.
-         ( positionDepartureHyperbola.cross( velocityDepartureHyperbola ).z( ) < 0.0 ) ||
-         ( positionDepartureEllipse.cross( velocityDepartureEllipse).z( ) < 0.0 ) )
-    {
-        // Set error flag to true.
-        isLambertTargeterErroneous = true;
+    // Test if the computed velocity components corresponds to the expected value within the
+    // specified tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getRadialSpeedAtDeparture( ),
+                                expectedValueOfRadialSpeedAtDepartureEllipse,
+                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getRadialSpeedAtArrival( ),
+                                expectedValueOfRadialSpeedAtArrivalEllipse,
+                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getTransverseSpeedAtDeparture( ),
+                                expectedValueOfTransverseSpeedAtDepartureEllipse,
+                                toleranceVelocity );
+    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getTransverseSpeedAtArrival( ),
+                                expectedValueOfTransverseSpeedAtArrivalEllipse,
+                                toleranceVelocity );
 
-        if ( fabs( lambertTargeterHyperbola.getLambertSemiMajorAxis( ) -
-                   expectedValueOfSemiMajorAxisHyperbola ) >= toleranceSemiMajorAxisHyperbola )
-        {
-            // Generate error statements.
-            cerr << "The computed value of the semi-major axis ( "
-                 << lambertTargeterHyperbola.getLambertSemiMajorAxis( )
-                 << " ) using the Lambert targeting algorithm "
-                 << "does not match the expected solution ( "
-                 << expectedValueOfSemiMajorAxisHyperbola << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterHyperbola.getLambertSemiMajorAxis( ) -
-                          expectedValueOfSemiMajorAxisHyperbola ) << endl;
-        }
-
-        if ( fabs( lambertTargeterHyperbola.getRadialSpeedAtDeparture( ) -
-                   expectedValueOfRadialSpeedAtDepartureHyperbola ) >= toleranceVelocity )
-        {
-            // Generate error statements.
-            cerr << " The computed value of the radial speed at departure ( "
-                 << lambertTargeterHyperbola.getRadialSpeedAtDeparture( ) << " ) using "
-                    " the Lambert targeting algorithm does not match the expected solution (" <<
-                    expectedValueOfRadialSpeedAtDepartureHyperbola << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterHyperbola.getRadialSpeedAtDeparture( ) -
-                          expectedValueOfRadialSpeedAtDepartureHyperbola ) << endl;
-        }
-
-        if ( fabs( lambertTargeterHyperbola.getRadialSpeedAtArrival( ) -
-                   expectedValueOfRadialSpeedAtArrivalHyperbola ) >= toleranceVelocity )
-        {
-            // Generate error statements.
-            cerr << "The computed value of the radial speed at arrival ( "
-                 << lambertTargeterHyperbola.getRadialSpeedAtArrival( ) << " ) using "
-                    " the Lambert targeting algorithm does not match the expected solution (" <<
-                    expectedValueOfRadialSpeedAtArrivalHyperbola << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterHyperbola.getRadialSpeedAtArrival( ) -
-                          expectedValueOfRadialSpeedAtArrivalHyperbola ) << endl;
-        }
-
-        if ( fabs( lambertTargeterHyperbola.getTransverseSpeedAtDeparture( ) -
-                   expectedValueOfTransverseSpeedAtDepartureHyperbola ) >= toleranceVelocity )
-        {
-            // Generate error statements.
-            cerr << "The computed value of the tangential speed at departure ( "
-                 << lambertTargeterHyperbola.getTransverseSpeedAtDeparture( ) << " ) using "
-                    " the Lambert targeting algorithm does not match the expected solution (" <<
-                    expectedValueOfTransverseSpeedAtDepartureHyperbola << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterHyperbola. getTransverseSpeedAtDeparture( ) -
-                          expectedValueOfTransverseSpeedAtDepartureHyperbola ) << endl;
-        }
-
-        if ( fabs( lambertTargeterHyperbola.getTransverseSpeedAtArrival( ) -
-                   expectedValueOfTransverseSpeedAtArrivalHyperbola ) >= toleranceVelocity )
-        {
-            // Generate error statements.
-            cerr << "The computed value of the radial speed at arrival ( "
-                 << lambertTargeterHyperbola.getTransverseSpeedAtArrival( ) << " ) using "
-                    " the Lambert targeting algorithm does not match the expected solution (" <<
-                    expectedValueOfTransverseSpeedAtArrivalHyperbola << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterHyperbola.getTransverseSpeedAtArrival( ) -
-                          expectedValueOfTransverseSpeedAtArrivalHyperbola ) << endl;
-        }
-
-        if ( fabs( lambertTargeterEllipse.getLambertSemiMajorAxis( ) -
-                   expectedValueOfSemiMajorAxisEllipse ) >= toleranceSemiMajorAxisEllipse )
-        {
-            // Generate error statements.
-            cerr << "The computed value of the semi-major axis ( "
-                 << lambertTargeterEllipse.getLambertSemiMajorAxis( )
-                 << " ) using the Lambert targeting algorithm "
-                 << "does not match the expected solution ( "
-                 << expectedValueOfSemiMajorAxisEllipse << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterEllipse.getLambertSemiMajorAxis( ) -
-                          expectedValueOfSemiMajorAxisEllipse ) << endl;
-        }
-
-        if ( fabs( lambertTargeterEllipse.getRadialSpeedAtDeparture( ) -
-                   expectedValueOfRadialSpeedAtDepartureEllipse ) >= toleranceVelocity )
-        {
-            // Generate error statements.
-            cerr << " The computed value of the radial speed at departure ( "
-                 << lambertTargeterEllipse.getRadialSpeedAtDeparture( ) << " ) using "
-                    " the Lambert targeting algorithm does not match the expected solution (" <<
-                    expectedValueOfRadialSpeedAtDepartureEllipse << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterEllipse.getRadialSpeedAtDeparture( ) -
-                          expectedValueOfRadialSpeedAtDepartureEllipse ) << endl;
-        }
-
-        if ( fabs( lambertTargeterEllipse.getRadialSpeedAtArrival( ) -
-                   expectedValueOfRadialSpeedAtArrivalEllipse ) >= toleranceVelocity )
-        {
-            // Generate error statements.
-            cerr << "The computed value of the radial speed at arrival ( "
-                 << lambertTargeterEllipse. getRadialSpeedAtArrival( ) << " ) using "
-                    " the Lambert targeting algorithm does not match the expected solution (" <<
-                    expectedValueOfRadialSpeedAtArrivalEllipse << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterEllipse.getRadialSpeedAtArrival( ) -
-                          expectedValueOfRadialSpeedAtArrivalEllipse ) << endl;
-        }
-
-        if ( fabs( lambertTargeterEllipse.getTransverseSpeedAtDeparture( ) -
-                   expectedValueOfTransverseSpeedAtDepartureEllipse ) >= toleranceVelocity )
-        {
-            // Generate error statements.
-            cerr << "The computed value of the tangential speed at departure ( "
-                 << lambertTargeterEllipse.getTransverseSpeedAtDeparture( ) << " ) using "
-                    " the Lambert targeting algorithm does not match the expected solution (" <<
-                    expectedValueOfTransverseSpeedAtDepartureEllipse << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterEllipse.getTransverseSpeedAtDeparture( ) -
-                          expectedValueOfTransverseSpeedAtDepartureEllipse ) << endl;
-        }
-
-        if ( fabs( lambertTargeterEllipse.getTransverseSpeedAtArrival( ) -
-                   expectedValueOfTransverseSpeedAtArrivalEllipse ) >= toleranceVelocity )
-        {
-            // Generate error statements.
-            cerr << "The computed value of the radial speed at arrival ( "
-                 << lambertTargeterEllipse.getTransverseSpeedAtArrival( ) << " ) using "
-                    " the Lambert targeting algorithm does not match the expected solution (" <<
-                    expectedValueOfTransverseSpeedAtArrivalEllipse << " )." << endl;
-            cerr << "The error is: "
-                 << fabs( lambertTargeterEllipse.getTransverseSpeedAtArrival( ) -
-                          expectedValueOfTransverseSpeedAtArrivalEllipse ) << endl;
-        }
-
-        if ( positionDepartureHyperbola.cross( velocityDepartureHyperbola ).z( ) < 0.0 )
-
-        {
-            // Generate error statements.
-            cerr << "The computed hyperbolic orbit path does not follow "
-                    "the standard anti-clockwise direction." << endl;
-        }
-
-        if ( positionDepartureEllipse.cross( velocityDepartureEllipse ).z( ) < 0.0 )
-        {
-            // Generate error statements.
-            cerr << "The computed elliptical orbit path does not follow "
-                    "the standard anti-clockwise direction." << endl;
-        }
-
-    }
-
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    if ( isLambertTargeterErroneous )
-    {
-        cerr << "testLambertTargeter failed!" << endl;
-    }
-
-    return isLambertTargeterErroneous;
+    // Test if the computed solution is anti-clockwise, if the z-component of the angular momentum
+    // (h = r \times v) is positive.
+    BOOST_CHECK_GT( positionDepartureEllipse.cross( velocityDepartureEllipse ).z( ),
+                    std::numeric_limits< double >::epsilon( ) );
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat
