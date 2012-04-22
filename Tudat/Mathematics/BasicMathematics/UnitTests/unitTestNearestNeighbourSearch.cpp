@@ -21,15 +21,19 @@
 
 #define BOOST_TEST_MAIN
 
+#include <map>
+
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
+
 #include <Eigen/Core>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <sstream>
-#include <vector>
+
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
+
+namespace tudat
+{
+namespace unit_tests
+{
 
 //! Define Boost test suite.
 BOOST_AUTO_TEST_SUITE( test_basic_functions )
@@ -97,8 +101,10 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
                             mapOfSortedData, vectorOfTargetValues[ i ] ) );
         }
     }
-
 }
 
 //! Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat

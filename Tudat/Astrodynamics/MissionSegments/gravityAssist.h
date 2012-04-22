@@ -23,6 +23,7 @@
  *      110212    J. Melman         Made delta-V private. getDeltaV changed into computeDeltaV.
  *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element
  *                                  of GeometricShapes.
+ *      120417    T. Secretin       Moved set functions to constructor.
  *
  *    References
  *
@@ -52,8 +53,12 @@
 #ifndef TUDAT_GRAVITY_ASSIST_H
 #define TUDAT_GRAVITY_ASSIST_H
 
-#include <Eigen/Core>
 #include <iostream>
+
+#include <Eigen/Core>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Astrodynamics/Bodies/celestialBody.h"
 #include "Tudat/Astrodynamics/States/cartesianVelocityElements.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
@@ -61,6 +66,10 @@
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace mission_segments
 {
 
 //! Gravity assist method class.
@@ -75,61 +84,28 @@ public:
     /*!
      * Default constructor.
      */
-    GravityAssist( );
-
-    //! Set central gravity field for the swing-by.
-    /*!
-     * Sets pointer to central body of the swing-by.
-     * \param gravityField Central body of the swing-by.
-     */
-    void setCentralGravityField( GravityFieldModel* gravityField )
-    { centralBodyGravityfield_ = gravityField; }
-
-    //! Set smallest periapsis distance.
-    /*!
-     * Sets the smallest allowable periapsis distance of the swing-by.
-     * For maximum swing-by energy this is the central body radius.
-     * \param smallestPeriapsisDistance Smallest periapsis distance.
-     * \sa GravityAssist::smallestPeriapsisDistance.
-     */
-    void setSmallestPeriapsisDistance( double smallestPeriapsisDistance )
-    { smallestPeriapsisDistance_ = smallestPeriapsisDistance; }
-
-    // Its input will come from the ephemeris class.
-    //! Set velocity of the swing-by central body.
-    /*!
-     * Sets the velocity of the central body involved in the swing-by,
-     * which will come from the Ephemeris class.
-     * \param centralBodyVelocity Velocity of swing-by central body.
-     */
-    void setCentralBodyVelocity( Eigen::Vector3d centralBodyVelocity )
-    { centralBodyVelocity_ = centralBodyVelocity; }
-
-    //! Set pointer to incoming velocity of the satellite.
-    /*!
-     * Sets pointer to the incoming velocity vector of the satellite.
-     * \param pointerToIncomingVelocity Pointer to incoming velocity of the
-     *          satellite.
-     */
-    void setPointerToIncomingVelocity( CartesianVelocityElements* pointerToIncomingVelocity )
-    { pointerToIncomingVelocity_ = pointerToIncomingVelocity; }
-
-    //! Set pointer to outgoing velocity of the satellite.
-    /*!
-     * Sets pointer to the outgoing velocity of the satellite.
-     * \param pointerToOutgoingVelocity Pointer to outgoing velocity of the satellite.
-     */
-    void setPointerToOutgoingVelocity( CartesianVelocityElements* pointerToOutgoingVelocity )
-    { pointerToOutgoingVelocity_ = pointerToOutgoingVelocity; }
-
-    //! Set pointer to Newton-Raphson method for gravity assist algorithm.
-    /*!
-     * Sets a pointer to the Newton-Raphson method for gravity assist
-     * algorithm.
-     * \param pointerToNewtonRaphson Pointer to NewtonRaphson object.
-     */
-    void setNewtonRaphsonMethod( NewtonRaphson *pointerToNewtonRaphson )
-    { pointerToNewtonRaphson_ = pointerToNewtonRaphson; }
+    GravityAssist( GravityFieldModel* gravityField, const double smallestPeriapsisDistance,
+                   const Eigen::Vector3d centralBodyVelocity,
+                   CartesianVelocityElements* pointerToIncomingVelocity,
+                   CartesianVelocityElements* pointerToOutgoingVelocity,
+                   NewtonRaphson* pointerToNewtonRaphson )
+        : centralBodyGravityfield_( gravityField ),
+          centralBodyVelocity_( centralBodyVelocity ),
+          smallestPeriapsisDistance_( smallestPeriapsisDistance ),
+          pointerToIncomingVelocity_( pointerToIncomingVelocity ),
+          pointerToOutgoingVelocity_( pointerToOutgoingVelocity ),
+          incomingHyperbolicExcessVelocity_ ( Eigen::Vector3d::Zero( ) ),
+          outgoingHyperbolicExcessVelocity_ ( Eigen::Vector3d::Zero( ) ),
+          deltaV_( TUDAT_NAN ),
+          bendingAngle_( TUDAT_NAN ),
+          incomingEccentricity_( TUDAT_NAN ),
+          outgoingEccentricity_( TUDAT_NAN ),
+          incomingSemiMajorAxis_( TUDAT_NAN ),
+          outgoingSemiMajorAxis_( TUDAT_NAN ),
+          bendingEffectDeltaV_( TUDAT_NAN ),
+          velocityEffectDeltaV_( TUDAT_NAN ),
+          pointerToNewtonRaphson_( pointerToNewtonRaphson )
+    { }
 
     //! Compute the delta-V of a powered swing-by.
     /*!
@@ -275,6 +251,8 @@ private:
     double firstDerivativeVelocityEffectFunction( double& incomingEccentricity );
 };
 
+} // namespace mission_segments
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_GRAVITY_ASSIST_H

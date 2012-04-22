@@ -33,12 +33,18 @@
 
 #define BOOST_TEST_MAIN
 
+#include <limits>
+
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
-#include <limits>
+
 #include "Tudat/Mathematics/Statistics/basicStatistics.h"
 
-//! Define Boost test suite.
+namespace tudat
+{
+namespace unit_tests
+{
+
 BOOST_AUTO_TEST_SUITE( test_basic_statistics )
 
 //! Test if sample mean is computed correctly.
@@ -98,5 +104,7 @@ BOOST_AUTO_TEST_CASE( testSampleVariance )
 
 }
 
-//! Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat

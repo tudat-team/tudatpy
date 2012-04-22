@@ -13,6 +13,7 @@
  *      YYMMDD    Author            Comment
  *      110224    E. Iorfida        First creation of code.
  *      110406    K. Kumar          Minor modifications.
+ *      120417    T. Secretin       Moved set functions to constructor.
  *
  *    References
  *
@@ -24,6 +25,10 @@
 #include "Tudat/Astrodynamics/States/state.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace mission_segments
 {
 
 //! Deep space maneuver base class.
@@ -38,30 +43,11 @@ public:
     /*!
      * Default constructor.
      */
-    DeepSpaceManeuver( ): deltaV_( -1.0 ), timeOfDeepSpaceManeuver_( 0.0 ),
-        pointerToState_( NULL ) { }
-
-    //! Set time of deep space maneuver event.
-    /*!
-     * Sets time of deep space maneuver event.
-     * \param timeOfDeepSpaceManeuver Time of deep space maneuver event.
-     */
-    void setTime( double timeOfDeepSpaceManeuver )
-    { timeOfDeepSpaceManeuver_ = timeOfDeepSpaceManeuver; }
-
-    //! Set state at deep space maneuver event.
-    /*!
-     * Sets pointer to state at deep space maneuver event.
-     * \param pointerToState Pointer to state at deep space maneuver event.
-     */
-    void setState( State* pointerToState ) { pointerToState_ = pointerToState; }
-
-    //! Set delta-V of deep space maneuver event.
-    /*!
-     * Sets delta-V of deep space maneuver event.
-     * \param deltaV Delta-V of deep space maneuver event.
-     */
-    void setDeltaV( double deltaV ) { deltaV_ = deltaV; }
+    DeepSpaceManeuver( const double deltaV, const double timeOfDeepSpaceManeuver,
+                       State* pointerToState )
+        : deltaV_( deltaV ), timeOfDeepSpaceManeuver_( timeOfDeepSpaceManeuver ),
+          pointerToState_( pointerToState )
+    { }
 
     //! Get time of deep space maneuver event.
     /*!
@@ -107,6 +93,8 @@ private:
     State* pointerToState_;
 };
 
+} // astrodynamics
+} // mission_segments
 } // namespace tudat
 
 #endif // TUDAT_DEEP_SPACE_MANEUVER_H

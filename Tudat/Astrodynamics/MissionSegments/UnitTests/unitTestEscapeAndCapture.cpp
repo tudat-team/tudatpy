@@ -19,6 +19,7 @@
  *      110214    E. Iorfida        Code updated with the modification made in .h/.cpp files
  *                                  about radius of central body.
  *      110627    K. Kumar          Updated to use new predefined planets code.
+ *      120416    T. Secretin       Boostified unit test.
  *
  *    References        :
  *      Mengali, G., Quarta, A.A. Fondamenti di Meccanica del volo Spaziale,
@@ -26,51 +27,41 @@
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// Test runs code and verifies result against expected value.
-// If the tested code is erroneous, the test function returns a boolean
-// true; if the code is correct, the function returns a boolean false.
-// 
+#define BOOST_TEST_MAIN
 
-#include <cmath>
-#include <iostream>
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
+
 #include "Tudat/Astrodynamics/Bodies/planet.h"
 #include "Tudat/Astrodynamics/MissionSegments/capturePhase.h"
 #include "Tudat/Astrodynamics/MissionSegments/escapeAndCapture.h"
 #include "Tudat/Astrodynamics/MissionSegments/escapePhase.h"
 
-//! Test patched conics implementation.
-int main( )
+namespace tudat
 {
-    // Using declarations.
-    using std::cerr;
-    using std::endl;
-    using std::fabs;
-    using namespace tudat;
+namespace unit_tests
+{
 
-    // Test result initialised to false.
-    bool isEscapeAndCaptureErroneous = false;
+//! Test patched conics implementation.
+BOOST_AUTO_TEST_SUITE( test_escape_and_capture )
 
+//! Test delta-V computation for the escape phase.
+BOOST_AUTO_TEST_CASE( testDeltaVEscape )
+{
     // Set tolerance.
-    double tolerance = 1.0e-1;
+    const double tolerance = 1.0e-1;
 
     // Expected test result based on example 11.4 page 334, "Fondamenti di
     // Meccanica del volo Spaziale", G. Mengali, A. A. Quarta.
-    double expectedDeltaVEscape = 3.5244e3;
-    double expectedDeltaVCapture = 1.9425e3;
+    const double expectedDeltaVEscape = 3.5244e3;
 
     // Set test case.
+    using astrodynamics::mission_segments::EscapePhase;
     EscapePhase escapePhaseTest;
-    CapturePhase capturePhaseTest;
 
-    // Central bodies parameters.
-    // Central body at launch phase.
+    // Central body parameters.
     Planet predefinedEarth;
     predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
-    
-    // Central body at capture phase.
-    Planet predefinedMars;
-    predefinedMars.setPredefinedPlanetSettings( Planet::mars );
     
     // Set launch conditions.
     escapePhaseTest.setCentralGravityField( predefinedEarth.getGravityFieldModel( ) );
@@ -79,6 +70,32 @@ int main( )
     escapePhaseTest.setEccentricity( 0.0 );
     escapePhaseTest.setHyperbolicExcessSpeed( 2.9444e3 );
 
+    // Compute delta-V of escape phase.
+    const double deltaVEscape_ = escapePhaseTest.computeDeltaV( );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaVEscape, deltaVEscape_, tolerance );
+}
+
+//! Test delta-V computation for the capture phase.
+BOOST_AUTO_TEST_CASE( testDeltaVCapture )
+{
+    // Set tolerance.
+    const double tolerance = 1.0e-1;
+
+    // Expected test result based on example 11.4 page 334, "Fondamenti di
+    // Meccanica del volo Spaziale", G. Mengali, A. A. Quarta.
+    const double expectedDeltaVCapture = 1.9425e3;
+
+    // Set test case.
+    using astrodynamics::mission_segments::CapturePhase;
+    CapturePhase capturePhaseTest;
+
+    // Central body parameters.
+    Planet predefinedMars;
+    predefinedMars.setPredefinedPlanetSettings( Planet::mars );
+
     // Set capture conditions.
     capturePhaseTest.setCentralGravityField( predefinedMars.getGravityFieldModel( ) );
     capturePhaseTest.setParkingOrbitRadius( 3389.0e3 );
@@ -86,43 +103,15 @@ int main( )
     capturePhaseTest.setEccentricity( 0.0 );
     capturePhaseTest.setHyperbolicExcessSpeed( 2.6486e3 );
 
-    // Execute patched conic implementation.
-    escapePhaseTest.computeDeltaV( );
-    capturePhaseTest.computeDeltaV( );
+    // Compute delta-V of capture phase.
+    const double deltaVCapture_ = capturePhaseTest.computeDeltaV( );
 
-    // Define delta-V of escape/capture phase.
-    double deltaVEscape_ = escapePhaseTest.computeDeltaV( );
-    double deltaVCapture_ = capturePhaseTest.computeDeltaV( );
-
-    // Set test result to true if the test does not match the expected result.
-    if ( fabs( deltaVEscape_ - expectedDeltaVEscape ) >= tolerance ||
-         fabs( deltaVCapture_ - expectedDeltaVCapture ) >= tolerance )
-    {
-        isEscapeAndCaptureErroneous = true;
-
-        if ( fabs( deltaVEscape_ - expectedDeltaVEscape ) >= tolerance )
-        {
-            cerr << "The computed value of the delta-V of the launch phase (" << deltaVEscape_
-                 << ") does not match the expected solution ("
-                 << expectedDeltaVEscape << ")." << endl;
-            cerr << "The difference is: " << fabs( deltaVEscape_ - expectedDeltaVEscape ) << endl;
-        }
-        else if ( fabs( deltaVCapture_ - expectedDeltaVCapture ) >= tolerance )
-        {
-            cerr << "The computed value of the delta-V of the capture phase (" << deltaVCapture_
-                 << ") does not match the expected solution (" << expectedDeltaVCapture << ")."
-                 << endl;
-            cerr << "The difference is: " << fabs( deltaVCapture_ - expectedDeltaVCapture )
-                 << endl;
-        }
-    }
-
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    if ( isEscapeAndCaptureErroneous )
-    {
-        cerr << "testEscapeAndCapture failed!" << endl;
-    }
-
-    return isEscapeAndCaptureErroneous;
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( expectedDeltaVCapture, deltaVCapture_, tolerance );
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat

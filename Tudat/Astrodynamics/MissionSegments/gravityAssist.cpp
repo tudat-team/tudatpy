@@ -52,11 +52,17 @@
 
 #include <cmath>
 #include <limits>
+
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 #include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
+
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace mission_segments
 {
 
 using std::pow;
@@ -67,26 +73,6 @@ using std::fabs;
 using tudat::mathematics::linear_algebra::computeAngleBetweenVectors;
 using tudat::unit_conversions::convertRadiansToDegrees;
 using std::endl;
-
-//! Default constructor.
-GravityAssist::GravityAssist( ) : 
-    centralBodyVelocity_( Eigen::Vector3d::Zero( ) ), 
-    smallestPeriapsisDistance_( std::numeric_limits<double>::signaling_NaN( ) ),
-    pointerToIncomingVelocity_( NULL ), 
-    pointerToOutgoingVelocity_( NULL ),
-    incomingHyperbolicExcessVelocity_ ( Eigen::Vector3d::Zero( ) ),
-    outgoingHyperbolicExcessVelocity_ ( Eigen::Vector3d::Zero( ) ), 
-    deltaV_(                std::numeric_limits<double>::signaling_NaN( ) ),
-    bendingAngle_(          std::numeric_limits<double>::signaling_NaN( ) ), 
-    incomingEccentricity_(  std::numeric_limits<double>::signaling_NaN( ) ), 
-    outgoingEccentricity_(  std::numeric_limits<double>::signaling_NaN( ) ),
-    incomingSemiMajorAxis_( std::numeric_limits<double>::signaling_NaN( ) ), 
-    outgoingSemiMajorAxis_( std::numeric_limits<double>::signaling_NaN( ) ),
-    bendingEffectDeltaV_(   std::numeric_limits<double>::signaling_NaN( ) ), 
-    velocityEffectDeltaV_(  std::numeric_limits<double>::signaling_NaN( ) ),
-    pointerToNewtonRaphson_( NULL )
-{
-}
 
 //! Define root-finder function for the velocity-effect delta-V.
 double GravityAssist::velocityEffectFunction( double& incomingEccentricity )
@@ -175,6 +161,7 @@ double GravityAssist::computeDeltaV( )
                outgoingHyperbolicExcessSpeed_ ) <= speedTolerance_ )
     {
         // Set delta-V due to velocity effect equal to zero.
+
         velocityEffectDeltaV_ = 0.0;
     }
     else
@@ -251,4 +238,6 @@ std::ostream& operator<<( std::ostream& stream, GravityAssist& gravityAssist )
     return stream;
 }
 
+} // namespace mission_segments
+} // namespace astrodynamics
 } // namespace tudat

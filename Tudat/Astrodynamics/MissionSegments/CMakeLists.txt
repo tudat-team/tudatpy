@@ -42,7 +42,7 @@ setup_headers("${MISSIONSEGMENTS_HEADERS}" "${MISSIONSEGMENTSDIR}")
 # Add unit tests.
 add_executable(test_DeepSpaceManeuver "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestDeepSpaceManeuver.cpp")
 setup_custom_test_program(test_DeepSpaceManeuver "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_DeepSpaceManeuver tudat_states tudat_mission_segments )
+target_link_libraries(test_DeepSpaceManeuver tudat_states tudat_mission_segments ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestEscapeAndCapture.cpp")
 setup_custom_test_program(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}")

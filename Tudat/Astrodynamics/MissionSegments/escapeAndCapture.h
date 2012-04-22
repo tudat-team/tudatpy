@@ -17,8 +17,9 @@
  *                                  and capture paths.
  *      110206    E. Iorfida        Modified some comments and name of base class to
  *                                  EscapeAndCapture.
- *      110208    E. Iorfida        Deleted inheritance from TrajectoryDesignMethod, and execute( ),
- *                                  function too. Modified getDeltaV into computeDeltaV.
+ *      110208    E. Iorfida        Deleted inheritance from TrajectoryDesignMethod, and
+ *                                  execute( ), function too. Modified getDeltaV into
+ *                                  computeDeltaV.
  *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element of
  *                                  GeometricShapes.
  *
@@ -41,6 +42,10 @@
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace mission_segments
 {
 
 //! Escape and capture base class.
@@ -69,7 +74,9 @@ public:
      * \param gravityField Central body of the swing-by.
      */
     void setCentralGravityField( GravityFieldModel* gravityField )
-    { centralBodyGravityfield_ = gravityField; }
+    {
+        centralBodyGravityfield_ = gravityField;
+    }
 
     //! Set semi-major axis of parking orbit.
     /*!
@@ -91,7 +98,9 @@ public:
      * \param periapsisAltitude Periapsis altitude of parking orbit.
      */
     void setPeriapsisAltitude( double periapsisAltitude )
-    { periapsisAltitude_ = periapsisAltitude; }
+    {
+        periapsisAltitude_ = periapsisAltitude;
+    }
 
     //! Set apoapsis altitude of parking orbit.
     /*!
@@ -99,14 +108,18 @@ public:
      * \param apoapsisAltitude Apoapsis altitude of parking orbit.
      */
     void setApoapsisAltitude( double apoapsisAltitude )
-    { apoapsisAltitude_ = apoapsisAltitude; }
+    {
+        apoapsisAltitude_ = apoapsisAltitude;
+    }
 
     //! Set radius of the parking orbit.
     /*!
      * \param parkingOrbitRadius Set the radius of the departing/arriving parking orbit.
      */
     void setParkingOrbitRadius( double parkingOrbitRadius )
-    { parkingOrbitRadius_ = parkingOrbitRadius; }
+    {
+        parkingOrbitRadius_ = parkingOrbitRadius;
+    }
 
     //! Set hyperbolic excess speed at launch/capture phase.
     /*!
@@ -115,7 +128,9 @@ public:
      *            launch/capture phase in a parking orbit.
      */
     void setHyperbolicExcessSpeed( double hyperbolicExcessSpeed )
-    { hyperbolicExcessSpeed_ = hyperbolicExcessSpeed; }
+    {
+        hyperbolicExcessSpeed_ = hyperbolicExcessSpeed;
+    }
 
     //! Compute delta-V of launch/capture phase.
     /*!
@@ -123,7 +138,7 @@ public:
      * trajectory with the desired hyperbolic excess velocity.
      * \return Delta-V of parking orbit.
      */
-    double& computeDeltaV( );
+    double computeDeltaV( );
 
 protected:
 
@@ -184,6 +199,8 @@ protected:
 private:
 };
 
+} // namespace mission_segments
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_ESCAPE_AND_CAPTURE_H

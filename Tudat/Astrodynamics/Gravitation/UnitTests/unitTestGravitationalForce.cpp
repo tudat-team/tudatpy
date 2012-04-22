@@ -21,11 +21,19 @@
 
 #define BOOST_TEST_MAIN
 
+#include <limits>
+
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+
 #include <Eigen/Core>
-#include <limits>
+
 #include "Tudat/Astrodynamics/Gravitation/gravitationalForceModel.h"
+
+namespace tudat
+{
+namespace unit_tests
+{
 
 BOOST_AUTO_TEST_SUITE( test_gravitational_force )
 
@@ -87,3 +95,6 @@ BOOST_AUTO_TEST_CASE( testGravitationalForce )
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat

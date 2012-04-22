@@ -21,18 +21,25 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/filesystem.hpp>
-#include <boost/test/unit_test.hpp>
-#include <Eigen/Core>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <vector>
-#include <algorithm>
+
+#include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
+
+#include <Eigen/Core>
+
 #include "Tudat/InputOutput/basicInputOutput.h"
 
-// Define Boost test suite.
+namespace tudat
+{
+namespace unit_tests
+{
+
 BOOST_AUTO_TEST_SUITE( test_basic_inputoutput )
 
 //! Test if listing all files in specified directory works correctly.
@@ -83,5 +90,7 @@ BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
     boost::filesystem::remove_all( pathToNewDirectory );
 }
 
-// Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat

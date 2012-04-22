@@ -23,6 +23,7 @@
  *                                  allocation and new
  *                                  createPredefinedCelestialBody( ) function.
  *      110627    K. Kumar          Updated to use new predefined planets code.
+ *      120416    T. Secretin       Boostified unit test.
  *
  *    References
  *
@@ -38,54 +39,55 @@
 // this code, not outside by a calculator.
 // 
 
+#define BOOST_TEST_MAIN
+
 #include <cmath>
+
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
+
 #include <Eigen/Core>
-#include <iostream>
+
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Astrodynamics/Bodies/planet.h"
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
 
-using tudat::mathematics::PI;
+namespace tudat
+{
+namespace unit_tests
+{
 
 //! Test of gravity assist code.
-int main( )
+BOOST_AUTO_TEST_SUITE( test_gravity_assist )
+
+//! Test Delta-V computation.
+BOOST_AUTO_TEST_CASE( testDeltaV )
 {
-    // Using declarations.
-    using std::endl;
-    using std::cerr;
-    using std::fabs;
-    using namespace tudat;
-
-    // Test result initialised to false.
-    bool isGravityAssistErroneous = false;
-
     // Tolerances.
     // Expected velocity output is defined with an accuracy of 1 m/s.
-    double velocityTolerance = 1.0;
+    const double velocityTolerance = 1.0;
 
     // In the first test case, the incoming and outgoing inertial
     // velocities are defined such that the hyperbolic excess velocities
     // are equal. In that way, a delta-V is only needed to rotate the
     // velocity vector, which has been calculated by hand.
     // Expected delta-V for a powered swing-by around Mars.
-    double expectedDeltaV = 3.652e3;
+    const double expectedDeltaV = 3.652e3;
 
     // Define body that is swung by.
     Planet predefinedMars;
     predefinedMars.setPredefinedPlanetSettings( Planet::mars );
 
     // Define Sun gravitational parameter.
-    double gravitationalParameterSun = 1.32712440018e20;
+    const double gravitationalParameterSun = 1.32712440018e20;
 
     // Define planet-Sun distance.
-    double distanceMarsToSun = unit_conversions::convertAstronomicalUnitsToMeters( 1.5 );
+    const double distanceMarsToSun = unit_conversions::convertAstronomicalUnitsToMeters( 1.5 );
 
     // Define smallest periapsis distance factor.
-    double marsSmallestPeriapsisDistanceFactor = 1.076;
-
-    // Declare GravityAssist object.
-    GravityAssist myGravityAssist;
+    const double marsSmallestPeriapsisDistanceFactor = 1.076;
 
     // Define planet heliocentric velocity vector.
     // The orbit is considered to be circular.
@@ -95,9 +97,10 @@ int main( )
     marsVelocity.z( ) = 0.0;
 
     // Define pointer to satellite incoming vector.
+    using tudat::mathematics::PI;
     CartesianVelocityElements incomingVelocityTest;
-    incomingVelocityTest.setCartesianElementXDot( -25.0e3 * sin( PI / 6.0 ) );
-    incomingVelocityTest.setCartesianElementYDot( 25.0e3 * cos( PI / 6.0 ) );
+    incomingVelocityTest.setCartesianElementXDot( -25.0e3 * std::sin( PI / 6.0 ) );
+    incomingVelocityTest.setCartesianElementYDot( 25.0e3 * std::cos( PI / 6.0 ) );
     incomingVelocityTest.setCartesianElementZDot( 0.0 );
 
     // Define pointer to satellite outgoing vector.
@@ -108,40 +111,28 @@ int main( )
                 2.0 * marsVelocity.y( ) - incomingVelocityTest.getCartesianElementYDot( ) );
     outgoingVelocityTest.setCartesianElementZDot( 0.0 );
 
-    // Set values to compute gravity assist code.
-    myGravityAssist.setCentralGravityField( predefinedMars.getGravityFieldModel( ) );
-    myGravityAssist.setCentralBodyVelocity( marsVelocity );
-    myGravityAssist.setSmallestPeriapsisDistance( 3398.0e3 * marsSmallestPeriapsisDistanceFactor );
-    myGravityAssist.setPointerToIncomingVelocity( &incomingVelocityTest );
-    myGravityAssist.setPointerToOutgoingVelocity( &outgoingVelocityTest );
-
     // Create pointers to new Newton Raphson objects.
     NewtonRaphson myNewtonRaphsonGravityAssist;
-    myGravityAssist.setNewtonRaphsonMethod( &myNewtonRaphsonGravityAssist );
+
+    // Declare GravityAssist object.
+    using astrodynamics::mission_segments::GravityAssist;
+    GravityAssist myGravityAssist( predefinedMars.getGravityFieldModel( ),
+                                   3398.0e3 * marsSmallestPeriapsisDistanceFactor,
+                                   marsVelocity,
+                                   &incomingVelocityTest,
+                                   &outgoingVelocityTest,
+                                   &myNewtonRaphsonGravityAssist );
 
     // Compute powered gravity-assist implementation.
-    double deltaV = myGravityAssist.computeDeltaV( );
+    const double deltaV = myGravityAssist.computeDeltaV( );
 
-    // Set test result to true if the test does not match the expected results.
-    if ( fabs( deltaV - expectedDeltaV ) >= velocityTolerance )
-    {
-        // Set error flag to true.
-        isGravityAssistErroneous = true;
-
-        // Generate error statements.
-        cerr << "The computed value of delta-V for the "
-                "case of equal hyperbolic excess velocities ( " << deltaV
-             << " ) using the powered gravity-assist algorithm "
-             << "does not match the expected solution ( " << expectedDeltaV << " )." << endl;
-        cerr << "The relative error is: "  << fabs( deltaV - expectedDeltaV ) << endl;
-    }
-
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    if ( isGravityAssistErroneous )
-    {
-        cerr << "testGravityAssist failed!" << endl;
-    }
-
-    return isGravityAssistErroneous;
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, velocityTolerance );
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat
+
