@@ -20,6 +20,10 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/textParser.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/whiteSpaceParser.cpp"
 )
 
 # Add header files.
@@ -28,6 +32,13 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/fieldTransform.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/fieldType.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/parser.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/textParser.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/whiteSpaceParser.h"
 )
 
 # Add static libraries.
@@ -47,3 +58,7 @@ target_link_libraries(test_TwoLineElementsTextFileReader tudat_input_output ${TU
 add_executable(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestBasicInputOutput.cpp")
 setup_custom_test_program(test_BasicInputOutput "${SRCROOT}${INPUTDIR}")
 target_link_libraries(test_BasicInputOutput tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_WhiteSpaceParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestWhitespaceParser.cpp")
+setup_custom_test_program(test_WhiteSpaceParser "${SRCROOT}${INPUTDIR}")
+target_link_libraries(test_WhiteSpaceParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
