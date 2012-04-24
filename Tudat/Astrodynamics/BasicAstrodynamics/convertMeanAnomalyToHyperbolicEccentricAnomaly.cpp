@@ -20,6 +20,8 @@
  */
 
 #include <iostream>
+#include <limits>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
 
 namespace tudat
