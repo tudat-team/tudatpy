@@ -27,6 +27,8 @@
 // 
 
 #include <iostream>
+#include <limits>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 
 namespace tudat
@@ -42,7 +44,7 @@ using std::endl;
 double ConvertMeanAnomalyToEccentricAnomaly::convert( )
 {
     // Declare eccentric anomaly.
-    double eccentricAnomaly_ = std::numeric_limits<double>::signaling_NaN( );
+    double eccentricAnomaly_ = std::numeric_limits< double >::signaling_NaN( );
 
     // Set the class that contains the functions needed for Newton-Raphson.
     newtonRaphsonAdaptor_.setClass( this );
