@@ -38,8 +38,8 @@ namespace input_output
 {
 
 //! Create a parser that parses based on white spaces given a field type list.
-WhiteSpaceParser::WhiteSpaceParser( int numberOfFields, ... ) : TextParser ( false ) {
-
+WhiteSpaceParser::WhiteSpaceParser( int numberOfFields, ... ) : TextParser ( false )
+{
     // Copy number of fields.
     numberOfFields_ = numberOfFields;
 
@@ -82,7 +82,7 @@ void WhiteSpaceParser::parseLine( std::string& line )
     // data file.
     boost::algorithm::split( vectorOfIndividualStrings_,
                              line,
-                             boost::algorithm::is_any_of(" "),
+                             boost::algorithm::is_any_of( " " ),
                              boost::algorithm::token_compress_on );
 
     // Verify that number of individual vectors corresponds to the specified number of fields.
@@ -117,10 +117,11 @@ void WhiteSpaceParser::parseLine( std::string& line )
             // Set corresponding transformer.
             transformer = unitTransformationMap_.find( fieldType )->second;
         }
+
+        // Else, do nothing.
         else
         {
-            // Else, do nothing.
-            transformer = boost::shared_ptr<FieldTransform>( );
+            transformer = boost::shared_ptr< FieldTransform >( );
         }
 
         // Store the resulting field-value string.
