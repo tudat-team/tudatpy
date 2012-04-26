@@ -14,6 +14,7 @@
  *      111103    S. Billemont      First creation of code.
  *      120217    D.J. Gondelach    Code check.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *      120424    T. Secretin       Code-check, layout changes.
  *
  *    References
  *
@@ -62,7 +63,7 @@ namespace field_types
 static FieldType hash_constructor( std::string text )
 {
     // Convert text string into hash number.
-    boost::hash<std::string> contructor;
+    boost::hash< std::string > contructor;
     return contructor( text );
 }
 
@@ -102,7 +103,7 @@ namespace state
 
     //! Cartesian Z coordinate [m].
     static const FieldType cartesianZCoordinate
-        = hash_constructor( "State: Cartesian: Z_coordinate" );
+    = hash_constructor( "State: Cartesian: Z_coordinate" );
 
     //! Cartesian X velocity [m/s].
     static const FieldType cartesianXVelocity
@@ -126,7 +127,7 @@ namespace state
 
     //! Cartesian Z acceleration [m/s].
     static const FieldType cartesianZAcceleration
-        = hash_constructor( "State: Cartesian: Z_acceleration" );
+    = hash_constructor( "State: Cartesian: Z_acceleration" );
 
     //! Eccentricity, e [-].
     static const FieldType eccentricity
@@ -162,19 +163,17 @@ namespace state
 
     //! Apoapsis distance [m].
     static const FieldType apoapsisDistance
-        = hash_constructor( "State: Kepler_element: Apoapsis_distance" );
+    = hash_constructor( "State: Kepler_element: Apoapsis_distance" );
 
     //! Periapsis distance [m]
     static const FieldType periapsisDistance
         = hash_constructor( "State: Kepler_element: Periapsis_distance" );
 
     //! Mean motion, n [rad/s].
-    static const FieldType meanMotion
-        = hash_constructor( "State: Mean_motion" );
+    static const FieldType meanMotion = hash_constructor( "State: Mean_motion" );
 
     //! Orbital period [s].
-    static const FieldType orbitalPeriod
-        = hash_constructor( "State: Orbital_period" );
+    static const FieldType orbitalPeriod = hash_constructor( "State: Orbital_period" );
 }
 
 } // namespace field_types

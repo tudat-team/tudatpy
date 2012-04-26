@@ -45,9 +45,6 @@ public:
                 boost::shared_ptr< FieldTransform > transformer
                 = boost::shared_ptr< FieldTransform >( ) );
 
-    //! Default destructor.
-    ~FieldValue( ) { }
-
     //! FieldType of the FieldValue.
     FieldType type;
 
@@ -63,6 +60,7 @@ public:
 protected:
 
 private:
+
     //! String of field value in raw data format.
     std::string rawField;
 

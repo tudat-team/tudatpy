@@ -32,7 +32,7 @@ FieldValue::FieldValue( FieldType& fieldType, std::string& fieldContent,
                         boost::shared_ptr< FieldTransform > transformer )
     : type( fieldType ), // Set the field type.
       rawField( fieldContent ), // Copy the raw field into the object.
-      transform (transformer )  // Set the corresponding transformer.
+      transform ( transformer )  // Set the corresponding transformer.
 { }
 
 //! Get value of field content in SI units.
