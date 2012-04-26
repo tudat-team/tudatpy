@@ -26,28 +26,25 @@
  *                                  (from heliocentric, to inertial).
  *      110208    E. Iorfida        Added CartesianPositionElements objects as input and
  *                                  CartesianVelocityElements objects as output.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
- *    References        :
- *      Gooding, R.H. A procedure for the solution of Lambert's orbital
- *          boundary-value problem, Celestial Mechanics and Dynamical
- *          Astronomy, 48:145-165, 1990.
+ *    References
+ *      Gooding, R.H. A procedure for the solution of Lambert's orbital boundary-value problem,
+ *          Celestial Mechanics and Dynamical Astronomy, 48:145-165, 1990.
+ *
+ *    The number of revolutions from departure to arrival body is zero by definition in this
+ *    routine. This can be made user-defined later on. The resulting trajectories are in
+ *    anti-clockwise direction.
  *
  */
-
-// Temporary notes (move to class/function doxygen):
-// The number of revolutions from departure to arrival body is zero
-// by definition in this routine. This can be made user-defined later on.
-// The resulting trajectories are in anti-clockwise direction.
-// At the moment the CartesianVelocityElements are defined with their
-// pointers, that are referenced to the objects of the class.
-// In the future it should be possibile to have only objects of
-// CartesianVelocityElements class with their direct reference.
-// 
 
 #ifndef TUDAT_LAMBERT_TARGETER_H
 #define TUDAT_LAMBERT_TARGETER_H
 
 #include <iostream>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Astrodynamics/Bodies/celestialBody.h"
 #include "Tudat/Astrodynamics/MissionSegments/trajectoryDesignMethod.h"
 #include "Tudat/Astrodynamics/States/cartesianPositionElements.h"
@@ -56,6 +53,10 @@
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace mission_segments
 {
 
 //! Lambert targeting algorithm class.
@@ -66,104 +67,128 @@ class LambertTargeter : public TrajectoryDesignMethod
 {
 public:
 
+    //! Typedef for shared pointer to celestial body.
+    /*!
+     * Typedef for shared pointer to celestial body.
+     */
+    typedef boost::shared_ptr< bodies::CelestialBody > CelestialBodyPointer;
+
+    //! Typedef for shared pointer to Newton-Raphson method.
+    /*!
+     * Typedef for shared pointer to Newton-Raphson method.
+     */
+    typedef boost::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    LambertTargeter( ): numberOfRevolutions_( -0.0 ), timeOfFlight_( -0.0 ),
-        pointerToCelestialBody_( NULL ), lambertSemiMajorAxis_( -0.0 ), xParameter_( -0.0 ),
-        normalizedTimeOfFlight_( -0.0 ), qParameter_( -0.0 ), radialSpeedAtDeparture_( -0.0 ),
-        radialSpeedAtArrival_( -0.0 ), transverseSpeedAtDeparture_( -0.0 ),
-        transverseSpeedAtArrival_( -0.0 ), pointerToNewtonRaphson_( NULL )
+    LambertTargeter( )
+        : numberOfRevolutions_( TUDAT_NAN ),
+          timeOfFlight_( TUDAT_NAN ),
+          lambertSemiMajorAxis_( TUDAT_NAN ),
+          xParameter_( TUDAT_NAN ),
+          normalizedTimeOfFlight_( TUDAT_NAN ),
+          qParameter_( TUDAT_NAN ),
+          radialSpeedAtDeparture_( TUDAT_NAN ),
+          radialSpeedAtArrival_( TUDAT_NAN ),
+          transverseSpeedAtDeparture_( TUDAT_NAN ),
+          transverseSpeedAtArrival_( TUDAT_NAN )
     {
-        // Initialize variables.
-        pointerToCartesianPositionAtDeparture_ = new CartesianPositionElements;
-        pointerToCartesianPositionAtArrival_ = new CartesianPositionElements;
-        pointerToCartesianVelocityAtDeparture_ = new CartesianVelocityElements;
-        pointerToCartesianVelocityAtArrival_ = new CartesianVelocityElements;
+        cartesianPositionAtDeparture_.setZero( 3 );
+        cartesianPositionAtArrival_.setZero( 3 );
+        cartesianVelocityAtDeparture_.setZero( 3 );
+        cartesianVelocityAtArrival_.setZero( 3 );
     }
 
     //! Set position at departure.
     /*!
-     * Sets the position at departure as pointer to object of CartesianPositionElements class.
-     * \param pointerToCartesianPositionAtDeparture Position at departure.
+     * Sets the position at departure as cartesian Vector3d.
+     * \param cartesianPositionAtDeparture Position at departure.
      */
-    void setPositionAtDeparture( CartesianPositionElements *pointerToCartesianPositionAtDeparture )
-    { pointerToCartesianPositionAtDeparture_ = pointerToCartesianPositionAtDeparture; }
+    void setPositionAtDeparture( Eigen::Vector3d cartesianPositionAtDeparture )
+    {
+        cartesianPositionAtDeparture_ = cartesianPositionAtDeparture;
+    }
 
     //! Set position at arrival.
     /*!
-     * Sets position at arrival as pointer to object of CartesianPositionElements class.
-     * \param pointerToCartesianPositionAtArrival Position at arrival.
+     * Sets position at arrival as cartesian Vector3d
+     * \param cartesianPositionAtArrival Position at arrival.
      */
-    void setPositionAtArrival( CartesianPositionElements *pointerToCartesianPositionAtArrival )
-    { pointerToCartesianPositionAtArrival_ = pointerToCartesianPositionAtArrival; }
+    void setPositionAtArrival( Eigen::Vector3d cartesianPositionAtArrival )
+    {
+        cartesianPositionAtArrival_ = cartesianPositionAtArrival;
+    }
 
     //! Set number of revolutions.
     /*!
      * Sets the number of revolutions.
      * \param numberOfRevolutions Number of Revolutions.
      */
-    void setNumberOfRevolutions( int numberOfRevolutions )
-    { numberOfRevolutions_ = numberOfRevolutions; }
+    void setNumberOfRevolutions( const int numberOfRevolutions )
+    {
+        numberOfRevolutions_ = numberOfRevolutions;
+    }
 
     //! Set time-of-flight.
     /*!
      * Sets the time-of-flight.
      * \param timeOfFlight Time-of-flight.
      */
-    void setTimeOfFlight( double timeOfFlight ) { timeOfFlight_ = timeOfFlight; }
+    void setTimeOfFlight( const double timeOfFlight ) { timeOfFlight_ = timeOfFlight; }
 
     //! Set central body.
     /*!
      * Sets pointer to central body.
-     * \param pointerToCelestialBody Central body
+     * \param celestialBody Central body
      */
-    void setCentralBody( CelestialBody *pointerToCelestialBody )
-    { pointerToCelestialBody_ = pointerToCelestialBody; }
+    void setCentralBody( CelestialBodyPointer celestialBody ) { celestialBody_ = celestialBody; }
 
     //! Set pointer to Newton-Raphson method for Lambert targeting algorithm.
     /*!
      * Sets a pointer to the Newton-Raphson method for the Lambert targeting algorithm.
-     * \param pointerToNewtonRaphson Pointer to NewtonRaphson object.
+     * \param newtonRaphson Pointer to NewtonRaphson object.
      */
-    void setNewtonRaphsonMethod( NewtonRaphson *pointerToNewtonRaphson )
-    { pointerToNewtonRaphson_ = pointerToNewtonRaphson; }
+    void setNewtonRaphsonMethod( NewtonRaphsonPointer newtonRaphson )
+    {
+        newtonRaphson_ = newtonRaphson;
+    }
 
     //! Get Lambert semi-major axis.
     /*!
      * Returns the Lambert semi-major axis.
      * \return Lambert semi-major axis.
      */
-    double& getLambertSemiMajorAxis( ) { return lambertSemiMajorAxis_; }
+    double getLambertSemiMajorAxis( ) { return lambertSemiMajorAxis_; }
 
     //! Get radial speed at departure.
     /*!
      * Returns the radial speed at departure.
      * \return Radial speed at departure.
      */
-    double& getRadialSpeedAtDeparture( ) { return radialSpeedAtDeparture_; }
+    double getRadialSpeedAtDeparture( ) { return radialSpeedAtDeparture_; }
 
     //! Get radial speed at arrival.
     /*!
      * Returns the radial speed at arrival.
      * \return Radial speed at arrival.
      */
-    double& getRadialSpeedAtArrival( ) { return radialSpeedAtArrival_; }
+    double getRadialSpeedAtArrival( ) { return radialSpeedAtArrival_; }
 
     //! Get transverse speed at departure.
     /*!
      * Returns the transverse speed at departure.
      * \return Transverse speed at departure.
      */
-    double& getTransverseSpeedAtDeparture( ) { return transverseSpeedAtDeparture_; }
+    double getTransverseSpeedAtDeparture( ) { return transverseSpeedAtDeparture_; }
 
     //! Get transverse speed at arrival.
     /*!
      * Returns the transverse speed at arrival.
      * \return Transverse speed at arrival.
      */
-    double& getTransverseSpeedAtArrival( ) { return transverseSpeedAtArrival_; }
+    double getTransverseSpeedAtArrival( ) { return transverseSpeedAtArrival_; }
 
     //! Get inertial velocity at departure.
     /*!
@@ -171,8 +196,10 @@ public:
      * planetocentric ).
      * \return Inertial velocity at departure.
      */
-    CartesianVelocityElements* getInertialVelocityAtDeparture( )
-    { return pointerToCartesianVelocityAtDeparture_; }
+    Eigen::Vector3d getInertialVelocityAtDeparture( )
+    {
+        return cartesianVelocityAtDeparture_;
+    }
 
     //! Get inertial velocity at arrival.
     /*!
@@ -180,8 +207,7 @@ public:
      * planetocentric ).
      * \return Inertial velocity at arrival.
      */
-    CartesianVelocityElements* getInertialVelocityAtArrival( )
-    { return pointerToCartesianVelocityAtArrival_; }
+    Eigen::Vector3d getInertialVelocityAtArrival( ) { return cartesianVelocityAtArrival_; }
 
     //! Execute Lambert targeting algorithm.
     /*!
@@ -218,19 +244,19 @@ private:
     /*!
      * Pointer to CelestialBody class.
      */
-    CelestialBody* pointerToCelestialBody_;
+    CelestialBodyPointer celestialBody_;
 
-    //! Pointer to CartesianPositionElements object at departure.
+    //! Cartesian position of object at departure.
     /*!
-     * Pointer to CartesianPositionElements object at departure.
+     * Cartesian position of object at departure.
      */
-    CartesianPositionElements* pointerToCartesianPositionAtDeparture_;
+    Eigen::Vector3d cartesianPositionAtDeparture_;
 
-    //! Pointer to CartesianPositionElements object at arrival.
+    //! Cartesian position of object at arrival.
     /*!
-     * Pointer to CartesianPositionElements object at arrival.
+     * Cartesian position of object at arrival.
      */
-    CartesianPositionElements* pointerToCartesianPositionAtArrival_;
+    Eigen::Vector3d cartesianPositionAtArrival_;
 
     //! Lambert semi-major axis.
     /*!
@@ -280,35 +306,34 @@ private:
      */
     double transverseSpeedAtArrival_;
 
-    //! Pointer to CartesianVelocityElements object at departure.
+    //! Cartesian velocity of object at departure.
     /*!
-     * Pointer to CartesianVelocityElements object at departure
-     * that represents the inertial velocity at departure (referred to central
-     * body).
-     */
-    CartesianVelocityElements* pointerToCartesianVelocityAtDeparture_;
-
-    //! Pointer to CartesianVelocityElements object at arrival.
-    /*!
-     * Pointer to CartesianVelocityElements object at arrival
+     * Cartesian velocity of object at departure
      * that represents the inertial velocity at arrival (referred to central
      * body).
      */
-    CartesianVelocityElements* pointerToCartesianVelocityAtArrival_;
+    Eigen::Vector3d cartesianVelocityAtDeparture_;
+
+    //! Cartesian velocity of object at arrival.
+    /*!
+     * Cartesian velocity of object at arrival
+     * that represents the inertial velocity at arrival (referred to central
+     * body).
+     */
+    Eigen::Vector3d cartesianVelocityAtArrival_;
 
     //! Pointer to object of NewtonRaphson class.
     /*!
      * Pointer to object of NewtonRaphson class.
      */
-    NewtonRaphson* pointerToNewtonRaphson_;
+    NewtonRaphsonPointer newtonRaphson_;
 
     //! Pointer to adaptor object of NewtonRaphsonAdaptor class.
     /*!
      * Pointer to adaptor object of NewtonRaphsonAdaptor class. The template
      * parameter passed is this class.
      */
-    NewtonRaphsonAdaptor< LambertTargeter >
-            newtonRaphsonAdaptorForLambertTargeter_;
+    NewtonRaphsonAdaptor< LambertTargeter > newtonRaphsonAdaptorForLambertTargeter_;
 
     //! Define Lambert function for positive lambertEccentricAnomaly_.
     /*!
@@ -351,6 +376,8 @@ private:
     double lambertFirstDerivativeFunction( double& xParameter_ );
 };
 
+} // namespace mission_segments
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_LAMBERT_TARGETER_H

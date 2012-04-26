@@ -17,11 +17,11 @@
  *      110803    L. van der Ham    Created base class and separated approximatePlanetPositions
  *                                  from approximatePlanetPositionsCircularCoplanar.
  *      110824    J. Leloux         Corrected doxygen documentation.
+ *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
  *    References
- *      Standish, E.M. Keplerian Elements for Approximate Positions of the
- *          Major Planets, http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf,
- *          last accessed: 24 February, 2011.
+ *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
+ *          http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf, last accessed: 24 February, 2011.
  *
  */
 
@@ -32,63 +32,55 @@
 #include <fstream>
 #include <map>
 #include <string>
+
+#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
+
 #include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositionsDataContainer.h"
-#include "Tudat/Astrodynamics/States/cartesianElements.h"
 #include "Tudat/Astrodynamics/Bodies/Ephemeris/ephemeris.h"
 #include "Tudat/Astrodynamics/States/keplerianElements.h"
-#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
 
 namespace tudat
 {
+namespace ephemerides
+{
 
-//! Ephemeris class using JPL "Approximate Positions of Major Planets".
+//! Ephemeris base class using JPL "Approximate Positions of Major Planets".
 /*!
- * Ephemeris class using JPL "Approximate Positions of Major Planets".
+ * Ephemeris base class using JPL "Approximate Positions of Major Planets".
  */
 class ApproximatePlanetPositionsBase : public Ephemeris
 {
 public:
 
+    //! Bodies with ephemeris data.
+    /*!
+     * Bodies with ephemeris data.
+     */
+    enum BodiesWithEphemerisData
+    {
+        mercury, venus, earthMoonBarycenter, mars, jupiter, saturn, uranus, neptune, pluto
+    };
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    //! Default constructor.
-    ApproximatePlanetPositionsBase( )
-        : julianDate_( -0.0 ),
-          meanLongitudeAtGivenJulianDate_( -0.0 ),
-          numberOfCenturiesPastJ2000_( -0.0 )
-    { }
-
-    //! Set planet.
-    /*!
-     * Sets planet to retrieve ephemeris data for.
-     * \param bodyWithEphemerisData Planet.
-     */
-    void setPlanet( BodiesWithEphemerisData bodyWithEphemerisData );
+    ApproximatePlanetPositionsBase( );
 
     //! Parse ephemeris line data.
     /*!
-     * Parse ephemeris line data.
+     * Parses ephemeris line data.
      * \param firstLineNumber First line number.
      */
     void parseEphemerisLineData_( const unsigned int& firstLineNumber );
 
     //! Parse line data for extra terms for ephemeris.
     /*!
-     * Parse ephemeris line data.
+     * Parses ephemeris line data for necessary extra terms.
      * \param lineNumber Line number.
      */
     void parseExtraTermsEphemerisLineData_( const unsigned int& lineNumber );
 
-    //! Get Cartesian state at the given Julian date from ephemeris.
-    /*!
-     * Returns state in Cartesian elements from ephemeris at the given Kulian date (UT1).
-     * \param julianDate Get the ephemeris at this Julian date, UT1.
-     * \return State in Cartesian elements from ephemeris.
-     */
-    CartesianElements* getStateFromEphemeris( double julianDate ) = 0;
-    
     //! Load in ephemeris data for planets.
     /*!
      * This method opens and parses the p_elem_t2.txt ephemeris files for the planet positions.
@@ -100,6 +92,19 @@ public:
     void reloadData( );
 
 protected:
+
+    //! Set planet.
+    /*!
+     * Sets planet to retrieve ephemeris data for.
+     * \param bodyWithEphemerisData Planet.
+     */
+    void setPlanet( BodiesWithEphemerisData bodyWithEphemerisData );
+
+    //! Gravitational parameter of the Sun.
+    /*!
+     *  Gravitational parameter of the Sun.
+     */
+    double solarGravitationalParameter_;
 
     //! Julian date.
     /*!
@@ -116,7 +121,7 @@ protected:
     //! Number of centuries passed J2000.
     /*!
      * Number of centuries passed J2000, computed using Julian date defined
-     * by user when using getStateFromEphemeris( ).
+     * by user when retrieving state.
      */
     double numberOfCenturiesPastJ2000_;
 
@@ -132,22 +137,23 @@ protected:
      */
     ApproximatePlanetPositionsDataContainer approximatePlanetPositionsDataContainer_;
 
-    //! Cartesian elements of planet at given Julian date.
-    /*!
-     * Cartesian elements of planet at given Julian date.
-     */
-    CartesianElements planetCartesianElementsAtGivenJulianDate_;
-
     //! Keplerian elements of planet at given Julian date.
     /*!
      * Keplerian elements of planet at given Julian date.
      */
-    KeplerianElements planetKeplerianElementsAtGivenJulianDate_;
+    astrodynamics::states::KeplerianElements planetKeplerianElementsAtGivenJulianDate_;
+
+    //! String stream for ephemeris line data.
+    /*!
+     * String stream for ephemeris line data.
+     */
+    std::stringstream ephemerisLineData_;
 
 private:
 
 };
 
+} // namespace ephemerides
 } // namespace tudat
 
 #endif // TUDAT_APPROXIMATE_PLANET_POSITIONS_BASE_H

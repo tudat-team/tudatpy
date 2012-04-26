@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 Delft University of Technology.
+/* Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -15,7 +15,15 @@
  *      120326    D. Dirkx          Code checked, minor layout changes, implementation moved
  *                                  to cpp file and static identifier removed to prevent compile
  *                                  warning.
+ *
+ *    References
+ *
  */
+
+#include <map>
+#include <vector>
+
+#include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 
@@ -39,38 +47,40 @@ namespace parsed_data_vector_utilities
      ParsedDataVectorPtr filterMapKey(ParsedDataVectorPtr datavector, int nrFields, ...)
     {
         // Create a fancy vector (list) of all the fields:
-        va_list	argumentList;               // Define argument list variable.
-        va_start(argumentList, nrFields);   // Initialize list; point to last defined argument.
+        va_list	argumentList;                 // Define argument list variable.
+        va_start( argumentList, nrFields );   // Initialize list; point to last defined argument.
 
         // Create a new datavector for the filtered data.
-        ParsedDataVectorPtr newdatavector = ParsedDataVectorPtr(new ParsedDataVector());
+        ParsedDataVectorPtr newdatavector = boost::make_shared< ParsedDataVector >( );
 
         // Make a simple list to iterate over from all the FieldType arguments.
-        std::vector<FieldType> checkForFieldTypes;
-        for (int i=0; i < nrFields; i++)
+        std::vector< FieldType > checkForFieldTypes;
+        for ( int i = 0; i < nrFields; i++ )
         {
-            checkForFieldTypes.push_back(va_arg(argumentList, FieldType));
+            checkForFieldTypes.push_back( va_arg( argumentList, FieldType ) );
         }
 
         // Clean up the system stack.
-        va_end (argumentList);
+        va_end( argumentList );
 
         // Go over every dataline in the current datavector.
-        for (ParsedDataVector::iterator currentDataLine = datavector->begin();
-             currentDataLine != datavector->end();
-             currentDataLine++)
+        for ( ParsedDataVector::iterator currentDataLine = datavector->begin( );
+              currentDataLine != datavector->end( );
+              currentDataLine++ )
         {
             // Flag to indicate that all the FieldTypes from checkForFieldTypes are present in this
             // line.
             bool found = true;
 
             // Loop over each FieldType to check if it exists.
-            for(std::vector<FieldType>::iterator currentFieldCheck = checkForFieldTypes.begin();
-                currentFieldCheck != checkForFieldTypes.end();
-                currentFieldCheck++)
+            for( std::vector< FieldType >::iterator currentFieldCheck
+                 = checkForFieldTypes.begin( );
+                currentFieldCheck != checkForFieldTypes.end( );
+                currentFieldCheck++ )
             {
                 // Check if the FieldType is in the current data line.
-                if ((*currentDataLine)->find(*currentFieldCheck) == (*currentDataLine)->end())
+                if ( (*currentDataLine )->find( *currentFieldCheck)
+                     == ( *currentDataLine )->end( ) )
                 {
                     // If not, mark that not all entries are present, and stop searching for others.
                     found = false;
@@ -78,8 +88,8 @@ namespace parsed_data_vector_utilities
                 }
 
                 // If all the fields are present, add the current line to the new (filtered) vector.
-                if (found)
-                    newdatavector->push_back(*currentDataLine);
+                if ( found )
+                    newdatavector->push_back( *currentDataLine );
             }
         }
 
@@ -88,14 +98,14 @@ namespace parsed_data_vector_utilities
     }
 
     //! Filter the data vector vector for entries containing a given FieldType and a matching
-     ParsedDataVectorPtr filterMapKeyValue(ParsedDataVectorPtr datavector, int nrFields, ...)
+     ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFields, ...)
     {
         // Create a fancy vector (list) of all the fields:
-        va_list	argumentList;               // Define argument list variable.
-        va_start(argumentList, nrFields);   // Initialize list; point to last defined argument.
+        va_list	argumentList;                 // Define argument list variable.
+        va_start( argumentList, nrFields );   // Initialize list; point to last defined argument.
 
         // Create a new data vector for the filtered data.
-        ParsedDataVectorPtr newdatavector = ParsedDataVectorPtr(new ParsedDataVector());
+        ParsedDataVectorPtr newdatavector = boost::make_shared< ParsedDataVector>( );
 
         // Make a simple list to iterate over with the FieldType arguments and respective regex
         // expressions.
@@ -200,6 +210,3 @@ namespace parsed_data_vector_utilities
 } // namespace parsed_data_vector_utilities
 } // namespace input_output
 } // namespace tudat
-
-
-

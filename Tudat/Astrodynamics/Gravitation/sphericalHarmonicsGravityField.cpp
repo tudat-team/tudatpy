@@ -24,30 +24,33 @@
  *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
  *      110805    K. Kumar          Added predefined functionality with WGS-72 and WGS-84 predefined
  *                                  predefined Earth gravity fields.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
- *      Vallado, D. A., Crawford, P., Hujsak, R., & Kelso, T. Revisiting
- *          Spacetrack Report #3: Rev 1, Proceedings of the AIAA/AAS Astro-
- *          dynamics Specialist Conference. Keystone, CO, 2006.
+ *      Vallado, D. A., Crawford, P., Hujsak, R., & Kelso, T. Revisiting Spacetrack Report #3:
+ *          Rev 1, Proceedings of the AIAA/AAS Astrodynamics Specialist Conference. Keystone, CO,
+ *          2006.
  *
  */
 
 #include <cmath>
+
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 
 namespace tudat
 {
-
-// Using declarations.
-using std::endl;
-using std::cerr;
-using std::pow;
+namespace astrodynamics
+{
+namespace gravitation
+{
 
 //! Set predefined spherical harmonics gravity field settings.
 void SphericalHarmonicsGravityField::setPredefinedSphericalHarmonicsGravityFieldSettings(
     BodiesWithPredefinedSphericalHarmonicsGravityFields
     bodyWithPredefinedSphericalHarmonicsGravityField )
 {
+    using std::pow;
+
     // Select body with prefined central gravity field.
     switch( bodyWithPredefinedSphericalHarmonicsGravityField )
     {
@@ -96,28 +99,27 @@ void SphericalHarmonicsGravityField::setPredefinedSphericalHarmonicsGravityField
     default:
 
         // Print cerr statement.
-        cerr << "Desired predefined spherical harmonics gravity field does not exist." << endl;
+        std::cerr << "Desired predefined spherical harmonics gravity field does not exist."
+                  << std::endl;
     };
 }
 
 //! Get gradient tensor of the gravitational potential.
 Eigen::Matrix3d SphericalHarmonicsGravityField::
-        getGradientTensorOfPotential( CartesianPositionElements* pointerToPosition )
+        getGradientTensorOfPotential( const Eigen::Vector3d& position )
 {
-    // Declare local variables.
+    using std::pow;
+
     // Declare identity matrix for computations.
-    Eigen::Matrix3d identityMatrix_;
+    Eigen::Matrix3d identityMatrix_ = Eigen::Matrix3d::Identity( 3, 3 );
 
     // Compute relative position.
-    relativePosition_.state = pointerToPosition->state - positionOfOrigin_.state;
-
-    // Set identity matrix to square size of state.
-    identityMatrix_.setIdentity( 3, 3 );
+    relativePosition_ = position - positionOfOrigin_;
 
     // Compute and return gradient tensor of potential.
-    return gravitationalParameter_ / pow( relativePosition_.state.norm( ), 5.0 )
-            * ( ( 3.0 * relativePosition_.state * relativePosition_.state.transpose( ) )
-                - ( relativePosition_.state.squaredNorm( ) * identityMatrix_ ) );
+    return gravitationalParameter_ / pow( relativePosition_.norm( ), 5.0 )
+            * ( ( 3.0 * relativePosition_ * relativePosition_.transpose( ) )
+                - ( relativePosition_.squaredNorm( ) * identityMatrix_ ) );
 }
 
 //! Overload ostream to print class information.
@@ -125,6 +127,8 @@ std::ostream& operator<<( std::ostream& stream,
                           SphericalHarmonicsGravityField&
                           sphericalHarmonicsGravityField )
 {
+    using std::endl;
+
     stream << "This is a SphericalHarmonicsGravityField object." << endl;
     stream << "The gravitational parameter is set to: "
            << sphericalHarmonicsGravityField.getGravitationalParameter( ) << endl;
@@ -141,4 +145,6 @@ std::ostream& operator<<( std::ostream& stream,
     return stream;
 }
 
+} // namespace gravitation
+} // namespace astrodynamics
 } // namespace tudat

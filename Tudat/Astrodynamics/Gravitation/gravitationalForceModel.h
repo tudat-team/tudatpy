@@ -26,6 +26,7 @@
  *      120209    K. Kumar          Changed class into free functions.
  *      120316    D. Dirkx          Added old GravitationalForceModel class, with note that this
  *                                  will be removed shortly.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
@@ -47,6 +48,8 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/forceModel.h"
 
 namespace tudat
+{
+namespace astrodynamics
 {
 namespace force_models
 {
@@ -99,7 +102,7 @@ Eigen::Vector3d computeGravitationalForce(
         const double gravitationalParameterOfBodyExertingForce,
         const Eigen::Vector3d& positionOfBodyExertingForce );
 
-// WARNING: The following class will most likely be removed before May-2012.
+// WARNING: The following class will most likely be removed before June-2012.
 //! Gravitational force model class.
 /*!
  * Class containing the gravitational force model.
@@ -108,39 +111,62 @@ class GravitationalForceModel : public ForceModel
 {
 public:
 
+    //! Typedef for shared pointer to gravity field model.
+    /*!
+     * Typedef for shared pointer to gravity field model
+     */
+    typedef boost::shared_ptr< astrodynamics::gravitation::GravityFieldModel >
+    GravityFieldModelPointer;
+
+    //! Typedef for shared pointer to body.
+    /*!
+     * Typedef for shared pointer to body.
+     */
+    typedef boost::shared_ptr< bodies::Body > BodyPointer;
+
+    //! Typedef for shared pointer to state.
+    /*!
+     * Typedef for shared pointer to state.
+     */
+    typedef boost::shared_ptr< states::State > StatePointer;
+
     //! Default constructor.
     /*!
      * Default constructor.
-     * \param pointerToBodySubjectToForce Pointer to the body that on which the force is acting.
-     * \param pointerToGravityFieldModel Pointer to gravity field model object that is causing
+     * \param bodySubjectToForce Pointer to the body that on which the force is acting.
+     * \param gravityFieldModel Pointer to gravity field model object that is causing
      * the gravitational force.
      */
-    GravitationalForceModel( Body* pointerToBodySubjectToForce,
-                             GravityFieldModel* pointerToGravityFieldModel ):
-            pointerToBodySubjectToForce_( pointerToBodySubjectToForce ),
-            pointerToGravityFieldModel_(  pointerToGravityFieldModel ) { }
+    GravitationalForceModel( BodyPointer bodySubjectToForce,
+                             GravityFieldModelPointer gravityFieldModel )
+        : bodySubjectToForce_( bodySubjectToForce ),
+          gravityFieldModel_(  gravityFieldModel )
+    { }
 
     //! Get pointer to the body that on which the force is acting.
     /*!
      * Returns the pointer to the body that on which the force is acting.
      * \return Pointer to the body that on which the force is acting.
      */
-    Body* getPointerToBodySubjectToForce( ) { return  pointerToBodySubjectToForce_; }
+    boost::shared_ptr< bodies::Body > getBodySubjectToForce( ) { return bodySubjectToForce_; }
 
     //! Get pointer to the gravitational field model.
     /*!
      * Returns the pointer to the gravitational field model.
      * \return Pointer to the gravitational field model.
      */
-    GravityFieldModel* getPointerToGravityFieldModel( )  { return pointerToGravityFieldModel_; }
+    boost::shared_ptr< astrodynamics::gravitation::GravityFieldModel > getGravityFieldModel( )
+    {
+        return gravityFieldModel_;
+    }
 
     //! Compute force due to gravity field.
     /*!
      * Computes the force due to the gravity field in Newtons.
-     * \param pointerToState Pointer to an object of the State class.
+     * \param state Pointer to an object of the State class.
      * \param time Time (or other independent variable).
      */
-    void computeForce( State* pointerToState, double time );
+    void computeForce( StatePointer state, const double time = 0.0 );
 
 protected:
 
@@ -150,16 +176,17 @@ private:
     /*!
      * Body subject to force.
      */
-    Body* pointerToBodySubjectToForce_;
+    BodyPointer bodySubjectToForce_;
 
     //! Pointer to gravity field model.
     /*!
      * Pointer to gravity field model.
      */
-    GravityFieldModel* pointerToGravityFieldModel_;
+    GravityFieldModelPointer gravityFieldModel_;
 };
 
 } // namespace force_models
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_GRAVITATIONAL_FORCE_MODEL_H

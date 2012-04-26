@@ -18,6 +18,8 @@
  *      110209    D. Dirkx          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
@@ -27,9 +29,16 @@
 #define TUDAT_TORUS_H
 
 #include <Eigen/Core>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 //! Torus class.
@@ -47,9 +56,24 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     *  Default constructor. Default values set to full torus.
+     * \param majorRadius Major radius of torus (i.e. radius from center of torus to outside, of
+     * torus).
+     * \param minorRadius Minor radius of torus (i.e. radius of torus 'tube')
+     * \param minimumMajorCircumferentialAngle Minimum of circumferential angle 'subtended by
+     * major radius'
+     * \param maximumMajorCircumferentialAngle Maximum of circumferential angle 'subtended by
+     * major radius'
+     * \param minimumMinorCircumferentialAngle Minimum of circumferential angle 'subtended by
+     * minor radius'
+     * \param maximumMinorCircumferentialAngle Maximum of circumferential angle 'subtended by
+     * minor radius'
      */
-    Torus( ) : majorRadius_( -0.0 ), minorRadius_( -0.0 ) { }
+    Torus( const double majorRadius, const double minorRadius,
+           const double minimumMajorCircumferentialAngle = 0.0,
+           const double maximumMajorCircumferentialAngle = 2.0 * mathematics::PI,
+           const double minimumMinorCircumferentialAngle = 0.0,
+           const double maximumMinorCircumferentialAngle = 2.0 * mathematics::PI );
 
     //! Get surface point on torus.
     /*!
@@ -63,8 +87,8 @@ public:
      *         torus at which to retrieve the surface point.
      * \return Point on torus in Cartesian coordinates.
      */
-    Eigen::VectorXd getSurfacePoint( double majorCircumferentialAngle,
-                                     double minorCircumferentialAngle );
+    Eigen::VectorXd getSurfacePoint( const double majorCircumferentialAngle,
+                                     const double minorCircumferentialAngle );
 
     //! Get surface derivative on torus.
     /*!
@@ -83,10 +107,10 @@ public:
      *          with respect to the minor circumferential angle.
      * \return Surface derivative on torus.
      */
-    Eigen::VectorXd getSurfaceDerivative( double majorCircumferentialAngle,
-                                          double minorCircumferentialAngle,
-                                          int powerOfMajorCircumferentialAngleDerivative,
-                                          int powerOfMinorCircumferentialAngleDerivative );
+    Eigen::VectorXd getSurfaceDerivative( const double majorCircumferentialAngle,
+                                          const double minorCircumferentialAngle,
+                                          const int powerOfMajorCircumferentialAngleDerivative,
+                                          const int powerOfMinorCircumferentialAngleDerivative );
 
     //! Get parameter of torus.
     /*!
@@ -97,44 +121,21 @@ public:
      *          radius; index = 1: returns minor radius ).
      * \return Selected parameter.
      */
-    double getParameter( int index );
-
-    //! Set parameter of torus.
-    /*!
-     * Sets a parameter of the torus.
-     * \param index Index of parameter to return ( index = 0: returns major
-     *          radius; index = 1: returns minor radius ).
-     * \param parameter Value of parameter to set.
-     */
-    void setParameter( int index, double parameter );
+    double getParameter( const int index );
 
     //! Get major radius.
     /*!
      * Returns the major radius.
      * \return Major radius.
      */
-    double& getMajorRadius( ) { return majorRadius_; }
-
-    //! Set major radius.
-    /*!
-     * Sets the major radius.
-     * \param majorRadius Major radius.
-     */
-    void setMajorRadius( double majorRadius ) { majorRadius_ = majorRadius; }
+    double getMajorRadius( ) { return majorRadius_; }
 
     //! Get minor radius.
     /*!
      * Returns the minor radius.
      * \return Minor radius.
      */
-    double& getMinorRadius( ) { return minorRadius_; }
-
-    //! Set minor radius.
-    /*!
-     * Sets the minor radius.
-     * \param minorRadius Minor radius.
-     */
-    void setMinorRadius( double minorRadius ) { minorRadius_ = minorRadius; }
+    double getMinorRadius( ) { return minorRadius_; }
 
     //! Get maximum of major circumferential angle.
     /*!
@@ -164,42 +165,6 @@ public:
      */
     double getMinimumMinorCircumferentialAngle( ) { return getMinimumIndependentVariable( 2 ); }
 
-    //! Set maximum of major circumferential angle.
-    /*!
-     * Sets the maximum value of the major circumferential angle.
-     * \param maximumMajorCircumferentialAngle Maximum value of major
-     *          circumferential angle.
-     */
-    void setMaximumMajorCircumferentialAngle( double maximumMajorCircumferentialAngle )
-    { setMaximumIndependentVariable( 1, maximumMajorCircumferentialAngle ); }
-
-    //! Set minimum of major circumferential angle.
-    /*!
-     * Sets the minimum value of the major circumferential angle.
-     * \param minimumMajorCircumferentialAngle Minimum value of major
-     *          circumferential angle.
-     */
-    void setMinimumMajorCircumferentialAngle( double minimumMajorCircumferentialAngle )
-    { setMinimumIndependentVariable( 1, minimumMajorCircumferentialAngle ); }
-
-    //! Set maximum of minor circumferential angle.
-    /*!
-     * Sets the maximum value of the minor circumferential angle.
-     * \param maximumMinorCircumferentialAngle Maximum value of minor
-     *          circumferential angle.
-     */
-    void setMaximumMinorCircumferentialAngle( double maximumMinorCircumferentialAngle )
-    { setMaximumIndependentVariable( 2, maximumMinorCircumferentialAngle ); }
-
-    //! Set minimum of minor circumferential angle.
-    /*!
-     * Sets the minimum value of the minor circumferential angle.
-     * \param minimumMinorCircumferentialAngle Minimum value of minor
-     *          circumferential angle.
-     */
-    void setMinimumMinorCircumferentialAngle( double minimumMinorCircumferentialAngle ) 
-    { setMinimumIndependentVariable( 2, minimumMinorCircumferentialAngle ); }
-
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information, prints the class type,
@@ -207,6 +172,8 @@ public:
      * major and minor radii.
      */
     friend std::ostream &operator<<( std::ostream &stream, Torus& torus );
+
+protected:
 
 private:
 
@@ -223,6 +190,8 @@ private:
     double minorRadius_;
 };
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_TORUS_H

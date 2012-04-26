@@ -27,14 +27,17 @@
  */
 
 #include <string>
+
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 
 namespace tudat
 {
+namespace aerodynamics
+{
 
 //! Set the number of independent variables.
 void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
-    int numberOfVariables )
+    const int numberOfVariables )
 {
     // Set number of variables.
     numberOfIndependentVariables_ = numberOfVariables;
@@ -45,7 +48,7 @@ void AerodynamicCoefficientGenerator::setNumberOfIndependentVariables(
 }
 
 //! Set the number of points for Mach number.
-void AerodynamicCoefficientGenerator::setNumberOfMachPoints( int numberOfMachPoints )
+void AerodynamicCoefficientGenerator::setNumberOfMachPoints( const int numberOfMachPoints )
 {
     // Set value of number of mach points.
     numberOfPointsPerIndependentVariables_ [ machIndex_ ] = numberOfMachPoints;
@@ -56,7 +59,7 @@ void AerodynamicCoefficientGenerator::setNumberOfMachPoints( int numberOfMachPoi
 
 //! Set the number of points for angle of attack.
 void AerodynamicCoefficientGenerator::setNumberOfAngleOfAttackPoints(
-        int numberOfAngleOfAttackPoints )
+        const int numberOfAngleOfAttackPoints )
 {
     // Set value of number of angle of attack points.
     numberOfPointsPerIndependentVariables_ [ angleOfAttackIndex_ ] = numberOfAngleOfAttackPoints;
@@ -68,7 +71,7 @@ void AerodynamicCoefficientGenerator::setNumberOfAngleOfAttackPoints(
 
 //! Set the number of points for angle of sideslip.
 void AerodynamicCoefficientGenerator::setNumberOfAngleOfSideslipPoints(
-        int numberOfAngleOfSideslipPoints )
+        const int numberOfAngleOfSideslipPoints )
 {
     // Set value of number of angle of sideslip points.
     numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ]
@@ -81,7 +84,7 @@ void AerodynamicCoefficientGenerator::setNumberOfAngleOfSideslipPoints(
 
 //! Set the number of points for the Reynolds Number.
 void AerodynamicCoefficientGenerator::setNumberOfReynoldsNumberPoints(
-        int numberOfReynoldsNumberPoints )
+        const int numberOfReynoldsNumberPoints )
 {
     // Set value of number of Reynolds Number points.
     numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ] = numberOfReynoldsNumberPoints;
@@ -93,7 +96,7 @@ void AerodynamicCoefficientGenerator::setNumberOfReynoldsNumberPoints(
 
 //! Convert independent variable indices to list index in vehicleCoefficients_.
 int AerodynamicCoefficientGenerator::variableIndicesToListIndex(
-        std::vector< int > independentVariableIndices )
+        const std::vector< int >& independentVariableIndices )
 {
     int i, j;
 
@@ -121,4 +124,5 @@ int AerodynamicCoefficientGenerator::variableIndicesToListIndex(
     return coefficientsIndex_;
 }
 
+} // namespace aerodynamics
 } // namespace tudat

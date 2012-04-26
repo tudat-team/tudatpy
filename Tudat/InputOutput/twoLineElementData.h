@@ -240,7 +240,7 @@ public:
      * Argument of Perigee, ranging between 0 and 360 degrees.
      * Semi-Major Axis, calculated from the other TLE variables.
      */
-    KeplerianElements TLEKeplerianElements;
+    astrodynamics::states::KeplerianElements TLEKeplerianElements;
 
     //! Mean anomaly.
     /*!

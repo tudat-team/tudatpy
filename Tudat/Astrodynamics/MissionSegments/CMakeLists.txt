@@ -46,7 +46,7 @@ target_link_libraries(test_DeepSpaceManeuver tudat_states tudat_mission_segments
 
 add_executable(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestEscapeAndCapture.cpp")
 setup_custom_test_program(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_EscapeAndCapture tudat_bodies tudat_mission_segments tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_EscapeAndCapture tudat_bodies tudat_mission_segments tudat_gravitation tudat_basic_astrodynamics tudat_root_finding_methods tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_GravityAssist "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestGravityAssist.cpp")
 setup_custom_test_program(test_GravityAssist "${SRCROOT}${MISSIONSEGMENTSDIR}")

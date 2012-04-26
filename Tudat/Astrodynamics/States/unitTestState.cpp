@@ -31,7 +31,7 @@
 int main( )
 {
     // Using declarations.
-    using tudat::State;
+    using tudat::astrodynamics::states::State;
 
     // Initialize unit test result to false.
     bool isStateTestErroneous = false;

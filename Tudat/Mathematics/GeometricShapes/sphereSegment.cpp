@@ -25,23 +25,24 @@
  *      110209    K. Kumar          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *
  *    References
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// The getSurfacePoint currently uses a Eigen::VectorXd as a return type,
-// this could be changed to a CartesianPositionElements type in the
-// future for consistency with the rest of the code.
-// 
-
 #include <cmath>
-#include "TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-#include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
+
+#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 #include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
 
+#include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
+
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 // Using declarations.
@@ -51,8 +52,22 @@ using std::cos;
 using std::sin;
 using tudat::unit_conversions::convertRadiansToDegrees;
 
+SphereSegment::SphereSegment( const double radius,
+                              const double minimumAzimuthAngle,
+                              const double maximumAzimuthAngle,
+                              const double minimumZenithAngle,
+                              const double maximumZenithAngle )
+{
+    radius_ = radius;
+    setMinimumIndependentVariable( 1, minimumAzimuthAngle );
+    setMaximumIndependentVariable( 1, maximumAzimuthAngle );
+    setMinimumIndependentVariable( 2, minimumZenithAngle );
+    setMaximumIndependentVariable( 2, maximumZenithAngle );
+}
+
 //! Get surface point on sphere segment.
-Eigen::VectorXd SphereSegment::getSurfacePoint( double azimuthAngle, double zenithAngle )
+Eigen::VectorXd SphereSegment::getSurfacePoint( const double azimuthAngle,
+                                                const double zenithAngle )
 {
     Eigen::Vector3d sphericalPositionVector = Eigen::Vector3d( radius_, zenithAngle, azimuthAngle );
 
@@ -68,9 +83,10 @@ Eigen::VectorXd SphereSegment::getSurfacePoint( double azimuthAngle, double zeni
 }
 
 //! Get surface derivative on sphere segment.
-Eigen::VectorXd SphereSegment::getSurfaceDerivative(
-        double azimuthAngle, double zenithAngle,
-        int powerOfAzimuthAngleDerivative, int powerOfZenithAngleDerivative )
+Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
+                                                     const double zenithAngle,
+                                                     const int powerOfAzimuthAngleDerivative,
+                                                     const int powerOfZenithAngleDerivative )
 {
     // Declare and set size of derivative vector.
     Eigen::VectorXd derivative_ = Eigen::VectorXd( 3 );
@@ -106,7 +122,7 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative(
         // only dependent on sines and cosines, only the "modulo 4"th
         // derivatives need to be determined. Derivatives are determined
         // from the form of the spherical coordinates, see
-        // mathematics::convertSphericalToCartesian.
+        // mathematics::coordinateConversions::convertSphericalToCartesian from the Tudat core.
         switch( powerOfAzimuthAngleDerivative % 4 )
         {
         case( 0 ):
@@ -197,7 +213,7 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative(
 }
 
 //! Get parameter of sphere segment.
-double SphereSegment::getParameter( int index )
+double SphereSegment::getParameter( const int index )
 {
     // Check if parameter is radius.
     if ( index == 0 )
@@ -216,15 +232,6 @@ double SphereSegment::getParameter( int index )
 
     // Return parameter.
     return parameter_;
-}
-
-//! Set parameter of sphere segment.
-void SphereSegment::setParameter( int index, double parameter )
-{
-    if ( index == 0 )
-    {
-        radius_ = parameter;
-    }
 }
 
 //! Overload ostream to print class information.
@@ -248,4 +255,6 @@ std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment )
     return stream;
 }
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat

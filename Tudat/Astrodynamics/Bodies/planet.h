@@ -12,6 +12,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110623    K. Kumar          First creation of code.
+ *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
  *    References
  *
@@ -21,10 +22,12 @@
 #define TUDAT_PLANET_H
 
 #include "Tudat/Astrodynamics/Bodies/celestialBody.h"
-#include "Tudat/Astrodynamics/Gravitation/centralGravityField.h"
 #include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositions.h"
+#include "Tudat/Astrodynamics/Gravitation/centralGravityField.h"
 
 namespace tudat
+{
+namespace bodies
 {
 
 //! Planet class.
@@ -40,7 +43,9 @@ public:
      * Predefined planets.
      */
     enum PredefinedPlanets
-    { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune };
+    {
+        sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune
+    };
 
     //! Set predefined planet settings.
     /*!
@@ -52,20 +57,9 @@ public:
 protected:
 
 private:
-
-    //! Predefined central gravity field.
-    /*!
-     * Predefined central gravity field.
-     */
-    CentralGravityField predefinedCentralGravityField_;
-
-    //! Approximate planet positions ephemeris.
-    /*!
-     * JPL apprximate planet positions ephemeris.
-     */
-    ApproximatePlanetPositions approximatePlanetPositions_;
 };
 
+} // namespace bodies
 } // namespace tudat
 
 #endif // TUDAT_PLANET_H

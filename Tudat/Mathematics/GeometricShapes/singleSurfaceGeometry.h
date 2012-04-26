@@ -26,6 +26,7 @@
  *      110209    D. Dirkx          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor
  *
  *    References
  *
@@ -42,9 +43,16 @@
 #define TUDAT_SINGLE_SURFACE_GEOMETRY_H
 
 #include <Eigen/Core>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Mathematics/GeometricShapes/surfaceGeometry.h"
 
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 //! Surface geometry base class.
@@ -77,14 +85,18 @@ public:
      * Default constructor; sets the initial offset equal to zero and sets the
      * rotation matrix and scaling matrix equal to the identity matrix.
      */
-    SingleSurfaceGeometry( ) : minimumIndependentVariable1_( -0.0 ),
-        maximumIndependentVariable1_( -0.0 ), minimumIndependentVariable2_( -0.0 ),
-        maximumIndependentVariable2_( -0.0 ), parameter_( -0.0 ),
-        independentVariable_( firstIndependentVariable ),
-        cartesianPositionVector_( Eigen::VectorXd::Zero( 3 ) ),
-        offset_( Eigen::VectorXd::Zero( 3 ) ),
-        rotationMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) ),
-        scalingMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) ) { }
+    SingleSurfaceGeometry( )
+        : minimumIndependentVariable1_( TUDAT_NAN ),
+          maximumIndependentVariable1_( TUDAT_NAN ),
+          minimumIndependentVariable2_( TUDAT_NAN ),
+          maximumIndependentVariable2_( TUDAT_NAN ),
+          parameter_( TUDAT_NAN ),
+          independentVariable_( firstIndependentVariable ),
+          cartesianPositionVector_( Eigen::VectorXd::Zero( 3 ) ),
+          offset_( Eigen::VectorXd::Zero( 3 ) ),
+          rotationMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) ),
+          scalingMatrix_( Eigen::MatrixXd::Identity( 3, 3 ) )
+    { }
 
     //! Default destructor.
     /*!
@@ -104,41 +116,20 @@ public:
      * Sets the rotation matrix of the shape.
      * \param rotationMatrix Rotation matrix.
      */
-    void setRotationMatrix( const Eigen::MatrixXd& rotationMatrix ) { rotationMatrix_ = rotationMatrix; }
+    void setRotationMatrix( const Eigen::MatrixXd& rotationMatrix )
+    {
+        rotationMatrix_ = rotationMatrix;
+    }
 
     //! Set scaling matrix of the shape.
     /*!
      * Sets the scaling matrix of the shape.
      * \param scalingMatrix Scaling matrix.
      */
-    void setScalingMatrix( const Eigen::MatrixXd& scalingMatrix ) { scalingMatrix_ = scalingMatrix; }
-
-    //! Set minimum value of independent variable.
-    /*!
-     * Sets the minimum value of a given independent variable.
-     * \param parameterIndex Index of independent variable for which to set
-                minimum value.
-     * \param minimumValue Minimum value for given independent variable.
-     */
-    void setMinimumIndependentVariable( int parameterIndex, double minimumValue );
-
-    //! Set maximum value of independent variable.
-    /*!
-     * Sets the maximum value of a given independent variable.
-     * \param parameterIndex Index of independent variable for which to set
-     *          maximum value.
-     * \param maximumValue Maximum value for given independent variable.
-     */
-    void setMaximumIndependentVariable( int parameterIndex, double maximumValue );
-
-    //! Set parameter.
-    /*!
-     * Sets parameter of the shape ( i.e., radius for derived SphereSegment,
-     * cone angle for derived Cone ).
-     * \param parameterIndex Index of parameter to set for a specific shape.
-     * \param parameterValue Parameter value to set.
-     */
-    virtual void setParameter( int parameterIndex, double parameterValue ) = 0;
+    void setScalingMatrix( const Eigen::MatrixXd& scalingMatrix )
+    {
+        scalingMatrix_ = scalingMatrix;
+    }
 
     //! Get parameter.
     /*!
@@ -147,7 +138,7 @@ public:
      * \param parameterIndex Index of parameter to set for a specific shape.
      * \return Specific parameter from a shape.
      */
-    virtual double getParameter( int parameterIndex ) = 0;
+    virtual double getParameter( const int parameterIndex ) = 0;
 
     //! Get offset from the shape.
     /*!
@@ -177,7 +168,7 @@ public:
      *          retrieve minimum.
      * \return minimumValue Minimum value for given independent variable.
      */
-    double getMinimumIndependentVariable( int parameterIndex );
+    double getMinimumIndependentVariable( const int parameterIndex );
 
     //! Get maximum value of independent variable.
     /*!
@@ -186,7 +177,7 @@ public:
      *          retrieve maximum.
      * \return maximumValue Maximum value for given independent variable.
      */
-    double getMaximumIndependentVariable( int parameterIndex );
+    double getMaximumIndependentVariable( const int parameterIndex );
 
     //! Get surface point.
     /*!
@@ -196,8 +187,8 @@ public:
      * \param independentVariable2 Independent variable 2.
      * \return Surface point.
      */
-    virtual Eigen::VectorXd getSurfacePoint( double independentVariable1,
-                                      double independentVariable2 ) = 0;
+    virtual Eigen::VectorXd getSurfacePoint( const double independentVariable1,
+                                             const double independentVariable2 ) = 0;
 
     //! Get surface derivative.
     /*!
@@ -209,10 +200,10 @@ public:
      * \param powerOfDerivative2 Power of derivative wrt independent variable 2.
      * \return Surface derivative.
      */
-    virtual Eigen::VectorXd getSurfaceDerivative( double independentVariable1,
-                                           double independentVariable2,
-                                           int powerOfDerivative1,
-                                           int powerOfDerivative2 ) = 0;
+    virtual Eigen::VectorXd getSurfaceDerivative( const double independentVariable1,
+                                                  const double independentVariable2,
+                                                  const int powerOfDerivative1,
+                                                  const int powerOfDerivative2 ) = 0;
 
     //! Apply transformation to vehicle part.
     /*!
@@ -224,6 +215,24 @@ public:
     void transformPoint( Eigen::VectorXd& point );
 
 protected:
+
+    //! Set minimum value of independent variable.
+    /*!
+     * Sets the minimum value of a given independent variable.
+     * \param parameterIndex Index of independent variable for which to set
+                minimum value.
+     * \param minimumValue Minimum value for given independent variable.
+     */
+    void setMinimumIndependentVariable( const int parameterIndex, const double minimumValue );
+
+    //! Set maximum value of independent variable.
+    /*!
+     * Sets the maximum value of a given independent variable.
+     * \param parameterIndex Index of independent variable for which to set
+     *          maximum value.
+     * \param maximumValue Maximum value for given independent variable.
+     */
+    void setMaximumIndependentVariable( const int parameterIndex, const double maximumValue );
 
     //! Minimum value of independent variable 1.
     /*!
@@ -290,8 +299,11 @@ protected:
     Eigen::MatrixXd scalingMatrix_;
 
 private:
+
 };
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_SINGLE_SURFACE_GEOMETRY_H

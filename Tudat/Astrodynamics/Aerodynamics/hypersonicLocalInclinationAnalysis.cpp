@@ -24,65 +24,78 @@
  *
  */
 
-#include <Eigen/Geometry>
+#include <iostream>
 #include <string>
+
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include <Eigen/Geometry>
+
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Astrodynamics/Bodies/vehicleExternalModel.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 #include "Tudat/Mathematics/GeometricShapes/surfaceGeometry.h"
 
-// Using declarations.
+namespace tudat
+{
+namespace aerodynamics
+{
+
 using std::string;
 using std::endl;
 using tudat::mathematics::PI;
 
-namespace tudat
-{
+using namespace tudat::mathematics::geometric_shapes;
 
 //! Constructor to set geometry and reference quantities.
 void HypersonicLocalInclinationAnalysis::setVehicle(
-        Vehicle& vehicle, std::vector< int > numberOfLines,
+        bodies::Vehicle& vehicle, std::vector< int > numberOfLines,
         std::vector< int > numberOfPoints, std::vector< bool > invertOrders )
 {
     // Retrieve external surface geometry from vehicle.
-    VehicleExternalModel* externalModel_ = vehicle.getPointerToExternalModel( );
-    SurfaceGeometry* surface_ = externalModel_->getVehicleExternalGeometry( );
+    boost::shared_ptr< bodies::VehicleExternalModel > externalModel_ = vehicle.getExternalModel( );
+    boost::shared_ptr< SurfaceGeometry > surface_ = externalModel_->getVehicleExternalGeometry( );
 
     // Set geometry if it is a single surface.
-    if ( dynamic_cast< SingleSurfaceGeometry* > ( surface_ ) != NULL )
+    if ( boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( surface_ ) !=
+         boost::shared_ptr< SingleSurfaceGeometry >( ) )
     {
         // Set number of geometries and allocate memory.
         numberOfVehicleParts_ = 1;
-        vehicleParts_.resize(1);
+        vehicleParts_.resize( 1 );
 
         vehicleParts_[ 0 ].setReversalOperator( invertOrders[ 0 ] );
 
         // Convert geometry to LaWGS surface mesh and set in vehicleParts_ list.
         vehicleParts_[ 0 ].setMesh(
-                dynamic_cast< SingleSurfaceGeometry* >( surface_ ),
+                boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( surface_ ),
                 numberOfLines[ 0 ], numberOfPoints[ 0 ] );
     }
 
     // Set geometry if it is a composite surface.
-    else if ( dynamic_cast< CompositeSurfaceGeometry* >( surface_ ) != NULL )
+    else if ( boost::dynamic_pointer_cast< CompositeSurfaceGeometry >( surface_ ) !=
+              boost::shared_ptr< CompositeSurfaceGeometry >( ) )
     {
         // Dynamic cast to composite surface geometry for further processing.
-        CompositeSurfaceGeometry* compositeSurfaceGeometry_ =
-                dynamic_cast< CompositeSurfaceGeometry* >( surface_ );
+        boost::shared_ptr< CompositeSurfaceGeometry > compositeSurfaceGeometry_ =
+                boost::dynamic_pointer_cast< CompositeSurfaceGeometry >( surface_ );
 
         // Set number of geometries and allocate memory.
         numberOfVehicleParts_ =
                 compositeSurfaceGeometry_->getNumberOfSingleSurfaceGeometries( );
-        vehicleParts_.resize( numberOfVehicleParts_);
+        vehicleParts_.resize( numberOfVehicleParts_ );
 
         // Iterate through all parts and set them in vehicleParts_ list.
-        for ( int i = 0; i<numberOfVehicleParts_ ; i++)
+        for ( int i = 0; i < numberOfVehicleParts_; i++ )
         {
             // If part is not already a LaWGS part, convert it.
-            if ( dynamic_cast< LawgsPartGeometry* >(
-                compositeSurfaceGeometry_->getSingleSurfaceGeometry(i) ) == NULL )
+            if ( boost::dynamic_pointer_cast< LawgsPartGeometry >
+                 ( compositeSurfaceGeometry_->getSingleSurfaceGeometry( i ) ) ==
+                 boost::shared_ptr< LawgsPartGeometry >( ) )
             {
                 vehicleParts_[ i ].setReversalOperator( invertOrders[ i ] );
 
@@ -95,8 +108,8 @@ void HypersonicLocalInclinationAnalysis::setVehicle(
             // Else, set geometry directly.
             else
             {
-                vehicleParts_[ i ] = *dynamic_cast< LawgsPartGeometry* >(
-                            compositeSurfaceGeometry_->getSingleSurfaceGeometry( i ) );
+                vehicleParts_[ i ] = *boost::dynamic_pointer_cast< LawgsPartGeometry >(
+                            compositeSurfaceGeometry_->getSingleSurfaceGeometry( i ) ).get( );
             }
         }
     }
@@ -143,7 +156,7 @@ void HypersonicLocalInclinationAnalysis::allocateArrays( )
 
 //! Get aerodynamic coefficients.
 Eigen::VectorXd HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
-    std::vector< int > independentVariables )
+    const std::vector< int >& independentVariables )
 {
     // If coefficients have not been allocated (and independent variables
     // have not been initialized), do so.
@@ -155,9 +168,8 @@ Eigen::VectorXd HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
     // Declare and determine index in vehicleCoefficients_ array.
     int coefficientsIndex = variableIndicesToListIndex( independentVariables );
 
-    // If coefficients for data point have not yet been calculated,
-    // calculate them.
-    if ( vehicleCoefficients_[ coefficientsIndex ] == NULL )
+    // If coefficients for data point have not yet been calculated, calculate them.
+    if ( vehicleCoefficients_[ coefficientsIndex ] == boost::shared_ptr< Eigen::VectorXd >( ) )
     {
         determineVehicleCoefficients( independentVariables );
     }
@@ -211,7 +223,7 @@ void HypersonicLocalInclinationAnalysis::generateDatabase( )
                 independentVariableIndices[ angleOfSideslipIndex_ ] = k;
 
                 // If coefficient has not yet been set, calculate and set it.
-                if ( vehicleCoefficients_[ l ] == NULL )
+                if ( vehicleCoefficients_[ l ] == boost::shared_ptr< Eigen::VectorXd >( ) )
                 {
                     determineVehicleCoefficients( independentVariableIndices );
                 }
@@ -248,7 +260,7 @@ void HypersonicLocalInclinationAnalysis::allocateVehicleCoefficients( )
                         numberOfPointsPerIndependentVariables_[ angleOfSideslipIndex_ ] *
                         numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ];
 
-    // Allocate memory for pointers to coefficients and initialize to NULL.
+    // Allocate memory for pointers to coefficients and initialize to NULL shared_ptrs.
     vehicleCoefficients_.resize( numberOfCases_ );
     int i;
     for ( i = 0; i < numberOfCases_ ; i++ )
@@ -287,7 +299,8 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
     }
 
     // Allocate and set vehicle coefficients at given independent variables.
-    vehicleCoefficients_[ coefficientsIndex ] = boost::shared_ptr< Eigen::VectorXd>( new Eigen::VectorXd( coefficients ) );
+    vehicleCoefficients_[ coefficientsIndex ]
+            = boost::make_shared< Eigen::VectorXd>( coefficients );
 }
 
 //! Determine aerodynamic coefficients of a single vehicle part.
@@ -331,8 +344,8 @@ void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
 
     // Determine stagnation point pressure coefficients. Value is computed once
     // here to prevent its calculation in inner loop.
-    stagnationPressureCoefficient = aerodynamics::computeStagnationPressure(
-            machNumber, ratioOfSpecificHeats);
+    stagnationPressureCoefficient = computeStagnationPressure(
+            machNumber, ratioOfSpecificHeats );
     updateCompressionPressures( machNumber, partNumber );
     updateExpansionPressures( machNumber, partNumber );
 }
@@ -903,4 +916,5 @@ std::ostream& operator<<( std::ostream& stream,
     return stream;
 }
 
+} // namespace aerodynamics
 } // namespace tudat

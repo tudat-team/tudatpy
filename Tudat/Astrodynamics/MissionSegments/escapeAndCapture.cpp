@@ -20,15 +20,15 @@
  *                                  computeDeltaV.
  *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element of
  *                                  GeometricShapes.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120416    T. Secretin       Corrected if-statements to detect NaN values.
  *
  *    References
  *
  */
 
+#include <boost/shared_ptr.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
-
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/MissionSegments/escapeAndCapture.h"
 
@@ -39,25 +39,16 @@ namespace astrodynamics
 namespace mission_segments
 {
 
-//! Default constructor.
-EscapeAndCapture::EscapeAndCapture( )
-    : centralBodyGravityfield_( NULL ), semiMajorAxis_( TUDAT_NAN ), eccentricity_( TUDAT_NAN ),
-      periapsisAltitude_( TUDAT_NAN ), apoapsisAltitude_( TUDAT_NAN ),
-      hyperbolicExcessSpeed_( TUDAT_NAN ), deltaV_ ( TUDAT_NAN ), parkingOrbitRadius_( TUDAT_NAN ),
-      pointerToCentralBodySphere_ ( NULL )
-{ }
-
 //! Compute delta-V of launch/capture phase.
 double EscapeAndCapture::computeDeltaV( )
 {
-    // Using declarations.
     using std::endl;
     using std::pow;
     using std::sqrt;
 
     // Local variables.
-    double periapsisRadius_ = -0.0;
-    double apoapsisRadius_ = -0.0;
+    double periapsisRadius_ = TUDAT_NAN;
+    double apoapsisRadius_ = TUDAT_NAN;
 
     // Check input parameters.
     // For the correct functioning of this routine, the periapsis

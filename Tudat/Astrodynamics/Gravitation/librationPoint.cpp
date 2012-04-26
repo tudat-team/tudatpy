@@ -23,6 +23,7 @@
  *                                  of colinear libration points.
  *      111027    K. Kumar          Moved 1-line functions to header file.
  *      120307    K. Kumar          Moved file.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *      van der Ham, L. TBD.
@@ -30,10 +31,10 @@
 
 // Temporary notes (move to class/function doxygen):
 // Problem", http://www.math.utexas.edu/users/jjames/celestMech, 2006.
-// 
-// 
 
 #include <cmath>
+#include <iostream>
+
 #include "Tudat/Astrodynamics/Gravitation/gravitationalForceModel.h"
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 
@@ -46,16 +47,13 @@ namespace gravitation
 namespace circular_restricted_three_body_problem
 {
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using std::pow;
-using std::sqrt;
-
 //! Compute location of Lagrange libration point.
 void LibrationPoint::computeLocationOfLibrationPoint(
     LagrangeLibrationPoints lagrangeLibrationPoint )
 {
+    using std::pow;
+    using std::sqrt;
+
     // Newton-Raphson method implementation.
     // Set the class that contains the functions needed for Newton-Raphson.
     newtonRaphsonAdaptorForLibrationPoint_.setClass( this );
@@ -73,20 +71,18 @@ void LibrationPoint::computeLocationOfLibrationPoint(
                     &LibrationPoint::computeL1FirstDerivativeLocationFunction_ );
 
         // Set the adaptor for Newton-Raphson method.
-        pointerToNewtonRaphson_->setNewtonRaphsonAdaptor(
-                    &newtonRaphsonAdaptorForLibrationPoint_ );
+        newtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForLibrationPoint_ );
 
         // Set initial guess for root of equation of motion for L1.
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( 1.0 );
+        newtonRaphson_->setInitialGuessOfRoot( 1.0 );
 
         // Compute root of equation for L1 via Newton-Raphson method.
-        pointerToNewtonRaphson_->execute( );
+        newtonRaphson_->execute( );
 
         // Set position vector of L1 in Cartesian elements.
-        positionOfLibrationPoint_.setCartesianElementX(
-                    pointerToNewtonRaphson_->getComputedRootOfFunction( ) );
-        positionOfLibrationPoint_.setCartesianElementY( 0.0 );
-        positionOfLibrationPoint_.setCartesianElementZ( 0.0 );
+        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( ) ;
+        positionOfLibrationPoint_.y( ) = 0.0;
+        positionOfLibrationPoint_.z( ) = 0.0;
 
         break;
 
@@ -99,20 +95,18 @@ void LibrationPoint::computeLocationOfLibrationPoint(
                     &LibrationPoint::computeL2FirstDerivativeLocationFunction_ );
 
         // Set the adaptor for Newton-Raphson method.
-        pointerToNewtonRaphson_->setNewtonRaphsonAdaptor(
-                    &newtonRaphsonAdaptorForLibrationPoint_ );
+        newtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForLibrationPoint_ );
 
         // Set initial guess for root of equation of motion in L2.
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( 1.0 );
+        newtonRaphson_->setInitialGuessOfRoot( 1.0 );
 
         // Compute root of equation for L2 via Newton-Raphson method.
-        pointerToNewtonRaphson_->execute( );
+        newtonRaphson_->execute( );
 
         // Set position vector of L2 in Cartesian elements.
-        positionOfLibrationPoint_.setCartesianElementX(
-                    pointerToNewtonRaphson_->getComputedRootOfFunction( ) );
-        positionOfLibrationPoint_.setCartesianElementY( 0.0 );
-        positionOfLibrationPoint_.setCartesianElementZ( 0.0 );
+        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( ) ;
+        positionOfLibrationPoint_.y( ) = 0.0;
+        positionOfLibrationPoint_.z( ) = 0.0;
 
         break;
 
@@ -125,44 +119,42 @@ void LibrationPoint::computeLocationOfLibrationPoint(
                     &LibrationPoint::computeL3FirstDerivativeLocationFunction_ );
 
         // Set the adaptor for Newton-Raphson method.
-        pointerToNewtonRaphson_->setNewtonRaphsonAdaptor(
-                    &newtonRaphsonAdaptorForLibrationPoint_ );
+        newtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForLibrationPoint_ );
 
         // Set initial guess for root of equation of motion in L3.
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( -1.0 );
+        newtonRaphson_->setInitialGuessOfRoot( -1.0 );
 
         // Compute root of equation for L3 via Newton-Raphson method.
-        pointerToNewtonRaphson_->execute( );
+        newtonRaphson_->execute( );
 
         // Set position vector of L3 in Cartesian elements.
-        positionOfLibrationPoint_.setCartesianElementX(
-                    pointerToNewtonRaphson_->getComputedRootOfFunction( ) );
-        positionOfLibrationPoint_.setCartesianElementY( 0.0 );
-        positionOfLibrationPoint_.setCartesianElementZ( 0.0 );
+        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( ) ;
+        positionOfLibrationPoint_.y( ) = 0.0;
+        positionOfLibrationPoint_.z( ) = 0.0;
 
         break;
 
     case L4:
 
         // Set position vector of L4 in Cartesian elements.
-        positionOfLibrationPoint_.setCartesianElementX( 0.5 - massParameter_ );
-        positionOfLibrationPoint_.setCartesianElementY( 0.5 * sqrt( 3.0 ) );
-        positionOfLibrationPoint_.setCartesianElementZ( 0.0 );
+        positionOfLibrationPoint_.x( ) = 0.5 - massParameter_;
+        positionOfLibrationPoint_.y( ) = 0.5 * sqrt( 3.0 );
+        positionOfLibrationPoint_.z( ) = 0.0;
 
         break;
 
     case L5:
 
         // Set position vector of L5 in Cartesian elements.
-        positionOfLibrationPoint_.setCartesianElementX( 0.5 - massParameter_ );
-        positionOfLibrationPoint_.setCartesianElementY( -0.5 * sqrt( 3.0 ) );
-        positionOfLibrationPoint_.setCartesianElementZ( 0.0 );
+        positionOfLibrationPoint_.x( ) = 0.5 - massParameter_;
+        positionOfLibrationPoint_.y( ) = -0.5 * sqrt( 3.0 );
+        positionOfLibrationPoint_.z( ) = 0.0;
 
         break;
 
     default:
 
-        cerr << "The Lagrange libration point requested does not exist." << endl;
+        std::cerr << "The Lagrange libration point requested does not exist." << std::endl;
     };
 }
 

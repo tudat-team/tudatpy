@@ -25,6 +25,7 @@
  *      110202    K. Kumar          Updated code to work with State.
  *      110204    K. Kumar          Removed "vector" from naming.
  *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
@@ -36,9 +37,12 @@
 // true; if the code is correct, the function returns a boolean false.
 // 
 
+
 #include <cmath>
-#include <Eigen/Core>
 #include <limits>
+
+#include <Eigen/Core>
+
 #include "Tudat/Astrodynamics/Bodies/planet.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
@@ -46,7 +50,6 @@
 //! Test implementation of spherical harmonics gravity field class.
 int main( )
 {
-    // Using directives.
     using std::cerr;
     using std::endl;
     using std::pow;
@@ -69,6 +72,7 @@ int main( )
     identityMatrix.setIdentity( 3, 3 );
 
     // Create gravity field for myPlanet.
+    using astrodynamics::gravitation::SphericalHarmonicsGravityField;
     SphericalHarmonicsGravityField myPlanetGravityField;
 
     // Set gravitational parameter of myPlanet.
@@ -77,34 +81,26 @@ int main( )
 
     // Set origin of gravity field of myPlanet with respect to geometric
     // center.
-    CartesianPositionElements cartesianPositionOfOrigin;
-    Eigen::VectorXd positionOfOrigin( 3 );
-    positionOfOrigin.setZero( );
-    cartesianPositionOfOrigin.state = positionOfOrigin;
-    myPlanetGravityField.setOrigin( &cartesianPositionOfOrigin );
+    myPlanetGravityField.setOrigin( Eigen::Vector3d::Zero( ) );
 
     // Set position with respect to geometric center.
-    CartesianPositionElements cartesianPosition;
-    cartesianPosition.setCartesianElementX( 5.0e6 );
-    cartesianPosition.setCartesianElementY( 3.0e6 );
-    cartesianPosition.setCartesianElementZ( 1.0e6 );
+    Eigen::Vector3d cartesianPosition;
+    cartesianPosition << 5.0e6, 3.0e6, 1.0e6;
 
     // Create predefined Earth central gravity field.
-    CentralGravityField predefinedEarthCentralGravityField;
-    predefinedEarthCentralGravityField.setPredefinedCentralGravityFieldSettings(
-                CentralGravityField::earth );
+    using astrodynamics::gravitation::CentralGravityField;
+    CentralGravityField predefinedEarthCentralGravityField( CentralGravityField::earth );
 
     // Expected test results.
     double expectedResultForTest1 = gravitationalParameterOfMyPlanet;
     double expectedResultForTest2 = 3.9859383624e+14;
-    double expectedResultForTest3 = gravitationalParameterOfMyPlanet
-            / cartesianPosition.state.norm( );
+    double expectedResultForTest3 = gravitationalParameterOfMyPlanet / cartesianPosition.norm( );
     Eigen::VectorXd expectedResultForTest4 =  -gravitationalParameterOfMyPlanet
-            / pow( cartesianPosition.state.norm( ), 3.0 ) * cartesianPosition.state;
+            / pow( cartesianPosition.norm( ), 3.0 ) * cartesianPosition;
     Eigen::Matrix3d expectedResultForTest5 = gravitationalParameterOfMyPlanet
-            / pow( cartesianPosition.state.norm( ), 5.0 )
-            * ( ( 3.0 * cartesianPosition.state * cartesianPosition.state.transpose( ) )
-                - ( cartesianPosition.state.squaredNorm( ) * identityMatrix ) );
+            / pow( cartesianPosition.norm( ), 5.0 )
+            * ( ( 3.0 * cartesianPosition * cartesianPosition.transpose( ) )
+                - ( cartesianPosition.squaredNorm( ) * identityMatrix ) );
 
     // Results computed using implementation of spherical harmonics gravity
     // field class.
@@ -112,11 +108,11 @@ int main( )
     double computedResultForTest2 =
             predefinedEarthCentralGravityField.getGravitationalParameter( );
     double computedResultForTest3 = myPlanetGravityField.getPotential(
-                &cartesianPosition );
+                cartesianPosition );
     Eigen::Vector3d computedResultForTest4 = myPlanetGravityField.getGradientOfPotential(
-                &cartesianPosition );
+                cartesianPosition );
     Eigen::Matrix3d computedResultForTest5 = myPlanetGravityField.getGradientTensorOfPotential(
-                &cartesianPosition );
+                cartesianPosition );
 
     // Compute differences between computed and expected results.
     Eigen::VectorXd differenceBetweenResults( 5 );

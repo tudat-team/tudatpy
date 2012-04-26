@@ -22,29 +22,23 @@
  *
  *    References
  *      Leloux, J. Filtering Techniques for Orbital Debris Conjunction Analysis
- *          - applied to SSN TLE catalog data and including astrodynamics and
- *          collision probability theory, MSc Literature Research, Delft
- *          University of Technology, 2010.
+ *          - applied to SSN TLE catalog data and including astrodynamics and collision probability
+ *          theory, MSc Literature Research, Delft University of Technology, 2010.
  *      Celestrak (a). Space Track TLE Retriever Help,
  *          http://celestrak.com/SpaceTrack/TLERetrieverHelp.asp, 2011. Last
  *          accessed: 5 August, 2011.
  *      Space Track. TLE Format, http://www.space-track.org/tle_format.html,
  *          2004. Last accessed: 5 August, 2011.
  *      Celestrak (b). FAQs: Two-Line Element Set Format,
- *          http://celestrak.com/columns/v04n03/, 2006. Last accessed:
- *          5 August, 2011.
+ *          http://celestrak.com/columns/v04n03/, 2006. Last accessed: 5 August, 2011.
  *      Celestrak (c). NORAD Two-Line Element Set Format,
- *          http://celestrak.com/NORAD/documentation/tle-fmt.asp, 2004. Last
- *          accessed: 5 August, 2011.
+ *          http://celestrak.com/NORAD/documentation/tle-fmt.asp, 2004. Last accessed: 5 August,
+ *          2011.
+ *
+ *    Raw TLE data can be obtained from (Celestrak (a), 2011). Explanations of the TLE data format
+ *    can be viewed in (Space Track, 2004), (Celestrak (b), 2006), and (Celestrak (c), 2004).
  *
  */
-
-// Temporary notes (move to class/function doxygen):
-// Raw TLE data can be obtained from (Celestrak (a), 2011). Explanations
-// of the TLE data format can be viewed in (Space Track, 2004),
-// (Celestrak (b), 2006), and (Celestrak (c), 2004).
-// 
-// 
 
 #ifndef TUDAT_TWO_LINE_ELEMENTS_TEXT_FILE_READER_H
 #define TUDAT_TWO_LINE_ELEMENTS_TEXT_FILE_READER_H
@@ -77,11 +71,23 @@ public:
     /*!
      * Default constructor.
      */
-    TwoLineElementsTextFileReader( ) : lineCounter_( 1 ), numberOfHeaderLines_( 0 ), dataFile_( ), fileName_( "" ),
-        stringOfData_( "" ), absoluteFilePath_( "" ), absoluteDirectoryPath_( "" ),
-        relativeDirectoryPath_( "" ), startingCharacter_( "" ), skipKeyword_( "" ),
-        containerOfDataFromFile_( ), currentYear_( -0 ), numberOfObjects_( -0 ),
-        numberOfLinesPerTwoLineElementDatum_( 3 ), twoLineElementData_( ) { }
+    TwoLineElementsTextFileReader( )
+        : lineCounter_( 1 ),
+          numberOfHeaderLines_( 0 ),
+          dataFile_( ),
+          fileName_( "" ),
+          stringOfData_( "" ),
+          absoluteFilePath_( "" ),
+          absoluteDirectoryPath_( "" ),
+          relativeDirectoryPath_( "" ),
+          startingCharacter_( "" ),
+          skipKeyword_( "" ),
+          containerOfDataFromFile_( ),
+          currentYear_( -0 ),
+          numberOfObjects_( -0 ),
+          numberOfLinesPerTwoLineElementDatum_( 3 ),
+          twoLineElementData_( )
+    { }
 
     //! Default destructor.
     /*!
@@ -96,7 +102,10 @@ public:
      * \param absoluteDirectoryPath Absolute path to directory containing data file.
      */
     void setAbsoluteDirectoryPath( std::string absoluteDirectoryPath )
-    { relativeDirectoryPath_ = ""; absoluteDirectoryPath_ = absoluteDirectoryPath; }
+    {
+        relativeDirectoryPath_ = "";
+        absoluteDirectoryPath_ = absoluteDirectoryPath;
+    }
 
     //! Set relative directory path.
     /*!
@@ -105,7 +114,10 @@ public:
      * \param relativeDirectoryPath Relative directory path.
      */
     void setRelativeDirectoryPath( std::string relativeDirectoryPath )
-    { absoluteDirectoryPath_ = ""; relativeDirectoryPath_ = relativeDirectoryPath; }
+    {
+        absoluteDirectoryPath_ = "";
+        relativeDirectoryPath_ = relativeDirectoryPath;
+    }
 
     //! Set file name.
     /*!
@@ -135,7 +147,9 @@ public:
      * \param startingCharacter Starting character.
      */
     void skipLinesStartingWithCharacter( const std::string& startingCharacter )
-    { startingCharacter_ = startingCharacter; }
+    {
+        startingCharacter_ = startingCharacter;
+    }
 
     //! Skip all lines containing a given keyword.
     /*!
@@ -154,7 +168,9 @@ public:
      * \param numberOfHeaderLines Number of lines for file header.
      */
     void setNumberOfHeaderLines( unsigned int numberOfHeaderLines )
-    { numberOfHeaderLines_ = numberOfHeaderLines; }
+    {
+        numberOfHeaderLines_ = numberOfHeaderLines;
+    }
 
     //! Close data file.
     /*!
@@ -165,16 +181,16 @@ public:
     //! Get vector container of data from file.
     /*!
      * Returns map container of string data from data file.
-     * \return Pointer to map container of data from file.
+     * \return Map container of data from file.
      */
-    LineBasedStringDataMap& getContainerOfData( ) { return containerOfDataFromFile_; }
+    LineBasedStringDataMap getContainerOfData( ) { return containerOfDataFromFile_; }
 
     //! Get container of header data from file.
     /*!
      * Returns container of header data from file.
      * \return Container of header data from file.
      */
-    LineBasedStringDataMap& getContainerOfHeaderData( ) { return containerOfHeaderDataFromFile_; }
+    LineBasedStringDataMap getContainerOfHeaderData( ) { return containerOfHeaderDataFromFile_; }
 
     //! Read and store data.
     /*!
@@ -261,6 +277,7 @@ public:
     }
 
 protected:
+
     //! Line counter.
     /*!
      * Line counter.

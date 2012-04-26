@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE( testDeltaVEscape )
     EscapePhase escapePhaseTest;
 
     // Central body parameters.
-    Planet predefinedEarth;
-    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
+    bodies::Planet predefinedEarth;
+    predefinedEarth.setPredefinedPlanetSettings( bodies::Planet::earth );
     
     // Set launch conditions.
     escapePhaseTest.setCentralGravityField( predefinedEarth.getGravityFieldModel( ) );
@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE( testDeltaVCapture )
     CapturePhase capturePhaseTest;
 
     // Central body parameters.
-    Planet predefinedMars;
-    predefinedMars.setPredefinedPlanetSettings( Planet::mars );
+    bodies::Planet predefinedMars;
+    predefinedMars.setPredefinedPlanetSettings( bodies::Planet::mars );
 
     // Set capture conditions.
     capturePhaseTest.setCentralGravityField( predefinedMars.getGravityFieldModel( ) );

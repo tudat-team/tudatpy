@@ -16,6 +16,7 @@
  *      110212    J. Melman         Fixed many minor formatting issues.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
@@ -25,36 +26,37 @@
 
 #include <cmath>
 #include <iostream>
+
 #include <Eigen/Core>
+
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
-
-using tudat::mathematics::PI;
 
 //! Test implementation of Lawgs surface geometry.
 int main( )
 {
-    // Using declarations.
     using namespace tudat;
+    using tudat::mathematics::PI;
+    using namespace tudat::mathematics::geometric_shapes;
 
     // Test result initialised to false.
     bool isLawgsSurfaceGeometryBad = false;
 
-    // Create a full sphere as test geometry.
-    SphereSegment sphere;
-    double sphereRadius = 2.0;
-    sphere.setRadius( sphereRadius );
-    sphere.setMaximumAzimuthAngle( 2.0 * PI );
-    sphere.setMinimumAzimuthAngle( 0.0 );
-    sphere.setMaximumZenithAngle( PI );
-    sphere.setMinimumZenithAngle( 0.0 );
+    // Create a full sphere as test geometry, with a radius of 2.0.
+    const double sphereRadius = 2.0;
+    boost::shared_ptr< SphereSegment > sphere = boost::make_shared< SphereSegment >(
+                sphereRadius );
 
     // Create a Lawgs mesh of the sphere.
     LawgsPartGeometry lawgsSurface;
     int numberOfLines = 21;
     int numberOfPoints = 21;
-    lawgsSurface.setMesh( &sphere, numberOfLines, numberOfPoints );
+    lawgsSurface.setMesh( sphere, numberOfLines, numberOfPoints );
 
     // Retrieve the total surface area and check if it is sufficiently close
     // to the expected value.

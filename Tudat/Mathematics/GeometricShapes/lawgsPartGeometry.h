@@ -16,7 +16,8 @@
  *      110206    J. Melman         Minor formatting issues.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
- *
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor,
+ *                                  removed raw pointer arrays
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
  *          (LaWGS) format, NASA TECHNICAL MEMORANDUM 85767.
@@ -34,7 +35,13 @@
 namespace tudat
 {
 
-//! Class to defined a mesh accoring to Lawgs standards.
+namespace mathematics
+{
+
+namespace geometric_shapes
+{
+
+//! Class to define a mesh accoring to Lawgs standards.
 /*!
  * Class to define a surface mesh accoring to the Langley Wireframe Geometry
  * standard, seet reference.
@@ -65,7 +72,8 @@ public:
      * \param numberOfPoints Number of points to be sampled from 2nd
      *          independent variable.
      */
-    void setMesh( SingleSurfaceGeometry* originalSurface, int numberOfLines, int numberOfPoints );
+    void setMesh( boost::shared_ptr< SingleSurfaceGeometry > originalSurface,
+                  int numberOfLines, int numberOfPoints );
 
     //! Copy constructor.
     /*!
@@ -78,7 +86,7 @@ public:
      * This function retrieves a surface point from on a panel. Because four
      * points define a panel in this mesh format, the collection of panels
      * will not be necessarilly watertight, making this function non-trivial,
-     * since the four points defining the panle will not necessarily lie in
+     * since the four points defining the panel will not necessarily lie in
      * the same plane.
      * \param independentVariable1 Independent variable indicating on (or
      * between) which lines to retrieve a point.
@@ -86,15 +94,15 @@ public:
      * between) which points to retrieve a point.
      * \return point on mesh panel.
      */
-     virtual Eigen::VectorXd getSurfacePoint( double independentVariable1,
-                                              double independentVariable2 );
+     virtual Eigen::VectorXd getSurfacePoint( const double independentVariable1,
+                                              const double independentVariable2 );
 
     //! Get surface derivative (currently not implemented).
     /*!
      * Currently unavailable function to return surface derivative.
      */
-    virtual Eigen::VectorXd getSurfaceDerivative( double u, double v,
-                                                  int uDerivative, int vDerivative );
+    virtual Eigen::VectorXd getSurfaceDerivative( const double u, const double v,
+                                                  const int uDerivative, const int vDerivative );
 
     //! Set name of a Lawgs part.
     /*!
@@ -106,13 +114,13 @@ public:
     /*!
      * Returns parameter.
      */
-    virtual double getParameter( int i );
+    virtual double getParameter( const int i );
 
     //! Set parameter.
     /*!
      * Sets parameter.
      */
-    virtual void setParameter( int parameterIndex, double value );
+    virtual void setParameter( const int parameterIndex, const double value );
 
     //! Get part name.
     /*!
@@ -139,8 +147,15 @@ protected:
     std::string name_;
 
 private:
+
 };
 
+
+} // namespace geometric_shapes
+
+} // namespace mathematics
+
 } // namespace tudat
+
 
 #endif // TUDAT_LAWGS_PART_GEOMETRY_H

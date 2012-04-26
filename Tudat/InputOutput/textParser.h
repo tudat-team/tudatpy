@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -13,12 +13,18 @@
  *      YYMMDD    Author            Comment
  *      111103    S. Billemont      First creation of code.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *
+ *    References
+ *
  */
 
-#ifndef TEXTPARSER_H
-#define TEXTPARSER_H
+#ifndef TUDAT_TEXT_PARSER_H
+#define TUDAT_TEXT_PARSER_H
 
 #include <iostream>
+
+#include <boost/make_shared.hpp>
+
 #include "Tudat/InputOutput/parser.h"
 
 namespace tudat
@@ -35,17 +41,18 @@ namespace input_output
  * NOTE: This TextParser works with the FieldValue/FieldType architecture.
  * For simpler file reading, use, for instance, matrixTextFileReader.
  */
-class TextParser : public Parser {
-
+class TextParser : public Parser
+{
 public:
 
     //! Create the default TextParser with proccesAsStream == false.
     /*!
      * The default constructor for TextParser causes the parser to behave as a line based parser.
      */
-    TextParser( ) : parsedData( parsed_data_vector_utilities::ParsedDataVectorPtr(
-                               new parsed_data_vector_utilities::ParsedDataVector ) ),
-                               parseAsStream( false ){ }
+    TextParser( )
+        : parsedData( boost::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ),
+          parseAsStream( false )
+    { }
 
     //! Create the TextParser in the given process mode.
     /*!
@@ -53,10 +60,10 @@ public:
      * \param processAsStream Boolean that determines whether the parsing should be done as a
      * stream (string is default).
      */
-    TextParser( bool proccesAsStream ) : parsedData(
-            parsed_data_vector_utilities::ParsedDataVectorPtr(
-                new parsed_data_vector_utilities::ParsedDataVector ) ),
-        parseAsStream( proccesAsStream ) {}
+    TextParser( bool proccesAsStream )
+        : parsedData( boost::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ),
+          parseAsStream( proccesAsStream )
+    { }
 
     //! Default destructor, no new objects besides smart ones.
     virtual ~TextParser( ) { }
@@ -119,9 +126,10 @@ protected:
                                                          ( "Must be overriden to be used" ) ) );
     }
 
+private:
 };
 
 } // namespace input_output
 } // namespace tudat
 
-#endif
+#endif // TUDAT_TEXT_PARSER_H

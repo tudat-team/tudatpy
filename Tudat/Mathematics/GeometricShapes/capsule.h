@@ -18,13 +18,14 @@
  *      110209    K. Kumar          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *
  *    References
  *      E.H. Hirschel and C. Weiland, Selected Aerothermodynamic Design Problems
- *      of Hypersonic Flight Vehicles (chapter 5), Springer/AIAA, 2009.
+ *          of Hypersonic Flight Vehicles (chapter 5), Springer/AIAA, 2009.
  *
  *      D. Dirkx, Continuous Shape Optimization of Entry Vehicles, MSc thesis,
- *      Delft University of Technology, 2011 (Unpublished).
+ *          Delft University of Technology, 2011 (Unpublished).
  *
  */
 
@@ -32,9 +33,14 @@
 #define TUDAT_CAPSULE_H
 
 #include <iostream>
+
 #include "Tudat/Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 //! Capsule class.
@@ -45,7 +51,7 @@ namespace tudat
  * a SphereSegment object for the nose region, a ConicalFrustum
  * object for the afterbody, a SphereSegment object for the
  * rear cap, and a Torus object for the connection between the nose and torus
- * parts. The setCapsule( ) function needs to be called after  each of the
+ * parts. The setCapsule( ) function needs to be called after each of the
  * parameters has been set to initialize the capsule.
  */
 class Capsule: public CompositeSurfaceGeometry
@@ -55,93 +61,52 @@ public:
     //! Default constructor.
     /*!
      * Default constructor, initializes single and composite surface lists.
+     * \param noseRadius Radius of curvature of capsule nose.
+     * \param middleRadius Maximum radius of capsule
+     * \param rearLength Length of frustum section
+     * \param rearAngle Cone half angle of frustum part
+     * \param sideRadius Radius of curvature of capsule shoulder.
      */
-    Capsule( );
-
-    //! Default destructor.
-    /*!
-     * Default destructor, deallocates singleSurfaceList's constituent
-     * surface geometries.
-     */
-    ~Capsule( ) { }
-
-    //! Set nose radius.
-    /*!
-     * Sets the nose radius of the capsule.
-     * \param noseRadius Nose radius.
-     */
-    void setNoseRadius( double noseRadius ) { noseRadius_ = noseRadius; }
-
-    //! Set middle radius.
-    /*!
-     * Sets the middle radius of the capsule.
-     * \param middleRadius middleRadius.
-     */
-    void setMiddleRadius( double middleRadius ) { middleRadius_ = middleRadius; }
-
-    //! Set rear length.
-    /*!
-     * Sets the rear length of the capsule.
-     * \param rearLength Rear length.
-     */
-    void setRearLength( double rearLength ) { rearLength_ = rearLength; }
-
-    //! Set rear angle.
-    /*!
-     * Sets the rear angle of the capsule.
-     * \param rearAngle Rear angle.
-     */
-    void setRearAngle( double rearAngle ) { rearAngle_ = rearAngle; }
-
-    //! Set side radius.
-    /*!
-     * Sets side radius of the capsule.
-     * \param sideRadius Side radius.
-     */
-    void setSideRadius( double sideRadius ) { sideRadius_ = sideRadius; }
+    Capsule( const double noseRadius,
+             const double middleRadius,
+             const double rearLength,
+             const double rearAngle,
+             const double sideRadius );
 
     //! Get nose radius.
     /*!
      * Returns the nose radius of the capsule.
      * \return Nose radius.
      */
-    double& getNoseRadius( ) { return noseRadius_; }
+    double getNoseRadius( ) { return noseRadius_; }
 
     //! Get middle radius.
     /*!
      * Returns the middle radius of the capsule.
      * \return Middle radius.
      */
-    double& getMiddleRadius( ) { return middleRadius_; }
+    double getMiddleRadius( ) { return middleRadius_; }
 
     //! Get rear length.
     /*!
      * Returns the rear length of the capsule.
      * \return Rear length.
      */
-    double& getRearLength( ) { return rearLength_; }
+    double getRearLength( ) { return rearLength_; }
 
     //! Get rear angle.
     /*!
      * Returns the rear angle.
      * \return Rear angle.
      */
-    double& getRearAngle( ) { return rearAngle_; }
+    double getRearAngle( ) { return rearAngle_; }
 
     //! Get side radius.
     /*!
      * Returns the side radius.
      * \return side radius.
      */
-    double& getSideRadius( ) { return sideRadius_; }
-
-    //! Create capsule.
-    /*!
-     * Creates the capsule from parameters. All parameters should have been set
-     * before calling this function. This function must be called to  use the
-     * capsule.
-     */
-    void setCapsule( );
+    double getSideRadius( ) { return sideRadius_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -149,6 +114,8 @@ public:
      * and number defining parameters.
      */
     friend std::ostream &operator<<( std::ostream &stream, Capsule& capsule );
+
+protected:
 
 private:
 
@@ -183,6 +150,9 @@ private:
     double rearAngle_;
 };
 
+
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_CAPSULE_H

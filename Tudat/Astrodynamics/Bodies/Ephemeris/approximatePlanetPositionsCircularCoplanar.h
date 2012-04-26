@@ -13,11 +13,11 @@
  *      YYMMDD    Author            Comment
  *      110629    L. van der Ham    First creation of code.
  *      110803    L. van der Ham    Separated this code from approximatePlanetPositions.
+ *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
  *    References
- *      Standish, E.M. Keplerian Elements for Approximate Positions of the
- *          Major Planets, http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf,
- *          last accessed: 24 February, 2011.
+ *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
+ *          http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf, last accessed: 24 February, 2011.
  *
  */
 
@@ -37,6 +37,9 @@
 namespace tudat
 {
 
+namespace ephemerides
+{
+
 //! Ephemeris class using JPL "Approximate Positions of Major Planets".
 /*!
  * Ephemeris class using JPL "Approximate Positions of Major Planets".
@@ -50,14 +53,19 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositionsCircularCoplanar( ) : constantOrbitalRadius_( -0.0 ) { }
+    ApproximatePlanetPositionsCircularCoplanar( BodiesWithEphemerisData bodyWithEphemerisData )
+        : constantOrbitalRadius_( -0.0 )
+    {
+        setPlanet( bodyWithEphemerisData );
+    }
 
     //! Get state from ephemeris; circular, coplanar case.
     /*!
      * Returns state in Cartesian elements from ephemeris for circular and coplanar orbit.
      * \return State in Cartesian elements from ephemeris for circular and coplanar orbit.
      */
-    CartesianElements* getStateFromEphemeris( double julianDate );
+
+    Eigen::VectorXd getCartesianStateFromEphemeris( const double julianDate );
 
 protected:
 
@@ -70,6 +78,7 @@ private:
     double constantOrbitalRadius_;
 };
 
+} // namespace ephemerides
 } // namespace tudat
 
 #endif // TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H

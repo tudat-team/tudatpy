@@ -30,29 +30,33 @@
 #define TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H
 
 #include <Eigen/Core>
+
 #include <iostream>
+#include <vector>
+
 #include "Tudat/Astrodynamics/Bodies/vehicle.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
-#include <vector>
 
 namespace tudat
 {
+namespace aerodynamics
+{
 
-//! Class for inviscid hypersonic aerodynamic analysis using local inclination
-//! methods.
-/*! Class for inviscid hypersonic aerodynamic analysis using local inclination
- *  methods. These methods assume that the local pressure on the vehicle is only
- *  dependent on the local inclination angle w.r.t. the freestream flow and
- *  freestream conditions, such as Mach number and ratio of specific heats. The
- *  setVehicle function needs to be used to set the Vehicle which is to be analyzed.
- *  This Vehicle must have a VehicleExternalModel, containing a SurfaceGeometry.
- *  Values for the Mach number, angle of attack and angle of sideslip can be set
- *  to default values (see setDefaultMachPoints( ), etc.) or manually by first
- *  using the setNumberOfMachPoints function, and then the setMachPoint function
- *  for each of the values of the independent variables. All aerodynamic
- *  coefficients can be calculated using the generateDatabase function, or on an
- *  as needed basis by using the getAerodynamicCoefficients function.
+//! Class for inviscid hypersonic aerodynamic analysis using local inclination methods.
+/*!
+ * Class for inviscid hypersonic aerodynamic analysis using local inclination
+ * methods. These methods assume that the local pressure on the vehicle is only
+ * dependent on the local inclination angle w.r.t. the freestream flow and
+ * freestream conditions, such as Mach number and ratio of specific heats. The
+ * setVehicle function needs to be used to set the Vehicle which is to be analyzed.
+ * This Vehicle must have a VehicleExternalModel, containing a SurfaceGeometry.
+ * Values for the Mach number, angle of attack and angle of sideslip can be set
+ * to default values ( see setDefaultMachPoints( ), etc. ) or manually by first
+ * using the setNumberOfMachPoints function, and then the setMachPoint function
+ * for each of the values of the independent variables. All aerodynamic
+ * coefficients can be calculated using the generateDatabase function, or on an
+ * as needed basis by using the getAerodynamicCoefficients function.
  */
 class HypersonicLocalInclinationAnalysis: public AerodynamicCoefficientGenerator
 {
@@ -62,10 +66,17 @@ public:
     /*!
      * Default constructor.
      */
-    HypersonicLocalInclinationAnalysis( ) : numberOfVehicleParts_( -0 ), stagnationPressureCoefficient( -0.0 ),
-        ratioOfSpecificHeats( 1.4 ),  vehicleName_( " " ), machRegime_( "Full" )
+    HypersonicLocalInclinationAnalysis( )
+        :
+          numberOfVehicleParts_( -0 ),
+          stagnationPressureCoefficient( -0.0 ),
+          ratioOfSpecificHeats( 1.4 ),
+          vehicleName_( "" ),
+          machRegime_( "Full" )
     {
-        machIndex_ = 0; angleOfAttackIndex_ = 1; angleOfSideslipIndex_ = 2;
+        machIndex_ = 0;
+        angleOfAttackIndex_ = 1;
+        angleOfSideslipIndex_ = 2;
         setNumberOfIndependentVariables( 3 );
     }
 
@@ -89,7 +100,7 @@ public:
      * \param invertOrders Array of size equal to number of SingleSurfaceGeometries to set whether
      *          to invert the panel orientation of the resulting LaWGS parts.
      */
-    void setVehicle( Vehicle& vehicle, std::vector< int > numberOfLines,
+    void setVehicle( bodies::Vehicle& vehicle, std::vector< int > numberOfLines,
                      std::vector< int > numberOfPoints,
                      std::vector< bool > invertOrders );
 
@@ -99,7 +110,7 @@ public:
      * \param independentVariables Array of values of independent variable
      *          indices in dataPointsOfIndependentVariables_.
      */
-    Eigen::VectorXd getAerodynamicCoefficients( std::vector < int > independentVariables );
+    Eigen::VectorXd getAerodynamicCoefficients( const std::vector < int >& independentVariables );
 
     //! Set local inclination methods for all parts (expansion and compression).
     /*!
@@ -189,7 +200,8 @@ public:
      * \param vehicleIndex Index in vehicleParts_ to be retrieved.
      * \return Requested vehicle part.
      */
-     LawgsPartGeometry getVehiclePart( int vehicleIndex ) { return vehicleParts_[ vehicleIndex ]; }
+     mathematics::geometric_shapes::LawgsPartGeometry getVehiclePart( int vehicleIndex )
+     { return vehicleParts_[ vehicleIndex ]; }
 
     //! Set mach regime.
     /*!
@@ -320,7 +332,7 @@ private:
     /*!
      * Array of vehicle parts.
      */
-    std::vector< LawgsPartGeometry > vehicleParts_;
+    std::vector< mathematics::geometric_shapes::LawgsPartGeometry > vehicleParts_;
 
     //! Number of entries in vehicleParts_ member variable.
     /*!
@@ -375,6 +387,7 @@ private:
     boost::multi_array< double, 2 > selectedMethods_;
 };
 
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H

@@ -13,24 +13,29 @@
  *      YYMMDD    Author            Comment
  *      102511    D. Dirkx          First version of file.
  *      110120    D. Dirkx          Finalized for code check.
- *      110208    K. Kumar          Updated file header; corrected Doxygen
- *                                  comments; minor changes.
+ *      110208    K. Kumar          Updated file header; corrected Doxygen comments; minor changes.
  *      110209    D. Dirkx          Minor changes.
  *      110209    K. Kumar          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *
  *    References
  *      E.H. Hirschel and C. Weiland, Selected Aerothermodynamic Design Problems
- *      of Hypersonic Flight Vehicles (chapter 5), Springer/AIAA, 2009.
- *
+ *          of Hypersonic Flight Vehicles (chapter 5), Springer/AIAA, 2009.
  *      D. Dirkx, Continuous Shape Optimization of Entry Vehicles, MSc thesis,
- *      Delft University of Technology, 2011 (Unpublished).
+ *          Delft University of Technology, 2011 (Unpublished).
  *
  */
 
 #include <cmath>
+#include <iostream>
+
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include <Eigen/Core>
+
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
@@ -40,48 +45,41 @@
 
 namespace tudat
 {
-
-// Using declarations.
-using tudat::mathematics::PI;
-using std::cerr;
-using std::endl;
-using std::sin;
-using std::cos;
+namespace mathematics
+{
+namespace geometric_shapes
+{
 
 //! Default constructor.
-Capsule::Capsule( ) : middleRadius_( -0.0 ), noseRadius_( -0.0 ), rearLength_( -0.0 ),
-    sideRadius_( -0.0 ), rearAngle_( -0.0 )
+Capsule::Capsule( const double noseRadius,
+                  const double middleRadius,
+                  const double rearLength,
+                  const double rearAngle,
+                  const double sideRadius )
 {
+    using std::sin;
+    using std::cos;
+    using tudat::mathematics::PI;
+
     // Call set functions for number of single and composite surface geometries
     // with predetermined values.
     setNumberOfCompositeSurfaceGeometries( 0 );
     setNumberOfSingleSurfaceGeometries( 4 );
 
-    // Set single surface list contents to NULL to prevent destructor issues.
-    for ( unsigned i = 0; i < numberOfSingleSurfaceGeometries_; i++ )
-    {
-        singleSurfaceGeometryList_[ i ] = NULL;
-    }
-}
-
-//! Create capsule.
-void Capsule::setCapsule( )
-{
-    // Create nose sphere.
-    SphereSegment* noseSphere_ = new SphereSegment( );
-
-    // Set predetermined bounds.
-    noseSphere_->setMinimumAzimuthAngle( 0.0 );
-    noseSphere_->setMaximumAzimuthAngle( 2.0 * PI );
-    noseSphere_->setMinimumZenithAngle( 0.0 );
+    // Set member shape variables
+    noseRadius_ = noseRadius;
+    middleRadius_ = middleRadius;
+    rearLength_ = rearLength;
+    rearAngle_ = rearAngle;
+    sideRadius_ = sideRadius;
 
     // Determine and set extent of spherical nose part.
     double noseSphereAngle_ = asin( ( middleRadius_ - sideRadius_ )
                                     / ( noseRadius_ - sideRadius_ ) );
-    noseSphere_->setMaximumZenithAngle( noseSphereAngle_ );
 
-    // Set nose radius.
-    noseSphere_->setRadius( noseRadius_ );
+    // Create nose sphere.
+    boost::shared_ptr< SphereSegment > noseSphere_ = boost::make_shared< SphereSegment >(
+                noseRadius_, 0, 2 * PI, 0, noseSphereAngle_ );
 
     // Declare translation vector.
     Eigen::VectorXd translationVector_ = Eigen::VectorXd( 3 );
@@ -96,18 +94,9 @@ void Capsule::setCapsule( )
     setSingleSurfaceGeometry( noseSphere_, 0 );
 
     // Create rear cone, fully revolved.
-    ConicalFrustum* cone_ = new ConicalFrustum( );
-    cone_->setMinimumAzimuthAngle( 0.0 );
-    cone_->setMaximumAzimuthAngle( 2.0 * PI );
-
-    // Set cone start radius.
-    cone_->setStartRadius( middleRadius_ - sideRadius_ * ( 1.0 - cos( rearAngle_ ) ) );
-
-    // Set cone length.
-    cone_->setLength( rearLength_ );
-
-    // Set cone half angle.
-    cone_->setConeHalfAngle( rearAngle_ );
+    boost::shared_ptr< ConicalFrustum > cone_ = boost::make_shared< ConicalFrustum >(
+                rearAngle_, middleRadius_ - sideRadius_ * ( 1.0 - cos( rearAngle_ ) ),
+                rearLength_ );
 
     // Set translation vector of cone.
     translationVector_( 0 ) = -sideRadius_ * ( sin( PI / 2.0 - noseSphereAngle_ )
@@ -117,23 +106,15 @@ void Capsule::setCapsule( )
     // Set cone in singleSurfaceList_.
     setSingleSurfaceGeometry( cone_, 1 );
 
-    // Create rear sphere ( "end cap" ), fully revolved.
-    SphereSegment* rearSphere_ = new SphereSegment( );
-    rearSphere_->setMinimumAzimuthAngle( 0.0 );
-    rearSphere_->setMaximumAzimuthAngle( 2.0 * PI );
-
     // Calculate end radius of cone.
     double endRadius_ = cone_->getStartRadius( ) + rearLength_ * tan( rearAngle_ );
 
     // Calculate rear sphere radius.
     double rearNoseRadius_ = endRadius_ / cos( -rearAngle_ );
 
-    // Set extent of rear sphere.
-    rearSphere_->setMinimumZenithAngle( PI / 2.0 - rearAngle_ );
-    rearSphere_->setMaximumZenithAngle( PI );
-
-    // Set rear sphere radius.
-    rearSphere_->setRadius( rearNoseRadius_ );
+    // Create rear sphere ( "end cap" ), fully revolved.
+    boost::shared_ptr< SphereSegment > rearSphere_ = boost::make_shared< SphereSegment >(
+                rearNoseRadius_, 0.0, 2.0 * PI, PI / 2.0 - rearAngle_, PI );
 
     // Set translation vector of rear sphere.
     translationVector_( 0 ) =  ( rearNoseRadius_ * sin( -rearAngle_ ) ) - rearLength_
@@ -142,16 +123,9 @@ void Capsule::setCapsule( )
     setSingleSurfaceGeometry( rearSphere_, 2 );
 
     // Create torus section of capsule.
-    Torus* torus_ = new Torus( );
-    torus_->setMinimumIndependentVariable( 1, 0.0 );
-    torus_->setMaximumIndependentVariable( 1, 2.0 * PI );
-    torus_->setMinimumIndependentVariable( 2, PI / 2.0 - noseSphereAngle_ );
-    torus_->setMaximumIndependentVariable( 2, rearAngle_ );
-
-    // Calculate and set major torus radius.
     double torusMajorRadius_ = ( noseRadius_ - sideRadius_ ) * sin( noseSphereAngle_ );
-    torus_->setParameter( 0, torusMajorRadius_ );
-    torus_->setParameter( 1, sideRadius_ );
+    boost::shared_ptr< Torus > torus_ = boost::make_shared< Torus >(
+       torusMajorRadius_, sideRadius_, 0.0, 2.0 * PI, PI / 2.0 - noseSphereAngle_, rearAngle_ );
 
     // Set translation vector of rear sphere.
     translationVector_( 0 ) = -cos( noseSphereAngle_ ) * sideRadius_;
@@ -169,7 +143,7 @@ void Capsule::setCapsule( )
     rotationMatrix( 1, 1 ) = 1.0;
     rotationMatrix( 1, 2 ) = 0.0;
     rotationMatrix( 2, 0 ) = -sin( angle_ );
-    rotationMatrix( 2, 1 ) = 0;
+    rotationMatrix( 2, 1 ) = 0.0;
     rotationMatrix( 2, 2 ) = cos( angle_ );
 
     // Set rotation matrix for single surface geometries.
@@ -182,6 +156,8 @@ void Capsule::setCapsule( )
 //! Overload ostream to print class information.
 std::ostream &operator<<( std::ostream &stream, Capsule& capsule )
 {
+    using std::endl;
+
     stream << "This is a capsule." << endl;
     stream << "The defining parameters are: "<< endl
            << "Nose radius: " << capsule.getNoseRadius( ) << endl
@@ -190,8 +166,9 @@ std::ostream &operator<<( std::ostream &stream, Capsule& capsule )
            << "Rear angle: " << capsule.getRearAngle( ) << endl
            << "Side radius: " << capsule.getSideRadius( )<< endl;
 
-    // Return stream.
     return stream;
 }
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat

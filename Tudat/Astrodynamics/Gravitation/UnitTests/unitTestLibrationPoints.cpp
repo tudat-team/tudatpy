@@ -19,6 +19,7 @@
  *                                  Tests commented out; needs to be fixed.
  *      111027    K. Kumar          Uncommented out tests as bugs fixed by L. van der Ham.
  *      120307    K. Kumar          Moved file.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References:
  */
@@ -37,9 +38,12 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include "Tudat/Astrodynamics/Bodies/celestialBody.h"
 #include "Tudat/Astrodynamics/Bodies/planet.h"
-#include "Tudat/Astrodynamics/States/cartesianPositionElements.h"
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 
@@ -48,8 +52,7 @@ using std::cerr;
 using std::endl;
 using std::fabs;
 using tudat::NewtonRaphson;
-using tudat::CartesianPositionElements;
-using tudat::Planet;
+using tudat::bodies::Planet;
 
 //! Test determination of L1 location.
 bool testL1LibrationPointLocation( bool isLibrationPointComputationErroneous,
@@ -61,24 +64,21 @@ bool testL1LibrationPointLocation( bool isLibrationPointComputationErroneous,
     // Set mass parameter.
     librationPointL1.setMassParameter( massParameter );
 
-    // Create Newton Raphson object for computation of location of L1.
-    NewtonRaphson newtonRaphsonForL1;
-
     // Set Newton-Raphson method.
-    librationPointL1.setNewtonRaphsonMethod( &newtonRaphsonForL1 );
+    librationPointL1.setNewtonRaphsonMethod( boost::make_shared< NewtonRaphson >( ) );
 
     // Compute location of Lagrange libration point.
     librationPointL1.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L1 );
 
     // Determine location of libration point in Earth-Moon system:
-    CartesianPositionElements positionOflibrationPointL1 = librationPointL1
+    Eigen::Vector3d positionOflibrationPointL1 = librationPointL1
             .getLocationOfLagrangeLibrationPoint( );
 
     // Test determination of location of L1 and output cerr statements if the test fails.
-    if ( fabs( positionOflibrationPointL1.getCartesianElementX( ) - 0.83629259089993 )
+    if ( fabs( positionOflibrationPointL1.x( ) - 0.83629259089993 )
          / 0.83629259089993 > 1.0e-14
-         || fabs( positionOflibrationPointL1.getCartesianElementY( ) ) > 0.0
-         || fabs( positionOflibrationPointL1.getCartesianElementZ( ) ) > 0.0 )
+         || fabs( positionOflibrationPointL1.y( ) ) > 0.0
+         || fabs( positionOflibrationPointL1.z( ) ) > 0.0 )
     {
         isLibrationPointComputationErroneous = true;
 
@@ -101,24 +101,21 @@ bool testL2LibrationPointLocation( bool isLibrationPointComputationErroneous,
     // Set mass parameter.
     librationPointL2.setMassParameter( massParameter );
 
-    // Create Newton Raphson object for computation of location of L2.
-    NewtonRaphson newtonRaphsonForL2;
-
     // Set Newton-Raphson method.
-    librationPointL2.setNewtonRaphsonMethod( &newtonRaphsonForL2 );
+    librationPointL2.setNewtonRaphsonMethod( boost::make_shared< NewtonRaphson >( ) );
 
     // Compute location of Lagrange libration point.
     librationPointL2.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L2 );
 
     // Determine location of libration point in Earth-Moon system:
-    CartesianPositionElements positionOflibrationPointL2 = librationPointL2
+    Eigen::Vector3d positionOflibrationPointL2 = librationPointL2
             .getLocationOfLagrangeLibrationPoint( );
 
     // Test determination of location of L2 and output cerr statements if the test fails.
-    if ( fabs( positionOflibrationPointL2.getCartesianElementX( ) - 1.15616816590553 )
+    if ( fabs( positionOflibrationPointL2.x( ) - 1.15616816590553 )
          / 1.15616816590553 > 1.0e-14
-         || fabs( positionOflibrationPointL2.getCartesianElementY( ) ) > 0.0
-         || fabs( positionOflibrationPointL2.getCartesianElementZ( ) ) > 0.0 )
+         || fabs( positionOflibrationPointL2.y( ) ) > 0.0
+         || fabs( positionOflibrationPointL2.z( ) ) > 0.0 )
     {
         isLibrationPointComputationErroneous = true;
 
@@ -140,24 +137,21 @@ bool testL3LibrationPointLocation( bool isLibrationPointComputationErroneous,
     // Set mass parameter.
     librationPointL3.setMassParameter( massParameter );
 
-    // Create Newton Raphson object for computation of location of L3.
-    NewtonRaphson newtonRaphsonForL3;
-
     // Set Newton-Raphson method.
-    librationPointL3.setNewtonRaphsonMethod( &newtonRaphsonForL3 );
+    librationPointL3.setNewtonRaphsonMethod( boost::make_shared< NewtonRaphson >( ) );
 
     // Compute location of Lagrange libration point.
     librationPointL3.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L3 );
 
     // Determine location of libration point in Earth-Moon system:
-    CartesianPositionElements positionOflibrationPointL3 = librationPointL3
+    Eigen::Vector3d positionOflibrationPointL3 = librationPointL3
             .getLocationOfLagrangeLibrationPoint( );
 
     // Test determination of location of L3 and output cerr statements if the test fails.
-    if ( fabs( positionOflibrationPointL3.getCartesianElementX( ) + 1.00511551160689 )
+    if ( fabs( positionOflibrationPointL3.x( ) + 1.00511551160689 )
          / -1.00511551160689 > 1.0e-15
-         || fabs( positionOflibrationPointL3.getCartesianElementY( ) ) > 0.0
-         || fabs( positionOflibrationPointL3.getCartesianElementZ( ) ) > 0.0 )
+         || fabs( positionOflibrationPointL3.y( ) ) > 0.0
+         || fabs( positionOflibrationPointL3.z( ) ) > 0.0 )
     {
         isLibrationPointComputationErroneous = true;
 
@@ -183,15 +177,15 @@ bool testL4LibrationPointLocation( bool isLibrationPointComputationErroneous,
     librationPointL4.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L4 );
 
     // Determine location of libration point in Earth-Moon system:
-    CartesianPositionElements positionOflibrationPointL4 = librationPointL4
+    Eigen::Vector3d positionOflibrationPointL4 = librationPointL4
             .getLocationOfLagrangeLibrationPoint( );
 
     // Test determination of location of L4 and output cerr statements if the test fails.
-    if ( fabs( positionOflibrationPointL4.getCartesianElementX( ) - 0.487722529 )
+    if ( fabs( positionOflibrationPointL4.x( ) - 0.487722529 )
          / 0.487722529 > std::numeric_limits< double >::epsilon( )
-         || fabs( positionOflibrationPointL4.getCartesianElementY( ) - 0.86602540378444 )
+         || fabs( positionOflibrationPointL4.y( ) - 0.86602540378444 )
          / 0.86602540378444 > 1.0e-14
-         || fabs( positionOflibrationPointL4.getCartesianElementZ( ) ) > 0.0 )
+         || fabs( positionOflibrationPointL4.z( ) ) > 0.0 )
     {
         isLibrationPointComputationErroneous = true;
 
@@ -217,15 +211,15 @@ bool testL5LibrationPointLocation( bool isLibrationPointComputationErroneous,
     librationPointL5.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L5 );
 
     // Determine location of libration point in Earth-Moon system:
-    CartesianPositionElements positionOflibrationPointL5 = librationPointL5
+    Eigen::Vector3d positionOflibrationPointL5 = librationPointL5
             .getLocationOfLagrangeLibrationPoint( );
 
     // Test determination of location of L5 and output cerr statements if the test fails.
-    if ( fabs( positionOflibrationPointL5.getCartesianElementX( ) - 0.487722529 )
+    if ( fabs( positionOflibrationPointL5.x( ) - 0.487722529 )
          / 0.487722529 > 1.0e-15
-         || fabs( positionOflibrationPointL5.getCartesianElementY( ) + 0.86602540378444 )
+         || fabs( positionOflibrationPointL5.y( ) + 0.86602540378444 )
          / -0.86602540378444 > 1.0e-15
-         || fabs( positionOflibrationPointL5.getCartesianElementZ( ) ) > 0.0 )
+         || fabs( positionOflibrationPointL5.z( ) ) > 0.0 )
     {
         isLibrationPointComputationErroneous = true;
 
@@ -262,16 +256,16 @@ int main( )
     crtbp::LibrationPoint librationPoint;
 
     // Create predefined Earth object.
-    Planet predefinedEarth;
-    predefinedEarth.setPredefinedPlanetSettings( Planet::earth );
+    boost::shared_ptr< Planet > predefinedEarth = boost::make_shared< Planet >( );
+    predefinedEarth->setPredefinedPlanetSettings( Planet::earth );
 
     // Create predefined Moon object.
-    Planet predefinedMoon;
-    predefinedMoon.setPredefinedPlanetSettings( Planet::moon );
+    boost::shared_ptr< Planet > predefinedMoon = boost::make_shared< Planet >( );
+    predefinedMoon->setPredefinedPlanetSettings( Planet::moon );
 
     // Set bodies.
-    librationPoint.setPrimaryCelestialBody( &predefinedEarth );
-    librationPoint.setSecondaryCelestialBody( &predefinedMoon );
+    librationPoint.setPrimaryCelestialBody( predefinedEarth );
+    librationPoint.setSecondaryCelestialBody( predefinedMoon );
 
     // Compute mass parameter.
     librationPoint.computeMassParameter( );

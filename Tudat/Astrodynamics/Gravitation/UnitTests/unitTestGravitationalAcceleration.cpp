@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAcceleration )
 
         // Compute gravitational accelerating acting on Earth's surface [N].
         Eigen::Vector3d gravitationalAccelerationExertedAtEarthSurface
-                = tudat::acceleration_models::computeGravitationalAcceleration(
+                = astrodynamics::acceleration_models::computeGravitationalAcceleration(
                     positionOnEarthSurface, gravitationalParameterOfEarth, positionOfEarth );
 
         // Check if computed gravitational force matches expected value.
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAcceleration )
 
         // Compute gravitational accelerating acting on Lunar surface [N].
         Eigen::Vector3d gravitationalAccelerationExertedAtLunarSurface
-                = tudat::acceleration_models::computeGravitationalAcceleration(
+                = astrodynamics::acceleration_models::computeGravitationalAcceleration(
                     universalGravitationalConstant, positionOfLunarSurface,
                     massOfMoon, positionOfMoon );
 

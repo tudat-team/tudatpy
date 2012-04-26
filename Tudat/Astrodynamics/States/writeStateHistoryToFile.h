@@ -29,9 +29,10 @@
 #ifndef TUDAT_WRITE_STATE_HISTORY_TO_FILE_H
 #define TUDAT_WRITE_STATE_HISTORY_TO_FILE_H
 
-#include "Tudat/Astrodynamics/States/state.h"
 #include <map>
 #include <string>
+
+#include "Tudat/Astrodynamics/States/state.h"
 
 namespace tudat
 {
@@ -44,8 +45,8 @@ namespace output
  * \param propagationHistory Map of propagation history.
  * \param outputFilename Output filename.
  */
-void writeStateHistoryToFile( std::map< double, State >& propagationHistory,
-                                    const std::string& outputFilename );
+void writeStateHistoryToFile( std::map< double, astrodynamics::states::State >& propagationHistory,
+                              const std::string& outputFilename );
 
 } // namespace output
 } // namespace tudat

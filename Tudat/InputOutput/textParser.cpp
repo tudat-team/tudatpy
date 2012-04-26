@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -13,6 +13,9 @@
  *      YYMMDD    Author            Comment
  *      111206    S. Billemont      First creation of code.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *
+ *    References
+ *
  */
 
 #include "Tudat/InputOutput/textParser.h"
@@ -62,5 +65,4 @@ ParsedDataVectorPtr TextParser::parse( std::istream& stream )
 }
 
 } // namespace input_output
-
 } // namespace tudat

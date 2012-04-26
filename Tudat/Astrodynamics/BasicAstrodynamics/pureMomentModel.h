@@ -17,6 +17,7 @@
  *      110824    J. Leloux         Corrected doxygen documentation.
  *      120204    D. Dirkx          Split MomentModel class into this class and
  *                                  MomentDueToForceModel.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
@@ -26,11 +27,15 @@
 #define TUDAT_MOMENT_MODEL_H
 
 #include <Eigen/Core>
-#include <iostream>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/forceModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/generalizedForceModel.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace moment_models
 {
 
 //! Base class for moment models.
@@ -41,11 +46,11 @@ class PureMomentModel: public GeneralizedForceModel< Eigen::Vector3d, 3 >
 {
 public:
 
-    //! Default constructor.
+    //! Typedef for shared pointer to state.
     /*!
-     * Default constructor.
+     * Typedef for shared pointer to state.
      */
-    PureMomentModel( ){ }
+    typedef boost::shared_ptr< states::State > StatePointer;
 
     //! Default destructor.
     /*!
@@ -60,14 +65,19 @@ public:
      */
     Eigen::Vector3d getMoment( ) { return moment_; }
 
+    //! Get generalized force, which is a moment.
+    /*!
+     * Returns the generalized force, which in this case is a moment.
+     * \return Moment.
+     */
     virtual Eigen::Vector3d  getGeneralizedForce(  ) { return getMoment( ); }
 
     /*!
      * Computes the force due to the gravity field in Newtons.
-     * \param pointerToState Pointer to an object of the State class containing current state.
+     * \param state Pointer to an object of the State class containing current state.
      * \param time Current time.
      */
-    virtual void computeMoment( State* pointerToState, double time ) = 0;
+    virtual void computeMoment( StatePointer state, const double time ) = 0;
 
 protected:
 
@@ -80,6 +90,8 @@ protected:
 private:
 };
 
+} // namespace moment_models
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_MOMENT_MODEL_H

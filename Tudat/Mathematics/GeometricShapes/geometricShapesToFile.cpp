@@ -21,22 +21,26 @@
  *      110202    K. Kumar            Updated writePropagationHistoryToFile( )
  *                                    to work with State*.
  *      120207    D. Dirkx            Split writingOutputToFile to separate free functions
+ *      120326    D. Dirkx            Changed raw pointers to shared pointers.
  *
  *    References
  *
  */
 
-#include "Tudat/Mathematics/GeometricShapes/geometricShapesToFile.h"
 #include <fstream>
+
+#include "Tudat/Mathematics/GeometricShapes/geometricShapesToFile.h"
 
 namespace tudat
 {
 namespace output
 {
 
+using namespace tudat::mathematics::geometric_shapes;
+
 //! Write single surface geometry to a file.
 void writeSingleSurfaceGeometryPointsToFile(
-    SingleSurfaceGeometry* pointerToSingleSurfaceGeometry,
+    boost::shared_ptr< SingleSurfaceGeometry > pointerToSingleSurfaceGeometry,
     int numberOfLines, int numberOfPoints,
     const std::string& filename, int writeType, const bool& isIndependentVariableInverted )
 {
@@ -141,7 +145,7 @@ void writeSingleSurfaceGeometryPointsToFile(
 
 //! Write composite surface geometry to a file.
 void writeCompositeSurfaceGeometryPointsToFile(
-        CompositeSurfaceGeometry* pointerToCompositeSurfaceGeometry,
+        boost::shared_ptr< CompositeSurfaceGeometry > pointerToCompositeSurfaceGeometry,
         std::vector< int > arrayOfNumberOfLines, std::vector< int > arrayOfNumberOfPoints,
         const std::string& filename, int writeType,
         std::vector< bool > isIndependentVariableInvertedArray )

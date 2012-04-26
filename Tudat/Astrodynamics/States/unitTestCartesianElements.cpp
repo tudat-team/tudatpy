@@ -46,6 +46,7 @@ int main( )
     bool isCartesianElementsErroneous = false;
 
     // Create Cartesian elements state objects.
+    using tudat::astrodynamics::states::CartesianElements;
     CartesianElements cartesianElementsStateTest1;
     CartesianElements cartesianElementsStateTest2;
 

@@ -22,6 +22,7 @@
  *                                  computeDeltaV.
  *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element of
  *                                  GeometricShapes.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
@@ -37,6 +38,10 @@
 
 #ifndef TUDAT_ESCAPE_AND_CAPTURE_H
 #define TUDAT_ESCAPE_AND_CAPTURE_H
+
+#include <boost/shared_ptr.hpp>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/Bodies/celestialBody.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
@@ -56,11 +61,32 @@ class EscapeAndCapture
 {
 public:
 
+    //! Typedef for shared pointer to gravity field model.
+    /*!
+     * Typedef for shared pointer to gravity field model.
+     */
+    typedef boost::shared_ptr< astrodynamics::gravitation::GravityFieldModel >
+    GravityFieldModelPointer;
+
+    //! Typedef for shared pointer to sphere segment.
+    /*!
+     * Typedef for shared pointer to sphere segment.
+     */
+    typedef boost::shared_ptr< mathematics::geometric_shapes::SphereSegment > SphereSegmentPointer;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    EscapeAndCapture( );
+    EscapeAndCapture( )
+        : semiMajorAxis_( TUDAT_NAN ),
+          eccentricity_( TUDAT_NAN ),
+          periapsisAltitude_( TUDAT_NAN ),
+          apoapsisAltitude_( TUDAT_NAN ),
+          hyperbolicExcessSpeed_( TUDAT_NAN ),
+          deltaV_ ( TUDAT_NAN ),
+          parkingOrbitRadius_( TUDAT_NAN )
+    { }
 
     //! Default destructor.
     /*!
@@ -73,7 +99,7 @@ public:
      * Sets pointer to central body of the swing-by.
      * \param gravityField Central body of the swing-by.
      */
-    void setCentralGravityField( GravityFieldModel* gravityField )
+    void setCentralGravityField( GravityFieldModelPointer gravityField )
     {
         centralBodyGravityfield_ = gravityField;
     }
@@ -146,7 +172,7 @@ protected:
     /*!
      * The gravity field in which the swing-by is performed.
      */
-    GravityFieldModel* centralBodyGravityfield_;
+    GravityFieldModelPointer centralBodyGravityfield_;
 
     //! Semi-major axis of parking orbit.
     /*!
@@ -190,11 +216,11 @@ protected:
      */
     double parkingOrbitRadius_;
 
-    //! Pointer to SphereSegment class for central body.
+    //! Shared pointer to SphereSegment class for central body.
     /*!
-     * Pointer to SphereSegment class for central body.
+     * Shared pointer to SphereSegment class for central body.
      */
-    SphereSegment* pointerToCentralBodySphere_;
+    SphereSegmentPointer centralBodySphere_;
 
 private:
 };

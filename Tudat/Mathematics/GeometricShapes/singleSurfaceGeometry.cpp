@@ -25,35 +25,32 @@
  *      110209    D. Dirkx          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *
  *    References
  *
+ *    Contents of this file used to be in singleGeometry.cpp, but as this class has been split into
+ *    single and composite surface geometry, the contents have been moved, with most of the
+ *    SurfaceGeometry class now belonging to the SingleSurfaceGeometry class.
  */
 
-// Temporary notes (move to class/function doxygen):
-// Contents of this file used to be in singleGeometry.cpp, but as this class
-// has been split into single and composite surface geometry, the contents
-// have been moved, with most of the SurfaceGeometry class now belonging to
-// the SingleSurfaceGeometry class.
-// 
-// The getSurfacePoint currently uses a VectorXd as a return type,
-// this could be changed to a CartesianPositionElements type in the
-// future for consistency with the rest of the code.
-// 
-
 #include <iostream>
+
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 namespace tudat
 {
+namespace mathematics
+{
+namespace geometric_shapes
+{
 
-// Using declarations.
 using std::cerr;
 using std::endl;
 
 //! Set minimum value of independent variable.
-void SingleSurfaceGeometry::setMinimumIndependentVariable( int parameterIndex,
-                                                           double minimumValue )
+void SingleSurfaceGeometry::setMinimumIndependentVariable( const int parameterIndex,
+                                                           const double minimumValue )
 {
     independentVariable_ = IndependentVariables( parameterIndex );
 
@@ -84,7 +81,7 @@ void SingleSurfaceGeometry::setMinimumIndependentVariable( int parameterIndex,
 
 //! Set maximum value of independent variable.
 void SingleSurfaceGeometry::setMaximumIndependentVariable(
-        int parameterIndex, double maximumValue )
+        const int parameterIndex, const double maximumValue )
 {
 
     independentVariable_ = IndependentVariables( parameterIndex );
@@ -115,7 +112,7 @@ void SingleSurfaceGeometry::setMaximumIndependentVariable(
 }
 
 //! Get minimum value of independent variable.
-double SingleSurfaceGeometry::getMinimumIndependentVariable( int parameterIndex )
+double SingleSurfaceGeometry::getMinimumIndependentVariable( const int parameterIndex )
 {
     // Declare local variables.
     double minimumValue_;
@@ -142,7 +139,6 @@ double SingleSurfaceGeometry::getMinimumIndependentVariable( int parameterIndex 
         cerr << " Only 2 independent variables, variable "
              <<  parameterIndex << " does not exist when "
              << "getting minimum value, returning -0.0" << endl;
-
     }
 
     // Return minimum value.
@@ -150,7 +146,7 @@ double SingleSurfaceGeometry::getMinimumIndependentVariable( int parameterIndex 
 }
 
 //! Get maximum value of independent variable.
-double SingleSurfaceGeometry::getMaximumIndependentVariable( int parameterIndex )
+double SingleSurfaceGeometry::getMaximumIndependentVariable( const int parameterIndex )
 {
     // Declare local variables.
     double maximumValue_;
@@ -191,4 +187,6 @@ void SingleSurfaceGeometry::transformPoint( Eigen::VectorXd& point )
     point = point + offset_;
 }
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat

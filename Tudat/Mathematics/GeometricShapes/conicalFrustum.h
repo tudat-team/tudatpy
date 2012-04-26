@@ -19,6 +19,7 @@
  *      110209    K. Kumar          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *
  *    References
  *
@@ -28,10 +29,17 @@
 #define TUDAT_CONICAL_FRUSTUM_H
 
 #include <iostream>
+
 #include <Eigen/Core>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 //! ConicalFrustum class.
@@ -45,12 +53,23 @@ class ConicalFrustum : public SingleSurfaceGeometry
 {
 public:
     
-    //! Default consructor.
+    //! Conical frustum consructor, sets all shape parameters.
     /*!
-     *  Default constructor.
+     * Conical frustum consructor, sets all shape parameters.
+     * Default angle values set to fully revolved frustum.
+     * \param coneHalfAngle Apex half angle of cone from which frustum is created.
+     * \param startRadius radius of frustum at beginning (i.e. 1st independent variable = 0 )
+     * \param length Length of frustum
+     * \param minimumAzimuthAngle Minimum value of azimuth angle (i.e. angle about which the
+     * frustum is revolved)
+     * \param maximumAzimuthAngle Maximum value of azimuth angle (i.e. angle about which the
+     * frustum is revolved)
      */
-    ConicalFrustum( ) : coneHalfAngle_( -0.0 ), startRadius_( -0.0 ), length_( -0.0 )
-    { minimumIndependentVariable2_ = 0; maximumIndependentVariable2_ = 1; }
+    ConicalFrustum( const double coneHalfAngle,
+                    const double startRadius,
+                    const double length,
+                    const double minimumAzimuthAngle = 0.0,
+                    const double maximumAzimuthAngle = 2.0 * mathematics::PI );
 
     //! Get surface point on conical frustum.
     /*!
@@ -83,9 +102,9 @@ public:
      *          azimuth angle.
      * \return Surface derivative on conical frustum.
      */
-    Eigen::VectorXd getSurfaceDerivative( double lengthFraction, double azimuthAngle,
-                                          int powerOfLengthFractionDerivative,
-                                          int powerOfAzimuthAngleDerivative );
+    Eigen::VectorXd getSurfaceDerivative( const double lengthFraction, const double azimuthAngle,
+                                          const int powerOfLengthFractionDerivative,
+                                          const int powerOfAzimuthAngleDerivative );
 
     //! Get parameter of conical frustum.
     /*!
@@ -97,73 +116,26 @@ public:
      */
     double getParameter( int index );
 
-    //! Set parameter of conical frustum.
-    /*!
-     * Sets a parameter of the conical frustum.
-     * Function uses parameter_ member variable to prevent multiple declarations.
-     * \param index Index of parameter to return ( index = 0: sets cone half
-     *          angle; index = 1: sets start radius; index = 2: sets length ).
-     * \param parameter Value of parameter to set.
-     */
-    void setParameter( int index, double parameter );
-
-    //! Set cone half angle.
-    /*!
-     * Sets the cone half angle.
-     *  \param coneHalfAngle Cone half angle.
-     */
-    void setConeHalfAngle( double coneHalfAngle ) { coneHalfAngle_ = coneHalfAngle; }
-
-    //! Set length.
-    /*!
-     * Sets the length.
-     * \param length Cone length.
-     */
-    void setLength( double length ) { length_ = length; }
-
-    //! Set start radius.
-    /*!
-     * Sets the start radius.
-     * \param startRadius Start radius.
-     */
-    void setStartRadius( double startRadius ) { startRadius_ = startRadius; }
-
-    //! Set minimum azimuth angle.
-    /*!
-     * Sets the minimum azimuth angle.
-     * \param minimumAzimuthAngle Minimum azimuth angle.
-     */
-    void setMinimumAzimuthAngle( double minimumAzimuthAngle )
-    { setMinimumIndependentVariable( 1, minimumAzimuthAngle ); }
-
-    //! Set maximum azimuth angle.
-    /*!
-     * Sets the maximum azimuth angle.
-     * \param maximumAzimuthAngle Maximum azimuth angle.
-     */
-    void setMaximumAzimuthAngle( double maximumAzimuthAngle )
-    { setMaximumIndependentVariable( 1, maximumAzimuthAngle ); }
-
     //! Get cone half angle.
     /*!
      * Returns the cone half angle.
      * \return Cone half angle.
      */
-    double& getConeHalfAngle( ) { return coneHalfAngle_; }
+    double getConeHalfAngle( ) { return coneHalfAngle_; }
 
     //! Get length.
     /*!
      * Returns the length.
      * \return Cone length.
      */
-    double& getLength( ) { return length_; }
+    double getLength( ) { return length_; }
 
     //! Get start radius.
     /*!
      * Returns the start radius.
      * \return Start radius.
      */
-    double& getStartRadius( ) { return startRadius_; }
+    double getStartRadius( ) { return startRadius_; }
 
     //! Get minimum azimuth angle.
     /*!
@@ -210,6 +182,8 @@ private:
     double length_;
 };
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat
 
-#endif // TUDAT_CONICAL_FRUSTUM_H
+#endif // TUDAT_CONICALFRUSTUM_H

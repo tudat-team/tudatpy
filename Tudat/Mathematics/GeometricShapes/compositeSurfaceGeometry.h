@@ -20,27 +20,28 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
  */
-
-// Temporary notes (move to class/function doxygen):
-// Currently, pointer arrays are used to stored SingleSurfaceGeometry and
-// CompositeSurfaceGeometry classes. In future, it might be fruitful to
-// consider the use of standard STL containers, such as vector and map
-// instead.
-// 
 
 #ifndef TUDAT_COMPOSITE_SURFACE_GEOMETRY_H
 #define TUDAT_COMPOSITE_SURFACE_GEOMETRY_H
 
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 #include "Tudat/Mathematics/GeometricShapes/surfaceGeometry.h"
 
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 //! Composite surface geometry class.
@@ -59,65 +60,26 @@ public:
 
     //! Default constructor.
     /*!
-     * Default constructor, sets number of single and composite geometries to zero.
+     * Default constructor.
      */
-    CompositeSurfaceGeometry( ) : numberOfSingleSurfaceGeometries_( 0 ),
-        numberOfCompositeSurfaceGeometries_( 0 ), singleSurfaceGeometryList_( NULL ),
-        compositeSurfaceGeometryList_( NULL ) { }
+    CompositeSurfaceGeometry( ) { }
+
+    //! Constructor, sets constituent surface geometries of objects.
+    /*!
+     *  Constructor, sets constituent surface geometries of objects.
+     *  \param singleSurfaceGeometryList vector of pointers to SingleSurfaceGeometries
+     *  \param compositeSurfaceGeometryList vector of pointers to CompositeSurfaceGeometries
+     */
+    CompositeSurfaceGeometry( std::vector< boost::shared_ptr< SingleSurfaceGeometry > >
+                              singleSurfaceGeometryList,
+                              std::vector< boost::shared_ptr< CompositeSurfaceGeometry > >
+                              compositeSurfaceGeometryList );
 
     //! Default destructor.
     /*!
-     * Default destructor, deallocates surface lists and resets them to NULL.
+     * Default destructor.
      */
     virtual ~CompositeSurfaceGeometry( ) { }
-
-    //! Set pointer to SingleSurfaceGeometry object.
-    /*!
-     * Sets a pointer to a SingleSurfaceGeometry object in singleSurfaceGeometryList_.
-     * \param pointerToSingleSurfaceGeometry Pointer to SingleSurfaceGeometry
-     *           object which is to be stored in singleSurfaceGeometryList_.
-     * \param index Index of singleSurfaceGeometryList_ at which the surface is to be set.
-     */
-    void setSingleSurfaceGeometry( SingleSurfaceGeometry* pointerToSingleSurfaceGeometry,
-                                   const unsigned int& index )
-    { singleSurfaceGeometryList_[ index ] = pointerToSingleSurfaceGeometry; }
-
-    //! Set pointer to a CompositeSurfaceGeometry object.
-    /*!
-     * Sets a pointer to a CompositeSurfaceGeometry in
-     * compositeSurfaceGeometryList_.
-     * \param pointerToCompositeSurfaceGeometry Pointer to
-     *          CompositeSurfaceGeometry object which is to be stored in
-     *          compositeSurfaceGeometryList_.
-     * \param index Index of compositeSurfaceGeometryList_ at which the surface is to be set.
-     */
-    void setCompositeSurfaceGeometry( CompositeSurfaceGeometry* pointerToCompositeSurfaceGeometry,
-                                      const unsigned int& index )
-    { compositeSurfaceGeometryList_[ index ] = pointerToCompositeSurfaceGeometry; }
-
-    //! Set number of single surface geometries.
-    /*!
-     * Sets and allocates number of SingleSurfaceGeometry objects.
-     * \param numberOfSingleSurfaceGeometries Number of SingleSurfaceGeometry objects stored.
-     */
-    void setNumberOfSingleSurfaceGeometries( const unsigned int& numberOfSingleSurfaceGeometries )
-    {
-        numberOfSingleSurfaceGeometries_ = numberOfSingleSurfaceGeometries;
-        singleSurfaceGeometryList_.resize( numberOfSingleSurfaceGeometries_ );
-    }
-
-    //! Set number of composite surface geometries.
-    /*!
-     * Sets and allocates number of CompositeSurfaceGeometry objects.
-     * \param numberOfCompositeSurfaceGeometries Number of
-     *          CompositeSurfaceGeometry objects stored.
-     */
-    void setNumberOfCompositeSurfaceGeometries( const unsigned int&
-                                                numberOfCompositeSurfaceGeometries )
-    {
-        numberOfCompositeSurfaceGeometries_ = numberOfCompositeSurfaceGeometries;
-        compositeSurfaceGeometryList_.resize( numberOfCompositeSurfaceGeometries_ );
-    }
 
     //! Get pointer to stored SingleSurfaceGeometry object.
     /*!
@@ -128,8 +90,10 @@ public:
      * \return Pointer to SingleSurfaceGeometry object at index location in
      *          singleSurfaceGeometryList_.
      */
-    SingleSurfaceGeometry* getSingleSurfaceGeometry( const unsigned int& index ) 
-    { return singleSurfaceGeometryList_[ index ]; }
+    boost::shared_ptr< SingleSurfaceGeometry > getSingleSurfaceGeometry( const unsigned int index )
+    {
+        return singleSurfaceGeometryList_[ index ];
+    }
 
     //! Get pointer to a stored CompositeSurfaceGeometry object.
     /*!
@@ -140,8 +104,11 @@ public:
      * \return Pointer to CompositeSurfaceGeometry object at index location in
      *          compositeSurfaceGeometryList_.
      */
-    CompositeSurfaceGeometry* getCompositeSurfaceGeometry( const unsigned int& index ) 
-    { return compositeSurfaceGeometryList_[index]; }
+    boost::shared_ptr< CompositeSurfaceGeometry > getCompositeSurfaceGeometry(
+            const unsigned int index )
+    {
+        return compositeSurfaceGeometryList_[ index ];
+    }
 
     //! Get number of single surface geometries.
     /*!
@@ -149,8 +116,10 @@ public:
      * singleSurfaceGeometryList_.
      * \return Number of SingleSurfaceGeometry objects stored in class.
      */
-    unsigned int& getNumberOfSingleSurfaceGeometries( )
-    { return numberOfSingleSurfaceGeometries_; }
+    unsigned int getNumberOfSingleSurfaceGeometries( )
+    {
+        return numberOfSingleSurfaceGeometries_;
+    }
 
     //! Get number of composite surface geometries.
     /*!
@@ -158,8 +127,10 @@ public:
      * compositeSurfaceGeometryList_.
      * \return Number of CompositeSurfaceGeometry objects stored in class.
      */
-    unsigned int& getNumberOfCompositeSurfaceGeometries( )
-    { return numberOfCompositeSurfaceGeometries_; }
+    unsigned int getNumberOfCompositeSurfaceGeometries( )
+    {
+        return numberOfCompositeSurfaceGeometries_;
+    }
 
     //! Overload ostream to print class information.
     /*!
@@ -174,6 +145,58 @@ public:
                                      CompositeSurfaceGeometry& compositeSurfaceGeometry );
 
 protected:
+
+    //! Set pointer to SingleSurfaceGeometry object.
+    /*!
+     * Sets a pointer to a SingleSurfaceGeometry object in singleSurfaceGeometryList_.
+     * \param singleSurfaceGeometry Pointer to SingleSurfaceGeometry
+     *           object which is to be stored in singleSurfaceGeometryList_.
+     * \param index Index of singleSurfaceGeometryList_ at which the surface is to be set.
+     */
+    void setSingleSurfaceGeometry( boost::shared_ptr< SingleSurfaceGeometry >
+                                   singleSurfaceGeometry, const unsigned int index )
+    {
+        singleSurfaceGeometryList_[ index ] = singleSurfaceGeometry;
+    }
+
+    //! Set pointer to a CompositeSurfaceGeometry object.
+    /*!
+     * Sets a pointer to a CompositeSurfaceGeometry in
+     * compositeSurfaceGeometryList_.
+     * \param compositeSurfaceGeometry Pointer to
+     *          CompositeSurfaceGeometry object which is to be stored in
+     *          compositeSurfaceGeometryList_.
+     * \param index Index of compositeSurfaceGeometryList_ at which the surface is to be set.
+     */
+    void setCompositeSurfaceGeometry( boost::shared_ptr< CompositeSurfaceGeometry>
+                                      compositeSurfaceGeometry, const unsigned int index )
+    {
+        compositeSurfaceGeometryList_[ index ] = compositeSurfaceGeometry;
+    }
+
+    //! Set number of single surface geometries.
+    /*!
+     * Sets and allocates number of SingleSurfaceGeometry objects.
+     * \param numberOfSingleSurfaceGeometries Number of SingleSurfaceGeometry objects stored.
+     */
+    void setNumberOfSingleSurfaceGeometries( const unsigned int numberOfSingleSurfaceGeometries )
+    {
+        numberOfSingleSurfaceGeometries_ = numberOfSingleSurfaceGeometries;
+        singleSurfaceGeometryList_.resize( numberOfSingleSurfaceGeometries_ );
+    }
+
+    //! Set number of composite surface geometries.
+    /*!
+     * Sets and allocates number of CompositeSurfaceGeometry objects.
+     * \param numberOfCompositeSurfaceGeometries Number of
+     *          CompositeSurfaceGeometry objects stored.
+     */
+    void setNumberOfCompositeSurfaceGeometries( const unsigned int
+                                                numberOfCompositeSurfaceGeometries )
+    {
+        numberOfCompositeSurfaceGeometries_ = numberOfCompositeSurfaceGeometries;
+        compositeSurfaceGeometryList_.resize( numberOfCompositeSurfaceGeometries_ );
+    }
 
     //! Size of singleSurfaceGeometryList_.
     /*!
@@ -191,17 +214,19 @@ protected:
     /*!
      *  Array of pointers to SingleSurfaceGeometries.
      */
-    std::vector< SingleSurfaceGeometry* > singleSurfaceGeometryList_;
+    std::vector< boost::shared_ptr< SingleSurfaceGeometry > > singleSurfaceGeometryList_;
 
     //! Array of pointers to CompositeSurfaceGeometries.
     /*!
      *  Array of pointers to CompositeSurfaceGeometries.
      */
-    std::vector< CompositeSurfaceGeometry* > compositeSurfaceGeometryList_;
+    std::vector< boost::shared_ptr< CompositeSurfaceGeometry > > compositeSurfaceGeometryList_;
 
 private:
 };
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_COMPOSITE_SURFACE_GEOMETRY_H

@@ -20,35 +20,31 @@
  *      110205    J. Melman         Removed the trailing underscores in some public variables. Some
  *                                  comment rephrasing. Changed and added some notes.
  *      110212    J. Melman         Added a reference to my own thesis.
- *      110214    E. Iorfida        Deleted temporary centralBodyRadius,  replaced by an element of
+ *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element of
  *                                  GeometricShapes.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *      Melman J. Trajectory optimization for a mission to Neptune and
  *          Triton, MSc thesis report, Delft University of Technology, 2007.
  *
+ *    Gravity assist and swing-by are different words for the same thing. The delta-V that is
+ *    computed for a powered swing-by has not been proven to be the optimum (lowest) to achieve the
+ *    desired geometry of incoming and outgoing hyperbolic legs. Some literature research will have
+ *    to be done to look at the alternatives.
+ *
+ *    For the moment in this code the smallestPeriapsisDistanceFactor is given as external input by
+ *    the user, but in the future it should be part of the CelestialBody object.
+ *
+ *    Also, the velocity of the central body will need to be computed by the ephemeris code.
+ *    At the moment the shape of the central body is a sphere segment, and the radius of the planet
+ *    is set externally by the user. In the future it should be possible to get the radius of each
+ *    planet directly from the CelestialBody class, by a link to GeometricShape class.
+ *
+ *    At the moment, this code uses a Newton-Raphson root finder by default. In the future it
+ *    should be possible to apply for example the Halley method by using polymorphism.
+ *
  */
-
-// Temporary notes (move to class/function doxygen):
-// Gravity assist and swing-by are different words for the same thing.
-// The delta-V that is computed for a powered swing-by has not been
-// proven to be the optimum (lowest) to achieve the desired geometry
-// of incoming and outgoing hyperbolic legs. Some literature research
-// will have to be done to look at the alternatives.
-// For the moment in this code the smallestPeriapsisDistanceFactor
-// is given as external input by the user, but in the future it should
-// be part of the CelestialBody object.
-// Also, the velocity of the central body will need to be computed by
-// the ephemeris code.
-// At the moment the shape of the central body is a sphere segment,
-// and the radius of the planet is set externally by the user.
-// In the future it should be possible to get the radius of each planet
-// directly from the CelestialBody class, by a link to GeometricShape
-// class.
-// At the moment, this code uses a Newton-Raphson root finder by default.
-// In the future it should be possible to apply for example the Halley
-// method by using polymorphism.
-// 
 
 #include <cmath>
 #include <limits>
@@ -96,17 +92,6 @@ double GravityAssist::firstDerivativeVelocityEffectFunction( double& incomingEcc
 //! Compute the delta-V of the powered swing-by.
 double GravityAssist::computeDeltaV( )
 {
-    // Define local velocity vectors.
-    Eigen::Vector3d incomingVelocity_;
-    incomingVelocity_.x( ) = pointerToIncomingVelocity_->getCartesianElementXDot( );
-    incomingVelocity_.y( ) = pointerToIncomingVelocity_->getCartesianElementYDot( );
-    incomingVelocity_.z( ) = pointerToIncomingVelocity_->getCartesianElementZDot( );
-
-    Eigen::Vector3d outgoingVelocity_;
-    outgoingVelocity_.x( ) = pointerToOutgoingVelocity_->getCartesianElementXDot( );
-    outgoingVelocity_.y( ) = pointerToOutgoingVelocity_->getCartesianElementYDot( );
-    outgoingVelocity_.z( ) = pointerToOutgoingVelocity_->getCartesianElementZDot( );
-
     // Compute incoming hyperbolic excess velocity.
     incomingHyperbolicExcessVelocity_ = incomingVelocity_ - centralBodyVelocity_;
 
@@ -183,24 +168,24 @@ double GravityAssist::computeDeltaV( )
                     &GravityAssist::firstDerivativeVelocityEffectFunction );
 
         // Set initial guess of the variable computed in Newton-Rapshon method.
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( 1.01 );
+        newtonRaphson_->setInitialGuessOfRoot( 1.01 );
 
         // Set maximum number of iterations that can be computed in
         // Newton-Raphson.
-        pointerToNewtonRaphson_->setMaximumNumberOfIterations( 100 );
+        newtonRaphson_->setMaximumNumberOfIterations( 100 );
 
         // Set tolerance for Newton-Raphson method.
-        pointerToNewtonRaphson_->setTolerance( 10.0 * std::numeric_limits< double >::epsilon( ) );
+        newtonRaphson_->setTolerance( 10.0 * std::numeric_limits< double >::epsilon( ) );
 
         // Set the adaptor for Newton-Raphson method.
-        pointerToNewtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist_ );
+        newtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist_ );
 
         // Execute Newton-Raphson method.
-        pointerToNewtonRaphson_->execute( );
+        newtonRaphson_->execute( );
 
         // Define incoming hyperbolic leg eccentricity as the output value of
         // Newton-Raphson method.
-        incomingEccentricity_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );
+        incomingEccentricity_ = newtonRaphson_->getComputedRootOfFunction( );
 
         // Compute outgoing hyperbolic leg eccentricity.
         outgoingEccentricity_ = 1.0 - ( incomingSemiMajorAxis_ /
@@ -230,8 +215,8 @@ double GravityAssist::computeDeltaV( )
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream, GravityAssist& gravityAssist )
 {
-    stream << "The incoming velocity is set to: " << gravityAssist.pointerToIncomingVelocity_
-           << "The outgoing velocity is set to: " << gravityAssist.pointerToOutgoingVelocity_
+    stream << "The incoming velocity is set to: " << gravityAssist.incomingVelocity_
+           << "The outgoing velocity is set to: " << gravityAssist.outgoingVelocity_
            << "The computed delta-V is: " << gravityAssist.computeDeltaV( ) << endl;
 
     // Return stream.

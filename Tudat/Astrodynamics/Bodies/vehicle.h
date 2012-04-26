@@ -15,6 +15,7 @@
  *      100915    D. Dirkx          Modified comments, 80 lines rule, etc.
  *      100928    D. Dirkx          Modifications following first checking iteration.
  *      110112    K. Kumar          Minor comment changes.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
@@ -24,17 +25,20 @@
 #define TUDAT_VEHICLE_MODELS_H
 
 #include <iostream>
-#include "Tudat/Astrodynamics/Bodies/vehicleExternalModel.h"
+
 #include "Tudat/Astrodynamics/Bodies/body.h"
+#include "Tudat/Astrodynamics/Bodies/vehicleExternalModel.h"
 
 namespace tudat
+{
+namespace bodies
 {
 
 //! Vehicle class.
 /*!
  * Class that represents the physical model of the vehicle. Subsystem
  * objects should be created externally and then set by the corresponding
- * function, making the VehicleModel class a container for the different
+ * function, making the VehicleExternalModel class a container for the different
  * properties.
  */
 class Vehicle : public Body
@@ -45,22 +49,28 @@ public:
     /*!
      * Default constructor.
      */
-    Vehicle( ) : pointerToExternalModel_( NULL ), isExternalModelSet_( false ) { }
+    Vehicle( )
+        : externalModel_( boost::shared_ptr< VehicleExternalModel >( ) ),
+          isExternalModelSet_( false )
+    { }
 
     //! Set the external model of the vehicle.
     /*!
      * Sets the external model of the vehicle.
      * \param externalModel Vehicle external model.
      */
-    void setExternalModel( VehicleExternalModel& externalModel )
-    { pointerToExternalModel_ = &externalModel; isExternalModelSet_ = true; }
+    void setExternalModel( boost::shared_ptr< VehicleExternalModel > externalModel )
+    {
+        externalModel_ = externalModel;
+        isExternalModelSet_ = true;
+    }
 
     //! Get external model of the vehicle.
     /*!
      * Returns the external model of the vehicle.
      * \return Pointer to vehicle external model.
      */
-    VehicleExternalModel* getPointerToExternalModel( ) { return pointerToExternalModel_; }
+    boost::shared_ptr< VehicleExternalModel > getExternalModel( ) { return externalModel_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -73,9 +83,14 @@ public:
     friend std::ostream& operator<<( std::ostream& stream, Vehicle& vehicle )
     {
         stream << "This is a vehicle; the following properties have been set: " << std::endl;
-        if ( vehicle.isExternalModelSet_ ) { stream << "External model" << std::endl; }
+        if ( vehicle.isExternalModelSet_ )
+        {
+            stream << "External model" << std::endl;
+        }
         return stream;
     }
+
+protected:
 
 private:
 
@@ -83,7 +98,7 @@ private:
     /*!
      * Pointer to object that represents vehicle exterior.
      */
-    VehicleExternalModel* pointerToExternalModel_;
+    boost::shared_ptr< VehicleExternalModel > externalModel_;
 
     //! Flag that indicates if external model has been set.
     /*!
@@ -92,6 +107,7 @@ private:
     bool isExternalModelSet_;
 };
 
+} // namespace bodies
 } // namespace tudat
 
 #endif // TUDAT_VEHICLE_MODELS_H

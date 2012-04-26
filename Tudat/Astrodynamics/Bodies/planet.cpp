@@ -12,127 +12,136 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110623    K. Kumar          First creation of code.
+ *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
  *    References
  *
  */
 
+#include <boost/make_shared.hpp>
+
 #include "Tudat/Astrodynamics/Bodies/planet.h"
 
 namespace tudat
+{
+namespace bodies
 {
 
 //! Set predefined planet settings.
 void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
 {
+    using ephemerides::Ephemeris;
+    using ephemerides::ApproximatePlanetPositions;
+    using astrodynamics::gravitation::CentralGravityField;
+
     // Select predefined planet.
     switch( predefinedPlanet )
     {
     case sun:
 
         // Set predefined Sun central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
-                    CentralGravityField::sun );
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >( CentralGravityField::sun );
 
         break;
 
     case mercury:
 
         // Set predefined Mercury central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::mercury );
 
         // Set Mercury as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::mercury );
-
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::mercury );
         break;
 
     case venus:
 
         // Set predefined Venus central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::venus );
 
         // Set Venus as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::venus );
-
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::venus );
         break;
 
     case earth:
 
         // Set predefined Earth central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::earth );
 
         // Set Earth as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::earthMoonBarycenter );
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::earthMoonBarycenter );
 
         break;
 
     case moon:
 
         // Set predefined Moon central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::moon );
 
         // Set Moon as body for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::earthMoonBarycenter );
-
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::earthMoonBarycenter );
         break;
 
     case mars:
 
         // Set predefined Mars central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::mars );
 
         // Set Mars as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::mars );
-
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::mars );
         break;
 
     case jupiter:
 
         // Set predefined Jupiter central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::jupiter );
 
         // Set Jupiter as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::jupiter );
-
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::jupiter );
         break;
 
     case saturn:
 
         // Set predefined Saturn central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::saturn );
 
         // Set Saturn as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::saturn );
-
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::saturn );
         break;
 
     case uranus:
 
         // Set predefined Uranus central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::uranus );
 
         // Set Uranus as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::uranus );
-
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::uranus );
         break;
 
     case neptune:
 
         // Set predefined Neptune central gravity field.
-        predefinedCentralGravityField_.setPredefinedCentralGravityFieldSettings(
+        gravityFieldModel_ = boost::make_shared< CentralGravityField >(
                     CentralGravityField::neptune );
 
         // Set Neptune as planet for ephemeris.
-        approximatePlanetPositions_.setPlanet( ApproximatePlanetPositions::neptune );
-
+        ephemeris_ = boost::make_shared< ApproximatePlanetPositions >(
+                    ApproximatePlanetPositions::neptune );
         break;
 
     default:
@@ -140,12 +149,7 @@ void Planet::setPredefinedPlanetSettings( PredefinedPlanets predefinedPlanet )
         // Print cerr statement.
         std::cerr << "Desired predefined planet does not exist." << std::endl;
     };
-
-    // Set gravity model to predefined central gravity field.
-    pointerToGravityFieldModel_ = &predefinedCentralGravityField_;
-
-    // Set ephemeris.
-    pointerToEphemeris_ = &approximatePlanetPositions_;
 }
 
+} // namespace bodies
 } // namespace tudat
