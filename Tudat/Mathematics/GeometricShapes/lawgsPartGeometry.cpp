@@ -17,20 +17,27 @@
  *      110207    D. Dirkx          Fixed warning problems by extending cerr comments.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
- *
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor,
+ *                                  removed raw pointer arrays.
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
  *          (LaWGS) format, NASA TECHNICAL MEMORANDUM 85767.
  *
  */
 
+#include <boost/shared_ptr.hpp>
+
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 namespace tudat
 {
+namespace mathematics
+{
+namespace geometric_shapes
+{
 
 //! Constructor from surface geometry (i.e., geometry type conversion).
-void LawgsPartGeometry::setMesh( SingleSurfaceGeometry* originalSurface,
+void LawgsPartGeometry::setMesh( boost::shared_ptr< SingleSurfaceGeometry > originalSurface,
                                  int numberOfLinesIn, int numberOfPointsIn )
 {
     // Set (temporary name) of part.
@@ -98,8 +105,8 @@ LawgsPartGeometry::LawgsPartGeometry( const LawgsPartGeometry& partToCopy )
 }
 
 //! Get surface point.
-Eigen::VectorXd LawgsPartGeometry::getSurfacePoint( double independentVariable1,
-                                                    double independentVariable2 )
+Eigen::VectorXd LawgsPartGeometry::getSurfacePoint( const double independentVariable1,
+                                                    const double independentVariable2 )
 {
     // Declare local variables denoting 'start' of panel.
     int pointIndex, lineIndex;
@@ -132,8 +139,9 @@ Eigen::VectorXd LawgsPartGeometry::getSurfacePoint( double independentVariable1,
 }
 
 //! Get surface derivative (currently not implemented).
-Eigen::VectorXd LawgsPartGeometry::getSurfaceDerivative( double u, double v,
-                                                         int uDerivative, int vDerivative )
+Eigen::VectorXd LawgsPartGeometry::getSurfaceDerivative( const double u, const double v,
+                                                         const int uDerivative,
+                                                         const int vDerivative )
 {
     std::cerr << "Surface derivative function not implemented in "
               << "LawgsPartGeometry class. Not able to return the "
@@ -144,7 +152,7 @@ Eigen::VectorXd LawgsPartGeometry::getSurfaceDerivative( double u, double v,
 }
 
 //! Get parameter.
-double LawgsPartGeometry::getParameter( int parameterIndex )
+double LawgsPartGeometry::getParameter( const int parameterIndex )
 {
     std::cerr << "Get parameter function not implemented in LawgsPartGeometry"
               << "class, unable to retrieve parameter "<< parameterIndex
@@ -154,7 +162,7 @@ double LawgsPartGeometry::getParameter( int parameterIndex )
 }
 
 //! Set parameter.
-void LawgsPartGeometry::setParameter( int parameterIndex, double value )
+void LawgsPartGeometry::setParameter( const int parameterIndex, const double value )
 {
     std::cerr << "Set parameter function not implemented in LawgsPartGeometry"
               << "class. Unable to set value of " << value << " at parameter index "
@@ -162,8 +170,7 @@ void LawgsPartGeometry::setParameter( int parameterIndex, double value )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          LawgsPartGeometry& lawgsPartGeometry )
+std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry )
 {
     stream << "This is a Langley Wireframe Geometry Standard surface geometry"
            << " of a single part." << std::endl;
@@ -177,4 +184,6 @@ std::ostream& operator<<( std::ostream& stream,
     return stream;
 }
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat

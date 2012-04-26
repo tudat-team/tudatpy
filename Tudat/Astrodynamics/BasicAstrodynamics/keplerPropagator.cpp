@@ -19,17 +19,22 @@
  *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  *      120217    K. Kumar          Updated computeModuloForSignedValues() to computeModulo() from
  *                                  Tudat Core.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
  */
 
+#include <boost/make_shared.hpp>
 #include <boost/exception/all.hpp>
+
 #include <cmath>
+
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h>
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
 #include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
@@ -48,8 +53,8 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
                                       bool useModuloOption )
 {
     // Create Newton-Raphson root-finder.
-    tudat::NewtonRaphson newtonRaphson_;
-    newtonRaphson_.setTolerance( newtonRaphsonConvergenceTolerance );
+    boost::shared_ptr< NewtonRaphson > newtonRaphson_ = boost::make_shared< NewtonRaphson >( );
+    newtonRaphson_->setTolerance( newtonRaphsonConvergenceTolerance );
 
     // Create final state in Keplerian elements.
     Eigen::VectorXd finalStateInKeplerianElements = initialStateInKeplerianElements;
@@ -116,7 +121,7 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
         ConvertMeanAnomalyToEccentricAnomaly convertMeanAnomalyToEccentricAnomaly_(
                     initialStateInKeplerianElements( eccentricityIndex ),
                     initialMeanAnomaly_ + meanAnomalyChange_,
-                    &newtonRaphson_ );
+                    newtonRaphson_ );
 
         // Compute eccentric anomaly for mean anomaly.
         double finalEccentricAnomaly_ = convertMeanAnomalyToEccentricAnomaly_.convert( );

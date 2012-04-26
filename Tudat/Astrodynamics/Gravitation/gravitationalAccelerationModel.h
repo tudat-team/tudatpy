@@ -1,4 +1,4 @@
-/*! Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -12,6 +12,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120209    K. Kumar          File created.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+
  *
  *    References
  */
@@ -22,6 +24,8 @@
 #include <Eigen/Core>
 
 namespace tudat
+{
+namespace astrodynamics
 {
 namespace acceleration_models
 {
@@ -77,7 +81,8 @@ Eigen::Vector3d computeGravitationalAcceleration(
         const double gravitationalParameterOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration );
 
-} // namespace acceleration models
+} // namespace acceleration_models
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_GRAVITATIONAL_ACCELERATION_MODEL_H

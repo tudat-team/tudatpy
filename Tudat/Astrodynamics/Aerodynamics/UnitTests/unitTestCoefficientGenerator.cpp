@@ -13,6 +13,7 @@
  *      YYMMDD    Author            Comment
  *      102511    D. Dirkx          First version of file.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      120328    D. Dirkx          Updated code to use shared_ptrs instead of raw pointers.
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic
@@ -21,9 +22,8 @@
  *
  */
 
-#include <vector>
-
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
 
@@ -33,33 +33,29 @@
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 
-using std::vector;
-using tudat::mathematics::PI;
-
 //! Test coefficient generator.
 int main( )
 {
-    // Using declarations.
     using namespace tudat;
+    using namespace tudat::mathematics::geometric_shapes;
+    using tudat::aerodynamics::HypersonicLocalInclinationAnalysis;
     using std::fabs;
+    using std::vector;
+    using tudat::mathematics::PI;
 
     // Declare test variable.
-    bool isCoefficientGeneratorErroneous = 0;
+    bool isCoefficientGeneratorErroneous = false;
 
     // Create test sphere.
-    SphereSegment sphere = SphereSegment( );
-    sphere.setRadius( 1.0 );
-    sphere.setMinimumAzimuthAngle(  0.0 );
-    sphere.setMaximumAzimuthAngle( 2.0 * PI );
-    sphere.setMinimumZenithAngle( 0.0 );
-    sphere.setMaximumZenithAngle( PI );
-    VehicleExternalModel externalModel = VehicleExternalModel( );
-    externalModel.setVehicleGeometry( sphere );
-    Vehicle vehicle = Vehicle( );
+    boost::shared_ptr< SphereSegment > sphere = boost::make_shared< SphereSegment >( 1.0 );
+    boost::shared_ptr< bodies::VehicleExternalModel > externalModel
+            = boost::make_shared< bodies::VehicleExternalModel >( );
+    externalModel->setVehicleGeometry( sphere );
+    bodies::Vehicle vehicle;
     vehicle.setExternalModel( externalModel );
 
     // Create analysis object.
-    HypersonicLocalInclinationAnalysis analysis = HypersonicLocalInclinationAnalysis( );
+    HypersonicLocalInclinationAnalysis analysis;
 
     // Set vehicle in analysis with 10,000 panels.
     vector< int > numberOfLines;
@@ -132,19 +128,21 @@ int main( )
                 // attack than sideslip.
                 if ( fabs( aerodynamicCoefficients_[ 3 ] ) > 1.0e-4 )
                 {
-                    std::cerr<<" Error, sphere roll moment coefficient not zero. "
-                            <<std::endl;
-                    isCoefficientGeneratorErroneous = true;
-                }
-                if ( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0e-2 )
-                {
-                    std::cerr << " Error, sphere pitch moment coefficient not zero. "
+                    std::cerr << "Error, sphere roll moment coefficient not zero."
                               << std::endl;
                     isCoefficientGeneratorErroneous = true;
                 }
-                if ( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0E-2 )
+
+                if ( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0e-2 )
                 {
-                    std::cerr << " Error, sphere yaw moment coefficient not zero. "
+                    std::cerr << "Error, sphere pitch moment coefficient not zero."
+                              << std::endl;
+                    isCoefficientGeneratorErroneous = true;
+                }
+
+                if ( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0e-2 )
+                {
+                    std::cerr << "Error, sphere yaw moment coefficient not zero."
                               << std::endl;
                     isCoefficientGeneratorErroneous = true;
                 }
@@ -152,17 +150,11 @@ int main( )
         }
     }
 
-
-
     // Set Apollo capsule for validation.
-    Capsule capsule = Capsule( );
-    capsule.setNoseRadius( 4.694 );
-    capsule.setMiddleRadius( 1.956 );
-    capsule.setRearAngle( -1.0 * 33.0 * PI / 180.0 );
-    capsule.setRearLength( 2.662 );
-    capsule.setSideRadius( 0.196 );
-    capsule.setCapsule( );
-    externalModel.setVehicleGeometry( capsule );
+    boost::shared_ptr< Capsule > capsule = boost::make_shared< Capsule >(
+                4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
+
+    externalModel->setVehicleGeometry( capsule );
     vehicle.setExternalModel( externalModel );
 
     // Declare new analysis object
@@ -181,7 +173,7 @@ int main( )
     numberOfLines2[ 1 ] = 31;
     numberOfPoints2[ 1 ] = 31;
     numberOfLines2[ 2 ] = 31;
-    numberOfPoints2[ 2 ] = 2;
+    numberOfPoints2[ 2 ] = 10;
     numberOfLines2[ 3 ] = 11;
     numberOfPoints2[ 3 ] = 11;
     invertOrders2[ 0 ] = 1;
@@ -193,7 +185,7 @@ int main( )
     analysis2.setVehicle( vehicle, numberOfLines2, numberOfPoints2, invertOrders2 );
 
     // Set reference quantities.
-    analysis2.setReferenceArea( PI * pow( capsule.getMiddleRadius( ), 2.0 ) );
+    analysis2.setReferenceArea( PI * pow( capsule->getMiddleRadius( ), 2.0 ) );
     analysis2.setReferenceLength( 3.9116 );
     Eigen::VectorXd momentReference = Eigen::VectorXd( 3 );
     momentReference( 0 ) = 0.6624;
@@ -206,8 +198,7 @@ int main( )
     int i;
     for ( i = 0; i < 7; i++ )
     {
-        analysis2.setAngleOfAttackPoint( i, static_cast< double >( i - 6 )
-                                         * 5.0 * PI / 180.0 );
+        analysis2.setAngleOfAttackPoint( i, static_cast< double >( i - 6 ) * 5.0 * PI / 180.0 );
     }
 
     // Generate database.
@@ -222,37 +213,37 @@ int main( )
     // Compare values to database values.
     if ( fabs( aerodynamicCoefficients_[ 0 ] - 1.51 ) > 0.1 )
     {
-        std::cerr << " Error in Apollo drag coefficient." << std::endl;
+        std::cerr << "Error in Apollo drag coefficient." << std::endl;
         isCoefficientGeneratorErroneous = true;
     }
 
-    if ( fabs( aerodynamicCoefficients_[ 1 ] )> std::numeric_limits< double >::epsilon( ) )
+    if ( fabs( aerodynamicCoefficients_[ 1 ] ) > std::numeric_limits< double >::epsilon( ) )
     {
-        std::cerr << " Error in Apollo side force coefficient." << std::endl;
+        std::cerr << "Error in Apollo side force coefficient." << std::endl;
         isCoefficientGeneratorErroneous = true;
     }
 
     if ( fabs( aerodynamicCoefficients_[ 2 ] ) > std::numeric_limits< double >::epsilon( ) )
     {
-        std::cerr << " Error in Apollo normal force coefficient." << std::endl;
+        std::cerr << "Error in Apollo normal force coefficient." << std::endl;
         isCoefficientGeneratorErroneous = true;
     }
 
-    if ( fabs( aerodynamicCoefficients_[ 3 ] )> std::numeric_limits< double >::epsilon( ) )
+    if ( fabs( aerodynamicCoefficients_[ 3 ] ) > std::numeric_limits< double >::epsilon( ) )
     {
-        std::cerr<<" Error in Apollo roll moment coefficient."<<std::endl;
+        std::cerr << "Error in Apollo roll moment coefficient." << std::endl;
         isCoefficientGeneratorErroneous = true;
     }
 
     if ( fabs( aerodynamicCoefficients_[ 4 ] +0.052 ) > 0.01 )
     {
-        std::cerr << " Error in Apollo pitch moment coefficient." << std::endl;
+        std::cerr << "Error in Apollo pitch moment coefficient." << std::endl;
         isCoefficientGeneratorErroneous = true;
     }
 
-    if ( fabs( aerodynamicCoefficients_[ 5 ] )> std::numeric_limits< double >::epsilon( ) )
+    if ( fabs( aerodynamicCoefficients_[ 5 ] ) > std::numeric_limits< double >::epsilon( ) )
     {
-        std::cerr << " Error in Apollo yaw moment coefficient." << std::endl;
+        std::cerr << "Error in Apollo yaw moment coefficient." << std::endl;
         isCoefficientGeneratorErroneous = true;
     }
 
@@ -260,7 +251,6 @@ int main( )
     {
         std::cerr << "testCoefficientGenerator failed!" << std::endl;
     }
-
 
     return isCoefficientGeneratorErroneous;
 }

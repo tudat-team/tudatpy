@@ -17,7 +17,8 @@
  *      110112    K. Kumar          Modified to use GravityFieldModel; corrected path.
  *      110113    K. Kumar          Added getGravityFieldModel( ) function.
  *      110310    K. Kumar          Added ephemeris; added missing destructor.
- *
+ *      120322    D. Dirkx          Moved Ephemeris member from here to Body
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.*
  *    References
  *
  */
@@ -26,13 +27,14 @@
 #define TUDAT_CELESTIAL_BODY_H
 
 #include <iostream>
+
+#include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/Bodies/body.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
-#include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
-#include "Tudat/Astrodynamics/States/cartesianElements.h"
-#include "Tudat/Astrodynamics/Bodies/Ephemeris/ephemeris.h"
 
 namespace tudat
+{
+namespace bodies
 {
 
 //! Celestial body class.
@@ -43,80 +45,49 @@ class CelestialBody : public Body
 {
 public:
 
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    CelestialBody( ) : pointerToEphemeris_( NULL ), pointerToGravityFieldModel_( NULL ),
-        pointerToAtmosphereModel_( NULL ) { }
-
     //! Default destructor.
     /*!
      * Default destructor.
      */
     virtual ~CelestialBody( ) { }
 
-    //! Set ephemeris.
-    /*!
-     * Sets the ephemeris.
-     * \param pointerToEphemeris Pointer to ephemeris.
-     */
-    void setEphemeris( Ephemeris* pointerToEphemeris )
-    { pointerToEphemeris_ = pointerToEphemeris; }
-
     //! Set gravity field model.
     /*!
      * Sets the gravity field model.
-     * \param pointerToGravityFieldModel Pointer to gravity field model.
+     * \param gravityFieldModel Pointer to a gravity field model.
      */
-    void setGravityFieldModel( GravityFieldModel* pointerToGravityFieldModel )
-    { pointerToGravityFieldModel_ = pointerToGravityFieldModel; }
+    void setGravityFieldModel(
+            boost::shared_ptr< astrodynamics::gravitation::GravityFieldModel > gravityFieldModel )
+    {
+        gravityFieldModel_ = gravityFieldModel;
+    }
 
     //! Set atmosphere model.
     /*!
      * Sets the atmosphere model.
-     * \param pointerToAtmosphereModel Pointer to an atmosphere model.
+     * \param atmosphereModel Pointer to an atmosphere model.
      */
-    void setAtmosphereModel( AtmosphereModel* pointerToAtmosphereModel )
-    { pointerToAtmosphereModel_ = pointerToAtmosphereModel; }
-
-    //! Get gravitational parameter.
-    /*!
-     * Returns the gravitational parameter in meter^3 per second^2.
-     * \return Gravitational parameter.
-     */
-    const double getGravitationalParameter( ) const
-    { return pointerToGravityFieldModel_->getGravitationalParameter( ); }
-
-    //! Get state from ephemeris at given Julian date.
-    /*!
-     * Returns the state of the celestial body from the defined ephemeris at
-     * the given Julian date in Cartesian elements.
-     * \return Pointer to Cartesian elements.
-     */
-    CartesianElements* getStateFromEphemeris( double julianDate )
-    { return pointerToEphemeris_->getStateFromEphemeris( julianDate ); }
-
-    //! Get ephemeris.
-    /*!
-     * Gets the ephemeris.
-     * \return Pointer to ephemeris.
-     */
-    Ephemeris* getEphemeris( ) { return pointerToEphemeris_; }
+    void setAtmosphereModel( boost::shared_ptr< AtmosphereModel > atmosphereModel )
+    {
+        atmosphereModel_ = atmosphereModel;
+    }
 
     //! Get gravity field model.
     /*!
      * Returns the gravity field model.
-     * \return Gravity field model.
+     * \return Pointer to gravity field model.
      */
-    GravityFieldModel* getGravityFieldModel( ) { return pointerToGravityFieldModel_; }
+    boost::shared_ptr< astrodynamics::gravitation::GravityFieldModel > getGravityFieldModel( )
+    {
+        return gravityFieldModel_;
+    }
 
     //! Get atmosphere model.
     /*!
      * Returns the atmosphere model.
      * \return Pointer to the atmosphere model.
      */
-    AtmosphereModel* getAtmospheremodel( ) { return pointerToAtmosphereModel_; }
+    boost::shared_ptr< AtmosphereModel > getAtmospheremodel( ) { return atmosphereModel_; }
 
     //! Overload ostream to print class information.
     /*!
@@ -128,31 +99,28 @@ public:
     friend std::ostream& operator<<( std::ostream& stream, CelestialBody& celestialBody )
     {
         stream << "This is a CelestialBody object. The gravitational parameter is set to: "
-               << celestialBody.getGravitationalParameter( ) << std::endl;
+               << celestialBody.getGravityFieldModel( )->getGravitationalParameter( ) << std::endl;
         return stream;
     }
 
 protected:
 
-    //! Pointer to ephemeris.
-    /*!
-     * Pointer to ephemeris.
-     */
-    Ephemeris* pointerToEphemeris_;
-
     //! Pointer to gravity field model.
     /*!
      * Pointer to gravity field model.
      */
-    GravityFieldModel* pointerToGravityFieldModel_;
+    boost::shared_ptr< astrodynamics::gravitation::GravityFieldModel > gravityFieldModel_;
 
     //! Pointer to atmosphere model.
     /*!
      * Pointer to atmosphere model.
      */
-    AtmosphereModel* pointerToAtmosphereModel_;
+    boost::shared_ptr< AtmosphereModel > atmosphereModel_;
+
+private:
 };
 
+} // namespace bodies
 } // namespace tudat
 
 #endif // TUDAT_CELESTIAL_BODY_H

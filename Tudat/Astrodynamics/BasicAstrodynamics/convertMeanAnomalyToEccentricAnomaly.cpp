@@ -15,6 +15,7 @@
  *      111209    T. Secretin       Relaxed constraints on near-parabolic check.
  *      111221    T. Secretin       Added zero eccentricity case and check for negative
  *                                  eccentricities.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
@@ -27,7 +28,8 @@
 // 
 
 #include <iostream>
-#include <limits>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 
@@ -36,21 +38,17 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-
 //! Convert mean anomaly to eccentric anomaly.
 double ConvertMeanAnomalyToEccentricAnomaly::convert( )
 {
     // Declare eccentric anomaly.
-    double eccentricAnomaly_ = std::numeric_limits< double >::signaling_NaN( );
+    double eccentricAnomaly_ = TUDAT_NAN;
 
     // Set the class that contains the functions needed for Newton-Raphson.
     newtonRaphsonAdaptor_.setClass( this );
 
     // Set NewtonRaphson adaptor class.
-    pointerToNewtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptor_ );
+    newtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptor_ );
 
     // Check if orbit is circular.
     if ( eccentricity_ == 0.0 )
@@ -71,20 +69,21 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
                     computeFirstDerivativeKeplersFunctionForEllipticalOrbits_ );
 
         // Set initial guess of eccentric anomaly to the mean anomaly.
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( meanAnomaly_ );
+        newtonRaphson_->setInitialGuessOfRoot( meanAnomaly_ );
 
         // Execute Newton-Raphon method.
-        pointerToNewtonRaphson_->execute( );
+        newtonRaphson_->execute( );
 
         // Set eccentric anomaly based on result of Newton-Raphson root-finding algorithm.
-        eccentricAnomaly_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );
+        eccentricAnomaly_ = newtonRaphson_->getComputedRootOfFunction( );
     }
 
     // Check if orbit is near-parabolic, i.e. eccentricity >= 0.98.
     else
     {
-        cerr << "Orbit is near-parabolic and, at present conversion, between eccentric anomaly "
-             << "and mean anomaly is not possible for eccentricities larger than: 0.98" << endl;
+        std::cerr << "Orbit is near-parabolic and, at present conversion, between eccentric "
+                  << "anomaly and mean anomaly is not possible for eccentricities larger than: "
+                  << "0.98" << std::endl;
     }
 
     // Return eccentric anomaly.

@@ -15,6 +15,7 @@
  *                                  predefined_gravity_field_models namespace.
  *      110701    K. Kumar          Updated references; added central gravity fields for Mercury,
  *                                  Saturn, Neptune.
+ *      120327    D. Dirkx          Moved setting of predefined field to constructor.
  *
  *    References
  *      Solar System Dynamics, Jet Propulsion Laboratory. Astrodynamic
@@ -31,10 +32,10 @@
 
 namespace tudat
 {
-
-// Using declarations.
-using std::cerr;
-using std::endl;
+namespace astrodynamics
+{
+namespace gravitation
+{
 
 //! Set predefined central gravity field settings.
 void CentralGravityField::setPredefinedCentralGravityFieldSettings(
@@ -154,8 +155,10 @@ void CentralGravityField::setPredefinedCentralGravityFieldSettings(
     default:
 
         // Print cerr statement.
-        cerr << "Desired predefined central gravity field does not exist." << endl;
+        std::cerr << "Desired predefined central gravity field does not exist." << std::endl;
     };
 }
 
+} // namespace gravitation
+} // namespace astrodynamics
 } // namespace tudat

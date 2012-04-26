@@ -16,23 +16,42 @@
  *      110629    L. van der Ham    Added circular coplanar case.
  *      110803    L. van der Ham    Created base class and seperated approximatePlanetPositions
  *                                  from approximatePlanetPositionsCircularCoplanar.
+ *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
  *    References
- *      Standish, E.M. Keplerian Elements for Approximate Positions of the
- *          Major Planets, http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf,
- *          last accessed: 24 February, 2011.
+ *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
+ *          http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf, last accessed: 24 February, 2011.
  *
  */
 
 #include <iostream>
-#include <boost/format.hpp>
+
 #include <boost/exception/all.hpp>
+#include <boost/format.hpp>
 #include <boost/throw_exception.hpp>
+
 #include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositionsBase.h"
+#include "Tudat/Astrodynamics/Bodies/planet.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
+namespace ephemerides
+{
+
+//! Default constructor.
+ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( )
+    : julianDate_( -0.0 ),
+      meanLongitudeAtGivenJulianDate_( -0.0 ),
+      numberOfCenturiesPastJ2000_( -0.0 ),
+      ephemerisLineData_( )
+{
+    // Create predefined Sun.
+    bodies::Planet predefinedSun_;
+    predefinedSun_.setPredefinedPlanetSettings( bodies::Planet::sun );
+    solarGravitationalParameter_ = predefinedSun_.getGravityFieldModel(
+                )->getGravitationalParameter( );
+}
 
 //! Set planet.
 void ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData bodyWithEphemerisData )
@@ -96,7 +115,6 @@ void ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData bodyWith
         break;
 
     default:
-
         break;
     }
 }
@@ -166,7 +184,6 @@ void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
 //! Load in ephemeris data for planets.
 void ApproximatePlanetPositionsBase::reloadData( )
 {
-
     // Set  path to ephemeris file in file reader.
     std::string filePath_ = input_output::getTudatRootPath( ) +
             "External/EphemerisData/p_elem_t2.txt";
@@ -185,7 +202,7 @@ void ApproximatePlanetPositionsBase::reloadData( )
             << boost::errinfo_api_function( "std::ifstream::open" ) );
     }
 
-    // Read the file into a container
+    // Read the file into a container.
     for ( int line = 1; line < 53; line++ )
     {
         std::string lineData;
@@ -197,9 +214,9 @@ void ApproximatePlanetPositionsBase::reloadData( )
         }
     }
 
-    // Close file
+    // Close file.
     ephemerisFile_.close( );
-
 }
 
-} // namespace tudat.
+} // namespace ephemerides
+} // namespace tudat

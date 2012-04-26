@@ -16,6 +16,8 @@
  *      110206    J. Melman         Minor formatting issues.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor,
+ *                                  removed raw pointer arrays
  *
  *    References
  *      An example of a heritage code which uses such a mesh is found in:
@@ -23,26 +25,25 @@
  *          II-Program Formulation, Douglas Aircraft Company, AFFDL-TR-73-159,
  *          Volume II.
  *
+ *    The numberOfLines_ and numberOfPoints_ member variables denote the number of mesh points.
+ *    The number of panels in the mesh will be numberOfLines_ - 1 by numberOfPoints_ - 1.
+ *
  */
-
-// Temporary notes (move to class/function doxygen):
-// This class uses pointers to pointers to denote two-dimensional arrays
-// for heritage reasons, instead of the more modern C++ vector or map
-// types.
-// 
-// The numberOfLines_ and numberOfPoints_ member variables denote the
-// number of mesh points. The number of panels in the mesh will be
-// numberOfLines_ - 1 by numberOfPoints_ -1.
-// 
 
 #ifndef TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H
 #define TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H
 
+#include <boost/multi_array.hpp>
+
 #include <Eigen/Core>
+
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
-#include "boost/multi_array.hpp"
 
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 //! Class for quadrilateral meshed surface geometry.
@@ -57,20 +58,18 @@ public:
     /*!
      * Default constructor.
      */
-    QuadrilateralMeshedSurfaceGeometry( ) : numberOfLines_( -0 ), numberOfPoints_( -0 ),
-        reversalOperator_( 1 ), totalArea_( -0.0 ) { }
+    QuadrilateralMeshedSurfaceGeometry( )
+        : numberOfLines_( -0 ),
+          numberOfPoints_( -0 ),
+          reversalOperator_( 1 ),
+          totalArea_( -0.0 )
+    { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
     virtual ~QuadrilateralMeshedSurfaceGeometry( ) { }
-
-    //! Calculate panel characteristics.
-    /*!
-     * Calculates the normal, centroid and area of panels in mesh.
-     */
-    void performPanelCalculations( );
 
     //! Get surface point.
     /*!
@@ -79,8 +78,10 @@ public:
      * \param pointIndex Point from line to retrieve.
      * \return Surface point.
      */
-    Eigen::Vector3d getMeshPoint( int lineIndex, int pointIndex )
-    { return meshPoints_[ lineIndex ][ pointIndex ]; }
+    Eigen::Vector3d getMeshPoint( const int lineIndex, const int pointIndex )
+    {
+        return meshPoints_[ lineIndex ][ pointIndex ];
+    }
 
     //! Get panel area.
     /*!
@@ -89,8 +90,10 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel area
      */
-    double getPanelArea( int lineIndex, int pointIndex )
-    { return panelAreas_[ lineIndex ][ pointIndex ]; }
+    double getPanelArea( const int lineIndex, const int pointIndex )
+    {
+        return panelAreas_[ lineIndex ][ pointIndex ];
+    }
 
     //! Get panel centroid.
     /*!
@@ -99,8 +102,10 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Panel centroid.
      */
-    Eigen::Vector3d getPanelCentroid( int lineIndex, int pointIndex )
-    { return panelCentroids_[ lineIndex ][ pointIndex ]; }
+    Eigen::Vector3d getPanelCentroid( const int lineIndex, const int pointIndex )
+    {
+        return panelCentroids_[ lineIndex ][ pointIndex ];
+    }
 
     //! Get outward panel surface normal.
     /*!
@@ -109,8 +114,10 @@ public:
      * \param pointIndex Point from line from which to retrieve.
      * \return Outward panel surface normal.
      */
-    Eigen::Vector3d getPanelSurfaceNormal( int lineIndex, int pointIndex )
-    { return panelSurfaceNormals_[ lineIndex ][ pointIndex ]; }
+    Eigen::Vector3d getPanelSurfaceNormal( const int lineIndex, const int pointIndex )
+    {
+        return panelSurfaceNormals_[ lineIndex ][ pointIndex ];
+    }
 
     //! Get number of lines.
     /*!
@@ -139,7 +146,7 @@ public:
      * \param isMeshInverted Boolean to denote whether the mesh panels are to
      * be inverted.
      */
-    void setReversalOperator( bool isMeshInverted );
+    void setReversalOperator( const bool isMeshInverted );
 
     //! Get boolean denoting if the mesh is inverted.
     /*!
@@ -162,6 +169,12 @@ public:
                                       quadrilateralMeshedSurfaceGeometry );
 
 protected:
+
+     //! Calculate panel characteristics.
+     /*!
+      * Calculates the normal, centroid and area of panels in mesh.
+      */
+     void performPanelCalculations( );
 
     //! Number of lines in mesh.
     /*!
@@ -211,8 +224,12 @@ protected:
      * Total mesh surface area, contains the sum of all areas in panelAreas_.
      */
     double totalArea_;
+
+private:
 };
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_QUADRILATERAL_MESHED_SURFACE_GEOMETRY_H

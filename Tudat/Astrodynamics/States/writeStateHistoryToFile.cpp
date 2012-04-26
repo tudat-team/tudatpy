@@ -27,6 +27,7 @@
  */
 
 #include <fstream>
+
 #include "Tudat/Astrodynamics/States/writeStateHistoryToFile.h"
 
 namespace tudat
@@ -35,12 +36,14 @@ namespace output
 {
 
 //! Write propagation history to file.
-void writeStateHistoryToFile(
-    std::map< double, State >& propagationHistory, const std::string& outputFilename )
+void writeStateHistoryToFile( std::map< double, astrodynamics::states::State >& propagationHistory,
+                              const std::string& outputFilename )
 {
+    using astrodynamics::states::State;
+
+    // Declare output file stream.
     std::ofstream outputFile_;
 
-    // Declare local variables.
     // Declare iterator for propagation history.
     std::map< double, State >::iterator iteratorPropagationHistory_;
 

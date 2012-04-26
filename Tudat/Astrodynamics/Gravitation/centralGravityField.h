@@ -13,6 +13,7 @@
  *      YYMMDD    Author            Comment
  *      110623    K. Kumar          File created.
  *      110701    K. Kumar          Added Mercury, Saturn, Neptune.
+ *      120327    D. Dirkx          Moved setting of predefined field to constructor.
  *
  *    References
  *
@@ -24,6 +25,10 @@
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace gravitation
 {
 
 //! Central gravity field class.
@@ -39,7 +44,23 @@ public:
      * Bodies with predefined central gravity fields.
      */
     enum BodiesWithPredefinedCentralGravityFields
-    { sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune };
+    {
+        sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune
+    };
+
+    //! Default constructor.
+    /*!
+     * Default constructor.
+     */
+    CentralGravityField( BodiesWithPredefinedCentralGravityFields
+                         bodyWithPredefinedCentralGravityField )
+    {
+        setPredefinedCentralGravityFieldSettings( bodyWithPredefinedCentralGravityField );
+    }
+
+protected:
+
+private:
 
     //! Set predefined central gravity field settings.
     /*!
@@ -49,12 +70,10 @@ public:
      */
     void setPredefinedCentralGravityFieldSettings(
         BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField );
-
-protected:
-
-private:
 };
 
+} // namespace gravitation
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_CENTRAL_GRAVITY_FIELD_H

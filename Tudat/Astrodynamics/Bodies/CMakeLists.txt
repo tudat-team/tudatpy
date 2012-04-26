@@ -23,8 +23,8 @@ set(EPHEMERISDIR "${BODIESDIR}/Ephemeris")
 # Set the source files.
 set(BODIES_SOURCES
   "${SRCROOT}${BODIESDIR}/planet.cpp"
-  "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositions.cpp"
   "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositionsBase.cpp"
+  "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositions.cpp"
   "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositionsCircularCoplanar.cpp"
 )
 
@@ -35,8 +35,8 @@ set(BODIES_HEADERS
   "${SRCROOT}${BODIESDIR}/planet.h"
   "${SRCROOT}${BODIESDIR}/vehicle.h"
   "${SRCROOT}${BODIESDIR}/vehicleExternalModel.h"
-  "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositions.h"
   "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositionsBase.h"
+  "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositions.h"
   "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositionsCircularCoplanar.h"
   "${SRCROOT}${EPHEMERISDIR}/approximatePlanetPositionsDataContainer.h"
   "${SRCROOT}${EPHEMERISDIR}/ephemeris.h"
@@ -50,4 +50,4 @@ setup_headers("${BODIES_HEADERS}" "${BODIESDIR}")
 # Add unit tests.
 add_executable(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERISDIR}/UnitTests/unitTestApproximatePlanetPositions.cpp")
 setup_custom_test_program(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERISDIR}")
-target_link_libraries(test_ApproximatePlanetPositions tudat_states tudat_bodies tudat_gravitation tudat_root_finding_methods tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_ApproximatePlanetPositions tudat_states tudat_bodies tudat_gravitation tudat_basic_astrodynamics tudat_input_output tudat_root_finding_methods  ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

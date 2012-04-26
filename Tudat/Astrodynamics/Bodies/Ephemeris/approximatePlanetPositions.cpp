@@ -15,6 +15,7 @@
  *      110224    K. Kumar          Renamed class and file.
  *      120217    K. Kumar          Updated computeModuloForSignedValues() to computeModulo()
  *                                  from Tudat Core.
+ *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the
@@ -24,25 +25,38 @@
  */
 
 #include <cmath>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositions.h"
-#include "Tudat/Astrodynamics/Bodies/planet.h"
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-using std::pow;
-using std::sin;
-using std::cos;
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+
+#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositions.h"
 
 namespace tudat
 {
+namespace ephemerides
+{
 
 //! Get state from ephemeris.
-CartesianElements* ApproximatePlanetPositions::
-        getStateFromEphemeris( double julianDate )
-{  
+Eigen::VectorXd ApproximatePlanetPositions::getCartesianStateFromEphemeris(
+        const double julianDate )
+{
+    // Convert planet elements in Keplerian elements to Cartesian elements.
+    return orbital_element_conversions::convertKeplerianToCartesianElements(
+                getKeplerianStateFromEphemeris( julianDate ),
+                solarGravitationalParameter_ );
+}
+
+//! Get keplerian state from ephemeris.
+Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
+        const double julianDate )
+{
+    using std::pow;
+    using std::sin;
+    using std::cos;
+
     // Set Julian date.
     julianDate_ = julianDate;
 
@@ -67,8 +81,7 @@ CartesianElements* ApproximatePlanetPositions::
                              + ( approximatePlanetPositionsDataContainer_
                                  .rateOfChangeOfInclination_ * numberOfCenturiesPastJ2000_ ) );
 
-    // Compute and set longitude of ascending node of planet at given
-    // Julian date.
+    // Compute and set longitude of ascending node of planet at given Julian date.
     planetKeplerianElementsAtGivenJulianDate_
             .setLongitudeOfAscendingNode(
                 approximatePlanetPositionsDataContainer_.longitudeOfAscendingNode_
@@ -113,13 +126,17 @@ CartesianElements* ApproximatePlanetPositions::
         meanAnomalyAtGivenJulianDate_ -= 360.0;
     }
 
-    // Declare for mean anomaly to eccentric anomaly conversion.
+    // Set Newton-Raphson method to use for mean anomaly to eccentric anomaly conversion.
+    boost::shared_ptr< NewtonRaphson > newtonRaphson_ = boost::make_shared< NewtonRaphson >( );
+
+    // Set eccentricty and mean anomaly for mean anomaly to eccentric anomaly conversion.
     orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
             convertMeanAnomalyToEccentricAnomaly_(
                 planetKeplerianElementsAtGivenJulianDate_.getEccentricity( ),
                 unit_conversions::convertDegreesToRadians( meanAnomalyAtGivenJulianDate_ ),
-                &newtonRaphson_ );
+                newtonRaphson_ );
 
+    // Convert mean anomaly to eccentric anomaly.
     eccentricAnomalyAtGivenJulianDate_ = convertMeanAnomalyToEccentricAnomaly_.convert( );
 
     // Convert eccentric anomaly to true anomaly and set in planet elements.
@@ -153,18 +170,8 @@ CartesianElements* ApproximatePlanetPositions::
                 unit_conversions::convertDegreesToRadians(
                     planetKeplerianElementsAtGivenJulianDate_.getArgumentOfPeriapsis( ) ) );
 
-    // Create predefined Sun.
-    Planet predefinedSun_;
-    predefinedSun_.setPredefinedPlanetSettings( Planet::sun );
-
-    // Convert planet Elements in Keplerian elements to Cartesian elements.
-    planetCartesianElementsAtGivenJulianDate_.state
-            = orbital_element_conversions::convertKeplerianToCartesianElements(
-                planetKeplerianElementsAtGivenJulianDate_.state,
-                predefinedSun_.getGravitationalParameter( ) );
-
-    // Return Cartesian elements of planet at given Julian date.
-    return &planetCartesianElementsAtGivenJulianDate_;
+    return planetKeplerianElementsAtGivenJulianDate_.state;
 }
 
+} // namespace ephemerides
 } // namespace tudat

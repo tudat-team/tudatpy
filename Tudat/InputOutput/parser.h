@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -13,10 +13,13 @@
  *      YYMMDD    Author            Comment
  *      111103    S. Billemont      First creation of code.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *
+ *    References
+ *
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef TUDAT_PARSER_H
+#define TUDAT_PARSER_H
 
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 
@@ -41,8 +44,8 @@ namespace input_output
  */
 class Parser
 {
-
 public:
+
     //! Default constructor, interface therefore empty.
     Parser( ) { }
 
@@ -63,8 +66,12 @@ public:
      */
     virtual parsed_data_vector_utilities::ParsedDataVectorPtr parse( std::istream& stream ) = 0;
 
+protected:
+
+private:
 };
 
 } // namespace input_output
 } // namespace tudat
-#endif
+
+#endif // TUDAT_PARSER_H

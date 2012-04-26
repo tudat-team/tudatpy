@@ -23,32 +23,28 @@
  *      110212    J. Melman         Made delta-V private. getDeltaV changed into computeDeltaV.
  *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element
  *                                  of GeometricShapes.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120417    T. Secretin       Moved set functions to constructor.
  *
  *    References
  *
+ *    Gravity assist and swing-by are different words for the same thing. The delta-V that is
+ *    computed for a powered swing-by has not been proven to be the optimum (lowest) to achieve the
+ *    desired geometry of incoming and outgoing hyperbolic legs. Some literature research will have
+ *    to be done to look at the alternatives.
+ *
+ *    For the moment in this code the smallestPeriapsisDistanceFactor is given as external input by
+ *    the user, but in the future it should be part of the CelestialBody object.
+ *
+ *    Also, the velocity of the central body will need to be computed by the ephemeris code.
+ *    At the moment the shape of the central body is a sphere segment, and the radius of the planet
+ *    is set externally by the user. In the future it should be possible to get the radius of each
+ *    planet directly from the CelestialBody class, by a link to GeometricShape class.
+ *
+ *    At the moment, this code uses a Newton-Raphson root finder by default. In the future it
+ *    should be possible to apply for example the Halley method by using polymorphism.
+ *
  */
-
-// Temporary notes (move to class/function doxygen):
-// Gravity assist and swing-by are different words for the same thing.
-// The delta-V that is computed for a powered swing-by has not been
-// proven to be the optimum (lowest) to achieve the desired geometry
-// of incoming and outgoing hyperbolic legs.
-// For the moment in this code the smallestPeriapsisDistanceFactor
-// is given as external input by the user, but in the future it should
-// be part of the CelestialBody object.
-// Also, the velocity of the central body will need to be computed by
-// the ephemeris code.
-// At the moment the shape of the central body is a sphere segment,
-// and the radius of the planet is set externally by the user.
-// In the future it should be possible to get the radius of each planet
-// directly from the CelestialBody class, by a link to GeometricShape
-// class.
-// At the moment, this code uses a Newton-Raphson root finder by default.
-// In the future it should be possible to apply, for example, the Halley
-// method by using polymorphism.
-// 
-// 
 
 #ifndef TUDAT_GRAVITY_ASSIST_H
 #define TUDAT_GRAVITY_ASSIST_H
@@ -80,22 +76,37 @@ class GravityAssist
 {
 public:
 
+    //! Typedef for shared pointer to gravity field model.
+    /*!
+     * Typedef for shared pointer to gravity field model.
+     */
+    typedef boost::shared_ptr< astrodynamics::gravitation::GravityFieldModel >
+    GravityFieldModelPointer;
+
+    //! Typedef for shared pointer to Newton-Raphson method.
+    /*!
+     * Typedef for shared pointer to Newton-Raphson method.
+     */
+    typedef boost::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    GravityAssist( GravityFieldModel* gravityField, const double smallestPeriapsisDistance,
-                   const Eigen::Vector3d centralBodyVelocity,
-                   CartesianVelocityElements* pointerToIncomingVelocity,
-                   CartesianVelocityElements* pointerToOutgoingVelocity,
-                   NewtonRaphson* pointerToNewtonRaphson )
+    GravityAssist( GravityFieldModelPointer gravityField,
+                   const double smallestPeriapsisDistance,
+                   const Eigen::Vector3d& centralBodyVelocity,
+                   const Eigen::Vector3d& incomingVelocity,
+                   const Eigen::Vector3d& outgoingVelocity,
+                   boost::shared_ptr< NewtonRaphson > newtonRaphson )
         : centralBodyGravityfield_( gravityField ),
-          centralBodyVelocity_( centralBodyVelocity ),
           smallestPeriapsisDistance_( smallestPeriapsisDistance ),
-          pointerToIncomingVelocity_( pointerToIncomingVelocity ),
-          pointerToOutgoingVelocity_( pointerToOutgoingVelocity ),
-          incomingHyperbolicExcessVelocity_ ( Eigen::Vector3d::Zero( ) ),
-          outgoingHyperbolicExcessVelocity_ ( Eigen::Vector3d::Zero( ) ),
+          centralBodyVelocity_( centralBodyVelocity ),
+          incomingVelocity_( incomingVelocity ),
+          outgoingVelocity_( outgoingVelocity ),
+          incomingHyperbolicExcessVelocity_( Eigen::Vector3d::Zero( ) ),
+          outgoingHyperbolicExcessVelocity_( Eigen::Vector3d::Zero( ) ),
+          newtonRaphson_( newtonRaphson ),
           deltaV_( TUDAT_NAN ),
           bendingAngle_( TUDAT_NAN ),
           incomingEccentricity_( TUDAT_NAN ),
@@ -103,8 +114,7 @@ public:
           incomingSemiMajorAxis_( TUDAT_NAN ),
           outgoingSemiMajorAxis_( TUDAT_NAN ),
           bendingEffectDeltaV_( TUDAT_NAN ),
-          velocityEffectDeltaV_( TUDAT_NAN ),
-          pointerToNewtonRaphson_( pointerToNewtonRaphson )
+          velocityEffectDeltaV_( TUDAT_NAN )
     { }
 
     //! Compute the delta-V of a powered swing-by.
@@ -131,13 +141,7 @@ private:
     /*!
      * The gravity field in which the swing-by is performed.
      */
-    GravityFieldModel* centralBodyGravityfield_;
-
-    //! Velocity of the swing-by central body.
-    /*!
-     * Velocity vector of the central body involved in the swing-by.
-     */
-    Eigen::Vector3d centralBodyVelocity_;
+    GravityFieldModelPointer centralBodyGravityfield_;
 
     //! Smallest periapsisDistance.
     /*!
@@ -146,17 +150,23 @@ private:
      */
     double smallestPeriapsisDistance_;
 
-    //! Pointer to CartesianVelocityElements object.
+    //! Velocity of the swing-by central body.
     /*!
-     * Pointer to CartesianVelocityElements object.
+     * Velocity vector of the central body involved in the swing-by.
      */
-    CartesianVelocityElements* pointerToIncomingVelocity_;
+    Eigen::Vector3d centralBodyVelocity_;
 
-    //! Pointer to CartesianVelocityElements object.
+    //! Incoming velocity of object.
     /*!
-     * Pointer to CartesianVelocityElements object.
+     * Incoming velocity of object.
      */
-    CartesianVelocityElements* pointerToOutgoingVelocity_;
+    Eigen::Vector3d incomingVelocity_;
+
+    //! Outgoing velocity of object.
+    /*!
+     * Outgoing velocity of object.
+     */
+    Eigen::Vector3d outgoingVelocity_;
 
     //! Hyperbolic excess velocity of the incoming leg.
     /*!
@@ -169,6 +179,12 @@ private:
      * Hyperbolic excess velocity of the outgoing leg.
      */
     Eigen::Vector3d outgoingHyperbolicExcessVelocity_;
+
+    //! Shared pointer to object of NewtonRaphson class.
+    /*!
+     * Shared pointer to object of NewtonRaphson class.
+     */
+    NewtonRaphsonPointer newtonRaphson_;
 
     //! Delta-V of powered gravity assist.
     /*!
@@ -219,12 +235,6 @@ private:
      */
     double velocityEffectDeltaV_;
 
-    //! Pointer to object of NewtonRaphson class.
-    /*!
-     * Pointer to object of NewtonRaphson class.
-     */
-    NewtonRaphson* pointerToNewtonRaphson_;
-
     //! Pointer to adaptor object of NewtonRaphsonAdaptor class.
     /*!
      * Pointer to adaptor object of NewtonRaphsonAdaptor class. The template
@@ -242,11 +252,9 @@ private:
 
     //! Define first derivative of root-finder function.
     /*!
-     * Defines first derivative of root-finder function for the velocity-effect
-     * delta-V.
+     * Defines first derivative of root-finder function for the velocity-effect delta-V.
      * \param incomingEccentricity Incoming eccentricity.
-     * \return Value of first derivative of root-finder function at defined
-     *          eccentricity.
+     * \return Value of first derivative of root-finder function at defined eccentricity.
      */
     double firstDerivativeVelocityEffectFunction( double& incomingEccentricity );
 };

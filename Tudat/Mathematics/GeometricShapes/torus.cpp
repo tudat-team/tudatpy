@@ -13,38 +13,52 @@
  *      YYMMDD    Author            Comment
  *      102511    D. Dirkx          First version of file.
  *      110120    D. Dirkx          Finalized for code check.
- *      110208    K. Kumar          Updated file header; corrected Doxygen comments; minor changes.
+ *      110208    K. Kumar          Updated file header; correct Doxygen comments; minor changes
+ *                                  to functions.
  *      110209    D. Dirkx          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// The getSurfacePoint currently uses a VectorXd as a return type,
-// this could be changed to a CartesianPositionElements type in the
-// future for consistency with the rest of the code.
-// 
-
 #include <iostream>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Mathematics/GeometricShapes/torus.h"
 
 namespace tudat
 {
+namespace mathematics
+{
+namespace geometric_shapes
+{
 
-// Using declarations.
-using tudat::mathematics::PI;
 using std::cerr;
 using std::endl;
 using std::sin;
 using std::cos;
+using mathematics::PI;
+
+Torus::Torus( const double majorRadius, const double minorRadius,
+              const double minimumMajorCircumferentialAngle,
+              const double maximumMajorCircumferentialAngle,
+              const double minimumMinorCircumferentialAngle,
+              const double maximumMinorCircumferentialAngle )
+{
+    minorRadius_ = minorRadius;
+    majorRadius_ = majorRadius;
+            setMinimumIndependentVariable( 1, minimumMajorCircumferentialAngle );
+            setMaximumIndependentVariable( 1, maximumMajorCircumferentialAngle );
+            setMinimumIndependentVariable( 2, minimumMinorCircumferentialAngle );
+            setMaximumIndependentVariable( 2, maximumMinorCircumferentialAngle );
+}
 
 //! Get surface point on torus.
-Eigen::VectorXd Torus::getSurfacePoint( double majorCircumferentialAngle,
-                                        double minorCircumferentialAngle )
+Eigen::VectorXd Torus::getSurfacePoint( const double majorCircumferentialAngle,
+                                        const double minorCircumferentialAngle )
 {
     // Form cartesian position vector from paranmetrization.
     cartesianPositionVector_( 0 )
@@ -63,10 +77,10 @@ Eigen::VectorXd Torus::getSurfacePoint( double majorCircumferentialAngle,
 }
 
 //! Get surface derivative on torus.
-Eigen::VectorXd Torus::getSurfaceDerivative( double majorCircumferentialAngle,
-                                             double minorCircumferentialAngle,
-                                             int powerOfMajorCircumferentialAngleDerivative,
-                                             int powerOfMinorCircumferentialAngleDerivative )
+Eigen::VectorXd Torus::getSurfaceDerivative( const double majorCircumferentialAngle,
+                                             const double minorCircumferentialAngle,
+                                             const int powerOfMajorCircumferentialAngleDerivative,
+                                             const int powerOfMinorCircumferentialAngleDerivative )
 {
     // Declare and set size of derivative vector.
     Eigen::VectorXd derivative_ = Eigen::VectorXd( 3 );
@@ -103,7 +117,8 @@ Eigen::VectorXd Torus::getSurfaceDerivative( double majorCircumferentialAngle,
         // only dependent on sines and cosines, only the "modulo 4"th
         // derivatives need to be determined. Derivatives are determined
         // from the form of the spherical coordinates, see
-        // mathematics::convertSphericalToCartesian.
+        // mathematics::coordinateConversions::convertSphericalToCartesian
+        // from the Tudat core.
         switch( powerOfMajorCircumferentialAngleDerivative % 4 )
         {
         case( 0 ):
@@ -201,7 +216,7 @@ Eigen::VectorXd Torus::getSurfaceDerivative( double majorCircumferentialAngle,
 }
 
 //! Get parameter of torus.
-double Torus::getParameter( int index )
+double Torus::getParameter( const int index )
 {
     // Set parameter based on index.
     switch( index )
@@ -226,28 +241,6 @@ double Torus::getParameter( int index )
     return parameter_;
 }
 
-//! Set parameter of torus.
-void Torus::setParameter( int index, double parameter)
-{
-    // Check which parameter is to be set and set value.
-    switch( index )
-    {
-    case 0:
-
-        majorRadius_ = parameter;
-        break;
-
-    case 1:
-
-        minorRadius_ = parameter;
-        break;
-
-    default:
-
-        cerr << "Parameter " << index << " does not exist in Torus.";
-        break;
-    }
-}
 
 //! Overload ostream to print class information.
 std::ostream &operator<<( std::ostream &stream, Torus& torus )
@@ -258,7 +251,7 @@ std::ostream &operator<<( std::ostream &stream, Torus& torus )
            << torus.getMaximumMinorCircumferentialAngle( ) * 180.0 / PI << " degrees" << endl;
     stream << "The major angle runs from: "
            << torus.getMinimumMajorCircumferentialAngle( ) * 180.0 / PI << " degrees to "
-           << torus.getMaximumMajorCircumferentialAngle( ) * 180/PI << " degrees" << endl;
+           << torus.getMaximumMajorCircumferentialAngle( ) * 180.0 / PI << " degrees" << endl;
     stream << "The major radius is: " << torus.getMajorRadius( ) << endl;
     stream << "The minor ( tube ) radius is: " << torus.getMinorRadius( ) << endl;
 
@@ -266,4 +259,6 @@ std::ostream &operator<<( std::ostream &stream, Torus& torus )
     return stream;
 }
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat

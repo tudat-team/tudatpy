@@ -13,6 +13,7 @@
  *      YYMMDD    Author            Comment
  *      110224    E. Iorfida        First creation of code.
  *      110406    K. Kumar          Minor modifications.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120417    T. Secretin       Moved set functions to constructor.
  *
  *    References
@@ -21,6 +22,8 @@
 
 #ifndef TUDAT_DEEP_SPACE_MANEUVER_H
 #define TUDAT_DEEP_SPACE_MANEUVER_H
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/States/state.h"
 
@@ -39,14 +42,22 @@ class DeepSpaceManeuver
 {
 public:
 
+    //! Typedef of shared pointer to state.
+    /*!
+     * Typedef of shared pointer to state.
+     */
+    typedef boost::shared_ptr< states::State > StatePointer;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    DeepSpaceManeuver( const double deltaV, const double timeOfDeepSpaceManeuver,
-                       State* pointerToState )
-        : deltaV_( deltaV ), timeOfDeepSpaceManeuver_( timeOfDeepSpaceManeuver ),
-          pointerToState_( pointerToState )
+    DeepSpaceManeuver( const double deltaV,
+                       const double timeOfDeepSpaceManeuver,
+                       StatePointer state )
+        : deltaV_( deltaV ),
+          timeOfDeepSpaceManeuver_( timeOfDeepSpaceManeuver ),
+          state_( state )
     { }
 
     //! Get time of deep space maneuver event.
@@ -61,7 +72,7 @@ public:
      * Returns a pointer to state at deep space maneuver event.
      * \return Pointer to state at deep space maneuver event.
      */
-    State* getState( ) { return pointerToState_; }
+    StatePointer getState( ) { return state_; }
 
     //! Get delta-V of deep space maneuver event.
     /*!
@@ -86,11 +97,11 @@ private:
      */
     double timeOfDeepSpaceManeuver_;
 
-    //! Pointer to state at deep space maneuver event.
+    //! Shared pointer to state at deep space maneuver event.
     /*!
-     * Pointer to state at deep space maneuver event.
+     * Shared pointer to state at deep space maneuver event.
      */
-    State* pointerToState_;
+    StatePointer state_;
 };
 
 } // astrodynamics

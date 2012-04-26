@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -26,13 +26,19 @@
  *      120209    K. Kumar          Changed class into free functions.
  *      120316    D. Dirkx          Added old GravitationalForceModel class, with note that this
  *                                  will be removed shortly.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  */
 
 #include <cmath>
+
+#include <TudatCore/Basics/utilityMacros.h>
+
 #include "Tudat/Astrodynamics/Gravitation/gravitationalAccelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/gravitationalForceModel.h"
 
 namespace tudat
+{
+namespace astrodynamics
 {
 namespace force_models
 {
@@ -44,7 +50,7 @@ Eigen::Vector3d computeGravitationalForce(
         const double massOfBodyExertingForce, const Eigen::Vector3d& positionOfBodyExertingForce )
 {
     return massOfBodySubjectToForce *
-            tudat::acceleration_models::computeGravitationalAcceleration(
+            acceleration_models::computeGravitationalAcceleration(
                 universalGravitationalParameter, positionOfBodySubjectToForce,
                 massOfBodyExertingForce, positionOfBodyExertingForce );
 }
@@ -56,19 +62,20 @@ Eigen::Vector3d computeGravitationalForce(
         const Eigen::Vector3d& positionOfBodyExertingForce )
 {
     return massOfBodySubjectToForce *
-            tudat::acceleration_models::computeGravitationalAcceleration(
+            acceleration_models::computeGravitationalAcceleration(
                 positionOfBodySubjectToForce, gravitationalParameterOfBodyExertingForce,
                 positionOfBodyExertingForce );
 }
 
 //! Compute force due to gravity field.
-void GravitationalForceModel::computeForce( State* pointerToState, double time = 0.0 )
+void GravitationalForceModel::computeForce( StatePointer state, const double time )
 {
-    CartesianPositionElements cartesianPositionElements_;
-    cartesianPositionElements_.state = pointerToState->state.segment( 0, 3 );
-    force_ = pointerToGravityFieldModel_->getGradientOfPotential( &cartesianPositionElements_ )
-            * pointerToBodySubjectToForce_->getMass( );
+    TUDAT_UNUSED_PARAMETER( time );
+
+    force_ = gravityFieldModel_->getGradientOfPotential( state->state.segment( 0, 3 ) )
+            * bodySubjectToForce_->getMass( );
 }
 
 } // namespace force_models
+} // namespace astrodynamics
 } // namespace tudat

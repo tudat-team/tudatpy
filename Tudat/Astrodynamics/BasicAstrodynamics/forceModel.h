@@ -21,6 +21,7 @@
  *      110707    F.M. Engelen      Replaced code with new code.
  *      110809    K. Kumar          Split code into base class and derived class
  *                                  (SixDegreeOfFreedomForceModel).
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
@@ -29,11 +30,18 @@
 #ifndef TUDAT_FORCE_MODEL_H
 #define TUDAT_FORCE_MODEL_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <Eigen/Core>
+
 #include "Tudat/Astrodynamics/States/state.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/generalizedForceModel.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace force_models
 {
 
 //! Force model class.
@@ -43,6 +51,12 @@ namespace tudat
 class ForceModel : public GeneralizedForceModel< Eigen::Vector3d, 3 >
 {
 public:
+
+    //! Typedef for shared pointer to state.
+    /*!
+     * Typedef for shared pointer to state.
+     */
+    typedef boost::shared_ptr< states::State > StatePointer;
 
     //! Default constructor.
     /*!
@@ -73,10 +87,10 @@ public:
     //! Compute force.
     /*!
      * Compute the force.
-     * \param pointerToState Pointer to an object of the State class.
+     * \param state Pointer to an object of the State class.
      * \param time Time (or other independent variable).
      */
-    virtual void computeForce( State* pointerToState, double time ) = 0;
+    virtual void computeForce( StatePointer state, const double time ) = 0;
 
 protected:
 
@@ -87,9 +101,10 @@ protected:
     Eigen::Vector3d force_;
 
 private:
-
 };
 
+} // namespace force_models
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_FORCE_MODEL_H

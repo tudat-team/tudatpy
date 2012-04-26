@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalForce )
 
         // Compute gravitational force acting on boy [N].
         Eigen::Vector3d gravitationalForceExertedOnBoy
-                = tudat::force_models::computeGravitationalForce(
+                = tudat::astrodynamics::force_models::computeGravitationalForce(
                     massOfBoy, positionOfBoy,
                     gravitationalParameterOfEarth, positionOfEarth );
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalForce )
 
         // Compute gravitational force acting on body1 [N].
         Eigen::Vector3d gravitationalForceExertedOnBody1
-                = tudat::force_models::computeGravitationalForce(
+                = tudat::astrodynamics::force_models::computeGravitationalForce(
                     universalGravitationalConstant, massOfBody1,
                     positionOfBody1, massOfBody2, positionOfBody2 );
 

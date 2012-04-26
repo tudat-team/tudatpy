@@ -23,21 +23,24 @@
  *
  *    References
  *
+ *    The variable state is public as opposed to being protected and accessed by set and get
+ *    functions to simplify the use of Eigen functions for vectors in the rest of the code,
+ *    e.g. setZero( ), segment( ).
+ *
  */
-
-// Temporary notes (move to class/function doxygen):
-// The variable state is public as opposed to being protected and accessed
-// by set and get functions to simplify the use of Eigen functions for
-// vectors in the rest of the code, e.g. setZero( ), segment( ).
-// 
 
 #ifndef TUDAT_STATE_H
 #define TUDAT_STATE_H
 
 #include <Eigen/Core>
+
 #include <iostream>
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace states
 {
 
 //! State class.
@@ -89,13 +92,18 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator<<( std::ostream& stream, State& stateObject )
-    { stream << "The state is set to: " << stateObject.state << std::endl; return stream; }
+    {
+        stream << "The state is set to: " << stateObject.state << std::endl;
+        return stream;
+    }
 
 protected:
 
 private:
 };
 
+} // namespace states
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_STATE_H

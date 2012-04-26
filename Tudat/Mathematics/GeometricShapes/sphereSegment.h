@@ -19,8 +19,10 @@
  *      110208    K. Kumar          Updated file header; Doxygen comments corrected; minor changes
  *                                  to functions.
  *      110209    D. Dirkx          Minor changes.
+ *      110209    K. Kumar          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *
  *    References
  *
@@ -30,17 +32,24 @@
 #define TUDAT_SPHERE_SEGMENT_H
 
 #include <Eigen/Core>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 //! Sphere segment class.
 /*!
  * Class that defines the sphere ( segment ) shape. Parametrization is based
  * on spherical coordinates, with azimuth and zenith angles as 1st and 2nd
- * variables ( see mathematics::convertSphericalToCartesian ). In addition to
- * the minimum and maximum of these two variables, the sphere radius is
+ * variables ( see mathematics::convertSphericalToCartesian from the Tudat core ).
+ * In addition to the minimum and maximum of these two variables, the sphere radius is
  * required for defining the sphere.
  * Note that by using the scalingMatrix_ member variable, this class can also
  * represent ellipsoids.
@@ -51,9 +60,18 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     *  Default constructor. Default angle values are set to a full sphere.
+     * \param radius Radius of sphere.
+     * \param minimumAzimuthAngle Minimum of azimuth angle.
+     * \param maximumAzimuthAngle Maximum of azimuth angle.
+     * \param minimumZenithAngle Minimum of zenith angle.
+     * \param maximumZenithAngle Maximum of zenith angle.
      */
-    SphereSegment( ) : radius_( -0.0 )  { }
+    SphereSegment( const double radius,
+                   const double minimumAzimuthAngle = 0.0,
+                   const double maximumAzimuthAngle = 2.0 * mathematics::PI,
+                   const double minimumZenithAngle = 0.0,
+                   const double maximumZenithAngle = mathematics::PI );
 
     //! Get surface point on sphere segment.
     /*!
@@ -66,7 +84,7 @@ public:
      * \param zenithAngle Zenith angle.
      * \return Surface point on sphere.
      */
-    Eigen::VectorXd getSurfacePoint( double azimuthAngle, double zenithAngle );
+    Eigen::VectorXd getSurfacePoint( const double azimuthAngle, const double zenithAngle );
 
     //! Get surface derivative on sphere segment.
     /*!
@@ -85,9 +103,9 @@ public:
      *          zenith angle.
      * \return Surface derivative on sphere.
      */
-    Eigen::VectorXd getSurfaceDerivative( double azimuthAngle, double zenithAngle,
-                                   int powerOfZenithAngleDerivative,
-                                   int powerOfAzimuthAngleDerivative );
+    Eigen::VectorXd getSurfaceDerivative( const double azimuthAngle, const double zenithAngle,
+                                          const int powerOfZenithAngleDerivative,
+                                          const int powerOfAzimuthAngleDerivative );
 
     //! Get parameter of sphere segment.
     /*!
@@ -97,63 +115,15 @@ public:
      * \param index Index of parameter to return ( index = 0: returns radius ).
      * \return Selected parameter.
      */
-    double getParameter( int index );
-
-    //! Set parameter of sphere segment.
-    /*!
-     * Set a parameter of the sphere segment. Here only the radius can be set.
-     * \param index Index of parameter which is to be retrieved. Only
-     *          index = 0 is valid, which sets the radius.
-     * \param parameter Value of parameter which is set.
-     */
-    void setParameter( int index, double parameter );
+    double getParameter( const int index );
 
     //! Get radius.
     /*!
      * Returns the radius of the sphere segment.
      * \return Radius of the sphere segment.
      */
-    double& getRadius( ) { return radius_; }
+    double getRadius( ) { return radius_; }
 
-    //! Set radius.
-    /*!
-     * Sets the radius of the sphere segment.
-     * \param radius Radius of sphere segment.
-     */
-    void setRadius( double radius ) { radius_ = radius; }
-
-    //! Set maximum value of azimuth angle.
-    /*!
-     * Sets the maximum value of the azimuth angle.
-     * \param maximumAzimuthAngle Maximum value of azimuth angle.
-     */
-    void setMaximumAzimuthAngle( double maximumAzimuthAngle )
-    { setMaximumIndependentVariable( 1, maximumAzimuthAngle ); }
-
-    //! Set minimum value of azimuth angle.
-    /*!
-     * Sets the minimum value of the azimuth angle.
-     * \param minimumAzimuthAngle Minimum value of azimuth angle.
-     */
-    void setMinimumAzimuthAngle( double minimumAzimuthAngle )
-    { setMinimumIndependentVariable( 1, minimumAzimuthAngle ); }
-    
-    //! Set maximum value of zenith angle.
-    /*!
-     * Sets the maximum value of the zenith angle.
-     * \param maximumZenithAngle Maximum value of zenith angle.
-     */
-    void setMaximumZenithAngle( double maximumZenithAngle )
-    { setMaximumIndependentVariable( 2, maximumZenithAngle ); }
-    
-    //! Set minimum value of zenith angle.
-    /*!
-     * Sets the minimum value of the zenith angle.
-     * \param minimumZenithAngle Minimum value of zenith angle.
-     */
-    void setMinimumZenithAngle( double minimumZenithAngle )
-    { setMinimumIndependentVariable( 2, minimumZenithAngle ); }
-    
     //! Get maximum value of azimuth angle.
     /*!
      * Returns the maximum values of the azimuth angle.
@@ -203,6 +173,8 @@ private:
     double radius_;
 };
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_SPHERE_SEGMENT_H

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -17,9 +17,12 @@
  */
 
 #include <cmath>
+
 #include "Tudat/Astrodynamics/Gravitation/gravitationalAccelerationModel.h"
 
 namespace tudat
+{
+namespace astrodynamics
 {
 namespace acceleration_models
 {
@@ -47,8 +50,8 @@ Eigen::Vector3d computeGravitationalAcceleration(
             * ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration )
             / std::pow( ( positionOfBodySubjectToAcceleration
                           - positionOfBodyExertingAcceleration ).norm( ), 3.0 );
-
 }
 
 } // namespace acceleration_models
+} // namespace astrodynamics
 } // namespace tudat

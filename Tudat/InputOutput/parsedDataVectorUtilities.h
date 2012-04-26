@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 Delft University of Technology.
+/* Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -15,16 +15,19 @@
  *      120326    D. Dirkx          Code checked, minor layout changes, implementation moved
  *                                  to cpp file and static identifier removed to prevent compile
  *                                  warning.
+ *
+ *    References
  */
 
-#ifndef PARSEDDATAVECTORUTILS_H
-#define PARSEDDATAVECTORUTILS_H
+#ifndef TUDAT_PARSED_DATA_VECTOR_UTILS_H
+#define TUDAT_PARSED_DATA_VECTOR_UTILS_H
+
+#include <cstdarg>
+#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-#include <cstdarg>
-#include <iostream>
 
 #include "Tudat/InputOutput/fieldType.h"
 #include "Tudat/InputOutput/fieldValue.h"
@@ -165,6 +168,4 @@ namespace parsed_data_vector_utilities
 } // namespace input_output
 } // namespace tudat
 
-#endif //PARSEDDATAVECTORUTILS_H
-
-
+#endif // TUDAT_PARSED_DATA_VECTOR_UTILS_H

@@ -15,16 +15,16 @@
  *
  *    References
  *
+ *    If tabs are used as spaces, it doesn't work. The seperator should also be tabs then.
+ *
  */
 
-// Temporary notes (move to class/function doxygen):
-// If tabs are used as spaces, it doesn't work. The seperator should also be tabs then.
-// 
-
-#include <Eigen/Core>
 #include <cmath>
 #include <iostream>
 #include <limits>
+
+#include <Eigen/Core>
+
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 
@@ -34,10 +34,8 @@
  */
 int main( )
 {
-    // Using declarations.
     using std::cerr;
     using std::endl;
-    using std::cout;
 
     bool isTestMatrixBroken = false;
 

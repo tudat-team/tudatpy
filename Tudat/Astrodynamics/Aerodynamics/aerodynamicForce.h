@@ -27,6 +27,9 @@
 
 #include <Eigen/Core>
 
+#include <boost/shared_ptr.hpp>
+
+#include <TudatCore/Basics/utilityMacros.h>
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
@@ -79,12 +82,19 @@ class AerodynamicForce : public ForceModel
 {
 public:
 
+    //! Typedef for shared pointer to state.
+    /*!
+     * Typedef for shared pointer to state.
+     */
+    typedef boost::shared_ptr< states::State > StatePointer;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    AerodynamicForce( AerodynamicCoefficientInterface* pointerToAerodynamicCoefficientInterface ):
-        pointerToAerodynamicCoefficientInterface_( pointerToAerodynamicCoefficientInterface ),
+    AerodynamicForce( boost::shared_ptr< AerodynamicCoefficientInterface >
+                      aerodynamicCoefficientInterface ):
+        aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
         dynamicPressure_( TUDAT_NAN )
     { }
 
@@ -93,9 +103,9 @@ public:
      * Returns the pointer to the AerodynamicCoefficientInterface object.
      * \return Aerodynamic coefficient interface used to retrieve aerodynamic coefficients.
      */
-    AerodynamicCoefficientInterface* getAerodynamicCoefficientInterface( )
+    boost::shared_ptr< AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( )
     {
-        return pointerToAerodynamicCoefficientInterface_;
+        return aerodynamicCoefficientInterface_;
     }
 
     //! Set dynamic pressure.
@@ -118,11 +128,15 @@ public:
      * \param pointerToState Pointer to an object of the State class containing current state.
      * \param time Current time.
      */
-    void computeForce( State* pointerToState = NULL, double time = 0.0 )
+    void computeForce( StatePointer state, const double time = 0.0 )
     {
-        force_ = computeAerodynamicForce( dynamicPressure_,
-           pointerToAerodynamicCoefficientInterface_->getReferenceArea( ),
-           pointerToAerodynamicCoefficientInterface_->getCurrentForceCoefficients( ) );
+        TUDAT_UNUSED_PARAMETER( state );
+        TUDAT_UNUSED_PARAMETER( time );
+
+        force_ = computeAerodynamicForce(
+                    dynamicPressure_,
+                    aerodynamicCoefficientInterface_->getReferenceArea( ),
+                    aerodynamicCoefficientInterface_->getCurrentForceCoefficients( ) );
     }
 
 protected:
@@ -133,7 +147,7 @@ private:
     /*!
      * Pointer to an aerodynamic coefficient interface.
      */
-    AerodynamicCoefficientInterface* pointerToAerodynamicCoefficientInterface_;
+    boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
 
     //! The dynamic pressure.
     /*!

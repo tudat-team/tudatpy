@@ -15,6 +15,9 @@
  *      100929    K. Kumar          Minor comment changes.
  *      110115    J. Melman         Added set and get shape model functions.
  *      110815    K. Kumar          Added setMass( ) and getMass( ) functions.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      120322    D. Dirkx          Moved Ephemeris member to here from CelestialBody
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *
@@ -23,9 +26,16 @@
 #ifndef TUDAT_BODY_H
 #define TUDAT_BODY_H
 
-#include <iostream>
+#include <map>
+
+#include <boost/shared_ptr.hpp>
+
+#include "Tudat/Astrodynamics/States/state.h"
+#include "Tudat/Astrodynamics/Bodies/Ephemeris/ephemeris.h"
 
 namespace tudat
+{
+namespace bodies
 {
 
 //! Body base class.
@@ -38,9 +48,10 @@ public:
 
     //! Create a body with a given mass.
     /*!
+     * Creates a body with a given mass, 0 by default.
      * \param mass Mass of the body, default = 0.0.
      */
-    Body( double mass = 0.0 ) : mass_( mass ) { }
+    Body( const double mass = 0.0 ) : mass_( mass ) { }
 
     //! Default destructor.
     /*!
@@ -53,18 +64,32 @@ public:
      * Sets the mass of the body.
      * \param mass Mass.
      */
-    void setMass( double mass ) { mass_ = mass; }
+    void setMass( const double mass ) { mass_ = mass; }
 
     //! Get mass of body.
     /*!
      * Returns the mass of the body.
      * \return Mass.
      */
-    double& getMass( ) { return mass_; }
+    double getMass( ) { return mass_; }
+
+    //! Get ephemeris.
+    /*!
+     * Returns the body ephemeris.
+     * \return Pointer to ephemeris.
+     */
+    boost::shared_ptr< ephemerides::Ephemeris > getEphemeris( ) { return ephemeris_; }
+
+    //! Set ephemeris.
+    /*!
+     * Sets the ephemeris.
+     */
+    void setEphemeris( boost::shared_ptr< ephemerides::Ephemeris > ephemeris )
+    {
+        ephemeris_ = ephemeris;
+    }
 
 protected:
-
-private:
 
     //! Mass.
     /*!
@@ -72,8 +97,16 @@ private:
      */
     double mass_;
 
+    //! Pointer to ephemeris.
+    /*!
+     * Pointer to ephemeris.
+     */
+    boost::shared_ptr< ephemerides::Ephemeris > ephemeris_;
+
+private:
 };
 
+} // namespace bodies
 } // namespace tudat
 
 #endif // TUDAT_BODY_H

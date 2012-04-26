@@ -26,9 +26,16 @@
 #define TUDAT_KEPLERIAN_ELEMENTS_H
 
 #include "Tudat/Astrodynamics/States/state.h"
+
 #include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace states
 {
 
 //! Keplerian elements class.
@@ -43,51 +50,55 @@ public:
     /*!
      * Default constructor.
      */
-    KeplerianElements( ) : semiLatusRectum_( -0.0 ) { state.setZero( 6 ); }
+    KeplerianElements( ) : semiLatusRectum_( TUDAT_NAN ) { state.setZero( 6 ); }
 
     //! Set semi-major axis.
     /*!
      * Sets semi-major axis.
      * \param semiMajorAxis Semi-major axis.
      */
-    void setSemiMajorAxis( double semiMajorAxis ) { state( 0 ) = semiMajorAxis; }
+    void setSemiMajorAxis( const double semiMajorAxis ) { state( 0 ) = semiMajorAxis; }
 
     //! Set eccentricity.
     /*!
      * Sets eccentricity.
      * \param eccentricity Eccentricity.
      */
-    void setEccentricity( double eccentricity ) { state( 1 ) = eccentricity; }
+    void setEccentricity( const double eccentricity ) { state( 1 ) = eccentricity; }
 
     //! Set inclination.
     /*!
      * Sets inclination.
      * \param inclination Inclination.
      */
-    void setInclination( double inclination ) { state( 2 ) = inclination; }
+    void setInclination( const double inclination ) { state( 2 ) = inclination; }
 
     //! Set argument of periapsis.
     /*!
      * Sets argument of periapsis.
      * \param argumentOfPeriapsis Argument of periapsis.
      */
-    void setArgumentOfPeriapsis( double argumentOfPeriapsis )
-    { state( 3 ) = argumentOfPeriapsis; }
+    void setArgumentOfPeriapsis( const double argumentOfPeriapsis )
+    {
+        state( 3 ) = argumentOfPeriapsis;
+    }
 
     //! Sets longitude of ascending node.
     /*!
      * Set longitude of ascending node.
      * \param longitudeOfAscendingNode Longitude of ascending node.
      */
-    void setLongitudeOfAscendingNode( double longitudeOfAscendingNode )
-    { state( 4 ) = longitudeOfAscendingNode; }
+    void setLongitudeOfAscendingNode( const double longitudeOfAscendingNode )
+    {
+        state( 4 ) = longitudeOfAscendingNode;
+    }
 
     //! Set true anomaly.
     /*!
      * Sets true anomaly.
      * \param trueAnomaly True anomaly.
      */
-    void setTrueAnomaly( double trueAnomaly ) { state( 5 ) = trueAnomaly; }
+    void setTrueAnomaly( const double trueAnomaly ) { state( 5 ) = trueAnomaly; }
 
     //! Set semi-latus rectum ( for parabolic orbits ).
     /*!
@@ -96,8 +107,7 @@ public:
      * This function must only be used in conjunction with parabolic orbits.
      * \param semiLatusRectum Semi-latus rectum.
      */
-    void setSemiLatusRectum( double semiLatusRectum )
-    { semiLatusRectum_ = semiLatusRectum; }
+    void setSemiLatusRectum( const double semiLatusRectum ) { semiLatusRectum_ = semiLatusRectum; }
 
     //! Get semi-major axis.
     /*!
@@ -184,6 +194,8 @@ private:
     double semiLatusRectum_;
 };
 
+} // namespace states
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_KEPLERIAN_ELEMENTS_H

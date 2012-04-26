@@ -24,6 +24,9 @@
 
 #include <Eigen/Core>
 
+#include <boost/shared_ptr.hpp>
+
+#include <TudatCore/Basics/utilityMacros.h>
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
@@ -73,13 +76,20 @@ class AerodynamicMoment : public PureMomentModel
 {
 public:
 
+    //! Typedef for shared pointer to state.
+    /*!
+     * Typedef for shared pointer to state.
+     */
+    typedef boost::shared_ptr< states::State > StatePointer;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    AerodynamicMoment( AerodynamicCoefficientInterface* pointerToAerodynamicCoefficientInterface ) :
-        pointerToAerodynamicCoefficientInterface_( pointerToAerodynamicCoefficientInterface ),
-        dynamicPressure_( TUDAT_NAN )
+    AerodynamicMoment( boost::shared_ptr< AerodynamicCoefficientInterface >
+                       aerodynamicCoefficientInterface )
+        : aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
+          dynamicPressure_( TUDAT_NAN )
     { }
 
     //! Set aerodynamic coefficient interface.
@@ -87,9 +97,9 @@ public:
      * Returns the pointer to the AerodunamicCoefficientDatabase object.
      * \return Aerodynamic coefficient interface used to retrieve aerodynamic coefficients.
      */
-    AerodynamicCoefficientInterface* getAerodynamicCoefficientInterface( )
+    boost::shared_ptr< AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( )
     {
-        return pointerToAerodynamicCoefficientInterface_;
+        return aerodynamicCoefficientInterface_;
     }
 
     //! Set dynamic pressure.
@@ -112,23 +122,26 @@ public:
      * \param pointerToState Pointer to an object of the State class containing current state.
      * \param time Current time.
      */
-    void computeMoment( State* pointerToState = NULL, double time = 0.0 )
+    void computeMoment( StatePointer state, const double time )
     {
+        TUDAT_UNUSED_PARAMETER( state );
+        TUDAT_UNUSED_PARAMETER( time );
+
         moment_ = computeAerodynamicMoment( dynamicPressure_,
-                pointerToAerodynamicCoefficientInterface_->getReferenceArea( ),
-                pointerToAerodynamicCoefficientInterface_->getReferenceLength( ),
-                pointerToAerodynamicCoefficientInterface_->getCurrentMomentCoefficients( ) );
+                aerodynamicCoefficientInterface_->getReferenceArea( ),
+                aerodynamicCoefficientInterface_->getReferenceLength( ),
+                aerodynamicCoefficientInterface_->getCurrentMomentCoefficients( ) );
     }
 
 protected:
 
 private:
 
-    //! Pointer to aerodynamic coefficient interface.
+    //! Shared pointer to aerodynamic coefficient interface.
     /*!
-     * Pointer to an aerodynamic coefficient interface.
+     * Shared pointer to an aerodynamic coefficient interface.
      */
-    AerodynamicCoefficientInterface* pointerToAerodynamicCoefficientInterface_;
+    boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
 
     //! The dynamic pressure.
     /*!

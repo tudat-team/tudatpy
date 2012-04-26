@@ -44,37 +44,41 @@
  *                                  parallel position vector (with a relative angle of 180
  *                                  degrees). Better defined the pointers to the output
  *                                  CartesianVelocityElements.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References        :
- *      Gooding, R.H. A procedure for the solution of Lambert's orbital
- *          boundary-value problem, Celestial Mechanics and Dynamical
- *          Astronomy, 48:145-165, 1990.
- *      Melman, J. Trajectory optimization for a mission to Neptune and Triton,
- *          MSc thesis report, Delft University of Technology, 2007.
+ *      Gooding, R.H. A procedure for the solution of Lambert's orbital boundary-value problem,
+ *          Celestial Mechanics and Dynamical Astronomy, 48:145-165, 1990.
+ *      Melman, J. Trajectory optimization for a mission to Neptune and Triton, MSc thesis report,
+ *          Delft University of Technology, 2007.
  *      Iorfida, E. MSc thesis report, Unpublished.
+ *
+ *    The number of revolutions from departure to arrival body is zero by definition in this
+ *    routine. This can be made user-defined later on. The resulting trajectories are in
+ *    anti-clockwise direction.
+ *
+ *    At the moment Newton-Raphson is used for finding the root. In the future this could be
+ *    replaced by a polymorphic pointer to any root finder. At the moment there is a patch applied
+ *    when Newton-Raphson does not converge for negative initial guesses. This has not been stated
+ *    in the paper by Gooding, but this patch has been found by trial and error.
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// The number of revolutions from departure to arrival body is zero
-// by definition in this routine. This can be made user-defined later on.
-// The resulting trajectories are in anti-clockwise direction.
-// At the moment Newton-Raphson is used for finding the root. In the future
-// this could be replaced by a polymorphic pointer to any root finder.
-// At the moment there is a patch applied when Newton-Raphson does not
-// converge for negative initial guesses. This has not been stated in the
-// paper by Gooding, but this patch has been found by trial and error.
-// 
-
-// Include statements.
 #include <cmath>
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 #include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
+
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace mission_segments
 {
 
 // Using declarations.
@@ -92,9 +96,9 @@ using mathematics::linear_algebra::computeAngleBetweenVectors;
 std::ostream& operator<<( std::ostream& stream, LambertTargeter& lambertTargeter )
 {
     stream << "The position vector at departure is set to: "
-           << lambertTargeter.pointerToCartesianPositionAtDeparture_
+           << lambertTargeter.cartesianPositionAtDeparture_
            << "The position vector at arrival is set to: "
-           << lambertTargeter.pointerToCartesianPositionAtArrival_
+           << lambertTargeter.cartesianPositionAtArrival_
            << "The velocity vector at departure is computed as: "
            << lambertTargeter.getInertialVelocityAtDeparture( )
            << "The velocity vector at departure is computed as: "
@@ -232,39 +236,21 @@ double LambertTargeter::lambertFirstDerivativeFunction( double &xParameter_ )
 //! Execute Lambert targeting solver.
 void LambertTargeter::execute( )
 {
-    // Implement Lambert targeting method.
-
-    // Define local position vectors.
-    Eigen::Vector3d positionAtDeparture_;
-    positionAtDeparture_.x( ) = pointerToCartesianPositionAtDeparture_->
-                                getCartesianElementX( );
-    positionAtDeparture_.y( ) = pointerToCartesianPositionAtDeparture_->
-                                getCartesianElementY( );
-    positionAtDeparture_.z( ) = pointerToCartesianPositionAtDeparture_->
-                                getCartesianElementZ( );
-
-    Eigen::Vector3d positionAtArrival_;
-    positionAtArrival_.x( ) = pointerToCartesianPositionAtArrival_->
-                              getCartesianElementX( );
-    positionAtArrival_.y( ) = pointerToCartesianPositionAtArrival_->
-                              getCartesianElementY( );
-    positionAtArrival_.z( ) = pointerToCartesianPositionAtArrival_->
-                              getCartesianElementZ( );
-
     // Normalize positions.
     double radiusAtDeparture_;
     double radiusAtArrival_;
-    radiusAtDeparture_ = positionAtDeparture_.norm( );
-    radiusAtArrival_  = positionAtArrival_.norm( );
+    radiusAtDeparture_ = cartesianPositionAtDeparture_.norm( );
+    radiusAtArrival_  = cartesianPositionAtArrival_.norm( );
 
     // Compute angle between positions.
     double reducedLambertAngle_;
 
     Eigen::Vector3d planeNormalPosition_;
-    planeNormalPosition_ = positionAtDeparture_.
-                  cross( positionAtArrival_ ).normalized( );
+    planeNormalPosition_ = cartesianPositionAtDeparture_.
+                  cross( cartesianPositionAtArrival_ ).normalized( );
 
-    reducedLambertAngle_ = computeAngleBetweenVectors( positionAtDeparture_, positionAtArrival_ );
+    reducedLambertAngle_ = computeAngleBetweenVectors( cartesianPositionAtDeparture_,
+                                                       cartesianPositionAtArrival_ );
 
     if ( planeNormalPosition_.z( ) < 0.0 )
     {
@@ -282,7 +268,7 @@ void LambertTargeter::execute( )
 
     // Compute normalized time of flight.
     // Formula (7) [1].
-    normalizedTimeOfFlight_ = sqrt( 8.0 * pointerToCelestialBody_->
+    normalizedTimeOfFlight_ = sqrt( 8.0 * celestialBody_->getGravityFieldModel( )->
             getGravitationalParameter( ) / pow( semiPerimeter_, 3.0 ) ) * timeOfFlight_;
 
     // Compute q-parameter.
@@ -385,30 +371,30 @@ void LambertTargeter::execute( )
     // has been found by trial and error.
     if ( pow( initialLambertGuess_, 2.0 ) - 1.0 < 0.0 )
     {
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( fabs( initialLambertGuess_ ) );
+        newtonRaphson_->setInitialGuessOfRoot( fabs( initialLambertGuess_ ) );
     }
 
     else
     {
-        pointerToNewtonRaphson_->setInitialGuessOfRoot( initialLambertGuess_ );
+        newtonRaphson_->setInitialGuessOfRoot( initialLambertGuess_ );
     }
 
     // Set tolerance for Newton-Raphson method.
     // Page 155 [1].
-    pointerToNewtonRaphson_->setTolerance( 1.0e-13 );
+    newtonRaphson_->setTolerance( 1.0e-13 );
 
     // Set maximum number of iterations that can be computed in Newton-Raphson.
-    pointerToNewtonRaphson_->setMaximumNumberOfIterations( 100 );
+    newtonRaphson_->setMaximumNumberOfIterations( 100 );
 
     // Set the adaptor for Newton-Raphson method.
-    pointerToNewtonRaphson_->setNewtonRaphsonAdaptor(
+    newtonRaphson_->setNewtonRaphsonAdaptor(
             &newtonRaphsonAdaptorForLambertTargeter_ );
 
     // Execute Newton-Raphson method.
-    pointerToNewtonRaphson_->execute( );
+    newtonRaphson_->execute( );
 
     // Define xParameter_ as the output value of Newton-Raphson method.
-    xParameter_ = pointerToNewtonRaphson_->getComputedRootOfFunction( );
+    xParameter_ = newtonRaphson_->getComputedRootOfFunction( );
 
     // Compute semi-major axis of the transfer orbit.
     lambertSemiMajorAxis_ = semiPerimeter_ / ( 2.0 * ( 1.0 - pow( xParameter_ , 2.0 ) ) );
@@ -427,7 +413,8 @@ void LambertTargeter::execute( )
 
     // Formula (6.23) [2].
     lambertGamma_ = sqrt(
-            pointerToCelestialBody_->getGravitationalParameter( ) * semiPerimeter_ / 2.0 );
+            celestialBody_->getGravityFieldModel( )->getGravitationalParameter( ) *
+                semiPerimeter_ / 2.0 );
 
     // Formula (6.24) [2].
     lambertRho_ = ( radiusAtDeparture_ -
@@ -467,8 +454,8 @@ void LambertTargeter::execute( )
     // planetocentric).
 
     // Compute radial unit vectors at departure and at arrival.
-    Eigen::Vector3d radialUnitVectorAtDeparture_ = positionAtDeparture_.normalized( );
-    Eigen::Vector3d radialUnitVectorAtArrival_ = positionAtArrival_.normalized( );
+    Eigen::Vector3d radialUnitVectorAtDeparture_ = cartesianPositionAtDeparture_.normalized( );
+    Eigen::Vector3d radialUnitVectorAtArrival_ = cartesianPositionAtArrival_.normalized( );
 
     Eigen::Vector3d unitZVector_;
     unitZVector_.x( ) = 0.0;
@@ -477,21 +464,21 @@ void LambertTargeter::execute( )
 
     Eigen::Vector3d planeNormal_;
     planeNormal_ =
-            ( ( positionAtDeparture_.cross( unitZVector_ ) ).cross(
-                    positionAtDeparture_ ) ).normalized( );
+            ( ( cartesianPositionAtDeparture_.cross( unitZVector_ ) ).cross(
+                    cartesianPositionAtDeparture_ ) ).normalized( );
 
     // Compute unit vector that is normal to the plane in which the
     // trajectory takes place, and points in the positive z-direction.
-    if ( planeNormal_.z( ) < 0 )
+    if ( planeNormal_.z( ) < 0.0 )
     {
         planeNormal_ = -planeNormal_;
     }
 
     // Compute transverse unit vectors at departure and at arrival.
     Eigen::Vector3d transverseUnitVectorAtDeparture_ = planeNormal_.cross(
-            positionAtDeparture_.normalized( ) );
+            cartesianPositionAtDeparture_.normalized( ) );
     Eigen::Vector3d transverseUnitVectorAtArrival_   = planeNormal_.cross(
-            positionAtArrival_.normalized( ) );
+            cartesianPositionAtArrival_.normalized( ) );
 
     // Compute radial inertial velocities at departure and
     // at arrival.
@@ -510,17 +497,13 @@ void LambertTargeter::execute( )
     // Compute heliocentric velocities at departure and at
     // arrival.
 
-    // Define local velocities.
-    Eigen::Vector3d velocityAtDeparture_;
-    Eigen::Vector3d velocityAtArrival_;
-    velocityAtDeparture_ = radialInertialVelocityAtDeparture_ +
-                           transverseInertialVelocityAtDeparture_;
-    velocityAtArrival_ = radialInertialVelocityAtArrival_ +
-                         transverseInertialVelocityAtArrival_;
-
     // Define output velocities.
-    pointerToCartesianVelocityAtDeparture_->state = velocityAtDeparture_;
-    pointerToCartesianVelocityAtArrival_->state = velocityAtArrival_;
+    cartesianVelocityAtDeparture_ = radialInertialVelocityAtDeparture_ +
+                           transverseInertialVelocityAtDeparture_;
+    cartesianVelocityAtArrival_ = radialInertialVelocityAtArrival_ +
+                         transverseInertialVelocityAtArrival_;
 }
 
+} // namespace mission_segments
+} // namespace astrodynamics
 } // namespace tudat

@@ -1,4 +1,4 @@
-/*!   Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -13,13 +13,18 @@
  *      YYMMDD    Author            Comment
  *      111103    S. Billemont      First creation of code.
  *      120217    D.J. Gondelach    Code check.
+ *
+ *    References
+ *
  */
 
-#ifndef TUDAT_WHITESPACEPARSER_H
-#define TUDAT_WHITESPACEPARSER_H
+#ifndef TUDAT_WHITE_SPACE_PARSER_H
+#define TUDAT_WHITE_SPACE_PARSER_H
 
+#include <cstdarg>
+#include <map>
 #include <string>
-#include <stdarg.h>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -57,6 +62,9 @@ public:
     WhiteSpaceParser( int numberOfFields, ... );
 
     //! Default destructor.
+    /*!
+     * Default destructor.
+     */
     virtual ~WhiteSpaceParser( ) { }
 
     //! Set unit transformation map.
@@ -88,7 +96,7 @@ private:
 
     //! Map containing unit transformation equations.
     /*!
-     *  Map containing equations which are used to transform raw data to SI unit data.
+     * Map containing equations which are used to transform raw data to SI unit data.
      */
     std::map< FieldType, boost::shared_ptr<FieldTransform > > unitTransformationMap_;
 
@@ -96,4 +104,5 @@ private:
 
 } // namespace input_output
 } // namespace tudat
-#endif
+
+#endif // TUDAT_WHITE_SPACE_PARSER_H

@@ -13,6 +13,7 @@
  *      YYMMDD    Author            Comment
  *      110214    K. Kumar          First creation of code.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120421    K. Kumar          Removed base class; updated to set values through constructor.
  *
  *    References
@@ -25,6 +26,8 @@
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_HYPERBOLIC_ECCENTRIC_ANOMALY_H
 
 #include <cmath>
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
@@ -46,11 +49,12 @@ public:
     /*!
      * Default constructor.
      */
-    ConvertMeanAnomalyToHyperbolicEccentricAnomaly( const double eccentricity,
-                                                    const double hyperbolicMeanAnomaly,
-                                                    NewtonRaphson* pointerToNewtonRaphson )
-        : eccentricity_( eccentricity ), hyperbolicMeanAnomaly_( hyperbolicMeanAnomaly ),
-          pointerToNewtonRaphson_( pointerToNewtonRaphson )
+    ConvertMeanAnomalyToHyperbolicEccentricAnomaly(
+            const double eccentricity, const double hyperbolicMeanAnomaly,
+            boost::shared_ptr< NewtonRaphson > newtonRaphson )
+        : eccentricity_( eccentricity ),
+          hyperbolicMeanAnomaly_( hyperbolicMeanAnomaly ),
+          newtonRaphson_( newtonRaphson )
     { }
 
     //! Convert mean anomaly to hyperbolic eccentric anomaly.
@@ -77,15 +81,15 @@ private:
      */
     double hyperbolicMeanAnomaly_;
 
-    //! Pointer to Newton-Raphson.
+    //! Shared pointer to Newton-Raphson.
     /*!
-     * Pointer to Newton-Raphson method.
+     * Shared pointer to Newton-Raphson method.
      */
-    NewtonRaphson* pointerToNewtonRaphson_;
+    boost::shared_ptr< NewtonRaphson > newtonRaphson_;
 
-    //! Pointer to adaptor NewtonRaphsonAdaptor.
+    //! NewtonRaphsonAdaptor.
     /*!
-     * Pointer to adaptor NewtonRaphsonAdaptor class.
+     *  NewtonRaphsonAdaptor class.
      */
     NewtonRaphsonAdaptor < ConvertMeanAnomalyToHyperbolicEccentricAnomaly > newtonRaphsonAdaptor_;
 
@@ -127,6 +131,6 @@ private:
 };
 
 } // namespace orbital_element_conversions
-} // tudat
+} // namespace tudat
 
 #endif // TUDAT_CONVERT_MEAN_ANOMALY_TO_HYPERBOLIC_ECCENTRIC_ANOMALY_H

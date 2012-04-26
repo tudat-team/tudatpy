@@ -14,6 +14,7 @@
  *      110128    K. Kumar          First creation of code.
  *      110221    K. Kumar          Updated code to work as base class for derived ephemeris
  *                                  classes.
+ *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
  *    References
  *
@@ -23,9 +24,12 @@
 #define TUDAT_EPHEMERIS_H
 
 #include <sstream>
-#include "Tudat/Astrodynamics/States/cartesianElements.h"
+
+#include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
 
 namespace tudat
+{
+namespace ephemerides
 {
 
 //! Ephemeris base class.
@@ -35,19 +39,6 @@ namespace tudat
 class Ephemeris
 {
 public:
-
-    //! Bodies with ephemeris data.
-    /*!
-     * Bodies with ephemeris data.
-     */
-    enum BodiesWithEphemerisData
-    { mercury, venus, earthMoonBarycenter, mars, jupiter, saturn, uranus, neptune, pluto };
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    Ephemeris( ) : ephemerisLineData_( ) { }
 
     //! Default destructor.
     /*!
@@ -61,19 +52,14 @@ public:
      * \param julianDate Julian date given in Julian days.
      * \return State from ephemeris.
      */
-    virtual CartesianElements* getStateFromEphemeris( double julianDate ) = 0;
+    virtual Eigen::VectorXd getCartesianStateFromEphemeris( const double julianDate ) = 0;
 
 protected:
-
-    //! String stream for ephemeris line data.
-    /*!
-     * String stream for ephemeris line data.
-     */
-    std::stringstream ephemerisLineData_;
 
 private:
 };
 
+} // namespace ephemerides
 } // namespace tudat
 
 #endif // TUDAT_EPHEMERIS_H

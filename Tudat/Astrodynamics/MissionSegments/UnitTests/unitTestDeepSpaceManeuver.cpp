@@ -12,6 +12,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110527    K. Kumar          First creation of the code.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120416    T. Secretin       Boostified unit test.
  *
  *    References
@@ -21,8 +22,10 @@
 #define BOOST_TEST_MAIN
 
 #include <cmath>
-#include <iostream>
 #include <limits>
+
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -30,6 +33,7 @@
 #include <TudatCore/Basics/testMacros.h>
 
 #include "Tudat/Astrodynamics/MissionSegments/deepSpaceManeuver.h"
+#include "Tudat/Astrodynamics/States/state.h"
 #include "Tudat/Astrodynamics/States/cartesianElements.h"
 
 namespace tudat
@@ -48,7 +52,8 @@ BOOST_AUTO_TEST_CASE( testSetTimeAndGetTimeFunctions )
 
     // Create DSM object and set time of DSM.
     using astrodynamics::mission_segments::DeepSpaceManeuver;
-    DeepSpaceManeuver deepSpaceManeuver_( -0.0, timeOfDeepSpaceManeuver_, NULL );
+    DeepSpaceManeuver deepSpaceManeuver_( -0.0, timeOfDeepSpaceManeuver_,
+                                          boost::shared_ptr< astrodynamics::states::State >( ) );
 
     BOOST_CHECK_CLOSE_FRACTION( timeOfDeepSpaceManeuver_, deepSpaceManeuver_.getTime( ),
                                 std::numeric_limits< double >::epsilon( ) );
@@ -58,20 +63,22 @@ BOOST_AUTO_TEST_CASE( testSetTimeAndGetTimeFunctions )
 BOOST_AUTO_TEST_CASE ( testSetStateAndGetStateFunctionsWithCartesianElements )
 {
     // Declare and initialize Cartesian elements state for DSM.
-    CartesianElements deepSpaceManeuverState_;
-    deepSpaceManeuverState_.setCartesianElementX( 1000.3 );
-    deepSpaceManeuverState_.setCartesianElementY( 12.3 );
-    deepSpaceManeuverState_.setCartesianElementZ( 613.41 );
-    deepSpaceManeuverState_.setCartesianElementXDot( 2300.5 );
-    deepSpaceManeuverState_.setCartesianElementYDot( 100.34 );
-    deepSpaceManeuverState_.setCartesianElementZ( 342.6 );
+    using astrodynamics::states::CartesianElements;
+    boost::shared_ptr< CartesianElements > deepSpaceManeuverState_
+            = boost::make_shared< CartesianElements >( );
+    deepSpaceManeuverState_->setCartesianElementX( 1000.3 );
+    deepSpaceManeuverState_->setCartesianElementY( 12.3 );
+    deepSpaceManeuverState_->setCartesianElementZ( 613.41 );
+    deepSpaceManeuverState_->setCartesianElementXDot( 2300.5 );
+    deepSpaceManeuverState_->setCartesianElementYDot( 100.34 );
+    deepSpaceManeuverState_->setCartesianElementZ( 342.6 );
 
     // Create DSM object and set DSM state.
     using astrodynamics::mission_segments::DeepSpaceManeuver;
-    DeepSpaceManeuver deepSpaceManeuver_( -0.0, -0.0, &deepSpaceManeuverState_ );
+    DeepSpaceManeuver deepSpaceManeuver_( -0.0, -0.0, deepSpaceManeuverState_ );
 
     // Test if getState( ) function results in set state for DSM.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( deepSpaceManeuverState_.state,
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( deepSpaceManeuverState_->state,
                                            deepSpaceManeuver_.getState( )->state, 1.0e-15 );
 }
 
@@ -83,7 +90,8 @@ BOOST_AUTO_TEST_CASE ( testSetDeltaVandGetDeltaVFunctions )
 
     // Create DSM object and set deltaV of DSM.
     using astrodynamics::mission_segments::DeepSpaceManeuver;
-    DeepSpaceManeuver deepSpaceManeuver_( deltaVOfDeepSpaceManeuver_, -0.0, NULL );
+    DeepSpaceManeuver deepSpaceManeuver_( deltaVOfDeepSpaceManeuver_, -0.0,
+                                          boost::shared_ptr< astrodynamics::states::State >( ) );
 
     // Test if getDeltaV( ) function results in set deltaV for DSM.
     BOOST_CHECK_CLOSE_FRACTION( deltaVOfDeepSpaceManeuver_, deepSpaceManeuver_.getDeltaV( ),

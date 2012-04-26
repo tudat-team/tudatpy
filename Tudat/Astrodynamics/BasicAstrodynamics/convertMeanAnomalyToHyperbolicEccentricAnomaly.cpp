@@ -12,6 +12,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      110214    K. Kumar          First creation of code.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
@@ -20,7 +21,8 @@
  */
 
 #include <iostream>
-#include <limits>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
 
@@ -29,21 +31,17 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-// Using declarations.
-using std::cerr;
-using std::endl;
-
 //! Convert mean anomaly to hyperbolic eccentric anomaly.
 double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
 {
     // Declare hyperbolic eccentric anomaly.
-    double hyperbolicEccentricAnomaly_ = std::numeric_limits< double >::signaling_NaN( );
+    double hyperbolicEccentricAnomaly_ = TUDAT_NAN;
 
     // Set the class that contains the functions needed for Newton-Raphson.
     newtonRaphsonAdaptor_.setClass( this );
 
     // Set NewtonRaphson adaptor class.
-    pointerToNewtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptor_ );
+    newtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptor_ );
 
     // Check if orbit is hyperbolic, and not near-parabolic.
     if ( eccentricity_ > 1.2 )
@@ -57,23 +55,23 @@ double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
                     computeFirstDerivativeKeplersFunctionForHyperbolicOrbits_ );
 
         // Set initial guess of hyperbolic eccentric anomaly to the mean anomaly.
-        pointerToNewtonRaphson_->setInitialGuessOfRoot(
-                    2.0 * hyperbolicMeanAnomaly_ / eccentricity_ - 1.8 );
+        newtonRaphson_->setInitialGuessOfRoot( 2.0 * hyperbolicMeanAnomaly_
+                                               / eccentricity_ - 1.8 );
 
         // Execute Newton-Raphon method.
-        pointerToNewtonRaphson_->execute( );
+        newtonRaphson_->execute( );
 
         // Set hyperbolic eccentric anomaly based on result of Newton-Raphson root-finding
         // algorithm
-        hyperbolicEccentricAnomaly_ = pointerToNewtonRaphson_ ->getComputedRootOfFunction( );
+        hyperbolicEccentricAnomaly_ = newtonRaphson_ ->getComputedRootOfFunction( );
     }
 
     // Check if orbit is near-parabolic.
     else if ( eccentricity_ <= 1.2 )
     {
-        cerr << "Orbit is near-parabolic and, at present conversion, between hyperbolic eccentric "
-             << "anomaly and hyperbolic mean anomaly is not possible for eccentricities in the "
-             << "range: 0.8 < eccentricity < 1.2." << endl;
+        std::cerr << "Orbit is near-parabolic and, at present conversion, between hyperbolic "
+                  << "eccentric anomaly and hyperbolic mean anomaly is not possible for "
+                  << "eccentricities in the range: 0.8 < eccentricity < 1.2." << std::endl;
     }
 
     // Return hyperbolic eccentric anomaly.
@@ -81,4 +79,4 @@ double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
 }
 
 } // namespace orbital_element_conversions
-} // tudat
+} // namespace tudat

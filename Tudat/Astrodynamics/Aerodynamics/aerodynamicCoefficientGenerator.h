@@ -40,22 +40,21 @@
 
 namespace tudat
 {
+namespace aerodynamics
+{
 
 //! Base class for aerodynamic coefficient generator.
 /*!
- *  Abstract base class for aerodynamic analysis method. Stores independent variable values
- *  and data points of independent variables.
- *  Currently supports Mach number, angles of attack sideslip, and Reynold number
- *  as independent variables, but others can be added easily. To do so, only the
- *  interface function need to be added. As an example, for adding the Mach number,
- *  only the  get/set numberOfMachPoints and get/set
- *  MachPoint, as well as a machIndex_, to let the code know which index of the
- *  numberOfPointsPerIndependentVariables_ and dataPointsOfIndependentVariables_
- *  arrays represent the Mach number. Coefficients are
- *  stored in a VectorXd of pointers which should be allocated and initialized
- *  to NULL by a derived class. The conversion from the indices of the independent
- *  variables to the index in this VectorXd is performed by the
- *  variableIndicesToListIndex function.
+ * Abstract base class for aerodynamic analysis method. Stores independent variable values
+ * and data points of independent variables. Currently supports Mach number, angles of attack
+ * sideslip, and Reynold number as independent variables, but others can be added easily. To do so,
+ * only the interface function need to be added. As an example, for adding the Mach number, only
+ * the get/set numberOfMachPoints and get/set MachPoint, as well as a machIndex_, to let the code
+ * know which index of the numberOfPointsPerIndependentVariables_ and
+ * dataPointsOfIndependentVariables_ arrays represent the Mach number. Coefficients are stored in a
+ * VectorXd of pointers which should be allocated and initialized to NULL shared_ptr by a derived
+ * class. The conversion from the indices of the independent variables to the index in this
+ * VectorXd is performed by the variableIndicesToListIndex function.
  */
 class AerodynamicCoefficientGenerator: public AerodynamicCoefficientInterface
 {
@@ -63,17 +62,20 @@ public:
 
     //! Default constructor.
     /*!
-     * Default constructor, initializes arrays to NULL ans sets number of
-     * independent variables to 0.
+     * Default constructor, sets a number of independent variables to 0.
      */
-    AerodynamicCoefficientGenerator( ) :
-        numberOfIndependentVariables_( 0 ), machIndex_( -0 ), angleOfAttackIndex_( -0 ),
-        angleOfSideslipIndex_( -0 ), reynoldsNumberIndex_( -0 ), numberOfCases_( 0 ) { }
+    AerodynamicCoefficientGenerator( )
+        : numberOfIndependentVariables_( 0 ),
+          machIndex_( -0 ),
+          angleOfAttackIndex_( -0 ),
+          angleOfSideslipIndex_( -0 ),
+          reynoldsNumberIndex_( -0 ),
+          numberOfCases_( 0 )
+    { }
 
-    //! Custom destructor.
+    //! Default destructor.
     /*!
-     * Custom destructor, deletes arrays of data points and values of
-     * independent variables and resets them to NULL.
+     * Default destructor.
      */
     virtual ~AerodynamicCoefficientGenerator( ) { }
 
@@ -82,35 +84,35 @@ public:
      * Sets the number of independent variables.
      * \param numberOfVariables Number of independent variables for analysis.
      */
-    void setNumberOfIndependentVariables( int numberOfVariables );
+    void setNumberOfIndependentVariables( const int numberOfVariables );
 
     //! Set the number of points for Mach number.
     /*!
      * Sets the number of different Mach numbers at which coefficients are determined.
      * \param numberOfMachPoints Number of data points for Mach number.
      */
-    void setNumberOfMachPoints( int numberOfMachPoints );
+    void setNumberOfMachPoints( const int numberOfMachPoints );
 
     //! Sets the number of points for angle of attack.
     /*!
      * Sets the number of different angles of attack at which coefficients are determined.
      * \param numberOfAngleOfAttackPoints Number of data points for angle of attack.
      */
-    void setNumberOfAngleOfAttackPoints( int numberOfAngleOfAttackPoints );
+    void setNumberOfAngleOfAttackPoints( const int numberOfAngleOfAttackPoints );
 
     //! Set the number of points for angle of sideslip.
     /*!
      * Sets the number of different angles of sideslip at which coefficients are determined.
      * \param numberOfAngleOfSideslipPoints Number of data points for angle of sideslip.
      */
-    void setNumberOfAngleOfSideslipPoints( int numberOfAngleOfSideslipPoints );
+    void setNumberOfAngleOfSideslipPoints( const int numberOfAngleOfSideslipPoints );
 
     //! Set the number of points for the Reynolds Number.
     /*!
      * Sets the number of different Reynolds Number. at which coefficients are determined.
      * \param numberOfReynoldsNumberPoints Number of data points for ReynoldsNumber.
      */
-    void setNumberOfReynoldsNumberPoints( int numberOfReynoldsNumberPoints );
+    void setNumberOfReynoldsNumberPoints( const int numberOfReynoldsNumberPoints );
 
     //! Get the number of independent variables
     /*!
@@ -127,8 +129,10 @@ public:
      * number of data points.
      * \return Number of data points for Mach number
      */
-    int getNumberOfValuesOfIndependentVariable( int independentVariable )
-    { return numberOfPointsPerIndependentVariables_ [ independentVariable ]; }
+    int getNumberOfValuesOfIndependentVariable( const int independentVariable )
+    {
+        return numberOfPointsPerIndependentVariables_ [ independentVariable ];
+    }
 
     //! Get the number of points for Mach number.
     /*!
@@ -143,7 +147,9 @@ public:
      * \return Number of data points for angle of attack.
      */
     int getNumberOfAngleOfAttackPoints ( )
-    { return numberOfPointsPerIndependentVariables_ [ angleOfAttackIndex_ ]; }
+    {
+        return numberOfPointsPerIndependentVariables_ [ angleOfAttackIndex_ ];
+    }
 
     //! Get the number of points for angle of sideslip.
     /*!
@@ -151,7 +157,9 @@ public:
      * \return Number of data points for angle of sideslip.
      */
     int getNumberOfAngleOfSideslipPoints ( )
-    { return numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ]; }
+    {
+        return numberOfPointsPerIndependentVariables_ [ angleOfSideslipIndex_ ];
+    }
 
     //! Get the number of points for Reynold number.
     /*!
@@ -159,7 +167,9 @@ public:
      * \return Number of data points for Reynold number.
      */
     int getNumberOfReynoldsNumberPoints( )
-    { return numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ]; }
+    {
+        return numberOfPointsPerIndependentVariables_ [ reynoldsNumberIndex_ ];
+    }
 
     //! Set a Mach number point.
     /*!
@@ -167,8 +177,10 @@ public:
      * \param index Index in Mach number data point list at which to set the value.
      * \param machPoint Value of Mach number to set.
      */
-    void setMachPoint( int index, double machPoint )
-    { dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = machPoint; }
+    void setMachPoint( const int index, const double machPoint )
+    {
+        dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = machPoint;
+    }
 
     //! Set an angle of attack point.
     /*!
@@ -176,8 +188,10 @@ public:
      * \param index Index in angle of attack number data point list at which to set the value.
      * \param angleOfAttackPoint Value of angle of attack to set.
      */
-    void setAngleOfAttackPoint( int index, double angleOfAttackPoint )
-    { dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = angleOfAttackPoint; }
+    void setAngleOfAttackPoint( const int index, const double angleOfAttackPoint )
+    {
+        dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = angleOfAttackPoint;
+    }
 
     //! Set an angle of sideslip point.
     /*!
@@ -185,8 +199,10 @@ public:
      * \param index Index in angle of sideslip number data point list at which to set the value.
      * \param angleOfSideslipPoint Value of angle of sideslip to set.
      */
-    void setAngleOfSideslipPoint( int index, double angleOfSideslipPoint )
-    { dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ] = angleOfSideslipPoint; }
+    void setAngleOfSideslipPoint( const int index, const double angleOfSideslipPoint )
+    {
+        dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ] = angleOfSideslipPoint;
+    }
 
     //! Set a Reynolds Number point.
     /*!
@@ -194,8 +210,10 @@ public:
      * \param index Index in Reynold number data point list at which to set the value.
      * \param reynoldsNumberPoint Value of Reynold number to set.
      */
-    void setReynoldsNumberPoint( int index, double reynoldsNumberPoint )
-    { dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ] = reynoldsNumberPoint; }
+    void setReynoldsNumberPoint( const int index, const double reynoldsNumberPoint )
+    {
+        dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ] = reynoldsNumberPoint;
+    }
 
     //! Get a Mach number point.
     /*!
@@ -203,8 +221,10 @@ public:
      * \param index Index from Mach number data point list from which to retrieve the value.
      * \return Value of Mach number at index.
      */
-    double getMachPoint( int index )
-    { return dataPointsOfIndependentVariables_[ machIndex_ ][ index ]; }
+    double getMachPoint( const int index )
+    {
+        return dataPointsOfIndependentVariables_[ machIndex_ ][ index ];
+    }
 
     //! Get an angle of attack point.
     /*!
@@ -212,8 +232,10 @@ public:
      * \param index Index from angle of attack data point list from which to retrieve the value.
      * \return Value of angle of attack at index.
      */
-    double getAngleOfAttackPoint( int index )
-    { return dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ]; }
+    double getAngleOfAttackPoint( const int index )
+    {
+        return dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ];
+    }
 
     //! Get an angle of sideslip point.
     /*!
@@ -221,8 +243,10 @@ public:
      * \param index Index from angle of attack data point list from which to retrieve the value.
      * \return Value of angle of attack at index.
      */
-    double getAngleOfSideslipPoint( int index )
-    { return dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ]; }
+    double getAngleOfSideslipPoint( const int index )
+    {
+        return dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ index ];
+    }
 
     //! Get an Reynold Number point.
     /*!
@@ -230,8 +254,10 @@ public:
      * \param index Index from Reynold Number data point list from which to retrieve the value.
      * \return Value of Reynold Number at index.
      */
-    double getReynoldsNumberPoint( int index )
-    { return dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ]; }
+    double getReynoldsNumberPoint( const int index )
+    {
+        return dataPointsOfIndependentVariables_[ reynoldsNumberIndex_ ][ index ];
+    }
 
     //! Get a value of an independent variable.
     /*!
@@ -242,8 +268,10 @@ public:
      *                  value.
      * \return Value of angle of attack at index.
      */
-    double getIndependentVariablePoint( int independentVariable, int index )
-    { return dataPointsOfIndependentVariables_[ independentVariable ][ index ]; }
+    double getIndependentVariablePoint( const int independentVariable, const int index )
+    {
+        return dataPointsOfIndependentVariables_[ independentVariable ][ index ];
+    }
 
     //! Get aerodynamic coefficients.
     /*!
@@ -252,7 +280,9 @@ public:
      * indices in dataPointsOfIndependentVariables_.
      */
     virtual Eigen::VectorXd getAerodynamicCoefficients(
-            std::vector< int > independentVariables ) = 0;
+            const std::vector< int >& independentVariables ) = 0;
+
+protected:
 
     //! List of pointers to VectorXds containing coefficients.
     /*!
@@ -260,15 +290,13 @@ public:
      */
     std::vector< boost::shared_ptr< Eigen::VectorXd > > vehicleCoefficients_;
 
-protected:
-
     //! Convert the independent variable indices to list index in vehicleCoefficients_.
     /*!
      * Converts the independent variable indices to list index in vehicleCoefficients_.
      * \param independentVariableIndices Array of indices of independent variables.
      * \return Resulting index in vehicleCoefficients_.
      */
-    int variableIndicesToListIndex( std::vector< int > independentVariableIndices );
+    int variableIndicesToListIndex( const std::vector< int >& independentVariableIndices );
 
     //! Number of independent variables in analysis.
     /*!
@@ -323,6 +351,7 @@ protected:
     int numberOfCases_;
 };
 
+} // aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_COEFFICIENT_GENERATOR_H

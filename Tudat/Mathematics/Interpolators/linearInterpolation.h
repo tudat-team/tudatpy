@@ -114,8 +114,8 @@ Eigen::VectorXd computeLinearInterpolation(
  * \return Vector of dependent variable associated with target independent
  *              value in vector of sorted independent variables.
  */
-State* computeLinearInterpolation(
-        std::map < double, State* >& sortedIndepedentAndDependentVariables,
+ astrodynamics::states::State computeLinearInterpolation(
+        std::map < double, astrodynamics::states::State >& sortedIndepedentAndDependentVariables,
         double targetIndependentVariableValue );
 
 } // namespace interpolators

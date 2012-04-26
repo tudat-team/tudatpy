@@ -23,26 +23,22 @@
  *                                  allocation and new
  *                                  createPredefinedCelestialBody( ) function.
  *      110627    K. Kumar          Updated to use new predefined planets code.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120416    T. Secretin       Boostified unit test.
  *
  *    References
  *
+ *    A test should be added together with results from the Lambert targeter and the Ephemeris
+ *    class. The expected result for the current test should be calculated inside this code, not
+ *    outside by a calculator.
+ *
  */
-
-// Temporary notes (move to class/function doxygen):
-// Test runs code and verifies result against expected value.
-// If the tested code is erroneous, the test function returns a boolean
-// true; if the code is correct, the function returns a boolean false.
-// A test should be added together with results from the Lambert targeter
-// and the Ephemeris class.
-// The expected result for the current test should be calculated inside
-// this code, not outside by a calculator.
-// 
 
 #define BOOST_TEST_MAIN
 
 #include <cmath>
 
+#include <boost/make_shared.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -77,8 +73,8 @@ BOOST_AUTO_TEST_CASE( testDeltaV )
     const double expectedDeltaV = 3.652e3;
 
     // Define body that is swung by.
-    Planet predefinedMars;
-    predefinedMars.setPredefinedPlanetSettings( Planet::mars );
+    bodies::Planet predefinedMars;
+    predefinedMars.setPredefinedPlanetSettings( bodies::Planet::mars );
 
     // Define Sun gravitational parameter.
     const double gravitationalParameterSun = 1.32712440018e20;
@@ -91,37 +87,29 @@ BOOST_AUTO_TEST_CASE( testDeltaV )
 
     // Define planet heliocentric velocity vector.
     // The orbit is considered to be circular.
-    Eigen::Vector3d marsVelocity;
-    marsVelocity.x( ) = 0.0;
-    marsVelocity.y( ) = sqrt( gravitationalParameterSun / distanceMarsToSun );
-    marsVelocity.z( ) = 0.0;
+    Eigen::Vector3d marsVelocity( 0.0,
+                                  sqrt( gravitationalParameterSun / distanceMarsToSun ),
+                                  0.0 );
 
-    // Define pointer to satellite incoming vector.
+    // Define satellite incoming vector.
     using tudat::mathematics::PI;
-    CartesianVelocityElements incomingVelocityTest;
-    incomingVelocityTest.setCartesianElementXDot( -25.0e3 * std::sin( PI / 6.0 ) );
-    incomingVelocityTest.setCartesianElementYDot( 25.0e3 * std::cos( PI / 6.0 ) );
-    incomingVelocityTest.setCartesianElementZDot( 0.0 );
+    Eigen::Vector3d incomingVelocityTest( -25.0e3 * std::sin( PI / 6.0 ),
+                                          25.0e3 * std::cos( PI / 6.0 ),
+                                          0.0 );
 
-    // Define pointer to satellite outgoing vector.
-    CartesianVelocityElements outgoingVelocityTest;
-    outgoingVelocityTest.setCartesianElementXDot(
-                incomingVelocityTest.getCartesianElementXDot( ) );
-    outgoingVelocityTest.setCartesianElementYDot(
-                2.0 * marsVelocity.y( ) - incomingVelocityTest.getCartesianElementYDot( ) );
-    outgoingVelocityTest.setCartesianElementZDot( 0.0 );
-
-    // Create pointers to new Newton Raphson objects.
-    NewtonRaphson myNewtonRaphsonGravityAssist;
+    // Define satellite outgoing vector.
+    Eigen::Vector3d outgoingVelocityTest( incomingVelocityTest( 0 ),
+                                          2.0 * marsVelocity( 1 )- incomingVelocityTest( 1 ),
+                                          0.0 );
 
     // Declare GravityAssist object.
     using astrodynamics::mission_segments::GravityAssist;
     GravityAssist myGravityAssist( predefinedMars.getGravityFieldModel( ),
                                    3398.0e3 * marsSmallestPeriapsisDistanceFactor,
                                    marsVelocity,
-                                   &incomingVelocityTest,
-                                   &outgoingVelocityTest,
-                                   &myNewtonRaphsonGravityAssist );
+                                   incomingVelocityTest,
+                                   outgoingVelocityTest,
+                                   boost::make_shared< NewtonRaphson >( ) );
 
     // Compute powered gravity-assist implementation.
     const double deltaV = myGravityAssist.computeDeltaV( );

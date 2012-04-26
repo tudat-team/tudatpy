@@ -25,13 +25,18 @@
  *
  */
 
-#ifndef TUDATGRAVITY_FIELD_MODEL_H
-#define TUDATGRAVITY_FIELD_MODEL_H
+#ifndef TUDAT_GRAVITY_FIELD_MODEL_H
+#define TUDAT_GRAVITY_FIELD_MODEL_H
 
 #include <Eigen/Core>
-#include "Tudat/Astrodynamics/States/cartesianPositionElements.h"
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 namespace tudat
+{
+namespace astrodynamics
+{
+namespace gravitation
 {
 
 //! GravityFieldModel class.
@@ -46,30 +51,33 @@ public:
     /*!
      * Default constructor.
      */
-    GravityFieldModel( ) : gravitationalParameter_( -0.0 ) { }
+    GravityFieldModel( ) : gravitationalParameter_( TUDAT_NAN ) { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~GravityFieldModel( ){ }
+    virtual ~GravityFieldModel( ) { }
 
     //! Set the gravitational parameter.
     /*!
      * Define the gravitational parameter in meter^3 per second^2.
      * \param gravitationalParameter
      */
-    void setGravitationalParameter( double gravitationalParameter )
-    { gravitationalParameter_ = gravitationalParameter; }
+    void setGravitationalParameter( const double gravitationalParameter )
+    {
+        gravitationalParameter_ = gravitationalParameter;
+    }
 
     //! Set origin of gravity field.
     /*!
      * Set origin of gravity field.
-     * \param pointerToPositionOfOrigin Position of origin given as a pointer to a
-     *          CartesianPositionElements object.
+     * \param positionOfOrigin Position of origin
      */
-    void setOrigin( CartesianPositionElements* pointerToPositionOfOrigin )
-    { positionOfOrigin_ = *pointerToPositionOfOrigin; }
+    void setOrigin( const Eigen::VectorXd& positionOfOrigin )
+    {
+        positionOfOrigin_ = positionOfOrigin;
+    }
 
     //! Get the gravitational parameter.
     /*!
@@ -81,40 +89,34 @@ public:
     //! Get origin of gravity field.
     /*!
      * Get origin of gravity field.
-     * \return Position of origin given as a pointer to a
-     *          CartesianPositionElements object.
+     * \return Position of origin
      */
-    CartesianPositionElements* getOrigin( ) { return &positionOfOrigin_; }
+    Eigen::VectorXd getOrigin( ) { return positionOfOrigin_; }
 
     //! Get the potential.
     /*!
      * Returns the potential for the gravity field selected.
-     * \param pointerToPosition Position given as a pointer to a
-     *          CartesianPositionElements object.
+     * \param position Position at which potential is to be determined
      * \return Potential.
      */
-    virtual double getPotential( CartesianPositionElements* pointerToPosition ) = 0;
+    virtual double getPotential( const Eigen::Vector3d& position ) = 0;
 
     //! Get the gradient of the potential.
     /*!
      * Returns the gradient of the potential for the gravity field selected.
-     * \param pointerToPosition Position given as a pointer to a
-     *          CartesianPositionElements object.
+     * \param position Position at which gradient of potential is to be determined
      * \return Gradient of potential.
      */
-    virtual Eigen::Vector3d getGradientOfPotential(
-            CartesianPositionElements* pointerToPosition ) = 0;
+    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& position ) = 0;
 
     //! Get gradient tensor of the potential.
     /*!
      * Returns the gradient tensor of the potential for the gravity field
      * selected.
-     * \param pointerToPosition Position given as a pointer to a
-     *          CartesianPositionElements object.
+     * \param position Position at which gradient tensor of potential is to be determined
      * \return Gradient tensor of potential.
      */
-    virtual Eigen::Matrix3d getGradientTensorOfPotential( CartesianPositionElements*
-                                                          pointerToPosition ) = 0;
+    virtual Eigen::Matrix3d getGradientTensorOfPotential( const Eigen::Vector3d& position ) = 0;
 
 protected:
 
@@ -126,19 +128,21 @@ protected:
 
     //! Origin of gravity field.
     /*!
-     * Origin of gravity field given as a CartesianPositionElements object.
+     * Origin of gravity field given in Cartesian Elements as an Eigen::VectorXd
      */
-    CartesianPositionElements positionOfOrigin_;
+    Eigen::VectorXd positionOfOrigin_;
 
-    //! Relative position.
+    //! Relative position of
     /*!
-     * Relative position given as a CartesianPositionElements object.
+     * Relative position given in Cartesian Elements as an Eigen::VectorXd
      */
-    CartesianPositionElements relativePosition_;
+    Eigen::VectorXd relativePosition_;
 
 private:
 };
 
+} // namespace gravitation
+} // namespace astrodynamics
 } // namespace tudat
 
-#endif // TUDATGRAVITY_FIELD_MODEL_H
+#endif // TUDAT_GRAVITY_FIELD_MODEL_H

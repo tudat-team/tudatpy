@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -13,12 +13,15 @@
  *      YYMMDD    Author            Comment
  *      111103    S. Billemont      First creation of code.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *
+ *    References
  */
 
-#ifndef FIELDTRANSFORM_H
-#define FIELDTRANSFORM_H
+#ifndef TUDAT_FIELD_TRANSFORM_H
+#define TUDAT_FIELD_TRANSFORM_H
 
 #include <boost/shared_ptr.hpp>
+
 #include <string>
 
 namespace tudat
@@ -28,7 +31,6 @@ namespace input_output
 
 class FieldTransform
 {
-
 public:
 
     //! Default constructor.
@@ -43,9 +45,14 @@ public:
      *
      * \param input Input string.
      */
-    virtual boost::shared_ptr<std::string> transform( boost::shared_ptr<std::string> input ) = 0;
+    virtual boost::shared_ptr<std::string> transform( boost::shared_ptr< std::string > input ) = 0;
 
+protected:
+
+private:
 };
+
 } // namespace input_output
 } // namespace tudat
-#endif
+
+#endif // TUDAT_FIELD_TRANSFORM_H

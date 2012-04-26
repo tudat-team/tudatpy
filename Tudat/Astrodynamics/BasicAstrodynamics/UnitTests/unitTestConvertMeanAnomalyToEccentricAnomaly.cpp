@@ -14,6 +14,7 @@
  *      111215    T. Secretin       First creation of the code.
  *      111221    T. Secretin       Removed memory leaks. Added test for circular and
  *                                  near-parabolic orbits, as well as for negative eccentricities.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120421    K. Kumar          Updated test fixtures and cases to use updated conversion
  *                                  object.
  *
@@ -24,6 +25,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
@@ -60,12 +62,6 @@ public:
      */
     double toleranceOrbitalElementConversion;
 
-    //! Rootfinder to use in the tests; Newton-Raphson object.
-    /*!
-     * Rootfinder to use in the tests; Newton-Raphson object.
-     */
-    tudat::NewtonRaphson newtonRaphson;
-
     //! Convert mean anomaly to eccentric anomaly.
     /*!
      * Converts mean anomaly to eccentric anomaly by creating a conversion object to test and
@@ -79,11 +75,11 @@ public:
     {
         // Conversion object to test; mean anomaly to eccentric anomaly conversion.
         tudat::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
-                meanToEccentricAnomaly( eccentricity, meanAnomaly, &newtonRaphson );
+                meanToEccentricAnomaly( eccentricity, meanAnomaly,
+                                        boost::make_shared< NewtonRaphson >( ) );
 
         // Convert to eccentric anomaly and return.
         return meanToEccentricAnomaly.convert( );
-
     }
 
 protected:

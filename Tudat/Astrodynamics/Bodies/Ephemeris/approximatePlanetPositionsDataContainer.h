@@ -13,6 +13,7 @@
  *      YYMMDD    Author            Comment
  *      110224    K. Kumar          First creation of code.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the
@@ -29,6 +30,8 @@
 
 namespace tudat
 {
+namespace ephemerides
+{
 
 //! JPL "Approximate Positions of Major Planets" data container class.
 /*!
@@ -42,13 +45,24 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositionsDataContainer( ) : semiMajorAxis_( -0.0 ), eccentricity_( -0.0 ),
-        inclination_( -0.0 ), meanLongitude_( -0.0 ), longitudeOfPerihelion_( -0.0 ),
-        longitudeOfAscendingNode_( -0.0 ), rateOfChangeOfSemiMajorAxis_( -0.0 ),
-        rateOfChangeOfEccentricity_( -0.0 ), rateOfChangeOfInclination_( -0.0 ),
-        rateOfChangeOfMeanLongitude_( -0.0 ), rateOfChangeOfLongitudeOfPerihelion_( -0.0 ),
-        rateOfChangeOfLongitudeOfAscendingNode_( -0.0 ),  additionalTermB_( -0.0 ),
-        additionalTermC_( -0.0 ), additionalTermS_( -0.0 ), additionalTermF_( -0.0 ) { }
+    ApproximatePlanetPositionsDataContainer( )
+        : semiMajorAxis_( -0.0 ),
+          eccentricity_( -0.0 ),
+          inclination_( -0.0 ),
+          meanLongitude_( -0.0 ),
+          longitudeOfPerihelion_( -0.0 ),
+          longitudeOfAscendingNode_( -0.0 ),
+          rateOfChangeOfSemiMajorAxis_( -0.0 ),
+          rateOfChangeOfEccentricity_( -0.0 ),
+          rateOfChangeOfInclination_( -0.0 ),
+          rateOfChangeOfMeanLongitude_( -0.0 ),
+          rateOfChangeOfLongitudeOfPerihelion_( -0.0 ),
+          rateOfChangeOfLongitudeOfAscendingNode_( -0.0 ),
+          additionalTermB_( -0.0 ),
+          additionalTermC_( -0.0 ),
+          additionalTermS_( -0.0 ),
+          additionalTermF_( -0.0 )
+    { }
 
     //! Overload ostream to print class information.
     /*!
@@ -223,6 +237,7 @@ protected:
 private:
 };
 
+} // namespace ephemerides
 } // namespace tudat
 
 #endif // TUDAT_APPROXIMATE_PLANET_POSITIONS_DATA_CONTAINER_H

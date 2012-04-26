@@ -14,6 +14,7 @@
  *      110210    K. Kumar          First creation of code.
  *      110215    E. Iorfida        Minor changes made.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120421    K. Kumar          Removed base class; updated to set values through constructor.
  *
  *    References
@@ -25,6 +26,8 @@
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 
 #include <cmath>
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
@@ -57,9 +60,10 @@ public:
      * \param eccentricAnomaly The mean anomaly to convert to eccentric anomaly [rad].
      */
     ConvertMeanAnomalyToEccentricAnomaly( const double eccentricity, const double meanAnomaly,
-                                          NewtonRaphson* pointerToNewtonRaphson )
-        : eccentricity_( eccentricity ), meanAnomaly_( meanAnomaly ),
-          pointerToNewtonRaphson_( pointerToNewtonRaphson )
+                                          boost::shared_ptr< NewtonRaphson > newtonRaphson )
+        : eccentricity_( eccentricity ),
+          meanAnomaly_( meanAnomaly ),
+          newtonRaphson_( newtonRaphson )
     { }
 
     //! Convert mean anomaly to eccentric anomaly.
@@ -88,15 +92,15 @@ private:
      */
     double meanAnomaly_;
 
-    //! Pointer to Newton-Raphson.
+    //! Shared pointer to Newton-Raphson.
     /*!
-     * Pointer to Newton-Raphson method.
+     * Shared pointer to Newton-Raphson method.
      */
-    NewtonRaphson* pointerToNewtonRaphson_;
+    boost::shared_ptr< NewtonRaphson > newtonRaphson_;
 
-    //! Pointer to adaptor NewtonRaphsonAdaptor.
+    //! NewtonRaphsonAdaptor.
     /*!
-     * Pointer to adaptor NewtonRaphsonAdaptor class.
+     * NewtonRaphsonAdaptor class.
      */
     NewtonRaphsonAdaptor< ConvertMeanAnomalyToEccentricAnomaly > newtonRaphsonAdaptor_;
 

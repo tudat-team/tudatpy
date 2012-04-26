@@ -1,26 +1,4 @@
-/*! \file WhiteSpaceParser.cpp
- *    This header file contains the Cartesian elements class included in Tudat.
- *
- *    Path              : ./Input/Ephemeris/Parsing/SeperatedParser.cpp
- *    Version           : 1
- *    Check status      : Unchecked
- *
- *    Checker           : S. Billemont
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : simon@angelcorp.be
- *
- *    Checker           : D.J. Gondelach
- *    Affiliation       : Delft University of Technology
- *    E-mail address    : davidgondelach@gmail.com
- *
- *    Date created      :  3 November, 2011
- *    Last modified     : 17 February, 2011
- *
- *    References
- *
- *    Notes
- *
- *    Copyright (c) 2010-2011 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -35,15 +13,24 @@
  *      YYMMDD    Author            Comment
  *      111103    S. Billemont      First creation of code.
  *      120217    D.J. Gondelach    Code check.
+ *
+ *    References
+ *
  */
+
+#include <map>
+#include <vector>
+#include <utility>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <cmath>
 #include <iostream>
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
-#include "Tudat/InputOutput/WhiteSpaceParser.h"
+#include "Tudat/InputOutput/whiteSpaceParser.h"
 
 namespace tudat
 {
@@ -70,7 +57,7 @@ WhiteSpaceParser::WhiteSpaceParser( int numberOfFields, ... ) : TextParser ( fal
     }
 
     // Clean up the system stack.
-    va_end ( listOfArguments );
+    va_end( listOfArguments );
 }
 
 //! Parse line of data.
@@ -101,13 +88,14 @@ void WhiteSpaceParser::parseLine( std::string& line )
     // Verify that number of individual vectors corresponds to the specified number of fields.
     if ( vectorOfIndividualStrings_.size( ) != numberOfFields_ )
     {
-        std::cerr << "Number of elements in the line (" << vectorOfIndividualStrings_.size()
+        std::cerr << "Number of elements in the line (" << vectorOfIndividualStrings_.size( )
         << ") does not match the specified number of fields (" << numberOfFields_ << ")"
         << std::endl;
     }
 
     // Create a new pointer to map of line data.
-    ParsedDataLineMapPtr currentLineData( new std::map<FieldType, FieldValuePtr>( ) );
+    ParsedDataLineMapPtr currentLineData = boost::make_shared< ParsedDataLineMap >(
+                std::map< FieldType, FieldValuePtr >( ) );
 
     // Register the data line with the global current parsed data vector.
     parsedData->push_back( currentLineData );
@@ -118,16 +106,16 @@ void WhiteSpaceParser::parseLine( std::string& line )
           currentFieldNumber++ )
     {
         // Get the corresponding field type.
-        FieldType type ( typeList.at( currentFieldNumber ) );
+        FieldType fieldType( typeList.at( currentFieldNumber ) );
 
         // Define unit transformer.
         boost::shared_ptr< FieldTransform > transformer;
 
         // If type corresponds to one of the entries of the unit transformation map.
-        if ( unitTransformationMap_.find( type ) != unitTransformationMap_.end( ) )
+        if ( unitTransformationMap_.find( fieldType ) != unitTransformationMap_.end( ) )
         {
             // Set corresponding transformer.
-            transformer = unitTransformationMap_.find( type )->second;
+            transformer = unitTransformationMap_.find( fieldType )->second;
         }
         else
         {
@@ -136,15 +124,13 @@ void WhiteSpaceParser::parseLine( std::string& line )
         }
 
         // Store the resulting field-value string.
-        FieldValuePtr value( new FieldValue( type,
+        FieldValuePtr value( new FieldValue( fieldType,
                                              vectorOfIndividualStrings_.at( currentFieldNumber ),
                                              transformer ) );
 
         // Store the type and value in the current line data.
-        currentLineData->insert( FieldDataPair( type, value ) );
-
+        currentLineData->insert( FieldDataPair( fieldType, value ) );
     }
-
 }
 
 } // namespace input_output

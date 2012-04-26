@@ -25,6 +25,10 @@
 
 namespace tudat
 {
+namespace astrodynamics
+{
+namespace states
+{
 
 //! Cartesian position elements class.
 /*!
@@ -45,24 +49,30 @@ public:
      * Sets the Cartesian element: xDot.
      * \param cartesianElementXDot Cartesian element: xDot.
      */
-    void setCartesianElementXDot( double cartesianElementXDot )
-    { state( 0 ) = cartesianElementXDot; }
+    void setCartesianElementXDot( const double cartesianElementXDot )
+    {
+        state( 0 ) = cartesianElementXDot;
+    }
 
     //! Set Cartesian element: yDot.
     /*!
      * Sets the Cartesian element: yDot.
      * \param cartesianElementYDot Cartesian element: yDot.
      */
-    void setCartesianElementYDot( double cartesianElementYDot )
-    { state( 1 ) = cartesianElementYDot; }
+    void setCartesianElementYDot( const double cartesianElementYDot )
+    {
+        state( 1 ) = cartesianElementYDot;
+    }
 
     //! Set Cartesian element: zDot.
     /*!
      * Sets the Cartesian element: zDot.
      * \param cartesianElementZDot Cartesian element: zDot.
      */
-    void setCartesianElementZDot( double cartesianElementZDot )
-    { state( 2 ) = cartesianElementZDot; }
+    void setCartesianElementZDot( const double cartesianElementZDot )
+    {
+        state( 2 ) = cartesianElementZDot;
+    }
 
     //! Get Cartesian element: xDot.
     /*!
@@ -104,6 +114,8 @@ protected:
 private:
 };
 
+} // namespace states
+} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_CARTESIAN_VELOCITY_ELEMENTS_H

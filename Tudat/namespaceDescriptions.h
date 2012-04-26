@@ -116,6 +116,17 @@ namespace aerodynamics
 
 } // namespace aerodynamics
 
+//! Ephemerides namespace
+/*!
+ * The ephemerides namespace, containing the functionalities needed to obtain and propagate 
+ * ephemerides. At this time, the JPL approximate planet positions are implemented as well as their
+ * circular coplanar approximations.
+ */
+namespace ephemerides
+{
+
+} // namespace ephemerides
+
 //! Orbital element conversions namespace.
 /*!
  * The orbital element conversions namespace that contains free functions and classes to

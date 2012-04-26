@@ -16,30 +16,30 @@
  *      110206    J. Melman         Minor formatting issues.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
- *
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor,
+ *                                  removed raw pointer arrays
  *    References
  *      An example of a heritage code which uses such a mesh is found in:
  *          The Mark IV Supersonic-Hypersonic Arbitrary Body Program, Volume
  *          II-Program Formulation, Douglas Aircraft Company, AFFDL-TR-73-159,
  *          Volume II.
  *
+ *    The numberOfLines_ and numberOfPoints_ member variables denote the number of mesh points.
+ *    The number of panels in the mesh will be numberOfLines_ - 1 by numberOfPoints_ - 1.
+ *
  */
 
-// Temporary notes (move to class/function doxygen):
-// This class uses pointers to pointers to denote two-dimensional arrays
-// for heritage reasons, instead of the more modern C++ vector or map
-// types.
-// 
-// The numberOfLines_ and numberOfPoints_ member variables denote the
-// number of mesh points. The number of panels in the mesh will be
-// numberOfLines_ - 1 by numberOfPoints_ - 1.
-// 
+#include <limits>
 
 #include <Eigen/Geometry>
-#include <limits>
+
 #include "Tudat/Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"
 
 namespace tudat
+{
+namespace mathematics
+{
+namespace geometric_shapes
 {
 
 //! Calculate panel characteristics.
@@ -97,7 +97,7 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
 }
 
 //! Set reversal operator.
-void QuadrilateralMeshedSurfaceGeometry::setReversalOperator( bool isMeshInverted )
+void QuadrilateralMeshedSurfaceGeometry::setReversalOperator( const bool isMeshInverted )
 {
     if ( isMeshInverted == 0 )
     {
@@ -142,4 +142,6 @@ std::ostream& operator<<( std::ostream& stream,
     return stream;
 }
 
+} // namespace geometric_shapes
+} // namespace mathematics
 } // namespace tudat

@@ -51,6 +51,7 @@ int main( )
     bool isKeplerianElementsErroneous = false;
 
     // Create Keplerian elements state objects.
+    using tudat::astrodynamics::states::KeplerianElements;
     KeplerianElements keplerianElementsStateTest1_;
     KeplerianElements keplerianElementsStateTest2_;
 
