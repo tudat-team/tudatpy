@@ -20,6 +20,7 @@
  *      110202    K. Kumar          Updated code to use the CartesianPositionElements class.
  *      110204    K. Kumar          Removed "vector" from naming.
  *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
+ *      120502    K. Kumar          Added missing constructor initialization of position vectors.
  *
  *    References
  *
@@ -51,7 +52,11 @@ public:
     /*!
      * Default constructor.
      */
-    GravityFieldModel( ) : gravitationalParameter_( TUDAT_NAN ) { }
+    GravityFieldModel( )
+        : gravitationalParameter_( TUDAT_NAN ),
+          positionOfOrigin_( Eigen::Vector3d::Zero( ) ),
+          relativePosition_( Eigen::Vector3d::Zero( ) )
+    { }
 
     //! Default destructor.
     /*!
@@ -128,15 +133,15 @@ protected:
 
     //! Origin of gravity field.
     /*!
-     * Origin of gravity field given in Cartesian Elements as an Eigen::VectorXd
+     * Origin of gravity field given in Cartesian Elements as an Eigen::Vector3d
      */
-    Eigen::VectorXd positionOfOrigin_;
+    Eigen::Vector3d positionOfOrigin_;
 
-    //! Relative position of
+    //! Relative position of gravity field.
     /*!
-     * Relative position given in Cartesian Elements as an Eigen::VectorXd
+     * Relative position given in Cartesian Elements as an Eigen::Vector3d
      */
-    Eigen::VectorXd relativePosition_;
+    Eigen::Vector3d relativePosition_;
 
 private:
 };
