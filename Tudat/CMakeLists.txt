@@ -20,6 +20,7 @@
  #      111103    K. Kumar          Updated CMake directory name in module path.
  #      111117    K. Kumar          Added system and filesystem Boost components.
  #      170212    S. Billemont      Added support for UserSettings.txt file.
+ #      120505    K. Kumar          Removed superfluous include sub-directory macro.
  #
  #    References
  #
@@ -59,24 +60,21 @@ if (WIN32)
       endif(${flag_var} MATCHES "/MD")
     endforeach(flag_var)
     set(LIBROOT "${CODEROOT}/lib")
-    set(INCLUDEROOT "${CODEROOT}/include")
     set(BINROOT "${CODEROOT}/bin")
   else( )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
     set(LIBROOT "${CODEROOT}/lib")
-    set(INCLUDEROOT "${CODEROOT}/include")
     set(BINROOT "${CODEROOT}/bin")
   endif( )
 else( )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
     set(LIBROOT "${CODEROOT}/lib")
-    set(INCLUDEROOT "${CODEROOT}/include")
     set(BINROOT "${CODEROOT}/bin")
 endif( )
 
 # Defines the install target to create a distribution of Tudat.
 if(NOT TUDAT_DISTRIBUTION_PATH)
-    set(TUDAT_DISTRIBUTION_PATH "${CODEROOT}/dist/packages")
+    set(TUDAT_DISTRIBUTION_PATH "${CODEROOT}/dist/tudat")
 endif(NOT TUDAT_DISTRIBUTION_PATH)
 
 # ------------------------------------------------------------------------------------
@@ -117,12 +115,6 @@ macro(setup_custom_test_program target_name CUSTOM_OUTPUT_PATH)
   get_property(CUSTOM_TEST_PROGRAM_NAME TARGET ${target_name} PROPERTY OUTPUT_NAME)
   add_test("${target_name}" "${BINROOT}/unit_tests/${target_name}")
 endmacro(setup_custom_test_program)
-
-macro(setup_headers HEADER_FILES HEADER_PATH)
-    foreach(CURRENT_HEADER_FILE ${HEADER_FILES})
-      install(FILES "${CURRENT_HEADER_FILE}" DESTINATION "${HEADER_PATH}")
-    endforeach(CURRENT_HEADER_FILE)
-endmacro(setup_headers)
 
 # Set the main sub-directories.
 set(ASTRODYNAMICSDIR "/Astrodynamics")

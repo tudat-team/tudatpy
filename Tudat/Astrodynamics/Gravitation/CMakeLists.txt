@@ -46,7 +46,6 @@ set(GRAVITATION_HEADERS
 # Add static libraries.
 add_library(tudat_gravitation STATIC ${GRAVITATION_SOURCES} ${GRAVITATION_HEADERS})
 setup_tudat_library_target(tudat_gravitation "${SRCROOT}${GRAVITATIONDIR}")
-setup_headers("${GRAVITATION_HEADERS}" "${GRAVITATIONDIR}")
 
 # Add unit tests.
 add_executable(test_SphericalHarmonicsGravityField "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestSphericalHarmonicsGravityField.cpp")

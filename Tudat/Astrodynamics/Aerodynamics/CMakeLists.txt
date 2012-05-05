@@ -47,7 +47,6 @@ set(AERODYNAMICS_HEADERS
 # Add static libraries.
 add_library(tudat_aerodynamics STATIC ${AERODYNAMICS_SOURCES} ${AERODYNAMICS_HEADERS})
 setup_tudat_library_target(tudat_aerodynamics "${SRCROOT}{AERODYNAMICSDIR}")
-setup_headers("${AERODYNAMICS_HEADERS}" "${AERODYNAMICSDIR}")
 
 # Add unit tests.
 add_executable(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp")

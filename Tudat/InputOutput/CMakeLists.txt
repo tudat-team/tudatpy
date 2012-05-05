@@ -44,7 +44,6 @@ set(INPUTOUTPUT_HEADERS
 # Add static libraries.
 add_library(tudat_input_output STATIC ${INPUTOUTPUT_SOURCES} ${INPUTOUTPUT_HEADERS})
 setup_tudat_library_target(tudat_input_output "${SRCROOT}${INPUTOUTPUTDIR}")
-setup_headers("${INPUTOUTPUT_HEADERS}" "${INPUTOUTPUTDIR}")
 
 # Add unit tests.
 add_executable(test_MatrixTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMatrixTextFileReader.cpp")

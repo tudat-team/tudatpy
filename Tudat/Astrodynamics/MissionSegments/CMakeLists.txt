@@ -37,7 +37,6 @@ set(MISSIONSEGMENTS_HEADERS
 # Add static libraries.
 add_library(tudat_mission_segments STATIC ${MISSIONSEGMENTS_SOURCES} ${MISSIONSEGMENTS_HEADERS})
 setup_tudat_library_target(tudat_mission_segments "${SRCROOT}${MISSIONSEGMENTSDIR}")
-setup_headers("${MISSIONSEGMENTS_HEADERS}" "${MISSIONSEGMENTSDIR}")
 
 # Add unit tests.
 add_executable(test_DeepSpaceManeuver "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestDeepSpaceManeuver.cpp")
