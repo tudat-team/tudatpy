@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -19,6 +19,7 @@
  *      120309    K. Kumar          Updated code to latest Tudat standards; replaced set-function
  *                                  for mass parameter with constructor input; renamed class and
  *                                  file.
+ *      120426    K. Kumar          Added enum for state derivative acceleration elements.
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -46,12 +47,24 @@ namespace circular_restricted_three_body_problem
  */
 enum StateElementIndices
 {
-    normalizedXPositionIndex,
-    normalizedYPositionIndex,
-    normalizedZPositionIndex,
-    normalizedXVelocityIndex,
-    normalizedYVelocityIndex,
-    normalizedZVelocityIndex
+    xPositionIndex,
+    yPositionIndex,
+    zPositionIndex,
+    xVelocityIndex,
+    yVelocityIndex,
+    zVelocityIndex
+};
+
+//! State derivative elements indices in CRTBP.
+/*!
+ * State derivative elements indices in CRTBP. These are indices for Cartesian elements in
+ * normalized units, in a co-rotating reference frame (co-rotating with the primaries).
+ */
+enum StateDerivativeElementIndices
+{
+    xAccelerationIndex = 3,
+    yAccelerationIndex = 4,
+    zAccelerationIndex = 5
 };
 
 class StateDerivativeCircularRestrictedThreeBodyProblem
@@ -61,10 +74,10 @@ public:
     //! Default constructor.
     /*!
      * Default constructor that defines the state derivative for a given CRTBP system.
-     * \param massParameter Mass parameter of CRTBP.
+     * \param aMassParameter A value for mass parameter of CRTBP.
      */
-    StateDerivativeCircularRestrictedThreeBodyProblem( double massParameter )
-        : massParameter_ ( massParameter )
+    StateDerivativeCircularRestrictedThreeBodyProblem( const double aMassParameter )
+        : massParameter ( aMassParameter )
     { }
 
     //! Compute state derivative.
@@ -85,7 +98,7 @@ private:
     /*!
      * Value of mass parameter for the CRTBP.
      */
-    double massParameter_;
+    double massParameter;
 };
 
 } // namespace circular_restricted_three_body_problem

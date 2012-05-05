@@ -17,6 +17,7 @@
  *                                  replace "magic numbers"; renamed file.
  *      120306    K. Kumar          Removed erroneous Doxygen comments.
  *      120307    K. Kumar          Moved file.
+ *      120426    K. Kumar          Updated code to compute Jacobi energy more efficiently.
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -40,33 +41,32 @@ namespace circular_restricted_three_body_problem
 double computeJacobiEnergy( const double massParameter,
                             const Eigen::VectorXd& stateInNormalizedUnits )
 {
-    using std::sqrt;
-    using std::pow;
+    // Compute squared distances for efficient computation.
+    const double xCoordinateToPrimaryBodySquared =
+            ( massParameter + stateInNormalizedUnits( xPositionIndex ) )
+            * ( massParameter + stateInNormalizedUnits( xPositionIndex ) );
 
-    double distanceToPrimaryBody = sqrt( pow( massParameter
-                                              + stateInNormalizedUnits(
-                                                  normalizedXPositionIndex ),  2.0 )
-                                         + pow( stateInNormalizedUnits(
-                                                    normalizedYPositionIndex ), 2.0 )
-                                         + pow( stateInNormalizedUnits(
-                                                    normalizedZPositionIndex ), 2.0 ) );
+    const double yCoordinateSquared = stateInNormalizedUnits( yPositionIndex )
+            * stateInNormalizedUnits( yPositionIndex );
 
-    double distanceToSecondaryBody = sqrt( pow( - ( 1.0 - massParameter
-                                                    - stateInNormalizedUnits(
-                                                        normalizedXPositionIndex ) ), 2.0 )
-                                           + pow( stateInNormalizedUnits(
-                                                      normalizedYPositionIndex ), 2.0 )
-                                           + pow( stateInNormalizedUnits(
-                                                      normalizedZPositionIndex ), 2.0 ) );
+    const double zCoordinateSquared = stateInNormalizedUnits( zPositionIndex )
+            * stateInNormalizedUnits( zPositionIndex );
 
-    double velocitySquared = pow( stateInNormalizedUnits( normalizedXVelocityIndex ), 2.0 ) +
-            pow( stateInNormalizedUnits( normalizedYVelocityIndex ), 2.0 ) +
-            pow( stateInNormalizedUnits( normalizedZVelocityIndex ), 2.0 );
+    const double xCoordinateToSecondaryBodySquared =
+            ( 1.0 - massParameter - stateInNormalizedUnits( xPositionIndex ) )
+              * ( 1.0 - massParameter - stateInNormalizedUnits( xPositionIndex ) );
 
-    return pow( stateInNormalizedUnits( normalizedXPositionIndex ), 2.0 )
-            + pow( stateInNormalizedUnits( normalizedYPositionIndex ), 2.0 )
+    const double distanceToPrimaryBody = std::sqrt(
+                xCoordinateToPrimaryBodySquared + yCoordinateSquared + zCoordinateSquared );
+
+    const double distanceToSecondaryBody = std::sqrt(
+                xCoordinateToSecondaryBodySquared + yCoordinateSquared + zCoordinateSquared );
+
+    return stateInNormalizedUnits( xPositionIndex ) * stateInNormalizedUnits( xPositionIndex )
+            + yCoordinateSquared
             + 2.0 * ( 1.0 - massParameter ) / distanceToPrimaryBody
-            + 2.0 * massParameter / distanceToSecondaryBody - velocitySquared;
+            + 2.0 * massParameter / distanceToSecondaryBody
+            - stateInNormalizedUnits.segment( xVelocityIndex, 3 ).squaredNorm( );
 }
 
 } // namespace circular_restricted_three_body_problem
