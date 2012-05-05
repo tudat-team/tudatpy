@@ -45,7 +45,6 @@ set(BODIES_HEADERS
 # Add static libraries.
 add_library(tudat_bodies STATIC ${BODIES_SOURCES} ${BODIES_HEADERS})
 setup_tudat_library_target(tudat_bodies "${SRCROOT}${BODIESDIR}")
-setup_headers("${BODIES_HEADERS}" "${BODIESDIR}")
 
 # Add unit tests.
 add_executable(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERISDIR}/UnitTests/unitTestApproximatePlanetPositions.cpp")

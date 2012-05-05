@@ -29,7 +29,6 @@ set(REFERENCEFRAMES_HEADERS
 # Add static libraries.
 add_library(tudat_reference_frames STATIC ${REFERENCEFRAMES_SOURCES} ${REFERENCEFRAMES_HEADERS})
 setup_tudat_library_target(tudat_reference_frames "${SRCROOT}${REFERENCEFRAMESDIR}")
-setup_headers("${REFERENCEFRAMES_HEADERS}" "${REFERENCEFRAMESDIR}")
 
 # Add unit tests.
 add_executable(test_ReferenceFrameTransformations "${SRCROOT}${REFERENCEFRAMESDIR}/unitTestReferenceFrameTransformations.cpp")

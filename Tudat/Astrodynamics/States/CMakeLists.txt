@@ -35,7 +35,6 @@ set(STATES_HEADERS
 # Add static libraries.
 add_library(tudat_states STATIC ${STATES_SOURCES} ${STATES_HEADERS})
 setup_tudat_library_target(tudat_states "${SRCROOT}${STATESDIR}")
-setup_headers("${STATES_HEADERS}" "${STATESDIR}")
 
 # Add unit tests.
 add_executable(test_CartesianElements "${SRCROOT}${STATESDIR}/unitTestCartesianElements.cpp")

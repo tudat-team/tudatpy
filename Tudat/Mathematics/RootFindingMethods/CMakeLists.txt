@@ -33,7 +33,6 @@ set(ROOTFINDINGMETHODS_HEADERS
 # Add static libraries.
 add_library(tudat_root_finding_methods STATIC ${ROOTFINDINGMETHODS_SOURCES} ${ROOTFINDINGMETHODS_HEADERS})
 setup_tudat_library_target(tudat_root_finding_methods "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods")
-setup_headers("${ROOTFINDINGMETHODS_HEADERS}" "${MATHEMATICSDIR}/RootFindingMethods")
 
 # Add unit tests.
 add_executable(test_NewtonRaphson "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/unitTestNewtonRaphson.cpp")

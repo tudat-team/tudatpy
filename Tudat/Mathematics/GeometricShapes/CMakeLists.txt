@@ -46,7 +46,6 @@ set(GEOMETRICSHAPES_HEADERS
 # Add static libraries.
 add_library(tudat_geometric_shapes STATIC ${GEOMETRICSHAPES_SOURCES})
 setup_tudat_library_target(tudat_geometric_shapes "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes")
-setup_headers("${GEOMETRICSHAPES_HEADERS}" "${MATHEMATICSDIR}/GeometricShapes")
 
 # Add unit tests.
 add_executable(test_LawgsSurfaceGeometry "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/unitTestLawgsSurfaceGeometry.cpp")

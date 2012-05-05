@@ -30,7 +30,6 @@ set(INTERPOLATORS_HEADERS
 # Add static libraries.
 add_library(tudat_interpolators STATIC ${INTERPOLATORS_SOURCES})
 setup_tudat_library_target(tudat_interpolators "${SRCROOT}${MATHEMATICSDIR}/Interpolators")
-setup_headers("${INTERPOLATORS_HEADERS}" "${MATHEMATICSDIR}/Interpolators")
 
 # Add unit tests.
 add_executable(test_CubicSplineInterpolation "${SRCROOT}${MATHEMATICSDIR}/Interpolators/unitTestCubicSplineInterpolation.cpp")

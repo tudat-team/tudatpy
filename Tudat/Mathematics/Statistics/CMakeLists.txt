@@ -31,7 +31,6 @@ set(STATISTICS_HEADERS
 # Add static libraries.
 add_library(tudat_statistics STATIC ${STATISTICS_SOURCES} ${STATISTICS_HEADERS})
 setup_tudat_library_target(tudat_statistics "${SRCROOT}${MATHEMATICSDIR}/Statistics")
-setup_headers("${STATISTICS_HEADERS}" "${MATHEMATICSDIR}/Statistics")
 
 # Add unit tests.
 add_executable(test_SimpleLinearRegression "${SRCROOT}${MATHEMATICSDIR}/Statistics/unitTestSimpleLinearRegression.cpp")
