@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010 Delft University of Technology.
+/*    Copyright (c) 2010-2012 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and
@@ -19,6 +19,7 @@
  *      120221    L. van der Ham    Removed computation Jacobian energy.
  *      120309    K. Kumar          Updated code to latest Tudat standards; updated
  *                                  computeStateDerivative() function.
+ *      120426    K. Kumar          Updated code to compute state derivative more efficiently.
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -27,7 +28,7 @@
 
 #include <cmath>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include <TudatCore/Basics/utilityMacros.h>
 
 #include "Tudat/Astrodynamics/Gravitation/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 
@@ -44,47 +45,48 @@ namespace circular_restricted_three_body_problem
 Eigen::VectorXd StateDerivativeCircularRestrictedThreeBodyProblem::
 computeStateDerivative( const double time, const Eigen::VectorXd& cartesianState )
 {
-    using std::pow;
-    using orbital_element_conversions::xPositionIndex;
-    using orbital_element_conversions::yPositionIndex;
-    using orbital_element_conversions::zPositionIndex;
-    using orbital_element_conversions::xVelocityIndex;
-    using orbital_element_conversions::yVelocityIndex;
-    using orbital_element_conversions::zVelocityIndex;
+    TUDAT_UNUSED_PARAMETER( time );
 
-    // Compute relative position vectors.
-    double normDistanceToPrimaryBodyCubed_ = pow( pow( cartesianState( xPositionIndex )
-                                                       + massParameter_, 2.0 )
-                                           + pow( cartesianState( yPositionIndex ), 2.0 )
-                                           + pow( cartesianState( zPositionIndex ), 2.0 ), 1.5 );
+    // Compute distance to primary body.
+    const double xCoordinateToPrimaryBodySquared =
+            ( cartesianState( xPositionIndex ) + massParameter )
+            * ( cartesianState( xPositionIndex ) + massParameter );
 
-    double normDistanceToSecondaryBodyCubed_ = pow( pow( cartesianState( xPositionIndex )
-                                                     - ( 1.0 - massParameter_ ), 2.0 )
-                                             + pow( cartesianState( yPositionIndex ), 2.0 )
-                                             + pow( cartesianState ( zPositionIndex ), 2.0 ),
-                                                    1.5 );
+    const double yCoordinateSquared = cartesianState( yPositionIndex )
+            * cartesianState( yPositionIndex );
+
+    const double zCoordinateSquared = cartesianState( zPositionIndex )
+            * cartesianState( zPositionIndex );
+
+    const double normDistanceToPrimaryBodyCubed = pow(
+                xCoordinateToPrimaryBodySquared + yCoordinateSquared + zCoordinateSquared, 1.5 );
+
+    // Compute distance to secondary body.
+    const double xCoordinateSecondaryBodySquared =
+            ( cartesianState( xPositionIndex ) - ( 1.0 - massParameter ) )
+            * ( cartesianState( xPositionIndex ) - ( 1.0 - massParameter ) );
+
+    double normDistanceToSecondaryBodyCubed = pow(
+                xCoordinateSecondaryBodySquared + yCoordinateSquared + zCoordinateSquared, 1.5 );
 
     // Compute derivative of state.
     Eigen::VectorXd stateDerivative( 6 );
-    unsigned int xAccelerationIndex = 3;
-    unsigned int yAccelerationIndex = 4;
-    unsigned int zAccelerationIndex = 5;
 
     stateDerivative.segment( xPositionIndex, 3 ) = cartesianState.segment( xVelocityIndex, 3 );
 
     stateDerivative( xAccelerationIndex ) = cartesianState( xPositionIndex )
-            - ( ( 1.0 - massParameter_ ) / normDistanceToPrimaryBodyCubed_ )
-            * ( cartesianState( xPositionIndex ) + massParameter_ )
-            - ( massParameter_ / normDistanceToSecondaryBodyCubed_ )
-            * ( cartesianState( xPositionIndex ) - ( 1.0 - massParameter_ ) )
+            - ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
+            * ( cartesianState( xPositionIndex ) + massParameter )
+            - ( massParameter / normDistanceToSecondaryBodyCubed )
+            * ( cartesianState( xPositionIndex ) - ( 1.0 - massParameter ) )
             + 2.0 * cartesianState( yVelocityIndex );
     stateDerivative( yAccelerationIndex ) = cartesianState( yPositionIndex )
-            * ( 1.0 - ( ( 1.0 - massParameter_ ) / normDistanceToPrimaryBodyCubed_ )
-                - ( massParameter_ / normDistanceToSecondaryBodyCubed_ ) )
+            * ( 1.0 - ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
+                - ( massParameter / normDistanceToSecondaryBodyCubed ) )
             - 2.0 * cartesianState( xVelocityIndex );
     stateDerivative( zAccelerationIndex ) = -cartesianState( zPositionIndex )
-            * ( ( ( 1.0 - massParameter_ ) / normDistanceToPrimaryBodyCubed_ )
-                + ( massParameter_ / normDistanceToSecondaryBodyCubed_ ) );
+            * ( ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
+                + ( massParameter / normDistanceToSecondaryBodyCubed ) );
 
     // Return computed state derivative.
     return stateDerivative;
