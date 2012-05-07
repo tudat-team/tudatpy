@@ -24,6 +24,7 @@
  *      120207    B. Tong Minh      Updated to TudatCore compatibility.
  *      120213    K. Kumar          Modified getCurrentInterval() to getIndependentVariable().
  *      120321    K. Kumar          Corrected bug in performIntegrationStep().
+ *      120507    K. Kumar          Corrected call to base-class function by adding "this".
  *
  *    References
  *
@@ -81,9 +82,12 @@ public:
      */
     EulerIntegrator( const StateDerivativeFunction& stateDerivativeFunction,
                      const IndependentVariableType intervalStart,
-                     const StateType& initialState ) :
-        Base( stateDerivativeFunction ), currentIndependentVariable_( intervalStart ),
-        currentState_( initialState ), lastIndependentVariable_( intervalStart ) { }
+                     const StateType& initialState )
+        : Base( stateDerivativeFunction ),
+          currentIndependentVariable_( intervalStart ),
+          currentState_( initialState ),
+          lastIndependentVariable_( intervalStart )
+    { }
 
     //! Get step size of the next step.
     /*!
@@ -123,7 +127,7 @@ public:
         lastIndependentVariable_ = currentIndependentVariable_;
         lastState_ = currentState_;
 
-        currentState_ += stepSize * stateDerivativeFunction_(
+        currentState_ += stepSize * this->stateDerivativeFunction_(
                     currentIndependentVariable_, currentState_ );
 
         stepSize_ = stepSize;
