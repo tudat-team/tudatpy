@@ -21,6 +21,7 @@
  *                                  Tudat Core.
  *      120225    K. Kumar          Updated unit test using data from (Melman, 2010) to fix bug in
  *                                  Linux; data is no longer imported from input text file.
+ *      120508    K. Kumar          Corrected bug in backwards propagation loop end-condition.
  *
  *    References
  *      Melman, J. Propagate software, J.C.P.Melman@tudelft.nl, 2010.
@@ -235,7 +236,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
         PropagationHistory computedPropagationHistory;
         computedPropagationHistory[ 10.0 * 8640.0 ] = expectedPropagationHistory[ 10.0 * 8640.0 ];
 
-        for ( unsigned int i = expectedPropagationHistory.size( ) - 2; i == 0; i-- )
+        for ( int i = expectedPropagationHistory.size( ) - 2; i >= 0; i-- )
         {
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]
                     = orbital_element_conversions::propagateKeplerOrbit(
