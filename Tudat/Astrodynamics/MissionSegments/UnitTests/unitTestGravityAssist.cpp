@@ -25,6 +25,7 @@
  *      110627    K. Kumar          Updated to use new predefined planets code.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120416    T. Secretin       Boostified unit test.
+ *      120508    P. Musegaas       Update file with gravitational parameter now as double input.
  *
  *    References
  *
@@ -104,12 +105,13 @@ BOOST_AUTO_TEST_CASE( testDeltaV )
 
     // Declare GravityAssist object.
     using astrodynamics::mission_segments::GravityAssist;
-    GravityAssist myGravityAssist( predefinedMars.getGravityFieldModel( ),
-                                   3398.0e3 * marsSmallestPeriapsisDistanceFactor,
-                                   marsVelocity,
-                                   incomingVelocityTest,
-                                   outgoingVelocityTest,
-                                   boost::make_shared< NewtonRaphson >( ) );
+    GravityAssist myGravityAssist(
+                predefinedMars.getGravityFieldModel( )->getGravitationalParameter( ),
+                3398.0e3 * marsSmallestPeriapsisDistanceFactor,
+                marsVelocity,
+                incomingVelocityTest,
+                outgoingVelocityTest,
+                boost::make_shared< NewtonRaphson >( ) );
 
     // Compute powered gravity-assist implementation.
     const double deltaV = myGravityAssist.computeDeltaV( );

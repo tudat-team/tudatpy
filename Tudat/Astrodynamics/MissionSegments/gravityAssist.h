@@ -25,6 +25,8 @@
  *                                  of GeometricShapes.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120417    T. Secretin       Moved set functions to constructor.
+ *      120508    P. Musegaas       The gravitational parameter is now passed as double, made some
+ *                                  variables constant.
  *
  *    References
  *
@@ -76,13 +78,6 @@ class GravityAssist
 {
 public:
 
-    //! Typedef for shared pointer to gravity field model.
-    /*!
-     * Typedef for shared pointer to gravity field model.
-     */
-    typedef boost::shared_ptr< astrodynamics::gravitation::GravityFieldModel >
-    GravityFieldModelPointer;
-
     //! Typedef for shared pointer to Newton-Raphson method.
     /*!
      * Typedef for shared pointer to Newton-Raphson method.
@@ -93,13 +88,13 @@ public:
     /*!
      * Default constructor.
      */
-    GravityAssist( GravityFieldModelPointer gravityField,
+    GravityAssist( const double centralBodyGravitationalParameter,
                    const double smallestPeriapsisDistance,
                    const Eigen::Vector3d& centralBodyVelocity,
                    const Eigen::Vector3d& incomingVelocity,
                    const Eigen::Vector3d& outgoingVelocity,
                    boost::shared_ptr< NewtonRaphson > newtonRaphson )
-        : centralBodyGravityfield_( gravityField ),
+        : centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
           smallestPeriapsisDistance_( smallestPeriapsisDistance ),
           centralBodyVelocity_( centralBodyVelocity ),
           incomingVelocity_( incomingVelocity ),
@@ -137,36 +132,36 @@ protected:
 
 private:
 
-    //! The gravity field produced by the CelestialBody.
+    //! The gravitational parameter of the central body.
     /*!
-     * The gravity field in which the swing-by is performed.
+     * The gravitational parameter of the central body involved in the swingby [m^3 s^-2].
      */
-    GravityFieldModelPointer centralBodyGravityfield_;
+    const double centralBodyGravitationalParameter_;
 
     //! Smallest periapsisDistance.
     /*!
      * The smallest allowable periapsis distance. This is the radius of closest possible approach to
      * the planet. For maximal swing-by energy, this is the central body radius.
      */
-    double smallestPeriapsisDistance_;
+    const double smallestPeriapsisDistance_;
 
     //! Velocity of the swing-by central body.
     /*!
      * Velocity vector of the central body involved in the swing-by.
      */
-    Eigen::Vector3d centralBodyVelocity_;
+    const Eigen::Vector3d centralBodyVelocity_;
 
     //! Incoming velocity of object.
     /*!
      * Incoming velocity of object.
      */
-    Eigen::Vector3d incomingVelocity_;
+    const Eigen::Vector3d incomingVelocity_;
 
     //! Outgoing velocity of object.
     /*!
      * Outgoing velocity of object.
      */
-    Eigen::Vector3d outgoingVelocity_;
+    const Eigen::Vector3d outgoingVelocity_;
 
     //! Hyperbolic excess velocity of the incoming leg.
     /*!
