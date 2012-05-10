@@ -23,6 +23,7 @@
  *      110214    E. Iorfida        Deleted temporary centralBodyRadius, replaced by an element of
  *                                  GeometricShapes.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      120508    P. Musegaas       The gravitational parameter is now passed as double.
  *
  *    References
  *      Melman J. Trajectory optimization for a mission to Neptune and
@@ -103,14 +104,13 @@ double GravityAssist::computeDeltaV( )
                                                 outgoingHyperbolicExcessVelocity_ );
 
     // Compute maximum achievable bending angle.
-    double maximumBendingAngle_;
-    maximumBendingAngle_ =
+    double maximumBendingAngle_ =
             asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance_ *
                                   incomingHyperbolicExcessVelocity_.squaredNorm( ) /
-                                  centralBodyGravityfield_->getGravitationalParameter( ) ) ) ) +
+                                  centralBodyGravitationalParameter_ ) ) ) +
             asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance_ *
                                   outgoingHyperbolicExcessVelocity_.squaredNorm( ) /
-                                  centralBodyGravityfield_->getGravitationalParameter( ) ) ) );
+                                  centralBodyGravitationalParameter_ ) ) );
 
     // Verify necessity to apply an extra swing-by delta-V due to the
     // incapability of the body's gravity to bend the trajectory a
@@ -149,12 +149,13 @@ double GravityAssist::computeDeltaV( )
 
         velocityEffectDeltaV_ = 0.0;
     }
+
     else
     {
         // Compute semi-major axis of hyperbolic legs.
-        incomingSemiMajorAxis_ = -1.0 * centralBodyGravityfield_->getGravitationalParameter( ) /
+        incomingSemiMajorAxis_ = -1.0 * centralBodyGravitationalParameter_ /
                 incomingHyperbolicExcessVelocity_.squaredNorm( );
-        outgoingSemiMajorAxis_ = -1.0 * centralBodyGravityfield_->getGravitationalParameter( ) /
+        outgoingSemiMajorAxis_ = -1.0 * centralBodyGravitationalParameter_ /
                 outgoingHyperbolicExcessVelocity_.squaredNorm( );
 
         // Newton-Raphson method implementation.
