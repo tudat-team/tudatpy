@@ -15,6 +15,7 @@
  *      120307    K. Kumar          Updated description of circular restricted three-body problem.
  *      120321    K. Kumar          Moved circular restricted three-body problem inside gravitation
  *                                  namespace, which is inside a new astrodynamics namespace.
+ *      120515    P. Musegaas       Added states namespace.
  *
  *    References
  */
@@ -102,6 +103,16 @@ namespace rotational_acceleration_models
 {
 
 } // namespace rotational_acceleration_models
+
+//! States namespace.
+/*!
+ * This namespace contains the state class and associated methods. Also this namespace contains
+ * the Keplerian elements, Cartesian elements and Cartesian velocity and position elements.
+ */
+namespace states
+{
+
+} // namespace states
 
 } // namespace astrodynamics
 
