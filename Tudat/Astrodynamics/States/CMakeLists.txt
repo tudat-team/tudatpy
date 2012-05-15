@@ -37,14 +37,14 @@ add_library(tudat_states STATIC ${STATES_SOURCES} ${STATES_HEADERS})
 setup_tudat_library_target(tudat_states "${SRCROOT}${STATESDIR}")
 
 # Add unit tests.
-add_executable(test_CartesianElements "${SRCROOT}${STATESDIR}/unitTestCartesianElements.cpp")
+add_executable(test_CartesianElements "${SRCROOT}${STATESDIR}/UnitTests/unitTestCartesianElements.cpp")
 setup_custom_test_program(test_CartesianElements "${SRCROOT}${STATESDIR}")
-target_link_libraries(test_CartesianElements tudat_states)
+target_link_libraries(test_CartesianElements tudat_states ${Boost_LIBRARIES})
 
-add_executable(test_KeplerianElements "${SRCROOT}${STATESDIR}/unitTestKeplerianElements.cpp")
+add_executable(test_KeplerianElements "${SRCROOT}${STATESDIR}/UnitTests/unitTestKeplerianElements.cpp")
 setup_custom_test_program(test_KeplerianElements "${SRCROOT}${STATESDIR}")
-target_link_libraries(test_KeplerianElements tudat_states)
+target_link_libraries(test_KeplerianElements tudat_states ${Boost_LIBRARIES})
 
-add_executable(test_State "${SRCROOT}${STATESDIR}/unitTestState.cpp")
+add_executable(test_State "${SRCROOT}${STATESDIR}/UnitTests/unitTestState.cpp")
 setup_custom_test_program(test_State "${SRCROOT}${STATESDIR}")
-target_link_libraries(test_State tudat_states)
+target_link_libraries(test_State tudat_states ${Boost_LIBRARIES})

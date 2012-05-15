@@ -13,122 +13,113 @@
  *      YYMMDD    Author            Comment
  *      110110    K. Kumar          File created.
  *      110121    K. Kumar          Updated to comply with new protocol.
+ *      120511    K. Kumar          Boostified unit test.
  *
  *    References
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// Test runs code and verifies result against expected value.
-// If the tested code is erroneous, the test function returns a boolean
-// true; if the code is correct, the function returns a boolean false.
-// 
+#define BOOST_TEST_MAIN
 
-#include <iostream>
-#include <limits>
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
+
+#include <Eigen/Core>
+
+#include <TudatCore/Basics/testMacros.h>
+
 #include "Tudat/Astrodynamics/States/cartesianElements.h"
 
-//! Test Cartesian elements state class.
-int main( )
+namespace tudat
 {
-    // Using declarations.
-    using std::cerr;
-    using std::endl;
-    using namespace tudat;
+namespace unit_tests
+{
 
-    // Two tests.
-    // Test 1: Set Cartesian elements using individual set functions; and get
-    //         Cartesian elements using individual get functions.
-    // Test 2: Set Cartesian elements using setState( ) function; and get
-    //         Cartesian elements using getState( ) function.
+BOOST_AUTO_TEST_SUITE( test_cartesian_state )
 
-    // Initialize unit test result to false.
-    bool isCartesianElementsErroneous = false;
+//! Test if individual set- and get-functions are working correctly.
+BOOST_AUTO_TEST_CASE( testCartesianStateIndividualSetFunctions )
+{
+    using astrodynamics::states::CartesianElements;
+    using astrodynamics::states::xPositionIndex;
+    using astrodynamics::states::yPositionIndex;
+    using astrodynamics::states::zPositionIndex;
+    using astrodynamics::states::xVelocityIndex;
+    using astrodynamics::states::yVelocityIndex;
+    using astrodynamics::states::zVelocityIndex;
 
-    // Create Cartesian elements state objects.
-    using tudat::astrodynamics::states::CartesianElements;
-    CartesianElements cartesianElementsStateTest1;
-    CartesianElements cartesianElementsStateTest2;
+    // Create Cartesian elements state.
+    CartesianElements cartesianElementsState;
 
-    // Expected test result.
     // Create vector of Cartesian elements: x, y, z, xdot, ydot, zdot.
-    Eigen::VectorXd vectorOfCartesianElements( 6 );
-    vectorOfCartesianElements( 0 ) = 2.5e6;
-    vectorOfCartesianElements( 1 ) = 0.5e6;
-    vectorOfCartesianElements( 2 ) = 0.1e6;
-    vectorOfCartesianElements( 3 ) = 125.0;
-    vectorOfCartesianElements( 4 ) = 2000.0;
-    vectorOfCartesianElements( 5 ) = 50.0;
+    Eigen::VectorXd cartesianElements( 6 );
+    cartesianElements( xPositionIndex ) = 2.5e6;
+    cartesianElements( yPositionIndex ) = 0.5e6;
+    cartesianElements( zPositionIndex ) = 0.1e6;
+    cartesianElements( xVelocityIndex ) = 125.0;
+    cartesianElements( yVelocityIndex ) = 2000.0;
+    cartesianElements( zVelocityIndex ) = 50.0;
 
-    // Test 1: Set Cartesian elements in state object.
-    cartesianElementsStateTest1.setCartesianElementX( vectorOfCartesianElements( 0 ) );
-    cartesianElementsStateTest1.setCartesianElementY( vectorOfCartesianElements( 1 ) );
-    cartesianElementsStateTest1.setCartesianElementZ( vectorOfCartesianElements( 2 ) );
-    cartesianElementsStateTest1.setCartesianElementXDot( vectorOfCartesianElements( 3 ) );
-    cartesianElementsStateTest1.setCartesianElementYDot( vectorOfCartesianElements( 4 ) );
-    cartesianElementsStateTest1.setCartesianElementZDot( vectorOfCartesianElements( 5 ) );
+    // Test 1: Set Cartesian elements individually in state object.
+    cartesianElementsState.setCartesianElementX( cartesianElements( xPositionIndex ) );
+    cartesianElementsState.setCartesianElementY( cartesianElements( yPositionIndex ) );
+    cartesianElementsState.setCartesianElementZ( cartesianElements( zPositionIndex ) );
+    cartesianElementsState.setCartesianElementXDot( cartesianElements( xVelocityIndex ) );
+    cartesianElementsState.setCartesianElementYDot( cartesianElements( yVelocityIndex ) );
+    cartesianElementsState.setCartesianElementZDot( cartesianElements( zVelocityIndex ) );
 
-    // Test 1: Get Cartesian elements and store in a state vector.
-    Eigen::VectorXd cartesianElementsStateVectorTest1( 6 );
-    cartesianElementsStateVectorTest1( 0 ) = cartesianElementsStateTest1.getCartesianElementX( );
-    cartesianElementsStateVectorTest1( 1 ) = cartesianElementsStateTest1.getCartesianElementY( );
-    cartesianElementsStateVectorTest1( 2 ) = cartesianElementsStateTest1.getCartesianElementZ( );
-    cartesianElementsStateVectorTest1( 3 )
-            = cartesianElementsStateTest1.getCartesianElementXDot( );
-    cartesianElementsStateVectorTest1( 4 )
-            = cartesianElementsStateTest1.getCartesianElementYDot( );
-    cartesianElementsStateVectorTest1( 5 )
-            = cartesianElementsStateTest1.getCartesianElementZDot( );
+    // Check that result from using individual get-functions gives expected results.
+    BOOST_CHECK_EQUAL( cartesianElements( xPositionIndex ),
+                       cartesianElementsState.getCartesianElementX( ) );
 
-    // Test 1: Difference between setting each Cartesian element and the
-    // expected values.
-    Eigen::VectorXd differenceBetweenResultsTest1( 6 );
-    differenceBetweenResultsTest1 = cartesianElementsStateVectorTest1 - vectorOfCartesianElements;
+    BOOST_CHECK_EQUAL( cartesianElements( yPositionIndex ),
+                       cartesianElementsState.getCartesianElementY( ) );
 
-    // Test 2: Set Cartesian elements using setState( ) function.
-    cartesianElementsStateTest2.state = vectorOfCartesianElements;
+    BOOST_CHECK_EQUAL( cartesianElements( zPositionIndex ),
+                       cartesianElementsState.getCartesianElementZ( ) );
 
-    // Test 2: Difference between setting the Cartesian state as a whole and
-    // the expected values.
-    Eigen::VectorXd differenceBetweenResultsTest2;
-    differenceBetweenResultsTest2 = cartesianElementsStateTest2.state - vectorOfCartesianElements;
+    BOOST_CHECK_EQUAL( cartesianElements( xVelocityIndex ),
+                       cartesianElementsState.getCartesianElementXDot( ) );
 
-    // Set test result to true if the test does not match the expected result.
+    BOOST_CHECK_EQUAL( cartesianElements( yVelocityIndex ),
+                       cartesianElementsState.getCartesianElementYDot( ) );
 
-    if ( differenceBetweenResultsTest1.norm( ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        isCartesianElementsErroneous = true;
-
-        // Generate error statements.
-        cerr << "The computed value " << endl;
-        cerr << "( " << cartesianElementsStateVectorTest1 << " )" << endl;
-        cerr << "using individual set/get functions for the "
-             << "CartesianElements class does not match the expected solution " << endl;
-        cerr << "( " << vectorOfCartesianElements << " )." << endl;
-        cerr << "The difference is: "
-             << vectorOfCartesianElements - cartesianElementsStateVectorTest1 << endl;
-    }
-
-    if ( differenceBetweenResultsTest2.norm( ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        isCartesianElementsErroneous = true;
-
-        // Generate error statements.
-        cerr << "The computed value " << endl;
-        cerr << "( " << cartesianElementsStateTest2.state << " )" << endl;
-        cerr << "using set/get functions for the whole state for the "
-             << "CartesianElements class does not match the expected solution " << endl;
-        cerr << "( " << vectorOfCartesianElements << " )." << endl;
-        cerr << "The difference is: "
-             << vectorOfCartesianElements - cartesianElementsStateTest2.state << endl;
-    }
-
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    if ( isCartesianElementsErroneous )
-    {
-        cerr << "testCartesianElements failed!" << endl;
-    }
-
-    return isCartesianElementsErroneous;
+    BOOST_CHECK_EQUAL( cartesianElements( zVelocityIndex ),
+                       cartesianElementsState.getCartesianElementZDot( ) );
 }
+
+//! Test if setting state vector is working correctly.
+BOOST_AUTO_TEST_CASE( testCartesianStateSetFunction )
+{
+    using astrodynamics::states::CartesianElements;
+    using astrodynamics::states::xPositionIndex;
+    using astrodynamics::states::yPositionIndex;
+    using astrodynamics::states::zPositionIndex;
+    using astrodynamics::states::xVelocityIndex;
+    using astrodynamics::states::yVelocityIndex;
+    using astrodynamics::states::zVelocityIndex;
+
+    // Create Cartesian elements state.
+    CartesianElements cartesianElementsState;
+
+    // Create vector of Cartesian elements: x, y, z, xdot, ydot, zdot.
+    Eigen::VectorXd cartesianElements( 6 );
+    cartesianElements( xPositionIndex ) = 2.5e6;
+    cartesianElements( yPositionIndex ) = 0.5e6;
+    cartesianElements( zPositionIndex ) = 0.1e6;
+    cartesianElements( xVelocityIndex ) = 125.0;
+    cartesianElements( yVelocityIndex ) = 2000.0;
+    cartesianElements( zVelocityIndex ) = 50.0;
+
+    // Test 2: Set Cartesian elements as vector in state object.
+    cartesianElementsState.state = cartesianElements;
+
+    // Check that result from using individual get-functions gives expected results.
+    TUDAT_CHECK_MATRIX_BASE( cartesianElements, cartesianElementsState.state )
+            BOOST_CHECK_EQUAL( cartesianElements, cartesianElementsState.state );
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat

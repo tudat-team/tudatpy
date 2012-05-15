@@ -15,176 +15,193 @@
  *      110121    K. Kumar          Updated to comply with new protocol.
  *      110310    K. Kumar          Changed right ascension of ascending node to longitude of
  *                                  ascending node.
+ *      120511    K. Kumar          Boostified unit test.
  *
  *    References
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// Test runs code and verifies result against expected value.
-// If the tested code is erroneous, the test function returns a boolean
-// true; if the code is correct, the function returns a boolean false.
-// 
+#define BOOST_TEST_MAIN
 
-#include <iostream>
-#include <limits>
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
+
+#include <Eigen/Core>
+
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include <TudatCore/Basics/testMacros.h>
+
 #include "Tudat/Astrodynamics/States/keplerianElements.h"
 
-//! Test Keplerian elements state class.
-int main( )
+namespace tudat
 {
-    // Using declarations.
-    using std::cerr;
-    using std::endl;
-    using tudat::unit_conversions::convertDegreesToRadians;
-    using namespace tudat;
+namespace unit_tests
+{
 
-    // Three tests.
-    // Test 1: Set Keplerian elements using individual set functions; and get
-    //         Keplerian elements using individual get functions.
-    // Test 2: Set Keplerian elements using setState( ) function; and get
-    //         Keplerian elements using getState( ) function.
-    // Test 3: Get auxilliary Keplerian elements.
+BOOST_AUTO_TEST_SUITE( test_keplerian_state )
 
-    // Initialize unit test result to false.
-    bool isKeplerianElementsErroneous = false;
+//! Test if individual set- and get-functions are working correctly.
+BOOST_AUTO_TEST_CASE( testKeplerianStateIndividualSetFunctions )
+{
+    using astrodynamics::states::KeplerianElements;
+    using astrodynamics::states::semiMajorAxisIndex;
+    using astrodynamics::states::eccentricityIndex;
+    using astrodynamics::states::inclinationIndex;
+    using astrodynamics::states::argumentOfPeriapsisIndex;
+    using astrodynamics::states::longitudeOfAscendingNodeIndex;
+    using astrodynamics::states::trueAnomalyIndex;
+    using unit_conversions::convertDegreesToRadians;
 
-    // Create Keplerian elements state objects.
-    using tudat::astrodynamics::states::KeplerianElements;
-    KeplerianElements keplerianElementsStateTest1_;
-    KeplerianElements keplerianElementsStateTest2_;
+    // Create Keplerian elements state.
+    KeplerianElements keplerianElementsState;
 
-    // Expected test result.
     // Create vector of Keplerian elements: semi-major axis, eccentricity,
     // inclination, argument of periapsis, longitude of the ascending node,
     // true anomaly.
-    Eigen::VectorXd vectorOfKeplerianElements_( 6 );
-    vectorOfKeplerianElements_( 0 ) = 2.5e6;
-    vectorOfKeplerianElements_( 1 ) = 0.1;
-    vectorOfKeplerianElements_( 2 ) = convertDegreesToRadians( 102.3 );
-    vectorOfKeplerianElements_( 3 ) = convertDegreesToRadians( 125.7 );
-    vectorOfKeplerianElements_( 4 ) = convertDegreesToRadians( 215.34 );
-    vectorOfKeplerianElements_( 5 ) = convertDegreesToRadians( 0.0 );
-
-    // Create vector of auxilliary Keplerian elements: longitude of periapsis,
-    // true longitude, argument of latitude, semi-latus rectum.
-    Eigen::VectorXd vectorOfAuxilliaryKeplerianElements_( 4 );
-    vectorOfAuxilliaryKeplerianElements_( 0 ) = vectorOfKeplerianElements_( 3 )
-            + vectorOfKeplerianElements_( 4 );
-    vectorOfAuxilliaryKeplerianElements_( 1 ) = vectorOfKeplerianElements_( 3 )
-            + vectorOfKeplerianElements_( 4 ) + vectorOfKeplerianElements_( 5 );
-    vectorOfAuxilliaryKeplerianElements_( 2 )
-            = vectorOfKeplerianElements_( 3 ) + vectorOfKeplerianElements_( 5 );
-    vectorOfAuxilliaryKeplerianElements_( 3 ) = 2.0e6;
+    Eigen::VectorXd keplerianElements( 6 );
+    keplerianElements( semiMajorAxisIndex ) = 2.5e6;
+    keplerianElements( eccentricityIndex ) = 0.1;
+    keplerianElements( inclinationIndex ) = convertDegreesToRadians( 102.3 );
+    keplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 125.7 );
+    keplerianElements( longitudeOfAscendingNodeIndex )
+            = convertDegreesToRadians( 215.34 );
+    keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
 
     // Test 1: Set Keplerian elements in state object.
-    keplerianElementsStateTest1_.setSemiMajorAxis( vectorOfKeplerianElements_( 0 ) );
-    keplerianElementsStateTest1_.setEccentricity( vectorOfKeplerianElements_( 1 ) );
-    keplerianElementsStateTest1_.setInclination( vectorOfKeplerianElements_( 2 ) );
-    keplerianElementsStateTest1_.setArgumentOfPeriapsis( vectorOfKeplerianElements_( 3 ) );
-    keplerianElementsStateTest1_.setLongitudeOfAscendingNode( vectorOfKeplerianElements_( 4 ) );
-    keplerianElementsStateTest1_.setTrueAnomaly( vectorOfKeplerianElements_( 5 ) );
+    keplerianElementsState.setSemiMajorAxis( keplerianElements( semiMajorAxisIndex ) );
+    keplerianElementsState.setEccentricity( keplerianElements( eccentricityIndex ) );
+    keplerianElementsState.setInclination( keplerianElements( inclinationIndex ) );
+    keplerianElementsState.setArgumentOfPeriapsis( keplerianElements( argumentOfPeriapsisIndex ) );
+    keplerianElementsState.setLongitudeOfAscendingNode( keplerianElements(
+                                                       longitudeOfAscendingNodeIndex ) );
+    keplerianElementsState.setTrueAnomaly( keplerianElements( trueAnomalyIndex ) );
 
-    // Test 1: Get Keplerian elements and store in a state vector.
-    Eigen::VectorXd keplerianElementsStateVectorTest1( 6 );
-    keplerianElementsStateVectorTest1( 0 ) = keplerianElementsStateTest1_.getSemiMajorAxis( );
-    keplerianElementsStateVectorTest1( 1 ) = keplerianElementsStateTest1_.getEccentricity( );
-    keplerianElementsStateVectorTest1( 2 ) = keplerianElementsStateTest1_.getInclination( );
-    keplerianElementsStateVectorTest1( 3 )
-            = keplerianElementsStateTest1_.getArgumentOfPeriapsis( );
-    keplerianElementsStateVectorTest1( 4 )
-            = keplerianElementsStateTest1_.getLongitudeOfAscendingNode( );
-    keplerianElementsStateVectorTest1( 5 ) = keplerianElementsStateTest1_.getTrueAnomaly( );
+    // Check that result from using individual get-functions gives expected results.
+    BOOST_CHECK_EQUAL( keplerianElements( semiMajorAxisIndex ),
+                       keplerianElementsState.getSemiMajorAxis( ) );
 
-    // Test 1: Difference between setting each Keplerian element and the
-    // expected values.
-    Eigen::VectorXd differenceBetweenResultsTest1_( 6 );
-    differenceBetweenResultsTest1_
-            = keplerianElementsStateVectorTest1 - vectorOfKeplerianElements_;
+    BOOST_CHECK_EQUAL( keplerianElements( eccentricityIndex ),
+                       keplerianElementsState.getEccentricity( ) );
 
-    // Test 2: Set Keplerian elements using setState( ) function.
-    keplerianElementsStateTest2_.state = vectorOfKeplerianElements_;
+    BOOST_CHECK_EQUAL( keplerianElements( inclinationIndex ),
+                       keplerianElementsState.getInclination( ) );
 
-    // Test 2: Difference between setting the Keplerian state as a whole and
-    // the expected values.
-    Eigen::VectorXd differenceBetweenResultsTest2_;
-    differenceBetweenResultsTest2_
-            = keplerianElementsStateTest2_.state - vectorOfKeplerianElements_;
+    BOOST_CHECK_EQUAL( keplerianElements( argumentOfPeriapsisIndex ),
+                       keplerianElementsState.getArgumentOfPeriapsis( ) );
 
-    // Test 3: Set eccentricity and semi-latus rectum ( only for parabolic
-    // orbits ).
-    keplerianElementsStateTest2_.setEccentricity( 1.0 );
-    keplerianElementsStateTest2_.setSemiLatusRectum(
-                vectorOfAuxilliaryKeplerianElements_( 3 ) );
+    BOOST_CHECK_EQUAL( keplerianElements( longitudeOfAscendingNodeIndex ),
+                       keplerianElementsState.getLongitudeOfAscendingNode( ) );
 
-    // Test 3: Get auxilliary Keplerian elements and store in a vector.
-    Eigen::VectorXd auxilliaryKeplerianElementsVectorTest3_( 4 );
-    auxilliaryKeplerianElementsVectorTest3_( 0 )
-            = keplerianElementsStateTest2_.getLongitudeOfPeriapsis( );
-    auxilliaryKeplerianElementsVectorTest3_( 1 )
-            = keplerianElementsStateTest2_.getTrueLongitude( );
-    auxilliaryKeplerianElementsVectorTest3_( 2 )
-            = keplerianElementsStateTest2_.getArgumentOfLatitude( );
-    auxilliaryKeplerianElementsVectorTest3_( 3 )
-            = keplerianElementsStateTest2_.getSemiLatusRectum( );
-
-    // Test 3: Difference between getting each auxilliary Keplerian element and
-    // the expected values.
-    Eigen::VectorXd differenceBetweenResultsTest3( 4 );
-    differenceBetweenResultsTest3 = vectorOfAuxilliaryKeplerianElements_
-            - auxilliaryKeplerianElementsVectorTest3_;
-
-    // Set test result to true if the test does not match the expected result.
-    if ( differenceBetweenResultsTest1_.norm( ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        isKeplerianElementsErroneous = true;
-
-        // Generate error statements.
-        cerr << "The computed value " << endl;
-        cerr << "( " << keplerianElementsStateVectorTest1 << " )" << endl;
-        cerr << "using indivudual set/get functions for the "
-             << "KeplerianElements class does not match the expected solution " << endl;
-        cerr << "( " << vectorOfKeplerianElements_ << " )." << endl;
-        cerr << "The difference is: "
-             << vectorOfKeplerianElements_ - keplerianElementsStateVectorTest1 << endl;
-    }
-
-    if ( differenceBetweenResultsTest2_.norm( ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        isKeplerianElementsErroneous = true;
-
-        // Generate error statements.
-        cerr << "The computed value " << endl;
-        cerr << "( " << keplerianElementsStateTest2_.state << " )" << endl;
-        cerr << "using set/get functions for the whole state for the "
-             << "KeplerianElements class does not match the expected solution " << endl;
-        cerr << "( " << vectorOfKeplerianElements_ << " )." << endl;
-        cerr << "The difference is: "
-             << vectorOfKeplerianElements_ - keplerianElementsStateTest2_.state << endl;
-    }
-
-    if ( differenceBetweenResultsTest3.norm( ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        isKeplerianElementsErroneous = true;
-
-        // Generate error statements.
-        cerr << "The computed value " << endl;
-        cerr << "( " << auxilliaryKeplerianElementsVectorTest3_ << " )" << endl;
-        cerr << "using indivudual set/get functions for the auxilliary elements of the "
-             << "KeplerianElements class does not match the expected solution " << endl;
-        cerr << "( " << vectorOfAuxilliaryKeplerianElements_ << " )." << endl;
-        cerr << "The difference is: "
-             << vectorOfAuxilliaryKeplerianElements_ - auxilliaryKeplerianElementsVectorTest3_
-             << endl;
-    }
-
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    if ( isKeplerianElementsErroneous )
-    {
-        cerr << "testKeplerianElements failed!" << endl;
-    }
-
-    return isKeplerianElementsErroneous;
+    BOOST_CHECK_EQUAL( keplerianElements( trueAnomalyIndex ),
+                       keplerianElementsState.getTrueAnomaly( ) );
 }
+
+//! Test if setting state vector is working correctly.
+BOOST_AUTO_TEST_CASE( testKeplerianStateSetFunction )
+{
+    using astrodynamics::states::KeplerianElements;
+    using astrodynamics::states::semiMajorAxisIndex;
+    using astrodynamics::states::eccentricityIndex;
+    using astrodynamics::states::inclinationIndex;
+    using astrodynamics::states::argumentOfPeriapsisIndex;
+    using astrodynamics::states::longitudeOfAscendingNodeIndex;
+    using astrodynamics::states::trueAnomalyIndex;
+    using unit_conversions::convertDegreesToRadians;
+
+    // Create Keplerian elements state.
+    KeplerianElements keplerianElementsState;
+
+    // Create vector of Keplerian elements: semi-major axis, eccentricity,
+    // inclination, argument of periapsis, longitude of the ascending node,
+    // true anomaly.
+    Eigen::VectorXd keplerianElements( 6 );
+    keplerianElements( semiMajorAxisIndex ) = 2.5e6;
+    keplerianElements( eccentricityIndex ) = 0.1;
+    keplerianElements( inclinationIndex ) = convertDegreesToRadians( 102.3 );
+    keplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 125.7 );
+    keplerianElements( longitudeOfAscendingNodeIndex )
+            = convertDegreesToRadians( 215.34 );
+    keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
+
+    // Test 2: Set Keplerian elements as vector in state object.
+    keplerianElementsState.state = keplerianElements;
+
+    // Check that result from using individual get-functions gives expected results.
+    TUDAT_CHECK_MATRIX_BASE( keplerianElements, keplerianElementsState.state )
+            BOOST_CHECK_EQUAL( keplerianElements, keplerianElementsState.state );
+}
+
+//! Test if individual, auxilliary set- and get-functions are working correctly.
+BOOST_AUTO_TEST_CASE( testKeplerianStateIndividualAuxilliarySetFunctions )
+{
+    using astrodynamics::states::KeplerianElements;
+    using astrodynamics::states::semiMajorAxisIndex;
+    using astrodynamics::states::eccentricityIndex;
+    using astrodynamics::states::inclinationIndex;
+    using astrodynamics::states::argumentOfPeriapsisIndex;
+    using astrodynamics::states::longitudeOfAscendingNodeIndex;
+    using astrodynamics::states::trueAnomalyIndex;
+    using astrodynamics::states::semiLatusRectumIndex;
+    using astrodynamics::states::longitudeOfPeriapsisIndex;
+    using astrodynamics::states::trueLongitudeIndex;
+    using astrodynamics::states::argumentOfLatitudeIndex;
+    using unit_conversions::convertDegreesToRadians;
+
+    // Create Keplerian elements state.
+    KeplerianElements keplerianElementsState;
+
+    // Create vector of Keplerian elements: semi-major axis, eccentricity,
+    // inclination, argument of periapsis, longitude of the ascending node,
+    // true anomaly.
+    Eigen::VectorXd keplerianElements( 6 );
+    keplerianElements( semiMajorAxisIndex ) = std::numeric_limits< double >::signaling_NaN( );
+    keplerianElements( eccentricityIndex ) = 1.0;
+    keplerianElements( inclinationIndex ) = convertDegreesToRadians( 102.3 );
+    keplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 125.7 );
+    keplerianElements( longitudeOfAscendingNodeIndex )
+            = convertDegreesToRadians( 215.34 );
+    keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 0.0 );
+
+    // Create vector of auxilliary Keplerian elements: semi-latus rectum, longitude of periapsis,
+    // true longitude, argument of latitude.
+    Eigen::VectorXd auxilliaryKeplerianElements( 4 );
+    auxilliaryKeplerianElements( semiLatusRectumIndex ) = 2.0e6;
+    auxilliaryKeplerianElements( longitudeOfPeriapsisIndex )
+            = keplerianElements( argumentOfPeriapsisIndex )
+            + keplerianElements( longitudeOfAscendingNodeIndex );
+    auxilliaryKeplerianElements( trueLongitudeIndex )
+            = keplerianElements( argumentOfPeriapsisIndex )
+            + keplerianElements( longitudeOfAscendingNodeIndex )
+            + keplerianElements( trueAnomalyIndex );
+    auxilliaryKeplerianElements( argumentOfLatitudeIndex )
+            = keplerianElements( argumentOfPeriapsisIndex )
+            + keplerianElements( trueAnomalyIndex );
+
+    // Test 3: Set Keplerian elements in state object.
+    keplerianElementsState.setSemiLatusRectum(
+                auxilliaryKeplerianElements( semiLatusRectumIndex ) );
+    keplerianElementsState.setEccentricity( keplerianElements( eccentricityIndex ) );
+    keplerianElementsState.setInclination( keplerianElements( inclinationIndex ) );
+    keplerianElementsState.setArgumentOfPeriapsis( keplerianElements( argumentOfPeriapsisIndex ) );
+    keplerianElementsState.setLongitudeOfAscendingNode( keplerianElements(
+                                                       longitudeOfAscendingNodeIndex ) );
+    keplerianElementsState.setTrueAnomaly( keplerianElements( trueAnomalyIndex ) );
+
+    // Check that result from using individual get-functions gives expected results.
+    BOOST_CHECK_EQUAL( auxilliaryKeplerianElements( semiLatusRectumIndex ),
+                       keplerianElementsState.getSemiLatusRectum( ) );
+
+    BOOST_CHECK_EQUAL( auxilliaryKeplerianElements( longitudeOfPeriapsisIndex ),
+                       keplerianElementsState.getLongitudeOfPeriapsis( ) );
+
+    BOOST_CHECK_EQUAL( auxilliaryKeplerianElements( trueLongitudeIndex ),
+                       keplerianElementsState.getTrueLongitude( ) );
+
+    BOOST_CHECK_EQUAL( auxilliaryKeplerianElements( argumentOfLatitudeIndex ),
+                       keplerianElementsState.getArgumentOfLatitude( ) );
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat
