@@ -31,6 +31,7 @@
  *      120127    K. Kumar          Minor comment edits.
  *      120118    D. Gondelach      Added new convertCylindricalToCartesian functions.
  *      120214    K. Kumar          Branched from old Tudat trunk for new coordinate conversions.
+ *      120511    K. Kumar          Added enums for cylindrical and Cartesian coordinates.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -49,6 +50,34 @@ namespace mathematics
 {
 namespace coordinate_conversions
 {
+
+//! Cylindrical coordinate indices.
+/*!
+ * Cylindrical coordinate vector indices, for position and velocity components.
+ */
+enum CylindricalCoordinateIndices
+{
+    rCylindricalCoordinateIndex,
+    thetaCylindricalCoordinateIndex,
+    zCylindricalCoordinateIndex,
+    rDotCylindricalCoordinateIndex,
+    thetaDotCylindricalCoordinateIndex,
+    zDotCylindricalCoordinateIndex
+};
+
+//! Cartesian coordinate indices.
+/*!
+ * Cartesian coordinate vector indices, for position and velocity components.
+ */
+enum CartesianCoordinateIndices
+{
+    xCartesianCoordinateIndex,
+    yCartesianCoordinateIndex,
+    zCartesianCoordinateIndex,
+    xDotCartesianCoordinateIndex,
+    yDotCartesianCoordinateIndex,
+    zDotCartesianCoordinateIndex
+};
 
 //! Convert cylindrical to Cartesian coordinates.
 /*!
