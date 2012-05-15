@@ -22,6 +22,7 @@
  *      110131    K. Kumar          Moved code to CartesianPositionElements  class; added
  *                                  inheritance.
  *      110204    K. Kumar          Removed "vector" from naming.
+ *      120511    K. Kumar          Added enum for Cartesian element indices.
  *
  *    References
  *
@@ -40,6 +41,20 @@ namespace astrodynamics
 {
 namespace states
 {
+
+//! Cartesian element indices.
+/*!
+ * Cartesian element vector indices.
+ */
+enum CartesianElementsIndices
+{
+    xPositionIndex,
+    yPositionIndex,
+    zPositionIndex,
+    xVelocityIndex,
+    yVelocityIndex,
+    zVelocityIndex
+};
 
 //! Cartesian elements class.
 /*!
@@ -62,7 +77,7 @@ public:
      */
     void setCartesianElementXDot( const double cartesianElementXDot )
     {
-        state( 3 ) = cartesianElementXDot;
+        state( xVelocityIndex ) = cartesianElementXDot;
     }
 
     //! Set Cartesian element: yDot.
@@ -72,7 +87,7 @@ public:
      */
     void setCartesianElementYDot( const double cartesianElementYDot )
     {
-        state( 4 ) = cartesianElementYDot;
+        state( yVelocityIndex ) = cartesianElementYDot;
     }
 
     //! Set Cartesian element: zDot.
@@ -82,7 +97,7 @@ public:
      */
     void setCartesianElementZDot( const double cartesianElementZDot )
     {
-        state( 5 ) = cartesianElementZDot;
+        state( zVelocityIndex ) = cartesianElementZDot;
     }
 
     //! Set position.
@@ -104,21 +119,21 @@ public:
      * Returns the Cartesian element: xDot.
      * \return Cartesian element: xDot.
      */
-    double getCartesianElementXDot( ) { return state( 3 ); }
+    double getCartesianElementXDot( ) { return state( xVelocityIndex ); }
 
     //! Get Cartesian element: yDot.
     /*!
      * Returns the Cartesian element: yDot.
      * \return Cartesian element: yDot.
      */
-    double getCartesianElementYDot( ) { return state( 4 ); }
+    double getCartesianElementYDot( ) { return state( yVelocityIndex ); }
 
     //! Get Cartesian element: zDot.
     /*!
      * Returns the Cartesian element: zDot.
      * \return Cartesian element: zDot.
      */
-    double getCartesianElementZDot( ) { return state( 5 ); }
+    double getCartesianElementZDot( ) { return state( zVelocityIndex ); }
 
     //! Get position.
     /*!

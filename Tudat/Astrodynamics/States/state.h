@@ -20,6 +20,8 @@
  *      110204    K. Kumar          Note added about public state variable.
  *      110207    K. Kumar          Added ostream overload.
  *      111123    B. Tong Minh      Added custom constructors.
+ *      120509    K. Kumar          Modified length-initializer to initialize element values to
+ *                                  zero.
  *
  *    References
  *
@@ -67,10 +69,11 @@ public:
 
     //! Constructor with initial length.
     /*!
-     * Custom constructor, which sets the internal state vector to the specified length.
+     * Custom constructor, which sets the internal state vector to the specified length, with all
+     * elements set to zero.
      * \param stateLength Length of the state vector.
      */
-    State( int stateLength ) : state( stateLength ) { }
+    State( int stateLength ) : state( Eigen::VectorXd::Zero( stateLength ) ) { }
 
     //! Default destructor.
     /*!

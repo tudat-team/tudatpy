@@ -13,71 +13,77 @@
  *      YYMMDD    Author            Comment
  *      111123    B. Tong Minh      First creation of the code.
  *      111201    K. Kumar          Minor corrections; fixed error in initialize length unit test.
+ *      120508    K. Kumar          Boostified unit test.
  *
  *    References
  *
  */
 
-// Temporary notes (move to class/function doxygen):
-// Test runs code and verifies result against expected value.
-// If the tested code is erroneous, the test function returns a boolean
-// true; if the code is correct, the function returns a boolean false.
-// 
+#define BOOST_TEST_MAIN
 
 #include <Eigen/Core>
+
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
+
+#include <TudatCore/Basics/testMacros.h>
+
 #include "Tudat/Astrodynamics/States/state.h"
 
-//! Test orbital element conversion code.
-int main( )
+namespace tudat
 {
-    // Using declarations.
-    using tudat::astrodynamics::states::State;
+namespace unit_tests
+{
 
-    // Initialize unit test result to false.
-    bool isStateTestErroneous = false;
+BOOST_AUTO_TEST_SUITE( test_state )
 
-    // Test the constructors.
+//! Test if state constructor is working correctly.
+BOOST_AUTO_TEST_CASE( testStateConstructor )
+{
     // Test default constructor.
-    State uninitializedState;
-    if ( uninitializedState.state.rows( ) != 0 )
     {
-        std::cerr << "Uninitialized state vector length was " << uninitializedState.state.rows( )
-                  << "; expected 0" << std::endl;
-        isStateTestErroneous = true;
+        // Declare uninitialized state.
+        astrodynamics::states::State uninitializedState;
+
+        // Check that size of uninitiatialized state is zero.
+        BOOST_CHECK_EQUAL( uninitializedState.state.rows( ), 0 );
     }
 
-    // Test constructor to initialize with a given Eigen VectorXd state.
-    Eigen::VectorXd stateVector = Eigen::VectorXd::Random( 10 );
-    State randomState( stateVector );
-    if ( randomState.state.rows( ) != 10 )
+    // Test constructor that initializes state, given an Eigen::VectorXd vector.
     {
-        std::cerr << "Random state vector length was " << randomState.state.rows( )
-                  << "; expected 10" << std::endl;
-        isStateTestErroneous = true;
+        // Set size of state.
+        const double stateSize = 10;
+
+        // Create vector.
+        const Eigen::VectorXd stateVector = ( Eigen::VectorXd( stateSize )
+                                              << 1.0, 3.0, 4.6, 9.0, -0.3,
+                                              10.6, 9.4, 0.56, 8.4, 10.3 ).finished( );
+
+        // Create state from vector.
+        astrodynamics::states::State initializedState( stateVector );
+
+        // Check that state is as expected.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateVector, initializedState.state,
+                                           std::numeric_limits< double >::epsilon( ) );
     }
 
-    if ( randomState.state != stateVector )
+    // Test constructor that initializes size of state (elements set to zero).
     {
-        std::cerr << "Random state vector was not equal to the one passed to the constructor!"
-                  << std::endl;
-        isStateTestErroneous = true;
+        // Set size of state.
+        const double stateSize = 10;
+
+        // Create state from vector.
+        astrodynamics::states::State sizeInitializedState( stateSize );
+
+        // Check that state is as expected.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::VectorXd::Zero( stateSize ),
+                                           sizeInitializedState.state,
+                                           std::numeric_limits< double >::epsilon( ) );
     }
 
-    // Test constructor to initialize length of state.
-    State lengthInitializedState( 13 );
-    if ( lengthInitializedState.state.rows( ) != 13 )
-    {
-        std::cerr << "Length initialized state vector length was "
-                  << lengthInitializedState.state.rows( ) << "; expected 13." << std::endl;
-        isStateTestErroneous = true;
-    }
-
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    if ( isStateTestErroneous )
-    {
-        std::cerr << "testState failed!" << std::endl;
-    }
-
-    return isStateTestErroneous;
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat
