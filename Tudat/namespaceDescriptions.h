@@ -179,6 +179,16 @@ namespace output
 namespace mathematics
 {
 
+//! Coordinate conversions namespace.
+/*!
+ * This namespace contains functions to convert between different coordinates. At this point
+ * conversion between cylindrical and Cartesian coordinates is included.
+ */
+namespace coordinate_conversions
+{
+
+} // namespace coordinate_conversions
+
 //! Interpolators namespace.
 /*!
  * The interpolators namespace, containing the cubic spline interpolation class and functions to
