@@ -62,7 +62,8 @@ Eigen::VectorXd ApproximatePlanetPositionsCircularCoplanar::getCartesianStateFro
     Eigen::VectorXd planetCartesianStateAtGivenJulianDate( 6 );
     planetCartesianStateAtGivenJulianDate.segment( 0, 3 ) = mathematics::coordinate_conversions::
             convertSphericalToCartesian( Eigen::Vector3d( constantOrbitalRadius_,
-                                      0.5 * mathematics::PI, meanLongitudeAtGivenJulianDate_ ) );
+                                                          0.5 * mathematics::PI,
+                                                          meanLongitudeAtGivenJulianDate_ ) );
 
     // Create predefined Sun.
     bodies::Planet predefinedSun_;
