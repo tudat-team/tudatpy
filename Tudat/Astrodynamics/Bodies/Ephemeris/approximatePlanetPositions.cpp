@@ -16,6 +16,7 @@
  *      120217    K. Kumar          Updated computeModuloForSignedValues() to computeModulo()
  *                                  from Tudat Core.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
+ *      120522    P. Musegaas       Fixed bug for coordinates of outer planets.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the
@@ -108,11 +109,13 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
     meanAnomalyAtGivenJulianDate_ = meanLongitudeAtGivenJulianDate_
             - longitudeOfPerihelionAtGivenJulianDate_
             + ( approximatePlanetPositionsDataContainer_.additionalTermB_
-                * pow( julianDate, 2.0 ) )
+                * pow( numberOfCenturiesPastJ2000_, 2.0 ) )
             + ( approximatePlanetPositionsDataContainer_.additionalTermC_
-                * cos( approximatePlanetPositionsDataContainer_.additionalTermF_ * julianDate ) )
+                * cos( approximatePlanetPositionsDataContainer_.additionalTermF_ *
+                       numberOfCenturiesPastJ2000_ ) )
             + ( approximatePlanetPositionsDataContainer_.additionalTermS_
-                * sin( approximatePlanetPositionsDataContainer_.additionalTermF_ * julianDate ) );
+                * sin( approximatePlanetPositionsDataContainer_.additionalTermF_ *
+                       numberOfCenturiesPastJ2000_ ) );
 
     // Compute modulo of mean anomaly for interval :
     // 0 <= meanAnomalyAtGivenJulianDate_ < 360.
