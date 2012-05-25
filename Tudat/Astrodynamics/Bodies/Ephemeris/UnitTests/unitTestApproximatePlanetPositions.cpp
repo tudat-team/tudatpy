@@ -123,8 +123,7 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
                     predefinedSun.getGravityFieldModel( )->getGravitationalParameter( ) );
 
     // Check the eccentricity, inclination and z-component of velocity and position are 0.
-    BOOST_CHECK_SMALL( keplerianElementsCircularCoplanar( 1 ),
-                       std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( keplerianElementsCircularCoplanar( 1 ), 1e-15 );
     BOOST_CHECK_SMALL( keplerianElementsCircularCoplanar( 2 ),
                        std::numeric_limits< double >::min( ) );
     BOOST_CHECK_SMALL( marsEphemerisCircularCoplanar( 2 ), 2.0e-5 );
