@@ -27,6 +27,7 @@ set(BASICMATHEMATICS_SOURCES
 set(BASICMATHEMATICS_HEADERS 
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/coordinateConversions.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/nearestNeighbourSearch.h"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/numericalDerivative.h"
 )
 
 # Add static libraries.
@@ -35,9 +36,13 @@ setup_tudat_library_target(tudat_basic_mathematics "${SRCROOT}${MATHEMATICSDIR}/
 
 # Add unit tests.
 add_executable(test_CoordinateConversions "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/UnitTests/unitTestCoordinateConversions.cpp")
-setup_custom_test_program(test_CoordinateConversions "${SRCROOT}${BASICSDIR}")
+setup_custom_test_program(test_CoordinateConversions "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
 target_link_libraries(test_CoordinateConversions tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_NearestNeighbourSearch "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/UnitTests/unitTestNearestNeighbourSearch.cpp")
-setup_custom_test_program(test_NearestNeighbourSearch "${SRCROOT}${BASICSDIR}")
+setup_custom_test_program(test_NearestNeighbourSearch "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
 target_link_libraries(test_NearestNeighbourSearch tudat_input_output tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_NumericalDerivative "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/UnitTests/unitTestNumericalDerivative.cpp")
+setup_custom_test_program(test_NumericalDerivative "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
+target_link_libraries(test_NumericalDerivative ${Boost_LIBRARIES})

@@ -46,7 +46,7 @@
 
 namespace tudat
 {
-namespace mathematics
+namespace basic_mathematics
 {
 namespace coordinate_conversions
 {
@@ -173,7 +173,7 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianState );
 
 } // namespace coordinate_conversions
-} // namespace mathematics
+} // namespace basic_mathematics
 } // namespace tudat
 
 #endif // TUDAT_COORDINATE_CONVERSIONS_H

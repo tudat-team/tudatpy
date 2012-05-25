@@ -40,7 +40,7 @@
 
 namespace tudat
 {
-namespace mathematics
+namespace basic_mathematics
 {
 
 //! Nearest left neighbor binary search.
@@ -67,7 +67,7 @@ int computeNearestLeftNeighborUsingBinarySearch(
         const std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
         const double targetValueInMapOfData );
 
-} // namespace mathematics
+} // namespace basic_mathematics
 } // namespace tudat
 
 #endif // TUDAT_BASIC_MATHEMATICS_H

@@ -57,10 +57,8 @@ double computeLinearInterpolation( Eigen::VectorXd& sortedIndependentVariables,
 
     // Compute nearest neighbor in sorted vector of independent variables.
     // Result is always to the left of the target independent variable value.
-    nearestNeighbor = mathematics
-                      ::computeNearestLeftNeighborUsingBinarySearch(
-            sortedIndependentVariables,
-            targetIndependentVariableValue );
+    nearestNeighbor = basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
+            sortedIndependentVariables, targetIndependentVariableValue );
 
     // Compute location of target independent variable value in interval
     // between nearest neighbors.
@@ -95,10 +93,8 @@ Eigen::VectorXd computeLinearInterpolation(
 
     // Compute nearest neighbor in map of data.
     // Result is always to the left of the target independent variable value.
-    nearestLeftNeighbor = mathematics::
-                          computeNearestLeftNeighborUsingBinarySearch(
-                                  sortedIndepedentAndDependentVariables,
-                                  targetIndependentVariableValue );
+    nearestLeftNeighbor = basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
+                sortedIndepedentAndDependentVariables, targetIndependentVariableValue );
 
     // Compute location of target independent variable value in interval
     // between nearest neighbors.
