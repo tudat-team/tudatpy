@@ -16,6 +16,8 @@
  *      120321    K. Kumar          Moved circular restricted three-body problem inside gravitation
  *                                  namespace, which is inside a new astrodynamics namespace.
  *      120515    P. Musegaas       Added states namespace.
+ *      120525    K. Kumar          Moved basic_mathematics namespace to tudat; added
+ *                                  numerical_derivatives.
  *
  *    References
  */
@@ -172,11 +174,12 @@ namespace output
 
 } // namespace output
 
-//! Mathematics namespace.
+//! Basic mathematics namespace.
 /*!
- * The mathematics namespace, containing various mathematical functions and related namespaces
+ * The basic mathematics namespace, containing coordinate conversions, a nearest neighbor search
+ * algorithm, and functions to compute numerical derivatives.
  */
-namespace mathematics
+namespace basic_mathematics
 {
 
 //! Coordinate conversions namespace.
@@ -188,6 +191,25 @@ namespace coordinate_conversions
 {
 
 } // namespace coordinate_conversions
+
+//! numerical derivatives namespace.
+/*!
+ * This namespace contains functions to compute numerical derivatives. Currently, computations are
+ * included to 2nd-, 4th- and 8th-order.
+ */
+namespace numerical_derivatives
+{
+
+} // namespace numerical_derivatives
+
+} // namespace basic_mathematics
+
+//! Mathematics namespace.
+/*!
+ * The mathematics namespace, containing various mathematical functions and related namespaces
+ */
+namespace mathematics
+{
 
 //! Interpolators namespace.
 /*!

@@ -60,7 +60,7 @@ double CubicSplineInterpolation::interpolate( double targetIndependentVariableVa
 
     // Determine the lower entry in the table corresponding to the target independent variable
     // value.
-    lowerEntry_ = tudat::mathematics::computeNearestLeftNeighborUsingBinarySearch(
+    lowerEntry_ = tudat::basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
             independentVariables_, targetIndependentVariableValue_ );
 
     // Calculate coefficients A,B,C,D.

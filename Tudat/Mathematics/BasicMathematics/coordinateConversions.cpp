@@ -39,18 +39,20 @@
  *
  */
 
-#include <boost/math/special_functions/sign.hpp>
-#include <iostream>
 #include <cmath>
+#include <iostream>
 #include <limits>
 #include <numeric>
+
+#include <boost/math/special_functions/sign.hpp>
+
 #include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
 #include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 namespace tudat
 {
-namespace mathematics
+namespace basic_mathematics
 {
 namespace coordinate_conversions
 {
@@ -155,6 +157,7 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
     /* If x = 0, then azimuthAngle = pi/2 (y>0) or 3*pi/2 (y<0) or 0 (y=0),
        else azimuthAngle = arctan(y/x).
     */
+    using tudat::mathematics::PI;
     if ( std::fabs(cartesianCoordinates( 0 ) ) <= std::numeric_limits< double >::epsilon( ) )
     {
         azimuthAngle = tudat::mathematics::computeModulo(
@@ -215,5 +218,5 @@ Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianS
 }
 
 } // namespace coordinate_conversions
-} // namespace mathematics
+} // namespace basic_mathematics
 } // namespace tudat

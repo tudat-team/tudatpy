@@ -42,7 +42,7 @@
 
 namespace tudat
 {
-namespace mathematics
+namespace basic_mathematics
 {
 
 //! Nearest left neighbor binary search.
@@ -150,5 +150,5 @@ int computeNearestLeftNeighborUsingBinarySearch(
     return currentPositionInKeyOfMapOfData;
 }
 
-} // namespace mathematics
+} // namespace basic_mathematics
 } // namespace tudat

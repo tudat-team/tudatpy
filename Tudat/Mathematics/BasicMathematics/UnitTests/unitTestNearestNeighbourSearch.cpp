@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         {
             BOOST_CHECK_EQUAL(
                         vectorOfExpectedIndices[ i ],
-                        tudat::mathematics::computeNearestLeftNeighborUsingBinarySearch(
+                        tudat::basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
                             vectorOfSortedData, vectorOfTargetValues[ i ] ) );
         }
     }
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         {
             BOOST_CHECK_EQUAL(
                         vectorOfExpectedIndices[ i ],
-                        tudat::mathematics::computeNearestLeftNeighborUsingBinarySearch(
+                        tudat::basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
                             mapOfSortedData, vectorOfTargetValues[ i ] ) );
         }
     }

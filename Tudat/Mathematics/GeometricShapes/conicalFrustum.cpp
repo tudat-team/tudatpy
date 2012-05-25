@@ -66,8 +66,8 @@ Eigen::VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle, double len
 
 
     // Set x and y coordinate of untransformed cone.
-    cartesianPositionVector_ = mathematics::coordinate_conversions::convertCylindricalToCartesian(
-                Eigen::Vector3d( localRadius_, azimuthAngle, 0.0 ) );
+    cartesianPositionVector_ = basic_mathematics::coordinate_conversions::
+            convertCylindricalToCartesian( Eigen::Vector3d( localRadius_, azimuthAngle, 0.0 ) );
 
     // Set z coordinate of untransformed cone.
     cartesianPositionVector_( 2 ) = -length_ * lengthFraction;

@@ -66,9 +66,9 @@ BOOST_AUTO_TEST_SUITE( test_coordinate_conversions )
 BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
 {
     using tudat::mathematics::PI;
-    using tudat::mathematics::coordinate_conversions::xCartesianCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::yCartesianCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::zCartesianCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
 
     // Test 1: test conversion of ( 0.0, pi, 1.2 ).
     {
@@ -79,7 +79,8 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
         Eigen::Vector3d expectedCartesianCoordinates( 0.0, 0.0, 1.2 );
 
         // Convert cylindrical to Cartesian coordinates.
-        Eigen::Vector3d computedCartesianCoordinates = tudat::mathematics::coordinate_conversions::
+        Eigen::Vector3d computedCartesianCoordinates
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCylindricalToCartesian( cylindricalCoordinates );
 
         // Check if computed Cartesian coordinates match expected values.
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
 
         // Convert cylindrical to Cartesian coordinates.
         Eigen::Vector3d convertedCartesianCoordinates
-                = tudat::mathematics::coordinate_conversions::
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCylindricalToCartesian( cylindricalCoordinates );
 
         // Check if converted Cartesian coordinates match expected values.
@@ -125,9 +126,9 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
 BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateConversion )
 {
     using tudat::mathematics::PI;
-    using tudat::mathematics::coordinate_conversions::xCartesianCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::yCartesianCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::zCartesianCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
 
     // Test 1: test conversion of (2.1, pi/2.0, 1.2, 5.4, 4.5, -3.9).
     {
@@ -146,7 +147,8 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
                                     -3.9 ).finished( );
 
         // Convert cylindrical to Cartesian state (x, y, z, xdot, ydot, zdot).
-        Eigen::VectorXd convertedCartesianState = tudat::mathematics::coordinate_conversions::
+        Eigen::VectorXd convertedCartesianState
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCylindricalToCartesian( cylindricalState );
 
         // Check if converted Cartesian state match expected state.
@@ -178,7 +180,8 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
                                     1.7 ).finished( );
 
         // Convert cylindrical to Cartesian state (x, y, z, xdot, ydot, zdot).
-        Eigen::VectorXd convertedCartesianState = tudat::mathematics::coordinate_conversions::
+        Eigen::VectorXd convertedCartesianState
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCylindricalToCartesian( cylindricalState );
 
         // Check if converted Cartesian state match expected state.
@@ -199,9 +202,9 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
 BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 {
     using tudat::mathematics::PI;
-    using tudat::mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
 
     // Test 1: test conversion of ( 0.0, 0.0, 1.0 ).
     {
@@ -213,7 +216,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 
         // Convert Cartesian to cylindrical coordinates (r, theta, z).
         Eigen::Vector3d convertedCylindricalCoordinates
-                = tudat::mathematics::coordinate_conversions::
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianCoordinates );
 
         // Check if converted cylindrical coordinates match expected values.
@@ -238,7 +241,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 
         // Convert Cartesian to cylindrical coordinates (r, theta, z).
         Eigen::Vector3d convertedCylindricalCoordinates
-                = tudat::mathematics::coordinate_conversions::
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianCoordinates );
 
         // Check if converted cylindrical coordinates match expected values.
@@ -257,7 +260,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 
         // Convert Cartesian to cylindrical coordinates (r, theta, z).
         Eigen::Vector3d convertedCylindricalCoordinates
-                = tudat::mathematics::coordinate_conversions::
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianCoordinates );
 
         // Check if converted cylindrical coordinates match expected values.
@@ -278,7 +281,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 
         // Convert Cartesian to cylindrical coordinates (r, theta, z).
         Eigen::Vector3d convertedCylindricalCoordinates
-                = tudat::mathematics::coordinate_conversions::
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianCoordinates );
 
         // Check if converted cylindrical coordinates match expected values.
@@ -294,12 +297,12 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateConversion )
 {
     using tudat::mathematics::PI;
-    using tudat::mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::rDotCylindricalCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::thetaDotCylindricalCoordinateIndex;
-    using tudat::mathematics::coordinate_conversions::zDotCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::rDotCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::thetaDotCylindricalCoordinateIndex;
+    using tudat::basic_mathematics::coordinate_conversions::zDotCylindricalCoordinateIndex;
 
     // Test 1: test conversion of ( 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).
     {
@@ -314,7 +317,8 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
                                                      0.0, -9.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd convertedCylindricalState = tudat::mathematics::coordinate_conversions::
+        Eigen::VectorXd convertedCylindricalState
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianState );
 
         // Check that converted cylindrical state matches expected state.
@@ -352,7 +356,8 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
                                                      -4.0, 6.0, -6.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd convertedCylindricalState = tudat::mathematics::coordinate_conversions::
+        Eigen::VectorXd convertedCylindricalState
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianState );
 
         // Check that converted cylindrical state matches expected state.
@@ -386,7 +391,8 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
                                                      / sqrt( 49.0 + 16.0 ), 7.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd convertedCylindricalState = tudat::mathematics::coordinate_conversions::
+        Eigen::VectorXd convertedCylindricalState
+                = tudat::basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianState );
 
         // Check that converted cylindrical state matches expected state.
