@@ -18,27 +18,30 @@
  *                                  filename and class name.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120508    K. Kumar          Updated code so input data is set at construction.
+ *      120521    A. Ronse          Updated namespaces.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
  *          Scientific Computing. Cambridge University Press, February 2002.
  *
+ *    This method does not include individual weights for the observations. The independent
+ *    variable input data must be distinct for this method work. In addition, a full Linear Least
+ *    Squares (LLS) method must be added in future that uses the general formulation of the normal
+ *    equations.
+ *
  */
-
-// Temporary notes (move to class/function doxygen):
-// The independent variable input data must be distinct for this method to
-// work. This method does not include individual weights for the
-// observations. This must be added in future. In addition, a full Linear
-// Least Squares method must be added in future that uses the general
-// formulation of the normal equations.
-// 
 
 #ifndef TUDAT_SIMPLE_LINEAR_REGRESSION_H
 #define TUDAT_SIMPLE_LINEAR_REGRESSION_H
 
 #include <map>
 
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
 namespace tudat
+{
+namespace statistics
 {
 
 //! Simple linear regression class.
@@ -49,22 +52,27 @@ class SimpleLinearRegression
 {
 public:
 
+    //! Type definition of map of input data.
+    /*!
+     * Type definition of map of input data.
+     */
+    typedef std::map< double, double > InputDataMap;
+
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    SimpleLinearRegression( ) : chiSquared_( -0.0 ), coefficientOfConstantTerm_( -0.0 ),
-        coefficientOfLinearTerm_( -0.0 ), standardDeviationOfCoefficientOfConstantTerm_( -0.0 ),
-        standardDeviationOfCoefficientOfLinearTerm_( -0.0 ), sumOfDependentVariableData_( -0.0 ),
-        sumOfIndependentVariableData_( -0.0 ) { }
-
-    //! Set input data.
-    /*!
-     * Sets input data to be fitted in a map.
-     * \param inputDataToFit Input data to fit.
-     */
-    void setInputData( const std::map< double, double >& inputDataToFit )
-    { inputDataToFit_ = inputDataToFit; }
+    SimpleLinearRegression( const InputDataMap& inputDataToFit )
+        : chiSquared_( TUDAT_NAN ),
+          coefficientOfConstantTerm_( TUDAT_NAN ),
+          coefficientOfLinearTerm_( TUDAT_NAN ),
+          standardDeviationOfCoefficientOfConstantTerm_( TUDAT_NAN ),
+          standardDeviationOfCoefficientOfLinearTerm_( TUDAT_NAN ),
+          sumOfDependentVariableData_( TUDAT_NAN ),
+          sumOfIndependentVariableData_( TUDAT_NAN ),
+          sumOfTemporaryVariableSquared_( TUDAT_NAN ),
+          inputDataToFit_( inputDataToFit )
+    { }
 
     //! Get coefficient of constant term of fit.
     /*!
@@ -93,7 +101,9 @@ public:
      * \return Standard deviation of coefficient of constant term.
      */
     double getStandardDeviationOfCoefficientOfConstantTerm( ) const
-    { return standardDeviationOfCoefficientOfConstantTerm_; }
+    {
+        return standardDeviationOfCoefficientOfConstantTerm_;
+    }
 
     //! Get standard deviation of coefficient of linear term of fit.
     /*!
@@ -101,7 +111,9 @@ public:
      * \return Standard deviation of coefficient of linear term.
      */
     double getStandardDeviationOfCoefficientOfLinearTerm( ) const
-    { return standardDeviationOfCoefficientOfLinearTerm_; }
+    {
+        return standardDeviationOfCoefficientOfLinearTerm_;
+    }
 
     //! Compute fit.
     /*!
@@ -128,12 +140,6 @@ public:
 protected:
 
 private:
-
-    //! Type definition of map of input data.
-    /*!
-     * Type definition of map of input data.
-     */
-    typedef std::map< double, double > InputDataMap;
 
     //! Chi-squared value.
     /*!
@@ -211,6 +217,7 @@ private:
     void sumDependentVariableData_( );
 };
 
+} // namespace statistics
 } // namespace tudat
 
 #endif // TUDAT_SIMPLE_LINEAR_REGRESSION_H

@@ -33,9 +33,9 @@ add_library(tudat_statistics STATIC ${STATISTICS_SOURCES} ${STATISTICS_HEADERS})
 setup_tudat_library_target(tudat_statistics "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 
 # Add unit tests.
-add_executable(test_SimpleLinearRegression "${SRCROOT}${MATHEMATICSDIR}/Statistics/unitTestSimpleLinearRegression.cpp")
+add_executable(test_SimpleLinearRegression "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestSimpleLinearRegression.cpp")
 setup_custom_test_program(test_SimpleLinearRegression "${SRCROOT}${MATHEMATICSDIR}/Statistics")
-target_link_libraries(test_SimpleLinearRegression tudat_statistics)
+target_link_libraries(test_SimpleLinearRegression tudat_statistics ${Boost_LIBRARIES})
 
 add_executable(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestBasicStatistics.cpp")
 setup_custom_test_program(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics")
