@@ -1,13 +1,26 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2012, Delft University of Technology
+ *    All rights reserved.
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
+ *    Redistribution and use in source and binary forms, with or without modification, are
+ *    permitted provided that the following conditions are met:
+ *      - Redistributions of source code must retain the above copyright notice, this list of
+ *        conditions and the following disclaimer.
+ *      - Redistributions in binary form must reproduce the above copyright notice, this list of
+ *        conditions and the following disclaimer in the documentation and/or other materials
+ *        provided with the distribution.
+ *      - Neither the name of the Delft University of Technology nor the names of its contributors
+ *        may be used to endorse or promote products derived from this software without specific
+ *        prior written permission.
  *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
+ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+ *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
  *      YYMMDD    Author            Comment
@@ -19,10 +32,9 @@
  *      111027    K. Kumar          Removed dynamic memory allocation.
  *
  *    References
- *      Leloux, J. Filtering Techniques for Orbital Debris Conjunction Analysis
- *          - applied to SSN TLE catalog data and including astrodynamics and
- *          collision probability theory, MSc Literature Research, Delft
- *          University of Technology, 2010.
+ *      Leloux, J. Filtering Techniques for Orbital Debris Conjunction Analysis - applied to SSN
+ *          TLE catalog data and including astrodynamics and collision probability theory, MSc
+ *          Literature Research, Delft University of Technology, 2010.
  *      Celestrak (a). Space Track TLE Retriever Help,
  *          http://celestrak.com/SpaceTrack/TLERetrieverHelp.asp, 2011. Last
  *          accessed: 5 August, 2011.
@@ -34,19 +46,17 @@
  *          http://celestrak.com/NORAD/documentation/tle-fmt.asp, 2004. Last
  *          accessed: 5 August, 2011.
  *
+ *    Raw TLE data can be obtained from (Celestrak (a), 2011). Explanations of the TLE data
+ *    format can be viewed in (Space Track, 2004), (Celestrak (b), 2006), and
+ *    (Celestrak (c), 2004).
  */
-
-// Temporary notes (move to class/function doxygen):
-// Raw TLE data can be obtained from (Celestrak (a), 2011). Explanations of the TLE data
-// format can be viewed in (Space Track, 2004), (Celestrak (b), 2006), and
-// (Celestrak (c), 2004).
-// 
 
 #include <ctime>
 #include <cstdlib>
 #include <map>
 #include <string>
 #include <vector>
+
 #include "Tudat/InputOutput/twoLineElementsTextFileReader.h"
 
 //! Test implementation of TLE text file reader class.
