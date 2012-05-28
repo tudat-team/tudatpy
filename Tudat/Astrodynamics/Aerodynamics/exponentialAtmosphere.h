@@ -1,13 +1,26 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2012, Delft University of Technology
+ *    All rights reserved.
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
+ *    Redistribution and use in source and binary forms, with or without modification, are
+ *    permitted provided that the following conditions are met:
+ *      - Redistributions of source code must retain the above copyright notice, this list of
+ *        conditions and the following disclaimer.
+ *      - Redistributions in binary form must reproduce the above copyright notice, this list of
+ *        conditions and the following disclaimer in the documentation and/or other materials
+ *        provided with the distribution.
+ *      - Neither the name of the Delft University of Technology nor the names of its contributors
+ *        may be used to endorse or promote products derived from this software without specific
+ *        prior written permission.
  *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
+ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+ *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
  *      YYMMDD    Author            Comment
@@ -25,9 +38,10 @@
 #ifndef TUDAT_EXPONENTIAL_ATMOSPHERE_H
 #define TUDAT_EXPONENTIAL_ATMOSPHERE_H
 
-#define TUDAT_UNUSED_PARAMETER( unusedParameter ) { ( void ) unusedParameter; }
-
 #include <cmath>
+
+#include <TudatCore/Basics/utilityMacros.h>
+
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 
 namespace tudat
@@ -56,8 +70,12 @@ public:
     /*!
      * Default constructor.
      */
-    ExponentialAtmosphere( ) : scaleHeight_( -0.0 ), constantTemperature_( -0.0 ),
-        densityAtZeroAltitude_( -0.0 ), specificGasConstant_( -0.0 ) { }
+    ExponentialAtmosphere( )
+        : scaleHeight_( -0.0 ),
+          constantTemperature_( -0.0 ),
+          densityAtZeroAltitude_( -0.0 ),
+          specificGasConstant_( -0.0 )
+    { }
 
     //! Set predefined exponential atmosphere settings.
     /*!
@@ -84,8 +102,10 @@ public:
     /*!
      * Sets the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
-    void setDensityAtZeroAltitude( double densityAtZeroAltitude )
-    { densityAtZeroAltitude_ = densityAtZeroAltitude; }
+    void setDensityAtZeroAltitude( const double densityAtZeroAltitude )
+    {
+        densityAtZeroAltitude_ = densityAtZeroAltitude;
+    }
 
     //! Get density at zero altitude.
     /*!
@@ -97,8 +117,10 @@ public:
     /*!
      * Sets the atmospheric temperature (constant, property of exponential atmosphere) in Kelvin.
      */
-    void setConstantTemperature( double constantTemperature )
-    { constantTemperature_ = constantTemperature; }
+    void setConstantTemperature( const double constantTemperature )
+    {
+        constantTemperature_ = constantTemperature;
+    }
 
     //! Get constant temperature.
     /*!
@@ -112,8 +134,10 @@ public:
      * Sets the specific gas constant of the air in J/(kg K), its value is assumed constant,
      * due to the assumption of constant atmospheric composition.
      */
-    void setSpecificGasConstant( double specificGasConstant )
-    { specificGasConstant_ = specificGasConstant; }
+    void setSpecificGasConstant( const double specificGasConstant )
+    {
+        specificGasConstant_ = specificGasConstant;
+    }
 
     //! Get specific gas constant.
     /*!
