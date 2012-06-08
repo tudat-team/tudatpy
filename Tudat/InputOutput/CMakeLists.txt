@@ -74,3 +74,15 @@ target_link_libraries(test_BasicInputOutput tudat_input_output ${TUDAT_CORE_LIBR
 add_executable(test_WhiteSpaceParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestWhitespaceParser.cpp")
 setup_custom_test_program(test_WhiteSpaceParser "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_WhiteSpaceParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_ParsedDataVectorUtilities "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestParsedDataVectorUtilities.cpp")
+setup_custom_test_program(test_ParsedDataVectorUtilities "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_ParsedDataVectorUtilities tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_FieldValue "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestFieldValue.cpp")
+setup_custom_test_program(test_FieldValue "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_FieldValue tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_TextParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestTextParser.cpp")
+setup_custom_test_program(test_TextParser "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_TextParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

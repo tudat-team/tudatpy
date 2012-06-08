@@ -58,7 +58,7 @@ class TextParser : public Parser
 {
 public:
 
-    //! Create the default TextParser with proccesAsStream == false.
+    //! Create the default TextParser with processAsStream == false.
     /*!
      * The default constructor for TextParser causes the parser to behave as a line based parser.
      */
@@ -73,9 +73,9 @@ public:
      * \param processAsStream Boolean that determines whether the parsing should be done as a
      * stream (string is default).
      */
-    TextParser( bool proccesAsStream )
+    TextParser( bool processAsStream )
         : parsedData( boost::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ),
-          parseAsStream( proccesAsStream )
+          parseAsStream( processAsStream )
     { }
 
     //! Default destructor, no new objects besides smart ones.
