@@ -48,15 +48,6 @@ namespace input_output
 namespace parsed_data_vector_utilities
 {
 
-//! Get the value of a given field from the data map containing (K=FieldType, V=fieldvalue).
-template< typename V >
-V getField( ParsedDataLineMapPtr data, FieldType field )
-{
-    boost::shared_ptr< FieldValue > value = data->find( field )->second;
-    boost::shared_ptr< std::string > str = value->get( );
-    return boost::lexical_cast< V >( *str );
-}
-
 //! Filter the data vector for entries containing a given FieldType.
 ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, ...)
 {
@@ -100,12 +91,12 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
                 found = false;
                 break;
             }
+        }
 
-            // If all the fields are present, add the current line to the new (filtered) vector.
-            if ( found )
-            {
-                newdatavector->push_back( *currentDataLine );
-            }
+        // If all the fields are present, add the current line to the new (filtered) vector.
+        if ( found )
+        {
+            newdatavector->push_back( *currentDataLine );
         }
     }
 
@@ -114,6 +105,7 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
 }
 
 //! Filter the data vector vector for entries containing a given FieldType and a matching
+//! FieldValue regex.
 ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFields, ... )
 {
     // Create a fancy vector (list) of all the fields:
@@ -190,7 +182,7 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
 std::ostream& dump( std::ostream& stream, ParsedDataLineMapPtr data, bool showTransformed )
 {
     // Initial character to separate elements.
-    std::cout << "|";
+    stream << "|";
 
     // Loop over data map.
     for( ParsedDataLineMap::iterator element = data->begin( );
@@ -212,7 +204,7 @@ std::ostream& dump( std::ostream& stream, ParsedDataLineMapPtr data, bool showTr
         stream << "\t|";
     }
 
-    stream << std::endl;
+    stream << "\n";
     return stream;
 }
 
@@ -226,7 +218,7 @@ std::ostream& dump( std::ostream& stream, ParsedDataVectorPtr data, bool showTra
         ParsedDataLineMapPtr line = data->at( i );
 
         // Call dump function for single line (datamap).
-        stream << dump (stream, line, showTransformed );
+        dump ( stream, line, showTransformed );
     }
 
     return stream;

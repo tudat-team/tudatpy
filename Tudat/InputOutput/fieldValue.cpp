@@ -41,8 +41,8 @@ namespace input_output
 {
 
 //! Create a FieldValue containing type, string content and transformation of field.
-FieldValue::FieldValue( FieldType& fieldType, std::string& fieldContent,
-                        boost::shared_ptr< FieldTransform > transformer )
+FieldValue::FieldValue( const FieldType& fieldType, const std::string& fieldContent,
+                        const boost::shared_ptr< FieldTransform > transformer )
     : type( fieldType ), // Set the field type.
       rawField( fieldContent ), // Copy the raw field into the object.
       transform ( transformer )  // Set the corresponding transformer.

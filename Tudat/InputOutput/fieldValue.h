@@ -54,8 +54,8 @@ public:
     /*! Create a FieldValue which contains the type, the content as a string
      *  and unit transformation of the field.
      */
-    FieldValue( FieldType& type, std::string& field,
-                boost::shared_ptr< FieldTransform > transformer
+    FieldValue( const FieldType& type, const std::string& field,
+                const boost::shared_ptr< FieldTransform > transformer
                 = boost::shared_ptr< FieldTransform >( ) );
 
     //! FieldType of the FieldValue.

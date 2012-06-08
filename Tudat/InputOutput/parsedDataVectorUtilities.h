@@ -32,8 +32,8 @@
  *    References
  */
 
-#ifndef TUDAT_PARSED_DATA_VECTOR_UTILS_H
-#define TUDAT_PARSED_DATA_VECTOR_UTILS_H
+#ifndef TUDAT_PARSED_DATA_VECTOR_UTILITIES_H
+#define TUDAT_PARSED_DATA_VECTOR_UTILITIES_H
 
 #include <cstdarg>
 #include <iostream>
@@ -88,7 +88,13 @@ typedef boost::shared_ptr< ParsedDataVector >   ParsedDataVectorPtr;
  * \return FieldValue The FieldValue string converted to the given type using lexical_cast.
  */
 template< typename V >
-V getField( ParsedDataLineMapPtr data, FieldType field );
+inline V getField( ParsedDataLineMapPtr data, FieldType field )
+{
+    boost::shared_ptr< FieldValue > value = data->find( field )->second;
+    boost::shared_ptr< std::string > str = value->get( );
+    return boost::lexical_cast< V >( *str );
+}
+
 
 //! Filter the data vector for entries containing a given FieldType.
 /*!
