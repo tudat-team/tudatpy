@@ -33,6 +33,7 @@
  *      120217    K. Kumar          Updated computeModuloForSignedValues() to computeModulo() from
  *                                  Tudat Core.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      120607    P. Musegaas       Changed interface (propagation time instead of two epochs).
  *
  *    References
  *
@@ -59,8 +60,7 @@ namespace orbital_element_conversions
 
 //! Propagate Kepler orbit.
 Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeplerianElements,
-                                      const double epochOfInitialState,
-                                      const double epochOfFinalState,
+                                      const double propagationTime,
                                       const double centralBodyGravitationalParameter,
                                       const double newtonRaphsonConvergenceTolerance,
                                       bool useModuloOption )
@@ -101,17 +101,15 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
                         centralBodyGravitationalParameter );
 
             // Determine elapsed time.
-            elapsedTime_ = mathematics::computeModulo(
-                        ( epochOfFinalState - epochOfInitialState ), orbitalPeriod_ );
+            elapsedTime_ = mathematics::computeModulo( propagationTime, orbitalPeriod_ );
 
             // Determine corresponding number of complete orbits.
-            numberOfCompleteOrbits_ = std::floor(
-                        ( epochOfFinalState - epochOfInitialState ) / orbitalPeriod_ );
+            numberOfCompleteOrbits_ = std::floor( propagationTime / orbitalPeriod_ );
         }
 
         else
         {
-            elapsedTime_ = ( epochOfFinalState - epochOfInitialState );
+            elapsedTime_ = ( propagationTime );
         }
 
         // Convert initial true anomaly to eccentric anomaly.

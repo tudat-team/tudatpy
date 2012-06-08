@@ -35,6 +35,7 @@
  *      120225    K. Kumar          Updated unit test using data from (Melman, 2010) to fix bug in
  *                                  Linux; data is no longer imported from input text file.
  *      120508    K. Kumar          Corrected bug in backwards propagation loop end-condition.
+ *      120607    P. Musegaas       Updated unit test to new interface.
  *
  *    References
  *      Melman, J. Propagate software, J.C.P.Melman@tudelft.nl, 2010.
@@ -153,8 +154,8 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
         Eigen::VectorXd computedFinalStateInKeplerianElements
                 = orbital_element_conversions::propagateKeplerOrbit(
                     benchmarkKeplerPropagationHistory.begin( )->second,
+                    benchmarkKeplerPropagationHistory.rbegin( )->first -
                     benchmarkKeplerPropagationHistory.begin( )->first,
-                    benchmarkKeplerPropagationHistory.rbegin( )->first,
                     getMelmanEarthGravitationalParameter( ), 1.0e-10 );
 
         // Check that computed results match expected results.
@@ -184,8 +185,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]
                     = orbital_element_conversions::propagateKeplerOrbit(
                         computedPropagationHistory[ static_cast< double >( i - 1 ) * timeStep ],
-                        static_cast< double >( i - 1 ) * timeStep,
-                        static_cast< double >( i ) * timeStep, earthGravitationalParameter,
+                        timeStep, earthGravitationalParameter,
                         1.0e-10 );
 
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
@@ -221,9 +221,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]
                     = orbital_element_conversions::propagateKeplerOrbit(
                         computedPropagationHistory[ static_cast< double >( i - 1 ) * timeStep ],
-                        static_cast< double >( i - 1 ) * timeStep,
-                        static_cast< double >( i ) * timeStep, earthGravitationalParameter,
-                        1.0e-10, false );
+                        timeStep, earthGravitationalParameter, 1.0e-10, false );
 
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
                     = mathematics::computeModulo(
@@ -258,9 +256,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]
                     = orbital_element_conversions::propagateKeplerOrbit(
                         computedPropagationHistory[ static_cast< double >( i + 1 ) * timeStep ],
-                        static_cast< double >( i + 1 ) * timeStep,
-                        static_cast< double >( i ) * timeStep, earthGravitationalParameter,
-                        1.0e-10, false );
+                        -timeStep, earthGravitationalParameter, 1.0e-10, false );
 
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
                     = mathematics::computeModulo(

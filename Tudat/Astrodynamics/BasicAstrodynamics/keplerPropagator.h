@@ -29,6 +29,7 @@
  *      110214    K. Kumar          Updated code to use orbital element conversion functions.
  *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  *      120215    K. Kumar          Rewrote Kepler propagator as free function.
+ *      120607    P. Musegaas       Changed interface (propagation time instead of two epochs).
  *
  *    References
  *
@@ -58,8 +59,7 @@ namespace orbital_element_conversions
  *          initialStateInKeplerianElements( 3 ) = argument of periapsis,                     [rad]
  *          initialStateInKeplerianElements( 4 ) = longitude of ascending node,               [rad]
  *          initialStateInKeplerianElements( 5 ) = true anomaly.                              [rad]
- * \param epochOfInitialState Epoch of initial state.                                           [s]
- * \param epochOfFinalState Epoch of final state.                                               [s]
+ * \param propagationTime Propagation time.                                                     [s]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body      [m^3 s^-2]
  * \param newtonRaphsonConvergenceTolerance Convergence tolerance for Newton-Raphson
  *          root-finder. This quantity represents the absolute difference in solution for the
@@ -78,8 +78,7 @@ namespace orbital_element_conversions
  *          finalStateInKeplerianElements( 5 ) = true anomaly.                                [rad]
  */
 Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeplerianElements,
-                                      const double epochOfInitialState,
-                                      const double epochOfFinalState,
+                                      const double propagationTime,
                                       const double centralBodyGravitationalParameter,
                                       const double newtonRaphsonConvergenceTolerance,
                                       bool useModuloOption = true );
