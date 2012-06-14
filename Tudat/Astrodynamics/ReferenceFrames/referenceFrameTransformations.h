@@ -33,14 +33,16 @@
  *      110726    K. Kumar          Minor modifications.
  *      110809    F.M. Engelen      Replaced the normal planet fixed, with local vertical frame.
  *      110824    J. Leloux         Corrected doxygen documentation.
+ *      120530    E.A.G. Heeren     Namespace update.
+ *      120614    P. Musegaas       Corrected include guard.
  *
  *    References
  *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
  *
  */
 
-#ifndef TUDAT_FRAME_TRANSFORMATION_H
-#define TUDAT_FRAME_TRANSFORMATION_H
+#ifndef TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
+#define TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
 
 #include <cmath>
 #include <Eigen/Core>
@@ -48,7 +50,7 @@
 
 namespace tudat
 {
-namespace reference_frame_transformations
+namespace reference_frames
 {
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
@@ -169,7 +171,7 @@ Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQu
 Eigen::Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
     double longitude, double latitude );
 
-} // namespace reference_frame_transformations
+} // namespace reference_frames
 } // namespace tudat
 
-#endif // TUDAT_FRAME_TRANSFORMATION_H
+#endif // TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
