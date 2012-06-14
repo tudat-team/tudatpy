@@ -33,6 +33,7 @@
  *      110726    K. Kumar          Minor modifications.
  *      110809    F.M. Engelen      Applied the minus one correction for angleAxisD,
  *                                  changed to local vertical frame.
+ *      120530    E.A.G. Heeren     Namespace update.
  *
  *    References
  *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
@@ -50,9 +51,10 @@
 
 namespace tudat
 {
-
+namespace reference_frames
+{
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
-Eigen::Matrix3d reference_frame_transformations::
+Eigen::Matrix3d
 getRotatingPlanetocentricToInertialFrameTransformationMatrix( double angleFromXItoXR )
 {
     // Declare local variables.
@@ -60,7 +62,7 @@ getRotatingPlanetocentricToInertialFrameTransformationMatrix( double angleFromXI
     Eigen::Matrix3d localMatrix_;
 
     // Set local matrix.
-    localMatrix_ = reference_frame_transformations::
+    localMatrix_ = reference_frames::
             getInertialToPlanetocentricFrameTransformationMatrix( angleFromXItoXR );
 
     // Return transformation matrix.
@@ -68,7 +70,7 @@ getRotatingPlanetocentricToInertialFrameTransformationMatrix( double angleFromXI
 }
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation quaternion.
-Eigen::Quaterniond reference_frame_transformations::
+Eigen::Quaterniond
 getRotatingPlanetocentricToInertialFrameTransformationQuaternion( double angleFromXItoXR )
 {
     // Compute transformation quaternion
@@ -82,7 +84,7 @@ getRotatingPlanetocentricToInertialFrameTransformationQuaternion( double angleFr
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
-Eigen::Matrix3d reference_frame_transformations::
+Eigen::Matrix3d
 getInertialToPlanetocentricFrameTransformationMatrix( double angleFromXItoXR )
 {
     // Compute rotation about Z-Axis.
@@ -95,7 +97,7 @@ getInertialToPlanetocentricFrameTransformationMatrix( double angleFromXItoXR )
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
-Eigen::Quaterniond reference_frame_transformations::
+Eigen::Quaterniond
 getInertialToPlanetocentricFrameTransformationQuaternion( double angleFromXItoXR )
 {
     // Compute transformation quaternion.
@@ -110,7 +112,7 @@ getInertialToPlanetocentricFrameTransformationQuaternion( double angleFromXItoXR
 }
 
 //! Create a Quaterniond rotation state object from four quaternion values in a Vector4d
-Eigen::Quaterniond reference_frame_transformations::
+Eigen::Quaterniond
 getQuaternionObjectFromQuaternionValues( const Eigen::Vector4d& vectorWithQuaternion )
 {
     // Set transformation quaternion.
@@ -123,7 +125,7 @@ getQuaternionObjectFromQuaternionValues( const Eigen::Vector4d& vectorWithQuater
 }
 
 //! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
-Eigen::Matrix3d reference_frame_transformations::
+Eigen::Matrix3d
 getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( double angleOfAttack,
                                                             double angleOfSideslip )
 {
@@ -142,7 +144,7 @@ getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( double angleOfAttack
 }
 
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
-Eigen::Quaterniond reference_frame_transformations::
+Eigen::Quaterniond
 getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
         double longitude, double latitude )
 {
@@ -160,7 +162,7 @@ getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
 }
 
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
-Eigen::Quaterniond reference_frame_transformations::
+Eigen::Quaterniond
 getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
     double longitude, double latitude )
 {
@@ -178,4 +180,5 @@ getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
     return frameTransformationQuaternion;
 }
 
+} // namespace reference_frames
 } // namespace tudat

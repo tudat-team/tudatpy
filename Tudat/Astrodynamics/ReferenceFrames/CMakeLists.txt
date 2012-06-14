@@ -44,6 +44,6 @@ add_library(tudat_reference_frames STATIC ${REFERENCEFRAMES_SOURCES} ${REFERENCE
 setup_tudat_library_target(tudat_reference_frames "${SRCROOT}${REFERENCEFRAMESDIR}")
 
 # Add unit tests.
-add_executable(test_ReferenceFrameTransformations "${SRCROOT}${REFERENCEFRAMESDIR}/unitTestReferenceFrameTransformations.cpp")
+add_executable(test_ReferenceFrameTransformations "${SRCROOT}${REFERENCEFRAMESDIR}/UnitTests/unitTestReferenceFrameTransformations.cpp")
 setup_custom_test_program(test_ReferenceFrameTransformations "${SRCROOT}${REFERENCEFRAMESDIR}")
-target_link_libraries(test_ReferenceFrameTransformations tudat_reference_frames ${TUDAT_CORE_LIBRARIES})
+target_link_libraries(test_ReferenceFrameTransformations tudat_reference_frames ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

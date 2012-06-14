@@ -42,13 +42,22 @@
  *
  */
 
+#define BOOST_TEST_MAIN
+
 #include <cmath>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
+
+namespace tudat
+{
+namespace unit_tests
+{
 
 //! Struct for NewtonRaphson unit test code.
 /*!
@@ -87,107 +96,70 @@ double computeGlobalTestFunction( double& inputValue )
 //! Global first-derivative mathematical test function.
 double computeGlobalFirstDerivativeTestFunction( double& inputValue ) { return 2.0 * inputValue; }
 
-//! Test of Newton-Raphson method code.
-int main( )
+BOOST_AUTO_TEST_SUITE( test_newton_raphson )
+
+//! Test if Newton-Raphson root-finder works correctly using global functions.
+BOOST_AUTO_TEST_CASE( testNewtonRaphsonWithGlobalFunctions )
 {
-    // Using declarations.
-    using std::cerr;
-    using std::endl;
-    using namespace tudat;
+    // Set expected root.
+    const double expectedRoot = std::sqrt( 3.0 );
 
-    // Two tests.
-    // Test 1: Test of Newton-Raphson code using global functions.
-    // Test 2: Test of Newton-Raphson code using member-functions.
+    // Declare new Newton-Raphson object.
+    boost::shared_ptr< tudat::NewtonRaphson > newtonRaphson
+            = boost::make_shared< tudat::NewtonRaphson >( );
 
-    // Test result initialised to false.
-    bool isNewtonRaphsonMethodErroneous = false;
-
-    // Expected test result.
-    double expectedResult = std::sqrt( 3.0 );
-
-    // Create pointers to new NewtonRaphson objects.
-    boost::shared_ptr< NewtonRaphson > newtonRaphsonTest1 = boost::make_shared< NewtonRaphson >( );
-    boost::shared_ptr< NewtonRaphson > newtonRaphsonTest2 = boost::make_shared< NewtonRaphson >( );
-
-    // Test 1: Test of Newton-Raphson code using global functions.
     // Set values for the implementation of the code.
-    newtonRaphsonTest1->setTolerance( 1.0e-15 );
-    newtonRaphsonTest1->setInitialGuessOfRoot( 5.0 );
+    newtonRaphson->setTolerance( 1.0e-15 );
+    newtonRaphson->setInitialGuessOfRoot( 5.0 );
 
     // Set mathematical functions.
-    newtonRaphsonTest1->setMathematicalFunction( &computeGlobalTestFunction );
-    newtonRaphsonTest1->setFirstDerivativeMathematicalFunction(
+    newtonRaphson->setMathematicalFunction( &computeGlobalTestFunction );
+    newtonRaphson->setFirstDerivativeMathematicalFunction(
                 &computeGlobalFirstDerivativeTestFunction );
 
-    // Compute Newton-Raphson method.
-    newtonRaphsonTest1->execute( );
+    // Compute root.
+    newtonRaphson->execute( );
 
-    // Test 2: Test of Newton-Raphson code using member-functions.
+    // Check if computed root matches expected value.
+    BOOST_CHECK_CLOSE_FRACTION( expectedRoot, newtonRaphson->getComputedRootOfFunction( ),
+                                newtonRaphson->getTolerance( ) );
+
+}
+
+//! Test if Newton-Raphson root-finder works correctly using member functions.
+BOOST_AUTO_TEST_CASE( testNewtonRaphsonWithMemberFunctions )
+{
+    // Set expected root.
+    const double expectedRoot = std::sqrt( 3.0 );
+
+    // Declare new Newton-Raphson object.
+    boost::shared_ptr< tudat::NewtonRaphson > newtonRaphson
+            = boost::make_shared< tudat::NewtonRaphson >( );
+
     // Set values for the implementation of the code.
-    newtonRaphsonTest2->setTolerance( 1.0e-15 );
-    newtonRaphsonTest2->setInitialGuessOfRoot( 5.0 );
+    newtonRaphson->setTolerance( 1.0e-15 );
+    newtonRaphson->setInitialGuessOfRoot( 5.0 );
 
-    // Create pointer to adaptor object of NewtonRaphsonAdaptor class.
-    NewtonRaphsonAdaptor< NewtonRaphsonTest > newtonRaphsonAdaptorForNewtonRaphsonTest_;
+    // Declare NewtonRaphsonAdaptor object.
+    tudat::NewtonRaphsonAdaptor< NewtonRaphsonTest > newtonRaphsonAdaptor_;
 
-    // Run code using NewtonRapshonTest class and adaptor class object.
-    newtonRaphsonTest2->setNewtonRaphsonAdaptor(
-                &newtonRaphsonAdaptorForNewtonRaphsonTest_ );
-    newtonRaphsonAdaptorForNewtonRaphsonTest_.setPointerToFunction(
+    // Set adaptor class object and member functions.
+    newtonRaphson->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptor_ );
+    newtonRaphsonAdaptor_.setPointerToFunction(
                 &NewtonRaphsonTest::computeTestFunction );
-    newtonRaphsonAdaptorForNewtonRaphsonTest_.setPointerToFirstDerivativeFunction(
+    newtonRaphsonAdaptor_.setPointerToFirstDerivativeFunction(
                 &NewtonRaphsonTest::computeFirstDerivativeTestFunction );
 
-    // Compute Newton-Raphson method.
-    newtonRaphsonTest2->execute( );
+    // Compute root.
+    newtonRaphson->execute( );
 
-    // Set test result to true if either test does not match the expected
-    // result.
-    if ( std::fabs( newtonRaphsonTest1->getComputedRootOfFunction( )
-                    - expectedResult ) >= newtonRaphsonTest1->getTolerance( )
-         || std::fabs( newtonRaphsonTest2->getComputedRootOfFunction( )
-                       - expectedResult ) >= newtonRaphsonTest2->getTolerance( ) )
-    {
-        // Set error flag to true.
-        isNewtonRaphsonMethodErroneous = true;
+    // Check if computed root matches expected value.
+    BOOST_CHECK_CLOSE_FRACTION( expectedRoot, newtonRaphson->getComputedRootOfFunction( ),
+                                newtonRaphson->getTolerance( ) );
 
-        if ( std::fabs( newtonRaphsonTest1->getComputedRootOfFunction( )
-                        - expectedResult ) >= newtonRaphsonTest2->getTolerance( ) )
-        {
-            // Generate error statements.
-            cerr << "The computed value ( "
-                 << newtonRaphsonTest1->getComputedRootOfFunction( )
-                 << " ) using the Newton-Raphson method and global functions "
-                 << "does not match the expected solution (" << expectedResult << " )." << endl;
-            cerr << "The difference is: "
-                 << std::fabs( expectedResult
-                               - newtonRaphsonTest1->getComputedRootOfFunction( ) )
-                 << endl;
-        }
-
-        if ( std::fabs( newtonRaphsonTest2->getComputedRootOfFunction( )
-                        - expectedResult ) )
-        {
-            isNewtonRaphsonMethodErroneous = true;
-
-            // Generate error statements.
-            cerr << "The computed value ( "
-                 <<  newtonRaphsonTest2->getComputedRootOfFunction( )
-                 << " ) using the Newton-Raphson method and member-functions "
-                 << "does not match the expected solution (" << expectedResult << " )." << endl;
-            cerr << "The difference is: "
-                 << std::fabs( expectedResult -
-                               newtonRaphsonTest2->getComputedRootOfFunction( ) )
-                 << endl;
-        }
-    }
-
-    // Return test result.
-    // If test is successful return false; if test fails, return true.
-    if ( isNewtonRaphsonMethodErroneous )
-    {
-        cerr << "testNewtonRaphsonMethod failed!" << std::endl;
-    }
-
-    return isNewtonRaphsonMethodErroneous;
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat

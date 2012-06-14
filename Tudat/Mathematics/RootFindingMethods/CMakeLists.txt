@@ -48,6 +48,6 @@ add_library(tudat_root_finding_methods STATIC ${ROOTFINDINGMETHODS_SOURCES} ${RO
 setup_tudat_library_target(tudat_root_finding_methods "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods")
 
 # Add unit tests.
-add_executable(test_NewtonRaphson "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/unitTestNewtonRaphson.cpp")
+add_executable(test_NewtonRaphson "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/UnitTests/unitTestNewtonRaphson.cpp")
 setup_custom_test_program(test_NewtonRaphson "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods")
-target_link_libraries(test_NewtonRaphson tudat_root_finding_methods)
+target_link_libraries(test_NewtonRaphson tudat_root_finding_methods ${Boost_LIBRARIES})
