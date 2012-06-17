@@ -41,6 +41,7 @@
  *                                  error.
  *      120404    K. Kumar          Moved custom runtime_error class implementation outside of main
  *                                  integrator class.
+ *      120614    A. Ronse          Fixed bug in constructor.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -125,14 +126,19 @@ public:
     //! Default constructor.
     /*!
      * Default constructor, taking coefficients, a state derivative function, initial conditions,
-     * minimum step size and relative error tolerance per item in the state vector as argument.
+     * minimum & maximum step size and relative & absolute error tolerance per item in the state
+     * vector as argument.
      * \param coefficients Coefficients to use with this integrator.
      * \param stateDerivativeFunction State derivative function.
      * \param intervalStart The start of the integration interval.
      * \param initialState The initial state.
-     * \param minimumStepSize The minimum step size to take. If this constraint is violated, a
-     *          flag will be set that can be retrieved with isMinimumStepSizeViolated( ).
+     * \param minimumStepSize The minimum step size to take. If this constraint is violated, an
+     *          exception will be thrown and the next state is computed using the minimum value.
+     * \param maximumStepSize The maximum step size to take. If this constraint is violated, an
+     *          exception will be thrown and the next state is computed using the maximum value.
      * \param relativeErrorTolerance The relative error tolerance, for each individual state
+     *          vector element.
+     * \param absoluteErrorTolerance The absolute error tolerance, for each individual state
      *          vector element.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
@@ -156,8 +162,8 @@ public:
         coefficients_( coefficients ),
         minimumStepSize_( std::fabs( minimumStepSize ) ),
         maximumStepSize_( std::fabs( maximumStepSize ) ),
-        relativeErrorTolerance_( relativeErrorTolerance.abs( ) ),
-        absoluteErrorTolerance_( absoluteErrorTolerance.abs( ) ),
+        relativeErrorTolerance_( relativeErrorTolerance.array().abs( ) ),
+        absoluteErrorTolerance_( absoluteErrorTolerance.array().abs( ) ),
         safetyFactorForNextStepSize_( std::fabs( safetyFactorForNextStepSize ) ),
         maximumFactorIncreaseForNextStepSize_( std::fabs( maximumFactorIncreaseForNextStepSize ) ),
         minimumFactorDecreaseForNextStepSize_( std::fabs( minimumFactorDecreaseForNextStepSize ) ),
@@ -175,14 +181,19 @@ public:
     //! Default constructor.
     /*!
      * Default constructor, taking coefficients a state derivative function, initial conditions,
-     * minimum step size and relative error tolerance for all items in the state vector as argument.
+     * minimum & maximum step size and relative & absolute error tolerance for all items in the
+     * state vector as argument.
      * \param coefficients Coefficients to use with this integrator.
      * \param stateDerivativeFunction State derivative function.
      * \param intervalStart The start of the integration interval.
      * \param initialState The initial state.
-     * \param minimumStepSize The minimum step size to take. If this constraint is violated, a
-     *          flag will be set that can be retrieved with isMinimumStepSizeViolated( ).
+     * \param minimumStepSize The minimum step size to take. If this constraint is violated, an
+     *          exception will be thrown and the next state is computed using the minimum value.
+     * \param maximumStepSize The maximum step size to take. If this constraint is violated, an
+     *          exception will be thrown and the next state is computed using the maximum value.
      * \param relativeErrorTolerance The relative error tolerance, equal for all individual state
+     *          vector elements.
+     * \param absoluteErrorTolerance The absolute error tolerance, equal for all individual state
      *          vector elements.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
