@@ -44,8 +44,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace interpolators
 {
 
@@ -169,5 +167,4 @@ void CubicSplineInterpolation::computeSecondDerivativeOfCurvature_( )
 }
 
 } // namespace interpolators
-} // namespace mathematics
 } // namespace tudat

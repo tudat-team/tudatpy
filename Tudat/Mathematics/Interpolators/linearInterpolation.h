@@ -42,6 +42,7 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120202    K. Kumar          Moved linear interpolation functions into new Interpolators
  *                                  sub-directory.
+ *      120627    T. Secretin       Removed obsolete function using State objects.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing, Cambridge
@@ -58,11 +59,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Astrodynamics/States/state.h"
-
 namespace tudat
-{
-namespace mathematics
 {
 namespace interpolators
 {
@@ -86,9 +83,9 @@ namespace interpolators
  * \return Value of dependent variable associated with target independent
  *          value in vector of sorted independent variables.
  */
-double computeLinearInterpolation( Eigen::VectorXd& sortedIndependentVariables,
-                                   Eigen::VectorXd& associatedDependentVariables,
-                                   double targetIndependentVariableValue );
+double computeLinearInterpolation( const Eigen::VectorXd& sortedIndependentVariables,
+                                   const Eigen::VectorXd& associatedDependentVariables,
+                                   const double targetIndependentVariableValue );
 //! Compute linear interpolation.
 /*!
  * Computes linear interpolation of data provided in the form of a map of
@@ -108,33 +105,10 @@ double computeLinearInterpolation( Eigen::VectorXd& sortedIndependentVariables,
  *              value in vector of sorted independent variables.
  */
 Eigen::VectorXd computeLinearInterpolation(
-        std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
-        double targetIndependentVariableValue );
-
-//! Compute linear interpolation.
-/*!
- * Computes linear interpolation of data provided in the form of a map of
- * sorted independent variables and associated State objects containing vectors
- * of dependent variables. The linear interpolation equation used is:
- * \f[
- *      y_{target} = x_{1} * ( 1 - mu ) + x_{2} * mu
- * \f]
- * where \f$ \mu = \frac{ x_{target} - x_{1} } { x_{2} + x_{1} } \f$
- * and \f$ x_{2} > x_{1} \f$.
- * \param sortedIndepedentAndDependentVariables Map of sorted independent
- *              variables, in ascending/descending order, and associated
- *              State objects.
- * \param targetIndependentVariableValue Target independent variable value
- *              in vector of sorted independent variables.
- * \return Vector of dependent variable associated with target independent
- *              value in vector of sorted independent variables.
- */
- astrodynamics::states::State computeLinearInterpolation(
-        std::map < double, astrodynamics::states::State >& sortedIndepedentAndDependentVariables,
-        double targetIndependentVariableValue );
+        const std::map< double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
+        const double targetIndependentVariableValue );
 
 } // namespace interpolators
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_LINEAR_INTERPOLATION_H
