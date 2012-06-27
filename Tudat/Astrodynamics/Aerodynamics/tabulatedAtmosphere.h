@@ -189,19 +189,19 @@ private:
     /*!
      *  Cubic spline interpolation for density.
      */
-    mathematics::interpolators::CubicSplineInterpolation cubicSplineInterpolationForDensity_;
+    interpolators::CubicSplineInterpolation cubicSplineInterpolationForDensity_;
 
     //! Cubic spline interpolation for pressure.
     /*!
      *  Cubic spline interpolation for pressure.
      */
-    mathematics::interpolators::CubicSplineInterpolation cubicSplineInterpolationForPressure_;
+    interpolators::CubicSplineInterpolation cubicSplineInterpolationForPressure_;
 
     //! Cubic spline interpolation for temperature.
     /*!
      *  Cubic spline interpolation for temperature.
      */
-    mathematics::interpolators::CubicSplineInterpolation cubicSplineInterpolationForTemperature_;
+    interpolators::CubicSplineInterpolation cubicSplineInterpolationForTemperature_;
 };
 
 } // namespace tudat

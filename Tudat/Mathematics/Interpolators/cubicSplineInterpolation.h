@@ -45,8 +45,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace interpolators
 {
 
@@ -211,7 +209,6 @@ private:
 };
 
 } // namespace interpolators
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_CUBIC_SPLINE_INTERPOLATION_H

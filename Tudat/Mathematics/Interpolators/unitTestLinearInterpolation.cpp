@@ -90,7 +90,7 @@ int main( )
     targetIndependentVariableValue = 0.5;
 
     // Compute interpolation.
-    interpolatedValue = tudat::mathematics::interpolators::computeLinearInterpolation(
+    interpolatedValue = tudat::interpolators::computeLinearInterpolation(
             sortedIndependentVariables, associatedDependentVariables,
             targetIndependentVariableValue );
 
@@ -113,7 +113,7 @@ int main( )
     targetIndependentVariableValue = 2.0;
 
     // Compute interpolation.
-    interpolatedValue = tudat::mathematics::interpolators::computeLinearInterpolation(
+    interpolatedValue = tudat::interpolators::computeLinearInterpolation(
             sortedIndependentVariables, associatedDependentVariables,
             targetIndependentVariableValue );
 
@@ -162,7 +162,7 @@ int main( )
     targetIndependentVariableValue = 1.5;
 
     // Compute interpolation.
-    interpolatedVector = tudat::mathematics::interpolators::computeLinearInterpolation(
+    interpolatedVector = tudat::interpolators::computeLinearInterpolation(
             sortedIndepedentAndDependentVariables,
             targetIndependentVariableValue );
 

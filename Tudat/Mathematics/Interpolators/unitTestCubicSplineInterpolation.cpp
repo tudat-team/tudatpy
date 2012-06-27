@@ -81,7 +81,7 @@ int main( )
     double interpolatedDependentVariableValue;
 
     // Declare cubic spline object.
-    tudat::mathematics::interpolators::CubicSplineInterpolation cubicSplineInterpolation;
+    tudat::interpolators::CubicSplineInterpolation cubicSplineInterpolation;
 
     // Initialize cubic spline interpolation with input data.
     cubicSplineInterpolation.initializeCubicSplineInterpolation(

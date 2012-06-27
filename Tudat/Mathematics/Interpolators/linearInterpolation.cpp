@@ -53,15 +53,13 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace interpolators
 {
 
 //! Compute linear interpolation.
-double computeLinearInterpolation( Eigen::VectorXd& sortedIndependentVariables,
-                                   Eigen::VectorXd& associatedDependentVariables,
-                                   double targetIndependentVariableValue )
+double computeLinearInterpolation( const Eigen::VectorXd& sortedIndependentVariables,
+                                   const Eigen::VectorXd& associatedDependentVariables,
+                                   const double targetIndependentVariableValue )
 {
     // Declare local variables.
     // Declare nearest neighbor.
@@ -90,8 +88,8 @@ double computeLinearInterpolation( Eigen::VectorXd& sortedIndependentVariables,
 
 //! Compute linear interpolation.
 Eigen::VectorXd computeLinearInterpolation(
-        std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
-        double targetIndependentVariableValue )
+        const std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
+        const double targetIndependentVariableValue )
 {
     // Declare local variables.
     // Declare nearest neighbor.
@@ -101,8 +99,8 @@ Eigen::VectorXd computeLinearInterpolation(
     double locationTargetIndependentVariableValueInInterval;
 
     // Declare map iterators
-    std::map < double, Eigen::VectorXd >::iterator mapIteratorIntervalLeft;
-    std::map < double, Eigen::VectorXd >::iterator mapIteratorIntervalRight;
+    std::map< double, Eigen::VectorXd >::const_iterator mapIteratorIntervalLeft;
+    std::map< double, Eigen::VectorXd >::const_iterator mapIteratorIntervalRight;
 
     // Compute nearest neighbor in map of data.
     // Result is always to the left of the target independent variable value.
@@ -129,5 +127,4 @@ Eigen::VectorXd computeLinearInterpolation(
 }
 
 } // namespace interpolators
-} // namespace mathematics
 } // namespace tudat
