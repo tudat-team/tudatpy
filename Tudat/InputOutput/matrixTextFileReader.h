@@ -34,8 +34,9 @@
 #ifndef TUDAT_MATRIX_TEXT_FILEREADER_H
 #define TUDAT_MATRIX_TEXT_FILEREADER_H
 
-#include <Eigen/Core>
 #include <string>
+
+#include <Eigen/Core>
 
 namespace tudat
 {

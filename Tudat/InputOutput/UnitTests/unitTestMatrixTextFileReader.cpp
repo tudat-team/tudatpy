@@ -24,7 +24,8 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110530    F.M. Engelen      Creation of code.
+ *      110530    F.M. Engelen      First creation of code.
+ *      120519    K. Kumar          Boostified unit test.
  *
  *    References
  *
@@ -32,83 +33,65 @@
  *
  */
 
+#define BOOST_TEST_MAIN
+
 #include <cmath>
-#include <iostream>
 #include <limits>
 
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
+
 #include <Eigen/Core>
+
+#include <TudatCore/Basics/testMacros.h>
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 
-//! Test matrix text file reader.
-/*!
- * Tests the matrix text file reader.
- */
-int main( )
+namespace tudat
 {
-    using std::cerr;
-    using std::endl;
+namespace unit_tests
+{
 
-    bool isTestMatrixBroken = false;
+BOOST_AUTO_TEST_SUITE( test_matrix_text_file_reader )
 
-    Eigen::MatrixXd readMatrix;
+// Test if matrix text file reader is working correctly.
+BOOST_AUTO_TEST_CASE( testMatrixTextFileReader )
+{
+    // Set expected matrix.
+    const Eigen::MatrixXd expectedMatrix = ( Eigen::MatrixXd( 4, 3 )
+                                             << 1.0,  2.0,  3.0,
+                                                4.0,  5.0,  6.0,
+                                                7.0,  8.0,  9.0,
+                                                10.0, 11.0, 12.0 ).finished( );
 
-    Eigen::MatrixXd expectedMatrix( 4,3 );
-    expectedMatrix( 0,0 ) = 1.0;
-    expectedMatrix( 0,1 ) = 2.0;
-    expectedMatrix( 0,2 ) = 3.0;
-    expectedMatrix( 1,0 ) = 4.0;
-    expectedMatrix( 1,1 ) = 5.0;
-    expectedMatrix( 1,2 ) = 6.0;
-    expectedMatrix( 2,0 ) = 7.0;
-    expectedMatrix( 2,1 ) = 8.0;
-    expectedMatrix( 2,2 ) = 9.0;
-    expectedMatrix( 3,0 ) = 10.0;
-    expectedMatrix( 3,1 ) = 11.0;
-    expectedMatrix( 3,2 ) = 12.0;
-
-    // Test 1: Test for semi-colon-separated files.
-    readMatrix = tudat::input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( )
-                                                          + "InputOutput/UnitTests/testMatrix.txt",
-                                                          ";"  );
-
-    for ( int i = 0; i < 3; i++ )
+    // Test 1: test for semi-colon-separated files.
     {
-        for ( int j = 0; j < 2; j++ )
-        {
-            if ( std::fabs( expectedMatrix( i,j ) - readMatrix( i,j ) ) >
-                 std::numeric_limits< double >::epsilon( ) )
-            {
-                isTestMatrixBroken = true;
-                cerr << "The unit test for the matrix file reader misread testMatrix.txt." << endl;
-            }
-        }
+        // Read input file and store data in matrix.
+        const Eigen::MatrixXd inputFileMatrix = tudat::input_output::readMatrixFromFile(
+                    tudat::input_output::getTudatRootPath( )
+                    + "/InputOutput/UnitTests/testMatrix.txt", ";"  );
+
+        // Check if data input file matrix matches expected matrix.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMatrix, inputFileMatrix,
+                                           std::numeric_limits< double >::epsilon( ) );
+
     }
 
-    if ( readMatrix.rows( ) != 4 || readMatrix.cols ( ) != 3 )
+    // Test 2: test for space-separated files.
     {
-        isTestMatrixBroken = true;
-        cerr << "The unit test for the matrix file reader gives an incorrect size matrix.\n";
+        // Read input file and store data in matrix.
+        const Eigen::MatrixXd inputFileMatrix = tudat::input_output::readMatrixFromFile(
+                    tudat::input_output::getTudatRootPath( )
+                    + "/InputOutput/UnitTests/testMatrix2.txt", " \t", "#" );
+
+        // Check if data input file matrix matches expected matrix.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMatrix, inputFileMatrix,
+                                           std::numeric_limits< double >::epsilon( ) );
     }
-
-    // Test 2: Test for space-separated files.
-    readMatrix = tudat::input_output::readMatrixFromFile(
-                tudat::input_output::getTudatRootPath( ) +
-                "InputOutput/UnitTests/testMatrix2.txt", " \t", "#" );
-
-    for ( int i = 0; i < 3; i++ )
-    {
-        for ( int j = 0; j < 2; j++ )
-        {
-            if ( std::fabs(expectedMatrix( i,j )- readMatrix( i, j) ) >
-                 std::numeric_limits< double >::epsilon( ) )
-            {
-                isTestMatrixBroken = true;
-                cerr << "The unit test for the matrix file reader misread testMatrix2.txt." << endl;
-            }
-        }
-    }
-
-    return isTestMatrixBroken;
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat
