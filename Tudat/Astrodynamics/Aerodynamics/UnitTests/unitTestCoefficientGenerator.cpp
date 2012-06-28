@@ -27,6 +27,7 @@
  *      102511    D. Dirkx          First version of file.
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      120328    D. Dirkx          Updated code to use shared_ptrs instead of raw pointers.
+ *      120605    J. Vandamme       Boostified unit test.
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic Arbitrary Body
@@ -34,8 +35,12 @@
  *
  */
 
+#define BOOST_TEST_MAIN
+
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
 
@@ -45,21 +50,32 @@
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 
-//! Test coefficient generator.
-int main( )
-{
-    using namespace tudat;
-    using namespace tudat::mathematics::geometric_shapes;
-    using tudat::aerodynamics::HypersonicLocalInclinationAnalysis;
-    using std::fabs;
-    using std::vector;
-    using tudat::mathematics::PI;
+using tudat::mathematics::PI;
+using std::vector;
 
-    // Declare test variable.
-    bool isCoefficientGeneratorErroneous = false;
+namespace tudat
+{
+namespace unit_tests
+{
+
+BOOST_AUTO_TEST_SUITE( test_aerodynamic_coefficient_generator )
+
+//! Test coefficient generator.
+BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
+{
+
+    // Set units of coefficients
+    const double expectedValueOfForceCoefficient = 1.0;
+
+    //Tolerance in absolute units
+    const double toleranceForceCoefficient = 1.0e-2 * 100.0 / expectedValueOfForceCoefficient;
+    const double toleranceAerodynamicCoefficients3 = 1.0e-4;
+    const double toleranceAerodynamicCoefficients4 = 1.0e-2;
+    const double toleranceAerodynamicCoefficients5 = 1.0e-2;
 
     // Create test sphere.
-    boost::shared_ptr< SphereSegment > sphere = boost::make_shared< SphereSegment >( 1.0 );
+    boost::shared_ptr< mathematics::geometric_shapes::SphereSegment > sphere
+            = boost::make_shared< mathematics::geometric_shapes::SphereSegment >( 1.0 );
     boost::shared_ptr< bodies::VehicleExternalModel > externalModel
             = boost::make_shared< bodies::VehicleExternalModel >( );
     externalModel->setVehicleGeometry( sphere );
@@ -67,7 +83,7 @@ int main( )
     vehicle.setExternalModel( externalModel );
 
     // Create analysis object.
-    HypersonicLocalInclinationAnalysis analysis;
+    aerodynamics::HypersonicLocalInclinationAnalysis analysis;
 
     // Set vehicle in analysis with 10,000 panels.
     vector< int > numberOfLines;
@@ -126,143 +142,137 @@ int main( )
                                         + aerodynamicCoefficients_.z( )
                                         * aerodynamicCoefficients_.z( ) );
 
-                // Check if 'total' aerodynamic coefficient is always
-                // sufficiently close to zero.
-                if ( fabs( forceCoefficient_ - 1.0 ) > 1.0e-2 )
-                {
-                    std::cerr << "Total magnitude of aerodynamic force wrong in sphere."
-                              << std::endl;
-                    isCoefficientGeneratorErroneous = true;
-                }
+                // Test if the computed force coefficient corresponds to the expected value
+                // within the specified tolerance.
+                BOOST_CHECK_CLOSE_FRACTION( forceCoefficient_,
+                                            expectedValueOfForceCoefficient,
+                                            toleranceForceCoefficient );
 
-                // Check if moment coefficients are approximately zero. Deviations
-                // for pitch moment are greater due to greater range of angles of
-                // attack than sideslip.
-                if ( fabs( aerodynamicCoefficients_[ 3 ] ) > 1.0e-4 )
-                {
-                    std::cerr << "Error, sphere roll moment coefficient not zero."
-                              << std::endl;
-                    isCoefficientGeneratorErroneous = true;
-                }
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_[ 3 ],
+                                   toleranceAerodynamicCoefficients3 );
 
-                if ( fabs( aerodynamicCoefficients_[ 4 ] ) > 1.0e-2 )
-                {
-                    std::cerr << "Error, sphere pitch moment coefficient not zero."
-                              << std::endl;
-                    isCoefficientGeneratorErroneous = true;
-                }
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_[ 4 ],
+                                   toleranceAerodynamicCoefficients4 );
 
-                if ( fabs( aerodynamicCoefficients_[ 5 ] ) > 1.0e-2 )
-                {
-                    std::cerr << "Error, sphere yaw moment coefficient not zero."
-                              << std::endl;
-                    isCoefficientGeneratorErroneous = true;
-                }
+                BOOST_CHECK_SMALL( aerodynamicCoefficients_[ 5 ],
+                                   toleranceAerodynamicCoefficients5 );
             }
         }
     }
+}
 
-    // Set Apollo capsule for validation.
-    boost::shared_ptr< Capsule > capsule = boost::make_shared< Capsule >(
-                4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
+//! Apollo capsule test case.
+BOOST_AUTO_TEST_CASE( testApolloCapsule )
+{
 
+    // Set units of coefficients
+    const double expectedValueOfAerodynamicCoefficients0 = 1.51;
+    const double expectedValueOfAerodynamicCoefficients4 = -0.052;
+
+    // Tolerance in absolute units
+    const double toleranceAerodynamicCoefficients0 = 0.1 * 100.0
+            / expectedValueOfAerodynamicCoefficients0;
+    const double toleranceAerodynamicCoefficients1 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients2 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients3 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients4 = 0.01 * 100.0
+            / expectedValueOfAerodynamicCoefficients4;
+    const double toleranceAerodynamicCoefficients5 = std::numeric_limits< double >::epsilon( );
+
+    // Create test capsule.
+    boost::shared_ptr< mathematics::geometric_shapes::Capsule > capsule
+            = boost::make_shared< mathematics::geometric_shapes::Capsule >(
+    4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
+    boost::shared_ptr< bodies::VehicleExternalModel > externalModel
+            = boost::make_shared< bodies::VehicleExternalModel >( );
     externalModel->setVehicleGeometry( capsule );
+    bodies::Vehicle vehicle;
     vehicle.setExternalModel( externalModel );
 
-    // Declare new analysis object
-    HypersonicLocalInclinationAnalysis analysis2 = HypersonicLocalInclinationAnalysis( );
+    // Create analysis object.
+    aerodynamics::HypersonicLocalInclinationAnalysis analysis;
 
-    vector< int > numberOfLines2;
-    vector< int > numberOfPoints2;
-    vector< bool > invertOrders2;
-    numberOfLines2.resize( 4 );
-    numberOfPoints2.resize( 4 );
-    invertOrders2.resize( 4 );
+    vector< int > numberOfLines;
+    vector< int > numberOfPoints;
+    vector< bool > invertOrders;
+    numberOfLines.resize( 4 );
+    numberOfPoints.resize( 4 );
+    invertOrders.resize( 4 );
 
-    // Set number of analysis points
-    numberOfLines2[ 0 ] = 31;
-    numberOfPoints2[ 0 ] = 31;
-    numberOfLines2[ 1 ] = 31;
-    numberOfPoints2[ 1 ] = 31;
-    numberOfLines2[ 2 ] = 31;
-    numberOfPoints2[ 2 ] = 10;
-    numberOfLines2[ 3 ] = 11;
-    numberOfPoints2[ 3 ] = 11;
-    invertOrders2[ 0 ] = 1;
-    invertOrders2[ 1 ] = 1;
-    invertOrders2[ 2 ] = 1;
-    invertOrders2[ 3 ] = 1;
+    // Set number of analysis points.
+    numberOfLines[ 0 ] = 31;
+    numberOfPoints[ 0 ] = 31;
+    numberOfLines[ 1 ] = 31;
+    numberOfPoints[ 1 ] = 31;
+    numberOfLines[ 2 ] = 31;
+    numberOfPoints[ 2 ] = 10;
+    numberOfLines[ 3 ] = 11;
+    numberOfPoints[ 3 ] = 11;
+    invertOrders[ 0 ] = 1;
+    invertOrders[ 1 ] = 1;
+    invertOrders[ 2 ] = 1;
+    invertOrders[ 3 ] = 1;
 
-    // Set capsule for analysis.
-    analysis2.setVehicle( vehicle, numberOfLines2, numberOfPoints2, invertOrders2 );
+    analysis.setVehicle( vehicle, numberOfLines, numberOfPoints, invertOrders );
 
     // Set reference quantities.
-    analysis2.setReferenceArea( PI * pow( capsule->getMiddleRadius( ), 2.0 ) );
-    analysis2.setReferenceLength( 3.9116 );
+    analysis.setReferenceArea( PI * pow( capsule->getMiddleRadius( ), 2.0 ) );
+    analysis.setReferenceLength( 3.9116 );
     Eigen::VectorXd momentReference = Eigen::VectorXd( 3 );
     momentReference( 0 ) = 0.6624;
     momentReference( 1 ) = 0.0;
     momentReference( 2 ) = 0.1369;
-    analysis2.setMomentReferencePoint( momentReference );
+    analysis.setMomentReferencePoint( momentReference );
+
+    // Set pure Newtonian compression method for test purposes.
+    analysis.setSelectedMethod( 0, 0, 0 );
 
     // Set angle of attack analysis points.
-    analysis2.setNumberOfAngleOfAttackPoints( 7 );
+    analysis.setNumberOfAngleOfAttackPoints( 7 );
     int i;
     for ( i = 0; i < 7; i++ )
     {
-        analysis2.setAngleOfAttackPoint( i, static_cast< double >( i - 6 ) * 5.0 * PI / 180.0 );
+    analysis.setAngleOfAttackPoint( i, static_cast< double >( i - 6 ) * 5.0 * PI / 180.0 );
     }
 
-    // Generate database.
-    analysis2.generateDatabase( );
+    // Generate capsule database.
+    analysis.generateDatabase( );
 
     // Retrieve coefficients at zero angle of attack for comparison.
-    independentVariables[ 0 ] = analysis2.getNumberOfMachPoints( ) - 1;
+    vector< int > independentVariables;
+    independentVariables.resize( 3 );
+
+    independentVariables[ 0 ] = analysis.getNumberOfMachPoints( ) - 1;
     independentVariables[ 1 ] = 0;
     independentVariables[ 2 ] = 0;
-    aerodynamicCoefficients_ = analysis2.getAerodynamicCoefficients( independentVariables );
+
+    // Declare local test variables.
+    Eigen::VectorXd aerodynamicCoefficients_;
+    aerodynamicCoefficients_ = analysis.getAerodynamicCoefficients( independentVariables );
 
     // Compare values to database values.
-    if ( fabs( aerodynamicCoefficients_[ 0 ] - 1.51 ) > 0.1 )
-    {
-        std::cerr << "Error in Apollo drag coefficient." << std::endl;
-        isCoefficientGeneratorErroneous = true;
-    }
+    BOOST_CHECK_CLOSE_FRACTION( aerodynamicCoefficients_[ 0 ],
+                                expectedValueOfAerodynamicCoefficients0,
+                                toleranceAerodynamicCoefficients0 );
 
-    if ( fabs( aerodynamicCoefficients_[ 1 ] ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        std::cerr << "Error in Apollo side force coefficient." << std::endl;
-        isCoefficientGeneratorErroneous = true;
-    }
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_[ 1 ],
+                       toleranceAerodynamicCoefficients1 );
 
-    if ( fabs( aerodynamicCoefficients_[ 2 ] ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        std::cerr << "Error in Apollo normal force coefficient." << std::endl;
-        isCoefficientGeneratorErroneous = true;
-    }
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_[ 2 ],
+                       toleranceAerodynamicCoefficients2 );
 
-    if ( fabs( aerodynamicCoefficients_[ 3 ] ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        std::cerr << "Error in Apollo roll moment coefficient." << std::endl;
-        isCoefficientGeneratorErroneous = true;
-    }
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_[ 3 ],
+                       toleranceAerodynamicCoefficients3 );
 
-    if ( fabs( aerodynamicCoefficients_[ 4 ] +0.052 ) > 0.01 )
-    {
-        std::cerr << "Error in Apollo pitch moment coefficient." << std::endl;
-        isCoefficientGeneratorErroneous = true;
-    }
+    BOOST_CHECK_CLOSE_FRACTION( aerodynamicCoefficients_[ 4 ],
+                                expectedValueOfAerodynamicCoefficients4,
+                                toleranceAerodynamicCoefficients4 );
 
-    if ( fabs( aerodynamicCoefficients_[ 5 ] ) > std::numeric_limits< double >::epsilon( ) )
-    {
-        std::cerr << "Error in Apollo yaw moment coefficient." << std::endl;
-        isCoefficientGeneratorErroneous = true;
-    }
-
-    if ( isCoefficientGeneratorErroneous )
-    {
-        std::cerr << "testCoefficientGenerator failed!" << std::endl;
-    }
-
-    return isCoefficientGeneratorErroneous;
+    BOOST_CHECK_SMALL( aerodynamicCoefficients_[ 5 ],
+                       toleranceAerodynamicCoefficients5 );
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat
