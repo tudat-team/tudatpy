@@ -61,6 +61,6 @@ add_library(tudat_geometric_shapes STATIC ${GEOMETRICSHAPES_SOURCES})
 setup_tudat_library_target(tudat_geometric_shapes "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes")
 
 # Add unit tests.
-add_executable(test_LawgsSurfaceGeometry "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/unitTestLawgsSurfaceGeometry.cpp")
+add_executable(test_LawgsSurfaceGeometry "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes/UnitTests/unitTestLawgsSurfaceGeometry.cpp")
 setup_custom_test_program(test_LawgsSurfaceGeometry "${SRCROOT}${MATHEMATICSDIR}/GeometricShapes")
-target_link_libraries(test_LawgsSurfaceGeometry tudat_geometric_shapes tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES})
+target_link_libraries(test_LawgsSurfaceGeometry tudat_geometric_shapes tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

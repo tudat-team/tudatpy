@@ -30,6 +30,7 @@
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      120628    A. Ronse          Boostified unit test.
  *
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
@@ -37,28 +38,31 @@
  *
  */
 
-#include <cmath>
-#include <iostream>
+#define BOOST_TEST_MAIN
 
 #include <Eigen/Core>
 
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 
+namespace tudat
+{
+namespace unit_tests
+{
+
+BOOST_AUTO_TEST_SUITE( test_Lawgs_Surface_Geometry )
+
 //! Test implementation of Lawgs surface geometry.
-int main( )
+BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
 {
     using namespace tudat;
-    using tudat::mathematics::PI;
     using namespace tudat::mathematics::geometric_shapes;
-
-    // Test result initialised to false.
-    bool isLawgsSurfaceGeometryBad = false;
 
     // Create a full sphere as test geometry, with a radius of 2.0.
     const double sphereRadius = 2.0;
@@ -67,71 +71,44 @@ int main( )
 
     // Create a Lawgs mesh of the sphere.
     LawgsPartGeometry lawgsSurface;
-    int numberOfLines = 21;
-    int numberOfPoints = 21;
+    const int numberOfLines = 21;
+    const int numberOfPoints = 21;
     lawgsSurface.setMesh( sphere, numberOfLines, numberOfPoints );
 
     // Retrieve the total surface area and check if it is sufficiently close
     // to the expected value.
-    double totalArea_ = lawgsSurface.getTotalArea( );
-
-    if ( std::fabs( totalArea_ - 4.0 * PI * ( std::pow( sphereRadius, 2.0 ) ) ) > 0.6 )
-    {
-        std::cerr << "Total mesh area does not match sphere area sufficiently well." << std::endl;
-        isLawgsSurfaceGeometryBad = true;
-    }
+    using tudat::mathematics::PI;
+    const double totalArea = lawgsSurface.getTotalArea( );
+    BOOST_CHECK_SMALL( std::fabs( totalArea - 4.0 * PI
+                                  * ( std::pow( sphereRadius, 2.0 ) ) ), 0.6 );
 
     // Test if number of lines on mesh is correct.
-    if ( lawgsSurface.getNumberOfLines( ) != numberOfLines )
-    {
-        std::cerr << " Number of lines in mesh incorrect." << std::endl;
-        isLawgsSurfaceGeometryBad = true;
-    }
+    BOOST_CHECK_EQUAL( lawgsSurface.getNumberOfLines( ), numberOfLines );
 
     // Test if number of points per line on mesh is correct.
-    if ( lawgsSurface.getNumberOfPoints( ) != numberOfPoints )
-    {
-        std::cerr << " Number of points in mesh is incorrect." << std::endl;
-        isLawgsSurfaceGeometryBad = true;
-    }
+    BOOST_CHECK_EQUAL( lawgsSurface.getNumberOfPoints( ), numberOfPoints );
 
     // Set part name.
-    std::string partName_ = "sphere";
-    lawgsSurface.setName( partName_ );
+    std::string partName = "sphere";
+    lawgsSurface.setName( partName );
 
     // Test if part name is properly retrieved.
-    if ( lawgsSurface.getName ( ) != partName_ )
-    {
-        std::cerr << " Error in part name of mesh." << std::endl;
-        isLawgsSurfaceGeometryBad = true;
-    }
+    BOOST_CHECK_EQUAL( lawgsSurface.getName( ), partName );
 
     // Retrieve normal and centroid for panel 0, 0.
-    Eigen::Vector3d testNormal_ = lawgsSurface.getPanelSurfaceNormal( 0, 0 );
-    Eigen::Vector3d testCentroid_ = lawgsSurface.getPanelCentroid( 0, 0 );
+    Eigen::Vector3d testNormal = lawgsSurface.getPanelSurfaceNormal( 0, 0 );
+    Eigen::Vector3d testCentroid = lawgsSurface.getPanelCentroid( 0, 0 );
 
     // Test whether centroid and normal are collinear for panel 0, 0.
-    if ( std::fabs( testCentroid_.normalized( ).dot( testNormal_.normalized( ) ) - 1.0 ) > 1.0e-5 )
-    {
-        std::cerr << "Normal and centroid of sphere segment mesh not collinear." << std::endl;
-        isLawgsSurfaceGeometryBad = true;
-    }
+    BOOST_CHECK_SMALL( std::fabs( testCentroid.normalized( ).dot(
+                                      testNormal.normalized( ) ) ) - 1.0, 1.0e-5 );
 
     // Test if the position of the x- and y-coordinate of panel 0, 0 is correct.
-    if ( std::fabs( std::atan( testCentroid_.y( ) / testCentroid_.x( ) ) - PI / 20.0 ) >
-         std::numeric_limits< double >::epsilon( ) )
-    {
-        std::cerr << "x- and y-coordinate of centroid of panel 0, 0 of "
-                  << "sphere mesh is incorrect." << std::endl;
-        isLawgsSurfaceGeometryBad = true;
-    }
-
-    // Return test result.
-    // If test is succesful return 0, if test fails, return 1.
-    if ( isLawgsSurfaceGeometryBad )
-    {
-        std::cerr << "testLawgsSurfaceGeometry failed!" << std::endl;
-    }
-
-    return  isLawgsSurfaceGeometryBad;
+    BOOST_CHECK_SMALL( std::fabs( std::atan( testCentroid.y( ) / testCentroid.x( ) ) - PI / 20.0 ),
+                       std::numeric_limits< double >::epsilon( ) );
 }
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+} // namespace unit_tests
+} // namespace tudat
