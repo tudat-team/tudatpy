@@ -64,4 +64,4 @@ target_link_libraries(test_KeplerPropagator tudat_input_output tudat_bodies tuda
 
 add_executable(test_MomentDueToForce "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestMomentDueToForce.cpp")
 setup_custom_test_program(test_MomentDueToForce "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_MomentDueToForce tudat_basic_astrodynamics)
+target_link_libraries(test_MomentDueToForce tudat_basic_astrodynamics ${Boost_LIBRARIES})
