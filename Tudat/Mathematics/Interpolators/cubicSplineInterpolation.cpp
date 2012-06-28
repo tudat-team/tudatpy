@@ -30,6 +30,9 @@
  *      110714    E.A.G. Heeren     Minor spelling/lay-out corrections.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120615    T. Secretin       Replaced error message (std::cerr) with exception
+ *                                  (boost::throw_exception).
+ *                                  Added check at initialization step.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -39,8 +42,10 @@
 
 #include <iostream>
 
-#include "Tudat/Mathematics/Interpolators/cubicSplineInterpolation.h"
+#include <boost/exception/all.hpp>
+
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
+#include "Tudat/Mathematics/Interpolators/cubicSplineInterpolation.h"
 
 namespace tudat
 {
@@ -51,6 +56,13 @@ namespace interpolators
 void CubicSplineInterpolation::initializeCubicSplineInterpolation(
         Eigen::VectorXd& independentVariables, Eigen::VectorXd& dependentVariables )
 {
+    // Verify that the initialization variables are not empty.
+    if ( independentVariables.size( ) == 0 || dependentVariables.size( ) == 0 )
+    {
+        boost::throw_exception( boost::enable_error_info( std::runtime_error(
+                "The vectors used in the cubic spline interpolator initialization are empty." ) ) );
+    }
+
     // Set the vectors.
     independentVariables_ = independentVariables;
     dependentVariables_ = dependentVariables;
@@ -63,9 +75,11 @@ void CubicSplineInterpolation::initializeCubicSplineInterpolation(
 //! Interpolate a point.
 double CubicSplineInterpolation::interpolate( double targetIndependentVariableValue )
 {
+    // Verify that the cubic spline interpolator has been initialized.
     if ( independentVariables_.size( ) == 0 || dependentVariables_.size( ) == 0 )
     {
-        std::cerr << "The vectors used in the cubic spline interpolation are empty." << std::endl;
+        boost::throw_exception( boost::enable_error_info( std::runtime_error(
+                            "The cubic spline interpolator has not been initialized." ) ) );
     }
 
     // Set independent variable value.
