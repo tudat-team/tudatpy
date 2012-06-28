@@ -45,10 +45,10 @@ add_library(tudat_interpolators STATIC ${INTERPOLATORS_SOURCES})
 setup_tudat_library_target(tudat_interpolators "${SRCROOT}${MATHEMATICSDIR}/Interpolators")
 
 # Add unit tests.
-add_executable(test_CubicSplineInterpolation "${SRCROOT}${MATHEMATICSDIR}/Interpolators/unitTestCubicSplineInterpolation.cpp")
+add_executable(test_CubicSplineInterpolation "${SRCROOT}${MATHEMATICSDIR}/Interpolators/UnitTests/unitTestCubicSplineInterpolation.cpp")
 setup_custom_test_program(test_CubicSplineInterpolation "${SRCROOT}${MATHEMATICSDIR}")
 target_link_libraries(test_CubicSplineInterpolation tudat_interpolators tudat_basic_mathematics ${Boost_LIBRARIES})
 
-add_executable(test_LinearInterpolation "${SRCROOT}${MATHEMATICSDIR}/Interpolators/unitTestLinearInterpolation.cpp")
+add_executable(test_LinearInterpolation "${SRCROOT}${MATHEMATICSDIR}/Interpolators/UnitTests/unitTestLinearInterpolation.cpp")
 setup_custom_test_program(test_LinearInterpolation "${SRCROOT}${MATHEMATICSDIR}")
 target_link_libraries(test_LinearInterpolation tudat_interpolators tudat_basic_mathematics ${Boost_LIBRARIES})
