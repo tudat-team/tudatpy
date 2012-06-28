@@ -31,11 +31,13 @@
  *
  *    References
  *
+ *    If tabs are used as spaces, it doesn't work. The seperator should also be tabs then.
+ *
  */
 
-// Temporary notes (move to class/function doxygen):
-// If tabs are used as spaces, it doesn't work. The seperator should also be tabs then.
-// 
+#include <vector>
+#include <fstream>
+#include <sstream>
 
 #include <boost/format.hpp>
 #include <boost/throw_exception.hpp>
@@ -45,10 +47,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/lexical_cast.hpp>
-#include <vector>
-#include <fstream>
-#include <sstream>
+
 #include <TudatCore/InputOutput/streamFilters.h>
+
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 
 namespace tudat
@@ -65,7 +66,8 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
     if ( file.fail( ) )
     {
         boost::throw_exception( std::runtime_error( boost::str(
-                boost::format( "Data file '%s' could not be opened." ) % relativePath.c_str( ) ) ) );
+                boost::format( "Data file '%s' could not be opened." )
+                                                        % relativePath.c_str( ) ) ) );
     }
 
     std::stringstream filteredStream( std::ios::in | std::ios::out );
