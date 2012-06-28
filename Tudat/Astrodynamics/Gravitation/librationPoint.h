@@ -39,10 +39,14 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References:
+ *      van der Ham, L. Interplanetary trajectory design using dynamical systems theory,
+ *          MSc thesis, Delft University of Technology, Delft, The Netherlands, 2012.
  *      Mireles James, J.D. Celestial Mechanics Notes Set 4: The Circular Restricted Three Body
  *          Problem, 2006, http://www.math.utexas.edu/users/jjames/hw4Notes.pdf,
- *          last accessed: 26 May, 2012.
- *      van der Ham, L., TBD
+ *          last accessed: 18th May, 2012.
+ *
+ *    WARNING: There seems to be a bug in the computation of the L3 location!
+ *
  */
 
 #ifndef TUDAT_LIBRATION_POINT_H
@@ -239,7 +243,7 @@ private:
     //! Compute equation of motion for location of L1 libration point.
     /*!
      * Computes equation of motion, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L1 in the CRTBP (van der Ham, TBD).
+     * coordinates of colinear libration point L1 in the CRTBP (van der Ham, 2012).
      * \param xLocationEstimate Estimate of x-location of L1 libration point.
      * \return Value of location function.
      */
@@ -253,7 +257,7 @@ private:
     //! Compute derivative of equation of motion for location of L1 libration point.
     /*!
      * Computes derivative of equation of motion, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L1 in the CRTBP (van der Ham, TBD).
+     * coordinates of colinear libration point L1 in the CRTBP (van der Ham, 2012).
      * \param xLocationEstimate Estimate of x-location of L1 libration point.
      * \return Value of first derivative of location function.
      */
@@ -267,7 +271,7 @@ private:
     //! Compute equation of motion for location of L2 libration point.
     /*!
      * Computes equation of motion, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L2 in the CRTBP (van der Ham, TBD).
+     * coordinates of colinear libration point L2 in the CRTBP (van der Ham, 2012).
      * \param xLocationEstimate Estimate of x-location of L2 libration point.
      * \return Value of location function.
      */
@@ -281,7 +285,7 @@ private:
     //! Compute derivative of equation of motion for location of L2 libration point.
     /*!
      * Computes derivative of equation of motion, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L2 in the CRTBP (van der Ham, TBD).
+     * coordinates of colinear libration point L2 in the CRTBP (van der Ham, 2012).
      * \param xLocationEstimate Estimate of x-location of L2 libration point.
      * \return Value of first derivative of location function.
      */
@@ -295,7 +299,7 @@ private:
     //! Compute equation of motion for location of L3 libration point.
     /*!
      * Computes equation of motion, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L3 in the CRTBP (van der Ham, TBD).
+     * coordinates of colinear libration point L3 in the CRTBP (van der Ham, 2012).
      * \param xLocationEstimate Estimate of x-location of L3 libration point.
      * \return Value of location function.
      */
@@ -309,7 +313,7 @@ private:
     //! Compute derivative of equation of motion for location of L3 libration point.
     /*!
      * Computes derivative of equation of motion, whose root is the x-location in dimensionless
-     * coordinates of colinear libration point L3 in the CRTBP (van der Ham, TBD).
+     * coordinates of colinear libration point L3 in the CRTBP (van der Ham, 2012).
      * \param xLocationEstimate Estimate of x-location of L3 libration point.
      * \return Value of first derivative of location function.
      */

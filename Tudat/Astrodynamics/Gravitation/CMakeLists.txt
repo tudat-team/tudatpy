@@ -83,7 +83,7 @@ target_link_libraries(test_JacobiEnergy tudat_gravitation tudat_bodies tudat_mis
 
 add_executable(test_LibrationPoints "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestLibrationPoints.cpp")
 setup_custom_test_program(test_LibrationPoints "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_LibrationPoints tudat_bodies tudat_mission_segments tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_LibrationPoints tudat_bodies tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestStateDerivativeCircularRestrictedThreeBodyProblem.cpp")
 setup_custom_test_program(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}")

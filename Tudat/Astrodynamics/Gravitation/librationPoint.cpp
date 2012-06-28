@@ -39,10 +39,14 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *
  *    References
+ *      van der Ham, L. Interplanetary trajectory design using dynamical systems theory,
+ *          MSc thesis, Delft University of Technology, Delft, The Netherlands, 2012.
  *      Mireles James, J.D. Celestial Mechanics Notes Set 4: The Circular Restricted Three Body
  *          Problem, 2006, http://www.math.utexas.edu/users/jjames/hw4Notes.pdf,
- *          last accessed: 26 May, 2012.
- *      van der Ham, L. TBD.
+ *          last accessed: 18th May, 2012.
+ *
+ *    WARNING: There seems to be a bug in the computation of the L3 location!
+ *
  */
 
 #include <cmath>
@@ -93,7 +97,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         newtonRaphson_->execute( );
 
         // Set position vector of L1 in Cartesian elements.
-        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( ) ;
+        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( );
         positionOfLibrationPoint_.y( ) = 0.0;
         positionOfLibrationPoint_.z( ) = 0.0;
 
@@ -117,7 +121,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         newtonRaphson_->execute( );
 
         // Set position vector of L2 in Cartesian elements.
-        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( ) ;
+        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( );
         positionOfLibrationPoint_.y( ) = 0.0;
         positionOfLibrationPoint_.z( ) = 0.0;
 
@@ -141,7 +145,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
         newtonRaphson_->execute( );
 
         // Set position vector of L3 in Cartesian elements.
-        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( ) ;
+        positionOfLibrationPoint_.x( ) = newtonRaphson_->getComputedRootOfFunction( );
         positionOfLibrationPoint_.y( ) = 0.0;
         positionOfLibrationPoint_.z( ) = 0.0;
 
