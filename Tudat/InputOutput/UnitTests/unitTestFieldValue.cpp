@@ -84,6 +84,7 @@ private:
 
 namespace unit_tests
 {
+
 // Define Boost test suite.
 BOOST_AUTO_TEST_SUITE( test_field_value )
 
