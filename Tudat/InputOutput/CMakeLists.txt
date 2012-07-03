@@ -24,7 +24,7 @@
  #
  #    Changelog
  #      YYMMDD    Author            Comment
- #      120202    B. Tong Minh      File copied from Tudat core
+ #      120202    B. Tong Minh      File copied from Tudat core.
  #
 
 # Add source files.
@@ -33,6 +33,8 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.cpp"
@@ -45,6 +47,8 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldTransform.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldType.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.h"
@@ -86,3 +90,11 @@ target_link_libraries(test_FieldValue tudat_input_output ${TUDAT_CORE_LIBRARIES}
 add_executable(test_TextParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestTextParser.cpp")
 setup_custom_test_program(test_TextParser "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_TextParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_MissileDatcomReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMissileDatcomReader.cpp")
+setup_custom_test_program(test_MissileDatcomReader "${SRCROOT}${INPUTDIR}")
+target_link_libraries(test_MissileDatcomReader tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_MissileDatcomData "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMissileDatcomData.cpp")
+setup_custom_test_program(test_MissileDatcomData "${SRCROOT}${INPUTDIR}")
+target_link_libraries(test_MissileDatcomData tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
