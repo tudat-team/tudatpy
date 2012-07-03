@@ -212,8 +212,8 @@ public:
      * \param vehicleIndex Index in vehicleParts_ to be retrieved.
      * \return Requested vehicle part.
      */
-     mathematics::geometric_shapes::LawgsPartGeometry getVehiclePart( int vehicleIndex )
-     { return vehicleParts_[ vehicleIndex ]; }
+     boost::shared_ptr< mathematics::geometric_shapes::LawgsPartGeometry >
+        getVehiclePart( int vehicleIndex ) { return vehicleParts_[ vehicleIndex ]; }
 
     //! Set mach regime.
     /*!
@@ -344,7 +344,8 @@ private:
     /*!
      * Array of vehicle parts.
      */
-    std::vector< mathematics::geometric_shapes::LawgsPartGeometry > vehicleParts_;
+    std::vector< boost::shared_ptr< mathematics::geometric_shapes::LawgsPartGeometry > >
+        vehicleParts_;
 
     //! Number of entries in vehicleParts_ member variable.
     /*!
