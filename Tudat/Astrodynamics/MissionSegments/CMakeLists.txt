@@ -27,6 +27,8 @@
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
+ #      120531    P. Musegaas       Deleted obsolete escapePhase, capturePhase and deepSpaceManeuvre
+ #                                  headers. Removed unitTestDeepSpaceManeuvre.
  #
 
 # Set the source files.
@@ -38,10 +40,7 @@ set(MISSIONSEGMENTS_SOURCES
 
 # Set the header files.
 set(MISSIONSEGMENTS_HEADERS 
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/capturePhase.h"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/deepSpaceManeuver.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/escapeAndCapture.h"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/escapePhase.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeter.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/trajectoryDesignMethod.h"
@@ -52,10 +51,6 @@ add_library(tudat_mission_segments STATIC ${MISSIONSEGMENTS_SOURCES} ${MISSIONSE
 setup_tudat_library_target(tudat_mission_segments "${SRCROOT}${MISSIONSEGMENTSDIR}")
 
 # Add unit tests.
-add_executable(test_DeepSpaceManeuver "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestDeepSpaceManeuver.cpp")
-setup_custom_test_program(test_DeepSpaceManeuver "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_DeepSpaceManeuver tudat_states tudat_mission_segments ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
 add_executable(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestEscapeAndCapture.cpp")
 setup_custom_test_program(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}")
 target_link_libraries(test_EscapeAndCapture tudat_bodies tudat_mission_segments tudat_gravitation tudat_basic_astrodynamics tudat_root_finding_methods tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

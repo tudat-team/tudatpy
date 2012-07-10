@@ -37,206 +37,270 @@
  *                                  GeometricShapes.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120508    P. Musegaas       The gravitational parameter is now passed as double.
+ *      120530    P. Musegaas       Complete revision. Removed class structure, made it a free
+ *                                  function. Added two functions for propagating a gravity assist
+ *                                  (powered and unpowered).
+ *      120625    P. Musegaas       Minor changes.
+ *      120703    T. Secretin       Minor layout changes.
+ *      120704    P. Musegaas       Minor change. Reduced negligence of velocity effect from 1 cm/s
+ *                                  to 1 micrometer/second.
  *
  *    References
- *      Melman J. Trajectory optimization for a mission to Neptune and
- *          Triton, MSc thesis report, Delft University of Technology, 2007.
+ *      Reference for deltaV computation function:
+ *          Melman J. Trajectory optimization for a mission to Neptune and Triton, MSc thesis
+ *              report, Delft University of Technology, 2007.
+ *      Reference for unpowered gravity assist propagation function:
+ *          Conway, B.A., Spacecraft Trajectory Optimization, Chapter 7, Cambridge University
+ *              Press, 2010.
+ *      Reference for powered gravity assist propagation function:
+ *          Musegaas, P., Optimization of Space Trajectories Including Multiple Gravity Assists and
+ *              Deep Space Maneuvers, MSc thesis report, Delft University of Technology, 2012.
+ *              [unpublished so far].
  *
- *    Gravity assist and swing-by are different words for the same thing. The delta-V that is
- *    computed for a powered swing-by has not been proven to be the optimum (lowest) to achieve the
- *    desired geometry of incoming and outgoing hyperbolic legs. Some literature research will have
- *    to be done to look at the alternatives.
+ *    Notes
+ *      Gravity assist and swing-by are two different words for the same thing. The delta-V that is
+ *      computed for a powered swing-by has not been proven to be the optimum (lowest) to achieve
+ *      the desired geometry of incoming and outgoing hyperbolic legs. Some literature research will
+ *      have to be done to look at the alternatives.
  *
- *    For the moment in this code the smallestPeriapsisDistanceFactor is given as external input by
- *    the user, but in the future it should be part of the CelestialBody object.
+ *      Note that the exact implementation of Newton Raphson as root finder should be updated if
+ *      someone would want to use a different root finding technique.
  *
- *    Also, the velocity of the central body will need to be computed by the ephemeris code.
- *    At the moment the shape of the central body is a sphere segment, and the radius of the planet
- *    is set externally by the user. In the future it should be possible to get the radius of each
- *    planet directly from the CelestialBody class, by a link to GeometricShape class.
- *
- *    At the moment, this code uses a Newton-Raphson root finder by default. In the future it
- *    should be possible to apply for example the Halley method by using polymorphism.
+ *      Note that a velocity effect deltaV of less than 1 micrometer/second is deemed negligable in
+ *      this code.
  *
  */
 
 #include <cmath>
-#include <limits>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include <Eigen/Dense>
+
 #include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
 
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
+#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 namespace tudat
-{
-namespace astrodynamics
 {
 namespace mission_segments
 {
 
-using std::pow;
-using std::asin;
-using std::sqrt;
-using std::sin;
-using std::fabs;
-using tudat::mathematics::linear_algebra::computeAngleBetweenVectors;
-using tudat::unit_conversions::convertRadiansToDegrees;
-using std::endl;
-
-//! Define root-finder function for the velocity-effect delta-V.
-double GravityAssist::velocityEffectFunction( double& incomingEccentricity )
+//! Calculate deltaV of a gravity assist.
+double gravityAssist( const double centralBodyGravitationalParameter,
+                      const Eigen::Vector3d& centralBodyVelocity,
+                      const Eigen::Vector3d& incomingVelocity,
+                      const Eigen::Vector3d& outgoingVelocity,
+                      const double smallestPeriapsisDistance,
+                      boost::shared_ptr< NewtonRaphson > newtonRaphson )
 {
-    return asin( 1.0 /incomingEccentricity )
-            + asin( 1.0 / ( 1.0 - incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ *
-                            ( 1.0 -incomingEccentricity ) ) ) - bendingAngle_;
-}
+    // Compute incoming and outgoing hyperbolic excess velocity.
+    const Eigen::Vector3d incomingHyperbolicExcessVelocity
+            = incomingVelocity - centralBodyVelocity;
+    const Eigen::Vector3d outgoingHyperbolicExcessVelocity
+            = outgoingVelocity - centralBodyVelocity;
 
-//! Define root-finder first-derivative function for the velocity-effect delta-V.
-double GravityAssist::firstDerivativeVelocityEffectFunction( double& incomingEccentricity )
-{
-    double eccentricitySquareMinusOne_ = pow( incomingEccentricity, 2.0 ) - 1.0;
-    double semiMajorAxisRatio_ = incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ ;
-    double bParameter_ = 1.0 - semiMajorAxisRatio_ * ( 1.0 - incomingEccentricity );
-
-    return -1.0 / ( incomingEccentricity * sqrt( eccentricitySquareMinusOne_ ) ) -
-            semiMajorAxisRatio_ / ( bParameter_ * sqrt( pow( bParameter_, 2.0 ) - 1.0 ) );
-}
-
-//! Compute the delta-V of the powered swing-by.
-double GravityAssist::computeDeltaV( )
-{
-    // Compute incoming hyperbolic excess velocity.
-    incomingHyperbolicExcessVelocity_ = incomingVelocity_ - centralBodyVelocity_;
-
-    // Compute outgoing hyperbolic excess velocity.
-    outgoingHyperbolicExcessVelocity_ = outgoingVelocity_ - centralBodyVelocity_;
+    // Compute absolute values of the hyperbolic excess velocities.
+    const double absoluteIncomingExcessVelocity = incomingHyperbolicExcessVelocity.norm( );
+    const double absoluteOutgoingExcessVelocity = outgoingHyperbolicExcessVelocity.norm( );
 
     // Compute bending angle.
-    bendingAngle_ = computeAngleBetweenVectors( incomingHyperbolicExcessVelocity_ ,
-                                                outgoingHyperbolicExcessVelocity_ );
+    const double bendingAngle = mathematics::linear_algebra::computeAngleBetweenVectors(
+                            incomingHyperbolicExcessVelocity, outgoingHyperbolicExcessVelocity );
 
     // Compute maximum achievable bending angle.
-    double maximumBendingAngle_ =
-            asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance_ *
-                                  incomingHyperbolicExcessVelocity_.squaredNorm( ) /
-                                  centralBodyGravitationalParameter_ ) ) ) +
-            asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance_ *
-                                  outgoingHyperbolicExcessVelocity_.squaredNorm( ) /
-                                  centralBodyGravitationalParameter_ ) ) );
+    const double maximumBendingAngle =
+            std::asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance *
+                                       absoluteIncomingExcessVelocity *
+                                       absoluteIncomingExcessVelocity /
+                                       centralBodyGravitationalParameter ) ) ) +
+            std::asin( 1.0 / ( 1.0 + ( smallestPeriapsisDistance *
+                                       absoluteOutgoingExcessVelocity *
+                                       absoluteOutgoingExcessVelocity /
+                                       centralBodyGravitationalParameter ) ) );
 
-    // Verify necessity to apply an extra swing-by delta-V due to the
-    // incapability of the body's gravity to bend the trajectory a
-    // sufficient amount given the incoming and outgoing velocities.
-    // Compute required extra bending angle.
-    double extraBendingAngle_;
-    if ( bendingAngle_ > maximumBendingAngle_ )
+    // Initialize bending effect deltaV, which is zero, unless extra bending angle is required.
+    double bendingEffectDeltaV = 0.0;
+
+    // Check if an additional bending angle is required.
+    if ( bendingAngle > maximumBendingAngle )
     {
-        extraBendingAngle_ = bendingAngle_ - maximumBendingAngle_;
+        // Compute required extra bending angle that cannot be delivered by an unpowered swing-by.
+        const double extraBendingAngle = bendingAngle - maximumBendingAngle;
+
+        // Compute necessary delta-V due to bending-effect.
+        bendingEffectDeltaV = 2.0 * std::min( absoluteIncomingExcessVelocity,
+                                                     absoluteOutgoingExcessVelocity ) *
+                                     std::sin( extraBendingAngle / 2.0 );
     }
 
-    else
-    {
-        extraBendingAngle_ = 0.0;
-    }
+    // Initialize velocity effect delta V parameter.
+    double velocityEffectDeltaV = 0.0;
 
-    // Compute hyperbolic excess speeds.
-    double incomingHyperbolicExcessSpeed_ = incomingHyperbolicExcessVelocity_.norm( );
-    double outgoingHyperbolicExcessSpeed_ = outgoingHyperbolicExcessVelocity_.norm( );
+    // An excess speed difference of less than 1 micrometer/second is deemed to be negligible.
+    const double speedTolerance = 1.0e-6;
 
-    // Compute necessary delta-V due to bending-effect.
-    bendingEffectDeltaV_ = 2.0 * std::min( incomingHyperbolicExcessSpeed_,
-                                           outgoingHyperbolicExcessSpeed_ ) *
-            sin( extraBendingAngle_ / 2.0 );
-
-    // An excess speed difference of less than 10 cm/s is deemed to be
-    // negligible.
-    double speedTolerance_ = 1.0e-1;
-
-    // Verify necessity to apply a swing-by delta-V due to the effect of
-    // a difference in excess speeds.
-    if ( fabs( incomingHyperbolicExcessSpeed_ -
-               outgoingHyperbolicExcessSpeed_ ) <= speedTolerance_ )
-    {
-        // Set delta-V due to velocity effect equal to zero.
-
-        velocityEffectDeltaV_ = 0.0;
-    }
-
-    else
+    // Check if it is necessary to apply a swing-by delta-V due to the effect of a difference in
+    // absolute excess velocities.
+    if ( std::fabs( absoluteIncomingExcessVelocity - absoluteOutgoingExcessVelocity )
+         >= speedTolerance )
     {
         // Compute semi-major axis of hyperbolic legs.
-        incomingSemiMajorAxis_ = -1.0 * centralBodyGravitationalParameter_ /
-                incomingHyperbolicExcessVelocity_.squaredNorm( );
-        outgoingSemiMajorAxis_ = -1.0 * centralBodyGravitationalParameter_ /
-                outgoingHyperbolicExcessVelocity_.squaredNorm( );
+        const double incomingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
+                                             absoluteIncomingExcessVelocity /
+                                             absoluteIncomingExcessVelocity;
+        const double outgoingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
+                                             absoluteOutgoingExcessVelocity /
+                                             absoluteOutgoingExcessVelocity;
 
-        // Newton-Raphson method implementation.
-        // Set the class that contains the functions needed for Newton-Raphson.
-        newtonRaphsonAdaptorForGravityAssist_.setClass( this );
-
-        // Set the functions needed for Newton-Raphson method.
-        newtonRaphsonAdaptorForGravityAssist_.setPointerToFunction(
-                    &GravityAssist::velocityEffectFunction );
-        newtonRaphsonAdaptorForGravityAssist_.setPointerToFirstDerivativeFunction(
-                    &GravityAssist::firstDerivativeVelocityEffectFunction );
+        // Set the gravity assist function with the variables to perform root finder calculations.
+        GravityAssistFunctions gravityAssistFunctions( incomingSemiMajorAxis,
+                                                       outgoingSemiMajorAxis, bendingAngle);
 
         // Set initial guess of the variable computed in Newton-Rapshon method.
-        newtonRaphson_->setInitialGuessOfRoot( 1.01 );
+        newtonRaphson->setInitialGuessOfRoot( 1.01 );
 
-        // Set maximum number of iterations that can be computed in
-        // Newton-Raphson.
-        newtonRaphson_->setMaximumNumberOfIterations( 100 );
+        // Set the class that contains the functions needed for Newton-Raphson.
+        NewtonRaphsonAdaptor< GravityAssistFunctions > newtonRaphsonAdaptorForGravityAssist;
+        newtonRaphsonAdaptorForGravityAssist.setClass( &gravityAssistFunctions );
 
-        // Set tolerance for Newton-Raphson method.
-        newtonRaphson_->setTolerance( 10.0 * std::numeric_limits< double >::epsilon( ) );
-
-        // Set the adaptor for Newton-Raphson method.
-        newtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist_ );
+        // Set the functions needed for the Newton Raphson method.
+        newtonRaphson->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist );
+        newtonRaphsonAdaptorForGravityAssist.setPointerToFunction(
+                    &GravityAssistFunctions::computeVelocityEffectFunction );
+        newtonRaphsonAdaptorForGravityAssist.setPointerToFirstDerivativeFunction(
+                    &GravityAssistFunctions::computeFirstDerivativeVelocityEffect );
 
         // Execute Newton-Raphson method.
-        newtonRaphson_->execute( );
+        newtonRaphson->execute( );
 
-        // Define incoming hyperbolic leg eccentricity as the output value of
-        // Newton-Raphson method.
-        incomingEccentricity_ = newtonRaphson_->getComputedRootOfFunction( );
+        // Set incoming hyperbolic leg eccentricity as the output value of Newton-Raphson method.
+        const double incomingEccentricity = newtonRaphson->getComputedRootOfFunction( );
 
         // Compute outgoing hyperbolic leg eccentricity.
-        outgoingEccentricity_ = 1.0 - ( incomingSemiMajorAxis_ /
-                                        outgoingSemiMajorAxis_ ) * ( 1.0 - incomingEccentricity_ );
+        const double outgoingEccentricity = 1.0 - ( incomingSemiMajorAxis /
+                                                    outgoingSemiMajorAxis ) *
+                                            ( 1.0 - incomingEccentricity );
 
         // Compute incoming and outgoing velocities at periapsis.
-        double incomingVelocityAtPeriapsis_;
-        double outgoingVelocityAtPeriapsis_;
-
-        incomingVelocityAtPeriapsis_ = incomingHyperbolicExcessSpeed_ *
-                sqrt( ( incomingEccentricity_ + 1.0 ) / ( incomingEccentricity_ - 1.0 ) );
-        outgoingVelocityAtPeriapsis_ = outgoingHyperbolicExcessSpeed_ *
-                sqrt( ( outgoingEccentricity_ + 1.0 ) / ( outgoingEccentricity_ - 1.0 ) );
+        const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
+                    std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
+        const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
+                    std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
 
         // Compute necessary delta-V due to velocity-effect.
-        velocityEffectDeltaV_ = fabs( outgoingVelocityAtPeriapsis_ -
-                                      incomingVelocityAtPeriapsis_ );
+        velocityEffectDeltaV = std::fabs( incomingVelocityAtPeriapsis -
+                                          outgoingVelocityAtPeriapsis );
     }
 
-    // Compute total delta-V.
-    deltaV_ = bendingEffectDeltaV_ + velocityEffectDeltaV_;
-
-    // Return DeltaV.
-    return deltaV_;
+    // Compute and return the total delta-V.
+    return bendingEffectDeltaV + velocityEffectDeltaV;
 }
 
-//! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream, GravityAssist& gravityAssist )
+//! Propagate an unpowered gravity assist.
+Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
+                               const Eigen::Vector3d& centralBodyVelocity,
+                               const Eigen::Vector3d& incomingVelocity,
+                               const double rotationAngle,
+                               const double pericenterRadius )
 {
-    stream << "The incoming velocity is set to: " << gravityAssist.incomingVelocity_
-           << "The outgoing velocity is set to: " << gravityAssist.outgoingVelocity_
-           << "The computed delta-V is: " << gravityAssist.computeDeltaV( ) << endl;
+    // Calculate the incoming velocity.
+    const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - centralBodyVelocity;
+    const double absoluteRelativeIncomingVelocity = relativeIncomingVelocity.norm( );
 
-    // Return stream.
-    return stream;
+    // Calculate the eccentricity and bending angle.
+    const double eccentricity = 1.0 + pericenterRadius / centralBodyGravitationalParameter *
+                            absoluteRelativeIncomingVelocity * absoluteRelativeIncomingVelocity;
+    const double bendingAngle = 2.0 * std::asin ( 1.0 / eccentricity );
+
+    // Calculate the unit vectors.
+    const Eigen::Vector3d unitVector1 = relativeIncomingVelocity /
+                                        absoluteRelativeIncomingVelocity;
+    const Eigen::Vector3d unitVector2 = unitVector1.cross( centralBodyVelocity ).normalized( );
+    const Eigen::Vector3d unitVector3 = unitVector1.cross( unitVector2 );
+
+    // Calculate the relative outgoing velocity.
+    const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeIncomingVelocity *
+            ( std::cos( bendingAngle ) * unitVector1 + std::sin( bendingAngle ) *
+              std::cos( rotationAngle ) * unitVector2 + std::sin( bendingAngle ) *
+              std::sin( rotationAngle ) * unitVector3 );
+
+    // Add the relative outgoing velocity to the swing-by body velocity and return it.
+    return centralBodyVelocity + relativeOutgoingVelocity;
+}
+
+//! Propagate a powered gravity assist.
+Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
+                               const Eigen::Vector3d& centralBodyVelocity,
+                               const Eigen::Vector3d& incomingVelocity,
+                               const double rotationAngle,
+                               const double pericenterRadius,
+                               const double deltaV )
+{
+    // Calculate the incoming velocity.
+    const Eigen::Vector3d relativeIncomingVelocity = incomingVelocity - centralBodyVelocity;
+    const double absoluteRelativeIncomingVelocity = relativeIncomingVelocity.norm( );
+
+    // Calculate the incoming eccentricity and bending angle.
+    const double incomingEccentricity = 1.0 + pericenterRadius /
+                                        centralBodyGravitationalParameter *
+                                        absoluteRelativeIncomingVelocity *
+                                        absoluteRelativeIncomingVelocity;
+    const double incomingBendingAngle = std::asin ( 1.0 / incomingEccentricity );
+
+    // Calculate the pericenter velocities.
+    const double incomingPericenterVelocity = std::sqrt( absoluteRelativeIncomingVelocity *
+                                                         absoluteRelativeIncomingVelocity *
+                                                         ( incomingEccentricity + 1.0 ) /
+                                                         ( incomingEccentricity - 1.0 ) );
+    const double outgoingPericenterVelocity = incomingPericenterVelocity + deltaV;
+
+    // Calculate magnitude of the absolute relative outgoing velocity.
+    const double absoluteRelativeOutgoingVelocity =
+            std::sqrt( outgoingPericenterVelocity * outgoingPericenterVelocity -
+                       2.0 * centralBodyGravitationalParameter / pericenterRadius );
+
+    // Calculate the remaining bending angles.
+    const double outgoingBendingAngle =
+            std::asin ( 1.0 / ( 1.0 + absoluteRelativeOutgoingVelocity *
+                                absoluteRelativeOutgoingVelocity * pericenterRadius /
+                                centralBodyGravitationalParameter ) );
+    const double bendingAngle = incomingBendingAngle + outgoingBendingAngle;
+
+    // Calculate the unit vectors.
+    const Eigen::Vector3d unitVector1 = relativeIncomingVelocity /
+                                        absoluteRelativeIncomingVelocity;
+    const Eigen::Vector3d unitVector2 = unitVector1.cross( centralBodyVelocity ).normalized( );
+    const Eigen::Vector3d unitVector3 = unitVector1.cross( unitVector2 );
+
+    // Calculate the relative outgoing velocity.
+    const Eigen::Vector3d relativeOutgoingVelocity = absoluteRelativeOutgoingVelocity *
+            ( std::cos( bendingAngle ) * unitVector1 + std::sin( bendingAngle ) *
+              std::cos( rotationAngle ) * unitVector2 + std::sin( bendingAngle ) *
+              std::sin( rotationAngle ) * unitVector3 );
+
+    // Add the relative outgoing velocity to the swing-by body velocity and return it.
+    return centralBodyVelocity + relativeOutgoingVelocity;
+}
+
+//! Compute velocity-effect.
+double GravityAssistFunctions::computeVelocityEffectFunction( double& incomingEccentricity )
+{
+    return std::asin( 1.0 /incomingEccentricity )
+            + std::asin( 1.0 / ( 1.0 - incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ *
+                                 ( 1.0 -incomingEccentricity ) ) ) - bendingAngle_;
+}
+
+//! Compute first-derivative of velocity-effect.
+double GravityAssistFunctions::computeFirstDerivativeVelocityEffect(
+        double& incomingEccentricity )
+{
+    const double eccentricitySquareMinusOne_ = incomingEccentricity * incomingEccentricity - 1.0;
+    const double semiMajorAxisRatio_ = incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ ;
+    const double bParameter_ = 1.0 - semiMajorAxisRatio_ * ( 1.0 - incomingEccentricity );
+
+    return -1.0 / ( incomingEccentricity * std::sqrt( eccentricitySquareMinusOne_ ) ) -
+           semiMajorAxisRatio_ / ( bParameter_ * std::sqrt( bParameter_ * bParameter_ - 1.0 ) );
 }
 
 } // namespace mission_segments
-} // namespace astrodynamics
 } // namespace tudat
