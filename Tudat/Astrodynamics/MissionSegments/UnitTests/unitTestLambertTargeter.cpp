@@ -38,224 +38,131 @@
  *                                  CartesianVelocityElements objects as output.
  *      110512    K. Kumar          Updated code not to use dynamic memory allocation.
  *      110627    K. Kumar          Updated to use new predefined planets code.
- *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120416    T. Secretin       Boostified unit test.
+ *      120418    T. Secretin       Adapted to new class implementation.
+ *      120704    P. Musegaas       Changed tolerance.
+ *      120705    T. Secretin       Updated Eigen::Vector3d constructors to const-correctness.
  *
  *    References
- *      Mengali, G., and A.A. Quarta, Fondamenti di Meccanica del volo Spaziale.
  *      Noomen, R., Lambert targeter Excel file.
  *
- *    DISCLAIMER: At the moment, the Lambert targeter only converges for about half of the cases.
- *    This is not evident from the tests below, but it was observed during simulations carried out
- *    by the author. The reason might very well be an erroneous definition of the starters.
- *
- *    The elliptical case was taken from Example 6.1, page 159-162 of ( Mengali, Quarta ). The
- *    hyperbolic case was taken from ( Noomen, R. ).
+ *    Notes
  *
  */
 
 #define BOOST_TEST_MAIN
 
-#include <cmath>
+#include <limits>
 
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include <TudatCore/Basics/testMacros.h>
 
-#include "Tudat/Astrodynamics/Bodies/planet.h"
-#include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
-#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
 
 namespace tudat
 {
+namespace mission_segments
+{
+
+// A dummy derived class to test the functionality of the Lambert targeter base class.
+class LambertTargeterDummy : public LambertTargeter
+{
+public:
+
+    // Default constructor.
+    LambertTargeterDummy( const Eigen::Vector3d& cartesianPositionAtDeparture,
+                          const Eigen::Vector3d& cartesianPositionAtArrival,
+                          const double& timeOfFlight,
+                          const double& gravitationalParameter )
+        : LambertTargeter( cartesianPositionAtDeparture, cartesianPositionAtArrival, timeOfFlight,
+                           gravitationalParameter )
+    {
+        execute( );
+    }
+
+protected:
+
+    void execute( )
+    {
+        // Set inertial velocities.
+        cartesianVelocityAtDeparture_ << 2735.8, 6594.3, 0.0;
+        cartesianVelocityAtArrival_ << -1367.9, 4225.03, 0.0;
+    }
+
+};
+
+} // namespace mission_segments
+
 namespace unit_tests
 {
 
-//! Test Lambert targeting algorithm code.
+//! Test the Izzo Lambert targeting algorithm code.
 BOOST_AUTO_TEST_SUITE( test_lambert_targeter )
 
-//! Test hyperbolic case.
-BOOST_AUTO_TEST_CASE( testHyperbolicCase )
+//! Test the return of the inertial velocities.
+BOOST_AUTO_TEST_CASE( testGetInertialVelocity )
 {
-    // Expected test result in meters.
-    // Hyperbolic test case (results from excel file [1]).
-    const double expectedValueOfSemiMajorAxisHyperbola = -1270129.3602e3;
-    const double expectedValueOfRadialSpeedAtDepartureHyperbola = -0.74546e3;
-    const double expectedValueOfRadialSpeedAtArrivalHyperbola = 0.69321e3;
-    const double expectedValueOfTransverseSpeedAtDepartureHyperbola = 0.15674e3;
-    const double expectedValueOfTransverseSpeedAtArrivalHyperbola = 0.10450e3;
+    // Set tolerance.
+    const double tolerance = std::numeric_limits< double >::epsilon( );
 
-    // Tolerance in absolute units.
-    const double toleranceSemiMajorAxisHyperbola = 1.0e2;
-    const double toleranceVelocity = 1.0e-02;
+    // Set canonical units for Earth (see page 29 [1]).
+    const double distanceUnit = 6.378136e6;
+    const double timeUnit = 806.78;
+
+    // Set expected inertial vectors.
+    const Eigen::Vector3d expectedInertialVelocityAtDeparture( 2735.8, 6594.3, 0.0 ),
+            expectedInertialVelocityAtArrival( -1367.9, 4225.03, 0.0 );
 
     // Time conversions.
-    const double timeOfFlightInDaysHyperbola = 100.0;
-    const double timeOfFlightHyperbola = unit_conversions::convertJulianDaysToSeconds(
-            timeOfFlightInDaysHyperbola );
+    const double testTimeOfFlight = 5.0 * timeUnit;
 
-    // Central bodies parameters.
-    using astrodynamics::gravitation::GravityFieldModel;
-    boost::shared_ptr< bodies::Planet > predefinedEarth = boost::make_shared< bodies::Planet >( );
-    predefinedEarth->setPredefinedPlanetSettings( bodies::Planet::earth );
-    boost::shared_ptr< GravityFieldModel > pointerToEarthGravityField =
-            predefinedEarth->getGravityFieldModel( );
-    pointerToEarthGravityField->setGravitationalParameter( 398600.4418e9 );
+    // Set central body graviational parameter.
+    const double testGravitationalParameter = 398600.4418e9;
 
-    // Hyperbolic orbit case.
-    astrodynamics::mission_segments::LambertTargeter lambertTargeterHyperbola;
+    // Set position at departure and arrival.
+    const Eigen::Vector3d testCartesianPositionAtDeparture( 2.0 * distanceUnit, 0.0, 0.0 ),
+            testCartesianPositionAtArrival( 2.0 * distanceUnit, 2.0 * sqrt( 3.0 ) * distanceUnit,
+                                            0.0 );
+    // Declare Lambert targeter object.
+    tudat::mission_segments::LambertTargeterDummy
+            testLambertTargeter( testCartesianPositionAtDeparture, testCartesianPositionAtArrival,
+                                 testTimeOfFlight, testGravitationalParameter );
 
-    // The starting point is twice as far as L1 and L2, which is not really
-    // realistic, but it is not about the case, but about the verification.
-    using tudat::unit_conversions::convertAstronomicalUnitsToMeters;
-    Eigen::Vector3d positionAtDepartureHyperbola;
-    positionAtDepartureHyperbola.x( ) = convertAstronomicalUnitsToMeters( 0.02 );
-    positionAtDepartureHyperbola.y( ) = 0.0;
-    positionAtDepartureHyperbola.z( ) = 0.0;
+    // Check that returned vectors are equal to expected vectors.
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ),
+                                testLambertTargeter.getInertialVelocityAtDeparture( ).x( ),
+                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ),
+                                testLambertTargeter.getInertialVelocityAtDeparture( ).y( ),
+                                tolerance );
+    BOOST_CHECK_SMALL( testLambertTargeter.getInertialVelocityAtDeparture( ).z( ), tolerance );
 
-    Eigen::Vector3d positionAtArrivalHyperbola;
-    positionAtArrivalHyperbola.x( ) = 0.0;
-    positionAtArrivalHyperbola.y( ) = convertAstronomicalUnitsToMeters( -0.03 );
-    positionAtArrivalHyperbola.z( ) = 0.0;
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ),
+                                testLambertTargeter.getInertialVelocityAtArrival( ).x( ),
+                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
+                                testLambertTargeter.getInertialVelocityAtArrival( ).y( ),
+                                tolerance );
+    BOOST_CHECK_SMALL( testLambertTargeter.getInertialVelocityAtArrival( ).z( ), tolerance );
 
-    lambertTargeterHyperbola.setPositionAtDeparture( positionAtDepartureHyperbola );
-    lambertTargeterHyperbola.setPositionAtArrival( positionAtArrivalHyperbola );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.x( ),
+                                testLambertTargeter.getInertialVelocityVectors( ).first.x( ),
+                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtDeparture.y( ),
+                                testLambertTargeter.getInertialVelocityVectors( ).first.y( ),
+                                tolerance );
+    BOOST_CHECK_SMALL( testLambertTargeter.getInertialVelocityVectors( ).first.z( ), tolerance );
 
-    lambertTargeterHyperbola.setNumberOfRevolutions( 0 );
-    lambertTargeterHyperbola.setTimeOfFlight( timeOfFlightHyperbola );
-    lambertTargeterHyperbola.setCentralBody( predefinedEarth );
-
-    // Create pointers to new NewtonRaphson object.
-    lambertTargeterHyperbola.setNewtonRaphsonMethod( boost::make_shared< NewtonRaphson >( ) );
-
-    // Compute Lambert targeting algorithms.
-    lambertTargeterHyperbola.execute( );
-
-    // Create local vectors for position and velocity.
-    Eigen::Vector3d positionDepartureHyperbola = positionAtDepartureHyperbola;
-    Eigen::Vector3d velocityDepartureHyperbola =
-            lambertTargeterHyperbola.getInertialVelocityAtDeparture( );
-
-    // Test if the computed semi-major axis corresponds to the expected value within the specified
-    // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getLambertSemiMajorAxis( ),
-                                expectedValueOfSemiMajorAxisHyperbola,
-                                toleranceSemiMajorAxisHyperbola );
-
-    // Test if the computed velocity components corresponds to the expected value within the
-    // specified tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getRadialSpeedAtDeparture( ),
-                                expectedValueOfRadialSpeedAtDepartureHyperbola,
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getRadialSpeedAtArrival( ),
-                                expectedValueOfRadialSpeedAtArrivalHyperbola,
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getTransverseSpeedAtDeparture( ),
-                                expectedValueOfTransverseSpeedAtDepartureHyperbola,
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterHyperbola.getTransverseSpeedAtArrival( ),
-                                expectedValueOfTransverseSpeedAtArrivalHyperbola,
-                                toleranceVelocity );
-
-    // Test if the computed solution is anti-clockwise, if the z-component of the angular momentum
-    // (h = r \times v) is positive.
-    BOOST_CHECK_GT( positionDepartureHyperbola.cross( velocityDepartureHyperbola ).z( ),
-                    std::numeric_limits< double >::epsilon( ) );
-}
-
-//! Test elliptical case.
-BOOST_AUTO_TEST_CASE( testEllipticalCase )
-{
-    // Elliptical test case (results from example 6.1 page 159-162 [2]).
-    // Set canonical units for Earth (see page 29 [2]).
-    double distanceUnit = 6.378136e6;
-    double timeUnit = 806.78;
-
-    double expectedValueOfSemiMajorAxisEllipse = 5.4214 * distanceUnit;
-    double expectedValueOfRadialSpeedAtDepartureEllipse = 2.73580e3;
-    double expectedValueOfRadialSpeedAtArrivalEllipse = 2.97503e3;
-    double expectedValueOfTransverseSpeedAtDepartureEllipse = 6.59430e3;
-    double expectedValueOfTransverseSpeedAtArrivalEllipse = 3.29715e3;
-
-    // Tolerance in absolute units.
-    double toleranceSemiMajorAxisEllipse = 1.0e4;
-    double toleranceVelocity = 1.0e-02;
-
-    // Time conversions.
-    double timeOfFlightEllipse = 5.0 * timeUnit;
-
-    // Central bodies parameters.
-    using astrodynamics::gravitation::GravityFieldModel;
-    using astrodynamics::gravitation::SphericalHarmonicsGravityField;
-    boost::shared_ptr< GravityFieldModel > earthGravityField
-            = boost::make_shared< SphericalHarmonicsGravityField >( );
-    earthGravityField->setGravitationalParameter( 398600.4418e9 );
-    boost::shared_ptr< bodies::CelestialBody > predefinedEarth
-            = boost::make_shared< bodies::CelestialBody >( );
-    predefinedEarth->setGravityFieldModel( earthGravityField );
-
-    // Elliptical orbit case.
-    astrodynamics::mission_segments::LambertTargeter lambertTargeterEllipse;
-
-    Eigen::Vector3d positionAtDepartureEllipse;
-    positionAtDepartureEllipse.x( ) = 2.0 * distanceUnit;
-    positionAtDepartureEllipse.y( ) = 0.0;
-    positionAtDepartureEllipse.z( ) = 0.0;
-
-    Eigen::Vector3d positionAtArrivalEllipse;
-    positionAtArrivalEllipse.x( ) = 2.0 * distanceUnit;
-    positionAtArrivalEllipse.y( ) = 2.0 * sqrt( 3.0 ) * distanceUnit;
-    positionAtArrivalEllipse.z( ) = 0.0;
-
-    lambertTargeterEllipse.setPositionAtDeparture( positionAtDepartureEllipse );
-    lambertTargeterEllipse.setPositionAtArrival( positionAtArrivalEllipse );
-    lambertTargeterEllipse.setNumberOfRevolutions( 0 );
-    lambertTargeterEllipse.setTimeOfFlight( timeOfFlightEllipse );
-    lambertTargeterEllipse.setCentralBody( predefinedEarth );
-
-    // Create pointers to new NewtonRaphson object.
-    lambertTargeterEllipse.setNewtonRaphsonMethod( boost::make_shared< NewtonRaphson >( ) );
-
-    // Compute Lambert targeting algorithms.
-    lambertTargeterEllipse.execute( );
-
-    // Create local vectors for position and velocity.
-    Eigen::Vector3d positionDepartureEllipse = positionAtDepartureEllipse;
-    Eigen::Vector3d velocityDepartureEllipse =
-            lambertTargeterEllipse.getInertialVelocityAtDeparture( );
-
-    // Test if the computed semi-major axis corresponds to the expected value within the specified
-    // tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getLambertSemiMajorAxis( ),
-                                expectedValueOfSemiMajorAxisEllipse,
-                                toleranceSemiMajorAxisEllipse );
-
-    // Test if the computed velocity components corresponds to the expected value within the
-    // specified tolerance.
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getRadialSpeedAtDeparture( ),
-                                expectedValueOfRadialSpeedAtDepartureEllipse,
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getRadialSpeedAtArrival( ),
-                                expectedValueOfRadialSpeedAtArrivalEllipse,
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getTransverseSpeedAtDeparture( ),
-                                expectedValueOfTransverseSpeedAtDepartureEllipse,
-                                toleranceVelocity );
-    BOOST_CHECK_CLOSE_FRACTION( lambertTargeterEllipse.getTransverseSpeedAtArrival( ),
-                                expectedValueOfTransverseSpeedAtArrivalEllipse,
-                                toleranceVelocity );
-
-    // Test if the computed solution is anti-clockwise, if the z-component of the angular momentum
-    // (h = r \times v) is positive.
-    BOOST_CHECK_GT( positionDepartureEllipse.cross( velocityDepartureEllipse ).z( ),
-                    std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.x( ),
+                                testLambertTargeter.getInertialVelocityVectors( ).second.x( ),
+                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedInertialVelocityAtArrival.y( ),
+                                testLambertTargeter.getInertialVelocityVectors( ).second.y( ),
+                                tolerance );
+    BOOST_CHECK_SMALL( testLambertTargeter.getInertialVelocityVectors( ).second.z( ), tolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
