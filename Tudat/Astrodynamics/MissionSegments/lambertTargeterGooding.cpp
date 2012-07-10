@@ -41,7 +41,7 @@
  *                                  version of Newton-Raphson code.
  *      110126    E. Iorfida        Initialized member functions.
  *      110130    J. Melman         Simplified variable names, e.g., 'normOfdeletVelocityVector'
- *                                  became 'velocity'. Requested references to specific formulas. Also
+ *                                  became 'speed'. Requested references to specific formulas. Also
  *                                  corrected 'tangential' to 'transverse'. Simplified computation
  *                                  of radial unit vector. Corrected computation of transverse
  *                                  heliocentric velocity.
@@ -58,10 +58,7 @@
  *                                  degrees). Better defined the pointers to the output
  *                                  CartesianVelocityElements.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
- *      120620    T. Secretin       Removed inheritance from TrajectoryDesignMethod class.
- *                                  Turned into base class for Lambert Targeters. Previous code
- *                                  adapted and moved to LambertTargeterGooding.cpp.
- *      120704    P. Musegaas       Moved getInertialVelocityVectors to the header.
+ *      120620    T. Secretin       Adapted and moved code from LambertTargeter.cpp.
  *
  *    References
  *
@@ -69,27 +66,100 @@
  *
  */
 
-#include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
+#include <Eigen/Geometry>
 
+#include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
+#include "Tudat/Astrodynamics/MissionSegments/lambertTargeterGooding.h"
+
+//! Tudat library namespace.
 namespace tudat
 {
 namespace mission_segments
 {
 
-//! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream, LambertTargeter& lambertTargeter )
+//! Execute Lambert targeting solver.
+void LambertTargeterGooding::execute( )
 {
-    stream << "The position vector at departure is set to: "
-           << lambertTargeter.cartesianPositionAtDeparture_
-           << "The position vector at arrival is set to: "
-           << lambertTargeter.cartesianPositionAtArrival_
-           << "The velocity vector at departure is computed as: "
-           << lambertTargeter.getInertialVelocityAtDeparture( )
-           << "The velocity vector at departure is computed as: "
-           << lambertTargeter.getInertialVelocityAtArrival( ) << std::endl;
+    // Call Gooding's Lambert targeting routine.
+    solveLambertProblemGooding( cartesianPositionAtDeparture_, cartesianPositionAtArrival_,
+                                timeOfFlight_, gravitationalParameter_,
+                                cartesianVelocityAtDeparture_, cartesianVelocityAtArrival_,
+                                newtonRaphson_, convergenceTolerance_,
+                                maximumNumberOfIterations_ );
+}
 
-    // Return stream.
-    return stream;
+//! Get radial velocity at departure.
+double LambertTargeterGooding::getRadialVelocityAtDeparture( )
+{
+    // Determine radial unit vector.
+    const Eigen::Vector3d radialUnitVectorAtDeparture = cartesianPositionAtDeparture_.normalized( );
+
+    // Compute radial velocity at departure.
+    return cartesianVelocityAtDeparture_.dot( radialUnitVectorAtDeparture );
+}
+
+//! Get radial velocity at arrival.
+double LambertTargeterGooding::getRadialVelocityAtArrival( )
+{
+    // Determine radial unit vector.
+    const Eigen::Vector3d radialUnitVectorAtArrival = cartesianPositionAtArrival_.normalized( );
+
+    // Compute radial velocity at arrival.
+    return cartesianVelocityAtArrival_.dot( radialUnitVectorAtArrival );
+}
+
+//! Get transverse velocity at departure.
+double LambertTargeterGooding::getTransverseVelocityAtDeparture( )
+{
+    // Compute angular momemtum vector.
+    const Eigen::Vector3d angularMomentumVector =
+            cartesianPositionAtDeparture_.cross( cartesianVelocityAtDeparture_ );
+
+    // Compute normalized angular momentum vector.
+    const Eigen::Vector3d angularMomentumUnitVector = angularMomentumVector.normalized( );
+
+    // Determine radial unit vector.
+    const Eigen::Vector3d radialUnitVectorAtDeparture
+            = cartesianPositionAtDeparture_.normalized( );
+
+    // Compute tangential unit vector.
+    Eigen::Vector3d tangentialUnitVectorAtDeparture =
+                angularMomentumUnitVector.cross( radialUnitVectorAtDeparture );
+
+    // Compute tangential velocity at departure.
+    return cartesianVelocityAtDeparture_.dot( tangentialUnitVectorAtDeparture );
+}
+
+//! Get transverse velocity at arrival.
+double LambertTargeterGooding::getTransverseVelocityAtArrival( )
+{
+    // Compute angular momemtum vector.
+    const Eigen::Vector3d angularMomentumVector =
+            cartesianPositionAtArrival_.cross( cartesianVelocityAtArrival_ );
+
+    // Compute normalized angular momentum vector.
+    const Eigen::Vector3d angularMomentumUnitVector = angularMomentumVector.normalized( );
+
+    // Determine radial unit vector.
+    const Eigen::Vector3d radialUnitVectorAtArrival = cartesianPositionAtArrival_.normalized( );
+
+    // Compute tangential unit vector.
+    Eigen::Vector3d tangentialUnitVectorAtArrival =
+                angularMomentumUnitVector.cross( radialUnitVectorAtArrival );
+
+    // Compute tangential velocity at departure.
+    return cartesianVelocityAtArrival_.dot( tangentialUnitVectorAtArrival );
+}
+
+//! Get semi-major axis.
+double LambertTargeterGooding::getSemiMajorAxis( )
+{
+    // Compute specific orbital energy: eps = v^2/ - mu/r.
+    const double specificOrbitalEnergy = cartesianVelocityAtDeparture_.squaredNorm( ) / 2.0
+            - gravitationalParameter_ / cartesianPositionAtDeparture_.norm( );
+
+    // Compute semi-major axis: a = -mu / 2*eps.
+    return -gravitationalParameter_ / ( 2.0 * specificOrbitalEnergy );
 }
 
 } // namespace mission_segments
