@@ -35,78 +35,38 @@
  *                                  GeometricShapes.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120416    T. Secretin       Corrected if-statements to detect NaN values.
+ *      120531    P. Musegaas       Code completely rewritten. Made it a free function.
+ *      120625    P. Musegaas       Minor changes.
  *
  *    References
+ *      Wakker, K. F. (2007), Lecture Notes Astrodynamics II (Chapter 18), TU Delft course AE4-874,
+ *          Delft University of technology, Delft, The Netherlands.
  *
  */
 
-#include <boost/shared_ptr.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
+#include <cmath>
 
 #include "Tudat/Astrodynamics/MissionSegments/escapeAndCapture.h"
 
 namespace tudat
 {
-namespace astrodynamics
-{
 namespace mission_segments
 {
-
-//! Compute delta-V of launch/capture phase.
-double EscapeAndCapture::computeDeltaV( )
+//! Compute escape or capture deltaV budget.
+double computeEscapeOrCaptureDeltaV( const double gravitationalParameter,
+                                     const double semiMajorAxis,
+                                     const double eccentricity,
+                                     const double excessVelocity )
 {
-    using std::endl;
-    using std::pow;
-    using std::sqrt;
+    // Calculate the pericenter radius from the semi-major axis and eccentricity.
+    const double pericenterRadius = semiMajorAxis * ( 1.0 - eccentricity );
 
-    // Local variables.
-    double periapsisRadius_ = TUDAT_NAN;
-    double apoapsisRadius_ = TUDAT_NAN;
-
-    // Check input parameters.
-    // For the correct functioning of this routine, the periapsis
-    // radius and the eccentricity will have to be known.
-    // Eccentricity and semi-major axis set by user.
-    if ( !( boost::math::isnan )( eccentricity_ ) && !( boost::math::isnan )( semiMajorAxis_ ) )
-    {
-        // Compute periapsis radius.
-        periapsisRadius_ = semiMajorAxis_ * ( 1.0 - eccentricity_ );
-
-    }
-    // Periapsis and apoapsis altitudes set by user.
-    else if ( !( boost::math::isnan )( periapsisAltitude_ ) &&
-              !( boost::math::isnan )( apoapsisAltitude_ ) )
-    {
-        // Compute periapsis and apoapsis radii.
-        periapsisRadius_ = periapsisAltitude_ + parkingOrbitRadius_;
-        apoapsisRadius_ = apoapsisAltitude_ + parkingOrbitRadius_;
-
-        // Compute eccentricity.
-        eccentricity_ = ( apoapsisRadius_ - periapsisRadius_ ) /
-                        ( apoapsisRadius_ + periapsisRadius_ );
-
-    }
-    // Periapsis altitude and eccentricy set by user.
-    else if ( !( boost::math::isnan )( periapsisAltitude_ ) &&
-              !( boost::math::isnan )( eccentricity_ ) )
-    {
-        // Compute periapsis radius.
-        periapsisRadius_ = periapsisAltitude_ + parkingOrbitRadius_;
-
-    }
-
-    // Compute escape velocity squared.
-    double escapeVelocitySquared_;
-    escapeVelocitySquared_ = 2.0 * centralBodyGravityfield_->getGravitationalParameter( )
-            / periapsisRadius_;
-
-    // Compute delta-V.
-    deltaV_ = sqrt( escapeVelocitySquared_ + pow( hyperbolicExcessSpeed_, 2.0 ) ) -
-              sqrt( ( escapeVelocitySquared_ / 2.0 ) * ( 1.0 + eccentricity_ ) );
-
-    return deltaV_;
+    // Calculate deltaV using Equation 18-28 of [Wakker, 2007].
+    return std::sqrt( 2.0 * gravitationalParameter / pericenterRadius +
+                      excessVelocity * excessVelocity ) -
+           std::sqrt( 2.0 * gravitationalParameter / pericenterRadius -
+                      gravitationalParameter / semiMajorAxis );
 }
 
 } // namespace mission_segments
-} // namespace astrodynamics
 } // namespace tudat

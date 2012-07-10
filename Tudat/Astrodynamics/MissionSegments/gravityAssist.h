@@ -40,235 +40,158 @@
  *      120417    T. Secretin       Moved set functions to constructor.
  *      120508    P. Musegaas       The gravitational parameter is now passed as double, made some
  *                                  variables constant.
+ *      120530    P. Musegaas       Complete revision. Removed class structure, made it a free
+ *                                  function. Added two functions for propagating a gravity assist
+ *                                  (powered and unpowered).
+ *      120625    P. Musegaas       Minor changes.
+ *      120703    T. Secretin       Minor layout changes. Changed constructor.
  *
- *    References
- *
- *    Gravity assist and swing-by are different words for the same thing. The delta-V that is
- *    computed for a powered swing-by has not been proven to be the optimum (lowest) to achieve the
- *    desired geometry of incoming and outgoing hyperbolic legs. Some literature research will have
- *    to be done to look at the alternatives.
- *
- *    For the moment in this code the smallestPeriapsisDistanceFactor is given as external input by
- *    the user, but in the future it should be part of the CelestialBody object.
- *
- *    Also, the velocity of the central body will need to be computed by the ephemeris code.
- *    At the moment the shape of the central body is a sphere segment, and the radius of the planet
- *    is set externally by the user. In the future it should be possible to get the radius of each
- *    planet directly from the CelestialBody class, by a link to GeometricShape class.
- *
- *    At the moment, this code uses a Newton-Raphson root finder by default. In the future it
- *    should be possible to apply for example the Halley method by using polymorphism.
+ *    Notes
+ *      Note that the exact implementation of Newton-Raphson as root finder should be updated if
+ *      someone would want to use a different root-finding technique.
  *
  */
 
 #ifndef TUDAT_GRAVITY_ASSIST_H
 #define TUDAT_GRAVITY_ASSIST_H
 
-#include <iostream>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
-
-#include "Tudat/Astrodynamics/Bodies/celestialBody.h"
-#include "Tudat/Astrodynamics/States/cartesianVelocityElements.h"
-#include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
 namespace tudat
-{
-namespace astrodynamics
 {
 namespace mission_segments
 {
 
-//! Gravity assist method class.
+//! Calculate deltaV of a gravity assist.
 /*!
- * Gravity assist method class.
+ * Calculates the deltaV required to perform a certain gravity assist. This function essentially
+ * tries to patch the incoming and outgoing velocity using an unpowered gravity assist. If however
+ * the required bending angle cannot be obtained, the deltaV required to patch this is calculated.
+ * Likewise the deltaV required to patch the hyperbolic excess velocities is calculated. The sum
+ * of the two is the total deltaV required to perform the maneuver and is returned.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the swing-by body.[m^3 s^-2]
+ * \param centralBodyVelocity Heliocentric velocity of the swing-by body.                  [m s^-1]
+ * \param incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
+ * \param outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.     [m s^-1]
+ * \param smallestPeriapsisDistance Closest allowable distance to the swing-by body.            [m]
+ * \param newtonRaphson Pointer to the Newton Raphson that the user wants to use.               [-]
+ * \return deltaV The deltaV required for the gravity assist maneuver.                     [m s^-1]
  */
-class GravityAssist
+double gravityAssist( const double centralBodyGravitationalParameter,
+                      const Eigen::Vector3d& centralBodyVelocity,
+                      const Eigen::Vector3d& incomingVelocity,
+                      const Eigen::Vector3d& outgoingVelocity,
+                      const double smallestPeriapsisDistance,
+                      boost::shared_ptr< NewtonRaphson > newtonRaphson =
+                                                        boost::make_shared< NewtonRaphson >( ) );
+
+//! Propagate an unpowered gravity assist.
+/*!
+ * Calculates the outgoing velocity of an unpowered gravity assist. The gravity assist is defined
+ * by a 3D rotation angle and the pericenter radius of the swing-by maneuver.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the swing-by body.[m^3 s^-2]
+ * \param centralBodyVelocity Heliocentric velocity of the swing-by body.                  [m s^-1]
+ * \param incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
+ * \param rotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
+ * \param pericenterRadius Pericenter radius of the swing-by maneuver.                          [m]
+ * \return outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
+ */
+Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
+                               const Eigen::Vector3d& centralBodyVelocity,
+                               const Eigen::Vector3d& incomingVelocity,
+                               const double rotationAngle,
+                               const double pericenterRadius );
+
+//! Propagate a powered gravity assist.
+/*!
+ * Calculates the outgoing velocity of a powered gravity assist. The gravity assist is defined by
+ * a 3D rotation angle, the pericenter radius of the swing-by maneuver and the deltaV magnitude
+ * that is applied at the pericenter passage of the gravity assist.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the swing-by body.[m^3 s^-2]
+ * \param centralBodyVelocity Heliocentric velocity of the swing-by body.                  [m s^-1]
+ * \param incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
+ * \param rotationAngle Angle defining the rotation due to the swing-by in the 3D plane.      [rad]
+ * \param pericenterRadius Pericenter radius of the swing-by maneuver.                          [m]
+ * \param deltaV DeltaV magnitude of the gravity assist that is applied at pericenter      [m s^-1]
+ * \return outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.    [m s^-1]
+ */
+Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
+                               const Eigen::Vector3d& centralBodyVelocity,
+                               const Eigen::Vector3d& incomingVelocity,
+                               const double rotationAngle,
+                               const double pericenterRadius,
+                               const double deltaV );
+
+//! Gravity assist functions class.
+/*!
+ * This class contains the functions required by the root-finders in the gravity assist Delta-V
+ * computations to find the eccentricity.
+ */
+class GravityAssistFunctions
 {
 public:
 
-    //! Typedef for shared pointer to Newton-Raphson method.
+    //! Constructor with immediate definition of parameters.
     /*!
-     * Typedef for shared pointer to Newton-Raphson method.
+     * Constructor that sets all the parameters in the velocity-effect functions for use in the
+     * Newton Raphson rootfinder.
      */
-    typedef boost::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    GravityAssist( const double centralBodyGravitationalParameter,
-                   const double smallestPeriapsisDistance,
-                   const Eigen::Vector3d& centralBodyVelocity,
-                   const Eigen::Vector3d& incomingVelocity,
-                   const Eigen::Vector3d& outgoingVelocity,
-                   boost::shared_ptr< NewtonRaphson > newtonRaphson )
-        : centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
-          smallestPeriapsisDistance_( smallestPeriapsisDistance ),
-          centralBodyVelocity_( centralBodyVelocity ),
-          incomingVelocity_( incomingVelocity ),
-          outgoingVelocity_( outgoingVelocity ),
-          incomingHyperbolicExcessVelocity_( Eigen::Vector3d::Zero( ) ),
-          outgoingHyperbolicExcessVelocity_( Eigen::Vector3d::Zero( ) ),
-          newtonRaphson_( newtonRaphson ),
-          deltaV_( TUDAT_NAN ),
-          bendingAngle_( TUDAT_NAN ),
-          incomingEccentricity_( TUDAT_NAN ),
-          outgoingEccentricity_( TUDAT_NAN ),
-          incomingSemiMajorAxis_( TUDAT_NAN ),
-          outgoingSemiMajorAxis_( TUDAT_NAN ),
-          bendingEffectDeltaV_( TUDAT_NAN ),
-          velocityEffectDeltaV_( TUDAT_NAN )
+    GravityAssistFunctions ( const double incomingSemiMajorAxis,
+                             const double outgoingSemiMajorAxis,
+                             const double bendingAngle )
+        : incomingSemiMajorAxis_( incomingSemiMajorAxis),
+          outgoingSemiMajorAxis_( outgoingSemiMajorAxis ),
+          bendingAngle_ ( bendingAngle )
     { }
 
-    //! Compute the delta-V of a powered swing-by.
+    //! Compute velocity-effect.
     /*!
-     * Computes the necessary delta-V to perform a powered swing-by.
-     * \return deltaV Necessary delta-V of swing-by.
+     * Computes velocity-effect delta-V. This function is used by the Newton-Raphson root-finder.
+     * \param incomingEccentricity Incoming eccentricity.
+     * \return Velocity-effect at defined eccentricity.
+     * \sa NewtonRaphson().
      */
-    double computeDeltaV( );
+    double computeVelocityEffectFunction( double& incomingEccentricity );
 
-    //! Overload ostream to print class information.
+    //! Compute first-derivative of velocity-effect.
     /*!
-     * Overloads ostream to print class information.
-     * \param stream Stream object.
-     * \param gravityAssist Gravity Assist.
-     * \return Stream object.
+     * Computes first-derivative of velocity-effect delta-V. This function is used by the
+     * Newton-Raphson root-finder
+     * \param incomingEccentricity Incoming eccentricity.
+     * \return Value of first derivative of root-finder function at defined eccentricity.
+     * \sa NewtonRapshon().
      */
-    friend std::ostream& operator<<( std::ostream& stream, GravityAssist& gravityAssist );
+    double computeFirstDerivativeVelocityEffect( double& incomingEccentricity );
 
 protected:
 
 private:
 
-    //! The gravitational parameter of the central body.
-    /*!
-     * The gravitational parameter of the central body involved in the swingby [m^3 s^-2].
-     */
-    const double centralBodyGravitationalParameter_;
-
-    //! Smallest periapsisDistance.
-    /*!
-     * The smallest allowable periapsis distance. This is the radius of closest possible approach to
-     * the planet. For maximal swing-by energy, this is the central body radius.
-     */
-    const double smallestPeriapsisDistance_;
-
-    //! Velocity of the swing-by central body.
-    /*!
-     * Velocity vector of the central body involved in the swing-by.
-     */
-    const Eigen::Vector3d centralBodyVelocity_;
-
-    //! Incoming velocity of object.
-    /*!
-     * Incoming velocity of object.
-     */
-    const Eigen::Vector3d incomingVelocity_;
-
-    //! Outgoing velocity of object.
-    /*!
-     * Outgoing velocity of object.
-     */
-    const Eigen::Vector3d outgoingVelocity_;
-
-    //! Hyperbolic excess velocity of the incoming leg.
-    /*!
-     * Hyperbolic excess velocity of the incoming leg.
-     */
-    Eigen::Vector3d incomingHyperbolicExcessVelocity_;
-
-    //! Hyperbolic excess velocity of the outgoing leg.
-    /*!
-     * Hyperbolic excess velocity of the outgoing leg.
-     */
-    Eigen::Vector3d outgoingHyperbolicExcessVelocity_;
-
-    //! Shared pointer to object of NewtonRaphson class.
-    /*!
-     * Shared pointer to object of NewtonRaphson class.
-     */
-    NewtonRaphsonPointer newtonRaphson_;
-
-    //! Delta-V of powered gravity assist.
-    /*!
-     * Necessary delta-V to perform a powered swing-by.
-     */
-    double deltaV_;
-
-    //! Bending angle between the excess velocities.
-    /*!
-     * Bending angle between the excess velocities.
-     */
-    double bendingAngle_;
-
-    //! Eccentricity of the incoming hyperbolic leg.
-    /*!
-     * Eccentricity of the incoming hyperbolic leg.
-     */
-    double incomingEccentricity_;
-
-    //! Eccentricity of the outgoing hyperbolic leg.
-    /*!
-     * Eccentricity of the outgoing hyperbolic leg.
-     */
-    double outgoingEccentricity_;
-
     //! Semi-major axis of the incoming hyperbolic leg.
     /*!
-     *  Semi-major axis of the incoming hyperbolic leg.
+     * Semi-major axis of the incoming hyperbolic leg.
      */
-    double incomingSemiMajorAxis_;
+    const double incomingSemiMajorAxis_;
 
     //! Semi-major axis of the outgoing hyperbolic leg.
     /*!
      * Semi-major axis of the outgoing hyperbolic leg.
      */
-    double outgoingSemiMajorAxis_;
+    const double outgoingSemiMajorAxis_;
 
-    //! Delta-V due to the effect of large bending angle.
+    //! Bending angle between the excess velocities.
     /*!
-     * Delta-V due to the effect of large bending angle between excess
-     * velocities.
+     * Bending angle between the excess velocities.
      */
-    double bendingEffectDeltaV_;
-
-    //! Delta-V due to the effect of different excess speeds.
-    /*!
-     * Delta-V due to the effect of different excess speeds.
-     */
-    double velocityEffectDeltaV_;
-
-    //! Pointer to adaptor object of NewtonRaphsonAdaptor class.
-    /*!
-     * Pointer to adaptor object of NewtonRaphsonAdaptor class. The template
-     * parameter passed is this class.
-     */
-    NewtonRaphsonAdaptor< GravityAssist > newtonRaphsonAdaptorForGravityAssist_;
-
-    //! Define root-finder function.
-    /*!
-     * Defines root-finder function for the velocity-effect delta-V.
-     * \param incomingEccentricity Incoming eccentricity.
-     * \return Value of root-finder function at defined eccentricity.
-     */
-    double velocityEffectFunction( double& incomingEccentricity );
-
-    //! Define first derivative of root-finder function.
-    /*!
-     * Defines first derivative of root-finder function for the velocity-effect delta-V.
-     * \param incomingEccentricity Incoming eccentricity.
-     * \return Value of first derivative of root-finder function at defined eccentricity.
-     */
-    double firstDerivativeVelocityEffectFunction( double& incomingEccentricity );
+    const double bendingAngle_;
 };
 
 } // namespace mission_segments
-} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_GRAVITY_ASSIST_H
