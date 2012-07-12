@@ -39,6 +39,7 @@
  *                                  suggestions by M. Persson.
  *      111117    K. Kumar          Added listAllFilesInDirectory( ) function.
  *      120127    K. Kumar          Adapted for Tudat Core.
+ *      120712    K. Kumar          Updated use of filesystem3 boost-namespace to filesystem.
  *
  *    References
  *
@@ -52,20 +53,20 @@ namespace input_output
 {
 
 //! Lists all files in directory.
-std::vector< boost::filesystem3::path > listAllFilesInDirectory(
-    const boost::filesystem3::path& directory, bool isRecurseIntoSubdirectories )
+std::vector< boost::filesystem::path > listAllFilesInDirectory(
+    const boost::filesystem::path& directory, const bool isRecurseIntoSubdirectories )
 {
     // Declare local variables.
-    std::vector < boost::filesystem3::path > listOfFileNamesWithPath_;
+    std::vector < boost::filesystem::path > listOfFileNamesWithPath_;
 
-    if ( boost::filesystem3::exists( directory ) )
+    if ( boost::filesystem::exists( directory ) )
     {
-        boost::filesystem3::directory_iterator iteratorPastEndOfDirectory_;
+        boost::filesystem::directory_iterator iteratorPastEndOfDirectory_;
 
-        for ( boost::filesystem3::directory_iterator directoryIterator_( directory );
+        for ( boost::filesystem::directory_iterator directoryIterator_( directory );
               directoryIterator_ != iteratorPastEndOfDirectory_ ; ++directoryIterator_ )
         {
-            if ( boost::filesystem3::is_directory( *directoryIterator_ ) )
+            if ( boost::filesystem::is_directory( *directoryIterator_ ) )
             {
                 if ( isRecurseIntoSubdirectories )
                 {
