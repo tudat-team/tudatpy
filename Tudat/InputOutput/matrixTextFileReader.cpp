@@ -74,24 +74,26 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
     {
         // Filter the file stream. This needs to be in its own scope, because filtering_stream::
         // flush( ) does not work if the underlying end point is a stringstream, so the flush has
-        // to be forced by letting the filtering_stream go out of scope
+        // to be forced by letting the filtering_stream go out of scope.
         boost::iostreams::filtering_ostream filterProcessor;
         for ( unsigned int i = 0; i < skipLinesCharacter.size( ); i++ )
         {
-            // Remove all comments from the stream
+            // Remove all comments from the stream.
             filterProcessor.push( tudat::input_output::stream_filters::RemoveComment(
                                       skipLinesCharacter[i], true ) );
         }
-        // Add the output to the filter chain
+
+        // Add the output to the filter chain.
         filterProcessor.push( filteredStream );
 
-        // Copy the input to the filter
+        // Copy the input to the filter.
         boost::iostreams::copy( file, filterProcessor );
     }
-    // Seek stream back to start
+
+    // Seek stream back to start.
     filteredStream.seekg( 0, std::ios::beg );
 
-    // Read the filtered stream into lines
+    // Read the filtered stream into lines.
     std::vector< std::string > lines_;
     while ( !filteredStream.eof( ) )
     {
@@ -103,7 +105,7 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
         }
     }
 
-    // If there are no lines, return an empty matrix
+    // If there are no lines, return an empty matrix.
     if ( lines_.empty( ) )
     {
         return Eigen::MatrixXd( );
@@ -111,7 +113,7 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
 
     const std::string realSeparators = std::string( separators ) + " ";
 
-    // Determine the number of columns from
+    // Determine the number of columns from.
     std::vector< std::string > lineSplit_;
     boost::algorithm::split( lineSplit_, lines_[0], boost::is_any_of( realSeparators ),
                              boost::algorithm::token_compress_on );
@@ -123,8 +125,10 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
     {
         lineSplit_.clear( );
 
-        boost::algorithm::split( lineSplit_, lines_[rowIndex], boost::is_any_of( realSeparators ),
+        boost::algorithm::split( lineSplit_, lines_[ rowIndex ],
+                                 boost::is_any_of( realSeparators ),
                                  boost::algorithm::token_compress_on );
+
         for ( int columnIndex = 0; columnIndex < dataMatrix_.cols( ); columnIndex++ )
         {
             boost::trim( lineSplit_.at( columnIndex ) );
