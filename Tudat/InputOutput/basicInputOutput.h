@@ -40,8 +40,9 @@
  *      111117    K. Kumar          Added listAllFilesInDirectory( ) function.
  *      120127    K. Kumar          Adapted for Tudat.
  *      120511    K. Kumar          Added writeMapDataToFile() template functions.
- *      120712    B. Tong Minh      Rewrote writeMapDataToFile() function to make use of iterators
+ *      120711    B. Tong Minh      Rewrote writeMapDataToFile() function to make use of iterators
  *                                  (paralleling how STL algorithms work).
+ *      120712    K. Kumar          Updated use of filesystem3 boost-namespace to filesystem.
  *
  *    References
  *
@@ -97,8 +98,8 @@ static inline std::string getTudatRootPath( )
  *          subdirectories. Set to false by default.
  * \return Container of filenames in directory, stored as Boost path variables.
  */
-std::vector< boost::filesystem3::path > listAllFilesInDirectory(
-    const boost::filesystem3::path& directory, bool isRecurseIntoSubdirectories = false );
+std::vector< boost::filesystem::path > listAllFilesInDirectory(
+    const boost::filesystem::path& directory, const bool isRecurseIntoSubdirectories = false );
 
 //! Write a value to a stream.
 /*!
@@ -179,14 +180,14 @@ template< typename InputIterator >
 void writeDataMapToTextFile(
         InputIterator iteratorDataMap, InputIterator last,
         const std::string& outputFilename,
-        const boost::filesystem3::path& outputDirectory, const std::string& fileHeader,
+        const boost::filesystem::path& outputDirectory, const std::string& fileHeader,
         const int precisionOfKeyType, const int precisionOfValueType,
         const std::string& delimiter )
 {
     // Check if output directory exists; create it if it doesn't.
-    if ( !boost::filesystem3::exists( outputDirectory ) )
+    if ( !boost::filesystem::exists( outputDirectory ) )
     {
-        boost::filesystem3::create_directories( outputDirectory );
+        boost::filesystem::create_directories( outputDirectory );
     }
 
     // Open output file.
@@ -230,7 +231,7 @@ void writeDataMapToTextFile(
 template< typename KeyType, typename ValueType >
 void writeDataMapToTextFile(
         const std::map< KeyType, ValueType >& dataMap, const std::string& outputFilename,
-        const boost::filesystem3::path& outputDirectory, const std::string& fileHeader,
+        const boost::filesystem::path& outputDirectory, const std::string& fileHeader,
         const int precisionOfKeyType, const int precisionOfValueType,
         const std::string& delimiter )
 {
