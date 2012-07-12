@@ -53,10 +53,10 @@ namespace input_output
  * FieldType is a hash number (see note at the end of this comment) created from a description for
  * that FieldType. This means that it is important to maintain different descriptions of each field,
  * as the same description leads to the same hash. It is strongly advised to use the following
- * conventiontion:
+ * convention:
  *
- * A description is build up from a category path. Each category starts with a capital letter and
- * must not contain any spaces. Following the category name is a collon followed by a space and the
+ * A description is built up from a category path. Each category starts with a capital letter and
+ * must not contain any spaces. Following the category name is a colon followed by a space and the
  * description of the next sub-category or the actual string identifying the specific field. The
  * same conventions as for categories are used on the string identifier.
  *
