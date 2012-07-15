@@ -60,6 +60,7 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120619    T. Secretin       Converted to free functions. Added Izzo's approach.
  *      120704    P. Musegaas       Various small changes during code check.
+ *      120713    P. Musegaas       Changed tolerance to relative tolerance in Gooding's rootfinder.
  *
  *    References
  *      Battin, R.H. An Introduction to the Mathematics and Methods of Astrodynamics,
@@ -71,6 +72,9 @@
  *    Notes
  *
  */
+
+#include <cmath>
+#include <stdexcept>
 
 #include <boost/exception/all.hpp>
 #include <boost/math/special_functions.hpp>
@@ -139,8 +143,8 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     // Assuming a prograde motion, determine whether the transfer corresponds to the long- or the
     // short-way solution: longway if x1*y2 - x2*y1 < 0.
     bool isLongway = false;
-    if ( cartesianPositionAtDeparture.x() * cartesianPositionAtArrival.y()
-         - cartesianPositionAtDeparture.y() * cartesianPositionAtArrival.x() < 0.0)
+    if ( cartesianPositionAtDeparture.x( ) * cartesianPositionAtArrival.y( )
+         - cartesianPositionAtDeparture.y( ) * cartesianPositionAtArrival.x( ) < 0.0 )
     {
         isLongway = true;
     }
@@ -541,7 +545,7 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
 
     // Set Newton-Raphson object parameters.
     newtonRaphson->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForLambertTargeter );
-    newtonRaphson->setTolerance( convergenceTolerance );
+    newtonRaphson->setRelativeTolerance( convergenceTolerance );
     newtonRaphson->setMaximumNumberOfIterations( maximumNumberOfIterations );
 
     // Set initial guess of the variable computed in Newton-Rapshon method.
