@@ -38,6 +38,8 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120712    P. Musegaas       Changed absolute tolerance into a safe variant of relative
+ *                                  tolerance.
  *
  *    References
  *
@@ -47,6 +49,9 @@
 #define TUDAT_ROOT_FINDER_H
 
 #include <iostream>
+#include <limits>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Mathematics/RootFindingMethods/rootFinderBase.h"
 
@@ -55,8 +60,7 @@ namespace tudat
 
 //! Root-finder class.
 /*!
- * This class serves as a base class for all root-finder algorithms included in
- * Tudat.
+ * This class serves as a base class for all root-finder algorithms included in Tudat.
  */
 class RootFinder
 {
@@ -64,9 +68,9 @@ public:
 
     //! Definition of typedef.
     /*!
-     * Functions to which root-finding methods are applied can be passed as
-     * pointers to global functions. ( Polymorphic ) Pointers to RootFinder
-     * objects must be used for global functions to be usable.
+     * Functions to which root-finding methods are applied can be passed as pointers to global
+     * functions. ( Polymorphic ) Pointers to RootFinder objects must be used for global functions
+     * to be usable.
      */
     typedef double ( *pointerToDoubleTakingFunction )( double& );
 
@@ -74,10 +78,17 @@ public:
     /*!
      * Default constructor.
      */
-    RootFinder( ) : maximumNumberOfIterations_( 100 ), initialGuessOfRoot_( -0.0 ),
-        currentValueOfRoot_( -0.0 ), nextValueOfRoot_( -0.0 ), tolerance_( 1.0e-12 ),
-        pointerToGlobalFunction_( NULL ), pointerToGlobalFirstDerivativeFunction_( NULL ),
-        pointerToRootFinderBase_( NULL ) { }
+    RootFinder( )
+        : maximumNumberOfIterations_( 100 ),
+          initialGuessOfRoot_( TUDAT_NAN ),
+          currentValueOfRoot_( TUDAT_NAN ),
+          nextValueOfRoot_( TUDAT_NAN ),
+          relativeTolerance_( 1.0e-12 ),
+          zeroRepresentation_( std::numeric_limits< double >::min( ) * 100 ),
+          pointerToGlobalFunction_( NULL ),
+          pointerToGlobalFirstDerivativeFunction_( NULL ),
+          pointerToRootFinderBase_( NULL )
+    { }
 
     //! Default destructor.
     /*!
@@ -91,64 +102,93 @@ public:
      * \param initialGuessOfRoot Initial guess of root of mathematical
      *          function.
      */
-    void setInitialGuessOfRoot( double initialGuessOfRoot )
-    { initialGuessOfRoot_ = initialGuessOfRoot; currentValueOfRoot_ = initialGuessOfRoot; }
+    void setInitialGuessOfRoot( const double initialGuessOfRoot )
+    {
+        initialGuessOfRoot_ = initialGuessOfRoot;
+        currentValueOfRoot_ = initialGuessOfRoot;
+    }
 
     //! Set maximum number of iterations.
     /*!
      * Sets maximum number of iterations for root-finding method.
      * \param maximumNumberOfIterations Maximum number of iterations.
      */
-    void setMaximumNumberOfIterations( const unsigned int& maximumNumberOfIterations ) 
-    { maximumNumberOfIterations_ = maximumNumberOfIterations; }
+    void setMaximumNumberOfIterations( const unsigned int maximumNumberOfIterations )
+    {
+        maximumNumberOfIterations_ = maximumNumberOfIterations;
+    }
 
-    //! Set tolerance.
+    //! Set relative tolerance.
     /*!
-     * Sets tolerance for root-finding method.
-     * \param tolerance Tolerance.
+     * Sets relative tolerance for root-finding method.
+     * \param relativeTolerance Relative tolerance.
      */
-    void setTolerance( double tolerance ) { tolerance_ = tolerance; }
+    void setRelativeTolerance( const double relativeTolerance )
+    {
+        relativeTolerance_ = relativeTolerance;
+    }
+
+    //! Set zero representation.
+    /*!
+     * Sets the zero representation for the root-finding method.
+     * \param zeroRepresentation Zero representation.
+     */
+    void setZeroRepresentation( const double zeroRepresentation )
+    {
+        zeroRepresentation_ = zeroRepresentation;
+    }
 
     //! Set pointer to mathematical function.
     /*!
-     * Sets a pointer to the mathematical function ( global ) to which the
-     * root-finding method is applied.
+     * Sets a pointer to the mathematical function ( global ) to which the root-finding method is
+     * applied.
      * \param globalFunction Pointer to global mathematical function.
      */
     void setMathematicalFunction( pointerToDoubleTakingFunction globalFunction )
-    { pointerToGlobalFunction_ = globalFunction; }
+    {
+        pointerToGlobalFunction_ = globalFunction;
+    }
 
     //! Set pointer to first-derivative mathematical function.
     /*!
-     * Sets a pointer to the first-derivative mathematical function ( global )
-     * to which the root-finding method is applied.
-     * \param globalFirstDerivativeFunction Pointer to global first-derivative
-     *           mathematical function.
+     * Sets a pointer to the first-derivative mathematical function ( global ) to which the
+     * root-finding method is applied.
+     * \param globalFirstDerivativeFunction Pointer to global first-derivative mathematical
+     *          function.
      */
     void setFirstDerivativeMathematicalFunction( pointerToDoubleTakingFunction
                                                  globalFirstDerivativeFunction )
-    { pointerToGlobalFirstDerivativeFunction_ = globalFirstDerivativeFunction; }
+    {
+        pointerToGlobalFirstDerivativeFunction_ = globalFirstDerivativeFunction;
+    }
 
     //! Get maximum number of iterations.
     /*!
      * Returns the maximum number of iterations.
      * \return Number of iterations.
      */
-    unsigned int& getMaximumNumberOfIterations( ) { return maximumNumberOfIterations_; }
+    unsigned int getMaximumNumberOfIterations( ) { return maximumNumberOfIterations_; }
 
-    //! Get tolerance.
+    //! Get relative tolerance.
     /*!
-     * Returns the tolerance.
-     * \return Tolerance.
+     * Returns the relative tolerance.
+     * \return Relative tolerance.
      */
-    double& getTolerance( ) { return tolerance_; }
+    double getRelativeTolerance( ) { return relativeTolerance_; }
+
+    //! Get zero representation.
+    /*!
+     * Returns the zero representation.
+     * \return Zero representation.
+     */
+    double getZeroRepresentation( ) { return zeroRepresentation_; }
 
     //! Get root of mathematical function.
     /*!
      * Returns the computed root of the mathmatical function.
      * \return Computed root of the mathematical function.
      */
-    double& getComputedRootOfFunction( ) { return nextValueOfRoot_; }
+    double getComputedRootOfFunction( ) { return nextValueOfRoot_; }
 
     //! Execute.
     /*!
@@ -182,24 +222,30 @@ protected:
      */
     double nextValueOfRoot_;
 
-    //! Tolerance.
+    //! Relative tolerance.
     /*!
-     * Maximum allowed difference between the next value and the current value
-     * of the root of the mathematical function.
+     * Maximum allowed relative difference between the next value and the current value of the root
+     * of the mathematical function.
      */
-    double tolerance_;
+    double relativeTolerance_;
+
+    //! Zero representation
+    /*!
+     * The value for which the rootfinder will recognize 0.0 as the root to avoid machine precision
+     * problems.
+     */
+    double zeroRepresentation_;
 
     //! Pointer to global function.
     /*!
-     * Pointer to global mathematical function to which the root-finding method
-     * is applied.
+     * Pointer to global mathematical function to which the root-finding method is applied.
      */
     pointerToDoubleTakingFunction pointerToGlobalFunction_;
 
     //! Pointer to global first-derivative function.
     /*!
-     * Pointer to global first-derivative mathematical function to which the
-     * root-finding method is applied.
+     * Pointer to global first-derivative mathematical function to which the root-finding method is
+     * applied.
      */
     pointerToDoubleTakingFunction pointerToGlobalFirstDerivativeFunction_;
 

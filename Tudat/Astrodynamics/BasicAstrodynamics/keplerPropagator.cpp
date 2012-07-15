@@ -34,6 +34,7 @@
  *                                  Tudat Core.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120607    P. Musegaas       Changed interface (propagation time instead of two epochs).
+ *      120713    P. Musegaas       Changed tolerance in root finder to relative tolerance.
  *
  *    References
  *
@@ -67,7 +68,7 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
 {
     // Create Newton-Raphson root-finder.
     boost::shared_ptr< NewtonRaphson > newtonRaphson_ = boost::make_shared< NewtonRaphson >( );
-    newtonRaphson_->setTolerance( newtonRaphsonConvergenceTolerance );
+    newtonRaphson_->setRelativeTolerance( newtonRaphsonConvergenceTolerance );
 
     // Create final state in Keplerian elements.
     Eigen::VectorXd finalStateInKeplerianElements = initialStateInKeplerianElements;
