@@ -25,37 +25,34 @@
  #    Changelog
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
- #      111025    K. Kumar          Adapted file to work with Revision 194.
- #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
- #      120202    K. Kumar          Removed astrodynamicsFunctions.h/.cpp and unit tests.
+ #      120606    T. Secretin       Adapted to new Ephemeris folder.
+ #
+ #    References
+ #
+ #    Notes
  #
 
-# Define the main sub-directories.
-set(AERODYNAMICSDIR "${ASTRODYNAMICSDIR}/Aerodynamics")
-set(BASICASTRODYNAMICSDIR "${ASTRODYNAMICSDIR}/BasicAstrodynamics")
-set(BODIESDIR "${ASTRODYNAMICSDIR}/Bodies")
-set(EPHEMERIDESDIR "${ASTRODYNAMICSDIR}/Ephemerides")
-set(GRAVITATIONDIR "${ASTRODYNAMICSDIR}/Gravitation")
-set(MISSIONSEGMENTSDIR "${ASTRODYNAMICSDIR}/MissionSegments")
-set(REFERENCEFRAMESDIR "${ASTRODYNAMICSDIR}/ReferenceFrames")
-set(STATESDIR "${ASTRODYNAMICSDIR}/States")
+# Set the source files.
+set(EPHEMERIDES_SOURCES
+  "${SRCROOT}${EPHEMERIDESDIR}/cartesianStateExtractor.cpp"
+  "${SRCROOT}${EPHEMERIDESDIR}/keplerStateExtractor.cpp"
+)
 
-# Add subdirectories.
-add_subdirectory("${SRCROOT}${AERODYNAMICSDIR}")
-add_subdirectory("${SRCROOT}${BASICASTRODYNAMICSDIR}")
-add_subdirectory("${SRCROOT}${BODIESDIR}")
-add_subdirectory("${SRCROOT}${EPHEMERIDESDIR}")
-add_subdirectory("${SRCROOT}${GRAVITATIONDIR}")
-add_subdirectory("${SRCROOT}${MISSIONSEGMENTSDIR}")
-add_subdirectory("${SRCROOT}${REFERENCEFRAMESDIR}")
-add_subdirectory("${SRCROOT}${STATESDIR}")
+# Set the header files.
+set(EPHEMERIDES_HEADERS 
+  "${SRCROOT}${EPHEMERIDESDIR}/cartesianStateExtractor.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/keplerStateExtractor.h"
+)
 
-# Get target properties for static libraries.
-get_target_property(AERODYNAMICSSOURCES tudat_aerodynamics SOURCES)
-get_target_property(BASICASTRODYNAMICSSOURCES tudat_basic_astrodynamics SOURCES)
-get_target_property(BODIESSOURCES tudat_bodies SOURCES)
-get_target_property(EPHEMERIDESSOURCES tudat_ephemerides SOURCES)
-get_target_property(GRAVITATIONSOURCES tudat_gravitation SOURCES)
-get_target_property(MISSIONSEGMENTSSOURCES tudat_mission_segments SOURCES)
-get_target_property(REFERENCEFRAMESSOURCES tudat_reference_frames SOURCES)
-get_target_property(STATESSOURCES tudat_states SOURCES)
+# Add static libraries.
+add_library(tudat_ephemerides STATIC ${EPHEMERIDES_SOURCES} ${EPHEMERIDES_HEADERS})
+setup_tudat_library_target(tudat_ephemerides "${SRCROOT}${EPHEMERIDESDIR}")
+
+# Add unit tests.
+add_executable(test_CartesianStateExtractor "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestCartesianStateExtractor.cpp")
+setup_custom_test_program(test_CartesianStateExtractor "${SRCROOT}${EPHEMERIDESDIR}")
+target_link_libraries(test_CartesianStateExtractor tudat_input_output tudat_ephemerides ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_KeplerStateExtractor "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestKeplerStateExtractor.cpp")
+setup_custom_test_program(test_KeplerStateExtractor "${SRCROOT}${EPHEMERIDESDIR}")
+target_link_libraries(test_KeplerStateExtractor tudat_ephemerides tudat_input_output tudat_basic_astrodynamics tudat_root_finding_methods ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
