@@ -44,17 +44,18 @@ set(INPUTOUTPUT_SOURCES
 # Add header files.
 set(INPUTOUTPUT_HEADERS 
   "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/extractor.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldTransform.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldType.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/parser.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/whiteSpaceParser.h"
 )
 
@@ -98,3 +99,7 @@ target_link_libraries(test_MissileDatcomReader tudat_input_output ${TUDAT_CORE_L
 add_executable(test_MissileDatcomData "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMissileDatcomData.cpp")
 setup_custom_test_program(test_MissileDatcomData "${SRCROOT}${INPUTDIR}")
 target_link_libraries(test_MissileDatcomData tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_Extractor "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestExtractor.cpp")
+setup_custom_test_program(test_Extractor "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_Extractor tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
