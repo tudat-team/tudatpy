@@ -36,9 +36,10 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/fixedWidthParser.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/separatedParser.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/whiteSpaceParser.cpp"
 )
 
 # Add header files.
@@ -48,15 +49,16 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldTransform.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldType.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/fixedWidthParser.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/parser.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/separatedParser.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/whiteSpaceParser.h"
 )
 
 # Add static libraries.
@@ -75,10 +77,6 @@ target_link_libraries(test_TwoLineElementsTextFileReader tudat_input_output ${TU
 add_executable(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestBasicInputOutput.cpp")
 setup_custom_test_program(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_BasicInputOutput tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
-add_executable(test_WhiteSpaceParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestWhitespaceParser.cpp")
-setup_custom_test_program(test_WhiteSpaceParser "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_WhiteSpaceParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_ParsedDataVectorUtilities "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestParsedDataVectorUtilities.cpp")
 setup_custom_test_program(test_ParsedDataVectorUtilities "${SRCROOT}${INPUTOUTPUTDIR}")
@@ -103,3 +101,11 @@ target_link_libraries(test_MissileDatcomData tudat_input_output ${TUDAT_CORE_LIB
 add_executable(test_Extractor "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestExtractor.cpp")
 setup_custom_test_program(test_Extractor "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_Extractor tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_FixedWidthParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestFixedWidthParser.cpp")
+setup_custom_test_program(test_FixedWidthParser "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_FixedWidthParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_SeparatedParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestSeparatedParser.cpp")
+setup_custom_test_program(test_SeparatedParser "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_SeparatedParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
