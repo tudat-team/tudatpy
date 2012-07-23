@@ -24,41 +24,32 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      Creation of code.
- *      120217    D.J. Gondelach    Code check.
+ *      111209    D.J. Gondelach    First creation of code.
+ *      120718    A. Ronse          Code check. Implemented optional trim.
  *
  *    References
  *
+ *    Notes
+ *
  */
 
-#include <map>
-#include <vector>
-#include <utility>
+#include "Tudat/InputOutput/fixedWidthParser.h"
 
 #include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include <cmath>
-#include <iostream>
-#include "Tudat/InputOutput/parsedDataVectorUtilities.h"
-#include "Tudat/InputOutput/whiteSpaceParser.h"
 
 namespace tudat
 {
 namespace input_output
 {
 
-//! Create a parser that parses based on white spaces given a field type list.
-WhiteSpaceParser::WhiteSpaceParser( int numberOfFields, ... ) : TextParser ( false )
+//! Default constructor.
+FixedWidthParser::FixedWidthParser( int numberOfFields, ... ) : TextParser( false ), doTrim( true )
 {
-    // Copy number of fields.
     numberOfFields_ = numberOfFields;
 
     // Create a fancy vector (list) of all the fields:
     // Define argument list variable.
-    va_list listOfArguments;
+    va_list	listOfArguments;
 
     // Initialize list. Point to last defined argument.
     va_start( listOfArguments, numberOfFields );
@@ -66,20 +57,25 @@ WhiteSpaceParser::WhiteSpaceParser( int numberOfFields, ... ) : TextParser ( fal
     for ( unsigned int i=0; i < numberOfFields_; i++ )
     {
         // Populate typeList with arguments from constructor.
-        typeList.push_back( va_arg( listOfArguments, FieldType ) );
+        typeList.push_back( va_arg(listOfArguments, FieldType ) );
+    }
+
+    for ( unsigned int i=0; i < numberOfFields_; i++ )
+    {
+        // Populate sizeList with arguments from constructor.
+        sizeList.push_back( va_arg( listOfArguments, int ) );
     }
 
     // Clean up the system stack.
     va_end( listOfArguments );
 }
 
-//! Parse line of data.
-void WhiteSpaceParser::parseLine( std::string& line )
+//! Parses one line of text.
+void FixedWidthParser::parseLine(std::string& line)
 {
-    // Using declaration.
-    using namespace tudat::input_output::parsed_data_vector_utilities;
+    using namespace parsed_data_vector_utilities;
 
-    // Define a new type: pair of field type and pointer to value.
+    // Define a new type: field type and pointer to value pair
     typedef std::pair< FieldType, FieldValuePtr > FieldDataPair;
 
     // Define a new type: vector of strings.
@@ -88,62 +84,81 @@ void WhiteSpaceParser::parseLine( std::string& line )
     // Create a vector of individual strings.
     vectorOfIndividualStrings vectorOfIndividualStrings_;
 
-    // Trim input string (removes all leading and trailing whitespaces).
-    boost::algorithm::trim( line );
+    // Size of vector of individual strings equals number of fields.
+    vectorOfIndividualStrings_.resize( numberOfFields_ );
 
-    // Split string into multiple strings, each containing one element from a line from the
-    // data file.
-    boost::algorithm::split( vectorOfIndividualStrings_,
-                             line,
-                             boost::algorithm::is_any_of( " " ),
-                             boost::algorithm::token_compress_on );
+    // Temporary string.
+    std::string temp;
+
+    // Start index of current field in the line.
+    int currentFieldIndex = 0;
+
+    for ( int unsigned currentFieldNumber = 0; currentFieldNumber < numberOfFields_;
+          currentFieldNumber++ )
+    {
+        // Generate string of the field.
+        temp = line.substr( currentFieldIndex, sizeList[currentFieldNumber] );
+
+        // If we need to trim whitespace, do so
+        if ( doTrim )
+        {
+            boost::trim( temp );
+        }
+
+        // Copy field value.
+        vectorOfIndividualStrings_[currentFieldNumber] = temp;
+
+        // Increase current field index to index of next field.
+        currentFieldIndex += sizeList[currentFieldNumber];
+
+        // Clear temporary string.
+        temp.clear( );
+    }
 
     // Verify that number of individual vectors corresponds to the specified number of fields.
-    if ( vectorOfIndividualStrings_.size( ) != numberOfFields_ )
+    if ( vectorOfIndividualStrings_.size() != numberOfFields_ )
     {
         std::cerr << "Number of elements in the line (" << vectorOfIndividualStrings_.size( )
         << ") does not match the specified number of fields (" << numberOfFields_ << ")"
         << std::endl;
     }
 
-    // Create a new pointer to map of line data.
-    ParsedDataLineMapPtr currentLineData = boost::make_shared< ParsedDataLineMap >(
-                std::map< FieldType, FieldValuePtr >( ) );
+    // Create a new data line.
+    ParsedDataLineMapPtr currentLineData( new std::map< FieldType, FieldValuePtr >( ) );
 
     // Register the data line with the global current parsed data vector.
     parsedData->push_back( currentLineData );
 
-    //Loop over all field type and field value pairs.
-    for ( int unsigned currentFieldNumber = 0;
-          currentFieldNumber < numberOfFields_;
+    //Loop over all field type and field value pairs
+    for ( int unsigned currentFieldNumber = 0; currentFieldNumber < numberOfFields_;
           currentFieldNumber++ )
     {
-        // Get the corresponding field type.
-        FieldType fieldType( typeList.at( currentFieldNumber ) );
+        // Get the corresponding field type
+        FieldType type ( typeList.at( currentFieldNumber ) );
 
-        // Define unit transformer.
+        // Define unit transformer
         boost::shared_ptr< FieldTransform > transformer;
 
-        // If type corresponds to one of the entries of the unit transformation map.
-        if ( unitTransformationMap_.find( fieldType ) != unitTransformationMap_.end( ) )
+        // If type corresponds to one of the entries of the unit transformation map
+        if ( unitTransformationMap_.find( type ) != unitTransformationMap_.end( ) )
         {
-            // Set corresponding transformer.
-            transformer = unitTransformationMap_.find( fieldType )->second;
+            // Set corresponding transformer
+            transformer = unitTransformationMap_.find( type )->second;
         }
 
-        // Else, do nothing.
         else
         {
+            // Else, do nothing.
             transformer = boost::shared_ptr< FieldTransform >( );
         }
 
-        // Store the resulting field-value string.
-        FieldValuePtr value( new FieldValue( fieldType,
+        // Store the resulting string.
+        FieldValuePtr value( new FieldValue( type,
                                              vectorOfIndividualStrings_.at( currentFieldNumber ),
                                              transformer ) );
 
         // Store the type and value in the current line data.
-        currentLineData->insert( FieldDataPair( fieldType, value ) );
+        currentLineData->insert( FieldDataPair( type, value ) );
     }
 }
 
