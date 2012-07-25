@@ -43,19 +43,39 @@
  *                                  assist function. Deleted references to old planet functions.
  *                                  Added new unit test to test velocity effect deltaV. Created
  *                                  three tests for new gravity assist propagation methods.
+ *      120713    P. Musegaas       Added various unit tests, to check previous bugs. Added unit
+ *                                  tests to test new functionality.
  *
  *    References
  *      Izzo, D. and Vinko, T. ACT - Informatics - GTOP Database, ESA Advanced Concept Team, last
  *          accessed on 2012-01-12. http://www.esa.int/gsp/ACT/inf/op/globopt.htm.
+ *      Musegaas, P. Gravity Assist calculation Verification.xlsx, last accessed: 25th July, 2012,
+ *          http://tudat.tudelft.nl/projects/tudat/wiki/Unit_tests, 2012.
  *
  *    Notes
  *      Three main functions are tested in these unit tests.
  *        Regarding the deltaV calculation gravity assist method:
- *          Two tests are written. One tests the bending effect deltaV calculation, the other the
- *          velocity effect deltaV calculation. It would be nice to have a benchmark with both in
- *          one test. This is however difficult to calculate using other methods. Also the bending
- *          effect deltaV calculation has a low accuracy, as it relies on hand calculator
- *          calculations done in 2011.
+ *          There is a complicated if-statement in this method. Hence many unit test are performed
+ *          to test the functionality. Also various limit cases failed previously, hence many tests
+ *          for this are also included:
+ *              Case 1: required bending angle > maximum bending angle:
+ *                  Two tests were written. In the first one no velocity effect is needed. This
+ *                  test has a low accuracy, which should be replaced one day (it still relies on
+ *                  hand calculator calculations done in 2011). In the second one a combination of
+ *                  bending-effect deltaV and velocity-effect deltaV is calculated. This test has
+ *                  been calculated using Tudat, and was verified using Excel. A slight difference
+ *                  was observed (~1 m/s). It is difficult to find a good test case for this though.
+ *                  Could definitely be improved.
+ *              Case 2: no assist is required:
+ *                  One test was written.
+ *              Case 3: velocity effect deltaV only, using eccentricity iteration scheme:
+ *                  Four tests were written. The first one calculates a case from Cassini-1 of GTOP
+ *                  with high precision. The other three test limit cases: low incoming, high
+ *                  outgoing velocity; high incoming, low outgoing velocity; low incoming, low
+ *                  outgoing velocity. These tests were calculated using Tudat, but verified in
+ *                  Excel to be exactly correct.
+ *              Case 4: velocity effect deltaV only, using pericenter radius iteration scheme:
+ *                  The same four tests as for case 3 were used.
  *        Regarding the unpowered gravity assist propagator:
  *          One test was written, based on GTOP. This should be a satisfactory test.
  *        Regarding the powered gravity assist propagator:
@@ -137,8 +157,80 @@ BOOST_AUTO_TEST_CASE( testBendingAngleDeltaV )
     BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, velocityTolerance );
 }
 
-//! Test velocity effect Delta-V computation.
-BOOST_AUTO_TEST_CASE( testVelocityEffectDeltaV )
+//! Test case for both bending angle and velocity effect delta V.
+BOOST_AUTO_TEST_CASE( testBendingAngleAndVelocityEffectDeltaVPericenter )
+{
+    // Tolerance.
+    const double tolerance = 1e-12;
+
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012). For
+    // this test case a slight difference of 1 m/s was observed. This is a difficult calculation to
+    // verify though.
+    const double expectedDeltaV = 183.8481861944;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 35000.0, 0.0 , 0.0 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 36000.0 , 0.0 , 0.0 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 34500.0, 0.0, 0.0 );
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test case in which no assist is required.
+BOOST_AUTO_TEST_CASE( testNoDeltaVRequired )
+{
+    // Tolerance.
+    const double tolerance = std::numeric_limits< double >::epsilon( );
+
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012).
+    const double expectedDeltaV = 0.0;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 35000.0, 0.0 , 0.0 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 36000.0 , 0.0 , 0.0 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 35000.0, 1000.0, 0.0 );
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test velocity effect Delta-V computation using the eccentricity iteration scheme.
+BOOST_AUTO_TEST_CASE( testVelocityEffectDeltaVEccentricity )
 {
     // Tolerance. Benchmark obtained directly from the GTOP code, based on the first swing-by for
     // the ideal Cassini-1 trajectory. Values were obtained with a 15-digit accuracy from GTOP,
@@ -165,11 +257,292 @@ BOOST_AUTO_TEST_CASE( testVelocityEffectDeltaV )
     const Eigen::Vector3d outgoingVelocity( 37954.2431376052, -14093.0467234774,
                                             -5753.53728279429 );
 
+    // Set flag to use iteration scheme on eccentricity.
+    const bool useEccentricity = true;
+
     // Perform the gravity assist.
     const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
                                                            venusVelocity,incomingVelocity,
                                                            outgoingVelocity,
-                                                           venusSmallestPeriapsisDistance );
+                                                           venusSmallestPeriapsisDistance,
+                                                           useEccentricity );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test limit case for deltaV computation with low incoming velocity with eccentricity iteration.
+BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowIncomingVelocityEccentricity )
+{
+    // Tolerance.
+    const double tolerance = 1.0e-11;
+
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012).
+    const double expectedDeltaV = 966.37867363;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 35000.0, 0.0 , 0.0 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 35000.01, 0.0, 0.0 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 35000.0 , 1000.0 , 0.0 );
+
+    // Set flag to use iteration scheme on eccentricity.
+    const bool useEccentricity = true;
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance,
+                                                           useEccentricity );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test limit case for deltaV computation with low outgoing velocity with eccentricity iteration.
+BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowOutgoingVelocityEccentricity )
+{
+    // Tolerance.
+    const double tolerance = 1.0e-11;
+
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012).
+    const double expectedDeltaV = 966.37867363;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 35000.0, 0.0 , 0.0 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 35000.0 , 1000.0 , 0.0 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 35000.01, 0.0, 0.0 );
+
+    // Set flag to use iteration scheme on eccentricity.
+    const bool useEccentricity = true;
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance,
+                                                           useEccentricity );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test limit case for deltaV computation with low velocities with eccentricity iteration.
+BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowVelocitiesEccentricity )
+{
+    // Tolerance.
+    const double tolerance = 1.0e-9;
+
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012).
+    const double expectedDeltaV = 0.004260780473;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 35000.0, 0.0 , 0.0 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 35000.0 , 0.02 , 0.0 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 35000.01, 0.0, 0.0 );
+
+    // Set flag to use iteration scheme on eccentricity.
+    const bool useEccentricity = true;
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance,
+                                                           useEccentricity );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test velocity effect Delta-V computation using the pericenter iteration scheme.
+BOOST_AUTO_TEST_CASE( testVelocityEffectDeltaVPericenter )
+{
+    // Tolerance. Benchmark obtained directly from the GTOP code, based on the first swing-by for
+    // the ideal Cassini-1 trajectory. Values were obtained with a 15-digit accuracy from GTOP,
+    // resulting in an accuracy of 6e-14 in the final results.
+    const double tolerance = 1.0e-13;
+
+    // Expected deltaV cost, as obtained from GTOP code.
+    const double expectedDeltaV = 1090.64622870007;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 32851.224953746, -11618.7310059974, -2055.04615890989 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 34216.4827530912, -15170.1440677825,
+                                            395.792122152361 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 37954.2431376052, -14093.0467234774,
+                                            -5753.53728279429 );
+
+    // Set flag to use iteration scheme on pericenter.
+    const bool useEccentricity = false;
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance,
+                                                           useEccentricity );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test limit case for deltaV computation with low incoming velocity with pericenter iteration.
+BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowIncomingVelocityPericenter )
+{
+    // Tolerance.
+    const double tolerance = 1.0e-11;
+
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012).
+    const double expectedDeltaV = 966.37867363;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 35000.0, 0.0 , 0.0 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 35000.01, 0.0, 0.0 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 35000.0 , 1000.0 , 0.0 );
+
+    // Set flag to use iteration scheme on eccentricity.
+    const bool useEccentricity = false;
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance,
+                                                           useEccentricity );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test limit case for deltaV computation with low outgoing velocity with pericenter iteration.
+BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowOutgoingVelocityPericenter )
+{
+    // Tolerance.
+    const double tolerance = 1.0e-11;
+
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012).
+    const double expectedDeltaV = 966.37867363;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 35000.0, 0.0 , 0.0 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 35000.0 , 1000.0 , 0.0 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 35000.01, 0.0, 0.0 );
+
+    // Set flag to use iteration scheme on pericenter.
+    const bool useEccentricity = false;
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance,
+                                                           useEccentricity );
+
+    // Test if the computed delta-V corresponds to the expected value within the specified
+    // tolerance.
+    BOOST_CHECK_CLOSE_FRACTION( deltaV, expectedDeltaV, tolerance );
+}
+
+//! Test limit case for deltaV computation with low velocities with pericenter iteration.
+BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowVelocitiesPericenter )
+{
+    // Tolerance.
+    const double tolerance = 1.0e-9;
+
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012).
+    const double expectedDeltaV = 0.004260780473;
+
+    // Define swingby body gravitational parameter.
+    const double venusGravitationalParameter = 3.24860e14;
+
+    // Define smallest periapsis distance factor.
+    const double venusSmallestPeriapsisDistance = 6351800.0;
+
+    // Define heliocentric planet velocity vector.
+    const Eigen::Vector3d venusVelocity( 35000.0, 0.0 , 0.0 );
+
+    // Define heliocentric satellite incoming vector.
+    const Eigen::Vector3d incomingVelocity( 35000.0 , 0.02 , 0.0 );
+
+    // Define heliocentric satellite outgoing vector.
+    const Eigen::Vector3d outgoingVelocity( 35000.01, 0.0, 0.0 );
+
+    // Set flag to use iteration scheme on pericenter.
+    const bool useEccentricity = false;
+
+    // Perform the gravity assist.
+    const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
+                                                           venusVelocity,incomingVelocity,
+                                                           outgoingVelocity,
+                                                           venusSmallestPeriapsisDistance,
+                                                           useEccentricity );
 
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance.
