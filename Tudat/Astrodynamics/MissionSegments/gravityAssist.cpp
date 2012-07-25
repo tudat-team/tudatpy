@@ -44,11 +44,18 @@
  *      120703    T. Secretin       Minor layout changes.
  *      120704    P. Musegaas       Minor change. Reduced negligence of velocity effect from 1 cm/s
  *                                  to 1 micrometer/second.
+ *      120713    P. Musegaas       Fixed various bugs (case with both bending + velocity effect
+ *                                  was wrong, limit cases failed, rootfinder not ideal, all for
+ *                                  original deltaV calculation function). Added iteration on
+ *                                  pericenter radius instead of eccentricity. Improved efficiency.
  *
  *    References
- *      Reference for deltaV computation function:
+ *      References for deltaV computation function:
  *          Melman J. Trajectory optimization for a mission to Neptune and Triton, MSc thesis
  *              report, Delft University of Technology, 2007.
+ *          Musegaas, P., Optimization of Space Trajectories Including Multiple Gravity Assists and
+ *              Deep Space Maneuvers, MSc thesis report, Delft University of Technology, 2012.
+ *              [unpublished so far].
  *      Reference for unpowered gravity assist propagation function:
  *          Conway, B.A., Spacecraft Trajectory Optimization, Chapter 7, Cambridge University
  *              Press, 2010.
@@ -66,8 +73,8 @@
  *      Note that the exact implementation of Newton Raphson as root finder should be updated if
  *      someone would want to use a different root finding technique.
  *
- *      Note that a velocity effect deltaV of less than 1 micrometer/second is deemed negligable in
- *      this code.
+ *      Note that by default a velocity effect deltaV of less than 1 micrometer/second is deemed
+ *      negligable in this code. This value can be set though.
  *
  */
 
@@ -91,6 +98,8 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                       const Eigen::Vector3d& incomingVelocity,
                       const Eigen::Vector3d& outgoingVelocity,
                       const double smallestPeriapsisDistance,
+                      const bool useEccentricityInsteadOfPericenter,
+                      const double speedTolerance,
                       boost::shared_ptr< NewtonRaphson > newtonRaphson )
 {
     // Compute incoming and outgoing hyperbolic excess velocity.
@@ -104,7 +113,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
     const double absoluteOutgoingExcessVelocity = outgoingHyperbolicExcessVelocity.norm( );
 
     // Compute bending angle.
-    const double bendingAngle = mathematics::linear_algebra::computeAngleBetweenVectors(
+    double bendingAngle = mathematics::linear_algebra::computeAngleBetweenVectors(
                             incomingHyperbolicExcessVelocity, outgoingHyperbolicExcessVelocity );
 
     // Compute maximum achievable bending angle.
@@ -121,7 +130,14 @@ double gravityAssist( const double centralBodyGravitationalParameter,
     // Initialize bending effect deltaV, which is zero, unless extra bending angle is required.
     double bendingEffectDeltaV = 0.0;
 
-    // Check if an additional bending angle is required.
+    // Initialize velocity effect delta V parameter.
+    double velocityEffectDeltaV = 0.0;
+
+    // Check if an additional bending angle is required. If so, the additional bending angle
+    // maneuver has to be performed. Also the pericenter radius will be the minimum pericenter
+    // radius to obtain the largest possible bending angle 'for free'. Hence no root finding is
+    // required for this case. As noted above, this may not be ideal for all cases. (for cases
+    // in which the excess velocities are relatively small)
     if ( bendingAngle > maximumBendingAngle )
     {
         // Compute required extra bending angle that cannot be delivered by an unpowered swing-by.
@@ -129,20 +145,48 @@ double gravityAssist( const double centralBodyGravitationalParameter,
 
         // Compute necessary delta-V due to bending-effect.
         bendingEffectDeltaV = 2.0 * std::min( absoluteIncomingExcessVelocity,
-                                                     absoluteOutgoingExcessVelocity ) *
-                                     std::sin( extraBendingAngle / 2.0 );
+                                              absoluteOutgoingExcessVelocity ) *
+                                    std::sin( extraBendingAngle / 2.0 );
+
+        // This means the pericenter radius is now equal to the smallest pericenter radius, to
+        // ensure the largest possible bending angle.
+        const double pericenterRadius = smallestPeriapsisDistance;
+
+        // Compute semi-major axis of hyperbolic legs.
+        const double incomingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
+                                             absoluteIncomingExcessVelocity /
+                                             absoluteIncomingExcessVelocity;
+        const double outgoingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
+                                             absoluteOutgoingExcessVelocity /
+                                             absoluteOutgoingExcessVelocity;
+
+        // Compute incoming hyperbolic leg eccentricity.
+        const double incomingEccentricity = 1 - pericenterRadius / incomingSemiMajorAxis;
+
+        // Compute outgoing hyperbolic leg eccentricity.
+        const double outgoingEccentricity = 1 - pericenterRadius / outgoingSemiMajorAxis;
+
+        // Compute incoming and outgoing velocities at periapsis.
+        const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
+                std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
+        const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
+                std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
+
+        // Compute necessary delta-V due to velocity-effect.
+        velocityEffectDeltaV = std::fabs( incomingVelocityAtPeriapsis -
+                                          outgoingVelocityAtPeriapsis );
     }
 
-    // Initialize velocity effect delta V parameter.
-    double velocityEffectDeltaV = 0.0;
+    else if ( ( std::fabs( absoluteIncomingExcessVelocity - absoluteOutgoingExcessVelocity )
+                <= speedTolerance ) )
+    {
+        // In this case no maneuver has to be performed. Hence no iteration is performed, and the
+        // delta V is simply kept at 0.0.
+    }
 
-    // An excess speed difference of less than 1 micrometer/second is deemed to be negligible.
-    const double speedTolerance = 1.0e-6;
-
-    // Check if it is necessary to apply a swing-by delta-V due to the effect of a difference in
-    // absolute excess velocities.
-    if ( std::fabs( absoluteIncomingExcessVelocity - absoluteOutgoingExcessVelocity )
-         >= speedTolerance )
+    // Here the required maneuver to patch the incoming and outgoing excess velocities is
+    // calculated. In this implementation, the eccentricity will be used as iteration parameter.
+    else if ( useEccentricityInsteadOfPericenter )
     {
         // Compute semi-major axis of hyperbolic legs.
         const double incomingSemiMajorAxis = -1.0 * centralBodyGravitationalParameter /
@@ -153,22 +197,37 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                                              absoluteOutgoingExcessVelocity;
 
         // Set the gravity assist function with the variables to perform root finder calculations.
-        GravityAssistFunctions gravityAssistFunctions( incomingSemiMajorAxis,
-                                                       outgoingSemiMajorAxis, bendingAngle);
+        EccentricityFindingFunctions eccentricityFindingFunctions( incomingSemiMajorAxis,
+                                                                   outgoingSemiMajorAxis,
+                                                                   bendingAngle);
 
         // Set initial guess of the variable computed in Newton-Rapshon method.
-        newtonRaphson->setInitialGuessOfRoot( 1.01 );
+        if ( ( absoluteOutgoingExcessVelocity / absoluteIncomingExcessVelocity ) < 100.0 )
+        {
+            // In these cases the very low estimate (which is given under else) may in some cases
+            // result in no convergence. Hence a higher value of 1.01 is necessary. This will not
+            // result in 'going through' 1.0 as mentioned below, because the eccentricity in these
+            // cases is always high!
+            newtonRaphson->setInitialGuessOfRoot( 1.0 + 1.0e-2 );
+        }
+        else
+        {
+            // This is set to a value that is close to 1.0. This is more robust than higher values,
+            // because for those higher values Newton Raphson sometimes 'goes through' 1.0. This
+            // results in NaN values for the derivative of the eccentricity finding function.
+            newtonRaphson->setInitialGuessOfRoot( 1.0 + 1.0e-10 );
+        }
 
         // Set the class that contains the functions needed for Newton-Raphson.
-        NewtonRaphsonAdaptor< GravityAssistFunctions > newtonRaphsonAdaptorForGravityAssist;
-        newtonRaphsonAdaptorForGravityAssist.setClass( &gravityAssistFunctions );
+        NewtonRaphsonAdaptor< EccentricityFindingFunctions > newtonRaphsonAdaptorForGravityAssist;
+        newtonRaphsonAdaptorForGravityAssist.setClass( &eccentricityFindingFunctions );
 
         // Set the functions needed for the Newton Raphson method.
         newtonRaphson->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist );
         newtonRaphsonAdaptorForGravityAssist.setPointerToFunction(
-                    &GravityAssistFunctions::computeVelocityEffectFunction );
+                &EccentricityFindingFunctions::computeIncomingEccentricityFunction );
         newtonRaphsonAdaptorForGravityAssist.setPointerToFirstDerivativeFunction(
-                    &GravityAssistFunctions::computeFirstDerivativeVelocityEffect );
+                &EccentricityFindingFunctions::computeFirstDerivativeIncomingEccentricityFunction );
 
         // Execute Newton-Raphson method.
         newtonRaphson->execute( );
@@ -183,9 +242,66 @@ double gravityAssist( const double centralBodyGravitationalParameter,
 
         // Compute incoming and outgoing velocities at periapsis.
         const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
-                    std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
+                std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
         const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
-                    std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
+                std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
+
+        // Compute necessary delta-V due to velocity-effect.
+        velocityEffectDeltaV = std::fabs( incomingVelocityAtPeriapsis -
+                                          outgoingVelocityAtPeriapsis );
+    }
+
+    // Here the required maneuver to patch the incoming and outgoing excess velocities is
+    // calculated. In this implementation, the pericenter radius will be used as iteration
+    // parameter.
+    else
+    {
+        // Compute semi-major axis of hyperbolic legs. This is the absolute semi major axis, because
+        // it will otherwisely result in the root of a negative function for various cases during
+        // the rootfinding process.
+        const double absoluteIncomingSemiMajorAxis = 1.0 * centralBodyGravitationalParameter /
+                                                     absoluteIncomingExcessVelocity /
+                                                     absoluteIncomingExcessVelocity;
+        const double absoluteOutgoingSemiMajorAxis = 1.0 * centralBodyGravitationalParameter /
+                                                     absoluteOutgoingExcessVelocity /
+                                                     absoluteOutgoingExcessVelocity;
+
+        // Set the gravity assist function with the variables to perform root finder calculations.
+        PericenterFindingFunctions pericenterFindingFunctions( absoluteIncomingSemiMajorAxis,
+                                                               absoluteOutgoingSemiMajorAxis,
+                                                               bendingAngle);
+
+        // Set initial guess of the variable computed in Newton-Rapshon method.
+        newtonRaphson->setInitialGuessOfRoot( smallestPeriapsisDistance );
+
+        // Set the class that contains the functions needed for Newton-Raphson.
+        NewtonRaphsonAdaptor< PericenterFindingFunctions > newtonRaphsonAdaptorForGravityAssist;
+        newtonRaphsonAdaptorForGravityAssist.setClass( &pericenterFindingFunctions );
+
+        // Set the functions needed for the Newton Raphson method.
+        newtonRaphson->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist );
+        newtonRaphsonAdaptorForGravityAssist.setPointerToFunction(
+                    &PericenterFindingFunctions::computePericenterRadiusFunction );
+        newtonRaphsonAdaptorForGravityAssist.setPointerToFirstDerivativeFunction(
+                    &PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction );
+
+        // Execute Newton-Raphson method.
+        newtonRaphson->execute( );
+
+        // Set the pericenter radius as the output value of Newton-Raphson method.
+        const double pericenterRadius = newtonRaphson->getComputedRootOfFunction( );
+
+        // Compute incoming hyperbolic leg eccentricity.
+        const double incomingEccentricity = 1 + pericenterRadius / absoluteIncomingSemiMajorAxis;
+
+        // Compute outgoing hyperbolic leg eccentricity.
+        const double outgoingEccentricity = 1 + pericenterRadius / absoluteOutgoingSemiMajorAxis;
+
+        // Compute incoming and outgoing velocities at periapsis.
+        const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
+                std::sqrt( ( incomingEccentricity + 1.0 ) / ( incomingEccentricity - 1.0 ) );
+        const double outgoingVelocityAtPeriapsis = absoluteOutgoingExcessVelocity *
+                std::sqrt( ( outgoingEccentricity + 1.0 ) / ( outgoingEccentricity - 1.0 ) );
 
         // Compute necessary delta-V due to velocity-effect.
         velocityEffectDeltaV = std::fabs( incomingVelocityAtPeriapsis -
@@ -282,16 +398,38 @@ Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
     return centralBodyVelocity + relativeOutgoingVelocity;
 }
 
-//! Compute velocity-effect.
-double GravityAssistFunctions::computeVelocityEffectFunction( double& incomingEccentricity )
+//! Compute pericenter radius function.
+double PericenterFindingFunctions::computePericenterRadiusFunction( double& pericenterRadius )
 {
-    return std::asin( 1.0 /incomingEccentricity )
-            + std::asin( 1.0 / ( 1.0 - incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ *
-                                 ( 1.0 -incomingEccentricity ) ) ) - bendingAngle_;
+    return std::asin( absoluteIncomingSemiMajorAxis_ / ( absoluteIncomingSemiMajorAxis_ +
+                                                         pericenterRadius ) ) +
+           std::asin( absoluteOutgoingSemiMajorAxis_ / ( absoluteOutgoingSemiMajorAxis_ +
+                                                         pericenterRadius ) ) - bendingAngle_;
 }
 
-//! Compute first-derivative of velocity-effect.
-double GravityAssistFunctions::computeFirstDerivativeVelocityEffect(
+//! Compute first-derivative of the pericenter radius function.
+double PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction(
+        double& pericenterRadius )
+{
+    return -absoluteIncomingSemiMajorAxis_ / ( absoluteIncomingSemiMajorAxis_ + pericenterRadius ) /
+               std::sqrt( ( pericenterRadius + 2 * absoluteIncomingSemiMajorAxis_ )
+                           * pericenterRadius ) -
+           absoluteOutgoingSemiMajorAxis_ / ( absoluteOutgoingSemiMajorAxis_ + pericenterRadius ) /
+               std::sqrt( ( pericenterRadius + 2 * absoluteOutgoingSemiMajorAxis_ ) *
+                          pericenterRadius );
+}
+
+//! Compute incoming eccentricity function.
+double EccentricityFindingFunctions::computeIncomingEccentricityFunction(
+        double& incomingEccentricity )
+{
+    return std::asin( 1.0 / incomingEccentricity )
+            + std::asin( 1.0 / ( 1.0 - incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ *
+                                 ( 1.0 - incomingEccentricity ) ) ) - bendingAngle_;
+}
+
+//! Compute first-derivative of the incoming eccentricity function.
+double EccentricityFindingFunctions::computeFirstDerivativeIncomingEccentricityFunction(
         double& incomingEccentricity )
 {
     const double eccentricitySquareMinusOne_ = incomingEccentricity * incomingEccentricity - 1.0;

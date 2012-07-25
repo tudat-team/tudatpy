@@ -45,10 +45,20 @@
  *                                  (powered and unpowered).
  *      120625    P. Musegaas       Minor changes.
  *      120703    T. Secretin       Minor layout changes. Changed constructor.
+ *      120713    P. Musegaas       Added option to iterate on pericenter radius instead of
+ *                                  eccentricity. Added separate class for this and a flag in free
+ *                                  function.
  *
  *    Notes
  *      Note that the exact implementation of Newton-Raphson as root finder should be updated if
  *      someone would want to use a different root-finding technique.
+ *
+ *      By default the eccentricity is used as the iteration procedure. This is because in
+ *      optimizing a Cassini-like trajectory, the pericenter radius had about 2-4 NaN values in
+ *      100000 times the gravity assist calculation. The eccentricity iteration had no NaN values
+ *      for a similar run in which 100000 gravity assist calculations were done. Also the
+ *      eccentricity seemed to require slightly less iterations (does not necessarily mean it is
+ *      faster or more accurate).
  *
  */
 
@@ -79,6 +89,9 @@ namespace mission_segments
  * \param incomingVelocity Heliocentric velocity of the spacecraft before the swing-by.    [m s^-1]
  * \param outgoingVelocity Heliocentric velocity of the spacecraft after the swing-by.     [m s^-1]
  * \param smallestPeriapsisDistance Closest allowable distance to the swing-by body.            [m]
+ * \param useEccentricityInsteadOfPericenter Flag to indicate the iteration procedure for matching
+ *                                           the bending angle.                                 [-]
+ * \param speedTolerance Tolerance at which the velocity effect deltaV is deemed 0.0.           [-]
  * \param newtonRaphson Pointer to the Newton Raphson that the user wants to use.               [-]
  * \return deltaV The deltaV required for the gravity assist maneuver.                     [m s^-1]
  */
@@ -87,6 +100,8 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                       const Eigen::Vector3d& incomingVelocity,
                       const Eigen::Vector3d& outgoingVelocity,
                       const double smallestPeriapsisDistance,
+                      const bool useEccentricityInsteadOfPericenter = true,
+                      const double speedTolerance = 1.0e-6,
                       boost::shared_ptr< NewtonRaphson > newtonRaphson =
                                                         boost::make_shared< NewtonRaphson >( ) );
 
@@ -127,46 +142,119 @@ Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
                                const double pericenterRadius,
                                const double deltaV );
 
-//! Gravity assist functions class.
+//! Pericenter finding functions class.
 /*!
- * This class contains the functions required by the root-finders in the gravity assist Delta-V
- * computations to find the eccentricity.
+ * This class contains the functions required by the root-finders to find the pericenter radius in
+ * the gravity assist function to find the deltaV.
  */
-class GravityAssistFunctions
+class PericenterFindingFunctions
 {
 public:
 
     //! Constructor with immediate definition of parameters.
     /*!
-     * Constructor that sets all the parameters in the velocity-effect functions for use in the
+     * Constructor that sets all the parameters in the pericenter finding functions for use in the
      * Newton Raphson rootfinder.
      */
-    GravityAssistFunctions ( const double incomingSemiMajorAxis,
-                             const double outgoingSemiMajorAxis,
-                             const double bendingAngle )
+    PericenterFindingFunctions ( const double absoluteIncomingSemiMajorAxis,
+                                 const double absoluteOutgoingSemiMajorAxis,
+                                 const double bendingAngle )
+        : absoluteIncomingSemiMajorAxis_( absoluteIncomingSemiMajorAxis ),
+          absoluteOutgoingSemiMajorAxis_( absoluteOutgoingSemiMajorAxis ),
+          bendingAngle_ ( bendingAngle )
+    { }
+
+    //! Compute pericenter radius function.
+    /*!
+     * Computes pericenter radius function. This function is used by the Newton-Raphson root-finder
+     * to find the pericenter radius that matches the bending angle required in the gravity assist.
+     * \param pericenterRadius Pericenter radius.
+     * \return Pericenter radius root finding function value.
+     * \sa NewtonRaphson().
+     */
+    double computePericenterRadiusFunction( double& pericenterRadius );
+
+    //! Compute first-derivative of the pericenter radius function.
+    /*!
+     * Computes the first-derivative of the pericenter radius function. This function is used by
+     * the Newton-Raphson root-finder to find the pericenter radius that matches the bending angle
+     * required in the gravity assist.
+     * \param pericenterRadius Pericenter radius.
+     * \return Pericenter radius root finding function first-derivative value.
+     * \sa NewtonRapshon().
+     */
+    double computeFirstDerivativePericenterRadiusFunction( double& pericenterRadius );
+
+protected:
+
+private:
+
+    //! The absolute semi-major axis of the incoming hyperbolic leg.
+    /*!
+     * The absolute semi-major axis of the incoming hyperbolic leg. The absolute value is required
+     * because otherwisely the first derivative of the pericenter radius finding function will
+     * compute the root of a negative value.
+     */
+    const double absoluteIncomingSemiMajorAxis_;
+
+    //! The absolute semi-major axis of the outgoing hyperbolic leg.
+    /*!
+     * The absolute semi-major axis of the outgoing hyperbolic leg. The absolute value is required
+     * because otherwisely the first derivative of the pericenter radius finding function will
+     * compute the root of a negative value.
+     */
+    const double absoluteOutgoingSemiMajorAxis_;
+
+    //! Bending angle between the excess velocities.
+    /*!
+     * Bending angle between the excess velocities.
+     */
+    const double bendingAngle_;
+};
+
+//! Eccentricity finding functions class.
+/*!
+ * This class contains the functions required by the root-finders to find the incoming eccentricity
+ * in the gravity assist function to find the deltaV.
+ */
+class EccentricityFindingFunctions
+{
+public:
+
+    //! Constructor with immediate definition of parameters.
+    /*!
+     * Constructor that sets all the parameters in the eccentricity finding functions for use in the
+     * Newton Raphson rootfinder.
+     */
+    EccentricityFindingFunctions ( const double incomingSemiMajorAxis,
+                                   const double outgoingSemiMajorAxis,
+                                   const double bendingAngle )
         : incomingSemiMajorAxis_( incomingSemiMajorAxis),
           outgoingSemiMajorAxis_( outgoingSemiMajorAxis ),
           bendingAngle_ ( bendingAngle )
     { }
 
-    //! Compute velocity-effect.
+    //! Compute incoming eccentricity function.
     /*!
-     * Computes velocity-effect delta-V. This function is used by the Newton-Raphson root-finder.
+     * Computes incoming eccentricity function. This function is used by the Newton-Raphson root-
+     * finder to find the incoming eccentricity that matches the bending angle required in the
+     * gravity assist.
      * \param incomingEccentricity Incoming eccentricity.
-     * \return Velocity-effect at defined eccentricity.
+     * \return Incoming eccentricity root finding function value.
      * \sa NewtonRaphson().
      */
-    double computeVelocityEffectFunction( double& incomingEccentricity );
+    double computeIncomingEccentricityFunction( double& incomingEccentricity );
 
-    //! Compute first-derivative of velocity-effect.
+    //! Compute first-derivative of the incoming eccentricity function.
     /*!
-     * Computes first-derivative of velocity-effect delta-V. This function is used by the
-     * Newton-Raphson root-finder
+     * Computes the first-derivative of the incoming eccentricity function. This function is used
+     * by the Newton-Raphson root-finder to find the incoming eccentricity that matches the bending
+     * angle required in the gravity assist.
      * \param incomingEccentricity Incoming eccentricity.
-     * \return Value of first derivative of root-finder function at defined eccentricity.
+     * \return Incoming eccentricity root finding function first-derivative value.
      * \sa NewtonRapshon().
      */
-    double computeFirstDerivativeVelocityEffect( double& incomingEccentricity );
+    double computeFirstDerivativeIncomingEccentricityFunction( double& incomingEccentricity );
 
 protected:
 
