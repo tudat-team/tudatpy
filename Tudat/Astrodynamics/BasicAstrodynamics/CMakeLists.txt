@@ -30,23 +30,26 @@
  #
  #    References
  #
+ #    Notes
+ #
 
 # Set the source files.
 set(BASICASTRODYNAMICS_SOURCES
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToEccentricAnomaly.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.cpp"
 )
 
 # Set the header files.
 set(BASICASTRODYNAMICS_HEADERS 
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/accelerationModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToEccentricAnomaly.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/pureMomentModel.h"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/momentDueToForceModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/forceModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/generalizedForceModel.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/momentDueToForceModel.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/pureMomentModel.h"
 )
 
 # Add static libraries.
@@ -65,3 +68,7 @@ target_link_libraries(test_KeplerPropagator tudat_input_output tudat_bodies tuda
 add_executable(test_MomentDueToForce "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestMomentDueToForce.cpp")
 setup_custom_test_program(test_MomentDueToForce "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_MomentDueToForce tudat_basic_astrodynamics ${Boost_LIBRARIES})
+
+add_executable(test_AccelerationModel "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestAccelerationModel.cpp")
+setup_custom_test_program(test_AccelerationModel "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_AccelerationModel tudat_basic_astrodynamics ${Boost_LIBRARIES})
