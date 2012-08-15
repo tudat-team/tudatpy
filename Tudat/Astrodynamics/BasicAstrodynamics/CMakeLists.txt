@@ -37,6 +37,7 @@
 set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToEccentricAnomaly.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.cpp"
 )
 
@@ -45,6 +46,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/accelerationModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToEccentricAnomaly.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/forceModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/generalizedForceModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.h"
@@ -72,3 +74,7 @@ target_link_libraries(test_MomentDueToForce tudat_basic_astrodynamics ${Boost_LI
 add_executable(test_AccelerationModel "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestAccelerationModel.cpp")
 setup_custom_test_program(test_AccelerationModel "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_AccelerationModel tudat_basic_astrodynamics ${Boost_LIBRARIES})
+
+add_executable(test_ClohessyWiltshirePropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestClohessyWiltshirePropagator.cpp")
+setup_custom_test_program(test_ClohessyWiltshirePropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_ClohessyWiltshirePropagator tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
