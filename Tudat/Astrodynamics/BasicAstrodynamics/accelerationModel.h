@@ -28,6 +28,8 @@
  *      120716    A. Ronse          Corrected spelling errors. Addition of file header,
  *                                  renamed virtual function. Added template functionality.
  *      120723    K. Kumar          Added template specialization for 1D cases.
+ *      120818    A. Ronse          Made template specializations of updateAndGetAcceleration
+ *                                  inline.
  *
  *    References
  *
@@ -161,7 +163,7 @@ private:
  * \return Acceleration that is obtained following the member update.
  */
 template < int SpatialDimensions, typename DataType >
-Eigen::Matrix< DataType, SpatialDimensions, 1 > updateAndGetAcceleration(
+inline Eigen::Matrix< DataType, SpatialDimensions, 1 > updateAndGetAcceleration(
         boost::shared_ptr< AccelerationModel< SpatialDimensions, DataType > > accelerationModel )
 {
     // Update members and throw exception if it fails.
@@ -185,7 +187,7 @@ Eigen::Matrix< DataType, SpatialDimensions, 1 > updateAndGetAcceleration(
  * \param accelerationModel Acceleration model that is to be evaluated.
  * \return Acceleration that is obtained following the member update.
  */
-int updateAndGetAcceleration(
+inline int updateAndGetAcceleration(
         boost::shared_ptr< AccelerationModel< 1, int > > accelerationModel )
 {
     // Update members and throw exception if it fails.
@@ -209,7 +211,7 @@ int updateAndGetAcceleration(
  * \param accelerationModel Acceleration model that is to be evaluated.
  * \return Acceleration that is obtained following the member update.
  */
-double updateAndGetAcceleration(
+inline double updateAndGetAcceleration(
         boost::shared_ptr< AccelerationModel< 1, double > > accelerationModel )
 {
     // Update members and throw exception if it fails.
@@ -233,7 +235,7 @@ double updateAndGetAcceleration(
  * \param accelerationModel Acceleration model that is to be evaluated.
  * \return Acceleration that is obtained following the member update.
  */
-float updateAndGetAcceleration(
+inline float updateAndGetAcceleration(
         boost::shared_ptr< AccelerationModel< 1, float > > accelerationModel )
 {
     // Update members and throw exception if it fails.
