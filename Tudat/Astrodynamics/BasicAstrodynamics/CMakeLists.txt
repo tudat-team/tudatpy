@@ -39,6 +39,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.cpp"
 )
 
 # Set the header files.
@@ -50,6 +51,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/forceModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/generalizedForceModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/momentDueToForceModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/pureMomentModel.h"
 )
@@ -78,3 +80,7 @@ target_link_libraries(test_AccelerationModel tudat_basic_astrodynamics ${Boost_L
 add_executable(test_ClohessyWiltshirePropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestClohessyWiltshirePropagator.cpp")
 setup_custom_test_program(test_ClohessyWiltshirePropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_ClohessyWiltshirePropagator tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_MissionGeometry "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestMissionGeometry.cpp")
+setup_custom_test_program(test_MissionGeometry "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_MissionGeometry tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
