@@ -75,10 +75,10 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
         // Set magnitude of velocity of Sun-Jupiter system [m/s].
         double velocitySunJupiter = 13.102e3;
 
-        // Set gravitational parameter of Jupiter [kg m^3 s^-2].
+        // Set gravitational parameter of Jupiter [m^3 s^-2].
         double gravitationalParameterJupiter = 6.67259e-11 * 1898.13e24;
 
-        // Set gravitational parameter of Sun [kg m^3 s^-2].
+        // Set gravitational parameter of Sun [m^3 s^-2].
         double gravitationalParameterSun = 1.32712440018e20;
 
         // Set mass parameter of Sun-Jupiter system.
@@ -129,10 +129,10 @@ BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
         // Set distance between Sun and Jupiter [m] (NASA, 2010).
         double distanceSunJupiter = 7.784e11;
 
-        // Set gravitational parameter of Jupiter [kg m^3 s^-2].
+        // Set gravitational parameter of Jupiter [m^3 s^-2].
         double gravitationalParameterJupiter = 6.67259e-11 * 1898.13e24;
 
-        // Set gravitational parameter of Sun [kg m^3 s^-2].
+        // Set gravitational parameter of Sun [m^3 s^-2].
         double gravitationalParameterSun = 1.32712440018e20;
 
         // Compute dimensional time for one complete orbit.

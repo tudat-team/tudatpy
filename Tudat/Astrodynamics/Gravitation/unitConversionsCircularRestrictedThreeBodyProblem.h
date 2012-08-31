@@ -63,11 +63,10 @@ namespace circular_restricted_three_body_problem
  *          dimensionlessCartesianState( 3 ) = x-velocity coordinate,                         [m/s]
  *          dimensionlessCartesianState( 4 ) = y-velocity coordinate,                         [m/s]
  *          dimensionlessCartesianState( 5 ) = z-velocity coordinate.                         [m/s]
- * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body
- *          [kg m^3 s^-2].
- * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body
- *          [kg m^3 s^-2].
- * \param distanceBetweenPrimaries Distance between primaries.
+ * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body.   [m^3 s^-2]
+ * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body.
+ *                                                                                       [m^3 s^-2]
+ * \param distanceBetweenPrimaries Distance between primaries.                                  [m]
  * \return Dimensional Cartesian state.
  */
 Eigen::VectorXd convertDimensionlessCartesianStateToDimensionalUnits(
@@ -80,11 +79,11 @@ Eigen::VectorXd convertDimensionlessCartesianStateToDimensionalUnits(
 /*!
  * Convert dimensionless time to dimensional units.
  * \param timeInNormalizedUnits Time in normalized units.
- * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body [kg m^3 s^-2].
- * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body
- *           [kg m^3 s^-2].
- * \param distanceBetweenPrimaries Distance between primaries.
- * \return Dimensional time [s].
+ * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body.   [m^3 s^-2]
+ * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body.
+ *                                                                                       [m^3 s^-2]
+ * \param distanceBetweenPrimaries Distance between primaries.                                  [m]
+ * \return Dimensional time.                                                                    [s]
  */
 double convertDimensionlessTimeToDimensionalTime(
         const double timeInDimensionlessUnits, const double gravitationalParameterOfPrimaryBody,
