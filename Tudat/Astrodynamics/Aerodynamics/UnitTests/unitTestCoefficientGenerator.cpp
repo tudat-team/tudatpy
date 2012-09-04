@@ -28,6 +28,8 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      120328    D. Dirkx          Updated code to use shared_ptrs instead of raw pointers.
  *      120605    J. Vandamme       Boostified unit test.
+ *      120825    A. Ronse          Corrected capsule test to check case with angle of attack = 0.
+ *                                  Extended spherical test to check for correct settings.
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic Arbitrary Body
@@ -67,11 +69,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
     // Set units of coefficients
     const double expectedValueOfForceCoefficient = 1.0;
 
-    //Tolerance in absolute units
-    const double toleranceForceCoefficient = 1.0e-2 * 100.0 / expectedValueOfForceCoefficient;
+    // Tolerance in absolute units.
+    const double toleranceForceCoefficient = 1.0e-2;
     const double toleranceAerodynamicCoefficients3 = 1.0e-4;
     const double toleranceAerodynamicCoefficients4 = 1.0e-2;
-    const double toleranceAerodynamicCoefficients5 = 1.0e-2;
+    const double toleranceAerodynamicCoefficients5 = 1.0e-4;
 
     // Create test sphere.
     boost::shared_ptr< mathematics::geometric_shapes::SphereSegment > sphere
@@ -96,6 +98,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
     numberOfPoints[ 0 ] = 31;
     invertOrder[ 0 ] = 0;
     analysis.setVehicle( vehicle, numberOfLines, numberOfPoints, invertOrder );
+
+    // Set mach-points at which analysis is performed. For angle-of-attack and -sideslip, defaults
+    // are used.
+    analysis.setNumberOfMachPoints( 5 );
+    for ( unsigned int machIterator = 0; machIterator < 5; machIterator++ )
+    {
+        analysis.setMachPoint( machIterator, static_cast< double >( 2 * machIterator + 10 ) );
+    }
 
     // Set reference quantities.
     analysis.setReferenceArea( PI );
@@ -132,6 +142,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
             {
                 independentVariables[ 2 ] = k;
 
+                // Test if the independent variables have correctly been set.
+                BOOST_CHECK_EQUAL( analysis.getMachPoint( i ),
+                                   static_cast< double >( 2 * i + 10 ) );
+                BOOST_CHECK_EQUAL( analysis.getAngleOfAttackPoint( j ),
+                                   static_cast< double >( j ) * 5.0 * PI / 180.0 );
+                BOOST_CHECK_EQUAL( analysis.getAngleOfSideslipPoint( k ),
+                                   static_cast< double >( k ) * 1.0 * PI / 180.0 );
+
                 // Retrieve aerodynamic coefficients.
                 aerodynamicCoefficients_ = analysis.getAerodynamicCoefficients(
                         independentVariables );
@@ -148,6 +166,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
                                             expectedValueOfForceCoefficient,
                                             toleranceForceCoefficient );
 
+                // Test if the computed moment coefficients correspond to the expected value (0.0)
+                // within the specified tolerance.
                 BOOST_CHECK_SMALL( aerodynamicCoefficients_[ 3 ],
                                    toleranceAerodynamicCoefficients3 );
 
@@ -164,12 +184,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
 //! Apollo capsule test case.
 BOOST_AUTO_TEST_CASE( testApolloCapsule )
 {
-
-    // Set units of coefficients
+    // Set units of coefficients.
     const double expectedValueOfAerodynamicCoefficients0 = 1.51;
     const double expectedValueOfAerodynamicCoefficients4 = -0.052;
 
-    // Tolerance in absolute units
+    // Tolerance in absolute units.
     const double toleranceAerodynamicCoefficients0 = 0.1 * 100.0
             / expectedValueOfAerodynamicCoefficients0;
     const double toleranceAerodynamicCoefficients1 = std::numeric_limits< double >::epsilon( );
@@ -232,7 +251,7 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     int i;
     for ( i = 0; i < 7; i++ )
     {
-    analysis.setAngleOfAttackPoint( i, static_cast< double >( i - 6 ) * 5.0 * PI / 180.0 );
+        analysis.setAngleOfAttackPoint( i, static_cast< double >( i - 6 ) * 5.0 * PI / 180.0 );
     }
 
     // Generate capsule database.
@@ -243,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     independentVariables.resize( 3 );
 
     independentVariables[ 0 ] = analysis.getNumberOfMachPoints( ) - 1;
-    independentVariables[ 1 ] = 0;
+    independentVariables[ 1 ] = 6;
     independentVariables[ 2 ] = 0;
 
     // Declare local test variables.

@@ -31,6 +31,8 @@
  *      110204    D. Dirkx          Finalized code.
  *      110615    F.M. Engelen      Made a child of Coefficient Database. Moved aerodynamic
  *                                  reference quatities to the parent class.
+ *      120825    A. Ronse          Changed dataPointsOfIndependentVariables_ to array of doubles.
+ *                                  Fixed bug in setMachPoint function.
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. The Mark IV Supersonic-Hypersonic
@@ -192,7 +194,7 @@ public:
      */
     void setMachPoint( const int index, const double machPoint )
     {
-        dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ index ] = machPoint;
+        dataPointsOfIndependentVariables_[ machIndex_ ][ index ] = machPoint;
     }
 
     //! Set an angle of attack point.
@@ -330,7 +332,7 @@ protected:
      * Array of arrays of data points for independent variables. Physical
      * meaning of indices are determined by the machIndex, angleOfAttackIndex, etc.
      */
-    std::vector< boost::multi_array< int, 1 > > dataPointsOfIndependentVariables_;
+    std::vector< boost::multi_array< double, 1 > > dataPointsOfIndependentVariables_;
 
     //! Index in independent variables arrays representing Mach number.
     /*!
