@@ -34,6 +34,8 @@
  #      111117    K. Kumar          Added system and filesystem Boost components.
  #      170212    S. Billemont      Added support for UserSettings.txt file.
  #      120505    K. Kumar          Removed superfluous include sub-directory macro.
+ #      120913    K. Kumar          Added output message for build type and set default to
+ #                                  "Release".
  #
  #    References
  #
@@ -50,15 +52,17 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/External/CMake)
 # Set root-directory for code to current source directory.
 set(CODEROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
-# Define the basic input (trunk) and output (lib & include) directories.
+# Define the basic input (trunk).
 set(SRCROOT "${CODEROOT}/Tudat")
 
-# Set default build-type.
-set(CMAKE_BUILD_TYPE Debug)
+# Set lib and bin directories where static libraries, applications, and unit tests are built.
+set(LIBROOT "${CODEROOT}/lib")
+set(BINROOT "${CODEROOT}/bin")
 
 # Set testing options based on platform.
 enable_testing( )
 
+# Set platform-specific compiler flags.
 if (WIN32)
   if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
@@ -72,17 +76,11 @@ if (WIN32)
         string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
       endif(${flag_var} MATCHES "/MD")
     endforeach(flag_var)
-    set(LIBROOT "${CODEROOT}/lib")
-    set(BINROOT "${CODEROOT}/bin")
   else( )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
-    set(LIBROOT "${CODEROOT}/lib")
-    set(BINROOT "${CODEROOT}/bin")
   endif( )
 else( )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
-    set(LIBROOT "${CODEROOT}/lib")
-    set(BINROOT "${CODEROOT}/bin")
 endif( )
 
 # Defines the install target to create a distribution of Tudat.
@@ -106,6 +104,17 @@ else()
   else()  
     INCLUDE( $ENV{TUDAT_USER_SETTINGS} OPTIONAL)
   endif()
+endif()
+
+# Set CMake build-type. If it not supplied by the user (either directly as an argument of through
+# the "UserSettings.txt" file, the default built type is "Release". NB: It is important this
+# section is placed AFTER the "UserSettings.txt" file is included, to ensure that that the correct
+# indiciation is given for which build type has been selected.
+if((NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE STREQUAL "Release"))
+    message(STATUS "WARNING: building release version!")
+    set(CMAKE_BUILD_TYPE Release)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "WARNING: building debug version!")
 endif()
 
 # Install the Tudat files.

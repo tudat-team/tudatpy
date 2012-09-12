@@ -23,8 +23,10 @@
  *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
+ *      YYMMDD    Author            Comment
  *      110530    F.M. Engelen      First creation of code.
  *      120326    D. Dirkx          Modified code to be boost unit test framework.
+ *      120913    K. Kumar          Removed superfluous using-statements.
  *
  *    References
  *
@@ -32,8 +34,9 @@
 
 #define BOOST_TEST_MAIN
 
-#include <cmath>
 #include <limits>
+#include <string>
+#include <vector>
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -50,14 +53,12 @@ BOOST_AUTO_TEST_SUITE( test_missile_datcom_data )
 
 BOOST_AUTO_TEST_CASE( testMissileDatcomData )
 {
-    using std::cerr;
-    using std::endl;
     using namespace tudat;
 
     // Load missile Datcom data.
     std::string fileLocation = input_output::getTudatRootPath( )
             + "InputOutput/UnitTests/testFileMissileDatcomReader.dat";
-    tudat::input_output::MissileDatcomReader missileDatcomReader( fileLocation );
+    input_output::MissileDatcomReader missileDatcomReader( fileLocation );
 
     std::vector< double > missileDatcomData = missileDatcomReader.getMissileDatcomData( );
     double summation = 0.0;
@@ -73,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testMissileDatcomData )
     const double expectedSummationResult = 229900.0;
 
     BOOST_CHECK_CLOSE_FRACTION( summation, expectedSummationResult,
-                                       std::numeric_limits< double >::epsilon( ) );
+                                std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

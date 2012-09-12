@@ -23,6 +23,7 @@
  *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
+ *      YYMMDD    Author            Comment
  *      110530    F.M. Engelen      First creation of code.
  *      120326    D. Dirkx          Modified code to be boost unit test framework.
  *
