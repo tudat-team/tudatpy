@@ -29,15 +29,21 @@
  *      110211    K. Kumar          Corrected Doxygen errors; corrected layout errors; corrected
  *                                  double precision; updated function-naming.
  *      120605    J. Vandamme       Boostified unit test.
+ *      120912    K. Kumar          Removed erroneous using-statements; added missing <cmath>
+ *                                  include.
  *
  *    References
  *      Anderson Jr., J.D. , Fundamentals of Aerodynamics, 3rd edition, McGraw Hill, 2001.
  *      Anderson Jr. , J.D, Hypersonic and High-Temperature Gas Dynamics, 2nd edition,
  *          AIAA Education Series, 2006.
  *
+ *    Notes
+ *
  */
 
 #define BOOST_TEST_MAIN
+
+#include <cmath>
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -56,11 +62,6 @@ BOOST_AUTO_TEST_SUITE( test_aerodynamics_namespace )
 //! Test aerodynamic namespace pressure functions.
 BOOST_AUTO_TEST_CASE( testAerodynamicNamespacePressureFunctions )
 {
-    using std::cerr;
-    using std::endl;
-    using std::fabs;
-    using std::pow;
-    using std::sin;
     using namespace tudat;
     using namespace tudat::aerodynamics;
     using tudat::mathematics::PI;
@@ -124,7 +125,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicNamespacePressureFunctions )
     // Test high Mach base pressure coefficient.
     const double highMachBasePressure_ = computeHighMachBasePressure( machNumber_ );
 
-    const double expectedHighMachBasePressure_ = -1.0 / pow( machNumber_, 2.0 );
+    const double expectedHighMachBasePressure_ = -1.0 / ( machNumber_ * machNumber_ );
     const double toleranceHighMachBasePressure_ = 1.0e-15 * 100.0 / expectedHighMachBasePressure_;
 
     // Check if computed high Mach base pressure coefficient matches expected value.
@@ -176,10 +177,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicNamespacePressureFunctions )
 //! Test pressure coefficients.
 BOOST_AUTO_TEST_CASE( testPressureCoefficients )
 {
-    using std::cerr;
-    using std::endl;
-    using std::fabs;
-    using std::pow;
     using std::sin;
     using namespace tudat;
     using namespace tudat::aerodynamics;
