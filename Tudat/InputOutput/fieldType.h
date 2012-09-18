@@ -90,6 +90,12 @@ namespace general
 
     //! Object identification code [-].
     static const FieldType id   = hash_constructor( "General: Object_id" );
+
+    //! Parameter name [-].
+    static const FieldType parameterName = hash_constructor( "General: Parameter_name" );
+
+    //! Parameter value [-].
+    static const FieldType parameterValue = hash_constructor( "General: Parameter_value" );
 }
 
 // -----------------------------

@@ -30,6 +30,8 @@
 # Add source files.
 set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/dictionaryComparer.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/dictionaryTools.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.cpp"
@@ -45,6 +47,9 @@ set(INPUTOUTPUT_SOURCES
 # Add header files.
 set(INPUTOUTPUT_HEADERS 
   "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/dictionaryComparer.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/dictionaryEntry.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/dictionaryTools.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/extractor.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldTransform.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldType.h"
@@ -97,6 +102,10 @@ target_link_libraries(test_MissileDatcomReader tudat_input_output ${TUDAT_CORE_L
 add_executable(test_MissileDatcomData "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMissileDatcomData.cpp")
 setup_custom_test_program(test_MissileDatcomData "${SRCROOT}${INPUTDIR}")
 target_link_libraries(test_MissileDatcomData tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_DictionaryInputSystem "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestDictionaryInputSystem.cpp")
+setup_custom_test_program(test_DictionaryInputSystem "${SRCROOT}${INPUTDIR}")
+target_link_libraries(test_DictionaryInputSystem tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_Extractor "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestExtractor.cpp")
 setup_custom_test_program(test_Extractor "${SRCROOT}${INPUTOUTPUTDIR}")
