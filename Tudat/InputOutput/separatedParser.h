@@ -50,13 +50,12 @@ namespace input_output
 
 class SeparatedParser : public TextParser
 {
-
 public:
 
     //! Create a parser that parses based on a specified separator and field type list.
     /*!
-     * \param separator  string of symbol or text which is used as separator
-     * \param numberOfFields  number of fields to parse
+     * \param separator String of symbol or text which is used as separator.
+     * \param numberOfFields Number of fields to parse.
      * Arguments are the field types:
      * e.g.
      *     SeparatedParser(",", 4, fieldtypes::ID, fieldtypes::X, fieldtypes::Y, fieldtypes::Z);
@@ -96,7 +95,7 @@ private:
     std::string separator_;
 
     //! Vector containing FieldTypes of parsed data.
-    std::vector<FieldType>  typeList;
+    std::vector< FieldType > typeList;
 
     //! Boolean: true = trim whitespace off fields; false = no trim.
     bool doTrim;

@@ -63,6 +63,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include <TudatCore/InputOutput/streamFilters.h>
+
 namespace tudat
 {
 namespace input_output

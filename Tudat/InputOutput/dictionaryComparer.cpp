@@ -24,66 +24,47 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
- *      120217    D.J. Gondelach    Code check.
- *      120326    D. Dirkx          Code checked, minor layout changes.
+ *      120808    K. Kumar          File created.
  *
  *    References
+ *
+ *    Notes
+ *
  */
 
-#ifndef TUDAT_FIELD_VALUE_H
-#define TUDAT_FIELD_VALUE_H
-
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-
-#include "Tudat/InputOutput/fieldTransform.h"
-#include "Tudat/InputOutput/fieldType.h"
+#include "Tudat/InputOutput/dictionaryComparer.h"
 
 namespace tudat
 {
 namespace input_output
 {
-
-//! Field value class.
-class FieldValue
+namespace dictionary
 {
-public:
 
-    //! Create a FieldValue containing type, string content and transformation of field.
-    /*!
-     * Create a FieldValue which contains the type, the content as a string
-     * and unit transformation of the field.
-     */
-    FieldValue( const FieldType& type, const std::string& field,
-                const boost::shared_ptr< FieldTransform > transformer
-                = boost::shared_ptr< FieldTransform >( ) );
+//! Overload ()-operator to compare data line with dictionary entry.
+bool DictionaryComparer::operator( )(
+        const input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr& dataLine ) const
+{
+    // Get parameter name from data line map.
+    std::string parameterName
+            = input_output::parsed_data_vector_utilities::getField< std::string >(
+                dataLine, input_output::field_types::general::parameterName );
 
-    //! FieldType of the FieldValue.
-    FieldType type;
+    // Store case-sensitive flag locally.
+    bool isCaseSensitive = dictionaryEntry->isCaseSensitive;
 
-    //! Get value of field content in SI units.
-    boost::shared_ptr< std::string > get( );
+    // Perform comparison check, taking state of isCaseSensitive in account.
+    return ( !dictionaryEntry->parameterName.compare( parameterName )
+             || !( dictionaryEntry->synonyms.find( parameterName )
+                   == dictionaryEntry->synonyms.end( ) ) )
+            || ( !isCaseSensitive *
+                 ( boost::iequals( dictionaryEntry->parameterName, parameterName )
+                   || !( std::find_if( dictionaryEntry->synonyms.begin( ),
+                                       dictionaryEntry->synonyms.end( ),
+                                       DictionaryComparer( parameterName ) )
+                         == dictionaryEntry->synonyms.end( ) ) ) );
+}
 
-    //! Get raw field content.
-    boost::shared_ptr< std::string > getRaw( );
-
-    //! Operator to get value of field content in SI units.
-    boost::shared_ptr< std::string > operator( ) ( );
-
-protected:
-
-private:
-
-    //! String of field value in raw data format.
-    std::string rawField;
-
-    //! Pointer to unit transformation equation.
-    boost::shared_ptr< FieldTransform > transform;
-};
-
+} // namespace dictionary
 } // namespace input_output
 } // namespace tudat
-
-#endif // TUDAT_FIELD_VALUE_H

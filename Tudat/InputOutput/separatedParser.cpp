@@ -60,7 +60,7 @@ SeparatedParser::SeparatedParser( std::string separator, int numberOfFields, ...
     va_list listOfArguments;	        // Define argument list variable.
     va_start( listOfArguments,numberOfFields );  // init list; point to last defined argument.
 
-    for ( int i=0; i < numberOfFields; i++ )
+    for ( int i = 0; i < numberOfFields; i++ )
     {
         typeList.push_back( va_arg( listOfArguments, FieldType ) ); // get next argument.
     }
@@ -71,7 +71,7 @@ SeparatedParser::SeparatedParser( std::string separator, int numberOfFields, ...
 //! Parses one line of text.
 void SeparatedParser::parseLine( std::string& line )
 {
-    // Some short hand notations
+    // Some short hand notations.
     using namespace std;
     using namespace parsed_data_vector_utilities;
     typedef std::pair< FieldType, FieldValuePtr > FieldDataPair;
@@ -82,8 +82,8 @@ void SeparatedParser::parseLine( std::string& line )
     // Create a vector of individual strings.
     vectorOfIndividualStrings vectorOfIndividualStrings_;
 
-    // Split string into multiple strings based on provided separator and place in vector
-    typedef boost::algorithm::split_iterator<std::string::iterator> string_split_iterator;
+    // Split string into multiple strings based on provided separator and place in vector.
+    typedef boost::algorithm::split_iterator< std::string::iterator > string_split_iterator;
     for( string_split_iterator It=
          boost::algorithm::make_split_iterator( line, boost::algorithm::first_finder(
                                                     separator_, boost::algorithm::is_iequal( ) ) );
@@ -119,11 +119,11 @@ void SeparatedParser::parseLine( std::string& line )
         // If we need to trim whitespace, do so.
         if ( doTrim )
         {
-                boost::trim( vectorOfIndividualStrings_.at( currentFieldNumber ));
+                boost::trim( vectorOfIndividualStrings_.at( currentFieldNumber ) );
         }
 
         // Get the corresponding field type.
-        FieldType     type ( typeList.at( currentFieldNumber ) );
+        FieldType type( typeList.at( currentFieldNumber ) );
 
         // Define unit transformer.
         boost::shared_ptr< FieldTransform > transformer;
