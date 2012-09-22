@@ -36,6 +36,8 @@
 
 #define BOOST_TEST_MAIN
 
+#include <iostream>
+#include <sstream>
 #include <string>
 
 #include <boost/test/unit_test.hpp>
@@ -122,9 +124,27 @@ BOOST_AUTO_TEST_CASE( separatedParser_multiLine )
     // Create test data.
     std::string csvText( " 12 , 1, 2, 3\n24, 5, 6, 7, 8\na, b c, d, e" );
 
+    // Declare stream to capture std::cerr warning that the number of fields defined (5) is
+    // greater than the number of fields provided in the parser (4).
+    std::stringstream warningStream;
+
+    // Redirect std::cerr output.
+    std::streambuf* standardStreamBuffer = std::cerr.rdbuf( warningStream.rdbuf( ) );
+
     // Parse the data.
     parser.setTrim( false );
     ParsedDataVectorPtr result = parser.parse( csvText );
+
+    // Hand std::cerr output back to standard logger.
+    std::cerr.rdbuf( standardStreamBuffer );
+
+    // Set expected warning message.
+    std::stringstream expectedWarning;
+    expectedWarning << "Number of elements in the line (5) "
+                    << "does not match the specified number of fields (4)" << std::endl;
+
+    // Check that warning outputted matches expected warning.
+    BOOST_CHECK( warningStream.str( ).compare( expectedWarning.str( ) ) == 0 );
     
     // Check that three lines are parsed.
     BOOST_CHECK_EQUAL( result->size( ), 3 );
