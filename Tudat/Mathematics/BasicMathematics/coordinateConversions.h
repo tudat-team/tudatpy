@@ -45,10 +45,14 @@
  *      120118    D. Gondelach      Added new convertCylindricalToCartesian functions.
  *      120214    K. Kumar          Branched from old Tudat trunk for new coordinate conversions.
  *      120511    K. Kumar          Added enums for cylindrical and Cartesian coordinates.
+ *      120926    E. Dekens         Added spherical gradient to Cartesian conversion.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
  *          Scientific Computing. Cambridge University Press, February 2002.
+ *      Vallado, D.A. Fundamentals of Astrodynamics and Applications. Microcosm Press, 2001.
+ *
+ *    Notes
  *
  */
 
@@ -184,6 +188,48 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 * \return Vector of cylindrical state [r,theta,z,Vr,Vtheta,Vz], where Vtheta = r*thetadot.
 */
 Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianState );
+
+//! Convert spherical to Cartesian gradient.
+/*!
+* This function converts a gradient vector with respect to spherical coordinates to a gradient
+* vector with respect to Cartesian coordinates. The partial derivatives are calculated according
+* to Vallado [2001] as:
+* \f{eqnarray*}{
+*   \frac{ \partial U }{ \partial x } & = &
+*   \frac{ x }{ \sqrt{ x^2 + y^2 +z^2 } } \frac{ \partial U }{ \partial r }
+*   - \frac{ x z }{ ( x^2 + y^2 +z^2 ) \sqrt{ x^2 + y^2 } } \frac{ \partial U }{ \partial \phi }
+*   - \frac{ y }{ x^2 + y^2 } \frac{ \partial U }{ \partial \lambda } \\
+*   \frac{ \partial U }{ \partial y } & = &
+*   \frac{ y }{ \sqrt{ x^2 + y^2 +z^2 } } \frac{ \partial U }{ \partial r }
+*   - \frac{ y z }{ ( x^2 + y^2 +z^2 ) \sqrt{ x^2 + y^2 } } \frac{ \partial U }{ \partial \phi }
+*   + \frac{ x }{ x^2 + y^2 } \frac{ \partial U }{ \partial \lambda } \\
+*   \frac{ \partial U }{ \partial z } & = &
+*   \frac{ z }{ \sqrt{ x^2 + y^2 +z^2 } } \frac{ \partial U }{ \partial r }
+*   + \frac{ \sqrt{ x^2 + y^2 } } { x^2 + y^2 +z^2 } \frac{ \partial U }{ \partial \phi }
+* \f}
+* in which \f$ x \f$, \f$ y \f$ and \f$ z \f$ are the Cartesian coordinates. \f$ U \f$ is an
+* arbitrary scalar. Radius \f$ r \f$ is the length of the position vector. Elevation \f$ \phi \f$
+* is the the angle between the position vector and the XY-plane (with the positive direction
+* towards the Z-axis). Azimuth \f$ \lambda \f$ is the dihedral angle about the Z-axis between the
+* X-axis and the position vector (with the positive direction being right-handed about the Z-axis).
+* \param sphericalGradient Vector with partial derivatives with respect to spherical coordinates.
+*        The order is important!
+*        sphericalGradient( 0 ) = partial derivative with respect to radius,
+*        sphericalGradient( 1 ) = partial derivative with respect to elevation,
+*        sphericalGradient( 2 ) = partial derivative with respect to azimuth.
+* \param cartesianCoordinates Vector with Cartesian coordinates.
+*        The order is important!
+*        cartesianCoordinates( 0 ) = x coordinate,
+*        cartesianCoordinates( 1 ) = y coordinate,
+*        cartesianCoordinates( 2 ) = z coordinate.
+* \return Vector with partial derivatives with respect to Cartesian coordinates.
+*         The order is important!
+*         cartesianGradient( 0 ) = partial derivative with respect to x coordinate,
+*         cartesianGradient( 1 ) = partial derivative with respect to y coordinate,
+*         cartesianGradient( 2 ) = partial derivative with respect to z coordinate.
+*/
+Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d sphericalGradient,
+                                                     const Eigen::Vector3d cartesianCoordinates );
 
 } // namespace coordinate_conversions
 } // namespace basic_mathematics

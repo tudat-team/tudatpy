@@ -45,10 +45,13 @@
  *      120214    K. Kumar          Branched from old Tudat trunk for new coordinate conversions.
  *      120217    K. Kumar          Updated computeModuloForSignedValues() to computeModulo()
  *                                  from Tudat Core.
+ *      120926    E. Dekens         Added spherical gradient to Cartesian conversion.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
  *          Scientific Computing. Cambridge University Press, February 2002.
+ *
+ *    Notes
  *
  */
 
@@ -228,6 +231,42 @@ Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianS
     }
 
     return cylindricalState;
+}
+
+//! Convert spherical to Cartesian gradient.
+Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d sphericalGradient,
+                                                     const Eigen::Vector3d cartesianCoordinates )
+{   
+    // Compute radius.
+    const double radius = std::sqrt( cartesianCoordinates( 0 ) * cartesianCoordinates( 0 )
+                                     + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 )
+                                     + cartesianCoordinates( 2 ) * cartesianCoordinates( 2 ) );
+
+    // Compute square of distance within xy-plane.
+    const double xyDistanceSquared = cartesianCoordinates( 0 ) * cartesianCoordinates( 0 )
+            + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 );
+
+    // Compute distance within xy-plane.
+    const double xyDistance = std::sqrt( xyDistanceSquared );
+
+    // Compute transformation matrix.
+    const Eigen::Matrix3d transformationMatrix = (
+                Eigen::Matrix3d( 3, 3 ) <<
+                cartesianCoordinates( 0 ) / radius,
+                - cartesianCoordinates( 0 ) * cartesianCoordinates( 2 )
+                / ( radius * radius * xyDistance ),
+                - cartesianCoordinates( 1 ) / xyDistanceSquared,
+                cartesianCoordinates( 1 ) / radius,
+                - cartesianCoordinates( 1 ) * cartesianCoordinates( 2 )
+                / ( radius * radius * xyDistance ),
+                + cartesianCoordinates( 0 ) / xyDistanceSquared,
+                cartesianCoordinates( 2 ) / radius,
+                xyDistance / ( radius * radius ),
+                0.0
+                ).finished( );
+
+    // Return Cartesian gradient.
+    return transformationMatrix * sphericalGradient;
 }
 
 } // namespace coordinate_conversions
