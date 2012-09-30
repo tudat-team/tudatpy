@@ -48,8 +48,14 @@
  *      120214    K. Kumar          Branched from old Tudat trunk for new coordinate conversions.
  *      120512    K. Kumar          Boostified unit test.
  *      120514    P. Musegaas       Fixed small error.
+ *      120926    E. Dekens         Added spherical gradient to Cartesian conversion.
+ *      120928    M. Ganeff         Made const-correct and.
  *
  *    References
+ *      Mathworks. gravitysphericalharmonic, implement spherical harmonic representation of
+ *        planetary gravity. Help documentation of MATLAB R2012a, 2012.
+ *
+ *    Notes
  *
  */
 
@@ -78,22 +84,22 @@ BOOST_AUTO_TEST_SUITE( test_coordinate_conversions )
 // Test conversion from cylindrical (r, theta, z) to Cartesian (x, y, z) coordinates.
 BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
 {
-    using tudat::mathematics::PI;
-    using tudat::basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
+    using mathematics::PI;
+    using basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
 
     // Test 1: test conversion of ( 0.0, pi, 1.2 ).
     {
         // Set cylindrical coordinates.
-        Eigen::Vector3d cylindricalCoordinates( 0.0, PI, 1.2 );
+        const Eigen::Vector3d cylindricalCoordinates( 0.0, PI, 1.2 );
 
         // Set expected Cartesian coordinates.
-        Eigen::Vector3d expectedCartesianCoordinates( 0.0, 0.0, 1.2 );
+        const Eigen::Vector3d expectedCartesianCoordinates( 0.0, 0.0, 1.2 );
 
         // Convert cylindrical to Cartesian coordinates.
-        Eigen::Vector3d computedCartesianCoordinates
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::Vector3d computedCartesianCoordinates
+                = basic_mathematics::coordinate_conversions::
                 convertCylindricalToCartesian( cylindricalCoordinates );
 
         // Check if computed Cartesian coordinates match expected values.
@@ -111,16 +117,16 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
     // Test 2: test conversion of ( 2.3, -pi/2, -3.5 ).
     {
         // Set cylindrical coordinates.
-        Eigen::Vector3d cylindricalCoordinates( 2.3, -PI/2, -3.5 );
+        const Eigen::Vector3d cylindricalCoordinates( 2.3, -PI/2, -3.5 );
 
         // Set expected Cartesian coordinates.
-        Eigen::Vector3d expectedCartesianCoordinates( 2.3 * std::cos( -PI / 2.0 ),
-                                                      2.3 * std::sin( -PI / 2.0 ),
-                                                      -3.5 );
+        const Eigen::Vector3d expectedCartesianCoordinates( 2.3 * std::cos( -PI / 2.0 ),
+                                                            2.3 * std::sin( -PI / 2.0 ),
+                                                            -3.5 );
 
         // Convert cylindrical to Cartesian coordinates.
-        Eigen::Vector3d convertedCartesianCoordinates
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::Vector3d convertedCartesianCoordinates
+                = basic_mathematics::coordinate_conversions::
                 convertCylindricalToCartesian( cylindricalCoordinates );
 
         // Check if converted Cartesian coordinates match expected values.
@@ -138,30 +144,30 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
 // (x, y, z, xdot, ydot, zdot) state.
 BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateConversion )
 {
-    using tudat::mathematics::PI;
-    using tudat::basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
+    using mathematics::PI;
+    using basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
 
     // Test 1: test conversion of (2.1, pi/2.0, 1.2, 5.4, 4.5, -3.9).
     {
         // Set Cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd cylindricalState = ( Eigen::VectorXd( 6 )
-                                             << 2.1, PI / 2.0, 1.2, 5.4, 4.5, -3.9 ).finished( );
+        const Eigen::VectorXd cylindricalState =
+                ( Eigen::VectorXd( 6 ) << 2.1, PI / 2.0, 1.2, 5.4, 4.5, -3.9 ).finished( );
 
         // Set expected Cartesian state (x, y, z, xdot, ydot, zdot).
-        Eigen::VectorXd expectedCartesianState( 6 );
-        expectedCartesianState << ( Eigen::VectorXd( 6 )
-                                    << 2.1 * std::cos( PI / 2.0 ),
-                                    2.1 * std::sin( PI / 2.0 ),
-                                    1.2,
-                                    5.4 * std::cos( PI / 2.0 ) - 4.5 * std::sin( PI / 2.0 ),
-                                    5.4 * std::sin( PI / 2.0 ) + 4.5 * std::cos( PI / 2.0 ),
-                                    -3.9 ).finished( );
+        const Eigen::VectorXd expectedCartesianState =
+                ( Eigen::VectorXd( 6 )
+                  << 2.1 * std::cos( PI / 2.0 ),
+                  2.1 * std::sin( PI / 2.0 ),
+                  1.2,
+                  5.4 * std::cos( PI / 2.0 ) - 4.5 * std::sin( PI / 2.0 ),
+                  5.4 * std::sin( PI / 2.0 ) + 4.5 * std::cos( PI / 2.0 ),
+                  -3.9 ).finished( );
 
         // Convert cylindrical to Cartesian state (x, y, z, xdot, ydot, zdot).
-        Eigen::VectorXd convertedCartesianState
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::VectorXd convertedCartesianState
+                = basic_mathematics::coordinate_conversions::
                 convertCylindricalToCartesian( cylindricalState );
 
         // Check if converted Cartesian state match expected state.
@@ -178,23 +184,22 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
     // Test 2: test conversion of (0.0, 8.2*pi/3.0, -2.5, -5.8, 0.0, 1.7).
     {
         // Set Cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd cylindricalState = ( Eigen::VectorXd( 6 )
-                                             << 0.0, 8.2 * PI / 3.0,
-                                             -2.5, -5.8, 0.0, 1.7 ).finished( );
+        const Eigen::VectorXd cylindricalState = ( Eigen::VectorXd( 6 )
+                                                   << 0.0, 8.2 * PI / 3.0,
+                                                   -2.5, -5.8, 0.0, 1.7 ).finished( );
 
         // Set expected Cartesian state (x, y, z, xdot, ydot, zdot).
-        Eigen::VectorXd expectedCartesianState( 6 );
-        expectedCartesianState << ( Eigen::VectorXd( 6 )
-                                    << 0.0,
-                                    0.0,
-                                    -2.5,
-                                    -5.8 * std::cos( 8.2 * PI / 3.0 ),
-                                    -5.8 * std::sin( 8.2 * PI / 3.0 ),
-                                    1.7 ).finished( );
+        const Eigen::VectorXd expectedCartesianState = ( Eigen::VectorXd( 6 )
+                                                         << 0.0,
+                                                         0.0,
+                                                         -2.5,
+                                                         -5.8 * std::cos( 8.2 * PI / 3.0 ),
+                                                         -5.8 * std::sin( 8.2 * PI / 3.0 ),
+                                                         1.7 ).finished( );
 
         // Convert cylindrical to Cartesian state (x, y, z, xdot, ydot, zdot).
-        Eigen::VectorXd convertedCartesianState
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::VectorXd convertedCartesianState
+                = basic_mathematics::coordinate_conversions::
                 convertCylindricalToCartesian( cylindricalState );
 
         // Check if converted Cartesian state match expected state.
@@ -214,22 +219,22 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
 // Test conversion from Cartesian (x, y, z) to cylindrical (r, theta, z) coordinates.
 BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 {
-    using tudat::mathematics::PI;
-    using tudat::basic_mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
+    using mathematics::PI;
+    using basic_mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
 
     // Test 1: test conversion of ( 0.0, 0.0, 1.0 ).
     {
         // Set Cartesian coordinates (x, y, z).
-        Eigen::Vector3d cartesianCoordinates( 0.0, 0.0, 1.0 );
+        const Eigen::Vector3d cartesianCoordinates( 0.0, 0.0, 1.0 );
 
         // Set expected cylindrical coordinates (r, theta, z).
-        Eigen::Vector3d expectedCylindricalCoordinates( 0.0, 0.0, 1.0 );
+        const Eigen::Vector3d expectedCylindricalCoordinates( 0.0, 0.0, 1.0 );
 
         // Convert Cartesian to cylindrical coordinates (r, theta, z).
-        Eigen::Vector3d convertedCylindricalCoordinates
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::Vector3d convertedCylindricalCoordinates
+                = basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianCoordinates );
 
         // Check if converted cylindrical coordinates match expected values.
@@ -247,14 +252,14 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
     // Test 2: test conversion of ( 0.0, 2.0, 1.0 ).
     {
         // Set Cartesian coordinates (x, y, z).
-        Eigen::Vector3d cartesianCoordinates( 0.0, 2.0, 1.0 );
+        const Eigen::Vector3d cartesianCoordinates( 0.0, 2.0, 1.0 );
 
         // Set expected cylindrical coordinates (r, theta, z).
-        Eigen::Vector3d expectedCylindricalCoordinates( 2.0, PI / 2.0, 1.0 );
+        const Eigen::Vector3d expectedCylindricalCoordinates( 2.0, PI / 2.0, 1.0 );
 
         // Convert Cartesian to cylindrical coordinates (r, theta, z).
-        Eigen::Vector3d convertedCylindricalCoordinates
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::Vector3d convertedCylindricalCoordinates
+                = basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianCoordinates );
 
         // Check if converted cylindrical coordinates match expected values.
@@ -266,14 +271,14 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
     // Test 3: test conversion of ( 0.0, -2.0, -1.0 ).
     {
         // Set Cartesian coordinates (x, y, z).
-        Eigen::Vector3d cartesianCoordinates( 0.0, -2.0, -1.0 );
+        const Eigen::Vector3d cartesianCoordinates( 0.0, -2.0, -1.0 );
 
         // Set expected cylindrical coordinates (r, theta, z).
-        Eigen::Vector3d expectedCylindricalCoordinates( 2.0, 3.0 * PI / 2.0, -1.0 );
+        const Eigen::Vector3d expectedCylindricalCoordinates( 2.0, 3.0 * PI / 2.0, -1.0 );
 
         // Convert Cartesian to cylindrical coordinates (r, theta, z).
-        Eigen::Vector3d convertedCylindricalCoordinates
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::Vector3d convertedCylindricalCoordinates
+                = basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianCoordinates );
 
         // Check if converted cylindrical coordinates match expected values.
@@ -285,16 +290,16 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
     // Test 4: test conversion of ( -5.0, -8.0, 5.0 ).
     {
         // Set Cartesian coordinates (x, y, z).
-        Eigen::Vector3d cartesianCoordinates( -5.0, -8.0, 5.0 );
+        const Eigen::Vector3d cartesianCoordinates( -5.0, -8.0, 5.0 );
 
         // Set expected cylindrical coordinates (r, theta, z).
-        Eigen::Vector3d expectedCylindricalCoordinates( std::sqrt( 25.0 + 64.0 ),
-                                                        std::atan2( -8.0,-5.0 ) + 2.0 * PI,
-                                                        5.0 );
+        const Eigen::Vector3d expectedCylindricalCoordinates( std::sqrt( 25.0 + 64.0 ),
+                                                              std::atan2( -8.0,-5.0 ) + 2.0 * PI,
+                                                              5.0 );
 
         // Convert Cartesian to cylindrical coordinates (r, theta, z).
-        Eigen::Vector3d convertedCylindricalCoordinates
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::Vector3d convertedCylindricalCoordinates
+                = basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianCoordinates );
 
         // Check if converted cylindrical coordinates match expected values.
@@ -309,29 +314,29 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 // (r, theta, z, Vr, Vtheta, Vz) state.
 BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateConversion )
 {
-    using tudat::mathematics::PI;
-    using tudat::basic_mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::rDotCylindricalCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::thetaDotCylindricalCoordinateIndex;
-    using tudat::basic_mathematics::coordinate_conversions::zDotCylindricalCoordinateIndex;
+    using mathematics::PI;
+    using basic_mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::rDotCylindricalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::thetaDotCylindricalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::zDotCylindricalCoordinateIndex;
 
     // Test 1: test conversion of ( 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).
     {
         // Set Cartesian state (x,y,z,xdot,ydot,zdot).
-        Eigen::VectorXd cartesianState = ( Eigen::VectorXd( 6 )
-                                           << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
+        const Eigen::VectorXd cartesianState = ( Eigen::VectorXd( 6 )
+                                                 << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
 
         // Set expected cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd expectedCylindricalState = ( Eigen::VectorXd( 6 )
-                                                     << 0.0, 0.0, 1.0,
-                                                     std::sqrt( 25.0 + 36.0 ),
-                                                     0.0, -9.0 ).finished( );
+        const Eigen::VectorXd expectedCylindricalState = ( Eigen::VectorXd( 6 )
+                                                           << 0.0, 0.0, 1.0,
+                                                           std::sqrt( 25.0 + 36.0 ),
+                                                           0.0, -9.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd convertedCylindricalState
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::VectorXd convertedCylindricalState
+                = basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianState );
 
         // Check that converted cylindrical state matches expected state.
@@ -360,17 +365,17 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
     // Test 2: test conversion of ( 2.0, 0.0, -5.0, -4.0, 6.0, -6.0 ).
     {
         // Set Cartesian state (x,y,z,xdot,ydot,zdot).
-        Eigen::VectorXd cartesianState = ( Eigen::VectorXd( 6 )
-                                           << 2.0, 0.0, -5.0, -4.0, 6.0, -6.0 ).finished( );
+        const Eigen::VectorXd cartesianState = ( Eigen::VectorXd( 6 )
+                                                 << 2.0, 0.0, -5.0, -4.0, 6.0, -6.0 ).finished( );
 
         // Set expected cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd expectedCylindricalState = ( Eigen::VectorXd( 6 )
-                                                     << 2.0, 0.0, -5.0,
-                                                     -4.0, 6.0, -6.0 ).finished( );
+        const Eigen::VectorXd expectedCylindricalState = ( Eigen::VectorXd( 6 )
+                                                           << 2.0, 0.0, -5.0,
+                                                           -4.0, 6.0, -6.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd convertedCylindricalState
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::VectorXd convertedCylindricalState
+                = basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianState );
 
         // Check that converted cylindrical state matches expected state.
@@ -390,28 +395,52 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
     // Test 3: test conversion of ( -7.0, -4.0, 3.0, 5.0, -3.0, 7.0 ).
     {
         // Set Cartesian state (x,y,z,xdot,ydot,zdot).
-        Eigen::VectorXd cartesianState = ( Eigen::VectorXd( 6 )
-                                           << -7.0, -4.0, 3.0, 5.0, -3.0, 7.0 ).finished( );
+        const Eigen::VectorXd cartesianState = ( Eigen::VectorXd( 6 )
+                                                 << -7.0, -4.0, 3.0, 5.0, -3.0, 7.0 ).finished( );
 
         // Set expected cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd expectedCylindricalState = ( Eigen::VectorXd( 6 )
-                                                     << std::sqrt( 49.0 + 16.0 ),
-                                                     std::atan2( -4.0, -7.0 ) + 2.0 * PI,
-                                                     3.0,
-                                                     ( -7.0 * 5.0 + ( -4.0 ) * -3.0 )
-                                                     / std::sqrt( 49.0 + 16.0 ),
-                                                     ( -7.0 * -3.0 - ( -4.0 ) * 5.0 )
-                                                     / sqrt( 49.0 + 16.0 ), 7.0 ).finished( );
+        const Eigen::VectorXd expectedCylindricalState = ( Eigen::VectorXd( 6 )
+                                                           << std::sqrt( 49.0 + 16.0 ),
+                                                           std::atan2( -4.0, -7.0 ) + 2.0 * PI,
+                                                           3.0,
+                                                           ( -7.0 * 5.0 + ( -4.0 ) * -3.0 )
+                                                           / std::sqrt( 49.0 + 16.0 ),
+                                                           ( -7.0 * -3.0 - ( -4.0 ) * 5.0 )
+                                                           / sqrt( 49.0 + 16.0 ), 7.0 ).finished( );
 
         // Convert Cartesian to cylindrical state (r, theta, z, Vr, Vtheta, Vz).
-        Eigen::VectorXd convertedCylindricalState
-                = tudat::basic_mathematics::coordinate_conversions::
+        const Eigen::VectorXd convertedCylindricalState
+                = basic_mathematics::coordinate_conversions::
                 convertCartesianToCylindrical( cartesianState );
 
         // Check that converted cylindrical state matches expected state.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCylindricalState, convertedCylindricalState,
                                            std::numeric_limits< double >::epsilon( ) );
     }
+}
+
+// Test conversion from spherical to Cartesian gradient.
+BOOST_AUTO_TEST_CASE( test_SphericalToCartesianGradientConversion )
+{
+    // Define an arbitrary spherical gradient.
+    const Eigen::Vector3d sphericalGradient( -2.438146967844150, 1.103964186650749e4,
+                                             5.932496087870976e1 );
+
+    // Define an arbitrary spherical position vector.
+    const Eigen::Vector3d cartesianCoordinates( -7.0e6, 8.5e6, -6.5e6 );
+
+    // Compute Cartesian gradient.
+    const Eigen::Vector3d cartesianGradient = basic_mathematics::coordinate_conversions::
+            convertSphericalToCartesianGradient( sphericalGradient, cartesianCoordinates );
+
+    // Define expected Cartesian gradient. These values are obtained from the computations of
+    // 'gx', 'gy' and 'gz' in the MATLAB function 'gravitysphericalharmonics'. This function is
+    // described by Mathworks [2012].
+    const Eigen::Vector3d expectedCartesianGradient( 1.334464111786447, -1.620429182163669,
+                                                     1.240151677089496 );
+
+    // Check if the computed Cartesian gradient matches the expected value.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianGradient, cartesianGradient, 1e-15 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
