@@ -36,6 +36,7 @@
  #      120505    K. Kumar          Removed superfluous include sub-directory macro.
  #      120913    K. Kumar          Added output message for build type and set default to
  #                                  "Release".
+ #      120921    M.I. Ganeff       Modified for SpiceInterface.
  #
  #    References
  #
@@ -193,8 +194,30 @@ else( )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${TUDAT_CORE_INCLUDE_DIR}\"")
 endif( )
 
+# Set whether to use the SPICE library integration with Tudat or not. If it not supplied by the
+# user (either directly as an argument or through the "UserSettings.txt" file, the default setting
+# is "false". NB: It is important this section is placed AFTER the "UserSettings.txt" file is
+# included, to ensure that that the correct indiciation is given for whether SPICE should be
+# included or not has been selected.
+if((NOT USE_CSPICE) OR (USE_CSPICE STREQUAL "false"))
+  message(STATUS "SPICE disabled!")
+  set(USE_CSPICE false)
+elseif(USE_CSPICE STREQUAL "true")
+  message(STATUS "SPICE enabled!")
+
+  # Find CSPICE library on local system.
+  find_package(Spice)
+
+  # Include CSpice directories.
+  if(NOT APPLE)
+    include_directories(SYSTEM AFTER "${SPICE_INCLUDE_DIR}")
+  else( )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${SPICE_INCLUDE_DIR}\"")
+  endif( )
+endif()
+
 # Set sub-directories.
-set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR})
+set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR})
 
 # Add sub-directories to CMake process.
 foreach(CURRENT_SUBDIR ${SUBDIRS})
