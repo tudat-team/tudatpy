@@ -20,6 +20,9 @@
  *                                  numerical_derivatives.
  *
  *    References
+ *
+ *    Notes
+ *
  */
 
 #ifndef TUDAT_NAMESPACE_DESCRIPTIONS_H
@@ -245,6 +248,17 @@ namespace statistics
 } // namespace statistics
 
 } // namespace mathematics
+
+//! Spice library interface namespace.
+/*!
+ * The spice interface namespace, containing spice interface functions that allow for C++-style
+ * access to data from the Spice library, and the SpiceEphemeris class that provides a means of
+ * obtaining ephemeric data from Spice kernels.
+ */
+namespace spice_interface
+{
+
+}
 
 } // namespace tudat
 
