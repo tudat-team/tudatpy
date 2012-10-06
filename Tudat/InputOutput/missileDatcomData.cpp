@@ -210,29 +210,26 @@ void MissileDatcomData::writeCoefficientsToFile( string fileNameBase )
         outputFile.open( fileName.c_str( ) );
         outputFile.precision( 10 );
 
-        // Iterate over all Mach numbers in database
+        // Iterate over all Mach numbers in database.
         for( unsigned int j = 0; j < machNumber_.size( ) ; j++ )
         {
-            // Write angle of attack anf mach number
-            outputFile << angleOfAttack_[ i ] << " " <<
-                    machNumber_[ j ] << " ";
+            // Write angle of attack and mach number.
+            outputFile << angleOfAttack_[ i ] << " " << machNumber_[ j ] << " ";
 
-            // Write static coefficients
+            // Write static coefficients.
             for( int k = 0; k < 11; k++ )
             {
                 outputFile << staticCoefficients_[ j ][ i ][ k ] << " ";
             }
 
-            // Write dynamic coefficients
+            // Write dynamic coefficients.
             for( int k = 0; k < 19; k++ )
             {
 
                 outputFile << dynamicCoefficients_[ j ][ i ][ k ] << " ";
             }
 
-            outputFile << dynamicCoefficients_[ j ][ i ][ 19 ];
-
-            outputFile << std::endl;
+            outputFile << dynamicCoefficients_[ j ][ i ][ 19 ] << std::endl;
         }
 
         outputFile.close( );

@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAtSeaLevel )
 
     // Initialize atmosphere with the desired file.
     tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "Astrodynamics/Aerodynamics/AtmosphereTables/" +
+                                        "/External/AtmosphereTables/" +
                                         "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     const double altitude = 0.0;
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10km )
 
     // Initialize atmosphere with the desired file.
     tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "Astrodynamics/Aerodynamics/AtmosphereTables/" +
+                                        "/External/AtmosphereTables/" +
                                         "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     const double altitude = 10.0e3;
     const double longitude = 0.0;
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10p5km )
 
     // Initialize atmosphere with the desired file.
     tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "Astrodynamics/Aerodynamics/AtmosphereTables/" +
+                                        "/External/AtmosphereTables/" +
                                         "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     const double altitude = 10.05e3;
 
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt1000kmtab )
 
     // Initialize atmosphere with the desired file.
     tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "Astrodynamics/Aerodynamics/AtmosphereTables/" +
+                                        "/External/AtmosphereTables/" +
                                         "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     const double altitude = 1.0e6 ;
 
@@ -158,11 +158,11 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereMultipleRead )
 
     // Initialize atmosphere with the desired file.
     tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "Astrodynamics/Aerodynamics/AtmosphereTables/" +
+                                        "/External/AtmosphereTables/" +
                                         "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
 
     tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "Astrodynamics/Aerodynamics/AtmosphereTables/" +
+                                        "/External/AtmosphereTables/" +
                                         "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
 }
 
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmospherePositionIndependentFunctions)
 
     // Initialize atmosphere with the desired file.
     tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "Astrodynamics/Aerodynamics/AtmosphereTables/" +
+                                        "/External/AtmosphereTables/" +
                                         "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
 
     const double altitude  = 10.0e3;
