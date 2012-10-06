@@ -197,9 +197,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     // Set moment arm used to compute moment due to aerodynamic force.
     const Eigen::Vector3d momentArm( 12.1, 0.0, 0.0 );
 
-    // Compute expected force.
-    const Eigen::Vector3d expectedForce = forceCoefficients * dynamicPressure * referenceArea;
-
     // Calculate expected moment.
     const Eigen::Vector3d expectedMoment = dynamicPressure * referenceArea *
             referenceLength * momentCoefficients;
