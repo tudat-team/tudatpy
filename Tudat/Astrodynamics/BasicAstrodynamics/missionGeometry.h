@@ -24,13 +24,14 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120530    M.I. Ganeff       Creation of code.
+ *      120530    M.I. Ganeff       Code created.
+ *      121004    M.I. Ganeff       Input parameter types and variable-naming updated.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
  *
  *    Notes
- *      In future, it might make sense to create a new MissionGeometry sub-directory if a lot more
+ *      In future, it might make sense to create a new MissionGeometry/ sub-directory if a lot more
  *      funtionality is added.
  *
  */
@@ -47,26 +48,26 @@ namespace mission_geometry
 
 //! Compute the shadow function.
 /*!
-* Returns the value of of the shadow function. Returns 0 if the satellite is in umbra, 1 if the
-* satellite is fully exposed and a value between 0 and 1 if the satellite is in penumbra.
-*
-* The point of view is from the satellite. The occulting body (for example the Earth) is the body
-* that blocks the light from the occulting body (for example the Sun).
-*
-* Reference: Section 3.4 from ( Montebruck O, Gill E., 2005).
-*
-* \param occultedBodyPosition Vector containing Cartesian coordinates of the occulted body.
-* \param occultedBodyRadius Mean radius of occulted body.
-* \param occultingBodyPosition Vector containing Cartesian coordinates of the occulting body.
-* \param occultingBodyRadius Mean radius of occulting body.
-* \param satelliteState Vector containing Cartesian coordinates of the satellite.
-* \return Shadow function value.
-*/
-double computeShadowFunction( const Eigen::VectorXd occultedBodyPosition,
+ * Returns the value of of the shadow function. Returns 0 if the satellite is in umbra, 1 if the
+ * satellite is fully exposed and a value between 0 and 1 if the satellite is in penumbra.
+ *
+ * The point of view is from the satellite. The occulting body (for example the Earth) is the body
+ * that blocks the light from the occulting body (for example the Sun).
+ *
+ * Reference: Section 3.4 from ( Montebruck O, Gill E., 2005).
+ *
+ * \param occultedBodyPosition Vector containing Cartesian coordinates of the occulted body.
+ * \param occultedBodyRadius Mean radius of occulted body.
+ * \param occultingBodyPosition Vector containing Cartesian coordinates of the occulting body.
+ * \param occultingBodyRadius Mean radius of occulting body.
+ * \param satellitePosition Vector containing Cartesian coordinates of the satellite.
+ * \return Shadow function value.
+ */
+double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
                               const double occultedBodyRadius,
-                              const Eigen::VectorXd occultingBodyPosition,
+                              const Eigen::Vector3d& occultingBodyPosition,
                               const double occultingBodyRadius,
-                              const Eigen::VectorXd satelliteState );
+                              const Eigen::Vector3d& satellitePosition );
 
 } // namespace mission_geometry
 } // namespace tudat

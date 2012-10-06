@@ -24,7 +24,8 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120530    M.I. Ganeff       Creation of code.
+ *      120530    M.I. Ganeff       Code created.
+ *      121004    M.I. Ganeff       Input parameter types and variable-naming updated.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -47,31 +48,30 @@ namespace mission_geometry
 {
 
 //! Compute the shadow function.
-double computeShadowFunction( const Eigen::VectorXd occultedBodyPosition,
+double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
                               const double occultedBodyRadius,
-                              const Eigen::VectorXd occultingBodyPosition,
+                              const Eigen::Vector3d& occultingBodyPosition,
                               const double occultingBodyRadius,
-                              const Eigen::VectorXd satelliteState )
+                              const Eigen::Vector3d& satellitePosition )
 {
-    // Calculate coordinates of the spacecraft with respect to the occulting
-    // body.
-    const Eigen::Vector3d satelliteToOcultingBody = satelliteState.segment( 0, 3 )
+    // Calculate coordinates of the spacecraft with respect to the occulting body.
+    const Eigen::Vector3d satellitePositionRelativeToOccultingBody = satellitePosition
             - occultingBodyPosition;
 
     // Calculate apparent radius of occulted body.
     const double occultedBodyApparentRadius
-            = std::asin( occultedBodyRadius / ( occultedBodyPosition -
-                                           satelliteState.segment( 0, 3 ) ).norm( ) );
+            = std::asin( occultedBodyRadius
+                         / ( occultedBodyPosition - satellitePosition ).norm( ) );
 
     // Calculate apparent radius of occulting body.
     const double occultingBodyApparentRadius =
-            std::asin( occultingBodyRadius / satelliteToOcultingBody.norm( ) );
+            std::asin( occultingBodyRadius / satellitePositionRelativeToOccultingBody.norm( ) );
 
-    // Calculate apparent speration of the center of both bodies.
-    const double apparentSeparationPartOne = - satelliteToOcultingBody.transpose( ) *
-            ( occultedBodyPosition - satelliteState.segment( 0, 3 ) );
-    const double apparentSeparationPartTwo = satelliteToOcultingBody.norm( ) *
-            ( occultedBodyPosition - satelliteState.segment( 0, 3 ) ).norm( );
+    // Calculate apparent separation of the center of both bodies.
+    const double apparentSeparationPartOne = -satellitePositionRelativeToOccultingBody.transpose( )
+            * ( occultedBodyPosition - satellitePosition );
+    const double apparentSeparationPartTwo = satellitePositionRelativeToOccultingBody.norm( )
+            * ( occultedBodyPosition - satellitePosition ).norm( );
     const double apparentSeparation = std::acos( apparentSeparationPartOne
                                                  / apparentSeparationPartTwo );
 

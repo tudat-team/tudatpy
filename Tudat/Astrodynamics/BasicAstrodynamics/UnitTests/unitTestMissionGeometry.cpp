@@ -54,12 +54,12 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullShadow )
     // Satellite totally blocked from solar radiation by the earth. Sun and satellite located on the
     // x-axis with the Earth in between. Altitude of satellite = 1000 km.
 
-    const Eigen::Vector3d occultedBodyPosition = -149598000e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
+    const Eigen::Vector3d occultedBodyPosition = -149598000.0e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
     const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d::Zero( );
     const double occultedBodyRadius = 6.96e8; // Siedelmann 1992.
     const double occultingBodyRadius = 6378.137e3; // WGS-84.
 
-    const Eigen::Vector3d satelliteState = ( occultingBodyRadius + 1.0e6 )
+    const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e6 )
             * Eigen::Vector3d( 1.0, 0.0, 0.0 );
 
     // Compute shadow function.
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullShadow )
                 occultedBodyRadius,
                 occultingBodyPosition,
                 occultingBodyRadius,
-                satelliteState );
+                satellitePosition );
 
     // Test values.
     BOOST_CHECK_EQUAL( 0.0, shadowFunction );
@@ -79,12 +79,12 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullLight )
     // Satellite totally subjected to sunlight. Satellite is located on the y-axis and the sun is
     // located on the x-axis. Altitude of satellite = 1000 km.
 
-    const Eigen::Vector3d occultedBodyPosition = -149598000e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
+    const Eigen::Vector3d occultedBodyPosition = -149598000.0e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
     const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d::Zero( );
     const double occultedBodyRadius = 6.96e8; // Siedelmann 1992.
     const double occultingBodyRadius = 6378.137e3; // WGS-84.
 
-    const Eigen::Vector3d satelliteState = ( occultingBodyRadius + 1.0e6 )
+    const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e6 )
             * Eigen::Vector3d( 0.0, 1.0, 0.0 );
 
     // Compute shadow function.
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullLight )
                 occultedBodyRadius,
                 occultingBodyPosition,
                 occultingBodyRadius,
-                satelliteState );
+                satellitePosition );
 
     // Test values
     BOOST_CHECK_EQUAL( 1.0, shadowFunction );
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
     // tests in penumbra. According to analytical derivations in Matlab the shadow function should
     // be around 0.4547. Altitude of satellite = 1000 km.
 
-    const Eigen::Vector3d occultedBodyPosition = -149598000e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
+    const Eigen::Vector3d occultedBodyPosition = -149598000.0e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
     const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d::Zero( );
     const double occultedBodyRadius = 6.96e8; // Siedelmann 1992.
     const double occultingBodyRadius = 6378.137e3; // WGS-84.
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
     Eigen::Vector3d satelliteDirection( 0.018, 1.0, 0.0 );
     satelliteDirection.normalize( );
 
-    const Eigen::Vector3d satelliteState = ( occultingBodyRadius + 1.0e3 ) * satelliteDirection;
+    const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e3 ) * satelliteDirection;
 
     // Compute shadow function
     const double shadowFunction = mission_geometry::computeShadowFunction(
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
                 occultedBodyRadius,
                 occultingBodyPosition,
                 occultingBodyRadius,
-                satelliteState );
+                satellitePosition );
 
     // Test values.
     BOOST_CHECK_CLOSE_FRACTION( 0.4547, shadowFunction, 0.001 );
