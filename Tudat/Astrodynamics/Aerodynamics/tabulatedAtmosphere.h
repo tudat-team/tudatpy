@@ -53,7 +53,7 @@ namespace tudat
 //! Tabulated atmosphere class.
 /*!
  * Tabulated atmospheres class, for example US1976. The default path from which the files are
- * obtained is: Astrodynamics/EnvironmentModels/AtmosphereTables
+ * obtained is: /External/AtmosphereTables
  * NOTE: for the moment it only works for tables with 4 columns: altitude, density, pressure and
  * temperature.
  */
@@ -66,7 +66,7 @@ public:
      * Default constructor.
      */
     TabulatedAtmosphere( )
-        : relativeDirectoryPath_( "Astrodynamics/Aerodynamics/AtmosphereTables/" ),
+        : relativeDirectoryPath_( "/External/AtmosphereTables/" ),
           atmosphereTableFile_( "" )
     { }
 
