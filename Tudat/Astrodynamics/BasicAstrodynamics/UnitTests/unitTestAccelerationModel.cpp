@@ -27,16 +27,26 @@
  *      120720    A. Ronse          First creation of the unit test.
  *      120724    K. Kumar          Addition of extensive comments and tests for
  *                                  updateAndGetAcceleration functions.
+ *      120821    K. Kumar          Rewrote tests to make use of updated DerivedAccelerationModel
+ *                                  class, AnotherDerivedAccelerationModel class, and new TestBody
+ *                                  class.
  *
  *    References
  *
- *    Notes
+ *    Notes:
+ *      Test tolerance was set at 5.0e-15 (or 5.0e-7 for floats) instead of epsilon due to
+ *      rounding errors in Eigen types with entries over a number of orders of magnitude,
+ *      presumably causing the observed larger than epsilon relative differences between
+ *      expected and computed values.
  *
  */
 
 #define BOOST_TEST_MAIN
 
-#include <boost/function.hpp>
+#include <vector>
+
+#include <boost/assign/list_of.hpp>
+#include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/test/unit_test.hpp>
@@ -44,7 +54,11 @@
 
 #include <Eigen/Core>
 
+#include <TudatCore/Basics/testMacros.h>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testAccelerationModels.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testBody.h"
 
 namespace tudat
 {
@@ -53,342 +67,191 @@ namespace unit_tests
 
 using tudat::basic_astrodynamics::acceleration_models::AccelerationModel;
 using tudat::basic_astrodynamics::acceleration_models::updateAndGetAcceleration;
-
-//! A test value of double-type used to demonstrate the updateMembers() function.
-static double testDouble = 3.2;
-
-//! Get test double.
-/*!
- * Returns the value of the testDouble variable.
- * \sa testDouble.
- * \return Value of testDouble.
- */
-double getTestDouble( ) { return testDouble; }
-
-//! A test value of float-type used to demonstrate the updateMembers() function.
-static float testFloat = 1.4f;
-
-//! Get test float.
-/*!
- * Returns the value of the testFloat variable.
- * \sa testFloat.
- * \return Value of testFloat.
- */
-float getTestFloat( ) { return testFloat; }
-
-//! A test value of int-type used to demonstrate the updateMembers() function.
-static int testInt = 2;
-
-//! Get test integer.
-/*!
- * Returns the value of the testInt variable.
- * \sa testInt.
- * \return Value of testInt.
- */
-int getTestInt( ) { return testInt; }
+using boost::assign::list_of;
 
 BOOST_AUTO_TEST_SUITE( test_accelerationModel )
 
-//! Typedef to the function-type used for the verification (double).
-/*!
- * Typedef to the function-type used for the verification. Consists of a function which returns a
- * double.
- */
-typedef boost::function< double( ) > DoubleReturningFunction;
-
-//! Typedef to the function-type used for the verification (float).
-/*!
- * Typedef to the function-type used for the verification. Consists of a function which returns a
- * float.
- */
-typedef boost::function< float( ) > FloatReturningFunction;
-
-//! Typedef to the function-type used for the verification (int).
-/*!
- * Typedef to the function type used for the verification. Consists of a function which returns an
- * integer.
- */
-typedef boost::function< int( ) > IntReturningFunction;
-
-//! (Dummy) 3D acceleration model class.
-/*!
- * This class outputs a 3-dimensional acceleration, expressed using a vector of 3 doubles. The
- * updateMembers() function changes one of the vector's members.
- */
-class DummyAccelerationModel3d : public AccelerationModel< 3, double >
-{
-public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor that takes a boost::function as input, which points to a function that
-     * returns a test value. Internally, the updateMembers() function also gets called to ensure
-     * that all members are up-to-date after construction.
-     * \param dummyFunction Boost-function that points to dummy function that does nothing.
-     */
-    DummyAccelerationModel3d( DoubleReturningFunction dummyFunction )
-        : dummyFunction_( dummyFunction )
-    {
-        updateMembers( );
-    }
-
-    //! Get acceleration.
-    /*!
-     * Returns acceleration. In this case, this functions simply returns a dummy acceleration
-     * vector that is constructed internally.
-     * \return Dummy acceleration vector.
-     */
-    Eigen::Vector3d getAcceleration( )
-    {
-        return Eigen::Vector3d( currentTestVariable_, 0.0, 0.0 );
-    }
-
-    bool updateMembers( )
-    {
-        currentTestVariable_ = dummyFunction_( );
-        return true;
-    }
-
-protected:
-
-private:
-
-    //! Pointer to dummy function.
-    /*!
-     * Boost-function that points to dummy function passed through constructor.
-     * \sa DummyAccelerationModel3d().
-     */
-    DoubleReturningFunction dummyFunction_;
-
-    //! Current test variable.
-    /*!
-     * Current value of test variable. This value is updated using the updateMembers() function.
-     * \sa updateMembers().
-     */
-    double currentTestVariable_;
-};
-
-//! (Dummy) 3D acceleration model class.
-/*!
- * This class outputs a 2-dimensional acceleration, expressed using a vector of 2 floats. The
- * updateMembers() function changes one of the vector's members.
- */
-class DummyAccelerationModel2f: public AccelerationModel< 2, float >
-{
-public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor that takes a boost::function as input, which points to a function that
-     * returns a test value. Internally, the updateMembers() function also gets called to ensure
-     * that all members are up-to-date after construction.
-     * \param dummyFunction Boost-function that points to dummy function that does nothing.
-     */
-    DummyAccelerationModel2f( FloatReturningFunction dummyFunction )
-        : dummyFunction_( dummyFunction )
-    {
-        updateMembers( );
-    }
-
-    //! Get acceleration.
-    /*!
-     * Returns acceleration. In this case, this functions simply returns a dummy acceleration
-     * vector that is constructed internally.
-     * \return Dummy acceleration vector.
-     */
-    Eigen::Vector2f getAcceleration( ) { return Eigen::Vector2f( currentTestVariable_, 0.0 ); }
-
-    //! Update members.
-    /*!
-     * Updates class members. This function ensures that the getAcceleration() function uses the
-     * latest available values in computing an acceleration vector. In this case, the
-     * dummyFunction_() is called, and the value is internally stored. The function returns true to
-     * indicate that the update was successful.
-     * \return Flag indicating if update was successful.
-     */
-    bool updateMembers( )
-    {
-        currentTestVariable_ = dummyFunction_( );
-        return true;
-    }
-
-protected:
-
-private:
-
-    //! Pointer to dummy function.
-    /*!
-     * Boost-function that points to dummy function passed through constructor.
-     * \sa DummyAccelerationModel3d().
-     */
-    FloatReturningFunction dummyFunction_;
-
-    //! Current test variable.
-    /*!
-     * Current value of test variable. This value is updated using the updateMembers() function.
-     * \sa updateMembers().
-     */
-    float currentTestVariable_;
-};
-
-//! (Dummy) 3D acceleration model class.
-/*!
- * This class outputs a 1-dimensional acceleration, expressed using 1 integer. The
- * updateMembers() function changes it's value.
- */
-class DummyAccelerationModel1i: public AccelerationModel< 1, int >
-{
-public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor that takes a boost::function as input, which points to a function that
-     * returns a test value. Internally, the updateMembers() function also gets called to ensure
-     * that all members are up-to-date after construction.
-     * \param dummyFunction Boost-function that points to dummy function that does nothing.
-     */
-    DummyAccelerationModel1i(  IntReturningFunction dummyFunction )
-        : dummyFunction_( dummyFunction )
-    {
-        updateMembers( );
-    }
-
-    //! Get acceleration.
-    /*!
-     * Returns acceleration. In this case, this functions simply returns a scalar acceleration.
-     * \return Dummy acceleration vector.
-     */
-    int getAcceleration( ) { return currentTestVariable_; }
-
-    //! Update members.
-    /*!
-     * Updates class members. This function ensures that the getAcceleration() function uses the
-     * latest available values in computing an acceleration. In this case, the dummyFunction_()
-     * is called, and the value is internally stored. The function returns true to
-     * indicate that the update was successful.
-     * \return Flag indicating if update was successful.
-     */
-    bool updateMembers( )
-    {
-        currentTestVariable_ = dummyFunction_( );
-        return true;
-    }
-
-protected:
-
-private:
-
-    //! Pointer to dummy function.
-    /*!
-     * Boost-function that points to dummy function passed through constructor.
-     * \sa DummyAccelerationModel3d().
-     */
-    IntReturningFunction dummyFunction_;
-
-    //! Current test variable.
-    /*!
-     * Current value of test variable. This value is updated using the updateMembers() function.
-     * \sa updateMembers().
-     */
-    int currentTestVariable_;
-};
-
-//! Test whether AccelerationModel derived classes function correctly.
+//! Test whether DerivedAccelerationModel (acceleration data type=Eigen::Vector3d) functions
+//! correctly.
 BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 {
-    // Create dummy acceleration model and pass getTestDouble() function as input.
-    boost::shared_ptr< AccelerationModel< 3, double > > dummyAccelerationModel
-            = boost::make_shared< DummyAccelerationModel3d >( getTestDouble );
+    using tudat::basic_astrodynamics::acceleration_models::AccelerationModel3dPointer;
+
+    // Shortcuts.
+    typedef TestBody< 3, double > TestBody3d;
+    typedef boost::shared_ptr< TestBody3d > TestBody3dPointer;
+    typedef DerivedAccelerationModel< > DerivedAccelerationModel3d;
+
+    // Create body with initial state and time.
+    TestBody3dPointer body = boost::make_shared< TestBody3d >(
+                ( Eigen::VectorXd( 6 ) << 1.1, 2.2, 3.3, -0.1, 0.2, 0.3 ).finished( ), 2.0 );
+
+    // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
+    // functions in body.
+    AccelerationModel3dPointer accelerationModel3d
+            = boost::make_shared< DerivedAccelerationModel3d >(
+                boost::bind( &TestBody3d::getCurrentPosition, body ),
+                boost::bind( &TestBody3d::getCurrentTime, body ) );
+
+    // Declare container of computed accelerations.
+    std::vector< Eigen::Vector3d > computedAccelerations( 3 );
 
     // Get acceleration vector before members are updated.
-    Eigen::Vector3d accelerationBeforeUpdate = dummyAccelerationModel->getAcceleration( );
+    computedAccelerations.at( 0 ) = accelerationModel3d->getAcceleration( );
 
-    // Update test double value.
-    testDouble = 2.1;
+    // Update time and state.
+    body->setCurrentTimeAndState(
+                -1.1, ( Eigen::VectorXd( 6 )
+                        << -0.45, 10.63, -9.81, 0.11, 0.22, 0.33 ).finished( ) );
 
-    // Update acceleration model members. This should now result in an update of the internally
-    // stored test double value.
-    dummyAccelerationModel->updateMembers( );
+    // Update acceleration model members.
+    accelerationModel3d->updateMembers( );
 
     // Get acceleration vector, now after members have been updated.
-    Eigen::Vector3d accelerationAfterUpdate = dummyAccelerationModel->getAcceleration( );
+    computedAccelerations.at( 1 ) = accelerationModel3d->getAcceleration( );
 
-    // Update test double value.
-    testDouble = -87.685;
+    // Update time and state.
+    body->setCurrentTimeAndState(
+                4.6, ( Eigen::VectorXd( 6 )
+                       << -87.685, 101.44, -1.38, -0.12, 0.23, -0.34 ).finished( ) );
 
     // Update and get acceleration with single function.
-    Eigen::Vector3d accelerationAfterSecondUpdate = updateAndGetAcceleration(
-                dummyAccelerationModel );
+    computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModel3d );
+
+    // Set expected accelerations.
+    const std::vector< Eigen::Vector3d > expectedAccelerations
+            = list_of( Eigen::Vector3d( 1.1, 2.2, 3.3 ) / ( 2.0 * 2.0 ) )
+            ( Eigen::Vector3d( -0.45, 10.63, -9.81 ) / ( -1.1 * -1.1 ) )
+            ( Eigen::Vector3d( -87.685, 101.44, -1.38 ) / ( 4.6 * 4.6 ) );
 
     // Check that the acceleration vectors before and after the update match expected values.
-    BOOST_CHECK_EQUAL( accelerationBeforeUpdate( 0 ), 3.2 );
-    BOOST_CHECK_EQUAL( accelerationAfterUpdate( 0 ), 2.1 );
-    BOOST_CHECK_EQUAL( accelerationAfterSecondUpdate( 0 ), -87.685 );
+    for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
+    {
+        TUDAT_CHECK_MATRIX_BASE( computedAccelerations.at( i ), expectedAccelerations.at( i ) )
+                BOOST_CHECK_CLOSE_FRACTION( computedAccelerations.at( i ).coeff( row, col ),
+                                   expectedAccelerations.at( i ).coeff( row, col ), 5.0e-15 );
+    }
 }
 
+//! Test whether AnotherDerivedAccelerationModel (acceleration data type=Eigen::Vector2f) functions
+//! correctly.
 BOOST_AUTO_TEST_CASE( test_derived2fAccelerationModel )
 {
-    // Create dummy acceleration model and pass getTestFloat() function as input.
-    boost::shared_ptr< AccelerationModel< 2, float > > dummyAccelerationModel
-            = boost::make_shared< DummyAccelerationModel2f >( getTestFloat );
+    // NOTE: For this test, it is imperative that the float values are given with the "f"
+    // suffix, to ensure that their precision is indeed of float-type.
+
+    // Shortcuts.
+    typedef TestBody< 2, float > TestBody2f;
+    typedef boost::shared_ptr< TestBody2f > TestBody2fPointer;
+    typedef AccelerationModel< Eigen::Vector2f > AccelerationModel2f;
+    typedef boost::shared_ptr< AccelerationModel2f > AccelerationModel2fPointer;
+    typedef AnotherDerivedAccelerationModel< Eigen::Vector2f, Eigen::Vector2f,
+            Eigen::Vector2f, float > AnotherDerivedAccelerationModel2f;
+
+    // Create body with initial state and time.
+    TestBody2fPointer body = boost::make_shared< TestBody2f >(
+                ( Eigen::VectorXf( 4 ) << -0.3f, 4.5f, 0.1f, 0.2f ).finished( ), -2.3f );
+
+    // Create acceleration model using AnotherDerivedAccelerationModel class, and pass pointers to
+    // functions in body.
+    AccelerationModel2fPointer accelerationModel2f
+            = boost::make_shared< AnotherDerivedAccelerationModel2f >(
+                boost::bind( &TestBody2f::getCurrentPosition, body ),
+                boost::bind( &TestBody2f::getCurrentVelocity, body ),
+                boost::bind( &TestBody2f::getCurrentTime, body ) );
+
+    // Declare container of computed accelerations.
+    std::vector< Eigen::Vector2f > computedAccelerations( 3 );
 
     // Get acceleration vector before members are updated.
-    Eigen::Vector2f accelerationBeforeUpdate = dummyAccelerationModel->getAcceleration( );
+    computedAccelerations.at( 0 ) = accelerationModel2f->getAcceleration( );
 
-    // Update test float value.
-    testFloat = -7.6f;
+    // Update time and state.
+    body->setCurrentTimeAndState(
+                0.33f, ( Eigen::VectorXf( 4 ) << 1.34f, 2.65f, -0.23f, 0.1f ).finished( ) );
 
-    // Update acceleration model members. This should now result in an update of the internally
-    // stored test float value.
-    dummyAccelerationModel->updateMembers( );
+    // Update acceleration model members.
+    accelerationModel2f->updateMembers( );
 
     // Get acceleration vector, now after members have been updated.
-    Eigen::Vector2f accelerationAfterUpdate = dummyAccelerationModel->getAcceleration( );
+    computedAccelerations.at( 1 ) = accelerationModel2f->getAcceleration( );
 
-    // Update test float value.
-    testFloat = 10.65f;
+    // Update time and state.
+    body->setCurrentTimeAndState(
+                -10.3f, ( Eigen::VectorXf( 4 ) << -98.99f, 1.53f, 1.23f, -0.11f ).finished( ) );
 
     // Update and get acceleration with single function.
-    Eigen::Vector2f accelerationAfterSecondUpdate = updateAndGetAcceleration(
-                dummyAccelerationModel );
+    computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModel2f );
+
+    // Set expected accelerations.
+    const std::vector< Eigen::Vector2f > expectedAccelerations
+            = list_of( 0.5 * Eigen::Vector2f( -0.3f, 4.5f ) / ( 3.2 * ( -2.3f + 3.4 ) * -2.3f )
+                       + Eigen::Vector2f( 0.1f, 0.2f ) / -2.3f )
+            ( 0.5 * Eigen::Vector2f( 1.34f, 2.65f ) / ( 3.2 * ( 0.33f + 3.4 ) * 0.33f )
+              + Eigen::Vector2f( -0.23f, 0.1f ) / 0.33f )
+            ( 0.5 * Eigen::Vector2f( -98.99f, 1.53f ) / ( 3.2 * ( -10.3f + 3.4 ) * -10.3f )
+              + Eigen::Vector2f( 1.23f, -0.11f ) / -10.3f );
 
     // Check that the acceleration vectors before and after the update match expected values.
-    // NOTE: It is imperative that the expected values are given with the "f" suffix, to ensure
-    // that their precision is indeed of float-type.
-    BOOST_CHECK_EQUAL( accelerationBeforeUpdate( 0 ), 1.4f );
-    BOOST_CHECK_EQUAL( accelerationAfterUpdate( 0 ), -7.6f );
-    BOOST_CHECK_EQUAL( accelerationAfterSecondUpdate( 0 ), 10.65f );
+    for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
+    {
+        TUDAT_CHECK_MATRIX_BASE( computedAccelerations.at( i ), expectedAccelerations.at( i ) )
+                BOOST_CHECK_CLOSE_FRACTION( computedAccelerations.at( i ).coeff( row, col ),
+                                   expectedAccelerations.at( i ).coeff( row, col ), 5.0e-7 );
+    }
 }
 
+//! Test whether DerivedAccelerationModel (acceleration data type=Eigen::Vector1i) functions
+//! correctly.
 BOOST_AUTO_TEST_CASE( test_derived1iAccelerationModel )
 {
-    // Create dummy acceleration model and pass getTestInt() function as input.
-    boost::shared_ptr< AccelerationModel< 1, int > > dummyAccelerationModel
-            = boost::make_shared< DummyAccelerationModel1i >( getTestInt );
+    // Shortcuts.
+    typedef TestBody< 1, int > TestBody1i;
+    typedef boost::shared_ptr< TestBody1i > TestBody1iPointer;
+    typedef AccelerationModel< int > AccelerationModel1i;
+    typedef boost::shared_ptr< AccelerationModel1i > AccelerationModel1iPointer;
+    typedef DerivedAccelerationModel< int, int, int > DerivedAccelerationModel1i;
 
-    // Get acceleration (scalar) before members are updated.
-    int accelerationBeforeUpdate = dummyAccelerationModel->getAcceleration( );
+    // Create body with initial state and time.
+    TestBody1iPointer body = boost::make_shared< TestBody1i >( Eigen::Vector2i( 20, 1 ), 2 );
 
-    // Update test int value.
-    testInt = 4;
+    // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
+    // functions in body.
+    AccelerationModel1iPointer accelerationModeli1
+            = boost::make_shared< DerivedAccelerationModel1i >(
+                boost::bind( ( &TestBody1i::getCurrentPosition ), body ),
+                boost::bind( ( &TestBody1i::getCurrentTime ), body ) );
 
-    // Update acceleration model members. This should now result in an update of the internally
-    // stored test int value.
-    dummyAccelerationModel->updateMembers( );
+    // Declare container of computed accelerations.
+    std::vector< int > computedAccelerations( 3 );
 
-    // Get acceleration vector, now after members have been updated.
-    int accelerationAfterUpdate = dummyAccelerationModel->getAcceleration( );
+    // Get scalar acceleration before members are updated.
+    computedAccelerations.at( 0 ) = accelerationModeli1->getAcceleration( );
 
-    // Update test int value.
-    testInt = -99;
+    // Update time and state.
+    body->setCurrentTimeAndState( -3, Eigen::Vector2i( 90, 3 ) );
 
-    // Update and get acceleration with single function.
-    int accelerationAfterSecondUpdate = updateAndGetAcceleration( dummyAccelerationModel );
+    // Update acceleration model members.
+    accelerationModeli1->updateMembers( );
+
+    // Get scalar acceleration, now after members have been updated.
+    computedAccelerations.at( 1 ) = accelerationModeli1->getAcceleration( );
+
+    // Update time and state.
+    body->setCurrentTimeAndState( 4, Eigen::Vector2i( 16, -4 ) );
+
+    // Update and get scalar acceleration with single function.
+    computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModeli1 );
+
+    // Set expected accelerations.
+    const std::vector< int > expectedAccelerations
+            = list_of( 20 / ( 2 * 2 ) )( 90 / ( -3 * -3 ) )( 16 / ( 4 * 4 ) );
 
     // Check that the acceleration vectors before and after the update match expected values.
-    BOOST_CHECK_EQUAL( accelerationBeforeUpdate, 2 );
-    BOOST_CHECK_EQUAL( accelerationAfterUpdate, 4 );
-    BOOST_CHECK_EQUAL( accelerationAfterSecondUpdate, -99 );
+    for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
+    {
+        BOOST_CHECK_EQUAL( computedAccelerations.at( i ), expectedAccelerations.at( i ) );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

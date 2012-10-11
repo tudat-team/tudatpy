@@ -54,6 +54,8 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/momentDueToForceModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/pureMomentModel.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/testAccelerationModels.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/testBody.h"
 )
 
 # Add static libraries.
