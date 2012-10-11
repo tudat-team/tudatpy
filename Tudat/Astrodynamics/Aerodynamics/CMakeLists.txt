@@ -31,7 +31,6 @@
 
 # Set the source files.
 set(AERODYNAMICS_SOURCES
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientGenerator.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.cpp"
@@ -42,18 +41,17 @@ set(AERODYNAMICS_SOURCES
 
 # Set the header files.
 set(AERODYNAMICS_HEADERS 
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientGenerator.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientInterface.h"
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.h"
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicRotationalAcceleration.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/atmosphereModel.h"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.h"
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.h"
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.h"
-  "${SRCROOT}${AERODYNAMICSDIR}/atmosphereModel.h"
   "${SRCROOT}${AERODYNAMICSDIR}/standardAtmosphere.h"
 )
 

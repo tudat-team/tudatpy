@@ -29,6 +29,11 @@
  *      112701    D. Dirkx          Finalized for code check.
  *      110131    B. Romgens        Minor modifications during code check.
  *      110204    D. Dirkx          Finalized code.
+ *      120912    D. Dirkx          Adjusted to meet RAII idiom. Implemented use of Boost
+ *                                  (multi-)arrays where convenient.
+ *      121009    A. Ronse          Adjusted inclination-determination to surface-outward normals.
+ *                                  Limited inclination computations to 1 per aoa and aos pair.
+ *                                  Streamlined initialization of isCoefficientGenerated_.
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. The Mark IV Supersonic-Hypersonic Arbitrary Body
@@ -36,17 +41,23 @@
  *      Anderson Jr. , J.D, Hypersonic and High-Temperature Gas Dynamics, 2nd edition,
  *        AIAA Education Series, 2006
  *
+ *    Notes
+ *
  */
 
 #ifndef TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H
 #define TUDAT_HYPERSONIC_LOCAL_INCLINATION_ANALYSIS_H
 
-#include <Eigen/Core>
-
 #include <iostream>
+#include <map>
+#include <string>
 #include <vector>
 
-#include "Tudat/Astrodynamics/Bodies/vehicle.h"
+#include <Eigen/Core>
+
+#include <boost/array.hpp>
+#include <boost/multi_array.hpp>
+
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
@@ -55,42 +66,64 @@ namespace tudat
 namespace aerodynamics
 {
 
+//! Returns default values of mach number for use in HypersonicLocalInclinationAnalysis.
+/*!
+ *  Returns default values of mach number for use in HypersonicLocalInclinationAnalysis.
+ */
+std::vector< double > getDefaultHypersonicLocalInclinationMachPoints(
+        const std::string& machRegime );
+
+//! Returns default values of angle of attack for use in HypersonicLocalInclinationAnalysis.
+/*!
+ *  Returns default values of angle of attack for use in HypersonicLocalInclinationAnalysis.
+ */
+std::vector< double > getDefaultHypersonicLocalInclinationAngleOfAttackPoints( );
+
+//! Returns default values of angle of sideslip for use in HypersonicLocalInclinationAnalysis.
+/*!
+ *  Returns default values of angle of sideslip for use in HypersonicLocalInclinationAnalysis.
+ */
+std::vector< double > getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
+
+
 //! Class for inviscid hypersonic aerodynamic analysis using local inclination methods.
 /*!
  * Class for inviscid hypersonic aerodynamic analysis using local inclination
  * methods. These methods assume that the local pressure on the vehicle is only
  * dependent on the local inclination angle w.r.t. the freestream flow and
- * freestream conditions, such as Mach number and ratio of specific heats. The
- * setVehicle function needs to be used to set the Vehicle which is to be analyzed.
- * This Vehicle must have a VehicleExternalModel, containing a SurfaceGeometry.
- * Values for the Mach number, angle of attack and angle of sideslip can be set
- * to default values ( see setDefaultMachPoints( ), etc. ) or manually by first
- * using the setNumberOfMachPoints function, and then the setMachPoint function
- * for each of the values of the independent variables. All aerodynamic
- * coefficients can be calculated using the generateDatabase function, or on an
- * as needed basis by using the getAerodynamicCoefficients function.
+ * freestream conditions, such as Mach number and ratio of specific heats.
+ * All aerodynamic coefficients can be calculated using the generateCoefficients function, or on an
+ * as needed basis by using the getAerodynamicCoefficients function. Note that during the
+ * panel inclination determination process, a geometry with outward surface-normals is assumed.
+ * The resulting coefficients are expressed in the same reference frame as that of the input
+ * geometry.
  */
-class HypersonicLocalInclinationAnalysis: public AerodynamicCoefficientGenerator
+class HypersonicLocalInclinationAnalysis: public AerodynamicCoefficientGenerator< 3, 6 >
 {
 public:
+
+    enum HypersonicLocalInclinationAnalysisIndependentVariables
+    {
+        mach_index = 0,
+        angle_of_attack_index = 1,
+        angle_of_sideslip_index = 2
+    };
 
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    HypersonicLocalInclinationAnalysis( )
-        :
-          numberOfVehicleParts_( -0 ),
-          stagnationPressureCoefficient( -0.0 ),
-          ratioOfSpecificHeats( 1.4 ),
-          vehicleName_( "" ),
-          machRegime_( "Full" )
-    {
-        machIndex_ = 0;
-        angleOfAttackIndex_ = 1;
-        angleOfSideslipIndex_ = 2;
-        setNumberOfIndependentVariables( 3 );
-    }
+    HypersonicLocalInclinationAnalysis(
+            const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
+            const boost::shared_ptr< SurfaceGeometry > inputVehicleSurface,
+            const std::vector< int >& numberOfLines,
+            const std::vector< int >& numberOfPoints,
+            const std::vector< bool >& invertOrders,
+            const std::vector< std::vector< int > >& selectedMethods,
+            const double referenceArea,
+            const double referenceLength,
+            const Eigen::Vector3d& momentReferencePoint,
+            const std::string& machRegime = "Full" );
 
     //! Default destructor.
     /*!
@@ -98,76 +131,15 @@ public:
      */
     virtual ~HypersonicLocalInclinationAnalysis( ) { }
 
-    //! Constructor from a Vehicle.
-    /*!
-     * This constructor sets the geometry which is used for the analysis from
-     * a Vehicle object. Vehicle must have an external model containing a
-     * surface geometry. If surface geometry is a CompositeSurfaceGeometry,
-     * it must not contain any CompositeSurfaceGeometries itself.
-     * \param vehicle Vehicle which is to be analyzed.
-     * \param numberOfLines Array of size equal to number of SingleSurfaceGeometries to set the
-     *          number of lines in the resulting LaWGS parts.
-     * \param numberOfPoints Array of size equal to number of SingleSurfaceGeometries to set the
-     *          number of points per line in the resulting LaWGS parts.
-     * \param invertOrders Array of size equal to number of SingleSurfaceGeometries to set whether
-     *          to invert the panel orientation of the resulting LaWGS parts.
-     */
-    void setVehicle( bodies::Vehicle& vehicle, std::vector< int > numberOfLines,
-                     std::vector< int > numberOfPoints,
-                     std::vector< bool > invertOrders );
-
     //! Get aerodynamic coefficients.
     /*!
      * Returns aerodynamic coefficients.
      * \param independentVariables Array of values of independent variable
      *          indices in dataPointsOfIndependentVariables_.
+     * \return vector of coefficients at specified independent variable indices.
      */
-    Eigen::VectorXd getAerodynamicCoefficients( const std::vector < int >& independentVariables );
-
-    //! Set local inclination methods for all parts (expansion and compression).
-    /*!
-     * Sets the aerodynamic analysis methods.
-     * \param selectedMethods two-dimensional array (2 by numberOfVehicleParts_)
-     * containing the identifiers.
-     * for the methods.
-     * For the first index:
-     * 0 = compression
-     * 1 = expansion
-     * For the second index, if compression:
-     * 0 = Newtonian
-     * 1 = Modified Newtonian
-     * 2 = Modified Newtonian-Prandtl Meyer (currently disabled)
-     * 3 = Tangent Wedge (currently disabled)
-     * 4 = Tangent Wedge Empirical (only for ratioOfSpecificHeats = 1.4)
-     * 5 = Tangent Cone Empirical (only for ratioOfSpecificHeats = 1.4)
-     * 6 = Modified Dahlem - Buck
-     * 7 = Van Dyke Unified
-     * 8 = Smyth Delta WIng
-     * 9 = Hankey Flat Surface
-     * For second index, if expansion:
-     * 0 = Vacuum
-     * 1 = Newtonian
-     * 2 = Modified Newtonian - Prandtl Meyer (currently disabled)
-     * 3 = Prandtl Meyer expansion from freestream (only for ratioOfSpecificHeats = 1.4)
-     * 4 = High Mach Base Pressure
-     * 5 = Van Dyke Unified
-     * 6 = ACM empirical
-     */
-    void setSelectedMethods( std::vector< std::vector< int > > selectedMethods );
-
-    //! Set an analysis method on a single vehicle part.
-    /*!
-     * Sets an analysis method on a single vehicle part.
-     * \param method Identifier of method which is set.
-     * \param type Type of method which is set:
-     * 0 = High hypersonic compression.
-     * 1 = High hypersonic expansion.
-     * 2 = Low hypersonic compression.
-     * 3 = Low hypersonic expansion.
-     * \param part Vehicle part on which to apply method.
-     */
-    void setSelectedMethod( int method, int type, int part )
-    { selectedMethods_[ type ][ part ] = method; }
+    Eigen::Matrix< double, 6, 1 > getAerodynamicCoefficients(
+            const boost::array< int, 3 > independentVariables );
 
     //! Generate aerodynamic database.
     /*!
@@ -175,36 +147,27 @@ public:
      * reference quantities, database point settings and analysis methods
      *  should have been set previously.
      */
-    void generateDatabase( );
+    void generateCoefficients( );
 
     //! Determine inclination angles of panels on a given part.
     /*!
      * Determines panel inclinations for all panels on a given part for given attitude.
+     * Outward pointing surface-normals are assumed!
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param angleOfAttack Angle of attack at which to determine inclination angles.
      * \param angleOfSideslip Angle of sideslip at which to determine inclination angles.
      */
-    virtual void determineInclination( int partNumber, double angleOfAttack,
-                                       double angleOfSideslip );
+    void determineInclination( const int partNumber, const double angleOfAttack,
+                               const double angleOfSideslip );
 
     //! Get the number of vehicle parts.
     /*!
      * Returns the number of vehicle parts.
      */
-    int getNumberOfVehicleParts( ) { return numberOfVehicleParts_; }
-
-    //! Allocate aerodynamic coefficient array and NULL independent variables.
-    /*!
-     * Checks if all independent variables have been set, if not default values are set, depending
-     * on which machRegime_ is selected. Subsequently, the vehicleCoefficients_ array is allocated.
-     */
-    void allocateVehicleCoefficients( );
-
-    //! Allocate pressure coefficient, inclination, and method arrays.
-    /*!
-     * Allocate pressure coefficient, inclination, and method arrays.
-     */
-    void allocateArrays( );
+    int getNumberOfVehicleParts( ) const
+    {
+        return vehicleParts_.size( );
+    }
 
     //! Get a vehicle part.
     /*!
@@ -213,35 +176,20 @@ public:
      * \return Requested vehicle part.
      */
      boost::shared_ptr< mathematics::geometric_shapes::LawgsPartGeometry >
-        getVehiclePart( int vehicleIndex ) { return vehicleParts_[ vehicleIndex ]; }
+        getVehiclePart( const int vehicleIndex ) const
+     {
+         return vehicleParts_[ vehicleIndex ];
+     }
 
-    //! Set mach regime.
+    //! Get Mach regime.
     /*!
-     * Sets mach regime, see machRegime_.
-     * \param machRegime Name of Mach regime which is set.
-     */
-    void setMachRegime( const std::string& machRegime ) { machRegime_ = machRegime; }
-
-    //! Get mach regime.
-    /*!
-     * Returns mach regime, see machRegime_.
+     * Returns Mach regime, see machRegime_.
      * \return Mach regime.
      */
-    std::string getMachRegime( ) { return machRegime_; }
-
-    //! Set the vehicle name.
-    /*!
-     * Sets the vehicle name.
-     * \param vehicleName vehicle name.
-     */
-    void setVehicleName( const std::string& vehicleName ) { vehicleName_ = vehicleName; }
-
-    //! Get the vehicle name.
-    /*!
-     * Returns the vehicle name.
-     * \return Vehicle name.
-     */
-    std::string getVehicleName( ) { return vehicleName_; }
+    std::string getMachRegime( ) const
+    {
+        return machRegime_;
+    }
 
     //! Overload ostream to print class information.
     /*!
@@ -264,7 +212,7 @@ private:
      * \param independentVariableIndices Array of indices from lists of Mach number,
      *          angle of attack and angle of sideslip points at which to perform analysis.
      */
-    void determineVehicleCoefficients( std::vector< int > independentVariableIndices );
+    void determineVehicleCoefficients( const boost::array< int, 3 > independentVariableIndices );
 
     //! Determine aerodynamic coefficients for a single LaWGS part.
     /*!
@@ -273,8 +221,8 @@ private:
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
      */
-    Eigen::VectorXd determinePartCoefficients( int partNumber,
-                                               std::vector< int > independentVariableIndices );
+    Eigen::Matrix< double, 6, 1 > determinePartCoefficients(
+            const int partNumber, const boost::array< int, 3 > independentVariableIndices );
 
     //! Determine pressure coefficients on a given part.
     /*!
@@ -283,8 +231,8 @@ private:
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
      */
-    void determinePressureCoefficients( int partNumber,
-                                        std::vector< int > independentVariableIndices );
+    void determinePressureCoefficients( const int partNumber,
+                                        const boost::array< int, 3 > independentVariableIndices );
 
     //! Determine force coefficients of a part.
     /*!
@@ -292,7 +240,7 @@ private:
      * non-dimensionalization with reference area.
      * \param partNumber Index from vehicleParts_ array for which determine coefficients.
      */
-    Eigen::VectorXd calculateForceCoefficients( int partNumber );
+    Eigen::Vector3d calculateForceCoefficients( const int partNumber );
 
     //! Determine moment coefficients of a part.
     /*!
@@ -301,7 +249,7 @@ private:
      * dimensionalization is performed by product of referenceLength and referenceArea.
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      */
-    Eigen::VectorXd calculateMomentCoefficients( int partNumber );
+    Eigen::Vector3d calculateMomentCoefficients( const int partNumber );
 
     //! Determine the compression pressure coefficients of a given part.
     /*!
@@ -310,7 +258,7 @@ private:
      * \param machNumber Mach number at which to perform analysis.
      * \param partNumber of part from vehicleParts_ which is to be analyzed.
      */
-    void updateCompressionPressures( double machNumber, int partNumber );
+    void updateCompressionPressures( const double machNumber, const int partNumber );
 
     //! Determine the expansion pressure coefficients of a given part.
     /*!
@@ -319,26 +267,7 @@ private:
      * \param machNumber Mach number at which to perform analysis.
      * \param partNumber of part from vehicleParts_ which is to be analyzed.
      */
-    void updateExpansionPressures( double machNumber, int partNumber );
-
-    //! Set the default analysis points for Mach number.
-    /*!
-     * Sets the default analysis points for Mach number, depending on which Mach regime has been
-     * set.
-     */
-    void setDefaultMachPoints( );
-
-    //! Set the default analysis points for angle of attack
-    /*!
-     * Set the default analysis points for angle of attack.
-     */
-    void setDefaultAngleOfAttackPoints( );
-
-    //! Set the default analysis points for angle of sideslip.
-    /*!
-     * Sets the default analysis points for angle of sideslip.
-     */
-    void setDefaultAngleOfSideslipPoints( );
+    void updateExpansionPressures( const double machNumber, const int partNumber );
 
     //! Array of vehicle parts.
     /*!
@@ -347,11 +276,12 @@ private:
     std::vector< boost::shared_ptr< mathematics::geometric_shapes::LawgsPartGeometry > >
         vehicleParts_;
 
-    //! Number of entries in vehicleParts_ member variable.
+    //! Multi-array as which indicates which coefficients have been calculated already.
     /*!
-     * Number of entries in vehicleParts_ member variable.
+     * Multi-array as which indicates which coefficients have been calculated already. Indices of
+     * entries coincide with indices of aerodynamicCoefficients_.
      */
-    int numberOfVehicleParts_;
+    boost::multi_array< bool, 3 > isCoefficientGenerated_;
 
     //! Three-dimensional array of panel inclination angles.
     /*!
@@ -359,6 +289,13 @@ private:
      * independent variables. Indices indicate part-line-point.
      */
     std::vector< std::vector< std::vector< double > > > inclination_;
+
+    //! Map of angle of attack and -sideslip pair and associated panel inclinations.
+    /*!
+     * Map of angle of attack and -sideslip pair and associated panel inclinations.
+     */
+    std::map< std::pair< double, double >, std::vector< std::vector< std::vector< double > > > >
+            previouslyComputedInclinations_;
 
     //! Three-dimensional array of panel pressure coefficients.
     /*!
@@ -380,24 +317,18 @@ private:
      */
     double ratioOfSpecificHeats;
 \
-    //! Vehicle name.
+    //! Array of selected methods.
     /*!
-     * Vehicle name.
+     * Array of selected methods, first index represents compression/expansion,
+     * second index represents vehicle part.
      */
-    std::string vehicleName_;
+    std::vector< std::vector< int > > selectedMethods_;
 
     //! Mach regime.
     /*!
      * Mach regime, permissible values are "Full", "High" or "Low", default is "Full".
      */
     std::string machRegime_;
-
-    //! Array of selected methods.
-    /*!
-     * Array of selected methods, first index represents compression/expansion,
-     * second index represents vehicle part.
-     */
-    boost::multi_array< double, 2 > selectedMethods_;
 };
 
 } // namespace aerodynamics
