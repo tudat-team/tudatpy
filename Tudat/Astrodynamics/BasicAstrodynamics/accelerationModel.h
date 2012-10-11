@@ -30,6 +30,9 @@
  *      120723    K. Kumar          Added template specialization for 1D cases.
  *      120818    A. Ronse          Made template specializations of updateAndGetAcceleration
  *                                  inline.
+ *      120821    K. Kumar          Changed template parameters for AccelerationModel class to
+ *                                  DataType only; removed obsolete template specializations of
+ *                                  class and updateAndGetAcceleration() function.
  *
  *    References
  *
@@ -40,10 +43,12 @@
 #ifndef TUDAT_ACCELERATION_MODEL_H
 #define TUDAT_ACCELERATION_MODEL_H
 
+#include <stdexcept>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/exception/all.hpp>
 
-#include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
+#include <Eigen/Core>
 
 namespace tudat
 {  
@@ -54,15 +59,13 @@ namespace acceleration_models
 
 //! Base class for (translational) acceleration models.
 /*!
- * Base class for (translational) acceleration models. Derived classes should contain pointers to
- * data strutures from where calculations of accelerations are to be performed. Therefore, the
- * getAcceleration() function has no arguments.
- * \tparam SpatialDimensions Size of VectorXd that is used for position, velocity and acceleration
- * i.e. number of spatial dimensions in simulation.
- * \tparam DataType Type used for the entries of the position, velocity and acceleration (i.e.
- * double, float, etc.)
+ * Base class for (translational) acceleration models. Derived classes should contain
+ * implementations to perform calculations of accelerations. Therefore, the getAcceleration()
+ * function has no arguments.
+ * \tparam AccelerationDataType Data type used to represent accelerations
+ *          (default=Eigen::Vector3d).
  */
-template < int SpatialDimensions = 3, typename DataType = double >
+template < typename AccelerationDataType = Eigen::Vector3d >
 class AccelerationModel
 {
 public:
@@ -79,19 +82,19 @@ public:
      * Instead, all data required for computation is to be obtained from pointers to functions/
      * classes/structs, etc which are to be set in a derived class and evaluated by the
      * updateMembers() function below.
-     * \return Acceleration as Eigen::Matrix.
+     * \return Acceleration.
      * \sa updateMembers().
      */
-    virtual Eigen::Matrix< DataType, SpatialDimensions, 1 > getAcceleration( ) = 0;
+    virtual AccelerationDataType getAcceleration( ) = 0;
 
     //! Update member variables used by the acceleration model.
     /*!
      * Updates member variables used by the acceleration model. In the case of acceleration models
-     * containing varying parameters, function pointers returning such a parameter (for instance
+     * containing varying parameters, function-pointers returning such a parameter (for instance
      * the Cartesian state of a body) will be set as a member variable.
-     * This function evaluates such function pointers and sets member variables of the 'current'
-     * values of these parameters. Only these current values, not the function pointers are then
-     * used by the getAcceleration function.
+     * This function evaluates such function-pointers and updates member variables to the 'current'
+     * values of these parameters. Only these current values, not the function-pointers are then
+     * used by the getAcceleration() function.
      * \return True if the update was successful. NOTE: This could be modified to throw
      *          an exception in the future.
      */
@@ -102,141 +105,33 @@ protected:
 private:
 };
 
-//! Base class for 1D (translational) acceleration models.
-/*!
- * Base class for 1-dimensional (translational) acceleration models. This is a template
- * specialization of the general AccelerationModel base class.
- * \tparam DataType Type used for the entries of the position, velocity and acceleration (i.e.
- * double, float, etc.)
- */
-template < typename DataType >
-class AccelerationModel< 1, DataType >
-{
-public:
+//! Typedef to a 3D acceleration model.
+typedef AccelerationModel< > AccelerationModel3d;
 
-    //! Virtual destructor.
-    /*!
-     * Virtual destructor, necessary to ensure that derived class destructors get called correctly.
-     */
-    virtual ~AccelerationModel( ) { }
+//! Typedef for shared-pointer to a 3D acceleration model.
+typedef boost::shared_ptr< AccelerationModel3d > AccelerationModel3dPointer;
 
-    //! Get acceleration.
-    /*!
-     * Returns the 1D acceleration. No arguments are passed to this function for generality.
-     * Instead, all data required for computation is to be obtained from pointers to functions/
-     * classes/structs, etc which are to be set in a derived class and evaluated by the
-     * updateMembers() function below.
-     * \return Acceleration as scalar-type (double, float, int, etc.).
-     * \sa updateMembers().
-     */
-    virtual DataType getAcceleration( ) = 0;
+//! Typedef to a 2D acceleration model.
+typedef AccelerationModel< Eigen::Vector2d > AccelerationModel2d;
 
-    //! Update member variables used by the acceleration model.
-    /*!
-     * Updates member variables used by the acceleration model. In the case of acceleration models
-     * containing varying parameters, function pointers returning such a parameter (for instance
-     * the Cartesian state of a body) will be set as a member variable.
-     * This function evaluates such function pointers and sets member variables of the 'current'
-     * values of these parameters. Only these current values, not the function pointers are then
-     * used by the getAcceleration function.
-     * \return True if the update was successful. NOTE: This could be modified to throw
-     *          an exception in the future.
-     */
-    virtual bool updateMembers( ) { return true; }
-
-protected:
-
-private:
-};
+//! Typedef for shared-pointer to a 2D acceleration model.
+typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
 
 //! Update the members of an acceleration model and evaluate the acceleration.
 /*!
  * Updates the member variables of an acceleration model and subsequently evaluates the
  * acceleration. This allows the user to suffice with a single function call to both update the
  * members and evaluate the acceleration.
- * In case the updateMembers function fails (returns false), this function throws a runtime_error.
- * \tparam SpatialDimensions Size of VectorXd that is used for position, velocity and acceleration
- *          i.e. number of spatial dimensions in simulation.
- * \tparam DataType Type used for the entries of the position, velocity and acceleration (i.e.
- *          double, float, etc.)
+ * In case the updateMembers() function fails (returns false), this function throws a
+ * runtime_error.
+ * \tparam AccelerationDataType Data type used to represent accelerations
+ *          (default=Eigen::Vector3d).
  * \param accelerationModel Acceleration model that is to be evaluated.
  * \return Acceleration that is obtained following the member update.
  */
-template < int SpatialDimensions, typename DataType >
-inline Eigen::Matrix< DataType, SpatialDimensions, 1 > updateAndGetAcceleration(
-        boost::shared_ptr< AccelerationModel< SpatialDimensions, DataType > > accelerationModel )
-{
-    // Update members and throw exception if it fails.
-    if( !accelerationModel->updateMembers( ) )
-    {
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               "Unable to update acceleration model." ) ) );
-    }
-
-    // Evaluate and return acceleration.
-    return accelerationModel->getAcceleration( );
-}
-
-//! Update the members of an acceleration model and evaluate the acceleration.
-/*!
- * Updates the member variables of an acceleration model and subsequently evaluates the
- * acceleration. This allows the user to suffice with a single function call to both update the
- * members and evaluate the acceleration. This is an overload for 1-D int-types of the general
- * updateAndGetAcceleration() function (specialization of function templates is not permitted).
- * In case the updateMembers function fails (returns false), this function throws a runtime_error.
- * \param accelerationModel Acceleration model that is to be evaluated.
- * \return Acceleration that is obtained following the member update.
- */
-inline int updateAndGetAcceleration(
-        boost::shared_ptr< AccelerationModel< 1, int > > accelerationModel )
-{
-    // Update members and throw exception if it fails.
-    if( !accelerationModel->updateMembers( ) )
-    {
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               "Unable to update acceleration model." ) ) );
-    }
-
-    // Evaluate and return acceleration.
-    return accelerationModel->getAcceleration( );
-}
-
-//! Update the members of an acceleration model and evaluate the acceleration.
-/*!
- * Updates the member variables of an acceleration model and subsequently evaluates the
- * acceleration. This allows the user to suffice with a single function call to both update the
- * members and evaluate the acceleration. This is an overload for 1-D double-types of the general
- * updateAndGetAcceleration() function (specialization of function templates is not permitted).
- * In case the updateMembers function fails (returns false), this function throws a runtime_error.
- * \param accelerationModel Acceleration model that is to be evaluated.
- * \return Acceleration that is obtained following the member update.
- */
-inline double updateAndGetAcceleration(
-        boost::shared_ptr< AccelerationModel< 1, double > > accelerationModel )
-{
-    // Update members and throw exception if it fails.
-    if( !accelerationModel->updateMembers( ) )
-    {
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               "Unable to update acceleration model." ) ) );
-    }
-
-    // Evaluate and return acceleration.
-    return accelerationModel->getAcceleration( );
-}
-
-//! Update the members of an acceleration model and evaluate the acceleration.
-/*!
- * Updates the member variables of an acceleration model and subsequently evaluates the
- * acceleration. This allows the user to suffice with a single function call to both update the
- * members and evaluate the acceleration. This is an overload for 1-D float-types of the general
- * updateAndGetAcceleration() function (specialization of function templates is not permitted).
- * In case the updateMembers function fails (returns false), this function throws a runtime_error.
- * \param accelerationModel Acceleration model that is to be evaluated.
- * \return Acceleration that is obtained following the member update.
- */
-inline float updateAndGetAcceleration(
-        boost::shared_ptr< AccelerationModel< 1, float > > accelerationModel )
+template < typename AccelerationDataType >
+AccelerationDataType updateAndGetAcceleration(
+        boost::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel )
 {
     // Update members and throw exception if it fails.
     if( !accelerationModel->updateMembers( ) )

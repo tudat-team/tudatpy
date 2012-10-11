@@ -161,7 +161,7 @@ Eigen::Vector3d computeEulerAcceleration(
  * accelerations.
  */
 class ApparentAccelerationModel
-        : public basic_astrodynamics::acceleration_models::AccelerationModel < 3, double >
+        : public basic_astrodynamics::acceleration_models::AccelerationModel < Eigen::Vector3d >
 {
 private:
 

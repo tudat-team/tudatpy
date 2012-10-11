@@ -56,7 +56,7 @@ set(CODEROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 # Define the basic input (trunk).
 set(SRCROOT "${CODEROOT}/Tudat")
 
-# Set lib and bin directories where static libraries, applications, and unit tests are built.
+# Set lib and bin directories where static libraries and unit tests are built.
 set(LIBROOT "${CODEROOT}/lib")
 set(BINROOT "${CODEROOT}/bin")
 
