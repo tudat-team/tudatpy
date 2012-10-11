@@ -29,24 +29,33 @@
  *      112701    D. Dirkx          Finalized for code check.
  *      110131    B. Romgens        Minor modifications during code check.
  *      110204    D. Dirkx          Finalized code.
+ *      120912    D. Dirkx          Adjusted to meet RAII idiom. Implemented use of Boost
+ *                                  (multi-)arrays where convenient.
+ *      121009    A. Ronse          Adjusted inclination-determination to surface-outward normals.
+ *                                  Limited inclination computations to 1 per aoa and aos pair.
+ *                                  Streamlined initialization of isCoefficientGenerated_.
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic Arbitrary Body
  *        Program, Volume II - Program Formulation, Douglas Aircraft Aircraft Company, 1973.
  *
+ *    Notes
+ *
  */
 
-#include <iostream>
 #include <string>
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/pointer_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Geometry>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "Tudat/Astrodynamics/Bodies/vehicleExternalModel.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
@@ -63,47 +72,143 @@ using tudat::mathematics::PI;
 
 using namespace tudat::mathematics::geometric_shapes;
 
-//! Constructor to set geometry and reference quantities.
-void HypersonicLocalInclinationAnalysis::setVehicle(
-        bodies::Vehicle& vehicle, std::vector< int > numberOfLines,
-        std::vector< int > numberOfPoints, std::vector< bool > invertOrders )
+//! Returns default values of mach number for use in HypersonicLocalInclinationAnalysis.
+std::vector< double > getDefaultHypersonicLocalInclinationMachPoints(
+        const std::string& machRegime )
 {
-    // Retrieve external surface geometry from vehicle.
-    boost::shared_ptr< bodies::VehicleExternalModel > externalModel_ = vehicle.getExternalModel( );
-    boost::shared_ptr< SurfaceGeometry > surface_ = externalModel_->getVehicleExternalGeometry( );
+    std::vector< double > machPoints;
 
+    // Set default points for full hypersonic analysis.
+    if ( machRegime == "Full" )
+    {
+        machPoints.resize( 6 );
+
+        machPoints[ 0 ] = 3.0;
+        machPoints[ 1 ] = 4.0;
+        machPoints[ 2 ] = 5.0;
+        machPoints[ 3 ] = 8.0;
+        machPoints[ 4 ] = 10.0;
+        machPoints[ 5 ] = 20.0;
+    }
+
+    // Set default points for low hypersonic analysis.
+    else if ( machRegime == "Low" )
+    {
+        machPoints.resize( 5 );
+        machPoints[ 0 ] = 3.0;
+        machPoints[ 1 ] = 4.0;
+        machPoints[ 2 ] = 5.0;
+        machPoints[ 3 ] = 8.0;
+        machPoints[ 4 ] = 10.0;
+    }
+
+    // Set default points for high hypersonic analysis.
+    else if ( machRegime == "High" )
+    {
+        machPoints.resize( 4 );
+        machPoints[ 0 ] = 5.0;
+        machPoints[ 1 ] = 8.0;
+        machPoints[ 2 ] = 10.0;
+        machPoints[ 3 ] = 20.0;
+    }
+    return machPoints;
+}
+
+//! Returns default values of angle of attack for use in HypersonicLocalInclinationAnalysis.
+std::vector< double > getDefaultHypersonicLocalInclinationAngleOfAttackPoints( )
+{
+    std::vector< double > angleOfAttackPoints;
+
+    // Set number of data points and allocate memory.
+    angleOfAttackPoints.resize( 11 );
+
+    // Set default values, 0 to 40 degrees, with steps of 5 degrees.
+    for ( int i = 0; i < 11; i++ )
+    {
+        angleOfAttackPoints[ i ] =
+                ( static_cast< double >( i ) * 5.0 * PI / 180.0 );
+    }
+    return angleOfAttackPoints;
+}
+
+//! Returns default values of angle of sideslip for use in HypersonicLocalInclinationAnalysis.
+std::vector< double > getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( )
+{
+    std::vector< double > angleOfSideslipPoints;
+
+    // Set number of data points and allocate memory.
+    angleOfSideslipPoints.resize( 2 );
+
+    // Set default values, 0 and 1 degrees.
+    angleOfSideslipPoints[ 0 ] = 0.0;
+    angleOfSideslipPoints[ 1 ] = 1.0 * PI / 180.0;
+
+    return angleOfSideslipPoints;
+}
+
+//! Default constructor.
+HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
+        const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
+        const boost::shared_ptr< SurfaceGeometry > inputVehicleSurface,
+        const std::vector< int >& numberOfLines,
+        const std::vector< int >& numberOfPoints,
+        const std::vector< bool >& invertOrders,
+        const std::vector< std::vector< int > >& selectedMethods,
+        const double referenceArea,
+        const double referenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const std::string& machRegime )
+    : AerodynamicCoefficientGenerator< 3, 6 >(
+          dataPointsOfIndependentVariables, referenceArea, referenceLength, momentReferencePoint ),
+      stagnationPressureCoefficient( 2.0 ),
+      ratioOfSpecificHeats( 1.4 ),      // Refer to a constant in "constants file" in the future!
+      selectedMethods_( selectedMethods ),
+      machRegime_( machRegime )
+{
     // Set geometry if it is a single surface.
-    if ( boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( surface_ ) !=
+    if ( boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( inputVehicleSurface ) !=
          boost::shared_ptr< SingleSurfaceGeometry >( ) )
     {
         // Set number of geometries and allocate memory.
-        numberOfVehicleParts_ = 1;
         vehicleParts_.resize( 1 );
 
         vehicleParts_[ 0 ] = boost::make_shared< LawgsPartGeometry >( );
         vehicleParts_[ 0 ]->setReversalOperator( invertOrders[ 0 ] );
 
-        // Convert geometry to LaWGS surface mesh and set in vehicleParts_ list.
-        vehicleParts_[ 0 ]->setMesh(
-                boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( surface_ ),
-                numberOfLines[ 0 ], numberOfPoints[ 0 ] );
+        // If part is not already a LaWGS part, convert it.
+        if ( boost::dynamic_pointer_cast< LawgsPartGeometry >
+             ( inputVehicleSurface ) ==
+             boost::shared_ptr< LawgsPartGeometry >( ) )
+        {
+            // Convert geometry to LaWGS surface mesh and set in vehicleParts_ list.
+            vehicleParts_[ 0 ]->setMesh(
+                    boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( inputVehicleSurface ),
+                    numberOfLines[ 0 ], numberOfPoints[ 0 ] );
+        }
+
+        // Else, set geometry directly.
+        else
+        {
+            vehicleParts_[ 0 ] = boost::dynamic_pointer_cast< LawgsPartGeometry >
+                                 ( inputVehicleSurface );
+        }
     }
 
     // Set geometry if it is a composite surface.
-    else if ( boost::dynamic_pointer_cast< CompositeSurfaceGeometry >( surface_ ) !=
+    else if ( boost::dynamic_pointer_cast< CompositeSurfaceGeometry >( inputVehicleSurface ) !=
               boost::shared_ptr< CompositeSurfaceGeometry >( ) )
     {
         // Dynamic cast to composite surface geometry for further processing.
         boost::shared_ptr< CompositeSurfaceGeometry > compositeSurfaceGeometry_ =
-                boost::dynamic_pointer_cast< CompositeSurfaceGeometry >( surface_ );
+                boost::dynamic_pointer_cast< CompositeSurfaceGeometry >( inputVehicleSurface );
 
         // Set number of geometries and allocate memory.
-        numberOfVehicleParts_ =
+        int numberOfVehicleParts =
                 compositeSurfaceGeometry_->getNumberOfSingleSurfaceGeometries( );
-        vehicleParts_.resize( numberOfVehicleParts_ );
+        vehicleParts_.resize( numberOfVehicleParts );
 
         // Iterate through all parts and set them in vehicleParts_ list.
-        for ( int i = 0; i < numberOfVehicleParts_; i++ )
+        for ( int i = 0; i < numberOfVehicleParts; i++ )
         {
             // If part is not already a LaWGS part, convert it.
             if ( boost::dynamic_pointer_cast< LawgsPartGeometry >
@@ -128,258 +233,168 @@ void HypersonicLocalInclinationAnalysis::setVehicle(
         }
     }
 
-    // Allocate memory for arrays of pressure coefficients, inclinations and methods.
-    allocateArrays( );
-}
-
-//! Allocate pressure coefficient, inclination, and method arrays.
-void HypersonicLocalInclinationAnalysis::allocateArrays( )
-{
     // Allocate memory for panel inclinations and pressureCoefficient_.
-    inclination_.resize( numberOfVehicleParts_ );
-    pressureCoefficient_.resize( numberOfVehicleParts_ );
-    for ( int i = 0 ; i < numberOfVehicleParts_; i++ )
+    inclination_.resize( vehicleParts_.size( ) );
+    pressureCoefficient_.resize( vehicleParts_.size( ) );
+    for ( unsigned int i = 0 ; i < vehicleParts_.size( ); i++ )
     {
         inclination_[ i ].resize( vehicleParts_[ i ]->getNumberOfLines( ) );
         pressureCoefficient_[ i ].resize( vehicleParts_[ i ]->getNumberOfLines( ) );
-        for ( int j = 0 ; j<vehicleParts_[ i ]->getNumberOfLines( ) ; j++ )
+        for ( int j = 0 ; j < vehicleParts_[ i ]->getNumberOfLines( ) ; j++ )
         {
             inclination_[ i ][ j ].resize( vehicleParts_[ i ]->getNumberOfPoints( ) );
             pressureCoefficient_[ i ][ j ].resize( vehicleParts_[ i ]->getNumberOfPoints( ) );
         }
     }
 
-    // If methods have not yet been set by user, allocate memory and set
-    // defaults.
-    if ( selectedMethods_.num_elements( ) == 0 )
+    boost::array< int, 3 > numberOfPointsPerIndependentVariables;
+    for( int i = 0; i < 3; i++ )
     {
-        // Set memory for expansion and compression methods.
-        selectedMethods_.resize( boost::extents[ 4 ][ 2 * numberOfVehicleParts_ ] );
-        for ( int i = 0; i < 4 ; i++  )
-        {
-            for ( int j = 0; j < 2 * numberOfVehicleParts_ ; j++ )
-            {
-                // Sets all local inclination methods to a default of ( Modified
-                // Newtonian for compression and Newtonian for expansion ).
-                selectedMethods_[ i ][ j ] = 1;
-            }
-        }
+        numberOfPointsPerIndependentVariables[ i ] =
+                dataPointsOfIndependentVariables_[ i ].size( );
     }
+    isCoefficientGenerated_.resize( numberOfPointsPerIndependentVariables );
+
+    std::fill( isCoefficientGenerated_.origin( ),
+               isCoefficientGenerated_.origin( ) + isCoefficientGenerated_.num_elements( ), 0 );
 }
 
 //! Get aerodynamic coefficients.
-Eigen::VectorXd HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
-    const std::vector< int >& independentVariables )
+Eigen::Matrix< double, 6, 1 > HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
+        const boost::array< int, 3 > independentVariables )
 {
-    // If coefficients have not been allocated (and independent variables
-    // have not been initialized), do so.
-    if ( vehicleCoefficients_.size( ) == 0 )
-    {
-        allocateVehicleCoefficients( );
-    }
-
-    // Declare and determine index in vehicleCoefficients_ array.
-    int coefficientsIndex = variableIndicesToListIndex( independentVariables );
-
-    // If coefficients for data point have not yet been calculated, calculate them.
-    if ( vehicleCoefficients_[ coefficientsIndex ] == boost::shared_ptr< Eigen::VectorXd >( ) )
+    if( isCoefficientGenerated_( independentVariables ) == 0 )
     {
         determineVehicleCoefficients( independentVariables );
     }
-
     // Return requested coefficients.
-    return *( vehicleCoefficients_[ coefficientsIndex ] );
-}
+    return aerodynamicCoefficients_( independentVariables );
 
-//! Set local inclination methods for all parts (expansion and compression).
-void HypersonicLocalInclinationAnalysis::setSelectedMethods(
-        std::vector< std::vector < int > > selectedMethods )
-{
-    //For loops loop through input methods and set the analysis methods.
-    for ( int i = 0; i < 4; i++ )
-    {
-        for ( int j = 0; j < numberOfVehicleParts_; j++ )
-        {
-            selectedMethods_[ i ][ j ] = selectedMethods[ i ][ j ];
-        }
-    }
 }
 
 //! Generate aerodynamic database.
-void HypersonicLocalInclinationAnalysis::generateDatabase( )
+void HypersonicLocalInclinationAnalysis::generateCoefficients( )
 {
-    // If coefficients have not been allocated, do so.
-    if ( vehicleCoefficients_.size( ) == 0 )
-    {
-        allocateVehicleCoefficients( );
-    }
-
-    int i, j, k;
-    int l = 0;
-
     // Allocate variable to pass to coefficient determination for independent
     // variable indices.
-    std::vector< int > independentVariableIndices;
-    independentVariableIndices.resize( numberOfIndependentVariables_ );
+    boost::array< int, 3 > independentVariableIndices;
 
     // Iterate over all combinations of independent variables.
-    for ( i = 0 ; i < numberOfPointsPerIndependentVariables_[ machIndex_ ] ; i++ )
+    for ( unsigned int i = 0 ; i < dataPointsOfIndependentVariables_[ mach_index ].size( ) ; i++ )
     {
-        independentVariableIndices[ machIndex_ ] = i;
-        for ( j = 0 ; j < numberOfPointsPerIndependentVariables_[
-                angleOfAttackIndex_ ] ; j++ )
+        independentVariableIndices[ mach_index ] = i;
+        for ( unsigned  int j = 0 ; j < dataPointsOfIndependentVariables_[
+              angle_of_attack_index ].size( ) ; j++ )
         {
-            independentVariableIndices[ angleOfAttackIndex_ ] = j;
-            for ( k = 0 ; k < numberOfPointsPerIndependentVariables_[
-                    angleOfSideslipIndex_ ] ; k++ )
+            independentVariableIndices[ angle_of_attack_index ] = j;
+            for ( unsigned  int k = 0 ; k < dataPointsOfIndependentVariables_[
+                  angle_of_sideslip_index ].size( ) ; k++ )
             {
-                independentVariableIndices[ angleOfSideslipIndex_ ] = k;
+                independentVariableIndices[ angle_of_sideslip_index ] = k;
 
-                // If coefficient has not yet been set, calculate and set it.
-                if ( vehicleCoefficients_[ l ] == boost::shared_ptr< Eigen::VectorXd >( ) )
-                {
-                    determineVehicleCoefficients( independentVariableIndices );
-                }
-
-                l++;
+                determineVehicleCoefficients( independentVariableIndices );
             }
         }
     }
-}
-
-//! Allocate aerodynamic coefficient array and NULL independent variables.
-void HypersonicLocalInclinationAnalysis::allocateVehicleCoefficients( )
-{
-    // If angle of attack points have not yet been set, use defaults.
-    if ( dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ].num_elements() == 0 )
-    {
-        setDefaultAngleOfAttackPoints( );
-    }
-
-    // If angle of sideslip points have not yet been set, use defaults.
-    if ( dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ].num_elements() == 0 )
-    {
-        setDefaultAngleOfSideslipPoints( );
-    }
-
-    // If Mach number points have not yet been set, use defaults.
-    if ( dataPointsOfIndependentVariables_[ machIndex_ ].num_elements() == 0 )
-    {
-        setDefaultMachPoints( );
-    }
-
-    // Determine number of combinations of independent variables.
-    numberOfCases_ = numberOfPointsPerIndependentVariables_[ machIndex_ ] *
-                        numberOfPointsPerIndependentVariables_[ angleOfSideslipIndex_ ] *
-                        numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ];
-
-    // Allocate memory for pointers to coefficients and initialize to NULL shared_ptrs.
-    vehicleCoefficients_.resize( numberOfCases_ );
 }
 
 //! Generate aerodynamic coefficients at a single set of independent variables.
 void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
-        std::vector< int > independentVariableIndices )
+        const boost::array< int, 3 > independentVariableIndices )
 {
-    int i;
-
-    // Determine index in vehicleCoefficients_ at which the coefficient
-    // should be set.
-    int coefficientsIndex = variableIndicesToListIndex( independentVariableIndices );
-
     // Declare coefficients vector and initialize to zeros.
-    Eigen::VectorXd coefficients = Eigen::VectorXd( 6 );
-    for ( i = 0 ; i < 6 ; i++ )
-    {
-        coefficients[ i ] = 0;
-    }
-
-    // Declare vehicle part coefficients variable.
-    Eigen::VectorXd partCoefficients;
+    Eigen::Matrix< double, 6, 1 > coefficients = Eigen::Matrix< double, 6, 1 >::Zero( );
 
     // Loop over all vehicle parts, calculate aerodynamic coefficients and add
-    // to vehicleCoefficients_.
-    for ( i = 0 ; i < numberOfVehicleParts_ ; i++ )
+    // to aerodynamicCoefficients_.
+    for ( unsigned int i = 0 ; i < vehicleParts_.size( ) ; i++ )
     {
-        partCoefficients
-                = determinePartCoefficients( i, independentVariableIndices );
-        coefficients += partCoefficients;
+        coefficients += determinePartCoefficients( i, independentVariableIndices );
     }
 
-    // Allocate and set vehicle coefficients at given independent variables.
-    vehicleCoefficients_[ coefficientsIndex ]
-            = boost::make_shared< Eigen::VectorXd>( coefficients );
+    aerodynamicCoefficients_( independentVariableIndices ) = coefficients;
+    isCoefficientGenerated_( independentVariableIndices ) = 1;
 }
 
 //! Determine aerodynamic coefficients of a single vehicle part.
-Eigen::VectorXd HypersonicLocalInclinationAnalysis::determinePartCoefficients(
-        int partNumber, std::vector< int > independentVariableIndices )
+Eigen::Matrix< double, 6, 1 > HypersonicLocalInclinationAnalysis::determinePartCoefficients(
+        const int partNumber, const boost::array< int, 3 > independentVariableIndices )
 {
     // Declare and determine angles of attack and sideslip for analysis.
-    double angleOfAttack = dataPointsOfIndependentVariables_[
-            angleOfAttackIndex_ ][ independentVariableIndices[
-                    angleOfAttackIndex_ ] ];
-    double angleOfSideslip = dataPointsOfIndependentVariables_[
-            angleOfSideslipIndex_ ][ independentVariableIndices[
-                    angleOfSideslipIndex_ ] ];
+    double angleOfAttack =  dataPointsOfIndependentVariables_[ angle_of_attack_index ]
+            [ independentVariableIndices[ angle_of_attack_index ] ];
+
+    double angleOfSideslip =  dataPointsOfIndependentVariables_[ angle_of_sideslip_index ]
+            [ independentVariableIndices[ angle_of_sideslip_index ] ];
 
     // Declare partCoefficient vector.
-    Eigen::VectorXd partCoefficients = Eigen::VectorXd( 6 );
+    Eigen::Matrix< double, 6, 1 > partCoefficients = Eigen::Matrix< double, 6, 1 >::Zero( );
 
-    // Determine panel inclinations for part.
-    determineInclination( partNumber, angleOfAttack, angleOfSideslip );
+    // Check whether the inclinations of the vehicle part have already been computed.
+    if ( previouslyComputedInclinations_.count(  std::pair< double, double >(
+            angleOfAttack, angleOfSideslip ) ) == 0 )
+    {
+        // Determine panel inclinations for part.
+        determineInclination( partNumber, angleOfAttack, angleOfSideslip );
+
+        // Add panel inclinations to container
+        previouslyComputedInclinations_[ std::pair< double, double >(
+                        angleOfAttack, angleOfSideslip ) ] = inclination_;
+    }
+
+    else
+    {
+        // Fetch inclinations from container
+        inclination_ = previouslyComputedInclinations_[ std::pair< double, double >(
+                angleOfAttack, angleOfSideslip ) ];
+    }
 
     // Set pressureCoefficient_ array for given independent variables.
     determinePressureCoefficients( partNumber, independentVariableIndices );
 
     // Calculate force coefficients from pressure coefficients.
-    partCoefficients.head( 3 ) = calculateForceCoefficients( partNumber );
+    partCoefficients.segment( 0, 3 ) = calculateForceCoefficients( partNumber );
 
     // Calculate moment coefficients from pressure coefficients.
-    partCoefficients.segment( 3, 3 ) = calculateMomentCoefficients(
-            partNumber );
+    partCoefficients.segment( 3, 3 ) = calculateMomentCoefficients( partNumber );
 
     return partCoefficients;
 }
 
 //! Determine the pressure coefficients on a single vehicle part.
 void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
-        int partNumber, std::vector< int > independentVariableIndices )
+        const int partNumber, const boost::array< int, 3 > independentVariableIndices )
 {
     // Retrieve Mach number.
-    double machNumber = dataPointsOfIndependentVariables_[ machIndex_ ]
-                        [ independentVariableIndices[ machIndex_ ] ];
+    double machNumber = dataPointsOfIndependentVariables_[ mach_index ]
+            [ independentVariableIndices[ mach_index ] ];
 
     // Determine stagnation point pressure coefficients. Value is computed once
     // here to prevent its calculation in inner loop.
     stagnationPressureCoefficient = computeStagnationPressure(
-            machNumber, ratioOfSpecificHeats );
+                machNumber, ratioOfSpecificHeats );
+
     updateCompressionPressures( machNumber, partNumber );
     updateExpansionPressures( machNumber, partNumber );
 }
 
 //! Determine force coefficients from pressure coefficients.
-Eigen::VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( int partNumber )
+Eigen::Vector3d HypersonicLocalInclinationAnalysis::calculateForceCoefficients(
+        const int partNumber )
 {
-    int i, j;
-
     // Declare force coefficient vector and intialize to zeros.
-    Eigen::Vector3d forceCoefficients;
-    for ( i = 0 ; i < 3 ; i++)
-    {
-        forceCoefficients( i ) = 0.0;
-    }
+    Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
     
-    // Loop over all panels and add pressures, scaled by panel area, to force 
+    // Loop over all panels and add pressures, scaled by panel area, to force
     // coefficients.
-    for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
+    for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
     {
-        for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++)
+        for ( int j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++)
         {
-            forceCoefficients = forceCoefficients -
-                     pressureCoefficient_[ partNumber ][ i ][ j ] *
-                     vehicleParts_[ partNumber ]->getPanelArea( i, j ) *
-                     vehicleParts_[ partNumber ]->getPanelSurfaceNormal( i, j );
+            forceCoefficients -=
+                    pressureCoefficient_[ partNumber ][ i ][ j ] *
+                    vehicleParts_[ partNumber ]->getPanelArea( i, j ) *
+                    vehicleParts_[ partNumber ]->getPanelSurfaceNormal( i, j );
         }
     }
 
@@ -390,34 +405,29 @@ Eigen::VectorXd HypersonicLocalInclinationAnalysis::calculateForceCoefficients( 
 }
 
 //! Determine moment coefficients from pressure coefficients.
-Eigen::VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients( int partNumber )
+Eigen::Vector3d HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
+        const int partNumber )
 {
-    int i, j;
-
     // Declare moment coefficient vector and intialize to zeros.
-    Eigen::Vector3d momentCoefficients;
-    for ( i = 0 ; i < 3 ; i++ )
-    {
-        momentCoefficients( i ) = 0.0;
-    }
+    Eigen::Vector3d momentCoefficients = Eigen::Vector3d::Zero( );
 
     // Declare moment arm for panel moment determination.
     Eigen::Vector3d referenceDistance ;
 
     // Loop over all panels and add moments due pressures.
-    for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
+    for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
     {
-        for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
+        for ( int j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
         {
             // Determine moment arm for given panel centroid.
             referenceDistance = ( vehicleParts_[ partNumber ]->
-                        getPanelCentroid( i, j ) -  momentReferencePoint_ );
+                                  getPanelCentroid( i, j ) -  momentReferencePoint_ );
 
-            momentCoefficients = momentCoefficients -
-                pressureCoefficient_[ partNumber ][ i ][ j ] *
-                vehicleParts_[ partNumber ]->getPanelArea( i, j ) *
-                ( referenceDistance.cross( vehicleParts_[ partNumber ]->
-                                           getPanelSurfaceNormal( i, j ) ) );
+            momentCoefficients -=
+                    pressureCoefficient_[ partNumber ][ i ][ j ] *
+                    vehicleParts_[ partNumber ]->getPanelArea( i, j ) *
+                    ( referenceDistance.cross( vehicleParts_[ partNumber ]->
+                                               getPanelSurfaceNormal( i, j ) ) );
         }
     }
 
@@ -428,12 +438,10 @@ Eigen::VectorXd HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
 }
 
 //! Determines the inclination angle of panels on a single part.
-void HypersonicLocalInclinationAnalysis::determineInclination( int partNumber,
-                                                               double angleOfAttack,
-                                                               double angleOfSideslip )
+void HypersonicLocalInclinationAnalysis::determineInclination( const int partNumber,
+                                                               const double angleOfAttack,
+                                                               const double angleOfSideslip )
 {
-    int i, j;
-
     // Declare free-stream velocity vector.
     Eigen::Vector3d freestreamVelocityDirection;
 
@@ -449,16 +457,16 @@ void HypersonicLocalInclinationAnalysis::determineInclination( int partNumber,
     double cosineOfInclination;
 
     // Loop over all panels of given vehicle part and set inclination angles.
-    for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
+    for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
     {
-        for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
+        for ( int j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
         {
 
             // Determine cosine of inclination angle from inner product between
             // surface normal and free-stream direction.
-            cosineOfInclination = -1 * vehicleParts_[ partNumber ]->
-                                  getPanelSurfaceNormal( i, j ).
-                                  dot( freestreamVelocityDirection );
+            cosineOfInclination = vehicleParts_[ partNumber ]->
+                    getPanelSurfaceNormal( i, j ).
+                    dot( freestreamVelocityDirection );
 
             // Set inclination angle.
             inclination_[ partNumber ][ i ][ j ] = PI / 2.0 - acos( cosineOfInclination );
@@ -467,436 +475,187 @@ void HypersonicLocalInclinationAnalysis::determineInclination( int partNumber,
 }
 
 //! Determine compression pressure coefficients on all parts.
-void HypersonicLocalInclinationAnalysis::updateCompressionPressures( double machNumber,
-                                                                     int partNumber )
-{
-    int i, j;
-    int method;
+void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const double machNumber,
+                                                                     const int partNumber )
+{ 
+    int method = selectedMethods_[ 0 ][ partNumber ];
 
-    // Determine which method to use based on Mach number regime and given
-    // selectedMethods__.
-    if ( machRegime_ == "Full" || machRegime_ == "High")
-    {
-        method = selectedMethods_[ 0 ][ partNumber ];
-    }
-
-    else
-    {
-        method = selectedMethods_[ 2 ][ partNumber ];
-    }
+    boost::function< double( double ) > pressureFunction;
 
     // Switch to analyze part using correct method.
     switch( method )
     {
     case 0:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is positive, calculate pressure using
-                // Newtonian method.
-                if ( inclination_[ partNumber ][ i ][ j ] > 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                       aerodynamics::computeNewtonianPressureCoefficient(
-                               inclination_[ partNumber ][ i ][ j ] );
-                }
-            }
-        }
-
+        pressureFunction =
+                boost::bind( aerodynamics::computeNewtonianPressureCoefficient, _1 );
         break;
 
     case 1:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                if ( inclination_[ partNumber ][ i ][ j ] > 0 )
-                {
-                    // If panel inclination is positive, calculate pressure
-                    // using Modified Newtonian method.
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                        aerodynamics::computeModifiedNewtonianPressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ],
-                            stagnationPressureCoefficient );
-                }
-            }
-        }
-
+        pressureFunction =
+                boost::bind( aerodynamics::computeModifiedNewtonianPressureCoefficient, _1,
+                                        stagnationPressureCoefficient );
         break;
 
     case 2:
-
         // Method currently disabled.
         break;
 
     case 3:
-
         // Method currently disabled.
         break;
 
     case 4:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is positive, calculate pressure using
-                // empirical Tangent Wedge method.
-                if ( inclination_[ partNumber ][ i ][ j ] > 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                       aerodynamics::computeEmpiricalTangentWedgePressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ], machNumber );
-                }
-            }
-        }
-
+        pressureFunction =
+                boost::bind( aerodynamics::computeEmpiricalTangentWedgePressureCoefficient, _1,
+                                        machNumber );
         break;
 
     case 5:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is positive, calculate pressure using
-                // empirical Tangent Cone method.
-                if ( inclination_[ partNumber ][ i ][ j ] > 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                       aerodynamics::computeEmpiricalTangentConePressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ], machNumber );
-                }
-            }
-        }
-
+        pressureFunction =
+                boost::bind( aerodynamics::computeEmpiricalTangentConePressureCoefficient, _1,
+                                        machNumber );
         break;
 
     case 6:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                if ( inclination_[ partNumber ][ i ][ j ] > 0 )
-                {
-                    // If panel inclination is positive, calculate pressure using
-                    // Modified Dahlem Buck method.
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeModifiedDahlemBuckPressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ], machNumber );
-                }
-            }
-        }
-
+        pressureFunction =
+                boost::bind( aerodynamics::computeModifiedDahlemBuckPressureCoefficient, _1,
+                                        machNumber );
         break;
 
     case 7:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is positive, calculate pressure using
-                // van Dyke unified method.
-                if ( inclination_[ partNumber ][ i ][ j ] > 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeVanDykeUnifiedPressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ], machNumber,
-                            ratioOfSpecificHeats, 1 );
-                }
-            }
-        }
-
+        pressureFunction =
+                boost::bind( aerodynamics::computeVanDykeUnifiedPressureCoefficient, _1,
+                                        machNumber, ratioOfSpecificHeats, 1 );
         break;
 
     case 8:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is positive, calculate pressure using
-                // Smyth delta wing method.
-                if ( inclination_[ partNumber ][ i ][ j ] > 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeSmythDeltaWingPressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ], machNumber);
-                }
-            }
-        }
-
+        pressureFunction =
+                boost::bind( aerodynamics::computeSmythDeltaWingPressureCoefficient, _1,
+                                        machNumber );
         break;
 
     case 9:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is positive, calculate pressure using
-                // Hankey flat surface method.
-                if ( inclination_[ partNumber ][ i ][ j ] > 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeHankeyFlatSurfacePressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ], machNumber );
-                }
-            }
-        }
-
+        pressureFunction =
+                boost::bind( aerodynamics::computeHankeyFlatSurfacePressureCoefficient, _1,
+                                        machNumber );
         break;
 
     default:
-
         break;
+    }
+
+    for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1; i++ )
+    {
+        for ( int j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
+        {
+            if ( inclination_[ partNumber ][ i ][ j ] > 0 )
+            {
+                // If panel inclination is positive, calculate pressure coefficient.
+                pressureCoefficient_[ partNumber ][ i ][ j ] =
+                        pressureFunction( inclination_[ partNumber ][ i ][ j ] );
+            }
+        }
     }
 }
 
 //! Determines expansion pressure coefficients on all parts.
-void HypersonicLocalInclinationAnalysis::updateExpansionPressures( double machNumber,
-                                                                   int partNumber )
+void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double machNumber,
+                                                                   const int partNumber )
 {
-    int i,j;
-
     // Get analysis method of part to analyze.
-    int method;
-    if ( machRegime_ == "Full" || machRegime_ == "High" )
+    int method = selectedMethods_[ 1 ][ partNumber ];
+
+    if ( method == 0 || method == 1 || method == 4 )
     {
-        method = selectedMethods_[ 1 ][ partNumber ];
-    }
-
-    else
-    {
-        method = selectedMethods_[ 3 ][ partNumber ];
-    }
-
-    // Declare local variable.
-    double freestreamPrandtlMeyerFunction;
-
-    // Switch to analyze part using correct method.
-    switch( method )
-    {
-    case 0:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
+        boost::function< double( ) > pressureFunction;
+        switch( method )
         {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is negative, calculate pressure using
-                // vacuum method.
-                if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeVacuumPressureCoefficient(
-                                machNumber, ratioOfSpecificHeats );
-                }
-            }
+        case 0:
+            pressureFunction = boost::bind( &aerodynamics::computeVacuumPressureCoefficient,
+                                            machNumber, ratioOfSpecificHeats );
+            break;
+
+        case 1:
+            pressureFunction = boost::lambda::constant( 0.0 );
+            break;
+
+        case 4:
+            pressureFunction = boost::bind( &aerodynamics::computeHighMachBasePressure,
+                                            machNumber );
+            break;
+
         }
 
-        break;
-
-    case 1:
-
         // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
+        for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
         {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is negative, calculate pressure using
-                // Newtonian expansion method.
-                if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] = 0;
-                }
-            }
-        }
-
-        break;
-
-    case 2:
-
-        // Option currently disabled.
-        break;
-
-    case 3:
-
-        // Calculate freestream Prandtl-Meyer function.
-        freestreamPrandtlMeyerFunction = aerodynamics::computePrandtlMeyerFunction(
-                machNumber, ratioOfSpecificHeats );
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
-                {
-                    // If panel inclination is negative, calculate pressure using
-                    // Prandtl-Meyer expansion from freestream.
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient(
-                                inclination_[ partNumber ][ i ][ j ], machNumber,
-                                ratioOfSpecificHeats, freestreamPrandtlMeyerFunction );
-                }
-            }
-        }
-
-        break;
-
-    case 4:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
-            {
-                // If panel inclination is negative, calculate pressure using
-                // high Mach base pressure method.
-                if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
-                {
-                    pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeHighMachBasePressure( machNumber );
-                }
-            }
-        }
-
-        break;
-
-    case 5:
-
-        // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
-        {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
+            for ( int j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
             {
                 if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
                 {
                     // If panel inclination is negative, calculate pressure using
                     // Van Dyke unified method.
                     pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeVanDykeUnifiedPressureCoefficient(
-                                    inclination_[ partNumber ][ i ][ j ], machNumber,
-                                    ratioOfSpecificHeats, -1 );
+                            pressureFunction( );
                 }
             }
         }
+    }
 
-        break;
+    else if( method == 3 || method == 5 || method == 6 )
+    {
 
-    case 6:
+        boost::function< double( double ) > pressureFunction;
+
+        // Declare local variable.
+        double freestreamPrandtlMeyerFunction;
+
+        // Switch to analyze part using correct method.
+        switch( method )
+        {
+        case 3:
+            // Calculate freestream Prandtl-Meyer function.
+            freestreamPrandtlMeyerFunction = aerodynamics::computePrandtlMeyerFunction(
+                        machNumber, ratioOfSpecificHeats );
+            pressureFunction =
+                    boost::bind( &aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient,
+                                            _1, machNumber, ratioOfSpecificHeats,
+                                            freestreamPrandtlMeyerFunction );
+            break;
+
+        case 5:
+            pressureFunction =
+                    boost::bind( &aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient,
+                                            _1, machNumber, ratioOfSpecificHeats, -1 );
+            break;
+
+        case 6:
+            pressureFunction = boost::bind( &aerodynamics::computeAcmEmpiricalPressureCoefficient,
+                                            _1, machNumber );
+            break;
+        }
 
         // Iterate over all panels on part.
-        for ( i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++)
+        for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
         {
-            for ( j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++)
+            for ( int j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
             {
-                // If panel inclination is negative, calculate pressure using
-                // ACM empirical method.
                 if ( inclination_[ partNumber ][ i ][ j ] <= 0 )
                 {
+                    // If panel inclination is negative, calculate pressure using
+                    // Van Dyke unified method.
                     pressureCoefficient_[ partNumber ][ i ][ j ] =
-                            aerodynamics::computeAcmEmpiricalPressureCoefficient(
-                            inclination_[ partNumber ][ i ][ j ], machNumber );
+                            pressureFunction( inclination_[ partNumber ][ i ][ j ] );
                 }
             }
         }
-
-        break;
-
-    default:
-
-        break;
     }
-}
 
-//! Set the default Mach number points.
-void HypersonicLocalInclinationAnalysis::setDefaultMachPoints( )
-{
-    // Set default points for full hypersonic analysis.
-    if ( machRegime_ == "Full" )
+    else
     {
-        numberOfPointsPerIndependentVariables_[ machIndex_ ] = 6;
-        dataPointsOfIndependentVariables_[ machIndex_ ].resize(
-                    boost::extents[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ] );
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 0 ] = 3.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 1 ] = 4.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 2 ] = 5.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 3 ] = 8.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 4 ] = 10.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 5 ] = 20.0;
+        std::cerr << "Error, expansion local inclination method number "<< method <<
+                " not recognized" << std::endl;
     }
-
-    // Set default points for low hypersonic analysis.
-    else if ( machRegime_ == "Low" )
-    {
-        numberOfPointsPerIndependentVariables_[ machIndex_ ] = 5;
-        dataPointsOfIndependentVariables_[ machIndex_ ].resize(
-                    boost::extents[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ] );
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 0 ] = 3.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 1 ] = 4.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 2 ] = 5.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 3 ] = 8.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 4 ] = 10.0;
-    }
-
-    // Set default points for high hypersonic analysis.
-    else if ( machRegime_ == "High" )
-    {
-        numberOfPointsPerIndependentVariables_[ machIndex_ ] = 4;
-        dataPointsOfIndependentVariables_[ machIndex_ ].resize(
-                    boost::extents[ numberOfPointsPerIndependentVariables_[ machIndex_ ] ] );
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 0 ] = 5.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 1 ] = 8.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 2 ] = 10.0;
-        dataPointsOfIndependentVariables_[ machIndex_ ][ 3 ] = 20.0;
-    }
-}
-
-//! Set the default analysis points for angle of attack.
-void HypersonicLocalInclinationAnalysis::setDefaultAngleOfAttackPoints( )
-{
-    // Set number of data points and allocate memory.
-    numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ] = 11;
-    dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ].resize(
-                boost::extents[ numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ] ] );
-
-    // Set default values, 0 to 40 degrees, with steps of 5 degrees.
-    int i;
-    for ( i = 0; i < numberOfPointsPerIndependentVariables_[ angleOfAttackIndex_ ]; i++ )
-    {
-        dataPointsOfIndependentVariables_[ angleOfAttackIndex_ ][ i ] =
-                ( static_cast< double >( i ) * 5.0 * PI / 180.0 );
-    }
-
-}
-
-//! Set the default analysis points for angle of sideslip.
-void HypersonicLocalInclinationAnalysis::setDefaultAngleOfSideslipPoints( )
-{
-    // Set number of data points and allocate memory.
-    numberOfPointsPerIndependentVariables_[ angleOfSideslipIndex_ ] = 2;
-    dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ].resize(
-                boost::extents[ numberOfPointsPerIndependentVariables_[ angleOfSideslipIndex_ ] ] );
-
-    // Set default values, 0 and 1 degrees.
-    dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ 0 ] = 0.0;
-    dataPointsOfIndependentVariables_[ angleOfSideslipIndex_ ][ 1 ] =
-            1.0 * PI / 180.0;
 }
 
 //! Overload ostream to print class information.
@@ -906,8 +665,6 @@ std::ostream& operator<<( std::ostream& stream,
     stream << "This is a hypersonic local inclination analysis object."<< endl;
     stream << "The Mach regime is "
            << hypersonicLocalInclinationAnalysis.getMachRegime( ) << endl;
-    stream << "The name of the vehicle being analyzed is "
-           << hypersonicLocalInclinationAnalysis.getVehicleName( ) << endl;
     stream << "It contains "
            << hypersonicLocalInclinationAnalysis.getNumberOfVehicleParts( )
            << " parts in Lawgs format. " << endl;
