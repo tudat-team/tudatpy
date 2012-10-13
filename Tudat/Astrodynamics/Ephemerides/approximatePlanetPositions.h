@@ -44,7 +44,7 @@
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
-#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositionsBase.h"
+#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 
 namespace tudat
@@ -64,8 +64,10 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositions( BodiesWithEphemerisData bodyWithEphemerisData )
-        : eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
+    ApproximatePlanetPositions( BodiesWithEphemerisData bodyWithEphemerisData,
+                                const double aSunGravitationalParameter = 1.32712440018e20 )
+        : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
+          eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
           meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           trueAnomalyAtGivenJulianData_( TUDAT_NAN )

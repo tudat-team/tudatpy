@@ -42,7 +42,7 @@
 #ifndef TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H
 #define TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H
 
-#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositionsBase.h"
+#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 
 namespace tudat
 {
@@ -53,7 +53,6 @@ namespace ephemerides
 /*!
  * Ephemeris class using JPL "Approximate Positions of Major Planets".
  */
-
 class ApproximatePlanetPositionsCircularCoplanar : public ApproximatePlanetPositionsBase
 {
 public:
@@ -62,8 +61,11 @@ public:
     /*!
      * Default constructor.
      */
-    ApproximatePlanetPositionsCircularCoplanar( BodiesWithEphemerisData bodyWithEphemerisData )
-        : constantOrbitalRadius_( -0.0 )
+    ApproximatePlanetPositionsCircularCoplanar(
+            BodiesWithEphemerisData bodyWithEphemerisData,
+            const double aSunGravitationalParameter = 1.32712440018e20 )
+        : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
+          constantOrbitalRadius_( -0.0 )
     {
         setPlanet( bodyWithEphemerisData );
     }
