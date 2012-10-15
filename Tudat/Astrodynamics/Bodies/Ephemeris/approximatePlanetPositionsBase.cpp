@@ -43,13 +43,28 @@
 #include <boost/format.hpp>
 #include <boost/throw_exception.hpp>
 
-#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
+#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositionsBase.h"
+#include "Tudat/Astrodynamics/Bodies/planet.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
 namespace ephemerides
 {
+
+//! Default constructor.
+ApproximatePlanetPositionsBase::ApproximatePlanetPositionsBase( )
+    : julianDate_( -0.0 ),
+      meanLongitudeAtGivenJulianDate_( -0.0 ),
+      numberOfCenturiesPastJ2000_( -0.0 ),
+      ephemerisLineData_( )
+{
+    // Create predefined Sun.
+    bodies::Planet predefinedSun_;
+    predefinedSun_.setPredefinedPlanetSettings( bodies::Planet::sun );
+    solarGravitationalParameter_ = predefinedSun_.getGravityFieldModel(
+                )->getGravitationalParameter( );
+}
 
 //! Set planet.
 void ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData bodyWithEphemerisData )

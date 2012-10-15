@@ -48,8 +48,8 @@
 
 #include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
 
-#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsDataContainer.h"
-#include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
+#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositionsDataContainer.h"
+#include "Tudat/Astrodynamics/Bodies/Ephemeris/ephemeris.h"
 #include "Tudat/Astrodynamics/States/keplerianElements.h"
 
 namespace tudat
@@ -66,22 +66,19 @@ class ApproximatePlanetPositionsBase : public Ephemeris
 public:
 
     //! Bodies with ephemeris data.
+    /*!
+     * Bodies with ephemeris data.
+     */
     enum BodiesWithEphemerisData
     {
         mercury, venus, earthMoonBarycenter, mars, jupiter, saturn, uranus, neptune, pluto
     };
 
     //! Default constructor.
-    ApproximatePlanetPositionsBase( const double aSunGravitationalParameter )
-        : sunGravitationalParameter( aSunGravitationalParameter ),
-          julianDate_( -0.0 ),
-          meanLongitudeAtGivenJulianDate_( -0.0 ),
-          numberOfCenturiesPastJ2000_( -0.0 ),
-          ephemerisLineData_( )
-    { }
-
-    //! Default destructor.
-    ~ApproximatePlanetPositionsBase( ) { }
+    /*!
+     * Default constructor.
+     */
+    ApproximatePlanetPositionsBase( );
 
     //! Parse ephemeris line data.
     /*!
@@ -107,12 +104,6 @@ public:
      */
     void reloadData( );
 
-    //! Returns the gravitational parameter of the Sun.
-    /*!
-     *  Returns the gravitational parameter of the Sun that is used in the calculations.
-     */
-    double getSunGravitationalParameter( ){ return sunGravitationalParameter; }
-
 protected:
 
     //! Set planet.
@@ -126,7 +117,7 @@ protected:
     /*!
      *  Gravitational parameter of the Sun.
      */
-    const double sunGravitationalParameter;
+    double solarGravitationalParameter_;
 
     //! Julian date.
     /*!
@@ -172,6 +163,7 @@ protected:
     std::stringstream ephemerisLineData_;
 
 private:
+
 };
 
 } // namespace ephemerides

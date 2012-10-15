@@ -59,7 +59,9 @@
 
 #include <TudatCore/Basics/testMacros.h>
 
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicForce.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicMoment.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicRotationalAcceleration.h"
 
@@ -70,6 +72,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
 {
     // Using declarations.
     using tudat::AerodynamicCoefficientInterface;
+    using tudat::astrodynamics::force_models::AerodynamicForce;
     using tudat::astrodynamics::states::State;
     using tudat::astrodynamics::force_models::computeAerodynamicForce;
     using tudat::astrodynamics::acceleration_models::computeAerodynamicAcceleration;
@@ -89,7 +92,28 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
 
-    // Test 1: test the force model implemented as free function with primitive arguments.
+    // Test 1: test the force model implemented as class.
+    {
+        // Set coefficients and model parameters in aerodynamics coefficient interface object.
+        boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface
+                = boost::make_shared< AerodynamicCoefficientInterface >( );
+        aerodynamicCoefficientInterface->setCurrentForceCoefficients( forceCoefficients );
+        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
+        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
+
+        // Declare aerodynamic force model object with coefficient interface and dynamic pressure.
+        AerodynamicForce aerodynamicForce( aerodynamicCoefficientInterface );
+        aerodynamicForce.setDynamicPressure( dynamicPressure );
+
+        // Compute force from aerodynamic force class.
+        aerodynamicForce.computeForce( boost::make_shared< State >( ), 0.0 );
+        Eigen::Vector3d force = aerodynamicForce.getForce( );
+
+        // Check if computed force matches expected.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
+    }
+
+    // Test 2: test the force model implemented as free function with primitive arguments.
     {
         // Compute force.
         Eigen::Vector3d force = computeAerodynamicForce( dynamicPressure,
@@ -99,7 +123,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
     }
 
-    // Test 2: test the force model implemented as free function, with coefficient interface
+    // Test 3: test the force model implemented as free function, with coefficient interface
     //         argument.
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
@@ -116,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
     }
 
-    // Test 3: test the acceleration model implemented as free function with primitive arguments,
+    // Test 4: test the acceleration model implemented as free function with primitive arguments,
     //         based on the force that can be derived from the computed acceleration.
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
@@ -134,7 +158,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
     }
 
-    // Test 4: test the acceleration model implemented as free function with coefficient interface
+    // Test 5: test the acceleration model implemented as free function with coefficient interface
     //         argument, based on the force that can be derived from the computed acceleration.
     {
         // Compute aerodynamic force from aerodynamic acceleration free function with
@@ -152,6 +176,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
 {
     // Using declarations.
     using tudat::AerodynamicCoefficientInterface;
+    using tudat::astrodynamics::moment_models::AerodynamicMoment;
     using tudat::astrodynamics::moment_models::computeAerodynamicMoment;
     using tudat::astrodynamics::rotational_acceleration_models::
     computeAerodynamicRotationalAcceleration;
@@ -179,7 +204,30 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
 
-    // Test 1: test the moment model implemented as free function with primitive arguments.
+    // Test 1: test the moment model implemented as class.
+    {
+        // Set coefficients and model parameters in aerodynamics coefficient interface object.
+        boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface
+                = boost::make_shared< AerodynamicCoefficientInterface >( );
+        aerodynamicCoefficientInterface->setCurrentForceCoefficients( forceCoefficients );
+        aerodynamicCoefficientInterface->setCurrentMomentCoefficients( momentCoefficients );
+        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
+        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
+
+        // Declare aerodynamic moment model object with coefficient interface and dynamic pressure.
+        AerodynamicMoment aerodynamicMoment( aerodynamicCoefficientInterface );
+        aerodynamicMoment.setDynamicPressure( dynamicPressure );
+
+        // Compute moment from aerodynamic moment class.
+        State dummyState;
+        aerodynamicMoment.computeMoment( boost::make_shared< State >( ), 0.0 );
+        Eigen::Vector3d moment = aerodynamicMoment.getMoment( );
+
+        // Check if computed moment matches expected.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
+    }
+
+    // Test 2: test the moment model implemented as free function with primitive arguments.
     {
         // Compute aerodynamic moment using free function with primitive arguments.
         Eigen::Vector3d moment = computeAerodynamicMoment( dynamicPressure, referenceArea,
@@ -189,7 +237,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
     }
 
-    // Test 2: test the moment moment implemented as free function with coefficient interface
+    // Test 3: test the moment moment implemented as free function with coefficient interface
     //         argument.
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
@@ -207,7 +255,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
     }
 
-    // Test 3: test the rotational acceleration model implemented as free function with coefficient
+    // Test 4: test the rotational acceleration model implemented as free function with coefficient
     //         interface argument, based on the force that can be derived from the computed
     //         acceleration.
     {
@@ -227,7 +275,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedMoment, moment, tolerance );
     }
 
-    // Test 4: test the rotational acceleration model implemented as free function with primitive
+    // Test 5: test the rotational acceleration model implemented as free function with primitive
     //         arguments, based on the force that can be derived from the computed acceleration.
     {
         // Compute aerodynamic moment from aerodynamic rotational acceleration free function with
