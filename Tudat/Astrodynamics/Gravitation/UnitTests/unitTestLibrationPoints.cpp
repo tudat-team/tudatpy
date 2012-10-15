@@ -56,8 +56,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Tudat/Astrodynamics/Bodies/celestialBody.h"
-#include "Tudat/Astrodynamics/Bodies/planet.h"
+#include "Tudat/Astrodynamics/Gravitation/centralGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 
@@ -67,11 +66,7 @@ namespace unit_tests
 {
 
 namespace crtbp = tudat::astrodynamics::gravitation::circular_restricted_three_body_problem;
-using std::cerr;
-using std::endl;
-using std::fabs;
 using tudat::NewtonRaphson;
-using tudat::bodies::Planet;
 
 BOOST_AUTO_TEST_SUITE( test_libration_points )
 
@@ -81,27 +76,25 @@ BOOST_AUTO_TEST_CASE( testComputationOfMassParameter )
     // Set expected mass parameter for Earth-Moon system.
     const double expectedMassParameter = 0.01215295290792761;
 
-    // Create predefined Earth object.
-    boost::shared_ptr< Planet > predefinedEarth = boost::make_shared< Planet >( );
-    predefinedEarth->setPredefinedPlanetSettings( Planet::earth );
+    // Set Earth gravitational parameter.
+    astrodynamics::gravitation::CentralGravityField earthCentralGravityField(
+                astrodynamics::gravitation::CentralGravityField::earth );
+    const double earthGravitationalParameter
+            = earthCentralGravityField.getGravitationalParameter( );
 
-    // Create predefined Moon object.
-    boost::shared_ptr< Planet > predefinedMoon = boost::make_shared< Planet >( );
-    predefinedMoon->setPredefinedPlanetSettings( Planet::moon );
-
-    // Declare Libration Point object.
-    crtbp::LibrationPoint librationPoint;
-
-    // Set bodies.
-    librationPoint.setPrimaryCelestialBody( predefinedEarth );
-    librationPoint.setSecondaryCelestialBody( predefinedMoon );
+    // Set Moon gravitational parameter.
+    astrodynamics::gravitation::CentralGravityField moonCentralGravityField(
+                astrodynamics::gravitation::CentralGravityField::moon );
+    const double moonGravitationalParameter
+            = moonCentralGravityField.getGravitationalParameter( );
 
     // Compute mass parameter.
-    librationPoint.computeMassParameter( );
+    const double computedMassParameter = crtbp::computeMassParameter(
+                earthGravitationalParameter, moonGravitationalParameter );
 
     // Check if computed value corresponds to expected mass parameter.
     BOOST_CHECK_CLOSE_FRACTION( expectedMassParameter,
-                                librationPoint.getMassParameter( ),
+                                computedMassParameter,
                                 1.0e-15 );
 }
 
@@ -115,13 +108,8 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL1LibrationPoint )
     const Eigen::Vector3d expectedLocationOfL1( 0.83629259089993, 0.0, 0.0 );
 
     // Declare L1 Libration Point object.
-    crtbp::LibrationPoint librationPointL1;
-
-    // Set mass parameter.
-    librationPointL1.setMassParameter( earthMoonMassParameter );
-
-    // Set Newton-Raphson method.
-    librationPointL1.setNewtonRaphsonMethod( boost::make_shared< NewtonRaphson >( ) );
+    crtbp::LibrationPoint librationPointL1( earthMoonMassParameter,
+                                            boost::make_shared< NewtonRaphson >( ) );
 
     // Compute location of Lagrange libration point.
     librationPointL1.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L1 );
@@ -134,9 +122,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL1LibrationPoint )
     BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL1.x( ),
                                 positionOflibrationPointL1.x( ),
                                 1.0e-14 );
-
     BOOST_CHECK_SMALL( positionOflibrationPointL1.y( ), std::numeric_limits< double >::min( ) );
-
     BOOST_CHECK_SMALL( positionOflibrationPointL1.z( ), std::numeric_limits< double >::min( ) );
 }
 
@@ -150,13 +136,8 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL2LibrationPoint )
     const Eigen::Vector3d expectedLocationOfL2( 1.15616816590553, 0.0, 0.0 );
 
     // Declare L2 Libration Point object.
-    crtbp::LibrationPoint librationPointL2;
-
-    // Set mass parameter.
-    librationPointL2.setMassParameter( earthMoonMassParameter );
-
-    // Set Newton-Raphson method.
-    librationPointL2.setNewtonRaphsonMethod( boost::make_shared< NewtonRaphson >( ) );
+    crtbp::LibrationPoint librationPointL2( earthMoonMassParameter,
+                                            boost::make_shared< NewtonRaphson >( ) );
 
     // Compute location of Lagrange libration point.
     librationPointL2.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L2 );
@@ -169,9 +150,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL2LibrationPoint )
     BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL2.x( ),
                                 positionOflibrationPointL2.x( ),
                                 1.0e-14 );
-
     BOOST_CHECK_SMALL( positionOflibrationPointL2.y( ), std::numeric_limits< double >::min( ) );
-
     BOOST_CHECK_SMALL( positionOflibrationPointL2.z( ), std::numeric_limits< double >::min( ) );
 }
 
@@ -186,13 +165,8 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL3LibrationPoint )
     const Eigen::Vector3d expectedLocationOfL3( -1.00511551160689, 0.0, 0.0 );
 
     // Declare L3 Libration Point object.
-    crtbp::LibrationPoint librationPointL3;
-
-    // Set mass parameter.
-    librationPointL3.setMassParameter( earthMoonMassParameter );
-
-    // Set Newton-Raphson method.
-    librationPointL3.setNewtonRaphsonMethod( boost::make_shared< NewtonRaphson >( ) );
+    crtbp::LibrationPoint librationPointL3( earthMoonMassParameter,
+                                            boost::make_shared< NewtonRaphson >( ) );
 
     // Compute location of Lagrange libration point.
     librationPointL3.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L3 );
@@ -205,9 +179,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL3LibrationPoint )
     BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL3.x( ),
                                 positionOflibrationPointL3.x( ),
                                 1.0e-2 );
-
     BOOST_CHECK_SMALL( positionOflibrationPointL3.y( ), std::numeric_limits< double >::min( ) );
-
     BOOST_CHECK_SMALL( positionOflibrationPointL3.z( ), std::numeric_limits< double >::min( ) );
 }
 
@@ -221,10 +193,8 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL4LibrationPoint )
     const Eigen::Vector3d expectedLocationOfL4( 0.487722529, 0.86602540378444, 0.0 );
 
     // Declare L4 Libration Point object.
-    crtbp::LibrationPoint librationPointL4;
-
-    // Set mass parameter.
-    librationPointL4.setMassParameter( earthMoonMassParameter );
+    crtbp::LibrationPoint librationPointL4( earthMoonMassParameter,
+                                            boost::make_shared< NewtonRaphson >( ) );
 
     // Compute location of Lagrange libration point.
     librationPointL4.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L4 );
@@ -237,11 +207,9 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL4LibrationPoint )
     BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL4.x( ),
                                 positionOflibrationPointL4.x( ),
                                 1.0e-15 );
-
     BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL4.y( ),
                                 positionOflibrationPointL4.y( ),
                                 1.0e-14 );
-
     BOOST_CHECK_SMALL( positionOflibrationPointL4.z( ), std::numeric_limits< double >::min( ) );
 }
 
@@ -255,10 +223,8 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL5LibrationPoint )
     const Eigen::Vector3d expectedLocationOfL5( 0.487722529, -0.86602540378444, 0.0 );
 
     // Declare L5 Libration Point object.
-    crtbp::LibrationPoint librationPointL5;
-
-    // Set mass parameter.
-    librationPointL5.setMassParameter( earthMoonMassParameter );
+    crtbp::LibrationPoint librationPointL5( earthMoonMassParameter,
+                                            boost::make_shared< NewtonRaphson >( ) );
 
     // Compute location of Lagrange libration point.
     librationPointL5.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L5 );
@@ -271,11 +237,9 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL5LibrationPoint )
     BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL5.x( ),
                                 positionOflibrationPointL5.x( ),
                                 1.0e-15 );
-
     BOOST_CHECK_CLOSE_FRACTION( expectedLocationOfL5.y( ),
                                 positionOflibrationPointL5.y( ),
                                 1.0e-14 );
-
     BOOST_CHECK_SMALL( positionOflibrationPointL5.z( ), std::numeric_limits< double >::min( ) );
 }
 

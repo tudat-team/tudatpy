@@ -46,7 +46,7 @@
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 
-#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositions.h"
+#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 
 namespace tudat
 {
@@ -60,7 +60,7 @@ Eigen::VectorXd ApproximatePlanetPositions::getCartesianStateFromEphemeris(
     // Convert planet elements in Keplerian elements to Cartesian elements.
     return orbital_element_conversions::convertKeplerianToCartesianElements(
                 getKeplerianStateFromEphemeris( julianDate ),
-                solarGravitationalParameter_ );
+                sunGravitationalParameter );
 }
 
 //! Get keplerian state from ephemeris.

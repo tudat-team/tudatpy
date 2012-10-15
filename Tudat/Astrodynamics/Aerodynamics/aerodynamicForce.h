@@ -46,7 +46,6 @@
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/forceModel.h"
 #include "Tudat/Astrodynamics/States/state.h"
 
 namespace tudat
@@ -80,94 +79,11 @@ Eigen::VectorXd computeAerodynamicForce( const double dynamicPressure,
  * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
  * \param coefficientInterface AerodynamicCoefficientInterface class from which reference area
  *          and coefficients are retrieved.
- * \return Resultant aerodynamic force, given in reference frame in which the
- *          aerodynamic coefficients were given.
+ * \return Resultant aerodynamic force, given in reference frame in which the aerodynamic
+ *          coefficients were given.
  */
 Eigen::MatrixXd computeAerodynamicForce(
         const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface );
-
-//! Aerodynamic force model.
-/*!
- * Calculates the aerodynamic force based on C_D C_S and C_L, a reference lenght or area, the
- * local velocity and the local density.
- */
-class AerodynamicForce : public ForceModel
-{
-public:
-
-    //! Typedef for shared pointer to state.
-    /*!
-     * Typedef for shared pointer to state.
-     */
-    typedef boost::shared_ptr< states::State > StatePointer;
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    AerodynamicForce( boost::shared_ptr< AerodynamicCoefficientInterface >
-                      aerodynamicCoefficientInterface ):
-        aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
-        dynamicPressure_( TUDAT_NAN )
-    { }
-
-    //! Get aerodynamic coefficient interface.
-    /*!
-     * Returns the pointer to the AerodynamicCoefficientInterface object.
-     * \return Aerodynamic coefficient interface used to retrieve aerodynamic coefficients.
-     */
-    boost::shared_ptr< AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( )
-    {
-        return aerodynamicCoefficientInterface_;
-    }
-
-    //! Set dynamic pressure.
-    /*!
-     * Sets the dynamic pressure.
-     * \param dynamicPressure Dynamic pressure.
-     */
-    void setDynamicPressure( const double dynamicPressure ) { dynamicPressure_ = dynamicPressure; }
-
-    //! Get dynamic pressure.
-    /*!
-     * Returns the dynamic pressure.
-     * \return Dynamic pressure.
-     */
-    double getDynamicPressure( ) { return dynamicPressure_; }
-
-    //! Compute aerodynamic force.
-    /*!
-     * Computes the force due to the gravity field in Newtons.
-     * \param pointerToState Pointer to an object of the State class containing current state.
-     * \param time Current time.
-     */
-    void computeForce( StatePointer state, const double time = 0.0 )
-    {
-        TUDAT_UNUSED_PARAMETER( state );
-        TUDAT_UNUSED_PARAMETER( time );
-
-        force_ = computeAerodynamicForce(
-                    dynamicPressure_,
-                    aerodynamicCoefficientInterface_->getReferenceArea( ),
-                    aerodynamicCoefficientInterface_->getCurrentForceCoefficients( ) );
-    }
-
-protected:
-
-private:
-
-    //! Pointer to aerodynamic coefficient interface.
-    /*!
-     * Pointer to an aerodynamic coefficient interface.
-     */
-    boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
-
-    //! The dynamic pressure.
-    /*!
-     * The dynamic pressure.
-     */
-    double dynamicPressure_;
-};
 
 } // namespace force_models
 } // namespace astrodynamics
