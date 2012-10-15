@@ -37,7 +37,7 @@
 
 #include <string>
 
-#include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
+#include "Tudat/Astrodynamics/Bodies/Ephemeris/ephemeris.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
 namespace tudat

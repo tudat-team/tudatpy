@@ -80,6 +80,15 @@ Eigen::Vector3d computeGravitationalForce(
                 positionOfBodyExertingForce );
 }
 
+//! Compute force due to gravity field.
+void GravitationalForceModel::computeForce( StatePointer state, const double time )
+{
+    TUDAT_UNUSED_PARAMETER( time );
+
+    force_ = gravityFieldModel_->getGradientOfPotential( state->state.segment( 0, 3 ) )
+            * bodySubjectToForce_->getMass( );
+}
+
 } // namespace force_models
 } // namespace astrodynamics
 } // namespace tudat

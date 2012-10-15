@@ -65,11 +65,11 @@ setup_tudat_library_target(tudat_gravitation "${SRCROOT}${GRAVITATIONDIR}")
 # Add unit tests.
 add_executable(test_SphericalHarmonicsGravityField "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestSphericalHarmonicsGravityField.cpp")
 setup_custom_test_program(test_SphericalHarmonicsGravityField "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_SphericalHarmonicsGravityField tudat_gravitation ${Boost_LIBRARIES})
+target_link_libraries(test_SphericalHarmonicsGravityField tudat_gravitation tudat_bodies ${Boost_LIBRARIES})
 
 add_executable(test_GravitationalForce "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravitationalForce.cpp")
 setup_custom_test_program(test_GravitationalForce "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_GravitationalForce tudat_gravitation ${Boost_LIBRARIES})
+target_link_libraries(test_GravitationalForce tudat_gravitation tudat_bodies ${Boost_LIBRARIES})
 
 add_executable(test_GravitationalAcceleration "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravitationalAcceleration.cpp")
 setup_custom_test_program(test_GravitationalAcceleration "${SRCROOT}${GRAVITATIONDIR}")
@@ -81,12 +81,12 @@ target_link_libraries(test_UnitConversionsCircularRestrictedThreeBodyProblem tud
 
 add_executable(test_JacobiEnergy "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestJacobiEnergy.cpp")
 setup_custom_test_program(test_JacobiEnergy "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_JacobiEnergy tudat_gravitation tudat_mission_segments tudat_root_finding_methods tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_JacobiEnergy tudat_gravitation tudat_bodies tudat_mission_segments tudat_root_finding_methods tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_LibrationPoints "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestLibrationPoints.cpp")
 setup_custom_test_program(test_LibrationPoints "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_LibrationPoints tudat_ephemerides tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_LibrationPoints tudat_bodies tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestStateDerivativeCircularRestrictedThreeBodyProblem.cpp")
 setup_custom_test_program(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_StateDerivativeRestrictedThreeBodyProblem tudat_mission_segments tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_StateDerivativeRestrictedThreeBodyProblem tudat_bodies tudat_mission_segments tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

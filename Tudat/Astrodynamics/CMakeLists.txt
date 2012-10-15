@@ -33,6 +33,7 @@
 # Define the main sub-directories.
 set(AERODYNAMICSDIR "${ASTRODYNAMICSDIR}/Aerodynamics")
 set(BASICASTRODYNAMICSDIR "${ASTRODYNAMICSDIR}/BasicAstrodynamics")
+set(BODIESDIR "${ASTRODYNAMICSDIR}/Bodies")
 set(EPHEMERIDESDIR "${ASTRODYNAMICSDIR}/Ephemerides")
 set(GRAVITATIONDIR "${ASTRODYNAMICSDIR}/Gravitation")
 set(MISSIONSEGMENTSDIR "${ASTRODYNAMICSDIR}/MissionSegments")
@@ -43,6 +44,7 @@ set(STATESDIR "${ASTRODYNAMICSDIR}/States")
 # Add subdirectories.
 add_subdirectory("${SRCROOT}${AERODYNAMICSDIR}")
 add_subdirectory("${SRCROOT}${BASICASTRODYNAMICSDIR}")
+add_subdirectory("${SRCROOT}${BODIESDIR}")
 add_subdirectory("${SRCROOT}${EPHEMERIDESDIR}")
 add_subdirectory("${SRCROOT}${GRAVITATIONDIR}")
 add_subdirectory("${SRCROOT}${MISSIONSEGMENTSDIR}")
@@ -53,6 +55,7 @@ add_subdirectory("${SRCROOT}${STATESDIR}")
 # Get target properties for static libraries.
 get_target_property(AERODYNAMICSSOURCES tudat_aerodynamics SOURCES)
 get_target_property(BASICASTRODYNAMICSSOURCES tudat_basic_astrodynamics SOURCES)
+get_target_property(BODIESSOURCES tudat_bodies SOURCES)
 get_target_property(EPHEMERIDESSOURCES tudat_ephemerides SOURCES)
 get_target_property(GRAVITATIONSOURCES tudat_gravitation SOURCES)
 get_target_property(MISSIONSEGMENTSSOURCES tudat_mission_segments SOURCES)

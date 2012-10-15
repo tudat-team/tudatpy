@@ -54,10 +54,9 @@
 
 #include <cmath>
 
-#include <boost/shared_ptr.hpp>
-
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
+#include "Tudat/Astrodynamics/Bodies/celestialBody.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
 
@@ -70,20 +69,6 @@ namespace gravitation
 namespace circular_restricted_three_body_problem
 {
 
-//! Compute mass parameter.
-/*!
- * Computes dimensionless mass parameter for the CRTBP.
- * \param primaryGravitationalParameter Gravitational parameter of primary body.
- * \param secondaryGravitationalParameter Gravitational parameter of secondary body.
- * \param Dimensionless mass parameter.
- */
-inline double computeMassParameter( const double primaryGravitationalParameter,
-                                    const double secondaryGravitationalParameter )
-{
-    return secondaryGravitationalParameter
-            / ( primaryGravitationalParameter + secondaryGravitationalParameter );
-}
-
 //! Libration point class.
 /*!
  * This class includes functions to compute the location of a Lagrange
@@ -91,34 +76,73 @@ inline double computeMassParameter( const double primaryGravitationalParameter,
  */
 class LibrationPoint
 {
-private:
-
-    //! Typedef for shared pointer to Newton-Raphson method.
-    typedef boost::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
-
 public:
 
-    //! Lagrange libration points.
-    enum LagrangeLibrationPoints { L1, L2, L3, L4, L5 };
+    //! Typedef for shared pointer to celestial body.
+    /*!
+     * Typedef for shared pointer to celestial body.
+     */
+    typedef boost::shared_ptr< bodies::CelestialBody > CelestialBodyPointer;
 
-    //! Default constructor.
-    LibrationPoint( const double aPrimaryGravitationalParameter,
-                    const double aSecondaryGravitationalParameter,
-                    const NewtonRaphsonPointer aNewtonRaphson )
-        : massParameter_( computeMassParameter( aPrimaryGravitationalParameter,
-                                                aSecondaryGravitationalParameter ) ),
-          newtonRaphson_( aNewtonRaphson )
-    { }
+    //! Typedef for shared pointer to newton-raphson method.
+    /*!
+     * Typedef for shared pointer to newton-raphson method.
+     */
+    typedef boost::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
+
+    //! Lagrange libration points.
+    /*!
+     * Lagrange libration points.
+     */
+    enum LagrangeLibrationPoints { L1, L2, L3, L4, L5 };
 
     //! Default constructor.
     /*!
      * Default constructor.
      */
-    LibrationPoint( const double aMassParameter,
-                    const NewtonRaphsonPointer aNewtonRaphson )
-        : massParameter_( aMassParameter ),
-          newtonRaphson_( aNewtonRaphson )
+    LibrationPoint( )
+        : massParameter_( TUDAT_NAN ),
+          massParameterSquared_( TUDAT_NAN ),
+          oneMinusMassParameterSquared_( TUDAT_NAN )
     { }
+
+    //! Set primary celestial body.
+    /*!
+     * Sets primary celestial body in the CRTBP.
+     * \param primaryCelestialBody Pointer to primary celestial body.
+     */
+    void setPrimaryCelestialBody( CelestialBodyPointer primaryCelestialBody )
+    {
+        primaryCelestialBody_ = primaryCelestialBody;
+    }
+
+    //! Set secondary celestial body.
+    /*!
+     * Sets secondary celestial body in the CRTBP.
+     * \param secondaryCelestialBody Pointer to secondary celestial body.
+     */
+    void setSecondaryCelestialBody( CelestialBodyPointer secondaryCelestialBody )
+    {
+        secondaryCelestialBody_ = secondaryCelestialBody;
+    }
+
+    //! Set Newton-Raphson method for Lagrange libration points algorithm.
+    /*!
+     * Sets Newton-Raphson method used to compute the location of the Lagrange
+     * libration points.
+     * \param newtonRaphson Pointer to Newton-Raphson method.
+     */
+    void setNewtonRaphsonMethod( NewtonRaphsonPointer newtonRaphson )
+    {
+        newtonRaphson_ = newtonRaphson;
+    }
+
+    //! Set mass parameter.
+    /*!
+     * Sets mass parameter for the CRTBP.
+     * \param massParameter Mass parameter.
+     */
+    void setMassParameter( const double massParameter ) { massParameter_ = massParameter; }
 
     //! Get dimensionless mass parameter.
     /*!
@@ -139,6 +163,20 @@ public:
         return positionOfLibrationPoint_;
     }
 
+    //! Compute mass parameter.
+    /*!
+     * Computes dimensionless mass parameter. This requires that the setPrimaryCelestialBody( ) and
+     * setSecondaryCelestialBody( ) functions have been called.
+     */
+    void computeMassParameter( )
+    {
+        massParameter_ = secondaryCelestialBody_->getGravityFieldModel( )->
+                getGravitationalParameter( ) / ( primaryCelestialBody_->
+                getGravityFieldModel( )->getGravitationalParameter( )
+                    + secondaryCelestialBody_->getGravityFieldModel( )->
+                                                 getGravitationalParameter( ) );
+    }
+
     //! Compute location of Lagrange libration point.
     /*!
      * Computes the location as a position vector in Cartesian elements of a given Lagrange
@@ -156,6 +194,20 @@ private:
     * Dimensionless mass parameter of the smaller of the massive bodies in the CRTBP.
     */
     double massParameter_;
+
+    //! Dimensionless mass parameter squared.
+    /*!
+     * Dimensionless mass parameter squared. This is used locally in the get-functions for the
+     * Lagrange libration points.
+     */
+    double massParameterSquared_;
+
+    //! Square of one minus dimensionless mass parameter.
+    /*!
+     * Square of one minus dimensionless mass parameter \f$( 1 -  \mu )^{2}\f$. This is used
+     * locally in the get-functions for the Lagrange libration points.
+     */
+    double oneMinusMassParameterSquared_;
 
     //! Pointer to object of NewtonRaphson class.
     /*!
@@ -176,6 +228,18 @@ private:
      */
     Eigen::Vector3d positionOfLibrationPoint_;
 
+    //! Pointer to CelestialBody class for primary body.
+    /*!
+     * Pointer to CelestialBody class for primary body in CRTBP.
+     */
+    CelestialBodyPointer primaryCelestialBody_;
+
+    //! Pointer to CelestialBody class for secondary body.
+    /*!
+     * Pointer to CelestialBody class for secondary body in CRTBP.
+     */
+    CelestialBodyPointer secondaryCelestialBody_;
+
     //! Compute equation of motion for location of L1 libration point.
     /*!
      * Computes equation of motion, whose root is the x-location in dimensionless
@@ -186,8 +250,8 @@ private:
     double computeL1LocationFunction_( double& xLocationEstimate )
     {
         return xLocationEstimate -
-                ( 1.0 - massParameter_ ) / std::pow( massParameter_ + xLocationEstimate, 2.0 )
-                + massParameter_ / std::pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
+                ( 1.0 - massParameter_ ) / pow( massParameter_ + xLocationEstimate, 2.0 )
+                + massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
     }
 
     //! Compute derivative of equation of motion for location of L1 libration point.
@@ -200,8 +264,8 @@ private:
     double computeL1FirstDerivativeLocationFunction_( double& xLocationEstimate )
     {
         return 1.0 + 2.0 * ( 1.0 - massParameter_ )
-                / std::pow( massParameter_ + xLocationEstimate, 3.0 )
-                + 2.0 * massParameter_ / std::pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
+                / pow( massParameter_ + xLocationEstimate, 3.0 )
+                + 2.0 * massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
     }
 
     //! Compute equation of motion for location of L2 libration point.
@@ -214,8 +278,8 @@ private:
     double computeL2LocationFunction_( double& xLocationEstimate )
     {
         return xLocationEstimate
-                - ( 1.0 - massParameter_ ) / std::pow( massParameter_ + xLocationEstimate, 2.0 )
-                - massParameter_ / std::pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
+                - ( 1.0 - massParameter_ ) / pow( massParameter_ + xLocationEstimate, 2.0 )
+                - massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
     }
 
     //! Compute derivative of equation of motion for location of L2 libration point.
@@ -228,8 +292,8 @@ private:
     double computeL2FirstDerivativeLocationFunction_( double& xLocationEstimate )
     {
         return 1.0 + 2.0 * ( 1.0 - massParameter_ )
-                / std::pow( massParameter_ + xLocationEstimate, 3.0 )
-                - 2.0 * massParameter_ / std::pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
+                / pow( massParameter_ + xLocationEstimate, 3.0 )
+                - 2.0 * massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
     }
 
     //! Compute equation of motion for location of L3 libration point.
@@ -242,8 +306,8 @@ private:
     double computeL3LocationFunction_( double& xLocationEstimate )
     {
         return xLocationEstimate
-                + ( 1.0 - massParameter_ ) / std::pow( massParameter_ + xLocationEstimate, 2.0 )
-                - massParameter_ / std::pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
+                + ( 1.0 - massParameter_ ) / pow( massParameter_ + xLocationEstimate, 2.0 )
+                - massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 2.0 );
     }
 
     //! Compute derivative of equation of motion for location of L3 libration point.
@@ -256,8 +320,8 @@ private:
     double computeL3FirstDerivativeLocationFunction_( double& xLocationEstimate )
     {
         return 1.0 - 2.0 * ( 1.0 - massParameter_ )
-                / std::pow( massParameter_ + xLocationEstimate, 3.0 )
-                -2.0 * massParameter_ / std::pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
+                / pow( massParameter_ + xLocationEstimate, 3.0 )
+                -2.0 * massParameter_ / pow( 1.0 - massParameter_ - xLocationEstimate, 3.0 );
     }
 };
 

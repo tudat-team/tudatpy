@@ -59,8 +59,9 @@
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
 
-#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
-#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
+#include "Tudat/Astrodynamics/Bodies/celestialBody.h"
+#include "Tudat/Astrodynamics/Bodies/planet.h"
+#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositionsCircularCoplanar.h"
 
 namespace tudat
 {
@@ -74,7 +75,6 @@ BOOST_AUTO_TEST_SUITE( test_approximate_planet_positions )
 BOOST_AUTO_TEST_CASE( testOrbitalElements )
 {
     using tudat::unit_conversions::convertDegreesToRadians;
-    using namespace tudat::ephemerides;
 
     // Set tolerance.
     const double tolerance = 2.0e-2;
@@ -88,20 +88,26 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
     expectedKeplerianElements[ 4 ] = convertDegreesToRadians( 4.952419052428279e1 );
     expectedKeplerianElements[ 5 ] = convertDegreesToRadians( 3.577219707986779e2 );
 
-    // Create Mars ephemeris.
-    ApproximatePlanetPositions marsEphemeris( ApproximatePlanetPositions::mars );
+    // Create predefined Mars.
+    bodies::Planet predefinedMars;
+    predefinedMars.setPredefinedPlanetSettings( bodies::Planet::mars );
+
+    // Create predefined Sun.
+    bodies::Planet predefinedSun;
+    predefinedSun.setPredefinedPlanetSettings( bodies::Planet::sun );
 
     // Convert the expected Keplerian elements to Cartesian elements.
     Eigen::VectorXd expectedEphemeris;
     expectedEphemeris = orbital_element_conversions::convertKeplerianToCartesianElements(
             expectedKeplerianElements,
-            marsEphemeris.getSunGravitationalParameter( ) );
+            predefinedSun.getGravityFieldModel( )->getGravitationalParameter( ) );
 
     // Retrieve state of Mars in Cartesian elements at Julian date 2455626.5.
-    Eigen::VectorXd marsState = marsEphemeris.getCartesianStateFromEphemeris( 2455626.5 );
+    Eigen::VectorXd marsEphemeris;
+    marsEphemeris = predefinedMars.getEphemeris( )->getCartesianStateFromEphemeris( 2455626.5 );
 
     // Test if the computed ephemeris matches the expected ephemeris within the tolerance set.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedEphemeris, marsState, tolerance );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedEphemeris, marsEphemeris, tolerance );
 }
 
 //! Test the cicular coplanar function against orbital elements of Mars at JD 2455626.5.
@@ -109,25 +115,34 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
 {
     using namespace tudat::ephemerides;
 
-    ApproximatePlanetPositionsCircularCoplanar marsEphemeris(
-                ApproximatePlanetPositionsBase::mars );
+    // Create predefined Sun.
+    bodies::Planet predefinedSun;
+    predefinedSun.setPredefinedPlanetSettings( bodies::Planet::sun );
 
-    Eigen::VectorXd marsStateCircularCoplanar
-            = marsEphemeris.getCartesianStateFromEphemeris( 2455626.5 );
+    // Create predefined Mars and set circular coplanar planet positions.
+    bodies::CelestialBody predefinedMarsCircularCoplanar;
+    predefinedMarsCircularCoplanar.setEphemeris(
+                boost::make_shared< ApproximatePlanetPositionsCircularCoplanar >(
+                                             ApproximatePlanetPositionsBase::mars ) );
+
+    Eigen::VectorXd marsEphemerisCircularCoplanar;
+    marsEphemerisCircularCoplanar = predefinedMarsCircularCoplanar.getEphemeris( )->
+            getCartesianStateFromEphemeris( 2455626.5 );
 
     // Compute the Keplerian elements from this ephemeris.
     Eigen::VectorXd keplerianElementsCircularCoplanar;
     keplerianElementsCircularCoplanar = orbital_element_conversions::
-            convertCartesianToKeplerianElements( marsStateCircularCoplanar,
-                    marsEphemeris.getSunGravitationalParameter( ) );
+            convertCartesianToKeplerianElements( marsEphemerisCircularCoplanar,
+                    predefinedSun.getGravityFieldModel( )->getGravitationalParameter( ) );
 
     // Check the eccentricity, inclination and z-component of velocity and position are 0.
     BOOST_CHECK_SMALL( keplerianElementsCircularCoplanar( 1 ), 1e-15 );
     BOOST_CHECK_SMALL( keplerianElementsCircularCoplanar( 2 ),
                        std::numeric_limits< double >::min( ) );
-    BOOST_CHECK_SMALL( marsStateCircularCoplanar( 2 ), 2.0e-5 );
-    BOOST_CHECK_SMALL( marsStateCircularCoplanar( 5 ),
+    BOOST_CHECK_SMALL( marsEphemerisCircularCoplanar( 2 ), 2.0e-5 );
+    BOOST_CHECK_SMALL( marsEphemerisCircularCoplanar( 5 ),
                        std::numeric_limits< double >::min( ) );
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
