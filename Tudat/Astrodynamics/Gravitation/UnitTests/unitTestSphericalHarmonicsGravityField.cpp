@@ -57,8 +57,7 @@
 
 #include <TudatCore/Basics/testMacros.h>
 
-#include "Tudat/Astrodynamics/Bodies/planet.h"
-#include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
+#include "Tudat/Astrodynamics/Gravitation/centralGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 
 namespace tudat

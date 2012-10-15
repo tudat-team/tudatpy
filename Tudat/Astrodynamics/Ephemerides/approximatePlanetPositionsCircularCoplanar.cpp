@@ -40,8 +40,7 @@
 #include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "Tudat/Astrodynamics/Bodies/Ephemeris/approximatePlanetPositionsCircularCoplanar.h"
-#include "Tudat/Astrodynamics/Bodies/planet.h"
+#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
 
 namespace tudat
 {
@@ -78,13 +77,9 @@ Eigen::VectorXd ApproximatePlanetPositionsCircularCoplanar::getCartesianStateFro
                                                           0.5 * mathematics::PI,
                                                           meanLongitudeAtGivenJulianDate_ ) );
 
-    // Create predefined Sun.
-    bodies::Planet predefinedSun_;
-    predefinedSun_.setPredefinedPlanetSettings( bodies::Planet::sun );
-
     // Compute orbital velocity.
-    double circularOrbitalVelocity = std::sqrt( predefinedSun_.getGravityFieldModel( )->
-                     getGravitationalParameter( ) / constantOrbitalRadius_ );
+    double circularOrbitalVelocity = std::sqrt( sunGravitationalParameter /
+                                                constantOrbitalRadius_ );
 
     // Convert to Cartesian velocity.
     planetCartesianStateAtGivenJulianDate( 3 ) = -sin( meanLongitudeAtGivenJulianDate_ ) *
