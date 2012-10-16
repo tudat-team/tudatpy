@@ -32,16 +32,17 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/dictionaryComparer.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/dictionaryTools.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/fixedWidthParser.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/linearFieldTransform.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/fixedWidthParser.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/separatedParser.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
 )
 
 # Add header files.
@@ -55,6 +56,7 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldType.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fixedWidthParser.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/linearFieldTransform.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.h"
@@ -118,3 +120,7 @@ target_link_libraries(test_FixedWidthParser tudat_input_output ${TUDAT_CORE_LIBR
 add_executable(test_SeparatedParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestSeparatedParser.cpp")
 setup_custom_test_program(test_SeparatedParser "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_SeparatedParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_LinearFieldTransform "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestLinearFieldTransform.cpp")
+setup_custom_test_program(test_LinearFieldTransform "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_LinearFieldTransform tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

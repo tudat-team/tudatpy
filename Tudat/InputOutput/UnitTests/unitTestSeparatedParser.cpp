@@ -26,7 +26,7 @@
  *      YYMMDD    Author            Comment
  *      111103    S. Billemont      First creation of code.
  *      111130    S. Billemont      Rewrote tests in boost.test form.
- *      120718    A. Ronse          Added unit test from "whitespaceparser"
+ *      120718    A. Ronse          Added unit test from "whitespaceparser".
  *
  *    References
  *
@@ -40,11 +40,16 @@
 #include <sstream>
 #include <string>
 
+#include <boost/assign.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+
+#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 
 #include "Tudat/InputOutput/fieldType.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 #include "Tudat/InputOutput/separatedParser.h"
+#include "Tudat/InputOutput/linearFieldTransform.h"
 
 namespace tudat
 {
@@ -250,9 +255,97 @@ BOOST_AUTO_TEST_CASE( separatedParser_whitespace )
     BOOST_CHECK( testLineData->find( state::trueAnomaly ) == testLineData->end( ) );
 }
 
-BOOST_AUTO_TEST_SUITE_END() // testsuite_separatedParser
+BOOST_AUTO_TEST_CASE( separatedParser_fieldTransform )
+{
+    using namespace tudat::input_output;
+    using namespace tudat::input_output;
 
-BOOST_AUTO_TEST_SUITE_END() // testsuite_ephemeris
+    // Create GTOC2 white space parser.
+    tudat::input_output::SeparatedParser
+            testWhiteSpaceParser( " ",
+                                  8,
+                                  field_types::general::id,
+                                  field_types::state::semiMajorAxis,
+                                  field_types::state::eccentricity,
+                                  field_types::state::inclination,
+                                  field_types::state::longitudeOfAscendingNode,
+                                  field_types::state::argumentOfPeriapsis,
+                                  field_types::state::meanAnomaly,
+                                  field_types::time::epoch );
+
+    // Create test data (First line in GTOC2 problem data file with additional whitespaces).
+    std::string testString(
+                "  2011542 3.9501468 0.2391642   6.87574   16.88982  48.9603 229.49648 54000   " );
+
+    // Create unit transformation map
+    std::map< FieldType, boost::shared_ptr< FieldTransform > > unitTransformationMap =
+            boost::assign::map_list_of
+            ( field_types::state::semiMajorAxis, boost::shared_ptr< FieldTransform >(
+                  new LinearFieldTransform(
+                      tudat::unit_conversions::convertAstronomicalUnitsToMeters< double >( 1.0 ),
+                      0.0 ) ) )
+            ( field_types::state::inclination, boost::shared_ptr< FieldTransform >(
+                  new LinearFieldTransform(
+                      tudat::unit_conversions::convertDegreesToRadians< double >( 1.0 ),
+                      0.0 ) ) )
+            ( field_types::state::longitudeOfAscendingNode, boost::shared_ptr< FieldTransform >(
+                  new LinearFieldTransform(
+                      tudat::unit_conversions::convertDegreesToRadians< double >( 1.0 ),
+                      0.0 ) ) )
+            ( field_types::state::argumentOfPeriapsis, boost::shared_ptr< FieldTransform >(
+                  new LinearFieldTransform(
+                      tudat::unit_conversions::convertDegreesToRadians< double >( 1.0 ),
+                      0.0 ) ) )
+            ( field_types::state::meanAnomaly, boost::shared_ptr< FieldTransform >(
+                  new LinearFieldTransform(
+                      tudat::unit_conversions::convertDegreesToRadians< double >( 1.0 ),
+                      0.0 ) ) )
+            ( field_types::time::epoch, boost::shared_ptr< FieldTransform >(
+                  new LinearFieldTransform( 1.0, 2400000.5 ) ) );
+
+    // Pass unit transformation map to parser.
+    testWhiteSpaceParser.setUnitTransformationMap( unitTransformationMap );
+
+    // Parse the data.
+    ParsedDataVectorPtr testResult = testWhiteSpaceParser.parse( testString );
+
+    // Check that only one line is parsed.
+    BOOST_CHECK_EQUAL( testResult->size( ), 1 );
+
+    // Retrieve the single line.
+    ParsedDataLineMapPtr testLineData = testResult->at( 0 );
+
+    // Check that it parsed 9 fields.
+    BOOST_CHECK_EQUAL( testLineData->size( ), 8 );
+
+    // Check if the data was correcly separated.
+    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::general::id )->second->getRaw( ) ),
+                       ( "2011542" ) );
+    BOOST_CHECK_EQUAL( *( testLineData->find(
+                              field_types::state::semiMajorAxis )->second->get( ) ),
+                       ( "590933550196.86743" ) );
+    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::state::eccentricity )->second->get( ) ),
+                       ( "0.2391642" ) );
+    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::state::inclination )->second->get( ) ),
+                       ( "0.12000430151107493" ) );
+    BOOST_CHECK_EQUAL( *( testLineData->find(
+                              field_types::state::longitudeOfAscendingNode )->second->get( ) ),
+                       ( "0.29478296906918866" ) );
+    BOOST_CHECK_EQUAL( *( testLineData->find(
+                              field_types::state::argumentOfPeriapsis )->second->get( ) ),
+                       ( "0.85451843776417968" ) );
+    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::state::meanAnomaly )->second->get( ) ),
+                       ( "4.005469197737316" ) );
+    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::time::epoch )->second->get( ) ),
+                       ( "2454000.5" ) );
+
+    // Check if it fails to find a field that is not passed in the constructor.
+    BOOST_CHECK( testLineData->find( field_types::state::trueAnomaly ) == testLineData->end( ) );
+}
+
+BOOST_AUTO_TEST_SUITE_END( ) // testsuite_separatedParser
+
+BOOST_AUTO_TEST_SUITE_END( ) // testsuite_ephemeris
 
 } // namespace unit_tests
 } // namespace tudat
