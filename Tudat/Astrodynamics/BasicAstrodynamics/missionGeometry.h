@@ -26,9 +26,11 @@
  *      YYMMDD    Author            Comment
  *      120530    M.I. Ganeff       Code created.
  *      121004    M.I. Ganeff       Input parameter types and variable-naming updated.
+ *      121018    M.I. Ganeff       Added computeSphereOfInfluence.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
+ *      Bate R. Fundamentals of Astrodynamics, Courier Dover Publications, 1971.
  *
  *    Notes
  *      In future, it might make sense to create a new MissionGeometry/ sub-directory if a lot more
@@ -68,6 +70,21 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
                               const Eigen::Vector3d& occultingBodyPosition,
                               const double occultingBodyRadius,
                               const Eigen::Vector3d& satellitePosition );
+
+//! Compute the radius of the sphere of influence.
+/*!
+ * Returns the radius of the the Sphere of Influence (SOI) for a body orbiting a central body.
+ *
+ * Reference: Section 7.4 from (Fundamentals of Astrodynamics, R. Bate, 1971).
+ *
+ * \param distanceToCentralBody Distance from the orbiting body to the central body [m].
+ * \param massOrbitingBody Mass of orbiting body (i.e. Earth) [kg].
+ * \param massCentralBody Mass of central body (i.e. Sun) [kg].
+ * \return Radius of sphere of influence [m].
+ */
+double computeSphereOfInfluence( const double distanceToCentralBody,
+                                 const double massOrbitingBody,
+                                 const double massCentralBody );
 
 } // namespace mission_geometry
 } // namespace tudat
