@@ -25,9 +25,16 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120530    M.I. Ganeff       Creation of code.
+ *      121018    M.I. Ganeff       Added unit tests for computeSphereOfInfluence.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
+ *      Bate R. Fundamentals of Astrodynamics, Courier Dover Publications, 1971.
+ *      Wikipedia, Sphere of Influence, accesed 121018.
+ *        http://en.wikipedia.org/wiki/Sphere_of_influence_(astrodynamics)
+ *      Petit et al., IERS Conventions, IERS, 2010.
+ *
+ *    Notes
  *
  */
 
@@ -125,6 +132,36 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
 
     // Test values.
     BOOST_CHECK_CLOSE_FRACTION( 0.4547, shadowFunction, 0.001 );
+}
+
+//! Unit test for computation of radius of sphere of influence (Earth with respect to Sun).
+BOOST_AUTO_TEST_CASE( testSphereOfInfluenceEarth )
+{
+    const double distanceEarthSun = 1.49597870700e11;  // (IERS, 2010)
+    const double massEarth = 5.972186390142457e24;     // (IERS, 2010)
+    const double massSun = 1.988415860572227e30;       // (IERS, 2010)
+
+    // Calculate the sphere of influence of the Earth with respect to the Sun.
+    const double sphereOfInfluenceEarth = mission_geometry::computeSphereOfInfluence(
+                distanceEarthSun, massEarth, massSun );
+
+    // Test values (Wikipedia, Sphere of Influence)
+    BOOST_CHECK_CLOSE_FRACTION( 9.25e8, sphereOfInfluenceEarth, 5.0e-4 );
+}
+
+//! Unit test for computation of radius of sphere of influence (Moon with respect to Earth).
+BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
+{
+    const double distanceMoonEarth = 3.84400e8;     // (Horizons, NASA)
+    const double massMoon = 7.345811416686730e22;   // (IERS, 2010)
+    const double massEarth = 5.972186390142457e24;  // (IERS, 2010)
+
+    // Calculate the sphere of influence of the Moon with respect to the Earth.
+    const double sphereOfInfluenceEarth = mission_geometry::computeSphereOfInfluence(
+                distanceMoonEarth, massMoon, massEarth );
+
+    // Test values (Wikipedia, Sphere of Influence)
+    BOOST_CHECK_CLOSE_FRACTION( 6.61e7, sphereOfInfluenceEarth, 2.0e-3 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
