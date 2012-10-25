@@ -43,8 +43,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/cartesianStateExtractor.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -52,7 +54,8 @@ namespace unit_tests
 {
 
 // Short-hand notation.
-namespace parsed_data_vector_utilities = tudat::input_output::parsed_data_vector_utilities;
+namespace parsed_data_vector_utilities = input_output::parsed_data_vector_utilities;
+using basic_mathematics::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_cartesian_state_extractor )
 
@@ -60,12 +63,13 @@ BOOST_AUTO_TEST_SUITE( test_cartesian_state_extractor )
 BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
 {
     // Using declaration.
-    using namespace tudat::ephemerides;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace ephemerides;
+    using namespace basic_astrodynamics;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
@@ -77,37 +81,37 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
     std::string testZVelocity = "0.0005017881278709447";
 
     // Convert strings to doubles.
-    double expectedXCoordinate = boost::lexical_cast< double >( testXCoordinate );
-    double expectedYCoordinate = boost::lexical_cast< double >( testYCoordinate );
-    double expectedZCoordinate = boost::lexical_cast< double >( testZCoordinate );
-    double expectedXVelocity = boost::lexical_cast< double >( testXVelocity );
-    double expectedYVelocity = boost::lexical_cast< double >( testYVelocity );
-    double expectedZVelocity = boost::lexical_cast< double >( testZVelocity );
+    const double expectedXCoordinate = boost::lexical_cast< double >( testXCoordinate );
+    const double expectedYCoordinate = boost::lexical_cast< double >( testYCoordinate );
+    const double expectedZCoordinate = boost::lexical_cast< double >( testZCoordinate );
+    const double expectedXVelocity = boost::lexical_cast< double >( testXVelocity );
+    const double expectedYVelocity = boost::lexical_cast< double >( testYVelocity );
+    const double expectedZVelocity = boost::lexical_cast< double >( testZVelocity );
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXCoordinate,
-                                                     testXCoordinate ) );
+                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
+                                              testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYCoordinate,
-                                                     testYCoordinate ) );
+                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
+                                              testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZCoordinate,
-                                                     testZCoordinate ) );
+                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
+                                              testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXVelocity,
-                                                     testXVelocity ) );
+                new input_output::FieldValue( field_types::state::cartesianXVelocity,
+                                              testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYVelocity,
-                                                     testYVelocity ) );
+                new input_output::FieldValue( field_types::state::cartesianYVelocity,
+                                              testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZVelocity,
-                                                     testZVelocity ) );
+                new input_output::FieldValue( field_types::state::cartesianZVelocity,
+                                              testZVelocity ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map.
@@ -128,28 +132,34 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
     CartesianStateExtractor testCartesianStateExtractor;
 
     // Extract test data map.
-    boost::shared_ptr< CartesianElements > returnedCartesianElements =
+    boost::shared_ptr< Vector6d > returnedCartesianElements =
             testCartesianStateExtractor.extract( testDataMap );
 
     // Verify that the returned value corresponds to the expected value.
-    BOOST_CHECK_EQUAL( returnedCartesianElements->getCartesianElementX( ), expectedXCoordinate );
-    BOOST_CHECK_EQUAL( returnedCartesianElements->getCartesianElementY( ), expectedYCoordinate );
-    BOOST_CHECK_EQUAL( returnedCartesianElements->getCartesianElementZ( ), expectedZCoordinate );
-    BOOST_CHECK_EQUAL( returnedCartesianElements->getCartesianElementXDot( ), expectedXVelocity );
-    BOOST_CHECK_EQUAL( returnedCartesianElements->getCartesianElementYDot( ), expectedYVelocity );
-    BOOST_CHECK_EQUAL( returnedCartesianElements->getCartesianElementZDot( ), expectedZVelocity );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( xCartesianPositionIndex ),
+                       expectedXCoordinate );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( yCartesianPositionIndex ),
+                       expectedYCoordinate );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( zCartesianPositionIndex ),
+                       expectedZCoordinate );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( xCartesianVelocityIndex ),
+                       expectedXVelocity );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( yCartesianVelocityIndex ),
+                       expectedYVelocity );
+    BOOST_CHECK_EQUAL( ( *returnedCartesianElements )( zCartesianVelocityIndex ),
+                       expectedZVelocity );
 }
 
 //! Test if the extract function throws the necessary exceptions.
 BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
 {
     // Using declaration.
-    using namespace tudat::ephemerides;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace ephemerides;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
@@ -161,25 +171,25 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
                                                      testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
                                                      testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXVelocity,
+                new input_output::FieldValue( field_types::state::cartesianXVelocity,
                                                      testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYVelocity,
+                new input_output::FieldValue( field_types::state::cartesianYVelocity,
                                                      testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZVelocity,
+                new input_output::FieldValue( field_types::state::cartesianZVelocity,
                                                      testZVelocity ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
@@ -204,7 +214,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< CartesianElements > returnedCartesianElements =
+        boost::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -222,12 +232,12 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
 BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
 {
     // Using declaration.
-    using namespace tudat::ephemerides;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace ephemerides;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
@@ -239,25 +249,25 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
                                                      testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
                                                      testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXVelocity,
+                new input_output::FieldValue( field_types::state::cartesianXVelocity,
                                                      testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYVelocity,
+                new input_output::FieldValue( field_types::state::cartesianYVelocity,
                                                      testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZVelocity,
+                new input_output::FieldValue( field_types::state::cartesianZVelocity,
                                                      testZVelocity ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
@@ -282,7 +292,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< CartesianElements > returnedCartesianElements =
+        boost::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -300,12 +310,12 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
 BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
 {
     // Using declaration.
-    using namespace tudat::ephemerides;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace ephemerides;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
@@ -317,25 +327,25 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
                                                      testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
                                                      testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXVelocity,
+                new input_output::FieldValue( field_types::state::cartesianXVelocity,
                                                      testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYVelocity,
+                new input_output::FieldValue( field_types::state::cartesianYVelocity,
                                                      testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZVelocity,
+                new input_output::FieldValue( field_types::state::cartesianZVelocity,
                                                      testZVelocity ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
@@ -360,7 +370,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< CartesianElements > returnedCartesianElements =
+        boost::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -378,12 +388,12 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
 BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
 {
     // Using declaration.
-    using namespace tudat::ephemerides;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace ephemerides;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
@@ -395,25 +405,25 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
                                                      testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
                                                      testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
                                                      testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYVelocity,
+                new input_output::FieldValue( field_types::state::cartesianYVelocity,
                                                      testYVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZVelocity,
+                new input_output::FieldValue( field_types::state::cartesianZVelocity,
                                                      testZVelocity ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
@@ -438,7 +448,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< CartesianElements > returnedCartesianElements =
+        boost::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -456,12 +466,12 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
 BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
 {
     // Using declaration.
-    using namespace tudat::ephemerides;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace ephemerides;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
@@ -473,25 +483,25 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
                                                      testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
                                                      testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
                                                      testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXVelocity,
+                new input_output::FieldValue( field_types::state::cartesianXVelocity,
                                                      testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZVelocity,
+                new input_output::FieldValue( field_types::state::cartesianZVelocity,
                                                      testZVelocity ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
@@ -516,7 +526,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< CartesianElements > returnedCartesianElements =
+        boost::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -534,12 +544,12 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
 BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
 {
     // Using declaration.
-    using namespace tudat::ephemerides;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace ephemerides;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings, based on Earth position and velocity at JD = 2456074.5 in SI units [1].
@@ -551,25 +561,25 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianXCoordinate,
                                                      testXCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianYCoordinate,
                                                      testYCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueZCoordinate(
-                new tudat::input_output::FieldValue( field_types::state::cartesianZCoordinate,
+                new input_output::FieldValue( field_types::state::cartesianZCoordinate,
                                                      testZCoordinate ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianXVelocity,
+                new input_output::FieldValue( field_types::state::cartesianXVelocity,
                                                      testXVelocity ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueYVelocity(
-                new tudat::input_output::FieldValue( field_types::state::cartesianYVelocity,
+                new input_output::FieldValue( field_types::state::cartesianYVelocity,
                                                      testYVelocity ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map, except x-coordinate.
@@ -594,7 +604,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< CartesianElements > returnedCartesianElements =
+        boost::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 

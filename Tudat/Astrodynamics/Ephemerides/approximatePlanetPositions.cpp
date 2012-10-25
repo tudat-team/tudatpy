@@ -46,6 +46,7 @@
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 
 namespace tudat
@@ -70,6 +71,7 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
     using std::pow;
     using std::sin;
     using std::cos;
+    using namespace basic_astrodynamics;
 
     // Set Julian date.
     julianDate_ = julianDate;
@@ -78,29 +80,28 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
     numberOfCenturiesPastJ2000_ = ( julianDate - 2451545.0 ) / 36525.0;
 
     // Compute and set semi-major axis of planet at given Julian date.
-    planetKeplerianElementsAtGivenJulianDate_
-            .setSemiMajorAxis( approximatePlanetPositionsDataContainer_.semiMajorAxis_
-                               + ( approximatePlanetPositionsDataContainer_
-                                   .rateOfChangeOfSemiMajorAxis_ * numberOfCenturiesPastJ2000_ ) );
+    planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex )
+            = approximatePlanetPositionsDataContainer_.semiMajorAxis_
+            + ( approximatePlanetPositionsDataContainer_
+                .rateOfChangeOfSemiMajorAxis_ * numberOfCenturiesPastJ2000_ );
 
     // Compute and set eccentricity of planet at given Julian date.
-    planetKeplerianElementsAtGivenJulianDate_
-            .setEccentricity( approximatePlanetPositionsDataContainer_.eccentricity_
-                              + ( approximatePlanetPositionsDataContainer_
-                                  .rateOfChangeOfEccentricity_ * numberOfCenturiesPastJ2000_ ) );
+    planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex )
+            = approximatePlanetPositionsDataContainer_.eccentricity_
+            + ( approximatePlanetPositionsDataContainer_
+                .rateOfChangeOfEccentricity_ * numberOfCenturiesPastJ2000_ );
 
     // Compute and set inclination of planet at given Julian date.
-    planetKeplerianElementsAtGivenJulianDate_
-            .setInclination( approximatePlanetPositionsDataContainer_.inclination_
-                             + ( approximatePlanetPositionsDataContainer_
-                                 .rateOfChangeOfInclination_ * numberOfCenturiesPastJ2000_ ) );
+    planetKeplerianElementsAtGivenJulianDate_( inclinationIndex )
+            = approximatePlanetPositionsDataContainer_.inclination_
+            + ( approximatePlanetPositionsDataContainer_
+                .rateOfChangeOfInclination_ * numberOfCenturiesPastJ2000_ );
 
     // Compute and set longitude of ascending node of planet at given Julian date.
-    planetKeplerianElementsAtGivenJulianDate_
-            .setLongitudeOfAscendingNode(
-                approximatePlanetPositionsDataContainer_.longitudeOfAscendingNode_
-                + ( approximatePlanetPositionsDataContainer_
-                    .rateOfChangeOfLongitudeOfAscendingNode_ * numberOfCenturiesPastJ2000_ ) );
+    planetKeplerianElementsAtGivenJulianDate_( longitudeOfAscendingNodeIndex )
+            = approximatePlanetPositionsDataContainer_.longitudeOfAscendingNode_
+            + ( approximatePlanetPositionsDataContainer_
+                .rateOfChangeOfLongitudeOfAscendingNode_ * numberOfCenturiesPastJ2000_ );
 
     // Compute longitude of perihelion of planet at given Julian date.
     longitudeOfPerihelionAtGivenJulianDate_
@@ -109,9 +110,9 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
                 * numberOfCenturiesPastJ2000_ );
 
     // Compute and set argument of periapsis of planet at given Julian date.
-    planetKeplerianElementsAtGivenJulianDate_.setArgumentOfPeriapsis(
-                longitudeOfPerihelionAtGivenJulianDate_
-                - planetKeplerianElementsAtGivenJulianDate_.getLongitudeOfAscendingNode( ) );
+    planetKeplerianElementsAtGivenJulianDate_( argumentOfPeriapsisIndex )
+            = longitudeOfPerihelionAtGivenJulianDate_
+            - planetKeplerianElementsAtGivenJulianDate_( longitudeOfAscendingNodeIndex );
 
     // Compute mean longitude of planet at given Julian date.
     meanLongitudeAtGivenJulianDate_ = approximatePlanetPositionsDataContainer_.meanLongitude_
@@ -148,7 +149,7 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
     // Set eccentricty and mean anomaly for mean anomaly to eccentric anomaly conversion.
     orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
             convertMeanAnomalyToEccentricAnomaly_(
-                planetKeplerianElementsAtGivenJulianDate_.getEccentricity( ),
+                planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex ),
                 unit_conversions::convertDegreesToRadians( meanAnomalyAtGivenJulianDate_ ),
                 newtonRaphson_ );
 
@@ -159,34 +160,33 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
     trueAnomalyAtGivenJulianData_
             = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
                 eccentricAnomalyAtGivenJulianDate_,
-                planetKeplerianElementsAtGivenJulianDate_.getEccentricity( ) );
+                planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex ) );
 
-    planetKeplerianElementsAtGivenJulianDate_.setTrueAnomaly(
-                trueAnomalyAtGivenJulianData_ );
+    planetKeplerianElementsAtGivenJulianDate_( trueAnomalyIndex )
+            = trueAnomalyAtGivenJulianData_;
 
     // Convert Keplerian elements to standard units.
     // Convert semi-major axis from AU to meters.
-    planetKeplerianElementsAtGivenJulianDate_.setSemiMajorAxis(
-                unit_conversions::convertAstronomicalUnitsToMeters(
-                    planetKeplerianElementsAtGivenJulianDate_.getSemiMajorAxis( ) ) );
+    planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex )
+            = unit_conversions::convertAstronomicalUnitsToMeters(
+                planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex ) );
 
     // Convert inclination from degrees to radians.
-    planetKeplerianElementsAtGivenJulianDate_.setInclination(
-                unit_conversions::convertDegreesToRadians(
-                    planetKeplerianElementsAtGivenJulianDate_.getInclination( ) ) );
+    planetKeplerianElementsAtGivenJulianDate_( inclinationIndex )
+            = unit_conversions::convertDegreesToRadians(
+                planetKeplerianElementsAtGivenJulianDate_( inclinationIndex ) );
 
     // Convert longitude of ascending node from degrees to radians.
-    planetKeplerianElementsAtGivenJulianDate_
-            .setLongitudeOfAscendingNode(
-                unit_conversions::convertDegreesToRadians(
-                    planetKeplerianElementsAtGivenJulianDate_.getLongitudeOfAscendingNode( ) ) );
+    planetKeplerianElementsAtGivenJulianDate_( longitudeOfAscendingNodeIndex )
+            = unit_conversions::convertDegreesToRadians(
+                planetKeplerianElementsAtGivenJulianDate_( longitudeOfAscendingNodeIndex ) );
 
     // Convert argument of periapsis from degrees to radians.
-    planetKeplerianElementsAtGivenJulianDate_.setArgumentOfPeriapsis(
-                unit_conversions::convertDegreesToRadians(
-                    planetKeplerianElementsAtGivenJulianDate_.getArgumentOfPeriapsis( ) ) );
+    planetKeplerianElementsAtGivenJulianDate_( argumentOfPeriapsisIndex )
+            = unit_conversions::convertDegreesToRadians(
+                planetKeplerianElementsAtGivenJulianDate_( argumentOfPeriapsisIndex ) );
 
-    return planetKeplerianElementsAtGivenJulianDate_.state;
+    return planetKeplerianElementsAtGivenJulianDate_;
 }
 
 } // namespace ephemerides

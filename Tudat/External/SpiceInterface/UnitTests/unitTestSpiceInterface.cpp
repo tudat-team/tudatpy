@@ -58,11 +58,14 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
 namespace unit_tests
 {
+
+using tudat::basic_mathematics::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_spice_wrappers )
 
@@ -148,7 +151,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
     const double ephemerisTime = 1.0E6;
 
     // Get state from wrapper for state:
-    const Eigen::Matrix< double, 6, 1 > wrapperState = getBodyCartesianStateAtEpoch(
+    const Vector6d wrapperState = getBodyCartesianStateAtEpoch(
                 target, observer, referenceFrame, abberationCorrections, ephemerisTime );
 
     // Get position from wrapper for position:
@@ -393,12 +396,12 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
     const double julianDay = 2451556.500000000;
 
     // Get state from wrapper for state:
-    const Eigen::Matrix< double, 6, 1 > wrapperState = getBodyCartesianStateAtEpoch(
+    const Vector6d wrapperState = getBodyCartesianStateAtEpoch(
                 target, observer, referenceFrame, abberationCorrections,
                 convertJulianDateToEphemerisTime( julianDay ) );
 
     // Set state as retrieved from Horizons (see Issue wiki-knowledgebase-spice interface)
-    Eigen::Matrix< double, 6, 1 > horizonsState;
+    Vector6d horizonsState;
     horizonsState << 2.066392047883538e8,
             2.364158324807732e7,
             -4.570656418319555e6,

@@ -65,14 +65,12 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/StateDerivativeModels/stateDerivativeModel.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
 namespace state_derivative_models
 {
-
-//! Typedef for an Eigen::Vector containing six elements.
-typedef Eigen::Matrix< double, 6, 1 > Vector6d;
 
 //! Perform no frame transformation.
 /*!
@@ -123,7 +121,8 @@ inline void updateNothing( const IndependentVariableType independentVariable,
  * \tparam AccelerationModelType Type of acceleration models provided by user (default is
  *          acceleration models that return an AccelerationType acceleration).
  */
-template< typename IndependentVariableType = double, typename CartesianStateType = Vector6d,
+template< typename IndependentVariableType = double,
+          typename CartesianStateType = basic_mathematics::Vector6d,
           typename AccelerationType = Eigen::Vector3d, typename AccelerationModelType
           = basic_astrodynamics::acceleration_models::AccelerationModel< AccelerationType > >
 class CartesianStateDerivativeModel

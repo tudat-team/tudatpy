@@ -68,9 +68,10 @@ namespace aerodynamics
 
 using std::string;
 using std::endl;
-using tudat::mathematics::PI;
+using basic_mathematics::Vector6d;
+using mathematics::PI;
 
-using namespace tudat::mathematics::geometric_shapes;
+using namespace mathematics::geometric_shapes;
 
 //! Returns default values of mach number for use in HypersonicLocalInclinationAnalysis.
 std::vector< double > getDefaultHypersonicLocalInclinationMachPoints(
@@ -260,7 +261,7 @@ HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
 }
 
 //! Get aerodynamic coefficients.
-Eigen::Matrix< double, 6, 1 > HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
+Vector6d HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
         const boost::array< int, 3 > independentVariables )
 {
     if( isCoefficientGenerated_( independentVariables ) == 0 )
@@ -303,7 +304,7 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
         const boost::array< int, 3 > independentVariableIndices )
 {
     // Declare coefficients vector and initialize to zeros.
-    Eigen::Matrix< double, 6, 1 > coefficients = Eigen::Matrix< double, 6, 1 >::Zero( );
+    Vector6d coefficients = Vector6d::Zero( );
 
     // Loop over all vehicle parts, calculate aerodynamic coefficients and add
     // to aerodynamicCoefficients_.
@@ -317,7 +318,7 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
 }
 
 //! Determine aerodynamic coefficients of a single vehicle part.
-Eigen::Matrix< double, 6, 1 > HypersonicLocalInclinationAnalysis::determinePartCoefficients(
+Vector6d HypersonicLocalInclinationAnalysis::determinePartCoefficients(
         const int partNumber, const boost::array< int, 3 > independentVariableIndices )
 {
     // Declare and determine angles of attack and sideslip for analysis.
@@ -328,7 +329,7 @@ Eigen::Matrix< double, 6, 1 > HypersonicLocalInclinationAnalysis::determinePartC
             [ independentVariableIndices[ angle_of_sideslip_index ] ];
 
     // Declare partCoefficient vector.
-    Eigen::Matrix< double, 6, 1 > partCoefficients = Eigen::Matrix< double, 6, 1 >::Zero( );
+    Vector6d partCoefficients = Vector6d::Zero( );
 
     // Check whether the inclinations of the vehicle part have already been computed.
     if ( previouslyComputedInclinations_.count(  std::pair< double, double >(

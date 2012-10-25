@@ -43,6 +43,7 @@ set(BASICMATHEMATICS_SOURCES
 set(BASICMATHEMATICS_HEADERS 
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/coordinateConversions.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/legendrePolynomials.h"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/linearAlgebraTypes.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/nearestNeighbourSearch.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/numericalDerivative.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/sphericalHarmonics.h"

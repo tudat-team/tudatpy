@@ -40,6 +40,7 @@
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/keplerStateExtractor.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 
@@ -49,127 +50,135 @@ namespace ephemerides
 {
 
 //! Extract the Keplerian Elements.
-boost::shared_ptr< KeplerianElements > KeplerStateExtractor::extract(
+boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
         ParsedDataLineMapPtr dataLineMap )
-{    
+{
     // Short-hand notation.
-    namespace parsed_data_vector_utilities = tudat::input_output::parsed_data_vector_utilities;
+    namespace parsed_data_vector_utilities = input_output::parsed_data_vector_utilities;
+    using basic_mathematics::Vector6d;
 
     // Create a new KeplerianElements object.
-    boost::shared_ptr< KeplerianElements > keplerianElements =
-            boost::make_shared< KeplerianElements >( );
+    boost::shared_ptr< Vector6d > keplerianElements = boost::make_shared< Vector6d >( );
 
     // Find and set semi-major axis.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::semiMajorAxis ) )
+                                 input_output::field_types::state::semiMajorAxis ) )
     {
-        keplerianElements->setSemiMajorAxis(
-                    parsed_data_vector_utilities::getField< double >(
-                        dataLineMap, tudat::input_output::field_types::state::semiMajorAxis ) );
+        ( *keplerianElements )( basic_astrodynamics::semiMajorAxisIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::semiMajorAxis );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
-                                   std::runtime_error( "No semi-major axis entry found." ) ) );
+                                    std::runtime_error( "No semi-major axis entry found." ) ) );
     }
 
     // Find and set eccentricity.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::eccentricity ) )
+                                 input_output::field_types::state::eccentricity ) )
     {
-        keplerianElements->setEccentricity(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                       tudat::input_output::field_types::state::eccentricity ) );
+        ( *keplerianElements )( basic_astrodynamics::eccentricityIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::eccentricity );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
-                                   std::runtime_error( "No eccentricity entry found." ) ) );
+                                    std::runtime_error( "No eccentricity entry found." ) ) );
     }
 
     // Find and set inclination.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::inclination ) )
+                                 input_output::field_types::state::inclination ) )
     {
-        keplerianElements->setInclination(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                        tudat::input_output::field_types::state::inclination ) );
+        ( *keplerianElements )( basic_astrodynamics::inclinationIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::inclination );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
-                                   std::runtime_error( "No inclination entry found." ) ) );
+                                    std::runtime_error( "No inclination entry found." ) ) );
     }
 
     // Find and set longitude of ascending node.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                              tudat::input_output::field_types::state::longitudeOfAscendingNode ) )
+                                 input_output::field_types::state::longitudeOfAscendingNode ) )
     {
-        keplerianElements->setLongitudeOfAscendingNode(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                            tudat::input_output::field_types::state::longitudeOfAscendingNode ) );
+        ( *keplerianElements )( basic_astrodynamics::longitudeOfAscendingNodeIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::longitudeOfAscendingNode );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
-                            std::runtime_error(
+                                    std::runtime_error(
                                         "No longitude of ascending node entry found." ) ) );
     }
 
     // Find and set argument of periapsis.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::argumentOfPeriapsis ) )
+                                 input_output::field_types::state::argumentOfPeriapsis ) )
     {
-        keplerianElements->setArgumentOfPeriapsis(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                tudat::input_output::field_types::state::argumentOfPeriapsis ) );
+        ( *keplerianElements )( basic_astrodynamics::argumentOfPeriapsisIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::argumentOfPeriapsis );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
-                                  std::runtime_error(
+                                    std::runtime_error(
                                         "No argument of periapsis entry found." ) ) );
     }
 
     // Find and set true anomaly.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::trueAnomaly ) )
+                                 input_output::field_types::state::trueAnomaly ) )
     {
-        keplerianElements->setTrueAnomaly(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                        tudat::input_output::field_types::state::trueAnomaly ) );
+        ( *keplerianElements )( basic_astrodynamics::trueAnomalyIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::trueAnomaly );
     }
 
     // If the true anomaly is not present, check for mean anomaly.
     else if ( checkOptionalFieldType( dataLineMap, 1,
-                                      tudat::input_output::field_types::state::meanAnomaly ) )
+                                      input_output::field_types::state::meanAnomaly ) )
     {
         // Store mean anomaly.
-        double meanAnomaly = parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                            tudat::input_output::field_types::state::meanAnomaly );
+        const double meanAnomaly = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::meanAnomaly );
 
         // Retrieve eccentricity.
-        double eccentricity = keplerianElements->getEccentricity( );
+        const double eccentricity
+                = ( *keplerianElements )( basic_astrodynamics::eccentricityIndex );
 
         // Create Newton-Raphson object.
-        boost::shared_ptr< tudat::NewtonRaphson > newtonRaphson =
-                boost::make_shared< tudat::NewtonRaphson >( );
+        boost::shared_ptr< NewtonRaphson > newtonRaphson =
+                boost::make_shared< NewtonRaphson >( );
 
         // Declare mean to eccentric anomaly conversion class.
         orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
                 convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly, newtonRaphson );
 
         // Convert to eccentric anomaly.
-        double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly.convert( );
+        const double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly.convert( );
 
         // Convert eccentric anomaly to true anomaly and set the latter.
-        keplerianElements->setTrueAnomaly(
-                    orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                        eccentricAnomaly, eccentricity ) );
+        ( *keplerianElements )( basic_astrodynamics::trueAnomalyIndex )
+                = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+                    eccentricAnomaly, eccentricity );
     }
+
     else
     {
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
+        boost::throw_exception( boost::enable_error_info(
+                                    std::runtime_error(
                                         "No true anomaly or mean anomaly entries found." ) ) );
     }
 

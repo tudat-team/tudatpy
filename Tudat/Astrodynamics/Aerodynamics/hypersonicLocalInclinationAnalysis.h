@@ -59,6 +59,7 @@
 #include <boost/multi_array.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 namespace tudat
@@ -84,7 +85,6 @@ std::vector< double > getDefaultHypersonicLocalInclinationAngleOfAttackPoints( )
  *  Returns default values of angle of sideslip for use in HypersonicLocalInclinationAnalysis.
  */
 std::vector< double > getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
-
 
 //! Class for inviscid hypersonic aerodynamic analysis using local inclination methods.
 /*!
@@ -138,7 +138,7 @@ public:
      *          indices in dataPointsOfIndependentVariables_.
      * \return vector of coefficients at specified independent variable indices.
      */
-    Eigen::Matrix< double, 6, 1 > getAerodynamicCoefficients(
+    basic_mathematics::Vector6d getAerodynamicCoefficients(
             const boost::array< int, 3 > independentVariables );
 
     //! Generate aerodynamic database.
@@ -221,7 +221,7 @@ private:
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
      */
-    Eigen::Matrix< double, 6, 1 > determinePartCoefficients(
+    basic_mathematics::Vector6d determinePartCoefficients(
             const int partNumber, const boost::array< int, 3 > independentVariableIndices );
 
     //! Determine pressure coefficients on a given part.

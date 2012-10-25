@@ -57,7 +57,9 @@
 #include <string>
 #include <vector>
 
-#include "Tudat/Astrodynamics/States/keplerianElements.h"
+#include <Eigen/Core>
+
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -254,7 +256,7 @@ public:
      * Argument of Perigee, ranging between 0 and 360 degrees.
      * Semi-Major Axis, calculated from the other TLE variables.
      */
-    astrodynamics::states::KeplerianElements TLEKeplerianElements;
+    basic_mathematics::Vector6d TLEKeplerianElements;
 
     //! Mean anomaly.
     /*!

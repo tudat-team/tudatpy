@@ -70,7 +70,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
 {
     // Using declarations.
     using tudat::AerodynamicCoefficientInterface;
-    using tudat::astrodynamics::states::State;
     using tudat::astrodynamics::force_models::computeAerodynamicForce;
     using tudat::astrodynamics::acceleration_models::computeAerodynamicAcceleration;
 
@@ -155,7 +154,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     using tudat::astrodynamics::moment_models::computeAerodynamicMoment;
     using tudat::astrodynamics::rotational_acceleration_models::
     computeAerodynamicRotationalAcceleration;
-    using tudat::astrodynamics::states::State;
 
     // Set force coefficients.
     const Eigen::Vector3d forceCoefficients( 2.6, 6.7, 0.3 );

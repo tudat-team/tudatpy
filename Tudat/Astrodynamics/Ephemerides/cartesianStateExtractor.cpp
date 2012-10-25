@@ -35,6 +35,7 @@
 
 #include <boost/make_shared.hpp>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/cartesianStateExtractor.h"
 
 namespace tudat
@@ -42,25 +43,25 @@ namespace tudat
 namespace ephemerides
 {
 
-boost::shared_ptr< CartesianElements > CartesianStateExtractor::extract(
+boost::shared_ptr< basic_mathematics::Vector6d > CartesianStateExtractor::extract(
         ParsedDataLineMapPtr dataLineMap )
 {
-
     // Short-hand notation.
-    namespace parsed_data_vector_utilities = tudat::input_output::parsed_data_vector_utilities;
+    namespace parsed_data_vector_utilities = input_output::parsed_data_vector_utilities;
+    using basic_mathematics::Vector6d;
 
     // Create a new CartesianElements object.
-    boost::shared_ptr< CartesianElements > cartesianElements =
-            boost::make_shared< CartesianElements >( );
+    boost::shared_ptr< Vector6d > cartesianElements = boost::make_shared< Vector6d >( );
 
     // Find and set Cartesian x coordinate.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::cartesianXCoordinate ) )
+                                 input_output::field_types::state::cartesianXCoordinate ) )
     {
-        cartesianElements->setCartesianElementX(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                tudat::input_output::field_types::state::cartesianXCoordinate ) );
+        ( *cartesianElements )( basic_astrodynamics::xCartesianPositionIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::cartesianXCoordinate );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
@@ -70,12 +71,13 @@ boost::shared_ptr< CartesianElements > CartesianStateExtractor::extract(
 
     // Find and set Cartesian y coordinate.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::cartesianYCoordinate ) )
+                                 input_output::field_types::state::cartesianYCoordinate ) )
     {
-        cartesianElements->setCartesianElementY(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                tudat::input_output::field_types::state::cartesianYCoordinate ) );
+        ( *cartesianElements )( basic_astrodynamics::yCartesianPositionIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::cartesianYCoordinate );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
@@ -84,12 +86,13 @@ boost::shared_ptr< CartesianElements > CartesianStateExtractor::extract(
 
     // Find and set Cartesian z coordinate.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::cartesianZCoordinate ) )
+                                 input_output::field_types::state::cartesianZCoordinate ) )
     {
-        cartesianElements->setCartesianElementZ(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                tudat::input_output::field_types::state::cartesianZCoordinate ) );
+        ( *cartesianElements )( basic_astrodynamics::zCartesianPositionIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::cartesianZCoordinate );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
@@ -99,11 +102,11 @@ boost::shared_ptr< CartesianElements > CartesianStateExtractor::extract(
 
     // Find and set Cartesian x velocity.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::cartesianXVelocity ) )
+                                 input_output::field_types::state::cartesianXVelocity ) )
     {
-        cartesianElements->setCartesianElementXDot(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                tudat::input_output::field_types::state::cartesianXVelocity ) );
+        ( *cartesianElements )( basic_astrodynamics::xCartesianVelocityIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::cartesianXVelocity );
     }
     else
     {
@@ -114,12 +117,13 @@ boost::shared_ptr< CartesianElements > CartesianStateExtractor::extract(
 
     // Find and set Cartesian y velocity.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::cartesianYVelocity ) )
+                                 input_output::field_types::state::cartesianYVelocity ) )
     {
-        cartesianElements->setCartesianElementYDot(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                tudat::input_output::field_types::state::cartesianYVelocity ) );
+        ( *cartesianElements )( basic_astrodynamics::yCartesianVelocityIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::cartesianYVelocity );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(
@@ -129,12 +133,13 @@ boost::shared_ptr< CartesianElements > CartesianStateExtractor::extract(
 
     // Find and set Cartesian z velocity.
     if ( checkOptionalFieldType( dataLineMap, 1,
-                                 tudat::input_output::field_types::state::cartesianZVelocity ) )
+                                 input_output::field_types::state::cartesianZVelocity ) )
     {
-        cartesianElements->setCartesianElementZDot(
-                    parsed_data_vector_utilities::getField< double >( dataLineMap,
-                                tudat::input_output::field_types::state::cartesianZVelocity ) );
+        ( *cartesianElements )( basic_astrodynamics::zCartesianVelocityIndex )
+                = parsed_data_vector_utilities::getField< double >(
+                    dataLineMap, input_output::field_types::state::cartesianZVelocity );
     }
+
     else
     {
         boost::throw_exception( boost::enable_error_info(

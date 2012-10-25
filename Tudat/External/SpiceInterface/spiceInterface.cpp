@@ -45,6 +45,8 @@ namespace tudat
 namespace spice_interface
 {
 
+using tudat::basic_mathematics::Vector6d;
+
 //! Convert a julian date to ephemeris time (equivalent to TDB in Spice).
 double convertJulianDateToEphemerisTime( const double julianDate )
 {
@@ -66,11 +68,12 @@ double convertDateStringToEphemerisTime( const std::string& dateString )
 }
 
 //! Get Cartesian state of a body, as observed from another body.
-Eigen::Matrix< double, 6, 1 > getBodyCartesianStateAtEpoch(
+Vector6d getBodyCartesianStateAtEpoch(
         const std::string& targetBodyName, const std::string& observerBodyName,
         const std::string& referenceFrameName, const std::string& abberationCorrections,
         const double ephemerisTime )
 {
+
     // Declare variables for cartesian state and light-time to be determined by Spice.
     double stateAtEpoch[ 6 ];
     double lightTime;
@@ -81,14 +84,14 @@ Eigen::Matrix< double, 6, 1 > getBodyCartesianStateAtEpoch(
               &lightTime );
 
     // Put result in Eigen Vector.
-    Eigen::Matrix< double, 6, 1 > cartesianStateVector;
+    Vector6d cartesianStateVector;
     for ( unsigned int i = 0; i < 6 ; i++ )
     {
         cartesianStateVector[ i ] = stateAtEpoch[ i ];
     }
 
     // Convert from km(/s) to m(/s).
-    return unit_conversions::convertKilometersToMeters< Eigen::Matrix< double, 6, 1 > >(
+    return unit_conversions::convertKilometersToMeters< Vector6d >(
                 cartesianStateVector );
 }
 

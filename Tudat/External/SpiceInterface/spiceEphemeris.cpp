@@ -39,12 +39,15 @@
 #include <boost/exception/all.hpp>
 
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
 
 namespace ephemerides
 {
+
+using tudat::basic_mathematics::Vector6d;
 
 //! Constructor
 SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
@@ -109,7 +112,7 @@ Eigen::VectorXd SpiceEphemeris::getCartesianStateFromEphemeris( const double jul
     const double ephemerisTime = spice_interface::convertJulianDateToEphemerisTime( julianDay );
 
     // Retrieve Cartesian state from spice.
-    const Eigen::Matrix< double, 6, 1 > cartesianStateAtEpoch =
+    const Vector6d cartesianStateAtEpoch =
             spice_interface::getBodyCartesianStateAtEpoch(
                 targetBodyName_, observerBodyName_, referenceFrameName_, abberationCorrections_,
                 ephemerisTime );
