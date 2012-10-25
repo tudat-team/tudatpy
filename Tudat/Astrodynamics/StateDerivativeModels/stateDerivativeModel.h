@@ -40,13 +40,12 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+
 namespace tudat
 {
 namespace state_derivative_models
 {
-
-//! Typedef for an Eigen::Vector6d.
-typedef Eigen::Matrix< double, 6, 1 > Vector6d;
 
 //! State derivative model class.
 /*!
@@ -87,7 +86,7 @@ private:
 typedef boost::shared_ptr< StateDerivativeModel< > > StateDerivativeModelXd;
 
 //! Typedef for state derivative model (Vector6d).
-typedef StateDerivativeModel< double, Vector6d > StateDerivativeModelVector6d;
+typedef StateDerivativeModel< double, basic_mathematics::Vector6d > StateDerivativeModelVector6d;
 
 //! Typedef for shared-pointer to state derivative model (Vector6d).
 typedef boost::shared_ptr< StateDerivativeModelVector6d > StateDerivativeModelVector6dPointer;

@@ -52,6 +52,7 @@
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 
@@ -59,6 +60,8 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+using basic_mathematics::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_aerodynamic_coefficient_generator )
 
@@ -126,8 +129,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
     independentVariables[ 2 ] = 0;
 
     // Declare local test variables.
-    Eigen::Matrix< double, 6, 1 > aerodynamicCoefficients_ =
-            Eigen::Matrix< double, 6, 1 > ::Zero( );
+    Vector6d aerodynamicCoefficients_ = Vector6d::Zero( );
     double forceCoefficient_;
 
     // Iterate over all angles of attack to verify sphere coefficients.

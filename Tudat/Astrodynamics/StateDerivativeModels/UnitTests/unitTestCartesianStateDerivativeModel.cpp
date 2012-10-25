@@ -55,6 +55,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testAccelerationModels.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testBody.h"
 #include "Tudat/Astrodynamics/StateDerivativeModels/cartesianStateDerivativeModel.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -62,6 +63,7 @@ namespace unit_tests
 {
 
 using boost::assign::list_of;
+using basic_mathematics::Vector6d;
 
 //! Rotate vector over arbitrary angles.
 /*!
@@ -112,7 +114,6 @@ BOOST_AUTO_TEST_SUITE( test_cartesian_state_derivative_model )
 BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel6DWithoutFrameTransformations )
 {
     using tudat::basic_astrodynamics::acceleration_models::AccelerationModel3dPointer;
-    using state_derivative_models::Vector6d;
     using state_derivative_models::CartesianStateDerivativeModel6d;
     using state_derivative_models::CartesianStateDerivativeModel6dPointer;
 
@@ -188,7 +189,6 @@ BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel6DWithoutFrameTransforma
 BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel6DWithFrameTransformations )
 {
     using tudat::basic_astrodynamics::acceleration_models::AccelerationModel3dPointer;
-    using state_derivative_models::Vector6d;
     using state_derivative_models::CartesianStateDerivativeModel6d;
     using state_derivative_models::CartesianStateDerivativeModel6dPointer;
 

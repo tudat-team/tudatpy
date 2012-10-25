@@ -46,7 +46,6 @@
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
-#include "Tudat/Astrodynamics/States/state.h"
 
 namespace tudat
 {

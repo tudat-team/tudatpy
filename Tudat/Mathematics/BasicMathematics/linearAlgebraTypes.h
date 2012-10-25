@@ -24,59 +24,44 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
- *      111205    T. Secretin       Added functionalities to previous shell code.
+ *      121022    K. Kumar          Created file with 6-dimensional Eigen vectors and matrices.
  *
  *    References
  *
  *    Notes
+ *      Code in this file, if used often, should be migrated to Tudat Core.
  *
  */
 
-#ifndef TUDAT_KEPLER_STATE_EXTRACTOR_H
-#define TUDAT_KEPLER_STATE_EXTRACTOR_H
-
-#include <boost/shared_ptr.hpp>
+#ifndef TUDAT_LINEAR_ALGEBRA_TYPES_H
+#define TUDAT_LINEAR_ALGEBRA_TYPES_H
 
 #include <Eigen/Core>
 
-#include "Tudat/InputOutput/extractor.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
-
 namespace tudat
 {
-namespace ephemerides
+namespace basic_mathematics
 {
 
-//! Keplerian State extractor class.
-/*!
- * This class contains the functionality of extracting the Keplerian elements from a parsed data
- * line map.
- */
-class KeplerStateExtractor : public input_output::Extractor<
-        basic_mathematics::Vector6d >
-{
-public:
+//! Typedef for Vector6d.
+typedef Eigen::Matrix< double, 6, 1 > Vector6d;
 
-    //! Extract the Keplerian Elements.
-    /*!
-     * Returns a KeplerianElements object containing the orbital parameters found in the input data
-     * line map. If one of the elements is not present, the function throws an exception.
-     * If no true anomaly field type is found, the function searches for the mean
-     * anomaly field type and performs the necessary conversions. The if-statements can be easily
-     * extended to deal with other non-standard field types.
-     *
-     * \param dataLineMap Data map corresponding to a parsed line.
-     * \return A KeplerianElements object containing the orbital parameters found in the data map.
-     */
-    boost::shared_ptr< basic_mathematics::Vector6d > extract( ParsedDataLineMapPtr dataLineMap );
+//! Typedef for Vector6i.
+typedef Eigen::Matrix< int, 6, 1 > Vector6i;
 
-protected:
+//! Typedef for Vector6f.
+typedef Eigen::Matrix< float, 6, 1 > Vector6f;
 
-private:
-};
+//! Typedef for Matrix6d.
+typedef Eigen::Matrix< double, 6, 6 > Matrix6d;
 
-} // namespace ephemerides
+//! Typedef for Matrix6i.
+typedef Eigen::Matrix< int, 6, 6 > Matrix6i;
+
+//! Typedef for Matrix6f.
+typedef Eigen::Matrix< float, 6, 6 > Matrix6f;
+
+} // namespace basic_mathematics
 } // namespace tudat
 
-#endif // TUDAT_KEPLER_STATE_EXTRACTOR_H
+#endif // TUDAT_LINEAR_ALGEBRA_TYPES_H

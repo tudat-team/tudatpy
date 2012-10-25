@@ -60,6 +60,7 @@
 #include <string>
 #include <vector>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/InputOutput/twoLineElementsTextFileReader.h"
 
 namespace tudat
@@ -109,8 +110,8 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).exponentOfBStar, -2 );
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).tleNumber, 26 );
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).objectIdentificationNumberLine2, 30303 );
-    BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).TLEKeplerianElements.getInclination( ),
-                       24.6237 );
+    BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).TLEKeplerianElements(
+                           basic_astrodynamics::inclinationIndex ), 24.6237 );
 
     // Stored TLE data is checked for integrity and number of corrupted TLEs is saved,
     // while the corrupted TLEs have been erased from the data
@@ -133,8 +134,8 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 0 ).
                        firstDerivativeOfMeanMotionDividedByTwo, 0.00000290 );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).launchPart, "B  " );
-    BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).TLEKeplerianElements.
-                       getEccentricity( ), 0.0024687);
+    BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).TLEKeplerianElements(
+                           basic_astrodynamics::eccentricityIndex ), 0.0024687 );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 2 ).revolutionNumber, 57038 );
 }
 
@@ -177,7 +178,8 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForThreeLine )
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).exponentOfBStar, -2 );
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).tleNumber, 26 );
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).objectIdentificationNumberLine2, 30303 );
-    BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).TLEKeplerianElements.getInclination( ), 24.6237 );
+    BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).TLEKeplerianElements(
+                           basic_astrodynamics::inclinationIndex ), 24.6237 );
 
     // Stored TLE data is checked for integrity and number of corrupted TLEs is saved,
     // while the corrupted TLEs have been erased from the data
@@ -200,8 +202,8 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForThreeLine )
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 0 ).
                        firstDerivativeOfMeanMotionDividedByTwo, 0.00000290 );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).launchPart, "B  " );
-    BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).TLEKeplerianElements.
-                       getEccentricity( ), 0.0024687);
+    BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).TLEKeplerianElements(
+                           basic_astrodynamics::eccentricityIndex ), 0.0024687 );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 2 ).revolutionNumber, 57038 );
 }
 

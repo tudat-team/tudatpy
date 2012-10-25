@@ -73,7 +73,6 @@
 
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeterIzzo.h"
-#include "Tudat/Astrodynamics/States/cartesianElements.h"
 
 namespace tudat
 {

@@ -37,23 +37,23 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "Tudat/Astrodynamics/States/cartesianElements.h"
+#include <Eigen/Core>
+
 #include "Tudat/InputOutput/extractor.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
 namespace ephemerides
 {
 
-//! Short-hand notation.
-typedef tudat::astrodynamics::states::CartesianElements CartesianElements;
-
 //! Cartesian State extractor class.
 /*!
  * This class contains the functionality of extracting the Cartesian elements from a parsed data
  * line map.
  */
-class CartesianStateExtractor : public input_output::Extractor< CartesianElements >
+class CartesianStateExtractor : public input_output::Extractor<
+        basic_mathematics::Vector6d >
 {
 public:
 
@@ -65,7 +65,7 @@ public:
      * \param dataLineMap Data map corresponding to a parsed line.
      * \return A CartesianElements object containing the orbital parameters found in the data map.
      */
-    boost::shared_ptr< CartesianElements > extract( ParsedDataLineMapPtr dataLineMap );
+    boost::shared_ptr< basic_mathematics::Vector6d > extract( ParsedDataLineMapPtr dataLineMap );
 
 protected:
 

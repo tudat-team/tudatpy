@@ -72,6 +72,7 @@
 #include <TudatCore/InputOutput/basicInputOutput.h>
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include <Tudat/InputOutput/basicInputOutput.h>
 #include "Tudat/InputOutput/twoLineElementsTextFileReader.h"
 
@@ -89,7 +90,6 @@ using std::cerr;
 using std::vector;
 using std::multimap;
 using std::pair;
-
 
 //! Open data file.
 void TwoLineElementsTextFileReader::openFile( )
@@ -200,7 +200,8 @@ void TwoLineElementsTextFileReader::readAndStoreData( unsigned int numberOfLines
 }
 
 //! Strip End-Of-Line characters.
-void TwoLineElementsTextFileReader::stripEndOfLineCharacters( LineBasedStringDataMap& containerOfLinesOfData )
+void TwoLineElementsTextFileReader::stripEndOfLineCharacters(
+        LineBasedStringDataMap& containerOfLinesOfData )
 {
     // Declare local variables.
     // Declare string iterator.
@@ -232,7 +233,6 @@ void TwoLineElementsTextFileReader::stripEndOfLineCharacters( LineBasedStringDat
         }
     }
 }
-
 
 //! Convert and store TLE data.
 void TwoLineElementsTextFileReader::storeTwoLineElementData( )
@@ -357,7 +357,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get launch year integer from string.
         twoLineElementData_[ objectNumberCounter_ ].launchYear =
-                boost::lexical_cast<unsigned int>(
+                boost::lexical_cast< unsigned int >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 9, 2 ) ) );
 
         // Calculate four-digit launch year from the above.
@@ -375,7 +375,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get launch number integer from string.
         twoLineElementData_[ objectNumberCounter_ ].launchNumber =
-                boost::lexical_cast<unsigned int>(
+                boost::lexical_cast< unsigned int >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 11, 3 ) ) );
 
         // Get launch part string from string.
@@ -384,7 +384,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get epoch year integer from string.
         twoLineElementData_[ objectNumberCounter_ ].epochYear =
-                boost::lexical_cast<unsigned int>(
+                boost::lexical_cast< unsigned int >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 18, 2 ) ) );
 
         // Calculate four-digit epoch year from the above.
@@ -402,12 +402,12 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get epoch day double from string.
         twoLineElementData_[ objectNumberCounter_ ].epochDay =
-                boost::lexical_cast<double>(
+                boost::lexical_cast< double >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 20, 12 ) ) );
 
         // Get "first-derivative of mean motion divided by two" double from string.
         twoLineElementData_[ objectNumberCounter_].firstDerivativeOfMeanMotionDividedByTwo =
-                boost::lexical_cast<double>(
+                boost::lexical_cast< double >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 33, 10 ) ) );
 
         // Get coefficient of scientific notation of "second-derivative of mean motion divided
@@ -415,14 +415,14 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Apply implied leading decimal point.
         twoLineElementData_[ objectNumberCounter_ ]
                 .coefficientOfSecondDerivativeOfMeanMotionDividedBySix =
-                boost::lexical_cast<double>(
+                boost::lexical_cast< double >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 44, 6 ) ) ) / 100000.0;
 
         // Get exponent of scientific notation of "second-derivative of mean motion divided
         // by six" integer from string.
         twoLineElementData_[ objectNumberCounter_]
                 .exponentOfSecondDerivativeOfMeanMotionDividedBySix =
-                boost::lexical_cast<double>(
+                boost::lexical_cast< double >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 50, 2 ) ) );
 
         // Calculate "second-derivative of mean motion divided by six" double from the above two.
@@ -435,13 +435,13 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Get coefficient of scientific notation of "B* divided by six" double
         // from string; apply implied leading decimal point.
         twoLineElementData_[ objectNumberCounter_ ].coefficientOfBStar =
-                boost::lexical_cast<double>(
+                boost::lexical_cast< double >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 53, 6 ) ) ) /
                 100000.0;
 
         // Get exponent of scientific notation of B* integer from string
         twoLineElementData_[ objectNumberCounter_ ].exponentOfBStar =
-                boost::lexical_cast<int>(
+                boost::lexical_cast< int >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 59, 2 ) ) );
 
         // Calculate B* double from the above two.
@@ -451,17 +451,17 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get orbital model integer from string.
         twoLineElementData_[ objectNumberCounter_ ].orbitalModel =
-                boost::lexical_cast<unsigned int>(
+                boost::lexical_cast< unsigned int >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 62, 1 ) ) );
 
         // Get TLE number integer from string.
         twoLineElementData_[ objectNumberCounter_ ].tleNumber =
-                boost::lexical_cast<unsigned int>(
+                boost::lexical_cast< unsigned int >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 64, 4 ) ) );
 
         // Get modulo-10 checksum integer from string.
         twoLineElementData_[ objectNumberCounter_ ].modulo10CheckSumLine1 =
-                boost::lexical_cast<unsigned int>(
+                boost::lexical_cast< unsigned int >(
                     trim_copy( twoLineElementString_.at( 1 ).substr( 68, 1 ) ) );
 
         // Line-2 variable storing.
@@ -480,41 +480,42 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Get inclination double from stringstream.
         line2StringStream_ >> inclination_;
-        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements
-                .setInclination( inclination_ );
+        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                    basic_astrodynamics::inclinationIndex ) = inclination_;
 
         // Get right ascension of ascending node double from stringstream.
         line2StringStream_ >> rightAscensionOfAscendingNode_;
-        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements
-                .setLongitudeOfAscendingNode( rightAscensionOfAscendingNode_ );
+        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                    basic_astrodynamics::longitudeOfAscendingNodeIndex )
+                = rightAscensionOfAscendingNode_;
 
         // Get eccetricity double from stringstream.
         line2StringStream_ >> eccentricity_;
         eccentricity_ /= 10000000;
-        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements
-                .setEccentricity( eccentricity_ );
+        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                    basic_astrodynamics::eccentricityIndex ) = eccentricity_;
 
         // Get argument of perigee double from stringstream
         line2StringStream_ >> argumentOfPerigee_;
-        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements
-                .setArgumentOfPeriapsis( argumentOfPerigee_ );
+        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                    basic_astrodynamics::argumentOfPeriapsisIndex ) = argumentOfPerigee_;
 
         // Get mean anomaly double from stringstream.
         line2StringStream_ >> twoLineElementData_[ objectNumberCounter_ ].meanAnomaly;
 
         // Get mean motion double from line-2 string.
         twoLineElementData_[ objectNumberCounter_ ].meanMotionInRevolutionsPerDay =
-                boost::lexical_cast<double>(
+                boost::lexical_cast< double >(
                     trim_copy( twoLineElementString_[ 2 ].substr( 52, 11 ) ) );
 
         // Get revolution number integer from line-2 string.
         twoLineElementData_[ objectNumberCounter_ ].revolutionNumber =
-                boost::lexical_cast<int>(
+                boost::lexical_cast< int >(
                     trim_copy( twoLineElementString_[ 2 ].substr( 63, 5 ) ) );
 
         // Get modulo-10 checksum integer of line-2 from line-2 string.
         twoLineElementData_[ objectNumberCounter_ ].modulo10CheckSumLine2 =
-                boost::lexical_cast<unsigned int>(
+                boost::lexical_cast< unsigned int >(
                     trim_copy( twoLineElementString_[ 2 ].substr( 68, 1 ) ) );
 
         // Calculate the approximate total number of revolutions, as the counter resets to 0 after
@@ -542,8 +543,8 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         else
         {
             twoLineElementData_[ objectNumberCounter_ ].totalRevolutionNumber =
-                    lostNumberOfRevolutions_ - 100000 + twoLineElementData_[ objectNumberCounter_ ].
-                    revolutionNumber;
+                    lostNumberOfRevolutions_ - 100000
+                    + twoLineElementData_[ objectNumberCounter_ ].revolutionNumber;
         }
 
         // Check if total number of revolutions is negative.
@@ -556,21 +557,24 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Semi-major axis of the object is calculated from the other TLE variables.
         meanMotion_ = twoLineElementData_[ objectNumberCounter_ ].meanMotionInRevolutionsPerDay
                 * 2.0 * PI / tudat::physical_constants::JULIAN_DAY;
-        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements.setSemiMajorAxis(
-                    orbital_element_conversions::convertEllipticalMeanMotionToSemiMajorAxis(
-                        meanMotion_, earthWithWorldGeodeticSystem72GravitationalParameter ) );
+        twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                    basic_astrodynamics::semiMajorAxisIndex )
+                = orbital_element_conversions::convertEllipticalMeanMotionToSemiMajorAxis(
+                    meanMotion_, earthWithWorldGeodeticSystem72GravitationalParameter );
 
         // Perigee of the object is calculated from the other TLE variables.
         twoLineElementData_[ objectNumberCounter_ ].perigee =
-                twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements.getSemiMajorAxis( )
-                * ( 1.0 - twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements
-                    .getEccentricity( ) );
+                twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                    basic_astrodynamics::semiMajorAxisIndex )
+                * ( 1.0 - twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                        basic_astrodynamics::eccentricityIndex ) );
 
         // Apogee of the object is calculated from the other TLE variables.
         twoLineElementData_[ objectNumberCounter_ ].apogee =
-                twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements.getSemiMajorAxis( )
-                * ( 1.0 + twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements
-                    .getEccentricity( ) );
+                twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                    basic_astrodynamics::semiMajorAxisIndex )
+                * ( 1.0 + twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
+                        basic_astrodynamics::eccentricityIndex ) );
 
         // Increment object number counter by one.
         objectNumberCounter_++;
