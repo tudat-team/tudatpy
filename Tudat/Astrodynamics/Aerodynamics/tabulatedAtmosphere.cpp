@@ -32,12 +32,16 @@
  *
  */
 
-#include <sstream>
+#include <iostream>
+
+#include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 
 namespace tudat
+{
+namespace aerodynamics
 {
 
 //! Initialize atmosphere table reader.
@@ -46,40 +50,43 @@ void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
     // Locally store the atmosphere table file name.
     atmosphereTableFile_ = atmosphereTableFile;
 
-    Eigen::MatrixXd containerOfAtmosphereTableFileData = tudat::input_output::readMatrixFromFile(
-                atmosphereTableFile_, " \t", "%" );
+    Eigen::MatrixXd containerOfAtmosphereTableFileData
+            = input_output::readMatrixFromFile( atmosphereTableFile_, " \t", "%" );
 
     // Check whether data is present in the file.
-    if ( containerOfAtmosphereTableFileData.rows( ) < 1 || containerOfAtmosphereTableFileData.cols( ) < 1 )
+    if ( containerOfAtmosphereTableFileData.rows( ) < 1
+         || containerOfAtmosphereTableFileData.cols( ) < 1 )
     {
         std::cerr << "The atmosphere table file is empty." << std::endl;
         std::cerr << atmosphereTableFile_ << std::endl;
     }
 
     // Initialize vectors.
-    altitudeData_ = Eigen::VectorXd( containerOfAtmosphereTableFileData.rows( ) );
-    densityData_ = Eigen::VectorXd( containerOfAtmosphereTableFileData.rows( ) );
-    pressureData_= Eigen::VectorXd( containerOfAtmosphereTableFileData.rows( ) );
-    temperatureData_ = Eigen::VectorXd( containerOfAtmosphereTableFileData.rows( ) );
-
+    altitudeData_.resize( containerOfAtmosphereTableFileData.rows( ) );
+    densityData_.resize( containerOfAtmosphereTableFileData.rows( ) );
+    pressureData_.resize( containerOfAtmosphereTableFileData.rows( ) );
+    temperatureData_.resize( containerOfAtmosphereTableFileData.rows( ) );
 
     // Loop through all the strings stored in the container and store the data
     // in the right Eigen::VectorXd.
     for ( int i = 0; i < containerOfAtmosphereTableFileData.rows( ); i++  )
     {
-        altitudeData_( i ) = containerOfAtmosphereTableFileData( i, 0 );
-        densityData_( i ) = containerOfAtmosphereTableFileData( i, 1 );
-        pressureData_( i ) = containerOfAtmosphereTableFileData( i, 2 );
-        temperatureData_( i ) = containerOfAtmosphereTableFileData( i, 3 );
+        altitudeData_[ i ] = containerOfAtmosphereTableFileData( i, 0 );
+        densityData_[ i ] = containerOfAtmosphereTableFileData( i, 1 );
+        pressureData_[ i ] = containerOfAtmosphereTableFileData( i, 2 );
+        temperatureData_[ i ] = containerOfAtmosphereTableFileData( i, 3 );
     }
 
+    using namespace interpolators;
 
-    cubicSplineInterpolationForDensity_.initializeCubicSplineInterpolation(
-                altitudeData_, densityData_ );
-    cubicSplineInterpolationForPressure_.initializeCubicSplineInterpolation(
-                altitudeData_, pressureData_ );
-    cubicSplineInterpolationForTemperature_.initializeCubicSplineInterpolation(
+    cubicSplineInterpolationForDensity_
+            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, densityData_ );
+    cubicSplineInterpolationForPressure_
+            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, pressureData_ );
+    cubicSplineInterpolationForTemperature_
+            = boost::make_shared< CubicSplineInterpolatorDouble >(
                 altitudeData_, temperatureData_ );
 }
 
+} // namespace aerodynamics
 } // namespace tudat
