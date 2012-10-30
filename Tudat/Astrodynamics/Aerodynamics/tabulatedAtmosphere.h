@@ -37,7 +37,6 @@
 #ifndef TUDAT_TABULATED_ATMOSPHERE_H
 #define TUDAT_TABULATED_ATMOSPHERE_H
 
-#include <iostream>
 #include <string>
 
 #include <Eigen/Core>
@@ -45,9 +44,11 @@
 #include <TudatCore/Basics/utilityMacros.h>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
-#include "Tudat/Mathematics/Interpolators/cubicSplineInterpolation.h"
+#include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
 
 namespace tudat
+{
+namespace aerodynamics
 {
 
 //! Tabulated atmosphere class.
@@ -106,7 +107,7 @@ public:
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForDensity_.interpolate( altitude );
+        return cubicSplineInterpolationForDensity_->interpolate( altitude );
     }
 
     //! Get local pressure.
@@ -124,7 +125,7 @@ public:
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForPressure_.interpolate( altitude );
+        return cubicSplineInterpolationForPressure_->interpolate( altitude );
     }
 
     //! Get local temperature.
@@ -142,7 +143,7 @@ public:
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForTemperature_.interpolate( altitude );
+        return cubicSplineInterpolationForTemperature_->interpolate( altitude );
     }
 
 protected:
@@ -165,45 +166,46 @@ private:
     /*!
      *  Vector containing the altitude.
      */
-    Eigen::VectorXd altitudeData_;
+    std::vector< double > altitudeData_;
 
     //! Vector containing the density data as a function of the altitude.
     /*!
      *  Vector containing the density data as a function of the altitude.
      */
-    Eigen::VectorXd densityData_;
+    std::vector< double > densityData_;
 
     //! Vector containing the pressure data as a function of the altitude.
     /*!
      *  Vector containing the pressure data as a function of the altitude.
      */
-    Eigen::VectorXd pressureData_;
+    std::vector< double > pressureData_;
 
     //! Vector containing the temperature data as a function of the altitude.
     /*!
      *  Vector containing the temperature data as a function of the altitude.
      */
-    Eigen::VectorXd temperatureData_;
+    std::vector< double > temperatureData_;
 
     //! Cubic spline interpolation for density.
     /*!
      *  Cubic spline interpolation for density.
      */
-    interpolators::CubicSplineInterpolation cubicSplineInterpolationForDensity_;
+    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForDensity_;
 
     //! Cubic spline interpolation for pressure.
     /*!
      *  Cubic spline interpolation for pressure.
      */
-    interpolators::CubicSplineInterpolation cubicSplineInterpolationForPressure_;
+    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForPressure_;
 
     //! Cubic spline interpolation for temperature.
     /*!
      *  Cubic spline interpolation for temperature.
      */
-    interpolators::CubicSplineInterpolation cubicSplineInterpolationForTemperature_;
+    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForTemperature_;
 };
 
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_TABULATED_ATMOSPHERE_H

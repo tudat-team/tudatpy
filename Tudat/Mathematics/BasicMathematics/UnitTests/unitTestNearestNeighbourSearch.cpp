@@ -54,6 +54,8 @@ BOOST_AUTO_TEST_SUITE( test_basic_functions )
 //! Test if search for nearest left neighbor using binary search works correctly.
 BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
 {
+    using namespace tudat::basic_mathematics;
+
     // Case 1: test Eigen-interface.
     {
         // Populate vector of 10 sorted elements.
@@ -73,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         {
             BOOST_CHECK_EQUAL(
                         vectorOfExpectedIndices[ i ],
-                        tudat::basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
+                        computeNearestLeftNeighborUsingBinarySearch(
                             vectorOfSortedData, vectorOfTargetValues[ i ] ) );
         }
     }
@@ -110,8 +112,92 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         {
             BOOST_CHECK_EQUAL(
                         vectorOfExpectedIndices[ i ],
-                        tudat::basic_mathematics::computeNearestLeftNeighborUsingBinarySearch(
+                        computeNearestLeftNeighborUsingBinarySearch(
                             mapOfSortedData, vectorOfTargetValues[ i ] ) );
+        }
+    }
+
+    // Case 3: test templated STL vector-interface.
+    {
+        // Populate vector of 10 sorted elements.
+        std::vector< double > vectorOfSortedData( 10 );
+        vectorOfSortedData[ 0 ] = 1.0;
+        vectorOfSortedData[ 1 ] = 4.5;
+        vectorOfSortedData[ 2 ] = 10.6;
+        vectorOfSortedData[ 3 ] = 14.98;
+        vectorOfSortedData[ 4 ] = 54.65;
+        vectorOfSortedData[ 5 ] = 88.9;
+        vectorOfSortedData[ 6 ] = 101.31;
+        vectorOfSortedData[ 7 ] = 144.63;
+        vectorOfSortedData[ 8 ] = 180.01;
+        vectorOfSortedData[ 9 ] = 201.94;
+
+        // Declare vector of target values.
+        std::vector< double > vectorOfTargetValues( 5 );
+        vectorOfTargetValues[ 0 ] = 1.1;
+        vectorOfTargetValues[ 1 ] = 4.6;
+        vectorOfTargetValues[ 2 ] = 10.5;
+        vectorOfTargetValues[ 3 ] = 54.55;
+        vectorOfTargetValues[ 4 ] = 181.63;
+
+        // Declare vector of expected indices.
+        std::vector< double > vectorOfExpectedIndices( 5 );
+        vectorOfExpectedIndices[ 0 ] = 0;
+        vectorOfExpectedIndices[ 1 ] = 1;
+        vectorOfExpectedIndices[ 2 ] = 1;
+        vectorOfExpectedIndices[ 3 ] = 3;
+        vectorOfExpectedIndices[ 4 ] = 8;
+
+        // Compute nearest left neighbors and check if they match expectations.
+        for ( int i = 0; i < 5; i++ )
+        {
+            BOOST_CHECK_EQUAL( vectorOfExpectedIndices[ i ],
+             computeNearestLeftNeighborUsingBinarySearch< double >(
+                            vectorOfSortedData, vectorOfTargetValues[ i ] ) );
+        }
+    }
+
+    // Case 4: test templated hunting algorithm ( with STL vector-interface ).
+    {
+        // Populate vector of 10 sorted elements.
+        std::vector< double > vectorOfSortedData( 10 );
+        vectorOfSortedData[ 0 ] = 1.0;
+        vectorOfSortedData[ 1 ] = 4.5;
+        vectorOfSortedData[ 2 ] = 10.6;
+        vectorOfSortedData[ 3 ] = 14.98;
+        vectorOfSortedData[ 4 ] = 54.65;
+        vectorOfSortedData[ 5 ] = 88.9;
+        vectorOfSortedData[ 6 ] = 101.31;
+        vectorOfSortedData[ 7 ] = 144.63;
+        vectorOfSortedData[ 8 ] = 180.01;
+        vectorOfSortedData[ 9 ] = 201.94;
+
+        // Declare vector of target values.
+        std::vector< double > vectorOfTargetValues( 5 );
+        vectorOfTargetValues[ 0 ] = 1.1;
+        vectorOfTargetValues[ 1 ] = 4.6;
+        vectorOfTargetValues[ 2 ] = 10.5;
+        vectorOfTargetValues[ 3 ] = 54.55;
+        vectorOfTargetValues[ 4 ] = 181.63;
+
+        // Declare vector of expected indices.
+        std::vector< double > vectorOfExpectedIndices( 5 );
+        vectorOfExpectedIndices[ 0 ] = 0;
+        vectorOfExpectedIndices[ 1 ] = 1;
+        vectorOfExpectedIndices[ 2 ] = 1;
+        vectorOfExpectedIndices[ 3 ] = 3;
+        vectorOfExpectedIndices[ 4 ] = 8;
+
+        // Compute nearest left neighbors and check if they match expectations.
+        for ( int i = 0; i < 5; i++ )
+        {
+            // Check whether each initial guess yields correct result.
+            for( int j = 0; j < 9; j++ )
+            {
+                BOOST_CHECK_EQUAL( vectorOfExpectedIndices[ i ],
+                    findNearestLeftNeighbourUsingHuntingAlgorithm< double >(
+                    vectorOfTargetValues[ i ], j, vectorOfSortedData ) );
+            }
         }
     }
 }

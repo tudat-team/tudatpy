@@ -42,8 +42,9 @@
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
  *          Scientific Computing. Cambridge University Press, February 2002.
  *
- *    Need to add bounds checking with respect to targetValue for
- *    computeNearestLeftNeighborUsingBinarySearch( ).
+ *    Notes
+ *      Need to add bounds checking with respect to targetValue for
+ *      computeNearestLeftNeighborUsingBinarySearch( ).
  */
 
 #include <map>

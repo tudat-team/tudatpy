@@ -70,18 +70,19 @@ BOOST_AUTO_TEST_SUITE( test_tabulated_atmosphere )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAtSeaLevel )
 {
     // Create a tabulated atmosphere object.
-    tudat::TabulatedAtmosphere tabulatedAtmosphere;
+    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere;
 
     // Initialize atmosphere with the desired file.
-    tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "/External/AtmosphereTables/" +
-                                        "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    tabulatedAtmosphere.initialize( input_output::getTudatRootPath( ) +
+                                    "/External/AtmosphereTables/" +
+                                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     const double altitude = 0.0;
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
 
-    BOOST_CHECK_CLOSE_FRACTION( 288.15, tabulatedAtmosphere.getTemperature( altitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 288.15, tabulatedAtmosphere.getTemperature( altitude ),
+                                tolerance );
     BOOST_CHECK_CLOSE_FRACTION( 1.225, tabulatedAtmosphere.getDensity( altitude ), tolerance );
     BOOST_CHECK_CLOSE_FRACTION( 101325.0, tabulatedAtmosphere.getPressure( altitude ), 1.0e-4 );
 }
@@ -91,12 +92,12 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAtSeaLevel )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10km )
 {
     // Create a tabulated atmosphere object.
-    tudat::TabulatedAtmosphere tabulatedAtmosphere;
+    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere;
 
     // Initialize atmosphere with the desired file.
-    tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "/External/AtmosphereTables/" +
-                                        "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    tabulatedAtmosphere.initialize( input_output::getTudatRootPath( ) +
+                                    "/External/AtmosphereTables/" +
+                                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     const double altitude = 10.0e3;
     const double longitude = 0.0;
     const double latitude = 0.0;
@@ -116,12 +117,12 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10km )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10p5km )
 {
     // Create a tabulated atmosphere object.
-    tudat::TabulatedAtmosphere tabulatedAtmosphere;
+    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere;
 
     // Initialize atmosphere with the desired file.
-    tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "/External/AtmosphereTables/" +
-                                        "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    tabulatedAtmosphere.initialize( input_output::getTudatRootPath( ) +
+                                    "/External/AtmosphereTables/" +
+                                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     const double altitude = 10.05e3;
 
     BOOST_CHECK_SMALL( 222.9350 - tabulatedAtmosphere.getTemperature( altitude ), 2.0e-2 );
@@ -134,48 +135,51 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10p5km )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt1000kmtab )
 {
     // Create a tabulated atmosphere object.
-    tudat::TabulatedAtmosphere tabulatedAtmosphere;
+    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere;
 
     // Initialize atmosphere with the desired file.
-    tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "/External/AtmosphereTables/" +
-                                        "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    tabulatedAtmosphere.initialize( input_output::getTudatRootPath( ) +
+                                    "/External/AtmosphereTables/" +
+                                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     const double altitude = 1.0e6 ;
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
 
-    BOOST_CHECK_CLOSE_FRACTION( 1000.0, tabulatedAtmosphere.getTemperature( altitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 3.5618e-15, tabulatedAtmosphere.getDensity( altitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 7.5158e-9, tabulatedAtmosphere.getPressure( altitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1000.0, tabulatedAtmosphere.getTemperature( altitude ),
+                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 3.5618e-15, tabulatedAtmosphere.getDensity( altitude ),
+                                tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 7.5158e-9, tabulatedAtmosphere.getPressure( altitude ),
+                                tolerance );
 }
 
 //! Test if the atmosphere file can be read multiple times.
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereMultipleRead )
 {
     // Create a tabulated atmosphere object.
-    tudat::TabulatedAtmosphere tabulatedAtmosphere;
+    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere;
 
     // Initialize atmosphere with the desired file.
-    tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "/External/AtmosphereTables/" +
-                                        "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    tabulatedAtmosphere.initialize( input_output::getTudatRootPath( ) +
+                                    "/External/AtmosphereTables/" +
+                                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
 
-    tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "/External/AtmosphereTables/" +
-                                        "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    tabulatedAtmosphere.initialize( input_output::getTudatRootPath( ) +
+                                    "/External/AtmosphereTables/" +
+                                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
 }
 
 //! Test if the position-independent functions work.
 BOOST_AUTO_TEST_CASE( testTabulatedAtmospherePositionIndependentFunctions)
 {
     // Create a tabulated atmosphere object.
-    tudat::TabulatedAtmosphere tabulatedAtmosphere;
+    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere;
 
     // Initialize atmosphere with the desired file.
-    tabulatedAtmosphere.initialize( tudat::input_output::getTudatRootPath( ) +
-                                        "/External/AtmosphereTables/" +
-                                        "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    tabulatedAtmosphere.initialize( input_output::getTudatRootPath( ) +
+                                    "/External/AtmosphereTables/" +
+                                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
 
     const double altitude  = 10.0e3;
 
@@ -188,11 +192,12 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmospherePositionIndependentFunctions)
     const double density2 = tabulatedAtmosphere.getDensity( altitude, longitude, latitude, time );
 
     const double pressure1 = tabulatedAtmosphere.getPressure( altitude );
-    const double pressure2 = tabulatedAtmosphere.getPressure( altitude, longitude, latitude, time );
+    const double pressure2 = tabulatedAtmosphere.getPressure(
+                altitude, longitude, latitude, time );
 
     const double temperature1 = tabulatedAtmosphere.getTemperature( altitude );
-    const double temperature2 = tabulatedAtmosphere.getTemperature( altitude, longitude,
-                                                                    latitude, time );
+    const double temperature2 = tabulatedAtmosphere.getTemperature(
+                altitude, longitude, latitude, time );
 
     BOOST_CHECK_EQUAL( density1, density2 );
     BOOST_CHECK_EQUAL( pressure1, pressure2 );
