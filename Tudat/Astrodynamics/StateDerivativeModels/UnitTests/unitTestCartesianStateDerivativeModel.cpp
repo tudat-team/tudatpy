@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_SUITE( test_cartesian_state_derivative_model )
 //! Test whether 6D Cartesian state derivative model works correctly without frame transformations.
 BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel6DWithoutFrameTransformations )
 {
-    using tudat::basic_astrodynamics::acceleration_models::AccelerationModel3dPointer;
+    using basic_astrodynamics::AccelerationModel3dPointer;
     using state_derivative_models::CartesianStateDerivativeModel6d;
     using state_derivative_models::CartesianStateDerivativeModel6dPointer;
 
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel6DWithoutFrameTransforma
 //! Test whether 6D Cartesian state derivative model works correctly with frame transformations.
 BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel6DWithFrameTransformations )
 {
-    using tudat::basic_astrodynamics::acceleration_models::AccelerationModel3dPointer;
+    using basic_astrodynamics::AccelerationModel3dPointer;
     using state_derivative_models::CartesianStateDerivativeModel6d;
     using state_derivative_models::CartesianStateDerivativeModel6dPointer;
 
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel6DWithFrameTransformatio
 //! Test whether 4D Cartesian state derivative model works correctly.
 BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel4D )
 {
-    using tudat::basic_astrodynamics::acceleration_models::AccelerationModel2dPointer;
+    using basic_astrodynamics::AccelerationModel2dPointer;
     using state_derivative_models::CartesianStateDerivativeModel4d;
     using state_derivative_models::CartesianStateDerivativeModel4dPointer;
 

@@ -160,8 +160,7 @@ Eigen::Vector3d computeEulerAcceleration(
  * acceleration of the reference frame, as well as the Coriolis, centripetal and Euler
  * accelerations.
  */
-class ApparentAccelerationModel
-        : public basic_astrodynamics::acceleration_models::AccelerationModel < Eigen::Vector3d >
+class ApparentAccelerationModel : public basic_astrodynamics::AccelerationModel < Eigen::Vector3d >
 {
 private:
 

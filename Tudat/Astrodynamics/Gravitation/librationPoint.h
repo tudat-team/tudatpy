@@ -56,6 +56,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <Eigen/Core>
+
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"

@@ -124,7 +124,7 @@ inline void updateNothing( const IndependentVariableType independentVariable,
 template< typename IndependentVariableType = double,
           typename CartesianStateType = basic_mathematics::Vector6d,
           typename AccelerationType = Eigen::Vector3d, typename AccelerationModelType
-          = basic_astrodynamics::acceleration_models::AccelerationModel< AccelerationType > >
+          = basic_astrodynamics::AccelerationModel< AccelerationType > >
 class CartesianStateDerivativeModel
         : public StateDerivativeModel< IndependentVariableType, CartesianStateType >
 {

@@ -34,12 +34,14 @@
 
 # Set the source files.
 set(GRAVITATION_SOURCES
+  "${SRCROOT}${GRAVITATIONDIR}/centralGravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityField.cpp"
-  "${SRCROOT}${GRAVITATIONDIR}/gravitationalAccelerationModel.cpp"
-  "${SRCROOT}${GRAVITATIONDIR}/gravitationalForceModel.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/centralJ2GravityModel.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3GravityModel.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3J4GravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/jacobiEnergy.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/librationPoint.cpp"
-  "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravitationalAccelerationModel.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityField.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
@@ -49,13 +51,16 @@ set(GRAVITATION_SOURCES
 
 # Set the header files.
 set(GRAVITATION_HEADERS 
-  "${SRCROOT}${GRAVITATIONDIR}/gravityFieldModel.h"
+  "${SRCROOT}${GRAVITATIONDIR}/centralGravityModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityField.h"
-  "${SRCROOT}${GRAVITATIONDIR}/gravitationalAccelerationModel.h"
-  "${SRCROOT}${GRAVITATIONDIR}/gravitationalForceModel.h"
+  "${SRCROOT}${GRAVITATIONDIR}/centralJ2GravityModel.h"
+  "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3GravityModel.h"
+  "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3J4GravityModel.h"
+  "${SRCROOT}${GRAVITATIONDIR}/gravityFieldModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/jacobiEnergy.h"
   "${SRCROOT}${GRAVITATIONDIR}/librationPoint.h"
-  "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravitationalAccelerationModel.h"
+  "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityModel.h"
+  "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityModelBase.h"
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityField.h"
   "${SRCROOT}${GRAVITATIONDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.h"
@@ -75,9 +80,9 @@ add_executable(test_GravitationalForce "${SRCROOT}${GRAVITATIONDIR}/UnitTests/un
 setup_custom_test_program(test_GravitationalForce "${SRCROOT}${GRAVITATIONDIR}")
 target_link_libraries(test_GravitationalForce tudat_gravitation ${Boost_LIBRARIES})
 
-add_executable(test_GravitationalAcceleration "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravitationalAcceleration.cpp")
-setup_custom_test_program(test_GravitationalAcceleration "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_GravitationalAcceleration tudat_gravitation tudat_numerical_integrators ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_CentralAndZonalGravityModel "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestCentralAndZonalGravityModel.cpp")
+setup_custom_test_program(test_CentralAndZonalGravityModel "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_CentralAndZonalGravityModel tudat_gravitation tudat_numerical_integrators ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_UnitConversionsCircularRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestUnitConversionsCircularRestrictedThreeBodyProblem.cpp")
 setup_custom_test_program(test_UnitConversionsCircularRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}")
@@ -95,6 +100,6 @@ add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${GRAVI
 setup_custom_test_program(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${GRAVITATIONDIR}")
 target_link_libraries(test_StateDerivativeRestrictedThreeBodyProblem tudat_mission_segments tudat_root_finding_methods tudat_gravitation tudat_basic_astrodynamics tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(test_SphericalHarmonicsGravitationalAccelerationModel "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestSphericalHarmonicsGravitationalAccelerationModel.cpp")
-setup_custom_test_program(test_SphericalHarmonicsGravitationalAccelerationModel "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_SphericalHarmonicsGravitationalAccelerationModel tudat_gravitation tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES} )
+add_executable(test_SphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestSphericalHarmonicsGravityModel.cpp")
+setup_custom_test_program(test_SphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_SphericalHarmonicsGravityModel tudat_gravitation tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES} )

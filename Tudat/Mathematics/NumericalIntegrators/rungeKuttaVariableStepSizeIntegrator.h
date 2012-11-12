@@ -554,7 +554,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 /*!
  * Computes the new step size based on a generic definition of the local truncation error.
  */
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType >
 std::pair< IndependentVariableType, bool >
 RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType >
 ::computeNewStepSize(

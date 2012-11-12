@@ -24,62 +24,72 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      100916    K. Kumar          File created.
- *      100916    K. Kumar          Filename modified.
- *      100929    D. Dirkx          File checked.
- *      100929    K. Kumar          Minor corrections to include statements and comments.
- *      110113    K. Kumar          Changed setBody( ) argument to pointer; added pointer to
- *                                  GravityFieldModel.
- *      110119    K. Kumar          Changed computeStateDerivatives( ) to computeForce( ).
- *      110202    K. Kumar          Updated code to make use of the State and
- *                                  CartesianPositionElements classes.
- *      110810    J. Leloux         Corrected doxygen documentation.
- *      110815    K. Kumar          Changed filename and class name; changed computeForce( )
- *                                  function and added setMass( ) function.
- *      120209    K. Kumar          Changed class into free functions.
- *      120316    D. Dirkx          Added old GravitationalForceModel class, with note that this
- *                                  will be removed shortly.
- *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      121105    K. Kumar          File created from code in gravitationalAccelerationModel.cpp.
+ *
+ *    References
+ *
+ *    Notes
+ *
  */
 
 #include <cmath>
 
-#include <TudatCore/Basics/utilityMacros.h>
-
-#include "Tudat/Astrodynamics/Gravitation/gravitationalAccelerationModel.h"
-#include "Tudat/Astrodynamics/Gravitation/gravitationalForceModel.h"
+#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 
 namespace tudat
 {
-namespace astrodynamics
+namespace gravitation
 {
-namespace force_models
+
+ //! Compute gravitational acceleration.
+Eigen::Vector3d computeGravitationalAcceleration(
+        const double universalGravitationalConstant,
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double massOfBodyExertingAcceleration,
+        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
+    return computeGravitationalAcceleration(
+                positionOfBodySubjectToAcceleration,
+                universalGravitationalConstant * massOfBodyExertingAcceleration,
+                positionOfBodyExertingAcceleration );
+}
+
+//! Compute gravitational acceleration.
+Eigen::Vector3d computeGravitationalAcceleration(
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double gravitationalParameterOfBodyExertingAcceleration,
+        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
+{
+    return -gravitationalParameterOfBodyExertingAcceleration
+            * ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration )
+            / std::pow( ( positionOfBodySubjectToAcceleration
+                          - positionOfBodyExertingAcceleration ).norm( ), 3.0 );
+}
 
 //! Compute gravitational force.
 Eigen::Vector3d computeGravitationalForce(
-        const double universalGravitationalParameter, const double massOfBodySubjectToForce,
+        const double universalGravitationalParameter,
+        const double massOfBodySubjectToForce,
         const Eigen::Vector3d& positionOfBodySubjectToForce,
-        const double massOfBodyExertingForce, const Eigen::Vector3d& positionOfBodyExertingForce )
+        const double massOfBodyExertingForce,
+        const Eigen::Vector3d& positionOfBodyExertingForce )
 {
-    return massOfBodySubjectToForce *
-            acceleration_models::computeGravitationalAcceleration(
+    return massOfBodySubjectToForce * computeGravitationalAcceleration(
                 universalGravitationalParameter, positionOfBodySubjectToForce,
                 massOfBodyExertingForce, positionOfBodyExertingForce );
 }
 
 //! Compute gravitational force.
 Eigen::Vector3d computeGravitationalForce(
-        const double massOfBodySubjectToForce, const Eigen::Vector3d& positionOfBodySubjectToForce,
+        const double massOfBodySubjectToForce,
+        const Eigen::Vector3d& positionOfBodySubjectToForce,
         const double gravitationalParameterOfBodyExertingForce,
         const Eigen::Vector3d& positionOfBodyExertingForce )
 {
-    return massOfBodySubjectToForce *
-            acceleration_models::computeGravitationalAcceleration(
+    return massOfBodySubjectToForce * computeGravitationalAcceleration(
                 positionOfBodySubjectToForce, gravitationalParameterOfBodyExertingForce,
                 positionOfBodyExertingForce );
 }
 
-} // namespace force_models
-} // namespace astrodynamics
+} // namespace gravitation
 } // namespace tudat
