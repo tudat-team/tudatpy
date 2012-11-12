@@ -65,8 +65,8 @@ namespace tudat
 namespace unit_tests
 {
 
-using tudat::basic_astrodynamics::acceleration_models::AccelerationModel;
-using tudat::basic_astrodynamics::acceleration_models::updateAndGetAcceleration;
+using basic_astrodynamics::AccelerationModel;
+using basic_astrodynamics::updateAndGetAcceleration;
 using boost::assign::list_of;
 
 BOOST_AUTO_TEST_SUITE( test_accelerationModel )
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_SUITE( test_accelerationModel )
 //! correctly.
 BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 {
-    using tudat::basic_astrodynamics::acceleration_models::AccelerationModel3dPointer;
+    using basic_astrodynamics::AccelerationModel3dPointer;
 
     // Shortcuts.
     typedef TestBody< 3, double > TestBody3d;

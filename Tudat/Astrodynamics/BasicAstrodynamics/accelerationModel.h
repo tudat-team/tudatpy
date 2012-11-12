@@ -54,8 +54,6 @@ namespace tudat
 {  
 namespace basic_astrodynamics
 {
-namespace acceleration_models
-{
 
 //! Base class for (translational) acceleration models.
 /*!
@@ -144,7 +142,6 @@ AccelerationDataType updateAndGetAcceleration(
     return accelerationModel->getAcceleration( );
 }
 
-} // namespace acceleration_models
 } // namespace basic_astrodynamics
 } // namespace tudat
 

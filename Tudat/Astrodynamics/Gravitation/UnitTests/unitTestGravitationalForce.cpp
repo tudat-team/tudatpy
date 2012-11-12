@@ -41,7 +41,7 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Astrodynamics/Gravitation/gravitationalForceModel.h"
+#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 
 namespace tudat
 {
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalForce )
 
         // Compute gravitational force acting on boy [N].
         Eigen::Vector3d gravitationalForceExertedOnBoy
-                = tudat::astrodynamics::force_models::computeGravitationalForce(
+                = gravitation::computeGravitationalForce(
                     massOfBoy, positionOfBoy,
                     gravitationalParameterOfEarth, positionOfEarth );
 
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalForce )
 
         // Compute gravitational force acting on body1 [N].
         Eigen::Vector3d gravitationalForceExertedOnBody1
-                = tudat::astrodynamics::force_models::computeGravitationalForce(
+                = gravitation::computeGravitationalForce(
                     universalGravitationalConstant, massOfBody1,
                     positionOfBody1, massOfBody2, positionOfBody2 );
 

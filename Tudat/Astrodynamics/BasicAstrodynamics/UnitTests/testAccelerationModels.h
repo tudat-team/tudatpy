@@ -64,8 +64,8 @@ namespace unit_tests
 */
 template< typename AccelerationDataType = Eigen::Vector3d,
           typename PositionDataType = Eigen::Vector3d, typename TimeDataType = double >
-class DerivedAccelerationModel : public basic_astrodynamics::acceleration_models::
-        AccelerationModel< AccelerationDataType >
+class DerivedAccelerationModel
+        : public basic_astrodynamics::AccelerationModel< AccelerationDataType >
 {
 private:
 
@@ -161,8 +161,8 @@ private:
 template< typename AccelerationDataType = Eigen::Vector3d,
           typename PositionDataType = Eigen::Vector3d, typename VelocityDataType = Eigen::Vector3d,
           typename TimeDataType = double >
-class AnotherDerivedAccelerationModel : public basic_astrodynamics::acceleration_models::
-        AccelerationModel< AccelerationDataType >
+class AnotherDerivedAccelerationModel
+        : public basic_astrodynamics::AccelerationModel< AccelerationDataType >
 {
 public:
 

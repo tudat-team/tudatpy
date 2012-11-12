@@ -33,6 +33,7 @@
  */
 
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 #include <boost/exception/all.hpp>
@@ -42,7 +43,11 @@
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravitationalAccelerationModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/centralJ2GravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/centralJ2J3GravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 #include "Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h"
@@ -55,27 +60,30 @@ namespace gravitation
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
 //! geodesy-normalization.
 Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
-        const Eigen::Vector3d &position,
-        const int highestDegree,
-        const int highestOrder,
-        const Eigen::MatrixXd& cosineHarmonicCoefficients,
-        const Eigen::MatrixXd& sineHarmonicCoefficients,
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameter,
-        const double planetaryRadius )
+        const double equatorialRadius,
+        const Eigen::MatrixXd& cosineHarmonicCoefficients,
+        const Eigen::MatrixXd& sineHarmonicCoefficients )
 {
+    // Set highest degree and order.
+    const int highestDegree = cosineHarmonicCoefficients.rows( );
+    const int highestOrder = cosineHarmonicCoefficients.cols( );
+
     // Declare spherical position vector.
-    Eigen::Vector3d sphericalPosition;
+    Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration = Eigen::Vector3d::Zero( );
 
     // Convert Cartesian coordinates to cylindrical.
     const Eigen::Vector3d cylindricalCoordinates = basic_mathematics::coordinate_conversions::
-            convertCartesianToCylindrical( position );
+            convertCartesianToCylindrical( positionOfBodySubjectToAcceleration );
 
     // Compute radius coordinate.
-    sphericalPosition( 0 ) = std::sqrt( cylindricalCoordinates( 0 ) * cylindricalCoordinates( 0 )
+    sphericalpositionOfBodySubjectToAcceleration( 0 )
+            = std::sqrt( cylindricalCoordinates( 0 ) * cylindricalCoordinates( 0 )
                        + cylindricalCoordinates( 2 ) * cylindricalCoordinates( 2 ) );
 
     // If radius coordinate is smaller than planetary radius...
-    if ( sphericalPosition( 0 ) < planetaryRadius )
+    if ( sphericalpositionOfBodySubjectToAcceleration( 0 ) < equatorialRadius )
     {
         // ...throw runtime error.
         boost::throw_exception(
@@ -85,28 +93,28 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     }
 
     // If radius coordinate is zero...
-    if ( cylindricalCoordinates( 0 ) == 0 )
+    if ( std::fabs( cylindricalCoordinates( 0 ) ) < std::numeric_limits< double >::epsilon( ) )
     {
         // ...set latitude coordinate to 90 degrees.
-        sphericalPosition( 1 ) = mathematics::PI / 2.0;
+        sphericalpositionOfBodySubjectToAcceleration( 1 ) = mathematics::PI / 2.0;
     }
 
     // Else...
     else
     {
         // ...compute latitude coordinate.
-        sphericalPosition( 1 ) = std::atan( cylindricalCoordinates( 2 )
-                                            / cylindricalCoordinates( 0 ) );
+        sphericalpositionOfBodySubjectToAcceleration( 1 )
+                = std::atan( cylindricalCoordinates( 2 ) / cylindricalCoordinates( 0 ) );
     }
 
     // Compute longitude coordinate.
-    sphericalPosition( 2 ) = cylindricalCoordinates( 1 );
+    sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
 
     // Compute gradient premultiplier.
-    const double preMultiplier = gravitationalParameter / planetaryRadius;
+    const double preMultiplier = gravitationalParameter / equatorialRadius;
 
     // Initialize gradient vector.
-    Eigen::Vector3d sphericalGradient = Eigen::VectorXd::Zero( 3 );
+    Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
 
     // Loop through all degrees.
     for ( int degree = 0; degree <= highestDegree; degree++ )
@@ -116,26 +124,29 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         {
             // Compute geodesy-normalized Legendre polynomials.
             const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
-                        degree, order, std::sin( sphericalPosition( 1 ) ) );
+                        degree, order,
+                        std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) ) );
             const double incrementedLegendrePolynomial =
                     basic_mathematics::computeGeodesyLegendrePolynomial(
-                        degree, order + 1, std::sin( sphericalPosition( 1 ) ) );
+                        degree, order + 1,
+                        std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) ) );
 
             // Compute geodesy-normalized Legendre polynomial derivative.
             const double legendrePolynomialDerivative =
                     basic_mathematics::computeGeodesyLegendrePolynomialDerivative(
-                        degree, order, std::sin( sphericalPosition( 1 ) ), legendrePolynomial,
-                        incrementedLegendrePolynomial );
+                        degree, order,
+                        std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) ),
+                        legendrePolynomial, incrementedLegendrePolynomial );
 
             // Compute the potential gradient of a single spherical harmonic term.
             sphericalGradient += basic_mathematics::computePotentialGradient(
-                        sphericalPosition,
-                        planetaryRadius,
+                        sphericalpositionOfBodySubjectToAcceleration,
+                        equatorialRadius,
                         preMultiplier,
                         degree,
                         order,
-                        cosineHarmonicCoefficients( degree, order),
-                        sineHarmonicCoefficients( degree, order),
+                        cosineHarmonicCoefficients( degree, order ),
+                        sineHarmonicCoefficients( degree, order ),
                         legendrePolynomial,
                         legendrePolynomialDerivative );
         }
@@ -144,32 +155,33 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     // Convert from spherical gradient to Cartesian gradient (which equals acceleration vector) and
     // return the resulting acceleration vector.
     return basic_mathematics::coordinate_conversions::convertSphericalToCartesianGradient(
-                sphericalGradient, position );
+                sphericalGradient, positionOfBodySubjectToAcceleration );
 }
 
 //! Compute gravitational acceleration due to single spherical harmonics term.
 Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
-        const Eigen::Vector3d &position,
+        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
+        const double gravitationalParameter,
+        const double equatorialRadius,
         const int degree,
         const int order,
         const double cosineHarmonicCoefficient,
-        const double sineHarmonicCoefficient,
-        const double gravitationalParameter,
-        const double planetaryRadius )
+        const double sineHarmonicCoefficient )
 {
     // Declare spherical position vector.
-    Eigen::Vector3d sphericalPosition;
+    Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration;
 
     // Convert Cartesian coordinates to cylindrical.
     const Eigen::Vector3d cylindricalCoordinates = basic_mathematics::coordinate_conversions::
-            convertCartesianToCylindrical( position );
+            convertCartesianToCylindrical( positionOfBodySubjectToAcceleration );
 
     // Compute radius coordinate.
-    sphericalPosition( 0 ) = std::sqrt(cylindricalCoordinates( 0 ) * cylindricalCoordinates( 0 )
+    sphericalpositionOfBodySubjectToAcceleration( 0 )
+            = std::sqrt(cylindricalCoordinates( 0 ) * cylindricalCoordinates( 0 )
                        + cylindricalCoordinates( 2 ) * cylindricalCoordinates( 2 ) );
 
     // If radius coordinate is smaller than planetary radius...
-    if (sphericalPosition( 0 ) < planetaryRadius)
+    if (sphericalpositionOfBodySubjectToAcceleration( 0 ) < equatorialRadius)
     {
         // ...trow runtime error.
         boost::throw_exception(
@@ -179,43 +191,45 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     }
 
     // If radius coordinate is zero...
-    if ( cylindricalCoordinates( 0 ) == 0 )
+    if ( std::fabs( cylindricalCoordinates( 0 ) ) < std::numeric_limits< double >::epsilon( ) )
     {
         // ...set latitude coordinate to 90 degrees.
-        sphericalPosition( 1 ) = mathematics::PI / 2.0;
+        sphericalpositionOfBodySubjectToAcceleration( 1 ) = mathematics::PI / 2.0;
     }
 
     // Else...
     else
     {
         // ...compute latitude coordinate.
-        sphericalPosition( 1 ) = std::atan( cylindricalCoordinates( 2 ) /
-                                          cylindricalCoordinates( 0 ) );
+        sphericalpositionOfBodySubjectToAcceleration( 1 )
+                = std::atan( cylindricalCoordinates( 2 ) / cylindricalCoordinates( 0 ) );
     }
 
     // Compute longitude coordinate.
-    sphericalPosition( 2 ) = cylindricalCoordinates( 1 );
+    sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
 
     // Compute gradient premultiplier.
-    const double preMultiplier = gravitationalParameter / planetaryRadius;
+    const double preMultiplier = gravitationalParameter / equatorialRadius;
 
     // Compute geodesy-normalized Legendre polynomials.
     const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
-                degree, order, std::sin( sphericalPosition( 1 ) ) );
+                degree, order, std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) ) );
     const double incrementedLegendrePolynomial =
             basic_mathematics::computeGeodesyLegendrePolynomial(
-                degree, order + 1, std::sin( sphericalPosition( 1 ) ) );
+                degree, order + 1,
+                std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) ) );
 
     // Compute geodesy-normalized Legendre polynomial derivative.
     const double legendrePolynomialDerivative =
             basic_mathematics::computeGeodesyLegendrePolynomialDerivative(
-                degree, order, std::sin( sphericalPosition( 1 ) ), legendrePolynomial,
+                degree, order,
+                std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) ), legendrePolynomial,
                 incrementedLegendrePolynomial );
 
     // Compute the potential gradient resulting from the spherical harmonic term.
     const Eigen::Vector3d sphericalGradient = basic_mathematics::computePotentialGradient(
-                sphericalPosition,
-                planetaryRadius,
+                sphericalpositionOfBodySubjectToAcceleration,
+                equatorialRadius,
                 preMultiplier,
                 degree,
                 order,
@@ -227,7 +241,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     // Convert from spherical gradient to Cartesian gradient (which equals acceleration vector),
     // and return resulting acceleration vector.
     return basic_mathematics::coordinate_conversions::convertSphericalToCartesianGradient(
-                sphericalGradient, position );
+                sphericalGradient, positionOfBodySubjectToAcceleration );
 }
 
 } // namespace gravitation

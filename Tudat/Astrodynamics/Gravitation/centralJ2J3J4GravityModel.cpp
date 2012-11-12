@@ -24,140 +24,26 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120209    K. Kumar          File created.
+ *      121105    K. Kumar          File created from content in other files.
  *
  *    References
- *      Wakker.
- *      Melman, J. PhD Thesis, 2012.
+ *
+ *    Notes
  *
  */
-
-#define DEGREE 1
-#define COEFFICIENTVALUE
 
 #include <cmath>
 #include <stdexcept>
 
 #include <boost/exception/all.hpp>
 
-#include "Tudat/Astrodynamics/Gravitation/gravitationalAccelerationModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+#include "Tudat/Astrodynamics/Gravitation/centralJ2J3J4GravityModel.h"
 
 namespace tudat
 {
-namespace astrodynamics
+namespace gravitation
 {
-namespace acceleration_models
-{
-
-//! Compute gravitational acceleration.
-Eigen::Vector3d computeGravitationalAcceleration(
-        const double universalGravitationalConstant,
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double massOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
-{
-    return computeGravitationalAcceleration(
-                positionOfBodySubjectToAcceleration,
-                universalGravitationalConstant * massOfBodyExertingAcceleration,
-                positionOfBodyExertingAcceleration );
-}
-
-//! Compute gravitational acceleration.
-Eigen::Vector3d computeGravitationalAcceleration(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
-{
-    return -gravitationalParameterOfBodyExertingAcceleration
-            * ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration )
-            / std::pow( ( positionOfBodySubjectToAcceleration
-                          - positionOfBodyExertingAcceleration ).norm( ), 3.0 );
-}
-
-//! Compute gravitational acceleration due to J2.
-Eigen::Vector3d computeGravitationalAccelerationDueToJ2(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const double j2CoefficientOfGravityField,
-        const double effectiveRadiusOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
-{
-    // Set constant values reused for optimal computation of acceleration components.
-    const double distanceBetweenBodies = ( positionOfBodySubjectToAcceleration
-                                           - positionOfBodyExertingAcceleration ).norm( );
-
-    const double preMultiplier = -gravitationalParameterOfBodyExertingAcceleration
-            / std::pow( distanceBetweenBodies, 4.0 ) * 1.5 * j2CoefficientOfGravityField
-            * effectiveRadiusOfBodyExertingAcceleration
-            * effectiveRadiusOfBodyExertingAcceleration;
-
-    const double scaledZCoordinate = ( positionOfBodySubjectToAcceleration.z( )
-                                       - positionOfBodyExertingAcceleration.z( ) )
-            / distanceBetweenBodies;
-
-    const double scaledZCoordinateSquared = scaledZCoordinate * scaledZCoordinate;
-
-    const double factorForXAndYDirections = ( 1.0 - 5.0 * scaledZCoordinateSquared )
-            / distanceBetweenBodies;
-
-    // Compute components of acceleration due to J2-effect.
-    Eigen::Vector3d gravitationalAccelerationDueToJ2 = Eigen::Vector3d::Constant( preMultiplier );
-
-    gravitationalAccelerationDueToJ2( cartesianXPositionIndex )
-            *= ( positionOfBodySubjectToAcceleration.x( )
-                 - positionOfBodyExertingAcceleration.x( ) ) * factorForXAndYDirections;
-
-    gravitationalAccelerationDueToJ2( cartesianYPositionIndex )
-            *= ( positionOfBodySubjectToAcceleration.y( )
-                 - positionOfBodyExertingAcceleration.y( ) ) * factorForXAndYDirections;
-
-    gravitationalAccelerationDueToJ2( cartesianZPositionIndex )
-            *= ( 3.0 - 5.0 * scaledZCoordinateSquared ) * scaledZCoordinate;
-
-    return gravitationalAccelerationDueToJ2;
-}
-
-Eigen::Vector3d computeGravitationalAccelerationDueToJ3(
-        const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
-        const double gravitationalParameterOfBodyExertingAcceleration,
-        const double j3CoefficientOfGravityField,
-        const double effectiveRadiusOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration )
-{
-    // Set constant values reused for optimal computation of acceleration components.
-    const double distanceBetweenBodies = ( positionOfBodySubjectToAcceleration
-                                           - positionOfBodyExertingAcceleration ).norm( );
-
-    const double preMultiplier = -gravitationalParameterOfBodyExertingAcceleration
-            / std::pow( distanceBetweenBodies, 5.0 ) * 2.5 * j3CoefficientOfGravityField
-            * std::pow( effectiveRadiusOfBodyExertingAcceleration, 3.0 );
-
-    const double scaledZCoordinate = ( positionOfBodySubjectToAcceleration.z( )
-                                       - positionOfBodyExertingAcceleration.z( ) )
-            / distanceBetweenBodies;
-
-    const double scaledZCoordinateSquared = scaledZCoordinate * scaledZCoordinate;
-
-    const double factorForXAndYDirections = ( 3.0 - 7.0 * scaledZCoordinateSquared )
-            * scaledZCoordinate / distanceBetweenBodies;
-
-    // Compute components of acceleration due to J3-effect.
-    Eigen::Vector3d gravitationalAccelerationDueToJ3 = Eigen::Vector3d::Constant( preMultiplier );
-
-    gravitationalAccelerationDueToJ3( cartesianXPositionIndex )
-            *= ( positionOfBodySubjectToAcceleration.x( )
-                 - positionOfBodyExertingAcceleration.x( ) ) * factorForXAndYDirections;
-
-    gravitationalAccelerationDueToJ3( cartesianYPositionIndex )
-            *= ( positionOfBodySubjectToAcceleration.y( )
-                 - positionOfBodyExertingAcceleration.y( ) ) * factorForXAndYDirections;
-
-    gravitationalAccelerationDueToJ3( cartesianZPositionIndex )
-            *= ( -0.6 + 6.0 * scaledZCoordinateSquared
-                 - 7.0 * scaledZCoordinateSquared * scaledZCoordinateSquared );
-
-    return gravitationalAccelerationDueToJ3;
-}
 
 //! Compute gravitational acceleration due to J4.
 Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
@@ -190,15 +76,15 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
     // Compute components of acceleration due to J4-effect.
     Eigen::Vector3d gravitationalAccelerationDueToJ4 = Eigen::Vector3d::Constant( preMultiplier );
 
-    gravitationalAccelerationDueToJ4( cartesianXPositionIndex )
+    gravitationalAccelerationDueToJ4( basic_astrodynamics::xCartesianPositionIndex )
             *= ( positionOfBodySubjectToAcceleration.x( )
                  - positionOfBodyExertingAcceleration.x( ) ) * factorForXAndYDirections;
 
-    gravitationalAccelerationDueToJ4( cartesianYPositionIndex )
+    gravitationalAccelerationDueToJ4( basic_astrodynamics::yCartesianPositionIndex )
             *= ( positionOfBodySubjectToAcceleration.y( )
                  - positionOfBodyExertingAcceleration.y( ) ) * factorForXAndYDirections;
 
-    gravitationalAccelerationDueToJ4( cartesianZPositionIndex )
+    gravitationalAccelerationDueToJ4( basic_astrodynamics::zCartesianPositionIndex )
             *= ( 15.0 / 7.0 - 10.0 * scaledZCoordinateSquared + 9.0 * scaledZCoordinateToPower4 )
             * scaledZCoordinate;
 
@@ -295,6 +181,5 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
     return gravitationalAccelerationSum;
 }
 
-} // namespace acceleration_models
-} // namespace astrodynamics
+} // namespace gravitation
 } // namespace tudat

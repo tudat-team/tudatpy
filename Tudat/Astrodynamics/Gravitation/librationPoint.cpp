@@ -52,7 +52,6 @@
 #include <cmath>
 #include <iostream>
 
-#include "Tudat/Astrodynamics/Gravitation/gravitationalForceModel.h"
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 
 namespace tudat
