@@ -359,7 +359,7 @@ DataType, PositionType, CoefficientMatrixType >::SphericalHarmonicsGravitational
         const typename Base::PositionReturningFunction
         positionOfBodyExertingAccelerationFunction )
     : Base( positionOfBodySubjectToAccelerationFunction,
-            boost::lambda::constant( gravitationalParameterFunction ),
+            gravitationalParameterFunction,
             positionOfBodyExertingAccelerationFunction ),
       getEquatorialRadius( equatorialRadiusFunction ),
       getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
