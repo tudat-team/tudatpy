@@ -88,8 +88,8 @@ protected:
     void execute( )
     {
         // Set inertial velocities.
-        cartesianVelocityAtDeparture_ << 2735.8, 6594.3, 0.0;
-        cartesianVelocityAtArrival_ << -1367.9, 4225.03, 0.0;
+        cartesianVelocityAtDeparture << 2735.8, 6594.3, 0.0;
+        cartesianVelocityAtArrival << -1367.9, 4225.03, 0.0;
     }
 
 };

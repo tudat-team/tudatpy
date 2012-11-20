@@ -80,9 +80,9 @@ namespace mission_segments
 std::ostream& operator<<( std::ostream& stream, LambertTargeter& lambertTargeter )
 {
     stream << "The position vector at departure is set to: "
-           << lambertTargeter.cartesianPositionAtDeparture_
+           << lambertTargeter.cartesianPositionAtDeparture
            << "The position vector at arrival is set to: "
-           << lambertTargeter.cartesianPositionAtArrival_
+           << lambertTargeter.cartesianPositionAtArrival
            << "The velocity vector at departure is computed as: "
            << lambertTargeter.getInertialVelocityAtDeparture( )
            << "The velocity vector at departure is computed as: "

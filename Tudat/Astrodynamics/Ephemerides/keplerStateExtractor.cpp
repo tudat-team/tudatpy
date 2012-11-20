@@ -26,15 +26,19 @@
  *      YYMMDD    Author            Comment
  *      111103    S. Billemont      First creation of code.
  *      111205    T. Secretin       Added functionalities to previous shell code.
+ *      120813    P. Musegaas       Changed code to new root finding structure.
  *
  *    References
  *
  *    Notes
+ *      This implementation uses the KeplerianElements class, which is marked for deprecation. The
+ *      code will be updated to use a simple "Vector6d" object from the Eigen library instead.
  *
  */
 
 #include <stdexcept>
 
+#include <boost/exception/all.hpp>
 #include <boost/make_shared.hpp>
 
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
@@ -158,13 +162,9 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
         const double eccentricity
                 = ( *keplerianElements )( basic_astrodynamics::eccentricityIndex );
 
-        // Create Newton-Raphson object.
-        boost::shared_ptr< NewtonRaphson > newtonRaphson =
-                boost::make_shared< NewtonRaphson >( );
-
         // Declare mean to eccentric anomaly conversion class.
-        orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
-                convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly, newtonRaphson );
+        basic_astrodynamics::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
+                convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly );
 
         // Convert to eccentric anomaly.
         const double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly.convert( );

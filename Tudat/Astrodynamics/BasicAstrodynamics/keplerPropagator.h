@@ -30,6 +30,8 @@
  *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.
  *      120215    K. Kumar          Rewrote Kepler propagator as free function.
  *      120607    P. Musegaas       Changed interface (propagation time instead of two epochs).
+ *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
+ *                                  specify which rootfinder and termination conditions to use.
  *
  *    References
  *
@@ -40,7 +42,16 @@
 
 #include <Eigen/Core>
 
+#include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
+
+#include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
+
 namespace tudat
+{
+namespace basic_astrodynamics
 {
 namespace orbital_element_conversions
 {
@@ -61,13 +72,13 @@ namespace orbital_element_conversions
  *          initialStateInKeplerianElements( 5 ) = true anomaly.                              [rad]
  * \param propagationTime Propagation time.                                                     [s]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body      [m^3 s^-2]
- * \param newtonRaphsonConvergenceTolerance Convergence tolerance for Newton-Raphson
- *          root-finder. This quantity represents the absolute difference in solution for the
- *          eccentric anomaly in the Newton-Raphson root-finding solution when converting
- *          eccentric to mean anomaly.                                                          [-]
  * \param useModuloOption Option to propagate remainder time computed from
  *          mod( propagationTime, orbitalPeriod ). This has computational advantages when the
  *          angles in Kepler's equation become very large. The default is set to true.
+ * \param rootFinder Shared-pointer to the root-finder that is used to solve the conversion from
+ *          mean to eccentric anomaly. Default is Newton-Raphson using 5.0e-15 absolute X-tolerance
+ *          and 1000 iterations as maximum. Higher precision may invoke machine precision
+ *          problems for some values.
  * \return finalStateInKeplerianElements Final state vector in classical Keplerian elements.
  *          Order is important!
  *          finalStateInKeplerianElements( 0 ) = semiMajorAxis,                                 [m]
@@ -77,13 +88,15 @@ namespace orbital_element_conversions
  *          finalStateInKeplerianElements( 4 ) = longitude of ascending node,                 [rad]
  *          finalStateInKeplerianElements( 5 ) = true anomaly.                                [rad]
  */
-Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeplerianElements,
-                                      const double propagationTime,
-                                      const double centralBodyGravitationalParameter,
-                                      const double newtonRaphsonConvergenceTolerance,
-                                      bool useModuloOption = true );
+Eigen::VectorXd propagateKeplerOrbit(
+        const Eigen::VectorXd& initialStateInKeplerianElements,
+        const double propagationTime,
+        const double centralBodyGravitationalParameter,
+        bool useModuloOption = true,
+        root_finders::RootFinderPointer aRootFinder = root_finders::RootFinderPointer( ) );
 
 } // namespace orbital_element_conversions
+} // namespace basic_astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_KEPLER_PROPAGATOR_H

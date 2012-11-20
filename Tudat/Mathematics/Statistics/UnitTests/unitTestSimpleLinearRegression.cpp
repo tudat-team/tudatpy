@@ -45,6 +45,7 @@
 #include <limits>
 #include <map>
 
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -199,26 +200,26 @@ BOOST_AUTO_TEST_CASE( testSimpleLinearRegressionVertical )
     simpleLinearRegression.computeFit( );
 
     // Check that computed coefficient of constant term matches expected value.
-    BOOST_CHECK( std::isnan( simpleLinearRegression.getCoefficientOfConstantTerm( ) ) );
+    BOOST_CHECK( boost::math::isnan( simpleLinearRegression.getCoefficientOfConstantTerm( ) ) );
 
     // Check that computed coefficient of linear term matches expected value.
-    BOOST_CHECK( std::isnan( simpleLinearRegression.getCoefficientOfLinearTerm( ) ) );
+    BOOST_CHECK( boost::math::isnan( simpleLinearRegression.getCoefficientOfLinearTerm( ) ) );
 
     // Compute linear fit errors.
     simpleLinearRegression.computeFitErrors( );
 
     // Check that computed standard deviation of coefficient of constant term matches expected
     // value.
-    BOOST_CHECK( std::isnan( simpleLinearRegression
+    BOOST_CHECK( boost::math::isnan( simpleLinearRegression
                              .getStandardDeviationOfCoefficientOfConstantTerm( ) ) );
 
     // Check that computed standard deviation of coefficient of linear term matches expected
     // value.
-    BOOST_CHECK( std::isnan(simpleLinearRegression
+    BOOST_CHECK( boost::math::isnan(simpleLinearRegression
                             .getStandardDeviationOfCoefficientOfLinearTerm( ) ) );
 
     // Check that computed chi-squared fit matches expected value.
-    BOOST_CHECK( std::isnan(simpleLinearRegression.getChiSquared( ) ) );
+    BOOST_CHECK( boost::math::isnan(simpleLinearRegression.getChiSquared( ) ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

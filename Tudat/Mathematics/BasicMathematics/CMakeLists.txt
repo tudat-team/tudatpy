@@ -41,7 +41,11 @@ set(BASICMATHEMATICS_SOURCES
 
 # Add header files.
 set(BASICMATHEMATICS_HEADERS 
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/basicFunction.h"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/convergenceException.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/coordinateConversions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/function.h"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/functionProxy.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/legendrePolynomials.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/linearAlgebraTypes.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/nearestNeighbourSearch.h"

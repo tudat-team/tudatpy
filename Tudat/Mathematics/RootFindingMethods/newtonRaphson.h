@@ -36,73 +36,134 @@
  *                                  required; changed filename.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
+ *      120208    S. Billemont      Move to new root_finders codebase.
+ *      120402    T. Secretin       Code-check.
+ *      120726    S. Billemont      Restructuring. Implemented new termination conditions.
+ *      120810    P. Musegaas       Code-check.
  *
  *    References
+ *
+ *    Notes
  *
  */
 
 #ifndef TUDAT_NEWTON_RAPHSON_H
 #define TUDAT_NEWTON_RAPHSON_H
 
-#include <iostream>
+#include <cmath>
 
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonBase.h"
-#include "Tudat/Mathematics/RootFindingMethods/rootFinder.h"
+#include <boost/bind.hpp>
+#include <boost/exception/all.hpp>
+#include <boost/format.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
+#include "Tudat/Mathematics/BasicMathematics/convergenceException.h"
 
 namespace tudat
 {
+namespace root_finders
+{
 
-//! Newton-Raphson class.
+//! Newton-Raphson rootfinder.
 /*!
- * Implementation of Newton-Raphson class in Tudat.
+ * Rootfinder using Newton-Raphson's Method. It requires a function, and its first derivative.
+ * To start the process, also one initial guess of the root value is required.
+ *
+ * The iterative scheme is given by:
+ *
+ *  x_{n+1} = x_n - \frac{F\left(x_n\right)}{F'\left(x_n\right)}
+ *
+ * Defined shorthand notations:
+ *  NewtonRaphsonCore< double, double >   =>   NewtonRaphson
+ *
+ * \tparam DataType Data type used to represent floating-point values.
  */
-class NewtonRaphson : public RootFinder
+template< typename DataType = double >
+class NewtonRaphsonCore : public RootFinderCore< DataType >
 {
 public:
 
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    NewtonRaphson( ) : pointerToNewtonRaphsonBase_( NULL ) { }
+    // Two useful typedefs.
+    typedef typename RootFinderCore< DataType >::FunctionPointer     FunctionPointer;
+    typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
 
-    //! Set adaptor class for Newton-Raphson.
-    /*!
-     * Sets the adaptor class for the Newton-Raphson method, which serves as a
-     * method to communicate with the class containing the mathematical
-     * functions used for the Newton-Rapshon method. Objects of the
-     * NewtonRaphsonAdaptor class need to be passed as the argument to this
-     * function.
-     * \param pointerToNewtonRaphsonBase Polymorphic pointer to adaptor class.
-     */
-    void setNewtonRaphsonAdaptor( NewtonRaphsonBase* pointerToNewtonRaphsonBase );
+    //! Constructor taking general termination function.
+    NewtonRaphsonCore( TerminationFunction terminationFunction )
+        : RootFinderCore< DataType >( terminationFunction )
+    { }
 
-    //! Execute Newton-Raphson method.
+    //! Constructor taking maximum number of iterations and relative tolerance for independent
+    //! variable.
+    NewtonRaphsonCore( const double relativeXTolerance, const unsigned int maxIterations );
+	
+    //! Find the root using the given information.
     /*!
-     * This function executes the Newton-Raphson root-finding method.
+     * \see RootFinder::execute().
      */
-    void execute( );
+    DataType execute( const FunctionPointer rootFunction, const DataType initialGuess )
+    {
+        // Set the root function.
+        this->rootFunction = rootFunction;
 
-    //! Overload ostream to print class information.
-    /*!
-     * Overloads ostream to print class information.
-     * \param stream Stream object.
-     * \param newtonRaphson Newton-Raphson.
-     * \return Stream object.
-     */
-    friend std::ostream& operator<<( std::ostream& stream, NewtonRaphson& newtonRaphson );
+        // Start at initial guess, and compute the function value and its first derivative.
+        DataType currentRootValue       = TUDAT_NAN;
+        DataType nextRootValue          = initialGuess;
+        DataType currentFunctionValue   = TUDAT_NAN;
+        DataType nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
+        DataType currentDerivativeValue = TUDAT_NAN;
+        DataType nextDerivativeValue    = this->rootFunction->
+                computeDerivative( 1, nextRootValue );
+
+        // Loop counter.
+        unsigned int counter = 1;
+
+        // Loop until we have a solution with sufficient accuracy.
+        do
+        {
+            // Save the old values.
+            currentRootValue       = nextRootValue;
+            currentFunctionValue   = nextFunctionValue;
+            currentDerivativeValue = nextDerivativeValue;
+
+            // Compute next value of root using the following algorithm (see class documentation):
+            nextRootValue          = currentRootValue -
+                                     currentFunctionValue / currentDerivativeValue;
+            nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
+            nextDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
+
+            // Update the counter.
+            counter++;
+        }
+        while( !this->terminationFunction( nextRootValue, currentRootValue, nextFunctionValue,
+                                           currentFunctionValue, counter ) );
+		
+        return nextRootValue;
+    }
 
 protected:
 
 private:
-
-    //! Polymorphic pointer to Newton-Raphson abstract base class.
-    /*!
-     * Polymorphic pointer to Newton-Raphson abstract base class.
-     */
-    NewtonRaphsonBase* pointerToNewtonRaphsonBase_;
 };
 
+//! Constructor taking maximum number of iterations and relative tolerance for independent variable.
+template< typename DataType >
+NewtonRaphsonCore< DataType >::NewtonRaphsonCore( const double relativeXTolerance,
+                                                  const unsigned int maxIterations )
+    : RootFinderCore< DataType >(
+          boost::bind( &termination_conditions::RootRelativeToleranceTerminationCondition::
+                       checkTerminationCondition, boost::make_shared<
+                       termination_conditions::RootRelativeToleranceTerminationCondition >(
+                           relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) )
+{ }
+
+// Some handy typedefs.
+typedef NewtonRaphsonCore< > NewtonRaphson;
+typedef boost::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
+
+} // namespace root_finders
 } // namespace tudat
 
 #endif // TUDAT_NEWTON_RAPHSON_H

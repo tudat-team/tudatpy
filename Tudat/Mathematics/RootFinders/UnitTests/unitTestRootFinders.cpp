@@ -24,53 +24,27 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110119    K. Kumar          Creation of code.
+ *      120318    S. Billemont      File created.
  *
  *    References
  *
+ *    Notes
+ *
  */
 
-#ifndef TUDAT_NEWTON_RAPHSON_BASE_H
-#define TUDAT_NEWTON_RAPHSON_BASE_H
+// Required Boost unit test framework define.
+#define BOOST_TEST_MAIN
+
+#include <boost/test/unit_test.hpp>
 
 namespace tudat
 {
-
-//! An abstract base class for NewtonRaphson.
-/*!
- * An abstract base class for the NewtonRaphson class.
- */
-class NewtonRaphsonBase
+namespace unit_tests
 {
-public:
 
-    //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    virtual ~NewtonRaphsonBase( ) { }
+BOOST_AUTO_TEST_SUITE( testsuite_rootfinders )
 
-    //! Compute mathematical function value.
-    /*!
-     * Computes the value of the mathematical function used for the
-     * Newton-Raphson algorithm.
-     * \param inputValue Input value.
-     */
-    virtual double computeFunction( double& inputValue ) = 0;
+BOOST_AUTO_TEST_SUITE_END( ) // testsuite_rootfinders
 
-    //! Compute first-derivative mathematical function value.
-    /*!
-     * Computes the value of the first-derivative mathematical function used
-     * for the Newton-Eaphson algorithm.
-     * \param inputValue Input value.
-     */
-    virtual double computeFirstDerivativeFunction( double& inputValue ) = 0;
-
-protected:
-
-private:
-};
-
-} // namespace tudat
-
-#endif // TUDAT_NEWTON_RAPHSON_BASE_H
+} // namespace unit_tests
+} // tudat

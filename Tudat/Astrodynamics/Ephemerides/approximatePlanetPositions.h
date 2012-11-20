@@ -45,7 +45,6 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 
 namespace tudat
 {

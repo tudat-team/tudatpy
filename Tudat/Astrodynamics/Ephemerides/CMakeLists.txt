@@ -59,7 +59,7 @@ setup_tudat_library_target(tudat_ephemerides "${SRCROOT}${EPHEMERIDESDIR}")
 # Add unit tests.
 add_executable(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestApproximatePlanetPositions.cpp")
 setup_custom_test_program(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_ApproximatePlanetPositions tudat_ephemerides tudat_gravitation tudat_basic_astrodynamics tudat_input_output tudat_root_finding_methods  ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_ApproximatePlanetPositions tudat_ephemerides tudat_gravitation tudat_basic_astrodynamics tudat_input_output tudat_root_finders  ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_CartesianStateExtractor "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestCartesianStateExtractor.cpp")
 setup_custom_test_program(test_CartesianStateExtractor "${SRCROOT}${EPHEMERIDESDIR}")
@@ -67,4 +67,4 @@ target_link_libraries(test_CartesianStateExtractor tudat_input_output tudat_ephe
 
 add_executable(test_KeplerStateExtractor "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestKeplerStateExtractor.cpp")
 setup_custom_test_program(test_KeplerStateExtractor "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_KeplerStateExtractor tudat_ephemerides tudat_input_output tudat_basic_astrodynamics tudat_root_finding_methods ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_KeplerStateExtractor tudat_ephemerides tudat_input_output tudat_basic_astrodynamics tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
