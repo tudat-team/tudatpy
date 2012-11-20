@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      110214    K. Kumar          Creation of code.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      120813    P. Musegaas       Changed code to new root finding structure.
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
@@ -34,62 +35,90 @@
  */
 
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
+
+#include <boost/exception/all.hpp>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
+#include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
 
 namespace tudat
 {
+namespace basic_astrodynamics
+{
 namespace orbital_element_conversions
 {
+
+using namespace root_finders;
+using namespace root_finders::termination_conditions;
+
+//! Construct converter with eccentricity and mean anomaly.
+ConvertMeanAnomalyToHyperbolicEccentricAnomaly::ConvertMeanAnomalyToHyperbolicEccentricAnomaly( 
+        const double anEccentricity, 
+        const double aHyperbolicMeanAnomaly,
+        RootFinderPointer aRootFinder )
+    : eccentricity( anEccentricity ),
+      hyperbolicMeanAnomaly( aHyperbolicMeanAnomaly ),
+      rootFinder( aRootFinder )
+{
+    // Required because the make_shared in the function definition gives problems for MSVC.
+    if ( !rootFinder.get( ) )
+    {
+        rootFinder = boost::make_shared< NewtonRaphson >(
+                    boost::bind(
+                        &RootAbsoluteOrRelativeToleranceTerminationCondition::
+                        checkTerminationCondition,
+                        boost::make_shared< RootAbsoluteOrRelativeToleranceTerminationCondition >(
+                            5.0e-15, 1000 ), _1, _2, _3, _4, _5 ) );
+    }
+}
 
 //! Convert mean anomaly to hyperbolic eccentric anomaly.
 double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
 {
     // Declare hyperbolic eccentric anomaly.
-    double hyperbolicEccentricAnomaly_ = TUDAT_NAN;
+    double hyperbolicEccentricAnomaly = TUDAT_NAN;
 
-    // Set the class that contains the functions needed for Newton-Raphson.
-    newtonRaphsonAdaptor_.setClass( this );
-
-    // Set NewtonRaphson adaptor class.
-    newtonRaphson_->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptor_ );
-
-    // Check if orbit is hyperbolic, and not near-parabolic.
-    if ( eccentricity_ > 1.2 )
+    // Check if orbit is near-parabolic, i.e. eccentricity <= 1.2.
+    if ( eccentricity <= 1.2 )
     {
-        // Set mathematical functions.
-        newtonRaphsonAdaptor_.setPointerToFunction(
-                    &ConvertMeanAnomalyToHyperbolicEccentricAnomaly::
-                    computeKeplersFunctionForHyperbolicOrbits_ );
-        newtonRaphsonAdaptor_.setPointerToFirstDerivativeFunction(
-                    &ConvertMeanAnomalyToHyperbolicEccentricAnomaly::
-                    computeFirstDerivativeKeplersFunctionForHyperbolicOrbits_ );
+        std::stringstream errorMessage;
+        errorMessage << "Orbit is near-parabolic and, at present conversion, between hyperbolic "
+                     << "eccentric anomaly and hyperbolic mean anomaly is not possible for "
+                     << "eccentricities in the range: 0.8 < eccentricity < 1.2." << std::endl;
 
-        // Set initial guess of hyperbolic eccentric anomaly to the mean anomaly.
-        newtonRaphson_->setInitialGuessOfRoot( 2.0 * hyperbolicMeanAnomaly_
-                                               / eccentricity_ - 1.8 );
-
-        // Execute Newton-Raphon method.
-        newtonRaphson_->execute( );
-
-        // Set hyperbolic eccentric anomaly based on result of Newton-Raphson root-finding
-        // algorithm
-        hyperbolicEccentricAnomaly_ = newtonRaphson_ ->getComputedRootOfFunction( );
+        boost::throw_exception( boost::enable_error_info(
+                                    std::runtime_error( errorMessage.str( ) ) ) );
     }
 
-    // Check if orbit is near-parabolic.
-    else if ( eccentricity_ <= 1.2 )
+    // Check orbit is hyperbolic, and not near-parabolic.
+    else
     {
-        std::cerr << "Orbit is near-parabolic and, at present conversion, between hyperbolic "
-                  << "eccentric anomaly and hyperbolic mean anomaly is not possible for "
-                  << "eccentricities in the range: 0.8 < eccentricity < 1.2." << std::endl;
+        // Create an object containing the function of which we whish to obtain the root from.
+        basic_mathematics::UnivariateProxyPtr rootFunction
+                = boost::make_shared< basic_mathematics::UnivariateProxy >(
+                    boost::bind( &ConvertMeanAnomalyToHyperbolicEccentricAnomaly::
+                                 computeKeplersFunctionForHyperbolicOrbits, this, _1 ) );
+
+        // Add the first derivative of the root function.
+        rootFunction->addBinding(
+                    -1, boost::bind( &ConvertMeanAnomalyToHyperbolicEccentricAnomaly::
+                                     computeFirstDerivativeKeplersFunctionForHyperbolicOrbits,
+                                     this, _1 ) );
+
+        // Set hyperbolic eccentric anomaly based on result of Newton-Raphson root-finding
+        // algorithm.
+        hyperbolicEccentricAnomaly = rootFinder->execute( rootFunction,
+                2.0 * hyperbolicMeanAnomaly / eccentricity - 1.8 );
     }
 
     // Return hyperbolic eccentric anomaly.
-    return hyperbolicEccentricAnomaly_;
+    return hyperbolicEccentricAnomaly;
 }
 
 } // namespace orbital_element_conversions
+} // namespace basic_astrodynamics
 } // namespace tudat

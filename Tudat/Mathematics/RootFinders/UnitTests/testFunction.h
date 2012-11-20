@@ -24,45 +24,53 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110119    K. Kumar          Creation of code.
+ *      120318    S. Billemont      File created.
+ *      120402    T. Secretin       Code-check.
  *
  *    References
+ *      Milea, A. Virtual Inheritance in C++, and solving the diamond problem,
+ *          http://www.cprogramming.com/tutorial/virtual_inheritance.html, 1997-2011,
+ *          last accessed: 9th September, 2012.
+ *
+ *    Notes
+ *      You need to define what function implementation you use yourself to avoid the Diamond
+ *      Problem (Milea, 2011).
  *
  */
 
-#ifndef TUDAT_ROOT_FINDER_BASE_H
-#define TUDAT_ROOT_FINDER_BASE_H
+#ifndef TUDAT_TEST_FUNCTION_H
+#define TUDAT_TEST_FUNCTION_H
+
+#include "Tudat/Mathematics/BasicMathematics/basicFunction.h"
 
 namespace tudat
 {
-
-//! An abstract base class for RootFinder.
-/*!
- * An abstract base class for the RootFinder class.
- */
-class RootFinderBase
+namespace unit_tests
 {
-public:
 
+//! Simple definition of a test function, so that it can be used by all root-finder unit tests.
+struct TestFunction
+{
     //! Default destructor.
-    /*!
-     * Default destructor.
-     */
-    virtual ~RootFinderBase( ) { }
+    virtual ~TestFunction( ) { }
 
-    //! Compute mathematical function value.
-    /*!
-     * Computes the value of the mathematical function used for the root-finder
-     * algorithm being used.
-     * \param inputValue Input value.
-     */
-    virtual double computeFunction( double& inputValue ) = 0;
+    //! Expected true location of the root.
+    virtual double getTrueRootLocation( ) = 0;
+    
+    //! Accuracy of the true value of the root.
+    virtual double getTrueRootAccuracy( ) = 0;
 
-protected:
+    //! Get a reasonable initial guess of the root location.
+    virtual double getInitialGuess( ) = 0;
 
-private:
+    //! Get a reasonable lower boundary for the root location.
+    virtual double getLowerBound( ) = 0;
+
+    //! Get a reasonable upper boundary for the root location.
+    virtual double getUpperBound( ) = 0;
 };
 
-} // namespace tudat
+} // namespace unit_tests
+} // tudat
 
-#endif // TUDAT_ROOT_FINDER_BASE_H
+#endif // TUDAT_TEST_FUNCTION_H

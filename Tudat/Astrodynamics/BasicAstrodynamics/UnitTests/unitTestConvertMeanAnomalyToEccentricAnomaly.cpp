@@ -30,6 +30,7 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120421    K. Kumar          Updated test fixtures and cases to use updated conversion
  *                                  object.
+ *      120813    P. Musegaas       Updated unit test to new root finding structure.
  *
  *    References
  *      http://www.esa.int/gsp/ACT/doc/INF/Code/globopt/GTOPtoolbox.rar
@@ -38,9 +39,11 @@
 
 #define BOOST_TEST_MAIN
 
+#include <stdexcept>
+
 #include <boost/make_shared.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 
@@ -61,18 +64,9 @@ struct conversion_test_fixture
 public:
 
     //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    conversion_test_fixture( )
-    {
-        toleranceOrbitalElementConversion = 1e-8;
-    }
+    conversion_test_fixture( ) { toleranceOrbitalElementConversion = 1e-8; }
 
     //! Conversion tolerance to test against.
-    /*!
-     * Conversion tolerance to test against.
-     */
     double toleranceOrbitalElementConversion;
 
     //! Convert mean anomaly to eccentric anomaly.
@@ -87,9 +81,8 @@ public:
                                                  const double meanAnomaly )
     {
         // Conversion object to test; mean anomaly to eccentric anomaly conversion.
-        tudat::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
-                meanToEccentricAnomaly( eccentricity, meanAnomaly,
-                                        boost::make_shared< NewtonRaphson >( ) );
+        basic_astrodynamics::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
+                meanToEccentricAnomaly( eccentricity, meanAnomaly );
 
         // Convert to eccentric anomaly and return.
         return meanToEccentricAnomaly.convert( );
@@ -107,21 +100,20 @@ BOOST_FIXTURE_TEST_SUITE( testsuite_convertMeanAnomalyToEccentricAnomaly, conver
 BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_circular )
 {
     // Set test value for eccentricity.
-    double testEccentricity = 0.0;
+    const double testEccentricity = 0.0;
 
     // Set test value for mean anomaly.
-    double testMeanAnomaly = 1.0472;
+    const double testMeanAnomaly = 1.0472;
 
     // Set reference value for eccentric anomaly;
-    double referenceEccentricAnomaly = 1.0472;
+    const double referenceEccentricAnomaly = 1.0472;
 
     // Compute eccentric anomaly.
-    double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
+    const double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
                 testEccentricity, testMeanAnomaly );
 
     // Check if computed eccentric anomaly is less than error tolerance.
-    BOOST_CHECK_CLOSE( eccentricAnomaly, 
-                       referenceEccentricAnomaly, 
+    BOOST_CHECK_CLOSE( eccentricAnomaly, referenceEccentricAnomaly,
                        toleranceOrbitalElementConversion );
 }
 
@@ -129,31 +121,30 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_circular )
 BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_range )
 {
     // Set test values for eccentricity.
-    double arrayOfTestEccentricities [4] = { 0.01671, 0.43582, 0.78514, 0.91525 };
+    const double arrayOfTestEccentricities [ 4 ] = { 0.01671, 0.43582, 0.78514, 0.91525 };
 
     // Set test values for mean anomaly.
-    double arrayOfTestMeanAnomalies [4] = { 
+    const double arrayOfTestMeanAnomalies [ 4 ] = {
         tudat::unit_conversions::convertDegreesToRadians( 60.0 ),
         tudat::unit_conversions::convertDegreesToRadians( 90.0 ),
         tudat::unit_conversions::convertDegreesToRadians( 120.0 ),
         tudat::unit_conversions::convertDegreesToRadians( 220.0 ) };
 
     // Set reference values for eccentric anomaly;
-    double arrayOfReferenceEccentricAnomalies [4] = { 1.06178920406832,
-                                                      1.97200731113253,
-                                                      2.5392410896466,
-                                                      3.51006218528448 };
+    const double arrayOfReferenceEccentricAnomalies [ 4 ] = { 1.06178920406832,
+                                                              1.97200731113253,
+                                                              2.5392410896466,
+                                                              3.51006218528448 };
 
     // Loop over sets of data.
     for ( int i = 0; i < 4; i++ )
     {
         // Compute eccentric anomaly.
-        double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
+        const double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
                     arrayOfTestEccentricities[ i ], arrayOfTestMeanAnomalies[ i ] );
 
         // Check if computed eccentric anomaly is less than error tolerance.
-        BOOST_CHECK_CLOSE( eccentricAnomaly,
-                           arrayOfReferenceEccentricAnomalies[ i ],
+        BOOST_CHECK_CLOSE( eccentricAnomaly, arrayOfReferenceEccentricAnomalies[ i ],
                            toleranceOrbitalElementConversion );
     }
 }
@@ -161,35 +152,55 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_range )
 // Test 3: Test conversion for negative eccentricities.
 BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_negative )
 {
+    // Set test run-time failure flag to false.
+    bool isNegativeEccentricityError = false;
+
     // Set test value for eccentricity.
-    double testEccentricity = -0.5;
+    const double testEccentricity = -0.5;
 
     // Set test value for mean anomaly.
-    double testMeanAnomaly = 1.0472;
+    const double testMeanAnomaly = 1.0472;
 
-    // Compute eccentric anomaly.
-    double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
-                testEccentricity, testMeanAnomaly );
+    // Try to compute eccentric anomaly, and catch expected run-time error.
+    try
+    {
+        convertMeanAnomalyToEccentricAnomaly( testEccentricity, testMeanAnomaly );
+    }
 
-    // Check if computed eccentric anomaly is NaN for negative eccentricity.
-    BOOST_CHECK( boost::math::isnan( eccentricAnomaly ) );
+    catch ( std::runtime_error& negativeEccentricityError )
+    {
+        isNegativeEccentricityError = true;
+    }
+
+    // Check if a run-time error is triggered for negative eccentricities
+    BOOST_CHECK( isNegativeEccentricityError );
 }
 
 // Test 4: Test conversion for near-parabolic orbits.
 BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic )
 {
+    // Set test run-time failure flag to false.
+    bool isParabolicOrbitError = false;
+
     // Set test value for eccentricity.
-    double testEccentricity = 0.99;
+    const double testEccentricity = 0.99;
 
     // Set test value for mean anomaly.
-    double testMeanAnomaly = 1.0472;
+    const double testMeanAnomaly = 1.0472;
 
-    // Compute eccentric anomaly.
-    double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(
-                testEccentricity, testMeanAnomaly );
+    // Try to compute eccentric anomaly, and catch expected run-time error.
+    try
+    {
+        convertMeanAnomalyToEccentricAnomaly( testEccentricity, testMeanAnomaly );
+    }
 
-    // Check if computed eccentric anomaly is NaN for parabolic orbits.
-    BOOST_CHECK( boost::math::isnan( eccentricAnomaly ) );
+    catch ( std::runtime_error& nearParabolicOrbitError )
+    {
+        isParabolicOrbitError = true;
+    }
+
+    // Check if a run-time error is triggered for near-parabolic orbits.
+    BOOST_CHECK( isParabolicOrbitError );
 }
 
 // End Boost test suite.

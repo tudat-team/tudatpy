@@ -61,24 +61,24 @@ setup_tudat_library_target(tudat_mission_segments "${SRCROOT}${MISSIONSEGMENTSDI
 # Add unit tests.
 add_executable(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestEscapeAndCapture.cpp")
 setup_custom_test_program(test_EscapeAndCapture "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_EscapeAndCapture tudat_mission_segments tudat_gravitation tudat_basic_astrodynamics tudat_root_finding_methods tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_EscapeAndCapture tudat_mission_segments tudat_gravitation tudat_basic_astrodynamics tudat_root_finders tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_GravityAssist "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestGravityAssist.cpp")
 setup_custom_test_program(test_GravityAssist "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_GravityAssist tudat_gravitation tudat_mission_segments tudat_basic_astrodynamics tudat_root_finding_methods tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_GravityAssist tudat_gravitation tudat_mission_segments tudat_basic_astrodynamics tudat_root_finders tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_LambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestLambertTargeterIzzo.cpp")
 setup_custom_test_program(test_LambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_LambertTargeterIzzo tudat_mission_segments tudat_root_finding_methods tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_LambertTargeterIzzo tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_LambertTargeterGooding "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestLambertTargeterGooding.cpp")
 setup_custom_test_program(test_LambertTargeterGooding "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_LambertTargeterGooding tudat_mission_segments tudat_root_finding_methods tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_LambertTargeterGooding tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_LambertTargeter "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestLambertTargeter.cpp")
 setup_custom_test_program(test_LambertTargeter "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_LambertTargeter tudat_mission_segments tudat_root_finding_methods tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_LambertTargeter tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_LambertRoutines "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestLambertRoutines.cpp")
 setup_custom_test_program(test_LambertRoutines "${SRCROOT}${MISSIONSEGMENTSDIR}")
-target_link_libraries(test_LambertRoutines tudat_mission_segments tudat_root_finding_methods tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_LambertRoutines tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

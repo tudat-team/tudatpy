@@ -41,6 +41,8 @@
  *                                  CartesianVelocityElements objects as output.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120619    T. Secretin       Converted to free functions. Added Izzo's approach.
+ *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
+ *                                  specify which rootfinder and termination conditions to use.
  *
  *    References
  *      Battin, R.H. An Introduction to the Mathematics and Methods of Astrodynamics,
@@ -57,10 +59,13 @@
 #define TUDAT_LAMBERT_ROUTINES_H
 
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
 
 namespace tudat
 {
@@ -131,10 +136,8 @@ double computeTimeOfFlightIzzo( const double xParameter, const double semiPerime
  * \param gravitationalParameter Gravitational parameter of the central body [m^3/s^2]. [Input]
  * \param cartesianVelocityAtDeparture Velocity at departure [m]. [Output]
  * \param cartesianVelocityAtArrival Velocity at arrival [m]. [Output]
- * \param newtonRaphson Newton-Raphson object for root-finding computations. [Input, Optional]
- * \param convergenceTolerance Convergence tolerance for the root-finding process. [Input, Optional]
- * \param maximumNumberOfIterations Maximum number of iterations of the root-finding process.
- *           [Input, Optional]
+ * \param rootFinder Shared-pointer to the rootfinder that is to be used. Default is Newton-Raphson
+ *          using 1000 iterations as maximum and 1.0e-12 relative X-tolerance. [Input, optional]
  */
 void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDeparture,
                                  const Eigen::Vector3d& cartesianPositionAtArrival,
@@ -142,10 +145,8 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
                                  const double gravitationalParameter,
                                  Eigen::Vector3d& cartesianVelocityAtDeparture,
                                  Eigen::Vector3d& cartesianVelocityAtArrival,
-                                 boost::shared_ptr< NewtonRaphson > newtonRaphson
-                                 = boost::shared_ptr< NewtonRaphson >( new NewtonRaphson ),
-                                 const double convergenceTolerance = 1e-9,
-                                 const unsigned int maximumNumberOfIterations = 50 );
+                                 root_finders::RootFinderPointer rootFinder
+                                    = root_finders::RootFinderPointer( ) );
 
 //! Gooding Lambert functions class.
 /*!
@@ -161,9 +162,9 @@ public:
      * Constructor that sets all the parameters in the Lambert functions for use in the
      * Newton-Raphson rootfinder.
      */
-    LambertFunctionsGooding( const double qParameter, const double normalizedTimeOfFlight )
-        : qParameter_( qParameter ),
-          normalizedTimeOfFlight_( normalizedTimeOfFlight )
+    LambertFunctionsGooding( const double aQParameter, const double aNormalizedTimeOfFlight )
+        : qParameter( aQParameter ),
+          normalizedTimeOfFlight( aNormalizedTimeOfFlight )
     { }
 
     //! Define general Lambert function.
@@ -172,7 +173,7 @@ public:
      * \param xParameter x-parameter.
      * \return Lambert function value.
      */
-    double computeLambertFunctionGooding( double& xParameter );
+    double computeLambertFunctionGooding( const double xParameter );
 
     //! Define first derivative of general Lambert function.
     /*!
@@ -180,7 +181,7 @@ public:
      * \param xParameter x-parameter.
      * \return Derivative of the Lambert function.
      */
-    double computeFirstDerivativeLambertFunctionGooding( double& xParameter );
+    double computeFirstDerivativeLambertFunctionGooding( const double xParameter );
 
     //! Define Lambert function for positive lambertEccentricAnomaly.
     /*!
@@ -188,7 +189,7 @@ public:
      * \param xParameter x-parameter.
      * \return Lambert function value for a positive lambertEccentricAnomaly.
      */
-    double lambertFunctionPositiveGooding( double& xParameter );
+    double lambertFunctionPositiveGooding( const double xParameter );
 
     //! Define Lambert function for negative lambertEccentricAnomaly.
     /*!
@@ -196,7 +197,7 @@ public:
      * \param xParameter x-parameter.
      * \return Lambert function value for a negative lambertEccentricAnomaly.
      */
-    double lambertFunctionNegativeGooding( double& xParameter );
+    double lambertFunctionNegativeGooding( const double xParameter );
 
     //! Define first derivative of Lambert function for positive lambertEccentricAnomaly.
     /*!
@@ -204,7 +205,7 @@ public:
      * \param xParameter x-parameter.
      * \return Derivative of the Lambert function for a positive lambertEccentricAnomaly.
      */
-    double lambertFirstDerivativeFunctionPositiveGooding( double& xParameter );
+    double lambertFirstDerivativeFunctionPositiveGooding( const double xParameter );
 
     //! Define first derivative of Lambert function for negative lambertEccentricAnomaly.
     /*!
@@ -212,7 +213,7 @@ public:
      * \param xParameter x-parameter.
      * \return Derivative of the Lambert function for a negative lambertEccentricAnomaly.
      */
-    double lambertFirstDerivativeFunctionNegativeGooding( double& xParameter );
+    double lambertFirstDerivativeFunctionNegativeGooding( const double xParameter );
 
 protected:
 
@@ -222,13 +223,13 @@ private:
     /*!
      * Lambert q-parameter.
      */
-    const double qParameter_;
+    const double qParameter;
 
     //! Normalized time of flight for Lambert implementation.
     /*!
      * Normalized time of flight for Lambert implementation.
      */
-    const double normalizedTimeOfFlight_;
+    const double normalizedTimeOfFlight;
 };
 
 } // namespace mission_segments

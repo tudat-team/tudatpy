@@ -48,6 +48,8 @@
  *      120713    P. Musegaas       Added option to iterate on pericenter radius instead of
  *                                  eccentricity. Added separate class for this and a flag in free
  *                                  function.
+ *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
+ *                                  specify which rootfinder and termination conditions to use.
  *
  *    Notes
  *      Note that the exact implementation of Newton-Raphson as root finder should be updated if
@@ -66,11 +68,12 @@
 #define TUDAT_GRAVITY_ASSIST_H
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
 
 namespace tudat
 {
@@ -92,7 +95,8 @@ namespace mission_segments
  * \param useEccentricityInsteadOfPericenter Flag to indicate the iteration procedure for matching
  *                                           the bending angle.                                 [-]
  * \param speedTolerance Tolerance at which the velocity effect deltaV is deemed 0.0.           [-]
- * \param newtonRaphson Pointer to the Newton Raphson that the user wants to use.               [-]
+ * \param rootFinder Shared-pointer to the rootfinder that is to be used. Default is Newton-Raphson
+ *          using 1000 iterations as maximum and 1.0e-12 relative X-tolerance.
  * \return deltaV The deltaV required for the gravity assist maneuver.                     [m s^-1]
  */
 double gravityAssist( const double centralBodyGravitationalParameter,
@@ -102,8 +106,8 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                       const double smallestPeriapsisDistance,
                       const bool useEccentricityInsteadOfPericenter = true,
                       const double speedTolerance = 1.0e-6,
-                      boost::shared_ptr< NewtonRaphson > newtonRaphson =
-                                                        boost::make_shared< NewtonRaphson >( ) );
+                      root_finders::RootFinderPointer rootFinder
+                        = boost::make_shared< root_finders::NewtonRaphson >( 1.0e-12, 1000 ) );
 
 //! Propagate an unpowered gravity assist.
 /*!
@@ -161,7 +165,7 @@ public:
                                  const double bendingAngle )
         : absoluteIncomingSemiMajorAxis_( absoluteIncomingSemiMajorAxis ),
           absoluteOutgoingSemiMajorAxis_( absoluteOutgoingSemiMajorAxis ),
-          bendingAngle_ ( bendingAngle )
+          bendingAngle_( bendingAngle )
     { }
 
     //! Compute pericenter radius function.
@@ -172,7 +176,7 @@ public:
      * \return Pericenter radius root finding function value.
      * \sa NewtonRaphson().
      */
-    double computePericenterRadiusFunction( double& pericenterRadius );
+    double computePericenterRadiusFunction( const double pericenterRadius );
 
     //! Compute first-derivative of the pericenter radius function.
     /*!
@@ -183,7 +187,7 @@ public:
      * \return Pericenter radius root finding function first-derivative value.
      * \sa NewtonRapshon().
      */
-    double computeFirstDerivativePericenterRadiusFunction( double& pericenterRadius );
+    double computeFirstDerivativePericenterRadiusFunction( const double pericenterRadius );
 
 protected:
 
@@ -231,7 +235,7 @@ public:
                                    const double bendingAngle )
         : incomingSemiMajorAxis_( incomingSemiMajorAxis),
           outgoingSemiMajorAxis_( outgoingSemiMajorAxis ),
-          bendingAngle_ ( bendingAngle )
+          bendingAngle_( bendingAngle )
     { }
 
     //! Compute incoming eccentricity function.
@@ -243,7 +247,7 @@ public:
      * \return Incoming eccentricity root finding function value.
      * \sa NewtonRaphson().
      */
-    double computeIncomingEccentricityFunction( double& incomingEccentricity );
+    double computeIncomingEccentricityFunction( const double incomingEccentricity );
 
     //! Compute first-derivative of the incoming eccentricity function.
     /*!
@@ -254,7 +258,7 @@ public:
      * \return Incoming eccentricity root finding function first-derivative value.
      * \sa NewtonRapshon().
      */
-    double computeFirstDerivativeIncomingEccentricityFunction( double& incomingEccentricity );
+    double computeFirstDerivativeIncomingEccentricityFunction( const double incomingEccentricity );
 
 protected:
 

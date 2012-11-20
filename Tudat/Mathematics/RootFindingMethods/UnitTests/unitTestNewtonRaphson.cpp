@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110111    E. Iorfida        First creation of the code.
+ *      110111    E. Iorfida        File created.
  *                                  The code is tested with the function: f(x)= x^2 - 3.
  *      110111    K. Kumar          Updated to use address of global  functions instead of
  *                                  pointers for set functions; aligned code as required for
@@ -39,346 +39,177 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120712    P. Musegaas       Changed absolute tolerance into a safe variant of relative
  *                                  tolerance. Added new unit tests for this.
+ *      120318    S. Billemont      Move to new root_finders codebase.
+ *      120402    T. Secretin       Code-check.
+ *      120810    P. Musegaas       Code-check. Merged two branches. Various edits.
  *
  *    References
  *
- *
  *    Notes
- *      The current implementation of the tolerance (a relative tolerance) may not be ideal for all
- *      applications (i.e. not good for values close to 0.0). It was selected because the old
- *      implementation was not suited for functions whose root might differ orders of magnitude.
- *      This version is safe for all applications though. Many iterations may be required if one
- *      searches for roots close to zero but not typically equal to zero.
+ *      The test cases in this unit test should be more extensive.
  *
  */
 
-#define BOOST_TEST_MAIN
-
-#include <cmath>
-
-#include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
+#include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/UnitTests/testFunction1.h"
+#include "Tudat/Mathematics/RootFinders/UnitTests/testFunction2.h"
+#include "Tudat/Mathematics/RootFinders/UnitTests/testFunction3.h"
+#include "Tudat/Mathematics/RootFinders/UnitTests/testFunctionWithLargeRootDifference.h"
+#include "Tudat/Mathematics/RootFinders/UnitTests/testFunctionWithZeroRoot.h"
 
 namespace tudat
 {
 namespace unit_tests
 {
 
-//! Struct for NewtonRaphson unit test code.
-/*!
- * This struct contains functions, necessary to test NewtonRaphson method.
- */
-struct NewtonRaphsonTest
+BOOST_AUTO_TEST_SUITE( testsuite_rootfinders )
+
+using namespace tudat;
+using namespace root_finders;
+using namespace root_finders::termination_conditions;
+
+//! Check if Newton-Raphson converges on test function #1 (TestFunction1).
+BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction1 )
 {
-public:
+    // Create object containing the test functions.
+    boost::shared_ptr< TestFunction1 > testFunction = boost::make_shared< TestFunction1 >( 1 );
 
-    //! Mathematical test function.
-    /*!
-     * Mathematical test function used by the Newton-Raphson algorithm.
-     * \param inputValue Input value.
-     */
-    double computeTestFunction( double& inputValue ) { return inputValue * inputValue - 3.0; }
+    // The termination condition.
+    NewtonRaphson::TerminationFunction terminationConditionFunction =
+            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
-    //! First-derivative of mathematical test function.
-    /*!
-     * First-derivative of mathematical test function used by the
-     * Newton-Raphson algorithm.
-     * \param inputValue Input value.
-     */
-    double computeFirstDerivativeTestFunction( double& inputValue ) { return 2.0 * inputValue; }
+    // Test Newton-Raphson object.
+    NewtonRaphson newtonRaphson( terminationConditionFunction );
 
-protected:
+    // Let Newton-Raphson search for the root.
+    const double root = newtonRaphson.execute( testFunction, testFunction->getInitialGuess( ) );
 
-private:
-};
-
-//! Complute global mathematical test function.
-/*!
- * Computes global test function:
- * \f[
- *      y = x^{2} - 3
- * \f]
- * This function is used to illustrate the use of global free functions with the Newton-Raphon
- * root-finder.
- * \param inputValue Input value (\f$x\f$).
- * \return Computed value (\f$y\f$).
- * \sa computeGlobalFirstDerivativeTestFunction().
- */
-double computeGlobalTestFunction( double& inputValue )
-{
-    return inputValue * inputValue - 3.0;
+    // Check if the result is within the requested accuracy.
+    BOOST_CHECK_CLOSE_FRACTION( root, testFunction->getTrueRootLocation( ), 1.0e-15 );
+    BOOST_CHECK_LT( testFunction->evaluate( root ), testFunction->getTrueRootAccuracy( ) );
 }
 
-//! Compute global first-derivative mathematical test function.
-/*!
- * Computes global first-derivative of test function:
- * \f[
- *      \frac{dy}{dx} = y' = 2 * x
- * \f]
- * This function is used to illustrate the use of global free functions with the Newton-Raphon
- * root-finder.
- * \param inputValue Input value (\f$x\f$).
- * \return Computed value (\f$y'\f$).
- * \sa computeGlobalTestFunction().
- */
-double computeGlobalFirstDerivativeTestFunction( double& inputValue ) { return 2.0 * inputValue; }
-
-//! Compute zero-root function.
-/*!
- * A simple function whose root is zero.
- * \param inputValue Input value.
- * \return Computed value.
- */
-double computeZeroRootFunction( double& inputValue ) { return inputValue * inputValue; }
-
-//! Compute first-derivative of zero-root function.
-/*!
- * Computes first-derivative of the simple function with zero root.
- */
-double computeFirstDerivativeZeroRootFunction( double& inputValue ) { return 2.0 * inputValue; }
-
-//! Struct for testing a function with large differences in roots.
-/*!
- * This struct contains functions to test if the root finder converges correctly to a function
- * whose roots vary a lot. Similar to the eccentricity finding functions in a gravity assist.
- */
-struct NewtonRaphsonLargeRootDifferencesTest
+//! Check if Newton-Raphson converges on test function #2 (TestFunction2).
+BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction2 )
 {
-public:
+    // Create object containing the test functions.
+    boost::shared_ptr< TestFunction2 > testFunction = boost::make_shared< TestFunction2 >( 1 );
 
-    //! Constructor with immediate definition of parameters.
-    /*!
-     * Constructor that sets all the parameters in the eccentricity finding functions for use in the
-     * Newton-Raphson root-finder.
-     */
-    NewtonRaphsonLargeRootDifferencesTest ( const double incomingSemiMajorAxis,
-                                            const double outgoingSemiMajorAxis,
-                                            const double bendingAngle )
-        : incomingSemiMajorAxis_( incomingSemiMajorAxis),
-          outgoingSemiMajorAxis_( outgoingSemiMajorAxis ),
-          bendingAngle_ ( bendingAngle )
-    { }
+    // The termination condition.
+    NewtonRaphson::TerminationFunction terminationConditionFunction =
+            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
+    
+    // Test Newton-Raphson object.
+    NewtonRaphson newtonRaphson( terminationConditionFunction );
 
-    //! Compute incoming eccentricity function.
-    /*!
-     * Computes incoming eccentricity function. This function is used by the Newton-Raphson root-
-     * finder to find the incoming eccentricity that matches the bending angle required in the
-     * gravity assist.
-     * \param incomingEccentricity Incoming eccentricity.
-     * \return Incoming eccentricity root finding function value.
-     * \sa NewtonRaphson().
-     */
-    double computeIncomingEccentricityFunction( double& incomingEccentricity )
-    {
-        return std::asin( 1.0 / incomingEccentricity )
-                + std::asin( 1.0 / ( 1.0 - incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ *
-                                     ( 1.0 - incomingEccentricity ) ) ) - bendingAngle_;
-    }
+    // Let Newton-Raphson search for the root.
+    const double root = newtonRaphson.execute( testFunction, testFunction->getInitialGuess( ) );
 
-    //! Compute first-derivative of the incoming eccentricity function.
-    /*!
-     * Computes the first-derivative of the incoming eccentricity function. This function is used
-     * by the Newton-Raphson root-finder to find the incoming eccentricity that matches the bending
-     * angle required in the gravity assist.
-     * \param incomingEccentricity Incoming eccentricity.
-     * \return Incoming eccentricity root finding function first-derivative value.
-     * \sa NewtonRapshon().
-     */
-    double computeFirstDerivativeIncomingEccentricityFunction( double& incomingEccentricity )
-    {
-        const double eccentricitySquareMinusOne_ =
-                incomingEccentricity * incomingEccentricity - 1.0;
-        const double semiMajorAxisRatio_ = incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ ;
-        const double bParameter_ = 1.0 - semiMajorAxisRatio_ * ( 1.0 - incomingEccentricity );
-
-        return -1.0 / ( incomingEccentricity * std::sqrt( eccentricitySquareMinusOne_ ) ) -
-               semiMajorAxisRatio_ / ( bParameter_ * std::sqrt( bParameter_ * bParameter_ - 1.0 ) );
-    }
-
-protected:
-
-private:
-
-    //! Semi-major axis of the incoming hyperbolic leg
-    const double incomingSemiMajorAxis_;
-
-    //! Semi-major axis of the outgoing hyperbolic leg.
-    const double outgoingSemiMajorAxis_;
-
-    //! Bending angle between the excess velocities.
-    const double bendingAngle_;
-};
-
-BOOST_AUTO_TEST_SUITE( test_newton_raphson )
-
-//! Test if Newton-Raphson root-finder works correctly using global functions.
-BOOST_AUTO_TEST_CASE( testNewtonRaphsonWithGlobalFunctions )
-{
-    // Set expected root.
-    const double expectedRoot = std::sqrt( 3.0 );
-
-    // Declare new Newton-Raphson object.
-    boost::shared_ptr< tudat::NewtonRaphson > newtonRaphson
-            = boost::make_shared< tudat::NewtonRaphson >( );
-
-    // Set values for the implementation of the code.
-    newtonRaphson->setRelativeTolerance( 1.0e-15 );
-    newtonRaphson->setInitialGuessOfRoot( 5.0 );
-
-    // Set mathematical functions.
-    newtonRaphson->setMathematicalFunction( &computeGlobalTestFunction );
-    newtonRaphson->setFirstDerivativeMathematicalFunction(
-                &computeGlobalFirstDerivativeTestFunction );
-
-    // Compute root.
-    newtonRaphson->execute( );
-
-    // Check if computed root matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedRoot, newtonRaphson->getComputedRootOfFunction( ),
-                                newtonRaphson->getRelativeTolerance( ) );
-
+    // Check if the result is within the requested accuracy.
+    BOOST_CHECK_CLOSE_FRACTION( root, testFunction->getTrueRootLocation( ), 1.0e-15 );
+    BOOST_CHECK_LT( testFunction->evaluate( root ), testFunction->getTrueRootAccuracy( ) );
 }
 
-//! Test if Newton-Raphson root-finder works correctly using member functions.
-BOOST_AUTO_TEST_CASE( testNewtonRaphsonWithMemberFunctions )
+//! Check if Newton-Raphson converges on test function #3 (TestFunction3).
+BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction3 )
 {
-    // Set expected root.
-    const double expectedRoot = std::sqrt( 3.0 );
+    // Create object containing the test functions.
+    boost::shared_ptr< TestFunction3 > testFunction = boost::make_shared< TestFunction3 >( 1 );
 
-    // Declare new Newton-Raphson object.
-    boost::shared_ptr< tudat::NewtonRaphson > newtonRaphson
-            = boost::make_shared< tudat::NewtonRaphson >( );
+    // The termination condition.
+    NewtonRaphson::TerminationFunction terminationConditionFunction =
+            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
-    // Set values for the implementation of the code.
-    newtonRaphson->setRelativeTolerance( 1.0e-15 );
-    newtonRaphson->setInitialGuessOfRoot( 5.0 );
+    // Test Newton-Raphson object.
+    NewtonRaphson newtonRaphson( terminationConditionFunction );
 
-    // Declare NewtonRaphsonAdaptor object.
-    tudat::NewtonRaphsonAdaptor< NewtonRaphsonTest > newtonRaphsonAdaptor_;
+    // Let Newton-Raphson search for the root.
+    const double root = newtonRaphson.execute( testFunction, testFunction->getInitialGuess( ) );
 
-    // Set adaptor class object and member functions.
-    newtonRaphson->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptor_ );
-    newtonRaphsonAdaptor_.setPointerToFunction(
-                &NewtonRaphsonTest::computeTestFunction );
-    newtonRaphsonAdaptor_.setPointerToFirstDerivativeFunction(
-                &NewtonRaphsonTest::computeFirstDerivativeTestFunction );
-
-    // Compute root.
-    newtonRaphson->execute( );
-
-    // Check if computed root matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedRoot, newtonRaphson->getComputedRootOfFunction( ),
-                                newtonRaphson->getRelativeTolerance( ) );
-
+    // Check if the result is within the requested accuracy.
+    BOOST_CHECK_CLOSE_FRACTION( root, testFunction->getTrueRootLocation( ), 1.0e-15 );
+    BOOST_CHECK_LT( testFunction->evaluate( root ), testFunction->getTrueRootAccuracy( ) );
 }
 
-//! Test if Newton-Raphson root-finder works correctly with functions whose root is zero.
-BOOST_AUTO_TEST_CASE( testNewtonRaphsonWithZeroRoot )
-{
-    // Declare tolerance.
-    const double tolerance = std::numeric_limits< double >::min( );
-
-    // Declare new Newton-Raphson object.
-    boost::shared_ptr< tudat::NewtonRaphson > newtonRaphson
-            = boost::make_shared< tudat::NewtonRaphson >( );
-
-    // Set values for the implementation of the code.
-    newtonRaphson->setRelativeTolerance( 1.0e-15 );
-    newtonRaphson->setZeroRepresentation( 1.0e-20 );
-    newtonRaphson->setInitialGuessOfRoot( 5.0 );
-
-    // Set adaptor class object and member functions.
-    newtonRaphson->setMathematicalFunction( &computeZeroRootFunction );
-    newtonRaphson->setFirstDerivativeMathematicalFunction(
-                &computeGlobalFirstDerivativeTestFunction );
-
-    // Compute root.
-    newtonRaphson->execute( );
-
-    // Check if computed root matches expected value.
-    BOOST_CHECK_SMALL( newtonRaphson->getComputedRootOfFunction( ), tolerance );
-}
-
-//! Test if Newton-Raphson root-finder works correctly with functions having very different roots.
-BOOST_AUTO_TEST_CASE( testNewtonRaphsonWithLargeDifferencesInRoots )
+//! Check if Newton-Raphson converges on function with large root difference
+//! (testFunctionWithLargeRootDifference).
+// Not the best test case. Inheritance from old code.
+BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithLargeRootDifference )
 {
     // Declare tolerance.
     const double tolerance = 1.0e-10;
 
     // Declare expected roots.
-    double expectedRootLow = 1.00000000793634;
-    double expectedRootHigh = 7937.3386333591;
+    const double expectedRootLowCase = 1.00000000793634;
+    const double expectedRootHighCase = 7937.3386333591;
 
-    // Very similar semi major axes and bending angles have arisen in trajectory optimization of
-    // Cassini, hence although they are not realistic (especially within the patched conics
-    // framework), they need to be calculated correctly. In general much more constraining
-    // situations can be thought of. This unit test can be upgraded.
-    double incomingSemiMajorAxisLow = -3.24859999867635e18;
-    double outgoingSemiMajorAxisLow = -3248600.0;
-    double bendingAngleLow = 1.5707963267949;
+    // Create objects containing the test functions. Values were obtained during a limit case
+    // gravity assist calculation (while evaluating Cassini-1 trajectory).
+    boost::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionLowCase =
+            boost::make_shared< TestFunctionWithLargeRootDifference >
+            ( 1, -3.24859999867635e18, -3248600.0, 1.5707963267949 );
+    boost::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionHighCase =
+            boost::make_shared< TestFunctionWithLargeRootDifference >
+            ( 1, -3248600.0, -3.24859999867635e18, 1.5707963267949 );
 
-    double incomingSemiMajorAxisHigh = -3248600.0;
-    double outgoingSemiMajorAxisHigh = -3.24859999867635e18;
-    double bendingAngleHigh = 1.5707963267949;
+    // The termination condition.
+    NewtonRaphson::TerminationFunction terminationConditionFunction
+            = boost::bind( &RootRelativeToleranceTerminationCondition::checkTerminationCondition,
+                           boost::make_shared< RootRelativeToleranceTerminationCondition >(
+                               1.0e-10 ), _1, _2, _3, _4, _5 );
 
-    // Instantiate the low- and high-case classes.
-    NewtonRaphsonLargeRootDifferencesTest functionsLow( incomingSemiMajorAxisLow,
-                                                        outgoingSemiMajorAxisLow,
-                                                        bendingAngleLow );
-    NewtonRaphsonLargeRootDifferencesTest functionsHigh( incomingSemiMajorAxisHigh,
-                                                         outgoingSemiMajorAxisHigh,
-                                                         bendingAngleHigh );
+    // Make the Newton-Raphson object.
+    NewtonRaphson newtonRaphson( terminationConditionFunction );
 
-    // Declare new Newton-Raphson objects.
-    boost::shared_ptr< tudat::NewtonRaphson > newtonRaphsonLow
-            = boost::make_shared< tudat::NewtonRaphson >( );
+    // Let Newton-Raphson search for the root for both cases.
+    double rootLowCase = newtonRaphson.execute( testFunctionLowCase, 1.0 + 1.0e-10 );
+    double rootHighCase = newtonRaphson.execute( testFunctionHighCase, 1.0 + 1.0e-2 );
 
-    boost::shared_ptr< tudat::NewtonRaphson > newtonRaphsonHigh
-            = boost::make_shared< tudat::NewtonRaphson >( );
-
-    // Set values for the implementation of the code.
-    newtonRaphsonLow->setRelativeTolerance( tolerance );
-    newtonRaphsonLow->setInitialGuessOfRoot( 1.0 + 1.0e-10 );
-    newtonRaphsonHigh->setRelativeTolerance( tolerance );
-    newtonRaphsonHigh->setInitialGuessOfRoot( 1.0 + 1.0e-2 );
-
-    // Declare NewtonRaphsonAdaptor objects.
-    tudat::NewtonRaphsonAdaptor< NewtonRaphsonLargeRootDifferencesTest > newtonRaphsonAdaptorLow;
-    newtonRaphsonAdaptorLow.setClass( &functionsLow );
-    tudat::NewtonRaphsonAdaptor< NewtonRaphsonLargeRootDifferencesTest > newtonRaphsonAdaptorHigh;
-    newtonRaphsonAdaptorHigh.setClass( &functionsHigh );
-
-    // Set adaptor class object and member functions.
-    newtonRaphsonLow->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorLow );
-    newtonRaphsonAdaptorLow.setPointerToFunction(
-                &NewtonRaphsonLargeRootDifferencesTest::computeIncomingEccentricityFunction );
-    newtonRaphsonAdaptorLow.setPointerToFirstDerivativeFunction(
-                &NewtonRaphsonLargeRootDifferencesTest::
-                        computeFirstDerivativeIncomingEccentricityFunction );
-    newtonRaphsonHigh->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorHigh );
-    newtonRaphsonAdaptorHigh.setPointerToFunction(
-                &NewtonRaphsonLargeRootDifferencesTest::computeIncomingEccentricityFunction );
-    newtonRaphsonAdaptorHigh.setPointerToFirstDerivativeFunction(
-                &NewtonRaphsonLargeRootDifferencesTest::
-                        computeFirstDerivativeIncomingEccentricityFunction );
-
-    // Compute root.
-    newtonRaphsonLow->execute( );
-    newtonRaphsonHigh->execute( );
-
-    // Check if computed root matches expected value.
-    BOOST_CHECK_CLOSE_FRACTION( expectedRootLow, newtonRaphsonLow->getComputedRootOfFunction( ),
-                                tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( expectedRootHigh, newtonRaphsonHigh->getComputedRootOfFunction( ),
-                                tolerance );
+    // Check if the result is within the requested accuracy.
+    BOOST_CHECK_CLOSE_FRACTION( rootLowCase, expectedRootLowCase, tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( rootHighCase, expectedRootHighCase, tolerance );
 }
 
-BOOST_AUTO_TEST_SUITE_END( )
+//! Check if Newton-Raphson converges on function with zero root (testFunctionWithZeroRoot).
+// Not the best test case. Inheritance from old code. Not really relevant anymore. The basic
+// idea is that Newton-Raphson should work for both a function that becomes zero, as well as for a
+// function that does not become zero. A better case should be written.
+BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithZeroRoot )
+{
+    // Create object containing the test functions.
+    boost::shared_ptr< TestFunctionWithZeroRoot > testFunction =
+            boost::make_shared< TestFunctionWithZeroRoot >( 1 );
+
+    // The termination condition.
+    NewtonRaphson::TerminationFunction terminationConditionFunction
+            = boost::bind( &RootAbsoluteOrRelativeToleranceTerminationCondition::
+                           checkTerminationCondition,
+                           boost::make_shared< RootAbsoluteOrRelativeToleranceTerminationCondition >(
+                               1.0e-308, 1.0e-15 ), _1, _2, _3, _4, _5 );
+
+    // Test Newton-Raphson object.
+    NewtonRaphson newtonRaphson( terminationConditionFunction );
+
+    // Let Newton-Raphson search for the root.
+    const double root = newtonRaphson.execute( testFunction, testFunction->getInitialGuess( ) );
+
+    // Check if the result is within the requested accuracy.
+    BOOST_CHECK_SMALL( root, 1.0e-150 );
+    BOOST_CHECK_LT( testFunction->evaluate( root ), testFunction->getTrueRootAccuracy( ) );
+}
+
+BOOST_AUTO_TEST_SUITE_END( ) // testsuite_rootfinders
 
 } // namespace unit_tests
 } // namespace tudat

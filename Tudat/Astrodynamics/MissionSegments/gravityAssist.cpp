@@ -48,6 +48,7 @@
  *                                  was wrong, limit cases failed, rootfinder not ideal, all for
  *                                  original deltaV calculation function). Added iteration on
  *                                  pericenter radius instead of eccentricity. Improved efficiency.
+ *      120813    P. Musegaas       Changed code to new root finding structure.
  *
  *    References
  *      References for deltaV computation function:
@@ -80,17 +81,21 @@
 
 #include <cmath>
 
+#include <boost/bind.hpp>
+
 #include <Eigen/Dense>
 
 #include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
 
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
+#include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
 
 namespace tudat
 {
 namespace mission_segments
 {
+
+using namespace root_finders;
 
 //! Calculate deltaV of a gravity assist.
 double gravityAssist( const double centralBodyGravitationalParameter,
@@ -100,8 +105,11 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                       const double smallestPeriapsisDistance,
                       const bool useEccentricityInsteadOfPericenter,
                       const double speedTolerance,
-                      boost::shared_ptr< NewtonRaphson > newtonRaphson )
+                      RootFinderPointer rootFinder )
 {
+    using basic_mathematics::UnivariateProxyPtr;
+    using basic_mathematics::UnivariateProxy;
+
     // Compute incoming and outgoing hyperbolic excess velocity.
     const Eigen::Vector3d incomingHyperbolicExcessVelocity
             = incomingVelocity - centralBodyVelocity;
@@ -199,7 +207,22 @@ double gravityAssist( const double centralBodyGravitationalParameter,
         // Set the gravity assist function with the variables to perform root finder calculations.
         EccentricityFindingFunctions eccentricityFindingFunctions( incomingSemiMajorAxis,
                                                                    outgoingSemiMajorAxis,
-                                                                   bendingAngle);
+                                                                   bendingAngle );
+
+        // Create an object containing the function of which we whish to obtain the root from.
+        UnivariateProxyPtr rootFunction = boost::make_shared< UnivariateProxy >(
+                    boost::bind( &EccentricityFindingFunctions::
+                                 computeIncomingEccentricityFunction,
+                                 eccentricityFindingFunctions, _1 ) );
+
+        // Add the first derivative of the root function.
+        rootFunction->addBinding( -1, boost::bind(
+                                      &EccentricityFindingFunctions::
+                                      computeFirstDerivativeIncomingEccentricityFunction,
+                                      eccentricityFindingFunctions, _1 ) );
+
+        // Initialize incoming eccentricity.
+        double incomingEccentricity = TUDAT_NAN;
 
         // Set initial guess of the variable computed in Newton-Rapshon method.
         if ( ( absoluteOutgoingExcessVelocity / absoluteIncomingExcessVelocity ) < 100.0 )
@@ -208,32 +231,16 @@ double gravityAssist( const double centralBodyGravitationalParameter,
             // result in no convergence. Hence a higher value of 1.01 is necessary. This will not
             // result in 'going through' 1.0 as mentioned below, because the eccentricity in these
             // cases is always high!
-            newtonRaphson->setInitialGuessOfRoot( 1.0 + 1.0e-2 );
+            incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-2 );
         }
+
         else
         {
             // This is set to a value that is close to 1.0. This is more robust than higher values,
             // because for those higher values Newton Raphson sometimes 'goes through' 1.0. This
             // results in NaN values for the derivative of the eccentricity finding function.
-            newtonRaphson->setInitialGuessOfRoot( 1.0 + 1.0e-10 );
+            incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-10 );
         }
-
-        // Set the class that contains the functions needed for Newton-Raphson.
-        NewtonRaphsonAdaptor< EccentricityFindingFunctions > newtonRaphsonAdaptorForGravityAssist;
-        newtonRaphsonAdaptorForGravityAssist.setClass( &eccentricityFindingFunctions );
-
-        // Set the functions needed for the Newton Raphson method.
-        newtonRaphson->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist );
-        newtonRaphsonAdaptorForGravityAssist.setPointerToFunction(
-                &EccentricityFindingFunctions::computeIncomingEccentricityFunction );
-        newtonRaphsonAdaptorForGravityAssist.setPointerToFirstDerivativeFunction(
-                &EccentricityFindingFunctions::computeFirstDerivativeIncomingEccentricityFunction );
-
-        // Execute Newton-Raphson method.
-        newtonRaphson->execute( );
-
-        // Set incoming hyperbolic leg eccentricity as the output value of Newton-Raphson method.
-        const double incomingEccentricity = newtonRaphson->getComputedRootOfFunction( );
 
         // Compute outgoing hyperbolic leg eccentricity.
         const double outgoingEccentricity = 1.0 - ( incomingSemiMajorAxis /
@@ -271,31 +278,25 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                                                                absoluteOutgoingSemiMajorAxis,
                                                                bendingAngle);
 
-        // Set initial guess of the variable computed in Newton-Rapshon method.
-        newtonRaphson->setInitialGuessOfRoot( smallestPeriapsisDistance );
+        // Create an object containing the function of which we whish to obtain the root from.
+        UnivariateProxyPtr rootFunction = boost::make_shared< UnivariateProxy >(
+                    boost::bind( &PericenterFindingFunctions::computePericenterRadiusFunction,
+                                 pericenterFindingFunctions, _1 ) );
 
-        // Set the class that contains the functions needed for Newton-Raphson.
-        NewtonRaphsonAdaptor< PericenterFindingFunctions > newtonRaphsonAdaptorForGravityAssist;
-        newtonRaphsonAdaptorForGravityAssist.setClass( &pericenterFindingFunctions );
+        // Add the first derivative of the root function.
+        rootFunction->addBinding( -1, boost::bind( &PericenterFindingFunctions::
+                                                   computeFirstDerivativePericenterRadiusFunction,
+                                                   pericenterFindingFunctions, _1 ) );
 
-        // Set the functions needed for the Newton Raphson method.
-        newtonRaphson->setNewtonRaphsonAdaptor( &newtonRaphsonAdaptorForGravityAssist );
-        newtonRaphsonAdaptorForGravityAssist.setPointerToFunction(
-                    &PericenterFindingFunctions::computePericenterRadiusFunction );
-        newtonRaphsonAdaptorForGravityAssist.setPointerToFirstDerivativeFunction(
-                    &PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction );
-
-        // Execute Newton-Raphson method.
-        newtonRaphson->execute( );
-
-        // Set the pericenter radius as the output value of Newton-Raphson method.
-        const double pericenterRadius = newtonRaphson->getComputedRootOfFunction( );
+        // Set pericenter radius based on result of Newton-Raphson root-finding algorithm.
+        const double pericenterRadius = rootFinder->execute( rootFunction,
+                                                             smallestPeriapsisDistance );
 
         // Compute incoming hyperbolic leg eccentricity.
-        const double incomingEccentricity = 1 + pericenterRadius / absoluteIncomingSemiMajorAxis;
+        const double incomingEccentricity = 1.0 + pericenterRadius / absoluteIncomingSemiMajorAxis;
 
         // Compute outgoing hyperbolic leg eccentricity.
-        const double outgoingEccentricity = 1 + pericenterRadius / absoluteOutgoingSemiMajorAxis;
+        const double outgoingEccentricity = 1.0 + pericenterRadius / absoluteOutgoingSemiMajorAxis;
 
         // Compute incoming and outgoing velocities at periapsis.
         const double incomingVelocityAtPeriapsis = absoluteIncomingExcessVelocity *
@@ -399,7 +400,7 @@ Eigen::Vector3d gravityAssist( const double centralBodyGravitationalParameter,
 }
 
 //! Compute pericenter radius function.
-double PericenterFindingFunctions::computePericenterRadiusFunction( double& pericenterRadius )
+double PericenterFindingFunctions::computePericenterRadiusFunction( const double pericenterRadius )
 {
     return std::asin( absoluteIncomingSemiMajorAxis_ / ( absoluteIncomingSemiMajorAxis_ +
                                                          pericenterRadius ) ) +
@@ -409,19 +410,19 @@ double PericenterFindingFunctions::computePericenterRadiusFunction( double& peri
 
 //! Compute first-derivative of the pericenter radius function.
 double PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction(
-        double& pericenterRadius )
+        const double pericenterRadius )
 {
-    return -absoluteIncomingSemiMajorAxis_ / ( absoluteIncomingSemiMajorAxis_ + pericenterRadius ) /
-               std::sqrt( ( pericenterRadius + 2 * absoluteIncomingSemiMajorAxis_ )
-                           * pericenterRadius ) -
-           absoluteOutgoingSemiMajorAxis_ / ( absoluteOutgoingSemiMajorAxis_ + pericenterRadius ) /
-               std::sqrt( ( pericenterRadius + 2 * absoluteOutgoingSemiMajorAxis_ ) *
-                          pericenterRadius );
+    return -absoluteIncomingSemiMajorAxis_ / ( absoluteIncomingSemiMajorAxis_ + pericenterRadius )
+            / std::sqrt( ( pericenterRadius + 2.0 * absoluteIncomingSemiMajorAxis_ )
+                         * pericenterRadius ) -
+           absoluteOutgoingSemiMajorAxis_ / ( absoluteOutgoingSemiMajorAxis_ + pericenterRadius )
+            / std::sqrt( ( pericenterRadius + 2.0 * absoluteOutgoingSemiMajorAxis_ ) *
+                         pericenterRadius );
 }
 
 //! Compute incoming eccentricity function.
 double EccentricityFindingFunctions::computeIncomingEccentricityFunction(
-        double& incomingEccentricity )
+        const double incomingEccentricity )
 {
     return std::asin( 1.0 / incomingEccentricity )
             + std::asin( 1.0 / ( 1.0 - incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ *
@@ -430,14 +431,14 @@ double EccentricityFindingFunctions::computeIncomingEccentricityFunction(
 
 //! Compute first-derivative of the incoming eccentricity function.
 double EccentricityFindingFunctions::computeFirstDerivativeIncomingEccentricityFunction(
-        double& incomingEccentricity )
+        const double incomingEccentricity )
 {
     const double eccentricitySquareMinusOne_ = incomingEccentricity * incomingEccentricity - 1.0;
     const double semiMajorAxisRatio_ = incomingSemiMajorAxis_ / outgoingSemiMajorAxis_ ;
     const double bParameter_ = 1.0 - semiMajorAxisRatio_ * ( 1.0 - incomingEccentricity );
 
     return -1.0 / ( incomingEccentricity * std::sqrt( eccentricitySquareMinusOne_ ) ) -
-           semiMajorAxisRatio_ / ( bParameter_ * std::sqrt( bParameter_ * bParameter_ - 1.0 ) );
+            semiMajorAxisRatio_ / ( bParameter_ * std::sqrt( bParameter_ * bParameter_ - 1.0 ) );
 }
 
 } // namespace mission_segments

@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE( testLimitCaseDeltaVLowOutgoingVelocityEccentricity )
 
     // Perform the gravity assist.
     const double deltaV = mission_segments::gravityAssist( venusGravitationalParameter,
-                                                           venusVelocity,incomingVelocity,
+                                                           venusVelocity, incomingVelocity,
                                                            outgoingVelocity,
                                                            venusSmallestPeriapsisDistance,
                                                            useEccentricity );

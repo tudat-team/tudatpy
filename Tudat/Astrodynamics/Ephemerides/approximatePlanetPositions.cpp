@@ -60,8 +60,7 @@ Eigen::VectorXd ApproximatePlanetPositions::getCartesianStateFromEphemeris(
 {
     // Convert planet elements in Keplerian elements to Cartesian elements.
     return orbital_element_conversions::convertKeplerianToCartesianElements(
-                getKeplerianStateFromEphemeris( julianDate ),
-                sunGravitationalParameter );
+                getKeplerianStateFromEphemeris( julianDate ), sunGravitationalParameter );
 }
 
 //! Get keplerian state from ephemeris.
@@ -143,22 +142,18 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
         meanAnomalyAtGivenJulianDate_ -= 360.0;
     }
 
-    // Set Newton-Raphson method to use for mean anomaly to eccentric anomaly conversion.
-    boost::shared_ptr< NewtonRaphson > newtonRaphson_ = boost::make_shared< NewtonRaphson >( );
-
-    // Set eccentricty and mean anomaly for mean anomaly to eccentric anomaly conversion.
-    orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
-            convertMeanAnomalyToEccentricAnomaly_(
+    // Set eccentricity and mean anomaly for mean anomaly to eccentric anomaly conversion.
+    basic_astrodynamics::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
+                convertMeanAnomalyToEccentricAnomaly_(
                 planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex ),
-                unit_conversions::convertDegreesToRadians( meanAnomalyAtGivenJulianDate_ ),
-                newtonRaphson_ );
+                unit_conversions::convertDegreesToRadians( meanAnomalyAtGivenJulianDate_ ) );
 
     // Convert mean anomaly to eccentric anomaly.
     eccentricAnomalyAtGivenJulianDate_ = convertMeanAnomalyToEccentricAnomaly_.convert( );
 
     // Convert eccentric anomaly to true anomaly and set in planet elements.
     trueAnomalyAtGivenJulianData_
-            = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+            = tudat::orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
                 eccentricAnomalyAtGivenJulianDate_,
                 planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex ) );
 

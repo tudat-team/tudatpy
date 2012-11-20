@@ -28,6 +28,8 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120421    K. Kumar          Removed base class; updated to set values through constructor.
+ *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
+ *                                  specify which rootfinder and termination conditions to use.
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
@@ -40,12 +42,16 @@
 
 #include <cmath>
 
-#include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
 
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
+#include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
 
 namespace tudat
+{
+namespace basic_astrodynamics
 {
 namespace orbital_element_conversions
 {
@@ -58,17 +64,20 @@ class ConvertMeanAnomalyToHyperbolicEccentricAnomaly
 {
 public:
 
-    //! Default constructor.
+    //! Construct converter with eccentricity and mean anomaly.
     /*!
-     * Default constructor.
+     * This constructor initializes the eccentricity and the mean anomaly for the conversion
+     * routine. Optionally also the rootfinder (with termination conditions specified inside) can
+     * be given.
+     * \param anEccentricity Eccentricity of the orbit [-].
+     * \param aHyperbolicMeanAnomaly Hyperbolic mean anomaly to convert to eccentric anomaly [rad].
+     * \param aRootFinder Shared-pointer to the rootfinder that is to be used. Default is
+     *          Newton-Raphson using 1000 iterations as maximum and 5.0e-15 absolute X-tolerance.
+     *          Higher precision may invoke machine precision problems for some values.
      */
     ConvertMeanAnomalyToHyperbolicEccentricAnomaly(
-            const double eccentricity, const double hyperbolicMeanAnomaly,
-            boost::shared_ptr< NewtonRaphson > newtonRaphson )
-        : eccentricity_( eccentricity ),
-          hyperbolicMeanAnomaly_( hyperbolicMeanAnomaly ),
-          newtonRaphson_( newtonRaphson )
-    { }
+            const double anEccentricity, const double aHyperbolicMeanAnomaly,
+            root_finders::RootFinderPointer aRootFinder = root_finders::RootFinderPointer( ) );
 
     //! Convert mean anomaly to hyperbolic eccentric anomaly.
     /*!
@@ -86,25 +95,19 @@ private:
     /*!
      * Eccentricity.
      */
-    double eccentricity_;
+    const double eccentricity;
 
     //! Mean anomaly.
     /*!
      * Mean anomaly.
      */
-    double hyperbolicMeanAnomaly_;
+    const double hyperbolicMeanAnomaly;
 
-    //! Shared pointer to Newton-Raphson.
+    //! Shared pointer to the rootfinder.
     /*!
-     * Shared pointer to Newton-Raphson method.
+     * Shared pointer to the rootfinder. The rootfinder contains termination conditions inside.
      */
-    boost::shared_ptr< NewtonRaphson > newtonRaphson_;
-
-    //! NewtonRaphsonAdaptor.
-    /*!
-     *  NewtonRaphsonAdaptor class.
-     */
-    NewtonRaphsonAdaptor < ConvertMeanAnomalyToHyperbolicEccentricAnomaly > newtonRaphsonAdaptor_;
+    root_finders::RootFinderPointer rootFinder;
 
     //! Compute Kepler's function for hyperbolic orbits.
     /*!
@@ -118,10 +121,10 @@ private:
      * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly.
      * \return Value of Kepler's function for hyperbolic orbits.
      */
-    double computeKeplersFunctionForHyperbolicOrbits_( double& hyperbolicEccentricAnomaly )
+    double computeKeplersFunctionForHyperbolicOrbits( const double hyperbolicEccentricAnomaly )
     {
-        return eccentricity_ * std::sinh( hyperbolicEccentricAnomaly )
-                - hyperbolicEccentricAnomaly - hyperbolicMeanAnomaly_;
+        return eccentricity * std::sinh( hyperbolicEccentricAnomaly )
+                - hyperbolicEccentricAnomaly - hyperbolicMeanAnomaly;
     }
 
     //! Compute first-derivative of Kepler's function for hyperbolic orbits.
@@ -136,14 +139,15 @@ private:
      * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly
      * \return Value of first-derivative of Kepler's function for hyperbolic orbits.
      */
-    double computeFirstDerivativeKeplersFunctionForHyperbolicOrbits_(
-        double& hyperbolicEccentricAnomaly )
+    double computeFirstDerivativeKeplersFunctionForHyperbolicOrbits(
+        const double hyperbolicEccentricAnomaly )
     {
-        return eccentricity_ * std::cosh( hyperbolicEccentricAnomaly ) - 1.0;
+        return eccentricity * std::cosh( hyperbolicEccentricAnomaly ) - 1.0;
     }
 };
 
 } // namespace orbital_element_conversions
+} // namespace basic_astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_CONVERT_MEAN_ANOMALY_TO_HYPERBOLIC_ECCENTRIC_ANOMALY_H

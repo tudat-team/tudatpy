@@ -29,6 +29,8 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120421    K. Kumar          Removed base class; updated to set values through constructor.
+ *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
+ *                                  specify which rootfinder and termination conditions to use.
  *
  *    References
  *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
@@ -40,20 +42,17 @@
 
 #include <cmath>
 
-#include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
 
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphsonAdaptor.h"
+#include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
 
 namespace tudat
 {
-
-//! Orbital element conversions namespace.
-/*!
- * The orbital element conversions namespace that contains free functions and classes to
- * convert between orbital elements e.g., mean anomaly to eccentric anomaly, eccentric anomaly to
- * true anomaly etc.
- */
+namespace basic_astrodynamics
+{
 namespace orbital_element_conversions
 {
 
@@ -68,16 +67,17 @@ public:
     //! Construct converter with eccentricity and mean anomaly.
     /*!
      * This constructor initializes the eccentricity and the mean anomaly for the conversion
-     * routine.
-     * \param eccentricity The eccentricity of the orbit [-].
-     * \param eccentricAnomaly The mean anomaly to convert to eccentric anomaly [rad].
+     * routine. Optionally also the rootfinder (with termination conditions specified inside) can
+     * be given.
+     * \param anEccentricity Eccentricity of the orbit [-].
+     * \param aMeanAnomaly Mean anomaly to convert to eccentric anomaly [rad].
+     * \param rootFinder Shared-pointed to the rootfinder that is to be used. Default is
+     *          Newton-Raphson using 5.0e-15 absolute X-tolerance and 1000 iterations as maximum.
+     *          Higher precision may invoke machine precision problems for some values.
      */
-    ConvertMeanAnomalyToEccentricAnomaly( const double eccentricity, const double meanAnomaly,
-                                          boost::shared_ptr< NewtonRaphson > newtonRaphson )
-        : eccentricity_( eccentricity ),
-          meanAnomaly_( meanAnomaly ),
-          newtonRaphson_( newtonRaphson )
-    { }
+    ConvertMeanAnomalyToEccentricAnomaly(
+            const double anEccentricity, const double aMeanAnomaly,
+            root_finders::RootFinderPointer aRootFinder = root_finders::RootFinderPointer( ) );
 
     //! Convert mean anomaly to eccentric anomaly.
     /*!
@@ -97,25 +97,19 @@ private:
     /*!
      * Eccentricity.
      */
-    double eccentricity_;
+    const double eccentricity;
 
     //! Mean anomaly.
     /*!
      * Mean anomaly.
      */
-    double meanAnomaly_;
+    const double meanAnomaly;
 
-    //! Shared pointer to Newton-Raphson.
+    //! Shared pointer to the rootfinder.
     /*!
-     * Shared pointer to Newton-Raphson method.
+     * Shared pointer to the rootfinder. The rootfinder contains termination conditions inside.
      */
-    boost::shared_ptr< NewtonRaphson > newtonRaphson_;
-
-    //! NewtonRaphsonAdaptor.
-    /*!
-     * NewtonRaphsonAdaptor class.
-     */
-    NewtonRaphsonAdaptor< ConvertMeanAnomalyToEccentricAnomaly > newtonRaphsonAdaptor_;
+    root_finders::RootFinderPointer rootFinder;
 
     //! Compute Kepler's function for elliptical orbits.
     /*!
@@ -129,9 +123,9 @@ private:
      * \param eccentricAnomaly Eccentric anomaly.
      * \return Value of Kepler's function for elliptical orbits.
      */
-    double computeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly )
+    double computeKeplersFunctionForEllipticalOrbits( const double eccentricAnomaly )
     {
-        return eccentricAnomaly - eccentricity_ * std::sin( eccentricAnomaly ) - meanAnomaly_;
+        return eccentricAnomaly - eccentricity * std::sin( eccentricAnomaly ) - meanAnomaly;
     }
 
     //! Compute first-derivative of Kepler's function for elliptical orbits.
@@ -146,13 +140,15 @@ private:
      * \param eccentricAnomaly Eccentric anomaly.
      * \return Value of first-derivative of Kepler's function for elliptical orbits.
      */
-    double computeFirstDerivativeKeplersFunctionForEllipticalOrbits_( double& eccentricAnomaly )
+    double computeFirstDerivativeKeplersFunctionForEllipticalOrbits(
+            const double eccentricAnomaly )
     {
-        return 1.0 - eccentricity_ * std::cos( eccentricAnomaly );
+        return 1.0 - eccentricity * std::cos( eccentricAnomaly );
     }
 };
 
 } // namespace orbital_element_conversions
+} // namespace basic_astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H

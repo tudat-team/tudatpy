@@ -41,6 +41,8 @@
  *                                  CartesianVelocityElements objects as output.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120620    T. Secretin       Adapted and moved code from LambertTargeter.h.
+ *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
+ *                                  specify which rootfinder and termination conditions to use.
  *
  *    References
  *
@@ -52,9 +54,12 @@
 #define TUDAT_LAMBERT_TARGETER_GOODING_H
 
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
+#include "Tudat/Mathematics/RootFinders/rootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
 
 namespace tudat
 {
@@ -69,29 +74,16 @@ class LambertTargeterGooding : public LambertTargeter
 {
 public:
 
-    //! Constructor with imediate definition of parameters and execution of the algorithm.
+    //! Constructor with immediate definition of parameters and execution of the algorithm.
     /*!
-     * Constructor with imediate definition of parameters and execution of the algorithm.
+     * Constructor with immediate definition of parameters and execution of the algorithm.
      */
     LambertTargeterGooding( const Eigen::Vector3d cartesianPositionAtDeparture,
                             const Eigen::Vector3d cartesianPositionAtArrival,
                             const double timeOfFlight,
                             const double gravitationalParameter,
-                            boost::shared_ptr< NewtonRaphson > newtonRaphson
-                            = boost::shared_ptr< NewtonRaphson >( new NewtonRaphson ),
-                            const double convergenceTolerance = 1e-9,
-                            const int maximumNumberOfIterations = 50.0 )
-        : LambertTargeter( cartesianPositionAtDeparture,
-                           cartesianPositionAtArrival,
-                           timeOfFlight,
-                           gravitationalParameter ),
-          newtonRaphson_( newtonRaphson ),
-          convergenceTolerance_( convergenceTolerance ),
-          maximumNumberOfIterations_( maximumNumberOfIterations )
-    {
-        // Execute algorithm.
-        execute( );
-    }
+                            root_finders::RootFinderPointer aRootFinder = 
+                                root_finders::RootFinderPointer( ) );
 
     //! Get radial velocity at departure.
     /*!
@@ -138,23 +130,11 @@ protected:
 
 private:
 
-    //! Newton-Raphson object.
+    //! Shared pointer to the rootfinder.
     /*!
-     * Newton-Raphson object needed for root-finding procedure in solveLambertProblemGooding().
+     * Shared pointer to the rootfinder. The rootfinder contains termination conditions inside.
      */
-    const boost::shared_ptr< NewtonRaphson > newtonRaphson_;
-
-    //! Convergence tolerance.
-    /*!
-     * Convergence tolerance for the root-finding process.
-     */
-    const double convergenceTolerance_;
-
-    //! Maximum number of iterations.
-    /*!
-     * Maximum number of iterations for the root-finding process.
-     */
-    const double maximumNumberOfIterations_;
+    root_finders::RootFinderPointer rootFinder;
 };
 
 } // namespace mission_segments

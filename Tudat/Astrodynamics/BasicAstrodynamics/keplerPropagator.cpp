@@ -35,15 +35,16 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120607    P. Musegaas       Changed interface (propagation time instead of two epochs).
  *      120713    P. Musegaas       Changed tolerance in root finder to relative tolerance.
+ *      120813    P. Musegaas       Changed code to new root finding structure.
  *
  *    References
  *
  */
 
-#include <boost/make_shared.hpp>
-#include <boost/exception/all.hpp>
-
 #include <cmath>
+#include <stdexcept>
+
+#include <boost/exception/all.hpp>
 
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h>
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
@@ -52,23 +53,37 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
-#include "Tudat/Mathematics/RootFindingMethods/newtonRaphson.h"
 
 namespace tudat
 {
+namespace basic_astrodynamics
+{
 namespace orbital_element_conversions
 {
+
+using namespace root_finders;
 
 //! Propagate Kepler orbit.
 Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeplerianElements,
                                       const double propagationTime,
                                       const double centralBodyGravitationalParameter,
-                                      const double newtonRaphsonConvergenceTolerance,
-                                      bool useModuloOption )
+                                      bool useModuloOption,
+                                      RootFinderPointer rootFinder )
 {
-    // Create Newton-Raphson root-finder.
-    boost::shared_ptr< NewtonRaphson > newtonRaphson_ = boost::make_shared< NewtonRaphson >( );
-    newtonRaphson_->setRelativeTolerance( newtonRaphsonConvergenceTolerance );
+    if ( !rootFinder.get( ) )
+    {
+        rootFinder = boost::make_shared< NewtonRaphson >(
+                    boost::bind( &root_finders::termination_conditions::
+                                 RootAbsoluteToleranceTerminationCondition::
+                                 checkTerminationCondition,
+                                 boost::make_shared< root_finders::termination_conditions::
+                                 RootAbsoluteToleranceTerminationCondition >( 5.0e-15, 1000 ),
+                                 _1, _2, _3, _4, _5 ) );
+    }
+
+    using tudat::orbital_element_conversions::eccentricityIndex;
+    using tudat::orbital_element_conversions::semiMajorAxisIndex;
+    using tudat::orbital_element_conversions::trueAnomalyIndex;
 
     // Create final state in Keplerian elements.
     Eigen::VectorXd finalStateInKeplerianElements = initialStateInKeplerianElements;
@@ -88,68 +103,71 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
     {
         // Set elapsed time used in the computation algorithm. This elapsed time is either
         // the complete propagation period or a fraction of an orbit.
-        double elapsedTime_ = 0.0;
+        double elapsedTime = 0.0;
 
         // Set number of complete orbits.
-        double numberOfCompleteOrbits_ = 0.0;
+        double numberOfCompleteOrbits = 0.0;
 
         // Check if modulo-option is set and subtract complete orbits from elapsed time.
         if ( useModuloOption )
         {
             // Compute orbital period of Kepler orbit.
-            double orbitalPeriod_ = astrodynamics::computeKeplerOrbitalPeriod(
+            const double orbitalPeriod = astrodynamics::computeKeplerOrbitalPeriod(
                         initialStateInKeplerianElements( semiMajorAxisIndex ),
                         centralBodyGravitationalParameter );
 
             // Determine elapsed time.
-            elapsedTime_ = mathematics::computeModulo( propagationTime, orbitalPeriod_ );
+            elapsedTime = mathematics::computeModulo( propagationTime, orbitalPeriod );
 
             // Determine corresponding number of complete orbits.
-            numberOfCompleteOrbits_ = std::floor( propagationTime / orbitalPeriod_ );
+            numberOfCompleteOrbits = std::floor( propagationTime / orbitalPeriod );
         }
 
         else
         {
-            elapsedTime_ = ( propagationTime );
+            elapsedTime = ( propagationTime );
         }
 
         // Convert initial true anomaly to eccentric anomaly.
-        double initialEccentricAnomaly_ = convertTrueAnomalyToEccentricAnomaly(
+        const double initialEccentricAnomaly
+                = tudat::orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(
                     initialStateInKeplerianElements( trueAnomalyIndex ),
                     initialStateInKeplerianElements( eccentricityIndex ) );
 
         // Convert initial eccentric anomaly to mean anomaly.
-        double initialMeanAnomaly_ = convertEccentricAnomalyToMeanAnomaly(
-                    initialEccentricAnomaly_,
+        const double initialMeanAnomaly
+                = tudat::orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
+                    initialEccentricAnomaly,
                     initialStateInKeplerianElements( eccentricityIndex ) );
 
         // Compute change of mean anomaly between start and end of propagation.
-        double meanAnomalyChange_ = convertElapsedTimeToEllipticalMeanAnomalyChange(
-                    elapsedTime_, centralBodyGravitationalParameter,
+        const double meanAnomalyChange
+                = tudat::orbital_element_conversions::
+                convertElapsedTimeToEllipticalMeanAnomalyChange(
+                    elapsedTime, centralBodyGravitationalParameter,
                     initialStateInKeplerianElements( semiMajorAxisIndex ) );
 
         // Set Keplerian elements and Newton-Raphson root-finder for mean anomaly to eccentric
         // anomaly conversion.
         ConvertMeanAnomalyToEccentricAnomaly convertMeanAnomalyToEccentricAnomaly_(
                     initialStateInKeplerianElements( eccentricityIndex ),
-                    initialMeanAnomaly_ + meanAnomalyChange_,
-                    newtonRaphson_ );
+                    initialMeanAnomaly + meanAnomalyChange,
+                    rootFinder );
 
         // Compute eccentric anomaly for mean anomaly.
-        double finalEccentricAnomaly_ = convertMeanAnomalyToEccentricAnomaly_.convert( );
+        const double finalEccentricAnomaly = convertMeanAnomalyToEccentricAnomaly_.convert( );
 
         // Compute true anomaly for computed eccentric anomaly.
         finalStateInKeplerianElements( trueAnomalyIndex )
-                = convertEccentricAnomalyToTrueAnomaly(
-                    finalEccentricAnomaly_,
-                    finalStateInKeplerianElements( eccentricityIndex ) );
+                = tudat::orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+                    finalEccentricAnomaly, finalStateInKeplerianElements( eccentricityIndex ) );
 
         // If modulo option is set, add the removed completed orbits back to the final true
         // anomaly.
         if ( useModuloOption )
         {
-            finalStateInKeplerianElements( trueAnomalyIndex ) += numberOfCompleteOrbits_
-                    * 2.0 * mathematics::PI;
+            finalStateInKeplerianElements( trueAnomalyIndex )
+                    += numberOfCompleteOrbits * 2.0 * mathematics::PI;
         }
     }
 
@@ -157,6 +175,7 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
 }
 
 } // namespace orbital_element_conversions
+} // namespace basic_astrodynamics
 } // namespace tudat
 
 // This code has been commented out, as it was implemented in the old Kepler propagator without an

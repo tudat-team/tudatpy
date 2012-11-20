@@ -59,6 +59,7 @@
  *                                  CartesianVelocityElements.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120620    T. Secretin       Adapted and moved code from LambertTargeter.cpp.
+ *      120813    P. Musegaas       Changed code to new root finding structure.
  *
  *    References
  *
@@ -77,35 +78,57 @@ namespace tudat
 namespace mission_segments
 {
 
+using namespace root_finders;
+
+//! Constructor with immediate definition of parameters and execution of the algorithm.
+LambertTargeterGooding::LambertTargeterGooding( 
+        const Eigen::Vector3d cartesianPositionAtDeparture,
+        const Eigen::Vector3d cartesianPositionAtArrival,
+        const double timeOfFlight,
+        const double gravitationalParameter,
+        RootFinderPointer aRootFinder )
+    : LambertTargeter( cartesianPositionAtDeparture, cartesianPositionAtArrival,
+                       timeOfFlight, gravitationalParameter ),
+      rootFinder( aRootFinder )
+{
+    // Required because the make_shared in the function definition gives problems for MSVC.
+    if ( !rootFinder.get( ) )
+    {
+        rootFinder = boost::make_shared< NewtonRaphson >( 1.0e-12, 1000 );
+    }
+
+    // Execute algorithm.
+    execute( );
+}
+
 //! Execute Lambert targeting solver.
 void LambertTargeterGooding::execute( )
 {
     // Call Gooding's Lambert targeting routine.
-    solveLambertProblemGooding( cartesianPositionAtDeparture_, cartesianPositionAtArrival_,
-                                timeOfFlight_, gravitationalParameter_,
-                                cartesianVelocityAtDeparture_, cartesianVelocityAtArrival_,
-                                newtonRaphson_, convergenceTolerance_,
-                                maximumNumberOfIterations_ );
+    solveLambertProblemGooding( cartesianPositionAtDeparture, cartesianPositionAtArrival,
+                                timeOfFlight, gravitationalParameter,
+                                cartesianVelocityAtDeparture, cartesianVelocityAtArrival,
+                                rootFinder );
 }
 
 //! Get radial velocity at departure.
 double LambertTargeterGooding::getRadialVelocityAtDeparture( )
 {
     // Determine radial unit vector.
-    const Eigen::Vector3d radialUnitVectorAtDeparture = cartesianPositionAtDeparture_.normalized( );
+    const Eigen::Vector3d radialUnitVectorAtDeparture = cartesianPositionAtDeparture.normalized( );
 
     // Compute radial velocity at departure.
-    return cartesianVelocityAtDeparture_.dot( radialUnitVectorAtDeparture );
+    return cartesianVelocityAtDeparture.dot( radialUnitVectorAtDeparture );
 }
 
 //! Get radial velocity at arrival.
 double LambertTargeterGooding::getRadialVelocityAtArrival( )
 {
     // Determine radial unit vector.
-    const Eigen::Vector3d radialUnitVectorAtArrival = cartesianPositionAtArrival_.normalized( );
+    const Eigen::Vector3d radialUnitVectorAtArrival = cartesianPositionAtArrival.normalized( );
 
     // Compute radial velocity at arrival.
-    return cartesianVelocityAtArrival_.dot( radialUnitVectorAtArrival );
+    return cartesianVelocityAtArrival.dot( radialUnitVectorAtArrival );
 }
 
 //! Get transverse velocity at departure.
@@ -113,21 +136,21 @@ double LambertTargeterGooding::getTransverseVelocityAtDeparture( )
 {
     // Compute angular momemtum vector.
     const Eigen::Vector3d angularMomentumVector =
-            cartesianPositionAtDeparture_.cross( cartesianVelocityAtDeparture_ );
+            cartesianPositionAtDeparture.cross( cartesianVelocityAtDeparture );
 
     // Compute normalized angular momentum vector.
     const Eigen::Vector3d angularMomentumUnitVector = angularMomentumVector.normalized( );
 
     // Determine radial unit vector.
     const Eigen::Vector3d radialUnitVectorAtDeparture
-            = cartesianPositionAtDeparture_.normalized( );
+            = cartesianPositionAtDeparture.normalized( );
 
     // Compute tangential unit vector.
     Eigen::Vector3d tangentialUnitVectorAtDeparture =
                 angularMomentumUnitVector.cross( radialUnitVectorAtDeparture );
 
     // Compute tangential velocity at departure.
-    return cartesianVelocityAtDeparture_.dot( tangentialUnitVectorAtDeparture );
+    return cartesianVelocityAtDeparture.dot( tangentialUnitVectorAtDeparture );
 }
 
 //! Get transverse velocity at arrival.
@@ -135,31 +158,31 @@ double LambertTargeterGooding::getTransverseVelocityAtArrival( )
 {
     // Compute angular momemtum vector.
     const Eigen::Vector3d angularMomentumVector =
-            cartesianPositionAtArrival_.cross( cartesianVelocityAtArrival_ );
+            cartesianPositionAtArrival.cross( cartesianVelocityAtArrival );
 
     // Compute normalized angular momentum vector.
     const Eigen::Vector3d angularMomentumUnitVector = angularMomentumVector.normalized( );
 
     // Determine radial unit vector.
-    const Eigen::Vector3d radialUnitVectorAtArrival = cartesianPositionAtArrival_.normalized( );
+    const Eigen::Vector3d radialUnitVectorAtArrival = cartesianPositionAtArrival.normalized( );
 
     // Compute tangential unit vector.
     Eigen::Vector3d tangentialUnitVectorAtArrival =
                 angularMomentumUnitVector.cross( radialUnitVectorAtArrival );
 
     // Compute tangential velocity at departure.
-    return cartesianVelocityAtArrival_.dot( tangentialUnitVectorAtArrival );
+    return cartesianVelocityAtArrival.dot( tangentialUnitVectorAtArrival );
 }
 
 //! Get semi-major axis.
 double LambertTargeterGooding::getSemiMajorAxis( )
 {
     // Compute specific orbital energy: eps = v^2/ - mu/r.
-    const double specificOrbitalEnergy = cartesianVelocityAtDeparture_.squaredNorm( ) / 2.0
-            - gravitationalParameter_ / cartesianPositionAtDeparture_.norm( );
+    const double specificOrbitalEnergy = cartesianVelocityAtDeparture.squaredNorm( ) / 2.0
+            - gravitationalParameter / cartesianPositionAtDeparture.norm( );
 
     // Compute semi-major axis: a = -mu / 2*eps.
-    return -gravitationalParameter_ / ( 2.0 * specificOrbitalEnergy );
+    return -gravitationalParameter / ( 2.0 * specificOrbitalEnergy );
 }
 
 } // namespace mission_segments

@@ -27,27 +27,46 @@
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
+ #      120726    S. Billemont      Added files regarding new root-finder methods and unit tests.
+ #      120813    P. Musegaas       Added Newton Raphson unit test executable, added additional test
+ #                                  functions.
+ #	120920    K. Kumar          Changed sub-directory name to RootFinders.
  #
 
 # Add source files.
-set(ROOTFINDINGMETHODS_SOURCES
-  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphson.cpp"
+set(ROOTFINDERS_SOURCES
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/void.cpp"
 )
 
 # Add header files.
-set(ROOTFINDINGMETHODS_HEADERS 
-  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphson.h"
-  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphsonAdaptor.h"
-  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/newtonRaphsonBase.h"
-  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/rootFinder.h"
-  "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/rootFinderBase.h"
+set(ROOTFINDERS_HEADERS 
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/newtonRaphson.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/rootFinder.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/terminationConditions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction1.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction2.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction3.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunctionWithLargeRootDifference.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunctionWithZeroRoot.h"
+)
+
+# Add unit test files.
+set(ROOTFINDERS_TESTS
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestNewtonRaphson.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestRootFinders.cpp"
 )
 
 # Add static libraries.
-add_library(tudat_root_finding_methods STATIC ${ROOTFINDINGMETHODS_SOURCES} ${ROOTFINDINGMETHODS_HEADERS})
-setup_tudat_library_target(tudat_root_finding_methods "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods")
+add_library(tudat_root_finders STATIC ${ROOTFINDERS_SOURCES} ${ROOTFINDERS_HEADERS})
+setup_tudat_library_target(tudat_root_finders "${SRCROOT}${MATHEMATICSDIR}/RootFinders")
 
 # Add unit tests.
-add_executable(test_NewtonRaphson "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods/UnitTests/unitTestNewtonRaphson.cpp")
-setup_custom_test_program(test_NewtonRaphson "${SRCROOT}${MATHEMATICSDIR}/RootFindingMethods")
-target_link_libraries(test_NewtonRaphson tudat_root_finding_methods ${Boost_LIBRARIES})
+add_executable(test_RootFinders ${ROOTFINDERS_TESTS})
+setup_custom_test_program(test_RootFinders "${SRCROOT}${MATHEMATICSDIR}/RootFinders")
+target_link_libraries(test_RootFinders tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+# Add unit tests.
+add_executable(test_NewtonRaphson ${ROOTFINDERS_TESTS})
+setup_custom_test_program(test_NewtonRaphson "${SRCROOT}${MATHEMATICSDIR}/RootFinders")
+target_link_libraries(test_NewtonRaphson tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

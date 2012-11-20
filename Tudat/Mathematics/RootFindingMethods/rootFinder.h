@@ -40,224 +40,109 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120712    P. Musegaas       Changed absolute tolerance into a safe variant of relative
  *                                  tolerance.
+ *      120208    S. Billemont      Move to new root_finders codebase.
+ *      120402    T. Secretin       Code-check.
+ *      120726    S. Billemont      Restructuring. Implemented new termination conditions.
+ *      120810    P. Musegaas       Code-check, various edits.
  *
  *    References
  *
+ *    Notes
  */
 
 #ifndef TUDAT_ROOT_FINDER_H
 #define TUDAT_ROOT_FINDER_H
 
-#include <iostream>
-#include <limits>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "Tudat/Mathematics/RootFindingMethods/rootFinderBase.h"
+#include "Tudat/Mathematics/BasicMathematics/function.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
 
 namespace tudat
+{
+namespace root_finders
 {
 
 //! Root-finder class.
 /*!
- * This class serves as a base class for all root-finder algorithms included in Tudat.
+ * A description of root-finding algorithms. These algorihms take a Function, and find a root
+ * using passed along data, such as starting point or a solution bracket.
+ * \tparam DataType Data type used to represent floating-point values.
  */
-class RootFinder
+template< typename DataType = double >
+class RootFinderCore
 {
 public:
 
-    //! Definition of typedef.
-    /*!
-     * Functions to which root-finding methods are applied can be passed as pointers to global
-     * functions. ( Polymorphic ) Pointers to RootFinder objects must be used for global functions
-     * to be usable.
-     */
-    typedef double ( *pointerToDoubleTakingFunction )( double& );
-
+    //! Definition of the function whose root we have to determine.
+    typedef boost::shared_ptr< basic_mathematics::Function< DataType, DataType > > FunctionPointer;
+    typedef boost::function< bool( DataType, DataType,
+                                   DataType, DataType, unsigned int ) > TerminationFunction;
+	
     //! Default constructor.
     /*!
-     * Default constructor.
+     * \param rootFunction_ The function whose root is to be determined.
+     * \param terminationFunction_ The function specifying the termination conditions of the
+     *                                      root-finding process.
      */
-    RootFinder( )
-        : maximumNumberOfIterations_( 100 ),
-          initialGuessOfRoot_( TUDAT_NAN ),
-          currentValueOfRoot_( TUDAT_NAN ),
-          nextValueOfRoot_( TUDAT_NAN ),
-          relativeTolerance_( 1.0e-12 ),
-          zeroRepresentation_( std::numeric_limits< double >::min( ) * 100 ),
-          pointerToGlobalFunction_( NULL ),
-          pointerToGlobalFirstDerivativeFunction_( NULL ),
-          pointerToRootFinderBase_( NULL )
+    RootFinderCore( TerminationFunction terminationFunction_ )
+        : terminationFunction( terminationFunction_ )
     { }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~RootFinder( ) { }
+    virtual ~RootFinderCore( ) { }
 
-    //! Set initial guess of the root of mathematical function.
+    //! Get the function subject to the rootfinding algorithm.
     /*!
-     * Sets initial guess of the root of the mathematical function.
-     * \param initialGuessOfRoot Initial guess of root of mathematical
-     *          function.
+     * Returns the function subject to the rootfinding algorithm.
+     * \return rootFunction Pointer to the function subject to the rootfinding algorithm.
      */
-    void setInitialGuessOfRoot( const double initialGuessOfRoot )
+    const FunctionPointer getFunction( )
     {
-        initialGuessOfRoot_ = initialGuessOfRoot;
-        currentValueOfRoot_ = initialGuessOfRoot;
+        return rootFunction;
     }
 
-    //! Set maximum number of iterations.
+    //! Find a root of the set function.
     /*!
-     * Sets maximum number of iterations for root-finding method.
-     * \param maximumNumberOfIterations Maximum number of iterations.
+     * Try to find the root of the current function, using a specified technique.
+     * \param aRootFunction Function to find root of.
+     * \param initialGuess The initial guess of the root.
+     * \throws ConvergenceExeption If the solution does not converge to a root value.
      */
-    void setMaximumNumberOfIterations( const unsigned int maximumNumberOfIterations )
-    {
-        maximumNumberOfIterations_ = maximumNumberOfIterations;
-    }
-
-    //! Set relative tolerance.
-    /*!
-     * Sets relative tolerance for root-finding method.
-     * \param relativeTolerance Relative tolerance.
-     */
-    void setRelativeTolerance( const double relativeTolerance )
-    {
-        relativeTolerance_ = relativeTolerance;
-    }
-
-    //! Set zero representation.
-    /*!
-     * Sets the zero representation for the root-finding method.
-     * \param zeroRepresentation Zero representation.
-     */
-    void setZeroRepresentation( const double zeroRepresentation )
-    {
-        zeroRepresentation_ = zeroRepresentation;
-    }
-
-    //! Set pointer to mathematical function.
-    /*!
-     * Sets a pointer to the mathematical function ( global ) to which the root-finding method is
-     * applied.
-     * \param globalFunction Pointer to global mathematical function.
-     */
-    void setMathematicalFunction( pointerToDoubleTakingFunction globalFunction )
-    {
-        pointerToGlobalFunction_ = globalFunction;
-    }
-
-    //! Set pointer to first-derivative mathematical function.
-    /*!
-     * Sets a pointer to the first-derivative mathematical function ( global ) to which the
-     * root-finding method is applied.
-     * \param globalFirstDerivativeFunction Pointer to global first-derivative mathematical
-     *          function.
-     */
-    void setFirstDerivativeMathematicalFunction( pointerToDoubleTakingFunction
-                                                 globalFirstDerivativeFunction )
-    {
-        pointerToGlobalFirstDerivativeFunction_ = globalFirstDerivativeFunction;
-    }
-
-    //! Get maximum number of iterations.
-    /*!
-     * Returns the maximum number of iterations.
-     * \return Number of iterations.
-     */
-    unsigned int getMaximumNumberOfIterations( ) { return maximumNumberOfIterations_; }
-
-    //! Get relative tolerance.
-    /*!
-     * Returns the relative tolerance.
-     * \return Relative tolerance.
-     */
-    double getRelativeTolerance( ) { return relativeTolerance_; }
-
-    //! Get zero representation.
-    /*!
-     * Returns the zero representation.
-     * \return Zero representation.
-     */
-    double getZeroRepresentation( ) { return zeroRepresentation_; }
-
-    //! Get root of mathematical function.
-    /*!
-     * Returns the computed root of the mathmatical function.
-     * \return Computed root of the mathematical function.
-     */
-    double getComputedRootOfFunction( ) { return nextValueOfRoot_; }
-
-    //! Execute.
-    /*!
-     * This is called to execute a root-finder method.
-     */
-    virtual void execute( ) = 0;
+    virtual DataType execute( const FunctionPointer aRootFunction,
+                              const DataType initialGuess ) = 0;
 
 protected:
 
-    //! Maximum number of iterations.
+    //! Function to find the root of.
     /*!
-     * Maximum number of iterations.
+     * The root-finder tries to find a root of this function.
      */
-    unsigned int maximumNumberOfIterations_;
-
-    //! Initial guess of the root of mathematical function.
+    FunctionPointer rootFunction;
+	
+    //! Function specifying the termination conditions.
     /*!
-     * Initial guess of the root of mathematical function.
+     * The rootfinder will continue improving the solution of the root until the termination
+     * function returns true.
      */
-    double initialGuessOfRoot_;
-
-    //! Current value of the root of mathematical function.
-    /*!
-     * Current value of the root of mathematical function.
-     */
-    double currentValueOfRoot_;
-
-    //! Next value of the root of mathematical function.
-    /*!
-     * Next value of the root of mathematical function.
-     */
-    double nextValueOfRoot_;
-
-    //! Relative tolerance.
-    /*!
-     * Maximum allowed relative difference between the next value and the current value of the root
-     * of the mathematical function.
-     */
-    double relativeTolerance_;
-
-    //! Zero representation
-    /*!
-     * The value for which the rootfinder will recognize 0.0 as the root to avoid machine precision
-     * problems.
-     */
-    double zeroRepresentation_;
-
-    //! Pointer to global function.
-    /*!
-     * Pointer to global mathematical function to which the root-finding method is applied.
-     */
-    pointerToDoubleTakingFunction pointerToGlobalFunction_;
-
-    //! Pointer to global first-derivative function.
-    /*!
-     * Pointer to global first-derivative mathematical function to which the root-finding method is
-     * applied.
-     */
-    pointerToDoubleTakingFunction pointerToGlobalFirstDerivativeFunction_;
-
-    //! Pointer to root-finder abstract base class.
-    /*!
-     * Pointer to root-finder abstract base class.
-     */
-    RootFinderBase* pointerToRootFinderBase_;
+    TerminationFunction terminationFunction;
 
 private:
 };
 
+//! Typedef for a root-finder with double data type.
+typedef RootFinderCore< > RootFinder;
+
+//! Typedef for a shared-pointer to a root-finder with double data type.
+typedef boost::shared_ptr< RootFinder > RootFinderPointer;
+
+} // namespace root_finders
 } // namespace tudat
 
 #endif // TUDAT_ROOT_FINDER_H

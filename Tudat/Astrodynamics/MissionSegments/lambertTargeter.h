@@ -77,16 +77,16 @@ public:
     /*!
      * Default constructor.
      */
-    LambertTargeter( const Eigen::Vector3d& cartesianPositionAtDeparture,
-                     const Eigen::Vector3d& cartesianPositionAtArrival,
-                     const double& timeOfFlight,
-                     const double& gravitationalParameter )
-        : cartesianPositionAtDeparture_( cartesianPositionAtDeparture ),
-          cartesianPositionAtArrival_( cartesianPositionAtArrival ),
-          timeOfFlight_( timeOfFlight ),
-          gravitationalParameter_( gravitationalParameter ),
-          cartesianVelocityAtDeparture_( Eigen::Vector3d::Zero( ) ),
-          cartesianVelocityAtArrival_( Eigen::Vector3d::Zero( ) )
+    LambertTargeter( const Eigen::Vector3d& aCartesianPositionAtDeparture,
+                     const Eigen::Vector3d& aCartesianPositionAtArrival,
+                     const double& aTimeOfFlight,
+                     const double& aGravitationalParameter )
+        : cartesianPositionAtDeparture( aCartesianPositionAtDeparture ),
+          cartesianPositionAtArrival( aCartesianPositionAtArrival ),
+          timeOfFlight( aTimeOfFlight ),
+          gravitationalParameter( aGravitationalParameter ),
+          cartesianVelocityAtDeparture( Eigen::Vector3d::Zero( ) ),
+          cartesianVelocityAtArrival( Eigen::Vector3d::Zero( ) )
     { }
 
     //! Default destructor.
@@ -100,14 +100,14 @@ public:
      * Returns the inertial velocity at departure ( heliocentric or planetocentric ).
      * \return Inertial velocity at departure.
      */
-    Eigen::Vector3d getInertialVelocityAtDeparture( ) { return cartesianVelocityAtDeparture_; }
+    Eigen::Vector3d getInertialVelocityAtDeparture( ) { return cartesianVelocityAtDeparture; }
 
     //! Get inertial velocity at arrival.
     /*!
      * Returns the inertial velocity at arrival ( heliocentric or planetocentric ).
      * \return Inertial velocity at arrival.
      */
-    Eigen::Vector3d getInertialVelocityAtArrival( ) { return cartesianVelocityAtArrival_; }
+    Eigen::Vector3d getInertialVelocityAtArrival( ) { return cartesianVelocityAtArrival; }
 
     //! Get intertial velocity vectors.
     /*!
@@ -117,8 +117,8 @@ public:
      */
     std::pair< Eigen::Vector3d, Eigen::Vector3d > getInertialVelocityVectors ( )
     {
-        return std::pair<Eigen::Vector3d, Eigen::Vector3d> ( cartesianVelocityAtDeparture_,
-                                                             cartesianVelocityAtArrival_ );
+        return std::pair<Eigen::Vector3d, Eigen::Vector3d> ( cartesianVelocityAtDeparture,
+                                                             cartesianVelocityAtArrival );
     }
 
     //! Overload ostream to print class information.
@@ -147,37 +147,37 @@ protected:
     /*!
      * Cartesian position at departure.
      */
-    const Eigen::Vector3d cartesianPositionAtDeparture_;
+    const Eigen::Vector3d cartesianPositionAtDeparture;
 
     //! Cartesian position at arrival.
     /*!
      * Cartesian position at arrival.
      */
-    const Eigen::Vector3d cartesianPositionAtArrival_;
+    const Eigen::Vector3d cartesianPositionAtArrival;
 
     //! Time-of-flight.
     /*!
      * Time-of-flight.
      */
-    const double timeOfFlight_;
+    const double timeOfFlight;
 
     //! Gravitational parameter.
     /*!
      * Gravitational parameter.
      */
-    const double gravitationalParameter_;
+    const double gravitationalParameter;
 
     //! Cartesian velocity at departure.
     /*!
      * Cartesian velocity at departure.
      */
-    Eigen::Vector3d cartesianVelocityAtDeparture_;
+    Eigen::Vector3d cartesianVelocityAtDeparture;
 
     //! Cartesian velocity at arrival.
     /*!
      * Cartesian velocity at arrival.
      */
-    Eigen::Vector3d cartesianVelocityAtArrival_;
+    Eigen::Vector3d cartesianVelocityAtArrival;
 
 private:
 };
