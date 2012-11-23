@@ -26,7 +26,10 @@
  *      YYMMDD    Author            Comment
  *      120530    M.I. Ganeff       Code created.
  *      121004    M.I. Ganeff       Input parameter types and variable-naming updated.
- *      121018    M.I. Ganeff       Added computeSphereOfInfluence.
+ *      121018    M.I. Ganeff       Added computeSphereOfInfluence().
+ *      121123    D. Dirkx          Added computeSphereOfInfluence() function taking mass ratios;
+ *                                  updated implementation of computeSphereOfInfluence() taking
+ *                                  masses.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -136,13 +139,20 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
     return shadowFunction;
 }
 
+double computeSphereOfInfluence( const double distanceToCentralBody,
+                                 const double ratioOfOrbitingToCentralBodyMass )
+{
+    // Return the radius of the sphere of influence.
+    return distanceToCentralBody * std::pow( ratioOfOrbitingToCentralBodyMass, 0.4 );
+}
+
 //! Compute the sphere of influence.
 double computeSphereOfInfluence( const double distanceToCentralBody,
                                  const double massOrbitingBody,
                                  const double massCentralBody )
 {
     // Return the radius of the sphere of influence.
-    return distanceToCentralBody * std::pow( massOrbitingBody / massCentralBody, 0.4 );
+    return computeSphereOfInfluence( distanceToCentralBody, massOrbitingBody / massCentralBody );
 }
 
 } // namespace mission_geometry
