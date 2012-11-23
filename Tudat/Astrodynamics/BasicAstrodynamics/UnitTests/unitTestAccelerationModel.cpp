@@ -30,6 +30,8 @@
  *      120821    K. Kumar          Rewrote tests to make use of updated DerivedAccelerationModel
  *                                  class, AnotherDerivedAccelerationModel class, and new TestBody
  *                                  class.
+ *      121123    S. Billemont      Changed boost::assign usage to push_back(), to ensure
+ *                                  compatibility with MSVC.
  *
  *    References
  *
@@ -119,10 +121,10 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
     computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModel3d );
 
     // Set expected accelerations.
-    const std::vector< Eigen::Vector3d > expectedAccelerations
-            = list_of( Eigen::Vector3d( 1.1, 2.2, 3.3 ) / ( 2.0 * 2.0 ) )
-            ( Eigen::Vector3d( -0.45, 10.63, -9.81 ) / ( -1.1 * -1.1 ) )
-            ( Eigen::Vector3d( -87.685, 101.44, -1.38 ) / ( 4.6 * 4.6 ) );
+    std::vector< Eigen::Vector3d > expectedAccelerations;
+    expectedAccelerations.push_back( Eigen::Vector3d(   1.1,     2.2,   3.3  ) / (  2.0 *  2.0 ) );
+    expectedAccelerations.push_back( Eigen::Vector3d(  -0.45,   10.63, -9.81 ) / ( -1.1 * -1.1 ) );
+    expectedAccelerations.push_back( Eigen::Vector3d( -87.685, 101.44, -1.38 ) / (  4.6 *  4.6 ) );
 
     // Check that the acceleration vectors before and after the update match expected values.
     for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
@@ -184,13 +186,16 @@ BOOST_AUTO_TEST_CASE( test_derived2fAccelerationModel )
     computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModel2f );
 
     // Set expected accelerations.
-    const std::vector< Eigen::Vector2f > expectedAccelerations
-            = list_of( 0.5 * Eigen::Vector2f( -0.3f, 4.5f ) / ( 3.2 * ( -2.3f + 3.4 ) * -2.3f )
-                       + Eigen::Vector2f( 0.1f, 0.2f ) / -2.3f )
-            ( 0.5 * Eigen::Vector2f( 1.34f, 2.65f ) / ( 3.2 * ( 0.33f + 3.4 ) * 0.33f )
-              + Eigen::Vector2f( -0.23f, 0.1f ) / 0.33f )
-            ( 0.5 * Eigen::Vector2f( -98.99f, 1.53f ) / ( 3.2 * ( -10.3f + 3.4 ) * -10.3f )
-              + Eigen::Vector2f( 1.23f, -0.11f ) / -10.3f );
+    std::vector< Eigen::Vector2f > expectedAccelerations;
+    expectedAccelerations.push_back( 0.5 * Eigen::Vector2f( -0.3f, 4.5f )
+                                     / ( 3.2 * ( -2.3f + 3.4 ) * -2.3f )
+                                     + Eigen::Vector2f( 0.1f, 0.2f ) / -2.3f );
+    expectedAccelerations.push_back( 0.5 * Eigen::Vector2f( 1.34f, 2.65f )
+                                     / ( 3.2 * ( 0.33f + 3.4 ) * 0.33f )
+                                     + Eigen::Vector2f( -0.23f, 0.1f ) / 0.33f );
+    expectedAccelerations.push_back( 0.5 * Eigen::Vector2f( -98.99f, 1.53f )
+                                     / ( 3.2 * ( -10.3f + 3.4 ) * -10.3f )
+                                     + Eigen::Vector2f( 1.23f, -0.11f ) / -10.3f );
 
     // Check that the acceleration vectors before and after the update match expected values.
     for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )
