@@ -45,11 +45,12 @@
  *                                  three tests for new gravity assist propagation methods.
  *      120713    P. Musegaas       Added various unit tests, to check previous bugs. Added unit
  *                                  tests to test new functionality.
+ *      121203    P. Musegaas       Fixed error in Excel sheet, all verification now fully accurate.
  *
  *    References
  *      Izzo, D. and Vinko, T. ACT - Informatics - GTOP Database, ESA Advanced Concept Team, last
  *          accessed on 2012-01-12. http://www.esa.int/gsp/ACT/inf/op/globopt.htm.
- *      Musegaas, P. Gravity Assist calculation Verification.xlsx, last accessed: 25th July, 2012,
+ *      Musegaas, P. Gravity Assist calculation Verification.xlsx, last accessed: 3 December 2012,
  *          http://tudat.tudelft.nl/projects/tudat/wiki/Unit_tests, 2012.
  *
  *    Notes
@@ -63,8 +64,7 @@
  *                  test has a low accuracy, which should be replaced one day (it still relies on
  *                  hand calculator calculations done in 2011). In the second one a combination of
  *                  bending-effect deltaV and velocity-effect deltaV is calculated. This test has
- *                  been calculated using Tudat, and was verified using Excel. A slight difference
- *                  was observed (~1 m/s). It is difficult to find a good test case for this though.
+ *                  been calculated using Tudat, and was verified using Excel.
  *                  Could definitely be improved.
  *              Case 2: no assist is required:
  *                  One test was written.
@@ -163,9 +163,7 @@ BOOST_AUTO_TEST_CASE( testBendingAngleAndVelocityEffectDeltaVPericenter )
     // Tolerance.
     const double tolerance = 1e-12;
 
-    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012). For
-    // this test case a slight difference of 1 m/s was observed. This is a difficult calculation to
-    // verify though.
+    // Expected deltaV cost, as obtained from this code, verified in Excel (Musegaas, 2012).
     const double expectedDeltaV = 183.8481861944;
 
     // Define swingby body gravitational parameter.
