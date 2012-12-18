@@ -146,7 +146,8 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
     basic_astrodynamics::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
                 convertMeanAnomalyToEccentricAnomaly_(
                 planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex ),
-                unit_conversions::convertDegreesToRadians( meanAnomalyAtGivenJulianDate_ ) );
+                tudat::unit_conversions::convertDegreesToRadians(
+                    meanAnomalyAtGivenJulianDate_ ) );
 
     // Convert mean anomaly to eccentric anomaly.
     eccentricAnomalyAtGivenJulianDate_ = convertMeanAnomalyToEccentricAnomaly_.convert( );
@@ -163,22 +164,22 @@ Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
     // Convert Keplerian elements to standard units.
     // Convert semi-major axis from AU to meters.
     planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex )
-            = unit_conversions::convertAstronomicalUnitsToMeters(
+            = tudat::unit_conversions::convertAstronomicalUnitsToMeters(
                 planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex ) );
 
     // Convert inclination from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_( inclinationIndex )
-            = unit_conversions::convertDegreesToRadians(
+            = tudat::unit_conversions::convertDegreesToRadians(
                 planetKeplerianElementsAtGivenJulianDate_( inclinationIndex ) );
 
     // Convert longitude of ascending node from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_( longitudeOfAscendingNodeIndex )
-            = unit_conversions::convertDegreesToRadians(
+            = tudat::unit_conversions::convertDegreesToRadians(
                 planetKeplerianElementsAtGivenJulianDate_( longitudeOfAscendingNodeIndex ) );
 
     // Convert argument of periapsis from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_( argumentOfPeriapsisIndex )
-            = unit_conversions::convertDegreesToRadians(
+            = tudat::unit_conversions::convertDegreesToRadians(
                 planetKeplerianElementsAtGivenJulianDate_( argumentOfPeriapsisIndex ) );
 
     return planetKeplerianElementsAtGivenJulianDate_;
