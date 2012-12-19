@@ -25,6 +25,11 @@
  #    Changelog
  #      YYMMDD    Author            Comment
  #      120127    B. Tong Minh      File created.
+ #      121219    K. Kumar          Removed Euler integrator files (migrated to Tudat Core).
+ #
+ #    References
+ #
+ #    Notes
  #
 
 # Add source files.
@@ -34,7 +39,6 @@ set(NUMERICALINTEGRATORS_SOURCES
 
 # Add header files.
 set(NUMERICALINTEGRATORS_HEADERS 
-  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/euler.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaCoefficients.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/burdenAndFairesNumericalIntegratorTest.h"
@@ -47,10 +51,6 @@ add_library(tudat_numerical_integrators STATIC ${NUMERICALINTEGRATORS_SOURCES} $
 setup_tudat_library_target(tudat_numerical_integrators "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
 
 # Add unit tests.
-add_executable(test_EulerIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/unitTestEulerIntegrator.cpp")
-setup_custom_test_program(test_EulerIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
-target_link_libraries(test_EulerIntegrator tudat_numerical_integrators ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
 add_executable(test_RungeKuttaVariableStepSizeIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/unitTestRungeKuttaVariableStepSizeIntegrator.cpp")
 setup_custom_test_program(test_RungeKuttaVariableStepSizeIntegrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
 target_link_libraries(test_RungeKuttaVariableStepSizeIntegrator tudat_numerical_integrators ${Boost_LIBRARIES})
