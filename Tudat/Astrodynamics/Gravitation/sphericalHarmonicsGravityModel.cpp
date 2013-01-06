@@ -117,10 +117,10 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
 
     // Loop through all degrees.
-    for ( int degree = 0; degree <= highestDegree; degree++ )
+    for ( int degree = 0; degree < highestDegree; degree++ )
     {
         // Loop through all orders.
-        for ( int order = 0; order <= degree && order <= highestOrder; order++ )
+        for ( int order = 0; order <= degree && order < highestOrder; order++ )
         {
             // Compute geodesy-normalized Legendre polynomials.
             const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(

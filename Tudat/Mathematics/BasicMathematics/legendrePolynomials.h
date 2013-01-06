@@ -25,6 +25,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120926    E. Dekens         File created.
+ *      121218    S. Billemont      Added output fuctions to display Legendre polynomial data,
+ *                                  for debugging.
  *
  *    References
  *      Eberly, D. Spherical Harmonics. Help documentation of Geometric Tools, 2008. Available at
@@ -50,6 +52,7 @@
 #define TUDAT_LEGENDRE_POLYNOMIALS_H
 
 #include <cstddef>
+#include <iostream>
 
 #include <boost/circular_buffer.hpp>
 #include <boost/function.hpp>
@@ -382,6 +385,26 @@ private:
 // Declare global instances of LegendreCache class.
 static LegendreCache legendreCache;
 static LegendreCache geodesyLegendreCache;
+
+//! Write contents of Legendre polynomial structure to string.
+/*!
+ * Writes contents of Legendre polynomial structure, containing degree, order, and value of
+ * polynomial parameter, to string.
+ * \param legendrePolynomialStructure Structure containing legendre polynomial data.
+ * \return String containing degree, order, and value of polynomial paramter stored in structure.
+ */
+std::string writeLegendrePolynomialStructureToString( const Point legendrePolynomialStructure );
+
+//! Dump Legendre polynomial cache data to stream (table and history).
+/*!
+ * Dumps cached table and history data for Legendre polynomials to given output stream.
+ * \param outputStream Output stream.
+ * \param cacheTable Cache table containing current values of Legendre polynomials.
+ * \param cacheHistory Cached history of Legendre polynomials.
+ */
+void dumpLegendrePolynomialCacheData( std::ostream& outputStream,
+                                      boost::unordered_map< Point, double > cacheTable,
+                                      boost::circular_buffer< Point > cacheHistory );
 
 } // namespace basic_mathematics
 } // namespace tudat
