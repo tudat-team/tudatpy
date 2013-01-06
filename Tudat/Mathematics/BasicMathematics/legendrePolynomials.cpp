@@ -25,8 +25,12 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120926    E. Dekens         File created.
+ *      121218    S. Billemont      Added output fuctions to display Legendre polynomial data,
+ *                                  for debugging.
  *
  *    References
+ *
+ *    Notes
  *
  */
 
@@ -354,10 +358,17 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
 //! Define overloaded 'equals' operator for use with 'Point' structure.
 bool operator==( const Point& polynomialArguments1, const Point& polynomialArguments2 )
 {
-    return polynomialArguments1.degree == polynomialArguments2.degree
+    bool equal = polynomialArguments1.degree == polynomialArguments2.degree
             && polynomialArguments1.order == polynomialArguments2.order
             && polynomialArguments1.polynomialParameter
             == polynomialArguments2.polynomialParameter;
+
+    std::cout << "Point "<< writeLegendrePolynomialStructureToString(
+                     polynomialArguments1 ).c_str( )
+              << " == " << writeLegendrePolynomialStructureToString( polynomialArguments2 ).c_str( )
+              << " : " << ( equal ? "TRUE" : "FALSE" ) << std::endl;
+
+    return equal;
 }
 
 //! Set hash value.
@@ -367,6 +378,10 @@ std::size_t hash_value( Point const& polynomialArguments )
     boost::hash_combine( seed, polynomialArguments.degree );
     boost::hash_combine( seed, polynomialArguments.order );
     boost::hash_combine( seed, polynomialArguments.polynomialParameter );
+
+    std::cout << "Calculated hash for point "<< writeLegendrePolynomialStructureToString(
+                     polynomialArguments ).c_str( ) << " as " << seed << std::endl;
+
     return seed;
 }
 
@@ -378,6 +393,10 @@ double LegendreCache::getOrElseUpdate(
     // Initialize structure with polynomial arguments.
     Point polynomialArguments( degree, order, polynomialParameter );
 
+    std::cout << "Query for entry: "
+              << writeLegendrePolynomialStructureToString( polynomialArguments ).c_str( )
+              << std::endl;
+
     // Initialize cache iterator.
     CacheTable::iterator cachedEntry = backendCache.find( polynomialArguments );
 
@@ -386,18 +405,33 @@ double LegendreCache::getOrElseUpdate(
     {
         double legendrePolynomial = legendrePolynomialFunction( degree, order,
                                                                 polynomialParameter );
-
         // If cache is full, remove the oldest element.
         if ( history.full( ) )
         {
+            std::cout << "History is full, removing oldest element: "
+                      << writeLegendrePolynomialStructureToString( history[ 0 ] ).c_str( )
+                      << std::endl;
+            std::cout << "BEFORE:" << std::endl;
+            dumpLegendrePolynomialCacheData( std::cout, backendCache, history );
             backendCache.erase( backendCache.find( history[ 0 ] ) );
             history.pop_front( );
+            std::cout << "AFTER:" << std::endl;
+            dumpLegendrePolynomialCacheData( std::cout, backendCache, history );
         }
+
+        std::cout << "Inserting new point in history: "
+                  << writeLegendrePolynomialStructureToString( polynomialArguments ).c_str( )
+                  << " => " << legendrePolynomial << std::endl;
+        std::cout << "BEFORE:" << std::endl;
+        dumpLegendrePolynomialCacheData( std::cout, backendCache, history );
 
         // Insert computed polynomial into cache.
         backendCache.insert( std::pair< Point, double >( polynomialArguments,
                                                          legendrePolynomial ) );
         history.push_back( polynomialArguments );
+
+        std::cout << "AFTER:" << std::endl;
+        dumpLegendrePolynomialCacheData( std::cout, backendCache, history );
 
         // Return polynomial value from computation.
         return legendrePolynomial;
@@ -406,12 +440,57 @@ double LegendreCache::getOrElseUpdate(
     // Else the requested polynomial was found in cache; return polynomial value from cache entry.
     else
     {
+        std::cout << "Found entry in cache: "
+                  << writeLegendrePolynomialStructureToString( cachedEntry->first ).c_str( )
+                  << " => "
+                  << cachedEntry->second
+                  << std::endl;
         return cachedEntry->second;
     }
 }
 
 //! Initialize LegendreCache objects.
 LegendreCache::LegendreCache( ) : history( MAXIMUM_CACHE_ENTRIES ) { }
+
+//! Write contents of Legendre polynomial structure to string.
+std::string writeLegendrePolynomialStructureToString( const Point legendrePolynomialStructure )
+{
+    std::stringstream buffer;
+
+    buffer << "(" << legendrePolynomialStructure.degree << ", "
+           << legendrePolynomialStructure.order << ", "
+           << legendrePolynomialStructure.polynomialParameter << ")";
+
+    return buffer.str( );
+}
+
+//! Dump Legendre polynomial cache data to stream (table and history).
+void dumpLegendrePolynomialCacheData( std::ostream& outputStream,
+                                      boost::unordered_map< Point, double > cacheTable,
+                                      boost::circular_buffer< Point > cacheHistory )
+{
+    outputStream << "Table:\n";
+
+    for ( boost::unordered_map< Point, double >::iterator iteratorCacheTable = cacheTable.begin( );
+          iteratorCacheTable != cacheTable.end( ); iteratorCacheTable++ )
+    {
+        outputStream << "\t" << writeLegendrePolynomialStructureToString(
+                            iteratorCacheTable->first ).c_str( ) << " => "
+                     << iteratorCacheTable->second << std::endl;
+    }
+
+    outputStream << "History:\n";
+
+    for ( boost::circular_buffer< Point >::iterator iteratorCacheHistory = cacheHistory.begin( );
+          iteratorCacheHistory != cacheHistory.end( ); iteratorCacheHistory++ )
+    {
+        outputStream << "\t"
+                     << writeLegendrePolynomialStructureToString( *iteratorCacheHistory ).c_str( )
+                     << ", ";
+    }
+
+    outputStream << std::endl;
+}
 
 } // namespace basic_mathematics
 } // namespace tudat
