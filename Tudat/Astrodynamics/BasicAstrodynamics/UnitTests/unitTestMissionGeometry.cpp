@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullShadow )
             * Eigen::Vector3d( 1.0, 0.0, 0.0 );
 
     // Compute shadow function.
-    const double shadowFunction = mission_geometry::computeShadowFunction(
+    const double shadowFunction = basic_astrodynamics::mission_geometry::computeShadowFunction(
                 occultedBodyPosition,
                 occultedBodyRadius,
                 occultingBodyPosition,
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullLight )
             * Eigen::Vector3d( 0.0, 1.0, 0.0 );
 
     // Compute shadow function.
-    const double shadowFunction = mission_geometry::computeShadowFunction(
+    const double shadowFunction = basic_astrodynamics::mission_geometry::computeShadowFunction(
                 occultedBodyPosition,
                 occultedBodyRadius,
                 occultingBodyPosition,
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
     const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e3 ) * satelliteDirection;
 
     // Compute shadow function
-    const double shadowFunction = mission_geometry::computeShadowFunction(
+    const double shadowFunction = basic_astrodynamics::mission_geometry::computeShadowFunction(
                 occultedBodyPosition,
                 occultedBodyRadius,
                 occultingBodyPosition,
@@ -146,7 +146,8 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceEarth )
     // Test 1: test function taking masses.
     {
         // Calculate the sphere of influence of the Earth with respect to the Sun.
-        const double sphereOfInfluenceEarth = mission_geometry::computeSphereOfInfluence(
+        const double sphereOfInfluenceEarth
+                = basic_astrodynamics::mission_geometry::computeSphereOfInfluence(
                     distanceEarthSun, massEarth, massSun );
 
         // Test values (Wikipedia, Sphere of Influence)
@@ -156,7 +157,8 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceEarth )
     // Test 2: test function taking mass ratio.
     {
         // Calculate the sphere of influence of the Earth with respect to the Sun.
-        const double sphereOfInfluenceEarth = mission_geometry::computeSphereOfInfluence(
+        const double sphereOfInfluenceEarth
+                = basic_astrodynamics::mission_geometry::computeSphereOfInfluence(
                     distanceEarthSun, massEarth / massSun );
 
         // Test values (Wikipedia, Sphere of Influence)
@@ -174,7 +176,8 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
     // Test 1: test function taking masses.
     {
         // Calculate the sphere of influence of the Moon with respect to the Earth.
-        const double sphereOfInfluenceEarth = mission_geometry::computeSphereOfInfluence(
+        const double sphereOfInfluenceEarth
+                = basic_astrodynamics::mission_geometry::computeSphereOfInfluence(
                     distanceMoonEarth, massMoon, massEarth );
 
         // Test values (Wikipedia, Sphere of Influence)
@@ -183,7 +186,8 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
 
     // Test 2: test function taking mass ratio.
     {
-        const double sphereOfInfluenceMoon = mission_geometry::computeSphereOfInfluence(
+        const double sphereOfInfluenceMoon
+                = basic_astrodynamics::mission_geometry::computeSphereOfInfluence(
                     distanceMoonEarth, massMoon / massEarth );
 
         // Test values (Wikipedia, Sphere of Influence)

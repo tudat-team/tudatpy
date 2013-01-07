@@ -52,8 +52,6 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
 namespace gravitation
 {
 
@@ -159,5 +157,4 @@ std::ostream& operator<<( std::ostream& stream,
 }
 
 } // namespace gravitation
-} // namespace astrodynamics
 } // namespace tudat

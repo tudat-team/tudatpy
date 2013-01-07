@@ -49,6 +49,8 @@
 
 namespace tudat
 {
+namespace basic_astrodynamics
+{
 namespace mission_geometry
 {
 
@@ -106,7 +108,7 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
                 * std::acos( ( apparentSeparation - occultedAreaPartOne )
                              / occultingBodyApparentRadius )
                 - apparentSeparation * occultedAreaPartTwo;
-        shadowFunction = 1.0 - occultedArea / ( mathematics::PI *
+        shadowFunction = 1.0 - occultedArea / ( basic_mathematics::mathematical_constants::PI *
                                                 occultedBodyApparentRadiusSquared );
     }
 
@@ -156,4 +158,5 @@ double computeSphereOfInfluence( const double distanceToCentralBody,
 }
 
 } // namespace mission_geometry
+} // namespace basic_astrodynamics
 } // namespace tudat

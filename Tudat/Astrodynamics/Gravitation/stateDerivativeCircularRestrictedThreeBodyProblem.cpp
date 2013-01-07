@@ -47,8 +47,6 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
 namespace gravitation
 {
 namespace circular_restricted_three_body_problem
@@ -107,5 +105,4 @@ computeStateDerivative( const double time, const Eigen::VectorXd& cartesianState
 
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation
-} // namespace astrodynamics
 } // namespace tudat

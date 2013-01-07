@@ -46,16 +46,14 @@
 
 namespace tudat
 {
-namespace output
+namespace geometric_shapes
 {
-
-using namespace tudat::mathematics::geometric_shapes;
 
 //! Write single surface geometry to a file.
 void writeSingleSurfaceGeometryPointsToFile(
-    boost::shared_ptr< SingleSurfaceGeometry > pointerToSingleSurfaceGeometry,
-    int numberOfLines, int numberOfPoints,
-    const std::string& filename, int writeType, const bool& isIndependentVariableInverted )
+        boost::shared_ptr< SingleSurfaceGeometry > singleSurfaceGeometryPointer,
+        int numberOfLines, int numberOfPoints,
+        const std::string& filename, int writeType, const bool& isIndependentVariableInverted )
 {
     std::ofstream outputFile_;
 
@@ -89,13 +87,13 @@ void writeSingleSurfaceGeometryPointsToFile(
     if ( isIndependentVariableInverted  == false )
     {
         // Set grid size 1.
-        gridSize1_ = ( pointerToSingleSurfaceGeometry->getMaximumIndependentVariable( 1 )
-                      - pointerToSingleSurfaceGeometry->getMinimumIndependentVariable( 1 ) )
+        gridSize1_ = ( singleSurfaceGeometryPointer->getMaximumIndependentVariable( 1 )
+                      - singleSurfaceGeometryPointer->getMinimumIndependentVariable( 1 ) )
                 / ( numberOfLines - 1 );
 
         // Set grid size 2.
-        gridSize2_ = ( pointerToSingleSurfaceGeometry->getMaximumIndependentVariable( 2 )
-                      - pointerToSingleSurfaceGeometry->getMinimumIndependentVariable( 2 ) )
+        gridSize2_ = ( singleSurfaceGeometryPointer->getMaximumIndependentVariable( 2 )
+                      - singleSurfaceGeometryPointer->getMinimumIndependentVariable( 2 ) )
                 / ( numberOfPoints - 1 );
     }
 
@@ -106,13 +104,13 @@ void writeSingleSurfaceGeometryPointsToFile(
     else
     {
         // Set grid size 1.
-        gridSize1_ = ( pointerToSingleSurfaceGeometry->getMaximumIndependentVariable( 1 )
-                      - pointerToSingleSurfaceGeometry->getMinimumIndependentVariable( 1 ) )
+        gridSize1_ = ( singleSurfaceGeometryPointer->getMaximumIndependentVariable( 1 )
+                      - singleSurfaceGeometryPointer->getMinimumIndependentVariable( 1 ) )
                 / ( numberOfPoints - 1 );
 
         // Set grid size 1.
-        gridSize2_ = ( pointerToSingleSurfaceGeometry->getMaximumIndependentVariable( 2 )
-                      - pointerToSingleSurfaceGeometry->getMinimumIndependentVariable( 2 ) )
+        gridSize2_ = ( singleSurfaceGeometryPointer->getMaximumIndependentVariable( 2 )
+                      - singleSurfaceGeometryPointer->getMinimumIndependentVariable( 2 ) )
                 / ( numberOfLines - 1 );
     }
 
@@ -127,10 +125,10 @@ void writeSingleSurfaceGeometryPointsToFile(
             if ( isIndependentVariableInverted  == false )
             {
                 // Set point.
-                point = pointerToSingleSurfaceGeometry->getSurfacePoint(
-                            pointerToSingleSurfaceGeometry->
+                point = singleSurfaceGeometryPointer->getSurfacePoint(
+                            singleSurfaceGeometryPointer->
                             getMinimumIndependentVariable( 1 ) + i * gridSize1_,
-                            pointerToSingleSurfaceGeometry->
+                            singleSurfaceGeometryPointer->
                             getMinimumIndependentVariable( 2 ) + j * gridSize2_ );
             }
 
@@ -139,10 +137,10 @@ void writeSingleSurfaceGeometryPointsToFile(
             else
             {
                 // Set point.
-                point = pointerToSingleSurfaceGeometry->getSurfacePoint(
-                            pointerToSingleSurfaceGeometry->
+                point = singleSurfaceGeometryPointer->getSurfacePoint(
+                            singleSurfaceGeometryPointer->
                             getMinimumIndependentVariable( 1 ) + j * gridSize1_,
-                            pointerToSingleSurfaceGeometry->
+                            singleSurfaceGeometryPointer->
                             getMinimumIndependentVariable( 2 ) + i * gridSize2_);
             }
 
@@ -158,7 +156,7 @@ void writeSingleSurfaceGeometryPointsToFile(
 
 //! Write composite surface geometry to a file.
 void writeCompositeSurfaceGeometryPointsToFile(
-        boost::shared_ptr< CompositeSurfaceGeometry > pointerToCompositeSurfaceGeometry,
+        boost::shared_ptr< CompositeSurfaceGeometry > compositeSurfaceGeometryPointer,
         std::vector< int > arrayOfNumberOfLines, std::vector< int > arrayOfNumberOfPoints,
         const std::string& filename, int writeType,
         std::vector< bool > isIndependentVariableInvertedArray )
@@ -170,16 +168,16 @@ void writeCompositeSurfaceGeometryPointsToFile(
     }
 
     // Iterate over all single geometries in composite geometry.
-    for ( unsigned int i = 0; i < pointerToCompositeSurfaceGeometry->
+    for ( unsigned int i = 0; i < compositeSurfaceGeometryPointer->
           getNumberOfSingleSurfaceGeometries( ); i++ )
     {
         // Append single geometry to file.
         writeSingleSurfaceGeometryPointsToFile(
-                    pointerToCompositeSurfaceGeometry->getSingleSurfaceGeometry( i ),
+                    compositeSurfaceGeometryPointer->getSingleSurfaceGeometry( i ),
                     arrayOfNumberOfLines[ i ], arrayOfNumberOfPoints[ i ],
                     filename, 1, isIndependentVariableInvertedArray[ i ] );
     }
 }
 
-} // namespace output
+} // namespace geometric_shapes
 } // namespace tudat

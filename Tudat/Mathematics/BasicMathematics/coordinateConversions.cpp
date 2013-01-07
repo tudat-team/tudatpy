@@ -173,17 +173,17 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
     /* If x = 0, then azimuthAngle = pi/2 (y>0) or 3*pi/2 (y<0) or 0 (y=0),
        else azimuthAngle = arctan(y/x).
     */
-    using tudat::mathematics::PI;
+    using tudat::basic_mathematics::mathematical_constants::PI;
     if ( std::fabs(cartesianCoordinates( 0 ) ) <= std::numeric_limits< double >::epsilon( ) )
     {
-        azimuthAngle = tudat::mathematics::computeModulo(
+        azimuthAngle = tudat::basic_mathematics::computeModulo(
                     static_cast< double >( boost::math::sign( cartesianCoordinates( 1 ) ) )
                     * 0.5 * PI, 2.0 * PI );
     }
 
     else
     {
-        azimuthAngle = tudat::mathematics::computeModulo(
+        azimuthAngle = tudat::basic_mathematics::computeModulo(
                     std::atan2( cartesianCoordinates( 1 ),
                                 cartesianCoordinates( 0 ) ), 2.0 * PI );
     }

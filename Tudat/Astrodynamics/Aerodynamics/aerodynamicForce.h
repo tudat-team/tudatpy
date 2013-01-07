@@ -49,9 +49,7 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
-namespace force_models
+namespace aerodynamics
 {
 
 //! Compute the aerodynamic force in same reference frame as input coefficients.
@@ -84,8 +82,7 @@ Eigen::VectorXd computeAerodynamicForce( const double dynamicPressure,
 Eigen::MatrixXd computeAerodynamicForce(
         const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface );
 
-} // namespace force_models
-} // namespace astrodynamics
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_FORCE_H

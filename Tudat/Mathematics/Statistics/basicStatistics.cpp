@@ -43,8 +43,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace statistics
 {
 
@@ -56,8 +54,7 @@ double computeAverageOfVectorComponents( const Eigen::VectorXd& vectorOfData )
 double computeStandardDeviationOfVectorComponents( const Eigen::VectorXd& vectorOfData )
 {
     // Compute average of components.
-    double averageOfComponents = tudat::mathematics::statistics::
-            computeAverageOfVectorComponents( vectorOfData );
+    double averageOfComponents = computeAverageOfVectorComponents( vectorOfData );
 
     // Declare variance of components.
     double varianceOfComponents = 0.0;
@@ -103,5 +100,4 @@ double computeSampleVariance( const std::vector< double >& sampleData )
 }
 
 } // namespace statistics
-} // namespace mathematics
 } // namespace tudat

@@ -50,8 +50,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -156,5 +154,4 @@ std::ostream& operator<<( std::ostream& stream,
 }
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat

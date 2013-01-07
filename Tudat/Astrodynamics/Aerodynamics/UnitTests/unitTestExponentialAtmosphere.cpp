@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereGetSet )
     const double scaleHeight = 7.050e3;
 
     // Create an exponential atmosphere object.
-    tudat::ExponentialAtmosphere exponentialAtmosphere;
+    tudat::aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereSeaLevel )
     const double pressureAtZeroAltitude = 101325.0;
 
     // Create an exponential atmosphere object.
-    tudat::ExponentialAtmosphere exponentialAtmosphere;
+    tudat::aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereAt10km )
     double time = 0.0;
 
     // Create an exponential atmosphere object.
-    tudat::ExponentialAtmosphere exponentialAtmosphere;
+    tudat::aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmospherePositionIndependentFunctions )
     double time = 0.0;
 
     // Create an exponential atmosphere object.
-    tudat::ExponentialAtmosphere exponentialAtmosphere;
+    tudat::aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );

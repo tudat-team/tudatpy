@@ -43,6 +43,8 @@
 
 namespace tudat
 {
+namespace aerodynamics
+{
 
 //! Base class to hold an aerodynamic coefficient interface.
 /*!
@@ -213,6 +215,7 @@ private:
 
 };
 
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H

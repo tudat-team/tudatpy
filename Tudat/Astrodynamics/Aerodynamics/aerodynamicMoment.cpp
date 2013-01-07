@@ -38,9 +38,7 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
-namespace moment_models
+namespace aerodynamics
 {
 
 //! Compute the aerodynamic moment in same reference frame as input coefficients.
@@ -61,6 +59,5 @@ Eigen::MatrixXd computeAerodynamicMoment(
                                      coefficientInterface.getCurrentMomentCoefficients( ) );
 }
 
-} // namespace moment_models
-} // namespace astrodynamics
+} // namespace aerodynamics
 } // namespace tudat

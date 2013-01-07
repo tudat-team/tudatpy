@@ -82,7 +82,7 @@ namespace input_output
 {
 
 // Using declarations.
-using tudat::mathematics::PI;
+using tudat::basic_mathematics::mathematical_constants::PI;
 using std::string;
 using std::stringstream;
 using std::endl;

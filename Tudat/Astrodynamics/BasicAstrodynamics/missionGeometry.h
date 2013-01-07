@@ -46,6 +46,8 @@
 
 namespace tudat
 {
+namespace basic_astrodynamics
+{
 namespace mission_geometry
 {
 
@@ -102,6 +104,7 @@ double computeSphereOfInfluence( const double distanceToCentralBody,
                                  const double massCentralBody );
 
 } // namespace mission_geometry
+} // namespace basic_astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_MISSION_GEOMETRY_H

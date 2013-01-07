@@ -58,8 +58,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -72,7 +70,7 @@ Capsule::Capsule( const double noseRadius,
 {
     using std::sin;
     using std::cos;
-    using tudat::mathematics::PI;
+    using tudat::basic_mathematics::mathematical_constants::PI;
 
     // Call set functions for number of single and composite surface geometries
     // with predetermined values.
@@ -183,5 +181,4 @@ std::ostream &operator<<( std::ostream &stream, Capsule& capsule )
 }
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat

@@ -48,8 +48,6 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
 namespace gravitation
 {
 
@@ -160,7 +158,6 @@ private:
 };
 
 } // namespace gravitation
-} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_GRAVITY_FIELD_MODEL_H

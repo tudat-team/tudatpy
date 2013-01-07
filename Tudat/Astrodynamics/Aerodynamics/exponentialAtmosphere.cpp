@@ -45,6 +45,8 @@
 
 namespace tudat
 {
+namespace aerodynamics
+{
 
 //! Set predefined exponential atmosphere settings.
 void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
@@ -77,4 +79,5 @@ void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
     }
 }
 
+} // namespace aerodynamics
 } // namespace tudat

@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_SUITE( test_spherical_harmonics_gravity_field )
 BOOST_AUTO_TEST_CASE( testSettingAndGettingGravitationalParameter )
 {
     // Create gravity field for myPlanet.
-    using astrodynamics::gravitation::SphericalHarmonicsGravityField;
+    using gravitation::SphericalHarmonicsGravityField;
     SphericalHarmonicsGravityField myPlanetGravityField;
 
     // Set gravitational parameter of myPlanet.
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testSettingAndGettingGravitationalParameter )
 BOOST_AUTO_TEST_CASE( testGetGravitationalParameterForPredefinedEarth )
 {
     // Create predefined Earth central gravity field.
-    using astrodynamics::gravitation::CentralGravityField;
+    using gravitation::CentralGravityField;
     CentralGravityField predefinedEarthCentralGravityField( CentralGravityField::earth );
 
     const double computedResultForTest2 =
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( testGetPotential )
     const Eigen::Vector3d cartesianPosition( 5.0e6, 3.0e6, 1.0e6 );
 
     // Create gravity field for myPlanet.
-    using astrodynamics::gravitation::SphericalHarmonicsGravityField;
+    using gravitation::SphericalHarmonicsGravityField;
     SphericalHarmonicsGravityField myPlanetGravityField;
 
     // Set gravitational parameter of myPlanet.

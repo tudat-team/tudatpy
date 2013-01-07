@@ -38,7 +38,7 @@
 
 namespace tudat
 {
-namespace acceleration_models
+namespace reference_frames
 {
 
 //! Compute apparent acceleration due to non-inertiality of reference frame.
@@ -102,5 +102,5 @@ bool ApparentAccelerationModel::updateMembers( )
     return true;
 }
 
-} // namespace acceleration_models
+} // namespace reference_frames
 } // namespace tudat

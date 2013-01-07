@@ -121,7 +121,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
     const double absoluteOutgoingExcessVelocity = outgoingHyperbolicExcessVelocity.norm( );
 
     // Compute bending angle.
-    double bendingAngle = mathematics::linear_algebra::computeAngleBetweenVectors(
+    double bendingAngle = basic_mathematics::linear_algebra::computeAngleBetweenVectors(
                             incomingHyperbolicExcessVelocity, outgoingHyperbolicExcessVelocity );
 
     // Compute maximum achievable bending angle.

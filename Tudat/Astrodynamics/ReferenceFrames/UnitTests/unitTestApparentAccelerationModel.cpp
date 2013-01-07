@@ -55,8 +55,8 @@ namespace tudat
 namespace unit_tests
 {
 
-using tudat::acceleration_models::computeApparentAcceleration;
-using tudat::acceleration_models::ApparentAccelerationModel;
+using tudat::reference_frames::computeApparentAcceleration;
+using tudat::reference_frames::ApparentAccelerationModel;
 
 BOOST_AUTO_TEST_SUITE( test_reference_frame_transformations )
 

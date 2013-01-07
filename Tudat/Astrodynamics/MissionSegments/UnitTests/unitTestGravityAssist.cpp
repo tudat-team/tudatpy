@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testBendingAngleDeltaV )
                                         0.0 );
 
     // Define satellite incoming vector.
-    using tudat::mathematics::PI;
+    using tudat::basic_mathematics::mathematical_constants::PI;
     const Eigen::Vector3d incomingVelocity( -25.0e3 * std::sin( PI / 6.0 ),
                                             25.0e3 * std::cos( PI / 6.0 ),
                                             0.0 );

@@ -96,7 +96,8 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     if ( std::fabs( cylindricalCoordinates( 0 ) ) < std::numeric_limits< double >::epsilon( ) )
     {
         // ...set latitude coordinate to 90 degrees.
-        sphericalpositionOfBodySubjectToAcceleration( 1 ) = mathematics::PI / 2.0;
+        sphericalpositionOfBodySubjectToAcceleration( 1 )
+                = basic_mathematics::mathematical_constants::PI / 2.0;
     }
 
     // Else...
@@ -194,7 +195,8 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     if ( std::fabs( cylindricalCoordinates( 0 ) ) < std::numeric_limits< double >::epsilon( ) )
     {
         // ...set latitude coordinate to 90 degrees.
-        sphericalpositionOfBodySubjectToAcceleration( 1 ) = mathematics::PI / 2.0;
+        sphericalpositionOfBodySubjectToAcceleration( 1 )
+                = basic_mathematics::mathematical_constants::PI / 2.0;
     }
 
     // Else...

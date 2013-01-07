@@ -52,8 +52,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -61,7 +59,7 @@ namespace geometric_shapes
 /*!
  * Class that defines the sphere ( segment ) shape. Parametrization is based
  * on spherical coordinates, with azimuth and zenith angles as 1st and 2nd
- * variables ( see mathematics::convertSphericalToCartesian from the Tudat core ).
+ * variables (see basic_mathematics::convertSphericalToCartesian from Tudat Core).
  * In addition to the minimum and maximum of these two variables, the sphere radius is
  * required for defining the sphere.
  * Note that by using the scalingMatrix_ member variable, this class can also
@@ -82,9 +80,11 @@ public:
      */
     SphereSegment( const double radius,
                    const double minimumAzimuthAngle = 0.0,
-                   const double maximumAzimuthAngle = 2.0 * mathematics::PI,
+                   const double maximumAzimuthAngle
+                   = 2.0 * basic_mathematics::mathematical_constants::PI,
                    const double minimumZenithAngle = 0.0,
-                   const double maximumZenithAngle = mathematics::PI );
+                   const double maximumZenithAngle
+                   = basic_mathematics::mathematical_constants::PI );
 
     //! Get surface point on sphere segment.
     /*!
@@ -187,7 +187,6 @@ private:
 };
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_SPHERE_SEGMENT_H

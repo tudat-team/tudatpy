@@ -54,7 +54,7 @@ namespace unit_tests
 //! Test if state derivative for circular restricted three-body problem is computed correctly.
 BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
 {
-    namespace crtbp = astrodynamics::gravitation::circular_restricted_three_body_problem;
+    namespace crtbp = gravitation::circular_restricted_three_body_problem;
     using crtbp::StateDerivativeCircularRestrictedThreeBodyProblem;
     using crtbp::xPositionIndex;
     using crtbp::zPositionIndex;
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
         StateDerivativeCircularRestrictedThreeBodyProblem stateDerivative( massParameter );
 
         // Declare Runge-Kutta 4 integrator.
-        mathematics::numerical_integrators::RungeKutta4IntegratorXd rungeKutta4Integrator(
+        numerical_integrators::RungeKutta4IntegratorXd rungeKutta4Integrator(
                     boost::bind(
                         &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative,
                         &stateDerivative, _1, _2 ),

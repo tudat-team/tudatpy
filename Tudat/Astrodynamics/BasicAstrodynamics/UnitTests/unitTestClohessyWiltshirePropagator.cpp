@@ -121,7 +121,8 @@ BOOST_AUTO_TEST_CASE( test_ClohessyWiltshirePropagation_harmonicMotion )
 
     // Set propagation duration [s].
     // In this case: orbital period of the reference orbit.
-    const double propagationDuration2 = 2.0 * mathematics::PI / meanAngularMotion;
+    const double propagationDuration2 = 2.0 * basic_mathematics::mathematical_constants::PI
+            / meanAngularMotion;
 
     // Set initial state [m], [m], [m], [m/s], [m,s], [m/s].
     // In this case: arbitrary values for initial positions and initialCrossTrackVelocity. The

@@ -45,7 +45,7 @@
 
 namespace tudat
 {
-namespace acceleration_models
+namespace reference_frames
 {
 
 //! Compute apparent acceleration due to non-inertiality of reference frame.
@@ -303,7 +303,7 @@ private:
     Eigen::Vector3d currentVelocityOfBodyInNonInertialReferenceFrame_;
 };
 
-}   // namespace acceleration_models
+}   // namespace reference_frames
 }   // namespace tudat
 
 #endif // TUDAT_APPARENT_ACCELERATION_MODEL_H

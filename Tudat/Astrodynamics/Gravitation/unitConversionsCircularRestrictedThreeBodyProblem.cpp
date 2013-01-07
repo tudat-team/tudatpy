@@ -45,8 +45,6 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
 namespace gravitation
 {
 namespace circular_restricted_three_body_problem
@@ -88,5 +86,4 @@ double convertDimensionlessTimeToDimensionalTime(
 
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation
-} // namespace astrodynamics
 } // namespace tudat

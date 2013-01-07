@@ -162,8 +162,9 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
         // Check that computed results match expected results.
         BOOST_CHECK_CLOSE_FRACTION(
                     benchmarkKeplerPropagationHistory.rbegin( )->second( 5 ),
-                    mathematics::computeModulo( computedFinalStateInKeplerianElements( 5 ),
-                                                2.0 * mathematics::PI ), 1.0e-8 );
+                    basic_mathematics::computeModulo(
+                        computedFinalStateInKeplerianElements( 5 ),
+                        2.0 * basic_mathematics::mathematical_constants::PI ), 1.0e-8 );
     }
 
     // Case 2: Comparison of kepprop2b() test output from (GSFC, 2012) using modulo option.
@@ -190,9 +191,9 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
                         1.0e-10 );
 
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
-                    = mathematics::computeModulo(
+                    = basic_mathematics::computeModulo(
                         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                        2.0 * mathematics::PI );
+                        2.0 * basic_mathematics::mathematical_constants::PI );
 
             // Check that computed results match expected results.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -225,9 +226,9 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
                         timeStep, earthGravitationalParameter, false );
 
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
-                    = mathematics::computeModulo(
+                    = basic_mathematics::computeModulo(
                         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                        2.0 * mathematics::PI );
+                        2.0 * basic_mathematics::mathematical_constants::PI );
 
             // Check that computed results match expected results.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -260,9 +261,9 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit )
                         -timeStep, earthGravitationalParameter, false );
 
             computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
-                    = mathematics::computeModulo(
+                    = basic_mathematics::computeModulo(
                         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                        2.0 * mathematics::PI );
+                        2.0 * basic_mathematics::mathematical_constants::PI );
 
             // Check that computed results match expected results.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(

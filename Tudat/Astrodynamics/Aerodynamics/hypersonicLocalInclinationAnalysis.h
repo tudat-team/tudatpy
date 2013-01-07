@@ -175,8 +175,8 @@ public:
      * \param vehicleIndex Index in vehicleParts_ to be retrieved.
      * \return Requested vehicle part.
      */
-     boost::shared_ptr< mathematics::geometric_shapes::LawgsPartGeometry >
-        getVehiclePart( const int vehicleIndex ) const
+     boost::shared_ptr< geometric_shapes::LawgsPartGeometry > getVehiclePart(
+             const int vehicleIndex ) const
      {
          return vehicleParts_[ vehicleIndex ];
      }
@@ -273,8 +273,7 @@ private:
     /*!
      * Array of vehicle parts.
      */
-    std::vector< boost::shared_ptr< mathematics::geometric_shapes::LawgsPartGeometry > >
-        vehicleParts_;
+    std::vector< boost::shared_ptr< geometric_shapes::LawgsPartGeometry > > vehicleParts_;
 
     //! Multi-array as which indicates which coefficients have been calculated already.
     /*!

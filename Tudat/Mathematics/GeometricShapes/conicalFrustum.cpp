@@ -43,12 +43,10 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
-using tudat::mathematics::PI;
+using tudat::basic_mathematics::mathematical_constants::PI;
 using std::cerr;
 using std::endl;
 using std::sin;
@@ -155,7 +153,8 @@ Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
         // Since this derivative is "cyclical", as it is only dependant on sines
         // and cosines, only the "modulo 4"th derivative need be determined.
         // Derivatives are determined from the form of the cylindrical coordinates,
-        // see mathematics::coordinateConversions::convertSphericalToCartesian from the Tudat core.
+        // see basic_mathematics::coordinateConversions::convertSphericalToCartesian from
+        // Tudat Core.
         switch( powerOfAzimuthAngleDerivative % 4 )
         {
         case( 0 ):
@@ -254,5 +253,4 @@ std::ostream &operator<<( std::ostream &stream, ConicalFrustum& conicalFrustum )
 }
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat

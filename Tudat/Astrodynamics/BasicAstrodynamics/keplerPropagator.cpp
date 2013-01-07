@@ -112,12 +112,12 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
         if ( useModuloOption )
         {
             // Compute orbital period of Kepler orbit.
-            const double orbitalPeriod = astrodynamics::computeKeplerOrbitalPeriod(
+            const double orbitalPeriod = basic_astrodynamics::computeKeplerOrbitalPeriod(
                         initialStateInKeplerianElements( semiMajorAxisIndex ),
                         centralBodyGravitationalParameter );
 
             // Determine elapsed time.
-            elapsedTime = mathematics::computeModulo( propagationTime, orbitalPeriod );
+            elapsedTime = basic_mathematics::computeModulo( propagationTime, orbitalPeriod );
 
             // Determine corresponding number of complete orbits.
             numberOfCompleteOrbits = std::floor( propagationTime / orbitalPeriod );
@@ -167,7 +167,8 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
         if ( useModuloOption )
         {
             finalStateInKeplerianElements( trueAnomalyIndex )
-                    += numberOfCompleteOrbits * 2.0 * mathematics::PI;
+                    += numberOfCompleteOrbits * 2.0
+                    * basic_mathematics::mathematical_constants::PI;
         }
     }
 

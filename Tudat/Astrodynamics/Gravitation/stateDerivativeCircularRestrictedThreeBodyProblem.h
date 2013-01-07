@@ -46,8 +46,6 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
 namespace gravitation
 {
 namespace circular_restricted_three_body_problem
@@ -116,7 +114,6 @@ private:
 
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation
-} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_STATE_DERIVATIVE_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H

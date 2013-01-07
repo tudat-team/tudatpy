@@ -53,8 +53,8 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_87_dormand_and_prince_integrator )
 
-using mathematics::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
-using mathematics::numerical_integrators::RungeKuttaCoefficients;
+using numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
+using numerical_integrators::RungeKuttaCoefficients;
 
 //! Test Runge-Kutta 87 Dormand-Prince integrator using benchmark data from (The Mathworks, 2012).
 BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData )

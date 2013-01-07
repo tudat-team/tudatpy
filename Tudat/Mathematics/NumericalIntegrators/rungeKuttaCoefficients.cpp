@@ -44,8 +44,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace numerical_integrators
 {
 
@@ -534,5 +532,4 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
 }
 
 } // namespace integrators
-} // namespace mathematics
 } // namespace tudat

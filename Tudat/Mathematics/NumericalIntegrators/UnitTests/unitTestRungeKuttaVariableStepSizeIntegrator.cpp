@@ -57,9 +57,9 @@ namespace tudat
 namespace unit_tests
 {
 
-using tudat::mathematics::numerical_integrators::RungeKuttaCoefficients;
-using tudat::mathematics::numerical_integrators::RungeKuttaVariableStepSizeIntegrator;
-using tudat::mathematics::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
+using tudat::numerical_integrators::RungeKuttaCoefficients;
+using tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator;
+using tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
 using numerical_integrator_test_function_suite::computeZeroStateDerivative;
 
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_variable_step_size_integrator )

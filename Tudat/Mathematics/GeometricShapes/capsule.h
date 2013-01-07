@@ -50,8 +50,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -162,9 +160,7 @@ private:
     double rearAngle_;
 };
 
-
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_CAPSULE_H

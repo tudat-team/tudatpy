@@ -38,6 +38,8 @@
 
 namespace tudat
 {
+namespace aerodynamics
+{
 
 //! Standard atmosphere model class.
 /*!
@@ -86,6 +88,7 @@ public:
                                    double latitude = 0.0, double time = 0.0 ) = 0;
 };
 
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_STANDARD_ATMOSPHERE_H

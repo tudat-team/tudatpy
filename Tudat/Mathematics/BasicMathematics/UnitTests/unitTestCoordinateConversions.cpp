@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_SUITE( test_coordinate_conversions )
 // Test conversion from cylindrical (r, theta, z) to Cartesian (x, y, z) coordinates.
 BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
 {
-    using mathematics::PI;
+    using basic_mathematics::mathematical_constants::PI;
     using basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
     using basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
     using basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionCoordinateConversion )
 // (x, y, z, xdot, ydot, zdot) state.
 BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateConversion )
 {
-    using mathematics::PI;
+    using basic_mathematics::mathematical_constants::PI;
     using basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
     using basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
     using basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( testCylindricalToCartesianPositionAndVelocityCoordinateCon
 // Test conversion from Cartesian (x, y, z) to cylindrical (r, theta, z) coordinates.
 BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 {
-    using mathematics::PI;
+    using basic_mathematics::mathematical_constants::PI;
     using basic_mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
     using basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
     using basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionCoordinateConversion )
 // (r, theta, z, Vr, Vtheta, Vz) state.
 BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateConversion )
 {
-    using mathematics::PI;
+    using basic_mathematics::mathematical_constants::PI;
     using basic_mathematics::coordinate_conversions::rCylindricalCoordinateIndex;
     using basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
     using basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;

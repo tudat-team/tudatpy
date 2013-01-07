@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_SUITE( test_aerodynamic_coefficient_generator )
 //! Test coefficient generator.
 BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
 {
-    using tudat::mathematics::PI;
+    using tudat::basic_mathematics::mathematical_constants::PI;
     using std::vector;
     using namespace aerodynamics;
 
@@ -82,8 +82,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
     const double toleranceAerodynamicCoefficients5 = 1.0e-4;
 
     // Create test sphere.
-    boost::shared_ptr< mathematics::geometric_shapes::SphereSegment > sphere
-            = boost::make_shared< mathematics::geometric_shapes::SphereSegment >( 1.0 );
+    boost::shared_ptr< geometric_shapes::SphereSegment > sphere
+            = boost::make_shared< geometric_shapes::SphereSegment >( 1.0 );
 
     // Set vehicle in analysis with 10,000 panels.
     vector< int > numberOfLines;
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
 //! Apollo capsule test case.
 BOOST_AUTO_TEST_CASE( testApolloCapsule )
 {
-    using tudat::mathematics::PI;
+    using tudat::basic_mathematics::mathematical_constants::PI;
     using std::vector;
     using namespace aerodynamics;
 
@@ -191,8 +191,8 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     const double toleranceAerodynamicCoefficients5 = std::numeric_limits< double >::epsilon( );
 
     // Create test capsule.
-    boost::shared_ptr< mathematics::geometric_shapes::Capsule > capsule
-            = boost::make_shared< mathematics::geometric_shapes::Capsule >(
+    boost::shared_ptr< geometric_shapes::Capsule > capsule
+            = boost::make_shared< geometric_shapes::Capsule >(
                     4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
     vector< int > numberOfLines;

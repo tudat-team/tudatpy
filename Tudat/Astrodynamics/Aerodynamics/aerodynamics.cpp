@@ -52,7 +52,7 @@ namespace tudat
 namespace aerodynamics
 {
 
-using tudat::mathematics::PI;
+using tudat::basic_mathematics::mathematical_constants::PI;
 using std::atan;
 using std::exp;
 using std::log;
