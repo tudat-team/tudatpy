@@ -57,8 +57,8 @@ namespace unit_tests
 namespace matlab_numerical_integrator_tests
 {
 
-using tudat::mathematics::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
-using tudat::mathematics::numerical_integrators::RungeKuttaCoefficients;
+using tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
+using tudat::numerical_integrators::RungeKuttaCoefficients;
 
 void runMatlabNumericalIntegratorTests( const std::string& pathToBenchmarkDataFile,
                                         const double singleStepTestTolerance,

@@ -67,7 +67,7 @@ namespace tudat
 namespace unit_tests
 {
 
-namespace crtbp = tudat::astrodynamics::gravitation::circular_restricted_three_body_problem;
+namespace crtbp = tudat::gravitation::circular_restricted_three_body_problem;
 using namespace root_finders;
 
 BOOST_AUTO_TEST_SUITE( test_libration_points )
@@ -79,14 +79,14 @@ BOOST_AUTO_TEST_CASE( testComputationOfMassParameter )
     const double expectedMassParameter = 0.01215295290792761;
 
     // Set Earth gravitational parameter.
-    astrodynamics::gravitation::CentralGravityField earthCentralGravityField(
-                astrodynamics::gravitation::CentralGravityField::earth );
+    gravitation::CentralGravityField earthCentralGravityField(
+                gravitation::CentralGravityField::earth );
     const double earthGravitationalParameter
             = earthCentralGravityField.getGravitationalParameter( );
 
     // Set Moon gravitational parameter.
-    astrodynamics::gravitation::CentralGravityField moonCentralGravityField(
-                astrodynamics::gravitation::CentralGravityField::moon );
+    gravitation::CentralGravityField moonCentralGravityField(
+                gravitation::CentralGravityField::moon );
     const double moonGravitationalParameter
             = moonCentralGravityField.getGravitationalParameter( );
 

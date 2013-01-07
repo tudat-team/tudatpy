@@ -36,9 +36,7 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
-namespace force_models
+namespace aerodynamics
 {
 
 //! Compute the aerodynamic force in same reference frame as input coefficients.
@@ -58,6 +56,5 @@ Eigen::MatrixXd computeAerodynamicForce(
                                     coefficientInterface.getCurrentForceCoefficients( ) );
 }
 
-} // namespace force_models
-} // namespace astrodynamics
+} // namespace aerodynamics
 } // namespace tudat

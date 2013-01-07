@@ -52,8 +52,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -239,7 +237,6 @@ private:
 };
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_COMPOSITE_SURFACE_GEOMETRY_H

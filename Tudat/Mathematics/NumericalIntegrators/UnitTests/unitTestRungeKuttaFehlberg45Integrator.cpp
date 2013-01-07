@@ -77,8 +77,8 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_fehlberg_45_integrator )
 
-using mathematics::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
-using mathematics::numerical_integrators::RungeKuttaCoefficients;
+using numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
+using numerical_integrators::RungeKuttaCoefficients;
 
 //! Test Runge-Kutta-Fehlberg 45 integrator using benchmark data from (Burden and Faires, 2001).
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingBurdenAndFairesData )

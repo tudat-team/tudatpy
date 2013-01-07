@@ -42,8 +42,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace statistics
 {
 
@@ -94,7 +92,6 @@ double computeSampleMean( const std::vector< double >& sampleData );
 double computeSampleVariance( const std::vector< double >& sampleData );
 
 } // namespace statistics
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_BASIC_STATISTICS_H

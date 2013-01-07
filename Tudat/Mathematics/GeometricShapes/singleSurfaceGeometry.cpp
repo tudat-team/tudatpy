@@ -53,8 +53,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -201,5 +199,4 @@ void SingleSurfaceGeometry::transformPoint( Eigen::VectorXd& point )
 }
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat

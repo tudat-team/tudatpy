@@ -70,8 +70,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace numerical_integrators
 {
 
@@ -650,7 +648,6 @@ private:
 typedef RungeKuttaVariableStepSizeIntegrator< > RungeKuttaVariableStepSizeIntegratorXd;
 
 } // namespace numerical_integrators
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H

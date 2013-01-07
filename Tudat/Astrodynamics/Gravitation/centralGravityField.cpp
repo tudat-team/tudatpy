@@ -45,8 +45,6 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
 namespace gravitation
 {
 
@@ -173,5 +171,4 @@ void CentralGravityField::setPredefinedCentralGravityFieldSettings(
 }
 
 } // namespace gravitation
-} // namespace astrodynamics
 } // namespace tudat

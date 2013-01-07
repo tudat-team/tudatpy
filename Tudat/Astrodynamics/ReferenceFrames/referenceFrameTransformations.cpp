@@ -153,7 +153,8 @@ getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
     Eigen::AngleAxisd RotationAroundZaxis = Eigen::AngleAxisd(
                 -1.0 * longitude, Eigen::Vector3d::UnitZ( ) );
     Eigen::AngleAxisd RotationAroundYaxis = Eigen::AngleAxisd(
-                -1.0 * ( -latitude - mathematics::PI / 2.0 ), Eigen::Vector3d::UnitY( ) );
+                -1.0 * ( -latitude - basic_mathematics::mathematical_constants::PI / 2.0 ),
+                Eigen::Vector3d::UnitY( ) );
     Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
                 ( RotationAroundYaxis * RotationAroundZaxis ) );
 
@@ -164,15 +165,15 @@ getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 Eigen::Quaterniond
 getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-    double longitude, double latitude )
+        double longitude, double latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change (-1.0), because how angleAxisd is defined.
     Eigen::AngleAxisd RotationAroundZaxis = Eigen::AngleAxisd(
                 -1.0 * -longitude, Eigen::Vector3d::UnitZ( ) );
-    Eigen::AngleAxisd RotationAroundYaxis =
-            Eigen::AngleAxisd( -1.0 * ( latitude + mathematics::PI / 2.0 ),
-                               Eigen::Vector3d::UnitY( ) );
+    Eigen::AngleAxisd RotationAroundYaxis = Eigen::AngleAxisd(
+                -1.0 * ( latitude + basic_mathematics::mathematical_constants::PI / 2.0 ),
+                Eigen::Vector3d::UnitY( ) );
     Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
                 ( RotationAroundZaxis * RotationAroundYaxis ) );
 

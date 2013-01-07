@@ -49,10 +49,6 @@
 
 namespace tudat
 {
-
-namespace mathematics
-{
-
 namespace geometric_shapes
 {
 
@@ -165,11 +161,7 @@ private:
 
 };
 
-
 } // namespace geometric_shapes
-
-} // namespace mathematics
-
 } // namespace tudat
 
 

@@ -40,8 +40,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace numerical_integrators
 {
 
@@ -129,7 +127,6 @@ struct RungeKuttaCoefficients
 typedef struct RungeKuttaCoefficients RungeKuttaCoefficients;
 
 } // namespace integrators
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_RUNGE_KUTTA_COEFFICIENTS_H

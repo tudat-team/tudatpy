@@ -39,6 +39,8 @@
 
 namespace tudat
 {
+namespace aerodynamics
+{
 
 //! Atmosphere model class.
 /*!
@@ -97,6 +99,7 @@ protected:
 private:
 };
 
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_ATMOSPHERE_MODEL_H

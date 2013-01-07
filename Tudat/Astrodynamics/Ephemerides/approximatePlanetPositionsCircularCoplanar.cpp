@@ -72,10 +72,11 @@ Eigen::VectorXd ApproximatePlanetPositionsCircularCoplanar::getCartesianStateFro
 
     // Convert to Cartesian position.
     Eigen::VectorXd planetCartesianStateAtGivenJulianDate( 6 );
-    planetCartesianStateAtGivenJulianDate.segment( 0, 3 ) = mathematics::coordinate_conversions::
-            convertSphericalToCartesian( Eigen::Vector3d( constantOrbitalRadius_,
-                                                          0.5 * mathematics::PI,
-                                                          meanLongitudeAtGivenJulianDate_ ) );
+    planetCartesianStateAtGivenJulianDate.segment( 0, 3 )
+            = basic_mathematics::coordinate_conversions::convertSphericalToCartesian(
+                Eigen::Vector3d( constantOrbitalRadius_,
+                                 0.5 * basic_mathematics::mathematical_constants::PI,
+                                 meanLongitudeAtGivenJulianDate_ ) );
 
     // Compute orbital velocity.
     double circularOrbitalVelocity = std::sqrt( sunGravitationalParameter /

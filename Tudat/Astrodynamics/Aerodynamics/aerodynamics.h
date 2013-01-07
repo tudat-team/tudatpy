@@ -56,7 +56,7 @@ namespace aerodynamics
  * Maximum Prandtl-Meyer function value for ratio of specific heats = 1.4.
  */
 static const double maximumPrandtlMeyerFunctionValue = 
-    mathematics::PI / 2.0 * ( std::sqrt( 6.0 ) - 1.0 );
+    basic_mathematics::mathematical_constants::PI / 2.0 * ( std::sqrt( 6.0 ) - 1.0 );
 
 //! Constant for use in inverse Prandtl-Meyer function calculation.
 /*!

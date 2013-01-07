@@ -69,9 +69,9 @@ namespace aerodynamics
 using std::string;
 using std::endl;
 using basic_mathematics::Vector6d;
-using mathematics::PI;
+using basic_mathematics::mathematical_constants::PI;
 
-using namespace mathematics::geometric_shapes;
+using namespace geometric_shapes;
 
 //! Returns default values of mach number for use in HypersonicLocalInclinationAnalysis.
 std::vector< double > getDefaultHypersonicLocalInclinationMachPoints(

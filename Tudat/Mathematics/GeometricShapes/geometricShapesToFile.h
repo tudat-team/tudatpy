@@ -50,7 +50,7 @@
 
 namespace tudat
 {
-namespace output
+namespace geometric_shapes
 {
 
 //! Write single surface geometry to a file.
@@ -71,8 +71,7 @@ namespace output
  *          as 2nd.
  */
 void writeSingleSurfaceGeometryPointsToFile(
-        boost::shared_ptr< mathematics::geometric_shapes::SingleSurfaceGeometry >
-        pointerToSingleSurfaceGeometry,
+        boost::shared_ptr< geometric_shapes::SingleSurfaceGeometry > singleSurfaceGeometryPointer,
         int numberOfLines, int numberOfPoints,
         const std::string& filename, int writeType,
         const bool& isIndependentVariableInverted );
@@ -96,13 +95,13 @@ void writeSingleSurfaceGeometryPointsToFile(
  *          and which as 2nd for each single surface geometry.
  */
 void writeCompositeSurfaceGeometryPointsToFile(
-        boost::shared_ptr< mathematics::geometric_shapes::CompositeSurfaceGeometry >
-        pointerToCompositeSurfaceGeometry,
+        boost::shared_ptr< geometric_shapes::CompositeSurfaceGeometry >
+        compositeSurfaceGeometryPointer,
         std::vector< int > arrayOfNumberOfLines, std::vector< int > arrayOfNumberOfPoints,
         const std::string& filename, int writeType,
         std::vector< bool > isIndependentVariableInvertedArray );
 
-} // namespace output
+} // namespace geometric_shapes
 } // namespace tudat
 
 #endif // TUDAT_GEOMETRIC_SHAPES_TO_FILE_H

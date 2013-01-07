@@ -50,8 +50,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -82,7 +80,8 @@ public:
                     const double startRadius,
                     const double length,
                     const double minimumAzimuthAngle = 0.0,
-                    const double maximumAzimuthAngle = 2.0 * mathematics::PI );
+                    const double maximumAzimuthAngle
+                    = 2.0 * basic_mathematics::mathematical_constants::PI );
 
     //! Get surface point on conical frustum.
     /*!
@@ -196,7 +195,6 @@ private:
 };
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat
 
 #endif // TUDAT_CONICALFRUSTUM_H

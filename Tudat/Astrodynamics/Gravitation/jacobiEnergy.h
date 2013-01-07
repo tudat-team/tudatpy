@@ -47,8 +47,6 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
 namespace gravitation
 {
 namespace circular_restricted_three_body_problem
@@ -75,7 +73,6 @@ double computeJacobiEnergy( const double massParameter,
 
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation
-} // namespace astrodynamics
 } // namespace tudat
 
 #endif // TUDAT_JACOBI_ENERGY_H

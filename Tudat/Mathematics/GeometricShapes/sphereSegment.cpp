@@ -53,8 +53,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -85,8 +83,9 @@ Eigen::VectorXd SphereSegment::getSurfacePoint( const double azimuthAngle,
     Eigen::Vector3d sphericalPositionVector = Eigen::Vector3d( radius_, zenithAngle, azimuthAngle );
 
     // Gets surface point on sphere, unrotated and centered at origin.
-    cartesianPositionVector_ = mathematics::coordinate_conversions::convertSphericalToCartesian(
-                  sphericalPositionVector );
+    cartesianPositionVector_
+            = basic_mathematics::coordinate_conversions::convertSphericalToCartesian(
+                sphericalPositionVector );
 
     // Translate point.
     transformPoint( cartesianPositionVector_ );
@@ -135,7 +134,8 @@ Eigen::VectorXd SphereSegment::getSurfaceDerivative( const double azimuthAngle,
         // only dependent on sines and cosines, only the "modulo 4"th
         // derivatives need to be determined. Derivatives are determined
         // from the form of the spherical coordinates, see
-        // mathematics::coordinateConversions::convertSphericalToCartesian from the Tudat core.
+        // basic_mathematics::coordinateConversions::convertSphericalToCartesian from
+        // Tudat Core.
         switch( powerOfAzimuthAngleDerivative % 4 )
         {
         case( 0 ):
@@ -269,5 +269,4 @@ std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment )
 }
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat

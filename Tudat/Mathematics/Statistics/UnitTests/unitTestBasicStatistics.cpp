@@ -80,12 +80,11 @@ BOOST_AUTO_TEST_CASE( testSampleMean )
     double expectedSampleMean = 9.1;
 
     // Compute sample mean.
-    double computedSampleMean = tudat::mathematics::statistics::computeSampleMean( sampleData );
+    double computedSampleMean = statistics::computeSampleMean( sampleData );
 
     // Check if computed sample mean matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( computedSampleMean, expectedSampleMean,
                                 std::numeric_limits< double >::epsilon( ) );
-
 }
 
 //! Test if sample variance is computed correctly.
@@ -108,13 +107,11 @@ BOOST_AUTO_TEST_CASE( testSampleVariance )
     double expectedSampleVariance = 24.665;
 
     // Compute sample variance.
-    double computedSampleVariance = tudat::mathematics::statistics::
-            computeSampleVariance( sampleData );
+    double computedSampleVariance = statistics::computeSampleVariance( sampleData );
 
     // Check if computed sample variance matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( computedSampleVariance, expectedSampleVariance,
                                 std::numeric_limits< double >::epsilon( ) );
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

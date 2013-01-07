@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicNamespacePressureFunctions )
 {
     using namespace tudat;
     using namespace tudat::aerodynamics;
-    using tudat::mathematics::PI;
+    using tudat::basic_mathematics::mathematical_constants::PI;
 
     // Set default test conditions.
     const double machNumber_ = 12.0;
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( testPressureCoefficients )
     using std::sin;
     using namespace tudat;
     using namespace tudat::aerodynamics;
-    using tudat::mathematics::PI;
+    using tudat::basic_mathematics::mathematical_constants::PI;
 
     // Set default conditions.
     const double machNumber_ = 12.0;

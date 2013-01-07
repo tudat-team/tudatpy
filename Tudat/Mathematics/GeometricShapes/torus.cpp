@@ -44,8 +44,6 @@
 
 namespace tudat
 {
-namespace mathematics
-{
 namespace geometric_shapes
 {
 
@@ -53,7 +51,7 @@ using std::cerr;
 using std::endl;
 using std::sin;
 using std::cos;
-using mathematics::PI;
+using basic_mathematics::mathematical_constants::PI;
 
 Torus::Torus( const double majorRadius, const double minorRadius,
               const double minimumMajorCircumferentialAngle,
@@ -130,8 +128,8 @@ Eigen::VectorXd Torus::getSurfaceDerivative( const double majorCircumferentialAn
         // only dependent on sines and cosines, only the "modulo 4"th
         // derivatives need to be determined. Derivatives are determined
         // from the form of the spherical coordinates, see
-        // mathematics::coordinateConversions::convertSphericalToCartesian
-        // from the Tudat core.
+        // basic_mathematics::coordinateConversions::convertSphericalToCartesian
+        // from Tudat Core.
         switch( powerOfMajorCircumferentialAngleDerivative % 4 )
         {
         case( 0 ):
@@ -273,5 +271,4 @@ std::ostream &operator<<( std::ostream &stream, Torus& torus )
 }
 
 } // namespace geometric_shapes
-} // namespace mathematics
 } // namespace tudat

@@ -46,6 +46,8 @@
 
 namespace tudat
 {
+namespace aerodynamics
+{
 
 //! Exponential atmosphere class.
 /*!
@@ -231,6 +233,7 @@ private:
     double specificGasConstant_;
 };
 
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_EXPONENTIAL_ATMOSPHERE_H

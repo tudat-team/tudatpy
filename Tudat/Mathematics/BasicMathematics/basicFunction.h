@@ -137,7 +137,7 @@ protected:
 private:
 
     typedef Function< IndependentVariable, DependentVariable >          Parent;
-    typedef mathematics::numerical_integrators::RungeKutta4Integrator<
+    typedef numerical_integrators::RungeKutta4Integrator<
     IndependentVariable, DependentVariable, DependentVariable >         Integrator;
 };
 

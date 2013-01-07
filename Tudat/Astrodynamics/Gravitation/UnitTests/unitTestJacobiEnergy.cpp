@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( testJacobiEnergy )
 {
     // Test 1: test Jacobi energy at L1.
     {
-        namespace crtbp = astrodynamics::gravitation::circular_restricted_three_body_problem;
+        namespace crtbp = gravitation::circular_restricted_three_body_problem;
 
         // Set mass parameter for Earth-moon system. Value from Table 3.1 (Wakker, 2007).
         double massParameter = 0.01215;
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testJacobiEnergy )
 
     // Test 2: test Jacobi energy at L4.
     {
-        namespace crtbp = astrodynamics::gravitation::circular_restricted_three_body_problem;
+        namespace crtbp = gravitation::circular_restricted_three_body_problem;
 
         // Set mass parameter for Earth-moon system. Value from Table 3.1 (Wakker, 2007).
         double massParameter = 0.01215;

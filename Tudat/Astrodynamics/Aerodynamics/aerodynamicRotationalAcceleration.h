@@ -40,9 +40,7 @@
 
 namespace tudat
 {
-namespace astrodynamics
-{
-namespace rotational_acceleration_models
+namespace aerodynamics
 {
 
 //! Compute the aerodynamic rotational acceleration in same reference frame as coefficients.
@@ -65,9 +63,8 @@ Eigen::MatrixXd computeAerodynamicRotationalAcceleration(
         const double dynamicPressure, const double referenceArea, const double referenceLength,
         const Eigen::Vector3d& momentCoefficients, const double vehicleMass )
 {
-    return moment_models::computeAerodynamicMoment( dynamicPressure, referenceArea,
-                                                    referenceLength, momentCoefficients )
-            / vehicleMass;
+    return computeAerodynamicMoment( dynamicPressure, referenceArea,
+                                     referenceLength, momentCoefficients ) / vehicleMass;
 }
 
 //! Compute the aerodynamic rotational acceleration in same reference frame as input coefficients.
@@ -86,12 +83,10 @@ Eigen::MatrixXd computeAerodynamicRotationalAcceleration(
         const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface,
         const double vehicleMass )
 {
-    return moment_models::computeAerodynamicMoment( dynamicPressure, coefficientInterface )
-            / vehicleMass;
+    return computeAerodynamicMoment( dynamicPressure, coefficientInterface ) / vehicleMass;
 }
 
-} // namespace rotational_acceleration_models
-} // namespace astrodynamics
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_ROTATIONAL_ACCELERATION_H

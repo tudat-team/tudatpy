@@ -41,7 +41,6 @@
 
 namespace tudat
 {
-
 namespace interpolators
 {
 

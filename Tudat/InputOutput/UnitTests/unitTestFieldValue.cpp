@@ -119,7 +119,8 @@ BOOST_AUTO_TEST_CASE( fieldValue_get )
 
     // Create the degrees to radians transform.
     boost::shared_ptr< FieldTransform > degreesToRadiansTransform(
-                new LinearFieldTransform( tudat::mathematics::PI / 180.0, 0.0 ) );
+                new LinearFieldTransform(
+                    tudat::basic_mathematics::mathematical_constants::PI / 180.0, 0.0 ) );
 
     // Test 1: Test the get function with a transform.
     // Create a field value object with transform.
@@ -130,7 +131,8 @@ BOOST_AUTO_TEST_CASE( fieldValue_get )
     boost::shared_ptr< std::string > returnedData = testFieldValue.get( );
 
     // Expected data.
-    std::string expectedData = boost::lexical_cast< std::string > ( tudat::mathematics::PI / 3.0 );
+    std::string expectedData = boost::lexical_cast< std::string >(
+                tudat::basic_mathematics::mathematical_constants::PI / 3.0 );
 
     // Verify that returned data is correct.
     BOOST_CHECK_EQUAL( *returnedData, expectedData );
@@ -158,7 +160,8 @@ BOOST_AUTO_TEST_CASE( fieldValue_operator )
 
     // Create the degrees to radians transform.
     boost::shared_ptr< FieldTransform > degreesToRadiansTransform(
-                new LinearFieldTransform( tudat::mathematics::PI / 180.0, 0.0 ) );
+                new LinearFieldTransform(
+                    tudat::basic_mathematics::mathematical_constants::PI / 180.0, 0.0 ) );
 
     // Test 1: Test the get function with a transform.
     // Create a field value object with transform.
@@ -169,7 +172,8 @@ BOOST_AUTO_TEST_CASE( fieldValue_operator )
     boost::shared_ptr< std::string > returnedData = testFieldValue( );
 
     // Expected data.
-    std::string expectedData = boost::lexical_cast< std::string > ( tudat::mathematics::PI / 3.0 );
+    std::string expectedData = boost::lexical_cast< std::string >(
+                tudat::basic_mathematics::mathematical_constants::PI / 3.0 );
 
     // Verify that returned data is correct.
     BOOST_CHECK_EQUAL( *returnedData, expectedData );

@@ -168,7 +168,7 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     double transferAngle = std::acos( cosineOfTransferAngle );
     if ( isLongway )
     {
-        transferAngle = 2.0 * tudat::mathematics::PI - transferAngle;
+        transferAngle = 2.0 * tudat::basic_mathematics::mathematical_constants::PI - transferAngle;
     }
 
     // Lambda parameter.
@@ -439,12 +439,13 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
     Eigen::Vector3d planeNormalPosition =
             cartesianPositionAtDeparture.cross( cartesianPositionAtArrival ).normalized( );
 
-    double reducedLambertAngle = mathematics::linear_algebra::computeAngleBetweenVectors(
+    double reducedLambertAngle = basic_mathematics::linear_algebra::computeAngleBetweenVectors(
                 cartesianPositionAtDeparture, cartesianPositionAtArrival );
 
     if ( planeNormalPosition.z( ) < 0.0 )
     {
-        reducedLambertAngle = 2.0 * mathematics::PI - reducedLambertAngle;
+        reducedLambertAngle = 2.0 * basic_mathematics::mathematical_constants::PI
+                - reducedLambertAngle;
     }
 
     // Compute chord.
@@ -516,7 +517,8 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
         const double phi = 2.0 * atan2( ( 1.0 - qParameter * qParameter ), 2.0 * qParameter );
 
         // Formula (16) [3].
-        const double W = x01 + 1.7 * std::sqrt( 2.0 - phi / mathematics::PI );
+        const double W = x01 + 1.7 * std::sqrt(
+                    2.0 - phi / basic_mathematics::mathematical_constants::PI );
 
         // Formula (17) [3].
         double x03;

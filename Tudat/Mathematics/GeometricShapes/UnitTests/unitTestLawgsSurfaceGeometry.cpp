@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_SUITE( test_Lawgs_Surface_Geometry )
 BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
 {
     using namespace tudat;
-    using namespace tudat::mathematics::geometric_shapes;
+    using namespace tudat::geometric_shapes;
 
     // Create a full sphere as test geometry, with a radius of 2.0.
     const double sphereRadius = 2.0;
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
 
     // Retrieve the total surface area and check if it is sufficiently close
     // to the expected value.
-    using tudat::mathematics::PI;
+    using tudat::basic_mathematics::mathematical_constants::PI;
     const double totalArea = lawgsSurface.getTotalArea( );
     BOOST_CHECK_SMALL( std::fabs( totalArea - 4.0 * PI
                                   * ( std::pow( sphereRadius, 2.0 ) ) ), 0.6 );
