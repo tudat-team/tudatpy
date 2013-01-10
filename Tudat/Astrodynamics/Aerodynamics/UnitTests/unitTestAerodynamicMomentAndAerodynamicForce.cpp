@@ -30,19 +30,23 @@
  *      120328    D. Dirkx          Boostified unit tests.
  *      120405    K. Kumar          Ensured no interference between unit tests by placing them in
  *                                  local scope.
+ *      121020    D. Dirkx          Update to new acceleration model architecture.
  *
  *    References
  *
- *    The unit tests here are based off of expected values that are internally computed. Ideally,
- *    these should be based off of published values that can be found in literature. This will have
- *    to be updated in future for the code to be considered completely tested. In addition, more
- *    test values are required, as more the unit tests are benchmarked off of one set of data.
+ *    Notes
+ *      The unit tests here are based off of expected values that are internally computed. Ideally,
+ *      these should be based off of published values that can be found in literature. This will
+ *      have to be updated in future for the code to be considered completely tested. In addition,
+ *      more test values are required, as more the unit tests are benchmarked off of one set of
+ *      data.
  *
- *    The class objects aerodynamicCoefficientInterface, aerodynamicForce, and aerodynamicMoment
- *    are declared multiple times in local scope currently since their member variables aren't set
- *    at construction, but rather through set-functions. Once these are adapted to be set through
- *    the constructor, const class objects can be declared that can be shared between the unit
- *    tests.
+ *      The class objects aerodynamicCoefficientInterface, aerodynamicForce, and aerodynamicMoment
+ *      are declared multiple times in local scope currently since their member variables aren't
+ *      set at construction, but rather through set-functions. Once these are adapted to be set
+ *      through the constructor, const class objects can be declared that can be shared between the
+ *      unit tests.
+ *
  */
 
 #define BOOST_TEST_MAIN
@@ -51,6 +55,7 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lambda/lambda.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -65,19 +70,18 @@
 
 BOOST_AUTO_TEST_SUITE( test_aerodynamic_acceleration_force_moment_models )
 
+using namespace tudat::aerodynamics;
+
 //! Test implementation of aerodynamic force and acceleration models.
 BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
 {
-    // Using declarations.
-    using tudat::aerodynamics::AerodynamicCoefficientInterface;
-    using tudat::aerodynamics::computeAerodynamicForce;
-    using tudat::aerodynamics::computeAerodynamicAcceleration;
-
     // Set force coefficients.
     const Eigen::Vector3d forceCoefficients( 1.1, 1.2, 1.3 );
 
     // Set dynamical model parameters.
-    const double dynamicPressure = 50.0;
+    const double density = 3.5e-5;
+    const double airSpeed = 3.491e3;
+    const double dynamicPressure = 0.5 * density * airSpeed * airSpeed;
     const double referenceArea = 2.2;
     const double referenceLength = 3.2;
     const double mass = 1.93;
@@ -102,10 +106,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
     //         argument.
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
-        AerodynamicCoefficientInterface aerodynamicCoefficientInterface;
-        aerodynamicCoefficientInterface.setCurrentForceCoefficients( forceCoefficients );
-        aerodynamicCoefficientInterface.setReferenceArea( referenceArea );
-        aerodynamicCoefficientInterface.setReferenceLength( referenceLength );
+        AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
+                boost::make_shared< AerodynamicCoefficientInterface >( );
+        aerodynamicCoefficientInterface->setCurrentForceCoefficients( forceCoefficients );
+        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
+        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
 
         // Compute aerodynamic force using free function with coefficient interface argument.
         Eigen::Vector3d force = computeAerodynamicForce( dynamicPressure,
@@ -119,10 +124,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
     //         based on the force that can be derived from the computed acceleration.
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
-        AerodynamicCoefficientInterface aerodynamicCoefficientInterface;
-        aerodynamicCoefficientInterface.setCurrentForceCoefficients( forceCoefficients );
-        aerodynamicCoefficientInterface.setReferenceArea( referenceArea );
-        aerodynamicCoefficientInterface.setReferenceLength( referenceLength );
+        AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
+                boost::make_shared< AerodynamicCoefficientInterface >( );
+        aerodynamicCoefficientInterface->setCurrentForceCoefficients( forceCoefficients );
+        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
+        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
 
         // Compute aerodynamic force from aerodynamic acceleration free function with primitive
         // arguments.
@@ -144,30 +150,85 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // Check if computed force matches expected.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
     }
+
+    // Test 5: Test the acceleration model class without inverted coefficients.
+    {
+        // Create aaerodynamic acceleration model class, no inverted coefficients, direct mass
+        // and reference area.
+        boost::shared_ptr< AerodynamicAcceleration > accelerationClass =
+                boost::make_shared< AerodynamicAcceleration >(
+                    boost::lambda::constant( forceCoefficients ),
+                    boost::lambda::constant( density ),
+                    boost::lambda::constant( airSpeed ),
+                    mass, referenceArea, false );
+        accelerationClass->updateMembers( );
+        Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
+
+        // Check if computed force matches expected.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
+
+        // Create aerodynamic acceleration model class, no inverted coefficients, mass and
+        // reference area set through boost::functions.
+        boost::shared_ptr< AerodynamicAcceleration > accelerationClass2 =
+                boost::make_shared< AerodynamicAcceleration >(
+                    boost::lambda::constant( forceCoefficients ),
+                    boost::lambda::constant( density ),
+                    boost::lambda::constant( airSpeed ),
+                    boost::lambda::constant( mass ),
+                    boost::lambda::constant( referenceArea ),
+                    false );
+        accelerationClass2->updateMembers( );
+        force = accelerationClass2->getAcceleration( ) * mass;
+
+        // Check if computed force matches expected.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
+    }
+
+    // Test 6: Test the acceleration model class with inverted coefficients
+    {
+        // Create aaerodynamic acceleration model class, inverted coefficients, direct mass
+        // and reference area.
+        boost::shared_ptr< AerodynamicAcceleration > accelerationClass =
+                boost::make_shared< AerodynamicAcceleration >(
+                    boost::lambda::constant( -forceCoefficients ),
+                    boost::lambda::constant( density ),
+                    boost::lambda::constant( airSpeed ),
+                    mass, referenceArea, true );
+        accelerationClass->updateMembers( );
+        Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
+
+        // Check if computed force matches expected.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
+
+        // Create aerodynamic acceleration model class, inverted coefficients, mass and
+        // reference area set through boost::functions.
+        boost::shared_ptr< AerodynamicAcceleration > accelerationClass2 =
+                boost::make_shared< AerodynamicAcceleration >(
+                    boost::lambda::constant( -forceCoefficients ),
+                    boost::lambda::constant( density ),
+                    boost::lambda::constant( airSpeed ),
+                    boost::lambda::constant( mass ),
+                    boost::lambda::constant( referenceArea ),
+                    true );
+        accelerationClass2->updateMembers( );
+        force = accelerationClass2->getAcceleration( ) * mass;
+
+        // Check if computed force matches expected.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
+    }
 }
 
 //! Test implementation of aerodynamic moment and rotational acceleration models.
 BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
 {
-    // Using declarations.
-    using tudat::aerodynamics::AerodynamicCoefficientInterface;
-    using tudat::aerodynamics::computeAerodynamicMoment;
-    using tudat::aerodynamics::computeAerodynamicRotationalAcceleration;
-
-    // Set force coefficients.
-    const Eigen::Vector3d forceCoefficients( 2.6, 6.7, 0.3 );
-
     // Set moment coefficients.
-    const Eigen::Vector3d momentCoefficients( 0.0, 1.0, 0.0 );
+    const Eigen::Vector3d momentCoefficients( -3.2, 1.0, 8.4 );
 
     // Set dynamical model parameters.
     const double dynamicPressure = 123.6;
     const double referenceArea = 1.7;
     const double referenceLength = 2.6;
     const double mass = 12.46;
-
-    // Set moment arm used to compute moment due to aerodynamic force.
-    const Eigen::Vector3d momentArm( 12.1, 0.0, 0.0 );
 
     // Calculate expected moment.
     const Eigen::Vector3d expectedMoment = dynamicPressure * referenceArea *
@@ -190,11 +251,12 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     //         argument.
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
-        AerodynamicCoefficientInterface aerodynamicCoefficientInterface;
-        aerodynamicCoefficientInterface.setCurrentForceCoefficients( forceCoefficients );
-        aerodynamicCoefficientInterface.setCurrentMomentCoefficients( momentCoefficients );
-        aerodynamicCoefficientInterface.setReferenceArea( referenceArea );
-        aerodynamicCoefficientInterface.setReferenceLength( referenceLength );
+        AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
+                boost::make_shared< AerodynamicCoefficientInterface >( );
+        aerodynamicCoefficientInterface->setCurrentMomentCoefficients( momentCoefficients );
+        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
+        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
+        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
 
         // Compute aerodynamic moment using free function with coefficient interface argument.
         Eigen::Vector3d moment = computeAerodynamicMoment( dynamicPressure,
@@ -209,11 +271,12 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     //         acceleration.
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
-        AerodynamicCoefficientInterface aerodynamicCoefficientInterface;
-        aerodynamicCoefficientInterface.setCurrentForceCoefficients( forceCoefficients );
-        aerodynamicCoefficientInterface.setCurrentMomentCoefficients( momentCoefficients );
-        aerodynamicCoefficientInterface.setReferenceArea( referenceArea );
-        aerodynamicCoefficientInterface.setReferenceLength( referenceLength );
+        AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
+                boost::make_shared< AerodynamicCoefficientInterface >( );
+        aerodynamicCoefficientInterface->setCurrentMomentCoefficients( momentCoefficients );
+        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
+        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
+        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
 
         // Compute aerodynamic moment from aerodynamic rotational acceleration free function with
         // primitive arguments.

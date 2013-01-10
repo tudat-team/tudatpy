@@ -32,8 +32,6 @@
  *
  */
 
-#include <Eigen/Geometry>
-
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicMoment.h"
 
 namespace tudat
@@ -42,7 +40,7 @@ namespace aerodynamics
 {
 
 //! Compute the aerodynamic moment in same reference frame as input coefficients.
-Eigen::MatrixXd computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
+Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
                                           const double referenceLength,
                                           const Eigen::Vector3d& momentCoefficients )
 {
@@ -50,13 +48,14 @@ Eigen::MatrixXd computeAerodynamicMoment( const double dynamicPressure, const do
 }
 
 //! Calculates the aerodynamic moment in same reference frame as input coefficients.
-Eigen::MatrixXd computeAerodynamicMoment(
-        const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface )
+Eigen::Vector3d computeAerodynamicMoment(
+        const double dynamicPressure,
+        AerodynamicCoefficientInterfacePointer coefficientInterface )
 {
     return computeAerodynamicMoment( dynamicPressure,
-                                     coefficientInterface.getReferenceArea( ),
-                                     coefficientInterface.getReferenceLength( ),
-                                     coefficientInterface.getCurrentMomentCoefficients( ) );
+                                     coefficientInterface->getReferenceArea( ),
+                                     coefficientInterface->getReferenceLength( ),
+                                     coefficientInterface->getCurrentMomentCoefficients( ) );
 }
 
 } // namespace aerodynamics
