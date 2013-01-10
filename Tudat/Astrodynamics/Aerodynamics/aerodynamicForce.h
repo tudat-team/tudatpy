@@ -30,8 +30,11 @@
  *                                  constructor initialization list instead of -0.0; minor
  *                                  corrections in Doxygen comments; updated input parameters for
  *                                  free functions; added astrodynamics namespace layer.
+ *      121020    D. Dirkx          Update to new acceleration model architecture.
  *
  *    References
+ *
+ *    Notes
  *
  */
 
@@ -63,9 +66,12 @@ namespace aerodynamics
  * \return Resultant aerodynamic force, given in reference frame in which the
  *          aerodynamic coefficients were given.
  */
-Eigen::VectorXd computeAerodynamicForce( const double dynamicPressure,
+Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure,
                                          const double referenceArea,
-                                         const Eigen::Vector3d& aerodynamicCoefficients );
+                                         const Eigen::Vector3d& aerodynamicCoefficients )
+{
+    return dynamicPressure * referenceArea * aerodynamicCoefficients;
+}
 
 //! Compute the aerodynamic force in same reference frame as input coefficients.
 /*!
@@ -76,11 +82,17 @@ Eigen::VectorXd computeAerodynamicForce( const double dynamicPressure,
  * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
  * \param coefficientInterface AerodynamicCoefficientInterface class from which reference area
  *          and coefficients are retrieved.
- * \return Resultant aerodynamic force, given in reference frame in which the aerodynamic
- *          coefficients were given.
+ * \return Resultant aerodynamic force, given in reference frame in which the
+ *          aerodynamic coefficients were given.
  */
-Eigen::MatrixXd computeAerodynamicForce(
-        const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface );
+Eigen::Vector3d computeAerodynamicForce(
+        const double dynamicPressure,
+        AerodynamicCoefficientInterfacePointer coefficientInterface )
+{
+    return computeAerodynamicForce( dynamicPressure,
+                                    coefficientInterface->getReferenceArea( ),
+                                    coefficientInterface->getCurrentForceCoefficients( ) );
+}
 
 } // namespace aerodynamics
 } // namespace tudat

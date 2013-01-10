@@ -39,9 +39,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <TudatCore/Basics/utilityMacros.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
-
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 
 namespace tudat
@@ -63,7 +60,7 @@ namespace aerodynamics
  *          aerodynamic coefficients were given, but with opposite sign. i.e., a positive drag
  *          coefficient will give a negative force in -x direction (in the aerodynamic frame).
  */
-Eigen::MatrixXd computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
+Eigen::Vector3d computeAerodynamicMoment( const double dynamicPressure, const double referenceArea,
                                           const double referenceLength,
                                           const Eigen::Vector3d& momentCoefficients );
 
@@ -79,8 +76,9 @@ Eigen::MatrixXd computeAerodynamicMoment( const double dynamicPressure, const do
  * \return Resultant aerodynamic moment, given in reference frame in which the
  *          aerodynamic coefficients were given.
  */
-Eigen::MatrixXd computeAerodynamicMoment(
-        const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface );
+Eigen::Vector3d computeAerodynamicMoment(
+        const double dynamicPressure,
+        AerodynamicCoefficientInterfacePointer coefficientInterface );
 
 } // namespace aerodynamics
 } // namespace tudat

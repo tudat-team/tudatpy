@@ -59,7 +59,7 @@ namespace aerodynamics
  *          aerodynamic coefficients were given, but with opposite sign. i.e., a positive drag
  *          coefficient will give a negative force in -x direction (in the aerodynamic frame).
  */
-Eigen::MatrixXd computeAerodynamicRotationalAcceleration(
+Eigen::Vector3d computeAerodynamicRotationalAcceleration(
         const double dynamicPressure, const double referenceArea, const double referenceLength,
         const Eigen::Vector3d& momentCoefficients, const double vehicleMass )
 {
@@ -79,8 +79,9 @@ Eigen::MatrixXd computeAerodynamicRotationalAcceleration(
  * \return Resultant aerodynamic rotational acceleration, given in reference frame in which the
  *          aerodynamic coefficients were given.
  */
-Eigen::MatrixXd computeAerodynamicRotationalAcceleration(
-        const double dynamicPressure, AerodynamicCoefficientInterface& coefficientInterface,
+Eigen::Vector3d computeAerodynamicRotationalAcceleration(
+        const double dynamicPressure,
+        AerodynamicCoefficientInterfacePointer coefficientInterface,
         const double vehicleMass )
 {
     return computeAerodynamicMoment( dynamicPressure, coefficientInterface ) / vehicleMass;

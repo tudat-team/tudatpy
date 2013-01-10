@@ -39,6 +39,8 @@
 #ifndef TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 #define TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <Eigen/Core>
 
 namespace tudat
@@ -212,8 +214,11 @@ protected:
     Eigen::Vector3d momentReferencePoint_;
 
 private:
-
 };
+
+//! Typedef for shared-pointer to AerodynamicCoefficientInterface object.
+typedef boost::shared_ptr< AerodynamicCoefficientInterface >
+AerodynamicCoefficientInterfacePointer;
 
 } // namespace aerodynamics
 } // namespace tudat
