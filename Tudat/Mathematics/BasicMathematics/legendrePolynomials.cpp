@@ -363,11 +363,6 @@ bool operator==( const Point& polynomialArguments1, const Point& polynomialArgum
             && polynomialArguments1.polynomialParameter
             == polynomialArguments2.polynomialParameter;
 
-    std::cout << "Point "<< writeLegendrePolynomialStructureToString(
-                     polynomialArguments1 ).c_str( )
-              << " == " << writeLegendrePolynomialStructureToString( polynomialArguments2 ).c_str( )
-              << " : " << ( equal ? "TRUE" : "FALSE" ) << std::endl;
-
     return equal;
 }
 
@@ -378,9 +373,6 @@ std::size_t hash_value( Point const& polynomialArguments )
     boost::hash_combine( seed, polynomialArguments.degree );
     boost::hash_combine( seed, polynomialArguments.order );
     boost::hash_combine( seed, polynomialArguments.polynomialParameter );
-
-    std::cout << "Calculated hash for point "<< writeLegendrePolynomialStructureToString(
-                     polynomialArguments ).c_str( ) << " as " << seed << std::endl;
 
     return seed;
 }
@@ -393,10 +385,6 @@ double LegendreCache::getOrElseUpdate(
     // Initialize structure with polynomial arguments.
     Point polynomialArguments( degree, order, polynomialParameter );
 
-    std::cout << "Query for entry: "
-              << writeLegendrePolynomialStructureToString( polynomialArguments ).c_str( )
-              << std::endl;
-
     // Initialize cache iterator.
     CacheTable::iterator cachedEntry = backendCache.find( polynomialArguments );
 
@@ -408,30 +396,14 @@ double LegendreCache::getOrElseUpdate(
         // If cache is full, remove the oldest element.
         if ( history.full( ) )
         {
-            std::cout << "History is full, removing oldest element: "
-                      << writeLegendrePolynomialStructureToString( history[ 0 ] ).c_str( )
-                      << std::endl;
-            std::cout << "BEFORE:" << std::endl;
-            dumpLegendrePolynomialCacheData( std::cout, backendCache, history );
             backendCache.erase( backendCache.find( history[ 0 ] ) );
             history.pop_front( );
-            std::cout << "AFTER:" << std::endl;
-            dumpLegendrePolynomialCacheData( std::cout, backendCache, history );
         }
-
-        std::cout << "Inserting new point in history: "
-                  << writeLegendrePolynomialStructureToString( polynomialArguments ).c_str( )
-                  << " => " << legendrePolynomial << std::endl;
-        std::cout << "BEFORE:" << std::endl;
-        dumpLegendrePolynomialCacheData( std::cout, backendCache, history );
 
         // Insert computed polynomial into cache.
         backendCache.insert( std::pair< Point, double >( polynomialArguments,
                                                          legendrePolynomial ) );
         history.push_back( polynomialArguments );
-
-        std::cout << "AFTER:" << std::endl;
-        dumpLegendrePolynomialCacheData( std::cout, backendCache, history );
 
         // Return polynomial value from computation.
         return legendrePolynomial;
@@ -440,11 +412,6 @@ double LegendreCache::getOrElseUpdate(
     // Else the requested polynomial was found in cache; return polynomial value from cache entry.
     else
     {
-        std::cout << "Found entry in cache: "
-                  << writeLegendrePolynomialStructureToString( cachedEntry->first ).c_str( )
-                  << " => "
-                  << cachedEntry->second
-                  << std::endl;
         return cachedEntry->second;
     }
 }
