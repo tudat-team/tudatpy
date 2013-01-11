@@ -43,8 +43,15 @@
  *      120711    B. Tong Minh      Rewrote writeMapDataToFile() function to make use of iterators
  *                                  (paralleling how STL algorithms work).
  *      120712    K. Kumar          Updated use of filesystem3 boost-namespace to filesystem.
+ *      130110    K. Kumar          Added function that allows formatting of string representation
+ *                                  of floating-point number in scientific notation.
  *
  *    References
+ *
+ *    Notes
+ *      The function printStandardScientificNotation() has been implemented to cope with
+ *      cross-platform incompatibilities in the printed output of floating-point numbers in
+ *      scientific notation.
  *
  */
 
@@ -90,6 +97,23 @@ static inline std::string getTudatRootPath( )
                                 std::string( "InputOutput/basicInputOutput.h" ).length( ) );
 #endif
 }
+
+//! Print floating-point number in formatted scientific notation.
+/*!
+ * Prints floating-point number in formatted scientific notation. The user can specify the
+ * precision that the base is represented by (default=maximum precision for doubles), and the
+ * number of digits (width) in the exponent (default=2). This function can be used to ensure that
+ * the string output generated in scientific notation is the consistently the same for all
+ * platforms.
+ * \param floatingPointNumber Floating-point number to format.
+ * \param basePrecision Number of digits to represent the base of the floating-point number.
+ * \param exponentWidth Number of digits to represent the exponent of the floating-point number.
+ * \return Formatted string representation of floating-point number in scientific notation.
+ */
+std::string printInFormattedScientificNotation(
+        const double floatingPointNumber,
+        const int basePrecision = std::numeric_limits< double >::digits10,
+        const int exponentWidth = 2 );
 
 //! List all files in directory.
 /*!

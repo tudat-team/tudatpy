@@ -30,10 +30,14 @@
  *      120712    B. Tong Minh      Updated unit tests to work with iterator-based
  *                                  writeMapDataToFile() functions; updated input file parse
  *                                  function to readLinesFromFile().
+ *      130110    K. Kumar          Added unit tests for printInFormattedScientificNotation()
+ *                                  function.
  *
  *    References
- *      Press W.H., et al. Numerical Recipes in C++: The Art of
- *          Scientific Computing. Cambridge University Press, February 2002.
+ *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
+ *          University Press, February 2002.
+ *
+ *    Notes
  *
  */
 
@@ -138,6 +142,68 @@ std::vector< std::string > readLinesFromFile(
 }
 
 BOOST_AUTO_TEST_SUITE( test_basic_inputoutput )
+
+BOOST_AUTO_TEST_CASE( testPrintingNumberInFormattedScientificNotation )
+{
+    using tudat::input_output::printInFormattedScientificNotation;
+
+    // Set floating-point numbers used for testing.
+    const double number1 = 1.23e-0045;
+    const double number2 = 9.87e65;
+    const double number3 = -3.240112e201;
+
+    // Test 1: format numbers with "digits10" precision for the base and two digits for exponent if
+    //         possible (if exponent has more significant digits, the minimum number required
+    //         should be printed).
+    {
+        // Set expected output for first number.
+        const std::string expectedOutputForNumber1 = "1.230000000000000E-45";
+
+        // Check that output generated for first number matches expected output.
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number1 ),
+                           expectedOutputForNumber1 );
+
+        // Set expected output for second number.
+        const std::string expectedOutputForNumber2 = "9.870000000000000E+65";
+
+        // Check that output generated for first number matches expected output.
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number2 ),
+                           expectedOutputForNumber2 );
+
+        // Set expected output for third number.
+        const std::string expectedOutputForNumber3 = "-3.240112000000000E+201";
+
+        // Check that output generated for first number matches expected output.
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number3 ),
+                           expectedOutputForNumber3 );
+    }
+
+    // Test 2: format numbers with five-digit precision for the base and four digits for exponent
+    //         if possible (if exponent has more significant digits, the minimum number required
+    //         should be printed).
+    {
+        // Set expected output for first number.
+        const std::string expectedOutputForNumber1 = "1.23000E-0045";
+
+        // Check that output generated for first number matches expected output.
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number1, 5, 4 ),
+                           expectedOutputForNumber1 );
+
+        // Set expected output for second number.
+        const std::string expectedOutputForNumber2 = "9.87000E+0065";
+
+        // Check that output generated for first number matches expected output.
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number2, 5, 4 ),
+                           expectedOutputForNumber2 );
+
+        // Set expected output for third number.
+        const std::string expectedOutputForNumber3 = "-3.24011E+0201";
+
+        // Check that output generated for first number matches expected output.
+        BOOST_CHECK_EQUAL( printInFormattedScientificNotation( number3, 5, 4 ),
+                           expectedOutputForNumber3 );
+    }
+}
 
 // Test if listing all files in specified directory works correctly.
 BOOST_AUTO_TEST_CASE( testListAllFilesInDirectory )
