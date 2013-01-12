@@ -56,9 +56,9 @@
 #include <Eigen/Core>
 
 #include <TudatCore/Basics/testMacros.h>
+#include <TudatCore/InputOutput/matrixTextFileReader.h>
 
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
-#include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat

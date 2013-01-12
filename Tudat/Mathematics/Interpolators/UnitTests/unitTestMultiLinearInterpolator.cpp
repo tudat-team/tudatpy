@@ -42,9 +42,9 @@
 #include <cmath>
 
 #include <TudatCore/Basics/testMacros.h>
+#include <TudatCore/InputOutput/matrixTextFileReader.h>
 
 #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
-#include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
