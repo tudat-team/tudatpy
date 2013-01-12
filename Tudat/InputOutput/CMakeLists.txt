@@ -25,6 +25,11 @@
  #    Changelog
  #      YYMMDD    Author            Comment
  #      120202    B. Tong Minh      File copied from Tudat core.
+ #      130111    K. Kumar          Removed matrix text reader files (ported to Tudat Core).
+ #
+ #    References
+ #   
+ #    Notes
  #
 
 # Add source files.
@@ -35,7 +40,6 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/fixedWidthParser.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/linearFieldTransform.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.cpp"
@@ -57,7 +61,6 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/fieldValue.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/fixedWidthParser.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/linearFieldTransform.h"
-  "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/missileDatcomReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/parsedDataVectorUtilities.h"
@@ -73,10 +76,6 @@ add_library(tudat_input_output STATIC ${INPUTOUTPUT_SOURCES} ${INPUTOUTPUT_HEADE
 setup_tudat_library_target(tudat_input_output "${SRCROOT}${INPUTOUTPUTDIR}")
 
 # Add unit tests.
-add_executable(test_MatrixTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMatrixTextFileReader.cpp")
-setup_custom_test_program(test_MatrixTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_MatrixTextFileReader tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
 add_executable(test_TwoLineElementsTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestTwoLineElementsTextFileReader.cpp")
 setup_custom_test_program(test_TwoLineElementsTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_TwoLineElementsTextFileReader tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

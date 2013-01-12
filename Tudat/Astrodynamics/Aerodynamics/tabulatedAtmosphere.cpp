@@ -36,8 +36,9 @@
 
 #include <boost/make_shared.hpp>
 
+#include <TudatCore/InputOutput/matrixTextFileReader.h>
+
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
-#include "Tudat/InputOutput/matrixTextFileReader.h"
 
 namespace tudat
 {

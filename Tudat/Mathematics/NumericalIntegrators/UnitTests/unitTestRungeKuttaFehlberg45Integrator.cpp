@@ -62,9 +62,9 @@
 #include <Eigen/Core>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include <TudatCore/InputOutput/matrixTextFileReader.h>
 
 #include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Mathematics/NumericalIntegrators/UnitTests/burdenAndFairesNumericalIntegratorTest.h"
 #include "Tudat/Mathematics/NumericalIntegrators/UnitTests/matlabNumericalIntegratorTest.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
