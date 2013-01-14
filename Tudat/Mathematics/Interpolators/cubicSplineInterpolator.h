@@ -30,6 +30,7 @@
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120716    D. Dirkx          Updated with interpolator architecture.
+ *      130114    D. Dirkx          Fixed iterator bug.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of
@@ -211,7 +212,7 @@ public:
         independentValues_.resize( dataMap.size( ) );
         dependentValues_.resize( dataMap.size( ) );
         int counter = 0;
-        for ( typename std::map< IndependentVariableType, DependentVariableType >::iterator
+        for ( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
               mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
             independentValues_[ counter ] = mapIterator->first;
@@ -241,7 +242,7 @@ public:
      * \return Interpolated dependent variable value.
      */
     DependentVariableType interpolate(
-            const IndependentVariableType& targetIndependentVariableValue )
+            const IndependentVariableType targetIndependentVariableValue )
     {
         using std::pow;
 

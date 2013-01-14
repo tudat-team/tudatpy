@@ -44,6 +44,7 @@
  *                                  sub-directory.
  *      120627    T. Secretin       Removed obsolete function using State objects.
  *      120716    D. Dirkx          Updated with interpolator architecture.
+ *      130114    D. Dirkx          Fixed iterator bug.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing, Cambridge
@@ -122,7 +123,7 @@ public:
 
         // Fill data vectors with data from map.
         int counter = 0;
-        for ( typename std::map< IndependentVariableType, DependentVariableType >::iterator
+        for ( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
               mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
             independentValues_[ counter ] = mapIterator->first;
@@ -171,7 +172,7 @@ public:
      *          is to take place.
      * \return Interpolated value of dependent variable.
      */
-    DependentVariableType interpolate( const IndependentVariableType& independentVariableValue )
+    DependentVariableType interpolate( const IndependentVariableType independentVariableValue )
     {
         // Lookup nearest lower index.
         int newNearestLowerIndex = lookUpScheme_->findNearestLowerNeighbour(
