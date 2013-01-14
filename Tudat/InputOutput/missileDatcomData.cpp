@@ -23,12 +23,17 @@
  *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
- *      110530    F.M. Engelen      First creation of code.
+ *      YYMMDD    Author            Comment
+ *      110530    F.M. Engelen      Code created.
  *      120326    D. Dirkx          Modified code to be consistent with latest Tudat/TudatCore.
+ *      130114    D. Dirkx          Updated writeCoefficientsToFile() function to generated output
+ *                                  in formatted scientific notation.
  *
  *    References
- *      Blake, W.B. Missile Datcom User's Manual - 1997 Fortran 90 Version,
- *          AFRL-VA-WP-TR-1998-3009 Air Force Research Laboratory, 1998.
+ *      Blake, W.B. Missile Datcom User's Manual - 1997 Fortran 90 Version, AFRL-VA-WP-TR-1998-3009
+ *          Air Force Research Laboratory, 1998.
+ *
+ *    Notes
  *
  */
 
@@ -195,7 +200,9 @@ double MissileDatcomData::getDynamicCoefficient( int machIndex, int angleOfAttac
 }
 
 //! Write the database to CSV files.
-void MissileDatcomData::writeCoefficientsToFile( string fileNameBase )
+void MissileDatcomData::writeCoefficientsToFile( const std::string& fileNameBase,
+                                                 const int basePrecision,
+                                                 const int exponentWidth )
 {
     // Write coefficients to a file spearately for each angle of attack.
     for ( unsigned int i = 0; i < angleOfAttack_.size( ) ; i++ )
@@ -211,25 +218,31 @@ void MissileDatcomData::writeCoefficientsToFile( string fileNameBase )
         outputFile.precision( 10 );
 
         // Iterate over all Mach numbers in database.
-        for( unsigned int j = 0; j < machNumber_.size( ) ; j++ )
+        for ( unsigned int j = 0; j < machNumber_.size( ) ; j++ )
         {
             // Write angle of attack and mach number.
             outputFile << angleOfAttack_[ i ] << " " << machNumber_[ j ] << " ";
 
             // Write static coefficients.
-            for( int k = 0; k < 11; k++ )
+            for ( int k = 0; k < 11; k++ )
             {
-                outputFile << staticCoefficients_[ j ][ i ][ k ] << " ";
+                outputFile << printInFormattedScientificNotation(
+                                  staticCoefficients_[ j ][ i ][ k ], basePrecision,
+                                  exponentWidth ) << " ";
             }
 
             // Write dynamic coefficients.
-            for( int k = 0; k < 19; k++ )
+            for ( int k = 0; k < 19; k++ )
             {
 
-                outputFile << dynamicCoefficients_[ j ][ i ][ k ] << " ";
+                outputFile << printInFormattedScientificNotation(
+                                  dynamicCoefficients_[ j ][ i ][ k ], basePrecision,
+                                  exponentWidth ) << " ";
             }
 
-            outputFile << dynamicCoefficients_[ j ][ i ][ 19 ] << std::endl;
+            outputFile << printInFormattedScientificNotation(
+                              dynamicCoefficients_[ j ][ i ][ 19 ], basePrecision,
+                              exponentWidth ) << std::endl;
         }
 
         outputFile.close( );

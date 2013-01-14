@@ -23,12 +23,17 @@
  *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
- *      110530    F.M. Engelen      First creation of code.
+ *      YYMMDD    Author            Comment
+ *      110530    F.M. Engelen      Code created.
  *      120326    D. Dirkx          Modified code to be consistent with latest Tudat/TudatCore.
+ *      130114    D. Dirkx          Updated writeCoefficientsToFile() function to generated output
+ *                                  in formatted scientific notation.
  *
  *    References
- *      Blake, W.B. Missile Datcom User's Manual - 1997 Fortran 90 Version,
- *          AFRL-VA-WP-TR-1998-3009 Air Force Research Laboratory, 1998.
+ *      Blake, W.B. Missile Datcom User's Manual - 1997 Fortran 90 Version, AFRL-VA-WP-TR-1998-3009
+ *          Air Force Research Laboratory, 1998.
+ *
+ *    Notes
  *
  */
 
@@ -163,9 +168,16 @@ public:
     //! Write the database to space-separated files.
     /*!
      *  Writes the stored data to a file. Per angle of attack a txt file is generated.
-     * \param fileName The filename
+     * \param fileNameBase Base for the output filename.
+     * \param basePrecision Number of digits of precision of the base of the output floating-point
+     *          numbers in scientific notation.
+     * \param exponentWidth Number of digits used to represent the exponent of the output
+     *          floating-point numbers in scientific notation.
      */
-    void writeCoefficientsToFile( std::string fileNameBase );
+    void writeCoefficientsToFile(
+            const std::string& fileNameBase,
+            const int basePrecision = std::numeric_limits< double >::digits10,
+            const int exponentWidth = 2 );
 
 private:    
 
