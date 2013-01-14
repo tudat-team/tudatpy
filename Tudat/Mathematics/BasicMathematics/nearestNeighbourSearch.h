@@ -39,20 +39,25 @@
  *                                  suggestions by M. Persson.
  *      111117    K. Kumar          Added listAllFilesInDirectory( ) function.
  *      120716    D. Dirkx          Updated with new nearest neighbour search algorithms.
+ *      130114    D. Dirkx          Added missing include statements; corrected include guard
+ *                                  name.
  *
  *    References
- *      Press W.H., et al. Numerical Recipes in C++: The Art of
- *          Scientific Computing. Cambridge University Press, February 2002.
+ *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
+ *          University Press, February 2002.
  *
  *    Notes
  *
  */
 
-#ifndef TUDAT_BASIC_MATHEMATICS_H
-#define TUDAT_BASIC_MATHEMATICS_H
+#ifndef TUDAT_NEAREST_NEIGHBOR_SEARCH_H
+#define TUDAT_NEAREST_NEIGHBOR_SEARCH_H 
 
 #include <map>
 #include <vector>
+#include <stdexcept>
+
+#include <boost/exception/all.hpp>
 
 #include <Eigen/Core>
 
@@ -342,4 +347,4 @@ int findNearestLeftNeighbourUsingHuntingAlgorithm(
 } // namespace basic_mathematics
 } // namespace tudat
 
-#endif // TUDAT_BASIC_MATHEMATICS_H
+#endif // TUDAT_NEAREST_NEIGHBOR_SEARCH_H 

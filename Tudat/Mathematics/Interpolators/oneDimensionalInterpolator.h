@@ -101,7 +101,7 @@ public:
      * \return Interpolated value of dependent variable.
      */
     virtual DependentVariableType
-            interpolate( const IndependentVariableType& independentVariableValue ) = 0;
+            interpolate( const IndependentVariableType independentVariableValue ) = 0;
 
 protected:
 
