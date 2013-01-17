@@ -38,8 +38,8 @@
  *
  *    References
  *
- *    The reference frame definitions/abbreviations can be found in the file
- *    referenceFrameTransformations.h.
+ *      The reference frame definitions/abbreviations can be found in the file
+ *      referenceFrameTransformations.h.
  *
  */
 
