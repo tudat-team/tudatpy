@@ -42,8 +42,6 @@ set(NUMERICALINTEGRATORS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaCoefficients.h"
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/burdenAndFairesNumericalIntegratorTest.h"
-  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/matlabNumericalIntegratorTest.h"
-  "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctionSuite.h"
 )
 
 # Add static libraries.

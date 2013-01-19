@@ -1,0 +1,89 @@
+%    Copyright (c) 2010-2013, Delft University of Technology
+%    All rights reserved.
+%
+%    Redistribution and use in source and binary forms, with or without modification, are
+%    permitted provided that the following conditions are met:
+%      - Redistributions of source code must retain the above copyright notice, this list of
+%        conditions and the following disclaimer.
+%      - Redistributions in binary form must reproduce the above copyright notice, this list of
+%        conditions and the following disclaimer in the documentation and/or other materials
+%        provided with the distribution.
+%      - Neither the name of the Delft University of Technology nor the names of its contributors
+%        may be used to endorse or promote products derived from this software without specific
+%        prior written permission.
+%
+%    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+%    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+%    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+%    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+%    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+%    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+%    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+%    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+%    OF THE POSSIBILITY OF SUCH DAMAGE.
+%
+%    Changelog
+%      YYMMDD    Author            Comment
+%      130118    K. Kumar          File created and data generated.
+%
+%    References
+%      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
+%      The MathWorks,  Inc. DOPRI87,  Symbolic Math Toolbox,  2012.
+%      Tudat. Numerical integrator test data generator: a MuPAD Notebook,
+%        http://www.tudat.tudelft.nl, 2013.
+%
+%    Notes
+%      This file contains output data generated using the DOPRI87 numerical integrator in the
+%      Symbolic Math toolbox (The MathWorks, 2012). The ordinary differential equation used
+%      is (Burden and Faires, 2001):
+%
+%        dy/dt = y - t^2 + 1
+%
+%      The settings used for the integrator are:
+%        initialTime: -1.0
+%        finalTime: 1.0
+%        initialState: 0.5
+%        maximumStepSize: 10.0
+%        relativeErrorTolerance: 1.0e-15
+%        absoluteErrorTolerance: 1.0e-15
+%
+%      The data format in this file is: t, y
+%
+%      Note that the integration data in this file is generated through forwards integration.
+%      The data was generated using a MuPAD Notebook, which is available through the Tudat 
+%      website (Tudat, 2013).
+%   
+%      The error control mechanism implemented in the Symbolic Math Toolbox (MathWorks, 2012)
+%      is not clearly documented. Hence, the Tudat tests that make use of the benchmark data here
+%      generate integration steps by accepting the time steps taken by the DOPRI87 integrator, as
+%      given in the data.
+%
+-1.0, 0.5
+-0.9264161956855921153, 0.543593944456500371
+-0.8528323913711842306, 0.6009323697399306654
+-0.7792485870567763459, 0.6722378866363940193
+-0.7056647827423684611, 0.7577501042103290228
+-0.6320809784279605764, 0.8577269277715643602
+-0.5584971741135526917, 0.9724459559534976299
+-0.484913369799144807, 1.102205984470398548
+-0.4113295654847369223, 1.247328624699719677
+-0.3377457611703290376, 1.408160045857307149
+-0.2641619568559211528, 1.585072850202909079
+-0.1905781525415132681, 1.778468091434007076
+-0.1169943482271053834, 1.988777447201650282
+-0.0434105439126974987, 2.216465557516853313
+0.03017326040171038601, 2.462032541714751924
+0.1037570647161182707, 2.726016707610961162
+0.1773408690305261554, 3.008997467525689734
+0.2509246733449340402, 3.311598476971771055
+0.3245084776593419249, 3.634491013008946294
+0.3980922819737498096, 3.978397610565011578
+0.4716760862881576943, 4.344095976421853138
+0.545259890602565579, 4.73242320206851038
+0.6188436949169734637, 5.144280298242375473
+0.6924274992313813484, 5.580637075722229098
+0.7660113035457892332, 6.042537398812465019
+0.8395951078601971179, 6.531104839976731732
+0.9131789121746050026, 7.047548766252253786
+0.9867627164890128873, 7.593170890415059876
+1.0, 7.69452804946541503

@@ -1,0 +1,115 @@
+%    Copyright (c) 2010-2013, Delft University of Technology
+%    All rights reserved.
+%
+%    Redistribution and use in source and binary forms, with or without modification, are
+%    permitted provided that the following conditions are met:
+%      - Redistributions of source code must retain the above copyright notice, this list of
+%        conditions and the following disclaimer.
+%      - Redistributions in binary form must reproduce the above copyright notice, this list of
+%        conditions and the following disclaimer in the documentation and/or other materials
+%        provided with the distribution.
+%      - Neither the name of the Delft University of Technology nor the names of its contributors
+%        may be used to endorse or promote products derived from this software without specific
+%        prior written permission.
+%
+%    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+%    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+%    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+%    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+%    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+%    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+%    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+%    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+%    OF THE POSSIBILITY OF SUCH DAMAGE.
+%
+%    Changelog
+%      YYMMDD    Author            Comment
+%      130118    K. Kumar          File created and data generated.
+%
+%    References
+%      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
+%      The MathWorks,  Inc. RKF78,  Symbolic Math Toolbox,  2012.
+%      Tudat. Numerical integrator test data generator: a MuPAD Notebook,
+%        http://www.tudat.tudelft.nl, 2013.
+%
+%    Notes
+%      This file contains output data generated using the RKF78 numerical integrator in the
+%      Symbolic Math toolbox (The MathWorks, 2012). The ordinary differential equation used
+%      is (Burden and Faires, 2001):
+%
+%        dy/dt = y - t^2 + 1
+%
+%      The settings used for the integrator are:
+%        initialTime: -1.0
+%        finalTime: 1.0
+%        initialState: 0.5
+%        maximumStepSize: 10.0
+%        relativeErrorTolerance: 1.0e-15
+%        absoluteErrorTolerance: 1.0e-15
+%
+%      There are three discrete events that are executed during this integration. At each event
+%      the state is instantaneously modified. The events are summarized below:
+%        y_event(-0.5): 1.0
+%        y_event(0.0): -0.6
+%        y_event(0.5): -0.1
+%
+%      The data below has two entries therefore at each event (corresponding to the state
+%      before and after the event).
+%
+%      The data format in this file is: t, y
+%
+%      Note that the integration data in this file is generated through forwards integration.
+%      The data was generated using a MuPAD Notebook, which is available through the Tudat 
+%      website (Tudat, 2013).
+%
+%      The error control mechanism implemented in the Symbolic Math Toolbox (MathWorks, 2012)
+%      is not clearly documented. Hence, the Tudat tests that make use of the benchmark data here
+%      generate integration steps by accepting the time steps taken by the RKF78 integrator, as
+%      given in the data.
+%
+-1.0, 0.5
+-0.9389681362531930982, 0.5351912797267406568
+-0.8779362725063861964, 0.5798126038055095495
+-0.8474203406329827455, 0.6056981766712972202
+-0.8169044087595792946, 0.6339885959847397691
+-0.7863884768861758437, 0.6647006687931076116
+-0.7558725450127723927, 0.6978517229321398589
+-0.7253566131393689418, 0.7334596231633600977
+-0.6948406812659654909, 0.7715427878114281269
+-0.66432474939256204, 0.8121202059170219245
+-0.6338088175191585891, 0.8552114549212242256
+-0.6032928856457551382, 0.9008367188978830815
+-0.5727769537723516873, 0.9490168073509260958
+-0.5422610218989482364, 0.9997731745941341677
+-0.5117450900255447855, 1.053127939731423019
+-0.5, 1.074360635350064011
+-0.5, 1.0
+-0.4393182847760829317, 1.111284483394315389
+-0.3786365695521658634, 1.232868885374692232
+-0.3179548543282487951, 1.364936845102648409
+-0.2572731391043317269, 1.507683490327486749
+-0.1965914238804146586, 1.661316156119969274
+-0.1359097086564975903, 1.826055148570446967
+-0.075227993432580522, 2.002134556264451231
+-0.01454627820866345372, 2.189803112524736744
+0.0, 2.236540953025095892
+0.0, -0.6
+0.06981521255075418755, -0.5711914326159876178
+0.1396304251015083751, -0.5410005183117910039
+0.2094456376522625627, -0.5100322012783873775
+0.2792608502030167502, -0.4789351692293782079
+0.3490760627537709378, -0.4484050164957012862
+0.4188912753045251253, -0.4191876358437641695
+0.4887064878552793129, -0.3920828555559926887
+0.5, -0.3879540331202052944
+0.5, -0.1
+0.5810404776645129525, -0.04868576508907380074
+0.662080955329025905, -0.0009821756509658172064
+0.7431214329935388576, 0.04169717819968934647
+0.7836416718257953338, 0.06067866093372639196
+0.8241619106580518101, 0.07781937843522163384
+0.8646821494903082864, 0.09290741855577182512
+0.9052023883225647626, 0.1057221060741747484
+0.9457226271548212389, 0.1160336403224668986
+0.9862428659870777151, 0.1236027178269334729
+1.0, 0.1255050138546985357

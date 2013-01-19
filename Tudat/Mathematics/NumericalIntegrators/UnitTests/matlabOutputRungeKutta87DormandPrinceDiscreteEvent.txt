@@ -1,0 +1,101 @@
+%    Copyright (c) 2010-2013, Delft University of Technology
+%    All rights reserved.
+%
+%    Redistribution and use in source and binary forms, with or without modification, are
+%    permitted provided that the following conditions are met:
+%      - Redistributions of source code must retain the above copyright notice, this list of
+%        conditions and the following disclaimer.
+%      - Redistributions in binary form must reproduce the above copyright notice, this list of
+%        conditions and the following disclaimer in the documentation and/or other materials
+%        provided with the distribution.
+%      - Neither the name of the Delft University of Technology nor the names of its contributors
+%        may be used to endorse or promote products derived from this software without specific
+%        prior written permission.
+%
+%    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+%    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+%    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+%    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+%    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+%    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+%    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+%    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+%    OF THE POSSIBILITY OF SUCH DAMAGE.
+%
+%    Changelog
+%      YYMMDD    Author            Comment
+%      130118    K. Kumar          File created and data generated.
+%
+%    References
+%      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
+%      The MathWorks,  Inc. DOPRI87,  Symbolic Math Toolbox,  2012.
+%      Tudat. Numerical integrator test data generator: a MuPAD Notebook,
+%        http://www.tudat.tudelft.nl, 2013.
+%
+%    Notes
+%      This file contains output data generated using the DOPRI87 numerical integrator in the
+%      Symbolic Math toolbox (The MathWorks, 2012). The ordinary differential equation used
+%      is (Burden and Faires, 2001):
+%
+%        dy/dt = y - t^2 + 1
+%
+%      The settings used for the integrator are:
+%        initialTime: -1.0
+%        finalTime: 1.0
+%        initialState: 0.5
+%        maximumStepSize: 10.0
+%        relativeErrorTolerance: 1.0e-15
+%        absoluteErrorTolerance: 1.0e-15
+%
+%      There are three discrete events that are executed during this integration. At each event
+%      the state is instantaneously modified. The events are summarized below:
+%        y_event(-0.5): 1.0
+%        y_event(0.0): -0.6
+%        y_event(0.5): -0.1
+%
+%      The data below has two entries therefore at each event (corresponding to the state
+%      before and after the event).
+%
+%      The data format in this file is: t, y
+%
+%      Note that the integration data in this file is generated through forwards integration.
+%      The data was generated using a MuPAD Notebook, which is available through the Tudat 
+%      website (Tudat, 2013).
+%
+%      The error control mechanism implemented in the Symbolic Math Toolbox (MathWorks, 2012)
+%      is not clearly documented. Hence, the Tudat tests that make use of the benchmark data here
+%      generate integration steps by accepting the time steps taken by the DOPRI87 integrator, as
+%      given in the data.
+%
+-1.0, 0.5
+-0.9264161956855921153, 0.543593944456500371
+-0.8528323913711842306, 0.6009323697399306654
+-0.7792485870567763459, 0.6722378866363940193
+-0.7056647827423684611, 0.7577501042103290228
+-0.6320809784279605764, 0.8577269277715643602
+-0.5584971741135526917, 0.9724459559534976299
+-0.5, 1.074360635350071754
+-0.5, 1.0
+-0.4267323328771117124, 1.135649703032286045
+-0.3534646657542234248, 1.28636981891217799
+-0.2801969986313351371, 1.452489820295207936
+-0.2069293315084468495, 1.634364225858305674
+-0.1336616643855585619, 1.832374504261105699
+-0.06039399726267027427, 2.046931122843561889
+0.0, 2.236540953025104046
+0.0, -0.6
+0.07896452639431905447, -0.5673010436816093194
+0.1579290527886381089, -0.5329332793953341061
+0.2368935791829571634, -0.4977842623085377548
+0.3158581055772762179, -0.4628144743870539218
+0.3948226319715952724, -0.4290633164936280468
+0.4737871583659143268, -0.3976555928327183197
+0.5, -0.3879540331201987203
+0.5, -0.1
+0.5822205138992097195, -0.04796195203777456276
+0.6644410277984194389, 0.0003389058635677429133
+0.7466615416976291584, 0.04342367895840486628
+0.8288820555968388779, 0.07968673832851660945
+0.9111025694960485973, 0.1073848603735374241
+0.9933230833952583168, 0.1246254356079331962
+1.0, 0.1255050138547041564

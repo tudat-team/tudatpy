@@ -25,16 +25,25 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120203    K. Kumar          File created.
+ *      130118    K. Kumar          Added individual test tolerances and added note about possible
+ *                                  problem with RKF78 coefficient set.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
+ *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
+ *
+ *    Notes
+ *      There might be a problem with the RKF78 integrator, as the coefficients do not meet the
+ *      required conditions to the tolerance achieved for all the other Runge-Kutta-type
+ *      integrators tested (1.0e-14 for RKF78 versus 1.0e-15 for the other integrators). This
+ *      should be looked into further to ensure that there are no bugs introduced in the
+ *      coefficients used.
  *
  */
 
 #define BOOST_TEST_MAIN
 
 #include <cmath>
-#include <limits>
 
 #include <boost/test/unit_test.hpp>
 
@@ -51,14 +60,12 @@ BOOST_AUTO_TEST_SUITE( test_runge_kutta_coefficients )
 
 using numerical_integrators::RungeKuttaCoefficients;
 
-void checkValidityOfCoefficientSet( const RungeKuttaCoefficients::CoefficientSets& coefficientSet )
+void checkValidityOfCoefficientSet( const RungeKuttaCoefficients::CoefficientSets& coefficientSet,
+                                    const double tolerance )
 {
     // Declare coefficient set.
     RungeKuttaCoefficients coefficients;
     coefficients = coefficients.get( coefficientSet );
-
-    // Set tolerance for unit tests.
-    double tolerance = 1.0e-14;
 
     // Check that the sum of the b-coefficients for both the integrated order and the
     // error-checking order is one.
@@ -88,13 +95,13 @@ void checkValidityOfCoefficientSet( const RungeKuttaCoefficients::CoefficientSet
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45Coefficients )
 {
     // Check validity of Runge-Kutta-Fehlberg 45 coefficients.
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg45 );
+    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg45, 1.0e-15 );
 }
 
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg56Coefficients )
 {
     // Check validity of Runge-Kutta-Fehlberg 56 coefficients.
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg56 );
+    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg56, 1.0e-15 );
 }
 
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78Coefficients )
@@ -104,13 +111,13 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78Coefficients )
     // checkValidityOfCoefficientSet() is set to lower than this value (row 8 and 9 of
     // aCoefficients matrix sum does not correspond to cCoefficient counterpart with tolerance less
     // than 1.0e-14).
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg78 );
+    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0e-14 );
 }
 
 BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceCoefficients )
 {
     // Check validity of Runge-Kutta 87 (Dormand and Prince) coefficients.
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKutta87DormandPrince );
+    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKutta87DormandPrince, 1.0e-15 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

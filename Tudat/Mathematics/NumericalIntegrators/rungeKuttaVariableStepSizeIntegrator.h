@@ -47,6 +47,8 @@
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
  *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
  *
+ *    Notes
+ *
  */
 
 #ifndef TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
@@ -64,7 +66,7 @@
 #include <Eigen/Core>
 
 #include <TudatCore/Basics/utilityMacros.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/numericalIntegrator.h>
+#include <TudatCore/Mathematics/NumericalIntegrators/reinitializableNumericalIntegrator.h>
 
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 
@@ -86,7 +88,8 @@ namespace numerical_integrators
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = Eigen::VectorXd >
 class RungeKuttaVariableStepSizeIntegrator :
-        public NumericalIntegrator<IndependentVariableType, StateType, StateDerivativeType>
+        public ReinitializableNumericalIntegrator<
+        IndependentVariableType, StateType, StateDerivativeType >
 {
 public:
 
@@ -105,14 +108,17 @@ public:
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType > Base;
+    typedef tudat::numerical_integrators::ReinitializableNumericalIntegrator<
+    IndependentVariableType, StateType,
+    StateDerivativeType > ReinitializableNumericalIntegratorBase;
 
     //! Typedef to the state derivative function.
     /*!
      * Typedef to the state derivative function inherited from the base class.
      * \sa NumericalIntegrator::StateDerivativeFunction.
      */
-    typedef typename Base::StateDerivativeFunction StateDerivativeFunction;
+    typedef typename ReinitializableNumericalIntegratorBase::NumericalIntegratorBase::
+    StateDerivativeFunction StateDerivativeFunction;
 
     //! Exception that is thrown if the minimum step size is exceeded.
     /*!
@@ -153,7 +159,7 @@ public:
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
             const NewStepSizeFunction& newStepSizeFunction = 0 ) :
-        Base( stateDerivativeFunction ),
+        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
         currentState_( initialState ),
         lastIndependentVariable_( intervalStart ),
@@ -208,7 +214,7 @@ public:
             const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
             const NewStepSizeFunction& newStepSizeFunction = 0 ) :
-        Base( stateDerivativeFunction ),
+        ReinitializableNumericalIntegratorBase( stateDerivativeFunction ),
         currentIndependentVariable_( intervalStart ),
         currentState_( initialState ),
         lastIndependentVariable_( intervalStart ),

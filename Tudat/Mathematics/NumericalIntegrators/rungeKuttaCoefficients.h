@@ -27,9 +27,12 @@
  *      120203    B. Tong Minh      File created.
  *      120327    K. Kumar          Added Runge-Kutta 87 (Dormand and Prince) enum option; added
  *                                  lower-, higher-order, and order to integrate variables.
+ *      130118    K. Kumar          Removed unused typedef.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
+ *
+ *    Notes
  *
  */
 
@@ -124,9 +127,7 @@ struct RungeKuttaCoefficients
     static const RungeKuttaCoefficients& get( CoefficientSets coefficientSet );
 };
 
-typedef struct RungeKuttaCoefficients RungeKuttaCoefficients;
-
-} // namespace integrators
+} // namespace numerical_integrators
 } // namespace tudat
 
 #endif // TUDAT_RUNGE_KUTTA_COEFFICIENTS_H
