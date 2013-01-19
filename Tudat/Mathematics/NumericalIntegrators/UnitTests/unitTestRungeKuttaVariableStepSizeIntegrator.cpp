@@ -38,19 +38,26 @@
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
  *
+ *    Notes
+ *      This file doesn't test any specific Runge-Kutta-type integrators, but rather some general
+ *      functionality adopted in the the RungeKuttaVariableStepSizeIntegrator class, applicable to
+ *      all Runge-Kutta-type integrators.
+ *
  */
 
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <string>
 #include <typeinfo>
 
 #include <boost/exception/all.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <TudatCore/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h>
+
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
-#include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctionSuite.h"
 
 namespace tudat
 {
@@ -60,7 +67,7 @@ namespace unit_tests
 using tudat::numerical_integrators::RungeKuttaCoefficients;
 using tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator;
 using tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
-using numerical_integrator_test_function_suite::computeZeroStateDerivative;
+using numerical_integrator_test_functions::computeZeroStateDerivative;
 
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_variable_step_size_integrator )
 

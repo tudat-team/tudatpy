@@ -34,7 +34,8 @@
  *          Stepsize Control, Marshall Spaceflight Center, NASA TR R-278, 1968.
  *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
  *
- *    The naming of the coefficient sets follows (Montenbruck and Gill, 2005).
+ *    Notes
+ *      The naming of the coefficient sets follows (Montenbruck and Gill, 2005).
  *
  */
 
@@ -531,5 +532,5 @@ const RungeKuttaCoefficients& RungeKuttaCoefficients::get(
     }
 }
 
-} // namespace integrators
+} // namespace numerical_integrators
 } // namespace tudat

@@ -30,6 +30,11 @@
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
  *
+ *    Notes
+ *      Currently, this file is only used to test the RKF45 integrator. There is however more test
+ *      data available in Burden and Faires (2001), for other integrators, that can be implemented
+ *      for unit testing.
+ *
  */
 
 #ifndef TUDAT_BURDEN_AND_FAIRES_NUMERICAL_INTEGRATOR_TEST_H
@@ -41,8 +46,7 @@
 #include <Eigen/Core>
 
 #include <TudatCore/Basics/utilityMacros.h>
-
-#include <Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctionSuite.h>
+#include <TudatCore/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h>
 
 namespace tudat
 {
@@ -131,8 +135,8 @@ public:
      */
     Eigen::VectorXd computeStateDerivative( const double time, const Eigen::VectorXd& state )
     {
-        return numerical_integrator_test_function_suite::computeNonAutonomousModelStateDerivative(
-                    time, state );
+        return numerical_integrator_test_functions::
+                computeNonAutonomousModelStateDerivative( time, state );
     }
 
     //! Relative error.

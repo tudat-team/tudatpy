@@ -47,6 +47,7 @@ set(BASICMATHEMATICS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/function.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/functionProxy.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/legendrePolynomials.h"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/linearAlgebra.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/linearAlgebraTypes.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/nearestNeighbourSearch.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/numericalDerivative.h"
