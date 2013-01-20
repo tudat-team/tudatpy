@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -37,8 +37,9 @@
  *          II-Program Formulation, Douglas Aircraft Company, AFFDL-TR-73-159,
  *          Volume II.
  *
- *    The numberOfLines_ and numberOfPoints_ member variables denote the number of mesh points.
- *    The number of panels in the mesh will be numberOfLines_ - 1 by numberOfPoints_ - 1.
+ *    Notes
+ *      The numberOfLines_ and numberOfPoints_ member variables denote the number of mesh points.
+ *      The number of panels in the mesh will be numberOfLines_ - 1 by numberOfPoints_ - 1.
  *
  */
 

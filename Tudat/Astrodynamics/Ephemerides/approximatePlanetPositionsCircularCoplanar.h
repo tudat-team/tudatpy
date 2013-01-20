@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -32,10 +32,11 @@
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
  *          http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf, last accessed: 24 February, 2011.
  *
- *    The circular coplanar orbits apply the same orbital elements as the 3D case, but the
- *    eccentricity and the inclination are implicitly set to zero. Also, the elements do not vary
- *    in time, except for the anomalies of course. By implicitly setting the inclination equal to
- *    zero, all planetary orbits lie in the ecliptic plane.
+ *    Notes
+ *      The circular coplanar orbits apply the same orbital elements as the 3D case, but the
+ *      eccentricity and the inclination are implicitly set to zero. Also, the elements do not vary
+ *      in time, except for the anomalies of course. By implicitly setting the inclination equal to
+ *      zero, all planetary orbits lie in the ecliptic plane.
  *
  */
 

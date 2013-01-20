@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -42,6 +42,7 @@
  *      possible, without causing the tests to fail. These values are not deemed to indicate any
  *      bugs in the code; however, it is important to take these discrepancies into account when
  *      using this numerical integrator.
+ *
  */
 
 #define BOOST_TEST_MAIN

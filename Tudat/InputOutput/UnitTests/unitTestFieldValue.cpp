@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -26,6 +26,11 @@
  *      YYMMDD    Author            Comment
  *      120606    T. Secretin       First creation of code.
  *      120608    E. Heeren         Placed tests in unit_tests namespace.
+ *
+ *    References
+ *
+ *    Notes
+ *
  */
 
 #define BOOST_TEST_MAIN

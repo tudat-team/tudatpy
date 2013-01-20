@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -38,6 +38,8 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120531    P. Musegaas       Code completely rewritten. Made it a free function.
  *      120625    P. Musegaas       Minor changes.
+ *
+ *    References
  *
  *    Notes
  *      Note that it is only possible to define the parking orbit using the semi-major axis and

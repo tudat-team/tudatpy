@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -36,8 +36,10 @@
  *      de Pater, I., Lissauer, J.J. Planetary Sciences, 2nd Edition, Cambridge
  *      University Press, Cambridge, UK, 2010.
  *      Wikipedia. Standard gravitational parameter,
- *          http://en.wikipedia.org/wiki/Standard_gravitational_parameter, last
- *          accessed: 1 July, 2011.
+ *          http://en.wikipedia.org/wiki/Standard_gravitational_parameter, last accessed: 1 July,
+ *          2011.
+ *
+ *    Notes
  *
  */
 

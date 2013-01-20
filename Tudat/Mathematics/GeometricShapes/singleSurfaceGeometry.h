@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -43,9 +43,10 @@
  *
  *    References
  *
- *    Contents of this file used to be in singleGeometry.h, but as this class has been split into
- *    single and composite surface geometry, the contents have been moved, with most of the
- *    SurfaceGeometry class now belonging to the SingleSurfaceGeometry class.
+ *    Notes
+ *      Contents of this file used to be in singleGeometry.h, but as this class has been split
+ *      into single and composite surface geometry, the contents have been moved, with most of the
+ *      SurfaceGeometry class now belonging to the SingleSurfaceGeometry class.
  *
  */ 
 

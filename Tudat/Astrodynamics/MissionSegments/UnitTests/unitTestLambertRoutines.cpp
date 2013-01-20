@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -45,7 +45,7 @@
  *    References
  *      Noomen, R., Lambert targeter Excel file.
  *      Mengali, G., and A.A. Quarta, Fondamenti di Meccanica del volo Spaziale.
-        Izzo, D., Keplerian_Toolbox.
+ *      Izzo, D., Keplerian_Toolbox.
  *
  *    Notes
  *      The elliptical case was taken from Example 6.1, page 159-162 of ( Mengali, Quarta ). The

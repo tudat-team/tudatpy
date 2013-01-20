@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -40,7 +40,7 @@
  *      IMPORTANT: Before being able to use it, the cspice.a file in the cspice/lib folder needs to be renamed
  *      to libcspice.a.
  *
- *      In addition, the USE_CSPICE variable needs to be set to 1 in the top-level CMakeLists.txt
+ *      In addition, the USE_CSPICE variable needs to be set to 1 in the top-level CMakeLists.txt.
  *
  */
 

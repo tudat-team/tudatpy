@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2012, Delft University of Technology
+ #    Copyright (c) 2010-2013, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -32,6 +32,10 @@
  #      120628    T. Secretin       Added files and tests related to changes in Lambert targeters.
  #      120704    P. Musegaas       Removed unnecessary dependencies in Lambert targeter unit tests.
  #                                  Removed obsolete trajectoryDesignMethod.h.
+ #
+ #    References
+ #
+ #    Notes
  #
 
 # Set the source files.

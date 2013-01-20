@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -27,9 +27,12 @@
  *      120606    T. Secretin       Creation of code.
  *      120608    E. Heeren         Placed tests in unit_tests namespace.
  *
- *    Note
+ *    References
+ *
+ *    Notes
  *      This unit test does not test the parseStream functionality of TextParser. Such a test must
  *      be implemented at a later stage.
+ *
  */
 
 #define BOOST_TEST_MAIN

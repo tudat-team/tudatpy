@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -30,6 +30,9 @@
  *                                  warning.
  *
  *    References
+ *
+ *    Notes
+ *
  */
 
 #ifndef TUDAT_PARSED_DATA_VECTOR_UTILITIES_H

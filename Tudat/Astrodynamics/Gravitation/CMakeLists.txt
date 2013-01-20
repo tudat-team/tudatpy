@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2012, Delft University of Technology
+ #    Copyright (c) 2010-2013, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -30,6 +30,11 @@
  #      120321    K. Kumar          Added header, source and unit test files for state-derivative
  #                                  of CRTBP.
  #      121017    E. Dekens         Added sphericalHarmonicsGravitationalAccelerationModel files.
+ #
+ #    References
+ #
+ #    Notes
+ #
  #
 
 # Set the source files.

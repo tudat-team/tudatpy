@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -39,8 +39,8 @@
  *      111117    K. Kumar          Added listAllFilesInDirectory( ) function.
  *
  *    References
- *      Press W.H., et al. Numerical Recipes in C++: The Art of
- *          Scientific Computing. Cambridge University Press, February 2002.
+ *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
+ *          University Press, February 2002.
  *
  *    Notes
  *      Need to add bounds checking with respect to targetValue for

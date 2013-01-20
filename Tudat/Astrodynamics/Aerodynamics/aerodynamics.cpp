@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -33,13 +33,13 @@
  *                                  function-naming; optimized code; corrected double precision.
  *
  *    References
- *      Anderson Jr., J.D. , Fundamentals of Aerodynamics, 3rd edition,
- *          McGraw Hill, 2001.
- *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-
- *          Hypersonic Arbitrary Body Program, Volume II - Program Formulation,
- *          Douglas Aircraft Company, 1973.
- *      Anderson Jr., J.D, Hypersonic and High-Temperature Gas Dynamics, 2nd
- *          edition, AIAA Education Series, 2006.
+ *      Anderson Jr., J.D. , Fundamentals of Aerodynamics, 3rd edition, McGraw Hill, 2001.
+ *      Gentry, A., Smyth, D., and Oliver, W. . The Mark IV Supersonic-Hypersonic Arbitrary Body
+ *          Program, Volume II - Program Formulation, Douglas Aircraft Company, 1973.
+ *      Anderson Jr., J.D, Hypersonic and High-Temperature Gas Dynamics, 2nd edition, AIAA
+ *          Education Series, 2006.
+ *
+ *    Notes
  *
  */
 

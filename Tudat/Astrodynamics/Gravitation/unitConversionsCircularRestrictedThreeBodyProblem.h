@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -33,8 +33,9 @@
  *    References
  *        Wakker, K.F.,"Astrodynamics I, AE4-874", Delft University of Technology, 2007.
  *
- *    Position dimension-scale is distance between the two massive bodies in the CRTBP.
- *    Time dimension-scale is based on orbital period of 2*pi.
+ *    Notes
+ *      Position dimension-scale is distance between the two massive bodies in the CRTBP.
+ *      Time dimension-scale is based on orbital period of 2*pi.
  *
  */
 

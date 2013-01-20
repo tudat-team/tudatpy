@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -39,6 +39,9 @@
  *      Jet Propulsion Laboratory, NASA. Astrodynamics Constants.
  *          http://ssd.jpl.nasa.gov/?constants, last updated: 6th September, 2011, last accessed:
  *          22nd November, 2011.
+ *
+ *    Notes
+ *
  */
 
 #define BOOST_TEST_MAIN
