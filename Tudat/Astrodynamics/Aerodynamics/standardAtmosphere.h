@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -28,6 +28,8 @@
  *      111211    K. Kumar          Minor corrections; corrected const-reference to by-value.
  *
  *    References
+ *
+ *    Notes
  *
  */
 

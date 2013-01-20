@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -42,8 +42,9 @@
  *          Rev 1, Proceedings of the AIAA/AAS Astrodynamics Specialist Conference. Keystone, CO,
  *          2006.
  *
- *    The coefficients J2, J3, and J4 have been hardcoded for now, but in future these variables
- *    should be removed and the data should be stored in data files.
+ *    Notes
+ *      The coefficients J2, J3, and J4 have been hardcoded for now, but in future these variables
+ *      should be removed and the data should be stored in data files.
  *
  */
 

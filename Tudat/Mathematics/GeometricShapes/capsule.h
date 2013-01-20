@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -34,10 +34,12 @@
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *
  *    References
- *      E.H. Hirschel and C. Weiland, Selected Aerothermodynamic Design Problems
- *          of Hypersonic Flight Vehicles (chapter 5), Springer/AIAA, 2009.
- *      D. Dirkx, Continuous Shape Optimization of Entry Vehicles, MSc thesis,
- *          Delft University of Technology, 2011 (Unpublished).
+ *      E.H. Hirschel and C. Weiland, Selected Aerothermodynamic Design Problems of Hypersonic
+ *          Flight Vehicles (chapter 5), Springer/AIAA, 2009.
+ *      D. Dirkx, Continuous Shape Optimization of Entry Vehicles, MSc thesis, Delft University
+ *          of Technology, 2011 (Unpublished).
+ *
+ *    Notes
  *
  */
 

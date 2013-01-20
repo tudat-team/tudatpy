@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -28,9 +28,10 @@
  *                                  moved relevant functionality of (text)FileReader to this class.
  *
  *    References
- *      Blake, W.B. Missile Datcom User's Manual - 1997 Fortran 90 Version,
- *          AFRL-VA-WP-TR-1998-3009 Air Force Research Laboratory, 1998.
+ *      Blake, W.B. Missile Datcom User's Manual - 1997 Fortran 90 Version, AFRL-VA-WP-TR-1998-3009
+ *          Air Force Research Laboratory, 1998.
  *
+ *    Notes
  */
 
 #ifndef TUDAT_MISSILE_DATCOM_READER_H

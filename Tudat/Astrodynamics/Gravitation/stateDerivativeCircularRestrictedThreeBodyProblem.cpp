@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -36,6 +36,8 @@
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
+ *
+ *    Notes
  *
  */
 

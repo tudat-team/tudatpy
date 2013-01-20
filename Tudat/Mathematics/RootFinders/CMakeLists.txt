@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2012, Delft University of Technology
+ #    Copyright (c) 2010-2013, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -31,6 +31,10 @@
  #      120813    P. Musegaas       Added Newton Raphson unit test executable, added additional test
  #                                  functions.
  #	120920    K. Kumar          Changed sub-directory name to RootFinders.
+ #
+ #    References
+ #
+ #    Notes
  #
 
 # Add source files.

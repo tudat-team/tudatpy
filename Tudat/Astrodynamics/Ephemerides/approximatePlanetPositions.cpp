@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -32,9 +32,10 @@
  *      120522    P. Musegaas       Fixed bug for coordinates of outer planets.
  *
  *    References
- *      Standish, E.M. Keplerian Elements for Approximate Positions of the
- *          Major Planets, http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf,
- *          last accessed: 24 February, 2011.
+ *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
+ *      http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf, last accessed: 24 February, 2011.
+ *
+ *    Notes
  *
  */
 

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -30,6 +30,9 @@
  *      Easy calculation. Newton's Law of Gravity Tutorial,
  *          http://easycalculation.com/physics/classical-physics/learn-newtons-law.php, last
  *          accessed: 12th February, 2012.
+ *
+ *    Notes
+ *
  */
 
 #define BOOST_TEST_MAIN

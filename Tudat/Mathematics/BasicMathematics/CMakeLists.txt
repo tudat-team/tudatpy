@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2012, Delft University of Technology
+ #    Copyright (c) 2010-2013, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -29,6 +29,10 @@
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #      120909    B. Tong Minh      Moved to BasicMathematics
  #      120920    E. Dekens         Added 'legendre' and 'sphericalHarmonics' files.
+ #
+ #    References
+ #
+ #    Notes
  #
 
 # Add source files.

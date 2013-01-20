@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -32,7 +32,9 @@
  *      121205    P. Musegaas       Updated code to final version of rootfinders.
  *
  *    References
- *      http://www.esa.int/gsp/ACT/doc/INF/Code/globopt/GTOPtoolbox.rar
+ *      GTOP, http://www.esa.int/gsp/ACT/doc/INF/Code/globopt/GTOPtoolbox.rar.
+ *
+ *    Notes
  *
  */
 
@@ -217,9 +219,8 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_TooLow
     const double testMeanAnomaly = 0.5;
 
     // Check if a runtime error is thrown if the anomaly is converted for this eccentricity.
-    BOOST_CHECK_THROW( double hyperbolicEccentricAnomaly =
-            convertMeanAnomalyToHyperbolicEccentricAnomaly( testEccentricity, testMeanAnomaly ),
-                       std::runtime_error );
+    BOOST_CHECK_THROW( convertMeanAnomalyToHyperbolicEccentricAnomaly(
+                           testEccentricity, testMeanAnomaly ), std::runtime_error );
 }
 
 //! Test 3: Test conversion for near-parabolic orbits.
@@ -271,7 +272,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
 
     // Initialize both test and reverse calculated hyperbolic mean anomaly and the hyperbolic
     // eccentric anomaly.
-    double testMeanAnomaly, reverseCalculatedMeanAnomaly, hyperbolicEccentricAnomaly;
+    double testMeanAnomaly, reverseCalculatedMeanAnomaly, hyperbolicEccentricAnomaly = TUDAT_NAN;
 
     // Instantiate a random number generator for the mean anomaly generation, from -20 to 20.
     boost::mt19937 randomNumbergenerator( time( 0 ) );
@@ -353,7 +354,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
     // Initialize both test and reverse calculated hyperbolic mean anomaly, the hyperbolic
     // eccentric anomaly and the eccentricity.
     double testEccentricity, testMeanAnomaly, reverseCalculatedMeanAnomaly,
-           hyperbolicEccentricAnomaly;
+           hyperbolicEccentricAnomaly = TUDAT_NAN;
 
     // Instantiate random number generators. One for the mean anomaly generation, from -20 to 20,
     // another one for the eccentricity generation, from 1 to 10.
@@ -440,7 +441,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
     // Initialize both test and reverse calculated hyperbolic mean anomaly, the hyperbolic
     // eccentric anomaly and the eccentricity.
     double testEccentricity, testMeanAnomaly, reverseCalculatedMeanAnomaly,
-           hyperbolicEccentricAnomaly;
+           hyperbolicEccentricAnomaly = TUDAT_NAN;
 
     // Instantiate random number generators. One for the mean anomaly generation, from -1.2e12 to
     // 1.2e12, another one for the eccentricity generation, from 1.0 to 1.0e15.

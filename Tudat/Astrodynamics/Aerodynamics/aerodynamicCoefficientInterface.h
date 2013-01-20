@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -31,8 +31,9 @@
  *
  *    References
  *
- *    The computeCoefficients() function is not yet implemented in any derived classes and is
- *    therefore not pure virtual in this base class.
+ *    Notes
+ *      The computeCoefficients() function is not yet implemented in any derived classes and is
+ *      therefore not pure virtual in this base class.
  *
  */
 

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -29,9 +29,11 @@
  *
  *    References
  *
- *    The provided USSA1976 table file, generated with the pascal file, has a small error which can
- *    be observed at the pressure at sea level. This in 101320 in the file but should be 101325. If
- *    this error is not acceptable, another table file should be used.
+ *    Notes
+ *      The provided USSA1976 table file, generated with the pascal file, has a small error which
+ *      can be observed at the pressure at sea level. This in 101320 in the file but should be
+ *      101325. If this error is not acceptable, another table file should be used.
+ *
  */
 
 #ifndef TUDAT_TABULATED_ATMOSPHERE_H

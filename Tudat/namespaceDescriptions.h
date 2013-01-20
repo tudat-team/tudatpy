@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2013 Delft University of Technology.
  *
  *    This software is protected by national and international copyright.
  *    Any unauthorized use, reproduction or modification is unlawful and

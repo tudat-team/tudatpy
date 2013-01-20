@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -39,15 +39,17 @@
  *    References
  *      HORIZONS Web-Interface, http://ssd.jpl.nasa.gov/horizons.cgi, last accessed: 5 April, 2011.
  *
- *    It is noted during the 120513 check that this is not a very extensive and/or precise unit
- *    test. Given that the ephemeris class will soon be updated, this is not deemed a big issue.
- *    However the unit test will have to be improved a lot in the next update. Some code was
- *    outcommented when boostifying the unit test. It is attached in commented version at the
- *    bottom of this file.
+ *    Notes
+ *      It is noted during the 120513 check that this is not a very extensive and/or precise unit
+ *      test. Given that the ephemeris class will soon be updated, this is not deemed a big issue.
+ *      However the unit test will have to be improved a lot in the next update. Some code was
+ *      outcommented when boostifying the unit test. It is attached in commented version at the
+ *      bottom of this file.
  *
- *    Also the test of the approximate planet positions (3D) was changed. It used to check the
- *    only the spherical position coordinates. It was changed to check the cartesian elements in
- *    total. The accuracy with which this is possible is very low though.
+ *      Also the test of the approximate planet positions (3D) was changed. It used to check the
+ *      only the spherical position coordinates. It was changed to check the cartesian elements in
+ *      total. The accuracy with which this is possible is very low though.
+ *
  */
 
 #define BOOST_TEST_MAIN

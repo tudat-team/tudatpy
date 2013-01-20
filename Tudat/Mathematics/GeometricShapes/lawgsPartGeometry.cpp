@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -33,8 +33,10 @@
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor,
  *                                  removed raw pointer arrays.
  *    References
- *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard
- *          (LaWGS) format, NASA TECHNICAL MEMORANDUM 85767.
+ *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard (LaWGS) format, NASA
+ *          TECHNICAL MEMORANDUM 85767.
+ *
+ *    Notes
  *
  */
 

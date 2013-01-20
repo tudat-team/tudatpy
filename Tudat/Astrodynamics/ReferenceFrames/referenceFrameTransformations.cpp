@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -38,10 +38,11 @@
  *    References
  *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
  *
- *    Because potential speed improvement it was chosen to use AngleAxisd and quaternions
- *    but to get things working, the rotation angle inputted in angleAxisd need to be inverted.
- *    In the future it might be better to change it to write out the complete transformation for
- *    clarity, or work with directional cosine matrices.
+ *    Notes
+ *      Because potential speed improvement it was chosen to use AngleAxisd and quaternions
+ *      but to get things working, the rotation angle inputted in angleAxisd need to be inverted.
+ *      In the future it might be better to change it to write out the complete transformation for
+ *      clarity, or work with directional cosine matrices.
  *
  */
 

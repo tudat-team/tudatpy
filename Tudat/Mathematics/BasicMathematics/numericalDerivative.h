@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -30,10 +30,12 @@
  *      120522    E. Heeren         Modified namespace; minor corrections in comments.
  *
  *    References
- *      Press W.H., et al. Numerical Recipes in C++: The Art of
- *          Scientific Computing. Cambridge University Press, February 2002.
+ *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
+ *          University Press, February 2002.
  *      Fornberg, B., "Generation of Finite Difference Formulas on Arbitrarily Spaced Grids",
  *          Mathematics of Computation, October 1988.
+ *
+ *    Notes
  *
  */
 

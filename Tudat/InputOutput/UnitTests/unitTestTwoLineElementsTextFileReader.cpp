@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -47,9 +47,10 @@
  *          http://celestrak.com/NORAD/documentation/tle-fmt.asp, 2004. Last
  *          accessed: 5 August, 2011.
  *
- *    Raw TLE data can be obtained from (Celestrak (a), 2011). Explanations of the TLE data
- *    format can be viewed in (Space Track, 2004), (Celestrak (b), 2006), and
- *    (Celestrak (c), 2004).
+ *    Notes
+ *      Raw TLE data can be obtained from (Celestrak (a), 2011). Explanations of the TLE data
+ *      format can be viewed in (Space Track, 2004), (Celestrak (b), 2006), and
+ *      (Celestrak (c), 2004).
  */
 
 #define BOOST_TEST_MAIN
