@@ -32,6 +32,12 @@
  *      120607    P. Musegaas       Changed interface (propagation time instead of two epochs).
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
+ *      120823    P. Musegaas       Added functionality for hyperbolic and near-parabolic orbits.
+ *                                  Changed some parameters to const.
+ *      120903    P. Musegaas       Removed modulo option, due to errors with it. Kepler propagator
+ *                                  now simply return true anomaly in -PI to PI spectrum. Added
+ *                                  Comments.
+ *      121205    P. Musegaas       Updated code to final version of rootfinders.
  *
  *    References
  *
@@ -59,9 +65,12 @@ namespace orbital_element_conversions
 //! Propagate Kepler orbit.
 /*!
  * Propagates Kepler orbit. This function essentially takes a state in classical Keplerian elements
- * at an initial epoch and propagates it to a final state at a given final epoch. Currently,
- * this implementation only supports elliptical orbits ( 0 < e < 0.98 ). An error is thrown for all
- * other eccentricities.
+ * at an initial epoch and propagates it to a final state at a given final epoch. Currently both
+ * elliptic and hyperbolic orbits are supported. Parabolic orbits are not supported and will result
+ * in an error message.
+ * IMPORTANT! Note that the true anomaly is returned within the -PI to PI spectrum. If the user
+ * desires a different spectrum (possibly including the number of revolutions), these should be
+ * added by the user a posteriori.
  * \param initialStateInKeplerianElements Initial state vector in classical Keplerian elements.
  *          Order is important!
  *          initialStateInKeplerianElements( 0 ) = semiMajorAxis,                               [m]
@@ -72,11 +81,8 @@ namespace orbital_element_conversions
  *          initialStateInKeplerianElements( 5 ) = true anomaly.                              [rad]
  * \param propagationTime Propagation time.                                                     [s]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body      [m^3 s^-2]
- * \param useModuloOption Option to propagate remainder time computed from
- *          mod( propagationTime, orbitalPeriod ). This has computational advantages when the
- *          angles in Kepler's equation become very large. The default is set to true.
- * \param rootFinder Shared-pointer to the root-finder that is used to solve the conversion from
- *          mean to eccentric anomaly. Default is Newton-Raphson using 5.0e-15 absolute X-tolerance
+ * \param aRootFinder Shared-pointer to the root-finder that is used to solve the conversion from
+ *          mean to eccentric anomaly. Default is Newton-Raphson using 5.0e-14 absolute X-tolerance
  *          and 1000 iterations as maximum. Higher precision may invoke machine precision
  *          problems for some values.
  * \return finalStateInKeplerianElements Final state vector in classical Keplerian elements.
@@ -92,7 +98,6 @@ Eigen::VectorXd propagateKeplerOrbit(
         const Eigen::VectorXd& initialStateInKeplerianElements,
         const double propagationTime,
         const double centralBodyGravitationalParameter,
-        bool useModuloOption = true,
         root_finders::RootFinderPointer aRootFinder = root_finders::RootFinderPointer( ) );
 
 } // namespace orbital_element_conversions

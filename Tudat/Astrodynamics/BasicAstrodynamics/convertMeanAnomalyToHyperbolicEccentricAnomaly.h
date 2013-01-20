@@ -30,10 +30,25 @@
  *      120421    K. Kumar          Removed base class; updated to set values through constructor.
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
+ *      120822    P. Musegaas       Added functionality for near-parabolic cases. Added option for
+ *                                  user to specifiy initial guess.
+ *      121205    P. Musegaas       Updated code to final version of rootfinders.
+ *      130116    E. Heeren         Minor changes to comments.
  *
  *    References
- *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
- *      http://www.cdeagle.com/omnum/pdf/demokep1.pdf, last accessed: 16th February, 2011.
+ *      Regarding method in general, including starter values used:
+ *          Wakker, K. F. Astrodynamics I + II. Lecture Notes AE4-874, Delft University of
+ *              Technology, Delft, Netherlands.
+ *      Regarding the performance of different starter values and performance near-parabolic.
+ *          Musegaas, P., Optimization of Space Trajectories Including Multiple Gravity Assists and
+ *              Deep Space Maneuvers, MSc thesis report, Delft University of Technology, 2012.
+ *              [unpublished so far]. Section available on tudat website (tudat.tudelft.nl)
+ *              under issue #539.
+ *      Regarding older versions of the code (120813 and before):
+ *          Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
+ *          http://www.cdeagle.com/omnum/pdf/demokep1.pdf, last accessed: 16th February, 2011.
+ *
+ *    Notes
  *
  */
 
@@ -71,18 +86,24 @@ public:
      * be given.
      * \param anEccentricity Eccentricity of the orbit [-].
      * \param aHyperbolicMeanAnomaly Hyperbolic mean anomaly to convert to eccentric anomaly [rad].
+     * \param useDefaultInitialGuess Boolean specifying whether to use default initial guess [-].
+     * \param userSpecifiedInitialGuess Initial guess for rootfinder [rad].
      * \param aRootFinder Shared-pointer to the rootfinder that is to be used. Default is
      *          Newton-Raphson using 1000 iterations as maximum and 5.0e-15 absolute X-tolerance.
      *          Higher precision may invoke machine precision problems for some values.
      */
     ConvertMeanAnomalyToHyperbolicEccentricAnomaly(
             const double anEccentricity, const double aHyperbolicMeanAnomaly,
+            const bool useDefaultInitialGuess_ = true,
+            const double userSpecifiedInitialGuess_ = TUDAT_NAN,
             root_finders::RootFinderPointer aRootFinder = root_finders::RootFinderPointer( ) );
 
     //! Convert mean anomaly to hyperbolic eccentric anomaly.
     /*!
-     * Converts mean anomaly to hyperbolic eccentric anomaly for hyperbolic orbits. Currently, the
-     * conversion does not work for near-parabolic orbits ( 0.8 < eccentricity < 1.2 ).
+     * Converts mean anomaly to hyperbolic eccentric anomaly for hyperbolic orbits for all
+     * eccentricities > 1.0. If the conversion fails or the eccentricity falls outside the valid
+     * range, then double::NaN is returned. Calculated with an accuracy of 1.0e-14 for all
+     * reasonable cases (eccentricities up to 1.0e15, mean anomalies -1.2e12 to 1.2e12).
      * \return Hyperbolic eccentric anomaly.
      */
     double convert( );
@@ -103,6 +124,22 @@ private:
      */
     const double hyperbolicMeanAnomaly;
 
+    //! Boolean indicating whether default initial guess is used.
+    /*!
+     * A boolean that indicates whether the default initial guess is to be used. This may be
+     * useful, because the current guess may not be ideal for certain regions in the
+     * eccentricity<->hyperbolic mean anomaly domain.
+     */
+    bool useDefaultInitialGuess;
+
+    //! User-specified initial guess for root finder.
+    /*!
+     * The initial guess for the root finder can be passed as a double. This may be useful, because
+     * the current guess may not be ideal for certain regions in the eccentricity<->hyperbolic mean
+     * anomaly spectrum.
+     */
+    double userSpecifiedInitialGuess;
+
     //! Shared pointer to the rootfinder.
     /*!
      * Shared pointer to the rootfinder. The rootfinder contains termination conditions inside.
@@ -116,8 +153,7 @@ private:
      *      f( F ) = e * sinh( F ) - F - M
      * \f]
      * for hyperbolic orbits, where \f$ F \f$ is the hyperbolic eccentric anomaly, \f$ e \f$ is the
-     * eccentricity, \f$ M \f$ is the mean anomaly. Currently, the case for near-parabolic orbits
-     * is not included ( 0.8 < eccentricity < 1.2 ).
+     * eccentricity, \f$ M \f$ is the mean anomaly. All eccentricities > 1.0 are valid.
      * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly.
      * \return Value of Kepler's function for hyperbolic orbits.
      */
@@ -134,8 +170,7 @@ private:
      *      \frac{ df( F ) } { dF } = e * cosh( F ) - 1
      * \f]
      * for hyperbolic orbits, where \f$ F \f$ is the hyperbolic eccentric anomaly, and \f$ e \f$ is
-     * the eccentricity. Currently, the case for near-parabolic orbits is not included
-     * ( 0.8 < eccentricity < 1.2 ).
+     * the eccentricity. All eccentricities > 1.0 are valid.
      * \param hyperbolicEccentricAnomaly Hyperbolic eccentric anomaly
      * \return Value of first-derivative of Kepler's function for hyperbolic orbits.
      */

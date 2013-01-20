@@ -30,13 +30,27 @@
  *                                  eccentricities.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120813    P. Musegaas       Changed code to new root finding structure.
+ *      120822    P. Musegaas       Tested and improved initial guess of eccentric anomaly. Added
+ *                                  functionality for near-parabolic cases. Added option for user
+ *                                  to specifiy initial guess. Changed error message to a runtime
+ *                                  error.
+ *      120903    P. Musegaas       Added additional warning message.
+ *      121205    P. Musegaas       Updated code to final version of rootfinders.
+ *      130116    E. Heeren         Changed RootAbsoluteToleranceTerminationCondition to work on
+ *                                  all systems.
  *
  *    References
- *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
+ *      Regarding method in general:
+ *          Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
+ *          Wakker, K. F. Astrodynamics I + II. Lecture Notes AE4-874, Delft University of
+ *              Technology, Delft, Netherlands.
+ *      Regarding the choice of initial guess:
+ *          Musegaas, P., Optimization of Space Trajectories Including Multiple Gravity Assists and
+ *              Deep Space Maneuvers, MSc thesis report, Delft University of Technology, 2012.
+ *              [unpublished so far]. Section available on tudat website (tudat.tudelft.nl)
+ *              under issue #539.
  *
- *    Notes
- *      Currently, this conversion is only valid for eccentricities up to 0.97 due to the
- *      difficulties of the iterative method to converge for eccentricities close to 1.
+ *      Notes
  *
  */
 
@@ -49,6 +63,7 @@
 #include <boost/exception/all.hpp>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
@@ -65,19 +80,25 @@ using namespace root_finders::termination_conditions;
 
 //! Construct converter with eccentricity and mean anomaly.
 ConvertMeanAnomalyToEccentricAnomaly::ConvertMeanAnomalyToEccentricAnomaly( 
-        const double anEccentricity, 
-        const double aMeanAnomaly,
-        RootFinderPointer aRootFinder )
+        const double anEccentricity, const double aMeanAnomaly,
+        const bool useDefaultInitialGuess_,
+        const double userSpecifiedInitialGuess_,
+        root_finders::RootFinderPointer aRootFinder )
     : eccentricity( anEccentricity ),
-      meanAnomaly( aMeanAnomaly ),
+      useDefaultInitialGuess( useDefaultInitialGuess_ ),
+      userSpecifiedInitialGuess( userSpecifiedInitialGuess_ ),
       rootFinder( aRootFinder )
+
 {
+    // Set mean anomaly to region between 0 and 2 PI.
+    meanAnomaly = mathematics::computeModulo( aMeanAnomaly, 2.0 * mathematics::PI );
+
     // Required because the make_shared in the function definition gives problems for MSVC.
     if ( !rootFinder.get( ) )
     {
         rootFinder = boost::make_shared< NewtonRaphson >(
             boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-            boost::make_shared< RootAbsoluteToleranceTerminationCondition >( 5.0e-15, 1000 ),
+            boost::make_shared< RootAbsoluteToleranceTerminationCondition >( 1.0e-13, 1000 ),
             _1, _2, _3, _4, _5 ) );
     }
 }
@@ -88,34 +109,8 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
     // Declare eccentric anomaly.
     double eccentricAnomaly = TUDAT_NAN;
 
-    // Check if orbit is circular.
-    if ( std::fabs( eccentricity ) < std::numeric_limits< double >::min( ) )
-    {
-        // If orbit is circular mean anomaly and eccentric anomaly are equal.
-        eccentricAnomaly = meanAnomaly;
-    }
-
-    // Check if eccentricity is non-negative.
-    else if ( eccentricity < 0.0 )
-    {
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error( "Orbit eccentricity is negative!" ) ) );
-    }
-
-    // Check if orbit is near-parabolic, i.e. eccentricity >= 0.98.
-    else if ( eccentricity > 0.98 )
-    {
-        std::stringstream errorMessage;
-        errorMessage << "Orbit is near-parabolic and, at present conversion, between eccentric "
-                     << "anomaly and mean anomaly is not possible for eccentricities larger than: "
-                     << "0.98" << std::endl;
-
-        boost::throw_exception( boost::enable_error_info(
-                                    std::runtime_error( errorMessage.str( ) ) ) );
-    }
-
     // Check if orbit is elliptical, and not near-parabolic.
-    else
+    if ( eccentricity < 1.0 && eccentricity >= 0.0 )
     {
         // Create an object containing the function of which we whish to obtain the root from.
         basic_mathematics::UnivariateProxyPtr rootFunction
@@ -127,8 +122,42 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
         rootFunction->addBinding( -1, boost::bind( &ConvertMeanAnomalyToEccentricAnomaly::
                 computeFirstDerivativeKeplersFunctionForEllipticalOrbits, this, _1 ) );
 
+        // Declare initial guess.
+        double initialGuess = TUDAT_NAN;
+
+        // Set the initial guess. Check if the default scheme is to be used or a user specified
+        // value should be used.
+        // !!!!!!!!!!!!!     IMPORTANT     !!!!!!!!!!!!!
+        // If this scheme is changed, please run a very extensive test suite. The root finder
+        // function tends to be chaotic for some very specific combinations of mean anomaly and
+        // eccentricity. Various random tests of 100.000.000 samples were done to verify the
+        // functionality of this one, and of another option for the starter: PI. [Musegaas,2012]
+        if ( useDefaultInitialGuess )
+        {
+            if ( meanAnomaly > mathematics::PI )
+            {
+                initialGuess =  meanAnomaly - eccentricity;
+            }
+            else
+            {
+                initialGuess = meanAnomaly + eccentricity;
+            }
+        }
+        else
+        {
+            initialGuess = userSpecifiedInitialGuess;
+        }
+
         // Set eccentric anomaly based on result of Newton-Raphson root-finding algorithm.
-        eccentricAnomaly = rootFinder->execute( rootFunction, meanAnomaly );
+        eccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
+    }
+
+    //  Eccentricity is invalid: eccentricity < 0.0 or eccentricity >= 1.0.
+    else
+    {
+        boost::throw_exception( std::runtime_error( boost::str( boost::format(
+                "Invalid eccentricity. Valid range is 0.0 <= e < 1.0. Eccentricity was: '%f'." )
+                    % eccentricity ) ) );
     }
 
     // Return eccentric anomaly.

@@ -36,8 +36,15 @@
  *      120607    P. Musegaas       Changed interface (propagation time instead of two epochs).
  *      120713    P. Musegaas       Changed tolerance in root finder to relative tolerance.
  *      120813    P. Musegaas       Changed code to new root finding structure.
+ *      120823    P. Musegaas       Added functionality for hyperbolic and near-parabolic orbits.
+ *                                  Changed some parameters to const. Various small changes.
+ *      120903    P. Musegaas       Removed modulo option, due to errors with it. Kepler propagator
+ *                                  now simply return true anomaly in -PI to PI spectrum.
+ *      121205    P. Musegaas       Updated code to final version of rootfinders.
  *
  *    References
+ *
+ *    Notes
  *
  */
 
@@ -53,6 +60,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
 
 namespace tudat
 {
@@ -67,7 +75,6 @@ using namespace root_finders;
 Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeplerianElements,
                                       const double propagationTime,
                                       const double centralBodyGravitationalParameter,
-                                      bool useModuloOption,
                                       RootFinderPointer rootFinder )
 {
     if ( !rootFinder.get( ) )
@@ -77,7 +84,7 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
                                  RootAbsoluteToleranceTerminationCondition::
                                  checkTerminationCondition,
                                  boost::make_shared< root_finders::termination_conditions::
-                                 RootAbsoluteToleranceTerminationCondition >( 5.0e-15, 1000 ),
+                                 RootAbsoluteToleranceTerminationCondition >( 5.0e-14, 1000 ),
                                  _1, _2, _3, _4, _5 ) );
     }
 
@@ -88,88 +95,93 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
     // Create final state in Keplerian elements.
     Eigen::VectorXd finalStateInKeplerianElements = initialStateInKeplerianElements;
 
-    // Check if orbit is elliptical.
-    if ( initialStateInKeplerianElements( eccentricityIndex ) >= 0.98
-         || initialStateInKeplerianElements( eccentricityIndex ) < 0.0 )
+    // Check if eccentricity is valid.
+    if ( initialStateInKeplerianElements( eccentricityIndex ) < 0.0 )
     {
         boost::throw_exception(
                     boost::enable_error_info(
-                        std::runtime_error( "Eccentricity is invalid." ) ) );
+                        std::runtime_error( "Eccentricity is invalid (smaller than 0)." ) ) );
     }
 
     // Check if orbit is elliptical.
-    if ( initialStateInKeplerianElements( eccentricityIndex ) < 0.98
-         && initialStateInKeplerianElements( eccentricityIndex ) >= 0.0 )
+    else if ( initialStateInKeplerianElements( eccentricityIndex ) < 1.0 )
     {
-        // Set elapsed time used in the computation algorithm. This elapsed time is either
-        // the complete propagation period or a fraction of an orbit.
-        double elapsedTime = 0.0;
-
-        // Set number of complete orbits.
-        double numberOfCompleteOrbits = 0.0;
-
-        // Check if modulo-option is set and subtract complete orbits from elapsed time.
-        if ( useModuloOption )
-        {
-            // Compute orbital period of Kepler orbit.
-            const double orbitalPeriod = basic_astrodynamics::computeKeplerOrbitalPeriod(
-                        initialStateInKeplerianElements( semiMajorAxisIndex ),
-                        centralBodyGravitationalParameter );
-
-            // Determine elapsed time.
-            elapsedTime = basic_mathematics::computeModulo( propagationTime, orbitalPeriod );
-
-            // Determine corresponding number of complete orbits.
-            numberOfCompleteOrbits = std::floor( propagationTime / orbitalPeriod );
-        }
-
-        else
-        {
-            elapsedTime = ( propagationTime );
-        }
-
         // Convert initial true anomaly to eccentric anomaly.
-        const double initialEccentricAnomaly
-                = tudat::orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(
+        const double initialEccentricAnomaly = convertTrueAnomalyToEccentricAnomaly(
                     initialStateInKeplerianElements( trueAnomalyIndex ),
                     initialStateInKeplerianElements( eccentricityIndex ) );
 
         // Convert initial eccentric anomaly to mean anomaly.
-        const double initialMeanAnomaly
-                = tudat::orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
+        const double initialMeanAnomaly = convertEccentricAnomalyToMeanAnomaly(
                     initialEccentricAnomaly,
                     initialStateInKeplerianElements( eccentricityIndex ) );
 
         // Compute change of mean anomaly between start and end of propagation.
-        const double meanAnomalyChange
-                = tudat::orbital_element_conversions::
-                convertElapsedTimeToEllipticalMeanAnomalyChange(
-                    elapsedTime, centralBodyGravitationalParameter,
+        const double meanAnomalyChange = convertElapsedTimeToEllipticalMeanAnomalyChange(
+                    propagationTime, centralBodyGravitationalParameter,
                     initialStateInKeplerianElements( semiMajorAxisIndex ) );
 
         // Set Keplerian elements and Newton-Raphson root-finder for mean anomaly to eccentric
         // anomaly conversion.
-        ConvertMeanAnomalyToEccentricAnomaly convertMeanAnomalyToEccentricAnomaly_(
+        ConvertMeanAnomalyToEccentricAnomaly convertMeanAnomalyToEccentricAnomaly(
                     initialStateInKeplerianElements( eccentricityIndex ),
                     initialMeanAnomaly + meanAnomalyChange,
                     rootFinder );
 
         // Compute eccentric anomaly for mean anomaly.
-        const double finalEccentricAnomaly = convertMeanAnomalyToEccentricAnomaly_.convert( );
+        const double finalEccentricAnomaly = convertMeanAnomalyToEccentricAnomaly.convert( );
 
         // Compute true anomaly for computed eccentric anomaly.
-        finalStateInKeplerianElements( trueAnomalyIndex )
-                = tudat::orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+        finalStateInKeplerianElements( trueAnomalyIndex ) = convertEccentricAnomalyToTrueAnomaly(
                     finalEccentricAnomaly, finalStateInKeplerianElements( eccentricityIndex ) );
+    }
 
-        // If modulo option is set, add the removed completed orbits back to the final true
-        // anomaly.
-        if ( useModuloOption )
-        {
-            finalStateInKeplerianElements( trueAnomalyIndex )
-                    += numberOfCompleteOrbits * 2.0
-                    * basic_mathematics::mathematical_constants::PI;
-        }
+    // Check if the orbit is hyperbolic.
+    else if ( initialStateInKeplerianElements( eccentricityIndex ) > 1.0 )
+    {
+        // Convert initial true anomaly to hyperbolic eccentric anomaly.
+        const double initialHyperbolicEccentricAnomaly =
+                convertTrueAnomalyToHyperbolicEccentricAnomaly(
+                    initialStateInKeplerianElements( trueAnomalyIndex ),
+                    initialStateInKeplerianElements( eccentricityIndex ) );
+
+        // Convert initial hyperbolic eccentric anomaly to the hyperbolic mean anomaly.
+        const double initialHyperbolicMeanAnomaly =
+                convertHyperbolicEccentricAnomalyToMeanAnomaly(
+                    initialHyperbolicEccentricAnomaly,
+                    initialStateInKeplerianElements( eccentricityIndex ) );
+
+        // Compute change of mean anomaly because of the propagation time.
+        const double hyperbolicMeanAnomalyChange =
+                convertElapsedTimeToHyperbolicMeanAnomalyChange(
+                    propagationTime, centralBodyGravitationalParameter,
+                    initialStateInKeplerianElements( semiMajorAxisIndex ) );
+
+        // Set Keplerian elements and Newton-Raphson root-finder for mean anomaly to eccentric
+        // anomaly conversion.
+        ConvertMeanAnomalyToHyperbolicEccentricAnomaly
+                convertMeanAnomalyToHyperbolicEccentricAnomaly(
+                    initialStateInKeplerianElements( eccentricityIndex ),
+                    initialHyperbolicMeanAnomaly + hyperbolicMeanAnomalyChange,
+                    rootFinder );
+
+        // Compute hyperbolic eccentric anomaly for mean anomaly.
+        const double finalHyperbolicEccentricAnomaly =
+                convertMeanAnomalyToHyperbolicEccentricAnomaly.convert( );
+
+        // Compute true anomaly for computed hyperbolic eccentric anomaly.
+        finalStateInKeplerianElements( trueAnomalyIndex ) =
+                convertHyperbolicEccentricAnomalyToTrueAnomaly(
+                               finalHyperbolicEccentricAnomaly,
+                               finalStateInKeplerianElements( eccentricityIndex ) );
+    }
+
+    // In this case the eccentricity has to be 1.0, hence the orbit is parabolic.
+    else
+    {
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error( "Parabolic orbits are not (yet) supported." ) ) );
     }
 
     return finalStateInKeplerianElements;
@@ -178,63 +190,3 @@ Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeple
 } // namespace orbital_element_conversions
 } // namespace basic_astrodynamics
 } // namespace tudat
-
-// This code has been commented out, as it was implemented in the old Kepler propagator without an
-// accomanpying unit test.
-// It can be re-included in the propagateKeplerOrbit() function once a unit test is written.
-// The code will also have to be updated to no longer use the old Propagator architecture.
-
-//        else if ( keplerianElements_.getEccentricity( ) > 1.2 )
-//        {
-//            // Convert initial true anomaly to hyperbolic eccentric anomaly.
-//            hyperbolicEccentricAnomaly_
-//                    = orbital_element_conversions::
-//                      convertTrueAnomalyToHyperbolicEccentricAnomaly(
-//                              keplerianElements_.getTrueAnomaly( ),
-//                              keplerianElements_.getEccentricity( ) );
-
-//            // Convert initial hyperbolic eccentric anomaly to mean anomaly.
-//            meanAnomaly_ = orbital_element_conversions::
-//                           convertHyperbolicEccentricAnomalyToMeanAnomaly(
-//                                   hyperbolicEccentricAnomaly_,
-//                                   keplerianElements_.getEccentricity( ) );
-
-//            // Set Keplerian elements for mean anomaly to hyperbolic eccentric
-//            // anomaly conversion.
-//            convertMeanAnomalyToHyperbolicEccentricAnomaly_
-//                    .setEccentricity( keplerianElements_.getEccentricity( ) );
-
-//            // Set Newton-Raphson method.
-//            convertMeanAnomalyToHyperbolicEccentricAnomaly_
-//                    .setNewtonRaphson( pointerToNewtonRaphson_ );
-
-//            // Compute change of mean anomaly between start and end of
-//            // propagation step.
-//            meanAnomalyChange_
-//                    = orbital_element_conversions::
-//                    convertElapsedTimeToHyperbolicMeanAnomalyChange(
-//                        ( propagationIntervalEnd_ - propagationIntervalStart_ ),
-//                        iteratorBodiesToPropagate_->second
-//                        .pointerToCentralBody->getGravitationalParameter( ),
-//                        keplerianElements_.getSemiMajorAxis( ) );
-
-//            // Set mean anomaly change in mean anomaly to eccentric anomaly
-//            // conversions
-//            convertMeanAnomalyToHyperbolicEccentricAnomaly_
-//                    .setMeanAnomaly( meanAnomaly_ + meanAnomalyChange_ );
-
-//            // Compute hyperbolic eccentric anomaly for mean anomaly.
-//            hyperbolicEccentricAnomaly_ =
-//                    convertMeanAnomalyToHyperbolicEccentricAnomaly_
-//                    .convert( );
-
-//            // Compute true anomaly for computed hyperbolic eccentric
-//            // anomaly.
-//            trueAnomaly_ = orbital_element_conversions::
-//                           convertHyperbolicEccentricAnomalyToTrueAnomaly(
-//                                   hyperbolicEccentricAnomaly_,
-//                                   keplerianElements_.getEccentricity( ) );
-
-//            // Set computed true anomaly in KeplerianElements object.
-//            keplerianElements_.setTrueAnomaly( trueAnomaly_ );
-//        }
