@@ -27,6 +27,8 @@
  #      110820    S.M. Persson      File created.
  #	120203    K. Kumar	    Adapted for new BasicAstrodynamics package.
  #      120216    K. Kumar          Removed propagator files.
+ #      120822    P. Musegaas       Added unit test for mean to hyperbolic eccentric anomaly
+ #                                  conversion.
  #
  #    References
  #
@@ -63,6 +65,10 @@ setup_tudat_library_target(tudat_basic_astrodynamics "${SRCROOT}${BASICASTRODYNA
 add_executable(test_MeanToEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToEccentricAnomaly.cpp")
 setup_custom_test_program(test_MeanToEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_MeanToEccenticAnomalyConversion tudat_basic_astrodynamics tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_MeanToHyperbolicEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToHyperbolicEccentricAnomaly.cpp")
+setup_custom_test_program(test_MeanToHyperbolicEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_MeanToHyperbolicEccenticAnomalyConversion tudat_basic_astrodynamics tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_KeplerPropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestKeplerPropagator.cpp")
 setup_custom_test_program(test_KeplerPropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}")
