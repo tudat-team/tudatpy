@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120322    D. Dirkx          Creation of code.
+ *      120322    D. Dirkx          File created.
  *
  *    References
  *

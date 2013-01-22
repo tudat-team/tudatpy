@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110527    L. van der Ham    Creation of code.
+ *      110527    L. van der Ham    File created.
  *      110602    L. van der Ham    Made LibrationPoints class and added comments.
  *      110707    L. van der Ham    Make code compatible with Tudat revision 114.
  *      110629    L. van der Ham    Modifications according to comments first code check.
@@ -85,7 +85,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     case L1:
     {
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPtr rootFunction = boost::make_shared< UnivariateProxy >(
+        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
                     boost::bind( &LibrationPoint::computeL1LocationFunction, this, _1 ) );
 
         // Add the first derivative of the root function.
@@ -101,7 +101,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     case L2:
     {
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPtr rootFunction = boost::make_shared< UnivariateProxy >(
+        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
                     boost::bind( &LibrationPoint::computeL2LocationFunction, this, _1 ) );
 
         // Add the first derivative of the root function.
@@ -117,7 +117,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     case L3:
     {
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPtr rootFunction = boost::make_shared< UnivariateProxy >(
+        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
                     boost::bind( &LibrationPoint::computeL3LocationFunction, this, _1 ) );
 
         // Add the first derivative of the root function.

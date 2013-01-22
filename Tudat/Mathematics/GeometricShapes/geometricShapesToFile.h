@@ -73,10 +73,10 @@ namespace geometric_shapes
  *          as 2nd.
  */
 void writeSingleSurfaceGeometryPointsToFile(
-        boost::shared_ptr< geometric_shapes::SingleSurfaceGeometry > singleSurfaceGeometryPointer,
-        int numberOfLines, int numberOfPoints,
-        const std::string& filename, int writeType,
-        const bool& isIndependentVariableInverted );
+        geometric_shapes::SingleSurfaceGeometryPointer singleSurfaceGeometry,
+        const int numberOfLines, const int numberOfPoints,
+        const std::string& filename, const int writeType,
+        const bool isIndependentVariableInverted );
 
 //! Write composite surface geometry to a file.
 /*!
@@ -97,11 +97,11 @@ void writeSingleSurfaceGeometryPointsToFile(
  *          and which as 2nd for each single surface geometry.
  */
 void writeCompositeSurfaceGeometryPointsToFile(
-        boost::shared_ptr< geometric_shapes::CompositeSurfaceGeometry >
-        compositeSurfaceGeometryPointer,
-        std::vector< int > arrayOfNumberOfLines, std::vector< int > arrayOfNumberOfPoints,
-        const std::string& filename, int writeType,
-        std::vector< bool > isIndependentVariableInvertedArray );
+        geometric_shapes::CompositeSurfaceGeometryPointer compositeSurfaceGeometry,
+        const std::vector< int >& arrayOfNumberOfLines,
+        const std::vector< int >& arrayOfNumberOfPoints,
+        const std::string& filename, const int writeType,
+        const std::vector< bool >& isIndependentVariableInvertedArray );
 
 } // namespace geometric_shapes
 } // namespace tudat

@@ -24,9 +24,10 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110224    K. Kumar          Creation of code.
+ *      110224    K. Kumar          File created.
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -41,6 +42,8 @@
 
 #include <iostream>
 #include <string>
+
+#include <boost/shared_ptr.hpp>
 
 namespace tudat
 {
@@ -250,6 +253,10 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to ApproximatePlanetPositionsDataContainer object.
+typedef boost::shared_ptr< ApproximatePlanetPositionsDataContainer >
+ApproximatePlanetPositionsDataContainerPointer;
 
 } // namespace ephemerides
 } // namespace tudat

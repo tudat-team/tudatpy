@@ -29,6 +29,8 @@
  *      110412    F.M. Engelen      Included flag boolean isAltitudeModelDefault_.
  *      110427    F.M. Engelen      Changed input arguments to altitude, longitude, latitude.
  *      110705    F.M. Engelen      Changed to passing by reference.
+ *      130120    K. Kumar          Made function calls const-correct; added shared-pointer
+ *                                  typedef.
  *
  *    References
  *
@@ -38,6 +40,8 @@
 
 #ifndef TUDAT_ATMOSPHERE_MODEL_H
 #define TUDAT_ATMOSPHERE_MODEL_H
+
+#include <boost/shared_ptr.hpp>
 
 namespace tudat
 {
@@ -69,8 +73,8 @@ public:
     * \param time Time.
     * \return Atmospheric density.
     */
-    virtual double getDensity( double altitude, double longitude,
-                               double latitude, double time ) = 0;
+    virtual double getDensity( const double altitude, const double longitude,
+                               const double latitude, const double time ) = 0;
 
     //! Get local pressure.
     /*!
@@ -81,8 +85,8 @@ public:
     * \param time Time.
     * \return Atmospheric pressure.
     */
-    virtual double getPressure( double altitude, double longitude,
-                                double latitude, double time ) = 0;
+    virtual double getPressure( const double altitude, const double longitude,
+                                const double latitude, const double time ) = 0;
 
     //! Get local temperature.
     /*!
@@ -93,13 +97,16 @@ public:
     * \param time Time.
     * \return Atmospheric temperature.
     */
-    virtual double getTemperature( double altitude, double longitude,
-                                   double latitude, double time ) = 0;
+    virtual double getTemperature( const double altitude, const double longitude,
+                                   const double latitude, const double time ) = 0;
 
 protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to AtmosphereModel object.
+typedef boost::shared_ptr< AtmosphereModel > AtmosphereModelPointer;
 
 } // namespace aerodynamics
 } // namespace tudat

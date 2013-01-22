@@ -24,7 +24,8 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120210    T. Secretin       First creation of code.
+ *      120210    T. Secretin       File created.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Battin, R.H. An Introduction to the Mathematics and Methods of Astrodynamics,
@@ -42,6 +43,10 @@
 
 #ifndef TUDAT_LAMBERT_TARGETER_IZZO_H
 #define TUDAT_LAMBERT_TARGETER_IZZO_H
+
+#include <boost/shared_ptr.hpp>
+
+#include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
 
@@ -62,8 +67,8 @@ public:
     /*!
      * Constructor with immediate definition of parameters and execution of the algorithm.
      */
-    LambertTargeterIzzo( const Eigen::Vector3d cartesianPositionAtDeparture,
-                         const Eigen::Vector3d cartesianPositionAtArrival,
+    LambertTargeterIzzo( const Eigen::Vector3d& cartesianPositionAtDeparture,
+                         const Eigen::Vector3d& cartesianPositionAtArrival,
                          const double timeOfFlight,
                          const double gravitationalParameter,
                          const bool isRetrograde = false,
@@ -144,6 +149,9 @@ private:
      */
     const double maximumNumberOfIterations_;
 };
+
+//! Typedef for shared-pointer to LambertTargeterIzzo object.
+typedef boost::shared_ptr< LambertTargeterIzzo > LambertTargeterIzzoPointer;
 
 } // namespace mission_segments
 } // namespace tudat

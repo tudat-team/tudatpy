@@ -24,11 +24,12 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110717    L. van der Ham    Creation of code.
+ *      110717    L. van der Ham    File created.
  *      111108    K. Kumar          Simplified conversion functions; changed "normalized" to
  *                                  "dimensionless".
  *      120307    K. Kumar          Updated Doxygen comments; made functions const-correct;
  *                                  updated to satisfy Tudat protocols; moved file.
+ *      130121    K. Kumar          Updated VectorXd to Vector6d.
  *
  *    References
  *        Wakker, K.F.,"Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -43,6 +44,8 @@
 #define TUDAT_UNIT_CONVERSIONS_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H
 
 #include <Eigen/Core>
+
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -69,7 +72,7 @@ namespace circular_restricted_three_body_problem
  * \return Dimensional Cartesian state.
  */
 Eigen::VectorXd convertDimensionlessCartesianStateToDimensionalUnits(
-        const Eigen::VectorXd& dimensionlessCartesianState,
+        const basic_mathematics::Vector6d& dimensionlessCartesianState,
         const double gravitationalParameterOfPrimaryBody,
         const double gravitationalParameterOfSecondaryBody,
         const double distanceBetweenPrimaries );

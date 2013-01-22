@@ -24,10 +24,11 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110221    K. Kumar          Creation of code.
+ *      110221    K. Kumar          File created.
  *      110224    K. Kumar          Renamed class and file.
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
+ *      130120    K. Kumar          Updated VectorXd to Vector6d; added shared-ptr typedef.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -41,12 +42,13 @@
 #define TUDAT_APPROXIMATE_PLANET_POSITIONS_H
 
 #include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
+
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -81,14 +83,14 @@ public:
      * Returns cartesian state from ephemeris.
      * \return State in Cartesian elements from ephemeris.
      */
-    Eigen::VectorXd getCartesianStateFromEphemeris( const double julianDate );
+    basic_mathematics::Vector6d getCartesianStateFromEphemeris( const double julianDate );
 
     //! Get keplerian state from ephemeris.
     /*!
      * Returns keplerian state in from ephemeris.
      * \return State in Keplerian elements from ephemeris.
      */
-    Eigen::VectorXd getKeplerianStateFromEphemeris( const double julianDate );
+    basic_mathematics::Vector6d getKeplerianStateFromEphemeris( const double julianDate );
 
 protected:
 
@@ -118,6 +120,9 @@ private:
      */
     double trueAnomalyAtGivenJulianData_;
 };
+
+//! Typedef for shared-pointer to ApproximatePlanetPositions object.
+typedef boost::shared_ptr< ApproximatePlanetPositions > ApproximatePlanetPositionsPointer;
 
 } // namespace ephemerides
 } // namespace tudat

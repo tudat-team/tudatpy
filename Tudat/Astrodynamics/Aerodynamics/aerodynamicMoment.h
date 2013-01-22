@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110617    F.M. Engelen      Creation of code.
+ *      110617    F.M. Engelen      File created.
  *      110822    D. Dirkx          Removed pointer to double member, removed location of center
  *                                  of mass, minor changes.
  *

@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120710    D. Dirkx          Creation of code.
+ *      120710    D. Dirkx          File created.
  *      120716    A. Ronse          Corrected spelling errors. Addition of file header,
  *                                  renamed virtual function. Added template functionality.
  *      120723    K. Kumar          Added template specialization for 1D cases.

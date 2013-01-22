@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101111    E. Iorfida        Creation of code.
+ *      101111    E. Iorfida        File created.
  *      101126    E. Iorfida        Virtual void "solve" added.
  *      101206    E. Iorfida        setInitialLambertState added, protected variables added.
  *      101207    E. Iorfida        Set single variables, change variables names in more
@@ -43,6 +43,7 @@
  *      120619    T. Secretin       Converted to free functions. Added Izzo's approach.
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Battin, R.H. An Introduction to the Mathematics and Methods of Astrodynamics,
@@ -59,7 +60,6 @@
 #define TUDAT_LAMBERT_ROUTINES_H
 
 #include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
 
@@ -231,6 +231,9 @@ private:
      */
     const double normalizedTimeOfFlight;
 };
+
+//! Typedef for shared-pointer to LambertFunctionsGooding object.
+typedef boost::shared_ptr< LambertFunctionsGooding > LambertFunctionsGoodingPointer;
 
 } // namespace mission_segments
 } // namespace tudat

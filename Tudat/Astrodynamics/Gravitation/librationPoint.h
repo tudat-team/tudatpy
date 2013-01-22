@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110527    L. van der Ham    Creation of code.
+ *      110527    L. van der Ham    File created.
  *      110602    L. van der Ham    Made LibrationPoints class and added comments.
  *      110625    K. Kumar          Minor modifications to layout and comments.
  *      110629    L. van der Ham    Modifications according to comments first code check.
@@ -39,6 +39,7 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References:
  *      van der Ham, L. Interplanetary trajectory design using dynamical systems theory,
@@ -251,6 +252,9 @@ private:
                 -2.0 * massParameter / std::pow( 1.0 - massParameter - xLocationEstimate, 3.0 );
     }
 };
+
+// Typedef for shared-pointer to LibrationPoint object.
+typedef boost::shared_ptr< LibrationPoint > LibrationPointPointer;
 
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation

@@ -36,6 +36,7 @@
  *      110805    K. Kumar          Added predefined functionality with WGS-72 and WGS-84
  *                                  predefined Earth gravity fields.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Vallado, D. A., Crawford, P., Hujsak, R., & Kelso, T. Revisiting Spacetrack Report #3:
@@ -52,6 +53,8 @@
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
 #include <iostream>
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -222,6 +225,9 @@ private:
      */
     double j4SphericalHarmonicsGravityFieldCoefficient_;
 };
+
+//! Typedef for shared-pointer to SphericalHarmonicsGravityField object.
+typedef boost::shared_ptr< SphericalHarmonicsGravityField > SphericalHarmonicsGravityFieldPointer;
 
 } // namespace gravitation
 } // namespace tudat

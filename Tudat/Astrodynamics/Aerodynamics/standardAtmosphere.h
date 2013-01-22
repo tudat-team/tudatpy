@@ -26,6 +26,8 @@
  *      YYMMDD    Author            Comment
  *      110224    B. Tong Minh      File created.
  *      111211    K. Kumar          Minor corrections; corrected const-reference to by-value.
+ *      130120    K. Kumar          Made function calls const-correct; added shared-pointer
+ *                                  typedef.
  *
  *    References
  *
@@ -35,6 +37,8 @@
 
 #ifndef TUDAT_STANDARD_ATMOSPHERE_H
 #define TUDAT_STANDARD_ATMOSPHERE_H
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 
@@ -62,8 +66,8 @@ public:
     * \param time Time.
     * \return Atmospheric density.
     */
-    virtual getDensity( double altitude, double longitude = 0.0,
-                        double latitude = 0.0, double time = 0.0 ) = 0;
+    virtual getDensity( const double altitude, const double longitude = 0.0,
+                        const double latitude = 0.0, const double time = 0.0 ) = 0;
 
     //! Get local pressure.
     /*!
@@ -74,8 +78,8 @@ public:
     * \param time Time.
     * \return Atmospheric pressure.
     */
-    virtual double getPressure( double altitude, double longitude = 0.0,
-                                double latitude = 0.0, double time = 0.0 ) = 0;
+    virtual double getPressure( const double altitude, const double longitude = 0.0,
+                                const double latitude = 0.0, const double time = 0.0 ) = 0;
 
     //! Get local temperature.
     /*!
@@ -86,9 +90,12 @@ public:
     * \param time Time.
     * \return Atmospheric temperature.
     */
-    virtual double getTemperature( double altitude, double longitude = 0.0,
-                                   double latitude = 0.0, double time = 0.0 ) = 0;
+    virtual double getTemperature( const double altitude, const double longitude = 0.0,
+                                   const double latitude = 0.0, const double time = 0.0 ) = 0;
 };
+
+//! Typedef for shared-pointer to StandardAtmosphere object.
+typedef boost::shared_ptr< StandardAtmosphere > StandardAtmospherePointer;
 
 } // namespace aerodynamics
 } // namespace tudat

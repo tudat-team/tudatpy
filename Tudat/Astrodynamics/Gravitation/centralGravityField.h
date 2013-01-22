@@ -27,6 +27,7 @@
  *      110623    K. Kumar          File created.
  *      110701    K. Kumar          Added Mercury, Saturn, Neptune.
  *      120327    D. Dirkx          Moved setting of predefined field to constructor.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -36,6 +37,8 @@
 
 #ifndef TUDAT_CENTRAL_GRAVITY_FIELD_H
 #define TUDAT_CENTRAL_GRAVITY_FIELD_H
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 
@@ -84,6 +87,9 @@ private:
     void setPredefinedCentralGravityFieldSettings(
         BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField );
 };
+
+//! Typedef for shared-pointer to CentralGravityField object.
+typedef boost::shared_ptr< CentralGravityField > CentralGravityFieldPointer;
 
 } // namespace gravitation
 } // namespace tudat

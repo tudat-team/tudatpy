@@ -32,6 +32,7 @@
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      E.H. Hirschel and C. Weiland, Selected Aerothermodynamic Design Problems of Hypersonic
@@ -47,6 +48,8 @@
 #define TUDAT_CAPSULE_H
 
 #include <iostream>
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
@@ -161,6 +164,9 @@ private:
      */
     double rearAngle_;
 };
+
+//! Typedef for shared-pointer to Capsule object.
+typedef boost::shared_ptr< Capsule > CapsulePointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

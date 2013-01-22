@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110214    K. Kumar          Creation of code.
+ *      110214    K. Kumar          File created.
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120421    K. Kumar          Removed base class; updated to set values through constructor.
@@ -34,6 +34,7 @@
  *                                  user to specifiy initial guess.
  *      121205    P. Musegaas       Updated code to final version of rootfinders.
  *      130116    E. Heeren         Minor changes to comments.
+ *      130120    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Regarding method in general, including starter values used:
@@ -59,6 +60,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
 #include "Tudat/Mathematics/RootFinders/rootFinder.h"
@@ -180,6 +182,10 @@ private:
         return eccentricity * std::cosh( hyperbolicEccentricAnomaly ) - 1.0;
     }
 };
+
+//! Typedef for shared-pointer to ConvertMeanAnomalyToHyperbolicEccentricAnomaly object.
+typedef boost::shared_ptr< ConvertMeanAnomalyToHyperbolicEccentricAnomaly >
+ConvertMeanAnomalyToHyperbolicEccentricAnomalyPointer;
 
 } // namespace orbital_element_conversions
 } // namespace basic_astrodynamics

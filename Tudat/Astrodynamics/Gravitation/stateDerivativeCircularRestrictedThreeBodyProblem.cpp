@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110905    L. van der Ham    Creation of code.
+ *      110905    L. van der Ham    File created.
  *      110922    L. van der Ham    Added computation of Jacobian energy constant.
  *      111107    L. van der Ham    Removed option planar.
  *      111110    K. Kumar          Minor comment and naming modifications; error removed from
@@ -55,8 +55,8 @@ namespace circular_restricted_three_body_problem
 {
 
 //! Compute state derivative.
-Eigen::VectorXd StateDerivativeCircularRestrictedThreeBodyProblem::
-computeStateDerivative( const double time, const Eigen::VectorXd& cartesianState )
+basic_mathematics::Vector6d StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative(
+        const double time, const basic_mathematics::Vector6d& cartesianState )
 {
     TUDAT_UNUSED_PARAMETER( time );
 

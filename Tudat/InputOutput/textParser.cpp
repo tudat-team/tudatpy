@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111206    S. Billemont      Creation of code.
+ *      111206    S. Billemont      File created.
  *      120326    D. Dirkx          Code checked, minor layout changes.
  *
  *    References

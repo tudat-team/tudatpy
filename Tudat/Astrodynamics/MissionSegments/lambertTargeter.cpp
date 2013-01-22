@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101111    E. Iorfida        Creation of code.
+ *      101111    E. Iorfida        File created.
  *      101111    E. Iorfida        Implementation of all the equations up to the Newton method.
  *      101117    E. Iorfida        Velocities computations added.
  *      101126    E. Iorfida        Get/set codes deleted.

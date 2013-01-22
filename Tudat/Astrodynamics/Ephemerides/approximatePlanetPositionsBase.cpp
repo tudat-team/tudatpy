@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110221    K. Kumar          Creation of code.
+ *      110221    K. Kumar          File created.
  *      110224    K. Kumar          Renamed class and file.
  *      110629    L. van der Ham    Added circular coplanar case.
  *      110803    L. van der Ham    Created base class and seperated approximatePlanetPositions

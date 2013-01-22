@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120607    T. Secretin       First creation of code.
+ *      120607    T. Secretin       File created.
  *
  *    References
  *      NASA/JPL HORIZONS Web-Interface, http://ssd.jpl.nasa.gov/horizons.cgi [1].

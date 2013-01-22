@@ -35,8 +35,8 @@
 #ifndef TUDAT_ONE_DIMENSIONAL_INTERPOLATOR_H
 #define TUDAT_ONE_DIMENSIONAL_INTERPOLATOR_H
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 

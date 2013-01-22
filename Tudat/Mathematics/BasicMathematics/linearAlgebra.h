@@ -66,8 +66,8 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
     }
 }
 
-} // linear_algebra
-} // basic_mathematics
-} // tudat
+} // namespace linear_algebra
+} // namespace basic_mathematics
+} // namespace tudat
 
 #endif // TUDAT_LINEAR_ALGEBRA_H

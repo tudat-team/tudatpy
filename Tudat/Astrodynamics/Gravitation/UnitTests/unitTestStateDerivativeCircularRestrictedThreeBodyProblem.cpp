@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120319    K. Kumar          Creation of code.
+ *      120319    K. Kumar          File created.
  *
  *    References
  *        Wakker, K.F. "Astrodynamics I, AE4-874", Delft University of Technology, 2007.

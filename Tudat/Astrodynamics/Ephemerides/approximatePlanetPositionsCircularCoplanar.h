@@ -24,9 +24,10 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110629    L. van der Ham    Creation of code.
+ *      110629    L. van der Ham    File created.
  *      110803    L. van der Ham    Separated this code from approximatePlanetPositions.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
+ *      130121    K. Kumar          Updated VectorXd to Vector6d; added shared-ptr typedef.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -43,16 +44,21 @@
 #ifndef TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H
 #define TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H
 
+#include <boost/shared_ptr.hpp>
+
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
+
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
 namespace ephemerides
 {
 
-//! Ephemeris class using JPL "Approximate Positions of Major Planets".
+//! Ephemeris class for circular, coplanar orbits using Approximate Positions of Major Planets.
 /*!
- * Ephemeris class using JPL "Approximate Positions of Major Planets".
+ * Ephemeris class for circular, coplanar planetary orbits, using JPL
+ * "Approximate Positions of Major Planets".
  */
 class ApproximatePlanetPositionsCircularCoplanar : public ApproximatePlanetPositionsBase
 {
@@ -76,8 +82,7 @@ public:
      * Returns state in Cartesian elements from ephemeris for circular and coplanar orbit.
      * \return State in Cartesian elements from ephemeris for circular and coplanar orbit.
      */
-
-    Eigen::VectorXd getCartesianStateFromEphemeris( const double julianDate );
+    basic_mathematics::Vector6d getCartesianStateFromEphemeris( const double julianDate );
 
 protected:
 
@@ -89,6 +94,10 @@ private:
      */
     double constantOrbitalRadius_;
 };
+
+//! Typedef for shared-pointer to ApproximatePlanetPositionsCircularCoplanar object.
+typedef boost::shared_ptr< ApproximatePlanetPositionsCircularCoplanar >
+ApproximatePlanetPositionsCircularCoplanarPointer;
 
 } // namespace ephemerides
 } // namespace tudat

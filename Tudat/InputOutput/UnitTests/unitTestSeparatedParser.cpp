@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
+ *      111103    S. Billemont      File created.
  *      111130    S. Billemont      Rewrote tests in boost.test form.
  *      120718    A. Ronse          Added unit test from "whitespaceparser".
  *

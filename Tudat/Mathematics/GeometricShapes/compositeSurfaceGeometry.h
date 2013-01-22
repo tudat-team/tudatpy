@@ -35,6 +35,7 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      130121    K. Kumar          Added shared-pointer typedef.
  *
  *    References
  *
@@ -70,6 +71,9 @@ namespace geometric_shapes
 class CompositeSurfaceGeometry: public SurfaceGeometry
 {
 public:
+
+    //! Typedef for shared-pointer to CompositeSurfaceGeometry object.
+    typedef boost::shared_ptr< CompositeSurfaceGeometry > CompositeSurfaceGeometryPointer;
 
     //! Default constructor.
     /*!
@@ -227,16 +231,19 @@ protected:
     /*!
      *  Array of pointers to SingleSurfaceGeometries.
      */
-    std::vector< boost::shared_ptr< SingleSurfaceGeometry > > singleSurfaceGeometryList_;
+    std::vector< SingleSurfaceGeometryPointer > singleSurfaceGeometryList_;
 
     //! Array of pointers to CompositeSurfaceGeometries.
     /*!
      *  Array of pointers to CompositeSurfaceGeometries.
      */
-    std::vector< boost::shared_ptr< CompositeSurfaceGeometry > > compositeSurfaceGeometryList_;
+    std::vector< CompositeSurfaceGeometryPointer > compositeSurfaceGeometryList_;
 
 private:
 };
+
+//! Typedef for shared-pointer to CompositeSurfaceGeometry object.
+typedef CompositeSurfaceGeometry::CompositeSurfaceGeometryPointer CompositeSurfaceGeometryPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

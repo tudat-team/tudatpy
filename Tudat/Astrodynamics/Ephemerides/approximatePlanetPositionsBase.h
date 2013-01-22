@@ -24,13 +24,14 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110221    K. Kumar          Creation of code.
+ *      110221    K. Kumar          File created.
  *      110224    K. Kumar          Renamed class and file.
  *      110629    L. van der Ham    Added function coplanar circular orbits.
  *      110803    L. van der Ham    Created base class and separated approximatePlanetPositions
  *                                  from approximatePlanetPositionsCircularCoplanar.
  *      110824    J. Leloux         Corrected doxygen documentation.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -47,6 +48,8 @@
 #include <fstream>
 #include <map>
 #include <string>
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -85,7 +88,7 @@ public:
     { }
 
     //! Default destructor.
-    ~ApproximatePlanetPositionsBase( ) { }
+    virtual ~ApproximatePlanetPositionsBase( ) { }
 
     //! Parse ephemeris line data.
     /*!
@@ -177,6 +180,9 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to ApproximatePlanetPositionsBase object.
+typedef boost::shared_ptr< ApproximatePlanetPositionsBase > ApproximatePlanetPositionsBasePointer;
 
 } // namespace ephemerides
 } // namespace tudat

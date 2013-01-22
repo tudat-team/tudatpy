@@ -24,9 +24,10 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
+ *      111103    S. Billemont      File created.
  *      120217    D.J. Gondelach    Code check.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -83,8 +84,11 @@ private:
     std::string rawField;
 
     //! Pointer to unit transformation equation.
-    boost::shared_ptr< FieldTransform > transform;
+    FieldTransformPointer transform;
 };
+
+//! Typedef for shared-pointer to FieldValue object.
+typedef boost::shared_ptr< FieldValue > FieldValuePointer;
 
 } // namespace input_output
 } // namespace tudat

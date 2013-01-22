@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110901    L. van der Ham    Creation of code.
+ *      110901    L. van der Ham    File created.
  *      120221    L. van der Ham    Fixed bug and up to date with latest standards.
  *      120227    K. Kumar          Boostified unit test; renamed file.
  *      120307    K. Kumar          Moved file.

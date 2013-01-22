@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101111    E. Iorfida        Creation of code.
+ *      101111    E. Iorfida        File created.
  *      101116    E. Iorfida        Added setFunction and execute.
  *      101121    E. Iorfida        Added Doxygen comments.
  *      110111    E. Iorfida        Deleted useless lines, and modified punctuation.

@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101111    E. Iorfida        Creation of code.
+ *      101111    E. Iorfida        File created.
  *      101126    E. Iorfida        Virtual void "solve" added.
  *      101206    E. Iorfida        setInitialLambertState added, protected variables added.
  *      101207    E. Iorfida        Set single variables, change variables names in more
@@ -43,6 +43,7 @@
  *      120620    T. Secretin       Adapted and moved code from LambertTargeter.h.
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -54,7 +55,8 @@
 #define TUDAT_LAMBERT_TARGETER_GOODING_H
 
 #include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+
+#include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
 #include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
@@ -78,8 +80,8 @@ public:
     /*!
      * Constructor with immediate definition of parameters and execution of the algorithm.
      */
-    LambertTargeterGooding( const Eigen::Vector3d cartesianPositionAtDeparture,
-                            const Eigen::Vector3d cartesianPositionAtArrival,
+    LambertTargeterGooding( const Eigen::Vector3d& cartesianPositionAtDeparture,
+                            const Eigen::Vector3d& cartesianPositionAtArrival,
                             const double timeOfFlight,
                             const double gravitationalParameter,
                             root_finders::RootFinderPointer aRootFinder = 
@@ -136,6 +138,9 @@ private:
      */
     root_finders::RootFinderPointer rootFinder;
 };
+
+//! Typedef for shared-pointer to LambertTargeterGooding object.
+typedef boost::shared_ptr< LambertTargeterGooding > LambertTargeterGoodingPointer;
 
 } // namespace mission_segments
 } // namespace tudat

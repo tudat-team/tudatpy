@@ -36,6 +36,7 @@
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -45,6 +46,8 @@
 
 #ifndef TUDAT_SPHERE_SEGMENT_H
 #define TUDAT_SPHERE_SEGMENT_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -187,6 +190,9 @@ private:
      */
     double radius_;
 };
+
+//! Typedef for shared-pointer to SphereSegment object.
+typedef boost::shared_ptr< SphereSegment > SphereSegmentPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

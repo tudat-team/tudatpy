@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110701    K. Kumar          Creation of code.
+ *      110701    K. Kumar          File created.
  *      110726    K. Kumar          Changed filename and class name.
  *      110802    K. Kumar          Added computeFitErrors( ) function; removed
  *                                  DataModeling class inheritance; changed
@@ -33,6 +33,7 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120508    K. Kumar          Updated code so input data is set at construction.
  *      120521    A. Ronse          Updated namespaces.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
@@ -50,6 +51,8 @@
 #define TUDAT_SIMPLE_LINEAR_REGRESSION_H
 
 #include <map>
+
+#include <boost/shared_ptr.hpp>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
@@ -230,6 +233,9 @@ private:
      */
     void sumDependentVariableData_( );
 };
+
+//! Typedef for shared-pointer to SimpleLinearRegression object.
+typedef boost::shared_ptr< SimpleLinearRegression > SimpleLinearRegressionPointer;
 
 } // namespace statistics
 } // namespace tudat

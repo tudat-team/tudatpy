@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110117    E. Iorfida        Creation of code.
+ *      110117    E. Iorfida        File created.
  *      110128    E. Iorfida        Added member variables necessary for the unit tests.
  *      110202    J. Melman         Changed several names and suggested minor restructuring of
  *                                  class.
@@ -50,6 +50,7 @@
  *                                  function.
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
+ *      130121    K. Kumar          Added shared-ptr typedefs.
  *
  *    References
  *
@@ -218,6 +219,9 @@ private:
     const double bendingAngle_;
 };
 
+//! Typedef for shared-pointer to PericenterFindingFunctions object.
+typedef boost::shared_ptr< PericenterFindingFunctions > PericenterFindingFunctionsPointer;
+
 //! Eccentricity finding functions class.
 /*!
  * This class contains the functions required by the root-finders to find the incoming eccentricity
@@ -232,9 +236,9 @@ public:
      * Constructor that sets all the parameters in the eccentricity finding functions for use in the
      * Newton Raphson rootfinder.
      */
-    EccentricityFindingFunctions ( const double incomingSemiMajorAxis,
-                                   const double outgoingSemiMajorAxis,
-                                   const double bendingAngle )
+    EccentricityFindingFunctions( const double incomingSemiMajorAxis,
+                                  const double outgoingSemiMajorAxis,
+                                  const double bendingAngle )
         : incomingSemiMajorAxis_( incomingSemiMajorAxis),
           outgoingSemiMajorAxis_( outgoingSemiMajorAxis ),
           bendingAngle_( bendingAngle )
@@ -284,6 +288,9 @@ private:
      */
     const double bendingAngle_;
 };
+
+//! Typedef for shared-pointer to EccentricityFindingFunctions object.
+typedef boost::shared_ptr< EccentricityFindingFunctions > EccentricityFindingFunctionsPointer;
 
 } // namespace mission_segments
 } // namespace tudat

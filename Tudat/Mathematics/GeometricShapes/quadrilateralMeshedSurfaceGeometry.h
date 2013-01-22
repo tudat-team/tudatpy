@@ -30,7 +30,8 @@
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor,
- *                                  removed raw pointer arrays
+ *                                  removed raw pointer arrays.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      An example of a heritage code which uses such a mesh is found in:
@@ -238,6 +239,10 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to QuadrilateralMeshedSurfaceGeometry object.
+typedef boost::shared_ptr< QuadrilateralMeshedSurfaceGeometry >
+QuadrilateralMeshedSurfaceGeometryPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

@@ -54,8 +54,8 @@
 #define TUDAT_NEAREST_NEIGHBOR_SEARCH_H 
 
 #include <map>
-#include <vector>
 #include <stdexcept>
+#include <vector>
 
 #include <boost/exception/all.hpp>
 

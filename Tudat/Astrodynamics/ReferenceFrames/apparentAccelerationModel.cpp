@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120716    A. Ronse          First creation of code.
+ *      120716    A. Ronse          File created.
  *      120718    D. Dirkx          Splitted up functions into Coriolis, centripetal and Euler.
  *
  *    References

@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120606    T. Secretin       Creation of code.
+ *      120606    T. Secretin       File created.
  *      120608    E. Heeren         Placed tests in unit_tests namespace.
  *
  *    References

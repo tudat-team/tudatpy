@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
+ *      111103    S. Billemont      File created.
  *      120906    T. Secretin       Reviewed code. Moved transform implementation to .cpp file.
  *
  *    References

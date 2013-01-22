@@ -30,7 +30,9 @@
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor,
- *                                  removed raw pointer arrays
+ *                                  removed raw pointer arrays.
+ *      130121    K. Kumar          Added shared-ptr typedef.
+ *
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard (LaWGS) format, NASA
  *          TECHNICAL MEMORANDUM 85767.
@@ -43,6 +45,8 @@
 #define TUDAT_LAWGS_PART_GEOMETRY_H
 
 #include <iostream>
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -160,11 +164,12 @@ protected:
     std::string name_;
 
 private:
-
 };
+
+//! Typedef for shared-pointer to LawgsPartGeometry object.
+typedef boost::shared_ptr< LawgsPartGeometry > LawgsPartGeometryPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat
-
 
 #endif // TUDAT_LAWGS_PART_GEOMETRY_H

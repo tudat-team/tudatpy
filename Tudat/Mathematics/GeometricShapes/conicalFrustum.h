@@ -33,6 +33,7 @@
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -44,6 +45,8 @@
 #define TUDAT_CONICAL_FRUSTUM_H
 
 #include <iostream>
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -195,6 +198,9 @@ private:
      */
     double length_;
 };
+
+//! Typedef for shared-pointer to ConicalFrustum object.
+typedef boost::shared_ptr< ConicalFrustum > ConicalFrustumPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

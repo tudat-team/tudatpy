@@ -23,9 +23,11 @@
  *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
- *      110530    F.M. Engelen      First creation of code.
+ *      YYMMDD    Author            Comment
+ *      110530    F.M. Engelen      File created.
  *      120326    D. Dirkx          Modified code to be consistent with latest Tudat/TudatCore;
  *                                  moved relevant functionality of (text)FileReader to this class.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Blake, W.B. Missile Datcom User's Manual - 1997 Fortran 90 Version, AFRL-VA-WP-TR-1998-3009
@@ -37,10 +39,12 @@
 #ifndef TUDAT_MISSILE_DATCOM_READER_H
 #define TUDAT_MISSILE_DATCOM_READER_H
 
-#include <vector>
 #include <fstream>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 namespace tudat
 {
@@ -159,6 +163,9 @@ private:
      */
     double stringToDouble( std::string const& inputString );
 };
+
+//! Typedef for shared-pointer to MissileDatcomReader object.
+typedef boost::shared_ptr< MissileDatcomReader > MissileDatcomReaderPointer;
 
 } // namespace input_output
 } // namespace tudat

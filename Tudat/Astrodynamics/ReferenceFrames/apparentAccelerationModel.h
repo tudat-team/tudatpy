@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120716    A. Ronse          First creation of code.
+ *      120716    A. Ronse          File created.
  *      120718    D. Dirkx          Splitted up functions into Coriolis, centripetal and Euler.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      J.S. Torok, Analytical Mechanics, Wiley-Interscience, 2000.
@@ -38,6 +39,7 @@
 #define TUDAT_APPARENT_ACCELERATION_MODEL_H
 
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Dense>
 
@@ -160,7 +162,7 @@ Eigen::Vector3d computeEulerAcceleration(
  * acceleration of the reference frame, as well as the Coriolis, centripetal and Euler
  * accelerations.
  */
-class ApparentAccelerationModel : public basic_astrodynamics::AccelerationModel < Eigen::Vector3d >
+class ApparentAccelerationModel : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 private:
 
@@ -302,6 +304,9 @@ private:
      */
     Eigen::Vector3d currentVelocityOfBodyInNonInertialReferenceFrame_;
 };
+
+//! Typedef for shared-pointer to ApparentAccelerationModel object.
+typedef boost::shared_ptr< ApparentAccelerationModel > ApparentAccelerationModelPointer;
 
 }   // namespace reference_frames
 }   // namespace tudat

@@ -30,6 +30,8 @@
  *      110629    F.M. Engelen      Added predefined function.
  *      110705    F.M. Engelen      Changed to passing by reference.
  *      110810    J. Leloux         Corrected doxygen documentation.
+ *      130120    K. Kumar          Made function calls const-correct; added shared-pointer
+ *                                  typedef.
  *
  *    References
  *
@@ -39,6 +41,8 @@
 
 #ifndef TUDAT_EXPONENTIAL_ATMOSPHERE_H
 #define TUDAT_EXPONENTIAL_ATMOSPHERE_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <cmath>
 
@@ -94,7 +98,7 @@ public:
     /*!
      * Sets the scale height (property of exponential atmosphere) in meters.
      */
-    void setScaleHeight( double scaleHeight ) { scaleHeight_ = scaleHeight; }
+    void setScaleHeight( const double scaleHeight ) { scaleHeight_ = scaleHeight; }
 
     //! Get scale height.
     /*!
@@ -159,8 +163,8 @@ public:
      * \param time Time.
      * \return Atmospheric density.
      */
-    double getDensity( double altitude, double longitude = 0.0,
-                       double latitude = 0.0, double time = 0.0 )
+    double getDensity( const double altitude, const double longitude = 0.0,
+                       const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -177,8 +181,8 @@ public:
      * \param time Time.
      * \return Atmospheric pressure.
      */
-    double getPressure( double altitude, double longitude = 0.0,
-                        double latitude = 0.0, double time = 0.0 )
+    double getPressure( const double altitude, const double longitude = 0.0,
+                        const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -195,8 +199,8 @@ public:
      * \param time Time.
      * \return Atmospheric temperature.
      */
-    double getTemperature( double altitude, double longitude = 0.0,
-                           double latitude = 0.0, double time = 0.0 )
+    double getTemperature( const double altitude, const double longitude = 0.0,
+                           const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
@@ -234,6 +238,9 @@ private:
      */
     double specificGasConstant_;
 };
+
+//! Typedef for shared-pointer to ExponentialAtmosphere object.
+typedef boost::shared_ptr< ExponentialAtmosphere > ExponentialAtmospherePointer;
 
 } // namespace aerodynamics
 } // namespace tudat

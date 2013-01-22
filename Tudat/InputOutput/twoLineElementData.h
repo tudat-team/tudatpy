@@ -33,6 +33,7 @@
  *                                  rev 138.
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110826    J. Leloux         Added TLE string vector container.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Literature research including information on TLE's:
@@ -57,6 +58,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -321,6 +324,9 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to TwoLineElementData object.
+typedef boost::shared_ptr< TwoLineElementData > TwoLineElementDataPointer;
 
 } // namespace input_output
 } // namespace tudat

@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110210    K. Kumar          Creation of code.
+ *      110210    K. Kumar          File created.
  *      111209    T. Secretin       Relaxed constraints on near-parabolic check.
  *      111221    T. Secretin       Added zero eccentricity case and check for negative
  *                                  eccentricities.
@@ -113,7 +113,7 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
     if ( eccentricity < 1.0 && eccentricity >= 0.0 )
     {
         // Create an object containing the function of which we whish to obtain the root from.
-        basic_mathematics::UnivariateProxyPtr rootFunction
+        basic_mathematics::UnivariateProxyPointer rootFunction
                 = boost::make_shared< basic_mathematics::UnivariateProxy >(
                     boost::bind( &ConvertMeanAnomalyToEccentricAnomaly::
                                  computeKeplersFunctionForEllipticalOrbits, this, _1 ) );

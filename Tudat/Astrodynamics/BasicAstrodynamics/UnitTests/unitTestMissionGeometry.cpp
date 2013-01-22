@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120530    M.I. Ganeff       Creation of code.
+ *      120530    M.I. Ganeff       File created.
  *      121018    M.I. Ganeff       Added unit tests for computeSphereOfInfluence().
  *      121123    D. Dirkx          Added unit tests for computeSphereOfInfluence() function taking
  *                                  mass ratio.

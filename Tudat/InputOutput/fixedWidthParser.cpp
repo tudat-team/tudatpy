@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111209    D.J. Gondelach    First creation of code.
+ *      111209    D.J. Gondelach    File created.
  *      120718    A. Ronse          Code check. Implemented optional trim.
  *
  *    References

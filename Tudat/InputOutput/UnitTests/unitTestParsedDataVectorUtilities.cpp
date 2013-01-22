@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120519    T. Secretin       First creation of code.
+ *      120519    T. Secretin       File created.
  *      120608    E. Heeren         Added tests to unit_tests namespace.
  *
  *    Notes

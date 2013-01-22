@@ -32,6 +32,7 @@
  *      110810    J. Leloux         Tested new setup and changed descriptions.
  *      110826    J. Leloux         Added functionality for 2-line and 3-line data.
  *      111027    K. Kumar          Modified 2-line and 3-line options using enum.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Leloux, J. Filtering Techniques for Orbital Debris Conjunction Analysis
@@ -60,6 +61,10 @@
 
 #include <fstream>
 #include <map>
+#include <string>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/InputOutput/twoLineElementData.h"
 
@@ -397,6 +402,9 @@ private:
      */
     std::vector< TwoLineElementData > twoLineElementData_;
 };
+
+//! Typedef for shared-pointer to TwoLineElementsTextFileReader object.
+typedef boost::shared_ptr< TwoLineElementsTextFileReader > TwoLineElementsTextFileReaderPointer;
 
 } // namespace input_output
 } // namespace tudat

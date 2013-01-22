@@ -24,10 +24,11 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110617    D. Dirkx          Creation of code.
+ *      110617    D. Dirkx          File created.
  *      120324    K. Kumar          Minor Doxygen comment corrections, added astrodynamics
  *                                  namespace layer; added missing Eigen include-statement.
  *      121020    D. Dirkx          Update to new acceleration model architecture.
+ *      130120    K. Kumar          Added shared pointer to AerodynamicAcceleration object.
  *
  *    References
  *
@@ -40,6 +41,7 @@
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -272,6 +274,9 @@ private:
      */
     double coefficientMultiplier_;
 };
+
+//! Typedef for shared-pointer to AerodynamicAcceleration object.
+typedef boost::shared_ptr< AerodynamicAcceleration > AerodynamicAccelerationPointer;
 
 } // namespace aerodynamics
 } // namespace tudat

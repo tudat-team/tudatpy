@@ -234,8 +234,8 @@ Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianS
 }
 
 //! Convert spherical to Cartesian gradient.
-Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d sphericalGradient,
-                                                     const Eigen::Vector3d cartesianCoordinates )
+Eigen::Vector3d convertSphericalToCartesianGradient(const Eigen::Vector3d& sphericalGradient,
+                                                     const Eigen::Vector3d& cartesianCoordinates )
 {   
     // Compute radius.
     const double radius = std::sqrt( cartesianCoordinates( 0 ) * cartesianCoordinates( 0 )
