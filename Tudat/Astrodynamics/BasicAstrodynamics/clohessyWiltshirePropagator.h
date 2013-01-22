@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120810    E. Dekens         File created.
+ *      130121    K. Kumar          Updated VectorXd to Vector6d.
  *
  *    References
  *      Vallado, D.A. Fundamentals of Astrodynamics and Applications. Microcosm Press, 2001.
@@ -37,6 +38,8 @@
 #define TUDAT_CLOHESSY_WILTSHIRE_PROPAGATOR_H
 
 #include <Eigen/Core>
+
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -107,10 +110,11 @@ namespace basic_astrodynamics
  *          finalState( 5 ) = cross-track velocity                                           [m/s].
  */
 
- Eigen::VectorXd propagateClohessyWiltshire( const Eigen::VectorXd& initialState,
-                                             const double propagationDuration,
-                                             const double centralBodyGravitationalParameter,
-                                             const double referenceOrbitRadius);
+basic_mathematics::Vector6d propagateClohessyWiltshire(
+        const basic_mathematics::Vector6d& initialState,
+        const double propagationDuration,
+        const double centralBodyGravitationalParameter,
+        const double referenceOrbitRadius );
 
 } // namespace basic_astrodynamics
 } // namespace tudat

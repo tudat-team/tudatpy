@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
+ *      111103    S. Billemont      File created.
  *      111205    T. Secretin       Added functionalities to previous shell code.
  *      120813    P. Musegaas       Changed code to new root finding structure.
  *

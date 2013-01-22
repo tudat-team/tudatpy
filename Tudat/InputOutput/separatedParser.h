@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      Creation of code.
+ *      111103    S. Billemont      File created.
  *      120706    D.J. Gondelach    Code check.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -104,8 +105,11 @@ private:
     /*!
      * Map containing equations which are used to transform raw data to SI unit data.
      */
-    std::map< FieldType, boost::shared_ptr<FieldTransform > > unitTransformationMap_;
+    std::map< FieldType, FieldTransformPointer > unitTransformationMap_;
 };
+
+//! Typedef for shared-pointer to SeparatedParser object.
+typedef boost::shared_ptr< SeparatedParser > SeparatedParserPointer;
 
 } // namespace input_output
 } // namespace tudat

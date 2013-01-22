@@ -26,6 +26,8 @@
  *      YYMMDD    Author            Comment
  *      110620    F.M. Engelen      File created.
  *      110721    J. Melman         Comments, file names, and consistency modified.
+ *      130120    K. Kumar          Made function calls const-correct; added shared-pointer
+ *                                  typedef.
  *
  *    References
  *
@@ -40,6 +42,8 @@
 #define TUDAT_TABULATED_ATMOSPHERE_H
 
 #include <string>
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -103,8 +107,8 @@ public:
      * \param time Time.
      * \return Atmospheric density.
      */
-    double getDensity( double altitude, double longitude = 0.0,
-                       double latitude = 0.0, double time = 0.0 )
+    double getDensity( const double altitude, const double longitude = 0.0,
+                       const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -121,8 +125,8 @@ public:
      * \param time Time.
      * \return Atmospheric pressure.
      */
-    double getPressure( double altitude, double longitude = 0.0,
-                        double latitude = 0.0, double time = 0.0 )
+    double getPressure( const double altitude, const double longitude = 0.0,
+                        const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -139,8 +143,8 @@ public:
      * \param time Time.
      * \return Atmospheric temperature.
      */
-    double getTemperature( double altitude, double longitude = 0.0,
-                           double latitude = 0.0, double time = 0.0 )
+    double getTemperature( const double altitude, const double longitude = 0.0,
+                           const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -206,6 +210,9 @@ private:
      */
     interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForTemperature_;
 };
+
+//! Typedef for shared-pointer to TabulatedAtmosphere object.
+typedef boost::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
 
 } // namespace aerodynamics
 } // namespace tudat

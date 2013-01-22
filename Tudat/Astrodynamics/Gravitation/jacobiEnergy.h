@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110829    L. van der Ham    Creation of code.
+ *      110829    L. van der Ham    File created.
  *      120221    L. van der Ham    Update of code and namespace.
  *      120227    K. Kumar          Updated code to new Tudat N Commandments; added enum to
  *                                  replace "magic numbers"; renamed file.

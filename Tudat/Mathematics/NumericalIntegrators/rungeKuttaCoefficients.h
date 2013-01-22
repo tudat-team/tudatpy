@@ -28,6 +28,7 @@
  *      120327    K. Kumar          Added Runge-Kutta 87 (Dormand and Prince) enum option; added
  *                                  lower-, higher-order, and order to integrate variables.
  *      130118    K. Kumar          Removed unused typedef.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -38,6 +39,8 @@
 
 #ifndef TUDAT_RUNGE_KUTTA_COEFFICIENTS_H
 #define TUDAT_RUNGE_KUTTA_COEFFICIENTS_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -126,6 +129,9 @@ struct RungeKuttaCoefficients
      */
     static const RungeKuttaCoefficients& get( CoefficientSets coefficientSet );
 };
+
+//! Typedef for shared-pointer to RungeKuttaCoefficients object.
+typedef boost::shared_ptr< RungeKuttaCoefficients > RungeKuttaCoefficientsPointer;
 
 } // namespace numerical_integrators
 } // namespace tudat

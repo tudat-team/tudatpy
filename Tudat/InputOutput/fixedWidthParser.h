@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111209    D.J. Gondelach    First creation of code.
+ *      111209    D.J. Gondelach    File created.
  *      120718    A. Ronse          Code check. Implemented optional trim.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -93,8 +94,11 @@ private:
     bool                    doTrim;
 
     //! Unit transformation map.
-    std::map< FieldType, boost::shared_ptr< FieldTransform > > unitTransformationMap_;
+    std::map< FieldType, FieldTransformPointer > unitTransformationMap_;
 };
+
+//! Typedef for shared-pointer to FixedWidthParser object.
+typedef boost::shared_ptr< FixedWidthParser > FixedWidthParserPointer;
 
 } // namespace input_output
 } // namespace tudat

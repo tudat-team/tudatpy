@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110702    K. Kumar          Creation of code.
+ *      110702    K. Kumar          File created.
  *      110726    K. Kumar          Changed filename and class name.
  *      110802    K. Kumar          Added standard deviation and chi-squared
  *                                  test; added note; renamed filename.

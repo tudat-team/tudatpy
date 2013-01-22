@@ -38,6 +38,7 @@
  *                                  now simply return true anomaly in -PI to PI spectrum. Added
  *                                  Comments.
  *      121205    P. Musegaas       Updated code to final version of rootfinders.
+ *      130120    K. Kumar          Updated VectorXd to Vector6d.
  *
  *    References
  *
@@ -56,6 +57,7 @@
 #include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
 #include "Tudat/Mathematics/RootFinders/rootFinder.h"
 #include "Tudat/Mathematics/RootFinders/terminationConditions.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -96,8 +98,8 @@ namespace orbital_element_conversions
  *          finalStateInKeplerianElements( 4 ) = longitude of ascending node,                 [rad]
  *          finalStateInKeplerianElements( 5 ) = true anomaly.                                [rad]
  */
-Eigen::VectorXd propagateKeplerOrbit(
-        const Eigen::VectorXd& initialStateInKeplerianElements,
+basic_mathematics::Vector6d propagateKeplerOrbit(
+        const basic_mathematics::Vector6d& initialStateInKeplerianElements,
         const double propagationTime,
         const double centralBodyGravitationalParameter,
         root_finders::RootFinderPointer aRootFinder = root_finders::RootFinderPointer( ) );

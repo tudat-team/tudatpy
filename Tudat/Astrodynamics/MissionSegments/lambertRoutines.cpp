@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101111    E. Iorfida        Creation of code.
+ *      101111    E. Iorfida        File created.
  *      101111    E. Iorfida        Implementation of all the equations up to the Newton method.
  *      101117    E. Iorfida        Velocities computations added.
  *      101126    E. Iorfida        Get/set codes deleted.
@@ -81,6 +81,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/exception/all.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/math/special_functions.hpp>
 
 #include <Eigen/Core>
@@ -544,9 +545,9 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
     LambertFunctionsGooding lambertFunctionsGooding( qParameter, normalizedTimeOfFlight );
 
     // Create an object containing the function of which we whish to obtain the root from.
-    using basic_mathematics::UnivariateProxyPtr;
+    using basic_mathematics::UnivariateProxyPointer;
     using basic_mathematics::UnivariateProxy;
-    UnivariateProxyPtr rootFunction = boost::make_shared< UnivariateProxy >(
+    UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
                 boost::bind( &LambertFunctionsGooding::computeLambertFunctionGooding,
                              lambertFunctionsGooding, _1 ) );
 

@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101111    E. Iorfida        Creation of code.
+ *      101111    E. Iorfida        File created.
  *      101126    E. Iorfida        Virtual void "solve" added.
  *      101206    E. Iorfida        setInitialLambertState added, protected variables added.
  *      101207    E. Iorfida        Set single variables, change variables names in more
@@ -44,6 +44,7 @@
  *                                  Turned into base class for Lambert Targeters. Previous code
  *                                  adapted and moved to LambertTargeterGooding.h.
  *      120704    P. Musegaas       Moved getInertialVelocityVectors to header. Minor changes.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -55,6 +56,8 @@
 #define TUDAT_LAMBERT_TARGETER_H
 
 #include <iostream>
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -181,6 +184,9 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to LambertTargeter.
+typedef boost::shared_ptr< LambertTargeter > LambertTargeterPointer;
 
 } // namespace mission_segments
 } // namespace tudat

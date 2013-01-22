@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      Creation of code.
+ *      111103    S. Billemont      File created.
  *      120706    D.J. Gondelach    Code check.
  *      120718    A. Ronse          Replaced custom split functions by
  *                                  boost::algorithm::make_split_iterator method.

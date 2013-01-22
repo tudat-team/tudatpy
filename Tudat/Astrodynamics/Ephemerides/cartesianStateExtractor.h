@@ -24,7 +24,8 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120521    T. Secretin       First creation of code.
+ *      120521    T. Secretin       File created.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -52,8 +53,7 @@ namespace ephemerides
  * This class contains the functionality of extracting the Cartesian elements from a parsed data
  * line map.
  */
-class CartesianStateExtractor : public input_output::Extractor<
-        basic_mathematics::Vector6d >
+class CartesianStateExtractor : public input_output::Extractor< basic_mathematics::Vector6d >
 {
 public:
 
@@ -71,6 +71,9 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to CartesianStateExtractor object.
+typedef boost::shared_ptr< CartesianStateExtractor > CartesianStateExtractorPointer;
 
 } // namespace ephemerides
 } // namespace tudat

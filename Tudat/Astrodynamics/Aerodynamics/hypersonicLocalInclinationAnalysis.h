@@ -34,6 +34,8 @@
  *      121009    A. Ronse          Adjusted inclination-determination to surface-outward normals.
  *                                  Limited inclination computations to 1 per aoa and aos pair.
  *                                  Streamlined initialization of isCoefficientGenerated_.
+ *      130120    K. Kumar          Added shared pointer to HypersonicLocalInclinationAnalysis
+ *                                  object.
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. The Mark IV Supersonic-Hypersonic Arbitrary Body
@@ -53,10 +55,11 @@
 #include <string>
 #include <vector>
 
-#include <Eigen/Core>
-
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
@@ -329,6 +332,10 @@ private:
      */
     std::string machRegime_;
 };
+
+//! Typedef for shared-pointer to HypersonicLocalInclinationAnalysis object.
+typedef boost::shared_ptr< HypersonicLocalInclinationAnalysis >
+HypersonicLocalInclinationAnalysisPointer;
 
 } // namespace aerodynamics
 } // namespace tudat

@@ -42,6 +42,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -68,9 +69,9 @@ class FunctionProxy : public BasicFunction< IndependentVariable, DependentVariab
 public:
 
     // Useful definitions.
-    typedef BasicFunction< IndependentVariable, DependentVariable >              Parent;
-    typedef boost::function< DependentVariable( IndependentVariable ) >          FunctionSignature;
-    typedef boost::shared_ptr< FunctionProxy >                                   FunctionProxyPtr;
+    typedef BasicFunction< IndependentVariable, DependentVariable >           Parent;
+    typedef boost::function< DependentVariable( IndependentVariable ) >       FunctionSignature;
+    typedef boost::shared_ptr< FunctionProxy >                                FunctionProxyPointer;
 
     //! Create a Function object, using a specified function pointer.
     /*!
@@ -146,15 +147,15 @@ private:
 };
 
 // Type definitions for the commonly used double form.
-typedef FunctionProxy< double, double >     UnivariateProxy;
-typedef UnivariateProxy::FunctionSignature  UnivariateSignature;
-typedef UnivariateProxy::FunctionProxyPtr   UnivariateProxyPtr;
+typedef FunctionProxy< double, double >         UnivariateProxy;
+typedef UnivariateProxy::FunctionSignature      UnivariateSignature;
+typedef UnivariateProxy::FunctionProxyPointer   UnivariateProxyPointer;
 
-//! Factory for creating a UnivariateProxyPtr from a C++ function UnivariateSignature.
+//! Factory for creating a UnivariateProxyPointer from a C++ function UnivariateSignature.
 /*!
  * \param function C++ function representing the mathematical function.
  */
-inline UnivariateProxyPtr univariateProxy( UnivariateSignature function )
+inline UnivariateProxyPointer univariateProxy( UnivariateSignature function )
 {
     // Return shared pointer to univariate function.
     return boost::make_shared< UnivariateProxy >( function );
@@ -168,11 +169,11 @@ inline UnivariateProxyPtr univariateProxy( UnivariateSignature function )
  *                  function1.
  * \param function1 Additional derivative or integral representation to bind.
  */
-inline UnivariateProxyPtr univariateProxy( UnivariateSignature function,
-                                           const int order1, UnivariateSignature function1 )
+inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
+                                               const int order1, UnivariateSignature function1 )
 {
     // Create shared pointer to univariate function.
-    UnivariateProxyPtr functionPointer = boost::make_shared< UnivariateProxy >( function );
+    UnivariateProxyPointer functionPointer = boost::make_shared< UnivariateProxy >( function );
 
     // Add a binding for an explicit form of the function derivative or integral.
     functionPointer->addBinding( order1, function1 );
@@ -181,7 +182,7 @@ inline UnivariateProxyPtr univariateProxy( UnivariateSignature function,
     return functionPointer;
 }
 
-//! Factory for creating a UnivariateProxyPtr from a C++ function UnivariateSignature, with two
+//! Factory for creating a UnivariateProxyPointer from a C++ function UnivariateSignature, with two
 //! additional binding.
 /*!
  * \param function  C++ function representing the mathematical function.
@@ -192,12 +193,12 @@ inline UnivariateProxyPtr univariateProxy( UnivariateSignature function,
  *                  function2.
  * \param function2 Second additional derivative or integral representation to bind.
  */
-inline UnivariateProxyPtr univariateProxy( UnivariateSignature function,
-                                           const int order1, UnivariateSignature function1,
-                                           const int order2, UnivariateSignature function2 )
+inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
+                                               const int order1, UnivariateSignature function1,
+                                               const int order2, UnivariateSignature function2 )
 {
     // Create shared pointer to univariate function.
-    UnivariateProxyPtr functionPointer = boost::make_shared< UnivariateProxy >( function );
+    UnivariateProxyPointer functionPointer = boost::make_shared< UnivariateProxy >( function );
 
     // Add bindings for the explicit form of the function derivative(s) or integral(s).
     functionPointer->addBinding( order1, function1 );
@@ -207,7 +208,7 @@ inline UnivariateProxyPtr univariateProxy( UnivariateSignature function,
     return functionPointer;
 }
 
-//! Factory for creating a UnivariateProxyPtr from a C++ function UnivariateSignature, with three
+//! Factory for creating a UnivariateProxyPointer from a C++ function UnivariateSignature, with three
 //! additional binding.
 /*!
  * \param function  C++ function representing the mathematical function.
@@ -221,13 +222,13 @@ inline UnivariateProxyPtr univariateProxy( UnivariateSignature function,
  *                  function3.
  * \param function3 Third additional derivative or integral representation to bind.
  */
-inline UnivariateProxyPtr univariateProxy( UnivariateSignature function,
-                                           const int order1, UnivariateSignature function1,
-                                           const int order2, UnivariateSignature function2,
-                                           const int order3, UnivariateSignature function3 )
+inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
+                                               const int order1, UnivariateSignature function1,
+                                               const int order2, UnivariateSignature function2,
+                                               const int order3, UnivariateSignature function3 )
 {
     // Create shared pointer to univariate function.
-    UnivariateProxyPtr functionPointer = boost::make_shared< UnivariateProxy >( function );
+    UnivariateProxyPointer functionPointer = boost::make_shared< UnivariateProxy >( function );
 
     // Add bindings for the explicit form of the function derivative(s) or integral(s).
     functionPointer->addBinding( order1, function1 );

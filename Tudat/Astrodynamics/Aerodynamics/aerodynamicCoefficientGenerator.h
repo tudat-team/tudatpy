@@ -182,7 +182,7 @@ protected:
     Eigen::Vector3d momentReferencePoint_;
 };
 
-} // aerodynamics
+} // namespace aerodynamics
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_COEFFICIENT_GENERATOR_H

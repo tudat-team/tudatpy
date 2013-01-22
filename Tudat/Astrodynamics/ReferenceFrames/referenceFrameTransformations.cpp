@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110519    F.M. Engelen      Creation of code.
+ *      110519    F.M. Engelen      File created.
  *      110628    K. Kumar          Minor comment and layout changes; changed
  *                                  input arguments to pass-by-reference.
  *      110701    K. Kumar          Updated file path.
@@ -34,6 +34,7 @@
  *      110809    F.M. Engelen      Applied the minus one correction for angleAxisD,
  *                                  changed to local vertical frame.
  *      120530    E.A.G. Heeren     Namespace update.
+ *      130121    K. Kumar          Updated functions to be const-correct.
  *
  *    References
  *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
@@ -56,7 +57,7 @@ namespace reference_frames
 {
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Eigen::Matrix3d
-getRotatingPlanetocentricToInertialFrameTransformationMatrix( double angleFromXItoXR )
+getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR )
 {
     // Declare local variables.
     // Declare local matrix.
@@ -71,8 +72,8 @@ getRotatingPlanetocentricToInertialFrameTransformationMatrix( double angleFromXI
 }
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation quaternion.
-Eigen::Quaterniond
-getRotatingPlanetocentricToInertialFrameTransformationQuaternion( double angleFromXItoXR )
+Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
+        const double angleFromXItoXR )
 {
     // Compute transformation quaternion
     // Note the sign change, because how angleAxisd is defined.
@@ -85,8 +86,8 @@ getRotatingPlanetocentricToInertialFrameTransformationQuaternion( double angleFr
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
-Eigen::Matrix3d
-getInertialToPlanetocentricFrameTransformationMatrix( double angleFromXItoXR )
+Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
+        const double angleFromXItoXR )
 {
     // Compute rotation about Z-Axis.
     // Note the sign change, because how angleAxisd is defined.
@@ -98,8 +99,8 @@ getInertialToPlanetocentricFrameTransformationMatrix( double angleFromXItoXR )
 }
 
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
-Eigen::Quaterniond
-getInertialToPlanetocentricFrameTransformationQuaternion( double angleFromXItoXR )
+Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
+        const double angleFromXItoXR )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
@@ -113,8 +114,8 @@ getInertialToPlanetocentricFrameTransformationQuaternion( double angleFromXItoXR
 }
 
 //! Create a Quaterniond rotation state object from four quaternion values in a Vector4d
-Eigen::Quaterniond
-getQuaternionObjectFromQuaternionValues( const Eigen::Vector4d& vectorWithQuaternion )
+Eigen::Quaterniond getQuaternionObjectFromQuaternionValues(
+        const Eigen::Vector4d& vectorWithQuaternion )
 {
     // Set transformation quaternion.
     Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
@@ -126,9 +127,8 @@ getQuaternionObjectFromQuaternionValues( const Eigen::Vector4d& vectorWithQuater
 }
 
 //! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
-Eigen::Matrix3d
-getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( double angleOfAttack,
-                                                            double angleOfSideslip )
+Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
+        const double angleOfAttack, const double angleOfSideslip )
 {
     // Declare local variables.
     // Declare local transformation matrix.
@@ -145,9 +145,8 @@ getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( double angleOfAttack
 }
 
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
-Eigen::Quaterniond
-getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-        double longitude, double latitude )
+Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+        const double longitude, const double latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
@@ -164,9 +163,8 @@ getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
 }
 
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
-Eigen::Quaterniond
-getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-        double longitude, double latitude )
+Eigen::Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+        const double longitude, const double latitude )
 {
     // Compute transformation quaternion.
     // Note the sign change (-1.0), because how angleAxisd is defined.

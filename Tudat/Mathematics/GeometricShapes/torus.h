@@ -33,6 +33,7 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      130121    K. Kumar          Added shared-pointer typedef.
  *
  *    References
  *
@@ -42,6 +43,8 @@
 
 #ifndef TUDAT_TORUS_H
 #define TUDAT_TORUS_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -63,7 +66,7 @@ namespace geometric_shapes
  * the angle by which the tube is 'revolved' and the latter denoting the point
  * on the circular cross-section of the tube.
  */
-class Torus: public SingleSurfaceGeometry
+class Torus : public SingleSurfaceGeometry
 {
 public:
 
@@ -71,16 +74,16 @@ public:
     /*!
      *  Default constructor. Default values set to full torus.
      * \param majorRadius Major radius of torus (i.e. radius from center of torus to outside, of
-     * torus).
+     *          torus).
      * \param minorRadius Minor radius of torus (i.e. radius of torus 'tube')
      * \param minimumMajorCircumferentialAngle Minimum of circumferential angle 'subtended by
-     * major radius'
+     *          major radius'.
      * \param maximumMajorCircumferentialAngle Maximum of circumferential angle 'subtended by
-     * major radius'
+     *          major radius'.
      * \param minimumMinorCircumferentialAngle Minimum of circumferential angle 'subtended by
-     * minor radius'
+     *          minor radius'.
      * \param maximumMinorCircumferentialAngle Maximum of circumferential angle 'subtended by
-     * minor radius'
+     *          minor radius'.
      */
     Torus( const double majorRadius, const double minorRadius,
            const double minimumMajorCircumferentialAngle = 0.0,
@@ -202,6 +205,9 @@ private:
      */
     double minorRadius_;
 };
+
+//! Typedef for shared-pointer to Torus object.
+typedef boost::shared_ptr< Torus > TorusPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

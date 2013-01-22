@@ -37,6 +37,7 @@
 #define TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 
 #include <iostream>
+#include <vector>
 
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
@@ -62,8 +63,8 @@ namespace interpolators
  */
 template< typename IndependentVariableType, typename DependentVariableType,
           int numberOfDimensions >
-    class MultiLinearInterpolator: public Interpolator< IndependentVariableType,
-    DependentVariableType, numberOfDimensions >
+class MultiLinearInterpolator: public Interpolator< IndependentVariableType,
+        DependentVariableType, numberOfDimensions >
 {
 public:
 

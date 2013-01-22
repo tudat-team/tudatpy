@@ -28,6 +28,7 @@
  *      120813    P. Musegaas       Added some forgotten templates.
  *      120909    K. Kumar          Added Doxygen comments; updated variable-naming to be verbose;
  *                                  updated function names and ensured const-correctness.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -37,6 +38,8 @@
 
 #ifndef TUDAT_FUNCTION_H
 #define TUDAT_FUNCTION_H
+
+#include <boost/shared_ptr.hpp>
 
 namespace tudat
 {
@@ -92,6 +95,13 @@ public:
                                                        const IndependentVariable lowerBound,
                                                        const IndependentVariable upperbound ) = 0;
 };
+
+//! Typedef for shared-pointer to Function object.
+/*!
+ * Typedef for shared-pointer to Function object with IndependentVariable=double,
+ * DependentVariable=double.
+ */
+typedef boost::shared_ptr< Function< > > FunctionPointer;
 
 } // namespace basic_mathematics
 } // namespace tudat

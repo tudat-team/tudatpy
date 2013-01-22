@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110622    F.M. Engelen      Creation of code.
+ *      110622    F.M. Engelen      File created.
  *      110822    D. Dirkx          Removed no longer necessary unit tests.
  *      110824    J. Leloux         Corrected doxygen documentation.
  *      120328    D. Dirkx          Boostified unit tests.
@@ -155,8 +155,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
     {
         // Create aaerodynamic acceleration model class, no inverted coefficients, direct mass
         // and reference area.
-        boost::shared_ptr< AerodynamicAcceleration > accelerationClass =
-                boost::make_shared< AerodynamicAcceleration >(
+        AerodynamicAccelerationPointer accelerationClass
+                = boost::make_shared< AerodynamicAcceleration >(
                     boost::lambda::constant( forceCoefficients ),
                     boost::lambda::constant( density ),
                     boost::lambda::constant( airSpeed ),
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
 
         // Create aerodynamic acceleration model class, no inverted coefficients, mass and
         // reference area set through boost::functions.
-        boost::shared_ptr< AerodynamicAcceleration > accelerationClass2 =
+        AerodynamicAccelerationPointer accelerationClass2 =
                 boost::make_shared< AerodynamicAcceleration >(
                     boost::lambda::constant( forceCoefficients ),
                     boost::lambda::constant( density ),
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
     {
         // Create aaerodynamic acceleration model class, inverted coefficients, direct mass
         // and reference area.
-        boost::shared_ptr< AerodynamicAcceleration > accelerationClass =
+        AerodynamicAccelerationPointer accelerationClass =
                 boost::make_shared< AerodynamicAcceleration >(
                     boost::lambda::constant( -forceCoefficients ),
                     boost::lambda::constant( density ),
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
 
         // Create aerodynamic acceleration model class, inverted coefficients, mass and
         // reference area set through boost::functions.
-        boost::shared_ptr< AerodynamicAcceleration > accelerationClass2 =
+        AerodynamicAccelerationPointer accelerationClass2 =
                 boost::make_shared< AerodynamicAcceleration >(
                     boost::lambda::constant( -forceCoefficients ),
                     boost::lambda::constant( density ),

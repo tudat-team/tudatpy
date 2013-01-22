@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110129    E. Iorfida        Creation of code.
+ *      110129    E. Iorfida        File created.
  *      110131    E. Iorfida        Added comments and pointerToCelestialBody.
  *      110202    E. Iorfida        Modified structure of the code, unique base class for launch
  *                                  and capture paths.

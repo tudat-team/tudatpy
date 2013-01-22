@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110117    E. Iorfida        Creation of code.
+ *      110117    E. Iorfida        File created.
  *      110128    E. Iorfida        Added boolean variable that sets the necessity of
  *                                  Newton-Raphson method, particularly in unit test.
  *      110202    J. Melman         Renamed certain parameters and added comments to clarify the
@@ -107,7 +107,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                       const double speedTolerance,
                       RootFinderPointer rootFinder )
 {
-    using basic_mathematics::UnivariateProxyPtr;
+    using basic_mathematics::UnivariateProxyPointer;
     using basic_mathematics::UnivariateProxy;
 
     // Compute incoming and outgoing hyperbolic excess velocity.
@@ -210,7 +210,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                                                                    bendingAngle );
 
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPtr rootFunction = boost::make_shared< UnivariateProxy >(
+        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
                     boost::bind( &EccentricityFindingFunctions::
                                  computeIncomingEccentricityFunction,
                                  eccentricityFindingFunctions, _1 ) );
@@ -279,7 +279,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                                                                bendingAngle);
 
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPtr rootFunction = boost::make_shared< UnivariateProxy >(
+        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
                     boost::bind( &PericenterFindingFunctions::computePericenterRadiusFunction,
                                  pericenterFindingFunctions, _1 ) );
 

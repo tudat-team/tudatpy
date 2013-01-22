@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110501    L. van der Ham    Creation of code.
+ *      110501    L. van der Ham    File created.
  *      110607    L. van der Ham    Make code compatible with Tudat revision 114.
  *      110629    L. van der Ham    Modifications according to comments first code check.
  *      110710    K. Kumar          Restructured code; added subtests.

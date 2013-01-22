@@ -228,8 +228,8 @@ Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianS
 *         cartesianGradient( 1 ) = partial derivative with respect to y coordinate,
 *         cartesianGradient( 2 ) = partial derivative with respect to z coordinate.
 */
-Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d sphericalGradient,
-                                                     const Eigen::Vector3d cartesianCoordinates );
+Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
+                                                     const Eigen::Vector3d& cartesianCoordinates );
 
 } // namespace coordinate_conversions
 } // namespace basic_mathematics

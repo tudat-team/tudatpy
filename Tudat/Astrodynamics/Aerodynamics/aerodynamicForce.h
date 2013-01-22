@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110617    F.M. Engelen      Creation of code.
+ *      110617    F.M. Engelen      File created.
  *      110822    D. Dirkx          Removed pointer to double member, minor changes.
  *      120324    K. Kumar          Added missing include-statements; used TUDAT_NAN in class
  *                                  constructor initialization list instead of -0.0; minor

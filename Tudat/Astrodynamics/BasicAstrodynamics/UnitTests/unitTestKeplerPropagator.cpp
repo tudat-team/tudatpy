@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110216    K. Kumar          Creation of code.
+ *      110216    K. Kumar          File created.
  *      110217    E. Iorfida        Minor changes made.
  *      110221    K. Kumar          Updated variable-naming to comply with protocol.
  *      110920    K. Kumar          Corrected simple errors outlined by M. Persson.

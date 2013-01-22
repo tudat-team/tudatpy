@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
+ *      111103    S. Billemont      File created.
  *      120521    T. Secretin       Layout changes.
  *
  *    References

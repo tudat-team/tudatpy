@@ -23,7 +23,7 @@
  *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
- *      110530    F.M. Engelen      First creation of code.
+ *      110530    F.M. Engelen      File created.
  *      120326    D. Dirkx          Modified code to be consistent with latest Tudat/TudatCore;
  *                                  moved relevant functionality of (text)FileReader to this class.
  *

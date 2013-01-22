@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110214    K. Kumar          Creation of code.
+ *      110214    K. Kumar          File created.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120813    P. Musegaas       Changed code to new root finding structure.
  *      120822    P. Musegaas       Tested and improved initial guess of hyperbolic eccentric
@@ -109,7 +109,7 @@ double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
     if ( eccentricity > 1.0 )
     {
         // Create an object containing the function of which we whish to obtain the root from.
-        basic_mathematics::UnivariateProxyPtr rootFunction
+        basic_mathematics::UnivariateProxyPointer rootFunction
                 = boost::make_shared< basic_mathematics::UnivariateProxy >(
                     boost::bind( &ConvertMeanAnomalyToHyperbolicEccentricAnomaly::
                                  computeKeplersFunctionForHyperbolicOrbits, this, _1 ) );
@@ -159,8 +159,6 @@ double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
         // Set hyperbolic eccentric anomaly based on result of Newton-Raphson root-finding
         // algorithm.
         hyperbolicEccentricAnomaly = rootFinder->execute( rootFunction, initialGuess );
-
-
     }
 
     // In this case the orbit is not hyperbolic.

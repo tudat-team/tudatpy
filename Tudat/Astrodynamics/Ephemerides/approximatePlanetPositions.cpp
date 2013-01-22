@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110221    K. Kumar          Creation of code.
+ *      110221    K. Kumar          File created.
  *      110224    K. Kumar          Renamed class and file.
  *      120217    K. Kumar          Updated computeModuloForSignedValues() to computeModulo()
  *                                  from Tudat Core.
@@ -41,9 +41,6 @@
 
 #include <cmath>
 
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 
@@ -56,7 +53,7 @@ namespace ephemerides
 {
 
 //! Get state from ephemeris.
-Eigen::VectorXd ApproximatePlanetPositions::getCartesianStateFromEphemeris(
+basic_mathematics::Vector6d ApproximatePlanetPositions::getCartesianStateFromEphemeris(
         const double julianDate )
 {
     // Convert planet elements in Keplerian elements to Cartesian elements.
@@ -66,7 +63,7 @@ Eigen::VectorXd ApproximatePlanetPositions::getCartesianStateFromEphemeris(
 }
 
 //! Get keplerian state from ephemeris.
-Eigen::VectorXd ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
+basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
         const double julianDate )
 {
     using std::pow;

@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120716    D. Dirkx          File created.
+ *      130121    K. Kumar          Added shared-ptr typedefs.
  *
  *    References
  *
@@ -36,6 +37,8 @@
 #define TUDAT_LOOK_UP_SCHEME_H
 
 #include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 
@@ -215,6 +218,17 @@ public:
                 < IndependentVariableType >( independentVariableValues_, valueToLookup );
     }
 };
+
+//! Typedef for shared-pointer to LookUpScheme object with double-type entries.
+typedef boost::shared_ptr< LookUpScheme< double > > LookUpSchemeDoublePointer;
+
+//! Typedef for shared-pointer to HuntingAlgorithmLookupScheme object with double-type entries.
+typedef boost::shared_ptr< HuntingAlgorithmLookupScheme< double > >
+HuntingAlgorithmLookupSchemeDoublePointer;
+
+//! Typedef for shared-pointer to BinarySearchLookupScheme object with double-type entries.
+typedef boost::shared_ptr< BinarySearchLookupScheme< double > >
+BinarySearchLookupSchemeDoublePointer;
 
 } // namespace interpolators
 } // namespace tudat

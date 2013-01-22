@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
+ *      111103    S. Billemont      File created.
  *      111205    T. Secretin       Added functionalities to previous shell code.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -41,6 +42,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/InputOutput/extractor.h"
+
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
@@ -53,8 +55,7 @@ namespace ephemerides
  * This class contains the functionality of extracting the Keplerian elements from a parsed data
  * line map.
  */
-class KeplerStateExtractor : public input_output::Extractor<
-        basic_mathematics::Vector6d >
+class KeplerStateExtractor : public input_output::Extractor< basic_mathematics::Vector6d >
 {
 public:
 
@@ -75,6 +76,9 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to KeplerStateExtractor object.
+typedef boost::shared_ptr< KeplerStateExtractor > KeplerStateExtractorPointer;
 
 } // namespace ephemerides
 } // namespace tudat

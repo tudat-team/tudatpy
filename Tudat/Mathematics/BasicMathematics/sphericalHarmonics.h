@@ -100,16 +100,15 @@ enum SphericalCoordinatesIndices{ radiusIndex, latitudeIndex, longitudeIndex };
  *          gradient( 1 ) = derivative with respect to latitude angle,
  *          gradient( 2 ) = derivative with respect to longitude angle.
  */
-Eigen::Vector3d computePotentialGradient(
-        const Eigen::Vector3d& sphericalPosition,
-        const double referenceRadius,
-        const double preMultiplier,
-        const int degree,
-        const int order,
-        const double cosineHarmonicCoefficient,
-        const double sineHarmonicCoefficient,
-        const double legendrePolynomial,
-        const double legendrePolynomialDerivative );
+Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPosition,
+                                          const double referenceRadius,
+                                          const double preMultiplier,
+                                          const int degree,
+                                          const int order,
+                                          const double cosineHarmonicCoefficient,
+                                          const double sineHarmonicCoefficient,
+                                          const double legendrePolynomial,
+                                          const double legendrePolynomialDerivative );
 
 } // namespace basic_mathematics
 } // namespace tudat

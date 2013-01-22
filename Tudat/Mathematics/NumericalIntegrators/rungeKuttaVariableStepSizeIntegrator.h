@@ -42,6 +42,7 @@
  *      120404    K. Kumar          Moved custom runtime_error class implementation outside of main
  *                                  integrator class.
  *      120614    A. Ronse          Fixed bug in constructor.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -62,6 +63,7 @@
 #include <boost/bind.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -652,6 +654,10 @@ private:
  * derivative and double as independent variable.
  */
 typedef RungeKuttaVariableStepSizeIntegrator< > RungeKuttaVariableStepSizeIntegratorXd;
+
+//! Typedef for shared-pointer to RungeKuttaVariableStepSizeIntegratorXd object.
+typedef boost::shared_ptr< RungeKuttaVariableStepSizeIntegratorXd >
+RungeKuttaVariableStepSizeIntegratorXdPointer;
 
 } // namespace numerical_integrators
 } // namespace tudat

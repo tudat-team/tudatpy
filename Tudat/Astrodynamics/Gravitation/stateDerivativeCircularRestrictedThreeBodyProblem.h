@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110905    L. van der Ham    Creation of code.
+ *      110905    L. van der Ham    File created.
  *      110922    L. van der Ham    Added computation of Jacobian energy constant.
  *      111107    L. van der Ham    Removed option planar.
  *      111110    K. Kumar          Minor comment and naming modifications.
@@ -33,6 +33,7 @@
  *                                  for mass parameter with constructor input; renamed class and
  *                                  file.
  *      120426    K. Kumar          Added enum for state derivative acceleration elements.
+ *      130121    K. Kumar          Added shared-ptr typedef; updated VectorXd to Vector6d.
  *
  *    References
  *        Wakker, K.F., "Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -44,7 +45,11 @@
 #ifndef TUDAT_STATE_DERIVATIVE_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H
 #define TUDAT_STATE_DERIVATIVE_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H
 
+#include <boost/shared_ptr.hpp>
+
 #include <Eigen/Core>
+
+#include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 
 namespace tudat
 {
@@ -80,6 +85,10 @@ enum StateDerivativeElementIndices
     zAccelerationIndex = 5
 };
 
+//! State derivative model class for CRTBP.
+/*!
+ * Class that contains the state derivative model for the CRTBP.
+ */
 class StateDerivativeCircularRestrictedThreeBodyProblem
 {
 public:
@@ -100,8 +109,8 @@ public:
      * \param cartesianState Cartesian state.
      * \return State derivative.
      */
-    Eigen::VectorXd computeStateDerivative( const double time,
-                                            const Eigen::VectorXd& cartesianState );
+    basic_mathematics::Vector6d computeStateDerivative(
+            const double time, const basic_mathematics::Vector6d& cartesianState );
 
 protected:
 
@@ -113,6 +122,10 @@ private:
      */
     double massParameter;
 };
+
+//! Typedef for shared-pointer to StateDerivativeCircularRestrictedThreeBodyProblem object.
+typedef boost::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem >
+StateDerivativeCircularRestrictedThreeBodyProblemPointer;
 
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation

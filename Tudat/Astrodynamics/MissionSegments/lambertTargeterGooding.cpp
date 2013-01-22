@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101111    E. Iorfida        Creation of code.
+ *      101111    E. Iorfida        File created.
  *      101111    E. Iorfida        Implementation of all the equations up to the Newton method.
  *      101117    E. Iorfida        Velocities computations added.
  *      101126    E. Iorfida        Get/set codes deleted.
@@ -67,6 +67,8 @@
  *
  */
 
+#include <boost/make_shared.hpp>
+
 #include <Eigen/Geometry>
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
@@ -82,8 +84,8 @@ using namespace root_finders;
 
 //! Constructor with immediate definition of parameters and execution of the algorithm.
 LambertTargeterGooding::LambertTargeterGooding( 
-        const Eigen::Vector3d cartesianPositionAtDeparture,
-        const Eigen::Vector3d cartesianPositionAtArrival,
+        const Eigen::Vector3d& cartesianPositionAtDeparture,
+        const Eigen::Vector3d& cartesianPositionAtArrival,
         const double timeOfFlight,
         const double gravitationalParameter,
         RootFinderPointer aRootFinder )

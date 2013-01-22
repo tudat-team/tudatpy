@@ -46,6 +46,7 @@
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 

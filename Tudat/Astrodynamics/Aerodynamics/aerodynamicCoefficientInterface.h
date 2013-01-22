@@ -24,10 +24,11 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110608    F.M. Engelen      Creation of code.
+ *      110608    F.M. Engelen      File created.
  *      110714    D. Dirkx          Class name change and other minor changes during code check.
  *      110715    F.M. Engelen      Added the virtual compute function.
  *      110810    J. Leloux         Corrected doxygen documentation (function variable name).
+ *      130120    K. Kumar          Added shared pointer to AerodynamicCoefficientInterface object.
  *
  *    References
  *
@@ -92,8 +93,7 @@ public:
      * Sets reference length used to non-dimensionalize aerodynamic moments.
      * \param referenceLength Aerodynamic reference length.
      */
-    void setReferenceLength( double referenceLength )
-    { referenceLength_ = referenceLength; }
+    void setReferenceLength( double referenceLength ) { referenceLength_ = referenceLength; }
 
     //! Get reference length.
     /*!
@@ -108,7 +108,9 @@ public:
      * \param lateralReferenceLength Aerodynamic reference length.
      */
     void setLateralReferenceLength( double lateralReferenceLength )
-    { lateralReferenceLength_ = lateralReferenceLength; }
+    {
+        lateralReferenceLength_ = lateralReferenceLength;
+    }
 
     //! Get lateral reference length.
     /*!
@@ -124,7 +126,9 @@ public:
      * \param momentReferencePoint Aerodynamic moment reference point.
      */
     void setMomentReferencePoint( const Eigen::Vector3d& momentReferencePoint )
-    { momentReferencePoint_ = momentReferencePoint; }
+    {
+        momentReferencePoint_ = momentReferencePoint;
+    }
 
     //! Get moment reference point.
     /*!
@@ -156,7 +160,9 @@ public:
      * \param currentForceCoefficients the current force coefficients.
      */
     void setCurrentForceCoefficients( const Eigen::Vector3d& currentForceCoefficients )
-    { currentForceCoefficients_ = currentForceCoefficients; }
+    {
+        currentForceCoefficients_ = currentForceCoefficients;
+    }
 
     //! Set the moment coefficients.
     /*!
@@ -164,7 +170,9 @@ public:
      * \param currentMomentCoefficients the current force coefficients.
      */
     void setCurrentMomentCoefficients( const Eigen::Vector3d& currentMomentCoefficients )
-    { currentMomentCoefficients_ = currentMomentCoefficients; }
+    {
+        currentMomentCoefficients_ = currentMomentCoefficients;
+    }
 
     //! Compute the aerodynamic coefficients at current flight condition.
     /*!

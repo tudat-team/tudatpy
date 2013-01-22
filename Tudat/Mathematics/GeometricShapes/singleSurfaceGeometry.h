@@ -39,7 +39,8 @@
  *      110209    D. Dirkx          Minor changes.
  *      110905    S. Billemont      Reorganized includes.
  *                                  Moved (con/de)structors and getter/setters to header.
- *      120323    D. Dirkx          Removed set functions; moved functionality to constructor
+ *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -52,6 +53,8 @@
 
 #ifndef TUDAT_SINGLE_SURFACE_GEOMETRY_H
 #define TUDAT_SINGLE_SURFACE_GEOMETRY_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -308,8 +311,10 @@ protected:
     Eigen::MatrixXd scalingMatrix_;
 
 private:
-
 };
+
+//! Typedef for shared-pointer to SingleSurfaceGeometry object.
+typedef boost::shared_ptr< SingleSurfaceGeometry > SingleSurfaceGeometryPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

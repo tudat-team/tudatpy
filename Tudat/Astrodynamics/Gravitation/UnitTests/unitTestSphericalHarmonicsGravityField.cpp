@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      101215    K. Kumar          Creation of code.
+ *      101215    K. Kumar          File created.
  *      101216    K. Kumar          Updated to include test of getPotential( ).
  *      101230    K. Kumar          Updated to include test of getGradient( ) and getLaplacian( ).
  *      110104    J. Melman         Some minor comment and layout changes.

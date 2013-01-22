@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120716    A. Ronse          Creation of code.
+ *      120716    A. Ronse          File created.
  *
  *    References
  *      [1] J.R. Clynch, Introduction to Earth Gravity, March 2006,

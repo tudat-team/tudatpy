@@ -27,6 +27,7 @@
  *      120926    E. Dekens         File created.
  *      121218    S. Billemont      Added output fuctions to display Legendre polynomial data,
  *                                  for debugging.
+ *      130121    K. Kumar          Added shared-ptr typedefs.
  *
  *    References
  *      Eberly, D. Spherical Harmonics. Help documentation of Geometric Tools, 2008. Available at
@@ -56,6 +57,7 @@
 
 #include <boost/circular_buffer.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
 namespace tudat
@@ -321,9 +323,13 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
 //! Declare structure for arguments of Legendre polynomial (for use in back-end cache).
 struct Point
 {
+public:
+
     //! Self-referential structure.
-    Point( int aDegree, int anOrder, double aPolynomialParameter )
-        : degree( aDegree ), order( anOrder ), polynomialParameter( aPolynomialParameter )
+    Point( const int aDegree, const int anOrder, const double aPolynomialParameter )
+        : degree( aDegree ),
+          order( anOrder ),
+          polynomialParameter( aPolynomialParameter )
     { }
 
     //! Degree of Legendre polynomial.
@@ -334,7 +340,14 @@ struct Point
 
     //! Polynomial parameter of Legendre polynomial.
     double polynomialParameter; 
+
+protected:
+
+private:
 };
+
+//! Typedef for shared-pointer to Point object.
+typedef boost::shared_ptr< Point > PointPointer;
 
 //! Define overloaded 'equals' operator for use with 'Point' structure.
 bool operator==( const Point& polynomialArguments1, const Point& polynomialArguments2 );
@@ -381,6 +394,9 @@ private:
     // Declare history buffer.
     CacheHistory history;
 };
+
+//! Typedef shared-pointer to LegendreCache object.
+typedef boost::shared_ptr< LegendreCache > LegendreCachePointer;
 
 // Declare global instances of LegendreCache class.
 static LegendreCache legendreCache;

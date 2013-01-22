@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      Creation of code.
+ *      111103    S. Billemont      File created.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -35,6 +36,8 @@
 
 #ifndef TUDAT_PARSER_H
 #define TUDAT_PARSER_H
+
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 
@@ -85,6 +88,9 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to Parser object.
+typedef boost::shared_ptr< Parser > ParserPointer;
 
 } // namespace input_output
 } // namespace tudat

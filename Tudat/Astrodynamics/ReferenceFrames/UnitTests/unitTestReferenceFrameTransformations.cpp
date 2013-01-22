@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110519    F.M. Engelen      Creation of code.
+ *      110519    F.M. Engelen      File created.
  *      110628    K. Kumar          Minor comment and layout modifications.
  *      110701    K. Kumar          Updated unit tests to check relative error;
  *                                  Updated file path.

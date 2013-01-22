@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      Creation of code.
+ *      111103    S. Billemont      File created.
  *      120326    D. Dirkx          Code checked, minor layout changes, implementation moved
  *                                  to cpp file and static identifier removed to prevent compile
  *                                  warning.

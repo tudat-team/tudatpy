@@ -64,8 +64,9 @@
 #include <map>
 #include <vector>
 
-#include <boost/multi_array.hpp>
 #include <boost/array.hpp>
+#include <boost/multi_array.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"

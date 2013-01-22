@@ -24,10 +24,11 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110530    F.M. Engelen      Code created.
+ *      110530    F.M. Engelen      File created.
  *      120326    D. Dirkx          Modified code to be consistent with latest Tudat/TudatCore.
  *      130114    D. Dirkx          Updated writeCoefficientsToFile() function to generated output
  *                                  in formatted scientific notation.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *      Blake, W.B. Missile Datcom User's Manual - 1997 Fortran 90 Version, AFRL-VA-WP-TR-1998-3009
@@ -40,8 +41,10 @@
 #ifndef TUDAT_MISSILE_DATCOM_DATA_H
 #define TUDAT_MISSILE_DATCOM_DATA_H
 
-#include <vector>
 #include <string>
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 namespace tudat
 {
@@ -272,6 +275,9 @@ private:
      */
     std::vector< double > freeStreamStaticPressure_;
 };
+
+//! Typedef for shared-pointer to MissileDatcomData object.
+typedef boost::shared_ptr< MissileDatcomData > MissileDatcomDataPointer;
 
 } // namespace input_output
 } // namespace tudat

@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      Creation of code.
+ *      111103    S. Billemont      File created.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -64,6 +65,9 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to FieldTransform object.
+typedef boost::shared_ptr< FieldTransform > FieldTransformPointer;
 
 } // namespace input_output
 } // namespace tudat

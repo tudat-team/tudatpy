@@ -53,9 +53,10 @@ namespace geometric_shapes
 
 //! Write single surface geometry to a file.
 void writeSingleSurfaceGeometryPointsToFile(
-        boost::shared_ptr< SingleSurfaceGeometry > singleSurfaceGeometryPointer,
-        int numberOfLines, int numberOfPoints,
-        const std::string& filename, int writeType, const bool& isIndependentVariableInverted )
+        geometric_shapes::SingleSurfaceGeometryPointer singleSurfaceGeometry,
+        const int numberOfLines, const int numberOfPoints,
+        const std::string& filename, const int writeType,
+        const bool isIndependentVariableInverted )
 {
     std::ofstream outputFile_;
 
@@ -89,13 +90,13 @@ void writeSingleSurfaceGeometryPointsToFile(
     if ( isIndependentVariableInverted  == false )
     {
         // Set grid size 1.
-        gridSize1_ = ( singleSurfaceGeometryPointer->getMaximumIndependentVariable( 1 )
-                      - singleSurfaceGeometryPointer->getMinimumIndependentVariable( 1 ) )
+        gridSize1_ = ( singleSurfaceGeometry->getMaximumIndependentVariable( 1 )
+                      - singleSurfaceGeometry->getMinimumIndependentVariable( 1 ) )
                 / ( numberOfLines - 1 );
 
         // Set grid size 2.
-        gridSize2_ = ( singleSurfaceGeometryPointer->getMaximumIndependentVariable( 2 )
-                      - singleSurfaceGeometryPointer->getMinimumIndependentVariable( 2 ) )
+        gridSize2_ = ( singleSurfaceGeometry->getMaximumIndependentVariable( 2 )
+                      - singleSurfaceGeometry->getMinimumIndependentVariable( 2 ) )
                 / ( numberOfPoints - 1 );
     }
 
@@ -106,13 +107,13 @@ void writeSingleSurfaceGeometryPointsToFile(
     else
     {
         // Set grid size 1.
-        gridSize1_ = ( singleSurfaceGeometryPointer->getMaximumIndependentVariable( 1 )
-                      - singleSurfaceGeometryPointer->getMinimumIndependentVariable( 1 ) )
+        gridSize1_ = ( singleSurfaceGeometry->getMaximumIndependentVariable( 1 )
+                      - singleSurfaceGeometry->getMinimumIndependentVariable( 1 ) )
                 / ( numberOfPoints - 1 );
 
         // Set grid size 1.
-        gridSize2_ = ( singleSurfaceGeometryPointer->getMaximumIndependentVariable( 2 )
-                      - singleSurfaceGeometryPointer->getMinimumIndependentVariable( 2 ) )
+        gridSize2_ = ( singleSurfaceGeometry->getMaximumIndependentVariable( 2 )
+                      - singleSurfaceGeometry->getMinimumIndependentVariable( 2 ) )
                 / ( numberOfLines - 1 );
     }
 
@@ -127,11 +128,11 @@ void writeSingleSurfaceGeometryPointsToFile(
             if ( isIndependentVariableInverted  == false )
             {
                 // Set point.
-                point = singleSurfaceGeometryPointer->getSurfacePoint(
-                            singleSurfaceGeometryPointer->
-                            getMinimumIndependentVariable( 1 ) + i * gridSize1_,
-                            singleSurfaceGeometryPointer->
-                            getMinimumIndependentVariable( 2 ) + j * gridSize2_ );
+                point = singleSurfaceGeometry->getSurfacePoint(
+                            singleSurfaceGeometry->getMinimumIndependentVariable( 1 )
+                            + i * gridSize1_,
+                            singleSurfaceGeometry->getMinimumIndependentVariable( 2 )
+                            + j * gridSize2_ );
             }
 
             // If not inverted, all points from a single value of independent
@@ -139,11 +140,11 @@ void writeSingleSurfaceGeometryPointsToFile(
             else
             {
                 // Set point.
-                point = singleSurfaceGeometryPointer->getSurfacePoint(
-                            singleSurfaceGeometryPointer->
-                            getMinimumIndependentVariable( 1 ) + j * gridSize1_,
-                            singleSurfaceGeometryPointer->
-                            getMinimumIndependentVariable( 2 ) + i * gridSize2_);
+                point = singleSurfaceGeometry->getSurfacePoint(
+                            singleSurfaceGeometry->getMinimumIndependentVariable( 1 )
+                            + j * gridSize1_,
+                            singleSurfaceGeometry->getMinimumIndependentVariable( 2 )
+                            + i * gridSize2_);
             }
 
             // Write the x-, y- and z-coordinates, followed by a next line command.
@@ -158,10 +159,11 @@ void writeSingleSurfaceGeometryPointsToFile(
 
 //! Write composite surface geometry to a file.
 void writeCompositeSurfaceGeometryPointsToFile(
-        boost::shared_ptr< CompositeSurfaceGeometry > compositeSurfaceGeometryPointer,
-        std::vector< int > arrayOfNumberOfLines, std::vector< int > arrayOfNumberOfPoints,
-        const std::string& filename, int writeType,
-        std::vector< bool > isIndependentVariableInvertedArray )
+        geometric_shapes::CompositeSurfaceGeometryPointer compositeSurfaceGeometry,
+        const std::vector< int >& arrayOfNumberOfLines,
+        const std::vector< int >& arrayOfNumberOfPoints,
+        const std::string& filename, const int writeType,
+        const std::vector< bool >& isIndependentVariableInvertedArray )
 {
     // Remove file of same name, if writeType is not append.
     if ( writeType == 0 )
@@ -170,12 +172,12 @@ void writeCompositeSurfaceGeometryPointsToFile(
     }
 
     // Iterate over all single geometries in composite geometry.
-    for ( unsigned int i = 0; i < compositeSurfaceGeometryPointer->
+    for ( unsigned int i = 0; i < compositeSurfaceGeometry->
           getNumberOfSingleSurfaceGeometries( ); i++ )
     {
         // Append single geometry to file.
         writeSingleSurfaceGeometryPointsToFile(
-                    compositeSurfaceGeometryPointer->getSingleSurfaceGeometry( i ),
+                    compositeSurfaceGeometry->getSingleSurfaceGeometry( i ),
                     arrayOfNumberOfLines[ i ], arrayOfNumberOfPoints[ i ],
                     filename, 1, isIndependentVariableInvertedArray[ i ] );
     }

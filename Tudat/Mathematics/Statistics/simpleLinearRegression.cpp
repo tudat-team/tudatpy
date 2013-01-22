@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110701    K. Kumar          Creation of code.
+ *      110701    K. Kumar          File created.
  *      110726    K. Kumar          Changed filename and class name.
  *      110802    K. Kumar          Added computeFitErrors( ) function and
  *                                  split code from computeFit( ); changed

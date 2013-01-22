@@ -28,6 +28,7 @@
  *      120810    P. Musegaas       Code check, various edits.
  *      120923    K. Kumar          Implemented simplified termination conditions instead of
  *                                  Boost::Phoenix solution as short-term solution.
+ *      130121    K. Kumar          Added shared-ptr typedefs.
  *
  *    References
  *
@@ -45,6 +46,7 @@
 
 #include <boost/exception/all.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace tudat
 {
@@ -377,6 +379,25 @@ private:
     //! Flag indicating if run-time exception should be thrown.
     const bool throwRunTimeException;
 };
+
+//! Typedef for shared-pointer to TerminationConditionBase object.
+typedef boost::shared_ptr< TerminationConditionBase > TerminationConditionBasePointer;
+
+//! Typedef for shared-pointer to MaximumIterationsTerminationCondition object.
+typedef boost::shared_ptr< MaximumIterationsTerminationCondition >
+MaximumIterationsTerminationConditionPointer;
+
+//! Typedef for shared-pointer to RootAbsoluteToleranceTerminationCondition object.
+typedef boost::shared_ptr< RootAbsoluteToleranceTerminationCondition >
+RootAbsoluteToleranceTerminationConditionPointer;
+
+//! Typedef for shared-pointer to RootRelativeToleranceTerminationCondition object.
+typedef boost::shared_ptr< RootRelativeToleranceTerminationCondition >
+RootRelativeToleranceTerminationConditionPointer;
+
+//! Typedef for shared-pointer to RootAbsoluteOrRelativeToleranceTerminationCondition object.
+typedef boost::shared_ptr< RootAbsoluteOrRelativeToleranceTerminationCondition >
+RootAbsoluteOrRelativeToleranceTerminationConditionPointer;
 
 } // namespace termination_conditions
 } // namespace root_finders

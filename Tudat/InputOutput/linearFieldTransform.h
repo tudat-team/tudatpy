@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      111103    S. Billemont      First creation of code.
+ *      111103    S. Billemont      File created.
  *      120906    T. Secretin       Reviewed code. Moved transform implementation to .cpp file.
+ *      130121    K. Kumar          Added shared-pointer typedef.
  *
  *    References
  *
@@ -84,6 +85,9 @@ private:
     //! Intercept of the transformation.
     const double intercept;
 };
+
+//! Typedef for shared-pointer to LinearFieldTransform object.
+typedef boost::shared_ptr< LinearFieldTransform > LinearFieldTransformPointer;
 
 } // namespace input_output
 } // namespace tudat

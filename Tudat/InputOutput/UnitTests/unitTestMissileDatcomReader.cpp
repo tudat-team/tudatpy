@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110530    F.M. Engelen      First creation of code.
+ *      110530    F.M. Engelen      File created.
  *      120326    D. Dirkx          Modified code to be boost unit test framework.
  *      120913    K. Kumar          Removed superfluous using-statements.
  *

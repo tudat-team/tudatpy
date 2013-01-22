@@ -24,12 +24,13 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110716    L. van der Ham    Creation of code.
+ *      110716    L. van der Ham    File created.
  *      110804    L. van der Ham    Changed use of approximatePlanetPositionsCircularCoplanar.
  *      111108    K. Kumar          Simplified conversion functions; changed "normalized" to
  *                                  "dimensionless".
  *      120307    K. Kumar          Updated Doxygen comments; made functions const-correct;
  *                                  updated to satisfy Tudat protocols; moved file.
+ *      130121    K. Kumar          Updated VectorXd to Vector6d.
  *
  *    References
  *        Wakker, K.F.,"Astrodynamics I, AE4-874", Delft University of Technology, 2007.
@@ -53,12 +54,13 @@ namespace circular_restricted_three_body_problem
 
 //! Convert dimensionless Cartesian state to dimensional units.
 Eigen::VectorXd convertDimensionlessCartesianStateToDimensionalUnits(
-        const Eigen::VectorXd &dimensionlessCartesianState,
-        const double gravitationalParameterOfPrimaryBody, const double gravitationalParameterOfSecondaryBody,
+        const basic_mathematics::Vector6d &dimensionlessCartesianState,
+        const double gravitationalParameterOfPrimaryBody,
+        const double gravitationalParameterOfSecondaryBody,
         const double distanceBetweenPrimaries )
 {
     // Declare dimensional Cartesian state.
-    Eigen::VectorXd dimensionalCartesianState( 6 );
+    basic_mathematics::Vector6d dimensionalCartesianState;
 
     // Convert position to dimensional units.
     dimensionalCartesianState.segment( 0, 3 )

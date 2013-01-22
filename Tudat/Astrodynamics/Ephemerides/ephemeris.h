@@ -24,10 +24,11 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110128    K. Kumar          Creation of code.
+ *      110128    K. Kumar          File created.
  *      110221    K. Kumar          Updated code to work as base class for derived ephemeris
  *                                  classes.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
+ *      130120    K. Kumar          Updated VectorXd to Vector6d; added shared-ptr typedef.
  *
  *    References
  *
@@ -38,9 +39,11 @@
 #ifndef TUDAT_EPHEMERIS_H
 #define TUDAT_EPHEMERIS_H
 
-#include <sstream>
+#include <boost/shared_ptr.hpp>
 
 #include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
+
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -67,12 +70,16 @@ public:
      * \param julianDate Julian date given in Julian days.
      * \return State from ephemeris.
      */
-    virtual Eigen::VectorXd getCartesianStateFromEphemeris( const double julianDate ) = 0;
+    virtual basic_mathematics::Vector6d getCartesianStateFromEphemeris(
+            const double julianDate ) = 0;
 
 protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to Ephemeris object.
+typedef boost::shared_ptr< Ephemeris > EphemerisPointer;
 
 } // namespace ephemerides
 } // namespace tudat

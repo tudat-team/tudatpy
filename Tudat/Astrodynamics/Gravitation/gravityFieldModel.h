@@ -34,6 +34,7 @@
  *      110204    K. Kumar          Removed "vector" from naming.
  *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
  *      120502    K. Kumar          Added missing constructor initialization of position vectors.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -43,6 +44,8 @@
 
 #ifndef TUDAT_GRAVITY_FIELD_MODEL_H
 #define TUDAT_GRAVITY_FIELD_MODEL_H
+
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -158,6 +161,9 @@ protected:
 
 private:
 };
+
+//! Typedef for shared-pointer to GravityFieldModel object.
+typedef boost::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
 
 } // namespace gravitation
 } // namespace tudat

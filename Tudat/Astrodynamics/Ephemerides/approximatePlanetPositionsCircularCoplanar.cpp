@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      110629    L. van der Ham    Creation of code.
+ *      110629    L. van der Ham    File created.
  *      110803    L. van der Ham    Seperated this code from approximatePlanetPositions.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *
@@ -50,8 +50,8 @@ namespace ephemerides
 {
 
 //! Get state from ephemeris; circular, coplanar case
-Eigen::VectorXd ApproximatePlanetPositionsCircularCoplanar::getCartesianStateFromEphemeris(
-        const double julianDate )
+basic_mathematics::Vector6d ApproximatePlanetPositionsCircularCoplanar::
+getCartesianStateFromEphemeris( const double julianDate )
 {
     // Set Julian date.
     julianDate_ = julianDate;

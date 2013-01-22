@@ -24,7 +24,7 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120210    T. Secretin       First creation of code.
+ *      120210    T. Secretin       File created.
  *
  *    References
  *      Battin, R.H. An Introduction to the Mathematics and Methods of Astrodynamics,

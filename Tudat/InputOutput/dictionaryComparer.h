@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120807    K. Kumar          File created.
+ *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
  *
@@ -39,6 +40,7 @@
 #include <string>
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/InputOutput/dictionaryEntry.h"
 #include "Tudat/InputOutput/fieldType.h"
@@ -162,6 +164,9 @@ private:
      */
     const std::string parameterName;
 };
+
+//! Typedef for shared-pointer to DictionaryComparer object.
+typedef boost::shared_ptr< DictionaryComparer > DictionaryComparerPointer;
 
 } // namespace dictionary
 } // namespace input_output

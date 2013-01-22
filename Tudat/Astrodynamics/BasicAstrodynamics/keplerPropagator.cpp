@@ -72,10 +72,11 @@ namespace orbital_element_conversions
 using namespace root_finders;
 
 //! Propagate Kepler orbit.
-Eigen::VectorXd propagateKeplerOrbit( const Eigen::VectorXd& initialStateInKeplerianElements,
-                                      const double propagationTime,
-                                      const double centralBodyGravitationalParameter,
-                                      RootFinderPointer rootFinder )
+basic_mathematics::Vector6d propagateKeplerOrbit(
+        const basic_mathematics::Vector6d &initialStateInKeplerianElements,
+        const double propagationTime,
+        const double centralBodyGravitationalParameter,
+        RootFinderPointer rootFinder )
 {
     if ( !rootFinder.get( ) )
     {
