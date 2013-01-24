@@ -126,13 +126,15 @@ install(DIRECTORY "${SRCROOT}/"
         FILES_MATCHING
             PATTERN "*.*"
             PATTERN "CMakeLists.txt.user" EXCLUDE
-) 
+)
+
+install(FILES ${CODEROOT}/LICENSE ${CODEROOT}/NOTICE ${CODEROOT}/README ${CODEROOT}/UserSettings.txt.example
+  DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
 
 # Set the global macros for setting up targets.
 macro(setup_tudat_library_target target_name CUSTOM_OUTPUT_PATH)
   set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${LIBROOT}")
   set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${LIBROOT}")
-  install(TARGETS ${target_name} LIBRARY DESTINATION "${BINROOT}" ARCHIVE DESTINATION "${TUDAT_DISTRIBUTION_PATH}/lib")
 endmacro(setup_tudat_library_target)
 
 macro(setup_custom_test_program target_name CUSTOM_OUTPUT_PATH)
