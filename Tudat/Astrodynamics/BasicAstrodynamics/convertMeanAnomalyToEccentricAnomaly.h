@@ -38,6 +38,7 @@
  *      121205    P. Musegaas       Updated code to final version of rootfinders.
  *      130116    E. Heeren         Minor changes to comments.
  *      130120    K. Kumar          Added shared-pointer typedef.
+ *      130123    K. Kumar          Added note about near-parabolic cases.
  *
  *    References
  *      Regarding method in general:
@@ -51,6 +52,11 @@
  *              under issue #539.
  *
  *    Notes
+ *      There are known to be some issues on some systems with near-parabolic orbits that are very
+ *      close to eccentricity=1.0. For these orbits, the unit tests establish that they are able
+ *      to generate consistent results by converting to and from eccentric anomaly to a precision
+ *      of 1.0e-9. If this quality of solution is not adequate for specific applications, the user
+ *      should investigate the code further.
  *
  */
 
