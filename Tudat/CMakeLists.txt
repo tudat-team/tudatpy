@@ -124,7 +124,7 @@ endif()
 install(DIRECTORY "${SRCROOT}/"
         DESTINATION "${TUDAT_DISTRIBUTION_PATH}/Tudat"
         FILES_MATCHING
-            PATTERN "*.*"
+            PATTERN "*"
             PATTERN "CMakeLists.txt.user" EXCLUDE
 )
 
