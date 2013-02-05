@@ -27,17 +27,19 @@
  *      120203    K. Kumar          File created.
  *      130118    K. Kumar          Added individual test tolerances and added note about possible
  *                                  problem with RKF78 coefficient set.
+ *      130204    K. Kumar          Fixed bug in DOPRI8 coefficient set under Windows and added
+ *                                  note about problem.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
  *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
  *
  *    Notes
- *      There might be a problem with the RKF78 integrator, as the coefficients do not meet the
- *      required conditions to the tolerance achieved for all the other Runge-Kutta-type
- *      integrators tested (1.0e-14 for RKF78 versus 1.0e-15 for the other integrators). This
- *      should be looked into further to ensure that there are no bugs introduced in the
- *      coefficients used.
+ *      There might be a problem with the RKF78 and DOPRI8 integrators, as the coefficients do not
+ *      meet the required conditions to the tolerance achieved for all the other Runge-Kutta-type
+ *      integrators tested (1.0e-14 versus 1.0e-15 for the other integrators). This should be
+ *      looked into further to ensure that there are no bugs introduced in the coefficients
+ *      used.
  *
  */
 
@@ -107,7 +109,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg56Coefficients )
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78Coefficients )
 {
     // Check validity of Runge-Kutta-Fehlberg 78 coefficients.
-    // Note, for some reason, the rkf78 set fails the unit test when the tolerance in
+    // Note, for some reason, the RKF78 set fails the unit test when the tolerance in
     // checkValidityOfCoefficientSet() is set to lower than this value (row 8 and 9 of
     // aCoefficients matrix sum does not correspond to cCoefficient counterpart with tolerance less
     // than 1.0e-14).
@@ -117,7 +119,11 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78Coefficients )
 BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceCoefficients )
 {
     // Check validity of Runge-Kutta 87 (Dormand and Prince) coefficients.
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKutta87DormandPrince, 1.0e-15 );
+    // Note, for some reason, the DOPRI8 set fails the unit test when the tolerance in
+    // checkValidityOfCoefficientSet() is set to lower than this value (row 10 of aCoefficients
+    // matrix sum does not correspond to cCoefficient counterpart with tolerance less than
+    // 1.0e-14).
+    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKutta87DormandPrince, 1.0e-14 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

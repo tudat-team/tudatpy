@@ -46,6 +46,7 @@
  #
  #      FindEigen3.cmake states that redistribution and use is allowed according to the terms of
  #      the 2-clause BSD license.
+ #
 
 macro(_tudat_core_check_version)
 	MESSAGE( STATUS "Checking for TudatCore in:         " ${TUDAT_CORE_BASE_PATH} )
@@ -88,7 +89,7 @@ else (TUDAT_CORE_BASE_PATH)
       ${PROJECT_SOURCE_DIR}/External
       ${PROJECT_SOURCE_DIR}/../../../tudatCore/trunk
       ${PROJECT_SOURCE_DIR}/../../tudatCore/trunk
-      ${PROJECT_SOURCE_DIR}/../../tudatCore/
+      ${PROJECT_SOURCE_DIR}/../../tudatCore
       ${CMAKE_INSTALL_PREFIX}/include
       PATH_SUFFIXES TudatCore
     )
