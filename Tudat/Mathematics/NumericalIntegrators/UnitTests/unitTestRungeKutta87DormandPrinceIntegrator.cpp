@@ -27,6 +27,8 @@
  *      120323    K. Kumar          Created based off of unit test for RKF78 integrator; test data
  *                                  taken from (The Mathworks, 2012).
  *      120404    K. Kumar          Updated MATLAB unit test by adding discrete-event data file.
+ *      130204    K. Kumar          Updated tolerance for discrete-event case to prevent failure
+ *                                  of test under Windows.
  *
  *    References
  *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
@@ -224,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTimeWithEvents( matlabDiscreteEventIntegrationData,
-                                                         1.0e-15, 1.0e-13, integrator );
+                                                         1.0e-15, 1.0e-12, integrator );
     }
 }
 

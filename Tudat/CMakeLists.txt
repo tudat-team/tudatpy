@@ -37,6 +37,7 @@
  #      120913    K. Kumar          Added output message for build type and set default to
  #                                  "Release".
  #      120921    M.I. Ganeff       Modified for SpiceInterface.
+ #      130204    K. Kumar          Removed obsolete TudatCoreEnvironment.cmake code block.
  #
  #    References
  #
@@ -154,12 +155,6 @@ include_directories(AFTER
   "${CODEROOT}"
 )
 
-# Load the environment file from the core distribution if specified.
-if(TUDAT_CORE_ENVIRONMENT_PATH)
-    message(STATUS "Loading Tudat Core distribution from ${TUDAT_CORE_ENVIRONMENT_PATH}/TudatCoreEnvironment.cmake")
-    include("${TUDAT_CORE_ENVIRONMENT_PATH}/TudatCoreEnvironment.cmake")
-endif(TUDAT_CORE_ENVIRONMENT_PATH)
-
 # Find Eigen3 library on local system.
 find_package(Eigen3 REQUIRED)
 
@@ -188,7 +183,7 @@ else( )
 endif( )
 
 # Find Tudat Core library on local system.
-find_package(TudatCore 2.1 REQUIRED)
+find_package(TudatCore 2 REQUIRED)
 
 # Include TudatCore directories.
 # Set CMake flag to suppress TudatCore warnings (platform-dependent solution).
