@@ -1,13 +1,26 @@
-/*    Copyright (c) 2010-2013 Delft University of Technology.
+/*    Copyright (c) 2010-2013, Delft University of Technology
+ *    All rights reserved.
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
+ *    Redistribution and use in source and binary forms, with or without modification, are
+ *    permitted provided that the following conditions are met:
+ *      - Redistributions of source code must retain the above copyright notice, this list of
+ *        conditions and the following disclaimer.
+ *      - Redistributions in binary form must reproduce the above copyright notice, this list of
+ *        conditions and the following disclaimer in the documentation and/or other materials
+ *        provided with the distribution.
+ *      - Neither the name of the Delft University of Technology nor the names of its contributors
+ *        may be used to endorse or promote products derived from this software without specific
+ *        prior written permission.
  *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
+ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+ *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ *    OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *    Changelog
  *      YYMMDD    Author            Comment
@@ -18,6 +31,8 @@
  *      120515    P. Musegaas       Added states namespace.
  *      120525    K. Kumar          Moved basic_mathematics namespace to tudat; added
  *                                  numerical_derivatives.
+ *      130205    K. Kumar          Updated license in file header; updated output namespace to
+ *                                  input_output.
  *
  *    References
  *
@@ -165,17 +180,17 @@ namespace reference_frame_transformations
 
 } // namespace reference_frame_transformations
 
-//! Output namespace.
+//! Input/Output namespace.
 /*!
- * Output namespace, containing functions to write state history to a file, get the root-directory
- * of the Tudat Package library, list all files in directory, read a file into a data matrix and
- * write surface geometry to a file. It
- * also contains a class containing TLE variables and a class to read TLE catalog files.
+ * Input/Output namespace, containing functions to write state history to a file, get the
+ * root-directory of the Tudat Package library, list all files in directory, read a file into a
+ * data matrix and write surface geometry to a file. It also contains a class containing TLE
+ * variables and a class to read TLE catalog files.
  */
-namespace output
+namespace input_output
 {
 
-} // namespace output
+} // namespace input_output
 
 //! Basic mathematics namespace.
 /*!

@@ -8,8 +8,7 @@ with graduate student research.
 
 More information on the Tudat project can be found at http://tudat.tudelft.nl.
 The Tudat Wiki (http://tudat.tudelft.nl/projects/tudat/wiki) contains extensive
-documentation, howtos, and tutorials. Access to the website is provided once (free)
-registration is completed.
+documentation, howtos, and tutorials.
 
 This software makes use of the Eigen (http://eigen.tuxfamily.org/), Boost C++ 
 (http://www.boost.org/), and Tudat Core libraries (http://tudat.tudelft.nl/projects/tudatcore).
