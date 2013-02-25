@@ -25,12 +25,15 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      121105    K. Kumar          File created from content in other files.
+ *      121210    D. Dirkx          Added function implementations for class.
  *
  *    References
  *
  *    Notes
  *
  */
+
+#include <cmath>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Gravitation/centralJ2J3GravityModel.h"
@@ -80,6 +83,47 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ3(
                  - 7.0 * scaledZCoordinateSquared * scaledZCoordinateSquared );
 
     return gravitationalAccelerationDueToJ3;
+}
+
+//! Constructor taking position-functions for bodies, and constant parameters of spherical
+//! harmonics expansion.
+CentralJ2J3GravitationalAccelerationModel::CentralJ2J3GravitationalAccelerationModel( 
+        const StateFunction positionOfBodySubjectToAccelerationFunction,
+        const double aGravitationalParameter,
+        const double anEquatorialRadius,
+        const double aJ2GravityCoefficient,
+        const double aJ3GravityCoefficient,
+        const StateFunction positionOfBodyExertingAccelerationFunction )
+    : Base( positionOfBodySubjectToAccelerationFunction,
+            aGravitationalParameter,
+            positionOfBodyExertingAccelerationFunction ),
+      equatorialRadius( anEquatorialRadius ),
+      j2GravityCoefficient( aJ2GravityCoefficient ),
+      j3GravityCoefficient( aJ3GravityCoefficient )
+{
+    Base::updateMembers( );
+}
+
+//! Get gravitational acceleration.
+Eigen::Vector3d CentralJ2J3GravitationalAccelerationModel::getAcceleration( )
+{
+    // Sum and return constituent acceleration terms.
+    return computeGravitationalAcceleration(
+                this->positionOfBodySubjectToAcceleration,
+                this->gravitationalParameter,
+                this->positionOfBodyExertingAcceleration )
+            + computeGravitationalAccelerationDueToJ2(
+                this->positionOfBodySubjectToAcceleration,
+                this->gravitationalParameter,
+                this->j2GravityCoefficient,
+                this->equatorialRadius,
+                this->positionOfBodyExertingAcceleration )
+            + computeGravitationalAccelerationDueToJ3(
+                this->positionOfBodySubjectToAcceleration,
+                this->gravitationalParameter,
+                this->j3GravityCoefficient,
+                this->equatorialRadius,
+                this->positionOfBodyExertingAcceleration );
 }
 
 } // namespace gravitation

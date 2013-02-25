@@ -30,6 +30,7 @@
  *      120815    K. Kumar          Added unit tests for individual zonal terms based on
  *                                  (Melman, 2012) and (Ronse, 2012).
  *      121023    K. Kumar          Added unit tests for wrapper class (only MATLAB-based test).
+ *      121210    D. Dirkx          Updated gravitational acceleration model references.
  *
  *    References
  *      Easy calculation. Gravitational Acceleration Tutorial,
@@ -195,8 +196,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationSumZonalMatlab )
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 planetData.at( planet ).expectedAcceleration[ body1 ][ body2 ][
                                 zonalCoefficientIterator->first ],
-                                computedAccelerationSum,
-                                1.0e-15 );
+                            computedAccelerationSum,
+                            1.0e-15 );
                 }
             }
         }
@@ -257,15 +258,15 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                 if ( planetData.at( planet ).zonalCoefficients.rbegin( )->first == 2 )
                 {
                     // Declare central + J2 acceleration wrapper class object.
-                    CentralJ2GravitationalAccelerationModel3dPointer centralJ2Gravity
-                            = boost::make_shared< CentralJ2GravitationalAccelerationModel3d >(
+                    CentralJ2GravitationalAccelerationModelPointer centralJ2Gravity
+                            = boost::make_shared< CentralJ2GravitationalAccelerationModel >(
                                 boost::lambda::constant(
                                     planetData.at( planet ).body2Positions.at( body2 ) ),
                                 planetData.at( planet ).gravitationalParameter,
                                 planetData.at( planet ).effectiveRadius,
                                 planetData.at( planet ).zonalCoefficients[ 2 ],
-                                boost::lambda::constant(
-                                    planetData.at( planet ).body1Positions.at( body1 ) ) );
+                            boost::lambda::constant(
+                                planetData.at( planet ).body1Positions.at( body1 ) ) );
 
                     // Compute gravitational acceleration sum [m s^-2].
                     const Eigen::Vector3d computedCentralJ2AccelerationSum
@@ -276,24 +277,24 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 planetData.at( planet ).expectedAcceleration[
                                 body1 ][ body2 ][ 2 ],
-                                computedCentralJ2AccelerationSum,
-                                1.0e-15 );
+                            computedCentralJ2AccelerationSum,
+                            1.0e-15 );
                 }
 
                 // Test central + J2 + J3 gravitational acceleration wrapper class.
                 if ( planetData.at( planet ).zonalCoefficients.rbegin( )->first == 3 )
                 {
                     // Declare central + J2 + J3 acceleration wrapper class object.
-                    CentralJ2J3GravitationalAccelerationModel3dPointer centralJ2J3Gravity
-                            = boost::make_shared< CentralJ2J3GravitationalAccelerationModel3d >(
+                    CentralJ2J3GravitationalAccelerationModelPointer centralJ2J3Gravity
+                            = boost::make_shared< CentralJ2J3GravitationalAccelerationModel >(
                                 boost::lambda::constant(
                                     planetData.at( planet ).body2Positions.at( body2 ) ),
                                 planetData.at( planet ).gravitationalParameter,
                                 planetData.at( planet ).effectiveRadius,
                                 planetData.at( planet ).zonalCoefficients[ 2 ],
-                                planetData.at( planet ).zonalCoefficients[ 3 ],
-                                boost::lambda::constant(
-                                    planetData.at( planet ).body1Positions.at( body1 ) ) );
+                            planetData.at( planet ).zonalCoefficients[ 3 ],
+                            boost::lambda::constant(
+                                planetData.at( planet ).body1Positions.at( body1 ) ) );
 
                     // Compute gravitational acceleration sum [m s^-2].
                     const Eigen::Vector3d computedCentralJ2J3AccelerationSum
@@ -304,31 +305,31 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 planetData.at( planet ).expectedAcceleration[
                                 body1 ][ body2 ][ 3 ],
-                                computedCentralJ2J3AccelerationSum,
-                                1.0e-15 );
+                            computedCentralJ2J3AccelerationSum,
+                            1.0e-15 );
                 }
 
                 // Test central + J2 + J3 + J4 gravitational acceleration wrapper class.
                 if ( planetData.at( planet ).zonalCoefficients.rbegin( )->first == 4 )
                 {
                     // Declare pointer to wrapper class object.
-                    CentralJ2J3J4GravitationalAccelerationModel3dPointer centralJ2J3J4Gravity;
+                    CentralJ2J3J4GravitationalAccelerationModelPointer centralJ2J3J4Gravity;
 
                     // Check if only J2 and J4 are given; if so set J3 to 0.0.
                     if ( planetData.at( planet ).zonalCoefficients.size( ) == 2 )
                     {
                         // Declare central + J2 + J3 + J4 acceleration wrapper class object.
                         centralJ2J3J4Gravity = boost::make_shared<
-                                CentralJ2J3J4GravitationalAccelerationModel3d >(
+                                CentralJ2J3J4GravitationalAccelerationModel >(
                                     boost::lambda::constant(
                                         planetData.at( planet ).body2Positions.at( body2 ) ),
                                     planetData.at( planet ).gravitationalParameter,
                                     planetData.at( planet ).effectiveRadius,
                                     planetData.at( planet ).zonalCoefficients[ 2 ],
-                                    0.0,
-                                    planetData.at( planet ).zonalCoefficients[ 4 ],
-                                    boost::lambda::constant(
-                                        planetData.at( planet ).body1Positions.at( body1 ) ) );
+                                0.0,
+                                planetData.at( planet ).zonalCoefficients[ 4 ],
+                                boost::lambda::constant(
+                                    planetData.at( planet ).body1Positions.at( body1 ) ) );
                     }
 
                     // Else, include given J3.
@@ -336,16 +337,16 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     {
                         // Declare central + J2 + J3 + J4 acceleration wrapper class object.
                         centralJ2J3J4Gravity = boost::make_shared<
-                                CentralJ2J3J4GravitationalAccelerationModel3d >(
+                                CentralJ2J3J4GravitationalAccelerationModel >(
                                     boost::lambda::constant(
                                         planetData.at( planet ).body2Positions.at( body2 ) ),
                                     planetData.at( planet ).gravitationalParameter,
                                     planetData.at( planet ).effectiveRadius,
                                     planetData.at( planet ).zonalCoefficients[ 2 ],
-                                    planetData.at( planet ).zonalCoefficients[ 3 ],
-                                    planetData.at( planet ).zonalCoefficients[ 4 ],
-                                    boost::lambda::constant(
-                                        planetData.at( planet ).body1Positions.at( body1 ) ) );
+                                planetData.at( planet ).zonalCoefficients[ 3 ],
+                                planetData.at( planet ).zonalCoefficients[ 4 ],
+                                boost::lambda::constant(
+                                    planetData.at( planet ).body1Positions.at( body1 ) ) );
                     }
 
                     // Compute gravitational acceleration sum [m s^-2].
@@ -357,8 +358,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 planetData.at( planet ).expectedAcceleration[
                                 body1 ][ body2 ][ 4 ],
-                                computedCentralJ2J3J4AccelerationSum,
-                                1.0e-15 );
+                            computedCentralJ2J3J4AccelerationSum,
+                            1.0e-15 );
                 }
             }
         }
@@ -381,8 +382,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalMelman )
     // Set map of function pointers for zonal coefficients.
     std::map< int, GravitationalAccelerationPointer > zonalGravitationalAccelerationPointers
             = map_list_of( 2, &computeGravitationalAccelerationDueToJ2 )
-                         ( 3, &computeGravitationalAccelerationDueToJ3 )
-                         ( 4, &computeGravitationalAccelerationDueToJ4 );
+            ( 3, &computeGravitationalAccelerationDueToJ3 )
+            ( 4, &computeGravitationalAccelerationDueToJ4 );
 
     // Loop over all planet test data and recompute the results using Tudat code. Check that the
     // values computed match results obtained by (Melman, 2012).
@@ -404,10 +405,11 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalMelman )
                         earthData.body1Positions.at( 0 ) );
 
             // Check that computed gravitational acceleration sum matches expected values.
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthData.expectedAcceleration[ 0 ][ body2 ][
-                                               zonalCoefficientIterator->first ],
-                                               computedZonalGravitationalAcceleration,
-                                               1.0e-14 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        earthData.expectedAcceleration[ 0 ][ body2 ][
+                    zonalCoefficientIterator->first ],
+                    computedZonalGravitationalAcceleration,
+                    1.0e-14 );
         }
     }
 }
@@ -428,8 +430,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalRonse )
     // Set map of function pointers for zonal coefficients.
     std::map< int, GravitationalAccelerationPointer > zonalGravitationalAccelerationPointers
             = map_list_of( 2, &computeGravitationalAccelerationDueToJ2 )
-                         ( 3, &computeGravitationalAccelerationDueToJ3 )
-                         ( 4, &computeGravitationalAccelerationDueToJ4 );
+            ( 3, &computeGravitationalAccelerationDueToJ3 )
+            ( 4, &computeGravitationalAccelerationDueToJ4 );
 
     // Loop over all planet test data and recompute the results using Tudat code. Check that the
     // values computed match results obtained by (Ronse, 2012).
@@ -446,8 +448,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalRonse )
         // values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     earthData.expectedAcceleration[ 0 ][ body2 ][ central ],
-                    computedCentralAcceleration,
-                    1.0e-15 );
+                computedCentralAcceleration,
+                1.0e-15 );
 
         // Loop over all available zonal gravity field coefficients.
         for ( KeyIntValueDoubleMap::iterator zonalCoefficientIterator
@@ -466,9 +468,9 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalRonse )
 
             // Check that computed gravitational acceleration sum matches expected values.
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( earthData.expectedAcceleration[ 0 ][ body2 ][
-                                               zonalCoefficientIterator->first ],
-                                               computedZonalGravitationalAcceleration,
-                                               1.0e-13 );
+                    zonalCoefficientIterator->first ],
+                    computedZonalGravitationalAcceleration,
+                    1.0e-13 );
         }
     }
 }

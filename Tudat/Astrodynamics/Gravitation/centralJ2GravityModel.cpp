@@ -25,12 +25,15 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      121105    K. Kumar          File created from content in other files.
+ *      121210    D. Dirkx          Added function implementations for class.
  *
  *    References
  *
  *    Notes
  *
  */
+
+#include <cmath>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Gravitation/centralJ2GravityModel.h"
@@ -81,6 +84,39 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ2(
             *= ( 3.0 - 5.0 * scaledZCoordinateSquared ) * scaledZCoordinate;
 
     return gravitationalAccelerationDueToJ2;
+}
+
+//! Constructor taking position-functions for bodies, and constant parameters of spherical
+//! harmonics expansion.
+CentralJ2GravitationalAccelerationModel::CentralJ2GravitationalAccelerationModel( 
+        const Base::StateFunction positionOfBodySubjectToAccelerationFunction,
+        const double aGravitationalParameter,
+        const double anEquatorialRadius,
+        const double aJ2GravityCoefficient,
+        const Base::StateFunction positionOfBodyExertingAccelerationFunction )
+    : Base( positionOfBodySubjectToAccelerationFunction,
+            aGravitationalParameter,
+            positionOfBodyExertingAccelerationFunction ),
+      equatorialRadius( anEquatorialRadius ),
+      j2GravityCoefficient( aJ2GravityCoefficient )
+{
+    Base::updateMembers( );
+}
+
+//! Get gravitational acceleration.
+Eigen::Vector3d CentralJ2GravitationalAccelerationModel::getAcceleration( )
+{
+    // Sum and return constituent acceleration terms.
+    return computeGravitationalAcceleration(
+                this->positionOfBodySubjectToAcceleration,
+                this->gravitationalParameter,
+                this->positionOfBodyExertingAcceleration )
+            + computeGravitationalAccelerationDueToJ2(
+                this->positionOfBodySubjectToAcceleration,
+                this->gravitationalParameter,
+                this->j2GravityCoefficient,
+                this->equatorialRadius,
+                this->positionOfBodyExertingAcceleration );
 }
 
 } // namespace gravitation

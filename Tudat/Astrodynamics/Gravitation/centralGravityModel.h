@@ -27,6 +27,9 @@
  *      121022    K. Kumar          File created.
  *      121105    K. Kumar          Simplified implementation and renamed file; merged content from
  *                                  other files.
+ *      121210    D. Dirkx          Simplified class by removing template parameters and a
+ *                                  constructor.
+ *      130224    K. Kumar          Updated include guard name.
  *
  *    References
  *
@@ -34,8 +37,8 @@
  *
  */
 
-#ifndef TUDAT_CENTRAL_GRAVITY_H
-#define TUDAT_CENTRAL_GRAVITY_H
+#ifndef TUDAT_CENTRAL_GRAVITY_MODEL_H
+#define TUDAT_CENTRAL_GRAVITY_MODEL_H
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_ptr.hpp>
@@ -156,18 +159,17 @@ Eigen::Vector3d computeGravitationalForce(
 /*!
  * This template class implements a central gravitational acceleration model, i.e., only the
  * central term of the general spherical harmonics expansion.
- * \tparam DataType Data type (default = double).
- * \tparam PositionType Data type for position vector (default = Eigen::Vector3DataType).
+ * \tparam StateMatrix Data type for state matrix (default = Eigen::Vector3d).
  */
-template< typename DataType = double, typename PositionType = Eigen::Matrix< DataType, 3, 1 > >
+template< typename StateMatrix = Eigen::Vector3d >
 class CentralGravitationalAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< PositionType >,
-        SphericalHarmonicsGravitationalAccelerationModelBase< DataType, PositionType >
+        : public basic_astrodynamics::AccelerationModel< StateMatrix >,
+        public SphericalHarmonicsGravitationalAccelerationModelBase< StateMatrix >
 {
 private:
 
     //! Typedef for base class.
-    typedef SphericalHarmonicsGravitationalAccelerationModelBase< DataType, PositionType > Base;
+    typedef SphericalHarmonicsGravitationalAccelerationModelBase< StateMatrix > Base;
 
 public:
 
@@ -187,33 +189,16 @@ public:
      *          body exerting gravitational acceleration (default = (0,0,0)).
      */
     CentralGravitationalAccelerationModel(
-            const typename Base::PositionReturningFunction
-            positionOfBodySubjectToAccelerationFunction,
-            const DataType aGravitationalParameter,
-            const typename Base::PositionReturningFunction
-            positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( PositionType::Zero( ) ) );
-
-    //! Constructor taking functions for position of bodies, and gravitational parameter.
-    /*!
-     * Constructor taking pointers to functions returning the position of the body subject to
-     * gravitational acceleration, the gravitational parameter of the body exerting the
-     * acceleration (central body), and the position of the central body. The constructor also
-     * updates all the internal members. The position of the body exerting the gravitational
-     * acceleration is an optional parameter; the default position is the origin.
-     * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
-     *          body subject to gravitational acceleration.
-     * \param gravitationalParameterFunction Pointer to function returning gravitational parameter.
-     * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
-     *          body exerting gravitational acceleration (default = (0,0,0)).
-     */
-    CentralGravitationalAccelerationModel(
-            const typename Base::PositionReturningFunction
-            positionOfBodySubjectToAccelerationFunction,
-            const typename Base::DataTypeReturningFunction gravitationalParameterFunction,
-            const typename Base::PositionReturningFunction
-            positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( PositionType::Zero( ) ) );
+            const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
+            const double aGravitationalParameter,
+            const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
+            = boost::lambda::constant( StateMatrix::Zero( ) ) )
+        : Base( positionOfBodySubjectToAccelerationFunction,
+                aGravitationalParameter,
+                positionOfBodyExertingAccelerationFunction )
+    {
+        Base::updateMembers( );
+    }
 
     //! Get gravitational acceleration.
     /*!
@@ -222,17 +207,15 @@ public:
      * function.
      * \return Computed gravitational acceleration vector.
      */
-    typename Base::AccelerationType getAcceleration( );
-
-    //! Update class members.
-    /*!
-     * Updates all the base class members to their current values.
-     * \return Flag indicating if update was successful or not.
-     */
-    bool updateMembers( ) { return this->updateBaseMembers( ); }
+    StateMatrix getAcceleration( )
+    {
+        return computeGravitationalAcceleration(
+                    this->positionOfBodySubjectToAcceleration,
+                    this->gravitationalParameter,
+                    this->positionOfBodyExertingAcceleration );
+    }
 
 protected:
-
 private:
 };
 
@@ -243,53 +226,7 @@ typedef CentralGravitationalAccelerationModel< > CentralGravitationalAcceleratio
 typedef boost::shared_ptr< CentralGravitationalAccelerationModel3d >
 CentralGravitationalAccelerationModel3dPointer;
 
-// Template class source.
-// The code given below is effectively the ".cpp file" for the template class definition, so you
-// only need to look at the code below if you are interested in the source implementation.
-
-//! Constructor taking position-functions for bodies, and constant gravitational parameter.
-template< typename DataType, typename PositionType >
-CentralGravitationalAccelerationModel< DataType, PositionType >::
-CentralGravitationalAccelerationModel(
-        const typename Base::PositionReturningFunction
-        positionOfBodySubjectToAccelerationFunction,
-        const DataType aGravitationalParameter,
-        const typename Base::PositionReturningFunction
-        positionOfBodyExertingAccelerationFunction )
-    : Base( positionOfBodySubjectToAccelerationFunction,
-            boost::lambda::constant( aGravitationalParameter ),
-            positionOfBodyExertingAccelerationFunction )
-{
-    updateMembers( );
-}
-
-//! Constructor taking functions for position of bodies, and gravitational parameter.
-template< typename DataType, typename PositionType >
-CentralGravitationalAccelerationModel< DataType, PositionType >::
-CentralGravitationalAccelerationModel(
-        const typename Base::PositionReturningFunction
-        positionOfBodySubjectToAccelerationFunction,
-        const typename Base::DataTypeReturningFunction gravitationalParameterFunction,
-        const typename Base::PositionReturningFunction
-        positionOfBodyExertingAccelerationFunction )
-    : Base( positionOfBodySubjectToAccelerationFunction,
-            gravitationalParameterFunction,
-            positionOfBodyExertingAccelerationFunction )
-{
-    updateMembers( );
-}
-
-//! Get gravitational acceleration.
-template< typename DataType, typename PositionType >
-typename CentralGravitationalAccelerationModel< DataType, PositionType>::Base::AccelerationType
-CentralGravitationalAccelerationModel< DataType, PositionType >::getAcceleration( )
-{
-    return computeGravitationalAcceleration( this->positionOfBodySubjectToAcceleration,
-                                             this->gravitationalParameter,
-                                             this->positionOfBodyExertingAcceleration );
-}
-
 } // namespace gravitation
 } // namespace tudat
 
-#endif // TUDAT_CENTRAL_GRAVITY_H
+#endif // TUDAT_CENTRAL_GRAVITY_MODEL_H
