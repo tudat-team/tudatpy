@@ -28,6 +28,8 @@
  *      121022    K. Kumar          Added wrapper class for general spherical harmonics.
  *      121105    K. Kumar          Simplified wrapper class for general spherical harmonics,
  *                                  renamed file, and merged content from other files.
+ *      121210    D. Dirkx          Simplified class by removing template parameters.
+ *      130224    K. Kumar          Updated include guard name; corrected Doxygen errors.
  *
  *    References
  *      Heiskanen, W.A., Moritz, H. Physical geodesy. Freeman, 1967.
@@ -164,21 +166,18 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
  * (Heiskanen & Moritz, 1967), implemented in the
  * computeGeodesyNormalizedGravitationalAccelerationSum() function. The acceleration computed is a
  * sum, based on the matrix of coefficients of the model provided.
- * \tparam DataType Data type (default = double).
- * \tparam PositionType Data type for position vector (default = Eigen::Vector3DataType).
  * \tparam CoefficientMatrixType Data type for cosine and sine coefficients in spherical harmonics
  *         expansion; may be used for compile-time definition of maximum degree and order.
  */
-template< typename DataType = double, typename PositionType = Eigen::Matrix< DataType, 3, 1 >,
-          typename CoefficientMatrixType = Eigen::MatrixXd >
+template< typename CoefficientMatrixType = Eigen::MatrixXd >
 class SphericalHarmonicsGravitationalAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< PositionType >,
-        SphericalHarmonicsGravitationalAccelerationModelBase< DataType, PositionType >
+        : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >,
+        public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
 {
 private:
 
     //! Typedef for base class.
-    typedef SphericalHarmonicsGravitationalAccelerationModelBase< DataType, PositionType > Base;
+    typedef SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > Base;
 
     //! Typedef for coefficient-matrix-returning function.
     typedef boost::function< CoefficientMatrixType( ) > CoefficientMatrixReturningFunction;
@@ -207,15 +206,23 @@ public:
      *          body exerting gravitational acceleration (default = (0,0,0)).
      */
     SphericalHarmonicsGravitationalAccelerationModel(
-            const typename Base::PositionReturningFunction
-            positionOfBodySubjectToAccelerationFunction,
-            const DataType aGravitationalParameter,
-            const DataType anEquatorialRadius,
+            const StateFunction positionOfBodySubjectToAccelerationFunction,
+            const double aGravitationalParameter,
+            const double anEquatorialRadius,
             const CoefficientMatrixType aCosineHarmonicCoefficientMatrix,
             const CoefficientMatrixType aSineHarmonicCoefficientMatrix,
-            const typename Base::PositionReturningFunction
-            positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( PositionType::Zero( ) ) );
+            const StateFunction positionOfBodyExertingAccelerationFunction
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+        : Base( positionOfBodySubjectToAccelerationFunction,
+                aGravitationalParameter,
+                positionOfBodyExertingAccelerationFunction ),
+          equatorialRadius( anEquatorialRadius ),
+          getCosineHarmonicsCoefficients(
+              boost::lambda::constant(aCosineHarmonicCoefficientMatrix ) ),
+          getSineHarmonicsCoefficients( boost::lambda::constant(aSineHarmonicCoefficientMatrix ) )
+    {
+        this->updateMembers( );
+    }
 
     //! Constructor taking functions for position of bodies, and parameters of spherical harmonics
     //! expansion.
@@ -238,15 +245,22 @@ public:
      *          body exerting gravitational acceleration (default = (0,0,0)).
      */
     SphericalHarmonicsGravitationalAccelerationModel(
-            const typename Base::PositionReturningFunction
-            positionOfBodySubjectToAccelerationFunction,
-            const typename Base::DataTypeReturningFunction gravitationalParameterFunction,
-            const typename Base::DataTypeReturningFunction equatorialRadiusFunction,
+            const StateFunction positionOfBodySubjectToAccelerationFunction,
+            const double aGravitationalParameter,
+            const double anEquatorialRadius,
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
-            const typename Base::PositionReturningFunction
-            positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( PositionType::Zero( ) ) );
+            const StateFunction positionOfBodyExertingAccelerationFunction
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+        : Base( positionOfBodySubjectToAccelerationFunction,
+                aGravitationalParameter,
+                positionOfBodyExertingAccelerationFunction ),
+          equatorialRadius( anEquatorialRadius ),
+          getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
+          getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction )
+    {
+        this->updateMembers( );
+    }
 
     //! Get gravitational acceleration.
     /*!
@@ -255,7 +269,7 @@ public:
      * computeGeodesyNormalizedGravitationalAccelerationSum() function.
      * \return Computed gravitational acceleration vector.
      */
-    typename Base::AccelerationType getAcceleration( );
+    Eigen::Vector3d getAcceleration( );
 
     //! Update class members.
     /*!
@@ -263,35 +277,34 @@ public:
      * members of this class.
      * \return Flag indicating if update was successful or not.
      */
-    bool updateMembers( );
+    bool updateMembers( )
+    {
+        cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
+        sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
+        return Base::updateMembers( );
+    }
 
 protected:
 
 private:
 
-    //! Equatorial radius.
+    //! Equatorial radius [m].
     /*!
-     * Current value of equatorial (planetary) radius used for spherical harmonics expansion.
+     * Current value of equatorial (planetary) radius used for spherical harmonics expansion [m].
     */
-    DataType equatorialRadius;
+    const double equatorialRadius;
 
     //! Matrix of cosine coefficients.
     /*!
-     * Matrix containing coefficeints of cosine terms for spherical harmonics expansion.
+     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
      */
     CoefficientMatrixType cosineHarmonicCoefficients;
 
     //! Matrix of sine coefficients.
     /*!
-     * Matrix containing coefficeints of sine terms for spherical harmonics expansion.
+     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
      */
     CoefficientMatrixType sineHarmonicCoefficients;
-
-    //! Pointer to function returning equatorial radius.
-    /*!
-     * Pointer to function that returns the current value of the equatorial radius.
-     */
-    const typename Base::DataTypeReturningFunction getEquatorialRadius;
 
     //! Pointer to function returning cosine harmonics coefficients matrix.
     /*!
@@ -320,79 +333,18 @@ SphericalHarmonicsGravitationalAccelerationModelXdPointer;
 // The code given below is effectively the ".cpp file" for the template class definition, so you
 // only need to look at the code below if you are interested in the source implementation.
 
-//! Constructor taking position-functions for bodies, and constant parameters of spherical
-//! harmonics expansion.
-template< typename DataType, typename PositionType, typename CoefficientMatrixType >
-SphericalHarmonicsGravitationalAccelerationModel<
-DataType, PositionType, CoefficientMatrixType >::SphericalHarmonicsGravitationalAccelerationModel(
-        const typename Base::PositionReturningFunction
-        positionOfBodySubjectToAccelerationFunction,
-        const DataType aGravitationalParameter,
-        const DataType anEquatorialRadius,
-        const CoefficientMatrixType aCosineHarmonicCoefficientMatrix,
-        const CoefficientMatrixType aSineHarmonicCoefficientMatrix,
-        const typename Base::PositionReturningFunction
-        positionOfBodyExertingAccelerationFunction )
-    : Base( positionOfBodySubjectToAccelerationFunction,
-            boost::lambda::constant( aGravitationalParameter ),
-            positionOfBodyExertingAccelerationFunction ),
-      getEquatorialRadius( boost::lambda::constant( anEquatorialRadius ) ),
-      getCosineHarmonicsCoefficients( boost::lambda::constant(
-                                          aCosineHarmonicCoefficientMatrix ) ),
-      getSineHarmonicsCoefficients( boost::lambda::constant(
-                                        aSineHarmonicCoefficientMatrix ) )
-
-{
-    this->updateMembers( );
-}
-
-//! Constructor taking functions for position of bodies, and parameters of spherical harmonics
-//! expansion.
-template< typename DataType, typename PositionType, typename CoefficientMatrixType >
-SphericalHarmonicsGravitationalAccelerationModel<
-DataType, PositionType, CoefficientMatrixType >::SphericalHarmonicsGravitationalAccelerationModel(
-        const typename Base::PositionReturningFunction
-        positionOfBodySubjectToAccelerationFunction,
-        const typename Base::DataTypeReturningFunction gravitationalParameterFunction,
-        const typename Base::DataTypeReturningFunction equatorialRadiusFunction,
-        const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
-        const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
-        const typename Base::PositionReturningFunction
-        positionOfBodyExertingAccelerationFunction )
-    : Base( positionOfBodySubjectToAccelerationFunction,
-            gravitationalParameterFunction,
-            positionOfBodyExertingAccelerationFunction ),
-      getEquatorialRadius( equatorialRadiusFunction ),
-      getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
-      getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction )
-{
-    this->updateMembers( );
-}
-
 //! Get gravitational acceleration.
-template< typename DataType, typename PositionType, typename CoefficientMatrixType >
-typename SphericalHarmonicsGravitationalAccelerationModel<
-DataType, PositionType, CoefficientMatrixType >::Base::AccelerationType
-SphericalHarmonicsGravitationalAccelerationModel<
-DataType, PositionType, CoefficientMatrixType >::getAcceleration( )
+template< typename CoefficientMatrixType >
+Eigen::Vector3d SphericalHarmonicsGravitationalAccelerationModel< CoefficientMatrixType >
+::getAcceleration( )
 {
     return computeGeodesyNormalizedGravitationalAccelerationSum(
                 this->positionOfBodySubjectToAcceleration
                 - this->positionOfBodyExertingAcceleration,
-                this->gravitationalParameter, this->equatorialRadius,
-                this->cosineHarmonicCoefficients, this->sineHarmonicCoefficients );
-}
-
-//! Update class members.
-template< typename DataType, typename PositionType, typename CoefficientMatrixType >
-bool SphericalHarmonicsGravitationalAccelerationModel<
-DataType, PositionType, CoefficientMatrixType >::updateMembers( )
-{
-    this->updateBaseMembers( );
-    this->equatorialRadius = this->getEquatorialRadius( );
-    this->cosineHarmonicCoefficients = this->getCosineHarmonicsCoefficients( );
-    this->sineHarmonicCoefficients = this->getSineHarmonicsCoefficients( );
-    return true;
+                gravitationalParameter,
+                equatorialRadius,
+                cosineHarmonicCoefficients,
+                sineHarmonicCoefficients );
 }
 
 } // namespace gravitation

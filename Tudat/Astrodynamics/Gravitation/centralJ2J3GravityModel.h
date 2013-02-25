@@ -27,6 +27,10 @@
  *      121023    K. Kumar          File created.
  *      121105    K. Kumar          Class simplified, file renamed, and contents merged from other
  *                                  files.
+ *      121210    D. Dirkx          Simplified class by removing template parameters and a
+ *                                  constructor; moved class function implementations to source
+ *                                  file.
+ *      130224    K. Kumar          Updated include guard name; corrected Doxygen errors.
  *
  *    References
  *
@@ -34,8 +38,8 @@
  *
  */
 
-#ifndef TUDAT_CENTRAL_J2_J3_GRAVITY_H
-#define TUDAT_CENTRAL_J2_J3_GRAVITY_H
+#ifndef TUDAT_CENTRAL_J2_J3_GRAVITY_MODEL_H
+#define TUDAT_CENTRAL_J2_J3_GRAVITY_MODEL_H
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_ptr.hpp>
@@ -86,22 +90,19 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ3(
         const double effectiveRadiusOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration );
 
-//! Template class for central + J2 + J3 gravitational acceleration model.
+//! Central + J2 + J3 gravitational acceleration model class.
 /*!
- * This template class implements a gravitational acceleration model that includes the central, J2,
- * and J3 (unnormalized coefficient of general spherical harmonics expansion) terms.
- * \tparam DataType Data type (default = double).
- * \tparam PositionType Data type for position vector (default = Eigen::Vector3DataType).
+ * This class implements a gravitational acceleration model that includes the central, J2, and J3
+ * (unnormalized coefficient of general spherical harmonics expansion) terms.
  */
-template< typename DataType = double, typename PositionType = Eigen::Matrix< DataType, 3, 1 > >
 class CentralJ2J3GravitationalAccelerationModel
-        : public basic_astrodynamics::AccelerationModel< PositionType >,
-        SphericalHarmonicsGravitationalAccelerationModelBase< DataType, PositionType >
+        : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >,
+        public SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d >
 {
 private:
 
     //! Typedef for base class.
-    typedef SphericalHarmonicsGravitationalAccelerationModelBase< DataType, PositionType > Base;
+    typedef SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > Base;
 
 public:
 
@@ -127,46 +128,13 @@ public:
      *          body exerting gravitational acceleration (default = (0,0,0)).
      */
     CentralJ2J3GravitationalAccelerationModel(
-            const typename Base::PositionReturningFunction
-            positionOfBodySubjectToAccelerationFunction,
-            const DataType aGravitationalParameter,
-            const DataType anEquatorialRadius,
-            const DataType aJ2GravityCoefficient,
-            const DataType aJ3GravityCoefficient,
-            const typename Base::PositionReturningFunction
-            positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( PositionType::Zero( ) ) );
-
-    //! Constructor taking functions for position of bodies, and parameters of spherical harmonics
-    //! expansion.
-    /*!
-     * Constructor taking pointer to functions returning the position of the body subject to
-     * gravitational acceleration, the gravitational parameter of the body exerting the
-     * acceleration (central body), the equatorial radius of the central body, the J2- and
-     * J3-coefficients of the spherical harmonics expansion, and the position of the central body.
-     * The constructor also updates all the internal members. The position of the body exerting the
-     * gravitational acceleration is an optional parameter; the default position is the origin.
-     * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
-     *          body subject to gravitational acceleration.
-     * \param gravitationalParameterFunction Pointer to function returning gravitational parameter.
-     * \param equatorialRadiusFunction Pointer to function returning equatorial radius.
-     * \param j2GravityCoefficientFunction Pointer to function returning J2-coefficient of
-     *          spherical harmonics expansion.
-     * \param j3GravityCoefficientFunction Pointer to function returning J3-coefficient of
-     *          spherical harmonics expansion.
-     * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
-     *          body exerting gravitational acceleration (default = (0,0,0)).
-     */
-    CentralJ2J3GravitationalAccelerationModel(
-            const typename Base::PositionReturningFunction
-            positionOfBodySubjectToAccelerationFunction,
-            const typename Base::DataTypeReturningFunction gravitationalParameterFunction,
-            const typename Base::DataTypeReturningFunction equatorialRadiusFunction,
-            const typename Base::DataTypeReturningFunction j2GravityCoefficientFunction,
-            const typename Base::DataTypeReturningFunction j3GravityCoefficientFunction,
-            const typename Base::PositionReturningFunction
-            positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( PositionType::Zero( ) ) );
+            const StateFunction positionOfBodySubjectToAccelerationFunction,
+            const double aGravitationalParameter,
+            const double anEquatorialRadius,
+            const double aJ2GravityCoefficient,
+            const double aJ3GravityCoefficient,
+            const StateFunction positionOfBodyExertingAccelerationFunction
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
 
     //! Get gravitational acceleration.
     /*!
@@ -176,147 +144,36 @@ public:
      * functions.
      * \return Computed gravitational acceleration vector.
      */
-    typename Base::AccelerationType getAcceleration( );
-
-    //! Update class members.
-    /*!
-     * Updates all the base class members to their current values and also updates the class
-     * members of this class.
-     * \return Flag indicating if update was successful or not.
-     */
-    bool updateMembers( );
+    Eigen::Vector3d getAcceleration( );
 
 protected:
 
-    //! Equatorial radius.
+    //! Equatorial radius [m].
     /*!
-     * Equatorial radius of unnormalized spherical harmonics gravity field representation.
+     * Equatorial radius of unnormalized spherical harmonics gravity field representation. [m]
      */
-    DataType equatorialRadius;
+    const double equatorialRadius;
 
     //! J2 gravity coefficient.
     /*!
      * J2 coefficient of unnormalized spherical harmonics gravity field representation.
      */
-    DataType j2GravityCoefficient;
+    const double j2GravityCoefficient;
 
     //! J3 gravity coefficient.
     /*!
      * J3 coefficient of unnormalized spherical harmonics gravity field representation.
      */
-    DataType j3GravityCoefficient;
-
-    //! Pointer to function returning equatorial radius.
-    /*!
-     * Pointer to function that returns the current value of the equatorial radius.
-     */
-    const typename Base::DataTypeReturningFunction getEquatorialRadius;
-
-    //! Pointer to function returning J2 gravity coefficient.
-    /*!
-     * Pointer to function that returns the current value of the J2 gravity coefficient.
-     */
-    const typename Base::DataTypeReturningFunction getJ2GravityCoefficient;
-
-    //! Pointer to function returning J3 gravity coefficient.
-    /*!
-     * Pointer to function that returns the current value of the J3 gravity coefficient.
-     */
-    const typename Base::DataTypeReturningFunction getJ3GravityCoefficient;
+    const double j3GravityCoefficient;
 
 private:
 };
 
-//! Typedef for CentralJ2J3GravitationalAccelerationModel3d.
-typedef CentralJ2J3GravitationalAccelerationModel< > CentralJ2J3GravitationalAccelerationModel3d;
-
 //! Typedef for shared-pointer to CentralJ2J3GravitationalAccelerationModel3d.
-typedef boost::shared_ptr< CentralJ2J3GravitationalAccelerationModel3d >
-CentralJ2J3GravitationalAccelerationModel3dPointer;
-
-// Template class source.
-// The code given below is effectively the ".cpp file" for the template class definition, so you
-// only need to look at the code below if you are interested in the source implementation.
-
-//! Constructor taking position-functions for bodies, and constant parameters of spherical
-//! harmonics expansion.
-template< typename DataType, typename PositionType >
-CentralJ2J3GravitationalAccelerationModel< DataType, PositionType >::
-CentralJ2J3GravitationalAccelerationModel(
-        const typename Base::PositionReturningFunction positionOfBodySubjectToAccelerationFunction,
-        const DataType aGravitationalParameter,
-        const DataType anEquatorialRadius,
-        const DataType aJ2GravityCoefficient,
-        const DataType aJ3GravityCoefficient,
-        const typename Base::PositionReturningFunction positionOfBodyExertingAccelerationFunction )
-    : Base( positionOfBodySubjectToAccelerationFunction,
-            boost::lambda::constant( aGravitationalParameter ),
-            positionOfBodyExertingAccelerationFunction ),
-      getEquatorialRadius( boost::lambda::constant( anEquatorialRadius ) ),
-      getJ2GravityCoefficient( boost::lambda::constant( aJ2GravityCoefficient ) ),
-      getJ3GravityCoefficient( boost::lambda::constant( aJ3GravityCoefficient ) )
-{
-    this->updateMembers( );
-}
-
-//! Constructor taking functions for position of bodies, and parameters of spherical harmonics
-//! expansion.
-template< typename DataType, typename PositionType >
-CentralJ2J3GravitationalAccelerationModel< DataType, PositionType >::
-CentralJ2J3GravitationalAccelerationModel(
-        const typename Base::PositionReturningFunction positionOfBodySubjectToAccelerationFunction,
-        const typename Base::DataTypeReturningFunction gravitationalParameterFunction,
-        const typename Base::DataTypeReturningFunction equatorialRadiusFunction,
-        const typename Base::DataTypeReturningFunction j2GravityCoefficientFunction,
-        const typename Base::DataTypeReturningFunction j3GravityCoefficientFunction,
-        const typename Base::PositionReturningFunction positionOfBodyExertingAccelerationFunction )
-    : Base( positionOfBodySubjectToAccelerationFunction,
-            gravitationalParameterFunction,
-            positionOfBodyExertingAccelerationFunction ),
-      getEquatorialRadius( equatorialRadiusFunction ),
-      getJ2GravityCoefficient( j2GravityCoefficientFunction ),
-      getJ3GravityCoefficient( j3GravityCoefficientFunction )
-{
-    this->updateMembers( );
-}
-
-//! Get gravitational acceleration.
-template< typename DataType, typename PositionType >
-typename CentralJ2J3GravitationalAccelerationModel<
-DataType, PositionType >::Base::AccelerationType
-CentralJ2J3GravitationalAccelerationModel< DataType, PositionType >::getAcceleration( )
-{
-    // Sum and return constituent acceleration terms.
-    return computeGravitationalAcceleration(
-                this->positionOfBodySubjectToAcceleration,
-                this->gravitationalParameter,
-                this->positionOfBodyExertingAcceleration )
-            + computeGravitationalAccelerationDueToJ2(
-                this->positionOfBodySubjectToAcceleration,
-                this->gravitationalParameter,
-                this->j2GravityCoefficient,
-                this->equatorialRadius,
-                this->positionOfBodyExertingAcceleration )
-            + computeGravitationalAccelerationDueToJ3(
-                this->positionOfBodySubjectToAcceleration,
-                this->gravitationalParameter,
-                this->j3GravityCoefficient,
-                this->equatorialRadius,
-                this->positionOfBodyExertingAcceleration );
-}
-
-//! Update class members.
-template< typename DataType, typename PositionType >
-bool CentralJ2J3GravitationalAccelerationModel< DataType, PositionType >::updateMembers( )
-{
-    this->updateBaseMembers( );
-    this->equatorialRadius = this->getEquatorialRadius( );
-    this->j2GravityCoefficient = this->getJ2GravityCoefficient( );
-    this->j3GravityCoefficient = this->getJ3GravityCoefficient( );
-    return true;
-}
+typedef boost::shared_ptr< CentralJ2J3GravitationalAccelerationModel >
+CentralJ2J3GravitationalAccelerationModelPointer;
 
 } // namespace gravitation
 } // namespace tudat
 
-#endif // TUDAT_CENTRAL_J2_J3_GRAVITY_H
+#endif // TUDAT_CENTRAL_J2_J3_GRAVITY_MODEL_H
