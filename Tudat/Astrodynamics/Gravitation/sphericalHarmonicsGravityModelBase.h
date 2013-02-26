@@ -100,7 +100,7 @@ public:
      * \return True; this should be modified to return a flag indicating if the update was
      *          successful.
      */
-    virtual bool updateMembers( )
+    bool updateBaseMembers( )
     {
         this->positionOfBodySubjectToAcceleration = this->subjectPositionFunction( );
         this->positionOfBodyExertingAcceleration  = this->sourcePositionFunction( );

@@ -106,10 +106,8 @@ public:
     /*!
      * Updates member variables used by the acceleration model. In this case, the internally stored
      * position and time are updated by calling the function-pointers passed to the constructor.
-     * \return True if the update was successful. NOTE: This could be modified to throw
-     *          an exception in the future.
      */
-    bool updateMembers( ) { position = getPosition( ); time = getTime( ); return true; }
+    void updateMembers( ) { position = getPosition( ); time = getTime( ); }
 
 protected:
 
@@ -211,15 +209,12 @@ public:
      * Updates member variables used by the acceleration model. In this case, the internally stored
      * position, velocity, and time are updated by calling the function-pointers passed to the
      * constructor.
-     * \return True if the update was successful. NOTE: This could be modified to throw
-     *          an exception in the future.
      */
-    bool updateMembers( )
+    void updateMembers( )
     {
         position = getPosition( );
         velocity = getVelocity( );
         time = getTime( );
-        return true;
     }
 
 protected:

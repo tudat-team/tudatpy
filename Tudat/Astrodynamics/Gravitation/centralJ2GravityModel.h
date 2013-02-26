@@ -31,6 +31,9 @@
  *                                  constructor; moved class function implementations to source
  *                                  file.
  *      130224    K. Kumar          Updated include guard name; corrected Doxygen errors.
+ *      130225    K. Kumar          Fixed bug with constructor calling virtual function function;
+ *                                  updated free function order of arguments to match clss
+ *                                  constructor; added override of updateMembers() function.
  *
  *    References
  *
@@ -75,6 +78,8 @@ namespace gravitation
  *          (body1) [m].
  * \param gravitationalParameterOfBodyExertingAcceleration Gravitational parameter of body exerting
  *          acceleration (body2) [m^3 s^-2].
+ * \param equatorialRadiusOfBodyExertingAcceleration Equatorial radius of body exerting
+ *          acceleration (body2), in formulation of spherical harmonics expansion [m].
  * \param j2CoefficientOfGravityField J2-coefficient, describing irregularity of the gravity field
  *          of body2 [-].
  * \param positionOfBodyExertingAcceleration Position vector of body exerting acceleration
@@ -84,8 +89,8 @@ namespace gravitation
 Eigen::Vector3d computeGravitationalAccelerationDueToJ2(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBodyExertingAcceleration,
+        const double equatorialRadiusOfBodyExertingAcceleration,
         const double j2CoefficientOfGravityField,
-        const double effectiveRadiusOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration );
 
 //! Central + J2 gravitational acceleration model class.
@@ -129,7 +134,15 @@ public:
             const double anEquatorialRadius,
             const double aJ2GravityCoefficient,
             const Base::StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+        : Base( positionOfBodySubjectToAccelerationFunction,
+                aGravitationalParameter,
+                positionOfBodyExertingAccelerationFunction ),
+          equatorialRadius( anEquatorialRadius ),
+          j2GravityCoefficient( aJ2GravityCoefficient )
+    {
+        this->updateMembers( );
+    }
 
     //! Get gravitational acceleration.
     /*!
@@ -139,6 +152,14 @@ public:
      * \return Computed gravitational acceleration vector.
      */
     Eigen::Vector3d getAcceleration( );
+
+    //! Update members.
+    /*!
+     * Updates class members relevant for computing the central gravitational acceleration. In this
+     * case the function simply updates the members in the base class.
+     * \sa SphericalHarmonicsGravitationalAccelerationModelBase.
+     */
+    void updateMembers( ) { this->updateBaseMembers( ); }
 
 protected:
 

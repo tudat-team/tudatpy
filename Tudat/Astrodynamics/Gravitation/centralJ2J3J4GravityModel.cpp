@@ -50,8 +50,8 @@ namespace gravitation
 Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBodyExertingAcceleration,
+        const double equatorialRadiusOfBodyExertingAcceleration,
         const double j4CoefficientOfGravityField,
-        const double effectiveRadiusOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
     // Set constant values reused for optimal computation of acceleration components.
@@ -60,7 +60,7 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
 
     const double preMultiplier = gravitationalParameterOfBodyExertingAcceleration
             / std::pow( distanceBetweenBodies, 6.0 ) * 4.375 * j4CoefficientOfGravityField
-            * std::pow( effectiveRadiusOfBodyExertingAcceleration, 4.0 );
+            * std::pow( equatorialRadiusOfBodyExertingAcceleration, 4.0 );
 
     const double scaledZCoordinate = ( positionOfBodySubjectToAcceleration.z( )
                                        - positionOfBodyExertingAcceleration.z( ) )
@@ -96,8 +96,8 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
 Eigen::Vector3d computeGravitationalAccelerationZonalSum(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBodyExertingAcceleration,
+        const double equatorialRadiusOfBodyExertingAcceleration,
         const std::map< int, double > zonalCoefficientsOfGravityField,
-        const double effectiveRadiusOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
     // Check that only coefficients for the gravity field are given up to J2 (i.e., size of
@@ -113,7 +113,7 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
     // Check if position of body subject to acceleration falls within the effective radius of
     // the central body. If so, throw an error.
     if ( ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ).norm( )
-         < effectiveRadiusOfBodyExertingAcceleration )
+         < equatorialRadiusOfBodyExertingAcceleration )
     {
         boost::throw_exception(
                     boost::enable_error_info(
@@ -141,8 +141,8 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
             gravitationalAccelerationSum += computeGravitationalAccelerationDueToJ2(
                         positionOfBodySubjectToAcceleration,
                         gravitationalParameterOfBodyExertingAcceleration,
+                        equatorialRadiusOfBodyExertingAcceleration,
                         mapIterator->second,
-                        effectiveRadiusOfBodyExertingAcceleration,
                         positionOfBodyExertingAcceleration );
 
             break;
@@ -152,8 +152,8 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
             gravitationalAccelerationSum += computeGravitationalAccelerationDueToJ3(
                         positionOfBodySubjectToAcceleration,
                         gravitationalParameterOfBodyExertingAcceleration,
+                        equatorialRadiusOfBodyExertingAcceleration,
                         mapIterator->second,
-                        effectiveRadiusOfBodyExertingAcceleration,
                         positionOfBodyExertingAcceleration );
 
             break;
@@ -163,8 +163,8 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
             gravitationalAccelerationSum += computeGravitationalAccelerationDueToJ4(
                         positionOfBodySubjectToAcceleration,
                         gravitationalParameterOfBodyExertingAcceleration,
+                        equatorialRadiusOfBodyExertingAcceleration,
                         mapIterator->second,
-                        effectiveRadiusOfBodyExertingAcceleration,
                         positionOfBodyExertingAcceleration );
 
             break;
@@ -182,27 +182,6 @@ Eigen::Vector3d computeGravitationalAccelerationZonalSum(
     return gravitationalAccelerationSum;
 }
 
-//! Constructor taking position-functions for bodies, and constant parameters of spherical
-//! harmonics expansion.
-CentralJ2J3J4GravitationalAccelerationModel::CentralJ2J3J4GravitationalAccelerationModel( 
-        const StateFunction positionOfBodySubjectToAccelerationFunction,
-        const double aGravitationalParameter,
-        const double anEquatorialRadius,
-        const double aJ2GravityCoefficient,
-        const double aJ3GravityCoefficient,
-        const double aJ4GravityCoefficient,
-        const StateFunction positionOfBodyExertingAccelerationFunction )
-    : Base( positionOfBodySubjectToAccelerationFunction,
-            aGravitationalParameter,
-            positionOfBodyExertingAccelerationFunction ),
-      equatorialRadius( anEquatorialRadius ),
-      j2GravityCoefficient( aJ2GravityCoefficient ),
-      j3GravityCoefficient( aJ3GravityCoefficient ),
-      j4GravityCoefficient( aJ4GravityCoefficient )
-{
-    Base::updateMembers( );
-}
-
 //! Get gravitational acceleration.
 Eigen::Vector3d CentralJ2J3J4GravitationalAccelerationModel::getAcceleration( )
 {
@@ -214,20 +193,20 @@ Eigen::Vector3d CentralJ2J3J4GravitationalAccelerationModel::getAcceleration( )
             + computeGravitationalAccelerationDueToJ2(
                 this->positionOfBodySubjectToAcceleration,
                 this->gravitationalParameter,
-                this->j2GravityCoefficient,
                 this->equatorialRadius,
+                this->j2GravityCoefficient,
                 this->positionOfBodyExertingAcceleration )
             + computeGravitationalAccelerationDueToJ3(
                 this->positionOfBodySubjectToAcceleration,
                 this->gravitationalParameter,
-                this->j3GravityCoefficient,
                 this->equatorialRadius,
+                this->j3GravityCoefficient,
                 this->positionOfBodyExertingAcceleration )
             + computeGravitationalAccelerationDueToJ4(
                 this->positionOfBodySubjectToAcceleration,
                 this->gravitationalParameter,
-                this->j4GravityCoefficient,
                 this->equatorialRadius,
+                this->j4GravityCoefficient,
                 this->positionOfBodyExertingAcceleration );
 }
 

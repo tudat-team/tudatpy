@@ -275,13 +275,12 @@ public:
     /*!
      * Updates all the base class members to their current values and also updates the class
      * members of this class.
-     * \return Flag indicating if update was successful or not.
      */
-    bool updateMembers( )
+    void updateMembers( )
     {
         cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
         sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
-        return Base::updateMembers( );
+        this->updateBaseMembers( );
     }
 
 protected:

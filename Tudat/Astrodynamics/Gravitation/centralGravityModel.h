@@ -30,6 +30,8 @@
  *      121210    D. Dirkx          Simplified class by removing template parameters and a
  *                                  constructor.
  *      130224    K. Kumar          Updated include guard name.
+ *      130225    K. Kumar          Fixed bug with constructor calling virtual function function;
+ *                                  added override of updateMembers() function.
  *
  *    References
  *
@@ -197,7 +199,7 @@ public:
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction )
     {
-        Base::updateMembers( );
+        this->updateMembers( );
     }
 
     //! Get gravitational acceleration.
@@ -214,6 +216,14 @@ public:
                     this->gravitationalParameter,
                     this->positionOfBodyExertingAcceleration );
     }
+
+    //! Update members.
+    /*!
+     * Updates class members relevant for computing the central gravitational acceleration. In this
+     * case the function simply updates the members in the base class.
+     * \sa SphericalHarmonicsGravitationalAccelerationModelBase.
+     */
+    void updateMembers( ) { this->updateBaseMembers( ); }
 
 protected:
 private:

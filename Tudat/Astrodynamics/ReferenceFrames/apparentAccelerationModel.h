@@ -225,15 +225,14 @@ public:
                                             currentVelocityOfBodyInNonInertialReferenceFrame_ );
     }
 
-    //! Function to update member variables used by this acceleration model.
+    //! Update member variables used by apparent acceleration model.
     /*!
      * Function to update member variables used by this acceleration model. The variables
      * that are required as input for the evaluation of the accelerations are retrieved from
      * boost::functions that may or may not give constant return values, depending on the
      * user input. This function sets the member variables using these functions.
-     * \return True if update is successful.
      */
-    bool updateMembers( );
+    void updateMembers( );
 
 protected:
 

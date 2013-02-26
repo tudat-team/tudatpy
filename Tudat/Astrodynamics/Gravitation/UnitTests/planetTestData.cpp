@@ -99,8 +99,8 @@ PlanetTestData getMercuryMatlabTestData( )
     PlanetTestData mercuryData(
                 "Mercury",
                 2.2032e13,
-                map_list_of( 2, 0.00006 ),
                 2439.0e3,
+                map_list_of( 2, 0.00006 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( 1513.3e3, -7412.67e3, 3012.1e3 ) )
@@ -132,8 +132,8 @@ PlanetTestData getVenusMatlabTestData( )
     PlanetTestData venusData(
                 "Venus",
                 3.257e14,
-                map_list_of( 2, 0.000027 ),
                 6052.0e3,
+                map_list_of( 2, 0.000027 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( 6485.67e3, -1015.35e3, -4556.31e3 ) )
@@ -165,8 +165,8 @@ PlanetTestData getEarthMatlabTestData( )
     PlanetTestData earthData(
                 "Earth",
                 3.986004415e14,
-                map_list_of( 2, 0.0010826269 )( 3, -0.0000025323 )( 4, -0.0000016204 ),
                 6378.1363e3,
+                map_list_of( 2, 0.0010826269 )( 3, -0.0000025323 )( 4, -0.0000016204 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( 6678.1e3, -4567.12e3, 7601.21e3 ) )
@@ -206,8 +206,8 @@ PlanetTestData getMoonMatlabTestData( )
     PlanetTestData moonData(
                 "Moon",
                 4902.799e9,
-                map_list_of( 2, 0.0002027 ),
                 1738.0e3,
+                map_list_of( 2, 0.0002027 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( 1843.3e3, -2498.1e3, -1432.1e3 ) )
@@ -239,8 +239,8 @@ PlanetTestData getMarsMatlabTestData( )
     PlanetTestData marsData(
                 "Mars",
                 4.305e13,
-                map_list_of( 2, 0.001964 )( 3, 0.000036 ),
                 3397.2e3,
+                map_list_of( 2, 0.001964 )( 3, 0.000036 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( -4121.1e3, -4567.12e3, 2654.9e3 ) )
@@ -276,8 +276,8 @@ PlanetTestData getJupiterMatlabTestData( )
     PlanetTestData jupiterData(
                 "Jupiter",
                 1.268e17,
-                map_list_of( 2, 0.01475 )( 4, -0.00058 ),
                 71492.0e3,
+                map_list_of( 2, 0.01475 )( 4, -0.00058 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( -80123.4e3, 68534.7e3, -75612.5e3 ) )
@@ -313,8 +313,8 @@ PlanetTestData getSaturnMatlabTestData( )
     PlanetTestData saturnData(
                 "Saturn",
                 3.794e16,
-                map_list_of( 2, 0.01645 )( 4, -0.001 ),
                 60268.0e3,
+                map_list_of( 2, 0.01645 )( 4, -0.001 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( 61823.7e3, 78919.2e3, -75612.5e3 ) )
@@ -350,8 +350,8 @@ PlanetTestData getUranusMatlabTestData( )
     PlanetTestData uranusData(
                 "Uranus",
                 5.794e15,
-                map_list_of( 2, 0.012 ),
                 25559.0e3,
+                map_list_of( 2, 0.012 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( 95736e3, -94505.5e3, 12012.8e3 ) )
@@ -383,8 +383,8 @@ PlanetTestData getNeptuneMatlabTestData( )
     PlanetTestData neptuneData(
                 "Neptune",
                 6.809e15,
-                map_list_of( 2, 0.004 ),
                 24764.0e3,
+                map_list_of( 2, 0.004 ),
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) )
                        ( Vector3d( 101.1, -253.6, 301.9 ) ),
                 list_of( Vector3d( -34708.9e3, 12709.3e3, -56032.8e3 ) )
@@ -416,9 +416,9 @@ PlanetTestData getEarthMelmanTestData( )
     PlanetTestData earthData(
                 "Earth",
                 3.98600441e14,
+                6378140.0,
                 map_list_of( 2, 1.082629989051944e-3 )( 3, -2.532153068197590e-6 )
                            ( 4, -1.610987610000000e-6 ),
-                6378140.0,
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) ),
                 list_of( Vector3d( -6.54e6, 6.58e6, -6.47e6 ) )
                        ( Vector3d( -6.57e6, -6.53e6, 6.55e6 ) ) );
@@ -453,9 +453,9 @@ PlanetTestData getEarthRonseTestData( )
     PlanetTestData earthData(
                 "Earth",
                 3.98600441e14,
+                6378140.0,
                 map_list_of( 2, 1.082629989051944e-3 )( 3, -2.532153068197590e-6 )
                            ( 4, -1.610987610000000e-6 ),
-                6378140.0,
                 list_of( Vector3d( 0.0, 0.0, 0.0 ) ),
                 list_of( Vector3d( -6.54e6, 6.58e6, -6.47e6 ) )
                        ( Vector3d( -6.57e6, -6.53e6, 6.55e6 ) )
