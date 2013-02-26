@@ -188,8 +188,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationSumZonalMatlab )
                             = computeGravitationalAccelerationZonalSum(
                                 planetData.at( planet ).body2Positions.at( body2 ),
                                 planetData.at( planet ).gravitationalParameter,
+                                planetData.at( planet ).equatorialRadius,
                                 zonalCoefficients,
-                                planetData.at( planet ).effectiveRadius,
                                 planetData.at( planet ).body1Positions.at( body1 ) );
 
                     // Check that computed gravitational acceleration sum matches expected values.
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                                 boost::lambda::constant(
                                     planetData.at( planet ).body2Positions.at( body2 ) ),
                                 planetData.at( planet ).gravitationalParameter,
-                                planetData.at( planet ).effectiveRadius,
+                                planetData.at( planet ).equatorialRadius,
                                 planetData.at( planet ).zonalCoefficients[ 2 ],
                             boost::lambda::constant(
                                 planetData.at( planet ).body1Positions.at( body1 ) ) );
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                                 boost::lambda::constant(
                                     planetData.at( planet ).body2Positions.at( body2 ) ),
                                 planetData.at( planet ).gravitationalParameter,
-                                planetData.at( planet ).effectiveRadius,
+                                planetData.at( planet ).equatorialRadius,
                                 planetData.at( planet ).zonalCoefficients[ 2 ],
                             planetData.at( planet ).zonalCoefficients[ 3 ],
                             boost::lambda::constant(
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                                     boost::lambda::constant(
                                         planetData.at( planet ).body2Positions.at( body2 ) ),
                                     planetData.at( planet ).gravitationalParameter,
-                                    planetData.at( planet ).effectiveRadius,
+                                    planetData.at( planet ).equatorialRadius,
                                     planetData.at( planet ).zonalCoefficients[ 2 ],
                                 0.0,
                                 planetData.at( planet ).zonalCoefficients[ 4 ],
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                                     boost::lambda::constant(
                                         planetData.at( planet ).body2Positions.at( body2 ) ),
                                     planetData.at( planet ).gravitationalParameter,
-                                    planetData.at( planet ).effectiveRadius,
+                                    planetData.at( planet ).equatorialRadius,
                                     planetData.at( planet ).zonalCoefficients[ 2 ],
                                 planetData.at( planet ).zonalCoefficients[ 3 ],
                                 planetData.at( planet ).zonalCoefficients[ 4 ],
@@ -400,8 +400,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalMelman )
                     = zonalGravitationalAccelerationPointers[ zonalCoefficientIterator->first ](
                         earthData.body2Positions.at( body2 ),
                         earthData.gravitationalParameter,
+                        earthData.equatorialRadius,
                         zonalCoefficientIterator->second,
-                        earthData.effectiveRadius,
                         earthData.body1Positions.at( 0 ) );
 
             // Check that computed gravitational acceleration sum matches expected values.
@@ -462,8 +462,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalRonse )
                     = zonalGravitationalAccelerationPointers[ zonalCoefficientIterator->first ](
                         earthData.body2Positions.at( body2 ),
                         earthData.gravitationalParameter,
+                        earthData.equatorialRadius,
                         zonalCoefficientIterator->second,
-                        earthData.effectiveRadius,
                         earthData.body1Positions.at( 0 ) );
 
             // Check that computed gravitational acceleration sum matches expected values.

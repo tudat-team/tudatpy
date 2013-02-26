@@ -86,8 +86,8 @@ Eigen::Vector3d computeEulerAcceleration(
                 positionOfBodyInNonInertialReferenceFrame );
 }
 
-//! Function to update member variables used by this acceleration model.
-bool ApparentAccelerationModel::updateMembers( )
+//! Update member variables used by apparent acceleration model.
+void ApparentAccelerationModel::updateMembers( )
 {
     currentAccelerationOfNonInertialReferenceFrame_ =
             accelerationOfNonInertialReferenceFrameFunction_( );
@@ -99,7 +99,6 @@ bool ApparentAccelerationModel::updateMembers( )
             positionOfBodyInNonInertialReferenceFrameFunction_( );
     currentVelocityOfBodyInNonInertialReferenceFrame_ =
             velocityOfBodyInNonInertialReferenceFrameFunction_( );
-    return true;
 }
 
 } // namespace reference_frames

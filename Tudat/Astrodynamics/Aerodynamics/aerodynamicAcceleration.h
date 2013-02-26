@@ -194,16 +194,14 @@ public:
      * Function pointers to retrieve the current values of quantities from which the
      * acceleration is to be calculated are set by constructor. This function calls
      * them to update the associated\variables to their current state.
-     * \return True if the update was successful.
      */
-    bool updateMembers( )
+    void updateMembers( )
     {
         currentForceCoefficients_ = coefficientMultiplier_ * this->coefficientFunction_( );
         currentDensity_ = this->densityFunction_( );
         currentMass_ = this->massFunction_( );
         currentAirspeed_ = this->airSpeedFunction_( );
         currentReferenceArea_ = this->referenceAreaFunction_( );
-        return true;
     }
 
 private:

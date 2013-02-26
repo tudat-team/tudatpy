@@ -31,6 +31,9 @@
  *                                  constructor; moved class function implementations to source
  *                                  file.
  *      130224    K. Kumar          Updated include guard name; corrected Doxygen errors.
+ *      130225    K. Kumar          Fixed bug with constructor calling virtual function function;
+ *                                  updated free function order of arguments to match clss
+ *                                  constructor; added override of updateMembers() function.
  *
  *    References
  *
@@ -84,6 +87,8 @@ namespace gravitation
  *          (body1) [m].
  * \param gravitationalParameterOfBodyExertingAcceleration Gravitational parameter of body exerting
  *          acceleration (body2) [m^3 s^-2].
+ * \param equatorialRadiusOfBodyExertingAcceleration Equatorial radius of body exerting
+ *          acceleration (body2), in formulation of spherical harmonics expansion [m].
  * \param j4CoefficientOfGravityField J4-coefficient, describing irregularity of the gravity field
  *          of body2 [-].
  * \param positionOfBodyExertingAcceleration Position vector of body exerting acceleration
@@ -93,8 +98,8 @@ namespace gravitation
 Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBodyExertingAcceleration,
+        const double equatorialRadiusOfBodyExertingAcceleration,
         const double j4CoefficientOfGravityField,
-        const double effectiveRadiusOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration );
 
 //! Compute gravitational acceleration zonal sum.
@@ -120,6 +125,8 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
  *          (body1) [m].
  * \param gravitationalParameterOfBodyExertingAcceleration Gravitational parameter of body exerting
  *          acceleration (body2) [m^3 s^-2].
+ * \param equatorialRadiusOfBodyExertingAcceleration Equatorial radius of body exerting
+ *          acceleration (body2), in formulation of spherical harmonics expansion [m].
  * \param coefficientsOfGravityField Coefficients of zonal terms, describing irregularity of the
  *          gravity field of body2 [-]. The map key contains the degree, and the map value contains
  *          the coefficient value. At the moment, the only degrees supported are 2 (\f$J_{2}\f$),
@@ -131,8 +138,8 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
 Eigen::Vector3d computeGravitationalAccelerationZonalSum(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBodyExertingAcceleration,
+        const double equatorialRadiusOfBodyExertingAcceleration,
         const std::map< int, double > zonalCoefficientsOfGravityField,
-        const double effectiveRadiusOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration );
 
 //! Central + J2 + J3 + J4 gravitational acceleration model class.
@@ -181,7 +188,17 @@ public:
             const double aJ3GravityCoefficient,
             const double aJ4GravityCoefficient,
             const StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+        : Base( positionOfBodySubjectToAccelerationFunction,
+                aGravitationalParameter,
+                positionOfBodyExertingAccelerationFunction ),
+          equatorialRadius( anEquatorialRadius ),
+          j2GravityCoefficient( aJ2GravityCoefficient ),
+          j3GravityCoefficient( aJ3GravityCoefficient ),
+          j4GravityCoefficient( aJ4GravityCoefficient )
+    {
+        this->updateMembers( );
+    }
 
     //! Get gravitational acceleration.
     /*!
@@ -192,6 +209,14 @@ public:
      * \return Computed gravitational acceleration vector.
      */
     Eigen::Vector3d getAcceleration( );
+
+    //! Update members.
+    /*!
+     * Updates class members relevant for computing the central gravitational acceleration. In this
+     * case the function simply updates the members in the base class.
+     * \sa SphericalHarmonicsGravitationalAccelerationModelBase.
+     */
+    void updateMembers( ) { this->updateBaseMembers( ); }
 
 protected:
 

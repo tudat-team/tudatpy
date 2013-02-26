@@ -47,8 +47,8 @@ namespace gravitation
 Eigen::Vector3d computeGravitationalAccelerationDueToJ2(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBodyExertingAcceleration,
+        const double equatorialRadiusOfBodyExertingAcceleration,
         const double j2CoefficientOfGravityField,
-        const double effectiveRadiusOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
     // Set constant values reused for optimal computation of acceleration components.
@@ -57,8 +57,8 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ2(
 
     const double preMultiplier = -gravitationalParameterOfBodyExertingAcceleration
             / std::pow( distanceBetweenBodies, 4.0 ) * 1.5 * j2CoefficientOfGravityField
-            * effectiveRadiusOfBodyExertingAcceleration
-            * effectiveRadiusOfBodyExertingAcceleration;
+            * equatorialRadiusOfBodyExertingAcceleration
+            * equatorialRadiusOfBodyExertingAcceleration;
 
     const double scaledZCoordinate = ( positionOfBodySubjectToAcceleration.z( )
                                        - positionOfBodyExertingAcceleration.z( ) )
@@ -86,23 +86,6 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ2(
     return gravitationalAccelerationDueToJ2;
 }
 
-//! Constructor taking position-functions for bodies, and constant parameters of spherical
-//! harmonics expansion.
-CentralJ2GravitationalAccelerationModel::CentralJ2GravitationalAccelerationModel( 
-        const Base::StateFunction positionOfBodySubjectToAccelerationFunction,
-        const double aGravitationalParameter,
-        const double anEquatorialRadius,
-        const double aJ2GravityCoefficient,
-        const Base::StateFunction positionOfBodyExertingAccelerationFunction )
-    : Base( positionOfBodySubjectToAccelerationFunction,
-            aGravitationalParameter,
-            positionOfBodyExertingAccelerationFunction ),
-      equatorialRadius( anEquatorialRadius ),
-      j2GravityCoefficient( aJ2GravityCoefficient )
-{
-    Base::updateMembers( );
-}
-
 //! Get gravitational acceleration.
 Eigen::Vector3d CentralJ2GravitationalAccelerationModel::getAcceleration( )
 {
@@ -114,8 +97,8 @@ Eigen::Vector3d CentralJ2GravitationalAccelerationModel::getAcceleration( )
             + computeGravitationalAccelerationDueToJ2(
                 this->positionOfBodySubjectToAcceleration,
                 this->gravitationalParameter,
-                this->j2GravityCoefficient,
                 this->equatorialRadius,
+                this->j2GravityCoefficient,
                 this->positionOfBodyExertingAcceleration );
 }
 

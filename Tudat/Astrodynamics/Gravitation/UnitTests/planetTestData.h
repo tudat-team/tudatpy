@@ -91,14 +91,14 @@ public:
     //! Default constructor.
     PlanetTestData( const std::string& aPlanetName,
                     const double aGravitationalParameter,
+                    const double anEquatorialRadius,
                     const KeyIntValueDoubleMap& someZonalCoefficients,
-                    const double anEffectiveRadius,
                     const std::vector< Eigen::Vector3d >& positionsOfBodyExertingAcceleration,
                     const std::vector< Eigen::Vector3d >& positionsOfBodySubjectToAcceleration )
         : planetName( aPlanetName ),
           gravitationalParameter( aGravitationalParameter ),
+          equatorialRadius( anEquatorialRadius ),
           zonalCoefficients( someZonalCoefficients ),
-          effectiveRadius( anEffectiveRadius ),
           body1Positions( positionsOfBodyExertingAcceleration  ),
           body2Positions( positionsOfBodySubjectToAcceleration  ),
           expectedAcceleration( IndexedVector3d( ) )
@@ -108,8 +108,8 @@ public:
     PlanetTestData( )
         : planetName( "" ),
           gravitationalParameter( TUDAT_NAN ),
+          equatorialRadius( TUDAT_NAN ),
           zonalCoefficients( KeyIntValueDoubleMap( ) ),
-          effectiveRadius( TUDAT_NAN ),
           body1Positions( VectorOfVector3ds( ) ),
           body2Positions( VectorOfVector3ds( ) ),
           expectedAcceleration( IndexedVector3d( ) )
@@ -129,19 +129,19 @@ public:
      */
     double gravitationalParameter;
 
+    //! Equatorial radius [m].
+    /*!
+     * The equatorial radius, is part of the spherical harmonics expansion and is given in the
+     * documentation of MATLAB's gravityzonal() function (Mathworks, 2012).
+     */
+    double equatorialRadius;
+
     //! Zonal gravity field coefficients.
     /*!
      * Map that indexes the zonal gravity coefficients available for a given central body. These
      * are taken from the documentation for MATLAB's gravityzonal() function (Mathworks, 2012).
      */
     KeyIntValueDoubleMap zonalCoefficients;
-
-    //! Effective (equatorial) radius [m].
-    /*!
-     * The effective radius, or equatorial radius, is part of the spherical harmonics expansion and
-     * is given in the documentation of MATLAB's gravityzonal() function (Mathworks, 2012).
-     */
-    double effectiveRadius;
 
     //! Positions of body exerting acceleration.
     /*!

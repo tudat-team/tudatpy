@@ -33,6 +33,8 @@
  *      120821    K. Kumar          Changed template parameters for AccelerationModel class to
  *                                  DataType only; removed obsolete template specializations of
  *                                  class and updateAndGetAcceleration() function.
+ *      130225    K. Kumar          Modified updateMembers() function to pure virtual with void
+ *                                  return-type.
  *
  *    References
  *
@@ -43,10 +45,7 @@
 #ifndef TUDAT_ACCELERATION_MODEL_H
 #define TUDAT_ACCELERATION_MODEL_H
 
-#include <stdexcept>
-
 #include <boost/shared_ptr.hpp>
-#include <boost/exception/all.hpp>
 
 #include <Eigen/Core>
 
@@ -93,10 +92,10 @@ public:
      * This function evaluates such function-pointers and updates member variables to the 'current'
      * values of these parameters. Only these current values, not the function-pointers are then
      * used by the getAcceleration() function.
-     * \return True if the update was successful. NOTE: This could be modified to throw
-     *          an exception in the future.
+     *
+     * N.B.: This pure virtual function must be overridden by derived classes!
      */
-    virtual bool updateMembers( ) { return true; }
+    virtual void updateMembers( ) = 0;
 
 protected:
 
@@ -120,8 +119,6 @@ typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
  * Updates the member variables of an acceleration model and subsequently evaluates the
  * acceleration. This allows the user to suffice with a single function call to both update the
  * members and evaluate the acceleration.
- * In case the updateMembers() function fails (returns false), this function throws a
- * runtime_error.
  * \tparam AccelerationDataType Data type used to represent accelerations
  *          (default=Eigen::Vector3d).
  * \param accelerationModel Acceleration model that is to be evaluated.
@@ -131,12 +128,8 @@ template < typename AccelerationDataType >
 AccelerationDataType updateAndGetAcceleration(
         boost::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel )
 {
-    // Update members and throw exception if it fails.
-    if( !accelerationModel->updateMembers( ) )
-    {
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               "Unable to update acceleration model." ) ) );
-    }
+    // Update members.
+    accelerationModel->updateMembers( );
 
     // Evaluate and return acceleration.
     return accelerationModel->getAcceleration( );
