@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120717    D. Dirkx          Creation of file.
+ *      130226    K. Kumar          Updated return-type for getCartesianStateFromEphemeris().
  *
  *    References
  *
@@ -32,22 +33,18 @@
  *
  */
 
-#include <iostream>
 #include <stdexcept>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/exception/all.hpp>
 
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
 
 namespace ephemerides
 {
-
-using tudat::basic_mathematics::Vector6d;
 
 //! Constructor
 SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
@@ -103,7 +100,8 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
 }
 
 //! Get Cartesian state from ephemeris.
-Eigen::VectorXd SpiceEphemeris::getCartesianStateFromEphemeris( const double julianDay )
+basic_mathematics::Vector6d SpiceEphemeris::getCartesianStateFromEphemeris(
+        const double julianDay )
 {
     // Retrieve body state at given ephemeris time, using settings passed to constructor of this
     // object.
@@ -112,7 +110,7 @@ Eigen::VectorXd SpiceEphemeris::getCartesianStateFromEphemeris( const double jul
     const double ephemerisTime = spice_interface::convertJulianDateToEphemerisTime( julianDay );
 
     // Retrieve Cartesian state from spice.
-    const Vector6d cartesianStateAtEpoch =
+    const basic_mathematics::Vector6d cartesianStateAtEpoch =
             spice_interface::getBodyCartesianStateAtEpoch(
                 targetBodyName_, observerBodyName_, referenceFrameName_, abberationCorrections_,
                 ephemerisTime );

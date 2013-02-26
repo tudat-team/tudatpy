@@ -24,7 +24,8 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120717    D. Dirkx          Creation of file.
+ *      120717    D. Dirkx          File created.
+ *      130226    K. Kumar          Updated return-type for getCartesianStateFromEphemeris().
  *
  *    References
  *
@@ -38,7 +39,10 @@
 #include <string>
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
+
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -75,7 +79,7 @@ public:
      * \param ephemerisTime Ephemeris time at which cartesian state is to be determined.
      * \return State from ephemeris.
      */
-    Eigen::VectorXd getCartesianStateFromEphemeris( const double julianDay );
+    basic_mathematics::Vector6d getCartesianStateFromEphemeris( const double julianDay );
 
 private:
 
