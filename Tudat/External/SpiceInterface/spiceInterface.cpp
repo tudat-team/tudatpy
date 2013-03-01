@@ -47,13 +47,13 @@ namespace spice_interface
 
 using tudat::basic_mathematics::Vector6d;
 
-//! Convert a julian date to ephemeris time (equivalent to TDB in Spice).
+//! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 double convertJulianDateToEphemerisTime( const double julianDate )
 {
     return ( julianDate - j2000_c( ) ) * spd_c( );
 }
 
-//! Convert ephemeris time (equivalent to TDB) to a julian date.
+//! Convert ephemeris time (equivalent to TDB) to a Julian date.
 double convertEphemerisTimeToJulianDate( const double ephemerisTime )
 {
     return j2000_c( ) + ( ephemerisTime ) / spd_c( );

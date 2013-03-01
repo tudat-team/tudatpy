@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120717    D. Dirkx          File created.
+ *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
  *      130226    K. Kumar          Updated return-type for getCartesianStateFromEphemeris().
  *
  *    References
@@ -38,6 +39,7 @@
 
 #include <string>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
@@ -79,7 +81,9 @@ public:
      * \param ephemerisTime Ephemeris time at which cartesian state is to be determined.
      * \return State from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris( const double julianDay );
+    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
+            const double secondsSinceEpoch, 
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
 private:
 

@@ -66,19 +66,19 @@ namespace tudat
 namespace spice_interface
 {
 
-//! Convert a julian date to ephemeris time (equivalent to TDB in Spice).
+//! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 /*!
- * Function to convert a julian date to ephemeris time, which is equivalent to barycentric
+ * Function to convert a Julian date to ephemeris time, which is equivalent to barycentric
  * dynamical time. A leap second kernel must have been loaded to use this function.
  * \param julianDate Julian date that is to be converted to ephemeris time.
  * \return Ephemeris time calculated from Julian date.
  */
 double convertJulianDateToEphemerisTime( const double julianDate );
 
-//! Convert ephemeris time (equivalent to TDB) to a julian date.
+//! Convert ephemeris time (equivalent to TDB) to a Julian date.
 /*!
  * Function to convert ephemeris time, which is nearly equal to barycentric dynamical time, to the
- * julian date. A leap second kernel must have been loaded to use this function.
+ * Julian date. A leap second kernel must have been loaded to use this function.
  * \param ephemerisTime Ephemeris time that is to be converted to Julian date
  * \return Julian date calculated from ephemeris time.
  */

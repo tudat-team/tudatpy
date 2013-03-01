@@ -27,6 +27,7 @@
  *      110629    L. van der Ham    File created.
  *      110803    L. van der Ham    Seperated this code from approximatePlanetPositions.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
+ *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -42,6 +43,7 @@
 #include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
 
 namespace tudat
@@ -51,10 +53,11 @@ namespace ephemerides
 
 //! Get state from ephemeris; circular, coplanar case
 basic_mathematics::Vector6d ApproximatePlanetPositionsCircularCoplanar::
-getCartesianStateFromEphemeris( const double julianDate )
+getCartesianStateFromEphemeris( const double secondsSinceEpoch, const double julianDayAtEpoch )
 {
     // Set Julian date.
-    julianDate_ = julianDate;
+    julianDate_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay(
+                secondsSinceEpoch, julianDayAtEpoch );
 
     // Compute number of centuries past J2000.
     numberOfCenturiesPastJ2000_ = ( julianDate_ - 2451545.0 ) / 36525.0;

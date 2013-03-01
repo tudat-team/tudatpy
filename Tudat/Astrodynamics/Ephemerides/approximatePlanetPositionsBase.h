@@ -32,6 +32,7 @@
  *      110824    J. Leloux         Corrected doxygen documentation.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -80,7 +81,8 @@ public:
 
     //! Default constructor.
     ApproximatePlanetPositionsBase( const double aSunGravitationalParameter )
-        : sunGravitationalParameter( aSunGravitationalParameter ),
+        : Ephemeris( "Sun", "J2000" ),
+          sunGravitationalParameter( aSunGravitationalParameter ),
           julianDate_( -0.0 ),
           meanLongitudeAtGivenJulianDate_( -0.0 ),
           numberOfCenturiesPastJ2000_( -0.0 ),
@@ -107,9 +109,9 @@ public:
     //! Load in ephemeris data for planets.
     /*!
      * This method opens and parses the p_elem_t2.txt ephemeris files for the planet positions.
-     * The resulting data is stored in 
+     * The resulting data is stored in
      * ApproximatePlanetPositionsBase::containerOfDataFromEphemerisFile_ to be used in the
-     * generation of planet ephemeris. This method is automatically invoked if you call 
+     * generation of planet ephemeris. This method is automatically invoked if you call
      * ApproximatePlanetPositionsBase::setPlanet( BodiesWithEphemerisData ).
      */
     void reloadData( );
