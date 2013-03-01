@@ -35,6 +35,8 @@
  *                                  to fabs( ). Needs to be fixed.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *      120513    P. Musegaas       Boostified unit test.
+ *      130218    D. Dirx           Adapted unit test for Julian date conversions and for changes
+ *                                  in ephemeris base class.
  *
  *    References
  *      HORIZONS Web-Interface, http://ssd.jpl.nasa.gov/horizons.cgi, last accessed: 5 April, 2011.
@@ -94,16 +96,20 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
     ApproximatePlanetPositions marsEphemeris( ApproximatePlanetPositions::mars );
 
     // Convert the expected Keplerian elements to Cartesian elements.
-    Eigen::VectorXd expectedEphemeris;
+    basic_mathematics::Vector6d expectedEphemeris;
     expectedEphemeris = orbital_element_conversions::convertKeplerianToCartesianElements(
             expectedKeplerianElements,
             marsEphemeris.getSunGravitationalParameter( ) );
 
     // Retrieve state of Mars in Cartesian elements at Julian date 2455626.5.
-    Eigen::VectorXd marsState = marsEphemeris.getCartesianStateFromEphemeris( 2455626.5 );
+    basic_mathematics::Vector6d marsState = marsEphemeris.getCartesianStateFromEphemeris( 0.0, 2455626.5 );
 
     // Test if the computed ephemeris matches the expected ephemeris within the tolerance set.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedEphemeris, marsState, tolerance );
+
+    // Check that the reference frame properties are as expected.
+    BOOST_CHECK_EQUAL( marsEphemeris.getReferenceFrameOrientation( ), "J2000" );
+    BOOST_CHECK_EQUAL( marsEphemeris.getReferenceFrameOrigin( ), "Sun" );
 }
 
 //! Test the cicular coplanar function against orbital elements of Mars at JD 2455626.5.
@@ -114,11 +120,11 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
     ApproximatePlanetPositionsCircularCoplanar marsEphemeris(
                 ApproximatePlanetPositionsBase::mars );
 
-    Eigen::VectorXd marsStateCircularCoplanar
-            = marsEphemeris.getCartesianStateFromEphemeris( 2455626.5 );
+    basic_mathematics::Vector6d marsStateCircularCoplanar
+            = marsEphemeris.getCartesianStateFromEphemeris( 0.0, 2455626.5 );
 
     // Compute the Keplerian elements from this ephemeris.
-    Eigen::VectorXd keplerianElementsCircularCoplanar;
+    basic_mathematics::Vector6d keplerianElementsCircularCoplanar;
     keplerianElementsCircularCoplanar = orbital_element_conversions::
             convertCartesianToKeplerianElements( marsStateCircularCoplanar,
                     marsEphemeris.getSunGravitationalParameter( ) );
@@ -130,6 +136,10 @@ BOOST_AUTO_TEST_CASE( testCircularCoplannar )
     BOOST_CHECK_SMALL( marsStateCircularCoplanar( 2 ), 2.0e-5 );
     BOOST_CHECK_SMALL( marsStateCircularCoplanar( 5 ),
                        std::numeric_limits< double >::min( ) );
+
+    // Check that the reference frame properties are as expected.
+    BOOST_CHECK_EQUAL( marsEphemeris.getReferenceFrameOrientation( ), "J2000" );
+    BOOST_CHECK_EQUAL( marsEphemeris.getReferenceFrameOrigin( ), "Sun" );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

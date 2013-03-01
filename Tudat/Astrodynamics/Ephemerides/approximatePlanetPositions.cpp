@@ -30,6 +30,7 @@
  *                                  from Tudat Core.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *      120522    P. Musegaas       Fixed bug for coordinates of outer planets.
+ *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -44,6 +45,7 @@
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 
@@ -54,17 +56,18 @@ namespace ephemerides
 
 //! Get state from ephemeris.
 basic_mathematics::Vector6d ApproximatePlanetPositions::getCartesianStateFromEphemeris(
-        const double julianDate )
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
 {
     // Convert planet elements in Keplerian elements to Cartesian elements.
     return tudat::basic_astrodynamics::orbital_element_conversions::
             convertKeplerianToCartesianElements(
-                getKeplerianStateFromEphemeris( julianDate ), sunGravitationalParameter );
+                getKeplerianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ),
+                sunGravitationalParameter );
 }
 
 //! Get keplerian state from ephemeris.
 basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
-        const double julianDate )
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
 {
     using std::pow;
     using std::sin;
@@ -72,10 +75,10 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEph
     using namespace basic_astrodynamics;
 
     // Set Julian date.
-    julianDate_ = julianDate;
+    julianDate_ = convertSecondsSinceEpochToJulianDay( secondsSinceEpoch, julianDayAtEpoch );
 
     // Compute number of centuries past J2000.
-    numberOfCenturiesPastJ2000_ = ( julianDate - 2451545.0 ) / 36525.0;
+    numberOfCenturiesPastJ2000_ = ( julianDate_ - 2451545.0 ) / 36525.0;
 
     // Compute and set semi-major axis of planet at given Julian date.
     planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex )

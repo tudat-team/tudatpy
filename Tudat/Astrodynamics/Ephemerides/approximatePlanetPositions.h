@@ -29,6 +29,7 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *      130120    K. Kumar          Updated VectorXd to Vector6d; added shared-ptr typedef.
+ *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -81,16 +82,22 @@ public:
     //! Get cartesian state from ephemeris.
     /*!
      * Returns cartesian state from ephemeris.
+     * \param secondsSinceEpoch Seconds since epoch.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Cartesian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris( const double julianDate );
+    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
+            const double secondsSinceEpoch, const double julianDayAtEpoch );
 
     //! Get keplerian state from ephemeris.
     /*!
      * Returns keplerian state in from ephemeris.
+     * \param secondsSinceEpoch Seconds since epoch.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Keplerian elements from ephemeris.
      */
-    basic_mathematics::Vector6d getKeplerianStateFromEphemeris( const double julianDate );
+    basic_mathematics::Vector6d getKeplerianStateFromEphemeris(
+            const double secondsSinceEpoch, const double julianDayAtEpoch );
 
 protected:
 

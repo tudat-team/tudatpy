@@ -53,4 +53,4 @@ setup_tudat_library_target(tudat_spice_interface "${SRCROOT}${SPICEINTERFACEDIR}
 # Add unit tests.
 add_executable(test_SpiceInterface "${SRCROOT}${EXTERNALDIR}/SpiceInterface/UnitTests/unitTestSpiceInterface.cpp")
 setup_custom_test_program(test_SpiceInterface "${SRCROOT}${EXTERNALDIR}/SpiceInterface")
-target_link_libraries(test_SpiceInterface tudat_spice_interface ${SPICE_LIBRARIES} ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_SpiceInterface tudat_spice_interface tudat_basic_astrodynamics ${SPICE_LIBRARIES} ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})

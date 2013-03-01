@@ -28,6 +28,7 @@
  *      110803    L. van der Ham    Separated this code from approximatePlanetPositions.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *      130121    K. Kumar          Updated VectorXd to Vector6d; added shared-ptr typedef.
+ *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -80,9 +81,12 @@ public:
     //! Get state from ephemeris; circular, coplanar case.
     /*!
      * Returns state in Cartesian elements from ephemeris for circular and coplanar orbit.
+     * \param secondsSinceEpoch Seconds since epoch.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Cartesian elements from ephemeris for circular and coplanar orbit.
      */
-    basic_mathematics::Vector6d getCartesianStateFromEphemeris( const double julianDate );
+    basic_mathematics::Vector6d getCartesianStateFromEphemeris(
+            const double secondsSinceEpoch, const double julianDayAtEpoch );
 
 protected:
 

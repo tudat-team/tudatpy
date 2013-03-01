@@ -115,11 +115,11 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
     // Exact ephemeris time at J2000.
     const double ephemerisTimeOneYearAfterJ2000 = JULIAN_YEAR;
 
-    // Convert to julian day.
+    // Convert to Julian day.
     const double julianDayOneYearAfterJ2000Spice = convertEphemerisTimeToJulianDate(
                 ephemerisTimeOneYearAfterJ2000 );
 
-    // Exact julian day at J2000.
+    // Exact Julian day at J2000.
     const double julianDayOneYearAfterJ2000 = 2451545.0 + JULIAN_YEAR_IN_DAYS;
 
     // Compare exact and converted values of Julian dat at J2000.
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
         for ( unsigned int j = 0; j < 3; j++ )
         {
             BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrix( i, j ),
-                               std::numeric_limits< double >::epsilon( ) );
+                               2.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
 }
@@ -290,7 +290,6 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     const std::string target = "Mars";
     const std::string referenceFrame = "IAU_EARTH";
     const double ephemerisTime = JULIAN_YEAR;
-    const double julianDay = 2451545.0 + JULIAN_YEAR_IN_DAYS;
 
     SpiceEphemeris spiceEphemeris = SpiceEphemeris( target, observer, 0, 0, 0, referenceFrame );
 
@@ -299,8 +298,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
 
     // Check calculated state with no aberration corrections.
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                     abberationCorrections, ephemerisTime );
-    ephemerisState = spiceEphemeris.getCartesianStateFromEphemeris( julianDay );
+                                                abberationCorrections, ephemerisTime );
+    ephemerisState = spiceEphemeris.getCartesianStateFromEphemeris( ephemerisTime );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
                                        std::numeric_limits< double >::epsilon( ) );
 
@@ -308,8 +307,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     spiceEphemeris = SpiceEphemeris( target, observer, 0, 1, 0, referenceFrame );
     abberationCorrections = "LT";
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                     abberationCorrections, ephemerisTime );
-    ephemerisState = spiceEphemeris.getCartesianStateFromEphemeris( julianDay );
+                                                abberationCorrections, ephemerisTime );
+    ephemerisState = spiceEphemeris.getCartesianStateFromEphemeris( ephemerisTime );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
                                        std::numeric_limits< double >::epsilon( ) );
 
@@ -317,8 +316,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     spiceEphemeris = SpiceEphemeris( target, observer, 0, 1, 1, referenceFrame );
     abberationCorrections = "CN";
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                     abberationCorrections, ephemerisTime );
-    ephemerisState = spiceEphemeris.getCartesianStateFromEphemeris( julianDay );
+                                                abberationCorrections, ephemerisTime );
+    ephemerisState = spiceEphemeris.getCartesianStateFromEphemeris( ephemerisTime );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
                                        std::numeric_limits< double >::epsilon( ) );
 
@@ -326,8 +325,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     spiceEphemeris = SpiceEphemeris( target, observer, 1, 1, 0, referenceFrame );
     abberationCorrections = "LT+S";
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                     abberationCorrections, ephemerisTime );
-    ephemerisState = spiceEphemeris.getCartesianStateFromEphemeris( julianDay );
+                                                abberationCorrections, ephemerisTime );
+    ephemerisState = spiceEphemeris.getCartesianStateFromEphemeris( ephemerisTime );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
                                        std::numeric_limits< double >::epsilon( ) );
 

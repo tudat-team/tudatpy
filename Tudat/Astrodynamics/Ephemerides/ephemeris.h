@@ -29,6 +29,7 @@
  *                                  classes.
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *      130120    K. Kumar          Updated VectorXd to Vector6d; added shared-ptr typedef.
+ *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
  *
  *    References
  *
@@ -58,6 +59,18 @@ class Ephemeris
 {
 public:
 
+    //! Constructor
+    /*!
+     *  Constructor, sets reference frame associated with ephemeris (default empty).
+     *  \param referenceFrameOrigin Origin of reference frame (string identifier).
+     *  \param referenceFrameOrientation Orientation of reference frame (string identifier).
+     */
+    Ephemeris( const std::string& referenceFrameOrigin = "",
+               const std::string& referenceFrameOrientation = "" ):
+        referenceFrameOrigin_( referenceFrameOrigin ),
+        referenceFrameOrientation_( referenceFrameOrientation )
+    { }
+
     //! Default destructor.
     /*!
      * Default destructor.
@@ -67,15 +80,42 @@ public:
     //! Get state from ephemeris.
     /*!
      * Returns state from ephemeris at given Julian date.
-     * \param julianDate Julian date given in Julian days.
+     * \param secondsSinceEpoch Seconds since epoch.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State from ephemeris.
      */
     virtual basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double julianDate ) = 0;
+            const double secondsSinceEpoch, const double julianDayAtEpoch ) = 0;
+
+    //! Get reference frame origin.
+    /*!
+     * Returns reference frame origin as a string.
+     * \return Reference frame origin.
+     */
+    std::string getReferenceFrameOrigin( ) { return referenceFrameOrigin_; }
+
+    //! Get reference frame orientation.
+    /*!
+     * Returns the reference frame orientation as a string.
+     * \return Reference frame orientation
+     */
+    std::string getReferenceFrameOrientation( ) { return referenceFrameOrientation_; }
 
 protected:
 
-private:
+    //! Reference frame origin.
+    /*!
+     * Reference frame origin. This identifier gives only the origin of the reference frame,
+     * its orientation is defined by the referenceFrameOrientation_ variable.
+     */
+    std::string referenceFrameOrigin_;
+
+    //! Reference frame orientation
+    /*!
+     * Reference frame orientation. This identifier gives only the orientation of the
+     * reference frame, the origin is defined by the referenceFrameOrigin_ variable.
+     */
+    std::string referenceFrameOrientation_;
 };
 
 //! Typedef for shared-pointer to Ephemeris object.

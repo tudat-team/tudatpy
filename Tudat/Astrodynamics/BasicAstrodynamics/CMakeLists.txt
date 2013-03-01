@@ -29,6 +29,7 @@
  #      120216    K. Kumar          Removed propagator files.
  #      120822    P. Musegaas       Added unit test for mean to hyperbolic eccentric anomaly
  #                                  conversion.
+ #      130218    D. Dirx           Added unit test for Julian date conversions.
  #
  #    References
  #
@@ -42,6 +43,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/timeConversions.cpp"
 )
 
 # Set the header files.
@@ -53,6 +55,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateVectorIndices.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/timeConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/testAccelerationModels.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/testBody.h"
 )
@@ -85,3 +88,7 @@ target_link_libraries(test_ClohessyWiltshirePropagator tudat_basic_astrodynamics
 add_executable(test_MissionGeometry "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestMissionGeometry.cpp")
 setup_custom_test_program(test_MissionGeometry "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_MissionGeometry tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_TimeConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestTimeConversions.cpp")
+setup_custom_test_program(test_TimeConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_TimeConversions tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
