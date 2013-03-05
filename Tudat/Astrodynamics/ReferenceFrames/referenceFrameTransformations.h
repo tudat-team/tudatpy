@@ -49,6 +49,7 @@
 #define TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
 
 #include <cmath>
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -82,6 +83,22 @@ Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix(
 Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
     const double angleFromXItoXR );
 
+//! Get rotation from planet-fixed to inertial frame.
+/*!
+ * Retuns rotation from planet-fixed to inertial frame, assuming that the equatorial plane is not
+ * equal to x-y plane of inertial frame. Orientation of body-fixed frame is obtained from right
+ * ascension and declination of body's pole and the location of the prime meridian
+ * (Seidelmann et al. 2006).
+ * \param declinationOfPole Declination of body's pole in inertial frame.
+ * \param rightAscensionOfPole Right ascension of body's pole in inertial frame.
+ * \param longitudeOfPrimeMeridian Longitude of body prime meridian.
+ * \return Rotation quaternion computed.
+ */
+Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian );
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 /*!
  * Returns transformation matrix from inertial referenceframe (I) to the rotating planetocentric
@@ -106,6 +123,22 @@ Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
  */
 Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
         const double angleFromXItoXR );
+
+//! Get rotation from inertial to planet-fixed frame.
+/*!
+ * Returns rotation from inertial to planet-fixed frame, assuming that the equatorial plane is not
+ * equal to x-y plane of inertial frame. Orientation of body-fixed frame is obtained from right
+ * ascension and declination of body's pole and the location of the prime meridian
+ * (Seidelmann et al. 2006).
+ * \param declinationOfPole Declination of body's pole in inertial frame.
+ * \param rightAscensionOfPole Right ascension of body's pole in inertial frame.
+ * \param longitudeOfPrimeMeridian Longitude of body prime meridian.
+ * \return Rotation quaternion computed.
+ */
+Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian );
 
 //! Create a Quaterniond rotation state object from four quaternion values in vector 4d.
 /*!

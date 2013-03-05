@@ -151,7 +151,7 @@ namespace aerodynamics
 /*!
  * The ephemerides namespace, containing the functionalities needed to obtain and propagate 
  * ephemerides. At this time, the JPL approximate planet positions are implemented as well as their
- * circular coplanar approximations.
+ * circular coplanar approximations. Also, a simple body rotational ephemeris can be obtained.
  */
 namespace ephemerides
 {

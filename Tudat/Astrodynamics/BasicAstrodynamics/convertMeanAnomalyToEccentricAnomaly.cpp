@@ -91,7 +91,7 @@ ConvertMeanAnomalyToEccentricAnomaly::ConvertMeanAnomalyToEccentricAnomaly(
 
 {
     // Set mean anomaly to region between 0 and 2 PI.
-    meanAnomaly = mathematics::computeModulo( aMeanAnomaly, 2.0 * mathematics::PI );
+    meanAnomaly = mathematics::computeModulo( aMeanAnomaly, 2.0 * basic_mathematics::mathematical_constants::PI );
 
     // Required because the make_shared in the function definition gives problems for MSVC.
     if ( !rootFinder.get( ) )
@@ -134,7 +134,7 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
         // functionality of this one, and of another option for the starter: PI. [Musegaas,2012]
         if ( useDefaultInitialGuess )
         {
-            if ( meanAnomaly > mathematics::PI )
+            if ( meanAnomaly > basic_mathematics::mathematical_constants::PI )
             {
                 initialGuess =  meanAnomaly - eccentricity;
             }

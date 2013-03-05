@@ -55,6 +55,7 @@ namespace tudat
 {
 namespace reference_frames
 {
+
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Eigen::Matrix3d
 getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR )
@@ -85,6 +86,28 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
     return frameTransformationQuaternion;
 }
 
+//! Get rotation from planet-fixed to inertial frame.
+Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian )
+{
+    // Compute transformation quaternion.
+    // Note the sign change, because how angleAxisd is defined.
+    Eigen::AngleAxisd firstRotationAroundZaxis =
+            Eigen::AngleAxisd( longitudeOfPrimeMeridian, Eigen::Vector3d::UnitZ( ) );
+    Eigen::AngleAxisd rotationAroundXaxis =
+            Eigen::AngleAxisd(
+                ( basic_mathematics::mathematical_constants::PI / 2.0 - declinationOfPole ),
+                Eigen::Vector3d::UnitX( ) );
+    Eigen::AngleAxisd secondRotationAroundZaxis = Eigen::AngleAxisd(
+                rightAscensionOfPole
+                + basic_mathematics::mathematical_constants::PI / 2.0, Eigen::Vector3d::UnitZ( ) );
+    Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
+                ( secondRotationAroundZaxis * rotationAroundXaxis *  firstRotationAroundZaxis ) );
+    return frameTransformationQuaternion;
+}
+
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformtion matrix.
 Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
         const double angleFromXItoXR )
@@ -110,6 +133,28 @@ Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
     Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond( eigenRotationObject );
 
     // Return transformation quaternion.
+    return frameTransformationQuaternion;
+}
+
+//! Get rotation from inertial to planet-fixed frame.
+Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
+        const double declinationOfPole,
+        const double rightAscensionOfPole,
+        const double longitudeOfPrimeMeridian )
+{
+    // Compute transformation quaternion.
+    // Note the sign change, because how angleAxisd is defined.
+    Eigen::AngleAxisd secondRotationAroundZaxis =
+            Eigen::AngleAxisd( -longitudeOfPrimeMeridian, Eigen::Vector3d::UnitZ( ) );
+    Eigen::AngleAxisd rotationAroundXaxis =
+            Eigen::AngleAxisd(
+                -( basic_mathematics::mathematical_constants::PI / 2.0 - declinationOfPole ),
+                Eigen::Vector3d::UnitX( ) );
+    Eigen::AngleAxisd firstRotationAroundZaxis = Eigen::AngleAxisd(
+                - ( rightAscensionOfPole + basic_mathematics::mathematical_constants::PI / 2.0 ),
+                Eigen::Vector3d::UnitZ( ) );
+    Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
+                ( secondRotationAroundZaxis * rotationAroundXaxis *  firstRotationAroundZaxis ) );
     return frameTransformationQuaternion;
 }
 
