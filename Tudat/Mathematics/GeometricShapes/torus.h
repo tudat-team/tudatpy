@@ -87,9 +87,9 @@ public:
      */
     Torus( const double majorRadius, const double minorRadius,
            const double minimumMajorCircumferentialAngle = 0.0,
-           const double maximumMajorCircumferentialAngle = 2.0 * mathematics::PI,
+           const double maximumMajorCircumferentialAngle = 2.0 * basic_mathematics::mathematical_constants::PI,
            const double minimumMinorCircumferentialAngle = 0.0,
-           const double maximumMinorCircumferentialAngle = 2.0 * mathematics::PI );
+           const double maximumMinorCircumferentialAngle = 2.0 * basic_mathematics::mathematical_constants::PI );
 
     //! Get surface point on torus.
     /*!

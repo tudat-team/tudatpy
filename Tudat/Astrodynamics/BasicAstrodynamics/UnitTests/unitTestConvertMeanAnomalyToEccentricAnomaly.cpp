@@ -290,20 +290,20 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic )
    const double arrayOfTestMeanAnomalies [ 17 ] = { 0.0,
                                                     1.0e-10,
                                                     0.5,
-                                                    mathematics::PI / 2 - 1.0e-10,
-                                                    mathematics::PI / 2,
-                                                    mathematics::PI / 2 + 1.0e-10,
+                                                    basic_mathematics::mathematical_constants::PI / 2 - 1.0e-10,
+                                                    basic_mathematics::mathematical_constants::PI / 2,
+                                                    basic_mathematics::mathematical_constants::PI / 2 + 1.0e-10,
                                                     2.5,
-                                                    mathematics::PI - 1.0e-10,
-                                                    mathematics::PI,
-                                                    mathematics::PI + 1.0e-10,
+                                                    basic_mathematics::mathematical_constants::PI - 1.0e-10,
+                                                    basic_mathematics::mathematical_constants::PI,
+                                                    basic_mathematics::mathematical_constants::PI + 1.0e-10,
                                                     4.0,
-                                                    3.0 / 2.0 * mathematics::PI - 1.0e-10,
-                                                    3.0 / 2.0 * mathematics::PI,
-                                                    3.0 / 2.0 * mathematics::PI + 1.0e-10,
+                                                    3.0 / 2.0 * basic_mathematics::mathematical_constants::PI - 1.0e-10,
+                                                    3.0 / 2.0 * basic_mathematics::mathematical_constants::PI,
+                                                    3.0 / 2.0 * basic_mathematics::mathematical_constants::PI + 1.0e-10,
                                                     5.5,
-                                                    2.0 * mathematics::PI - 1.0e-10,
-                                                    2.0 * mathematics::PI };
+                                                    2.0 * basic_mathematics::mathematical_constants::PI - 1.0e-10,
+                                                    2.0 * basic_mathematics::mathematical_constants::PI };
 
     // Set the expected eccentric anomalies corresponding to the corresponding test mean anomaly
     // array. These values were obtained using the convertMeanAnomalyToEccentricAnomaly method,
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic_ra
 
     // Instantiate random number generator.
     boost::mt19937 randomNumbergenerator( time( 0 ) );
-    boost::random::uniform_real_distribution< > distribution0To2Pi( 0.0, 2 * mathematics::PI );
+    boost::random::uniform_real_distribution< > distribution0To2Pi( 0.0, 2 * basic_mathematics::mathematical_constants::PI );
     boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
             generateRandomNumber0To2Pi( randomNumbergenerator, distribution0To2Pi );
 
@@ -451,7 +451,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_random )
     // lower than the limit (1.0 - 1.0e-15, because this could invoke machine precision problems
     // with the sharp tolerance used: 1.0e-13 instead of 1.0e-9).
     boost::mt19937 randomNumbergenerator( time( 0 ) );
-    boost::random::uniform_real_distribution< > distribution0To2Pi( 0.0, 2 * mathematics::PI );
+    boost::random::uniform_real_distribution< > distribution0To2Pi( 0.0, 2 * basic_mathematics::mathematical_constants::PI );
     boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
             generateRandomNumber0To2Pi( randomNumbergenerator, distribution0To2Pi );
     boost::random::uniform_real_distribution< > distribution0To1( 0.0, 1.0 - 1.0e-11 );
@@ -533,7 +533,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_specificInitialG
 
     // Specify initial guess.
     const bool useDefaultGuess = false;
-    const double initialGuess = mathematics::PI;
+    const double initialGuess = basic_mathematics::mathematical_constants::PI;
 
     // Compute eccentric anomaly.
     const double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(

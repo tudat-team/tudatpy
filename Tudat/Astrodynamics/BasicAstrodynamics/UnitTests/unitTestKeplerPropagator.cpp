@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_Melman )
     BOOST_CHECK_CLOSE_FRACTION(
                 benchmarkKeplerPropagationHistory.rbegin( )->second( 5 ),
                 mathematics::computeModulo( computedFinalStateInKeplerianElements( 5 ),
-                                            2.0 * mathematics::PI ), 1.0e-8 );
+                                            2.0 * basic_mathematics::mathematical_constants::PI ), 1.0e-8 );
 }
 
 //! Test 2: Comparison of kepprop2b() test output from (GSFC, 2012) using modulo option.
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_kepprop2b_modulo )
         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
                 = mathematics::computeModulo(
                     computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                    2.0 * mathematics::PI );
+                    2.0 * basic_mathematics::mathematical_constants::PI );
 
         // Check that computed results match expected results.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_kepprop2b_backwards )
         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
                 = mathematics::computeModulo(
                     computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                    2.0 * mathematics::PI );
+                    2.0 * basic_mathematics::mathematical_constants::PI );
 
         // Check that computed results match expected results.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
