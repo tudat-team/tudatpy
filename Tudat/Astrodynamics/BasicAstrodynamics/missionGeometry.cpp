@@ -30,6 +30,12 @@
  *      121123    D. Dirkx          Added computeSphereOfInfluence() function taking mass ratios;
  *                                  updated implementation of computeSphereOfInfluence() taking
  *                                  masses.
+ *      130225    D. Dirkx          Added isOrbitRetrograde(...) functions taking inclination and
+ *                                  Kepler vector.
+ *      130227    D. Dirkx          Set isRetrograde at initialization to 0.
+ *      130301    R.C.A. Boon       Minor textual changes, changed mathematics::PI to
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d
+ *                                  basic_mathematics::mathematical_constants::PI.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -40,12 +46,14 @@
  */
 
 #include <cmath>
+#include <stdexcept>
 
 #include <Eigen/Core>
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h>
-
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
 
 namespace tudat
 {
@@ -53,6 +61,38 @@ namespace basic_astrodynamics
 {
 namespace mission_geometry
 {
+
+//! Compute whether an orbit is retrograde based on inclination.
+bool isOrbitRetrograde( const double inclination )
+{
+    bool isRetrograde = false;
+
+    // Check which range inclination is in and return value accordingly.
+    if ( inclination < 0.0 || inclination > mathematics::PI )
+    {
+        throw std::runtime_error(
+                    "The inclination is in the wrong range when determining retrogradeness" );
+    }
+    else if ( inclination <= basic_mathematics::mathematical_constants::PI / 2.0 )
+    {
+        isRetrograde = false;
+    }
+    else if ( inclination > basic_mathematics::mathematical_constants::PI / 2.0 )
+    {
+        isRetrograde = true;
+    }
+
+    return isRetrograde;
+}
+
+//! Compute whether an orbit is retrograde based on Keplerian state.
+bool isOrbitRetrograde( const tudat::basic_mathematics::Vector6d keplerElements )
+{
+    // Get inclination from vector and call overloaded function.
+    return isOrbitRetrograde(
+                keplerElements(
+                    basic_astrodynamics::orbital_element_conversions::inclinationIndex ) );
+}
 
 //! Compute the shadow function.
 double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,

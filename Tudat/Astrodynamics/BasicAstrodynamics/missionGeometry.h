@@ -28,6 +28,10 @@
  *      121004    M.I. Ganeff       Input parameter types and variable-naming updated.
  *      121018    M.I. Ganeff       Added computeSphereOfInfluence().
  *      121123    D. Dirkx          Added computeSphereOfInfluence() function taking mass ratios.
+ *      130225    D. Dirkx          Added isOrbitRetrograde(...) functions taking inclination and
+ *                                  Kepler vector.
+ *      130301    R.C.A. Boon       Minor textual changes.
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -44,12 +48,42 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+
 namespace tudat
 {
 namespace basic_astrodynamics
 {
 namespace mission_geometry
 {
+
+//! Compute whether an orbit is retrograde based on inclination.
+/*!
+ * Determines whether an orbit is retrograde, based on its inclination. The orbit is defined to
+ * be retrograde if its inclination is >90 and <180 degrees, prograde if >0 and <=90 degrees.
+ * Values outside [0, 180] degrees are not allowed for this function. The longitude of the ascending
+ * node does not influence whether the orbit is retrograde.
+ *
+ * N.B: The inclination must be given in radians!
+ *
+ * \param inclination Inclination of the orbit [rad].
+ * \return true if orbit is retrograde, false if prograde.
+ */
+bool isOrbitRetrograde( const double inclination );
+
+//! Compute whether an orbit is retrograde based on Keplerian state.
+/*!
+ * Determines whether an orbit is retrograde, based on the kepler elements. The orbit is defined to
+ * be retrograde if its inclination is >90 and <180 degrees, prograde if >0 and <=90 degrees.
+ * Values for the inclination outside [0, 180] degrees are not allowed for this function. The right
+ * ascension of the ascending node does not influence whether the orbit is retrograde.
+ *
+ * N.B: The inclination must be given in radians!
+ *
+ * \param keplerElements Vector of keplerian elements.
+ * \return true if orbit is retrograde, false if prograde.
+ */
+bool isOrbitRetrograde( const tudat::basic_mathematics::Vector6d keplerElements );
 
 //! Compute the shadow function.
 /*!
