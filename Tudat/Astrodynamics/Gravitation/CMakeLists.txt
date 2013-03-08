@@ -49,6 +49,7 @@ set(GRAVITATION_SOURCES
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityField.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/thirdBodyPerturbation.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/UnitTests/planetTestData.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
@@ -68,6 +69,7 @@ set(GRAVITATION_HEADERS
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityModelBase.h"
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityField.h"
   "${SRCROOT}${GRAVITATIONDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
+  "${SRCROOT}${GRAVITATIONDIR}/thirdBodyPerturbation.h"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.h"
   "${SRCROOT}${GRAVITATIONDIR}/UnitTests/planetTestData.h"
 )
@@ -108,3 +110,7 @@ target_link_libraries(test_StateDerivativeRestrictedThreeBodyProblem tudat_missi
 add_executable(test_SphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestSphericalHarmonicsGravityModel.cpp")
 setup_custom_test_program(test_SphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}")
 target_link_libraries(test_SphericalHarmonicsGravityModel tudat_gravitation tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES} )
+
+add_executable(test_ThirdBodyPerturbation "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestThirdBodyPerturbation.cpp")
+setup_custom_test_program(test_ThirdBodyPerturbation "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_ThirdBodyPerturbation tudat_gravitation ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES} )
