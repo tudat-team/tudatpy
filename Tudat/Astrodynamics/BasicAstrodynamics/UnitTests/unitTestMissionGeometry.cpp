@@ -28,6 +28,8 @@
  *      121018    M.I. Ganeff       Added unit tests for computeSphereOfInfluence().
  *      121123    D. Dirkx          Added unit tests for computeSphereOfInfluence() function taking
  *                                  mass ratio.
+ *      130227    D. Dirkx          Added unit test for isOrbitRetrograde() functions.
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -47,7 +49,10 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h>
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
 
 namespace tudat
 {
@@ -193,6 +198,147 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
         // Test values (Wikipedia, Sphere of Influence)
         BOOST_CHECK_CLOSE_FRACTION( 6.61e7, sphereOfInfluenceMoon, 2.0e-3 );
     }
+}
+
+//! Unit test for testing for retrogradeness.
+BOOST_AUTO_TEST_CASE( testIsOrbitRetrograde )
+{
+    using namespace tudat::basic_astrodynamics::orbital_element_conversions;
+    using namespace tudat::basic_astrodynamics::mission_geometry;
+    using namespace tudat::basic_mathematics::mathematical_constants;
+
+    // Initialize test Kepler elements.
+    tudat::basic_mathematics::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
+    testKepler( semiMajorAxisIndex ) = 1.0e7;
+    testKepler( eccentricityIndex ) = 0.1;
+    testKepler( inclinationIndex ) = 50.0 / 180.0 * PI;
+    testKepler( argumentOfPeriapsisIndex ) = 350.0 / 180.0 * PI;
+    testKepler( longitudeOfAscendingNodeIndex ) = 15.0 / 180.0 * PI;
+    testKepler( trueAnomalyIndex ) = 170.0 / 180.0 * PI;
+
+    bool expectedIsOrbitRetrograde = false;
+
+    bool calculatedIsOrbitRetrograde = true;
+
+    // Test value for prograde orbit, not near boundary.
+    {
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler( inclinationIndex ) );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+    }
+
+    // Test value for prograde orbit, near zero boundary.
+    {
+        testKepler( inclinationIndex ) = std::numeric_limits< double >::epsilon( );
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler( inclinationIndex ) );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+    }
+
+    // Test value for prograde orbit, near 90 degrees boundary.
+    {
+        testKepler( inclinationIndex ) = PI / 2.0 - std::numeric_limits< double >::epsilon( );
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler( inclinationIndex ) );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+    }
+
+    // Test value for retrograde orbit, near 90 degrees boundary.
+    {
+        expectedIsOrbitRetrograde = 1;
+        testKepler( inclinationIndex ) = PI / 2.0 + std::numeric_limits< double >::epsilon( );
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler( inclinationIndex ) );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+    }
+
+    // Test value for retrograde orbit, not near boundary.
+    {
+        testKepler( inclinationIndex ) = 2.0;
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler( inclinationIndex ) );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+    }
+
+    // Test value for retrograde orbit, near 180 degrees boundary.
+    {
+        testKepler( inclinationIndex ) = PI - std::numeric_limits< double >::epsilon( );
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler( inclinationIndex ) );
+        BOOST_CHECK_EQUAL( expectedIsOrbitRetrograde, calculatedIsOrbitRetrograde );
+    }
+
+    // Check exception handling for inclinations out of range.
+    bool isExceptionFound = false;
+    testKepler( inclinationIndex ) = PI + 1.0;
+
+    // Try to calculate retrogradeness.
+    try
+    {
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler );
+    }
+    // Catch the expected runtime error, and set the boolean flag to true.
+    catch ( std::runtime_error )
+    {
+        isExceptionFound = true;
+    }
+    // Check value of flag.
+    BOOST_CHECK( isExceptionFound );
+
+    isExceptionFound = false;
+    // Try to calculate retrogradeness.
+    try
+    {
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler( inclinationIndex ) );
+    }
+    // Catch the expected runtime error, and set the boolean flag to true.
+    catch ( std::runtime_error )
+    {
+        isExceptionFound = true;
+    }
+    // Check value of flag.
+    BOOST_CHECK( isExceptionFound );
+
+    isExceptionFound = false;
+    testKepler( inclinationIndex ) = -1.0;
+    // Try to calculate retrogradeness.
+    try
+    {
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler );
+    }
+    // Catch the expected runtime error, and set the boolean flag to true.
+    catch ( std::runtime_error )
+    {
+        isExceptionFound = true;
+    }
+    // Check value of flag.
+    BOOST_CHECK( isExceptionFound );
+
+    isExceptionFound = false;
+    // Try to calculate retrogradeness.
+    try
+    {
+        calculatedIsOrbitRetrograde = isOrbitRetrograde( testKepler( inclinationIndex ) );
+    }
+    // Catch the expected runtime error, and set the boolean flag to true.
+    catch ( std::runtime_error )
+    {
+        isExceptionFound = true;
+    }
+    // Check value of flag.
+    BOOST_CHECK( isExceptionFound );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
