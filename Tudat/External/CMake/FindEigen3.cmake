@@ -63,7 +63,9 @@ else (EIGEN3_INCLUDE_DIR)
 
   find_path(EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
       PATHS
-      ${PROJECT_SOURCE_DIR}/../
+      ${PROJECT_SOURCE_DIR}/..
+      ${PROJECT_SOURCE_DIR}/../..
+      ${PROJECT_SOURCE_DIR}/../../..
       ${PROJECT_SOURCE_DIR}/../../tudatCore
       ${CMAKE_INSTALL_PREFIX}/include
       ${KDE4_INCLUDE_DIR}
