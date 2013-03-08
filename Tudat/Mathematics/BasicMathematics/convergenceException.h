@@ -25,6 +25,9 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120317    S. Billemont      File created.
+ *      120317    S. Billemont      Added optional error message to the constructor.
+ *      130305    S. Billemont      Renaming of message variables for GCC.
+ *      130307    K. Kumar          Added missing Doxygen comments to exception struct.
  *
  *    References
  *
@@ -55,7 +58,35 @@ namespace basic_mathematics
  *
  * \sa Boost.Exception.
  */
-struct ConvergenceException : virtual boost::exception, virtual std::exception { };
+struct ConvergenceException : public virtual boost::exception, public virtual std::exception
+{
+public:
+
+    //! Constructor that sets exception message to default string.
+    ConvergenceException( )
+        : message( "Failed to converge to a solution.")
+    { }
+
+    //! Constructor that sets exception message based on input character array.
+    ConvergenceException( const char* errMessage )
+        : message( errMessage )
+    { }
+
+    //! Constructor that sets exception message based on input string.
+    ConvergenceException( const std::string& errMessage )
+        : message( errMessage.c_str( ) )
+    { }
+
+    //! Return what the exception message stored is.
+    const char* what( ) const throw( ) { return message; }
+
+protected:
+
+private:
+
+    //! Stored exception message.
+    const char* message;
+};
 
 } // namespace basic_mathematics
 } // namespace tudat

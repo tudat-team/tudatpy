@@ -44,9 +44,15 @@
  *                                  Turned into base class for Lambert Targeters. Previous code
  *                                  adapted and moved to LambertTargeterGooding.h.
  *      120704    P. Musegaas       Moved getInertialVelocityVectors to header. Minor changes.
+ *      130117    R.C.A. Boon       Added solved boolean flag to data members and public member
+ *                                  functions (with help from S. Billemont). Updated copyright
+ *                                  notice to 2013.
  *      130121    K. Kumar          Added shared-ptr typedef.
  *
  *    References
+ *      Eigen. Structures having Eigen members,
+ *          http://eigen.tuxfamily.org/dox/TopicStructHavingEigenMembers.html, last accessed: 5th
+ *          March, 2013.
  *
  *    Notes
  *
@@ -76,20 +82,25 @@ class LambertTargeter
 {
 public:
 
+    // Ensure that correctly aligned pointers are generated (Eigen, 2013).
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     //! Default constructor.
     /*!
-     * Default constructor.
+     * Default constructor that only initializes parameters. Execution of solving routine happens
+     * on member function call.
      */
     LambertTargeter( const Eigen::Vector3d& aCartesianPositionAtDeparture,
                      const Eigen::Vector3d& aCartesianPositionAtArrival,
-                     const double& aTimeOfFlight,
-                     const double& aGravitationalParameter )
+                     const double aTimeOfFlight,
+                     const double aGravitationalParameter )
         : cartesianPositionAtDeparture( aCartesianPositionAtDeparture ),
           cartesianPositionAtArrival( aCartesianPositionAtArrival ),
           timeOfFlight( aTimeOfFlight ),
           gravitationalParameter( aGravitationalParameter ),
           cartesianVelocityAtDeparture( Eigen::Vector3d::Zero( ) ),
-          cartesianVelocityAtArrival( Eigen::Vector3d::Zero( ) )
+          cartesianVelocityAtArrival( Eigen::Vector3d::Zero( ) ),
+          solved( false )
     { }
 
     //! Default destructor.
@@ -103,45 +114,54 @@ public:
      * Returns the inertial velocity at departure ( heliocentric or planetocentric ).
      * \return Inertial velocity at departure.
      */
-    Eigen::Vector3d getInertialVelocityAtDeparture( ) { return cartesianVelocityAtDeparture; }
+    Eigen::Vector3d getInertialVelocityAtDeparture( )
+    {
+        // If no solution has yet been computed, solve.
+        if ( !solved ) execute( );
+
+        // Return computed Cartesian velocity at departure.
+        return cartesianVelocityAtDeparture;
+    }
 
     //! Get inertial velocity at arrival.
     /*!
      * Returns the inertial velocity at arrival ( heliocentric or planetocentric ).
      * \return Inertial velocity at arrival.
      */
-    Eigen::Vector3d getInertialVelocityAtArrival( ) { return cartesianVelocityAtArrival; }
+    Eigen::Vector3d getInertialVelocityAtArrival( )
+    {
+        // If no solution has yet been computed, solve.
+        if ( !solved ) execute( );
 
-    //! Get intertial velocity vectors.
+        // Return computed Cartesian velocity at arrival.
+        return cartesianVelocityAtArrival;
+    }
+
+    //! Get inertial velocity vectors.
     /*!
      * Returns a pair of vectors, the first corresponding to the velocity vector along the transfer
      * ellipse, the second to the the velocity vector at arrival.
      * \return Pair of velocity vectors.
      */
-    std::pair< Eigen::Vector3d, Eigen::Vector3d > getInertialVelocityVectors ( )
+    std::pair< Eigen::Vector3d, Eigen::Vector3d > getInertialVelocityVectors( )
     {
-        return std::pair<Eigen::Vector3d, Eigen::Vector3d> ( cartesianVelocityAtDeparture,
-                                                             cartesianVelocityAtArrival );
-    }
+        // If no solution has yet been computed, solve.
+        if ( !solved ) execute( );
 
-    //! Overload ostream to print class information.
-    /*!
-     * Overloads ostream to print class information.
-     * \param stream Stream object.
-     * \param lambertTargeter Lambert targeter object.
-     * \return Stream object.
-     */
-    friend std::ostream& operator<<( std::ostream& stream, LambertTargeter& lambertTargeter );
+        // Return computed Cartesian velocities at departure and arrival.
+        return std::pair< Eigen::Vector3d, Eigen::Vector3d >(
+                    cartesianVelocityAtDeparture, cartesianVelocityAtArrival );
+    }
 
 protected:
 
     //! Execute Lambert targeting algorithm.
     /*!
-     * Executes the Lambert targeting algorithm. Since the parameters of the Lambert routine are set
-     * directly in the constructor, the same LambertTargeter object cannot be reused for a different
-     * problem. This makes the class more robust, as all parameters are consistent with a single
-     * problem at all times. Since each object corresponds to a unique problem, there is no need to
-     * call this function more than once. Therefore, this function is protected and run at
+     * Executes the Lambert targeting algorithm. Since the parameters of the Lambert routine are
+     * set directly in the constructor, the same LambertTargeter object cannot be reused for a
+     * different problem. This makes the class more robust, as all parameters are consistent with a
+     * single problem at all times. Since each object corresponds to a unique problem, there is no
+     * need to call this function more than once. Therefore, this function is protected and run at
      * construction.
      */
     virtual void execute( ) = 0;
@@ -181,6 +201,12 @@ protected:
      * Cartesian velocity at arrival.
      */
     Eigen::Vector3d cartesianVelocityAtArrival;
+
+    //! Solved boolean flag.
+    /*!
+     * Boolean flag to indicate the problem has a computed outcome.
+     */
+    bool solved;
 
 private:
 };
