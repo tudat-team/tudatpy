@@ -43,11 +43,10 @@ namespace input_output
 {
 
 //! Transform input string.
-boost::shared_ptr< std::string > LinearFieldTransform::transform(
-        boost::shared_ptr< std::string > input )
+boost::shared_ptr< std::string > LinearFieldTransform::transform( const std::string& input )
 {
     // Transform string to double.
-    const double number = boost::lexical_cast< double >( *input );
+    const double number = boost::lexical_cast< double >( input );
 
     // Perform transformation.
     const double result = slope * number + intercept;

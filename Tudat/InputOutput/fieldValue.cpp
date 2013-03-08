@@ -27,6 +27,7 @@
  *      111103    S. Billemont      File created.
  *      120217    D.J. Gondelach    Code check.
  *      120326    D. Dirkx          Code checked, minor layout changes.
+ *      130301    S. Billemont      Update FieldValue definition.
  *
  *    References
  *
@@ -46,36 +47,18 @@ namespace input_output
 //! Create a FieldValue containing type, string content and transformation of field.
 FieldValue::FieldValue( const FieldType& fieldType, const std::string& fieldContent,
                         const boost::shared_ptr< FieldTransform > transformer )
-    : type( fieldType ), // Set the field type.
-      rawField( fieldContent ), // Copy the raw field into the object.
-      transform ( transformer )  // Set the corresponding transformer.
+    : type( fieldType ), rawField( fieldContent ), transform ( transformer )
 { }
 
-//! Get value of field content in SI units.
-boost::shared_ptr< std::string > FieldValue::get( )
+//! Get transformed field content.
+const std::string& FieldValue::getTransformed( )
 {
-    // Check if field has a unit transformation.
-    if ( transform.get( ) )
-    {
-        return  transform->transform( getRaw( ) );
-    }
-    else
-    {
-        return getRaw( );
-    }
+    loadTransformation( );
+    return transformedField;
 }
 
 //! Get raw field content.
-boost::shared_ptr< std::string > FieldValue::getRaw( )
-{
-    return boost::make_shared< std::string >( rawField );
-}
-
-//! Operator to get value of field content in SI units.
-boost::shared_ptr< std::string > FieldValue::operator( ) ( )
-{
-    return get( );
-}
+const std::string& FieldValue::getRaw( ) { return rawField; }
 
 } // namespace input_output
 } // namespace tudat

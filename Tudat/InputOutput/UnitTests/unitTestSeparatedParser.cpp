@@ -27,6 +27,7 @@
  *      111103    S. Billemont      File created.
  *      111130    S. Billemont      Rewrote tests in boost.test form.
  *      120718    A. Ronse          Added unit test from "whitespaceparser".
+ *      130301    S. Billemont      Updated tests to new FieldValue definition.
  *
  *    References
  *
@@ -56,17 +57,17 @@ namespace tudat
 namespace unit_tests
 {
 
-BOOST_AUTO_TEST_SUITE( testsuite_separated_parser )
+BOOST_AUTO_TEST_SUITE( test_suite_separated_parser )
 
 using namespace tudat::input_output::parsed_data_vector_utilities;
 
 //! Create a parser that will be used in all tests (see fixtures).
-struct test_separatedparser_fixture
+struct test_separated_parser_fixture
 {
 public:
 
     //! Default constructor.
-    test_separatedparser_fixture( )
+    test_separated_parser_fixture( )
         : parser( std::string( ", " ), 4,
                   tudat::input_output::field_types::general::id,
                   tudat::input_output::field_types::state::cartesianXCoordinate,
@@ -75,7 +76,7 @@ public:
     { }
 
     //! Default destructor.
-    ~test_separatedparser_fixture( ) { }
+    ~test_separated_parser_fixture( ) { }
 
     //! A separated parser.
     tudat::input_output::SeparatedParser parser;
@@ -86,9 +87,9 @@ private:
 };
 
 // Create a new test suite for all the seperated parser tests, with the parser fixture.
-BOOST_FIXTURE_TEST_SUITE( testsuite_separatedParser, test_separatedparser_fixture )
+BOOST_FIXTURE_TEST_SUITE( test_suite_separated_parser, test_separated_parser_fixture )
 
-BOOST_AUTO_TEST_CASE( separatedParser_singleLine )
+BOOST_AUTO_TEST_CASE( testSeparatedParserSingleLine )
 {
     using namespace tudat::input_output::field_types;
 
@@ -108,20 +109,20 @@ BOOST_AUTO_TEST_CASE( separatedParser_singleLine )
     BOOST_CHECK_EQUAL( myLineData->size( ), 4 );
 
     // Check if the data was correcly separated.
-    BOOST_CHECK_EQUAL( *( myLineData->find( general::id )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( general::id )->second->getRaw( ),
                        ( "12" ) ); // Trim additional spaces is enabled, should no be padded.
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianXCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianXCoordinate )->second->getRaw( ),
                        ( "1" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianYCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianYCoordinate )->second->getRaw( ),
                        ( "2" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianZCoordinate)->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianZCoordinate)->second->getRaw( ),
                        ( "3,2" ) ); // No space behind the comma, so it should not be split.
 
     // Check if it fails to find a field that is not passed in the constructor
     BOOST_CHECK( myLineData->find( time::epoch ) == myLineData->end( ) );
 }
 
-BOOST_AUTO_TEST_CASE( separatedParser_multiLine )
+BOOST_AUTO_TEST_CASE( testSeparatedParserMultiLine )
 {
     using namespace tudat::input_output::parsed_data_vector_utilities;
     using namespace tudat::input_output::field_types;
@@ -161,15 +162,15 @@ BOOST_AUTO_TEST_CASE( separatedParser_multiLine )
     BOOST_CHECK_EQUAL( myLineData->size( ), 4 );
 
     // Check if the data was correcly separated.
-    BOOST_CHECK_EQUAL( *( myLineData->find( general::id )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( general::id )->second->getRaw( ),
                        ( " 12 " ) ); // Trim additional spaces is disabled, so it should give
                                      // padding spaces.
 
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianXCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianXCoordinate )->second->getRaw( ),
                        ( "1" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianYCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianYCoordinate )->second->getRaw( ),
                        ( "2" ) );
-    BOOST_CHECK_EQUAL( *(myLineData->find( state::cartesianZCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianZCoordinate )->second->getRaw( ),
                        ( "3" ) );
 
     // Check if it fails to find a field that is not passed in the constructor.
@@ -181,27 +182,27 @@ BOOST_AUTO_TEST_CASE( separatedParser_multiLine )
     // There should only be four fields even though 5 are provided. It should ignore the last
     // field.
     BOOST_CHECK_EQUAL( myLineData->size( ), 4 );
-    BOOST_CHECK_EQUAL( *( myLineData->find( general::id )->second->getRaw( ) ), ( "24" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianXCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( general::id )->second->getRaw( ), ( "24" ) );
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianXCoordinate )->second->getRaw( ),
                        ( "5" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianYCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianYCoordinate )->second->getRaw( ),
                        ( "6" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianZCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianZCoordinate )->second->getRaw( ),
                        ( "7" ) );
 
     // Test last line.
     myLineData = result->at( 2 );
     BOOST_CHECK_EQUAL( myLineData->size( ), 4 );
-    BOOST_CHECK_EQUAL( *(myLineData->find( general::id )->second->getRaw( ) ), ( "a" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianXCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( general::id )->second->getRaw( ), ( "a" ) );
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianXCoordinate )->second->getRaw( ),
                        ( "b c" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianYCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianYCoordinate )->second->getRaw( ),
                        ( "d" ) );
-    BOOST_CHECK_EQUAL( *( myLineData->find( state::cartesianZCoordinate )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( myLineData->find( state::cartesianZCoordinate )->second->getRaw( ),
                        ( "e" ) );
 }
 
-BOOST_AUTO_TEST_CASE( separatedParser_whitespace )
+BOOST_AUTO_TEST_CASE( testSeparatedParserWhitespace )
 {
     using namespace tudat::input_output::parsed_data_vector_utilities;
     using namespace tudat::input_output::field_types;
@@ -236,26 +237,26 @@ BOOST_AUTO_TEST_CASE( separatedParser_whitespace )
     BOOST_CHECK_EQUAL( testLineData->size( ), 8 );
 
     // Check if the data was correcly separated.
-    BOOST_CHECK_EQUAL( *( testLineData->find( general::id )->second->getRaw( ) ), ( "2011542" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( state::semiMajorAxis )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find( general::id )->second->getRaw( ), ( "2011542" ) );
+    BOOST_CHECK_EQUAL( testLineData->find( state::semiMajorAxis )->second->getRaw( ),
                        ( "3.9501468" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( state::eccentricity )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find( state::eccentricity )->second->getRaw( ),
                        ( "0.2391642" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( state::inclination )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find( state::inclination )->second->getRaw( ),
                        ( "6.87574" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( state::longitudeOfAscendingNode
-                                              )->second->getRaw( ) ), ( "16.88982" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( state::argumentOfPeriapsis )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find( state::longitudeOfAscendingNode
+                                              )->second->getRaw( ), ( "16.88982" ) );
+    BOOST_CHECK_EQUAL( testLineData->find( state::argumentOfPeriapsis )->second->getRaw( ),
                        ( "48.9603" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( state::meanAnomaly )->second->getRaw( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find( state::meanAnomaly )->second->getRaw( ),
                        ( "229.49648" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( time::epoch )->second->getRaw( ) ), ( "54000" ) );
+    BOOST_CHECK_EQUAL( testLineData->find( time::epoch )->second->getRaw( ), ( "54000" ) );
 
     // Check if it fails to find a field that is not passed in the constructor.
     BOOST_CHECK( testLineData->find( state::trueAnomaly ) == testLineData->end( ) );
 }
 
-BOOST_AUTO_TEST_CASE( separatedParser_fieldTransform )
+BOOST_AUTO_TEST_CASE( testSeparatedParserFieldTransform )
 {
     using namespace tudat::input_output;
     using namespace tudat::input_output;
@@ -318,32 +319,35 @@ BOOST_AUTO_TEST_CASE( separatedParser_fieldTransform )
     // Check that it parsed 9 fields.
     BOOST_CHECK_EQUAL( testLineData->size( ), 8 );
 
-    // Check if the data was correcly separated.
-    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::general::id )->second->getRaw( ) ),
+    // Check if the data was correctly separated.
+    BOOST_CHECK_EQUAL( testLineData->find( field_types::general::id )->second->getRaw( ),
                        ( "2011542" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find(
-                              field_types::state::semiMajorAxis )->second->get( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find(
+                           field_types::state::semiMajorAxis )->second->getTransformed( ),
                        ( "590933550196.86743" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::state::eccentricity )->second->get( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find(
+                           field_types::state::eccentricity )->second->getTransformed( ),
                        ( "0.2391642" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::state::inclination )->second->get( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find(
+                           field_types::state::inclination )->second->getTransformed( ),
                        ( "0.12000430151107493" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find(
-                              field_types::state::longitudeOfAscendingNode )->second->get( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find( field_types::state::longitudeOfAscendingNode
+                                           )->second->getTransformed( ),
                        ( "0.29478296906918866" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find(
-                              field_types::state::argumentOfPeriapsis )->second->get( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find(
+                              field_types::state::argumentOfPeriapsis )->second->getTransformed( ),
                        ( "0.85451843776417968" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::state::meanAnomaly )->second->get( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find(
+                           field_types::state::meanAnomaly )->second->getTransformed( ),
                        ( "4.005469197737316" ) );
-    BOOST_CHECK_EQUAL( *( testLineData->find( field_types::time::epoch )->second->get( ) ),
+    BOOST_CHECK_EQUAL( testLineData->find( field_types::time::epoch )->second->getTransformed( ),
                        ( "2454000.5" ) );
 
     // Check if it fails to find a field that is not passed in the constructor.
     BOOST_CHECK( testLineData->find( field_types::state::trueAnomaly ) == testLineData->end( ) );
 }
 
-BOOST_AUTO_TEST_SUITE_END( ) // testsuite_separatedParser
+BOOST_AUTO_TEST_SUITE_END( ) // test_suite_separated_parser
 
 BOOST_AUTO_TEST_SUITE_END( ) // testsuite_ephemeris
 

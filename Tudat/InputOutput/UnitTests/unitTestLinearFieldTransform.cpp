@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120606    T. Secretin       File created.
  *      120608    E. Heeren         Placed tests in unit_tests namespace.
+ *      130301    S. Billemont      Updated tests to new FieldValue definition.
  *
  *    References
  *
@@ -66,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform1 )
     const double tolerance = 1.0e-6;
 
     // Create test string.
-    boost::shared_ptr< std::string > testString( new std::string( "1.5362" ) );
+    std::string testString( "1.5362" );
 
     // Create a linear field transform object: y = 2 * x + 36.
     LinearFieldTransform testLinearFieldTransform1( 2.0, 36.0 );
@@ -79,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform1 )
             testLinearFieldTransform1.transform( testString );
 
     // Check that returned and expected strings are identical.
-    BOOST_CHECK_CLOSE_FRACTION( boost::lexical_cast< double >( *returnedValue), expectedValue,
+    BOOST_CHECK_CLOSE_FRACTION( boost::lexical_cast< double >( *returnedValue ), expectedValue,
                                 tolerance );
 }
 
@@ -93,7 +94,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform2 )
     const double tolerance = 1.0e-6;
 
     // Create test string.
-    boost::shared_ptr< std::string > testString( new std::string( "1.5362" ) );
+    std::string testString( "1.5362" );
 
     // Create a linear field transform object: y = 0 * x + 36.
     LinearFieldTransform testLinearFieldTransform2( 0.0, 36.0 );
@@ -120,7 +121,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform3 )
     const double tolerance = 1.0e-6;
 
     // Create test string.
-    boost::shared_ptr< std::string > testString( new std::string( "1.5362" ) );
+    std::string testString( "1.5362" );
 
     // Create a linear field transform object: y = -56 * x + 0.
     LinearFieldTransform testLinearFieldTransform3( -56.0, 0.0 );
@@ -147,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform4 )
     const double tolerance = 1.0e-6;
 
     // Create test string.
-    boost::shared_ptr< std::string > testString( new std::string( "1.5362" ) );
+    std::string testString( "1.5362" );
 
     // Create a linear field transform object: y = 0 * x + 0.
     LinearFieldTransform testLinearFieldTransform4( 0.0, 0.0 );
