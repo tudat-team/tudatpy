@@ -606,6 +606,8 @@ set(Boost_ERROR_REASON)
     "$ENV{ProgramFiles}/boost"
     /sw/local/include
     "${PROJECT_SOURCE_DIR}/../boost"
+    "${PROJECT_SOURCE_DIR}/../../boost"
+    "${PROJECT_SOURCE_DIR}/../../../boost"
     "${PROJECT_SOURCE_DIR}/../../tudatCore/boost"
   )
 
@@ -868,6 +870,8 @@ set(Boost_ERROR_REASON)
     "$ENV{ProgramFiles}/boost"
     /sw/local/lib
     "${PROJECT_SOURCE_DIR}/../boost/stage/lib"
+    "${PROJECT_SOURCE_DIR}/../../boost/stage/lib"
+    "${PROJECT_SOURCE_DIR}/../../../boost/stage/lib"
     "${PROJECT_SOURCE_DIR}/../../tudatCore/boost"
   )
   set(_boost_LIBRARY_SEARCH_DIRS ${_boost_LIBRARY_SEARCH_DIRS_ALWAYS})
