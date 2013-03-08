@@ -27,11 +27,15 @@
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
- #      120531    P. Musegaas       Deleted obsolete escapePhase, capturePhase and deepSpaceManeuvre
- #                                  headers. Removed unitTestDeepSpaceManeuvre.
+ #      120531    P. Musegaas       Deleted obsolete escapePhase, capturePhase and
+ #                                  deepSpaceManeuvre headers. Removed unitTestDeepSpaceManeuvre.
  #      120628    T. Secretin       Added files and tests related to changes in Lambert targeters.
- #      120704    P. Musegaas       Removed unnecessary dependencies in Lambert targeter unit tests.
- #                                  Removed obsolete trajectoryDesignMethod.h.
+ #      120704    P. Musegaas       Removed unnecessary dependencies in Lambert targeter unit
+ #                                  tests. Removed obsolete trajectoryDesignMethod.h.
+ #      121213    R.C.A. Boon       Added files zeroRevolutionLambertTargeterIzzo.h/.cpp and 
+ #                                  multiRevolutionLambertTargeterIzzo.h/.cpp
+ #      130110    R.C.A. Boon       Added unit tests unitTestZeroRevolutionLambertTargeterIzzo.cpp
+ #                                  and unitTestMultiRevolutionLambertTargeterIzzo.cpp.
  #
  #    References
  #
@@ -42,10 +46,11 @@
 set(MISSIONSEGMENTS_SOURCES
   "${SRCROOT}${MISSIONSEGMENTSDIR}/escapeAndCapture.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.cpp"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeter.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterIzzo.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterGooding.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertRoutines.cpp"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/multiRevolutionLambertTargeterIzzo.cpp"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/zeroRevolutionLambertTargeterIzzo.cpp"
 )
 
 # Set the header files.
@@ -56,6 +61,8 @@ set(MISSIONSEGMENTS_HEADERS
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterIzzo.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterGooding.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertRoutines.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/multiRevolutionLambertTargeterIzzo.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/zeroRevolutionLambertTargeterIzzo.h"
 )
 
 # Add static libraries.
@@ -86,3 +93,11 @@ target_link_libraries(test_LambertTargeter tudat_mission_segments tudat_root_fin
 add_executable(test_LambertRoutines "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestLambertRoutines.cpp")
 setup_custom_test_program(test_LambertRoutines "${SRCROOT}${MISSIONSEGMENTSDIR}")
 target_link_libraries(test_LambertRoutines tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_ZeroRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestZeroRevolutionLambertTargeterIzzo.cpp")
+setup_custom_test_program(test_ZeroRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}")
+target_link_libraries(test_ZeroRevolutionLambertTargeterIzzo tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_MultiRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestMultiRevolutionLambertTargeterIzzo.cpp")
+setup_custom_test_program(test_MultiRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}")
+target_link_libraries(test_MultiRevolutionLambertTargeterIzzo tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
