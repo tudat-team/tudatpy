@@ -58,7 +58,7 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
     va_start( argumentList, nrFields );   // Initialize list; point to last defined argument.
 
     // Create a new datavector for the filtered data.
-    ParsedDataVectorPtr newdatavector = boost::make_shared< ParsedDataVector >( );
+    ParsedDataVectorPtr newDataVector = boost::make_shared< ParsedDataVector >( );
 
     // Make a simple list to iterate over from all the FieldType arguments.
     std::vector< FieldType > checkForFieldTypes;
@@ -80,10 +80,10 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
         bool found = true;
 
         // Loop over each FieldType to check if it exists.
-        for( std::vector< FieldType >::iterator currentFieldCheck
-             = checkForFieldTypes.begin( );
-             currentFieldCheck != checkForFieldTypes.end( );
-             currentFieldCheck++ )
+        for ( std::vector< FieldType >::iterator currentFieldCheck
+              = checkForFieldTypes.begin( );
+              currentFieldCheck != checkForFieldTypes.end( );
+              currentFieldCheck++ )
         {
             // Check if the FieldType is in the current data line.
             if ( ( *currentDataLine )->find( *currentFieldCheck )
@@ -98,12 +98,12 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
         // If all the fields are present, add the current line to the new (filtered) vector.
         if ( found )
         {
-            newdatavector->push_back( *currentDataLine );
+            newDataVector->push_back( *currentDataLine );
         }
     }
 
     // Return the filtered data vector.
-    return newdatavector;
+    return newDataVector;
 }
 
 //! Filter the data vector vector for entries containing a given FieldType and a matching
@@ -115,12 +115,12 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
     va_start( argumentList, nrFields );   // Initialize list; point to last defined argument.
 
     // Create a new data vector for the filtered data.
-    ParsedDataVectorPtr newdatavector = boost::make_shared< ParsedDataVector>( );
+    ParsedDataVectorPtr newDataVector = boost::make_shared< ParsedDataVector>( );
 
     // Make a simple list to iterate over with the FieldType arguments and respective regex
     // expressions.
-    std::map<FieldType, boost::regex> checkForFieldTypes;
-    for ( int i=0; i < nrFields; i++ )
+    std::map< FieldType, boost::regex > checkForFieldTypes;
+    for ( int i = 0; i < nrFields; i++ )
     {
         FieldType type = va_arg( argumentList, FieldType );
         boost::regex regex = boost::regex( va_arg( argumentList, char* ) );
@@ -131,19 +131,19 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
     va_end ( argumentList );
 
     // Go over every dataline in the current data vector.
-    for (ParsedDataVector::iterator currentDataLine = datavector->begin( );
-         currentDataLine != datavector->end( );
-         currentDataLine++)
+    for ( ParsedDataVector::iterator currentDataLine = datavector->begin( );
+          currentDataLine != datavector->end( );
+          currentDataLine++ )
     {
         // Flag to indicate that all the FieldTypes from checkForFieldTypes are present in this
         // line.
         bool found = true;
 
         // Loop over each FieldType to check if it exists.
-        for(std::map<FieldType, boost::regex>::iterator currentFieldCheck
-            = checkForFieldTypes.begin( );
-            currentFieldCheck != checkForFieldTypes.end( );
-            currentFieldCheck++)
+        for( std::map< FieldType, boost::regex >::iterator currentFieldCheck
+             = checkForFieldTypes.begin( );
+             currentFieldCheck != checkForFieldTypes.end( );
+             currentFieldCheck++)
         {
             // Check if the FieldType is in the current dataline
             ParsedDataLineMap::iterator entry =
@@ -157,11 +157,10 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
             }
 
             // Get the field value string.
-            boost::shared_ptr<std::string> str = entry->second->get( );
+            const std::string str = entry->second->getTransformed( );
 
             // Check if the field value regex matches.
-            if ( !boost::regex_search( str->begin( ), str->end( ),
-                                       currentFieldCheck->second ) )
+            if ( !boost::regex_search( str.begin( ), str.end( ), currentFieldCheck->second ) )
             {
                 // If not, mark this, and stop searching for others.
                 found = false;
@@ -172,12 +171,12 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
         // If all the fields are present, add the current line to the new (filtered) vector.
         if ( found )
         {
-            newdatavector->push_back( *currentDataLine );
+            newDataVector->push_back( *currentDataLine );
         }
     }
 
     // Return the filtered data vector.
-    return newdatavector;
+    return newDataVector;
 }
 
 //! Dump the content of a data map to an ostream.
@@ -187,19 +186,19 @@ std::ostream& dump( std::ostream& stream, ParsedDataLineMapPtr data, bool showTr
     stream << "|";
 
     // Loop over data map.
-    for( ParsedDataLineMap::iterator element = data->begin( );
-         element != data->end( ); element++ )
+    for ( ParsedDataLineMap::iterator element = data->begin( );
+          element != data->end( ); element++ )
     {
         // If transformed flag is true, dump transformed values.
         if ( showTransformed )
         {
-            stream << element->second->get( )->c_str( );
+            stream << element->second->getTransformed( );
         }
 
         // If not, dump raw values.
         else
         {
-            stream << element->second->getRaw( )->c_str( );
+            stream << element->second->getRaw( );
         }
 
         // Final character to separate elements.
@@ -214,7 +213,7 @@ std::ostream& dump( std::ostream& stream, ParsedDataLineMapPtr data, bool showTr
 std::ostream& dump( std::ostream& stream, ParsedDataVectorPtr data, bool showTransformed )
 {
     // Loop over vector.
-    for( std::size_t i=0; i < data->size( ); i++ )
+    for ( std::size_t i=0; i < data->size( ); i++ )
     {
         // Get data line.
         ParsedDataLineMapPtr line = data->at( i );

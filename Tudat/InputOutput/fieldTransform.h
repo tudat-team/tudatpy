@@ -54,12 +54,11 @@ public:
     virtual ~FieldTransform( ) { }
 
     //! Transform input string.
-    /*!
+    /*! 
      * Returns a transformed string.
      * \param input Input string.
      */
-    virtual boost::shared_ptr< std::string > transform(
-            boost::shared_ptr< std::string > input ) = 0;
+    virtual boost::shared_ptr< std::string > transform( const std::string& input ) = 0;
 
 protected:
 

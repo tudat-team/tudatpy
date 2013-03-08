@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120606    T. Secretin       File created.
  *      120608    E. Heeren         Placed tests in unit_tests namespace.
+ *      130301    S. Billemont      Update to fieldValue definition.
  *
  *    References
  *
@@ -35,164 +36,152 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/lexical_cast.hpp>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/test/unit_test.hpp>
-
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/InputOutput/fieldValue.h"
 #include "Tudat/InputOutput/fieldTransform.h"
 
 namespace tudat
 {
-namespace input_output
-{
-
-// Define a derived linear field transform class
-class LinearFieldTransform : public FieldTransform
-{
-
-public:
-    // Constructor. Parameters correspond to the terms a and b in the equation y = a * x + b.
-    LinearFieldTransform( double a, double b ) : factor( a ), term( b ) { }
-
-    // Default destructor.
-    ~LinearFieldTransform( ) { }
-
-    // Transform function. Transformation is performed according to y = a * x + b.
-    boost::shared_ptr< std::string > transform( boost::shared_ptr< std::string > input )
-    {
-        // Convert input string to a double.
-        double number = boost::lexical_cast< double >( *input );
-
-        // Perform transformation.
-        double result = ( factor * number + term );
-
-        // Convert result to string.
-        std::string resultAsString = boost::lexical_cast< std::string > ( result );
-
-        // Return pointer to string.
-        return boost::shared_ptr< std::string >( new std::string( resultAsString ) );
-    }
-
-private:
-    // a term.
-    double factor;
-
-    // b term.
-    double term;
-
-};
-
-} // namespace input_output
-
 namespace unit_tests
 {
+
+using namespace tudat::input_output;
+
+//! Test transform struct used to test FieldTransform.
+struct TestTransform : public tudat::input_output::FieldTransform
+{
+    static const boost::shared_ptr< std::string > result;
+    boost::shared_ptr< std::string > transform( const std::string& input ) { return result; }
+};
+
+//! Set result of transform in TestTransform to a string.
+const boost::shared_ptr< std::string > TestTransform::result( new std::string( "Transformed!") );
 
 // Define Boost test suite.
 BOOST_AUTO_TEST_SUITE( test_field_value )
 
 //! Test that the raw data is returned.
-BOOST_AUTO_TEST_CASE( fieldValue_getRaw )
+BOOST_AUTO_TEST_CASE( testFieldValueGetRawFunction )
 {
-    // Using declaration.
-    using namespace tudat::input_output;
-
     // Create raw string data.
-    std::string testAngleInDegrees = "60.0";
+    const std::string testString = "raw";
+
+    // Create a test transformer.
+    boost::shared_ptr< TestTransform > transform( new TestTransform( ) );
 
     // Create a field value object.
-    FieldValue testFieldValue( field_types::state::inclination, testAngleInDegrees );
+    FieldValue testFieldValue( field_types::state::inclination, testString, transform );
 
     // Retrieve raw data.
-    boost::shared_ptr< std::string > returnedData = testFieldValue.getRaw( );
+    const std::string returnedData = testFieldValue.getRaw( );
 
     // Verify that returned data is correct.
-    BOOST_CHECK_EQUAL( *returnedData, testAngleInDegrees );
-
+    BOOST_CHECK_EQUAL( returnedData, testString );
 }
 
-//! Test that the trasnformed data is returned.
-BOOST_AUTO_TEST_CASE( fieldValue_get )
+//! Test that the raw transformed data is returned.
+BOOST_AUTO_TEST_CASE( testFieldValueGetTransformedFunction )
 {
-    // Using declaration.
-    using namespace tudat::input_output;
-
     // Create raw string data.
-    std::string testAngleInDegrees = "60.0";
+    const std::string testString = "raw";
 
-    // Create the degrees to radians transform.
-    boost::shared_ptr< FieldTransform > degreesToRadiansTransform(
-                new LinearFieldTransform(
-                    tudat::basic_mathematics::mathematical_constants::PI / 180.0, 0.0 ) );
+    // Create a test transformer.
+    boost::shared_ptr< TestTransform > transform( new TestTransform( ) );
+
+    // Create a field value object.
+    FieldValue testFieldValue( field_types::state::inclination, testString, transform );
+
+    // Retrieve raw data.
+    const std::string returnedData = testFieldValue.getTransformed( );
+
+    // Verify that returned data is correct.
+    BOOST_CHECK_EQUAL( returnedData, *TestTransform::result );
+}
+
+//! Test that the transformed data is returned from get.
+BOOST_AUTO_TEST_CASE( testFieldValueGetFunction )
+{
+    // Create raw string data.
+    const std::string testString = "raw";
+
+    // Create a test transformer.
+    boost::shared_ptr< TestTransform > transform( new TestTransform( ) );
 
     // Test 1: Test the get function with a transform.
     // Create a field value object with transform.
-    FieldValue testFieldValue( field_types::state::inclination, testAngleInDegrees,
-                               degreesToRadiansTransform );
+    FieldValue testFieldValue( field_types::state::inclination, testString, transform );
 
     // Retrieve (transformed) data.
-    boost::shared_ptr< std::string > returnedData = testFieldValue.get( );
+    const std::string returnedData = testFieldValue.get< std::string >( );
 
     // Expected data.
-    std::string expectedData = boost::lexical_cast< std::string >(
-                tudat::basic_mathematics::mathematical_constants::PI / 3.0 );
+    const std::string expectedData = *TestTransform::result;
+
+    // Verify that returned data is correct.
+    BOOST_CHECK_EQUAL( returnedData, expectedData );
+
+    // Test 2: Test the get function without transform.
+    // Create a field value object.
+    FieldValue testFieldValue2( field_types::state::inclination, testString );
+
+    // Retrieve (raw) data.
+    const std::string returnedRawData = testFieldValue2.get< std::string >( );
+
+    // Verify that returned data is correct.
+    BOOST_CHECK_EQUAL( returnedRawData, testString );
+}
+
+//! Test that the transformed data is returned from getPointer.
+BOOST_AUTO_TEST_CASE( testFieldValueGetPointerFunction )
+{
+    // Create raw string data.
+    const std::string testString = "raw";
+
+    // Create a test transformer.
+    boost::shared_ptr< TestTransform > transform( new TestTransform( ) );
+
+    // Test 1: Test the get function with a transform.
+    // Create a field value object with transform.
+    FieldValue testFieldValue( field_types::state::inclination, testString, transform );
+
+    // Retrieve (transformed) data.
+    boost::shared_ptr< std::string > returnedData = testFieldValue.getPointer< std::string >( );
+
+    // Expected data.
+    const std::string expectedData = *TestTransform::result;
 
     // Verify that returned data is correct.
     BOOST_CHECK_EQUAL( *returnedData, expectedData );
 
     // Test 2: Test the get function without transform.
     // Create a field value object.
-    FieldValue testFieldValue2( field_types::state::inclination, testAngleInDegrees );
+    FieldValue testFieldValue2( field_types::state::inclination, testString );
 
     // Retrieve (raw) data.
-    boost::shared_ptr< std::string > returnedRawData = testFieldValue2.get( );
+    boost::shared_ptr< std::string > returnedRawData
+            = testFieldValue2.getPointer< std::string >( );
 
     // Verify that returned data is correct.
-    BOOST_CHECK_EQUAL( *returnedRawData, testAngleInDegrees );
-
+    BOOST_CHECK_EQUAL( *returnedRawData, testString );
 }
 
-//! Test that the trasnformed data is returned.
-BOOST_AUTO_TEST_CASE( fieldValue_operator )
+//! Test that the field type is stored correctly.
+BOOST_AUTO_TEST_CASE( testFieldValueType )
 {
-    // Using declaration.
-    using namespace tudat::input_output;
+    // Inserted and expected resulting field type.
+    FieldType testType = field_types::general::name;
 
-    // Create raw string data.
-    std::string testAngleInDegrees = "60.0";
+    // Test constructor without transform.
+    FieldValue testFieldValue1( testType, "foo" );
+    BOOST_CHECK_EQUAL( testType, testFieldValue1.type );
 
-    // Create the degrees to radians transform.
-    boost::shared_ptr< FieldTransform > degreesToRadiansTransform(
-                new LinearFieldTransform(
-                    tudat::basic_mathematics::mathematical_constants::PI / 180.0, 0.0 ) );
-
-    // Test 1: Test the get function with a transform.
-    // Create a field value object with transform.
-    FieldValue testFieldValue( field_types::state::inclination, testAngleInDegrees,
-                               degreesToRadiansTransform );
-
-    // Retrieve (transformed) data.
-    boost::shared_ptr< std::string > returnedData = testFieldValue( );
-
-    // Expected data.
-    std::string expectedData = boost::lexical_cast< std::string >(
-                tudat::basic_mathematics::mathematical_constants::PI / 3.0 );
-
-    // Verify that returned data is correct.
-    BOOST_CHECK_EQUAL( *returnedData, expectedData );
-
-    // Test 2: Test the get function without transform.
-    // Create a field value object.
-    FieldValue testFieldValue2( field_types::state::inclination, testAngleInDegrees );
-
-    // Retrieve (raw) data.
-    boost::shared_ptr< std::string > returnedRawData = testFieldValue2( );
-
-    // Verify that returned data is correct.
-    BOOST_CHECK_EQUAL( *returnedRawData, testAngleInDegrees );
-
+    // Test constructor with transform.
+    FieldValue testFieldValue2( testType, "foo", boost::make_shared< TestTransform >(  ) );
+    BOOST_CHECK_EQUAL( testType, testFieldValue2.type );
 }
 
 // Close Boost test suite.

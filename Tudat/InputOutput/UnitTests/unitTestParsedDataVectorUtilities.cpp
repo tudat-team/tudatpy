@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120519    T. Secretin       File created.
  *      120608    E. Heeren         Added tests to unit_tests namespace.
+ *      130301    S. Billemont      Updated tests to new FieldValue definition.
  *
  *    Notes
  *      parsedDataVectorUtilities contains two (overloaded) functions called DUMP. These are used to
@@ -38,8 +39,8 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <iostream>
 
@@ -54,7 +55,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_parsed_data_vector_utilities )
 
 //! Test that the correct field is returned.
-BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_getField )
+BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesGetFieldFunction )
 {
     // Using declaration.
     using namespace tudat::input_output;
@@ -86,16 +87,12 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_getField )
                 testDataMap, field_types::general::name );
 
     // Retrieve the epoch field value, as string, integer and double.
-    std::string returnedStringEpoch =
-            parsed_data_vector_utilities::getField< std::string >(
+    std::string returnedStringEpoch = parsed_data_vector_utilities::getField< std::string >(
                 testDataMap, field_types::time::epoch );
-    int returnedIntegerEpoch =
-            parsed_data_vector_utilities::getField< int >(
+    int returnedIntegerEpoch = parsed_data_vector_utilities::getField< int >(
                 testDataMap, field_types::time::epoch );
-    double returnedDoubleEpoch =
-            parsed_data_vector_utilities::getField< double >(
+    double returnedDoubleEpoch = parsed_data_vector_utilities::getField< double >(
                 testDataMap, field_types::time::epoch );
-
 
     // Verify that returned values are correct.
     BOOST_CHECK_EQUAL( returnedStringName, testStringName );
@@ -105,11 +102,10 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_getField )
     BOOST_CHECK_EQUAL( returnedIntegerEpoch, 2456067 );
 
     BOOST_CHECK_EQUAL( returnedDoubleEpoch, 2456067.0 );
-
 }
 
 //! Test that the data vector is correctly filtered based on the given field types.
-BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKey )
+BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyFunction )
 {
     // Using declaration.
     using namespace tudat::input_output;
@@ -136,7 +132,6 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKey )
     parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch2(
                 new FieldValue( field_types::time::epoch, testStringEpoch2 ) );
 
-
     // Create data maps.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMapNameEpoch =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
@@ -148,11 +143,11 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKey )
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
-
     // Store field values in data maps.
     testDataMapNameEpoch->insert( FieldDataPair(
                                       field_types::general::name, testFieldValueName1 ) );
-    testDataMapNameEpoch->insert( FieldDataPair( field_types::time::epoch, testFieldValueEpoch1 ) );
+    testDataMapNameEpoch->insert( FieldDataPair(
+                                      field_types::time::epoch, testFieldValueEpoch1 ) );
     testDataMapNameID->insert( FieldDataPair( field_types::general::name, testFieldValueName2 ) );
     testDataMapNameID->insert( FieldDataPair( field_types::general::id, testFieldValueID1 ) );
     testDataMapIDEpoch->insert( FieldDataPair (field_types::general::id, testFieldValueID2 ) );
@@ -173,28 +168,20 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKey )
                                                           field_types::time::epoch );
 
     // Verify that the size of the vector is equal to 2.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->size(), 2 );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->size( ), 2 );
 
     // Verify that the data map vector is correctly filtered.
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorEpoch->at( 0 )->find(
-               field_types::time::epoch )->second->getRaw( ) ),
-        ( "2456067" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find(
+                           field_types::time::epoch )->second->getRaw( ), "2456067" );
 
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorEpoch->at( 0 )->find(
-               field_types::general::name )->second->getRaw( ) ),
-        ( "TestName1" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find(
+                           field_types::general::name )->second->getRaw( ), "TestName1" );
 
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorEpoch->at( 1 )->find(
-               field_types::general::id )->second->getRaw( ) ),
-        ( "5869" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 1 )->find(
+                           field_types::general::id )->second->getRaw( ), "5869" );
 
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorEpoch->at( 1 )->find(
-               field_types::time::epoch )->second->getRaw( ) ),
-        ( "2456068" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 1 )->find(
+                           field_types::time::epoch )->second->getRaw( ), "2456068" );
 
     // Test 2: Filter data map vector for data maps containing name and epoch entries.
     parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorNameEpoch
@@ -203,24 +190,19 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKey )
                                                           field_types::time::epoch );
 
     // Verify that the size of the vector is equal to 1.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->size(), 1 );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->size( ), 1 );
 
     // Verify that the data map vector is correctly filtered.
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
-               field_types::time::epoch )->second->getRaw( ) ),
-        ( "2456067" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
+                           field_types::time::epoch )->second->getRaw( ), "2456067" );
 
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
-               field_types::general::name )->second->getRaw( ) ),
-        ( "TestName1" ) );
-
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
+                           field_types::general::name )->second->getRaw( ), "TestName1" );
 }
 
-//! Test that the data vector is correctly filtered based on the given field types and corresponding
-//! field values.
-BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKeyValue )
+//! Test that the data vector is correctly filtered based on the given field types and
+//! corresponding field values.
+BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyValueFunction )
 {
     // Using declaration.
     using namespace tudat::input_output;
@@ -247,7 +229,6 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKeyValue )
     parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch2(
                 new FieldValue( field_types::time::epoch, testStringEpoch2 ) );
 
-
     // Create data maps.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMapNameEpoch =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
@@ -259,11 +240,11 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKeyValue )
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< FieldType, parsed_data_vector_utilities::FieldValuePtr >( ) );
 
-
     // Store field values in data maps.
     testDataMapNameEpoch->insert( FieldDataPair(
                                       field_types::general::name, testFieldValueName1 ) );
-    testDataMapNameEpoch->insert( FieldDataPair( field_types::time::epoch, testFieldValueEpoch1 ) );
+    testDataMapNameEpoch->insert( FieldDataPair(
+                                      field_types::time::epoch, testFieldValueEpoch1 ) );
     testDataMapNameID->insert( FieldDataPair( field_types::general::name, testFieldValueName2 ) );
     testDataMapNameID->insert( FieldDataPair( field_types::general::id, testFieldValueID1 ) );
     testDataMapIDEpoch->insert( FieldDataPair (field_types::general::id, testFieldValueID2 ) );
@@ -280,52 +261,40 @@ BOOST_AUTO_TEST_CASE( parsedDataVectorUtilities_filterMapKeyValue )
 
     // Test 1: Filter data map vector for data maps containing an epoch entry equal to 2456067.
     parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorEpoch
-            = parsed_data_vector_utilities::filterMapKeyValue( testDataMapVector, 1,
-                                                          field_types::time::epoch, "2456067" );
+            = parsed_data_vector_utilities::filterMapKeyValue(
+                testDataMapVector, 1, field_types::time::epoch, "2456067" );
 
     // Verify that the size of the vector is equal to 1.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->size(), 1);
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->size( ), 1);
 
     // Verify that the data map vector is correctly filtered.
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorEpoch->at( 0 )->find(
-               field_types::time::epoch )->second->getRaw( ) ),
-        ( "2456067" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find(
+                           field_types::time::epoch )->second->getRaw( ), "2456067" );
 
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorEpoch->at( 0 )->find(
-               field_types::general::name )->second->getRaw( ) ),
-        ( "TestName1" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorEpoch->at( 0 )->find(
+                           field_types::general::name )->second->getRaw( ), "TestName1" );
 
     // Test 2: Filter data map vector for data maps containing a name entry with field value within
     // a given range.
     parsed_data_vector_utilities::ParsedDataVectorPtr testFilteredDataMapVectorNameEpoch
-            = parsed_data_vector_utilities::filterMapKeyValue( testDataMapVector, 1,
-                                                    field_types::general::name, "TestName[1-9]*");
+            = parsed_data_vector_utilities::filterMapKeyValue(
+                testDataMapVector, 1, field_types::general::name, "TestName[1-9]*");
 
     // Verify that the size of the vector is equal to 1.
-    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->size(), 2 );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->size( ), 2 );
 
     // Verify that the data map vector is correctly filtered.
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
-               field_types::time::epoch )->second->getRaw( ) ),
-        ( "2456067" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
+                           field_types::time::epoch )->second->getRaw( ), "2456067" );
 
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
-               field_types::general::name )->second->getRaw( ) ),
-        ( "TestName1" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 0 )->find(
+                           field_types::general::name )->second->getRaw( ), "TestName1" );
 
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorNameEpoch->at( 1 )->find(
-               field_types::general::id )->second->getRaw( ) ),
-        ( "5683" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 1 )->find(
+                           field_types::general::id )->second->getRaw( ), "5683" );
 
-    BOOST_CHECK_EQUAL(
-        *( testFilteredDataMapVectorNameEpoch->at( 1 )->find(
-               field_types::general::name )->second->getRaw( ) ),
-        ( "TestName2" ) );
+    BOOST_CHECK_EQUAL( testFilteredDataMapVectorNameEpoch->at( 1 )->find(
+                           field_types::general::name )->second->getRaw( ), "TestName2" );
 }
 
 // Close Boost test suite.

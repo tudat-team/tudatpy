@@ -43,9 +43,9 @@
 #include <map>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/InputOutput/fieldType.h"
 #include "Tudat/InputOutput/fieldValue.h"
@@ -74,11 +74,12 @@ typedef std::vector< ParsedDataLineMapPtr >     ParsedDataVector;
 //! Pointer to the data map pointer vectors (see ParsedDataVector).
 typedef boost::shared_ptr< ParsedDataVector >   ParsedDataVectorPtr;
 
-//! Get the value of a given field from the data map containing (K=FieldType, V=fieldvalue).
+//! Get the value of a given field from the map containing data.
 /*!
- * Returns the transformed ( calls FieldValue::get() ) value of a field in a data map and
- * returns it in the form of the given type. This is used to get fields in the form of
- * double/int/string/... without much complexity.
+ * Returns the transformed ( calls FieldValue::get() ) value of a field in a data map.
+ *
+ * Note: You must be sure that that the key exists in the data map or otherwise, segfaults will
+ * occur.
  *
  * Example usage:
  *   ParsedDataLineMapPtr datamap;
@@ -88,16 +89,41 @@ typedef boost::shared_ptr< ParsedDataVector >   ParsedDataVectorPtr;
  *
  * \param data   Check this datamap for all the requested FieldTypes.
  * \param field  Fieldtype to search for.
- * \return FieldValue The FieldValue string converted to the given type using lexical_cast.
+ * \return FieldValue The FieldValue string converted to the given type.
  */
-template< typename V >
-inline V getField( ParsedDataLineMapPtr data, FieldType field )
+template< typename T >
+inline T getField( ParsedDataLineMapPtr data, FieldType field )
 {
-    boost::shared_ptr< FieldValue > value = data->find( field )->second;
-    boost::shared_ptr< std::string > str = value->get( );
-    return boost::lexical_cast< V >( *str );
+    boost::shared_ptr< FieldValue > fieldValue = data->find( field )->second;
+    return fieldValue->get< T >( );
 }
 
+//! Get a shared-pointer to the value of a given field from the map containing data.
+/*!
+ * Returns the transformed ( calls FieldValue::getPointer() ) value of a field in a data map.
+ *
+ * Note: You must be sure that that the key exists in the data map or otherwise, segfaults will
+ * occur.
+ *
+ * Example usage:
+ *   ParsedDataLineMapPtr datamap;
+ *   boost::shared_ptr<string> planetName
+ *                                    = getField<string>(datamap, fieldtypes::general::name);
+ *   boost::shared_ptr<int>    planetID
+ *                                    = getField< int  >(datamap, fieldtypes::general::id);
+ *   boost::shared_ptr<double> planetEccentricity
+ *                                    = getField<double>(datamap, fieldtypes::state::eccentricity);
+ *
+ * \param data   Check this datamap for all the requested FieldTypes.
+ * \param field  Fieldtype to search for.
+ * \return FieldValue The FieldValue string converted to the given type.
+ */
+template< typename T >
+inline boost::shared_ptr< T > getFieldPointer( ParsedDataLineMapPtr data, FieldType field )
+{
+    boost::shared_ptr< FieldValue > fieldValue = data->find( field )->second;
+    return fieldValue->getPointer< T >( );
+}
 
 //! Filter the data vector for entries containing a given FieldType.
 /*!

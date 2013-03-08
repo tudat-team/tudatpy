@@ -28,6 +28,7 @@
  *      120217    D.J. Gondelach    Code check.
  *      120326    D. Dirkx          Code checked, minor layout changes.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      130301    S. Billemont      Update FieldValue definition.
  *
  *    References
  *
@@ -40,7 +41,8 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/smart_ptr/make_shared.hpp>
 
 #include "Tudat/InputOutput/fieldTransform.h"
 #include "Tudat/InputOutput/fieldType.h"
@@ -65,23 +67,51 @@ public:
                 = boost::shared_ptr< FieldTransform >( ) );
 
     //! FieldType of the FieldValue.
-    FieldType type;
+    const FieldType type;
 
     //! Get value of field content in SI units.
-    boost::shared_ptr< std::string > get( );
+    template< typename T >
+    T get( )
+    {
+        loadTransformation( );
+        return boost::lexical_cast< T >( transformedField );
+    }
+
+    //! Get a shared pointer to the value of field content in SI units.
+    template< typename T >
+    boost::shared_ptr< T > getPointer( )
+    {
+        loadTransformation( );
+        return boost::make_shared< T >( boost::lexical_cast<T>( transformedField ) );
+    }
+
+    //! Get transformed field content.
+    const std::string& getTransformed( );
 
     //! Get raw field content.
-    boost::shared_ptr< std::string > getRaw( );
-
-    //! Operator to get value of field content in SI units.
-    boost::shared_ptr< std::string > operator( ) ( );
+    const std::string& getRaw( );
 
 protected:
+
+    //! Load the transformed string if required.
+    inline void loadTransformation( )
+    {
+        // Check if transformedField exists already (lazy cache value).
+        if ( transformedField.empty( ) )
+        {
+            // Doesn't exist yet, load the transform.
+            transformedField = transform.get( ) ? 
+                *transform->transform( rawField ).get( ) : rawField;
+        }
+    }
 
 private:
 
     //! String of field value in raw data format.
-    std::string rawField;
+    const std::string   rawField;
+
+    //! String of field value in the transformed data format.
+    std::string         transformedField;
 
     //! Pointer to unit transformation equation.
     FieldTransformPointer transform;

@@ -37,10 +37,6 @@
 #ifndef TUDAT_LINEAR_FIELD_TRANSFORM_H
 #define TUDAT_LINEAR_FIELD_TRANSFORM_H
 
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-
 #include "Tudat/InputOutput/fieldTransform.h"
 
 namespace tudat
@@ -71,19 +67,19 @@ public:
      * Returns a transformed string, according to the linear transformation:
      * result = slope * input + intercept.
      * \param input Input string.
-     * \return Transformed string.
+     * \return Shared-pointer to transformed string.
      */
-    boost::shared_ptr< std::string > transform( boost::shared_ptr< std::string > input );
+    boost::shared_ptr< std::string > transform( const std::string& input );
 
 protected:
-
-private:
 
     //! Slope of the transformation.
     const double slope;
 
     //! Intercept of the transformation.
     const double intercept;
+
+private:
 };
 
 //! Typedef for shared-pointer to LinearFieldTransform object.

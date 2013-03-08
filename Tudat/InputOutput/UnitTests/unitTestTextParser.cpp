@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120606    T. Secretin       File created.
  *      120608    E. Heeren         Placed tests in unit_tests namespace.
+ *      130301    S. Billemont      Updated tests to new FieldValue definition.
  *
  *    References
  *
@@ -53,6 +54,7 @@ namespace input_output
 class dummyTextParser : public TextParser
 {
 public:
+
     // Default constructor with parseAsStream == false.
     dummyTextParser( bool parseAsStream = false ) : TextParser( parseAsStream ){ }
 
@@ -60,6 +62,7 @@ public:
     ~dummyTextParser( ){ }
 
 protected:
+
     // Parse line functionality.
     void parseLine( std::string& line )
     {
@@ -118,16 +121,14 @@ BOOST_AUTO_TEST_CASE( textParser_parseLine )
     // Check that it parsed 1 field.
     BOOST_CHECK_EQUAL( testLineData->size( ), 1 );
 
-    // Check if the data was correcly separated.
-    BOOST_CHECK_EQUAL(
-        *( testLineData->find(
-               tudat::input_output::field_types::general::name )->second->getRaw( ) ),
-        testString );
+    // Check if the data was correctly separated.
+    BOOST_CHECK_EQUAL( testLineData->find(
+                           tudat::input_output::field_types::general::name )->second->getRaw( ),
+                       testString );
 
     // Check if it fails to find a field that is not passed in the constructor.
-    BOOST_CHECK(
-        testLineData->find( tudat::input_output::field_types::state::trueAnomaly )
-                == testLineData->end( ) );
+    BOOST_CHECK( testLineData->find( tudat::input_output::field_types::state::trueAnomaly )
+                 == testLineData->end( ) );
 }
 
 //! Test the parsing of a stream on a line-per-line basis.
@@ -157,18 +158,15 @@ BOOST_AUTO_TEST_CASE( textParser_parseStreamAsLine )
     // Check that it parsed 1 field.
     BOOST_CHECK_EQUAL( testLineData->size( ), 1 );
 
-    // Check if the data was correcly separated.
-    BOOST_CHECK_EQUAL(
-        *( testLineData->find(
-               tudat::input_output::field_types::general::name )->second->getRaw( ) ),
-        testString );
+    // Check if the data was correctly separated.
+    BOOST_CHECK_EQUAL( testLineData->find(
+                           tudat::input_output::field_types::general::name )->second->getRaw( ),
+                       testString );
 
     // Check if it fails to find a field that is not passed in the constructor.
-    BOOST_CHECK(
-        testLineData->find( tudat::input_output::field_types::state::trueAnomaly )
-                == testLineData->end( ) );
+    BOOST_CHECK( testLineData->find( tudat::input_output::field_types::state::trueAnomaly )
+                 == testLineData->end( ) );
 }
-
 
 // Close Boost test suite.
 BOOST_AUTO_TEST_SUITE_END( )

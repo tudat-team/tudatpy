@@ -73,7 +73,7 @@ namespace field_types
 {
 
 //! Convert string into hash number.
-static FieldType hash_constructor( std::string text )
+static FieldType hash_constructor( const char* text )
 {
     // Convert text string into hash number.
     boost::hash< std::string > contructor;
