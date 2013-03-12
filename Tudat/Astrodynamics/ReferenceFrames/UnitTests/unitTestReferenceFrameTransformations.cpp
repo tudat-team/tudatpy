@@ -35,6 +35,8 @@
  *      110808    F.M. Engelen      Updated with better tests, changed test for vertical frame.
  *      120529    E.A.G. Heeren     Boostified unit tests.
  *      120614    P. Musegaas       Removed unneccessary using statements and normalizations.
+ *      130312    D. Dirkx          Added unit test for planet-fixed <-> inertial without equal
+ *                                  equatorial frame.
  *
  *    References
  *
@@ -328,6 +330,63 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricToLocalVerticalFrameTransformati
 
         // Check whether both vectors are equal within tolerances.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transformedLocation, startLocation, 1.0e-14 );
+    }
+}
+
+// Test inertial to rotating planetocentric frame transformations, without assumption of equal x-y
+// planes.
+BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricWithEquatorChangeFrameTransformations )
+{
+    using tudat::basic_astrodynamics::unit_conversions::convertDegreesToRadians;
+    using namespace tudat::reference_frames;
+
+    // Data from pck00010.tpc Spice kernel.
+    const double venusPoleRightAscension = convertDegreesToRadians( 272.76 );
+    const double venusPoleDeclination = convertDegreesToRadians( 67.16 );
+    const double venusPrimeMeridianAtJ2000 = convertDegreesToRadians( 160.20 );
+
+    // Set rotation, as calculated with Spice
+    // (see Astrodynamics/Ephemerides/unitTestSimpleRotationalEphemeris.cpp).
+    Eigen::Matrix3d spiceInitialRotationToTargetFrameMatrix;
+    spiceInitialRotationToTargetFrameMatrix
+            << -0.9548214974296336, 0.2665104385944917, 0.1314841974018291,
+            -0.296591573568662, -0.882413772579987, -0.3652114078848295,
+            0.01869081416890202, -0.3877088083617989, 0.9215923900425705;
+
+    // Calculate given rotation to Venus-fixed frame.
+    Eigen::Matrix3d calculatedTransformationMatrix = Eigen::Matrix3d(
+                getInertialToPlanetocentricFrameTransformationQuaternion(
+                    venusPoleDeclination, venusPoleRightAscension, venusPrimeMeridianAtJ2000 ) );
+
+    // Compare calculated with Spice result.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                spiceInitialRotationToTargetFrameMatrix, calculatedTransformationMatrix, 1.0E-15 );
+
+    // Calculate inverse rotation.
+    calculatedTransformationMatrix = Eigen::Matrix3d(
+                getRotatingPlanetocentricToInertialFrameTransformationQuaternion(
+                    venusPoleDeclination, venusPoleRightAscension,
+                    venusPrimeMeridianAtJ2000 ) );
+
+    // Multiply inverse rotation with Spice rotation to Venus-fixed frame. The two should be
+    // orthonormal, so result should be the identity matrix.
+    Eigen::Matrix3d matrixToCheck =
+            spiceInitialRotationToTargetFrameMatrix * calculatedTransformationMatrix;
+
+    // Check whether result is indeed (close to) identity matrix.
+    for ( unsigned int i = 0; i < 3; i++ )
+    {
+        for ( unsigned int j = 0; j < 3; j++ )
+        {
+            if ( i == j )
+            {
+                BOOST_CHECK_CLOSE_FRACTION( matrixToCheck( i, j ), 1.0, 1.0E-15 );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( matrixToCheck( i, j ), 1.0E-15 );
+            }
+        }
     }
 }
 

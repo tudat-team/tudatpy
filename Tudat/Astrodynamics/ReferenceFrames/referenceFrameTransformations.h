@@ -36,10 +36,13 @@
  *      120530    E.A.G. Heeren     Namespace update.
  *      120614    P. Musegaas       Corrected include guard.
  *      130121    K. Kumar          Updated functions to be const-correct.
+ *      130219    D. Dirkx          Migrated from personal code.
  *
  *
  *    References
  *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
+ *      Seidelmann, P. K. (Ed.). (2005). Explanatory supplement to the astronomical almanac.
+ *              Univ Science Books.
  *
  *    Notes
  *
@@ -88,7 +91,7 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
  * Retuns rotation from planet-fixed to inertial frame, assuming that the equatorial plane is not
  * equal to x-y plane of inertial frame. Orientation of body-fixed frame is obtained from right
  * ascension and declination of body's pole and the location of the prime meridian
- * (Seidelmann et al. 2006).
+ * (Seidelmann et al. 2005).
  * \param declinationOfPole Declination of body's pole in inertial frame.
  * \param rightAscensionOfPole Right ascension of body's pole in inertial frame.
  * \param longitudeOfPrimeMeridian Longitude of body prime meridian.
@@ -129,7 +132,7 @@ Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
  * Returns rotation from inertial to planet-fixed frame, assuming that the equatorial plane is not
  * equal to x-y plane of inertial frame. Orientation of body-fixed frame is obtained from right
  * ascension and declination of body's pole and the location of the prime meridian
- * (Seidelmann et al. 2006).
+ * (Seidelmann et al. 2005).
  * \param declinationOfPole Declination of body's pole in inertial frame.
  * \param rightAscensionOfPole Right ascension of body's pole in inertial frame.
  * \param longitudeOfPrimeMeridian Longitude of body prime meridian.
@@ -181,7 +184,7 @@ Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
 Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
         const double angleOfAttack, const double angleOfSideslip );
 
-//! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
+//! Get transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
 /*!
  * Returns the frame transformation quaternion from the Planetocentric (R) to the Local vertical
  * (V) reference frame. The Z axis is alligned with the local gravity vector. Whether or not,

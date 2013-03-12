@@ -35,9 +35,12 @@
  *                                  changed to local vertical frame.
  *      120530    E.A.G. Heeren     Namespace update.
  *      130121    K. Kumar          Updated functions to be const-correct.
+ *      130219    D. Dirkx          Migrated from personal code.
  *
  *    References
  *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
+ *      Seidelmann, P. K. (Ed.). (2005). Explanatory supplement to the astronomical almanac.
+ *              Univ Science Books.
  *
  *    Notes
  *      Because potential speed improvement it was chosen to use AngleAxisd and quaternions
