@@ -29,8 +29,9 @@
  #      120216    K. Kumar          Removed propagator files.
  #      120822    P. Musegaas       Added unit test for mean to hyperbolic eccentric anomaly
  #                                  conversion.
- #      130218    D. Dirx           Added unit test for Julian date conversions.
+ #      130218    D. Dirkx          Added unit test for Julian date conversions.
  #      130214    R.C.A. Boon       Added modified equinoctial element files (.h/.cpp, unit test).
+ #      130301    D. Dirkx          Added unit test for geodetic coordinate conversions.
  #
  #    References
  #
@@ -42,6 +43,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToEccentricAnomaly.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/geodeticCoordinateConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/modifiedEquinoctialElementConversions.cpp"
@@ -54,6 +56,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToEccentricAnomaly.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/geodeticCoordinateConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/modifiedEquinoctialElementConversions.h"
@@ -99,3 +102,7 @@ target_link_libraries(test_TimeConversions tudat_basic_astrodynamics ${TUDAT_COR
 add_executable(test_ModifiedEquinoctialElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestModifiedEquinoctialElementConversions.cpp")
 setup_custom_test_program(test_ModifiedEquinoctialElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_ModifiedEquinoctialElementConversions tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_GeodeticCoordinateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestGeodeticCoordinateConversions.cpp")
+setup_custom_test_program(test_GeodeticCoordinateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_GeodeticCoordinateConversions tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
