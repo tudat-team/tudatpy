@@ -25,8 +25,11 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120521    T. Secretin       File created.
+ *      130318    K. Kumar          Updated allocation of Vector6d to fix problem with Eigen types.
  *
  *    References
+ *      Eigen. http://eigen.tuxfamily.org/dox/TopicUnalignedArrayAssert.html, last accessed: 18th
+ *          March, 2013.
  *
  *    Notes
  *
@@ -52,7 +55,8 @@ boost::shared_ptr< basic_mathematics::Vector6d > CartesianStateExtractor::extrac
     using basic_mathematics::Vector6d;
 
     // Create a new CartesianElements object.
-    boost::shared_ptr< Vector6d > cartesianElements = boost::make_shared< Vector6d >( );
+    boost::shared_ptr< Vector6d > cartesianElements
+            = boost::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
 
     // Find and set Cartesian x coordinate.
     if ( checkOptionalFieldType( dataLineMap, 1,

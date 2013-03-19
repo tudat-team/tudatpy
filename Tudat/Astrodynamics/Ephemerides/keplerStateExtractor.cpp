@@ -27,8 +27,11 @@
  *      111103    S. Billemont      File created.
  *      111205    T. Secretin       Added functionalities to previous shell code.
  *      120813    P. Musegaas       Changed code to new root finding structure.
+ *      130317    K. Kumar          Updated allocation of Vector6d to fix problem with Eigen types.
  *
  *    References
+ *      Eigen. http://eigen.tuxfamily.org/dox/TopicUnalignedArrayAssert.html, last accessed: 18th
+ *          March, 2013.
  *
  *    Notes
  *      This implementation uses the KeplerianElements class, which is marked for deprecation. The
@@ -62,7 +65,8 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
     using basic_mathematics::Vector6d;
 
     // Create a new KeplerianElements object.
-    boost::shared_ptr< Vector6d > keplerianElements = boost::make_shared< Vector6d >( );
+    boost::shared_ptr< Vector6d > keplerianElements
+            = boost::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
 
     // Find and set semi-major axis.
     if ( checkOptionalFieldType( dataLineMap, 1,
