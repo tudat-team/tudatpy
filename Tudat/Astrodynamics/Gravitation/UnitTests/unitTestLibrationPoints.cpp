@@ -35,11 +35,15 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120518    K. Kumar          Boostified unit test.
  *      120813    P. Musegaas       Updated unit test to new root finding structure.
+ *      130319    K. Kumar          Removed dependence on obsolete central gravity field to new
+ *                                  celestial body constants file.
  *
  *    References
  *      Mireles James, J.D. Celestial Mechanics Notes Set 4: The Circular Restricted Three Body
  *          Problem, 2006, http://www.math.utexas.edu/users/jjames/hw4Notes.pdf,
  *          last accessed: 26 May, 2012.
+ *      JPL, NASA. Astrodynamic Constants, http://ssd.jpl.nasa.gov/?constants,
+ *        last updated: 13 Dec, 2012, last accessed: 19th March, 2013.
  *
  *    Notes
  *      Reference values for position Lagrange libration points are taken from (Mireles James,
@@ -58,7 +62,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Tudat/Astrodynamics/Gravitation/centralGravityField.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 #include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
 
@@ -76,28 +80,21 @@ BOOST_AUTO_TEST_SUITE( test_libration_points )
 BOOST_AUTO_TEST_CASE( testComputationOfMassParameter )
 {
     // Set expected mass parameter for Earth-Moon system.
-    const double expectedMassParameter = 0.01215295290792761;
+    const double expectedMassParameter = 0.0121505811805237;
 
     // Set Earth gravitational parameter.
-    gravitation::CentralGravityField earthCentralGravityField(
-                gravitation::CentralGravityField::earth );
     const double earthGravitationalParameter
-            = earthCentralGravityField.getGravitationalParameter( );
+            = tudat::basic_astrodynamics::celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER;
 
-    // Set Moon gravitational parameter.
-    gravitation::CentralGravityField moonCentralGravityField(
-                gravitation::CentralGravityField::moon );
-    const double moonGravitationalParameter
-            = moonCentralGravityField.getGravitationalParameter( );
+    // Set Moon gravitational parameter (Earth/Moon mass ratio taken from (JPL, 2012).
+    const double moonGravitationalParameter = earthGravitationalParameter / 81.30059;
 
     // Compute mass parameter.
     const double computedMassParameter = crtbp::computeMassParameter(
                 earthGravitationalParameter, moonGravitationalParameter );
 
     // Check if computed value corresponds to expected mass parameter.
-    BOOST_CHECK_CLOSE_FRACTION( expectedMassParameter,
-                                computedMassParameter,
-                                1.0e-15 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedMassParameter, computedMassParameter, 1.0e-14 );
 }
 
 //! Test if computation of location of L1 Lagrange libration point is working correctly.
