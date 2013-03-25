@@ -25,10 +25,15 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      130110    R.C.A. Boon       File created (based on unitTestLambertTargeterIzzo).
+ *      130325    R.C.A. Boon       Added specific test case to resolve maximum number of
+ *                                  revolutions bug under certain conditions.
  *
  *    References
  *      Noomen, R., Lambert targeter Excel file.
  *      Izzo, D., Keplerian_Toolbox.
+ *      JPL, HORIZONS web interface. http://ssd.jpl.nasa.gov/horizons.cgi?s_loc=1#top
+ *      McConaghy, T.T., Notable Two-Synodic-Period Earth-Mars Cycler (Mar/Apr 2006). Journal of
+ *          Spacecraft and Rockets, 43:2.
  *
  *    Notes
  *
@@ -437,6 +442,56 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
     // Test if the computed solution is anti-clockwise, if the z-component of the angular momentum
     // (h = r \times v) is positive.
     BOOST_CHECK_GT( positionDepartureHyperbola.cross( velocityDepartureHyperbola ).z( ), 0 );
+}
+
+//! Test hyperbolic case.
+BOOST_AUTO_TEST_CASE( testMaximumNumberOfRevolutions )
+// Tested using reference output from Keplerian_Toolbox PyKEP. Positions are derived from cycler
+// itineraries in McConaghy (2006), transfers Earth-1 to Mars-2 and Mars-2 to Earth-3, table 2.
+{
+    /* The problem was that for certain combinations of parameters (but not all), the computed
+       maximum number of revolutions was one too low. As a result, not all possible solutions could
+       be found resulting in a wrong result if one was looking for the best solution amongst all
+       possible solutions. This test shows that this is no longer the case, as it uses two of those
+       'border' cases.
+      */
+
+    // Expected results
+    int expectedMaximumNumberOfRevolutions1 = 1;
+    int expectedMaximumNumberOfRevolutions2 = 1;
+
+    // Departure position (Cartesian, m)
+    Eigen::Vector3d departurePosition1( -231427903073.9245, 81487782204.595016,
+                                        43627778250.279877 );
+    Eigen::Vector3d departurePosition2( 59996317860.871559, -128191631368.53741,
+                                        -55574089046.065445 );
+
+    // Arrival position (Cartesian, m)
+    Eigen::Vector3d arrivalPosition1 ( 59996317860.871559, -128191631368.53741,
+                                       -55574089046.065445 );
+    Eigen::Vector3d arrivalPosition2 ( -45319765987.585777, 128402601206.42529,
+                                       55665242520.139145 );
+
+    // Time of flight (s)
+    double timeOfFlight1 = 68169600.998501450;
+    double timeOfFlight2 = 46828800.000441134;
+
+    // Sun gravitational parameter
+    const double sunGravitationalParameter = 1.32712440018e20; // m³/s², HORIZONS
+
+    // Constructing Lambert problem
+    tudat::mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeter1(
+                departurePosition1, arrivalPosition1, timeOfFlight1, sunGravitationalParameter );
+    tudat::mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeter2(
+                departurePosition2, arrivalPosition2, timeOfFlight2, sunGravitationalParameter );
+
+    // Extracting number of maximum revolutions
+    int computedMaximumNumberOfRevolutions1 = lambertTargeter1.getMaximumNumberOfRevolutions();
+    int computedMaximumNumberOfRevolutions2 = lambertTargeter2.getMaximumNumberOfRevolutions();
+
+    // Comparing
+    BOOST_CHECK_EQUAL( computedMaximumNumberOfRevolutions1, expectedMaximumNumberOfRevolutions1 );
+    BOOST_CHECK_EQUAL( computedMaximumNumberOfRevolutions2, expectedMaximumNumberOfRevolutions2 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

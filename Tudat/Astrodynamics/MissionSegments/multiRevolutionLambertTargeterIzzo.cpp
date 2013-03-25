@@ -30,6 +30,9 @@
  *                                  Moved debugged getMaximumNumberOfRevolutions to source file.
  *      130211    R.C.A. Boon       Added hasSolution flag to root finder.
  *      120227    S. Billemont      Removed hasSolution in favor of an exception.
+ *      130325    R.C.A. Boon       Removed superfluous sanity check of number of revolutions in
+ *                                  execute() function, fixed bug in computation of maximumNumberOf-
+ *                                  Revolutions.
  *
  *    References
  *      PyKEP toolbox, Dario Izzo, ESA Advanced Concepts Team.
@@ -89,12 +92,12 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
     // If not yet defined, calculate number of revolutions possible.
     if ( maximumNumberOfRevolutions == NO_MAXIMUM_REVOLUTIONS )
     {
-        // Temporarily store specified number, as numberOfRevolutions_ is needed to calculate max
+        // Temporarily store specified number, as numberOfRevolutions is needed to calculate max
         // (this is a tricky way to work, but on the other hand this makes this approach decidedly
         // different from PyKEP routines and it also happens only once per object).
         int copyOfOriginalNumberOfRevolutions = numberOfRevolutions;
 
-        // Calculate first guess of maximum by dividing the time of flight of the minimum energy
+        // Calculate first guess of maximum, by dividing the time of flight of the minimum energy
         // ellipse by the normalized time of flight.
         numberOfRevolutions = static_cast< int >(
                     normalizedTimeOfFlight / (
@@ -103,25 +106,28 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
                                      * normalizedSemiPerimeter
                                      * normalizedSemiPerimeter ) ) );
 
-        // Compute time of flight of N revolutions on the minimum energy ellipse, where N is the
-        // (current) maximum number of revolutions (numberOfRevolutions_, thus). For x = 0.0, the
-        // solution uses the minimum energy ellipse.
-        double normalizedTimeOfFlightMinimumEnergyEllipse = computeTimeOfFlight( 0.0 );
-
-        // As long as tmin is larger than the specified time of flight, there is no solution
-        // possible as N times tMin cannot accommodate the specified time of flight. Also, if N is
-        // estimated to be zero, the time of flight no longer suits this need and this loop can be
-        // skipped.
-        while ( ( normalizedTimeOfFlightMinimumEnergyEllipse > normalizedTimeOfFlight )
-                && ( numberOfRevolutions != 0 ) )
+        // If the current guess for the maximum is non-zero, then additional analysis is required to
+        // determine the correct maximum.
+        if( numberOfRevolutions != 0)
         {
-            // Decrease N by one in order to see if it then does accommodate the specified time of
-            // flight.
-            numberOfRevolutions--;
-
-            // Recompute time of flight of (new) N revolutions.
-            normalizedTimeOfFlightMinimumEnergyEllipse = computeTimeOfFlight( 0.0 );
+            // The following try-block is meant to check whether the solution converges or not. If
+            // the current guess for the maximum number of revolutions is correct, then the problem
+            // will converge. If it does not, an exception will be thrown stating that it did not
+            // converge. Catching this exception allows to decrease the guess only when the
+            // exception occurs, and not under other circumstances.
+            try
+            {
+                // Compute root (no further information is required)
+                computeRootTimeOfFlight();
+            }
+            catch( tudat::basic_mathematics::ConvergenceException )
+            {
+                // If the rootfinder did not converge, then the current guess is wrong and needs to
+                // be decreased
+                numberOfRevolutions--;
+            }
         }
+        // No further analysis is needed of the current guess is equal to zero.
 
         // Maximum is now found.
         maximumNumberOfRevolutions = numberOfRevolutions;
@@ -155,8 +161,8 @@ void MultiRevolutionLambertTargeterIzzo::execute( )
     // Transform dimensions.
     transformDimensions( );
 
-    // Sanity check for number of revolutions (must be after dimension removal).
-    sanityCheckNumberOfRevolutions( );
+    /*// Sanity check for number of revolutions (must be after dimension removal).
+    sanityCheckNumberOfRevolutions( );*/
 
     if ( numberOfRevolutions == 0 )
     {
