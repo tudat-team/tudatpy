@@ -34,6 +34,7 @@
  *      120331    B. Tong Minh      Added typeid check for RungeKuttaVariableStepSizeIntegratorXd
  *                                  typedef; modified minimum step size exceeded unit tests to use
  *                                  custom exception object.
+ *      120321    D.Dirkx           Added unit test for getCurrentStateDerivatives function.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -42,6 +43,12 @@
  *      This file doesn't test any specific Runge-Kutta-type integrators, but rather some general
  *      functionality adopted in the the RungeKuttaVariableStepSizeIntegrator class, applicable to
  *      all Runge-Kutta-type integrators.
+ *
+ *      It should be noted that the getCurrentStateDerivatives() member function is not tested in a
+ *      fully generic manner at the moment; the test is setup specifically based on the 
+ *      Runge-Kutta-Fehlberg 4(5) (RKF45) integrator. A more comprehensive test should be designed
+ *      to ensure that the member function performs as desired regardless of the coefficient set
+ *      chosen.
  *
  */
 
@@ -54,6 +61,7 @@
 #include <boost/exception/all.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <TudatCore/Basics/testMacros.h>
 #include <TudatCore/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h>
 
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
@@ -211,6 +219,79 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
 
         // Check that the minimum step size was indeed exceeded.
         BOOST_CHECK( isMinimumStepSizeExceededForPerformIntegrationStep );
+    }
+}
+
+//! Test if the state derivative evaliations are properly returned.
+BOOST_AUTO_TEST_CASE( testStateDerivativeRetrievalFunction )
+{
+    using namespace tudat::numerical_integrators;
+    using namespace unit_tests::numerical_integrator_test_functions;
+
+    // This test is based on the Runge-Kutta-Fehlberg 4(5) coefficient set, hence the test does not
+    // robustly ensure that the getCurrentStateDerivatives() works correctly for any given 
+    // coefficient set currently. This test is more of an preliminary check that the function 
+    // performs as required, with the extrapolation that it is likely to perform consistently in
+    // this manner for any Runge-Kutta-type coefficient set.
+
+    // Create test integrator.
+    RungeKuttaVariableStepSizeIntegratorXd integrator(
+                RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
+                &computeVanDerPolStateDerivative,
+                0.0,
+                ( Eigen::VectorXd( 2 ) << 1.0, 2.0 ).finished( ),
+                0.0, 10.0, 1.0E-8, 1.0E-8 );
+
+    // Perform first integration step.
+    integrator.performIntegrationStep( 1.0 );
+
+    // Retrieve time and state after first integration step.
+    const double previousTime = integrator.getCurrentIndependentVariable( );
+    const Eigen::VectorXd previousState = integrator.getCurrentState( );
+
+    // Perform additional integration step to verify that there are no problems with
+    // getCurrentStateDerivatives after >1 iterations (i.e not being reset etc.).
+    integrator.performIntegrationStep( integrator.getNextStepSize( ) );
+
+    // Get current time and previous time step.
+    const double currentTime = integrator.getCurrentIndependentVariable( );
+    const double stepSize = currentTime - previousTime;
+
+    // Retrieve state derivative values used in previous time step.
+    std::vector< Eigen::VectorXd > stateDerivatives = integrator.getCurrentStateDerivatives( );
+
+    // Check size of state derivative vector. This test is specifically set up to test the for the 
+    // number of stages in the RKF45 integrator.
+    BOOST_CHECK_EQUAL( stateDerivatives.size( ), 6 );
+
+    // Perform manual state derivative evaluations at previous time step using RKF45 method
+    RungeKuttaCoefficients rkf45Coefficients = RungeKuttaCoefficients::get(
+                RungeKuttaCoefficients::rungeKuttaFehlberg45 );
+    std::vector< Eigen::VectorXd > directStateDerivativeValues;
+
+    for ( int stage = 0; stage < rkf45Coefficients.cCoefficients.rows( ); stage++ )
+    {
+        // Compute the intermediate state to pass to the state derivative for this stage.
+        Eigen::VectorXd intermediateState( previousState );
+
+        // Compute the intermediate state.
+        for ( int column = 0; column < stage; column++ )
+        {
+            intermediateState += stepSize * rkf45Coefficients.aCoefficients( stage, column )
+                    * directStateDerivativeValues[ column ];
+        }
+
+        // Compute state derivative.
+        directStateDerivativeValues.push_back(
+                    computeVanDerPolStateDerivative(
+                        previousTime +
+                        rkf45Coefficients.cCoefficients( stage ) * stepSize,
+                        intermediateState ) );
+
+        // Check if manual result matched result from NumericalIntegrator.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directStateDerivativeValues.at( stage ),
+                                           stateDerivatives.at( stage ),
+                                           1.0E-15 );
     }
 }
 

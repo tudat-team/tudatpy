@@ -43,6 +43,7 @@
  *                                  integrator class.
  *      120614    A. Ronse          Fixed bug in constructor.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      130307    D. Dirkx          Added function to retrieve integration stage evaluations.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -88,7 +89,7 @@ namespace numerical_integrators
  * \sa NumericalIntegrator.
  */
 template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
-           typename StateDerivativeType = Eigen::VectorXd >
+           typename StateDerivativeType = StateType >
 class RungeKuttaVariableStepSizeIntegrator :
         public ReinitializableNumericalIntegrator<
         IndependentVariableType, StateType, StateDerivativeType >
@@ -255,7 +256,7 @@ public:
      */
     virtual StateType getCurrentState( ) const { return this->currentState_; }
 
-    //! Returns the current independent variable.
+    //! Get current independent variable.
     /*!
      * Returns the current value of the independent variable of the integrator.
      * \return Current independent variable.
@@ -263,6 +264,17 @@ public:
     virtual IndependentVariableType getCurrentIndependentVariable( ) const
     {
         return this->currentIndependentVariable_;
+    }
+
+    //! Get current state derivatives.
+    /*!
+     * Returns the current state derivatives, i.e., the values of k_{i} (stage evaluations) in
+     * Runge-Kutta scheme.
+     * \return Current state derivatives evaluated according to stages of Runge-Kutta scheme.
+     */
+    std::vector< StateDerivativeType > getCurrentStateDerivatives( ) 
+    { 
+        return currentStateDerivatives_;
     }
 
     //! Perform a single integration step.
@@ -426,6 +438,12 @@ protected:
      * Function that returns the new step size computed, as passed to the constructor.
      */
     NewStepSizeFunction newStepSizeFunction_;
+
+    //! Vector of state derivatives.
+    /*!
+     * Vector of state derivatives, i.e. values of k_{i} in Runge-Kutta scheme.
+     */
+    std::vector< StateDerivativeType > currentStateDerivatives_;
 };
 
 //! Perform a single integration step.
@@ -435,8 +453,8 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 ::performIntegrationStep( const IndependentVariableType stepSize )
 {
     // Define and allocated vector for the number of stages.
-    std::vector< StateDerivativeType > stateDerivatives; // vector of k_i.
-    stateDerivatives.reserve( this->coefficients_.cCoefficients.rows( ) );
+    currentStateDerivatives_.clear( );
+    currentStateDerivatives_.reserve( this->coefficients_.cCoefficients.rows( ) );
 
     // Define lower and higher order estimates.
     StateType lowerOrderEstimate( this->currentState_ ),
@@ -452,11 +470,11 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         for ( int column = 0; column < stage; column++ )
         {
             intermediateState += stepSize * this->coefficients_.aCoefficients( stage, column )
-                    * stateDerivatives[ column ];
+                    * currentStateDerivatives_[ column ];
         }
 
         // Compute the state derivative.
-        stateDerivatives.push_back(
+        currentStateDerivatives_.push_back(
                     this->stateDerivativeFunction_(
                         this->currentIndependentVariable_ +
                         this->coefficients_.cCoefficients( stage ) * stepSize,
@@ -464,13 +482,14 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
         // Update the estimate.
         lowerOrderEstimate += this->coefficients_.bCoefficients( 0, stage ) * stepSize *
-                stateDerivatives[ stage ];
+                currentStateDerivatives_[ stage ];
         higherOrderEstimate += this->coefficients_.bCoefficients( 1, stage ) * stepSize *
-                stateDerivatives[ stage ];
+                currentStateDerivatives_[ stage ];
     }
 
     // Determine if the error was within bounds and compute a new step size.
-    if ( computeNextStepSizeAndValidateResult( lowerOrderEstimate, higherOrderEstimate, stepSize ) )
+    if ( computeNextStepSizeAndValidateResult( lowerOrderEstimate,
+                                               higherOrderEstimate, stepSize ) )
     {
         // Accept the current step.
         this->lastIndependentVariable_ = this->currentIndependentVariable_;
@@ -501,7 +520,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 }
 
 //! Compute the next step size and validate the result.
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType >
 bool
 RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType >
 ::computeNextStepSizeAndValidateResult(
@@ -614,7 +633,8 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
  * computeNextStepSizeAndValidateResult() if the minimum step size is exceeded.
  */
 template < typename IndependentVariableType, typename StateType, typename StateDerivativeType >
-class RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType >
+class RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType,
+        StateDerivativeType >
         ::MinimumStepSizeExceededError : public std::runtime_error
 {
 public:
