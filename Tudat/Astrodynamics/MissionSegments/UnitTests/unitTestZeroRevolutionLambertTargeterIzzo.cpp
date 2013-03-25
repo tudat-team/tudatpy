@@ -52,7 +52,6 @@
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
 #include <TudatCore/Basics/testMacros.h>
 
-#include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/MissionSegments/zeroRevolutionLambertTargeterIzzo.h"
 
 namespace tudat
