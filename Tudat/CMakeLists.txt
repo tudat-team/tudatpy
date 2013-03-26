@@ -38,6 +38,8 @@
  #                                  "Release".
  #      120921    M.I. Ganeff       Modified for SpiceInterface.
  #      130204    K. Kumar          Removed obsolete TudatCoreEnvironment.cmake code block.
+ #      130325    K. Kumar          Added warning message in case Boost version is 1.52 and GCC
+ #                                  version is 4.4 for Legendre polynomials code.
  #
  #    References
  #
@@ -181,6 +183,13 @@ if(NOT APPLE)
 else( )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
 endif( )
+
+# Check if Boost version is 1.52 and emit warning statement for Legendre polynomial code under GCC 4.4.
+if(Boost_VERSION EQUAL 105200)
+  if(CMAKE_CXX_COMPILER_VERSION MATCHES ".*4\\.4.*")
+    message(WARNING "Detected Boost 1.52, this version is known to be incompatible with the LegendrePolynomials under GCC 4.4.")
+  endif()
+endif()
 
 # Find Tudat Core library on local system.
 find_package(TudatCore 2 REQUIRED)
