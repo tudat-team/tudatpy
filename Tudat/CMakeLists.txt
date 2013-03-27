@@ -46,11 +46,11 @@
  #    Notes
  #
 
-# Specify minimum CMake version required to compile Tudat.
-cmake_minimum_required( VERSION 2.6 )
+# Specify minimum CMake version required.
+cmake_minimum_required(VERSION 2.6)
 
-# Specific Tudat project name.
-project( Tudat )
+# Specify project name.
+project(Tudat)
 
 # Set module path to local CMake scripts.
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/External/CMake)
@@ -61,19 +61,15 @@ set(CODEROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 # Define the basic input (trunk).
 set(SRCROOT "${CODEROOT}/Tudat")
 
-# Set lib and bin directories where static libraries and unit tests are built.
-set(LIBROOT "${CODEROOT}/lib")
-set(BINROOT "${CODEROOT}/bin")
-
 # Set testing options based on platform.
-enable_testing( )
+enable_testing()
 
 # Set platform-specific compiler flags.
 if (WIN32)
   if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
     # Because we are using static boost libraries, with static runtime, we need to force MSVC to
-    # also use static runtime: (from http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace)
+    # also use static runtime: (from http://www.cmake.org/Wiki/CMake_FAQ#Dynamic_Replace).
     foreach(flag_var
           CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
           CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
@@ -82,33 +78,34 @@ if (WIN32)
         string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
       endif(${flag_var} MATCHES "/MD")
     endforeach(flag_var)
-  else( )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
-  endif( )
-else( )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
-endif( )
+  else()
+    set(CMAKE_CXX_FLAGS 
+        "${CMAKE_CXX_FLAGS} -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+  endif()
+else()
+  set(CMAKE_CXX_FLAGS 
+      "${CMAKE_CXX_FLAGS} -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+endif()
 
-# Defines the install target to create a distribution of Tudat.
-if(NOT TUDAT_DISTRIBUTION_PATH)
-    set(TUDAT_DISTRIBUTION_PATH "${CODEROOT}/dist/tudat")
-endif(NOT TUDAT_DISTRIBUTION_PATH)
+# -------------------------------------------------------------------------------------------------
+# DO NOT MANUALLY EDIT ANY SETTINGS AFTER THIS POINT IN THE FILE.
+# 
+# Pass any additional settings directly to CMake (e.g., via command-line) or by using a config file
+# (e.g., UserSettings.txt).
+# -------------------------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------------
-# Don't define any new variables with SET that the user might change beyond this point.
-#
 # Load user specific settings. These can overwrite all previous settings.
 if (NOT TUDAT_USER_SETTINGS AND NOT DEFINED ENV{TUDAT_USER_SETTINGS})
   # Load from default paths, least important first.
-  INCLUDE( "../UserSettings.txt" OPTIONAL)
-  INCLUDE( "UserSettings.txt" OPTIONAL)
+  include("../UserSettings.txt" OPTIONAL)
+  include("UserSettings.txt" OPTIONAL)
 else()
-	MESSAGE(STATUS "Loading preset")
-  # Load the user specified file
-  if ( TUDAT_USER_SETTINGS )
-    INCLUDE( $TUDAT_USER_SETTINGS OPTIONAL)
+	MESSAGE(STATUS "Loading preset...")
+  # Load the user specified file.
+  if (TUDAT_USER_SETTINGS)
+    include($TUDAT_USER_SETTINGS OPTIONAL)
   else()  
-    INCLUDE( $ENV{TUDAT_USER_SETTINGS} OPTIONAL)
+    include($ENV{TUDAT_USER_SETTINGS} OPTIONAL)
   endif()
 endif()
 
@@ -123,28 +120,51 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "WARNING: building debug version!")
 endif()
 
-# Install the Tudat files.
-install(DIRECTORY "${SRCROOT}/"
-        DESTINATION "${TUDAT_DISTRIBUTION_PATH}/Tudat"
-        FILES_MATCHING
-            PATTERN "*"
-            PATTERN "CMakeLists.txt.user" EXCLUDE
-)
-
-install(FILES ${CODEROOT}/LICENSE ${CODEROOT}/NOTICE ${CODEROOT}/README ${CODEROOT}/UserSettings.txt.example
-  DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
+# Set lib and bin directories where static libraries and unit tests are built.
+if(NOT LIB_ROOT)
+  set(LIB_ROOT "${CODEROOT}/lib")
+endif()
+if(NOT BIN_ROOT)
+  set(BIN_ROOT "${CODEROOT}/bin")
+endif()
 
 # Set the global macros for setting up targets.
 macro(setup_tudat_library_target target_name CUSTOM_OUTPUT_PATH)
-  set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${LIBROOT}")
-  set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${LIBROOT}")
+  set_property(TARGET ${target_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY "${LIB_ROOT}")
+  set_property(TARGET ${target_name} PROPERTY ARCHIVE_OUTPUT_DIRECTORY "${LIB_ROOT}")
 endmacro(setup_tudat_library_target)
 
 macro(setup_custom_test_program target_name CUSTOM_OUTPUT_PATH)
-  set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BINROOT}/unit_tests")
+  set_property(TARGET ${target_name} PROPERTY RUNTIME_OUTPUT_DIRECTORY "${BIN_ROOT}/unit_tests")
   get_property(CUSTOM_TEST_PROGRAM_NAME TARGET ${target_name} PROPERTY OUTPUT_NAME)
-  add_test("${target_name}" "${BINROOT}/unit_tests/${target_name}")
+  add_test("${target_name}" "${BIN_ROOT}/unit_tests/${target_name}")
 endmacro(setup_custom_test_program)
+
+# Defines the install target to create a distribution of Tudat.
+if(NOT TUDAT_BUNDLE_DISTRIBUTION_PATH)
+    set(TUDAT_BUNDLE_DISTRIBUTION_PATH "${CODEROOT}/tudatBundle")
+endif(NOT TUDAT_BUNDLE_DISTRIBUTION_PATH)
+
+if(NOT TUDAT_DISTRIBUTION_PATH)
+    set(TUDAT_DISTRIBUTION_PATH "${TUDAT_BUNDLE_DISTRIBUTION_PATH}/tudat")
+endif(NOT TUDAT_DISTRIBUTION_PATH)
+
+# Install the Tudat files.
+install(DIRECTORY "${SRCROOT}/"
+        DESTINATION "${TUDAT_DISTRIBUTION_PATH}/TudatCore"
+        PATTERN ".DS_STORE" EXCLUDE
+        PATTERN "CMakeLists.txt.user" EXCLUDE
+        PATTERN ".svn" EXCLUDE
+        PATTERN ".git" EXCLUDE
+        PATTERN ".bzr" EXCLUDE
+)
+
+install(FILES ${CODEROOT}/LICENSE ${CODEROOT}/NOTICE 
+              ${CODEROOT}/README ${CODEROOT}/UserSettings.txt.example
+        DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
+
+install(DIRECTORY "${CODEROOT}/Documentation" 
+        DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
 
 # Set the main sub-directories.
 set(ASTRODYNAMICSDIR "/Astrodynamics")
@@ -168,13 +188,20 @@ else( )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
 endif( )
 
-# Configure Boost libraries.
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME ON)
+# Configure Boost options.
+if(NOT Boost_USE_STATIC_LIBS)
+  set(Boost_USE_STATIC_LIBS ON)
+endif()
+if(NOT Boost_USE_MULTITHREADED)
+  set(Boost_USE_MULTITHREADED ON)
+endif()
+if(NOT Boost_USE_STATIC_RUNTIME)
+  set(Boost_USE_STATIC_RUNTIME ON)
+endif()
 
 # Find Boost libraries on local system.
-find_package(Boost 1.45.0 COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
+find_package(Boost 1.45.0 
+             COMPONENTS thread date_time system unit_test_framework filesystem regex REQUIRED)
 
 # Include Boost directories.
 # Set CMake flag to suppress Boost warnings (platform-dependent solution).
@@ -184,10 +211,13 @@ else( )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
 endif( )
 
-# Check if Boost version is 1.52 and emit warning statement for Legendre polynomial code under GCC 4.4.
+# Check if Boost version is 1.52 and emit warning statement for Legendre polynomial code under 
+# GCC 4.4.
 if(Boost_VERSION EQUAL 105200)
   if(CMAKE_CXX_COMPILER_VERSION MATCHES ".*4\\.4.*")
-    message(WARNING "Detected Boost 1.52, this version is known to be incompatible with the LegendrePolynomials under GCC 4.4.")
+    set(BOOST_GCC_WARNING "Detected Boost 1.52, this version is known to be incompatible with")
+    set(BOOST_GCC_WARNING "${BOOST1520_GCC44_WARNING} the LegendrePolynomials under GCC 4.4.")
+    message(WARNING "${BOOST_GCC_WARNING}")
   endif()
 endif()
 
@@ -202,15 +232,41 @@ else( )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${TUDAT_CORE_INCLUDE_DIR}\"")
 endif( )
 
+# Add an option to toggle the generation of the API documentation.
+option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
+
+# If documentation should be built, find Doxygen package and setup config file.
+if(BUILD_DOCUMENTATION)
+  find_package(Doxygen)
+
+  if(NOT DOXYGEN_FOUND)
+    message(FATAL_ERROR 
+            "Doxygen is needed to build the documentation. Please install it correctly.")
+  endif()
+
+  # Configure the Template Doxyfile for our specific project.
+  configure_file(${CODEROOT}/Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+
+  # Add a custom target to run Doxygen when ever the project is built.
+  # IF you do NOT want the documentation to be generated EVERY time you build the project
+  # then leave out the 'ALL' keyword from the above command.
+  add_custom_target (docs ALL COMMAND ${DOXYGEN_EXECUTABLE} 
+                     ${PROJECT_BINARY_DIR}/Doxyfile 
+                     SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+endif()
+
 # Set whether to use the SPICE library integration with Tudat or not. If it not supplied by the
 # user (either directly as an argument or through the "UserSettings.txt" file, the default setting
-# is "false". NB: It is important this section is placed AFTER the "UserSettings.txt" file is
+# is "OFF". NB: It is important this section is placed AFTER the "UserSettings.txt" file is
 # included, to ensure that that the correct indiciation is given for whether SPICE should be
 # included or not has been selected.
-if((NOT USE_CSPICE) OR (USE_CSPICE STREQUAL "false"))
+
+# Add an option to toggle the inclusion of SPICE.
+option(USE_CSPICE "Use SPICE library" OFF)
+
+if(NOT USE_CSPICE)
   message(STATUS "SPICE disabled!")
-  set(USE_CSPICE false)
-elseif(USE_CSPICE STREQUAL "true")
+elseif(USE_CSPICE)
   message(STATUS "SPICE enabled!")
 
   # Find CSPICE library on local system.
