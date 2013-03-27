@@ -140,7 +140,7 @@ macro(setup_custom_test_program target_name CUSTOM_OUTPUT_PATH)
   add_test("${target_name}" "${BIN_ROOT}/unit_tests/${target_name}")
 endmacro(setup_custom_test_program)
 
-# Defines the install target to create a distribution of Tudat.
+# Define the install target to create a distribution of Tudat.
 if(NOT TUDAT_BUNDLE_DISTRIBUTION_PATH)
     set(TUDAT_BUNDLE_DISTRIBUTION_PATH "${CODEROOT}/tudatBundle")
 endif(NOT TUDAT_BUNDLE_DISTRIBUTION_PATH)
@@ -151,7 +151,7 @@ endif(NOT TUDAT_DISTRIBUTION_PATH)
 
 # Install the Tudat files.
 install(DIRECTORY "${SRCROOT}/"
-        DESTINATION "${TUDAT_DISTRIBUTION_PATH}/TudatCore"
+        DESTINATION "${TUDAT_DISTRIBUTION_PATH}/Tudat"
         PATTERN ".DS_STORE" EXCLUDE
         PATTERN "CMakeLists.txt.user" EXCLUDE
         PATTERN ".svn" EXCLUDE
@@ -161,9 +161,6 @@ install(DIRECTORY "${SRCROOT}/"
 
 install(FILES ${CODEROOT}/LICENSE ${CODEROOT}/NOTICE 
               ${CODEROOT}/README ${CODEROOT}/UserSettings.txt.example
-        DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
-
-install(DIRECTORY "${CODEROOT}/Documentation" 
         DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
 
 # Set the main sub-directories.
@@ -253,6 +250,10 @@ if(BUILD_DOCUMENTATION)
   add_custom_target (docs ALL COMMAND ${DOXYGEN_EXECUTABLE} 
                      ${PROJECT_BINARY_DIR}/Doxyfile 
                      SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+
+  # Install documentation.
+  install(DIRECTORY "${CODEROOT}/Documentation" 
+        DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
 endif()
 
 # Set whether to use the SPICE library integration with Tudat or not. If it not supplied by the
