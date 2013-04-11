@@ -36,6 +36,8 @@
  #                                  multiRevolutionLambertTargeterIzzo.h/.cpp
  #      130110    R.C.A. Boon       Added unit tests unitTestZeroRevolutionLambertTargeterIzzo.cpp
  #                                  and unitTestMultiRevolutionLambertTargeterIzzo.cpp.
+ #      130227    E.D. Brandon      Added files for 3D shape-based approximation method for
+ #                                  continuous-thrust rendezvous trajectories.
  #
  #    References
  #
@@ -46,9 +48,11 @@
 set(MISSIONSEGMENTS_SOURCES
   "${SRCROOT}${MISSIONSEGMENTSDIR}/escapeAndCapture.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.cpp"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/improvedInversePolynomialWall.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterIzzo.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterGooding.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertRoutines.cpp"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/oscillatingFunctionNovak.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/multiRevolutionLambertTargeterIzzo.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/zeroRevolutionLambertTargeterIzzo.cpp"
 )
@@ -57,10 +61,12 @@ set(MISSIONSEGMENTS_SOURCES
 set(MISSIONSEGMENTS_HEADERS 
   "${SRCROOT}${MISSIONSEGMENTSDIR}/escapeAndCapture.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/gravityAssist.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/improvedInversePolynomialWall.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeter.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterIzzo.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterGooding.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertRoutines.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/oscillatingFunctionNovak.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/multiRevolutionLambertTargeterIzzo.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/zeroRevolutionLambertTargeterIzzo.h"
 )
@@ -101,3 +107,8 @@ target_link_libraries(test_ZeroRevolutionLambertTargeterIzzo tudat_mission_segme
 add_executable(test_MultiRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestMultiRevolutionLambertTargeterIzzo.cpp")
 setup_custom_test_program(test_MultiRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}")
 target_link_libraries(test_MultiRevolutionLambertTargeterIzzo tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_MathematicalShapeFunctions
+"${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestMathematicalShapeFunctions.cpp")
+setup_custom_test_program(test_MathematicalShapeFunctions "${SRCROOT}${MISSIONSEGMENTSDIR}")
+target_link_libraries(test_MathematicalShapeFunctions tudat_mission_segments tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
