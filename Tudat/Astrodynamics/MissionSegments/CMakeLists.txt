@@ -52,8 +52,8 @@ set(MISSIONSEGMENTS_SOURCES
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterIzzo.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterGooding.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertRoutines.cpp"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/oscillatingFunctionNovak.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/multiRevolutionLambertTargeterIzzo.cpp"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/oscillatingFunctionNovak.cpp"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/zeroRevolutionLambertTargeterIzzo.cpp"
 )
 
@@ -66,8 +66,8 @@ set(MISSIONSEGMENTS_HEADERS
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterIzzo.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertTargeterGooding.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/lambertRoutines.h"
-  "${SRCROOT}${MISSIONSEGMENTSDIR}/oscillatingFunctionNovak.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/multiRevolutionLambertTargeterIzzo.h"
+  "${SRCROOT}${MISSIONSEGMENTSDIR}/oscillatingFunctionNovak.h"
   "${SRCROOT}${MISSIONSEGMENTSDIR}/zeroRevolutionLambertTargeterIzzo.h"
 )
 

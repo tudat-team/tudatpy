@@ -68,9 +68,12 @@ double ImprovedInversePolynomialWall::evaluate( const double anAzimuthalAngle )
               * std::cos( anAzimuthalAngle + boundaryParameters_(  ).first( 2 ) )
               + timeDependentParameter_(  )
                 * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-              + boundaryParameters_(  ).second( 0 ) * std::pow( anAzimuthalAngle , 4 )
-              + boundaryParameters_(  ).second( 1 ) * std::pow( anAzimuthalAngle , 5 )
-              + boundaryParameters_(  ).second( 2 ) * std::pow( anAzimuthalAngle , 6 ) );
+              + boundaryParameters_(  ).second( 0 ) * anAzimuthalAngle * anAzimuthalAngle
+                * anAzimuthalAngle * anAzimuthalAngle
+              + boundaryParameters_(  ).second( 1 ) * anAzimuthalAngle * anAzimuthalAngle
+                * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
+              + boundaryParameters_(  ).second( 2 ) * anAzimuthalAngle * anAzimuthalAngle
+                * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle );
 
     return radialDistance;
 }
@@ -99,9 +102,11 @@ double ImprovedInversePolynomialWall::computeDerivative(
                     + 3.0 * timeDependentParameter_(  ) * anAzimuthalAngle * anAzimuthalAngle
                     + 4.0 * boundaryParameters_(  ).second( 0 )
                         * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-                    + 5.0 * boundaryParameters_(  ).second( 1 ) * std::pow( anAzimuthalAngle , 4 )
+                    + 5.0 * boundaryParameters_(  ).second( 1 )
+                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
                     + 6.0 * boundaryParameters_(  ).second( 2 )
-                    * std::pow( anAzimuthalAngle , 5 ) );
+                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
+                        * anAzimuthalAngle );
 
         return firstDerivative;
     }
@@ -112,7 +117,7 @@ double ImprovedInversePolynomialWall::computeDerivative(
         double radialDistance = evaluate( anAzimuthalAngle );
 
         // First derivative.
-        double firstDerivative = computeDerivative( ( order - 1 ) , anAzimuthalAngle );
+        double firstDerivative = computeDerivative( 1 , anAzimuthalAngle );
 
         // Second derivative of the inverse polynomial function with respect to the (in-plane)
         // azimuthal angle.
@@ -126,17 +131,51 @@ double ImprovedInversePolynomialWall::computeDerivative(
                         * anAzimuthalAngle * anAzimuthalAngle
                     + 20.0 * boundaryParameters_(  ).second( 1 )
                         * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
-                    + 30.0 * boundaryParameters_(  ).second( 2 ) * std::pow( anAzimuthalAngle , 4 ) );
+                    + 30.0 * boundaryParameters_(  ).second( 2 )
+                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle
+                        * anAzimuthalAngle );
 
         return secondDerivative;
     }
-    // Throw runtime error, when order is higher that 2.
+    // Third derivative.
+    else if ( order == 3 )
+    {
+        // Radial distance.
+        double radialDistance = evaluate( anAzimuthalAngle );
+
+        // First derivative.
+        double firstDerivative = computeDerivative( 1 , anAzimuthalAngle );
+
+        // Second derivative.
+        double secondDerivative = computeDerivative( 2 , anAzimuthalAngle );
+
+        // Third derivative of the inverse polynomial function with respect to the (in-plane)
+        // azimuthal angle.
+        const double thirdDerivative = 6.0 *
+                ( ( firstDerivative * firstDerivative * firstDerivative ) /
+                  ( radialDistance * radialDistance ) )
+                - 6.0 * ( firstDerivative / radialDistance ) * (
+                    ( ( 2.0 * firstDerivative * firstDerivative ) / radialDistance )
+                    - secondDerivative )
+                - radialDistance * radialDistance * (
+                    boundaryParameters_(  ).first( 1 )
+                    * std::sin( anAzimuthalAngle + boundaryParameters_(  ).first( 2 ) )
+                    + 6.0 * timeDependentParameter_(  )
+                    + 24.0 * boundaryParameters_(  ).second( 0 ) * anAzimuthalAngle
+                    + 60.0 * boundaryParameters_(  ).second( 1 )
+                        * anAzimuthalAngle * anAzimuthalAngle
+                    + 120.0 * boundaryParameters_(  ).second( 2 )
+                        * anAzimuthalAngle * anAzimuthalAngle * anAzimuthalAngle );
+
+        return thirdDerivative;
+    }
+    // Throw runtime error, when order is higher that 3.
     else
     {
         boost::throw_exception(
                     boost::enable_error_info(
                         std::runtime_error(
-                            "Derivatives of order higher than 2 are not supported.") ) );
+                            "Derivatives of order higher than 3 are not supported.") ) );
     }
 }
 
