@@ -141,8 +141,8 @@ public:
     //! Compute the derivative of the function.
     /*!
      * Computes the derivative of a given order of the function, for a given (in-plane) azimuthal
-     * angle \f$ \theta \f$. It only evaluates the first or second derivative, therefore the order
-     * should be either 1 or 2.
+     * angle \f$ \theta \f$. It only evaluates the first, second or third derivative, therefore the
+     * order should be 1, 2 or 3.
      *
      * The first derivative of the function is:
      *
@@ -170,22 +170,45 @@ public:
      *      + 6 d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right)
      * \f]
      *
+     * The third derivative of the function is:
+     *
+     * \f[
+     *      \frac{ d^3 r }{ d \theta^3 } ( \theta ) =
+     *      -6 r^4 \left( -b sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3
+     *          + 5 f \theta^4 + 6 g \theta^5 \right)^3
+     *      + 6 r^3 \left( -b sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3
+     *          + 5 f \theta^4 + 6 g \theta^5 \right) \left( -b cos \left( \theta + c \right)
+     *          + d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right)
+     *      - r^2 \left( b sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2
+     *          + 120 g \theta^3 \right)
+     * \f]
+     *
+     * When substituting for the first and second derivative, the equation becomes:
+     *
+     * \f[
+     *      \frac{ d^3 r }{ d \theta^3 } ( \theta ) =
+     *      \frac{ 6 r^{ \prime 3 } }{ r^2 } - \frac{ 6 r^{ \prime }{ r }
+     *          \left( \frac{ 2 r^{ \prime 2 } }{ r } - r^{ \prime \prime } \right)
+     *      - r^2 \left( b sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2
+     *          + 120 g \theta^3 \right)
+     * \f]
+     *
      * In these formulas \f$ r \f$ is the radial position of the spacecraft, \f$ \theta \f$ is the
      * (in-plane) azimuthal angle, the prime indicates the derivative with respect to
-     *  \f$ \theta \f$, and \f$ ( a, b, c, d, e, f, g ) \f$ are parameters that define the shape of
+     * \f$ \theta \f$, and \f$ ( a, b, c, d, e, f, g ) \f$ are parameters that define the shape of
      * the trajectory. The parameter \f$ d \f$ is the time-dependent parameter which is used to
      * solve for a required time-of-flight.
      *
-     * \param order             Order of the derivative to evaluate. Can be either 1 or 2.
+     * \param order             Order of the derivative to evaluate. Can be either 1, 2 or 3.
      * \param anAzimuthalAngle  Value of the (in-plane) azimuthal angle [rad].
-     * \return Value of the derivative of order 1 or 2 of the function [m rad^-1, m rad^-2].
+     * \return Value of the derivative of order 1, 2 or 3 of the function [-, rad^-1, rad^-2].
      */
     double computeDerivative( const unsigned int order, const double anAzimuthalAngle );
 
     //! Compute the definite integral of the function.
     /*!
      * This function throws a runtime error when it is called. The integral of the inverse
-     * polynomial function is not part of the shape-based method and has not been implemented
+     * polynomial function is not part of the shape-based method and has not been implemented.
      */
     double computeDefiniteIntegral( const unsigned int order,
                                     const double lowerBound,

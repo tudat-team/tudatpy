@@ -112,13 +112,30 @@ double OscillatingFunctionNovak::computeDerivative(
 
         return secondDerivative;
     }
-    // Throw runtime error, when order is higher that 2.
+    // Third derivative.
+    else if ( order == 3 )
+    {
+        // Third derivative of the oscillating function with repect to the (in-plane) azimuthal
+        // angle.
+        const double thirdDerivative = -1.0 * (
+                    3.0 * boundaryParameters_(  ).first( 1 )
+                    + boundaryParameters_(  ).second( 0 )
+                    + boundaryParameters_(  ).second( 1 ) * anAzimuthalAngle )
+                * std::cos( anAzimuthalAngle ) + (
+                    boundaryParameters_(  ).first( 0 )
+                    + boundaryParameters_(  ).first( 1 ) * anAzimuthalAngle
+                    - 3.0 * boundaryParameters_(  ).second( 1 ) )
+                * std::sin( anAzimuthalAngle );
+
+        return thirdDerivative;
+    }
+    // Throw runtime error, when order is higher that 3.
     else
     {
         boost::throw_exception(
                     boost::enable_error_info(
                         std::runtime_error(
-                            "Derivatives of order higher than 2 are not supported.") ) );
+                            "Derivatives of order higher than 3 are not supported.") ) );
     }
 }
 

@@ -129,8 +129,8 @@ public:
     //! Compute the derivative of the function.
     /*!
      * Computes the derivative of a given order of the function, for a given (in-plane) azimuthal
-     * angle \f$ \theta \f$. It only evaluates the first or second derivative, therefore the order
-     * should be either 1 or 2.
+     * angle \f$ \theta \f$. It only evaluates the first, second or third derivative, therefore the
+     * order should be 1, 2 or 3.
      *
      * The first derivative of the function is:
      *
@@ -148,14 +148,22 @@ public:
      *      \left( 2 b_1 + b_2 + b_3 \theta \right) sin \theta
      * \f]
      *
+     * The third derivative of the function is:
+     *
+     * \f[
+     *      \frac{ d^3 \phi }{ d \theta^3 } ( \theta ) =
+     *      - \left( 3 b_1 + b_2 + b_3 \theta \right) cos \theta -
+     *      \left( b_0 + b_1 \theta - 3 b_3 \right) sin \theta
+     * \f]
+     *
      * In these formulas \f$ \phi \f$ is the (out-of-plane) elevation angle of the spacecraft,
      * \f$ \theta \f$ is the (in-plane) azimuthal angle, the prime indicates the derivative with
      * respect to \f$ \theta \f$, and \f$ ( b_0 ,b_1, b_2, b_3 ) \f$ are parameters that define the
      * shape of the trajectory.
      *
-     * \param order         Order of the derivative to evaluate. Can be either 1 or 2.
+     * \param order              Order of the derivative to evaluate. Can be either 1, 2 or 3.
      * \param anAzimuthalAngle   Value of the (in-plane) azimuthal angle [rad].
-     * \return Value of the derivative of order 1 or 2 of the function [-, rad^-1].
+     * \return Value of the derivative of order 1, 2 or 3 of the function [-, rad^-1, rad^-2].
      */
     double computeDerivative( const unsigned int order, const double anAzimuthalAngle );
 
