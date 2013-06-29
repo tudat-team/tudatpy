@@ -122,10 +122,10 @@ endif()
 
 # Set lib and bin directories where static libraries and unit tests are built.
 if(NOT LIB_ROOT)
-  set(LIB_ROOT "${CODEROOT}/lib")
+  set(LIB_ROOT "${PROJECT_BINARY_DIR}/../lib")
 endif()
 if(NOT BIN_ROOT)
-  set(BIN_ROOT "${CODEROOT}/bin")
+  set(BIN_ROOT "${PROJECT_BINARY_DIR}/../bin")
 endif()
 
 # Set the global macros for setting up targets.
@@ -253,7 +253,7 @@ if(BUILD_DOCUMENTATION)
 
   # Install documentation.
   install(DIRECTORY "${CODEROOT}/Documentation" 
-        DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
+          DESTINATION "${TUDAT_DISTRIBUTION_PATH}")
 endif()
 
 # Set whether to use the SPICE library integration with Tudat or not. If it not supplied by the
