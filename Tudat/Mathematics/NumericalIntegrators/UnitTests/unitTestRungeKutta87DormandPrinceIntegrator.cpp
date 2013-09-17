@@ -29,10 +29,11 @@
  *      120404    K. Kumar          Updated MATLAB unit test by adding discrete-event data file.
  *      130204    K. Kumar          Updated tolerance for discrete-event case to prevent failure
  *                                  of test under Windows.
+ *      130916    K. Kumar          Updated error tolerances for MuPAD-based tests.
  *
  *    References
  *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
- *      The Mathworks, Inc. DOPRI87, Symbolic Math Toolbox, 2012.
+ *      The Mathworks, Inc. DOPRI78, Symbolic Math Toolbox, 2012.
  *
  *    Notes
  *      All the test for this integrator are based on the data generated using the Symbolic Math
@@ -89,10 +90,10 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
     using namespace numerical_integrator_tests;
 
     // Read in benchmark data (generated using Symbolic Math Toolbox in Matlab
-    // (The MathWorks, 2012)). This data is generated using the DOPRI87 numerical integrator.
+    // (The MathWorks, 2012)). This data is generated using the DOPRI78 numerical integrator.
     const std::string pathToForwardIntegrationOutputFile = input_output::getTudatRootPath( )
             + "/Mathematics/NumericalIntegrators/UnitTests"
-            + "/matlabOutputRungeKutta87DormandPrinceForwards.txt";
+            + "/matlabOutputRungeKutta87DormandPrinceForward.txt";
     const std::string pathToDiscreteEventIntegrationOutputFile = input_output::getTudatRootPath( )
             + "/Mathematics/NumericalIntegrators/UnitTests"
             + "/matlabOutputRungeKutta87DormandPrinceDiscreteEvent.txt";
@@ -176,7 +177,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTime( matlabBackwardIntegrationData,
-                                               1.0e-15, 1.0e-13, integrator );
+                                               1.0e-15, 1.0e-15, integrator );
     }
 
     // Case 4: Execute integrateTo() to integrate to specified time in one step.
@@ -202,7 +203,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                     relativeErrorTolerance,
                     absoluteErrorTolerance * 10.0 );
 
-        executeIntegrateToToSpecifiedTime( matlabForwardIntegrationData, 1.0e-14, integrator,
+        executeIntegrateToToSpecifiedTime( matlabForwardIntegrationData, 1.0e-15, integrator,
                                            matlabForwardIntegrationData(
                                                matlabForwardIntegrationData.rows( ) - 1,
                                                TIME_COLUMN_INDEX ) );
@@ -226,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTimeWithEvents( matlabDiscreteEventIntegrationData,
-                                                         1.0e-15, 1.0e-12, integrator );
+                                                         1.0e-15, 1.0e-13, integrator );
     }
 }
 

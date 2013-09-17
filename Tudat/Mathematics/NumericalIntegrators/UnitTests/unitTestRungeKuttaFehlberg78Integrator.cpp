@@ -30,10 +30,11 @@
  *      120404    K. Kumar          Updated MATLAB unit test by adding discrete-event data file.
  *      130116    K. Kumar          Rewrote unit test to make use of testing code for numerical
  *                                  integrators migrated to Tudat Core.
+ *      130909    K. Kumar          Updated error tolerances for MuPAD-based tests.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
- *      The Mathworks, Inc. RKF78, Symbolic Math Toolbox, 2012.
+ *      The Mathworks, Inc. RKF87, Symbolic Math Toolbox, 2012.
  *
  *    Notes
  *      All the test for this integrator are based on the data generated using the Symbolic Math
@@ -90,10 +91,10 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
     using namespace numerical_integrator_tests;
 
     // Read in benchmark data (generated using Symbolic Math Toolbox in Matlab
-    // (The MathWorks, 2012)). This data is generated using the RKF78 numerical integrator.
+    // (The MathWorks, 2012)). This data is generated using the RKF87 numerical integrator.
     const std::string pathToForwardIntegrationOutputFile = input_output::getTudatRootPath( )
             + "/Mathematics/NumericalIntegrators/UnitTests"
-            + "/matlabOutputRungeKuttaFehlberg78Forwards.txt";
+            + "/matlabOutputRungeKuttaFehlberg78Forward.txt";
     const std::string pathToDiscreteEventIntegrationOutputFile = input_output::getTudatRootPath( )
             + "/Mathematics/NumericalIntegrators/UnitTests"
             + "/matlabOutputRungeKuttaFehlberg78DiscreteEvent.txt";
@@ -135,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
-        executeOneIntegrateToStep( matlabForwardIntegrationData, 1.0e-14, integrator );
+        executeOneIntegrateToStep( matlabForwardIntegrationData, 1.0e-15, integrator );
     }
 
     // Case 2: Execute performIntegrationStep() to perform multiple integration steps until final
@@ -156,7 +157,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTime( matlabForwardIntegrationData,
-                                               1.0e-15, 1.0e-14, integrator );
+                                               1.0e-15, 1.0e-15, integrator );
     }
 
     // Case 3: Execute performIntegrationStep() to perform multiple integration steps until initial
@@ -177,7 +178,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTime( matlabBackwardIntegrationData,
-                                               1.0e-15, 1.0e-13, integrator );
+                                               1.0e-15, 1.0e-14, integrator );
     }
 
     // Case 4: Execute integrateTo() to integrate to specified time in one step.
@@ -227,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTimeWithEvents( matlabDiscreteEventIntegrationData,
-                                                         1.0e-15, 1.0e-12, integrator );
+                                                         1.0e-15, 1.0e-13, integrator );
     }
 }
 
