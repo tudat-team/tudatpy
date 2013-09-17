@@ -29,6 +29,7 @@
  *                                  lower-, higher-order, and order to integrate variables.
  *      130118    K. Kumar          Removed unused typedef.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      130916    K. Kumar          Removed RKF56.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -116,7 +117,6 @@ struct RungeKuttaCoefficients
     enum CoefficientSets
     {
         rungeKuttaFehlberg45,
-        rungeKuttaFehlberg56,
         rungeKuttaFehlberg78,
         rungeKutta87DormandPrince
     };

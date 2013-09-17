@@ -29,6 +29,7 @@
  *                                  problem with RKF78 coefficient set.
  *      130204    K. Kumar          Fixed bug in DOPRI8 coefficient set under Windows and added
  *                                  note about problem.
+ *      130916    K. Kumar          Removed RKF56 integrator test.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
@@ -100,17 +101,11 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45Coefficients )
     checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg45, 1.0e-15 );
 }
 
-BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg56Coefficients )
-{
-    // Check validity of Runge-Kutta-Fehlberg 56 coefficients.
-    checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg56, 1.0e-15 );
-}
-
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78Coefficients )
 {
     // Check validity of Runge-Kutta-Fehlberg 78 coefficients.
     // Note, for some reason, the RKF78 set fails the unit test when the tolerance in
-    // checkValidityOfCoefficientSet() is set to lower than this value (row 8 and 9 of
+    // checkValidityOfCoefficientSet() is set to lower than this value (rows 8 and 9 of
     // aCoefficients matrix sum does not correspond to cCoefficient counterpart with tolerance less
     // than 1.0e-14).
     checkValidityOfCoefficientSet( RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0e-14 );

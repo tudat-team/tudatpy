@@ -44,11 +44,12 @@
  *      120404    K. Kumar          Updated Matlab unit test by adding discrete-event data file.
  *      130118    K. Kumar          Rewrote unit test to make use of testing code for numerical
  *                                  integrators migrated to Tudat Core.
+ *      130906    K. Kumar          Updated error tolerances for MuPAD-based tests.
  *
  *    References
  *      Burden, R.L., Faires, J.D. Numerical Analysis, 7th Edition, Books/Cole, 2001.
  *      Montenbruck, O., Gill, E. Satellite Orbits: Models, Methods, Applications, Springer, 2005.
- *      The MathWorks, Inc. RKF45, Symbolic Math Toolbox, 2012.
+ *      The MathWorks, Inc. RKF54b, Symbolic Math Toolbox, 2012.
  *
  *    Notes
  *      For the tests using data from the Symbolic Math Toolbox (MathWorks, 2012), the single step
@@ -304,10 +305,10 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
     using namespace numerical_integrator_tests;
 
     // Read in benchmark data (generated using Symbolic Math Toolbox in Matlab
-    // (The MathWorks, 2012)). This data is generated using the RKF45 numerical integrator.
+    // (The MathWorks, 2012)). This data is generated using the RKF54b numerical integrator.
     const std::string pathToForwardIntegrationOutputFile = input_output::getTudatRootPath( )
             + "/Mathematics/NumericalIntegrators/UnitTests"
-            + "/matlabOutputRungeKuttaFehlberg45Forwards.txt";
+            + "/matlabOutputRungeKuttaFehlberg45Forward.txt";
     const std::string pathToDiscreteEventIntegrationOutputFile = input_output::getTudatRootPath( )
             + "/Mathematics/NumericalIntegrators/UnitTests"
             + "/matlabOutputRungeKuttaFehlberg45DiscreteEvent.txt";
@@ -349,7 +350,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
-        executeOneIntegrateToStep( matlabForwardIntegrationData, 1.0e-14, integrator );
+        executeOneIntegrateToStep( matlabForwardIntegrationData, 1.0e-15, integrator );
     }
 
     // Case 2: Execute performIntegrationStep() to perform multiple integration steps until final
@@ -370,7 +371,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTime( matlabForwardIntegrationData,
-                                               1.0e-15, 1.0e-12, integrator );
+                                               1.0e-15, 1.0e-14, integrator );
     }
 
     // Case 3: Execute performIntegrationStep() to perform multiple integration steps until initial
@@ -391,7 +392,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTime( matlabBackwardIntegrationData,
-                                               1.0e-15, 1.0e-12, integrator );
+                                               1.0e-15, 1.0e-14, integrator );
     }
 
     // Case 4: Execute integrateTo() to integrate to specified time in one step.
@@ -424,17 +425,17 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingMatlabData )
                 = boost::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
                     RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
                     &computeNonAutonomousModelStateDerivative,
-                    matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
+                    matlabDiscreteEventIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
-                      << matlabForwardIntegrationData( FIRST_ROW,
-                                                       STATE_COLUMN_INDEX ) ).finished( ),
+                      << matlabDiscreteEventIntegrationData( FIRST_ROW,
+                                                             STATE_COLUMN_INDEX ) ).finished( ),
                     zeroMinimumStepSize,
                     infiniteMaximumStepSize,
                     infiniteRelativeErrorTolerance,
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTimeWithEvents( matlabDiscreteEventIntegrationData,
-                                                         1.0e-15, 1.0e-11, integrator );
+                                                         1.0e-15, 1.0e-12, integrator );
     }
 }
 

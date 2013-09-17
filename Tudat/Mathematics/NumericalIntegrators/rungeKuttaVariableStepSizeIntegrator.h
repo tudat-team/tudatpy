@@ -458,7 +458,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
     // Define lower and higher order estimates.
     StateType lowerOrderEstimate( this->currentState_ ),
-            higherOrderEstimate( this->currentState_ );
+              higherOrderEstimate( this->currentState_ );
 
     // Compute the k_i state derivatives per stage.
     for ( int stage = 0; stage < this->coefficients_.cCoefficients.rows( ); stage++ )
