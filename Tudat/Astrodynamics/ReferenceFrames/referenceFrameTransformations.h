@@ -37,6 +37,7 @@
  *      120614    P. Musegaas       Corrected include guard.
  *      130121    K. Kumar          Updated functions to be const-correct.
  *      130219    D. Dirkx          Migrated from personal code.
+ *      130312    A. Ronse          Added V-T, TA-AA and AA-B transformations.
  *
  *
  *    References
@@ -114,7 +115,7 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
 Eigen::Matrix3d getInertialToPlanetocentricFrameTransformationMatrix(
         const double angleFromXItoXR );
 
-//! Get inertial (I) to rotating planetocentric (R) reference frame transformtion quaternion.
+//! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
  * Returns transformation quaternion from inertial referenceframe (I) to the rotating
  * planetocentric reference frame (R). It's an eigen library transformation and can be applied
@@ -162,55 +163,203 @@ Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
 Eigen::Quaterniond getQuaternionObjectFromQuaternionValues(
         const Eigen::Vector4d& vectorWithQuaternion );
 
-//! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
+//! Get transformation matrix from Planetocentric (R) to the Local vertical (V) frame.
 /*!
- * Returns transformation matrix from Aerodynamic (airspeed-based) (AA) to body reference
- * frame (B).
- * \param angleOfAttack Angle of attack [rad].
- * \param angleOfSideslip Angle of sideslip [rad].
- * \return Transformation matrix.
+ * Returns the frame transformation matrix from the Planetocentric (R) to the Local vertical
+ * (V) reference frame. The Z-axis is aligned with the local gravity vector. Whether or not,
+ * this is in the direction of the center of the central body, depends which kind of latitude
+ * is provided (geocentric, geodetic, gravitation latitude).
+ * The X-axis is directed to the north.
+ * \param longitude The longitude in the planetocentric reference frame in [rad].
+ * \param latitude The latitude in the planetocentric reference frame in [rad].
+ * \return Transformation matrix from Planetocentric (R) to the local vertical (V) frame.
  */
-Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
-        const double angleOfAttack, const double angleOfSideslip );
-
-//! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation quaternion.
-/*!
- * Returns transformation quaternion from Aerodynamic (airspeed-based) (AA) to body reference
- * frame (B).
- * \param angleOfAttack Angle of attack [rad].
- * \param angleOfSideslip Angle of sideslip [rad].
- * \return Transformation quaternion.
- */
-Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
-        const double angleOfAttack, const double angleOfSideslip );
+Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix(
+    const double longitude, const double latitude );
 
 //! Get transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
 /*!
  * Returns the frame transformation quaternion from the Planetocentric (R) to the Local vertical
- * (V) reference frame. The Z axis is alligned with the local gravity vector. Whether or not,
- * this is in the direction of the center of the central body, depedens which kind of latitude
- * is provided (geocentric, geodetic, gravitation latitude)
- * The X axis is directed to the north.
+ * (V) reference frame. The Z-axis is aligned with the local gravity vector. Whether or not,
+ * this is in the direction of the center of the central body, depends which kind of latitude
+ * is provided (geocentric, geodetic, gravitation latitude).
+ * The X-axis is directed to the north.
  * \param longitude The longitude in the planetocentric reference frame in [rad].
- * \param latitude The planetocentric latitude.
+ * \param latitude The latitude in the planetocentric reference frame in [rad].
  * \return Transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
  */
 Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
     const double longitude, const double latitude );
 
+//! Get transformation matrix from local vertical (V) to the Planetocentric frame (R).
+/*!
+ * Returns the frame transformation matrix from the local vertical (V) to the
+ * Planetocentric frame (R) reference frame. The Z-axis is aligned with the local gravity vector.
+ * Whether or not, this is in the direction of the center of the central body, depends which kind
+ * of latitude is provided (geocentric, geodetic, gravitation latitude).
+ * The X-axis is directed to the north.
+ * \param longitude The longitude in the planetocentric reference frame in [rad].
+ * \param latitude The latitude in the planetocentric reference frame in [rad].
+ * \return Transformation matrix from local vertical (V) to the Planetocentric (R) frame.
+ */
+Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix(
+    const double longitude, const double latitude );
+
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 /*!
- * Returns the frame transformation quaternion from the local vertical (V) to the
- * Planetocentric frame (R)reference frame. The Z axis is alligned with the local gravity vector.
- * Whether or not, this is in the direction of the center of the central body, depedens which kind
- * of latitude is provided (geocentric, geodetic, gravitation latitude) The X-axis is directed to
- * the north.
+ * Returns the frame transformation quaternion from the local vertical (V) to the 
+ * Planetocentric (R) reference frame. The Z-axis is aligned with the local gravity vector.
+ * Whether or not, this is in the direction of the center of the central body, depends which kind
+ * of latitude is provided (geocentric, geodetic, gravitation latitude).
+ * The X-axis is directed to the north.
  * \param longitude The longitude in the planetocentric reference frame in [rad].
- * \param latitude The planetocentric latitude in [rad].
+ * \param latitude The latitude in the planetocentric reference frame in [rad].
  * \return Transformation quaternion from local vertical (V) to the Planetocentric (R) frame.
  */
 Eigen::Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
     const double longitude, const double latitude );
+
+//! Get transformation matrix from the TA/TG to the V-frame.
+/*!
+ * Returns the frame transformation matrix from the trajectory frame (T) to the local vertical (V)
+ * reference frame. Depending on whether the flight-path angle and heading angle express the
+ * velocity relative to the rotating planetocentric frame or relative to the local atmosphere,
+ * the resulting rotation holds for the groundspeed-based trajectory (TG) or airspeed-based
+ * trajectory (TA) frame respectively.
+ * \param flightPathAngle The trajectory's flight-path angle, positive upwards, in [rad].
+ * \param headingAngle The trajectory's heading angle with respect to the North in [rad].
+ * \return Transformation matrix from trajectory frame (T) to the local vertical frame (V).
+ */
+Eigen::Matrix3d getTrajectoryToLocalVerticalFrameTransformationMatrix(
+        const double flightPathAngle, const double headingAngle );
+
+//! Get transformation quaternion from the TA/TG to the V-frame.
+/*!
+ * Returns the frame transformation quaternion from the trajectory (T) to the local vertical (V)
+ * reference frame. Depending on whether the flight-path angle and heading angle express the
+ * velocity relative to the rotating planetocentric frame or relative to the local atmosphere,
+ * the resulting rotation holds for the groundspeed-based trajectory (TG) or airspeed-based
+ * trajectory (TA) frame respectively.
+ * \param flightPathAngle The trajectory's flight-path angle, positive upwards, in [rad].
+ * \param headingAngle The trajectory's heading angle with respect to the North in [rad].
+ * \return Transformation quaternion from trajectory frame (T) to the local vertical frame (V).
+ */
+Eigen::Quaterniond getTrajectoryToLocalVerticalFrameTransformationQuaternion(
+        const double flightPathAngle, const double headingAngle );
+
+//! Get transformation matrix from the local V- to TA/TG-frame.
+/*!
+ * Returns the frame transformation matrix from the local vertical (V) to the trajectory (T)
+ * reference frame. Depending on whether the flight-path angle and heading angle express the
+ * velocity relative to the rotating planetocentric frame or relative to the local atmosphere,
+ * the resulting rotation holds for the groundspeed-based trajectory (TG) or airspeed-based
+ * trajectory (TA) frame respectively.
+ * \param flightPathAngle The trajectory's flight-path angle, positive upwards, in [rad].
+ * \param headingAngle The trajectory's heading angle with respect to the North in [rad].
+ * \return Transformation matrix from the local vertical (V) to the trajectory (T) frame.
+ */
+Eigen::Matrix3d getLocalVerticalFrameToTrajectoryTransformationMatrix(
+        const double flightPathAngle, const double headingAngle );
+
+//! Get transformation quaternion from V- to the TA/TG-frame.
+/*!
+ * Returns the transformation quaternion from the local vertical (V) to the trajectory (T)
+ * reference frame. Depending on whether the flight-path angle and heading angle express the
+ * velocity relative to the rotating planetocentric frame or relative to the local atmosphere,
+ * the resulting rotation holds for the groundspeed-based trajectory (TG) or airspeed-based
+ * trajectory (TA) frame respectively.
+ * \param flightPathAngle The trajectory's flight-path angle, positive upwards, in [rad].
+ * \param headingAngle The trajectory's heading angle with respect to the North in [rad].
+ * \return Transformation quaternion from the local vertical (V) to the trajectory (T) frame.
+ */
+Eigen::Quaterniond getLocalVerticalFrameToTrajectoryTransformationQuaternion(
+        const double flightPathAngle, const double headingAngle );
+
+//! Get transformation matrix from the TA- to the AA-frame.
+/*!
+ * Returns the transformation matrix from the airspeed-based trajectory (TA) to the airspeed-based
+ * aerodynamic frame (AA). These frames differ from each other only by the bank-angle, representing
+ * one Euler-rotation.
+ * \param bankAngle The object's bank angle in [rad].
+ * \return Transformation matrix from the TA- to the AA-frame.
+ */
+Eigen::Matrix3d getTrajectoryToAerodynamicFrameTransformationMatrix( const double bankAngle );
+
+//! Get transformation quaternion from the TA- to the AA-frame.
+/*!
+ * Returns the transformation quaternion from the airspeed-based trajectory (TA) to the airspeed-
+ * based aerodynamic frame (AA). These frames differ from each other only by the bank-angle,
+ * representing one Euler-rotation.
+ * \param bankAngle The object's bank angle in [rad].
+ * \return Transformation quaternion from the TA- to the AA-frame.
+ */
+Eigen::Quaterniond getTrajectoryToAerodynamicFrameTransformationQuaternion( 
+    const double bankAngle );
+
+//! Get transformation matrix from the AA- to the TA-frame.
+/*!
+ * Returns the transformation matrix from the airspeed-based aerodynamic (AA) to the airspeed-based
+ * trajectory frame (TA). These frames differ from each other only by the bank-angle, representing
+ * one Euler-rotation.
+ * \param bankAngle The object's bank angle in [rad].
+ * \return Transformation matrix from the AA- to the TA-frame.
+ */
+Eigen::Matrix3d getAerodynamicToTrajectoryFrameTransformationMatrix( const double bankAngle );
+
+//! Get transformation quaternion from the AA- to the TA-frame.
+/*!
+ * Returns the transformation quaternion from the airspeed-based aerodynamic (AA) to the airspeed-
+ * based trajectory frame (TA). These frames differ from each other only by the bank-angle,
+ * representing one Euler-rotation.
+ * \param bankAngle The object's bank angle in [rad].
+ * \return Transformation quaternion from the AA- to the TA-frame.
+ */
+Eigen::Quaterniond getAerodynamicToTrajectoryFrameTransformationQuaternion(
+        const double bankAngle );
+
+//! Get transformation matrix fom the B- to the AA-frame.
+/*!
+ * Returns the transformation matrix from the body-fixed (B) to the airspeed-based aerodynamic
+ * frame (AA).
+ * \param angleOfAttack The angle of attack in [rad].
+ * \param angleOfSideslip The angle of sideslip in [rad].
+ * \return Transformation matrix from the B- to the AA-frame.
+ */
+Eigen::Matrix3d getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix(
+        const double angleOfAttack, const double angleOfSideslip );
+
+//! Get transformation quaternion fom the B- to the AA-frame.
+/*!
+ * Returns the transformation quaternion from the body-fixed (B) to the airspeed-based aerodynamic
+ * frame (AA).
+ * \param angleOfAttack The angle of attack in [rad].
+ * \param angleOfSideslip The angle of sideslip in [rad].
+ * \return Transformation quaternion from the B- to the AA-frame.
+ */
+Eigen::Quaterniond getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
+        const double angleOfAttack, const double angleOfSideslip );
+
+//! Get transformation matrix fom the AA- to the B-frame.
+/*!
+ * Returns the transformation matrix from the airspeed-based aerodynamic (AA) to the body-fixed
+ * frame (B).
+ * \param angleOfAttack The angle of attack in [rad].
+ * \param angleOfSideslip The angle of sideslip in [rad].
+ * \return Transformation matrix from the AA- to the B-frame.
+ */
+Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
+        const double angleOfAttack, const double angleOfSideslip );
+
+//! Get transformation quaternion fom the AA- to the B-frame.
+/*!
+ * Returns the transformation quaternion from the airspeed-based aerodynamic (AA) to the body-fixed
+ * frame (B).
+ * \param angleOfAttack The angle of attack in [rad].
+ * \param angleOfSideslip The angle of sideslip in [rad].
+ * \return Transformation quaternion from the AA- to the B-frame.
+ */
+Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
+        const double angleOfAttack, const double angleOfSideslip );
 
 } // namespace reference_frames
 } // namespace tudat

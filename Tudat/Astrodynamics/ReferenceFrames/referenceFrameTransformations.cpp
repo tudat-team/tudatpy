@@ -36,9 +36,10 @@
  *      120530    E.A.G. Heeren     Namespace update.
  *      130121    K. Kumar          Updated functions to be const-correct.
  *      130219    D. Dirkx          Migrated from personal code.
+ *      130312    A. Ronse          Added V-T, TA-AA and AA-B transformations.
  *
  *    References
- *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
+ *      Mooij, E. The Motion of a Vehicle in a Planetary Atmosphere, TU Delft, 1997.
  *      Seidelmann, P. K. (Ed.). (2005). Explanatory supplement to the astronomical almanac.
  *              Univ Science Books.
  *
@@ -174,22 +175,12 @@ Eigen::Quaterniond getQuaternionObjectFromQuaternionValues(
     return frameTransformationQuaternion;
 }
 
-//! Get Aerodynamic (airspeed-based) (AA) to body reference frame (B) tranformation matrix.
-Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
-        const double angleOfAttack, const double angleOfSideslip )
+//! Get transformation matrix from Planetocentric (R) to the Local vertical (V) frame.
+Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix(
+    const double longitude, const double latitude )
 {
-    // Declare local variables.
-    // Declare local transformation matrix.
-    Eigen::Matrix3d transformationMatrix_;
-
-    // Compute rotation by side-slip angle about Z-Axis, followed by rotation negative angle of
-    // attack angle about Y-Axis.
-    // Note the sign change, because how angleAxisd is defined.
-    transformationMatrix_ = Eigen::AngleAxisd( -1.0 * angleOfAttack, Eigen::Vector3d::UnitY( ) )
-            * Eigen::AngleAxisd( -1.0 * -angleOfSideslip, Eigen::Vector3d::UnitZ( ) );
-
-    // Return transformation matrix.
-    return transformationMatrix_;
+    return getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+            longitude, latitude ).toRotationMatrix( );
 }
 
 //! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
@@ -210,22 +201,129 @@ Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQu
     return frameTransformationQuaternion;
 }
 
+//! Get transformation matrix from local vertical (V) to the Planetocentric frame (R).
+Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix(
+    const double longitude, const double latitude )
+{
+    return getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix(
+            longitude, latitude ).transpose( );
+}
+
 //! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
 Eigen::Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
         const double longitude, const double latitude )
 {
-    // Compute transformation quaternion.
-    // Note the sign change (-1.0), because how angleAxisd is defined.
-    Eigen::AngleAxisd RotationAroundZaxis = Eigen::AngleAxisd(
-                -1.0 * -longitude, Eigen::Vector3d::UnitZ( ) );
-    Eigen::AngleAxisd RotationAroundYaxis = Eigen::AngleAxisd(
-                -1.0 * ( latitude + basic_mathematics::mathematical_constants::PI / 2.0 ),
-                Eigen::Vector3d::UnitY( ) );
-    Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
-                ( RotationAroundZaxis * RotationAroundYaxis ) );
+    return getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+            longitude, latitude ).inverse( );
+}
 
-    // Return transformation quaternion.
-    return frameTransformationQuaternion;
+//! Get transformation matrix from the TA/TG to the V-frame.
+Eigen::Matrix3d getTrajectoryToLocalVerticalFrameTransformationMatrix(
+        const double flightPathAngle, const double headingAngle )
+{
+    return getTrajectoryToLocalVerticalFrameTransformationQuaternion(
+            flightPathAngle, headingAngle ).toRotationMatrix( );
+}
+
+//! Get transformation quaternion from the TA/TG to the V-frame.
+Eigen::Quaterniond getTrajectoryToLocalVerticalFrameTransformationQuaternion(
+        const double flightPathAngle, const double headingAngle )
+{
+    // Compute transformation quaternion.
+    // Note the sign change, because how angleAxisd is defined.
+    Eigen::AngleAxisd rotationAroundZaxis = Eigen::AngleAxisd(
+                -1.0 * -headingAngle, Eigen::Vector3d::UnitZ( ) );
+    Eigen::AngleAxisd rotationAroundYaxis = Eigen::AngleAxisd(
+                -1.0 * -flightPathAngle, Eigen::Vector3d::UnitY( ) );
+
+    return Eigen::Quaterniond( rotationAroundZaxis * rotationAroundYaxis );
+}
+
+//! Get transformation matrix from the local V- to TA/TG-frame.
+Eigen::Matrix3d getLocalVerticalFrameToTrajectoryTransformationMatrix(
+        const double flightPathAngle, const double headingAngle )
+{
+    return getTrajectoryToLocalVerticalFrameTransformationMatrix(
+            flightPathAngle, headingAngle ).transpose( );
+}
+
+//! Get transformation quaternion from V- to the TA/TG-frame.
+Eigen::Quaterniond getLocalVerticalFrameToTrajectoryTransformationQuaternion(
+        const double flightPathAngle, const double headingAngle )
+{
+    return getTrajectoryToLocalVerticalFrameTransformationQuaternion(
+            flightPathAngle, headingAngle ).inverse( );
+}
+
+//! Get transformation matrix from the TA- to the AA-frame.
+Eigen::Matrix3d getTrajectoryToAerodynamicFrameTransformationMatrix(
+        const double bankAngle )
+{
+    return getTrajectoryToAerodynamicFrameTransformationQuaternion(
+            bankAngle ).toRotationMatrix( );
+}
+
+//! Get transformation quaternion from the TA- to the AA-frame.
+Eigen::Quaterniond getTrajectoryToAerodynamicFrameTransformationQuaternion(
+        const double bankAngle )
+{
+    // Compute transformation quaternion.
+    // Note the sign change, because how angleAxisd is defined.
+    Eigen::AngleAxisd rotationAroundXaxis 
+        = Eigen::AngleAxisd( -1.0 * bankAngle, Eigen::Vector3d::UnitX( ) );
+    return Eigen::Quaterniond( rotationAroundXaxis );
+}
+
+//! Get transformation matrix from the AA- to the TA-frame.
+Eigen::Matrix3d getAerodynamicToTrajectoryFrameTransformationMatrix(
+        const double bankAngle )
+{
+    return getTrajectoryToAerodynamicFrameTransformationMatrix( bankAngle ).transpose( );
+}
+
+//! Get transformation quaternion from the AA- to the TA-frame.
+Eigen::Quaterniond getAerodynamicToTrajectoryFrameTransformationQuaternion(
+        const double bankAngle )
+{
+    return getTrajectoryToAerodynamicFrameTransformationQuaternion( bankAngle ).inverse( );
+}
+
+//! Get transformation matrix fom the B- to the AA-frame.
+Eigen::Matrix3d getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix(
+        const double angleOfAttack, const double angleOfSideslip )
+{
+    return getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
+            angleOfAttack, angleOfSideslip ).toRotationMatrix( );
+}
+
+//! Get transformation quaternion fom the B- to the AA-frame.
+Eigen::Quaterniond getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
+        const double angleOfAttack, const double angleOfSideslip )
+{
+    // Compute transformation quaternion.
+    // Note the sign change, because how angleAxisd is defined.
+    Eigen::AngleAxisd rotationAroundZaxis 
+        = Eigen::AngleAxisd( -1.0 * angleOfSideslip, Eigen::Vector3d::UnitZ( ) );
+    Eigen::AngleAxisd rotationAroundYaxis 
+        = Eigen::AngleAxisd( -1.0 * -angleOfAttack, Eigen::Vector3d::UnitY( ) );
+
+    return Eigen::Quaterniond( rotationAroundZaxis * rotationAroundYaxis );
+}
+
+//! Get transformation matrix fom the AA- to the B-frame.
+Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
+        const double angleOfAttack, const double angleOfSideslip )
+{
+    return getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix(
+            angleOfAttack, angleOfSideslip ).transpose( );
+}
+
+//! Get transformation quaternion fom the AA- to the B-frame.
+Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
+        const double angleOfAttack, const double angleOfSideslip )
+{
+    return getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
+            angleOfAttack, angleOfSideslip ).inverse( );
 }
 
 } // namespace reference_frames

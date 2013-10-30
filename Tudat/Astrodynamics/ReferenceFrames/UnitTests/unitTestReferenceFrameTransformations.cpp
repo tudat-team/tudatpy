@@ -37,8 +37,10 @@
  *      120614    P. Musegaas       Removed unneccessary using statements and normalizations.
  *      130312    D. Dirkx          Added unit test for planet-fixed <-> inertial without equal
  *                                  equatorial frame.
+ *      130312    A. Ronse          Added tests for V-T, TA-AA and AA-B transformations.
  *
  *    References
+ *      Mooij, E. The Motion of a Vehicle in a Planetary Atmosphere, TU Delft, 1997.
  *
  *    Notes
  *      The reference frame definitions/abbreviations can be found in the file
@@ -72,6 +74,9 @@ BOOST_AUTO_TEST_SUITE( test_reference_frame_transformations )
 // Test 5: Test airspeed-based aerodynamic to body frame transformation.
 // Test 6: Test planetocentric to local vertical frame transformation quaternion.
 // Test 7: Check whether the transformed matrix of Test 6 is also correct.
+// Test 8: Test transformations between trajectory and local vertical frame.
+// Test 9: Test transformations between trajectory and aerodynamic frame.
+// Test 10: Test transformations between body and aerodynamic reference frame.
 
 // Test inertial to rotating planetocentric frame transformations.
 BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformations )
@@ -110,10 +115,12 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformations )
         expectedLocation( 1 ) = horizontalStartLocationSize * sin( endAngle );
         expectedLocation( 2 ) = startLocation( 2 );
 
-        // Compute location of the point in the rotating frame subject to the transformation matrix.
+        // Compute location of the point in the rotating frame subject to the transformation 
+        // matrix.
         Eigen::Vector3d transformedLocation;
         transformedLocation = reference_frames::
-                getInertialToPlanetocentricFrameTransformationMatrix( angleInTime ) * startLocation;
+                getInertialToPlanetocentricFrameTransformationMatrix( angleInTime ) 
+                * startLocation;
 
         // Check whether both vectors are equal within tolerances.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transformedLocation, expectedLocation,
@@ -249,9 +256,8 @@ BOOST_AUTO_TEST_CASE( testAirspeedBasedAerodynamicToBodyFrameTransformation )
         // Compute location of the point in the rotating frame subject to the transformation matrix.
         Eigen::Vector3d transformedLocation;
         transformedLocation = reference_frames::
-                getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix( angleOfAttack,
-                                                                            angleOfSideslip )
-                * startLocation;
+                getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
+                        angleOfAttack, angleOfSideslip ) * startLocation;
 
         // Check whether both vectors are equal within tolerances.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transformedLocation, expectedLocation, 1.0e-14 );
@@ -295,9 +301,8 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricToLocalVerticalFrameTransformati
         // Compute location of the point in the rotating frame subject to the transformation matrix.
         Eigen::Vector3d transformedLocation;
         transformedLocation = reference_frames::
-                getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion( longitude,
-                                                                                       latitude )
-                * startLocation;
+                getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                        longitude, latitude ) * startLocation;
 
         // Check whether both vectors are equal within tolerances.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transformedLocation, expectedLocation, 1.0e-14 );
@@ -390,8 +395,228 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricWithEquatorChangeFrameTransforma
     }
 }
 
+BOOST_AUTO_TEST_CASE( testTrajectoryToLocalVerticalFrameTransformations )
+{
+    // Using declarations.
+    using std::cos;
+    using std::sin;
+    using tudat::unit_conversions::convertDegreesToRadians;
+
+    // Test 8: Test trajectory to local vertical frame and inverse transformations.
+    {
+        // Initialize initial location vector.
+        Eigen::Vector3d startLocation;
+        startLocation( 0 ) = 10.0;
+        startLocation( 1 ) = 5.0;
+        startLocation( 2 ) = 2.0;
+
+        // Declare rotation angles.
+        for ( double headingAngle = convertDegreesToRadians( 0.0 );
+              headingAngle < convertDegreesToRadians( 360.0 );
+              headingAngle += convertDegreesToRadians( 30.0 ) )
+        {
+            for ( double flightPathAngle = convertDegreesToRadians( -90.0 );
+                  flightPathAngle < convertDegreesToRadians( 90.0 );
+                  flightPathAngle += convertDegreesToRadians( 30.0 ) )
+            {
+                // Declare the expected location of the point in the V-frame (per Mooij 1997).
+                Eigen::Vector3d expectedLocation;
+                Eigen::Matrix3d rotation;
+                rotation << cos( headingAngle ) * cos( flightPathAngle ),
+                            -sin( headingAngle ),
+                            cos( headingAngle ) * sin( flightPathAngle ),
+                            sin( headingAngle ) * cos( flightPathAngle ),
+                            cos( headingAngle ),
+                            sin( headingAngle ) * sin( flightPathAngle ),
+                            -sin( flightPathAngle ),
+                            0.0,
+                            cos( flightPathAngle );
+                            expectedLocation = rotation * startLocation;
+
+                // Compute location of the point in the V-frame using the tested function.
+                Eigen::Vector3d transformedLocationQuat =
+                        reference_frames::
+                        getTrajectoryToLocalVerticalFrameTransformationQuaternion(
+                                flightPathAngle, headingAngle ) * startLocation;
+                Eigen::Vector3d transformedLocationMat =
+                        reference_frames::getTrajectoryToLocalVerticalFrameTransformationMatrix(
+                                flightPathAngle, headingAngle ) * startLocation;
+
+                // Compute product of inverse rotations.
+                Eigen::Vector3d inverseRotationProductMat =
+                        reference_frames::getTrajectoryToLocalVerticalFrameTransformationMatrix(
+                                flightPathAngle, headingAngle ) *
+                        reference_frames::getLocalVerticalFrameToTrajectoryTransformationMatrix(
+                                flightPathAngle, headingAngle ) * startLocation;
+                Eigen::Vector3d inverseRotationProductQuat =
+                        reference_frames::
+                        getTrajectoryToLocalVerticalFrameTransformationQuaternion(
+                                flightPathAngle, headingAngle ) *
+                        reference_frames::
+                        getLocalVerticalFrameToTrajectoryTransformationQuaternion(
+                                flightPathAngle, headingAngle ) * startLocation;
+
+                // Check whether transformed vectors match within tolerances.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        transformedLocationQuat, expectedLocation, 1.0e-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        transformedLocationMat, expectedLocation, 2.0e-14 );
+
+                // Check whether product of inverse rotations equals unity.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        inverseRotationProductMat, startLocation, 1.0e-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        inverseRotationProductQuat, startLocation, 1.0e-14 );
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testTrajectoryToAerodynamicFrameTransformations )
+{
+    // Using declarations.
+    using std::cos;
+    using std::sin;
+    using tudat::unit_conversions::convertDegreesToRadians;
+
+    // Test 9: Test trajectory to aerodynamic and inverse transformations.
+    {
+        // Initialize initial location vector.
+        Eigen::Vector3d startLocation;
+        startLocation( 0 ) = 10.0;
+        startLocation( 1 ) = 5.0;
+        startLocation( 2 ) = 2.0;
+
+        // Declare rotation angles.
+        for ( double bankAngle = convertDegreesToRadians( 0.0 );
+              bankAngle < convertDegreesToRadians( 360.0 );
+              bankAngle += convertDegreesToRadians( 30.0 ) )
+        {
+            // Declare the expected location of the point in the aerodynamic reference frame
+            // (per Mooij 1997).
+            Eigen::Vector3d expectedLocation;
+            Eigen::Matrix3d rotation;
+            rotation << 1.0, 0.0, 0.0,
+                        0.0, cos( bankAngle ), sin( bankAngle ),
+                        0.0, -sin( bankAngle ), cos( bankAngle );
+            expectedLocation = rotation * startLocation;
+
+            // Compute location of the point in the rotating frame subject to the
+            // transformation matrix.
+            Eigen::Vector3d transformedLocationQuat =
+                    reference_frames::getTrajectoryToAerodynamicFrameTransformationQuaternion(
+                            bankAngle ) * startLocation;
+            Eigen::Vector3d transformedLocationMat =
+                    reference_frames::getTrajectoryToAerodynamicFrameTransformationMatrix(
+                            bankAngle ) * startLocation;
+
+            // Compute product of inverse rotations.
+            Eigen::Vector3d inverseRotationProductMat =
+                    reference_frames::getAerodynamicToTrajectoryFrameTransformationMatrix(
+                            bankAngle ) *
+                    reference_frames::getTrajectoryToAerodynamicFrameTransformationMatrix(
+                            bankAngle ) * startLocation;
+            Eigen::Vector3d inverseRotationProductQuat =
+                    reference_frames::getAerodynamicToTrajectoryFrameTransformationQuaternion(
+                            bankAngle ) *
+                    reference_frames::getTrajectoryToAerodynamicFrameTransformationQuaternion(
+                            bankAngle ) * startLocation;
+
+            // Check whether transformed vectors match within tolerances.
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    transformedLocationQuat, expectedLocation, 1.0e-14 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( transformedLocationMat, expectedLocation, 1.0e-14 );
+
+            // Check whether product of inverse rotations equals unity.
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( inverseRotationProductMat, startLocation, 1.0e-14 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    inverseRotationProductQuat, startLocation, 1.0e-14 );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testAerodynamicToBodyFrameTransformations )
+{
+    // Using declarations.
+    using std::cos;
+    using std::sin;
+    using tudat::unit_conversions::convertDegreesToRadians;
+
+    // Test 10: Test body to airspeed-based aerodynamic frame and inverse transformations.
+    {
+        // Initialize initial location vector.
+        Eigen::Vector3d startLocation;
+        startLocation( 0 ) = 10.0;
+        startLocation( 1 ) = 5.0;
+        startLocation( 2 ) = 2.0;
+
+        // Declare rotation angles.
+        for ( double angleOfAttack = convertDegreesToRadians( -180.0 );
+              angleOfAttack < convertDegreesToRadians( 180.0 );
+              angleOfAttack += convertDegreesToRadians( 30.0 ) )
+        {
+            for ( double angleOfSideslip = convertDegreesToRadians( -90.0 );
+                  angleOfSideslip < convertDegreesToRadians( 90.0 );
+                  angleOfSideslip += convertDegreesToRadians( 30.0 ) )
+            {
+                // Declare the expected location of the point in the AA-frame.
+                // (per Mooij 1997).
+                Eigen::Vector3d expectedLocation;
+                Eigen::Matrix3d rotation;
+                rotation << cos( angleOfAttack ) * cos( angleOfSideslip ),
+                            sin( angleOfSideslip ),
+                            sin( angleOfAttack ) * cos( angleOfSideslip ),
+                            -cos( angleOfAttack ) * sin( angleOfSideslip ),
+                            cos( angleOfSideslip ),
+                            -sin( angleOfAttack ) * sin( angleOfSideslip ),
+                            -sin( angleOfAttack ),
+                            0.0,
+                            cos( angleOfAttack );
+                expectedLocation = rotation * startLocation;
+
+                // Compute location of the point in the AA-frame using the tested function.
+                Eigen::Vector3d transformedLocationQuat =
+                        reference_frames::
+                        getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
+                                angleOfAttack, angleOfSideslip ) * startLocation;
+                Eigen::Vector3d transformedLocationMat =
+                        reference_frames::
+                        getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix(
+                                angleOfAttack, angleOfSideslip ) * startLocation;
+
+                // Compute product of inverse rotations
+                Eigen::Vector3d inverseRotationProductMat =
+                        reference_frames::
+                        getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
+                                angleOfAttack, angleOfSideslip ) *
+                        reference_frames::
+                        getBodyToAirspeedBasedAerodynamicFrameTransformationMatrix(
+                                angleOfAttack, angleOfSideslip ) * startLocation;
+                Eigen::Vector3d inverseRotationProductQuat =
+                        reference_frames::
+                        getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
+                                angleOfAttack, angleOfSideslip ) *
+                        reference_frames::
+                        getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
+                                angleOfAttack, angleOfSideslip ) * startLocation;
+
+                // Check whether transformed vectors match within tolerances.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        transformedLocationQuat, expectedLocation, 1.0e-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        transformedLocationMat, expectedLocation, 1.0e-14 );
+
+                // Check whether product of inverse rotations equals unity.
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        inverseRotationProductMat, startLocation, 1.0e-14 );
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        inverseRotationProductQuat, startLocation, 1.0e-14 );
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
-} //namespace unit_tests
-} //namespace tudat
-
+} // namespace unit_tests
+} // namespace tudat
