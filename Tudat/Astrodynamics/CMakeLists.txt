@@ -28,6 +28,7 @@
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #      120202    K. Kumar          Removed astrodynamicsFunctions.h/.cpp and unit tests.
+ #      121123    D. Dirkx          Added ElectroMagnetism sub-directory.
  #
  #    References
  #
@@ -37,6 +38,7 @@
 # Define the main sub-directories.
 set(AERODYNAMICSDIR "${ASTRODYNAMICSDIR}/Aerodynamics")
 set(BASICASTRODYNAMICSDIR "${ASTRODYNAMICSDIR}/BasicAstrodynamics")
+set(ELECTROMAGNETISMDIR "${ASTRODYNAMICSDIR}/ElectroMagnetism")
 set(EPHEMERIDESDIR "${ASTRODYNAMICSDIR}/Ephemerides")
 set(GRAVITATIONDIR "${ASTRODYNAMICSDIR}/Gravitation")
 set(MISSIONSEGMENTSDIR "${ASTRODYNAMICSDIR}/MissionSegments")
@@ -46,6 +48,7 @@ set(STATEDERIVATIVEMODELSDIR "${ASTRODYNAMICSDIR}/StateDerivativeModels")
 # Add subdirectories.
 add_subdirectory("${SRCROOT}${AERODYNAMICSDIR}")
 add_subdirectory("${SRCROOT}${BASICASTRODYNAMICSDIR}")
+add_subdirectory("${SRCROOT}${ELECTROMAGNETISMDIR}")
 add_subdirectory("${SRCROOT}${EPHEMERIDESDIR}")
 add_subdirectory("${SRCROOT}${GRAVITATIONDIR}")
 add_subdirectory("${SRCROOT}${MISSIONSEGMENTSDIR}")
@@ -55,6 +58,7 @@ add_subdirectory("${SRCROOT}${STATEDERIVATIVEMODELSDIR}")
 # Get target properties for static libraries.
 get_target_property(AERODYNAMICSSOURCES tudat_aerodynamics SOURCES)
 get_target_property(BASICASTRODYNAMICSSOURCES tudat_basic_astrodynamics SOURCES)
+get_target_property(ELECTROMAGNETISMSOURCES tudat_electro_magnetism SOURCES)
 get_target_property(EPHEMERIDESSOURCES tudat_ephemerides SOURCES)
 get_target_property(GRAVITATIONSOURCES tudat_gravitation SOURCES)
 get_target_property(MISSIONSEGMENTSSOURCES tudat_mission_segments SOURCES)
