@@ -32,6 +32,7 @@
  *                                  Kepler vector.
  *      130301    R.C.A. Boon       Minor textual changes.
  *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d.
+ *      131212    S. Billemont      Fixed pass-by-reference error in isOrbitRetrograde()-function.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -83,7 +84,7 @@ bool isOrbitRetrograde( const double inclination );
  * \param keplerElements Vector of keplerian elements.
  * \return true if orbit is retrograde, false if prograde.
  */
-bool isOrbitRetrograde( const tudat::basic_mathematics::Vector6d keplerElements );
+bool isOrbitRetrograde( const tudat::basic_mathematics::Vector6d& keplerElements );
 
 //! Compute the shadow function.
 /*!
