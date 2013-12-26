@@ -36,6 +36,7 @@
  *      130301    R.C.A. Boon       Minor textual changes, changed mathematics::PI to
  *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d
  *                                  basic_mathematics::mathematical_constants::PI.
+ *      131212    S. Billemont      Fixed pass-by-reference error in isOrbitRetrograde()-function.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -86,7 +87,7 @@ bool isOrbitRetrograde( const double inclination )
 }
 
 //! Compute whether an orbit is retrograde based on Keplerian state.
-bool isOrbitRetrograde( const tudat::basic_mathematics::Vector6d keplerElements )
+bool isOrbitRetrograde( const tudat::basic_mathematics::Vector6d& keplerElements )
 {
     // Get inclination from vector and call overloaded function.
     return isOrbitRetrograde(
