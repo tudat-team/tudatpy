@@ -26,10 +26,25 @@
  *      YYMMDD    Author            Comment
  *                D. Dirkx          File created.
  *      121027    A. Ronse          Adapted for addition to Tudat.
+ *      131227    K. Kumar          Added note about spurious warning in older GCC versions.
  *
  *    References
+ *     Stackoverflow. C++ GCC4.4 warning: array subscript is above array bounds, 2009,
+ *         http://stackoverflow.com/questions/
+ *             1168525/c-gcc4-4-warning-array-subscript-is-above-array-bounds,
+ *         last accessed: 27th December, 2013.
+ *     GCC Mailing List. Re: How to fix 'array subscript is above array bounds' ?, 2012,
+ *         http://gcc.gnu.org/ml/gcc-help/2012-04/msg00047.html, last accessed: 27th December,
+ *         2013.
  *
  *    Notes
+ *     Under older GCC-based compilers (4.3 and 4.4 series), it is known that this file will
+ *     generate a spurious warning stating "array subscript is above array bounds". This warning
+ *     can be safely ignored. It is recommended that you working with a GCC 4.5+ compiler, since
+ *     the problem has been fixed in all versions that postdate 4.5. This warning has specifically
+ *     been noted when compiling using the MinGW GCC 4.4.0 compiler under MS Windows. For more
+ *     information on the nature of this warning, please take a look at Stackoverflow (2009) and
+ *     GCC Mailing List (2012).
  *
  */
 
