@@ -39,6 +39,7 @@
  *      130116    E. Heeren         Minor changes to comments.
  *      130120    K. Kumar          Added shared-pointer typedef.
  *      130123    K. Kumar          Added note about near-parabolic cases.
+ *      140110    E. Brandon        Fixed Doxygen comments.
  *
  *    References
  *      Regarding method in general:
@@ -95,8 +96,8 @@ public:
      * be given.
      * \param anEccentricity Eccentricity of the orbit [-].
      * \param aMeanAnomaly Mean anomaly to convert to eccentric anomaly [rad].
-     * \param useDefaultInitialGuess Boolean specifying whether to use default initial guess [-].
-     * \param userSpecifiedInitialGuess Initial guess for rootfinder [rad].
+     * \param useDefaultInitialGuess_ Boolean specifying whether to use default initial guess [-].
+     * \param userSpecifiedInitialGuess_ Initial guess for rootfinder [rad].
      * \param aRootFinder Shared-pointer to the rootfinder that is to be used. Default is
      *          Newton-Raphson using 1000 iterations as maximum and 1.0e-13 absolute X-tolerance.
      *          Higher precision may invoke machine precision problems for some values.
