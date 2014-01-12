@@ -137,11 +137,11 @@ inline boost::shared_ptr< T > getFieldPointer( ParsedDataLineMapPtr data, FieldT
  * This return a new data vector that contains data maps only with the name
  * FieldType and the epoch FieldType.
  *
- * \param data     Data vector to be checked for all the requested FieldTypes.
- * \param nrFields Number of field that each entry must contain
- * \param ...      Fieldtypes that each entry must contain.
- * \return newdatavector    A copy of the data vector with only the entries that contain the
- *                          passed FieldTypes.
+ * \param datavector Data vector to be checked for all the requested FieldTypes.
+ * \param nrFields   Number of field that each entry must contain
+ * \param ...        Fieldtypes that each entry must contain.
+ * \return newdatavector A copy of the data vector with only the entries that contain the
+ *                       passed FieldTypes.
  */
 ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, ... );
 
@@ -166,10 +166,10 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
  * error: cannot receive objects of non-trivially-copyable type 'boost::regex {aka struct
  * boost::basic_regex<char, boost::regex_traits<char> >}' through '...';
  *
- * \param data      Data vector to be checked for all the requested FieldTypes.
- * \param nrFields  Number of field that each entry must contain.
- * \param ...       List of FieltType and Regex (char*) entries that must match to be addmited
- *                  in the filtered vector.
+ * \param datavector Data vector to be checked for all the requested FieldTypes.
+ * \param nrFields   Number of field that each entry must contain.
+ * \param ...        List of FieltType and Regex (char*) entries that must match to be addmited
+ *                   in the filtered vector.
  * \return newdatavector    A copy of the data vector with only the entries that contain the
  *                          passed FieldTypes.
  */

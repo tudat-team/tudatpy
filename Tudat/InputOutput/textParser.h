@@ -27,6 +27,7 @@
  *      111103    S. Billemont      File created.
  *      120326    D. Dirkx          Code checked, minor layout changes.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      131221    K. Kumar          Fixed Doxygen comments.
  *
  *    References
  *
@@ -87,6 +88,7 @@ public:
     //! Implementation of parse for strings.
     /*!
      * \param string String that is to be parsed.
+     * \return Parsed line data, stored in a ParsedDataVectorPtr object.
      * \see Parser::parse(std::string& string).
      */
     parsed_data_vector_utilities::ParsedDataVectorPtr parse( std::string& string );
@@ -94,6 +96,7 @@ public:
     //! Implementation of parse for an istream.
     /*!
      * \param stream Stream that is to be parsed.
+     * \return Parsed line data, stored in a ParsedDataVectorPtr object.
      * \see Parser::parse(std::istream& stream).
      */
     parsed_data_vector_utilities::ParsedDataVectorPtr parse( std::istream& stream );

@@ -27,6 +27,7 @@
  *      111103    S. Billemont      File created.
  *      120326    D. Dirkx          Code checked, minor layout changes.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      131221    K. Kumar          Fixed missing Doxygen comments.
  *
  *    References
  *
@@ -46,6 +47,13 @@ namespace tudat
 namespace input_output
 {
 
+//! Field transform base class.
+/*!
+ * This abstract class belongs to the parser-extractor architecture implemented in Tudat. This base
+ * class can be used to derive specific transformation classes that take strings and return
+ * shared-pointers to transformed strings.
+ * \sa Extractor, Parser
+ */
 class FieldTransform
 {
 public:
@@ -57,6 +65,7 @@ public:
     /*! 
      * Returns a transformed string.
      * \param input Input string.
+     * \return Shared-pointer to transformed string.
      */
     virtual boost::shared_ptr< std::string > transform( const std::string& input ) = 0;
 

@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      111103    S. Billemont      File created.
  *      120521    T. Secretin       Layout changes.
+ *      131221    K. Kumar          Fixed Doxygen comments.
  *
  *    References
  *
@@ -50,29 +51,39 @@ namespace tudat
 namespace input_output
 {
 
+//! Extractor base class.
+/*!
+ * This abstract class belongs to the parser-extractor architecture implemented in Tudat. This base
+ * class can be used to derive specific extractors that take data in the form of a
+ * ParsedDataLineMapPtr object and return extracted values.
+ * \tparam T Generic-type returned by extract() function.
+ * \sa ParsedDataLineMapPtr, Parser
+ */
 template < class T >
 class Extractor
 {
 public:
 
     //! Default destructor.
-    /*!
-     * Default destructor.
-     */
     virtual ~Extractor( ) { }
 
     //! Extract function.
     /*!
      * Extracts parsed data into a given data type and returns a shared pointer to it.
+     * \param data Raw (parsed) data to extract values from.
+     * \return Extracted value.
      */
     virtual boost::shared_ptr< T > extract(
-            tudat::input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr data ) = 0;
+        parsed_data_vector_utilities::ParsedDataLineMapPtr data ) = 0;
 
 protected:
 
     //! Short-hand notations.
+    //! Shortcut to field value shared-pointer.
     typedef parsed_data_vector_utilities::FieldValuePtr FieldValuePtr;
+    //! Shortcut to parsed data line map shared-pointer.
     typedef parsed_data_vector_utilities::ParsedDataLineMapPtr ParsedDataLineMapPtr;
+    //! Shortcut to parsed data vector shared-pointer.
     typedef parsed_data_vector_utilities::ParsedDataVectorPtr ParsedDataVectorPtr;
 
     //! Check if the given data map contains all the passed FieldTypes. Returns false on fail.
@@ -112,7 +123,7 @@ protected:
         }
 
         // Clean up the system stack.
-        va_end ( listOfArguments );
+        va_end( listOfArguments );
 
         // All field types are present, return true.
         return true;

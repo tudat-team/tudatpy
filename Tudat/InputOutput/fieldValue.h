@@ -29,6 +29,7 @@
  *      120326    D. Dirkx          Code checked, minor layout changes.
  *      130121    K. Kumar          Added shared-ptr typedef.
  *      130301    S. Billemont      Update FieldValue definition.
+ *      131221    K. Kumar          Fixed Doxygen comments.
  *
  *    References
  *
@@ -59,8 +60,11 @@ public:
 
     //! Create a FieldValue containing type, string content and transformation of field.
     /*!
-     * Create a FieldValue which contains the type, the content as a string
-     * and unit transformation of the field.
+     * Create a FieldValue which contains the type, the content as a string and unit transformation
+     * of the field.
+     * \param type Field type.
+     * \param field Field data.
+     * \param transformer Transformation to apply to field data.
      */
     FieldValue( const FieldType& type, const std::string& field,
                 const boost::shared_ptr< FieldTransform > transformer
