@@ -27,6 +27,7 @@
  *      120716    A. Ronse          File created.
  *      120718    D. Dirkx          Splitted up functions into Coriolis, centripetal and Euler.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140111    S. Hirsh          Fixed Doxygen comments.
  *
  *    References
  *      J.S. Torok, Analytical Mechanics, Wiley-Interscience, 2000.
@@ -174,19 +175,19 @@ public:
     //! Class constructor.
     /*!
      * Constructor for apparent acceleration model.
-     * \param accelerationOfNonInertialReferenceFrame Pointer to a function returning
+     * \param accelerationOfNonInertialReferenceFrameFunction Pointer to a function returning
      *         the acceleration vector of the non-intertial reference frame w.r.t. an
      *         inertial frame of reference.
-     * \param angularVelocityOfNonInertialReferenceFrame Pointer to a function returning
+     * \param angularVelocityOfNonInertialReferenceFrameFunction Pointer to a function returning
      *         the angular velocity vector of the non-intertial reference frame w.r.t. an
      *         inertial frame of reference.
-     * \param angularAccelerationOfNonInertialReferenceFrame Pointer to a function returning
-     *         the angular acceleration vector of the non-inertial frame with respect to an
-     *         inertial reference frame.
-     * \param positionOfBodyInNonInertialReferenceFrame Pointer to a function returning
+     * \param angularAccelerationOfNonInertialReferenceFrameFunction Pointer to a function 
+     *         returning the angular acceleration vector of the non-inertial frame with respect to 
+     *         an inertial reference frame.
+     * \param positionOfBodyInNonInertialReferenceFrameFunction Pointer to a function returning
      *         the position vector in the non-inertial frame of reference in which the apparent
      *         acceleration is computed.
-     * \param velocityOfBodyInNonInertialReferenceFrame Pointer to a function returning
+     * \param velocityOfBodyInNonInertialReferenceFrameFunction Pointer to a function returning
      *          the velocity vector in the non-inertial frame of reference in which the apparent
      *          acceleration is computed.
      */
