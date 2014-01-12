@@ -165,9 +165,6 @@ tudat::basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements
  *         cartesianElements( 4 ) = y-velocity coordinate,                                    [m/s]
  *         cartesianElements( 5 ) = z-velocity coordinate.                                    [m/s]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.
- * \param avoidSingularityAtPiInclination Boolean flag to indicate whether the set of equations for
- *          the inclination = PI singular case are to be used. Take note: the same set of equations
- *          is required for conversion back to Cartesian elements to retrieve original state!
  * \return Converted state in modified equinoctial elements. The order of elements is fixed!
  *         modifiedEquinoctialElements( 0 ) = semi-latus rectum,                                [m]
  *         modifiedEquinoctialElements( 1 ) = f-element,                                        [-]

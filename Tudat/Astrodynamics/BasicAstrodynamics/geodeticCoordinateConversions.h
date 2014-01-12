@@ -159,17 +159,17 @@ double calculateGeodeticLatitude( const Eigen::Vector3d cartesianPosition,
                                   const double flattening,
                                   const double tolerance );
 
-//! Calculate geodetic coordinates ( altitude, geodetic latitude, longitude ) of a position vector.
+//! Calculate geodetic coordinates (altitude, geodetic latitude, longitude) of a position vector.
 /*!
- * Calculates the geodetic coordinates ( altitude, geodetic latitude, longitude )
+ * Calculates the geodetic coordinates (altitude, geodetic latitude, longitude)
  * of a position vector. The algorithm that is used is iterative, so that it requires a tolerance
  * (in m) for the difference of associated geodetic position between two iterations.
- * \param cartesianPosition Cartesian position in body-fixed frame where geodetic coordinates are
- * to be determined.
+ * \param cartesianCoordinates Cartesian position in body-fixed frame where geodetic coordinates 
+ *          are to be determined.
  * \param equatorialRadius Equatorial radius of oblate spheroid.
  * \param flattening Flattening of oblate spheroid.
  * \param tolerance Convergence criterion for iterative algorithm that is employed. Represents the
- * required change of position (in m) between two iterations.
+ *          required change of position (in m) between two iterations.
  * \return Geodetic coordinates at requested point.
  */
 Eigen::Vector3d convertCartesianToGeodeticCoordinates( const Eigen::Vector3d cartesianCoordinates,
