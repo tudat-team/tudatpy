@@ -71,7 +71,7 @@ FixedWidthParser::FixedWidthParser( int numberOfFields, ... ) : TextParser( fals
 }
 
 //! Parses one line of text.
-void FixedWidthParser::parseLine(std::string& line)
+void FixedWidthParser::parseLine( std::string& line )
 {
     using namespace parsed_data_vector_utilities;
 

@@ -33,6 +33,7 @@
  *      110826    J. Leloux         Added functionality for 2-line and 3-line data.
  *      111027    K. Kumar          Modified 2-line and 3-line options using enum.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      131221    K. Kumar          Fixed Doxygen comments.
  *
  *    References
  *      Leloux, J. Filtering Techniques for Orbital Debris Conjunction Analysis
@@ -110,9 +111,6 @@ public:
     { }
 
     //! Default destructor.
-    /*!
-     * Default destructor.
-     */
     virtual ~TwoLineElementsTextFileReader( ) { if ( dataFile_.is_open( ) ) closeFile( ); }
 
     //! Set absolute directory path.
@@ -193,9 +191,6 @@ public:
     }
 
     //! Close data file.
-    /*!
-     * Closes data file.
-     */
     void closeFile( ) { dataFile_.close( ); }
 
     //! Get vector container of data from file.
@@ -212,10 +207,7 @@ public:
      */
     LineBasedStringDataMap getContainerOfHeaderData( ) { return containerOfHeaderDataFromFile_; }
 
-    //! Read and store data.
-    /*!
-     * Reads and stores data from data file.
-     */
+    //! Read and store data from data file.
     void readAndStoreData( );
 
     //! Read and store data.
@@ -238,15 +230,11 @@ public:
 
 
     //! Line-number types for TLE input data.
-    /*!
-     * Line-number types for TLE input data.
-     */
     enum LineNumberTypesForTwoLineElementInputData { twoLineType, threeLineType };
 
 
     //! Set current year.
     /*!
-     * Sets the current year.
      * \param currentYear Current year.
      */
     void setCurrentYear( const unsigned int& currentYear ) { currentYear_ = currentYear; }
@@ -257,11 +245,10 @@ public:
      * data retrieved from the catalog file and stored in objects.
      * \return TLE data stored in TwoLineElementData objects.
      */
-    std::vector< TwoLineElementData >& getTwoLineElementData( ) { return twoLineElementData_; }
+    std::vector< TwoLineElementData > getTwoLineElementData( ) { return twoLineElementData_; }
 
     //! Get number of objects.
     /*!
-     * Returns number of objects in TLE data catalog file.
      * \return Number of objects in TLE data catalog file.
      */
     unsigned int& getNumberOfObjects( ) { return numberOfObjects_; }
@@ -287,8 +274,9 @@ public:
 
     //! Set line number type for TLE input data.
     /*!
-      * Sets the line number type for TLE input data. This can be either 2-line or 3-line.
-      */
+     * Sets the line number type for TLE input data. This can be either 2-line or 3-line.
+     * \param lineNumberType Line number type: 2-line or 3-line.
+     */
     void setLineNumberTypeForTwoLineElementInputData(
         LineNumberTypesForTwoLineElementInputData lineNumberType )
     {
@@ -299,63 +287,33 @@ public:
 protected:
 
     //! Line counter.
-    /*!
-     * Line counter.
-     */
     unsigned int lineCounter_;
 
     //! Number of header lines.
-    /*!
-     * Number of lines for file header.
-     */
     unsigned int numberOfHeaderLines_;
 
     //! Data file stream.
-    /*!
-     * Data file stream.
-     */
     std::ifstream dataFile_;
 
     //! File name.
-    /*!
-     * File name for data file.
-     */
     std::string fileName_;
 
     //! String of data.
-    /*!
-     * String of data.
-     */
     std::string stringOfData_;
 
     //! Absolute path to data file.
-    /*!
-     * Absolute path to data file.
-     */
     std::string absoluteFilePath_;
 
-    //! Absolute path to directory.
-    /*!
-     * Absolute path to directory containing data file.
-     */
+    //! Absolute path to directory containing data file.
     std::string absoluteDirectoryPath_;
 
-    //! Relative path to directory.
-    /*!
-     * Relative path to directory containing data file.
-     */
+    //! Relative path to directory containing data file.
     std::string relativeDirectoryPath_;
 
-    //! Starting character.
-    /*!
-     * Starting character used by the skipLinesStartingWithCharacter( ) function.
-     */
+    //! Starting character used by the skipLinesStartingWithCharacter( ) function.
     std::string startingCharacter_;
 
-    //! Skip keyword.
-    /*!
-     * Keyword used to skip a line.
-     */
+    //! Keyword used to skip a line.
     std::string skipKeyword_;
 
     //! Map container of data from file.
@@ -374,31 +332,21 @@ protected:
      */
     LineBasedStringDataMap containerOfHeaderDataFromFile_;
 
-
 private:
 
     //! Current year.
-    /*!
-     * Current year.
-     */
     unsigned int currentYear_;
 
-    //! Number of object in input file.
-    /*!
-     * Number of objects in input file, linecounter divided by 3.
-     */
+    //! Number of object in input file, linecounter divided by 3.
     unsigned int numberOfObjects_;
 
-    //! Number of lines per TLE datum.
-    /*!
-     * Number of lines per TLE datum. (Can be 2 or 3).
-     */
+    //! Number of lines per TLE datum (can be 2 or 3).
     unsigned int numberOfLinesPerTwoLineElementDatum_;
 
     //! Vector of TwoLineElementData objects.
     /*!
-     * Vector of TwoLineElementData objects, used to store multiple objects
-     * with their TLE data from catalog file.
+     * Vector of TwoLineElementData objects, used to store multiple objects with their TLE data
+     * from catalog file.
      */
     std::vector< TwoLineElementData > twoLineElementData_;
 };

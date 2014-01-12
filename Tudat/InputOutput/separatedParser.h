@@ -27,6 +27,7 @@
  *      111103    S. Billemont      File created.
  *      120706    D.J. Gondelach    Code check.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      131221    K. Kumar          Fixed missing Doxygen comments.
  *
  *    References
  *
@@ -49,13 +50,20 @@ namespace tudat
 namespace input_output
 {
 
+//! Separated parser class.
+/*!
+ * The separated parsed class can be used to parse a raw line of data into a series of values,
+ * separated by a specified separator string, e.g., a space, a comma, a tab etc.
+ * This class inherits from the TextParser abstract base class.
+ * \sa TextParser
+ */
 class SeparatedParser : public TextParser
 {
 public:
 
     //! Create a parser that parses based on a specified separator and field type list.
     /*!
-     * \param separator String of symbol or text which is used as separator.
+     * \param separator String representation of symbol or text which is used as separator.
      * \param numberOfFields Number of fields to parse.
      * Arguments are the field types:
      * e.g.
@@ -71,7 +79,8 @@ public:
 
     //! Set unit transformation map.
     /*!
-     * \param unitTransformationMap Map providing field transforms for any or all of the FieldTypes.
+     * \param unitTransformationMap Map providing field transforms for any or all of the
+     *          FieldTypes.
      */
     void setUnitTransformationMap(
             std::map< FieldType, boost::shared_ptr< FieldTransform > > unitTransformationMap )
@@ -83,7 +92,8 @@ protected:
 
     //! Parses one line of text.
     /*!
-     *  Parses one line of text by dividing the line in fields using the specified separator.
+     * Parses one line of text by dividing the line in fields using the specified separator.
+     * \param line Raw line of data.
      */
     void parseLine( std::string& line );
 

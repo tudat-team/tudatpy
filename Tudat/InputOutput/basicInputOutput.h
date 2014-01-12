@@ -269,7 +269,7 @@ void writeDataMapToTextFile(
 //! Write data map to text file.
 /*!
  * Writes data stored in a map to text file, using default KeyType-precision and
- * ValueType-precision (digits10 from <limits> standard library), output directory
+ * ValueType-precision (digits10 from "limits" standard library), output directory
  * (Tudat root-path), and delimiter (space).
  * Do not use this function for Eigen types. Instead, use the function that accepts a map as input
  * parameter below, or the function with the full argument list. Otherwise, your input will be
@@ -297,7 +297,7 @@ void writeDataMapToTextFile( InputIterator first, InputIterator last,
 //! Write data map to text file.
 /*!
  * Writes data stored in a map to text file, using default KeyType-precision and
- * ValueType-precision (digits10 from <limits> standard library), output directory
+ * ValueType-precision (digits10 from "limits" standard library), output directory
  * (Tudat root-path), and delimiter (space).
  * \tparam KeyType Data type for map key.
  * \tparam ValueType Data type for map value.
@@ -320,7 +320,7 @@ void writeDataMapToTextFile( const std::map< KeyType, ValueType >& dataMap,
 //! Write data map to text file.
 /*!
  * Writes Eigen data stored in a map to text file, using default KeyType-precision and
- * ValueType-precision (digits10 from <limits> standard library), output directory
+ * ValueType-precision (digits10 from "limits" standard library), output directory
  * (Tudat root-path), and delimiter (space).
  * \tparam KeyType Data type for map key.
  * \tparam ValueType Data type for Eigen::Matrix, used as map value.

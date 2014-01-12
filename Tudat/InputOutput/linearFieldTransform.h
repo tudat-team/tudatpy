@@ -27,6 +27,7 @@
  *      111103    S. Billemont      File created.
  *      120906    T. Secretin       Reviewed code. Moved transform implementation to .cpp file.
  *      130121    K. Kumar          Added shared-pointer typedef.
+ *      131221    K. Kumar          Fixed Doxygen comments.
  *
  *    References
  *
@@ -44,6 +45,13 @@ namespace tudat
 namespace input_output
 {
 
+//! Linear field transform class.
+/*!
+ * This class can be used to linearly transform an input field (string). The linear transformation
+ * is of the form: result = slope * input + intercept.
+ * This class is derived from the FieldTransform abstract base class.
+ * \sa FieldTransform
+ */
 class LinearFieldTransform : public FieldTransform
 {
 public:
@@ -51,9 +59,9 @@ public:
     //! Constructor of the linear field transform.
     /*!
      * Constructor of the linear field transformation. Linear transformation is of the form:
-     * \f$y=a*x+b\f$, where a is the slope and b is the intercept.
-     * \param a Slope of the linear field transform.
-     * \param b Intercept of the linear field transform.
+     * \f$y=a*x+b\f$, where \f$a\f$ is the slope and b is the intercept.
+     * \param aSlope Slope of the linear field transform.
+     * \param anIntercept Intercept of the linear field transform.
      */
     LinearFieldTransform( const double aSlope, const double anIntercept )
         : slope( aSlope ), intercept( anIntercept )

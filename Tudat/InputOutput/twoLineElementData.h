@@ -34,6 +34,7 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      110826    J. Leloux         Added TLE string vector container.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      131221    K. Kumar          Fixed Doxygen comments.
  *
  *    References
  *      Literature research including information on TLE's:
@@ -312,10 +313,13 @@ public:
      */
     std::vector< unsigned int > lineNumbers;
 
-    //! Overloaded ostream to print class information.
+    //! Overload ostream to print class information.
     /*!
-     *  Overloaded ostream to print class information; prints all
-     *  converted TLE variables obtained from TLE.
+     * Overloads ostream to print class information; prints all converted TLE variables obtained
+     * from TLE.
+     * \param stream Stream to print class data to.
+     * \param twoLineElementData TLE data to print.
+     * \return Stream handler.
      */
     friend std::ostream& operator<<( std::ostream& stream,
                                      TwoLineElementData& twoLineElementData );

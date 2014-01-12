@@ -27,6 +27,7 @@
  *      111209    D.J. Gondelach    File created.
  *      120718    A. Ronse          Code check. Implemented optional trim.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      131221    K. Kumar          Fixed Doxygen comments.
  *
  *    References
  *
@@ -44,13 +45,20 @@ namespace tudat
 namespace input_output
 {
 
+//! Fixed-width parser.
+/*!
+ * This class can be used to parse a raw line of data into a series of fields, based on a fixed
+ * field width.
+ * This class inherits from the TextParser abstract base class.
+ * \sa TextParser
+ */
 class FixedWidthParser : public TextParser
 {
 public:
 
     //! Create a parser that parses based on specified field widths and field type list.
     /*!
-     * \param numberOfFields  number of fields to parse
+     * \param numberOfFields Number of fields to parse.
      * Arguments are the field types:
      * e.g.
      *     FixedWidthParser(4, fieldtypes::ID, fieldtypes::X, fieldtypes::Y, fieldtypes::Z);
@@ -74,8 +82,9 @@ protected:
 
     //! Parses one line of text.
     /*!
-     *  Parses one line of text by dividing the line in fields using specified field widths.
-     *  Any white space at the start or end of a field are trimmed.
+     * Parses one line of text by dividing the line in fields using specified field widths.
+     * Any white space at the start or end of a field are trimmed.
+     * \param line Raw line of data.
      */
     void parseLine( std::string& line );
 
@@ -91,7 +100,7 @@ private:
     std::vector< int > sizeList;
 
     //! Boolean: true = trim whitespace off fields; false = no trim.
-    bool                    doTrim;
+    bool doTrim;
 
     //! Unit transformation map.
     std::map< FieldType, FieldTransformPointer > unitTransformationMap_;
