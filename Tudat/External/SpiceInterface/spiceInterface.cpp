@@ -87,7 +87,7 @@ Vector6d getBodyCartesianStateAtEpoch(
     Vector6d cartesianStateVector;
     for ( unsigned int i = 0; i < 6 ; i++ )
     {
-        cartesianStateVector[ i ] = stateAtEpoch[ i ];
+        cartesianStateVector( i ) = stateAtEpoch[ i ];
     }
 
     // Convert from km(/s) to m(/s).
@@ -115,7 +115,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
     Eigen::Vector3d cartesianPositionVector;
     for ( unsigned int i = 0; i < 3 ; i++ )
     {
-        cartesianPositionVector[ i ] = positionAtEpoch[ i ];
+        cartesianPositionVector( i ) = positionAtEpoch[ i ];
     }
 
     // Convert from km to m.
