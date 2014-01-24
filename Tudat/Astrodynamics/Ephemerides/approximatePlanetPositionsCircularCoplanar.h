@@ -29,6 +29,7 @@
  *      120322    D. Dirkx          Modified to new Ephemeris interfaces.
  *      130121    K. Kumar          Updated VectorXd to Vector6d; added shared-ptr typedef.
  *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
+ *      140115    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *      Standish, E.M. Keplerian Elements for Approximate Positions of the Major Planets,
@@ -67,7 +68,13 @@ public:
 
     //! Default constructor.
     /*!
-     * Default constructor.
+     * Default constructor that initializes the class from the body for which the position is
+     * approximated and the gravitational parameter of the Sun (default 1.32712440018e20). Other
+     * members are initialized to default values.
+     *
+     * \param bodyWithEphemerisData The body for which the position is approximated.
+     * \param aSunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
+     * \sa BodiesWithEphemerisData, ApproximatePlanetPositionsBase.
      */
     ApproximatePlanetPositionsCircularCoplanar(
             BodiesWithEphemerisData bodyWithEphemerisData,
