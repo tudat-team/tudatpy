@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -50,6 +50,9 @@
  *      120514    P. Musegaas       Fixed small error.
  *      120926    E. Dekens         Added spherical gradient to Cartesian conversion.
  *      120928    M. Ganeff         Made const-correct and.
+ *      131023    T. Roegiers       Added unit tests for convertSphericalToCartesianState and for
+ *                                  convertCartesianToSphericalState.
+ *      140114    E. Brandon        Minor changes during code check.
  *
  *    References
  *      Mathworks. gravitysphericalharmonic, implement spherical harmonic representation of
@@ -319,7 +322,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
     using basic_mathematics::coordinate_conversions::thetaCylindricalCoordinateIndex;
     using basic_mathematics::coordinate_conversions::zCylindricalCoordinateIndex;
     using basic_mathematics::coordinate_conversions::rDotCylindricalCoordinateIndex;
-    using basic_mathematics::coordinate_conversions::thetaDotCylindricalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::vThetaCylindricalCoordinateIndex;
     using basic_mathematics::coordinate_conversions::zDotCylindricalCoordinateIndex;
 
     // Test 1: test conversion of ( 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).
@@ -354,7 +357,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToCylindricalPositionAndVelocityCoordinateCon
                                     convertedCylindricalState( rDotCylindricalCoordinateIndex ),
                                     std::numeric_limits< double >::epsilon( ) );
 
-        BOOST_CHECK_SMALL( convertedCylindricalState( thetaDotCylindricalCoordinateIndex ),
+        BOOST_CHECK_SMALL( convertedCylindricalState( vThetaCylindricalCoordinateIndex ),
                            std::numeric_limits< double >::epsilon( ) );
 
         BOOST_CHECK_CLOSE_FRACTION( expectedCylindricalState( zDotCylindricalCoordinateIndex ),
@@ -441,6 +444,243 @@ BOOST_AUTO_TEST_CASE( test_SphericalToCartesianGradientConversion )
 
     // Check if the computed Cartesian gradient matches the expected value.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianGradient, cartesianGradient, 1e-15 );
+}
+
+// Test conversion from Cartesian (x, y, z, xdot, ydot, zdot) to Spherical (radius, azimuth,
+// elevation, radial velocity, azimuthal velocity, elevational velocity) state.
+BOOST_AUTO_TEST_CASE( testCartesianToSphericalStateConversion )
+{
+    using basic_mathematics::mathematical_constants::PI;
+    using basic_mathematics::coordinate_conversions::radiusSphericalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::azimuthSphericalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::elevationSphericalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::radialVelocitySphericalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::azimuthVelocitySphericalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::elevationVelocitySphericalCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::convertCartesianToSphericalState;
+    using std::sqrt;
+
+    // Test 1: test conversion of ( 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).
+    {
+        // Set Cartesian state (x, y , z, xdot, ydot, zdot).
+        const Eigen::VectorXd cartesianState
+                = ( Eigen::VectorXd( 6 ) << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
+
+        // Set expected spherical state (r, theta, phi, Vr, Vtheta, Vphi).
+        const Eigen::VectorXd expectedSphericalState
+                = ( Eigen::VectorXd( 6 ) << 1.0, 0.0, PI / 2.0, -9.0, 6.0, -5.0 ).finished( );
+
+        // Convert Cartesian to spherical state.
+        const Eigen::VectorXd convertedSphericalState
+                = convertCartesianToSphericalState( cartesianState );
+
+        // Check that converted spherical state matches expected spherical state.
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState( radiusSphericalCoordinateIndex ),
+                                    convertedSphericalState( radiusSphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_SMALL( convertedSphericalState( azimuthSphericalCoordinateIndex ),
+                           std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState( elevationSphericalCoordinateIndex ),
+                                    convertedSphericalState( elevationSphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState(
+                                        radialVelocitySphericalCoordinateIndex ),
+                                    convertedSphericalState(
+                                        radialVelocitySphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState(
+                                        azimuthVelocitySphericalCoordinateIndex ),
+                                    convertedSphericalState(
+                                        azimuthVelocitySphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState(
+                                        elevationVelocitySphericalCoordinateIndex ),
+                                    convertedSphericalState(
+                                        elevationVelocitySphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+    // Test 2: test conversion of ( 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).
+    {
+        // Set Cartesian state (x, y , z, xdot, ydot, zdot).
+        const Eigen::VectorXd cartesianState
+                = ( Eigen::VectorXd( 6 ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
+
+        // Set expected spherical state (r, theta, phi, Vr, Vtheta, Vphi).
+        const Eigen::VectorXd expectedSphericalState
+                = ( Eigen::VectorXd( 6 ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
+
+        // Convert Cartesian to spherical state ( r, theta, phi, Vr, Vtheta, Vphi).
+        const Eigen::VectorXd convertedSphericalState
+                = convertCartesianToSphericalState( cartesianState );
+
+        // Check that converted spherical state matches expected spherical state.
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState( radiusSphericalCoordinateIndex ),
+                                    convertedSphericalState( radiusSphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_SMALL( convertedSphericalState( azimuthSphericalCoordinateIndex ),
+                           std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_SMALL( convertedSphericalState( elevationSphericalCoordinateIndex ),
+                           std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState(
+                                        radialVelocitySphericalCoordinateIndex ),
+                                    convertedSphericalState(
+                                        radialVelocitySphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState(
+                                        azimuthVelocitySphericalCoordinateIndex ),
+                                    convertedSphericalState(
+                                        azimuthVelocitySphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedSphericalState(
+                                        elevationVelocitySphericalCoordinateIndex ),
+                                    convertedSphericalState(
+                                        elevationVelocitySphericalCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+    // Test 3: test conversion of ( -1.0, -1.0, sqrt( 2.0 ), -1.0, 1.0, sqrt( 2.0 ) ).
+    {
+        // Set Cartesian state ( x, y, z, xdot, ydot, zdot).
+        const Eigen::VectorXd cartesianState
+                = ( Eigen::VectorXd( 6 )
+                    << -1.0, -1.0, sqrt( 2.0 ), -1.0, 1.0, sqrt( 2.0 ) ).finished( );
+
+        // Set expected spherical state (r, theta, phi, Vr, Vtheta, Vphi).
+        const Eigen::VectorXd expectedSphericalState
+                = ( Eigen::VectorXd( 6 )
+                    << 2.0, -PI * 3.0 / 4.0, PI / 4.0, 1.0, -sqrt( 2.0 ), 1.0 ).finished( );
+
+        // Convert Cartesian to spherical state (r, theta, phi, Vr, Vtheta, Vphi).
+        const Eigen::VectorXd convertedSphericalState
+                = convertCartesianToSphericalState( cartesianState );
+
+        // Check that converted spherical state matches the expected spherical state.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedSphericalState, convertedSphericalState,
+                                           std::numeric_limits< double >::epsilon( ) );
+    }
+}
+
+// Test conversion from spherical (radius, azimuth, elevation, radial velocity, azimuthal velocity,
+// elevational velocity) to Cartesian state (x, y, z, xdot, ydot, zdot).
+BOOST_AUTO_TEST_CASE( testSphericalToCartesianStateConversion )
+{
+    using basic_mathematics::mathematical_constants::PI;
+    using basic_mathematics::coordinate_conversions::xCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::yCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::zCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::xDotCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::yDotCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::zDotCartesianCoordinateIndex;
+    using basic_mathematics::coordinate_conversions::convertSphericalToCartesianState;
+    using std::sqrt;
+
+    // Test 1: test conversion of ( 1.0, 0.0, pi/2, -9.0, 6.0, -5.0 ).
+    {
+        // Set Spherical state (r, theta, phi, Vr, Vtheta, Vphi).
+        const Eigen::VectorXd sphericalState
+                = ( Eigen::VectorXd( 6 ) << 1.0, 0.0, PI / 2.0, -9.0, 6.0, -5.0 ).finished( );
+
+        // Set expected Cartesian state (x, y, z, xdot, ydot, zdot).
+        const Eigen::VectorXd expectedCartesianState
+                = ( Eigen::VectorXd( 6 ) << 0.0, 0.0, 1.0, 5.0, 6.0, -9.0 ).finished( );
+
+        // Convert spherical to Cartesian state.
+        const Eigen::VectorXd convertedCartesianState
+                = convertSphericalToCartesianState( sphericalState );
+
+        // Check that converted Cartesian state matches expected state.
+        BOOST_CHECK_SMALL( convertedCartesianState( xCartesianCoordinateIndex ),
+                           std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_SMALL( convertedCartesianState( yCartesianCoordinateIndex ),
+                           std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedCartesianState( zCartesianCoordinateIndex ),
+                                    convertedCartesianState( zCartesianCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedCartesianState( xDotCartesianCoordinateIndex ),
+                                    convertedCartesianState( xDotCartesianCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedCartesianState( yDotCartesianCoordinateIndex ),
+                                    convertedCartesianState( yDotCartesianCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedCartesianState( zDotCartesianCoordinateIndex ),
+                                    convertedCartesianState( zDotCartesianCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+    // Test 2: test conversion of ( 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).
+    {
+        // Set spherical state (r, theta, phi, Vr, Vtheta, Vphi).
+        const Eigen::VectorXd sphericalState
+                = ( Eigen::VectorXd( 6 ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
+
+        // Set expected Cartesian state ( x, y, z, xdot, ydot, zdot).
+        const Eigen::VectorXd expectedCartesianState
+                = ( Eigen::VectorXd( 6 ) << 2.0, 0.0, 0.0, -4.0, 6.0, -6.0 ).finished( );
+
+        // Convert spherical to Cartesian state.
+        const Eigen::VectorXd convertedCartesianState
+                = convertSphericalToCartesianState( sphericalState );
+
+        // Check that converted Cartesian state matches expected state.
+        BOOST_CHECK_CLOSE_FRACTION( expectedCartesianState( xCartesianCoordinateIndex ),
+                                    convertedCartesianState( xCartesianCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_SMALL( convertedCartesianState( yCartesianCoordinateIndex ),
+                           std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_SMALL( convertedCartesianState( zCartesianCoordinateIndex ),
+                           std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedCartesianState( xDotCartesianCoordinateIndex ),
+                                    convertedCartesianState( xDotCartesianCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedCartesianState( yDotCartesianCoordinateIndex ),
+                                    convertedCartesianState( yDotCartesianCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( expectedCartesianState( zDotCartesianCoordinateIndex ),
+                                    convertedCartesianState( zDotCartesianCoordinateIndex ),
+                                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+    // Test 3: test conversion of ( 2.0, -3*pi/4, pi/4, 1.0, -sqrt( 2.0 ), 1.0 ).
+    {
+        // Set spherical state (r, theta, phi, Vr, Vtheta, Vphi).
+        const Eigen::VectorXd sphericalState
+                = ( Eigen::VectorXd( 6 )
+                    << 2.0, -PI * 3.0 / 4.0, PI / 4.0, 1.0, -sqrt( 2.0 ), 1.0 ).finished( );
+
+        // Set expected Cartesian state (x, y, z, xdot, ydot, zdot).
+        const Eigen::VectorXd expectedCartesianState
+                = ( Eigen::VectorXd( 6 )
+                    << -1.0, -1.0, sqrt( 2.0 ), -1.0, 1.0, sqrt( 2.0 ) ).finished( );
+
+        // Convert spherical to Cartesian state.
+        const Eigen::VectorXd convertedCartesianState
+                = convertSphericalToCartesianState( sphericalState );
+
+        // Check that converted Cartesian state matches the expected state.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedCartesianState, convertedCartesianState,
+                                           1.0e-15 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

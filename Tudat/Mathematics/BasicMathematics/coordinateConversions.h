@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -46,10 +46,17 @@
  *      120214    K. Kumar          Branched from old Tudat trunk for new coordinate conversions.
  *      120511    K. Kumar          Added enums for cylindrical and Cartesian coordinates.
  *      120926    E. Dekens         Added spherical gradient to Cartesian conversion.
+ *      131022    T. Roegiers       Added conversion from spherical state to Cartesian state.
+ *                                  Added conversion from Cartesian state to spherical state.
+ *                                  Added enum for spherical coordinates.
+ *      140114    E. Brandon        Minor comment changes during code-check.
+ *      140123    T. Roegiers       Corrected enum for spherical and cylindrical coordinates.
  *
  *    References
- *      Press W.H., et al. Numerical Recipes in C++: The Art of
- *          Scientific Computing. Cambridge University Press, February 2002.
+ *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
+ *          University Press, February 2002.
+ *      Torok, J.S. Analytical Mechanics: with an Introduction to Dynamical Systems, John Wiley and
+ *          Sons, Inc., 2000.
  *      Vallado, D.A. Fundamentals of Astrodynamics and Applications. Microcosm Press, 2001.
  *
  *    Notes
@@ -68,6 +75,22 @@ namespace basic_mathematics
 namespace coordinate_conversions
 {
 
+//! Spherical coordinate indices.
+/*!
+  * Spherical coordinate indices, for position and velocity components. With r the radius, theta
+  * the azimuthal angle, phi the elevational angle. Vr, Vtheta, Vphi are the velocities along the
+  * corresponding base vectors of r, theta, phi.
+  */
+enum SphericalCoordinateIndices
+{
+    radiusSphericalCoordinateIndex,             // r
+    azimuthSphericalCoordinateIndex,            // theta
+    elevationSphericalCoordinateIndex,          // phi
+    radialVelocitySphericalCoordinateIndex,     // Vr
+    azimuthVelocitySphericalCoordinateIndex,    // Vtheta
+    elevationVelocitySphericalCoordinateIndex   // Vphi
+};
+
 //! Cylindrical coordinate indices.
 /*!
  * Cylindrical coordinate vector indices, for position and velocity components.
@@ -78,7 +101,7 @@ enum CylindricalCoordinateIndices
     thetaCylindricalCoordinateIndex,
     zCylindricalCoordinateIndex,
     rDotCylindricalCoordinateIndex,
-    thetaDotCylindricalCoordinateIndex,
+    vThetaCylindricalCoordinateIndex,
     zDotCylindricalCoordinateIndex
 };
 
@@ -108,7 +131,7 @@ enum CartesianCoordinateIndices
  *      z &=& z \\
  * \f}
  * \param radius Cylindrical radial coordinate r.
- * \param azimuthAngle Cylindrical azimuthal coordinate \theta [rad].
+ * \param azimuthAngle Cylindrical azimuthal coordinate \f$ \theta \f$ [rad].
  * \param z Cylindrical height coordinate z.
  * \return Vector of Cartesian coordinates [x,y,z].
  */
@@ -230,6 +253,102 @@ Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianS
 */
 Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
                                                      const Eigen::Vector3d& cartesianCoordinates );
+
+//! Convert spherical to Cartesian state.
+/*!
+  * Converts a spherical state to a Cartesian state. The transformation matrices are computed
+  * according to Torok [2000, pp.10-11].
+  *
+  * NOTE: This function is implemented separately from the other conversions due to a different
+  * definition of the elevation/zenith angle. This should be consolidated in a future update.
+  *
+  * The transformation equations are the following, with \f$ r \f$ the radius (positive from origin
+  * to the point in orbit, in meters), \f$ \theta \f$ the azimuth angle (positive from the x-axis
+  * to the y-axis, in radians) and \f$ \phi \f$ the elevation angle (positive from the xy-plane
+  * to the z-axis, in radians):
+  * \f{eqnarray*}{
+  *     x &=& r * \cos \phi * \cos \theta\\
+  *     y &=& r * \cos \phi * \sin \theta\\
+  *     z &=& r * \sin \phi\\
+  *     CartesianVelocities = T_{cyl2cart}*T_{sph2cyl}*SphericalVelocities
+  * \f}
+  * with
+  * \f{eqnarray*}{
+  *     T_{sph2cyl} = [     \cos\phi    , 0.0   ,    -\sin \phi  ;
+  *                         0.0         , 1.0   ,    0.0         ;
+  *                         \sin\phi    , 0.0   ,    \cos\phi    ]\\
+  *     T_{cyl2cart} = [    \cos\theta  , -\sin\theta   , 0.0   ;
+  *                         \sin\theta  , \cos\theta    , 0.0   ;
+  *                         0.0         , 0.0           , 1.0   ]\\
+  * \f}
+  *
+  * \param sphericalState Vector containing the spherical coordinates and spherical velocities.
+  *        The order is important!
+  *        sphericalState( 0 ) = radius r [m],
+  *        sphericalState( 1 ) = azimuth theta [rad],
+  *        sphericalState( 2 ) = elevation phi [rad],
+  *        sphericalState( 3 ) = radial velocity Vr [m/s],
+  *        sphericalState( 4 ) = azimuthal velocity Vtheta [m/s],
+  *        sphericalState( 5 ) = elevational velocity Vphi [m/s].
+  * \return Vector containing the Cartesian state (both position and velocity, in that order).
+  *         cartesianState( 0 ) = x [m],
+  *         cartesianState( 1 ) = y [m],
+  *         cartesianState( 2 ) = z [m],
+  *         cartesianState( 3 ) = Vx [m/s],
+  *         cartesianState( 4 ) = Vy [m/s],
+  *         cartesianState( 5 ) = Vz [m/s].
+  *
+  * Take care: here the elevation is used, not the zenith angle!
+  */
+Eigen::VectorXd convertSphericalToCartesianState( const Eigen::VectorXd& sphericalState );
+
+//! Convert Cartesian to spherical state.
+/*!
+  * Converts a Cartesian state to a spherical state. The transformation matrices are computed
+  * according to Torok [2000, pp.10-11].
+  *
+  * NOTE: This function is implemented separately from the other conversions due to a different
+  * definition of the elevation/zenith angle. This should be consolidated in a future update.
+  *
+  * The transformation equations are the following, with \f$ r \f$ the radius (positive from origin
+  * to the point in orbit), \f$ \theta \f$ the azimuth angle (positive from the x-axis to the
+  * y-axis) and \f$ \phi \f$ the elevation angle (positive from the xy-plane to the z-axis):
+  * \f{eqnarray*}{
+  *     r &=& \sqrt{ x^{ 2 } + y^{ 2 } + z^{ 2 } } \\
+  *     \phi &=& \arcsin\frac{ z }{ r } \\
+  *     \theta &=& \arctan\frac{ y }{ x } \\
+  *     SphericalVelocities = T_{cyl2sph}*T_{cart2cyl}*CartesianVelocities
+  * \f}
+  * with
+  * \f{eqnarray*}{
+  *     T_{cyl2sph} = [     \cos\phi    , 0.0   ,    \sin \phi   ;
+  *                         0.0         , 1.0   ,    0.0         ;
+  *                         -\sin\phi   , 0.0   ,    \cos\phi    ]\\
+  *     T_{cart2cyl} = [    \cos\theta  , \sin\theta    , 0.0   ;
+  *                         -\sin\theta , \cos\theta    , 0.0   ;
+  *                         0.0         , 0.0           , 1.0   ]\\
+  * \f}
+  *
+  * \param cartesianState Vector containing the Cartesian coordinates and Cartesian velocities.
+  *        The order is important!
+  *        cartesianState( 0 ) = x [m],
+  *        cartesianState( 1 ) = y [m],
+  *        cartesianState( 2 ) = z [m],
+  *        cartesianState( 3 ) = Vx [m/s],
+  *        cartesianState( 4 ) = Vy [m/s],
+  *        cartesianState( 5 ) = Vz [m/s].
+  * \return Vector containing the spherical state (both position and velocity, in that order).
+  *         The order is important!
+  *         sphericalState( 0 ) = radius r [m],
+  *         sphericalState( 1 ) = azimuth theta [rad],
+  *         sphericalState( 2 ) = elevation phi [rad],
+  *         sphericalState( 3 ) = radial velocity Vr [m/s],
+  *         sphericalState( 4 ) = azimuthal velocity Vtheta [m/s],
+  *         sphericalState( 5 ) = elevational velocity Vphi [m/s].
+  *
+  * Take care: here the elevation is used, not the zenith!
+  */
+Eigen::VectorXd convertCartesianToSphericalState( const Eigen::VectorXd& cartesianState );
 
 } // namespace coordinate_conversions
 } // namespace basic_mathematics
