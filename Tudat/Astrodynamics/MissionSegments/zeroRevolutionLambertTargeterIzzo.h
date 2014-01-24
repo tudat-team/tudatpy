@@ -30,6 +30,7 @@
  *      130210    R.C.A. Boon       Improved commenting after codecheck suggestions.
  *      130211    R.C.A. Boon       Added hasSolution flag
  *      120227    S. Billemont      Removed hasSolution in favor of an exception.
+ *      140117    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *      lambertTargeterIzzo.h/.cpp source files, tudat revision 455.
@@ -203,6 +204,7 @@ protected:
     /*!
      * Computes the inertial departure and arrival velocities according to Izzo's theory and
      * reassigns the dimensions of the input to the velocities.
+     * \param xParameter x-parameter in Izzo's theory.
      */
     void computeVelocities( const double xParameter );
     

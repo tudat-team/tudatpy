@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      130301    E.D. Brandon      Creation of code.
- *      130325    D.Dirkx           Split code into separate files for different functions.
+ *      130301    E. Brandon        Creation of code.
+ *      130325    D. Dirkx          Split code into separate files for different functions.
+ *      140117    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *      Novak, D.M. Methods and Tools for Preliminary Low Thrust Mission Analysis. PhD Thesis,
@@ -88,7 +89,7 @@ public:
      * Default constructor with immediate definition of parameters through boost::functions.
      * This setup allows for a flexible external manipulation of the values of the parameters.
      *
-     * \param aSetOfShapeParameters A set of four parameters, related to the boundary conditions.
+     * \param aSetOfBoundaryParameters A set of four parameters, related to the boundary conditions.
      *      These parameters are equivalent to the parameters b0, b1, b2, and b3 from Novak and
      *      Vasile [2011]. The order is important!
      *      aSetOfBoundaryParameters.first( 0 ) = b0
@@ -113,8 +114,8 @@ public:
      * The function is given by Novak and Vasile [2011] as:
      *
      * \f[
-     *      \phi ( \theta ) = \left( b_0 + b_1 \theta \right) cos \theta +
-     *      \left( b_2 + b_3 \theta right) sin \theta
+     *      \phi ( \theta ) = \left( b_0 + b_1 \theta \right) \cos \theta +
+     *      \left( b_2 + b_3 \theta \right) sin \theta
      * \f]
      *
      * in which \f$ \phi \f$ is the (out-of-plane) elevation angle of the spacecraft,
@@ -136,24 +137,24 @@ public:
      *
      * \f[
      *      \frac{ d \phi }{ d \theta } ( \theta ) =
-     *      \left( b_1 + b_2 + b_3 \theta \right) cos \theta -
-     *      \left( b_0 + b_1 \theta - b_3 \right) sin \theta
+     *      \left( b_1 + b_2 + b_3 \theta \right) \cos \theta -
+     *      \left( b_0 + b_1 \theta - b_3 \right) \sin \theta
      * \f]
      *
      * The second derivative of the function is:
      *
      * \f[
      *      \frac{ d^2 \phi }{ d \theta^2 } ( \theta ) =
-     *      \left( - b_0 - b_1 \theta + 2 b_3 \right) cos \theta -
-     *      \left( 2 b_1 + b_2 + b_3 \theta \right) sin \theta
+     *      \left( - b_0 - b_1 \theta + 2 b_3 \right) \cos \theta -
+     *      \left( 2 b_1 + b_2 + b_3 \theta \right) \sin \theta
      * \f]
      *
      * The third derivative of the function is:
      *
      * \f[
      *      \frac{ d^3 \phi }{ d \theta^3 } ( \theta ) =
-     *      - \left( 3 b_1 + b_2 + b_3 \theta \right) cos \theta -
-     *      \left( b_0 + b_1 \theta - 3 b_3 \right) sin \theta
+     *      - \left( 3 b_1 + b_2 + b_3 \theta \right) \cos \theta -
+     *      \left( b_0 + b_1 \theta - 3 b_3 \right) \sin \theta
      * \f]
      *
      * In these formulas \f$ \phi \f$ is the (out-of-plane) elevation angle of the spacecraft,
@@ -171,6 +172,13 @@ public:
     /*!
      * This function throws a runtime error when it is called. The integral of the inverse
      * polynomial function is not part of the shape-based method.
+     *
+     * \param order Order of the integral to evaluate.
+     * \param lowerBound Integration lower bound (integrate from this point).
+     * \param upperBound Integration upper bound (integrate to this point).
+     * \return Value of the integral.
+     *
+     * \throws std::runtime_error when this function is used.
      */
     double computeDefiniteIntegral( const unsigned int order,
                                     const double lowerBound,

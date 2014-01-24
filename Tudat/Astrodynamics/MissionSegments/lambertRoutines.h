@@ -44,6 +44,7 @@
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140117    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *      Battin, R.H. An Introduction to the Mathematics and Methods of Astrodynamics,
@@ -161,6 +162,8 @@ public:
     /*!
      * Constructor that sets all the parameters in the Lambert functions for use in the
      * Newton-Raphson rootfinder.
+     * \param aQParameter The value of the Lambert q-parameter.                                 [-]
+     * \param aNormalizedTimeOfFlight The normalized time-of-flight for the Lambert problem.    [-]
      */
     LambertFunctionsGooding( const double aQParameter, const double aNormalizedTimeOfFlight )
         : qParameter( aQParameter ),

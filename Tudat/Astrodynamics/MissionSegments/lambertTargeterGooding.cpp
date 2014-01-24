@@ -60,6 +60,8 @@
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      120620    T. Secretin       Adapted and moved code from LambertTargeter.cpp.
  *      120813    P. Musegaas       Changed code to new root finding structure.
+ *      140117    E. Brandon        Changed constructor input argument naming to be consistent with
+ *                                  other Lambert classes.
  *
  *    References
  *
@@ -84,13 +86,13 @@ using namespace root_finders;
 
 //! Constructor with immediate definition of parameters and execution of the algorithm.
 LambertTargeterGooding::LambertTargeterGooding( 
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
-        const double timeOfFlight,
-        const double gravitationalParameter,
+        const Eigen::Vector3d& aCartesianPositionAtDeparture,
+        const Eigen::Vector3d& aCartesianPositionAtArrival,
+        const double aTimeOfFlight,
+        const double aGravitationalParameter,
         RootFinderPointer aRootFinder )
-    : LambertTargeter( cartesianPositionAtDeparture, cartesianPositionAtArrival,
-                       timeOfFlight, gravitationalParameter ),
+    : LambertTargeter( aCartesianPositionAtDeparture, aCartesianPositionAtArrival,
+                       aTimeOfFlight, aGravitationalParameter ),
       rootFinder( aRootFinder )
 {
     // Required because the make_shared in the function definition gives problems for MSVC.

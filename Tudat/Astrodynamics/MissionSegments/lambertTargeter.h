@@ -48,6 +48,7 @@
  *                                  functions (with help from S. Billemont). Updated copyright
  *                                  notice to 2013.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140117    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *      Eigen. Structures having Eigen members,
@@ -89,6 +90,10 @@ public:
     /*!
      * Default constructor that only initializes parameters. Execution of solving routine happens
      * on member function call.
+     * \param aCartesianPositionAtDeparture The position at departure in Cartesian coordinates. [m]
+     * \param aCartesianPositionAtArrival The position at arrival in Cartesian coordinates.     [m]
+     * \param aTimeOfFlight The time-of-flight between departure and arrival.                   [s]
+     * \param aGravitationalParameter The gravitational parameter of the main body.      [m^3 s^-2]
      */
     LambertTargeter( const Eigen::Vector3d& aCartesianPositionAtDeparture,
                      const Eigen::Vector3d& aCartesianPositionAtArrival,
