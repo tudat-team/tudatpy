@@ -44,6 +44,9 @@
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140117    E. Brandon        Corrected doxygen documentation.
+ *                                  Changed constructor input argument naming to be consistent with
+ *                                  other Lambert classes.
  *
  *    References
  *
@@ -79,11 +82,17 @@ public:
     //! Constructor with immediate definition of parameters and execution of the algorithm.
     /*!
      * Constructor with immediate definition of parameters and execution of the algorithm.
+     * \param aCartesianPositionAtDeparture The position at departure in Cartesian coordinates. [m]
+     * \param aCartesianPositionAtArrival The position at arrival in Cartesian coordinates.     [m]
+     * \param aTimeOfFlight The time-of-flight between departure and arrival.                   [s]
+     * \param aGravitationalParameter The gravitational parameter of the main body.      [m^3 s^-2]
+     * \param aRootFinder The shared-pointer to the rootfinder to be used to solve the problem. [-]
+     * \sa LambertTargeter.
      */
-    LambertTargeterGooding( const Eigen::Vector3d& cartesianPositionAtDeparture,
-                            const Eigen::Vector3d& cartesianPositionAtArrival,
-                            const double timeOfFlight,
-                            const double gravitationalParameter,
+    LambertTargeterGooding( const Eigen::Vector3d& aCartesianPositionAtDeparture,
+                            const Eigen::Vector3d& aCartesianPositionAtArrival,
+                            const double aTimeOfFlight,
+                            const double aGravitationalParameter,
                             root_finders::RootFinderPointer aRootFinder = 
                                 root_finders::RootFinderPointer( ) );
 

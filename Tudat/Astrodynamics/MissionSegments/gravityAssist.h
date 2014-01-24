@@ -51,6 +51,7 @@
  *      120813    P. Musegaas       Changed code to new root finding structure. Added option to
  *                                  specify which rootfinder and termination conditions to use.
  *      130121    K. Kumar          Added shared-ptr typedefs.
+ *      140117    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *
@@ -161,7 +162,14 @@ public:
     //! Constructor with immediate definition of parameters.
     /*!
      * Constructor that sets all the parameters in the pericenter finding functions for use in the
-     * Newton Raphson rootfinder.
+     * Newton Raphson rootfinder. Note that absolute values of the semi-major axis are required due
+     * to the rootfinding process.
+     *
+     * \param absoluteIncomingSemiMajorAxis The absolute semi-major axis of the incoming hyperbolic
+     *          leg.                                                                            [m]
+     * \param absoluteOutgoingSemiMajorAxis The absolute semi-major axis of the outgoing hyperbolic
+     *          leg.                                                                            [m]
+     * \param bendingAngle The bending angle between the excess velocities.                   [rad]
      */
     PericenterFindingFunctions ( const double absoluteIncomingSemiMajorAxis,
                                  const double absoluteOutgoingSemiMajorAxis,
@@ -233,8 +241,11 @@ public:
 
     //! Constructor with immediate definition of parameters.
     /*!
-     * Constructor that sets all the parameters in the eccentricity finding functions for use in the
-     * Newton Raphson rootfinder.
+     * Constructor that sets all the parameters in the eccentricity finding functions for use in
+     * the Newton Raphson rootfinder.
+     * \param incomingSemiMajorAxis The semi-major axis of the incomming hyperbolic leg.        [m]
+     * \param outgoingSemiMajorAxis The semi-major axis of the outgoing hyperbolic leg.         [m]
+     * \param bendingAngle The bending angle between the excess velocities.                   [rad]
      */
     EccentricityFindingFunctions( const double incomingSemiMajorAxis,
                                   const double outgoingSemiMajorAxis,

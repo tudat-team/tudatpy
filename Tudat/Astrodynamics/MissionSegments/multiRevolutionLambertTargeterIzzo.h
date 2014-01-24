@@ -29,6 +29,9 @@
  *                                  getMaximumNumberOfRevolutions to source file.
  *      130211    R.C.A. Boon       Added hasSolution flag.
  *      120227    S. Billemont      Removed hasSolution in favor of an exception.
+ *      140117    E. Brandon        Corrected doxygen documentation.
+ *                                  Corrected computeForRevolutionsAndBranch input argument names,
+ *                                  to match source file.
  *
  *    References
  *      PyKEP toolbox, Dario Izzo, ESA Advanced Concepts Team.
@@ -139,13 +142,17 @@ public:
     //! Compute solution for N revolutions and branch.
     /*!
      * Using the constants from the problem specified in the constructor, this calculates an
-     * alternative solutions specified by the number of revolutions and branch selected.
+     * alternative solution specified by the number of revolutions and branch selected.
+     * \param aNumberOfRevolutions Number of revolutions for the alternative solution.          [-]
+     * \param aIsRightBranch A boolean flag to indicate retrograde motion.                      [-]
      */
-    void computeForRevolutionsAndBranch( const int numberOfRevolutions, const bool isRightBranch );
+    void computeForRevolutionsAndBranch( const int aNumberOfRevolutions,
+                                         const bool aIsRightBranch );
 
     //! Get maximum number of revolutions calculated.
     /*!
      * Returns the maximum number of revolutions possible in a solution to the problem specified.
+     * \return maximumNumberOfRevolutions Maximum number of revolutions possible for the problem.
      */
     int getMaximumNumberOfRevolutions( );
 

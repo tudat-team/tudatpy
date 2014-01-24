@@ -26,6 +26,9 @@
  *      YYMMDD    Author            Comment
  *      120210    T. Secretin       File created.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140117    E. Brandon        Corrected doxygen documentation.
+ *                                  Changed constructor input argument naming to be consistent with
+ *                                  other Lambert classes.
  *
  *    References
  *      Battin, R.H. An Introduction to the Mathematics and Methods of Astrodynamics,
@@ -66,18 +69,28 @@ public:
     //! Constructor with immediate definition of parameters and execution of the algorithm.
     /*!
      * Constructor with immediate definition of parameters and execution of the algorithm.
+     * \param aCartesianPositionAtDeparture The position at departure in Cartesian coordinates. [m]
+     * \param aCartesianPositionAtArrival The position at arrival in Cartesian coordinates.     [m]
+     * \param aTimeOfFlight The time-of-flight between departure and arrival.                   [s]
+     * \param aGravitationalParameter The gravitational parameter of the main body.      [m^3 s^-2]
+     * \param isRetrograde Flag to indicate retrograde motion, (default is false).
+     * \param convergenceTolerance Convergence tolerance for the root-finding process, (default
+     *          is 1e-9).
+     * \param maximumNumberOfIterations The maximum number of iterations for the root-finding
+     *          process, (default is 50).
+     * \sa LambertTargeter.
      */
-    LambertTargeterIzzo( const Eigen::Vector3d& cartesianPositionAtDeparture,
-                         const Eigen::Vector3d& cartesianPositionAtArrival,
-                         const double timeOfFlight,
-                         const double gravitationalParameter,
+    LambertTargeterIzzo( const Eigen::Vector3d& aCartesianPositionAtDeparture,
+                         const Eigen::Vector3d& aCartesianPositionAtArrival,
+                         const double aTimeOfFlight,
+                         const double aGravitationalParameter,
                          const bool isRetrograde = false,
                          const double convergenceTolerance = 1e-9,
-                         const int maximumNumberOfIterations = 50.0 )
-        : LambertTargeter( cartesianPositionAtDeparture,
-                           cartesianPositionAtArrival,
-                           timeOfFlight,
-                           gravitationalParameter ),
+                         const int maximumNumberOfIterations = 50 )
+        : LambertTargeter( aCartesianPositionAtDeparture,
+                           aCartesianPositionAtArrival,
+                           aTimeOfFlight,
+                           aGravitationalParameter ),
           isRetrograde_( isRetrograde ),
           convergenceTolerance_( convergenceTolerance ),
           maximumNumberOfIterations_( maximumNumberOfIterations )

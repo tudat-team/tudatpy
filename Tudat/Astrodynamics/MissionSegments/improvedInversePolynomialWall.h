@@ -24,8 +24,9 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      130301    E.D. Brandon      Creation of code.
- *      130325    D.Dirkx           Split code into separate files for different functions.
+ *      130301    E. Brandon        Creation of code.
+ *      130325    D. Dirkx          Split code into separate files for different functions.
+ *      140117    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *      Novak, D.M. and M. Vasile. Improved Shaping Approach to the Preliminary Design of Low-
@@ -125,7 +126,7 @@ public:
      *
      * \f[
      *      r ( \theta ) = \frac{ 1 }
-     *      { a + b cos( \theta + c ) + d \theta^3 + e \theta^4 + f \theta^5 + g \theta^6 }
+     *      { a + b \cos( \theta + c ) + d \theta^3 + e \theta^4 + f \theta^5 + g \theta^6 }
      * \f]
      *
      * in which \f$ r \f$ is the radial position of the spacecraft, \f$ \theta \f$ is the
@@ -148,7 +149,7 @@ public:
      *
      * \f[
      *      \frac{ dr }{ d\theta } ( \theta ) =
-     *      -r^2 \left( -b sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f
+     *      -r^2 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f
      *      \theta^4 + 6 g \theta^5 \right)
      * \f]
      *
@@ -156,9 +157,9 @@ public:
      *
      * \f[
      *      \frac{ d^2 r }{ d \theta^2 } ( \theta ) =
-     *      2 r^3 \left( -b sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f
+     *      2 r^3 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3 + 5 f
      *      \theta^4 + 6 g \theta^5 \right)^2 -
-     *      r^2 \left( -b cos \left( \theta + c \right) + 6 d \theta + 12 e \theta^2 + 20 f
+     *      r^2 \left( -b \cos \left( \theta + c \right) + 6 d \theta + 12 e \theta^2 + 20 f
      *      \theta^3 + 30 g \theta^4 \right)
      * \f]
      *
@@ -166,7 +167,7 @@ public:
      *
      * \f[
      *      \frac{ d^2 r }{ d \theta^2 } ( \theta ) =
-     *      \frac{ 2 }{ r } r^{ \prime 2 } - r^2 \left( -b cos \left( \theta + c \right)
+     *      \frac{ 2 }{ r } r^{ \prime 2 } - r^2 \left( -b \cos \left( \theta + c \right)
      *      + 6 d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right)
      * \f]
      *
@@ -174,12 +175,12 @@ public:
      *
      * \f[
      *      \frac{ d^3 r }{ d \theta^3 } ( \theta ) =
-     *      -6 r^4 \left( -b sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3
+     *      -6 r^4 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3
      *          + 5 f \theta^4 + 6 g \theta^5 \right)^3
-     *      + 6 r^3 \left( -b sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3
-     *          + 5 f \theta^4 + 6 g \theta^5 \right) \left( -b cos \left( \theta + c \right)
+     *      + 6 r^3 \left( -b \sin \left( \theta + c \right) + 3 d \theta^2 + 4 e \theta^3
+     *          + 5 f \theta^4 + 6 g \theta^5 \right) \left( -b \cos \left( \theta + c \right)
      *          + d \theta + 12 e \theta^2 + 20 f \theta^3 + 30 g \theta^4 \right)
-     *      - r^2 \left( b sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2
+     *      - r^2 \left( b \sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2
      *          + 120 g \theta^3 \right)
      * \f]
      *
@@ -187,9 +188,9 @@ public:
      *
      * \f[
      *      \frac{ d^3 r }{ d \theta^3 } ( \theta ) =
-     *      \frac{ 6 r^{ \prime 3 } }{ r^2 } - \frac{ 6 r^{ \prime }{ r }
+     *      \frac{ 6 r^{ \prime 3 } }{ r^2 } - \frac{ 6 r^{ \prime } }{ r }
      *          \left( \frac{ 2 r^{ \prime 2 } }{ r } - r^{ \prime \prime } \right)
-     *      - r^2 \left( b sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2
+     *      - r^2 \left( b \sin \left( \theta + c \right) + 6 d + 24 e \theta + 60 f \theta^2
      *          + 120 g \theta^3 \right)
      * \f]
      *
@@ -209,6 +210,13 @@ public:
     /*!
      * This function throws a runtime error when it is called. The integral of the inverse
      * polynomial function is not part of the shape-based method and has not been implemented.
+     *
+     * \param order Order of the integral to evaluate.
+     * \param lowerBound Integration lower bound (integrate from this point).
+     * \param upperBound Integration upper bound (integrate to this point).
+     * \return Value of the integral.
+     *
+     * \throws std::runtime_error when this function is used.
      */
     double computeDefiniteIntegral( const unsigned int order,
                                     const double lowerBound,
