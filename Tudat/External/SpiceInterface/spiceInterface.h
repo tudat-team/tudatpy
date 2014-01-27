@@ -27,18 +27,19 @@
  *      120717    D. Dirkx          Creation of file.
  *      120921    M.I. Ganeff       Added the functions getTotalCountOfKernelsLoaded and
  *                                  clearSpiceKernels.
+ *      140124    D. Dirkx          Corrected doxygen documentation.
  *
  *    References
  *
  *    Notes
  *      In order to use the Spice interface, the C-Spice toolkit must be installed on your machine.
  *      It can be downloaded from http://naif.jpl.nasa.gov/naif/toolkit_C.html for all common
- *      operating systems. By placing the cspice folder in the External directory, or 1, 2 or 3 folder
- *      levels above the project source directory, it will be automatically located by the CMake list.
- *      In order to use Spice with Tudat, please run the makeall file provided with Spice to compile the
- *      static library.
- *      IMPORTANT: Before being able to use it, the cspice.a file in the cspice/lib folder needs to be renamed
- *      to libcspice.a.
+ *      operating systems. By placing the cspice folder in the External directory, or 1, 2 or 3
+ *      folder levels above the project source directory, it will be automatically located by the
+ *      CMake list. In order to use Spice with Tudat, please run the makeall file provided with
+ *      Spice to compile the static library.
+ *      IMPORTANT: Before being able to use it, the cspice.a file in the cspice/lib folder needs to
+ *      be renamed to libcspice.a.
  *
  *      In addition, the USE_CSPICE variable needs to be set to 1 in the top-level CMakeLists.txt.
  *
@@ -79,7 +80,7 @@ double convertJulianDateToEphemerisTime( const double julianDate );
 /*!
  * Function to convert ephemeris time, which is nearly equal to barycentric dynamical time, to the
  * Julian date. A leap second kernel must have been loaded to use this function.
- * \param ephemerisTime Ephemeris time that is to be converted to Julian date
+ * \param ephemerisTime Ephemeris time that is to be converted to Julian date.
  * \return Julian date calculated from ephemeris time.
  */
 double convertEphemerisTimeToJulianDate( const double ephemerisTime );
@@ -90,7 +91,7 @@ double convertEphemerisTimeToJulianDate( const double ephemerisTime );
  * wrapper for str2et_c spice function.
  * \param dateString String representing the date. See documentation of spice function str2et_c
  *          for details on supported formats.
- * \return Ephemeris time corresponding to given dateString
+ * \return Ephemeris time corresponding to given dateString.
  */
 double convertDateStringToEphemerisTime( const std::string& dateString );
 
@@ -115,8 +116,8 @@ double convertDateStringToEphemerisTime( const std::string& dateString );
  *          (multiple iterations, max 3) for calculation, S: Stellar abberation corrected. XLT and
  *          XCN can be provided to make the ephemerisTime input argument the transmission time,
  *          instead of receptionTime. Arguments can be combined (i.e."LT+S" or "XCN+S").
- * \param epehemerisTime Observation time (or transmission time of observed light, see description
- *          of abberationCorrections)
+ * \param ephemerisTime Observation time (or transmission time of observed light, see description
+ *          of abberationCorrections).
  * \return Cartesian state vector (x,y,z, position+velocity).
  */
 basic_mathematics::Vector6d getBodyCartesianStateAtEpoch(
@@ -146,7 +147,7 @@ basic_mathematics::Vector6d getBodyCartesianStateAtEpoch(
  *          XCN can be provided to make the ephemerisTime input argument the transmission time,
  *          instead of receptionTime. Arguments can be combined (i.e."LT+S" or "XCN+S").
  * \param ephemerisTime Observation time (or transmission time of observed light, see description
- *          of abberationCorrections)
+ *          of abberationCorrections).
  * \return Cartesian position vector (x,y,z, position).
  */
 Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyName,
@@ -248,7 +249,7 @@ int getTotalCountOfKernelsLoaded( );
  */
 void clearSpiceKernels( );
 
-} // namespace spice_interfaces
+} // namespace spice_interface
 } // namespace tudat
 
 #endif // TUDAT_SPICE_INTERFACE_H
