@@ -27,6 +27,7 @@
  *      120717    D. Dirkx          File created.
  *      130120    D. Dirkx          Updated with new Julian day + seconds since Julian day input.
  *      130226    K. Kumar          Updated return-type for getCartesianStateFromEphemeris().
+ *      140124    D. Dirkx          Corrected doxygen documentation.
  *
  *    References
  *
@@ -51,6 +52,13 @@ namespace tudat
 namespace ephemerides
 {
 
+//! Ephemeris derived class which retrieves the state of a body directly from the SPICE library.
+/*!
+ *  Ephemeris derived class which retrieves the state of a body directly from the SPICE library.
+ *  The body of which the ephemeris is to be retrieved, as well as the origin and orientation
+ *  of the reference frame in which the states are returned, and any corrections that are
+ *  applied, are defined once during object construction.
+ */
 class SpiceEphemeris : public Ephemeris
 {
 public:
@@ -58,8 +66,8 @@ public:
     //! Constructor.
     /*!
      * Constructor, sets the input variables for the calls to the spice function to retrieve state.
-     * \param targetBodyName Name of body of which the ephemeris is to be calculated
-     * \param observerBodyNameBody relative to which the ephemeris is to be calculated
+     * \param targetBodyName Name of body of which the ephemeris is to be calculated.
+     * \param observerBodyName Name of body relative to which the ephemeris is to be calculated.
      * \param correctForStellarAbberation Boolean whether to correct for stellar Abberation in
      *          retrieved values of (observed state).
      * \param correctForLightTimeAbberation Boolean whether to correct for light time in
@@ -78,7 +86,9 @@ public:
     //! Get Cartesian state from ephemeris.
     /*!
      * Returns Cartesian state from ephemeris at given Julian day.
-     * \param ephemerisTime Ephemeris time at which cartesian state is to be determined.
+     * \param secondsSinceEpoch Seconds since reference epoch at which Cartesian state is to be
+     *          determined.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State from ephemeris.
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
