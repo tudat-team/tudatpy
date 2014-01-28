@@ -34,6 +34,7 @@
  *      120913    K. Kumar          Updated model to work with and without
  *                                  CompositeStateDerivativeModel; added frame transformation
  *                                  functionality.
+ *      140128    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *
@@ -76,7 +77,7 @@ namespace state_derivative_models
 /*!
  * Returns the input acceleration without performing any frame transformation. This dummy function
  * is used as the default argument of the constructor of the CartesianStateDerivativeModel class.
- * \param Input acceleration.
+ * \param acceleration Input acceleration.
  * \return Output acceleration (same as input).
  * \sa CartesianStateDerivativeModel.
  */
@@ -92,7 +93,7 @@ inline AccelerationType transformNothing( const AccelerationType& acceleration )
  * function to the constructor of the CartesianStateDerivativeModel class, when used in conjunction
  * with the CompositeStateDerivativeModel class, to ensure that the update is only performed once.
  * \param independentVariable Current independent variable value (e.g., time).
- * \param compositeState Current composite state.
+ * \param cartesianState Current Cartesian state.
  * \sa CartesianStateDerivativeModel, CompositeStateDerivativeModel.
  */
 template< typename IndependentVariableType, typename CartesianStateType >
