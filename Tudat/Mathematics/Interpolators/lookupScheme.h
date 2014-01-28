@@ -88,6 +88,8 @@ public:
     /*!
      * Function finds nearest left neighbour of given value in independentVariableValues_.
      * \param valueToLookup Value of which nearest neaighbour is to be determined.
+     * \return Index of entry in independentVariableValues_ vector which is nearest lower neighbour
+     * to valueToLookup.
      */
     virtual int findNearestLowerNeighbour( const IndependentVariableType valueToLookup ) = 0;
 
@@ -130,6 +132,8 @@ public:
      * Function finds nearest left neighbour of given value in ndependentVariableValues_. If this
      * is first call of function, a binary search is used.
      * \param valueToLookup Value of which nearest neighbour is to be determined.
+     * \return Index of entry in independentVariableValues_ vector which is nearest lower neighbour
+     * to valueToLookup.
      */
     int findNearestLowerNeighbour( const IndependentVariableType valueToLookup )
     {
@@ -211,6 +215,8 @@ public:
     /*!
      * Function finds nearest left neighbour of given value in independentVariableValues_.
      * \param valueToLookup Value of which nearest neaighbour is to be determined.
+     * \return Index of entry in independentVariableValues_ vector which is nearest lower neighbour
+     * to valueToLookup.
      */
     int findNearestLowerNeighbour( const IndependentVariableType valueToLookup )
     {

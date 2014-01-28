@@ -78,10 +78,10 @@ public:
      * \return Interpolated value of dependent variable.
      */
     virtual DependentVariableType
-    interpolate( const std::vector< IndependentVariableType >& independentVariableValue )
+    interpolate( const std::vector< IndependentVariableType >& independentVariableValues )
     {
         // Check whether input is really 1-dimensional
-        if ( independentVariableValue.size( ) != 1  )
+        if ( independentVariableValues.size( ) != 1  )
         {
             boost::throw_exception(
                         boost::enable_error_info(
@@ -90,13 +90,13 @@ public:
         }
 
         // Call 1-dimensional interpolate function.
-        return interpolate( independentVariableValue[ 0 ] );
+        return interpolate( independentVariableValues[ 0 ] );
     }
 
     //! Function to perform interpolation.
     /*!
      * This function performs the interpolation
-     * \param independentVariableValues Independent variable value at which the value of the
+     * \param independentVariableValue Independent variable value at which the value of the
      *          dependent variable is to be determined.
      * \return Interpolated value of dependent variable.
      */
