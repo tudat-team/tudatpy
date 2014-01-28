@@ -168,8 +168,8 @@ public:
      * flag indicating if a run-time exception should be thrown if this number is exceeded
      * (default=true).
      * \param aMaximumNumberOfIterations Maximum number of iterations (default=1000).
-     * \param throwRunTimeException Flag that indicates if run-time error should be triggered if
-     *          maximum number of iterations is exceeded (default=true).
+     * \param aThrowRunTimeExceptionFlag Flag that indicates if run-time error should be triggered
+     * if maximum number of iterations is exceeded (default=true).
      */
     MaximumIterationsTerminationCondition( const unsigned int aMaximumNumberOfIterations = 1000,
                                            const bool aThrowRunTimeExceptionFlag = true )
@@ -218,8 +218,8 @@ public:
      * thrown if this number is exceeded (default=true).
      * \param anAbsoluteTolerance An absolute tolerance (default=1.0e-15).
      * \param aMaximumNumberOfIterations Maximum number of iterations (default=1000).
-     * \param throwRunTimeException Flag that indicates if run-time error should be triggered if
-     *          maximum number of iterations is exceeded (default=true).
+     * \param aThrowRunTimeExceptionFlag Flag that indicates if run-time error should be triggered
+     * if maximum number of iterations is exceeded (default=true).
      */
     RootAbsoluteToleranceTerminationCondition( const double anAbsoluteTolerance = 1.0e-15,
                                                const unsigned int aMaximumNumberOfIterations = 1000,
@@ -229,8 +229,19 @@ public:
           throwRunTimeException( aThrowRunTimeExceptionFlag )
     { }
 
-    //! Check termination condition (wrapper for checkRootAbsoluteTolerance()- and
-    //! checkMaximumIterationsExceeded()-functions).
+    //! Check termination condition (combined abs. tolerance and max. itetations)
+    /*!
+     * Check termination condition (wrapper for checkRootAbsoluteTolerance()- and
+     * checkMaximumIterationsExceeded()-functions).
+     * \param currentRootGuess Current root value.
+     * \param previousRootGuess Previous root value.
+     * \param currentRootFunctionValue Current root function value (not used, included for
+     * base class compatibility).
+     * \param previousRootFunctionValue Previous root function value (not used, included for
+     * base class compatibility).
+     * \param numberOfIterations Number of iterations that have been completed.
+     * \return Flag indicating if termination condition has been reached.
+     */
     bool checkTerminationCondition( const double currentRootGuess,
                                     const double previousRootGuess,
                                     const double currentRootFunctionValue,
@@ -275,8 +286,8 @@ public:
      * thrown if this number is exceeded (default=true).
      * \param aRelativeTolerance A relative tolerance (default=1.0e-12).
      * \param aMaximumNumberOfIterations Maximum number of iterations (default=1000).
-     * \param throwRunTimeException Flag that indicates if run-time error should be triggered if
-     *          maximum number of iterations is exceeded (default=true).
+     * \param aThrowRunTimeExceptionFlag Flag that indicates if run-time error should be triggered
+     *        if maximum number of iterations is exceeded (default=true).
      */
     RootRelativeToleranceTerminationCondition( const double aRelativeTolerance = 1.0e-12,
                                                const unsigned int aMaximumNumberOfIterations = 1000,
@@ -286,8 +297,19 @@ public:
           throwRunTimeException( aThrowRunTimeExceptionFlag )
     { }
 
-    //! Check termination condition (wrapper for checkRootRelativeTolerance()- and
-    //! checkMaximumIterationsExceeded()-functions).
+    //! Check termination condition (combined rel. tolerance and max. itetations)
+    /*!
+     * Check termination condition (wrapper for checkRootRelativeTolerance()- and
+     * checkMaximumIterationsExceeded()-functions).
+     * \param currentRootGuess Current root value.
+     * \param previousRootGuess Previous root value.
+     * \param currentRootFunctionValue Current root function value (not used, included for
+     * base class compatibility).
+     * \param previousRootFunctionValue Previous root function value (not used, included for
+     * base class compatibility).
+     * \param numberOfIterations Number of iterations that have been completed.
+     * \return Flag indicating if termination condition has been reached.
+     */
     bool checkTerminationCondition( const double currentRootGuess,
                                     const double previousRootGuess,
                                     const double currentRootFunctionValue,
@@ -333,11 +355,11 @@ public:
      * tolerance (default=1.0e-12), a specified maximum number of iterations (default=1000) and a
      * flag indicating if a run-time exception should be thrown if this number is exceeded
      * (default=true).
-     * \param aAbsoluteTolerance A absolute tolerance (default=1.0e-12).
+     * \param anAbsoluteTolerance A absolute tolerance (default=1.0e-12).
      * \param aRelativeTolerance A relative tolerance (default=1.0e-12).
      * \param aMaximumNumberOfIterations Maximum number of iterations (default=1000).
-     * \param throwRunTimeException Flag that indicates if run-time error should be triggered if
-     *          maximum number of iterations is exceeded (default=true).
+     * \param aThrowRunTimeExceptionFlag Flag that indicates if run-time error should be triggered
+     *        if maximum number of iterations is exceeded (default=true).
      */
     RootAbsoluteOrRelativeToleranceTerminationCondition(
             const double anAbsoluteTolerance = 1.0e-15,
@@ -350,8 +372,19 @@ public:
           throwRunTimeException( aThrowRunTimeExceptionFlag )
     { }
 
-    //! Check termination condition (wrapper for checkRootRelativeTolerance()-,
-    //! checkRootRelativeTolerance()-, and checkMaximumIterationsExceeded()-functions).
+    //! Check termination condition (combined ans. and rel. tolerance and max. itetations)
+    /*!
+     * Check termination condition (wrapper for checkRootRelativeTolerance()-
+     * checkRootAbsoluteTolerance()- and checkMaximumIterationsExceeded()-functions).
+     * \param currentRootGuess Current root value.
+     * \param previousRootGuess Previous root value.
+     * \param currentRootFunctionValue Current root function value (not used, included for
+     * base class compatibility).
+     * \param previousRootFunctionValue Previous root function value (not used, included for
+     * base class compatibility).
+     * \param numberOfIterations Number of iterations that have been completed.
+     * \return Flag indicating if termination condition has been reached.
+     */
     bool checkTerminationCondition( const double currentRootGuess,
                                     const double previousRootGuess,
                                     const double currentRootFunctionValue,

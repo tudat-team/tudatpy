@@ -74,7 +74,9 @@ namespace root_finders
  *
  * The iterative scheme is given by:
  *
+ * \f[
  *  x_{n+1} = x_n - \frac{F\left(x_n\right)}{F'\left(x_n\right)}
+ * \f]
  *
  * Defined shorthand notations:
  *  NewtonRaphsonCore< double, double >   =>   NewtonRaphson
@@ -86,22 +88,42 @@ class NewtonRaphsonCore : public RootFinderCore< DataType >
 {
 public:
 
-    // Two useful typedefs.
-    typedef typename RootFinderCore< DataType >::FunctionPointer     FunctionPointer;
+    //! Usefull type definition for the function pointer (from base class)
+    typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
+
+    //! Usefull type definition for the function pointer (from base class)
     typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
 
-    //! Constructor taking general termination function.
+    //! This is the constructor taking the general termination function
+    /*!
+     *  This is the constructor taking the general termination function
+     *  \param terminationFunction The function specifying the termination conditions of the
+     *  root-finding process \sa RootFinderCore::terminationFunction
+     */
     NewtonRaphsonCore( TerminationFunction terminationFunction )
         : RootFinderCore< DataType >( terminationFunction )
     { }
 
-    //! Constructor taking maximum number of iterations and relative tolerance for independent
-    //! variable.
+    //! Constructor taking typical convergence criteria.
+    /*!
+     *  Constructor taking maximum number of iterations and relative tolerance for independent
+     *  variable. If desired, a custom convergence function can provided to the alternative
+     *  constructor
+     *  \param relativeXTolerance Relative difference between the root solution of two subsequent
+     *  solutions below which convergence is reached.
+     *  \param maxIterations Maximum number of iterations after which the root finder is
+     *  terminated, i.e. convergence is assumed
+     */
     NewtonRaphsonCore( const double relativeXTolerance, const unsigned int maxIterations );
 	
-    //! Find the root using the given information.
+    //! Find a root of the function provided as input.
     /*!
-     * \see RootFinder::execute().
+     *  Find a root of the function provided as input, using the termination function set by the
+     *  constructor
+     * \param rootFunction Function to find root of.
+     * \param initialGuess The initial guess of the root.
+     * \throws ConvergenceExeption If the solution does not converge to a root value.
+     * \return Root of the rootFunction that is found
      */
     DataType execute( const FunctionPointer rootFunction, const DataType initialGuess )
     {
@@ -148,7 +170,7 @@ protected:
 private:
 };
 
-//! Constructor taking maximum number of iterations and relative tolerance for independent variable.
+//! Constructor taking typical convergence criteria.
 template< typename DataType >
 NewtonRaphsonCore< DataType >::NewtonRaphsonCore( const double relativeXTolerance,
                                                   const unsigned int maxIterations )
