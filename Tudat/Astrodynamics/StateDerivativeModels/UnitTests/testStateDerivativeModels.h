@@ -83,6 +83,7 @@ Eigen::Matrix2d getMatrix2dState( ) { return matrix2dState; }
  * given the independent variable and Vector2d state as input.
  * \param independentVariable Independent variable (time).
  * \param state Vector2d state.
+ * \return State derivative of the Vector2d state.
  */
 Eigen::Vector2d computeVector2dStateDerivative( const double independentVariable,
                                                 const Eigen::Vector2d& state )
@@ -105,6 +106,7 @@ Eigen::Vector2d computeVector2dStateDerivative( const double independentVariable
  * given the independent variable and Vector3d state as input.
  * \param independentVariable Independent variable (time).
  * \param state Vector3d state.
+ * \return State derivative of the Vector3d state.
  */
 Eigen::Vector3d computeVector3dStateDerivative( const double independentVariable,
                                                 const Eigen::Vector3d& state )
@@ -202,6 +204,7 @@ public:
      * state derivative models that are coupled.
      * \param independentVariable Independent variable (time).
      * \param state Matrix2d state.
+     * \return The state derivative of the Matrix2d state.
      */
     Eigen::Matrix2d computeStateDerivative(
             const double independentVariable, const Eigen::Matrix2d& state );

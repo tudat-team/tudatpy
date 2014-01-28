@@ -27,6 +27,7 @@
  *      120817    K. Kumar          File created.
  *      120817    K. Kumar          Completed Doxygen documentation.
  *      120913    K. Kumar          Rewrote class to work with generic matrices.
+ *      140127    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *
@@ -149,7 +150,7 @@ public:
      * that updates the values of the independent variable and the composite state, as well
      * as any dependent variables not included in the state, in the data repository created
      * externally by the user.
-     * \param aStateDerivativeModelMap A state derivative model map for vector-based composite
+     * \param aVectorStateDerivativeModelMap A state derivative model map for vector-based composite
                 states.
      * \param anUpdateIndependentVariableAndStateFunction A function to update the independent
      *          variable and composite state in the user's data repository.

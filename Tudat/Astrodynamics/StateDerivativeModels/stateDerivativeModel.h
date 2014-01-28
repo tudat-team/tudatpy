@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120823    K. Kumar          File created.
  *      120824    K. Kumar          Created from original StateDerivativeModel class.
+ *      140127    E. Brandon        Corrected doxygen documentation.
  *
  *    References
  *
@@ -50,7 +51,10 @@ namespace state_derivative_models
 //! State derivative model class.
 /*!
  * This class contains a state derivative model base class.
- * \tparam StateDerivativeType Data type of state derivative (default=Eigen::MatrixXd).
+ * \tparam IndependentVariableType Data type for independent variable, e.g., time, (default is
+ *          double).
+ * \tparam StateType Data type for state (default is Eigen::MatrixXd).
+ * \tparam StateDerivativeType Data type for state derivative (default is Eigen::MatrixXd).
  */
 template< typename IndependentVariableType = double, typename StateType = Eigen::MatrixXd >
 class StateDerivativeModel
@@ -72,6 +76,8 @@ public:
     /*!
      * Computes state derivative. This is a pure virtual function, which should be implemented
      * in derived classes.
+     * \param independentVariable Current independent variable value.
+     * \param state Current state.
      * \return Computed state derivative.
      */
     virtual StateDerivativeType computeStateDerivative(
