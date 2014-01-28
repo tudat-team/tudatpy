@@ -88,6 +88,9 @@ public:
      * \param independentValues Vector of vectors containing data points of independent variables.
      * \param dependentData Multi-dimensional array of dependent data at each point of
      *          hyper-rectangular grid formed by independent variable points.
+     *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
+     *          to find the nearest lower data point in the independent variables when requesting
+     *          interpolation.
      */
     MultiLinearInterpolator( const std::vector< std::vector< IndependentVariableType > >
                              independentValues,
@@ -120,7 +123,7 @@ public:
     //! Function to perform interpolation.
     /*!
      *  This function performs the multilinear interpolation.
-     *  \param independentVariableValues Vector of values of independent variables at which
+     *  \param independentValuesToInterpolate Vector of values of independent variables at which
      *  the value of the dependent variable is to be determined.
      *  \return Interpolated value of dependent variable in all dimensions.
      */
@@ -212,7 +215,10 @@ private:
      * \param currentArrayIndices Array of indices modified at index = currentVariable at each
      *          call of function. Variable is passed to dependentData in highest step to return
      *          data for interpolation.
-     *  \return Interpolated value in a single dimension
+     * \param nearestLowerIndices Indices in subvectors of independentValues_ vector. That is, the
+     *  n-th entry of nearestLowerIndices represent the nearest lower neighbour in the n-th
+     *  interpolation dimension of the independent variable vectors.
+     * \return Interpolated value in a single dimension
      */
     DependentVariableType performRecursiveInterpolationStep(
             const unsigned int currentVariable,
