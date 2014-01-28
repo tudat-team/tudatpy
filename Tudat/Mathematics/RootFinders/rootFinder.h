@@ -78,16 +78,18 @@ class RootFinderCore
 {
 public:
 
-    //! Definition of the function whose root we have to determine.
+    //! Typedef of the function whose root we have to determine.
     typedef boost::shared_ptr< basic_mathematics::Function< DataType, DataType > > FunctionPointer;
+
+    //! Typedef of the function determining whether to terminate the root finding (i.e convergence)
     typedef boost::function< bool( DataType, DataType,
                                    DataType, DataType, unsigned int ) > TerminationFunction;
 	
-    //! Default constructor.
+    //! Constructor taking custom termination function.
     /*!
-     * \param rootFunction_ The function whose root is to be determined.
-     * \param terminationFunction_ The function specifying the termination conditions of the
-     *                                      root-finding process.
+     *  Constructor taking custom termination function.
+     *  \param terminationFunction_ The function specifying the termination conditions of the
+     *  root-finding process \sa RootFinderCore::terminationFunction
      */
     RootFinderCore( TerminationFunction terminationFunction_ )
         : terminationFunction( terminationFunction_ )
@@ -109,12 +111,14 @@ public:
         return rootFunction;
     }
 
-    //! Find a root of the set function.
+    //! Find a root of the function provided as input.
     /*!
-     * Try to find the root of the current function, using a specified technique.
+     *  Find a root of the function provided as input, using the termination function set by the
+     *  constructor and the technique specified in the derived class
      * \param aRootFunction Function to find root of.
      * \param initialGuess The initial guess of the root.
      * \throws ConvergenceExeption If the solution does not converge to a root value.
+     * \return Root of the rootFunction that is found
      */
     virtual DataType execute( const FunctionPointer aRootFunction,
                               const DataType initialGuess ) = 0;
@@ -130,7 +134,9 @@ protected:
     //! Function specifying the termination conditions.
     /*!
      * The rootfinder will continue improving the solution of the root until the termination
-     * function returns true.
+     * function returns true. The five input variables of the TerminationFunction typedef are:
+     * current root value; previous root value; current function value; previous function value;
+     * number of iterations. Its output is true if the algorithm is to terminate, false otherwise.
      */
     TerminationFunction terminationFunction;
 
