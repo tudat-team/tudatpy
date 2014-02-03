@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -29,6 +29,7 @@
  *                                  namespace layer; added missing Eigen include-statement.
  *      121020    D. Dirkx          Update to new acceleration model architecture.
  *      130120    K. Kumar          Added shared pointer to AerodynamicAcceleration object.
+ *      140129    D. Dirkx          Changed Doxygen descriptions
  *
  *    References
  *
@@ -193,7 +194,7 @@ public:
      * Updates member variables used by the aerodynamic acceleration model.
      * Function pointers to retrieve the current values of quantities from which the
      * acceleration is to be calculated are set by constructor. This function calls
-     * them to update the associated\variables to their current state.
+     * them to update the associated variables to their current state.
      */
     void updateMembers( )
     {

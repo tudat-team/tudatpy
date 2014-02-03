@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -92,8 +92,8 @@ void QuadrilateralMeshedSurfaceGeometry::performPanelCalculations( )
             if ( panelAreas_[ i ][ j ] < std::numeric_limits< double >::epsilon( ) )
             {
                 std::cerr << "WARNING panel area is zero in part at panel" << i
-                          << ", " << j << std::endl;               
-            }            
+                          << ", " << j << std::endl;
+            }
 
             // Normalize panel normal and, if necessary, invert normal direction.
             panelSurfaceNormals_[ i ][ j ] *= reversalOperator_;

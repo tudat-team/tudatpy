@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -36,6 +36,8 @@
  *                                  Streamlined initialization of isCoefficientGenerated_.
  *      130120    K. Kumar          Added shared pointer to HypersonicLocalInclinationAnalysis
  *                                  object.
+ *      140129    D. Dirkx          Changed Doxygen statements
+ *      140130    T. Roegiers       Changed Doxygen statements
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. The Mark IV Supersonic-Hypersonic Arbitrary Body
@@ -105,6 +107,11 @@ class HypersonicLocalInclinationAnalysis: public AerodynamicCoefficientGenerator
 {
 public:
 
+    //! Enum specifying meaning of indices of independent variables of generated coefficients
+    /*!
+     *  Enum specifying meaning of indices of independent variables of generated coefficients,
+     *  i.e. the three physical variables that can be varied in the analysis.
+     */
     enum HypersonicLocalInclinationAnalysisIndependentVariables
     {
         mach_index = 0,
@@ -114,7 +121,32 @@ public:
 
     //! Default constructor.
     /*!
-     * Default constructor.
+     *  Default constructor of class, specified vehicle geometry, discretization properties,
+     *  independent variable ranges, reference values and local inclination methods that are
+     *  to be used
+     *  \param dataPointsOfIndependentVariables Vector of vector, with each subvector containing
+     *  the data points of each of the independent variables for the coefficient generation.
+     *  The physical meaning of each of the three independent variables is defined by the
+     *  HypersonicLocalInclinationAnalysisIndependentVariables enum. Each of the subvectors must
+     *  be sorted in ascending order.
+     *  \param inputVehicleSurface Vehicle surface geometry for which the coefficients are to be
+     *  determined.
+     *  \param numberOfLines Number of discretization points in the first independent surface
+     *  variable of each of the subparts of inputVehicleSurface.
+     *  \param numberOfPoints Number of discretization points in the second independent surface
+     *  variable of each of the subparts of inputVehicleSurface.
+     *  \param invertOrders Booleans to denote whether the surface normals of the panels of
+     *  each discretized inputVehicleSurface subpart are to be inverted
+     *  (i.e. inward-facing->outward facing or vice versa)
+     *  \param selectedMethods Array of selected local inclination methods, the first index
+     *  represents compression/expansion, the second index denotes the vehicle part index.
+     *  The value for each separate method can be found in the updateCompressionPressures and
+     *  updateExpansionPressures functions, respectively.
+     *  \param referenceArea Reference area used to non-dimensionalize aerodynamic forces
+     *  and moments.
+     *  \param referenceLength Reference length used to non-dimensionalize aerodynamic moments.
+     *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
+     *  \param machRegime NOTE: Variable no longer used. Remove?
      */
     HypersonicLocalInclinationAnalysis(
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
@@ -165,7 +197,8 @@ public:
 
     //! Get the number of vehicle parts.
     /*!
-     * Returns the number of vehicle parts.
+     *  Returns the number of vehicle parts.
+     *  \return The number of vehicle parts.
      */
     int getNumberOfVehicleParts( ) const
     {
@@ -223,6 +256,7 @@ private:
      * calls determinepressureCoefficient_ function for given vehicle part.
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param independentVariableIndices Array of indices of independent variables.
+     * \return Force and moment coefficients for requested vehicle part.
      */
     basic_mathematics::Vector6d determinePartCoefficients(
             const int partNumber, const boost::array< int, 3 > independentVariableIndices );
@@ -242,6 +276,7 @@ private:
      * Sums the pressure coefficients of given part and determines force coefficients from it by
      * non-dimensionalization with reference area.
      * \param partNumber Index from vehicleParts_ array for which determine coefficients.
+     * \return Force coefficients for requested vehicle part.
      */
     Eigen::Vector3d calculateForceCoefficients( const int partNumber );
 
@@ -251,6 +286,7 @@ private:
      * panels on the part. Moment arms are taken from panel centroid to momentReferencePoint. Non-
      * dimensionalization is performed by product of referenceLength and referenceArea.
      * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
+     * \return Moment coefficients for requested vehicle part.
      */
     Eigen::Vector3d calculateMomentCoefficients( const int partNumber );
 

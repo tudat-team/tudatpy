@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -32,6 +32,8 @@
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor,
  *                                  removed raw pointer arrays.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140129    D. Dirkx          Changed Doxygen statements
+ *
  *
  *    References
  *      Craidon, C.B. A Desription of the Langley Wireframe Geometry Standard (LaWGS) format, NASA
@@ -95,8 +97,9 @@ public:
     //! Copy constructor.
     /*!
      * Copy constructor to deep-copy contents of a LawgsPartGeomtry object to a new one.
+     * \param partToCopy LawgsPartGeometry to copy
      */
-     LawgsPartGeometry( const LawgsPartGeometry& PartIn );
+     LawgsPartGeometry( const LawgsPartGeometry& partToCopy );
 
     //! Function to retrieve surface point.
     /*!
@@ -116,32 +119,45 @@ public:
 
     //! Get surface derivative (currently not implemented).
     /*!
-     * Currently unavailable function to return surface derivative.
+     *  Currently unavailable function to return surface derivative.
+     *  \param u NOTE: Function unavailable.
+     *  \param v NOTE: Function unavailable.
+     *  \param uDerivative NOTE: Function unavailable.
+     *  \param vDerivative NOTE: Function unavailable.
+     *  \return  NOTE: Function unavailable.
      */
     virtual Eigen::VectorXd getSurfaceDerivative( const double u, const double v,
                                                   const int uDerivative, const int vDerivative );
 
     //! Set name of a Lawgs part.
     /*!
-     * Sets the name of a Lawgs part.
+     *  Sets the name of a Lawgs part.
+     *  \param name New name of a Lawgs part.
      */
     void setName( const std::string& name ) { name_ = name; }
 
     //! Get parameter.
     /*!
-     * Returns parameter.
+     *  Function not currently impemented for Lawgs.
+     *  \param i Function not currently impemented for Lawgs.
+     *  \return Function not currently impemented for Lawgs.
      */
     virtual double getParameter( const int i );
 
     //! Set parameter.
     /*!
      * Sets parameter.
+     *  Function not currently impemented for Lawgs.
+     *  \param parameterIndex Function not currently impemented for Lawgs.
+     *  \param value Function not currently impemented for Lawgs.
+     *  \return Function not currently impemented for Lawgs.
      */
     virtual void setParameter( const int parameterIndex, const double value );
 
     //! Get part name.
     /*!
-     * Returns part name.
+     *  Returns part name.
+     *  \return Part name.
      */
     std::string getName( ) { return name_; }
 

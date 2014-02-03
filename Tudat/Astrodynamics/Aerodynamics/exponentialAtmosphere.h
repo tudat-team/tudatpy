@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -32,6 +32,8 @@
  *      110810    J. Leloux         Corrected doxygen documentation.
  *      130120    K. Kumar          Made function calls const-correct; added shared-pointer
  *                                  typedef.
+ *      140129    D. Dirkx          Changed Doxygen descriptions
+ *      140130    T. Roegiers       Changed Doxygen descriptions
  *
  *    References
  *
@@ -97,18 +99,21 @@ public:
     //! Set scale height.
     /*!
      * Sets the scale height (property of exponential atmosphere) in meters.
+     * \param scaleHeight New scale height of exponential atmosphere.
      */
     void setScaleHeight( const double scaleHeight ) { scaleHeight_ = scaleHeight; }
 
     //! Get scale height.
     /*!
      * Returns the scale height (property of exponential atmosphere) in meters.
+     * \return scaleHeight Scale height of exponential atmosphere.
      */
     double getScaleHeight( ) { return scaleHeight_; }
 
     //! Set density at zero altitude.
     /*!
      * Sets the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
+     * \param densityAtZeroAltitude Atmospheric density at zero altitude.
      */
     void setDensityAtZeroAltitude( const double densityAtZeroAltitude )
     {
@@ -118,12 +123,14 @@ public:
     //! Get density at zero altitude.
     /*!
      * Returns the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
+     * \return densityAtZeroAltitude Atmospheric density at zero altitude.
      */
     double getDensityAtZeroAltitude( ) { return densityAtZeroAltitude_; }
 
     //! Set constant temperature.
     /*!
      * Sets the atmospheric temperature (constant, property of exponential atmosphere) in Kelvin.
+     * \param constantTemperature Constant atmospheric temperature in exponential atmosphere.
      */
     void setConstantTemperature( const double constantTemperature )
     {
@@ -134,6 +141,7 @@ public:
     /*!
      * Returns the atmospheric temperature (constant, property of exponential atmosphere) in
      * Kelvin.
+     * \return constantTemperature Constant atmospheric temperature in exponential atmosphere.
      */
     double getConstantTemperature( ) { return constantTemperature_; }
 
@@ -141,6 +149,7 @@ public:
     /*!
      * Sets the specific gas constant of the air in J/(kg K), its value is assumed constant,
      * due to the assumption of constant atmospheric composition.
+     * \param specificGasConstant Constant specific gas constant in exponential atmosphere.
      */
     void setSpecificGasConstant( const double specificGasConstant )
     {
@@ -151,17 +160,21 @@ public:
     /*!
      * Returns the specific gas constant of the air in J/(kg K), its value is assumed constant,
      * due to the assumption of constant atmospheric composition.
+     * \return specificGasConstant Specific gas constant in exponential atmosphere.
      */
     double getSpecificGasConstant( ) { return specificGasConstant_; }
 
     //! Get local density.
     /*!
      * Returns the local density of the atmosphere in kg per meter^3.
-     * \param altitude Altitude.
-     * \param longitude Longitude.
-     * \param latitude Latitude.
-     * \param time Time.
-     * \return Atmospheric density.
+     * \param altitude Altitude at which density is to be computed.
+     * \param longitude Longitude at which density is to be computed (not used but included for
+     * consistency with base class interface).
+     * \param latitude Latitude at which density is to be computed (not used but included for
+     * consistency with base class interface).
+     * \param time Time at which density is to be computed (not used but included for
+     * consistency with base class interface).
+     * \return Atmospheric density at specified altitude.
      */
     double getDensity( const double altitude, const double longitude = 0.0,
                        const double latitude = 0.0, const double time = 0.0 )
@@ -175,11 +188,14 @@ public:
     //! Get local pressure.
     /*!
      * Returns the local pressure of the atmosphere in Newton per meter^2.
-     * \param altitude Altitude.
-     * \param longitude Longitude.
-     * \param latitude Latitude.
-     * \param time Time.
-     * \return Atmospheric pressure.
+     * \param altitude Altitude  at which pressure is to be computed.
+     * \param longitude Longitude at which pressure is to be computed (not used but included for
+     * consistency with base class interface).
+     * \param latitude Latitude at which pressure is to be computed (not used but included for
+     * consistency with base class interface).
+     * \param time Time at which pressure is to be computed (not used but included for
+     * consistency with base class interface).
+     * \return Atmospheric pressure at specified altitude.
      */
     double getPressure( const double altitude, const double longitude = 0.0,
                         const double latitude = 0.0, const double time = 0.0 )
@@ -193,11 +209,14 @@ public:
     //! Get local temperature.
     /*!
      * Returns the local temperature of the atmosphere in Kelvin.
-     * \param altitude Altitude.
-     * \param longitude Longitude.
-     * \param latitude Latitude.
-     * \param time Time.
-     * \return Atmospheric temperature.
+     * \param altitude Altitude at which temperature is to be computed
+     * \param longitude Longitude at which temperature is to be computed (not used but included for
+     * consistency with base class interface).
+     * \param latitude Latitude at which temperature is to be computed (not used but included for
+     * consistency with base class interface).
+     * \param time Time at which temperature is to be computed (not used but included for
+     * consistency with base class interface).
+     * \return constantTemperature Atmospheric temperature at specified altitude.
      */
     double getTemperature( const double altitude, const double longitude = 0.0,
                            const double latitude = 0.0, const double time = 0.0 )

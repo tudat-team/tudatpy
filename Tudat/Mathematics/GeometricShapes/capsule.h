@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -33,6 +33,7 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140129    D. Dirkx          Changed Doxygen descriptions
  *
  *    References
  *      E.H. Hirschel and C. Weiland, Selected Aerothermodynamic Design Problems of Hypersonic
@@ -127,6 +128,9 @@ public:
     /*!
      * Overloads ostream to print class information, prints the class type,
      * and number defining parameters.
+     * \param stream Stream to which info is to be printed.
+     * \param capsule Capsule of which info is to be printed.
+     * \return Stream with printed info.
      */
     friend std::ostream &operator<<( std::ostream &stream, Capsule& capsule );
 

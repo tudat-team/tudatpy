@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -385,7 +385,7 @@ Eigen::Vector3d HypersonicLocalInclinationAnalysis::calculateForceCoefficients(
 {
     // Declare force coefficient vector and intialize to zeros.
     Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
-    
+
     // Loop over all panels and add pressures, scaled by panel area, to force
     // coefficients.
     for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
@@ -478,7 +478,7 @@ void HypersonicLocalInclinationAnalysis::determineInclination( const int partNum
 //! Determine compression pressure coefficients on all parts.
 void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const double machNumber,
                                                                      const int partNumber )
-{ 
+{
     int method = selectedMethods_[ 0 ][ partNumber ];
 
     boost::function< double( double ) > pressureFunction;
