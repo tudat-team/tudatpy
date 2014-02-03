@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -49,7 +49,7 @@
  *      into single and composite surface geometry, the contents have been moved, with most of the
  *      SurfaceGeometry class now belonging to the SingleSurfaceGeometry class.
  *
- */ 
+ */
 
 #ifndef TUDAT_SINGLE_SURFACE_GEOMETRY_H
 #define TUDAT_SINGLE_SURFACE_GEOMETRY_H

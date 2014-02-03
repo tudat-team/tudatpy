@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -155,14 +155,14 @@ public:
      * \return Minimum value of azimuth angle.
      */
     double getMinimumAzimuthAngle( ) { return minimumIndependentVariable1_; }
-    
+
     //! Get maximum value of zenith angle.
     /*!
      * Returns the maximum value of the zenith angle.
      * \return Maximum value of zenith angle.
      */
     double getMaximumZenithAngle( ) {  return maximumIndependentVariable2_; }
-    
+
     //! Get minimum value of the zenith angle.
     /*!
      * Returns the minimum value of the zenith.

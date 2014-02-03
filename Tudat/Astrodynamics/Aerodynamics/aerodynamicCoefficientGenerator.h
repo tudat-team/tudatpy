@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -34,6 +34,8 @@
  *      120825    A. Ronse          Changed dataPointsOfIndependentVariables_ to array of doubles.
  *                                  Fixed bug in setMachPoint function.
  *      120912    D. Dirkx          Templatized class, adjusted to meet RAII idiom.
+ *      140129    D. Dirkx          Changed Doxygen descriptions
+ *      140130    T. Roegiers       Changed Doxygen descriptions
  *
  *    References
  *      Gentry, A., Smyth, D., and Oliver, W. The Mark IV Supersonic-Hypersonic
@@ -71,12 +73,21 @@ class AerodynamicCoefficientGenerator
 {
 public:
 
-    //! Default constructor.
+    //! Default base class constructor.
     /*!
-     * Default constructor.
+     *  Default base class constructor, sets independent variable data points and aerodynamics
+     *  reference quantities.
+     *  \param dataPointsOfIndependentVariables Vector of vector, where each subvector contains
+     *  the data points of each of the independent variables for the coefficient generation.
+     *  The number of subvectors must be equal to the number of independent variables. It is
+     *  recommended that each of the subvectors is sorted in ascending order.
+     *  \param referenceArea Reference area used to non-dimensionalize aerodynamic forces
+     *  and moments.
+     *  \param referenceLength Reference length used to non-dimensionalize aerodynamic moments.
+     *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
      */
     AerodynamicCoefficientGenerator(
-            const std::vector< std::vector< double > > dataPointsOfIndependentVariables,
+            const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
             const double referenceArea,
             const double referenceLength,
             const Eigen::Vector3d momentReferencePoint ):

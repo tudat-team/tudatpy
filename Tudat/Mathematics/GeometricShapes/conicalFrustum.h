@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -34,6 +34,7 @@
  *                                  Moved (con/de)structors and getter/setters to header.
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140129    D. Dirkx          Changed Doxygen descriptions
  *
  *    References
  *
@@ -68,7 +69,7 @@ namespace geometric_shapes
 class ConicalFrustum : public SingleSurfaceGeometry
 {
 public:
-    
+
     //! Conical frustum consructor, sets all shape parameters.
     /*!
      * Conical frustum consructor, sets all shape parameters.
@@ -173,6 +174,9 @@ public:
      * Overloaded ostream to print class information, prints the class type,
      * the ranges for the azimuth angle, cone half angle, length and the start
      * radius.
+     * \param stream Stream to which info is to be printed.
+     * \param conicalFrustum Conical frustum of which info is to be printed.
+     * \return Stream with printed info.
      */
     friend std::ostream &operator<<( std::ostream &stream, ConicalFrustum & conicalFrustum );
 

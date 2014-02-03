@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -34,6 +34,7 @@
  *      120323    D. Dirkx          Removed set functions; moved functionality to constructor
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      130121    K. Kumar          Added shared-pointer typedef.
+ *      140129    D. Dirkx          Changed Doxygen descriptions
  *
  *    References
  *
@@ -186,6 +187,9 @@ public:
      * Overloads ostream to print class information, prints the class type,
      * the ranges for the minor and major circumferential angles, and the
      * major and minor radii.
+     * \param stream Stream to which info is to be printed.
+     * \param torus Torus frustum of which info is to be printed.
+     * \return Stream with printed info.
      */
     friend std::ostream &operator<<( std::ostream &stream, Torus& torus );
 
