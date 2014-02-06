@@ -114,9 +114,9 @@ public:
      */
     enum HypersonicLocalInclinationAnalysisIndependentVariables
     {
-        mach_index = 0,
-        angle_of_attack_index = 1,
-        angle_of_sideslip_index = 2
+        machIndex = 0,
+        angleOfAttackIndex = 1,
+        angleOfSideslipIndex = 2
     };
 
     //! Default constructor.

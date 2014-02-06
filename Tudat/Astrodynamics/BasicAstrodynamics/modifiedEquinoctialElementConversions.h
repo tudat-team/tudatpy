@@ -66,7 +66,7 @@ namespace orbital_element_conversions
  * k-element = 4,
  * true longitude (L) = 5.
  */
-enum modifiedEquinoctialElementVectorIndices
+enum ModifiedEquinoctialElementVectorIndices
 {
     semiParameterIndex,
     fElementIndex,

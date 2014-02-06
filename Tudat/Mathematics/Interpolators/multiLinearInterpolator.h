@@ -96,7 +96,7 @@ public:
                              independentValues,
                              const boost::multi_array< DependentVariableType, numberOfDimensions >
                              dependentData,
-                             const AvailableLookupScheme selectedLookupScheme = hunting_algorithm )
+                             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
         : independentValues_( independentValues ),
           dependentData_( dependentData )
     {
@@ -170,7 +170,7 @@ private:
         // Find which type of scheme is used.
         switch( selectedScheme )
         {
-        case binary_search:
+        case binarySearch:
 
             for( int i = 0; i < numberOfDimensions; i++ )
             {
@@ -182,7 +182,7 @@ private:
 
             break;
 
-        case hunting_algorithm:
+        case huntingAlgorithm:
 
             for( int i = 0; i < numberOfDimensions; i++ )
             {

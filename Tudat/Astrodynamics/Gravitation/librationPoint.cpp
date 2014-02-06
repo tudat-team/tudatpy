@@ -82,7 +82,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     // parameter, or computed locations directly of equilateral libration points.
     switch( lagrangeLibrationPoint )
     {
-    case L1:
+    case l1:
     {
         // Create an object containing the function of which we whish to obtain the root from.
         UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
@@ -98,7 +98,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     }
         break;
 
-    case L2:
+    case l2:
     {
         // Create an object containing the function of which we whish to obtain the root from.
         UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
@@ -114,7 +114,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     }
         break;
 
-    case L3:
+    case l3:
     {
         // Create an object containing the function of which we whish to obtain the root from.
         UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
@@ -130,7 +130,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     }
         break;
 
-    case L4:
+    case l4:
 
         // Set position vector of L4 in Cartesian elements.
         positionOfLibrationPoint_.x( ) = 0.5 - massParameter;
@@ -139,7 +139,7 @@ void LibrationPoint::computeLocationOfLibrationPoint(
 
         break;
 
-    case L5:
+    case l5:
 
         // Set position vector of L5 in Cartesian elements.
         positionOfLibrationPoint_.x( ) = 0.5 - massParameter;

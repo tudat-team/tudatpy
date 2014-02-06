@@ -75,7 +75,7 @@ void compareAnalyticalAndNumericalDerivative( const Eigen::VectorXd& input,
     {
         Eigen::MatrixXd numericalDerivative = computeCentralDifference(
                     input, numericalCallback, 0.0, 0.0,
-                    tudat::basic_mathematics::numerical_derivatives::Order4 );
+                    tudat::basic_mathematics::numerical_derivatives::order4 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalDerivative, numericalDerivative,
                                            1.0e-9 );
 
@@ -85,7 +85,7 @@ void compareAnalyticalAndNumericalDerivative( const Eigen::VectorXd& input,
     {
         Eigen::MatrixXd numericalDerivative = computeCentralDifference(
                     input, numericalCallback, 0.0, 0.0,
-                    tudat::basic_mathematics::numerical_derivatives::Order8 );
+                    tudat::basic_mathematics::numerical_derivatives::order8 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalDerivative, numericalDerivative,
                                            1.0e-9 );
     }

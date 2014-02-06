@@ -118,7 +118,7 @@ protected:
         // Find which type of scheme is used.
         switch( selectedScheme )
         {
-        case binary_search:
+        case binarySearch:
 
             // Create binary search look up scheme.
             lookUpScheme_ = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
@@ -126,7 +126,7 @@ protected:
                       ( independentValues_ ) );
             break;
 
-        case hunting_algorithm:
+        case huntingAlgorithm:
 
             // Create hunting scheme, which uses an intial guess from previous look-ups.
             lookUpScheme_ = boost::shared_ptr< LookUpScheme< IndependentVariableType > >

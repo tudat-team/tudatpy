@@ -281,17 +281,17 @@ void HypersonicLocalInclinationAnalysis::generateCoefficients( )
     boost::array< int, 3 > independentVariableIndices;
 
     // Iterate over all combinations of independent variables.
-    for ( unsigned int i = 0 ; i < dataPointsOfIndependentVariables_[ mach_index ].size( ) ; i++ )
+    for ( unsigned int i = 0 ; i < dataPointsOfIndependentVariables_[ machIndex ].size( ) ; i++ )
     {
-        independentVariableIndices[ mach_index ] = i;
+        independentVariableIndices[ machIndex ] = i;
         for ( unsigned  int j = 0 ; j < dataPointsOfIndependentVariables_[
-              angle_of_attack_index ].size( ) ; j++ )
+              angleOfAttackIndex ].size( ) ; j++ )
         {
-            independentVariableIndices[ angle_of_attack_index ] = j;
+            independentVariableIndices[ angleOfAttackIndex ] = j;
             for ( unsigned  int k = 0 ; k < dataPointsOfIndependentVariables_[
-                  angle_of_sideslip_index ].size( ) ; k++ )
+                  angleOfSideslipIndex ].size( ) ; k++ )
             {
-                independentVariableIndices[ angle_of_sideslip_index ] = k;
+                independentVariableIndices[ angleOfSideslipIndex ] = k;
 
                 determineVehicleCoefficients( independentVariableIndices );
             }
@@ -322,11 +322,11 @@ Vector6d HypersonicLocalInclinationAnalysis::determinePartCoefficients(
         const int partNumber, const boost::array< int, 3 > independentVariableIndices )
 {
     // Declare and determine angles of attack and sideslip for analysis.
-    double angleOfAttack =  dataPointsOfIndependentVariables_[ angle_of_attack_index ]
-            [ independentVariableIndices[ angle_of_attack_index ] ];
+    double angleOfAttack =  dataPointsOfIndependentVariables_[ angleOfAttackIndex ]
+            [ independentVariableIndices[ angleOfAttackIndex ] ];
 
-    double angleOfSideslip =  dataPointsOfIndependentVariables_[ angle_of_sideslip_index ]
-            [ independentVariableIndices[ angle_of_sideslip_index ] ];
+    double angleOfSideslip =  dataPointsOfIndependentVariables_[ angleOfSideslipIndex ]
+            [ independentVariableIndices[ angleOfSideslipIndex ] ];
 
     // Declare partCoefficient vector.
     Vector6d partCoefficients = Vector6d::Zero( );
@@ -367,8 +367,8 @@ void HypersonicLocalInclinationAnalysis::determinePressureCoefficients(
         const int partNumber, const boost::array< int, 3 > independentVariableIndices )
 {
     // Retrieve Mach number.
-    double machNumber = dataPointsOfIndependentVariables_[ mach_index ]
-            [ independentVariableIndices[ mach_index ] ];
+    double machNumber = dataPointsOfIndependentVariables_[ machIndex ]
+            [ independentVariableIndices[ machIndex ] ];
 
     // Determine stagnation point pressure coefficients. Value is computed once
     // here to prevent its calculation in inner loop.
