@@ -109,7 +109,7 @@ public:
      *          interpolation.
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType > dataMap,
-                        const AvailableLookupScheme selectedLookupScheme = hunting_algorithm )
+                        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
     {
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
@@ -149,7 +149,7 @@ public:
      */
     LinearInterpolator( const std::vector< IndependentVariableType > independentValues,
                         const std::vector< DependentVariableType > dependentValues,
-                        const AvailableLookupScheme selectedLookupScheme = hunting_algorithm )
+                        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
     {
         // Verify that the initialization variables are not empty.
         if ( independentValues.size( ) == 0 || dependentValues.size( ) == 0 )

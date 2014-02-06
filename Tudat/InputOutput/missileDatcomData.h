@@ -70,17 +70,17 @@ public:
      */
     enum StaticCoefficientNames
     {
-        CN = 0,
-        CM = 1,
-        CA = 2,
-        CY = 3,
-        CLN = 4,
-        CLL = 5,
-        CNA = 6,
-        CMA = 7,
-        CYB = 8,
-        CNB = 9,
-        CLB = 10
+        cn = 0,
+        cm = 1,
+        ca = 2,
+        cy = 3,
+        cln = 4,
+        cll = 5,
+        cna = 6,
+        cma = 7,
+        cyb = 8,
+        cnb = 9,
+        clb = 10
     };
 
     //! Enum of dynamic coefficients.
@@ -90,26 +90,26 @@ public:
      */
     enum DynamicCoefficientNames
     {
-        CNQ = 0,
-        CMQ = 1,
-        CAQ = 2,
-        CYQ = 3,
-        CLNQ = 4,
-        CLLQ = 5,
-        CNR = 6,
-        CMR = 7,
-        CAR = 8,
-        CYR = 9,
-        CLNR = 10,
-        CLLR = 11,
-        CNP = 12,
-        CMP = 13,
-        CAP = 14,
-        CYP = 15,
-        CLNP = 16,
-        CLLP = 17,
-        CNAD = 18,
-        CMAD = 19
+        cnq = 0,
+        cmq = 1,
+        caq = 2,
+        cyq = 3,
+        clnq = 4,
+        cllq = 5,
+        cnr = 6,
+        cmr = 7,
+        car = 8,
+        cyr = 9,
+        clnr = 10,
+        cllr = 11,
+        cnp = 12,
+        cmp = 13,
+        cap = 14,
+        cyp = 15,
+        clnp = 16,
+        cllp = 17,
+        cnad = 18,
+        cmad = 19
     };
 
     //! Constructor that reads and processes Missile Datcom output.

@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL1LibrationPoint )
                                             boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL1.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L1 );
+    librationPointL1.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l1 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL1
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL2LibrationPoint )
                                             boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL2.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L2 );
+    librationPointL2.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l2 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL2
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL3LibrationPoint )
                                             boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL3.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L3 );
+    librationPointL3.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l3 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL3
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL4LibrationPoint )
                                             boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL4.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L4 );
+    librationPointL4.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l4 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL4
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL5LibrationPoint )
                                             boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL5.computeLocationOfLibrationPoint( crtbp::LibrationPoint::L5 );
+    librationPointL5.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l5 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL5

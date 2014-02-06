@@ -61,10 +61,10 @@ namespace numerical_derivatives
  */
 enum CentralDifferenceOrders
 {
-    Order2 = 2,
-    Order4 = 4,
-    Order6 = 6,
-    Order8 = 8
+    order2 = 2,
+    order4 = 4,
+    order6 = 6,
+    order8 = 8
 };
 
 //! Get coefficients of a certain order for central difference numerical derivatives.
@@ -81,33 +81,33 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
     if ( coefficients.empty( ) )
     {
         // Initialize the coefficients map
-        coefficients[ Order2 ] = std::map< int, double >( );
-        coefficients[ Order2 ][ -1] = -1.0 / 2.0;
-        coefficients[ Order2 ][ 1] = 1.0 / 2.0;
+        coefficients[ order2 ] = std::map< int, double >( );
+        coefficients[ order2 ][ -1] = -1.0 / 2.0;
+        coefficients[ order2 ][ 1] = 1.0 / 2.0;
 
-        coefficients[ Order4 ] = std::map< int, double >( );
-        coefficients[ Order4 ][ -2] = 1.0 / 12.0;
-        coefficients[ Order4 ][ -1] = -2.0 / 3.0;
-        coefficients[ Order4 ][ 1] = 2.0 / 3.0;
-        coefficients[ Order4 ][ 2] = -1.0 / 12.0;
+        coefficients[ order4 ] = std::map< int, double >( );
+        coefficients[ order4 ][ -2] = 1.0 / 12.0;
+        coefficients[ order4 ][ -1] = -2.0 / 3.0;
+        coefficients[ order4 ][ 1] = 2.0 / 3.0;
+        coefficients[ order4 ][ 2] = -1.0 / 12.0;
 
-        coefficients[ Order6 ] = std::map< int, double >( );
-        coefficients[ Order6 ][ -3 ] = -1.0 / 60.0;
-        coefficients[ Order6 ][ -2 ] = 3.0 / 20.0;
-        coefficients[ Order6 ][ -1 ] = -3.0 / 4.0;
-        coefficients[ Order6 ][ 1 ] = 1.0 / 60.0;
-        coefficients[ Order6 ][ 2 ] = -3.0 / 20.0;
-        coefficients[ Order6 ][ 3 ] = 3.0 / 4.0;
+        coefficients[ order6 ] = std::map< int, double >( );
+        coefficients[ order6 ][ -3 ] = -1.0 / 60.0;
+        coefficients[ order6 ][ -2 ] = 3.0 / 20.0;
+        coefficients[ order6 ][ -1 ] = -3.0 / 4.0;
+        coefficients[ order6 ][ 1 ] = 1.0 / 60.0;
+        coefficients[ order6 ][ 2 ] = -3.0 / 20.0;
+        coefficients[ order6 ][ 3 ] = 3.0 / 4.0;
 
-        coefficients[ Order8 ] = std::map< int, double >( );
-        coefficients[ Order8 ][ -4 ] = 1.0 / 280.0;
-        coefficients[ Order8 ][ -3 ] = -4.0 / 105.0;
-        coefficients[ Order8 ][ -2 ] = 1.0 / 5.0;
-        coefficients[ Order8 ][ -1 ] = -4.0 / 5.0;
-        coefficients[ Order8 ][ 1 ] = 4.0 / 5.0;
-        coefficients[ Order8 ][ 2 ] = -1.0 / 5.0;
-        coefficients[ Order8 ][ 3 ] = 4.0 / 105.0;
-        coefficients[ Order8 ][ 4 ] = -1.0 / 280.0;
+        coefficients[ order8 ] = std::map< int, double >( );
+        coefficients[ order8 ][ -4 ] = 1.0 / 280.0;
+        coefficients[ order8 ][ -3 ] = -4.0 / 105.0;
+        coefficients[ order8 ][ -2 ] = 1.0 / 5.0;
+        coefficients[ order8 ][ -1 ] = -4.0 / 5.0;
+        coefficients[ order8 ][ 1 ] = 4.0 / 5.0;
+        coefficients[ order8 ][ 2 ] = -1.0 / 5.0;
+        coefficients[ order8 ][ 3 ] = 4.0 / 105.0;
+        coefficients[ order8 ][ 4 ] = -1.0 / 280.0;
     }
 
     return coefficients[ order ];
@@ -135,7 +135,7 @@ template < typename InputType, typename ResultType >
 ResultType computeCentralDifference( const InputType& input, const int derivativeIndex,
                                      const boost::function< ResultType( const InputType& ) >& function,
                                      double minimumStep = 0.0, double stepSize = 0.0,
-                                     CentralDifferenceOrders order = Order2 )
+                                     CentralDifferenceOrders order = order2 )
 {
     const std::map< int, double >& coefficients = getCentralDifferenceCoefficients( order );
 
@@ -202,7 +202,7 @@ ResultType computeCentralDifference( const InputType& input, const int derivativ
 Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const boost::function<
                                           Eigen::VectorXd( const Eigen::VectorXd& ) >& function,
                                           double minimumStep = 0.0, double stepSize = 0.0,
-                                          CentralDifferenceOrders order = Order2 )
+                                          CentralDifferenceOrders order = order2 )
 {
     Eigen::MatrixXd result;
 

@@ -98,7 +98,7 @@ class LibrationPoint
 public:
 
     //! Lagrange libration points.
-    enum LagrangeLibrationPoints { L1, L2, L3, L4, L5 };
+    enum LagrangeLibrationPoints { l1, l2, l3, l4, l5 };
 
     //! Default constructor.
     LibrationPoint( const double aPrimaryGravitationalParameter,

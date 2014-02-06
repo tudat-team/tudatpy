@@ -53,8 +53,8 @@ namespace interpolators
  */
 enum AvailableLookupScheme
 {
-    hunting_algorithm,
-    binary_search
+    huntingAlgorithm,
+    binarySearch
 };
 
 //! Look-up scheme class for nearest left neighbour search.
