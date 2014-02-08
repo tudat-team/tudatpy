@@ -66,7 +66,9 @@ public:
 
     //! Default constructor.
     /*!
-     * Default constructor.
+     *  Default constructor.
+     *  \param bodyWithPredefinedCentralGravityField Enum defining which solar system body
+     *  the central gravity is to be created for.
      */
     CentralGravityField( BodiesWithPredefinedCentralGravityFields
                          bodyWithPredefinedCentralGravityField )

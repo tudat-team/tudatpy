@@ -68,8 +68,7 @@ namespace gravitation
  * harmonic terms from degree and order zero, up to a user-specified highest degree and order. The
  * harmonic coefficients for the function must be provided in geodesy-normalized format. This
  * geodesy-normalization is defined as:
- * \f{eqnarray*}
- *  {
+ * \f{eqnarray*}{
  *     \bar{ C }_{ n, m } = \Pi_{ n, m } C_{ n, m } \\
  *     \bar{ S }_{ n, m } = \Pi_{ n, m } S_{ n, m }
  * \f}
@@ -116,8 +115,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
  * term, with the coefficients expressed using a geodesy-normalization. The harmonic coefficients
  * for the function must be provided in geodesy-normalized format. This geodesy-normalization is
  * defined as:
- * \f{eqnarray*}
- *  {
+ * \f{eqnarray*}{
  *     \bar{ C }_{ n, m } = \Pi_{ n, m } C_{ n, m } \\
  *     \bar{ S }_{ n, m } = \Pi_{ n, m } S_{ n, m }
  * \f}
@@ -235,11 +233,11 @@ public:
      * gravitational acceleration is an optional parameter; the default position is the origin.
      * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
      *          body subject to gravitational acceleration.
-     * \param gravitationalParameterFunction Pointer to function returning gravitational parameter.
-     * \param equatorialRadiusFunction Pointer to function returning equatorial radius.
+     * \param aGravitationalParameter Pointer to function returning gravitational parameter.
+     * \param anEquatorialRadius Pointer to function returning equatorial radius.
      * \param cosineHarmonicCoefficientsFunction Pointer to function returning matrix of
                 cosine-coefficients of spherical harmonics expansion.
-     * \param cosineHarmonicCoefficientsFunction Pointer to function returning matrix of
+     * \param sineHarmonicCoefficientsFunction Pointer to function returning matrix of
                 sine-coefficients of spherical harmonics expansion.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration (default = (0,0,0)).
