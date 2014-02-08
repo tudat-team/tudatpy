@@ -62,14 +62,14 @@ namespace aerodynamics
  * aerodynamic coefficients) have to computed before passing them to this function.
  * \param dynamicPressure Dynamic pressure at which the body undergoing the acceleration flies.
  * \param referenceArea Reference area of the aerodynamic coefficients.
- * \param aerodynamicCoefficients. Aerodynamic coefficients in right-handed reference frame.
+ * \param aerodynamicCoefficients Aerodynamic coefficients in right-handed reference frame.
  * \param vehicleMass Mass of vehicle undergoing acceleration.
  * \return Resultant aerodynamic acceleration, given in reference frame in which the
  *          aerodynamic coefficients were given (assuming coefficients in positive direction).
  */
 Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
                                                 const double referenceArea,
-                                                const Eigen::Vector3d aerodynamicCoefficients,
+                                                const Eigen::Vector3d& aerodynamicCoefficients,
                                                 const double vehicleMass )
 {
     return computeAerodynamicForce( dynamicPressure, referenceArea, aerodynamicCoefficients )

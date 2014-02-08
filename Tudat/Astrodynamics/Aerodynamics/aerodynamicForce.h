@@ -62,7 +62,7 @@ namespace aerodynamics
  * aerodynamic coefficients) have to computed before passing them to this function.
  * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
  * \param referenceArea Reference area of the aerodynamic coefficients.
- * \param aerodynamicCoefficients. Aerodynamic coefficients in right-handed reference frame.
+ * \param aerodynamicCoefficients Aerodynamic coefficients in right-handed reference frame.
  * \return Resultant aerodynamic force, given in reference frame in which the
  *          aerodynamic coefficients were given.
  */

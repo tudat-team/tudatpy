@@ -57,7 +57,7 @@ namespace aerodynamics
  * \param referenceArea Reference area of the aerodynamic coefficients.
  * \param referenceLength Reference length of the aerodynamic coefficients. Note that this
  *          reference length is used for all three independent directions.
- * \param aerodynamicCoefficients. Aerodynamic moment coefficients in right-handed reference frame.
+ * \param momentCoefficients Aerodynamic moment coefficients in right-handed reference frame.
  * \return Resultant aerodynamic moment, given in reference frame in which the
  *          aerodynamic coefficients were given, but with opposite sign. i.e., a positive drag
  *          coefficient will give a negative force in -x direction (in the aerodynamic frame).

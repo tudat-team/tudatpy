@@ -127,6 +127,7 @@ public:
     //! Returns the gravitational parameter of the Sun.
     /*!
      *  Returns the gravitational parameter of the Sun that is used in the calculations.
+     *  \return Gravitational parameter of the Sun.
      */
     double getSunGravitationalParameter( ){ return sunGravitationalParameter; }
 
