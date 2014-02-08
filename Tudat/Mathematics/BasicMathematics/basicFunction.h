@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120208    S. Billemont      File created.
  *      120402    T. Secretin       Code-check.
+ *      140124    H.P. Gijsen       fixed Doxygen warnings
  *
  *    References
  *
@@ -82,6 +83,10 @@ public:
      * Generic calculation of the derivative of a function using numerical techniques.
      * \see Function::derivative
      * TODO: Use the external derivative code, this function is a basic/temporary implementation.
+     * for now this is the implementation:
+     * \param order The Order of the derivative
+     * \param independentVariable The independent variable with respect to which the derivative is taken.
+     * \return The numerical derivative of the function.
      */
     virtual DependentVariable computeDerivative( const unsigned int order,
                                                  const IndependentVariable independentVariable )
@@ -114,8 +119,12 @@ public:
     //! (without constants).
     /*!
      * Generic calculation of the function integral using numerical techniques.
-     * \see Function::computeDefiniteIntegral.
      * TODO: Fix this code, as it doesnt work.
+     * \param order Order of integral (i.e. integrate n times, with n = order )
+     * \param lowerBound Lower integration bound
+     * \param upperbound Upper integration bound
+     * \return Nothing as yet; function not yet implemented
+     * \see Function::computeDefiniteIntegral.
      */
     virtual DependentVariable computeDefiniteIntegral( const unsigned int order,
                                                        const IndependentVariable lowerBound,
@@ -136,7 +145,9 @@ protected:
 
 private:
 
+    //! typedef for a Function that relates a Dependent Variable to an IndependentVariable.
     typedef Function< IndependentVariable, DependentVariable >          Parent;
+    //! typedef for a Runge-Kutta 4 integration scheme.
     typedef numerical_integrators::RungeKutta4Integrator<
     IndependentVariable, DependentVariable, DependentVariable >         Integrator;
 };

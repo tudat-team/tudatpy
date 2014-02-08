@@ -29,6 +29,7 @@
  *      120909    K. Kumar          Added Doxygen comments; updated variable-naming to be verbose;
  *                                  updated function names and ensured const-correctness.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      140124    H.P. Gijsen       fixed Doxygen warnings
  *
  *    References
  *
@@ -60,7 +61,7 @@ public:
     //! Default destructor.
     virtual ~Function( ) { }
 
-    //! Compute mathematical function value.
+    //! Compute mathematical function value. This implementation is a pure virtual function.
     /*!
      * Computes the value of the mathematical function used for the root-finder algorithm being
      * used.
@@ -75,21 +76,23 @@ public:
         return evaluate( inputValue );
     }
 
-    //! Evaluate the derivative of the function.
+    //! Evaluate the derivative of the function. This implementation is a pure virtual function.
     /*!
      * This evaluates the derivative of a given order of this function.
      * \param order               Order of the derivative to evaluate.
-     * \param IndependentVariable Location where to evaluate the derivative.
+     * \param independentVariable Location where to evaluate the derivative.
+     * \return the derivative of the function
      */
     virtual DependentVariable computeDerivative(
             const unsigned int order, const IndependentVariable independentVariable ) = 0;
 
     //! Evaluate the definite integral of the function.
     /*!
-     * This evaluates the definite integral of a given order of this function.
+     * This evaluates the definite integral of a given order of this function. This implementation is a pure virtual function.
      * \param order      Order of the integral to evaluate.
      * \param lowerBound Integration lower bound (integrate from this point).
-     * \param upperBound Integration upper bound (integrate to this point).
+     * \param upperbound Integration upper bound (integrate to this point).
+     * \return the definite numerical integral of this function
      */
     virtual DependentVariable computeDefiniteIntegral( const unsigned int order,
                                                        const IndependentVariable lowerBound,

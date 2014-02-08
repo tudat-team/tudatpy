@@ -27,6 +27,7 @@
  *      110119    S. Billemont      File created.
  *      120402    T. Secretin       Code-check.
  *      120813    P. Musegaas       Added derivative function.
+ *      140124    H.P. Gijsen       fixed Doxygen warnings
  *
  *    References
  *
@@ -69,8 +70,17 @@ class FunctionProxy : public BasicFunction< IndependentVariable, DependentVariab
 public:
 
     // Useful definitions.
+    //! Typedef for a basic function.
+    /*!
+     * the independent and dependent variables are both doubles.
+     */
     typedef BasicFunction< IndependentVariable, DependentVariable >           Parent;
+    //! Typedef for the function that relates the dependent variable to the independent variable.
+    /*!
+     * the independent and dependent variables are both doubles.
+     */
     typedef boost::function< DependentVariable( IndependentVariable ) >       FunctionSignature;
+    //! Typedef for a shared pointer to the class FunctionProxy
     typedef boost::shared_ptr< FunctionProxy >                                FunctionProxyPointer;
 
     //! Create a Function object, using a specified function pointer.
@@ -84,6 +94,7 @@ public:
      * Performs simple delegation of the evaluation to the user set function.
      * \param independentVariable Location where to evaluate the function.
      * \see Function::evaluate( IndependentVariable ).
+     * \return the value of the dependent varaible.
      */
     virtual DependentVariable evaluate( const IndependentVariable independentVariable )
     {
@@ -95,6 +106,7 @@ public:
      * This evaluates the derivative of a given order of this function.
      * \param order                   Order of the derivative to evaluate.
      * \param independentVariable     Location where to evaluate the derivative.
+     * \return                        The function that gives the derivative.
      */
     DependentVariable computeDerivative( const unsigned int order,
                                          const IndependentVariable independentVariable )
@@ -112,6 +124,7 @@ public:
      * required.
      *
      * \param order Order of integration (negative for a derivative function).
+     * \param function The functionsignature of the function set by the used.
      */
     void addBinding( const int order, FunctionSignature function )
     {
@@ -122,6 +135,7 @@ public:
     /*!
      * Retrieves a binding that was set using FunctionProxy::addBinding(int, FunctionSignature)
      * \param order Order of integration (negative for a derivative function).
+     * \return the binding
      */
     FunctionSignature findBinding( int order = 0 )
     {

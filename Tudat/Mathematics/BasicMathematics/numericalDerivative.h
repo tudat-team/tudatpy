@@ -123,13 +123,12 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
  * \param input Input vector.
  * \param derivativeIndex The index of the entry of the input vector with respect to which to take
  *          the derivative.
- * \param result Vector to store the result to. Caller should initialize this to a zero vector of
- *          proper length.
  * \param function The function to call with signature
  *          void( const VectorXd& input, VectorXd& result ).
  * \param minimumStep The absolute minimum step size to take. By default 2^-13.
  * \param stepSize The relative step size to take. By default 2^-26.
  * \param order The order of the algorithm to use.
+ * \return Numerical derivative calculated from input
  */
 template < typename InputType, typename ResultType >
 ResultType computeCentralDifference( const InputType& input, const int derivativeIndex,
@@ -191,13 +190,12 @@ ResultType computeCentralDifference( const InputType& input, const int derivativ
  * function with vector output. The implemented orders are 2nd, 4th and 8th.
  *
  * \param input Input vector
- * \param result Matrix to store the result to. Caller should initialize this to a zero matrix of
- *          proper length.
  * \param function The function to call with signature
  *          void( const VectorXd& input, VectorXd& result ).
  * \param minimumStep The absolute minimum step size to take. By default 2^-13.
  * \param stepSize The relative step size to take. By default 2^-26.
  * \param order The order of the algorithm to use. Will yield an assertion failure if not 2 or 4.
+ * \return Numerical derivative calculated from input
  */
 Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const boost::function<
                                           Eigen::VectorXd( const Eigen::VectorXd& ) >& function,

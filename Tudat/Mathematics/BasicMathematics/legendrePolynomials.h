@@ -363,8 +363,10 @@ private:
     //! Define Legendre polynomial function pointer.
     typedef boost::function< double ( int, int, double ) > LegendrePolynomialFunction;
 
-    //! Define map and buffer variables types.
+    //! Define map variables type.
     typedef boost::unordered_map< Point, double > CacheTable;
+
+    //! Define buffer variables type.
     typedef boost::circular_buffer< Point > CacheHistory;
 
 public:
@@ -387,19 +389,21 @@ public:
 
 private:
 
-    // Declare hashmap which links a specific degree, order and polynomial parameter to its
-    // corresponding Legendre polynomial value.
+    //! Hashmap which links a specific degree, order and polynomial parameter to its
+    //! corresponding Legendre polynomial value.
     CacheTable backendCache;
 
-    // Declare history buffer.
+    //! History buffer.
     CacheHistory history;
 };
 
 //! Typedef shared-pointer to LegendreCache object.
 typedef boost::shared_ptr< LegendreCache > LegendreCachePointer;
 
-// Declare global instances of LegendreCache class.
+//! Global instances of LegendreCache class for unnormalized polynomials.
 static LegendreCache legendreCache;
+
+//! Global instances of LegendreCache class for geodesy-normalized polynomials.
 static LegendreCache geodesyLegendreCache;
 
 //! Write contents of Legendre polynomial structure to string.
