@@ -80,7 +80,7 @@ Eigen::VectorXd convertDimensionlessCartesianStateToDimensionalUnits(
 //! Convert dimensionless time to dimensional units.
 /*!
  * Convert dimensionless time to dimensional units.
- * \param timeInNormalizedUnits Time in normalized units.
+ * \param timeInDimensionlessUnits Time in normalized units.
  * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body.   [m^3 s^-2]
  * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body.
  *                                                                                       [m^3 s^-2]

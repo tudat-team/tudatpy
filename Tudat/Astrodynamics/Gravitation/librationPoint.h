@@ -79,7 +79,7 @@ namespace circular_restricted_three_body_problem
  * Computes dimensionless mass parameter for the CRTBP.
  * \param primaryGravitationalParameter Gravitational parameter of primary body.
  * \param secondaryGravitationalParameter Gravitational parameter of secondary body.
- * \param Dimensionless mass parameter.
+ * \return Dimensionless mass parameter.
  */
 inline double computeMassParameter( const double primaryGravitationalParameter,
                                     const double secondaryGravitationalParameter )
@@ -112,6 +112,9 @@ public:
     //! Default constructor.
     /*!
      * Default constructor.
+     * \param aMassParameter Dimensionless mass parameter of the smaller of the massive bodies in the CRTBP.
+     * \param aRootFinder Shared pointer to the rootfinder which is used for finding the L1, L2 and
+     * L3 libration points. The rootfinder contains termination conditions inside.
      */
     LibrationPoint( const double aMassParameter,
                     const root_finders::RootFinderPointer aRootFinder )
@@ -123,6 +126,7 @@ public:
     /*!
      * Returns the dimensionless mass parameter based on the gravitational
      * parameters of the primary and secondary bodies.
+     * \return Dimensionless mass parameter.
      */
     double getMassParameter( ) { return massParameter; }
 

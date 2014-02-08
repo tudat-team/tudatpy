@@ -127,7 +127,7 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
  *          acceleration (body2) [m^3 s^-2].
  * \param equatorialRadiusOfBodyExertingAcceleration Equatorial radius of body exerting
  *          acceleration (body2), in formulation of spherical harmonics expansion [m].
- * \param coefficientsOfGravityField Coefficients of zonal terms, describing irregularity of the
+ * \param zonalCoefficientsOfGravityField Coefficients of zonal terms, describing irregularity of the
  *          gravity field of body2 [-]. The map key contains the degree, and the map value contains
  *          the coefficient value. At the moment, the only degrees supported are 2 (\f$J_{2}\f$),
  *          3 (\f$J_{3}\f$), and 4 (\f$J_{4}\f$) etc. An error is thrown for any other values.

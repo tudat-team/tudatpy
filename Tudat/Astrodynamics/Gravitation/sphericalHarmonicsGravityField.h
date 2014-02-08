@@ -88,6 +88,9 @@ public:
     //! Default constructor.
     /*!
      * Default constructor.
+     * \param degreeOfExpansion Maximum degree of spherical harmonic expansion.
+     * \param orderOfExpansion Maximum order of spherical harmonic expansion.
+     * \param referenceRadius Reference radius of spherical harmonic coefficients.
      */
     SphericalHarmonicsGravityField( const unsigned int degreeOfExpansion = 0,
                                     const unsigned int orderOfExpansion = 0,

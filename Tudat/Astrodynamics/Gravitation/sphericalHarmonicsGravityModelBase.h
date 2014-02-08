@@ -72,7 +72,7 @@ public:
      * constructor also updates all the internal members.
      * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
      *          body subject to gravitational acceleration.
-     * \param gravitationalParameterFunction Pointer to function returning gravitational parameter
+     * \param aGravitationalParameter Pointer to function returning gravitational parameter
      *          of body exerting gravitational acceleration.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration.
