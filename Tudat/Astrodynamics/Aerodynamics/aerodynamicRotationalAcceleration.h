@@ -55,8 +55,9 @@ namespace aerodynamics
  * \param referenceArea Reference area of the aerodynamic coefficients.
  * \param referenceLength Reference length of the aerodynamic coefficients. Note that this
  *          reference length is used for all three independent directions.
- * \param aerodynamicCoefficients. Aerodynamic rotational acceleration coefficients in
+ * \param momentCoefficients Aerodynamic rotational acceleration coefficients in
  *          right-handed reference frame.
+ * \param vehicleMass Mass of vehicle undergoing acceleration.
  * \return Resultant aerodynamic rotational acceleration, given in reference frame in which the
  *          aerodynamic coefficients were given, but with opposite sign. i.e., a positive drag
  *          coefficient will give a negative force in -x direction (in the aerodynamic frame).
@@ -78,6 +79,7 @@ Eigen::Vector3d computeAerodynamicRotationalAcceleration(
  * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
  * \param coefficientInterface AerodynamicCoefficientInterface class from which reference area
  *          and length, and the rotational acceleration coefficients are retrieved.
+ * \param vehicleMass Mass of vehicle undergoing acceleration.
  * \return Resultant aerodynamic rotational acceleration, given in reference frame in which the
  *          aerodynamic coefficients were given.
  */

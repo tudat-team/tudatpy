@@ -60,7 +60,7 @@ namespace geometric_shapes
  * Writes the points on a SingleSurfaceGeometry object to a file.
  * Each row contains the x, y and z coordinate of the point, each next row
  * defines a single new point.
- * \param pointerToSingleSurfaceGeometry Geometry which is to be written.
+ * \param singleSurfaceGeometry Geometry which is to be written.
  * \param numberOfLines Defines how many points are taken over the 1st
  *          independent variable.
  * \param numberOfPoints Defines how many points are taken over the 2nd
@@ -83,7 +83,7 @@ void writeSingleSurfaceGeometryPointsToFile(
  *  Writes the single surface geometries in a composite surface geometry to
  *  a file. The writeSingleGeometryPointsToFile( ) function is called for
  *  each surface geometry.
- *  \param pointerToCompositeSurfaceGeometry Geometry from which there
+ *  \param compositeSurfaceGeometry Geometry from which there
  *          is to be written.
  *  \param arrayOfNumberOfLines Array of how many points to take over the 1st
  *          independent variables of single surface geometries.

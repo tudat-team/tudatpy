@@ -70,7 +70,7 @@ namespace interpolators
  * \param subDiagonal Sub-diagonal of matrix A.
  * \param superDiagonal Super-diagonal of matrix A.
  * \param diagonal Diagonal of matrix A.
- * \param diagonal Right-hand-side of matrix equation.
+ * \param rightHandSide Right-hand-side of matrix equation.
  * \return Solution to matrix equation.
  */
 template< typename IndependentVariableType, typename DependentVariableType >

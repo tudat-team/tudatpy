@@ -77,7 +77,9 @@ public:
 
     //! Default constructor.
     /*!
-     * Default constructor.
+     *  Default constructor.
+     *  \param inputDataToFit Input data of independent (key) and dependent (value) variables
+     *  to fit.
      */
     SimpleLinearRegression( const InputDataMap& inputDataToFit )
         : chiSquared_( TUDAT_NAN ),
@@ -213,7 +215,7 @@ private:
 
     //! Input data to fit.
     /*!
-     * Input data to fit.
+     *  Input data to fit.
      */
     InputDataMap inputDataToFit_;
 
