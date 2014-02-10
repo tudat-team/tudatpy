@@ -98,6 +98,8 @@ struct RungeKuttaCoefficients
      * \param cCoefficients_ First column of the Butcher tableau.
      * \param higherOrder_ Order of the integrator.
      * \param lowerOrder_ Order of the embedded low-order integrator.
+     * \param order Enum denoting whether to use the lower or higher order scheme for numerical
+     * integration.
      */
     RungeKuttaCoefficients( const Eigen::MatrixXd& aCoefficients_,
                             const Eigen::MatrixXd& bCoefficients_,
