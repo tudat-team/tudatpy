@@ -147,6 +147,11 @@ public:
      *          vector element.
      * \param absoluteErrorTolerance The absolute error tolerance, for each individual state
      *          vector element.
+     * \param safetyFactorForNextStepSize Safety factor used to scale prediction of next step size.
+     * \param maximumFactorIncreaseForNextStepSize Maximum factor increase for next step size.
+     * \param minimumFactorDecreaseForNextStepSize Maximum factor decrease for next step size.
+     * \param newStepSizeFunction Function that returns the new step size computed, default:
+     *          RungeKuttaVariableStepSizeIntegrator::computeNewStepSize.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
     RungeKuttaVariableStepSizeIntegrator(
@@ -202,6 +207,11 @@ public:
      *          vector elements.
      * \param absoluteErrorTolerance The absolute error tolerance, equal for all individual state
      *          vector elements.
+     * \param safetyFactorForNextStepSize Safety factor used to scale prediction of next step size.
+     * \param maximumFactorIncreaseForNextStepSize Maximum factor increase for next step size.
+     * \param minimumFactorDecreaseForNextStepSize Maximum factor decrease for next step size.
+     * \param newStepSizeFunction Function that returns the new step size computed, default:
+     *          RungeKuttaVariableStepSizeIntegrator::computeNewStepSize.
      * \sa NumericalIntegrator::NumericalIntegrator.
      */
     RungeKuttaVariableStepSizeIntegrator(
@@ -340,6 +350,20 @@ protected:
     //! Compute new step size.
     /*!
      * Computes the new step size based on a generic definition of the local truncation error.
+     * \param stepSize Integration step size of current step.
+     * \param lowerOrder Lower of the two orders of the two schemes used in variable step size
+     *          integration.
+     * \param higherOrder Higher of the two orders of the two schemes used in variable step size
+     *           integration.
+     * \param safetyFactorForNextStepSize Safety factor used to scale prediction of next step size.
+     * \param relativeErrorTolerance Allowable relative error between integrations using two
+     *           schemes.
+     * \param absoluteErrorTolerance Allowable relative error between integrations using two
+     *           schemes.
+     * \param lowerOrderEstimate Numerical integration result using lower order scheme.
+     * \param higherOrderEstimate Numerical integration result using higher order scheme.
+     * \return Pair with new step size and a boolean denoting whether the step size computation
+     *           was succesfull, i.e. whether tolerances etc. are met.
      */
     virtual std::pair< IndependentVariableType, bool > computeNewStepSize(
             const IndependentVariableType stepSize, const IndependentVariableType lowerOrder,
