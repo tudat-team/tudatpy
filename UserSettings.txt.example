@@ -24,7 +24,7 @@
  #
  #    Changelog
  #      YYMMDD    Author            Comment
- #      170210    S.Billemont       File created.
+ #      120210    S.Billemont       File created.
  #
  #    References
  #
@@ -51,7 +51,7 @@
 #SET(TUDAT_CORE_BASE_PATH "C:/path/to/TudatCore")
 
  # Enforce a rootpath.
- # This should be used in case the FILE token does not given the full-path in the getRootPath() function in basicFunctions.h.
+ # This should be used in case the FILE token does not give the full-path in the getRootPath() function in basicFunctions.h.
 #add_definitions(-DTUDAT_CORE_CUSTOM_ROOT_PATH="C:/My/Custom/Path/To/TudatCore")
 
  #--------------------------------------
@@ -80,13 +80,23 @@
 #SET(EIGEN3_INCLUDE_DIR "${SRCROOT}/External/eigen3") # Or uncomment this if you extracted eigen in the External/eigen3 folder
 
  #--------------------------------------
+ # Spice
+ #--------------------------------------
+
+ # Use spice.
+#SET(USE_CSPICE true)
+
+ # Use the following to manually set the path to the directory where the CSPICE user interface
+ # definitions file SpiceUsr.h is located (usually in the cspice/include directory).
+#SET(SPICE_BASE_PATH "C:/path/to/cspice/include")
+
+ # Use the following to manually set the path to the (Spice) Kernels directory.
+#add_definitions( -DSPICE_KERNEL_CUSTOM_FOLDER="C:/path/to/SpiceKernels/")
+
+ #--------------------------------------
  # Other CMakeSettings
  #--------------------------------------
 
  # Force build in debug or release mode:
 #SET(CMAKE_BUILD_TYPE Debug)
 #SET(CMAKE_BUILD_TYPE Release)
-
- # Use Spice:
-#SET(USE_CSPICE true)
-

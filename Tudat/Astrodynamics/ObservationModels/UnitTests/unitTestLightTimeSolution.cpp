@@ -25,7 +25,8 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      130226    D. Dirkx          Migrated from personal code.
- *      130521    E.D. Brandon      Minor changes during code check.
+ *      130521    E. Brandon        Minor changes during code check.
+ *      140127    D. Dirkx          Adapted for custom Spice kernel folder.
  *
  *    References
  *
@@ -39,7 +40,6 @@
 #include <string>
 
 #include <boost/bind.hpp>
-#include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -69,8 +69,7 @@ BOOST_AUTO_TEST_SUITE( test_light_time )
 BOOST_AUTO_TEST_CASE( testLightWithSpice )
 {
     // Load spice kernels.
-    const std::string kernelsPath = tudat::input_output::getTudatRootPath( ) +
-            "External/SpiceInterface/Kernels/";
+    const std::string kernelsPath = tudat::input_output::getSpiceKernelPath( );
     loadSpiceKernelInTudat( kernelsPath + "naif0009.tls" );
     loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
     loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );

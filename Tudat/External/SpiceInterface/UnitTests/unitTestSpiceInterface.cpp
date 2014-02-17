@@ -26,12 +26,15 @@
  *      YYMMDD    Author            Comment
  *      120717    D. Dirkx          Creation of file.
  *      121001    M. Ganeff         Added unit test for clearing and loading spice kernels.
+ *      140127    D. Dirkx          Adapted for custom Spice kernel folder.
  *
  *    References
  *
  *    Notes
  *      To run this unit tests, a number of spice kernels need to be placed in the
- *      External/SpiceInterface/Kernels folder. These are:
+ *      Spice kernel folder, by default External/SpiceInterface/Kernels or the
+ *      SPICE_KERNEL_CUSTOM_FOLDER folder set as an argument to CMake or in UserSetings.txt.
+ *      The required kernels are:
  *           de421.bsp
  *           pck00009.tpc
  *           naif0009.tls
@@ -44,7 +47,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <cmath>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -55,9 +57,9 @@
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
 #include <TudatCore/Basics/testMacros.h>
 
-#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
@@ -76,41 +78,36 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
     using namespace tudat::input_output;
     using namespace tudat::physical_constants;
 
-    // Check if spice kernels exists.
-    if ( !boost::filesystem::exists(
-             getTudatRootPath( ) + "External/SpiceInterface/Kernels/de421.bsp" ) )
+    // Check if spice kernels exist.
+    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "de421.bsp" ) )
     {
-        std::cerr << "SPICE kernel de421.bsp not found in External/SpiceInterface/Kernels! "
+        std::cerr << "SPICE kernel de421.bsp not found in "<<getSpiceKernelPath( )
                   << std::endl;
     }
 
-    if ( !boost::filesystem::exists(
-             getTudatRootPath( )+ "External/SpiceInterface/Kernels/pck00009.tpc" ) )
+    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "pck00009.tpc" ) )
     {
-        std::cerr << "SPICE kernel pck00009.tpc not found in External/SpiceInterface/Kernels! "
+        std::cerr << "SPICE kernel pck00009.tpc not found in "<<getSpiceKernelPath( )
                   << std::endl;
     }
 
-    if ( !boost::filesystem::exists(
-             getTudatRootPath( ) + "External/SpiceInterface/Kernels/naif0009.tls" ) )
+    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "naif0009.tls" ) )
     {
-        std::cerr << "SPICE kernel naif0009.tls not found in External/SpiceInterface/Kernels! "
+        std::cerr << "SPICE kernel naif0009.tls not found in "<<getSpiceKernelPath( )
                   << std::endl;
     }
 
-    if ( !boost::filesystem::exists(
-             getTudatRootPath( ) + "External/SpiceInterface/Kernels/de-403-masses.tpc" ) )
+    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "de-403-masses.tpc" ) )
     {
-        std::cerr << "SPICE kernel de-403-masses.tpc not found in External/SpiceInterface/Kernels! "
-                  << std::endl;
+        std::cerr << "SPICE kernel de-403-masses.tpc not found in "<<
+                     getSpiceKernelPath( )<< std::endl;
     }
 
     // Load spice kernels.
-    loadSpiceKernelInTudat( getTudatRootPath( ) + "External/SpiceInterface/Kernels/de421.bsp" );
-    loadSpiceKernelInTudat( getTudatRootPath( ) + "External/SpiceInterface/Kernels/pck00009.tpc" );
-    loadSpiceKernelInTudat( getTudatRootPath( ) + "External/SpiceInterface/Kernels/naif0009.tls" );
-    loadSpiceKernelInTudat( getTudatRootPath( ) +
-                            "External/SpiceInterface/Kernels/de-403-masses.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
 
     // Exact ephemeris time at J2000.
     const double ephemerisTimeOneYearAfterJ2000 = JULIAN_YEAR;
@@ -433,11 +430,10 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
 
     // Load Spice kernels.
     // Load spice kernels.
-    loadSpiceKernelInTudat( getTudatRootPath( ) + "External/SpiceInterface/Kernels/de421.bsp" );
-    loadSpiceKernelInTudat( getTudatRootPath( ) + "External/SpiceInterface/Kernels/pck00009.tpc" );
-    loadSpiceKernelInTudat( getTudatRootPath( ) + "External/SpiceInterface/Kernels/naif0009.tls" );
-    loadSpiceKernelInTudat( getTudatRootPath( ) +
-                            "External/SpiceInterface/Kernels/de-403-masses.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
 
     // Get ammount of loaded Spice kernels.
     spiceKernelsLoaded = getTotalCountOfKernelsLoaded( );
