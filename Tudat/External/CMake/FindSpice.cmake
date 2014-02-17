@@ -25,8 +25,9 @@
  #    Changelog
  #      YYMMDD    Author            Comment
  #      12xxxx    B. Tong Minh      File created based on FindEigen3.cmake.
- #      12xxxx    P. Musegaas     
+ #      12xxxx    P. Musegaas
  #      12xxxx    D. Dirkx          Adapted to detect the SPICE library.
+ #      140127    D. Dirkx          Adapted for custom Spice kernel folder.
  #
  #
  #    References
@@ -43,18 +44,17 @@
  #      FindEigen3.cmake states that redistribution and use is allowed according to the terms of
  #      the 2-clause BSD license.
 
-find_path(SPICE_BASE_PATH NAMES SpiceUsr.h
-  PATHS
-      ${PROJECT_SOURCE_DIR}/External
-      ${PROJECT_SOURCE_DIR}/../../..
-      ${PROJECT_SOURCE_DIR}/../..
-      ${PROJECT_SOURCE_DIR}/..
-  PATH_SUFFIXES cspice/include
+if(NOT SPICE_BASE_PATH)
+    find_path(SPICE_BASE_PATH NAMES SpiceUsr.h
+        PATHS
+            ${PROJECT_SOURCE_DIR}/External
+        PATH_SUFFIXES cspice/include
 )
+endif(NOT SPICE_BASE_PATH)
 
 if(NOT SPICE_BASE_PATH)
   message(STATUS "WARNING: SPICE not found! Make sure SPICE is installed or set USE_CSPICE to 'false'.")
-endif( )
+endif(NOT SPICE_BASE_PATH)
 
 set(SPICE_BASE_PATH ${SPICE_BASE_PATH}/..)
 set(SPICE_INCLUDE_DIR ${SPICE_BASE_PATH}/..)

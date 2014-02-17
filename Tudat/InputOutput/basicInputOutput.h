@@ -45,6 +45,7 @@
  *      120712    K. Kumar          Updated use of filesystem3 boost-namespace to filesystem.
  *      130110    K. Kumar          Added function that allows formatting of string representation
  *                                  of floating-point number in scientific notation.
+ *      140127    D. Dirkx          Added automatic path function for the Spice kernels.
  *
  *    References
  *
@@ -95,6 +96,27 @@ static inline std::string getTudatRootPath( )
     // Strip filename from temporary string and return root-path string.
     return filePath_.substr( 0, filePath_.length( ) -
                                 std::string( "InputOutput/basicInputOutput.h" ).length( ) );
+#endif
+}
+
+//! Get Spice kernel path.
+/*!
+ * Returns path in which Spice kernels are located.
+ * \return Path containing Spice kernels.
+ */
+static inline std::string getSpiceKernelPath( )
+{
+#ifdef SPICE_KERNEL_CUSTOM_FOLDER
+    return std::string( SPICE_KERNEL_CUSTOM_FOLDER );
+#else
+    // Declare file path string assigned to filePath.
+    // __FILE__ only gives the absolute path in the header file!
+    std::string filePath_( __FILE__ );
+
+    // Strip filename from temporary string and return root-path string.
+    return ( filePath_.substr( 0, filePath_.length( ) -
+                               std::string( "InputOutput/basicInputOutput.h" ).length( ) ) +
+             "External/SpiceInterface/Kernels/" );
 #endif
 }
 

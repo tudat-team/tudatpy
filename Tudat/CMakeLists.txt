@@ -263,8 +263,6 @@ endif()
 # included or not has been selected.
 
 # Add an option to toggle the inclusion of SPICE.
-option(USE_CSPICE "Use SPICE library" OFF)
-
 if(NOT USE_CSPICE)
   message(STATUS "SPICE disabled!")
 elseif(USE_CSPICE)
