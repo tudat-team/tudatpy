@@ -31,6 +31,7 @@
  *                                  retrogradeness based on Kepler state
  *      130301    R.C.A. Boon       Minor textual changes
  *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d.
+ *      140221    H.P. Gijsen       Moved the Modified Equinotial Elements indeces to stateVectorIndices.h
  *
  *    References
  *      Verified Interval Propagation, Bart R�mgens; Delft (2012?). Code archive.
@@ -55,26 +56,6 @@ namespace basic_astrodynamics
 {
 namespace orbital_element_conversions
 {
-
-//! Modified equinoctial element vector indices.
-/*!
- * Modified equinoctial elements defined by the following indices in VectorXd(6) objects:
- * semi-Parameter (p) = 0,
- * f-element = 1,
- * g-element = 2,
- * h-element = 3,
- * k-element = 4,
- * true longitude (L) = 5.
- */
-enum ModifiedEquinoctialElementVectorIndices
-{
-    semiParameterIndex,
-    fElementIndex,
-    gElementIndex,
-    hElementIndex,
-    kElementIndex,
-    trueLongitudeIndex
-};
 
 //! Convert Keplerian to modified equinoctial orbital elements using implicit MEE equation set.
 /*!

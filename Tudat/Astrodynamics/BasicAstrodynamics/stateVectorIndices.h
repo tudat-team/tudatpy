@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      121025    K. Kumar         File created.
+ *      140107    J. Geul          Added MEE and common accelerations.
  *
  *    References
  *
@@ -60,6 +61,33 @@ enum KeplerianElementIndices
     argumentOfPeriapsisIndex,
     longitudeOfAscendingNodeIndex,
     trueAnomalyIndex
+};
+
+//! Modified equinoctial element vector indices.
+enum ModifiedEquinoctialElementVectorIndices
+{
+    semiParameterIndex,
+    fElementIndex,
+    gElementIndex,
+    hElementIndex,
+    kElementIndex,
+    trueLongitudeIndex
+};
+
+//! Cartesian acceleration indices.
+enum CartesianAccelerationElementIndices
+{
+    xCartesianAccelerationIndex,
+    yCartesianAccelerationIndex,
+    zCartesianAccelerationIndex
+};
+
+//! Acceleration indices in CSN frame for orbital elements.
+enum CSNAccelerationElementIndices
+{
+    cAccelerationIndex,
+    sAccelerationIndex,
+    nAccelerationIndex
 };
 
 } // namespace basic_astrodynamics
