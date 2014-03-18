@@ -38,6 +38,8 @@
  *                                  available for retrograde cases), added e=0 & i=0 case to all
  *                                  conversions, replaced Eigen::VectorXd by tudat::basic_mathema-
  *                                  tics::Vector6d.
+ *      140221    H.P. Gijsen       added include statements to accomodate the change in location of
+ *                                  the indices enum.
  *
  *    References
  *      B. Rˆmgens, "Verified Interval Propagation" (2011). MSc thesis,
@@ -62,6 +64,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
 {
@@ -77,6 +80,13 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
     using namespace tudat::basic_astrodynamics::orbital_element_conversions;
     using namespace tudat::basic_astrodynamics::unit_conversions;
     using tudat::basic_mathematics::mathematical_constants::PI;
+
+    // loading the modified equinoctial elements indices
+    using tudat::basic_astrodynamics::fElementIndex;
+    using tudat::basic_astrodynamics::gElementIndex;
+    using tudat::basic_astrodynamics::hElementIndex;
+    using tudat::basic_astrodynamics::kElementIndex;
+    using tudat::basic_astrodynamics::trueLongitudeIndex;
 
     // Setting fraction tolerance for correctness evaluation
     double tolerance = 1.0E-14;
@@ -413,6 +423,14 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToKeplerianElements )
     using namespace tudat::basic_astrodynamics::unit_conversions;
     using tudat::basic_mathematics::mathematical_constants::PI;
 
+     // loading the modified equinoctial elements indices
+     using tudat::basic_astrodynamics::fElementIndex;
+     using tudat::basic_astrodynamics::gElementIndex;
+     using tudat::basic_astrodynamics::hElementIndex;
+     using tudat::basic_astrodynamics::kElementIndex;
+     using tudat::basic_astrodynamics::trueLongitudeIndex;
+
+
     // Setting fraction tolerance for correctness evaluation
     double tolerance = 1.0E-14;
 
@@ -567,6 +585,13 @@ BOOST_AUTO_TEST_CASE( testConvertCartesianElementsToModifiedEquinoctialElements 
     using namespace tudat::basic_astrodynamics::orbital_element_conversions;
     using namespace tudat::basic_astrodynamics::unit_conversions;
     using tudat::basic_mathematics::mathematical_constants::PI;
+
+    // loading the modified equinoctial elements indices
+    using tudat::basic_astrodynamics::fElementIndex;
+    using tudat::basic_astrodynamics::gElementIndex;
+    using tudat::basic_astrodynamics::hElementIndex;
+    using tudat::basic_astrodynamics::kElementIndex;
+    using tudat::basic_astrodynamics::trueLongitudeIndex;
 
     double tolerance = 1.0E-14;
 

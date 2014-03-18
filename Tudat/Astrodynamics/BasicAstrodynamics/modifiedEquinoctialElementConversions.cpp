@@ -59,6 +59,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
 {
