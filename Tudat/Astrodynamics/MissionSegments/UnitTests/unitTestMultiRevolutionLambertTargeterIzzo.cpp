@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE( testMaximumNumberOfRevolutions )
     double timeOfFlight2 = 46828800.000441134;
 
     // Sun gravitational parameter
-    const double sunGravitationalParameter = 1.32712440018e20; // m³/s², HORIZONS
+    const double sunGravitationalParameter = 1.32712440018e20; // mï¿½/sï¿½, HORIZONS
 
     // Constructing Lambert problem
     tudat::mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeter1(
