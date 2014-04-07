@@ -48,7 +48,7 @@ namespace aerodynamics
 {
 
 //! Initialize atmosphere table reader.
-void TabulatedAtmosphere::initialize( std::string atmosphereTableFile )
+void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
 {
     // Locally store the atmosphere table file name.
     atmosphereTableFile_ = atmosphereTableFile;
