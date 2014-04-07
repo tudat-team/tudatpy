@@ -72,16 +72,11 @@ public:
     /*!
      * Default constructor.
      */
-    TabulatedAtmosphere( )
-        : atmosphereTableFile_( "" )
-    { }
-
-    //! Initialize atmosphere table reader.
-    /*!
-     * Initializes the atmosphere table reader.
-     * \param atmosphereTableFile The name of the atmosphere table.
-     */
-    void initialize( std::string atmosphereTableFile );
+    TabulatedAtmosphere( const std::string& atmosphereTableFile )
+        : atmosphereTableFile_( atmosphereTableFile )
+    {
+        initialize( atmosphereTableFile_ );
+    }
 
     //! Get atmosphere table file name.
     /*!
@@ -147,6 +142,13 @@ public:
 protected:
 
 private:
+
+    //! Initialize atmosphere table reader.
+    /*!
+     * Initializes the atmosphere table reader.
+     * \param atmosphereTableFile The name of the atmosphere table.
+     */
+    void initialize( const std::string& atmosphereTableFile );
 
     //! The file name of the atmosphere table.
     /*!
