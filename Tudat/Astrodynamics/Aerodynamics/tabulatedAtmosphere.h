@@ -73,8 +73,7 @@ public:
      * Default constructor.
      */
     TabulatedAtmosphere( )
-        : relativeDirectoryPath_( "/External/AtmosphereTables/" ),
-          atmosphereTableFile_( "" )
+        : atmosphereTableFile_( "" )
     { }
 
     //! Initialize atmosphere table reader.
@@ -90,13 +89,6 @@ public:
      * \return The atmosphere table file.
      */
     std::string getAtmosphereTableFile( ) { return atmosphereTableFile_; }
-
-    //! Get relative directory path.
-    /*!
-     * Returns relative directory path.
-     * \return Relative directory path.
-     */
-    std::string getRelativeDirectoryPath( ) { return relativeDirectoryPath_; }
 
     //! Get local density.
     /*!
@@ -155,12 +147,6 @@ public:
 protected:
 
 private:
-
-    //! The relative directory path.
-    /*!
-     *  The relative path directory path.
-     */
-    std::string relativeDirectoryPath_;
 
     //! The file name of the atmosphere table.
     /*!
