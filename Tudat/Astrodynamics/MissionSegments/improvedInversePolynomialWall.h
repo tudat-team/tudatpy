@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2014, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -30,7 +30,7 @@
  *
  *    References
  *      Novak, D.M. and M. Vasile. Improved Shaping Approach to the Preliminary Design of Low-
- *          Thrust Trajectories, Journal of Guidance, Control, and Dynamics 34(1), pp. 128–147,
+ *          Thrust Trajectories, Journal of Guidance, Control, and Dynamics 34(1), pp. 128ï¿½147,
  *          2011.
  *      Wall, B.J. and D. Novak. A 3D Shape-Based Approximation Method for Low-Thrust Trajectory
  *          Design, Advances in the Astronautical Sciences 142(2), pp. 1163-1176, 2012.
