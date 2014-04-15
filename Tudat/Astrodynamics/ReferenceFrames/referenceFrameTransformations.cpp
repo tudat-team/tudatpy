@@ -270,7 +270,7 @@ Eigen::Quaterniond getTrajectoryToAerodynamicFrameTransformationQuaternion(
     // Compute transformation quaternion.
     // Note the sign change, because how angleAxisd is defined.
     Eigen::AngleAxisd rotationAroundXaxis 
-        = Eigen::AngleAxisd( -1.0 * bankAngle, Eigen::Vector3d::UnitX( ) );
+        = Eigen::AngleAxisd( bankAngle, Eigen::Vector3d::UnitX( ) );
     return Eigen::Quaterniond( rotationAroundXaxis );
 }
 

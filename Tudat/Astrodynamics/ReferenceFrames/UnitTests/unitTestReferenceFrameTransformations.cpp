@@ -497,8 +497,8 @@ BOOST_AUTO_TEST_CASE( testTrajectoryToAerodynamicFrameTransformations )
             Eigen::Vector3d expectedLocation;
             Eigen::Matrix3d rotation;
             rotation << 1.0, 0.0, 0.0,
-                        0.0, cos( bankAngle ), sin( bankAngle ),
-                        0.0, -sin( bankAngle ), cos( bankAngle );
+                        0.0, cos( bankAngle ), -sin( bankAngle ),
+                        0.0, sin( bankAngle ), cos( bankAngle );
             expectedLocation = rotation * startLocation;
 
             // Compute location of the point in the rotating frame subject to the
