@@ -29,6 +29,7 @@
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #      120909    B. Tong Minh      Moved to BasicMathematics
  #      120920    E. Dekens         Added 'legendre' and 'sphericalHarmonics' files.
+ #      140212    S. Hirsh          Added 'rotation about arbitrary axis' files.
  #
  #    References
  #
@@ -41,6 +42,7 @@ set(BASICMATHEMATICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/legendrePolynomials.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/nearestNeighbourSearch.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/sphericalHarmonics.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/rotationAboutArbitraryAxis.cpp"
 )
 
 # Add header files.
@@ -56,6 +58,7 @@ set(BASICMATHEMATICS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/nearestNeighbourSearch.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/numericalDerivative.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/sphericalHarmonics.h"
+  "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/rotationAboutArbitraryAxis.h"
 )
 
 # Add static libraries.
@@ -82,3 +85,7 @@ target_link_libraries(test_LegendrePolynomials tudat_basic_mathematics ${Boost_L
 add_executable(test_SphericalHarmonics "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/UnitTests/unitTestSphericalHarmonics.cpp")
 setup_custom_test_program(test_SphericalHarmonics "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
 target_link_libraries(test_SphericalHarmonics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_RotationAboutArbitraryAxis "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/UnitTests/unitTestRotationAboutArbitraryAxis.cpp")
+setup_custom_test_program(test_RotationAboutArbitraryAxis "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
+target_link_libraries(test_RotationAboutArbitraryAxis tudat_basic_mathematics ${Boost_LIBRARIES})
