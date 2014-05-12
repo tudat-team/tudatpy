@@ -30,7 +30,8 @@
  #      120726    S. Billemont      Added files regarding new root-finder methods and unit tests.
  #      120813    P. Musegaas       Added Newton Raphson unit test executable, added additional test
  #                                  functions.
- #	120920    K. Kumar          Changed sub-directory name to RootFinders.
+ #	    120920    K. Kumar          Changed sub-directory name to RootFinders.
+ #      140312    E. Brandon        Added Secant root-finder method and unit test.
  #
  #    References
  #
@@ -46,6 +47,7 @@ set(ROOTFINDERS_SOURCES
 set(ROOTFINDERS_HEADERS 
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/newtonRaphson.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/rootFinder.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/secantRootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/terminationConditions.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction1.h"
@@ -59,6 +61,7 @@ set(ROOTFINDERS_HEADERS
 set(ROOTFINDERS_TESTS
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestNewtonRaphson.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestRootFinders.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestSecantRootFinder.cpp"
 )
 
 # Add static libraries.
@@ -69,8 +72,3 @@ setup_tudat_library_target(tudat_root_finders "${SRCROOT}${MATHEMATICSDIR}/RootF
 add_executable(test_RootFinders ${ROOTFINDERS_TESTS})
 setup_custom_test_program(test_RootFinders "${SRCROOT}${MATHEMATICSDIR}/RootFinders")
 target_link_libraries(test_RootFinders tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
-# Add unit tests.
-add_executable(test_NewtonRaphson ${ROOTFINDERS_TESTS})
-setup_custom_test_program(test_NewtonRaphson "${SRCROOT}${MATHEMATICSDIR}/RootFinders")
-target_link_libraries(test_NewtonRaphson tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
