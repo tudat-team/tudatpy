@@ -528,7 +528,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
 
         case RungeKuttaCoefficients::higher:
             this->currentState_ = higherOrderEstimate;
-            return currentState_;
+            return this->currentState_;
 
         default: // The default case will never occur because OrderEstimateToIntegrate is an enum.
             boost::throw_exception(
