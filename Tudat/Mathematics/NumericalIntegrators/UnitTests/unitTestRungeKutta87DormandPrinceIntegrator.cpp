@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTime( matlabBackwardIntegrationData,
-                                               1.0e-15, 1.0e-15, integrator );
+                                               1.0e-15, 1.0e-14, integrator );
     }
 
     // Case 4: Execute integrateTo() to integrate to specified time in one step.
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta87DormandAndPrinceIntegratorUsingMatlabData 
                     infiniteAbsoluteErrorTolerance );
 
         performIntegrationStepToSpecifiedTimeWithEvents( matlabDiscreteEventIntegrationData,
-                                                         1.0e-15, 1.0e-13, integrator );
+                                                         1.0e-15, 1.0e-12, integrator );
     }
 }
 
