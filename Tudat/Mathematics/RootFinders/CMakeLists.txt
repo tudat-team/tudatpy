@@ -45,6 +45,7 @@ set(ROOTFINDERS_SOURCES
 
 # Add header files.
 set(ROOTFINDERS_HEADERS 
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/halleyRootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/newtonRaphson.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/rootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/secantRootFinder.h"
@@ -59,6 +60,8 @@ set(ROOTFINDERS_HEADERS
 
 # Add unit test files.
 set(ROOTFINDERS_TESTS
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestHalleyRootFinder.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestHalleyRootFinder.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestNewtonRaphson.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestRootFinders.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestSecantRootFinder.cpp"
