@@ -32,7 +32,11 @@
  *
  */
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 namespace tudat
 {
@@ -51,6 +55,27 @@ double convertSecondsSinceEpochToJulianDay( const double secondsSinceEpoch,
                                             const double epochSinceJulianDayZero )
 {
     return ( secondsSinceEpoch / physical_constants::JULIAN_DAY + epochSinceJulianDayZero );
+}
+
+//! Compute the Julian day from the calendar date and time.
+double convertCalendarDateToJulianDay( const int calendarYear,
+                                       const int calendarMonth,
+                                       const int calendarDay,
+                                       const int calendarHour,
+                                       const int calendarMinutes,
+                                       const double calendarSeconds )
+{
+    // Calculate julian day of calendar date.
+    double julianDay = boost::gregorian::date( calendarYear, calendarMonth, calendarDay ).julian_day( );
+
+    //Compute day fraction
+    const double dayFraction = static_cast< double >( calendarHour ) / 24.0 +
+                               static_cast< double >( calendarMinutes ) / ( 24.0 * 60.0 ) +
+                               calendarSeconds / ( 24.0 * 3600.0 );
+
+    // Compute Julian day by adding day fraction and subtracting 0.5 to reference to midnight
+    // instead of noon..
+    return julianDay + dayFraction - 0.5;
 }
 
 } // namespace basic_astrodynamics

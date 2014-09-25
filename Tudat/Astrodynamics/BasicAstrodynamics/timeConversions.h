@@ -74,6 +74,26 @@ double convertSecondsSinceEpochToJulianDay(
                                       const double secondsSinceEpoch,
                                       const double epochSinceJulianDayZero = JULIAN_DAY_ON_J2000 );
 
+//! Compute Julian day from given date and time
+/*!
+  * Computes the Julian day from given year, month, day, hour, minutes, seconds as used in everyday
+  * life. The function uses the internal calcualtions of the boost::date_time::gregorian class.
+  *
+  * \param calendarYear Year of the standard calendar in years.
+  * \param calendarMonth Month of the standard calendar in months.
+  * \param calendarDay Day of the standard calendar in days.
+  * \param calendarHour Hour of the time of this day in hours.
+  * \param calendarMinutes Minutes of the time of this day in minutes.
+  * \param calendarSeconds Seconds of the time of this day in seconds.
+  */
+double convertCalendarDateToJulianDay( const int calendarYear,
+                                       const int calendarMonth,
+                                       const int calendarDay,
+                                       const int calendarHour,
+                                       const int calendarMinutes,
+                                       const double calendarSeconds );
+
+
 } // namespace basic_astrodynamics
 } // tudat
 

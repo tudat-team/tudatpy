@@ -39,6 +39,7 @@
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 #include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
 
@@ -56,7 +57,7 @@ BOOST_AUTO_TEST_SUITE( test_Time_Conversions )
 
 //! Unit test for Julian day to seconds conversion function.
 BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
-{  
+{
     // Test conversion from Julian day to seconds since epoch at 0 MJD.
     {
         // Set reference epoch and Julian day for tests.
@@ -118,6 +119,66 @@ BOOST_AUTO_TEST_CASE( testSecondsSinceEpochToJulianDayConversions )
     // Test that computed result matches expected result.
     BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
                                 std::numeric_limits< double >::epsilon( ) );
+}
+
+//! Unit test for calendar date to Julian day conversion function.
+BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
+{
+    // Compute the Julian day of the calendar date: January 1st, 2000, at 12h0m0s.
+    {
+        //Use the function to compute the Julian day.
+        const double computedJulianDay = convertCalendarDateToJulianDay ( 2000, 1, 1, 12, 0, 0 );
+
+        //Known Julian day at this calendar date.
+        const double expectedJulianDay = tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000;
+
+        // Test that computed result matches expected result.
+        BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
+                                std::numeric_limits< double >::epsilon( ) );
+    }
+
+    //Compute the Julian day of the calendar date: November 17th, 1858, At 0h0m0s.
+    {
+        //Use the function to compute the Julian day.
+        const double computedJulianDay = convertCalendarDateToJulianDay( 1858, 11, 17, 0, 0, 0 );
+
+        //Known Julian day at this calendar date
+        const double expectedJulianDay = tudat::basic_astrodynamics::JULIAN_DAY_AT_0_MJD;
+
+        // Test that computed result matches expected result.
+        BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
+                                std::numeric_limits< double >::epsilon( ) );
+    }
+
+    //Test conversion wrapper against boost result.
+    {
+        const int year = 1749;
+        const int month = 3;
+        const int day = 30;
+
+        BOOST_CHECK_CLOSE_FRACTION( boost::gregorian::date( year, month, day ).julian_day( ) - 0.5,
+                                    convertCalendarDateToJulianDay( year, month, day, 0, 0, 0.0 ),
+                                    std::numeric_limits< double >::epsilon( ) );
+        const int hour = 4;
+        BOOST_CHECK_CLOSE_FRACTION( boost::gregorian::date( year, month, day ).julian_day( ) - 0.5 +
+                                    static_cast< double >( hour ) / 24.0,
+                                    convertCalendarDateToJulianDay( year, month, day, hour, 0, 0.0 ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        const int minute = 36;
+        BOOST_CHECK_CLOSE_FRACTION( boost::gregorian::date( year, month, day ).julian_day( ) - 0.5 +
+                                    static_cast< double >( hour ) / 24.0 + static_cast< double >( minute ) / ( 24.0 * 60.0 ),
+                                    convertCalendarDateToJulianDay( year, month, day, hour, minute, 0.0 ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+        const double second = 21.36474854836359;
+        BOOST_CHECK_CLOSE_FRACTION( boost::gregorian::date( year, month, day ).julian_day( ) - 0.5 +
+                                    static_cast< double >( hour ) / 24.0 + static_cast< double >( minute ) / ( 24.0 * 60.0 ) +
+                                    second / ( 24.0 * 60.0 * 60.0 ),
+                                    convertCalendarDateToJulianDay( year, month, day, hour, minute, second ),
+                                    std::numeric_limits< double >::epsilon( ) );
+
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
