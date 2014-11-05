@@ -116,6 +116,12 @@ public:
      */
     NewtonRaphsonCore( const double relativeXTolerance, const unsigned int maxIterations );
 	
+    //! Default destructor.
+    /*!
+     * Default destructor.
+     */
+    virtual ~NewtonRaphsonCore( ) { }
+
     //! Find a root of the function provided as input.
     /*!
      *  Find a root of the function provided as input, using the termination function set by the

@@ -166,6 +166,12 @@ public:
         this->makeLookupScheme( selectedLookupScheme );
     }
 
+    //! Default destructor
+    /*!
+     *  Default destructor
+     */
+    ~LinearInterpolator( ){ }
+
     //! Function interpolates dependent variable value at given independent variable value.
     /*!
      * Function interpolates dependent variable value at given independent variable value.
