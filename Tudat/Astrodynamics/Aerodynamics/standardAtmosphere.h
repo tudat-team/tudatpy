@@ -66,8 +66,8 @@ public:
     * \param time Time.
     * \return Atmospheric density.
     */
-    virtual getDensity( const double altitude, const double longitude = 0.0,
-                        const double latitude = 0.0, const double time = 0.0 ) = 0;
+    virtual double getDensity( const double altitude, const double longitude = 0.0,
+                               const double latitude = 0.0, const double time = 0.0 ) = 0;
 
     //! Get local pressure.
     /*!
