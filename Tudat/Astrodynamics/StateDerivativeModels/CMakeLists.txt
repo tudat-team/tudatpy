@@ -26,6 +26,7 @@
  #      YYMMDD    Author            Comment
  #      110820    S.M. Persson      File created.
  #	120823    K. Kumar	    Adapted for new StateDerivativeModels package.
+ #      140108    J. Geul           Added OrbitalStateDerivativeModel.
  #
  #    References
  #
@@ -41,7 +42,11 @@ set(STATEDERIVATIVEMODELS_SOURCES
 set(STATEDERIVATIVEMODELS_HEADERS 
   "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/cartesianStateDerivativeModel.h"
   "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/compositeStateDerivativeModel.h"
+  "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/orbitalStateDerivativeModel.h"
   "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/stateDerivativeModel.h"
+  "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/stateDerivativeMapCartesian.h"
+  #"${SRCROOT}${STATEDERIVATIVEMODELSDIR}/stateDerivativeMapKeplerian.h"
+  #"${SRCROOT}${STATEDERIVATIVEMODELSDIR}/stateDerivativeMapModifiedEquinoctial.h"
   "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/UnitTests/testStateDerivativeModels.h"
 )
 
@@ -57,3 +62,7 @@ target_link_libraries(test_CartesianStateDerivativeModel tudat_state_derivative_
 add_executable(test_CompositeStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/UnitTests/unitTestCompositeStateDerivativeModel.cpp")
 setup_custom_test_program(test_CompositeStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}")
 target_link_libraries(test_CompositeStateDerivativeModel tudat_state_derivative_models ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_OrbitalStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/UnitTests/unitTestOrbitalStateDerivativeModel.cpp")
+setup_custom_test_program(test_OrbitalStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}")
+target_link_libraries(test_OrbitalStateDerivativeModel tudat_state_derivative_models ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
