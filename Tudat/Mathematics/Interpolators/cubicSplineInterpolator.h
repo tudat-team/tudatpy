@@ -230,6 +230,12 @@ public:
         calculateSecondDerivatives( );
     }
 
+    //! Default destructor
+    /*!
+     *  Default destructor
+     */
+    ~CubicSplineInterpolator( ){ }
+
     // Statement required to prevent hiding of base class functions.
     using Interpolator< IndependentVariableType, DependentVariableType, 1 >::interpolate;
 

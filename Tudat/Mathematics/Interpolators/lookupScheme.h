@@ -127,6 +127,12 @@ public:
           previousNearestLowerIndex_( 0 )
     { }
 
+    //! Default destructor
+    /*!
+     *  Default destructor
+     */
+    ~HuntingAlgorithmLookupScheme( ){ }
+
     //! Find nearest left neighbour.
     /*!
      * Function finds nearest left neighbour of given value in ndependentVariableValues_. If this
@@ -210,6 +216,12 @@ public:
             const std::vector< IndependentVariableType > independentVariableValues )
         : LookUpScheme< IndependentVariableType >( independentVariableValues )
     { }
+
+    //! Default destructor
+    /*!
+     *  Default destructor
+     */
+    ~BinarySearchLookupScheme( ){ }
 
     //! Find nearest left neighbour.
     /*!

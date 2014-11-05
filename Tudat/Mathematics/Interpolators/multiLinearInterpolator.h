@@ -120,6 +120,12 @@ public:
         makeLookupSchemes( selectedLookupScheme );
     }
 
+    //! Default destructor
+    /*!
+     *  Default destructor
+     */
+    ~MultiLinearInterpolator( ){ }
+
     //! Function to perform interpolation.
     /*!
      *  This function performs the multilinear interpolation.
