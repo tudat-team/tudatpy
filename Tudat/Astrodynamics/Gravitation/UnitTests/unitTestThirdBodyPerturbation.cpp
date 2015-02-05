@@ -41,6 +41,7 @@
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/make_shared.hpp>
 
 #include <TudatCore/Basics/testMacros.h>
 
@@ -53,6 +54,7 @@ namespace unit_tests
 {
 
 BOOST_AUTO_TEST_SUITE( test_third_body_perturbation )
+
 
 //! Test if perturbational acceleration is computed correctly.
 BOOST_AUTO_TEST_CASE( testComputationOfThirdBodyPerturbation )
@@ -142,6 +144,28 @@ BOOST_AUTO_TEST_CASE( testComputationOfThirdBodyPerturbation )
     // Examine test cases.
     for ( unsigned int i = 1; i < positionOfBodyForTestCase.size( ); i++ )
     {
+
+        // Create central gravity acceleration objects.
+        tudat::gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
+                boost::make_shared< tudat::gravitation::CentralGravitationalAccelerationModel3d >(
+                    boost::lambda::constant( positionOfBodyForTestCase[ 0 ] ),
+                    gravitationalParameterOfPerturbingBodyForTestCase[ i ],
+                    boost::lambda::constant( positionOfBodyForTestCase[ i ] ) );
+
+        tudat::gravitation::CentralGravitationalAccelerationModel3dPointer
+                centralBodyAccelerationModel =
+                boost::make_shared< tudat::gravitation::CentralGravitationalAccelerationModel3d >(
+                    boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
+                    gravitationalParameterOfPerturbingBodyForTestCase[ i ],
+                    boost::lambda::constant( positionOfBodyForTestCase[ i ] ) );
+
+        // Create third body gravity acceleration objects.
+        boost::shared_ptr<
+                tudat::gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
+                    boost::make_shared< tudat::gravitation::ThirdBodyCentralGravityAcceleration >(
+                        directAccelerationModel, centralBodyAccelerationModel );
+        thirdBodyAcceleration->updateMembers( );
+
         // Compute perturbational acceleration for parameters given.
         acceleration = tudat::gravitation::computeThirdBodyPerturbingAcceleration(
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
@@ -163,6 +187,10 @@ BOOST_AUTO_TEST_CASE( testComputationOfThirdBodyPerturbation )
                     positionOfBodyForTestCase[ i ] );
 
         // Check values with reference data.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAccelerationForTestCase[ i ], acceleration,
+                                           tolerance );
+
+        acceleration = thirdBodyAcceleration->getAcceleration( );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAccelerationForTestCase[ i ], acceleration,
                                            tolerance );
     }
@@ -249,6 +277,32 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
                 realisticPerturberPosition );
 
     // Compare differences.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedRealisticAcceleration,
+                                       realisticComputedAcceleration,
+                                       tolerance );
+
+    // Create central gravity acceleration objects.
+    tudat::gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
+            boost::make_shared< tudat::gravitation::CentralGravitationalAccelerationModel3d >(
+                boost::lambda::constant( realisticTestPosition ),
+                realisticGravitationalParameterOfPerturbingBody,
+                boost::lambda::constant( realisticPerturberPosition ) );
+
+    tudat::gravitation::CentralGravitationalAccelerationModel3dPointer
+            centralBodyAccelerationModel =
+            boost::make_shared< tudat::gravitation::CentralGravitationalAccelerationModel3d >(
+                boost::lambda::constant( barycentricEarthPosition ),
+                realisticGravitationalParameterOfPerturbingBody,
+                boost::lambda::constant( realisticPerturberPosition ) );
+
+    // Create third body gravity acceleration objects.
+    boost::shared_ptr<
+            tudat::gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
+                boost::make_shared< tudat::gravitation::ThirdBodyCentralGravityAcceleration >(
+                    directAccelerationModel, centralBodyAccelerationModel );
+    thirdBodyAcceleration->updateMembers( );
+
+    realisticComputedAcceleration = thirdBodyAcceleration->getAcceleration( );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedRealisticAcceleration,
                                        realisticComputedAcceleration,
                                        tolerance );

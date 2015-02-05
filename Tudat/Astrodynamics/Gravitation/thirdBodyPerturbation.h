@@ -40,6 +40,9 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+
 namespace tudat
 {
 namespace gravitation
@@ -82,7 +85,113 @@ Eigen::Vector3d computeThirdBodyPerturbingAcceleration(
         const Eigen::Vector3d& positionOfAffectedBody,
         const Eigen::Vector3d& positionOfCentralBody = Eigen::Vector3d::Zero( ) );
 
+//! Class for calculating third-body (gravitational) accelerations.
+/*!
+ *  Class for calculating third-body (gravitational accelerations),
+ *  i.e. the gravitational acceleration on a body A, expressed in a frame fixed
+ *  on a body B, due to a gravitating body C. The acceleration is calculated by
+ *  subtracting the acceleration of the central body (B) due to body C
+ *  from the direct acceleration of body C on body A.
+ *  \tparam The gravitational acceleration class for which the third body acceleration is
+ *  calculated (CentralGravitationalAccelerationModel,
+ *  SphericalHarmonicsGravitationalAccelerationModel, ...)
+ */
+template< typename DirectAccelerationModelType >
+class ThirdBodyAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+{
+public:
+
+    //! Constructor for third body acceleration
+    /*!
+     *  Constructor, sets the two acceleration models (one direct, one on central body)
+     *  \param accelerationModelForBodyUndergoingAcceleration Direct acceleration model on
+     *  body undergoing acceleration (i.e. as expressed in an inertial frame)
+     *  \param accelerationModelForCentralBody Acceleration model on central body
+     *  (i.e. the body in a frame centered on which the third body acceleration is expressed)
+     */
+    ThirdBodyAcceleration(
+            const boost::shared_ptr< DirectAccelerationModelType >
+            accelerationModelForBodyUndergoingAcceleration,
+            const boost::shared_ptr< DirectAccelerationModelType >
+            accelerationModelForCentralBody ):
+        accelerationModelForBodyUndergoingAcceleration_(
+            accelerationModelForBodyUndergoingAcceleration ),
+        accelerationModelForCentralBody_( accelerationModelForCentralBody ){ }
+
+    //! Function to calculate the third body gravity acceleration.
+    /*!
+     *  Function to calculate the third body gravity acceleration.
+     *  \return Current third body acceleration
+     */
+    Eigen::Vector3d getAcceleration( )
+    {
+        // Calculate and subtract acceleration due to 3rd body on body undergoing
+        // acceleration and central body.
+        return accelerationModelForBodyUndergoingAcceleration_->getAcceleration( ) -
+                accelerationModelForCentralBody_->getAcceleration( );
+    }
+
+    //! Update member variables to current state.
+    /*!
+     *  Update member variables to current state.
+     */
+    void updateMembers( )
+    {
+        // Update two constituent acceleration models.
+        accelerationModelForBodyUndergoingAcceleration_->updateMembers( );
+        accelerationModelForCentralBody_->updateMembers( );
+    }
+
+    //! Function to return the direct acceleration model on body undergoing acceleration.
+    /*!
+     *  Function to return the direct acceleration model on body undergoing acceleration.
+     *  \return Direct acceleration model on body undergoing acceleration.
+     */
+    boost::shared_ptr< DirectAccelerationModelType >
+        getAccelerationModelForBodyUndergoingAcceleration( )
+    {
+        return accelerationModelForBodyUndergoingAcceleration_;
+    }
+
+    //! Function to return the acceleration model on central body
+    /*!
+     *  Function to return the acceleration model on central body
+     *  \return Acceleration model on central body
+     */
+    boost::shared_ptr< DirectAccelerationModelType >
+        getAccelerationModelForCentralBody( )
+    {
+        return accelerationModelForCentralBody_;
+    }
+
+private:
+
+    //! Direct acceleration model on body undergoing acceleration.
+    /*!
+     *  Direct acceleration model on body undergoing acceleration
+     *  (i.e. as expressed in an inertial frame)
+     */
+    boost::shared_ptr< DirectAccelerationModelType >
+        accelerationModelForBodyUndergoingAcceleration_;
+
+    //! Acceleration model on central body
+    /*!
+     *  Acceleration model on central body (i.e. the body in a frame centered on which the third
+     *  body acceleration is expressed)
+     */
+    boost::shared_ptr< DirectAccelerationModelType > accelerationModelForCentralBody_;
+};
+
+//! Typedef for third body central gravity acceleration.
+typedef ThirdBodyAcceleration< CentralGravitationalAccelerationModel3d >
+ThirdBodyCentralGravityAcceleration;
+
+//! Typedef for third body spherical harmonic gravity acceleration.
+typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModelXd >
+ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
+
 } // namespace gravitation
+
 } // namespace tudat
 
 #endif // TUDAT_THIRD_BODY_PERTURBATION_H
