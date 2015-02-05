@@ -75,7 +75,7 @@ namespace state_derivative_models
 /*!
  * Returns the input acceleration without performing any frame transformation. This dummy function
  * is used as the default argument of the constructor of the OrbitalStateDerivativeModel class.
- * \param acceleration.
+ * \param acceleration Original acceleration which is to not be transformed.
  * \return acceleration (same as input).
  * \sa OrbitalStateDerivativeModel.
  */
