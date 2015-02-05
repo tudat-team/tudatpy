@@ -30,7 +30,7 @@
  #      120321    K. Kumar          Added header, source and unit test files for state-derivative
  #                                  of CRTBP.
  #      121017    E. Dekens         Added sphericalHarmonicsGravitationalAccelerationModel files.
- #
+ #      150205                      Last modified
  #    References
  #
  #    Notes
@@ -40,10 +40,10 @@
 # Set the source files.
 set(GRAVITATION_SOURCES
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityModel.cpp"
-  "${SRCROOT}${GRAVITATIONDIR}/centralGravityField.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2GravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3GravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3J4GravityModel.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/gravityFieldModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/jacobiEnergy.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/librationPoint.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityModel.cpp"
@@ -56,9 +56,8 @@ set(GRAVITATION_SOURCES
 )
 
 # Set the header files.
-set(GRAVITATION_HEADERS 
+set(GRAVITATION_HEADERS
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityModel.h"
-  "${SRCROOT}${GRAVITATIONDIR}/centralGravityField.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2GravityModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3GravityModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3J4GravityModel.h"
@@ -81,7 +80,7 @@ setup_tudat_library_target(tudat_gravitation "${SRCROOT}${GRAVITATIONDIR}")
 # Add unit tests.
 add_executable(test_SphericalHarmonicsGravityField "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestSphericalHarmonicsGravityField.cpp")
 setup_custom_test_program(test_SphericalHarmonicsGravityField "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_SphericalHarmonicsGravityField tudat_gravitation ${Boost_LIBRARIES})
+target_link_libraries(test_SphericalHarmonicsGravityField tudat_gravitation tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_GravitationalForce "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravitationalForce.cpp")
 setup_custom_test_program(test_GravitationalForce "${SRCROOT}${GRAVITATIONDIR}")
