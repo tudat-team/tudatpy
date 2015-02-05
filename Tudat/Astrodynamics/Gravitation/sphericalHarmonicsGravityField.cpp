@@ -38,6 +38,7 @@
  *      110805    K. Kumar          Added predefined functionality with WGS-72 and WGS-84 predefined
  *                                  predefined Earth gravity fields.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
+ *      141020    D. Dirkx          Change of architecture.
  *
  *    References
  *      Vallado, D. A., Crawford, P., Hujsak, R., & Kelso, T. Revisiting Spacetrack Report #3:
@@ -48,115 +49,79 @@
  *
  */
 
-#include <cmath>
+#include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
 
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 
 namespace tudat
 {
+
 namespace gravitation
 {
 
-//! Set predefined spherical harmonics gravity field settings.
-void SphericalHarmonicsGravityField::setPredefinedSphericalHarmonicsGravityFieldSettings(
-    BodiesWithPredefinedSphericalHarmonicsGravityFields
-    bodyWithPredefinedSphericalHarmonicsGravityField )
+//! Function to calculate the gravitational potential from a spherical harmonic field expansion.
+double calculateSphericalHarmonicGravitationalPotential(
+        const Eigen::Vector3d& bodyFixedPosition, const double gravitationalParameter,
+        const double referenceRadius, const Eigen::MatrixXd& cosineCoefficients,
+        const Eigen::MatrixXd& sineCoefficients, const int minimumumDegree,
+        const int minimumumOrder )
 {
-    using std::pow;
+    // Initialize (distance/reference radius)^n (n=ratioToPowerDegree)
+    double ratioToPowerDegree = 1.0;
+    double radiusRatio = referenceRadius / bodyFixedPosition.norm( );
 
-    // Select body with prefined central gravity field.
-    switch( bodyWithPredefinedSphericalHarmonicsGravityField )
+    // Declare local variables used in calculation
+    double legendrePolynomial = 0.0;
+    double singleDegreeTerm = 0.0;
+
+    // Determine body fixed spherical position of body udnergoing acceleration.
+    Eigen::Vector3d sphericalPositon =
+        basic_mathematics::coordinate_conversions::convertCartesianToSpherical( bodyFixedPosition );
+    double latitude = mathematics::PI / 2.0 - sphericalPositon.y( );
+    double longitude = sphericalPositon.z( );
+
+    double potential = 0.0;
+    int startDegree = 0;
+
+    // Initialize value of potential to 1 (C_{0,0})
+    if( minimumumDegree == 0 )
     {
-    case earthWorldGeodeticSystem72:
+        potential = 1.0;
+        startDegree = 1;
+    }
+    else
+    {
+        startDegree = minimumumDegree;
+        ratioToPowerDegree *= std::pow( radiusRatio, startDegree - 1 );
+    }
 
-        // Reference: Table 2 in (Vallado, D.A., et al., 2006).
+    // Iterate over all degrees
+    for( unsigned int degree = startDegree; degree < cosineCoefficients.rows( ); degree++ )
+    {
+        singleDegreeTerm = 0.0;
 
-        // Set gravitational parameter [m^3 s^-2].
-        gravitationalParameter_ = 398600.8e9;
+        // Iterate over all orders in current degree for which coefficients are provided.
+        for( unsigned int order = minimumumOrder; ( order < cosineCoefficients.cols( ) &&
+                                                    order <= degree ); order++ )
+        {
+            // Calculate legendre polynomial (geodesy-normalized) at current degree and order
+            legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
+                degree, order, std::sin( latitude ) );
 
-        // Set reference radius.
-        referenceRadius_ = 6378.135e3;
+            // Calculate contribution to potential from current degree and order
+            singleDegreeTerm += legendrePolynomial * ( cosineCoefficients( degree, order ) *
+                                                       std::cos( order * longitude ) +
+                                                       sineCoefficients( degree, order ) *
+                                                       std::sin( order * longitude ) );
+        }
 
-        // Set J2 coefficient.
-        j2SphericalHarmonicsGravityFieldCoefficient_ = 0.001082616;
+        // Add potential contributions from current degree to toal value.
+        ratioToPowerDegree *= radiusRatio;
+        potential += singleDegreeTerm * ratioToPowerDegree;
+    }
 
-        // Set J3 coefficient.
-        j3SphericalHarmonicsGravityFieldCoefficient_ = -0.00000253881;
-
-        // Set J4 coefficient.
-        j4SphericalHarmonicsGravityFieldCoefficient_ = -0.00000165597;
-
-        break;
-
-    case earthWorldGeodeticSystem84:
-
-        // Reference: Table 3 in (Vallado, D.A., et al., 2006).
-
-        // Set gravitational parameter [m^3 s^-2].
-        gravitationalParameter_ = 398600.4418e9;
-
-        // Set reference radius.
-        referenceRadius_ = 6378.137e3;
-
-        // Set J2 coefficient.
-        j2SphericalHarmonicsGravityFieldCoefficient_ = 0.00108262998905;
-
-        // Set J3 coefficient.
-        j3SphericalHarmonicsGravityFieldCoefficient_ = -0.00000253215306;
-
-        // Set J4 coefficient.
-        j4SphericalHarmonicsGravityFieldCoefficient_ = -0.00000161098761;
-
-        break;
-
-    default:
-
-        // Print cerr statement.
-        std::cerr << "Desired predefined spherical harmonics gravity field does not exist."
-                  << std::endl;
-    };
+    // Multiply by central term and return
+    return potential * gravitationalParameter / bodyFixedPosition.norm( );
 }
-
-//! Get gradient tensor of the gravitational potential.
-Eigen::Matrix3d SphericalHarmonicsGravityField::
-        getGradientTensorOfPotential( const Eigen::Vector3d& position )
-{
-    using std::pow;
-
-    // Declare identity matrix for computations.
-    Eigen::Matrix3d identityMatrix_ = Eigen::Matrix3d::Identity( 3, 3 );
-
-    // Compute relative position.
-    relativePosition_ = position - positionOfOrigin_;
-
-    // Compute and return gradient tensor of potential.
-    return gravitationalParameter_ / pow( relativePosition_.norm( ), 5.0 )
-            * ( ( 3.0 * relativePosition_ * relativePosition_.transpose( ) )
-                - ( relativePosition_.squaredNorm( ) * identityMatrix_ ) );
 }
-
-//! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
-                          SphericalHarmonicsGravityField&
-                          sphericalHarmonicsGravityField )
-{
-    using std::endl;
-
-    stream << "This is a SphericalHarmonicsGravityField object." << endl;
-    stream << "The gravitational parameter is set to: "
-           << sphericalHarmonicsGravityField.getGravitationalParameter( ) << endl;
-    stream << "The origin of the gravity field is set to: "
-           << sphericalHarmonicsGravityField.getOrigin( ) << endl;
-    stream << "The degree of expansion of the spherical harmonics series is set to : "
-           << sphericalHarmonicsGravityField.getDegreeOfExpansion( ) << endl;
-    stream << "The order of expansion of the spherical harmonics series is set to: "
-           << sphericalHarmonicsGravityField.getOrderOfExpansion( ) << endl;
-    stream << "The reference radius is set to: "
-           << sphericalHarmonicsGravityField.getReferenceRadius( ) << endl;
-
-    // Return stream.
-    return stream;
 }
-
-} // namespace gravitation
-} // namespace tudat

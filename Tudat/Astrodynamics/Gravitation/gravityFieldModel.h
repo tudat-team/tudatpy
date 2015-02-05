@@ -35,6 +35,7 @@
  *      110310    K. Kumar          Changed naming from Laplacian to gradient tensor.
  *      120502    K. Kumar          Added missing constructor initialization of position vectors.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      15YOLO    D. Dirkx          Changed some stuff.
  *
  *    References
  *
@@ -46,10 +47,10 @@
 #define TUDAT_GRAVITY_FIELD_MODEL_H
 
 #include <boost/shared_ptr.hpp>
-
 #include <Eigen/Core>
-
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+
+#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 
 namespace tudat
 {
@@ -67,11 +68,10 @@ public:
     //! Default constructor.
     /*!
      * Default constructor.
+     * \param Gravitational parameter associated with gravity field
      */
-    GravityFieldModel( )
-        : gravitationalParameter_( TUDAT_NAN ),
-          positionOfOrigin_( Eigen::Vector3d::Zero( ) ),
-          relativePosition_( Eigen::Vector3d::Zero( ) )
+    GravityFieldModel( const double gravitationalParameter ):
+        gravitationalParameter_( gravitationalParameter )
     { }
 
     //! Default destructor.
@@ -83,21 +83,11 @@ public:
     //! Set the gravitational parameter.
     /*!
      * Define the gravitational parameter in meter^3 per second^2.
-     * \param gravitationalParameter
+     * \param New gravitational parameter associated with gravity field.
      */
-    void setGravitationalParameter( const double gravitationalParameter )
+    void resetGravitationalParameter( const double gravitationalParameter )
     {
         gravitationalParameter_ = gravitationalParameter;
-    }
-
-    //! Set origin of gravity field.
-    /*!
-     * Set origin of gravity field.
-     * \param positionOfOrigin Position of origin
-     */
-    void setOrigin( const Eigen::VectorXd& positionOfOrigin )
-    {
-        positionOfOrigin_ = positionOfOrigin;
     }
 
     //! Get the gravitational parameter.
@@ -105,22 +95,22 @@ public:
      * Return the gravitational parameter in meter^3 per second^2.
      * \return Gravitational parameter.
      */
-    double getGravitationalParameter( ) { return gravitationalParameter_; }
+    double getGravitationalParameter( )
+    {
+        return gravitationalParameter_;
+    }
 
-    //! Get origin of gravity field.
-    /*!
-     * Get origin of gravity field.
-     * \return Position of origin
-     */
-    Eigen::VectorXd getOrigin( ) { return positionOfOrigin_; }
 
-    //! Get the potential.
+    //! Get the gravitational potential at given body-fixed position.
     /*!
-     * Returns the potential for the gravity field selected.
-     * \param position Position at which potential is to be determined
-     * \return Potential.
+     * Return the gravitational potential at given body-fixed position.
+     * \param Position at which the gravitational potential is to be evaluated.
+     * \return Gravitational potential.
      */
-    virtual double getPotential( const Eigen::Vector3d& position ) = 0;
+    double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        return gravitationalParameter_ / bodyFixedPosition.norm( );
+    }
 
     //! Get the gradient of the potential.
     /*!
@@ -128,16 +118,10 @@ public:
      * \param position Position at which gradient of potential is to be determined
      * \return Gradient of potential.
      */
-    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& position ) = 0;
-
-    //! Get gradient tensor of the potential.
-    /*!
-     * Returns the gradient tensor of the potential for the gravity field
-     * selected.
-     * \param position Position at which gradient tensor of potential is to be determined
-     * \return Gradient tensor of potential.
-     */
-    virtual Eigen::Matrix3d getGradientTensorOfPotential( const Eigen::Vector3d& position ) = 0;
+    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        return computeGravitationalAcceleration( bodyFixedPosition, gravitationalParameter_ );
+    }
 
 protected:
 
@@ -147,23 +131,30 @@ protected:
      */
     double gravitationalParameter_;
 
-    //! Origin of gravity field.
-    /*!
-     * Origin of gravity field given in Cartesian Elements as an Eigen::Vector3d
-     */
-    Eigen::Vector3d positionOfOrigin_;
-
-    //! Relative position of gravity field.
-    /*!
-     * Relative position given in Cartesian Elements as an Eigen::Vector3d
-     */
-    Eigen::Vector3d relativePosition_;
 
 private:
 };
 
+//! List of bodies for which predefined central gravity fields may be created through the
+//! getPredefinedCentralGravityField function.
+enum BodiesWithPredefinedCentralGravityFields
+{
+    sun, mercury, venus, earth, moon, mars, jupiter, saturn, uranus, neptune
+};
+
 //! Typedef for shared-pointer to GravityFieldModel object.
 typedef boost::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
+
+
+//! Function to create a central gravity field model of one of the planets, moon or sun.
+/*!
+ *  Function to create a central gravity field model of one of the planets, moon or sun.
+ *  \param bodyWithPredefinedCentralGravityField Identified determining for which body a
+ *  gravity field is to be created.
+ *  \return Central gravity field model of requested body.
+ */
+boost::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
+    BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField );
 
 } // namespace gravitation
 } // namespace tudat

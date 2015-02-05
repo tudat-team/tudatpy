@@ -37,6 +37,7 @@
  *                                  predefined Earth gravity fields.
  *      120326    D. Dirkx          Changed raw pointers to shared pointers.
  *      130121    K. Kumar          Added shared-ptr typedef.
+ *      141020    D. Dirkx          Change of architecture.
  *
  *    References
  *      Vallado, D. A., Crawford, P., Hujsak, R., & Kelso, T. Revisiting Spacetrack Report #3:
@@ -44,8 +45,6 @@
  *          2006.
  *
  *    Notes
- *      The coefficients J2, J3, and J4 have been hardcoded for now, but in future these variables
- *      should be removed and the data should be stored in data files.
  *
  */
 
@@ -54,185 +53,309 @@
 
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
+#include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
+#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 
 namespace tudat
 {
+
 namespace gravitation
 {
 
-//! SphericalHarmonicsGravityField class.
+//! Function to calculate the gravitational potential from a spherical harmonic field expansion.
 /*!
- * Spherical harmonics gravity field model class included in Tudat.
+ *  Function to calculate the gravitational potential from a spherical harmonic field expansion.
+ *  \param bodyFixedPosition Position of point at which potential is to be calculated wrt the
+ *  massive body, in the frame in which the expansion is defined (typically body-fixed).
+ *  \param gravitationalParameter Gravitational parameter of massive body
+ *  \param referenceRadius Reference radius of spherical harmonic field expansion
+ *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
+ *  \param cosineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
+ *  \return Gravitational potential at position defined by bodyFixedPosition
  */
-class SphericalHarmonicsGravityField : public GravityFieldModel
+double calculateSphericalHarmonicGravitationalPotential(
+        const Eigen::Vector3d& bodyFixedPosition, const double gravitationalParameter,
+        const double referenceRadius,
+        const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients,
+        const int minimumumDegree = 0, const int minimumumOrder = 0 );
+
+//! Class to represent a spherical harmonic gravity field expansion.
+/*!
+ *  Class to represent a spherical harmonic gravity field expansion of a massive body with
+ *  time-independent spherical harmonic gravity field coefficients.
+ */
+class SphericalHarmonicsGravityField: public GravityFieldModel
 {
 public:
 
-    //! Bodies with predefined spherical harmonics gravity fields.
+    //! Class constructor.
     /*!
-     * Bodies with predefined spherical harmonics gravity fields.
+     *  Class constructor.
+     *  \param gravitationalParameter Gravitational parameter of massive body
+     *  \param referenceRadius Reference radius of spherical harmonic field expansion
+     *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
+     *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
+     *  \param rotationWrapper Function from which rotation between frame fixed to massive body
+     *  and inertial frame is retrieved
      */
-    enum BodiesWithPredefinedSphericalHarmonicsGravityFields
-    {
-        earthWorldGeodeticSystem72,
-        earthWorldGeodeticSystem84
-    };
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     * \param degreeOfExpansion Maximum degree of spherical harmonic expansion.
-     * \param orderOfExpansion Maximum order of spherical harmonic expansion.
-     * \param referenceRadius Reference radius of spherical harmonic coefficients.
-     */
-    SphericalHarmonicsGravityField( const unsigned int degreeOfExpansion = 0,
-                                    const unsigned int orderOfExpansion = 0,
-                                    const double referenceRadius = 0.0 )
-        : degreeOfExpansion_( degreeOfExpansion ),
-          orderOfExpansion_( orderOfExpansion ),
-          referenceRadius_( referenceRadius ),
-          j2SphericalHarmonicsGravityFieldCoefficient_( TUDAT_NAN ),
-          j3SphericalHarmonicsGravityFieldCoefficient_( TUDAT_NAN ),
-          j4SphericalHarmonicsGravityFieldCoefficient_( TUDAT_NAN )
+    SphericalHarmonicsGravityField( const double gravitationalParameter,
+                                    const double referenceRadius,
+                                    const Eigen::MatrixXd& cosineCoefficients =
+            Eigen::MatrixXd::Identity( 1, 1 ),
+                                    const Eigen::MatrixXd& sineCoefficients =
+            Eigen::MatrixXd::Zero( 1, 1 ) ,
+                                    const boost::function< Eigen::Quaterniond( ) > rotationWrapper=
+            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+                                    const std::string& fixedReferenceFrame = "" )
+        : GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ),
+          cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
+          rotationWrapper_( rotationWrapper ), fixedReferenceFrame_( fixedReferenceFrame )
     { }
 
-    //! Default destructor.
+    //! Virtual destructor.
     /*!
-     * Default destructor.
+     *  Virtual destructor.
      */
     virtual ~SphericalHarmonicsGravityField( ) { }
 
-    //! Set predefined spherical harmonics gravity field settings.
+    //! Function to get the reference radius.
     /*!
-     * Sets predefined spherical harmonics gravity field settings.
-     * \param bodyWithPredefinedSphericalHarmonicsGravityField Body with
-     *          predefined spherical harmonics gravity field.
+     *  Returns the reference radius used for the spherical harmonics expansion in meters.
+     *  \return Reference radius of spherical harmonic field expansion
      */
-    void setPredefinedSphericalHarmonicsGravityFieldSettings(
-        BodiesWithPredefinedSphericalHarmonicsGravityFields
-        bodyWithPredefinedSphericalHarmonicsGravityField );
-
-    //! Get the reference radius.
-    /*!
-     * Returns the reference radius used for the spherical harmonics expansion in meters.
-     * \return Reference radius.
-     */
-    double getReferenceRadius( ) { return referenceRadius_; }
-
-    //! Get degree of spherical harmonics gravity field expansion.
-    /*!
-     * Returns the degree of the spherical harmonics gravity field expansion.
-     * \return Degree of spherical harmonics expansion.
-     */
-    double getDegreeOfExpansion( ) { return degreeOfExpansion_; }
-
-    //! Get order of spherical harmonics gravity field expansion.
-    /*!
-     * Returns the order of the spherical harmonics gravity field expansion.
-     * \return Order of spherical harmonics expansion.
-     */
-    double getOrderOfExpansion( ) { return orderOfExpansion_; }
-
-    //! Get the gravitational potential.
-    /*!
-     * Returns the value of the gravitational potential, expressed in spherical harmonics for the
-     * given position.
-     * \param position Position at which potential is to be determined
-     * \return Gravitational potential.
-     */
-    double getPotential( const Eigen::Vector3d& position )
+    double getReferenceRadius( )
     {
-        relativePosition_ = position - positionOfOrigin_;
-        return gravitationalParameter_ / relativePosition_.norm( );
+        return referenceRadius_;
     }
 
-    //! Get the gradient of the gravitational potential.
+    //! Function to get the cosine spherical harmonic coefficients (geodesy normalized)
     /*!
-     * Returns the value of the gradient of the gravitational potential, expressed in spherical
-     * harmonics for the given position.
+     *  Function to get the cosine spherical harmonic coefficients (geodesy normalized)
+     *  \return Cosine spherical harmonic coefficients (geodesy normalized)
+     */
+    Eigen::MatrixXd getCosineCoefficients( )
+    {
+        return cosineCoefficients_;
+    }
+
+    //! Function to get the sine spherical harmonic coefficients (geodesy normalized)
+    /*!
+     *  Function to get the sine spherical harmonic coefficients (geodesy normalized)
+     *  \return Sine spherical harmonic coefficients (geodesy normalized)
+     */
+    Eigen::MatrixXd getSineCoefficients( )
+    {
+        return sineCoefficients_;
+    }
+
+    //! Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
+    /*!
+     *  Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
+     *  \param cosineCoefficients New cosine spherical harmonic coefficients (geodesy normalized)
+     */
+    void setCosineCoefficients( const Eigen::MatrixXd& cosineCoefficients )
+    {
+        cosineCoefficients_ = cosineCoefficients;
+    }
+
+    //! Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
+    /*!
+     *  Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
+     *  \param sineCoefficients New sine spherical harmonic coefficients (geodesy normalized)
+     */
+    void setSineCoefficients( const Eigen::MatrixXd& sineCoefficients )
+    {
+        sineCoefficients_ = sineCoefficients;
+    }
+
+    //! Function to get a cosine spherical harmonic coefficient block (geodesy normalized)
+    /*!
+     *  Function to get a cosine spherical harmonic coefficient block (geodesy normalized)
+    *   up to a given degree and order
+     *  \param maximumDegree Maximum degree of coefficient block
+     *  \param maximumOrder Maximum order of coefficient block
+     *  \return Cosine spherical harmonic coefficients (geodesy normalized) up to given
+     *  degree and order
+     */
+    Eigen::MatrixXd getCosineCoefficients( const int maximumDegree, const int maximumOrder )
+    {
+        return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
+    }
+
+    //! Function to get a sine spherical harmonic coefficient block (geodesy normalized)
+    /*!
+     *  Function to get a sine spherical harmonic coefficient block (geodesy normalized)
+     *  up to a given degree and order
+     *  \param maximumDegree Maximum degree of coefficient block
+     *  \param maximumOrder Maximum order of coefficient block
+     *  \return Sine spherical harmonic coefficients (geodesy normalized) up to given
+     *  degree and order
+     */
+    Eigen::MatrixXd getSineCoefficients( const int maximumDegree, const int maximumOrder )
+    {
+        return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
+    }
+
+    //! Get maximum degree of spherical harmonics gravity field expansion.
+    /*!
+     *  Returns the maximum degree of the spherical harmonics gravity field expansion.
+     *  \return Degree of spherical harmonics expansion.
+     */
+    double getDegreeOfExpansion( )
+    {
+        return cosineCoefficients_.rows( ) + 1;
+    }
+
+    //! Get maximum order of spherical harmonics gravity field expansion.
+    /*!
+     *  Returns the maximum order of the spherical harmonics gravity field expansion.
+     *  \return Order of spherical harmonics expansion.
+     */
+    double getOrderOfExpansion( )
+    {
+        return cosineCoefficients_.cols( ) + 1;
+    }
+
+    //! Function to return the function from which rotation between frame fixed
+    //! to massive body and inertial frame is retrieved.
+    /*!
+     *  Function to return the function from which rotation between frame fixed
+     *  to massive body and inertial frame is retrieved.
+     *  \return Object from which rotation between frame fixed to massive body and
+     *  inertial frame is retrieved
+     */
+    boost::function< Eigen::Quaterniond( ) > getRotationToLocalFrameWrapper( )
+    {
+        return rotationWrapper_;
+    }
+
+    //! Function to calculate the gravitational potential at a given point
+    /*!
+     *  Function to calculate the gravitational potential due to this body at a given point.
+     *  Note that this function, which has the same interface as in the base class and
+     *  expands the gravity field to its maximum degree and order.
+     *  \param Position of point at which potential is to be calculated, in body-fixed frame.
+     *  \return Gravitational potential at requested point.
+     */
+    double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
+    {
+        return getGravitationalPotential( bodyFixedPosition, cosineCoefficients_.rows( ),
+                                          cosineCoefficients_.cols( ) );
+    }
+
+    //! Function to calculate the gravitational potential due to terms up to given degree and
+    //! order at a given point
+    /*!
+     *  Function to calculate the gravitational potential due to terms up to given degree and
+     *  order due to this body at a given point.
+     *  \param Position of point at which potential is to be calculate, in body-fixed frame.
+     *  \param maximumDegree Maximum degree of spherical harmonic coefficients to include.
+     *  \param maximumDegree Maximum order of spherical harmonic coefficients to include.
+     *  \return Gravitational potential due to terms up to given degree and order at
+     *  requested point.
+     */
+    double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition,
+                                      const double maximumDegree,
+                                      const double maximumOrder,
+                                      const double minimumDegree = 0,
+                                      const double minimumOrder = 0 )
+    {
+        return calculateSphericalHarmonicGravitationalPotential(
+                    bodyFixedPosition, gravitationalParameter_, referenceRadius_,
+                    cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+                    sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+                    minimumDegree, minimumOrder );
+    }
+
+    //! Get the gradient of the potential.
+    /*!
+     * Returns the gradient of the potential for the gravity field selected.
+     *  Note that this function, which has the same interface as in the base class and
+     *  expands the gravity field to its maximum degree and order.
      * \param position Position at which gradient of potential is to be determined
-     * \return Gradient of gravitational potential.
+     * \return Gradient of potential.
      */
-    Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& position )
+    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
-        relativePosition_ = position - positionOfOrigin_;
-        return -gravitationalParameter_ * relativePosition_
-                / pow( relativePosition_.norm( ), 3.0 );
+        return getGradientOfPotential( bodyFixedPosition, cosineCoefficients_.rows( ),
+                                          sineCoefficients_.cols( ) );
     }
 
-    //! Get gradient tensor of the gravitational potential.
+    //! Get the gradient of the potential.
     /*!
-     * Returns the value of the gradient tensor of the gravitational potential expressed in
-     * spherical harmonics for the given position.
-     * \param position Position at which gradient tensor of potential is to be determined
-     * \return Gradient tensor of gravitational potential.
+     *  Returns the gradient of the potential for the gravity field selected.
+     *  \param position Position at which gradient of potential is to be determined
+     *  \param maximumDegree Maximum degree of spherical harmonic coefficients to include.
+     *  \param maximumDegree Maximum order of spherical harmonic coefficients to include.
+     *  \return Gradient of potential.
      */
-    Eigen::Matrix3d getGradientTensorOfPotential( const Eigen::Vector3d& position );
+    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition,
+                                                    const double maximumDegree,
+                                                    const double maximumOrder )
+    {
+        return computeGeodesyNormalizedGravitationalAccelerationSum(
+                    bodyFixedPosition, gravitationalParameter_, referenceRadius_,
+                    cosineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ),
+                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ) );
+    }
 
-    //! Overload ostream to print class information.
+    //! Function to retrieve the tdentifier for body-fixed reference frame
     /*!
-     * Overloads ostream to print class information.
-     * \param stream Stream object.
-     * \param sphericalHarmonicsGravityField Spherical harmonics gravity field.
-     * \return Stream object.
+     *  Function to retrieve the tdentifier for body-fixed reference frame
+     *  \return Function to retrieve the tdentifier for body-fixed reference frame.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
-                                     SphericalHarmonicsGravityField&
-                                     sphericalHarmonicsGravityField );
+    std::string getFixedReferenceFrame( )
+    {
+        return fixedReferenceFrame_;
+    }
 
 protected:
 
-    //! Degree of spherical harmonics expansion.
+    //! Reference radius of spherical harmonic field expansion
     /*!
-     * Degree of spherical harmonics expansion.
-     */
-    unsigned int degreeOfExpansion_;
-
-    //! Order of spherical harmonics expansion.
-    /*!
-     * Order of spherical harmonics expansion.
-     */
-    unsigned int orderOfExpansion_;
-
-    //! Reference radius.
-    /*!
-     * The reference radius used for the spherical harmonics expansion in
-     * meters.
+     *  Reference radius of spherical harmonic field expansion
      */
     double referenceRadius_;
 
-private:
-
-    //! J2 spherical harmonics gravity field coefficient.
+    //! Cosine spherical harmonic coefficients (geodesy normalized)
     /*!
-     * J2 spherical harmonics gravity field coefficient.
+     *  Cosine spherical harmonic coefficients (geodesy normalized)
      */
-    double j2SphericalHarmonicsGravityFieldCoefficient_;
+    Eigen::MatrixXd cosineCoefficients_;
 
-    //! J3 spherical harmonics gravity field coefficient.
+    //! Sine spherical harmonic coefficients (geodesy normalized)
     /*!
-     * J3 spherical harmonics gravity field coefficient.
+     *  Sine spherical harmonic coefficients (geodesy normalized)
      */
-    double j3SphericalHarmonicsGravityFieldCoefficient_;
+    Eigen::MatrixXd sineCoefficients_;
 
-    //! J4 spherical harmonics gravity field coefficient.
+    //! Function from which rotation between frame fixed to massive body and inertial frame.
+    //! is retrieved.
     /*!
-     * J4 spherical harmonics gravity field coefficient.
+     *  Function from which rotation between frame fixed to massive body and inertial frame.
+     *  is retrieved.
      */
-    double j4SphericalHarmonicsGravityFieldCoefficient_;
+    boost::function< Eigen::Quaterniond( ) > rotationWrapper_;
+
+    //! Identifier for body-fixed reference frame
+    /*!
+     *  Identifier for body-fixed reference frame
+     */
+    std::string fixedReferenceFrame_;
 };
 
-//! Typedef for shared-pointer to SphericalHarmonicsGravityField object.
-typedef boost::shared_ptr< SphericalHarmonicsGravityField > SphericalHarmonicsGravityFieldPointer;
-
 } // namespace gravitation
+
 } // namespace tudat
 
 #endif // TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H

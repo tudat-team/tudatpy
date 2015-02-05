@@ -32,6 +32,7 @@
  *      130224    K. Kumar          Updated include guard name.
  *      130225    K. Kumar          Fixed bug with constructor calling virtual function function;
  *                                  added override of updateMembers() function.
+ *      15XXXX    D. Dirkx          Did some stuff.
  *
  *    References
  *
@@ -79,7 +80,7 @@ Eigen::Vector3d computeGravitationalAcceleration(
         const double universalGravitationalConstant,
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double massOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration );
+        const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( )  );
 
 //! Compute gravitational acceleration.
 /*!
@@ -104,7 +105,7 @@ Eigen::Vector3d computeGravitationalAcceleration(
 Eigen::Vector3d computeGravitationalAcceleration(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameterOfBodyExertingAcceleration,
-        const Eigen::Vector3d& positionOfBodyExertingAcceleration );
+        const Eigen::Vector3d& positionOfBodyExertingAcceleration = Eigen::Vector3d::Zero( ) );
 
 //! Compute gravitational force.
 /*!
@@ -130,7 +131,7 @@ Eigen::Vector3d computeGravitationalForce(
         const double massOfBodySubjectToForce,
         const Eigen::Vector3d& positionOfBodySubjectToForce,
         const double massOfBodyExertingForce,
-        const Eigen::Vector3d& positionOfBodyExertingForce );
+        const Eigen::Vector3d& positionOfBodyExertingForce = Eigen::Vector3d::Zero( )  );
 
 //! Compute gravitational force.
 /*!
@@ -155,7 +156,7 @@ Eigen::Vector3d computeGravitationalForce(
         const double massOfBodySubjectToForce,
         const Eigen::Vector3d& positionOfBodySubjectToForce,
         const double gravitationalParameterOfBodyExertingForce,
-        const Eigen::Vector3d& positionOfBodyExertingForce );
+        const Eigen::Vector3d& positionOfBodyExertingForce = Eigen::Vector3d::Zero( )  );
 
 //! Template class for central gravitational acceleration model.
 /*!
