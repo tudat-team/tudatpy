@@ -53,6 +53,7 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/keplerStateExtractor.h"
   "${SRCROOT}${EPHEMERIDESDIR}/rotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/simpleRotationalEphemeris.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/tabulatedEphemeris.h"
 )
 
 # Add static libraries.
@@ -63,6 +64,11 @@ setup_tudat_library_target(tudat_ephemerides "${SRCROOT}${EPHEMERIDESDIR}")
 add_executable(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestApproximatePlanetPositions.cpp")
 setup_custom_test_program(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERIDESDIR}")
 target_link_libraries(test_ApproximatePlanetPositions tudat_ephemerides tudat_gravitation tudat_basic_astrodynamics tudat_input_output tudat_root_finders  ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_TabulatedEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestTabulatedEphemeris.cpp")
+setup_custom_test_program(test_TabulatedEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
+target_link_libraries(test_TabulatedEphemeris tudat_ephemerides tudat_interpolators tudat_basic_astrodynamics  ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
 
 add_executable(test_CartesianStateExtractor "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestCartesianStateExtractor.cpp")
 setup_custom_test_program(test_CartesianStateExtractor "${SRCROOT}${EPHEMERIDESDIR}")
