@@ -42,6 +42,7 @@ set(INTERPOLATORS_SOURCES
 set(INTERPOLATORS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/cubicSplineInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/linearInterpolator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Interpolators/lagrangeInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/interpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/lookupScheme.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/oneDimensionalInterpolator.h"
@@ -64,3 +65,9 @@ target_link_libraries(test_LinearInterpolator tudat_input_output tudat_interpola
 add_executable(test_MultiLinearInterpolator "${SRCROOT}${MATHEMATICSDIR}/Interpolators/UnitTests/unitTestMultiLinearInterpolator.cpp")
 setup_custom_test_program(test_MultiLinearInterpolator "${SRCROOT}${MATHEMATICSDIR}")
 target_link_libraries(test_MultiLinearInterpolator tudat_input_output tudat_interpolators tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_LagrangeInterpolator "${SRCROOT}${MATHEMATICSDIR}/Interpolators/UnitTests/unitTestLagrangeInterpolators.cpp")
+setup_custom_test_program(test_LagrangeInterpolator "${SRCROOT}${MATHEMATICSDIR}")
+target_link_libraries(test_LagrangeInterpolator tudat_input_output tudat_interpolators tudat_basic_mathematics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+
+
