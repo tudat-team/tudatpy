@@ -33,6 +33,7 @@ if(USE_CSPICE)
 
     add_executable(test_LightTime "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestLightTimeSolution.cpp")
     setup_custom_test_program(test_LightTime "${SRCROOT}${OBSERVATIONMODELSDIR}")
-    target_link_libraries(test_LightTime tudat_observation_models tudat_ephemerides  tudat_spice_interface cspice ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+    target_link_libraries(test_LightTime tudat_observation_models tudat_ephemerides  tudat_spice_interface
+                                         ${SPICE_LIBRARIES} ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 endif( )
