@@ -68,7 +68,7 @@ public:
     //! Default constructor.
     /*!
      * Default constructor.
-     * \param Gravitational parameter associated with gravity field
+     * \param gravitationalParameter Gravitational parameter associated with gravity field
      */
     GravityFieldModel( const double gravitationalParameter ):
         gravitationalParameter_( gravitationalParameter )
@@ -83,7 +83,7 @@ public:
     //! Set the gravitational parameter.
     /*!
      * Define the gravitational parameter in meter^3 per second^2.
-     * \param New gravitational parameter associated with gravity field.
+     * \param gravitationalParameter New gravitational parameter associated with gravity field.
      */
     void resetGravitationalParameter( const double gravitationalParameter )
     {
@@ -104,7 +104,7 @@ public:
     //! Get the gravitational potential at given body-fixed position.
     /*!
      * Return the gravitational potential at given body-fixed position.
-     * \param Position at which the gravitational potential is to be evaluated.
+     * \param bodyFixedPosition Position at which the gravitational potential is to be evaluated.
      * \return Gravitational potential.
      */
     double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
@@ -115,7 +115,7 @@ public:
     //! Get the gradient of the potential.
     /*!
      * Returns the gradient of the potential for the gravity field selected.
-     * \param position Position at which gradient of potential is to be determined
+     * \param bodyFixedPosition Position at which gradient of potential is to be determined.
      * \return Gradient of potential.
      */
     virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
