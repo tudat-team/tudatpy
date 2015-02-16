@@ -88,8 +88,8 @@ public:
      *  This constructor initializes the interpolator from two vectors containing the independent
      *  variables and dependent variables. A look-up scheme can be provided to override the
      *  given default.
-     *  \param independentValues. Vector of values of independent variables that are used.
-     *  \param dependentValues. Vector of values of dependent variables that are used.
+     *  \param independentVariables Vector of values of independent variables that are used.
+     *  \param dependentVariables Vector of values of dependent variables that are used.
      *  \param numberOfStages Number of data points that are used to calculate the interpolating
      *  polynomial (must be even).
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
@@ -228,8 +228,8 @@ public:
      *  are used for determining the center (in case of a non-equispaced grid). If the required
      *  interpolating polynimial goes beyond the independent variable bondaries,
      *  a cubic spline with natural boundary conditions is used.
-     *  \param independentVariableValue Value of independent variable at which interpolation is
-     *  to take place.
+     *  \param targetIndependentVariableValue Value of independent variable at which interpolation
+     *  is to take place.
      *  \return Interpolated value of dependent variable.
      */
     DependentVariableType interpolate(

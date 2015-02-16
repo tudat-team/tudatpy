@@ -70,7 +70,7 @@ public:
      *  \param interpolator Interpolator that returns the interpolated state as a function of time.
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
-     *  \param Reference Julian day for times to be used as input to interpolator.
+     *  \param julianDayAtEpoch Julian day for times to be used as input to interpolator.
      */
     TabulatedCartesianEphemeris(
             const StateInterpolatorPointer interpolator,

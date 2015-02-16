@@ -77,10 +77,13 @@ namespace gravitation
  *  Function to calculate the gravitational potential from a spherical harmonic field expansion.
  *  \param bodyFixedPosition Position of point at which potential is to be calculated wrt the
  *  massive body, in the frame in which the expansion is defined (typically body-fixed).
- *  \param gravitationalParameter Gravitational parameter of massive body
- *  \param referenceRadius Reference radius of spherical harmonic field expansion
- *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
- *  \param cosineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
+ *  \param gravitationalParameter Gravitational parameter of massive body.
+ *  \param referenceRadius Reference radius of spherical harmonic field expansion.
+ *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized).
+ *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized).
+ *  \param minimumumDegree Maximum degree of spherical harmonic expansion.
+ *  \param minimumumOrder Maximum order of spherical harmonic expansion.
+
  *  \return Gravitational potential at position defined by bodyFixedPosition
  */
 double calculateSphericalHarmonicGravitationalPotential(
@@ -106,7 +109,8 @@ public:
      *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
      *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
      *  \param rotationWrapper Function from which rotation between frame fixed to massive body
-     *  and inertial frame is retrieved
+     *  and inertial frame is retrieved (identity matrix by default).
+     *  \param fixedReferenceFrame Identified for body-fixed reference frame (optional).
      */
     SphericalHarmonicsGravityField( const double gravitationalParameter,
                                     const double referenceRadius,
@@ -244,7 +248,8 @@ public:
      *  Function to calculate the gravitational potential due to this body at a given point.
      *  Note that this function, which has the same interface as in the base class and
      *  expands the gravity field to its maximum degree and order.
-     *  \param Position of point at which potential is to be calculated, in body-fixed frame.
+     *  \param bodyFixedPosition of point at which potential is to be calculated, in body-fixed
+     *  frame.
      *  \return Gravitational potential at requested point.
      */
     double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
@@ -258,9 +263,12 @@ public:
     /*!
      *  Function to calculate the gravitational potential due to terms up to given degree and
      *  order due to this body at a given point.
-     *  \param Position of point at which potential is to be calculate, in body-fixed frame.
+     *  \param bodyFixedPosition Position of point at which potential is to be calculate,
+     *  in body-fixed frame.
      *  \param maximumDegree Maximum degree of spherical harmonic coefficients to include.
-     *  \param maximumDegree Maximum order of spherical harmonic coefficients to include.
+     *  \param maximumOrder Maximum order of spherical harmonic coefficients to include.
+     *  \param minimumDegree Minimum degree of spherical harmonic coefficients to include, default 0
+     *  \param minimumOrder Maximum order of spherical harmonic coefficients to include, default 0
      *  \return Gravitational potential due to terms up to given degree and order at
      *  requested point.
      */
@@ -282,10 +290,10 @@ public:
      * Returns the gradient of the potential for the gravity field selected.
      *  Note that this function, which has the same interface as in the base class and
      *  expands the gravity field to its maximum degree and order.
-     * \param position Position at which gradient of potential is to be determined
+     * \param bodyFixedPosition Position at which gradient of potential is to be determined
      * \return Gradient of potential.
      */
-    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
+    Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
         return getGradientOfPotential( bodyFixedPosition, cosineCoefficients_.rows( ),
                                           sineCoefficients_.cols( ) );
@@ -294,12 +302,12 @@ public:
     //! Get the gradient of the potential.
     /*!
      *  Returns the gradient of the potential for the gravity field selected.
-     *  \param position Position at which gradient of potential is to be determined
+     *  \param bodyFixedPosition Position at which gradient of potential is to be determined
      *  \param maximumDegree Maximum degree of spherical harmonic coefficients to include.
-     *  \param maximumDegree Maximum order of spherical harmonic coefficients to include.
+     *  \param maximumOrder Maximum order of spherical harmonic coefficients to include.
      *  \return Gradient of potential.
      */
-    virtual Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition,
+    Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition,
                                                     const double maximumDegree,
                                                     const double maximumOrder )
     {
