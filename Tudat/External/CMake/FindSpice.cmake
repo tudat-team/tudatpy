@@ -76,6 +76,11 @@ else(NOT SPICE_BASE_PATH)
 	NAMES libcspice.a libcspice.lib cspice.a cspice.lib
 	PATHS ${SPICE_LIBRARIES_DIR})
 
+  # Force SPICE libraries, to be used when spice and other libraries are simultaneously compiled.
+  if(NOT SPICE_LIBRARIES)
+    set(SPICE_LIBRARIES "cspice")
+  endif( )
+
   # Let user know which SPICE library was found.
   message(STATUS "SPICE_LIBRARIES: ${SPICE_LIBRARIES}")
 
