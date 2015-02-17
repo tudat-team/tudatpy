@@ -294,7 +294,7 @@ Eigen::VectorXd convertSphericalToCartesianState( const Eigen::VectorXd& spheric
     const double sineOfAzimuthAngle = std::sin( azimuthAngle );
 
     // Set up transformation matrix for spherical to cylindrical conversion.
-    Eigen::MatrixXd transformationMatrixSphericalToCylindrical = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::Matrix3d transformationMatrixSphericalToCylindrical = Eigen::Matrix3d::Zero( );
     transformationMatrixSphericalToCylindrical( 0, 0 ) = cosineOfElevationAngle;
     transformationMatrixSphericalToCylindrical( 0, 2 ) = -sineOfElevationAngle;
     transformationMatrixSphericalToCylindrical( 1, 1 ) = 1.0;
@@ -302,7 +302,7 @@ Eigen::VectorXd convertSphericalToCartesianState( const Eigen::VectorXd& spheric
     transformationMatrixSphericalToCylindrical( 2, 2 ) = cosineOfElevationAngle;
 
     // Set up transformation matrix for cylindrical to Cartesian conversion.
-    Eigen::MatrixXd transformationMatrixCylindricalToCartesian = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::Matrix3d transformationMatrixCylindricalToCartesian = Eigen::Matrix3d::Zero( );
     transformationMatrixCylindricalToCartesian( 0, 0 ) = cosineOfAzimuthAngle;
     transformationMatrixCylindricalToCartesian( 0, 1 ) = -sineOfAzimuthAngle;
     transformationMatrixCylindricalToCartesian( 1, 0 ) = sineOfAzimuthAngle;
@@ -310,7 +310,7 @@ Eigen::VectorXd convertSphericalToCartesianState( const Eigen::VectorXd& spheric
     transformationMatrixCylindricalToCartesian( 2, 2 ) = 1.0;
 
     // Compute transformation matrix for spherical to Cartesian conversion.
-    const Eigen::MatrixXd transformationMatrixSphericalToCartesian
+    const Eigen::Matrix3d transformationMatrixSphericalToCartesian
             = transformationMatrixCylindricalToCartesian
             * transformationMatrixSphericalToCylindrical;
 
@@ -359,7 +359,7 @@ Eigen::VectorXd convertCartesianToSphericalState( const Eigen::VectorXd& cartesi
     const double sineOfAzimuthAngle = std::sin( convertedSphericalState( 1 ) );
 
     // Set up transformation matrix for cylindrical to spherical conversion.
-    Eigen::MatrixXd transformationMatrixCylindricalToSpherical = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::Matrix3d transformationMatrixCylindricalToSpherical = Eigen::Matrix3d::Zero( );
     transformationMatrixCylindricalToSpherical( 0, 0 ) = cosineOfElevationAngle;
     transformationMatrixCylindricalToSpherical( 0, 2 ) = sineOfElevationAngle;
     transformationMatrixCylindricalToSpherical( 1, 1 ) = 1.0;
@@ -367,7 +367,7 @@ Eigen::VectorXd convertCartesianToSphericalState( const Eigen::VectorXd& cartesi
     transformationMatrixCylindricalToSpherical( 2, 2 ) = cosineOfElevationAngle;
 
     // Set up transformation matrix for Cartesian to cylindrical conversion.
-    Eigen::MatrixXd transformationMatrixCartesianToCylindrical = Eigen::MatrixXd::Zero( 3, 3 );
+    Eigen::Matrix3d transformationMatrixCartesianToCylindrical = Eigen::Matrix3d::Zero( );
     transformationMatrixCartesianToCylindrical( 0, 0 ) = cosineOfAzimuthAngle;
     transformationMatrixCartesianToCylindrical( 0, 1 ) = sineOfAzimuthAngle;
     transformationMatrixCartesianToCylindrical( 1, 0 ) = -sineOfAzimuthAngle;
@@ -375,7 +375,7 @@ Eigen::VectorXd convertCartesianToSphericalState( const Eigen::VectorXd& cartesi
     transformationMatrixCartesianToCylindrical( 2, 2 ) = 1.0;
 
     // Compute transformation matrix for Cartesian to spherical conversion.
-    const Eigen::MatrixXd transformationMatrixCartesianToSpherical
+    const Eigen::Matrix3d transformationMatrixCartesianToSpherical
             = transformationMatrixCylindricalToSpherical
             * transformationMatrixCartesianToCylindrical;
 
