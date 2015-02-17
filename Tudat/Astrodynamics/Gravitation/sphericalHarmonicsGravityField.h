@@ -254,8 +254,8 @@ public:
      */
     double getGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
-        return getGravitationalPotential( bodyFixedPosition, cosineCoefficients_.rows( ),
-                                          cosineCoefficients_.cols( ) );
+        return getGravitationalPotential( bodyFixedPosition, cosineCoefficients_.rows( ) - 1,
+                                          sineCoefficients_.cols( ) - 1 );
     }
 
     //! Function to calculate the gravitational potential due to terms up to given degree and
