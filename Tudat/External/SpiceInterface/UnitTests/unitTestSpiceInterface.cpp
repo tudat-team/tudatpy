@@ -104,10 +104,10 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
     }
 
     // Load spice kernels.
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
 
     // Exact ephemeris time at J2000.
     const double ephemerisTimeOneYearAfterJ2000 = JULIAN_YEAR;
