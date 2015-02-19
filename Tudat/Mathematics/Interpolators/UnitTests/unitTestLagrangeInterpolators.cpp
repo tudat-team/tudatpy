@@ -185,9 +185,18 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_polynomials )
                         static_cast< double >( j ) * currentStepSize;
 
                 // Check interpolated value against theoretical polynomial
-                BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolate( currentDataPoint ),
-                                            evaluatePolynomial( coefficients, currentDataPoint ),
-                                            5.0E-15 );
+                if( j < 9 )
+                {
+                    BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolate( currentDataPoint ),
+                                                evaluatePolynomial( coefficients, currentDataPoint ),
+                                                5.0E-15 );
+                }
+                else
+                {
+                    BOOST_CHECK_CLOSE_FRACTION( interpolator.interpolate( currentDataPoint ),
+                                                evaluatePolynomial( coefficients, currentDataPoint ),
+                                                2.0E-14 );
+                }
 
             }
         }
@@ -496,7 +505,7 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
     // Test error throwing when making Lagrange Interpolator with odd number of stages
     {
         // Test for a range of odd number of stages
-        for( unsigned int numberOfStages = 1; numberOfStages < 16; numberOfStages+= 2 )
+        for( unsigned int numberOfStages = 1; numberOfStages < 12; numberOfStages+= 2 )
         {
             // Create interpolator with odd number of stages for map constructor
             runtimeErrorOccurred = false;
