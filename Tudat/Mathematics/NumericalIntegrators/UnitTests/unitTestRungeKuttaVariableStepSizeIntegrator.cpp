@@ -63,6 +63,7 @@
 
 #include <TudatCore/Basics/testMacros.h>
 #include <TudatCore/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h>
+#include <TudatCore/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h>
 
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
@@ -293,6 +294,53 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeRetrievalFunction )
                                            stateDerivatives.at( stage ),
                                            1.0E-15 );
     }
+}
+
+//! Test if integtrateTo function works for variable step size where last step is modified.
+BOOST_AUTO_TEST_CASE( testVariableStepIntegrateToFunction )
+{
+    using namespace tudat::numerical_integrators;
+    using namespace unit_tests::numerical_integrator_test_functions;
+
+    // In this test, the integrateTo function is used with variable step size integrator, where the
+    // step size is modified by the last step size, to ensure the correct operation of the
+    // integrator in this case.
+
+    // Create variable step size integrator.
+    RungeKuttaVariableStepSizeIntegratorXd integrator(
+                RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
+                &computeSecondNonAutonomousModelStateDerivative,
+                0.0,
+                ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ),
+                0.0, 10.0, 1.0E-10, 1.0E-10 );
+
+    // Use integrateTo function
+    Eigen::VectorXd integratedValue = integrator.integrateTo( 0.5, 1.0 );
+    double currentTime = integrator.getCurrentIndependentVariable( );
+
+    // Check if current time is correct.
+    BOOST_CHECK_CLOSE_FRACTION( currentTime, 0.5, std::numeric_limits< double >::epsilon( ) );
+
+    // Create integrator to see if performing a single step with the given settings will indeed
+    // result in the step size being adapted.
+    RungeKuttaVariableStepSizeIntegratorXd verificationIntegrator(
+                RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
+                &computeSecondNonAutonomousModelStateDerivative,
+                0.0,
+                ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ),
+                0.0, 10.0, 1.0E-10, 1.0E-10 );
+
+    // Check if single step size of 0.5 will be adapted.
+    verificationIntegrator.performIntegrationStep( 0.5 );
+    BOOST_CHECK_EQUAL( ( verificationIntegrator.getCurrentIndependentVariable( ) < 0.5 *
+                         ( 1.0 - 10.0 * std::numeric_limits< double >::epsilon( ) ) ), true );
+
+    // Use a fixed step size integrator to check the original result of integrateTo
+    RungeKutta4IntegratorXd fixedStepSizeIntegrator(
+                &computeSecondNonAutonomousModelStateDerivative,0.0,
+                ( Eigen::VectorXd( 1 ) << 1.0 ).finished( ) );
+    Eigen::VectorXd fixedStepIntegratedValue = integrator.integrateTo( 0.5, 0.01 );
+    BOOST_CHECK_CLOSE_FRACTION( fixedStepIntegratedValue.x( ), integratedValue.x( ), 1.0E-10 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
