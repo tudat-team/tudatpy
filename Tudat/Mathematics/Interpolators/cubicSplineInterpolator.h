@@ -151,7 +151,8 @@ public:
     /*!
      * Cubic spline interpolator constructor taking separate vectors of dependent and independent
      * variable values.
-     * \param independentVariables Vector with the independent variable values.
+     * \param independentVariables Vector with the independent variable values, must be
+     *  sorted in ascending order.
      * \param dependentVariables Vector with the dependent variable values.
      * \param selectedLookupScheme Look-up scheme that is to be used when finding interval
      * of requested independent variable value.
