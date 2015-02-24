@@ -141,7 +141,8 @@ public:
      *  This constructor initializes the interpolator from two vectors containing the independent
      *  variables and dependent variables. A look-up scheme can be provided to
      *  override the given default.
-     *  \param independentValues Vector of values of independent variables that are used.
+     *  \param independentValues Vector of values of independent variables that are used, must be
+     *  sorted in ascending order.
      *  \param dependentValues Vector of values of dependent variables that are used.
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *  to find the nearest lower data point in the independent variables when requesting

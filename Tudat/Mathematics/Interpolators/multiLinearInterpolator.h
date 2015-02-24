@@ -85,7 +85,8 @@ public:
 
     //! Constructor taking independent and dependent variable data.
     /*!
-     * \param independentValues Vector of vectors containing data points of independent variables.
+     * \param independentValues Vector of vectors containing data points of independent variables,
+     *  each must be sorted in ascending order.
      * \param dependentData Multi-dimensional array of dependent data at each point of
      *          hyper-rectangular grid formed by independent variable points.
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used

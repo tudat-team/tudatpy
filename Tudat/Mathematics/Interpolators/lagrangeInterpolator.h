@@ -88,7 +88,8 @@ public:
      *  This constructor initializes the interpolator from two vectors containing the independent
      *  variables and dependent variables. A look-up scheme can be provided to override the
      *  given default.
-     *  \param independentVariables Vector of values of independent variables that are used.
+     *  \param independentVariables Vector of values of independent variables that are used, must be
+     *  sorted in ascending order.
      *  \param dependentVariables Vector of values of dependent variables that are used.
      *  \param numberOfStages Number of data points that are used to calculate the interpolating
      *  polynomial (must be even).
