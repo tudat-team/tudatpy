@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120719    P. Musegaas       File created.
+ *      140312    E. Brandon        Removed unneccesary include statement.
  *
  *    References
  *
@@ -35,7 +36,6 @@
 #ifndef TUDAT_TEST_FUNCTION_WITH_ZERO_ROOT_H
 #define TUDAT_TEST_FUNCTION_WITH_ZERO_ROOT_H
 
-#include <cmath>
 #include <stdexcept>
 
 #include "Tudat/Mathematics/RootFinders/UnitTests/testFunction.h"
