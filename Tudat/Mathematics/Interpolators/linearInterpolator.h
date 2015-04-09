@@ -95,7 +95,7 @@ public:
     independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
     lookUpScheme_;
-    using Interpolator< IndependentVariableType, DependentVariableType, 1 >::interpolate;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Constructor from map of independent/dependent data.
     /*!

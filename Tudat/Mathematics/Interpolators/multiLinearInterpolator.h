@@ -79,7 +79,7 @@ namespace interpolators
 template< typename IndependentVariableType, typename DependentVariableType,
           int numberOfDimensions >
 class MultiLinearInterpolator: public Interpolator< IndependentVariableType,
-        DependentVariableType, numberOfDimensions >
+        DependentVariableType >
 {
 public:
 
@@ -158,6 +158,17 @@ public:
         // all 2^n grid edges.
         return performRecursiveInterpolationStep( 0, independentValuesToInterpolate,
                                                   interpolationIndices, nearestLowerIndices );
+    }
+
+    //! Function to return the number of independent variables of the interpolation.
+    /*!
+     *  Function to return the number of independent variables of the interpolation, i.e. size
+     *  that the vector used as input for Interpolator::interpolate should be.
+     *  \return Number of independent variables of the interpolation.
+     */
+    int getNumberOfDimensions( )
+    {
+        return numberOfDimensions;
     }
 
 
