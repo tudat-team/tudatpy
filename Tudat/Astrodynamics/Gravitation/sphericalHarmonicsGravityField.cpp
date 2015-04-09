@@ -76,7 +76,7 @@ double calculateSphericalHarmonicGravitationalPotential(
 
     // Determine body fixed spherical position of body udnergoing acceleration.
     Eigen::Vector3d sphericalPositon =
-        basic_mathematics::coordinate_conversions::convertCartesianToSpherical( bodyFixedPosition );
+            basic_mathematics::coordinate_conversions::convertCartesianToSpherical( bodyFixedPosition );
     double latitude = mathematics::PI / 2.0 - sphericalPositon.y( );
     double longitude = sphericalPositon.z( );
 
@@ -96,17 +96,17 @@ double calculateSphericalHarmonicGravitationalPotential(
     }
 
     // Iterate over all degrees
-    for( unsigned int degree = startDegree; degree < cosineCoefficients.rows( ); degree++ )
+    for( int degree = startDegree; degree < cosineCoefficients.rows( ); degree++ )
     {
         singleDegreeTerm = 0.0;
 
         // Iterate over all orders in current degree for which coefficients are provided.
-        for( unsigned int order = minimumumOrder; ( order < cosineCoefficients.cols( ) &&
-                                                    order <= degree ); order++ )
+        for( int order = minimumumOrder; ( order < cosineCoefficients.cols( ) &&
+                                           order <= degree ); order++ )
         {
             // Calculate legendre polynomial (geodesy-normalized) at current degree and order
             legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
-                degree, order, std::sin( latitude ) );
+                        degree, order, std::sin( latitude ) );
 
             // Calculate contribution to potential from current degree and order
             singleDegreeTerm += legendrePolynomial * ( cosineCoefficients( degree, order ) *

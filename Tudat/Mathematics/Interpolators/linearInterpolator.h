@@ -108,7 +108,7 @@ public:
      *          to find the nearest lower data point in the independent variables when requesting
      *          interpolation.
      */
-    LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType > dataMap,
+    LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
     {
         // Verify that the initialization variables are not empty.
@@ -148,8 +148,8 @@ public:
      *  to find the nearest lower data point in the independent variables when requesting
      *  interpolation.
      */
-    LinearInterpolator( const std::vector< IndependentVariableType > independentValues,
-                        const std::vector< DependentVariableType > dependentValues,
+    LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
+                        const std::vector< DependentVariableType >& dependentValues,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
     {
         // Verify that the initialization variables are not empty.

@@ -74,7 +74,7 @@ public:
      * \param independentVariableValues vector of independent variable values in which to perform
      * lookup procedure.
      */
-    LookUpScheme( const std::vector< IndependentVariableType >independentVariableValues )
+    LookUpScheme( const std::vector< IndependentVariableType >& independentVariableValues )
         : independentVariableValues_( independentVariableValues )
     { }
 
@@ -120,7 +120,7 @@ public:
      * \param independentVariableValues vector of independent variable values in which to perform
      * lookup procedure.
      */
-    HuntingAlgorithmLookupScheme( const std::vector< IndependentVariableType >
+    HuntingAlgorithmLookupScheme( const std::vector< IndependentVariableType >&
                                   independentVariableValues )
         : LookUpScheme< IndependentVariableType >( independentVariableValues ),
           isFirstLookupDone( 0 ),
@@ -213,7 +213,7 @@ public:
      * lookup procedure.
      */
     BinarySearchLookupScheme(
-            const std::vector< IndependentVariableType > independentVariableValues )
+            const std::vector< IndependentVariableType >& independentVariableValues )
         : LookUpScheme< IndependentVariableType >( independentVariableValues )
     { }
 
