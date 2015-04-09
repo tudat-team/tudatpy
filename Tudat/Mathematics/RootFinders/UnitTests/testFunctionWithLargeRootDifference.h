@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120719    P. Musegaas       File created.
+ *      140312    E. Brandon        Added missing include statement.
  *
  *    References
  *
@@ -37,6 +38,8 @@
 
 #include <cmath>
 #include <stdexcept>
+
+#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
 
 #include "Tudat/Mathematics/RootFinders/UnitTests/testFunction.h"
 #include "Tudat/Mathematics/BasicMathematics/basicFunction.h"

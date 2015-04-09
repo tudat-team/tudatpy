@@ -30,8 +30,10 @@
  #      120726    S. Billemont      Added files regarding new root-finder methods and unit tests.
  #      120813    P. Musegaas       Added Newton Raphson unit test executable, added additional test
  #                                  functions.
- #	    120920    K. Kumar          Changed sub-directory name to RootFinders.
+ #      120920    K. Kumar          Changed sub-directory name to RootFinders.
  #      140312    E. Brandon        Added Secant root-finder method and unit test.
+ #      140312    E. Brandon        Added Halley root-finder method and unit test.
+ #      140312    E. Brandon        Added Bisection root-finder method and unit test.
  #
  #    References
  #
@@ -49,6 +51,7 @@ set(ROOTFINDERS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/newtonRaphson.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/rootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/secantRootFinder.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/bisection.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/terminationConditions.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction1.h"
@@ -60,7 +63,7 @@ set(ROOTFINDERS_HEADERS
 
 # Add unit test files.
 set(ROOTFINDERS_TESTS
-  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestHalleyRootFinder.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestBisection.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestHalleyRootFinder.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestNewtonRaphson.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/unitTestRootFinders.cpp"

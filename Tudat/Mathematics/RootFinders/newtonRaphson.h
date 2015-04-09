@@ -40,6 +40,8 @@
  *      120402    T. Secretin       Code-check.
  *      120726    S. Billemont      Restructuring. Implemented new termination conditions.
  *      120810    P. Musegaas       Code-check.
+ *      140312    E. Brandon        Removed unneccesary include statement, minor correction Doxygen
+ *                                  comments.
  *
  *    References
  *
@@ -49,8 +51,6 @@
 
 #ifndef TUDAT_NEWTON_RAPHSON_H
 #define TUDAT_NEWTON_RAPHSON_H
-
-#include <cmath>
 
 #include <boost/bind.hpp>
 #include <boost/exception/all.hpp>
@@ -91,7 +91,7 @@ public:
     //! Usefull type definition for the function pointer (from base class)
     typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
 
-    //! Usefull type definition for the function pointer (from base class)
+    //! Usefull type definition for the termination function (from base class)
     typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
 
     //! This is the constructor taking the general termination function
