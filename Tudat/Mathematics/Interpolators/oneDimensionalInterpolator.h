@@ -56,12 +56,12 @@ namespace interpolators
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 class OneDimensionalInterpolator :
-        public Interpolator< IndependentVariableType, DependentVariableType, 1 >
+        public Interpolator< IndependentVariableType, DependentVariableType >
 {
 
 public:
 
-    using Interpolator< IndependentVariableType, DependentVariableType, 1 >::interpolate;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Destructor.
     /*!
@@ -102,6 +102,47 @@ public:
      */
     virtual DependentVariableType
             interpolate( const IndependentVariableType independentVariableValue ) = 0;
+
+    //! Function to return the number of independent variables of the interpolation.
+    /*!
+     *  Function to return the number of independent variables of the interpolation, which is always
+     *  equal to 1 for this class and its derived class.
+     *  \return Number of independent variables of the interpolation (1).
+     */
+    int getNumberOfDimensions( )
+        {
+            return 1;
+        }
+
+    //! Function to return the lookup scheme used by the interpolator.
+    /*!
+     *  Function to return the lookup scheme used by the interpolator.
+     *  \return The lookup scheme used by the interpolator.
+     */
+    boost::shared_ptr< LookUpScheme< IndependentVariableType > > getLookUpScheme( )
+    {
+        return lookUpScheme_;
+    }
+
+    //! Function to return the ector with independent variables used by the interpolator.
+    /*!
+     *  Function to return the ector with independent variables used by the interpolator.
+     *  \return Independent variables used by the interpolator.
+     */
+    std::vector< IndependentVariableType > getIndependentValues( )
+    {
+        return independentValues_;
+    }
+
+    //! Function to return the ector with dependent variables used by the interpolator.
+    /*!
+     *  Function to return the ector with dependent variables used by the interpolator.
+     *  \return Dependent variables used by the interpolator.
+     */
+    std::vector< DependentVariableType > getDependentValues( )
+    {
+        return dependentValues_;
+    }
 
 protected:
 

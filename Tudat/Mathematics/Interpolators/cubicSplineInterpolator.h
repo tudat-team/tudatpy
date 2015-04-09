@@ -238,7 +238,7 @@ public:
     ~CubicSplineInterpolator( ){ }
 
     // Statement required to prevent hiding of base class functions.
-    using Interpolator< IndependentVariableType, DependentVariableType, 1 >::interpolate;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Interpolate.
     /*!

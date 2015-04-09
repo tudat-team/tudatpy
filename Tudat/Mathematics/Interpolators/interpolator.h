@@ -52,8 +52,7 @@ namespace interpolators
  * \tparam IndependentVariableType Type of dependent variable.
  * \tparam numberOfDimensions Number of independent directions for independent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType,
-          int numberOfDimensions >
+template< typename IndependentVariableType, typename DependentVariableType >
 class Interpolator
 {
 public:
@@ -73,6 +72,15 @@ public:
      */
     virtual DependentVariableType interpolate( const std::vector< IndependentVariableType >&
                                                independentVariableValues ) = 0;
+
+    //! Function to return the number of independent variables of the interpolation.
+    /*!
+     *  Function to return the number of independent variables of the interpolation, i.e. size
+     *  that the vector used as input for Interpolator::interpolate should be.
+     *  \return Number of independent variables of the interpolation.
+     */
+    virtual int getNumberOfDimensions( ) = 0;
+
 
 };
 
