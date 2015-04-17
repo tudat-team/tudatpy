@@ -44,17 +44,6 @@
 #add_definitions(-DTUDAT_CUSTOM_ROOT_PATH="C:/My/Custom/Path/To/Tudat")
 
  #--------------------------------------
- # Tudat Core
- #--------------------------------------
-
- # If Tudat Core is not found, use the following to manually set the path to the Tudat Core.
-#SET(TUDAT_CORE_BASE_PATH "C:/path/to/TudatCore")
-
- # Enforce a rootpath.
- # This should be used in case the FILE token does not give the full-path in the getRootPath() function in basicFunctions.h.
-#add_definitions(-DTUDAT_CORE_CUSTOM_ROOT_PATH="C:/My/Custom/Path/To/TudatCore")
-
- #--------------------------------------
  # Boost
  #--------------------------------------
 
