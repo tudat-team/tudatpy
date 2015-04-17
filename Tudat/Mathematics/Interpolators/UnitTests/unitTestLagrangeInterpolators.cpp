@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -38,7 +38,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
@@ -166,10 +166,10 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_polynomials )
         }
 
         // Create interpolator
-        tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                tudat::interpolators::LagrangeInterpolator< double, double >(
-                    dataMap, stages, tudat::interpolators::huntingAlgorithm,
-                    tudat::interpolators::lagrange_no_boundary_interpolation );
+        interpolators::LagrangeInterpolator< double, double > interpolator =
+                interpolators::LagrangeInterpolator< double, double >(
+                    dataMap, stages, interpolators::huntingAlgorithm,
+                    interpolators::lagrange_no_boundary_interpolation );
 
         // Iterate over all data points inside allowed (i.e. non-boundary) range
         int offsetEntries = stages / 2 - 1;
@@ -230,11 +230,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
             }
 
             // Create interpolator with cubic spline interpolation at boundaries
-            tudat::interpolators::LagrangeInterpolator< double, double > lagrangeInterpolator =
-                    tudat::interpolators::LagrangeInterpolator< double, double >(
+            interpolators::LagrangeInterpolator< double, double > lagrangeInterpolator =
+                    interpolators::LagrangeInterpolator< double, double >(
                         independentVariableVector, dataVector, stages,
-                        tudat::interpolators::huntingAlgorithm,
-                        tudat::interpolators::lagrange_cubic_spline_boundary_interpolation );
+                        interpolators::huntingAlgorithm,
+                        interpolators::lagrange_cubic_spline_boundary_interpolation );
 
             // Create spline interpolator from edge points at lower bound.
             int dataPointsForSpline = ( stages / 2 > 4 ) ? ( stages / 2 ) : 4;
@@ -317,11 +317,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
             }
 
             // Create interpolator lagrange_no_boundary_interpolation
-            tudat::interpolators::LagrangeInterpolator< double, double > lagrangeInterpolator =
-                    tudat::interpolators::LagrangeInterpolator< double, double >(
+            interpolators::LagrangeInterpolator< double, double > lagrangeInterpolator =
+                    interpolators::LagrangeInterpolator< double, double >(
                         independentVariableVector, dataVector, stages,
-                        tudat::interpolators::huntingAlgorithm,
-                        tudat::interpolators::lagrange_no_boundary_interpolation );
+                        interpolators::huntingAlgorithm,
+                        interpolators::lagrange_no_boundary_interpolation );
 
             // Test for each whether the interpolator correctly throws an exception if
             // interpolation at the lower boundary is requested.
@@ -397,10 +397,10 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
         runtimeErrorOccurred = false;
         try
         {
-            tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                    tudat::interpolators::LagrangeInterpolator< double, double >(
-                        dataMap, 8, tudat::interpolators::huntingAlgorithm,
-                        tudat::interpolators::lagrange_no_boundary_interpolation );
+            interpolators::LagrangeInterpolator< double, double > interpolator =
+                    interpolators::LagrangeInterpolator< double, double >(
+                        dataMap, 8, interpolators::huntingAlgorithm,
+                        interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error )
         {
@@ -414,11 +414,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
         try
         {
             dataVector.push_back( 1.0 );
-            tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                    tudat::interpolators::LagrangeInterpolator< double, double >(
+            interpolators::LagrangeInterpolator< double, double > interpolator =
+                    interpolators::LagrangeInterpolator< double, double >(
                         independentVariableVector, dataVector, 8,
-                        tudat::interpolators::huntingAlgorithm,
-                        tudat::interpolators::lagrange_no_boundary_interpolation );
+                        interpolators::huntingAlgorithm,
+                        interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error )
         {
@@ -433,11 +433,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
         try
         {
             independentVariableVector.push_back( 1.0 );
-            tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                    tudat::interpolators::LagrangeInterpolator< double, double >(
+            interpolators::LagrangeInterpolator< double, double > interpolator =
+                    interpolators::LagrangeInterpolator< double, double >(
                         independentVariableVector, dataVector, 8,
-                        tudat::interpolators::huntingAlgorithm,
-                        tudat::interpolators::lagrange_no_boundary_interpolation );
+                        interpolators::huntingAlgorithm,
+                        interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error )
         {
@@ -461,10 +461,10 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                 dataMap[ independentVariableVector.at( i ) ] = evaluatePolynomial(
                             coefficients, independentVariableVector.at( i ) );
             }
-            tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                    tudat::interpolators::LagrangeInterpolator< double, double >(
-                        dataMap, 8, tudat::interpolators::huntingAlgorithm,
-                        tudat::interpolators::lagrange_no_boundary_interpolation );
+            interpolators::LagrangeInterpolator< double, double > interpolator =
+                    interpolators::LagrangeInterpolator< double, double >(
+                        dataMap, 8, interpolators::huntingAlgorithm,
+                        interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error )
         {
@@ -486,11 +486,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                 dataVector.push_back( evaluatePolynomial(
                                           coefficients, independentVariableVector.at( i ) ) );
             }
-            tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                    tudat::interpolators::LagrangeInterpolator< double, double >(
+            interpolators::LagrangeInterpolator< double, double > interpolator =
+                    interpolators::LagrangeInterpolator< double, double >(
                         independentVariableVector, dataVector, 8,
-                        tudat::interpolators::huntingAlgorithm,
-                        tudat::interpolators::lagrange_no_boundary_interpolation );
+                        interpolators::huntingAlgorithm,
+                        interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error )
         {
@@ -517,10 +517,10 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                     dataMap[ independentVariableVector.at( i ) ] = evaluatePolynomial(
                                 coefficients, independentVariableVector.at( i ) );
                 }
-                tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                        tudat::interpolators::LagrangeInterpolator< double, double >(
-                            dataMap, numberOfStages, tudat::interpolators::huntingAlgorithm,
-                            tudat::interpolators::lagrange_no_boundary_interpolation );
+                interpolators::LagrangeInterpolator< double, double > interpolator =
+                        interpolators::LagrangeInterpolator< double, double >(
+                            dataMap, numberOfStages, interpolators::huntingAlgorithm,
+                            interpolators::lagrange_no_boundary_interpolation );
             }
             catch( std::runtime_error )
             {
@@ -541,11 +541,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                     dataVector.push_back( evaluatePolynomial(
                                               coefficients, independentVariableVector.at( i ) ) );
                 }
-                tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                        tudat::interpolators::LagrangeInterpolator< double, double >(
+                interpolators::LagrangeInterpolator< double, double > interpolator =
+                        interpolators::LagrangeInterpolator< double, double >(
                             independentVariableVector, dataVector, numberOfStages,
-                            tudat::interpolators::huntingAlgorithm,
-                            tudat::interpolators::lagrange_no_boundary_interpolation );
+                            interpolators::huntingAlgorithm,
+                            interpolators::lagrange_no_boundary_interpolation );
             }
             catch( std::runtime_error )
             {
@@ -571,11 +571,11 @@ BOOST_AUTO_TEST_CASE( test_lagrange_error_checks )
                 dataVector.push_back( evaluatePolynomial(
                                           coefficients, independentVariableVector.at( i ) ) );
             }
-            tudat::interpolators::LagrangeInterpolator< double, double > interpolator =
-                    tudat::interpolators::LagrangeInterpolator< double, double >(
+            interpolators::LagrangeInterpolator< double, double > interpolator =
+                    interpolators::LagrangeInterpolator< double, double >(
                         independentVariableVector, dataVector, numberOfStages,
-                        tudat::interpolators::huntingAlgorithm,
-                        tudat::interpolators::lagrange_no_boundary_interpolation );
+                        interpolators::huntingAlgorithm,
+                        interpolators::lagrange_no_boundary_interpolation );
         }
         catch( std::runtime_error )
         {

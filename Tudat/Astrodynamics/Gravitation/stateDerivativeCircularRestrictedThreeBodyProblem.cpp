@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -43,7 +43,7 @@
 
 #include <cmath>
 
-#include <TudatCore/Basics/utilityMacros.h>
+#include "Tudat/Basics/utilityMacros.h"
 
 #include "Tudat/Astrodynamics/Gravitation/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 
@@ -62,22 +62,22 @@ basic_mathematics::Vector6d StateDerivativeCircularRestrictedThreeBodyProblem::c
 
     // Compute distance to primary body.
     const double xCoordinateToPrimaryBodySquared =
-            ( cartesianState( xPositionIndex ) + massParameter )
-            * ( cartesianState( xPositionIndex ) + massParameter );
+            ( cartesianState( xCartesianPositionIndex ) + massParameter )
+            * ( cartesianState( xCartesianPositionIndex ) + massParameter );
 
-    const double yCoordinateSquared = cartesianState( yPositionIndex )
-            * cartesianState( yPositionIndex );
+    const double yCoordinateSquared = cartesianState( yCartesianPositionIndex )
+            * cartesianState( yCartesianPositionIndex );
 
-    const double zCoordinateSquared = cartesianState( zPositionIndex )
-            * cartesianState( zPositionIndex );
+    const double zCoordinateSquared = cartesianState( zCartesianPositionIndex )
+            * cartesianState( zCartesianPositionIndex );
 
     const double normDistanceToPrimaryBodyCubed = pow(
                 xCoordinateToPrimaryBodySquared + yCoordinateSquared + zCoordinateSquared, 1.5 );
 
     // Compute distance to secondary body.
     const double xCoordinateSecondaryBodySquared =
-            ( cartesianState( xPositionIndex ) - ( 1.0 - massParameter ) )
-            * ( cartesianState( xPositionIndex ) - ( 1.0 - massParameter ) );
+            ( cartesianState( xCartesianPositionIndex ) - ( 1.0 - massParameter ) )
+            * ( cartesianState( xCartesianPositionIndex ) - ( 1.0 - massParameter ) );
 
     double normDistanceToSecondaryBodyCubed = pow(
                 xCoordinateSecondaryBodySquared + yCoordinateSquared + zCoordinateSquared, 1.5 );
@@ -85,19 +85,19 @@ basic_mathematics::Vector6d StateDerivativeCircularRestrictedThreeBodyProblem::c
     // Compute derivative of state.
     Eigen::VectorXd stateDerivative( 6 );
 
-    stateDerivative.segment( xPositionIndex, 3 ) = cartesianState.segment( xVelocityIndex, 3 );
+    stateDerivative.segment( xCartesianPositionIndex, 3 ) = cartesianState.segment( xCartesianVelocityIndex, 3 );
 
-    stateDerivative( xAccelerationIndex ) = cartesianState( xPositionIndex )
+    stateDerivative( xAccelerationIndex ) = cartesianState( xCartesianPositionIndex )
             - ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
-            * ( cartesianState( xPositionIndex ) + massParameter )
+            * ( cartesianState( xCartesianPositionIndex ) + massParameter )
             - ( massParameter / normDistanceToSecondaryBodyCubed )
-            * ( cartesianState( xPositionIndex ) - ( 1.0 - massParameter ) )
-            + 2.0 * cartesianState( yVelocityIndex );
-    stateDerivative( yAccelerationIndex ) = cartesianState( yPositionIndex )
+            * ( cartesianState( xCartesianPositionIndex ) - ( 1.0 - massParameter ) )
+            + 2.0 * cartesianState( yCartesianVelocityIndex );
+    stateDerivative( yAccelerationIndex ) = cartesianState( yCartesianPositionIndex )
             * ( 1.0 - ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
                 - ( massParameter / normDistanceToSecondaryBodyCubed ) )
-            - 2.0 * cartesianState( xVelocityIndex );
-    stateDerivative( zAccelerationIndex ) = -cartesianState( zPositionIndex )
+            - 2.0 * cartesianState( xCartesianVelocityIndex );
+    stateDerivative( zAccelerationIndex ) = -cartesianState( zCartesianPositionIndex )
             * ( ( ( 1.0 - massParameter ) / normDistanceToPrimaryBodyCubed )
                 + ( massParameter / normDistanceToSecondaryBodyCubed ) );
 

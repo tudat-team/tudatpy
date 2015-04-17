@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -49,7 +49,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testAccelerationModels.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testBody.h"
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( test_OrbitalStateDerivativeModelWithoutFrameTransformation
     typedef AnotherDerivedAccelerationModel< > AnotherDerivedAccelerationModel3d;
 
     // Set current state.
-    const Vector6d currentState = ( Eigen::VectorXd( 6 )
+    const Vector6d currentState = ( basic_mathematics::Vector6d( )
                                     << Eigen::Vector3d( -1.1, 2.2, -3.3 ),
                                     Eigen::Vector3d( 0.23, 1.67, -0.11 ) ).finished( );
 
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE( test_OrbitalStateDerivativeModelWithoutFrameTransformation
 
     // Set expected (cumulative) Cartesian state derivative.
     const Vector6d expectedCartesianStateDerivative
-            = ( Eigen::VectorXd( 6 ) << currentVelocity,
+            = ( basic_mathematics::Vector6d( ) << currentVelocity,
                 expectedAccelerationFirstModel + expectedAccelerationSecondModel ).finished( );
 
     // Compute Cartesian state derivative.
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( test_OrbitalStateDerivativeModelWithFrameTransformations )
     typedef AnotherDerivedAccelerationModel< > AnotherDerivedAccelerationModel3d;
 
     // Set current state.
-    const Vector6d currentState = ( Eigen::VectorXd( 6 )
+    const Vector6d currentState = ( basic_mathematics::Vector6d( )
                                     << Eigen::Vector3d( -1.1, 2.2, -3.3 ),
                                     Eigen::Vector3d( 0.23, 1.67, -0.11 ) ).finished( );
 
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE( test_OrbitalStateDerivativeModelWithFrameTransformations )
 
     // Set expected (cumulative) Cartesian state derivative.
     const Vector6d expectedCartesianStateDerivative
-            = ( Eigen::VectorXd( 6 ) << currentVelocity,
+            = ( basic_mathematics::Vector6d( ) << currentVelocity,
                 expectedAccelerationFirstModel + expectedAccelerationSecondModel ).finished( );
 
     // Compute Cartesian state derivative.

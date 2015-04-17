@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -68,8 +68,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/utilityMacros.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/reinitializableNumericalIntegrator.h>
+#include "Tudat/Basics/utilityMacros.h"
+#include "Tudat/Mathematics/NumericalIntegrators/reinitializableNumericalIntegrator.h"
 
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 
@@ -111,7 +111,7 @@ public:
     /*!
      * Typedef of the base class with all template parameters filled in.
      */
-    typedef tudat::numerical_integrators::ReinitializableNumericalIntegrator<
+    typedef numerical_integrators::ReinitializableNumericalIntegrator<
     IndependentVariableType, StateType,
     StateDerivativeType > ReinitializableNumericalIntegratorBase;
 

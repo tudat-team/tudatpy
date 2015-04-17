@@ -608,7 +608,6 @@ set(Boost_ERROR_REASON)
     "${PROJECT_SOURCE_DIR}/../boost"
     "${PROJECT_SOURCE_DIR}/../../boost"
     "${PROJECT_SOURCE_DIR}/../../../boost"
-    "${PROJECT_SOURCE_DIR}/../../tudatCore/boost"
   )
 
   _Boost_CHECK_SPELLING(Boost_ROOT)

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -108,8 +108,8 @@ protected:
         for ( int i = 0; i < numberOfFields; i++ )
         {
             // Assign current field type being tested.
-            tudat::input_output::FieldType testForType = va_arg( listOfArguments,
-                                                                 tudat::input_output::FieldType );
+            input_output::FieldType testForType = va_arg( listOfArguments,
+                                                                 input_output::FieldType );
 
             // Check if field type is found in the data map.
             if ( dataLineMap->find( testForType ) == dataLineMap->end( ) )
@@ -150,8 +150,8 @@ protected:
         for ( int i = 0; i < numberOfFields; i++ )
         {
             // Assign current field type being tested.
-            tudat::input_output::FieldType testForType = va_arg( listOfArguments,
-                                                                 tudat::input_output::FieldType );
+            input_output::FieldType testForType = va_arg( listOfArguments,
+                                                                 input_output::FieldType );
 
             // Check if field type is found in the data map.
             if ( dataLineMap->find( testForType ) == dataLineMap->end( ) )

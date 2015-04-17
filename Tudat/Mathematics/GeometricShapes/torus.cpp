@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -53,7 +53,7 @@ using std::cerr;
 using std::endl;
 using std::sin;
 using std::cos;
-using basic_mathematics::mathematical_constants::PI;
+using mathematical_constants::PI;
 
 Torus::Torus( const double majorRadius, const double minorRadius,
               const double minimumMajorCircumferentialAngle,

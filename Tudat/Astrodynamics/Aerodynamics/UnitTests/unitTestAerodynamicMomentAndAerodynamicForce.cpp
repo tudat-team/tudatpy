@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -62,15 +62,21 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicRotationalAcceleration.h"
 
+namespace tudat
+{
+
+namespace unit_tests
+{
+
 BOOST_AUTO_TEST_SUITE( test_aerodynamic_acceleration_force_moment_models )
 
-using namespace tudat::aerodynamics;
+using namespace aerodynamics;
 
 //! Test implementation of aerodynamic force and acceleration models.
 BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
@@ -302,3 +308,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
+
+}
+
+}

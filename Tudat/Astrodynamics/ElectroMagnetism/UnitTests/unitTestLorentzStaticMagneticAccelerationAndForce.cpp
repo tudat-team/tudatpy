@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -51,7 +51,7 @@
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/ElectroMagnetism/lorentzStaticMagneticForce.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/lorentzStaticMagneticAcceleration.h"

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -50,7 +50,7 @@
 
 #include <Eigen/Dense> // for cross product issues (can someone explain why, exactly?)
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/zeroRevolutionLambertTargeterIzzo.h"
 #include "Tudat/Mathematics/BasicMathematics/convergenceException.h"
@@ -262,7 +262,7 @@ void ZeroRevolutionLambertTargeterIzzo::transformDimensions( )
     transferAngle = std::acos( cosineOfTransferAngle );
     if ( isLongway )
     {
-        transferAngle = 2.0 * tudat::basic_mathematics::mathematical_constants::PI - transferAngle;
+        transferAngle = 2.0 * mathematical_constants::PI - transferAngle;
     }
 
     // Lambda parameter.
@@ -389,7 +389,7 @@ double ZeroRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
     // Verify that root-finder has converged.
     if ( iterator == maximumNumberOfIterations )
     {
-        BOOST_THROW_EXCEPTION( tudat::basic_mathematics::ConvergenceException( 
+        BOOST_THROW_EXCEPTION( basic_mathematics::ConvergenceException( 
             ( boost::format(
                 "Multi-Revolution Lambert targeter failed to converge to a solution.\n"
                 "Reached the maximum number of iterations: %d"

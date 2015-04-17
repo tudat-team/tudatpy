@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -48,7 +48,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 
@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_SUITE( test_aerodynamics_namespace )
 BOOST_AUTO_TEST_CASE( testAerodynamicNamespacePressureFunctions )
 {
     using namespace tudat;
-    using namespace tudat::aerodynamics;
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using namespace aerodynamics;
+    using mathematical_constants::PI;
 
     // Set default test conditions.
     const double machNumber_ = 12.0;
@@ -179,8 +179,8 @@ BOOST_AUTO_TEST_CASE( testPressureCoefficients )
 {
     using std::sin;
     using namespace tudat;
-    using namespace tudat::aerodynamics;
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using namespace aerodynamics;
+    using mathematical_constants::PI;
 
     // Set default conditions.
     const double machNumber_ = 12.0;

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -57,11 +57,11 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/InputOutput/matrixTextFileReader.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/numericalIntegrator.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/reinitializableNumericalIntegrator.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTests.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h>
+#include "Tudat/InputOutput/matrixTextFileReader.h"
+#include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/reinitializableNumericalIntegrator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTests.h"
+#include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h"
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
@@ -75,7 +75,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_87_dormand_and_prince_integrator )
 
-using basic_mathematics::linear_algebra::flipMatrixRows;
+using linear_algebra::flipMatrixRows;
 
 using numerical_integrators::NumericalIntegratorXdPointer;
 using numerical_integrators::ReinitializableNumericalIntegratorXdPointer;

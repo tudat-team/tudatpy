@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -39,9 +39,9 @@
 
 #include <cmath>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
@@ -68,19 +68,21 @@ getCartesianStateFromEphemeris( const double secondsSinceEpoch, const double jul
                 * numberOfCenturiesPastJ2000_ );
 
     // Convert mean longitude at given Julian date from degrees to radians.
-    meanLongitudeAtGivenJulianDate_ = unit_conversions::convertDegreesToRadians(
+    meanLongitudeAtGivenJulianDate_ =
+            unit_conversions::convertDegreesToRadians(
                 meanLongitudeAtGivenJulianDate_);
 
     // Get semi-major axis at J2000 and assume constant radius of circular orbit.
-    constantOrbitalRadius_ = unit_conversions::convertAstronomicalUnitsToMeters(
+    constantOrbitalRadius_ =
+            unit_conversions::convertAstronomicalUnitsToMeters(
                 approximatePlanetPositionsDataContainer_.semiMajorAxis_ );
 
     // Convert to Cartesian position.
     Eigen::VectorXd planetCartesianStateAtGivenJulianDate( 6 );
     planetCartesianStateAtGivenJulianDate.segment( 0, 3 )
-            = basic_mathematics::coordinate_conversions::convertSphericalToCartesian(
+            = coordinate_conversions::convertSphericalToCartesian(
                 Eigen::Vector3d( constantOrbitalRadius_,
-                                 0.5 * basic_mathematics::mathematical_constants::PI,
+                                 0.5 * mathematical_constants::PI,
                                  meanLongitudeAtGivenJulianDate_ ) );
 
     // Compute orbital velocity.

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
     std::multimap< int, std::string > corruptedTwoLineElementDataErrors_;
 
     // Initialization of two TLE text file reader, one two-line and one three-line.
-    using tudat::input_output::TwoLineElementsTextFileReader;
+    using input_output::TwoLineElementsTextFileReader;
     TwoLineElementsTextFileReader twoLineElementsTextFileReaderForTwoLine;
     twoLineElementsTextFileReaderForTwoLine.setLineNumberTypeForTwoLineElementInputData(
                 TwoLineElementsTextFileReader::twoLineType );
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
     twoLineElementsTextFileReaderForTwoLine.storeTwoLineElementData( );
 
     // Get TLE data object.
-    std::vector< tudat::input_output::TwoLineElementData > twoLineElementData =
+    std::vector< input_output::TwoLineElementData > twoLineElementData =
             twoLineElementsTextFileReaderForTwoLine.getTwoLineElementData( );
 
     // Some random checks of TLE data variables of (corrupt) object 9 to see if
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).tleNumber, 26 );
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).objectIdentificationNumberLine2, 30303 );
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).TLEKeplerianElements(
-                           basic_astrodynamics::inclinationIndex ), 24.6237 );
+                           orbital_element_conversions::inclinationIndex ), 24.6237 );
 
     // Stored TLE data is checked for integrity and number of corrupted TLEs is saved,
     // while the corrupted TLEs have been erased from the data
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
             = twoLineElementsTextFileReaderForTwoLine.checkTwoLineElementsFileIntegrity( );
 
     // Get updated TLE data object.
-    std::vector< tudat::input_output::TwoLineElementData > twoLineElementDataAfterIntegrityCheck
+    std::vector< input_output::TwoLineElementData > twoLineElementDataAfterIntegrityCheck
             = twoLineElementsTextFileReaderForTwoLine.getTwoLineElementData( );
 
     // Test input file has been setup to contain 7 corrupted TLEs,
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForTwoLine )
                        firstDerivativeOfMeanMotionDividedByTwo, 0.00000290 );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).launchPart, "B  " );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).TLEKeplerianElements(
-                           basic_astrodynamics::eccentricityIndex ), 0.0024687 );
+                           orbital_element_conversions::eccentricityIndex ), 0.0024687 );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 2 ).revolutionNumber, 57038 );
 }
 
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForThreeLine )
     std::multimap< int, std::string > corruptedTwoLineElementDataErrors_;
 
     // Initialization of two TLE text file reader, one two-line and one three-line.
-    using tudat::input_output::TwoLineElementsTextFileReader;
+    using input_output::TwoLineElementsTextFileReader;
     TwoLineElementsTextFileReader twoLineElementsTextFileReaderForThreeLine;
     twoLineElementsTextFileReaderForThreeLine.setLineNumberTypeForTwoLineElementInputData(
                 TwoLineElementsTextFileReader::threeLineType );
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForThreeLine )
     twoLineElementsTextFileReaderForThreeLine.storeTwoLineElementData( );
 
     // Get TLE data object.
-    std::vector< tudat::input_output::TwoLineElementData > twoLineElementData =
+    std::vector< input_output::TwoLineElementData > twoLineElementData =
             twoLineElementsTextFileReaderForThreeLine.getTwoLineElementData( );
 
     // Some random checks of TLE data variables of (corrupt) object 9 to see if
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForThreeLine )
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).tleNumber, 26 );
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).objectIdentificationNumberLine2, 30303 );
     BOOST_CHECK_EQUAL( twoLineElementData.at( 8 ).TLEKeplerianElements(
-                           basic_astrodynamics::inclinationIndex ), 24.6237 );
+                           orbital_element_conversions::inclinationIndex ), 24.6237 );
 
     // Stored TLE data is checked for integrity and number of corrupted TLEs is saved,
     // while the corrupted TLEs have been erased from the data
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForThreeLine )
             = twoLineElementsTextFileReaderForThreeLine.checkTwoLineElementsFileIntegrity( );
 
     // Get updated TLE data object.
-    std::vector< tudat::input_output::TwoLineElementData > twoLineElementDataAfterIntegrityCheck =
+    std::vector< input_output::TwoLineElementData > twoLineElementDataAfterIntegrityCheck =
             twoLineElementsTextFileReaderForThreeLine.getTwoLineElementData( );
 
     // Test input file has been setup to contain 7 corrupted TLEs,
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsTextFileReaderForThreeLine )
                        firstDerivativeOfMeanMotionDividedByTwo, 0.00000290 );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).launchPart, "B  " );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 1 ).TLEKeplerianElements(
-                           basic_astrodynamics::eccentricityIndex ), 0.0024687 );
+                           orbital_element_conversions::eccentricityIndex ), 0.0024687 );
     BOOST_CHECK_EQUAL( twoLineElementDataAfterIntegrityCheck.at( 2 ).revolutionNumber, 57038 );
 }
 

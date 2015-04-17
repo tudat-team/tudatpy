@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -45,8 +45,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/clohessyWiltshirePropagator.h"
 
@@ -76,11 +76,12 @@ BOOST_AUTO_TEST_CASE( test_ClohessyWiltshirePropagation_fullState )
 
     // Set initial state [m], [m], [m], [m/s], [m,s], [m/s].
     // In this case: arbitrary non-zero distances and velocities.
-    const Eigen::VectorXd initialState1 = ( Eigen::VectorXd( 6 ) << 45.0, 37.0, 12.0, 0.08,
-                                                                    0.03, 0.01 ).finished( );
+    const basic_mathematics::Vector6d initialState1 =
+            ( basic_mathematics::Vector6d( ) << 45.0, 37.0, 12.0, 0.08,
+              0.03, 0.01 ).finished( );
 
     // Calculate final state according to Tudat function.
-    const Eigen::VectorXd computedFinalState1
+    const basic_mathematics::Vector6d computedFinalState1
             = basic_astrodynamics::propagateClohessyWiltshire(
                 initialState1,
                 propagationDuration1,
@@ -88,10 +89,11 @@ BOOST_AUTO_TEST_CASE( test_ClohessyWiltshirePropagation_fullState )
                 referenceOrbitRadius1 );
 
     // Set final state according to the MATLAB routine "hillsr" from Vallado [2001].
-    const Eigen::VectorXd expectedFinalState1 = ( Eigen::VectorXd( 6 ) << 3.806450080201250e2,
-                                                  -5.437424675454679e2, 2.509547637285142,
-                                                  1.541620605755606e-1, -7.294751390499470e-1,
-                                                  -1.662099488431618e-2 ).finished( );
+    const basic_mathematics::Vector6d expectedFinalState1 =
+            ( basic_mathematics::Vector6d( ) << 3.806450080201250e2,
+              -5.437424675454679e2, 2.509547637285142,
+              1.541620605755606e-1, -7.294751390499470e-1,
+              -1.662099488431618e-2 ).finished( );
 
     // Check if computed final state matches expected state.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedFinalState1, expectedFinalState1, 1.0e-14 );
@@ -121,19 +123,20 @@ BOOST_AUTO_TEST_CASE( test_ClohessyWiltshirePropagation_harmonicMotion )
 
     // Set propagation duration [s].
     // In this case: orbital period of the reference orbit.
-    const double propagationDuration2 = 2.0 * basic_mathematics::mathematical_constants::PI
+    const double propagationDuration2 = 2.0 * mathematical_constants::PI
             / meanAngularMotion;
 
     // Set initial state [m], [m], [m], [m/s], [m,s], [m/s].
     // In this case: arbitrary values for initial positions and initialCrossTrackVelocity. The
     // initialRadialVelocity and initialAlongTrackVelocity are set to achieve harmonic motion.
-    const Eigen::VectorXd initialState2 = ( Eigen::VectorXd( 6 )
-                                            << 34.0, 49.0 , 17.0,
-                                            0.5 * meanAngularMotion * 49.0,
-                                            -2.0 * meanAngularMotion * 34.0, 0.04 ).finished( );
+    const basic_mathematics::Vector6d initialState2 =
+            ( basic_mathematics::Vector6d( )
+              << 34.0, 49.0 , 17.0,
+              0.5 * meanAngularMotion * 49.0,
+              -2.0 * meanAngularMotion * 34.0, 0.04 ).finished( );
 
     // Calculate final state according to Tudat function.
-    const Eigen::VectorXd computedFinalState2
+    const basic_mathematics::Vector6d computedFinalState2
             = basic_astrodynamics::propagateClohessyWiltshire(
                 initialState2,
                 propagationDuration2,

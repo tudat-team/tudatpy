@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -48,8 +48,8 @@
 
 #include <cmath>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
 
@@ -63,11 +63,11 @@ using std::cerr;
 using std::endl;
 using std::cos;
 using std::sin;
-using tudat::unit_conversions::convertRadiansToDegrees;
+using unit_conversions::convertRadiansToDegrees;
 
 SphereSegment::SphereSegment( const double radius,
                               const double minimumAzimuthAngle,
-                              const double maximumAzimuthAngle,
+                               const double maximumAzimuthAngle,
                               const double minimumZenithAngle,
                               const double maximumZenithAngle )
 {
@@ -86,7 +86,7 @@ Eigen::VectorXd SphereSegment::getSurfacePoint( const double azimuthAngle,
 
     // Gets surface point on sphere, unrotated and centered at origin.
     cartesianPositionVector_
-            = basic_mathematics::coordinate_conversions::convertSphericalToCartesian(
+            = coordinate_conversions::convertSphericalToCartesian(
                 sphericalPositionVector );
 
     // Translate point.

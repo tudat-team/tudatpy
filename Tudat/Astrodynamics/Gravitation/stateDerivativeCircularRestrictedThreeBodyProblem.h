@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -49,7 +49,7 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -65,12 +65,12 @@ namespace circular_restricted_three_body_problem
  */
 enum StateElementIndices
 {
-    xPositionIndex,
-    yPositionIndex,
-    zPositionIndex,
-    xVelocityIndex,
-    yVelocityIndex,
-    zVelocityIndex
+    xCartesianPositionIndex,
+    yCartesianPositionIndex,
+    zCartesianPositionIndex,
+    xCartesianVelocityIndex,
+    yCartesianVelocityIndex,
+    zCartesianVelocityIndex
 };
 
 //! State derivative elements indices in CRTBP.

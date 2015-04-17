@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -77,7 +77,7 @@ namespace mission_segments
  *              Also, the number of revolutions is checked for feasibility: no negative values 
  *              are allowed and is checked against an automatic computation of the maximum number
  *              of revolutions.
- * \throws tudat::basic_mathematics::ConvergenceException When the internal rootfinding algorithm
+ * \throws basic_mathematics::ConvergenceException When the internal rootfinding algorithm
  *              fails to converge within a reasonable amount of iterations.
  */
 class MultiRevolutionLambertTargeterIzzo : public ZeroRevolutionLambertTargeterIzzo

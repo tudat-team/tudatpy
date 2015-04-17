@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
    *    All rights reserved.
    *
    *    Redistribution and use in source and binary forms, with or without modification, are
@@ -47,8 +47,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
@@ -59,11 +59,11 @@ namespace tudat
 namespace unit_tests
 {
 
-using tudat::unit_conversions::convertDegreesToRadians;
-using tudat::ephemerides::SimpleRotationalEphemeris;
-using tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000;
-using tudat::basic_astrodynamics::JULIAN_DAY_AT_0_MJD;
-using tudat::reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion;
+using unit_conversions::convertDegreesToRadians;
+using ephemerides::SimpleRotationalEphemeris;
+using basic_astrodynamics::JULIAN_DAY_ON_J2000;
+using basic_astrodynamics::JULIAN_DAY_AT_0_MJD;
+using reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion;
 
 BOOST_AUTO_TEST_SUITE( test_simple_rotational_ephemeris )
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
     const double venusPoleDeclination = convertDegreesToRadians( 67.16 );
     const double venusPrimeMeridianAtJ2000 = convertDegreesToRadians( 160.20 );
     const double venusRotationRate = convertDegreesToRadians( -1.4813688 ) /
-            basic_astrodynamics::physical_constants::JULIAN_DAY;
+            physical_constants::JULIAN_DAY;
     
     // Define names of frames.
     const std::string baseFrame = "J2000";
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
 
         // Test alternative input reference epoch on object from initial angles.
         double secondsSinceMjd0 = ( JULIAN_DAY_ON_J2000 - JULIAN_DAY_AT_0_MJD ) *
-                basic_astrodynamics::physical_constants::JULIAN_DAY + secondsSinceJ2000;
+                physical_constants::JULIAN_DAY + secondsSinceJ2000;
 
         Eigen::Quaterniond ephemerisRotation = venusRotationalEphemerisFromAngles.
                 getRotationToTargetFrame( secondsSinceMjd0, JULIAN_DAY_AT_0_MJD );

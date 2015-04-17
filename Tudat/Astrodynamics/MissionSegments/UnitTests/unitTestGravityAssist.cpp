@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -92,9 +92,9 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
 
@@ -125,7 +125,8 @@ BOOST_AUTO_TEST_CASE( testBendingAngleDeltaV )
     const double gravitationalParameterSun = 1.32712440018e20;
 
     // Define planet-Sun distance.
-    const double distanceMarsToSun = unit_conversions::convertAstronomicalUnitsToMeters( 1.5 );
+    const double distanceMarsToSun = unit_conversions::
+            convertAstronomicalUnitsToMeters( 1.5 );
 
     // Define smallest periapsis distance factor.
     const double marsSmallestPeriapsisDistance = 3656248.0;
@@ -136,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testBendingAngleDeltaV )
                                         0.0 );
 
     // Define satellite incoming vector.
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
     const Eigen::Vector3d incomingVelocity( -25.0e3 * std::sin( PI / 6.0 ),
                                             25.0e3 * std::cos( PI / 6.0 ),
                                             0.0 );

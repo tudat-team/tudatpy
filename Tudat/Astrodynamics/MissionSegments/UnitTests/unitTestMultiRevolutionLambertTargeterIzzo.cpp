@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -46,8 +46,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/multiRevolutionLambertTargeterIzzo.h"
 
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testEllipticCase )
 
 
     // Constructing targeter and calculating 0-rev solution with multi-revolution class.
-    tudat::mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeterEllipse(
+    mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeterEllipse(
                 departurePosition, arrivalPosition, timeOfFlight, gravitationalParameter );
 
     // Check whether maximum number of revolutions is calculated correctly.
@@ -387,7 +387,7 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
 
     // Time conversions.
     const double timeOfFlightInDaysHyperbola = 100.0;
-    const double timeOfFlightHyperbola = tudat::basic_astrodynamics::unit_conversions::
+    const double timeOfFlightHyperbola = unit_conversions::
             convertJulianDaysToSeconds( timeOfFlightInDaysHyperbola );
 
     // Central body gravitational parameter.
@@ -395,13 +395,13 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
 
     // The starting point is twice as far as L1 and L2, which is not really
     // realistic, but it is not about the case, but about the verification.
-    using tudat::basic_astrodynamics::unit_conversions::convertAstronomicalUnitsToMeters;
+    using unit_conversions::convertAstronomicalUnitsToMeters;
     const Eigen::Vector3d positionAtDepartureHyperbola( convertAstronomicalUnitsToMeters( 0.02 ),
                                                         0.0, 0.0 ),
             positionAtArrivalHyperbola( 0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
 
     // Compute Lambert targeting algorithms.
-    tudat::mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeterHyperbola(
+    mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeterHyperbola(
                 positionAtDepartureHyperbola, positionAtArrivalHyperbola, timeOfFlightHyperbola,
                 earthGravitationalParameter );
 
@@ -480,9 +480,9 @@ BOOST_AUTO_TEST_CASE( testMaximumNumberOfRevolutions )
     const double sunGravitationalParameter = 1.32712440018e20; // m�/s�, HORIZONS
 
     // Constructing Lambert problem
-    tudat::mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeter1(
+    mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeter1(
                 departurePosition1, arrivalPosition1, timeOfFlight1, sunGravitationalParameter );
-    tudat::mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeter2(
+    mission_segments::MultiRevolutionLambertTargeterIzzo lambertTargeter2(
                 departurePosition2, arrivalPosition2, timeOfFlight2, sunGravitationalParameter );
 
     // Extracting number of maximum revolutions

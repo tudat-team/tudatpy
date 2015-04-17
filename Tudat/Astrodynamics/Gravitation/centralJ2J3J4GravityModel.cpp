@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -77,15 +77,15 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ4(
     // Compute components of acceleration due to J4-effect.
     Eigen::Vector3d gravitationalAccelerationDueToJ4 = Eigen::Vector3d::Constant( preMultiplier );
 
-    gravitationalAccelerationDueToJ4( basic_astrodynamics::xCartesianPositionIndex )
+    gravitationalAccelerationDueToJ4( orbital_element_conversions::xCartesianPositionIndex )
             *= ( positionOfBodySubjectToAcceleration.x( )
                  - positionOfBodyExertingAcceleration.x( ) ) * factorForXAndYDirections;
 
-    gravitationalAccelerationDueToJ4( basic_astrodynamics::yCartesianPositionIndex )
+    gravitationalAccelerationDueToJ4( orbital_element_conversions::yCartesianPositionIndex )
             *= ( positionOfBodySubjectToAcceleration.y( )
                  - positionOfBodyExertingAcceleration.y( ) ) * factorForXAndYDirections;
 
-    gravitationalAccelerationDueToJ4( basic_astrodynamics::zCartesianPositionIndex )
+    gravitationalAccelerationDueToJ4( orbital_element_conversions::zCartesianPositionIndex )
             *= ( 15.0 / 7.0 - 10.0 * scaledZCoordinateSquared + 9.0 * scaledZCoordinateToPower4 )
             * scaledZCoordinate;
 

@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2014, Delft University of Technology
+ #    Copyright (c) 2010-2015, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -52,8 +52,8 @@ setup_tudat_library_target(tudat_reference_frames "${SRCROOT}${REFERENCEFRAMESDI
 # Add unit tests.
 add_executable(test_ReferenceFrameTransformations "${SRCROOT}${REFERENCEFRAMESDIR}/UnitTests/unitTestReferenceFrameTransformations.cpp")
 setup_custom_test_program(test_ReferenceFrameTransformations "${SRCROOT}${REFERENCEFRAMESDIR}")
-target_link_libraries(test_ReferenceFrameTransformations tudat_reference_frames ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_ReferenceFrameTransformations tudat_reference_frames ${Boost_LIBRARIES})
 
 add_executable(test_ApparentAccelerationModel "${SRCROOT}${REFERENCEFRAMESDIR}/UnitTests/unitTestApparentAccelerationModel.cpp")
 setup_custom_test_program(test_ApparentAccelerationModel "${SRCROOT}${REFERENCEFRAMESDIR}")
-target_link_libraries(test_ApparentAccelerationModel tudat_reference_frames ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_ApparentAccelerationModel tudat_reference_frames ${Boost_LIBRARIES})

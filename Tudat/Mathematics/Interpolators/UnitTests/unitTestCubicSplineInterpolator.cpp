@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -45,8 +45,8 @@
 
 #include <vector>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/InputOutput/matrixTextFileReader.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testCubicSplineInterpolation_exception_empty_vectors )
 // http://www.mathworks.com/matlabcentral/newsreader/view_thread/173708.
 BOOST_AUTO_TEST_CASE( test_cubicSplineInterpolator_matlab_forum_compare )
 {
-    using namespace tudat::interpolators;
+    using namespace interpolators;
 
     // Load input data used for generating matlab interpolation.
     Eigen::MatrixXd inputData = input_output::readMatrixFromFile(

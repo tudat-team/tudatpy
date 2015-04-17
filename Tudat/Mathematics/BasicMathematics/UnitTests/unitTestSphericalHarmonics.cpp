@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -39,7 +39,7 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h"
 
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
     Eigen::MatrixXd testPotentialGradient( 10, 3 );
     for ( int index = 0; index < degree.size( ); index++ )
     {
-        Eigen::Vector3d placeholder = tudat::basic_mathematics::computePotentialGradient(
+        Eigen::Vector3d placeholder = basic_mathematics::computePotentialGradient(
                     sphericalPosition,
                     referenceRadius,
                     preMultiplier,

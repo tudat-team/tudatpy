@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -46,8 +46,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Mathematics/BasicMathematics/rotationAboutArbitraryAxis.h"
 
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( test_RotationAboutArbitraryAxis_PointRotationWithCommonOri
     const Eigen::Vector3d originOfRotation = Eigen::Vector3d( 0.0, 0.0, 0.0 );
 
     //Set angle of rotation [rad].
-    const double angleOfRotation = tudat::basic_mathematics::mathematical_constants::PI / 4.0;
+    const double angleOfRotation = mathematical_constants::PI / 4.0;
 
     //Set axis of rotation.
     const Eigen::Vector3d axisOfRotation = Eigen::Vector3d( 0.0, 0.0, 1.0 );

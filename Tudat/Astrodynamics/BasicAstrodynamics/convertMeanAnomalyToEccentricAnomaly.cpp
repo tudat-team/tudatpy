@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -62,16 +62,15 @@
 
 #include <boost/exception/all.hpp>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
-#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
 
 namespace tudat
 {
-namespace basic_astrodynamics
-{
+
 namespace orbital_element_conversions
 {
 
@@ -91,7 +90,7 @@ ConvertMeanAnomalyToEccentricAnomaly::ConvertMeanAnomalyToEccentricAnomaly(
 
 {
     // Set mean anomaly to region between 0 and 2 PI.
-    meanAnomaly = mathematics::computeModulo( aMeanAnomaly, 2.0 * basic_mathematics::mathematical_constants::PI );
+    meanAnomaly = basic_mathematics::computeModulo( aMeanAnomaly, 2.0 * mathematical_constants::PI );
 
     // Required because the make_shared in the function definition gives problems for MSVC.
     if ( !rootFinder.get( ) )
@@ -134,7 +133,7 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
         // functionality of this one, and of another option for the starter: PI. [Musegaas,2012]
         if ( useDefaultInitialGuess )
         {
-            if ( meanAnomaly > basic_mathematics::mathematical_constants::PI )
+            if ( meanAnomaly > mathematical_constants::PI )
             {
                 initialGuess =  meanAnomaly - eccentricity;
             }
@@ -165,5 +164,5 @@ double ConvertMeanAnomalyToEccentricAnomaly::convert( )
 }
 
 } // namespace orbital_element_conversions
-} // namespace basic_astrodynamics
+
 } // namespace tudat

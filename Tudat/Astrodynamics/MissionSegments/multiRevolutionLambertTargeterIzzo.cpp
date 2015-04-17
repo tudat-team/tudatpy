@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -49,7 +49,7 @@
 #include <boost/format.hpp>
 #include <boost/math/special_functions.hpp> // for asinh and acosh
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/multiRevolutionLambertTargeterIzzo.h"
 #include "Tudat/Mathematics/BasicMathematics/convergenceException.h"
@@ -101,7 +101,7 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
         // ellipse by the normalized time of flight.
         numberOfRevolutions = static_cast< int >(
                     normalizedTimeOfFlight / (
-                        tudat::basic_mathematics::mathematical_constants::PI / 2.0
+                        mathematical_constants::PI / 2.0
                         * std::sqrt( 2.0 * normalizedSemiPerimeter
                                      * normalizedSemiPerimeter
                                      * normalizedSemiPerimeter ) ) );
@@ -120,7 +120,7 @@ void MultiRevolutionLambertTargeterIzzo::sanityCheckNumberOfRevolutions( )
                 // Compute root (no further information is required)
                 computeRootTimeOfFlight();
             }
-            catch( tudat::basic_mathematics::ConvergenceException )
+            catch( basic_mathematics::ConvergenceException )
             {
                 // If the rootfinder did not converge, then the current guess is wrong and needs to
                 // be decreased
@@ -216,7 +216,7 @@ double MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xPa
         const double timeOfFlight = semiMajorAxis * std::sqrt( semiMajorAxis ) *
                 ( ( alphaParameter - std::sin( alphaParameter ) )
                   - ( betaParameter - std::sin( betaParameter ) )
-                  + 2.0 * tudat::basic_mathematics::mathematical_constants::PI
+                  + 2.0 * mathematical_constants::PI
                   * numberOfRevolutions );
 
         return timeOfFlight;
@@ -257,7 +257,7 @@ double MultiRevolutionLambertTargeterIzzo::computeTimeOfFlight( const double xPa
 //! Solve the time of flight equation for x (for multiple revolutions).
 double MultiRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
 {
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
 
     // Define initial guesses for abcissae (x) and ordinates (y).
     double x1, x2;
@@ -307,7 +307,7 @@ double MultiRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
     // Verify that root-finder has converged.
     if ( iterator == maximumNumberOfIterations )
     {
-        BOOST_THROW_EXCEPTION( tudat::basic_mathematics::ConvergenceException( 
+        BOOST_THROW_EXCEPTION( basic_mathematics::ConvergenceException( 
             ( boost::format(
                 "Multi-Revolution Lambert targeter failed to converge to a solution.\n"
                 "Reached the maximum number of iterations: %d"

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -38,7 +38,7 @@
 
 namespace tudat
 {
-namespace basic_astrodynamics
+namespace orbital_element_conversions
 {
 
 //! Keplerian elements indices.
@@ -60,7 +60,8 @@ enum KeplerianElementIndices
     inclinationIndex,
     argumentOfPeriapsisIndex,
     longitudeOfAscendingNodeIndex,
-    trueAnomalyIndex
+    trueAnomalyIndex,
+    semiLatusRectumIndex = 0
 };
 
 //! Modified equinoctial element vector indices.
@@ -90,7 +91,7 @@ enum CSNAccelerationElementIndices
     nAccelerationIndex
 };
 
-} // namespace basic_astrodynamics
+} // namespace orbital_element_conversions
 } // namespace tudat
 
 #endif // TUDAT_STATE_INDICES_H

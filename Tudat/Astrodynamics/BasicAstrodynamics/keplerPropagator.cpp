@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -53,10 +53,10 @@
 
 #include <boost/exception/all.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
@@ -64,8 +64,7 @@
 
 namespace tudat
 {
-namespace basic_astrodynamics
-{
+\
 namespace orbital_element_conversions
 {
 
@@ -88,10 +87,6 @@ basic_mathematics::Vector6d propagateKeplerOrbit(
                                  RootAbsoluteToleranceTerminationCondition >( 5.0e-14, 1000 ),
                                  _1, _2, _3, _4, _5 ) );
     }
-
-    using tudat::orbital_element_conversions::eccentricityIndex;
-    using tudat::orbital_element_conversions::semiMajorAxisIndex;
-    using tudat::orbital_element_conversions::trueAnomalyIndex;
 
     // Create final state in Keplerian elements.
     Eigen::VectorXd finalStateInKeplerianElements = initialStateInKeplerianElements;
@@ -189,5 +184,4 @@ basic_mathematics::Vector6d propagateKeplerOrbit(
 }
 
 } // namespace orbital_element_conversions
-} // namespace basic_astrodynamics
 } // namespace tudat

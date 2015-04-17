@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -56,11 +56,12 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testAccelerationModels.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/UnitTests/testBody.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -86,7 +87,7 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 
     // Create body with initial state and time.
     TestBody3dPointer body = boost::make_shared< TestBody3d >(
-                ( Eigen::VectorXd( 6 ) << 1.1, 2.2, 3.3, -0.1, 0.2, 0.3 ).finished( ), 2.0 );
+                ( basic_mathematics::Vector6d( ) << 1.1, 2.2, 3.3, -0.1, 0.2, 0.3 ).finished( ), 2.0 );
 
     // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
     // functions in body.
@@ -103,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 
     // Update time and state.
     body->setCurrentTimeAndState(
-                -1.1, ( Eigen::VectorXd( 6 )
+                -1.1, ( basic_mathematics::Vector6d( )
                         << -0.45, 10.63, -9.81, 0.11, 0.22, 0.33 ).finished( ) );
 
     // Update acceleration model members.
@@ -114,7 +115,7 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 
     // Update time and state.
     body->setCurrentTimeAndState(
-                4.6, ( Eigen::VectorXd( 6 )
+                4.6, ( basic_mathematics::Vector6d( )
                        << -87.685, 101.44, -1.38, -0.12, 0.23, -0.34 ).finished( ) );
 
     // Update and get acceleration with single function.

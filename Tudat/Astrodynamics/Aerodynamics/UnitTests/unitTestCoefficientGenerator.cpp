@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -51,7 +51,7 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_SUITE( test_aerodynamic_coefficient_generator )
 //! Test coefficient generator.
 BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
 {
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
     using std::vector;
     using namespace aerodynamics;
 
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
 //! Apollo capsule test case.
 BOOST_AUTO_TEST_CASE( testApolloCapsule )
 {
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
     using std::vector;
     using namespace aerodynamics;
 

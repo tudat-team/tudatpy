@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -34,8 +34,8 @@
  *                                  Kepler vector.
  *      130227    D. Dirkx          Set isRetrograde at initialization to 0.
  *      130301    R.C.A. Boon       Minor textual changes, changed mathematics::PI to
- *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d
- *                                  basic_mathematics::mathematical_constants::PI.
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by basic_mathematics::Vector6d
+ *                                  mathematical_constants::PI.
  *      131212    S. Billemont      Fixed pass-by-reference error in isOrbitRetrograde()-function.
  *
  *    References
@@ -51,15 +51,14 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
 
 namespace tudat
 {
-namespace basic_astrodynamics
-{
+
 namespace mission_geometry
 {
 
@@ -69,16 +68,16 @@ bool isOrbitRetrograde( const double inclination )
     bool isRetrograde = false;
 
     // Check which range inclination is in and return value accordingly.
-    if ( inclination < 0.0 || inclination > mathematics::PI )
+    if ( inclination < 0.0 || inclination > mathematical_constants::PI )
     {
         throw std::runtime_error(
                     "The inclination is in the wrong range when determining retrogradeness" );
     }
-    else if ( inclination <= basic_mathematics::mathematical_constants::PI / 2.0 )
+    else if ( inclination <= mathematical_constants::PI / 2.0 )
     {
         isRetrograde = false;
     }
-    else if ( inclination > basic_mathematics::mathematical_constants::PI / 2.0 )
+    else if ( inclination > mathematical_constants::PI / 2.0 )
     {
         isRetrograde = true;
     }
@@ -87,12 +86,12 @@ bool isOrbitRetrograde( const double inclination )
 }
 
 //! Compute whether an orbit is retrograde based on Keplerian state.
-bool isOrbitRetrograde( const tudat::basic_mathematics::Vector6d& keplerElements )
+bool isOrbitRetrograde( const basic_mathematics::Vector6d& keplerElements )
 {
     // Get inclination from vector and call overloaded function.
     return isOrbitRetrograde(
                 keplerElements(
-                    basic_astrodynamics::orbital_element_conversions::inclinationIndex ) );
+                    orbital_element_conversions::inclinationIndex ) );
 }
 
 //! Compute the shadow function.
@@ -149,7 +148,7 @@ double computeShadowFunction( const Eigen::Vector3d& occultedBodyPosition,
                 * std::acos( ( apparentSeparation - occultedAreaPartOne )
                              / occultingBodyApparentRadius )
                 - apparentSeparation * occultedAreaPartTwo;
-        shadowFunction = 1.0 - occultedArea / ( basic_mathematics::mathematical_constants::PI *
+        shadowFunction = 1.0 - occultedArea / ( mathematical_constants::PI *
                                                 occultedBodyApparentRadiusSquared );
     }
 
@@ -199,5 +198,5 @@ double computeSphereOfInfluence( const double distanceToCentralBody,
 }
 
 } // namespace mission_geometry
-} // namespace basic_astrodynamics
+
 } // namespace tudat

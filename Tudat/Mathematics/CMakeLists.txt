@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2014, Delft University of Technology
+ #    Copyright (c) 2010-2015, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -33,6 +33,13 @@
  #
  #    Notes
  #
+# Define the sub-directories.
+set(BASICMATHEMATICSDIR "${MATHEMATICSDIR}/BasicMathematics")
+set(GEOMETRICSHAPESDIR "${MATHEMATICSDIR}/GeometricShapes")
+set(INTERPOLATORSDIR "${MATHEMATICSDIR}/Interpolators")
+set(NUMERICALINTEGRATORSDIR "${MATHEMATICSDIR}/NumericalIntegrators")
+set(ROOTFINDERSDIR "${MATHEMATICSDIR}/RootFinders")
+set(STATISTICSDIR "${MATHEMATICSDIR}/Statistics")
 
 # Add sub-directories.
 add_subdirectory("${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")

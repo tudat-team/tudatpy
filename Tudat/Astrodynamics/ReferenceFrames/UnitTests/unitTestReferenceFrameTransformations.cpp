@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -54,8 +54,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
@@ -63,6 +63,8 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+using namespace unit_conversions;
 
 BOOST_AUTO_TEST_SUITE( test_reference_frame_transformations )
 
@@ -87,7 +89,7 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformations )
     using std::sin;
     using std::pow;
     using std::sqrt;
-    using tudat::unit_conversions::convertDegreesToRadians;
+
 
     // Test 1: Test Inertial to rotating planetocentric frame transformation.
     {
@@ -141,9 +143,9 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformations )
 
         // Compute location of the point in the rotating frame subject to the transformation matrix.
         Eigen::Vector3d transformedLocation;
-        transformedLocation = tudat::reference_frames::
+        transformedLocation = reference_frames::
                 getRotatingPlanetocentricToInertialFrameTransformationMatrix( angleInTime ) *
-                tudat::reference_frames::
+                reference_frames::
                 getInertialToPlanetocentricFrameTransformationMatrix( angleInTime )
                 * startLocation;
 
@@ -161,7 +163,7 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformationQuaternion )
     using std::sin;
     using std::pow;
     using std::sqrt;
-    using tudat::unit_conversions::convertDegreesToRadians;
+
 
     // Test 3: Same test as Test 1 for the transformation quaternion.
     // Compute location of the point in the Rotating frame subject to the transformation matrix.
@@ -232,7 +234,7 @@ BOOST_AUTO_TEST_CASE( testAirspeedBasedAerodynamicToBodyFrameTransformation )
     // Using declarations.
     using std::atan2;
     using std::cos;
-    using tudat::unit_conversions::convertDegreesToRadians;
+
 
     // Test 5: Test airspeed-Based Aerodynamic to body frame transformation.
     // Declare and initialize the start location and angles.
@@ -270,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricToLocalVerticalFrameTransformati
     using std::atan2;
     using std::cos;
     using std::sin;
-    using tudat::unit_conversions::convertDegreesToRadians;
+
 
     // Test 6: Test Rotating planetocentric to local vertical frame transformation quaternion.
     {
@@ -342,8 +344,7 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricToLocalVerticalFrameTransformati
 // planes.
 BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricWithEquatorChangeFrameTransformations )
 {
-    using tudat::basic_astrodynamics::unit_conversions::convertDegreesToRadians;
-    using namespace tudat::reference_frames;
+    using namespace reference_frames;
 
     // Data from pck00010.tpc Spice kernel.
     const double venusPoleRightAscension = convertDegreesToRadians( 272.76 );
@@ -400,7 +401,7 @@ BOOST_AUTO_TEST_CASE( testTrajectoryToLocalVerticalFrameTransformations )
     // Using declarations.
     using std::cos;
     using std::sin;
-    using tudat::unit_conversions::convertDegreesToRadians;
+
 
     // Test 8: Test trajectory to local vertical frame and inverse transformations.
     {
@@ -477,7 +478,7 @@ BOOST_AUTO_TEST_CASE( testTrajectoryToAerodynamicFrameTransformations )
     // Using declarations.
     using std::cos;
     using std::sin;
-    using tudat::unit_conversions::convertDegreesToRadians;
+
 
     // Test 9: Test trajectory to aerodynamic and inverse transformations.
     {
@@ -540,7 +541,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicToBodyFrameTransformations )
     // Using declarations.
     using std::cos;
     using std::sin;
-    using tudat::unit_conversions::convertDegreesToRadians;
+
 
     // Test 10: Test body to airspeed-based aerodynamic frame and inverse transformations.
     {

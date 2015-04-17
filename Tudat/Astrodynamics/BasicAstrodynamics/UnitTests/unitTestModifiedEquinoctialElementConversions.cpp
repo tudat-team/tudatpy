@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -36,7 +36,7 @@
  *                                  (due to triple conversions)
  *      130305    R.C.A. Boon       Added validated data for prograde cases in Kepler to MEE (none
  *                                  available for retrograde cases), added e=0 & i=0 case to all
- *                                  conversions, replaced Eigen::VectorXd by tudat::basic_mathema-
+ *                                  conversions, replaced Eigen::VectorXd by basic_mathema-
  *                                  tics::Vector6d.
  *      140221    H.P. Gijsen       added include statements to accomodate the change in location of
  *                                  the indices enum.
@@ -56,11 +56,11 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
-#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
@@ -77,22 +77,15 @@ BOOST_AUTO_TEST_SUITE( test_orbital_element_conversions )
 //! Unit test for conversion Keplerian orbital elements to modified equinoctial elements.
 BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
 {
-    using namespace tudat::basic_astrodynamics::orbital_element_conversions;
-    using namespace tudat::basic_astrodynamics::unit_conversions;
-    using tudat::basic_mathematics::mathematical_constants::PI;
-
-    // loading the modified equinoctial elements indices
-    using tudat::basic_astrodynamics::fElementIndex;
-    using tudat::basic_astrodynamics::gElementIndex;
-    using tudat::basic_astrodynamics::hElementIndex;
-    using tudat::basic_astrodynamics::kElementIndex;
-    using tudat::basic_astrodynamics::trueLongitudeIndex;
+    using namespace orbital_element_conversions;
+    using namespace unit_conversions;
+    using mathematical_constants::PI;
 
     // Setting fraction tolerance for correctness evaluation
     double tolerance = 1.0E-14;
 
     // Initializing default Keplerian orbit
-    tudat::basic_mathematics::Vector6d keplerianElements = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d keplerianElements = Eigen::VectorXd::Zero( 6 );
     keplerianElements( semiMajorAxisIndex ) = 1.0e7;
     keplerianElements( eccentricityIndex ) = 0.1;
     keplerianElements( inclinationIndex ) = convertDegreesToRadians( 50.0 );
@@ -101,9 +94,9 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
     keplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 15.0 );
     keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
     // Modified equinoctial element vector declaration
-    tudat::basic_mathematics::Vector6d expectedModifiedEquinoctialElements
+    basic_mathematics::Vector6d expectedModifiedEquinoctialElements
             = Eigen::VectorXd::Zero( 6 );
-    tudat::basic_mathematics::Vector6d computedModifiedEquinoctialElements
+    basic_mathematics::Vector6d computedModifiedEquinoctialElements
             = Eigen::VectorXd::Zero( 6 );
 
     // Case 1: Elliptical prograde orbit (default case).
@@ -118,10 +111,10 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         expectedModifiedEquinoctialElements( hElementIndex ) = 0.4504186100082874;
         expectedModifiedEquinoctialElements( kElementIndex ) = 0.1206893028076694;
         expectedModifiedEquinoctialElements( trueLongitudeIndex ) =
-                tudat::basic_mathematics::computeModulo( 6.544984694978736, 2.0 * PI );
+                basic_mathematics::computeModulo( 6.544984694978736, 2.0 * PI );
 
         // Compute modified equinoctial elements.
-        tudat::basic_mathematics::Vector6d computedModifiedEquinoctialElements =
+        basic_mathematics::Vector6d computedModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( keplerianElements,
                                                                avoidSingularity );
 
@@ -162,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
                 = 6.0213859193804370403867331512857;
 
         // Compute modified equinoctial elements.
-        tudat::basic_mathematics::Vector6d computedModifiedEquinoctialElements =
+        basic_mathematics::Vector6d computedModifiedEquinoctialElements =
                 convertKeplerianToModifiedEquinoctialElements( keplerianElements,
                                                                avoidSingularity );
 
@@ -234,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         expectedModifiedEquinoctialElements( hElementIndex ) = 0.4504186100082874;
         expectedModifiedEquinoctialElements( kElementIndex ) = 0.1206893028076694;
         expectedModifiedEquinoctialElements( trueLongitudeIndex ) =
-                tudat::basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
+                basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
 
         // Compute modified equinoctial elements.
         computedModifiedEquinoctialElements =
@@ -269,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         expectedModifiedEquinoctialElements( hElementIndex ) = 0;
         expectedModifiedEquinoctialElements( kElementIndex ) = 0;
         expectedModifiedEquinoctialElements( trueLongitudeIndex ) =
-                tudat::basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
+                basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
 
         // Compute modified equinoctial elements.
         computedModifiedEquinoctialElements =
@@ -315,11 +308,11 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         // Check if computed elements match the expected values.
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this
-        tudat::basic_mathematics::Vector6d vectorToAdd
-                = ( Eigen::VectorXd( 6 ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-        tudat::basic_mathematics::Vector6d expectedModifiedEquinoctialElementsPlusOne =
+        basic_mathematics::Vector6d vectorToAdd
+                = ( basic_mathematics::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
+        basic_mathematics::Vector6d expectedModifiedEquinoctialElementsPlusOne =
                 expectedModifiedEquinoctialElements + vectorToAdd;
-        tudat::basic_mathematics::Vector6d computedModifiedEquinoctialElementsPlusOne =
+        basic_mathematics::Vector6d computedModifiedEquinoctialElementsPlusOne =
                 computedModifiedEquinoctialElements + vectorToAdd;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedModifiedEquinoctialElementsPlusOne,
                                            computedModifiedEquinoctialElementsPlusOne, tolerance );
@@ -354,7 +347,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         expectedModifiedEquinoctialElements( hElementIndex ) = 0;
         expectedModifiedEquinoctialElements( kElementIndex ) = 0;
         expectedModifiedEquinoctialElements( trueLongitudeIndex ) =
-                tudat::basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
+                basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
 
         // Compute modified equinoctial elements.
         computedModifiedEquinoctialElements =
@@ -364,11 +357,11 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         // Check if computed elements match the expected values.
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this
-        tudat::basic_mathematics::Vector6d vectorToAdd
-                = ( Eigen::VectorXd( 6 ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-        tudat::basic_mathematics::Vector6d expectedModifiedEquinoctialElementsPlusOne =
+        basic_mathematics::Vector6d vectorToAdd
+                = ( basic_mathematics::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
+        basic_mathematics::Vector6d expectedModifiedEquinoctialElementsPlusOne =
                 expectedModifiedEquinoctialElements + vectorToAdd;
-        tudat::basic_mathematics::Vector6d computedModifiedEquinoctialElementsPlusOne =
+        basic_mathematics::Vector6d computedModifiedEquinoctialElementsPlusOne =
                 computedModifiedEquinoctialElements + vectorToAdd;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedModifiedEquinoctialElementsPlusOne,
                                            computedModifiedEquinoctialElementsPlusOne, tolerance );
@@ -419,23 +412,15 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToKeplerianElements )
       principle is used for verification.
      */
 
-    using namespace tudat::basic_astrodynamics::orbital_element_conversions;
-    using namespace tudat::basic_astrodynamics::unit_conversions;
-    using tudat::basic_mathematics::mathematical_constants::PI;
-
-     // loading the modified equinoctial elements indices
-     using tudat::basic_astrodynamics::fElementIndex;
-     using tudat::basic_astrodynamics::gElementIndex;
-     using tudat::basic_astrodynamics::hElementIndex;
-     using tudat::basic_astrodynamics::kElementIndex;
-     using tudat::basic_astrodynamics::trueLongitudeIndex;
-
+    using namespace orbital_element_conversions;
+    using namespace unit_conversions;
+    using mathematical_constants::PI;
 
     // Setting fraction tolerance for correctness evaluation
     double tolerance = 1.0E-14;
 
     // Initializing default Keplerian orbit
-    tudat::basic_mathematics::Vector6d expectedKeplerianElements = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d expectedKeplerianElements = Eigen::VectorXd::Zero( 6 );
     expectedKeplerianElements( semiMajorAxisIndex ) = 1.0e7;
     expectedKeplerianElements( eccentricityIndex ) = 0.1;
     expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 50.0 );
@@ -445,7 +430,7 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToKeplerianElements )
     expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 170.0 );
 
     // Declaring computed output vector.
-    tudat::basic_mathematics::Vector6d computedKeplerianElements = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d computedKeplerianElements = Eigen::VectorXd::Zero( 6 );
 
     // Case 1: Elliptical prograde orbit (default case).
     {
@@ -582,25 +567,18 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToKeplerianElements )
 //! Unit test for conversion of Cartesian to modified equinoctial elements.
 BOOST_AUTO_TEST_CASE( testConvertCartesianElementsToModifiedEquinoctialElements )
 {
-    using namespace tudat::basic_astrodynamics::orbital_element_conversions;
-    using namespace tudat::basic_astrodynamics::unit_conversions;
-    using tudat::basic_mathematics::mathematical_constants::PI;
-
-    // loading the modified equinoctial elements indices
-    using tudat::basic_astrodynamics::fElementIndex;
-    using tudat::basic_astrodynamics::gElementIndex;
-    using tudat::basic_astrodynamics::hElementIndex;
-    using tudat::basic_astrodynamics::kElementIndex;
-    using tudat::basic_astrodynamics::trueLongitudeIndex;
+    using namespace orbital_element_conversions;
+    using namespace unit_conversions;
+    using mathematical_constants::PI;
 
     double tolerance = 1.0E-14;
 
-    tudat::basic_mathematics::Vector6d testMEE = Eigen::VectorXd::Zero( 6 );
-    tudat::basic_mathematics::Vector6d computedMEE = Eigen::VectorXd::Zero( 6 );
-    tudat::basic_mathematics::Vector6d testCartesianElements = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d testMEE = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d computedMEE = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d testCartesianElements = Eigen::VectorXd::Zero( 6 );
 
     // Set default Keplerian elements [m,-,rad,rad,rad,rad].
-    tudat::basic_mathematics::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
     testKepler( semiMajorAxisIndex ) = 1.0e7;
     testKepler( eccentricityIndex ) = 0.1;
     testKepler( inclinationIndex ) = convertDegreesToRadians( 50.0 );
@@ -766,10 +744,10 @@ BOOST_AUTO_TEST_CASE( testConvertCartesianElementsToModifiedEquinoctialElements 
         // Check if computed elements match the expected values.
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this
-        tudat::basic_mathematics::Vector6d vectorToAdd
-                = ( Eigen::VectorXd( 6 ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-        tudat::basic_mathematics::Vector6d computedMeePlusOne = computedMEE + vectorToAdd;
-        tudat::basic_mathematics::Vector6d testMeePlusOne = testMEE + vectorToAdd;
+        basic_mathematics::Vector6d vectorToAdd
+                = ( basic_mathematics::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
+        basic_mathematics::Vector6d computedMeePlusOne = computedMEE + vectorToAdd;
+        basic_mathematics::Vector6d testMeePlusOne = testMEE + vectorToAdd;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedMeePlusOne, testMeePlusOne, tolerance );
 
         // Convert to modified equinoctial elements using direct function
@@ -816,10 +794,10 @@ BOOST_AUTO_TEST_CASE( testConvertCartesianElementsToModifiedEquinoctialElements 
         // Check if computed elements match the expected values.
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this.
-        tudat::basic_mathematics::Vector6d vectorToAdd
-                = ( Eigen::VectorXd( 6 ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-        tudat::basic_mathematics::Vector6d computedMeePlusOne = computedMEE + vectorToAdd;
-        tudat::basic_mathematics::Vector6d testMeePlusOne = testMEE + vectorToAdd;
+        basic_mathematics::Vector6d vectorToAdd
+                = ( basic_mathematics::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
+        basic_mathematics::Vector6d computedMeePlusOne = computedMEE + vectorToAdd;
+        basic_mathematics::Vector6d testMeePlusOne = testMEE + vectorToAdd;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedMeePlusOne, testMeePlusOne, tolerance );
 
         // Convert to modified equinoctial elements using direct function.
@@ -868,10 +846,10 @@ BOOST_AUTO_TEST_CASE( testConvertCartesianElementsToModifiedEquinoctialElements 
         // Check if computed elements match the expected values.
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this.
-        tudat::basic_mathematics::Vector6d vectorToAdd
-                = ( Eigen::VectorXd( 6 ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-        tudat::basic_mathematics::Vector6d computedMeePlusOne = computedMEE + vectorToAdd;
-        tudat::basic_mathematics::Vector6d testMeePlusOne = testMEE + vectorToAdd;
+        basic_mathematics::Vector6d vectorToAdd
+                = ( basic_mathematics::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
+        basic_mathematics::Vector6d computedMeePlusOne = computedMEE + vectorToAdd;
+        basic_mathematics::Vector6d testMeePlusOne = testMEE + vectorToAdd;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedMeePlusOne, testMeePlusOne, tolerance );
 
         // Convert to modified equinoctial elements using direct function.
@@ -914,10 +892,10 @@ BOOST_AUTO_TEST_CASE( testConvertCartesianElementsToModifiedEquinoctialElements 
         // Check if computed elements match the expected values.
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this.
-        tudat::basic_mathematics::Vector6d vectorToAdd
-                = ( Eigen::VectorXd( 6 ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-        tudat::basic_mathematics::Vector6d computedMeePlusOne = computedMEE + vectorToAdd;
-        tudat::basic_mathematics::Vector6d testMeePlusOne = testMEE + vectorToAdd;
+        basic_mathematics::Vector6d vectorToAdd
+                = ( basic_mathematics::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
+        basic_mathematics::Vector6d computedMeePlusOne = computedMEE + vectorToAdd;
+        basic_mathematics::Vector6d testMeePlusOne = testMEE + vectorToAdd;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedMeePlusOne, testMeePlusOne, tolerance );
 
         // Convert to modified equinoctial elements using direct function.
@@ -941,21 +919,21 @@ BOOST_AUTO_TEST_CASE( testConvertModifiedEquinoctialToCartesianElements )
       converted back to Cartesian elements. Outcomes are compared.
      */
 
-    using namespace tudat::basic_astrodynamics::orbital_element_conversions;
-    using namespace tudat::basic_astrodynamics::unit_conversions;
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using namespace orbital_element_conversions;
+    using namespace unit_conversions;
+    using mathematical_constants::PI;
 
     // Tolerance precision: two orders higher than machine due to three conversions being applied
     // (accumulation of error) in order to save on manual labor.
     double tolerance = 2.0E-14;
 
-    tudat::basic_mathematics::Vector6d intermediateModifiedEquinoctialElements
+    basic_mathematics::Vector6d intermediateModifiedEquinoctialElements
             = Eigen::VectorXd::Zero( 6 );
-    tudat::basic_mathematics::Vector6d expectedCartesianElements = Eigen::VectorXd::Zero( 6 );
-    tudat::basic_mathematics::Vector6d computedCartesianElements = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d expectedCartesianElements = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d computedCartesianElements = Eigen::VectorXd::Zero( 6 );
 
     // Set default Keplerian elements [m,-,rad,rad,rad,rad].
-    tudat::basic_mathematics::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
     testKepler( semiMajorAxisIndex ) = 1.0e7;
     testKepler( eccentricityIndex ) = 0.1;
     testKepler( inclinationIndex ) = convertDegreesToRadians( 50.0 );

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -67,9 +67,9 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeterIzzo.h"
 
@@ -77,6 +77,8 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+using namespace unit_conversions;
 
 //! Test the Izzo Lambert targeting algorithm code.
 BOOST_AUTO_TEST_SUITE( test_lambert_targeter_izzo )
@@ -100,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
 
     // Time conversions.
     const double timeOfFlightInDaysHyperbola = 100.0;
-    const double timeOfFlightHyperbola = unit_conversions::convertJulianDaysToSeconds(
+    const double timeOfFlightHyperbola = convertJulianDaysToSeconds(
             timeOfFlightInDaysHyperbola );
 
     // Central body gravitational parameter.
@@ -108,13 +110,12 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
 
     // The starting point is twice as far as L1 and L2, which is not really
     // realistic, but it is not about the case, but about the verification.
-    using tudat::unit_conversions::convertAstronomicalUnitsToMeters;
     const Eigen::Vector3d positionAtDepartureHyperbola( convertAstronomicalUnitsToMeters( 0.02 ),
                                                         0.0, 0.0 ),
             positionAtArrivalHyperbola( 0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
 
     // Compute Lambert targeting algorithms.
-    tudat::mission_segments::LambertTargeterIzzo lambertTargeterHyperbola(
+    mission_segments::LambertTargeterIzzo lambertTargeterHyperbola(
                positionAtDepartureHyperbola, positionAtArrivalHyperbola, timeOfFlightHyperbola,
                earthGravitationalParameter );
 
@@ -200,7 +201,7 @@ BOOST_AUTO_TEST_CASE( testEllipticalCase )
             positionAtArrivalEllipse( 2.0 * distanceUnit, 2.0 * sqrt( 3.0 ) * distanceUnit, 0.0 );
 
     // Compute Lambert targeting algorithms.
-    tudat::mission_segments::LambertTargeterIzzo lambertTargeterEllipse(
+    mission_segments::LambertTargeterIzzo lambertTargeterEllipse(
                 positionAtDepartureEllipse, positionAtArrivalEllipse, timeOfFlightEllipse,
                 earthGravitationalParameter );
 
@@ -269,7 +270,7 @@ BOOST_AUTO_TEST_CASE ( testRetrograde )
             positionAtArrival( 202564770723.92966, -42405023055.01754, -5861543784.413235 );
 
     // Set time-of-flight, coherent with initial and final positions.
-    const double timeOfFlight = unit_conversions::convertJulianDaysToSeconds( 300.0 );
+    const double timeOfFlight = convertJulianDaysToSeconds( 300.0 );
 
     // Set central body (the Sun) gravitational parameter. Value taken from keptoolbox.
     const double solarGravitationalParameter = 1.32712428e20;
@@ -301,17 +302,17 @@ BOOST_AUTO_TEST_CASE ( testNearPi )
     const double tolerance = 1.0e-6;
 
     // Set time-of-flight, coherent with initial and final positions.
-    const double timeOfFlight = unit_conversions::convertJulianDaysToSeconds( 300.0 );
+    const double timeOfFlight = convertJulianDaysToSeconds( 300.0 );
 
     // Set central body (the Sun) gravitational parameter. Value taken from keptoolbox.
     const double solarGravitationalParameter = 1.32712428e20;
 
     // Set Keplerian elements at departure and arrival.
     Eigen::VectorXd keplerianStateAtDeparture( 6 ), keplerianStateAtArrival( 6 );
-    keplerianStateAtDeparture << unit_conversions::convertAstronomicalUnitsToMeters( 1.0 ), 0.0,
+    keplerianStateAtDeparture << convertAstronomicalUnitsToMeters( 1.0 ), 0.0,
             0.0, 0.0, 0.0, 0.0;
-    keplerianStateAtArrival << unit_conversions::convertAstronomicalUnitsToMeters( 1.5 ), 0.0, 0.0,
-            0.0, 0.0, unit_conversions::convertDegreesToRadians( 179.999 );
+    keplerianStateAtArrival << convertAstronomicalUnitsToMeters( 1.5 ), 0.0, 0.0,
+            0.0, 0.0, convertDegreesToRadians( 179.999 );
 
     //  Convert to Cartesian elements.
     const Eigen::VectorXd cartesianStateAtDeparture =

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -42,8 +42,8 @@
 
 #include <cmath>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
@@ -59,7 +59,7 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getCartesianStateFromEph
         const double secondsSinceEpoch, const double julianDayAtEpoch )
 {
     // Convert planet elements in Keplerian elements to Cartesian elements.
-    return tudat::basic_astrodynamics::orbital_element_conversions::
+    return orbital_element_conversions::
             convertKeplerianToCartesianElements(
                 getKeplerianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ),
                 sunGravitationalParameter );
@@ -72,10 +72,11 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEph
     using std::pow;
     using std::sin;
     using std::cos;
-    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
 
     // Set Julian date.
-    julianDate_ = convertSecondsSinceEpochToJulianDay( secondsSinceEpoch, julianDayAtEpoch );
+    julianDate_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay(
+                secondsSinceEpoch, julianDayAtEpoch );
 
     // Compute number of centuries past J2000.
     numberOfCenturiesPastJ2000_ = ( julianDate_ - 2451545.0 ) / 36525.0;
@@ -145,10 +146,10 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEph
     }
 
     // Set eccentricity and mean anomaly for mean anomaly to eccentric anomaly conversion.
-    tudat::basic_astrodynamics::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
+    orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
                 convertMeanAnomalyToEccentricAnomaly_(
                 planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex ),
-                tudat::basic_astrodynamics::unit_conversions::convertDegreesToRadians(
+                unit_conversions::convertDegreesToRadians(
                     meanAnomalyAtGivenJulianDate_ ) );
 
     // Convert mean anomaly to eccentric anomaly.
@@ -156,7 +157,7 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEph
 
     // Convert eccentric anomaly to true anomaly and set in planet elements.
     trueAnomalyAtGivenJulianData_
-            = tudat::orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
+            = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
                 eccentricAnomalyAtGivenJulianDate_,
                 planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex ) );
 
@@ -166,22 +167,22 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEph
     // Convert Keplerian elements to standard units.
     // Convert semi-major axis from AU to meters.
     planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex )
-            = tudat::basic_astrodynamics::unit_conversions::convertAstronomicalUnitsToMeters(
+            = unit_conversions::convertAstronomicalUnitsToMeters(
                 planetKeplerianElementsAtGivenJulianDate_( semiMajorAxisIndex ) );
 
     // Convert inclination from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_( inclinationIndex )
-            = tudat::basic_astrodynamics::unit_conversions::convertDegreesToRadians(
+            = unit_conversions::convertDegreesToRadians(
                 planetKeplerianElementsAtGivenJulianDate_( inclinationIndex ) );
 
     // Convert longitude of ascending node from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_( longitudeOfAscendingNodeIndex )
-            = tudat::basic_astrodynamics::unit_conversions::convertDegreesToRadians(
+            = unit_conversions::convertDegreesToRadians(
                 planetKeplerianElementsAtGivenJulianDate_( longitudeOfAscendingNodeIndex ) );
 
     // Convert argument of periapsis from degrees to radians.
     planetKeplerianElementsAtGivenJulianDate_( argumentOfPeriapsisIndex )
-            = tudat::basic_astrodynamics::unit_conversions::convertDegreesToRadians(
+            = unit_conversions::convertDegreesToRadians(
                 planetKeplerianElementsAtGivenJulianDate_( argumentOfPeriapsisIndex ) );
 
     return planetKeplerianElementsAtGivenJulianDate_;

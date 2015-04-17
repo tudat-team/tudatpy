@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_SUITE( test_parsed_data_vector_utilities )
 BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesGetFieldFunction )
 {
     // Using declaration.
-    using namespace tudat::input_output;
+    using namespace input_output;
 
     // Define a new type: pair of field type and pointer to value.
     typedef std::pair< FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesGetFieldFunction )
 BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyFunction )
 {
     // Using declaration.
-    using namespace tudat::input_output;
+    using namespace input_output;
 
     // Define a new type: pair of field type and pointer to value.
     typedef std::pair< FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyFunction )
 BOOST_AUTO_TEST_CASE( testParsedDataVectorUtilitiesFilterMapKeyValueFunction )
 {
     // Using declaration.
-    using namespace tudat::input_output;
+    using namespace input_output;
 
     // Define a new type: pair of field type and pointer to value.
     typedef std::pair< FieldType, parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -39,7 +39,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/exception/all.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 
@@ -106,14 +106,14 @@ SpiceEphemeris::SpiceEphemeris( const std::string& targetBodyName,
 basic_mathematics::Vector6d SpiceEphemeris::getCartesianStateFromEphemeris(
         const double secondsSinceEpoch, const double julianDayAtEpoch )
 {
-    using namespace tudat::basic_astrodynamics;
+    using namespace basic_astrodynamics;
 
     // Retrieve body state at given ephemeris time, using settings passed to constructor of this
     // object.
 
     // Calculate ephemeris time at which cartesian state is to be determind.
     const double ephemerisTime = secondsSinceEpoch + ( JULIAN_DAY_ON_J2000 - julianDayAtEpoch ) *
-            basic_astrodynamics::physical_constants::JULIAN_DAY;
+            physical_constants::JULIAN_DAY;
 
     // Retrieve Cartesian state from spice.
     const basic_mathematics::Vector6d cartesianStateAtEpoch =

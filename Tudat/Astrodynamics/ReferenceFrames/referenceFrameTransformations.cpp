@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -51,7 +51,7 @@
  *
  */
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
@@ -102,11 +102,11 @@ Eigen::Quaterniond getRotatingPlanetocentricToInertialFrameTransformationQuatern
             Eigen::AngleAxisd( longitudeOfPrimeMeridian, Eigen::Vector3d::UnitZ( ) );
     Eigen::AngleAxisd rotationAroundXaxis =
             Eigen::AngleAxisd(
-                ( basic_mathematics::mathematical_constants::PI / 2.0 - declinationOfPole ),
+                ( mathematical_constants::PI / 2.0 - declinationOfPole ),
                 Eigen::Vector3d::UnitX( ) );
     Eigen::AngleAxisd secondRotationAroundZaxis = Eigen::AngleAxisd(
                 rightAscensionOfPole
-                + basic_mathematics::mathematical_constants::PI / 2.0, Eigen::Vector3d::UnitZ( ) );
+                + mathematical_constants::PI / 2.0, Eigen::Vector3d::UnitZ( ) );
     Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
                 ( secondRotationAroundZaxis * rotationAroundXaxis *  firstRotationAroundZaxis ) );
     return frameTransformationQuaternion;
@@ -152,10 +152,10 @@ Eigen::Quaterniond getInertialToPlanetocentricFrameTransformationQuaternion(
             Eigen::AngleAxisd( -longitudeOfPrimeMeridian, Eigen::Vector3d::UnitZ( ) );
     Eigen::AngleAxisd rotationAroundXaxis =
             Eigen::AngleAxisd(
-                -( basic_mathematics::mathematical_constants::PI / 2.0 - declinationOfPole ),
+                -( mathematical_constants::PI / 2.0 - declinationOfPole ),
                 Eigen::Vector3d::UnitX( ) );
     Eigen::AngleAxisd firstRotationAroundZaxis = Eigen::AngleAxisd(
-                - ( rightAscensionOfPole + basic_mathematics::mathematical_constants::PI / 2.0 ),
+                - ( rightAscensionOfPole + mathematical_constants::PI / 2.0 ),
                 Eigen::Vector3d::UnitZ( ) );
     Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
                 ( secondRotationAroundZaxis * rotationAroundXaxis *  firstRotationAroundZaxis ) );
@@ -192,7 +192,7 @@ Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQu
     Eigen::AngleAxisd RotationAroundZaxis = Eigen::AngleAxisd(
                 -1.0 * longitude, Eigen::Vector3d::UnitZ( ) );
     Eigen::AngleAxisd RotationAroundYaxis = Eigen::AngleAxisd(
-                -1.0 * ( -latitude - basic_mathematics::mathematical_constants::PI / 2.0 ),
+                -1.0 * ( -latitude - mathematical_constants::PI / 2.0 ),
                 Eigen::Vector3d::UnitY( ) );
     Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
                 ( RotationAroundYaxis * RotationAroundZaxis ) );

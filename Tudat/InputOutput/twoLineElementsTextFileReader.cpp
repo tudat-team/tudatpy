@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -69,13 +69,13 @@
 #include <boost/throw_exception.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
-#include <TudatCore/InputOutput/basicInputOutput.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
-#include <Tudat/InputOutput/basicInputOutput.h>
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/twoLineElementsTextFileReader.h"
 
 namespace tudat
@@ -84,7 +84,7 @@ namespace input_output
 {
 
 // Using declarations.
-using tudat::basic_mathematics::mathematical_constants::PI;
+using mathematical_constants::PI;
 using std::string;
 using std::stringstream;
 using std::endl;
@@ -483,24 +483,24 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
         // Get inclination double from stringstream.
         line2StringStream_ >> inclination_;
         twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                    basic_astrodynamics::inclinationIndex ) = inclination_;
+                    orbital_element_conversions::inclinationIndex ) = inclination_;
 
         // Get right ascension of ascending node double from stringstream.
         line2StringStream_ >> rightAscensionOfAscendingNode_;
         twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                    basic_astrodynamics::longitudeOfAscendingNodeIndex )
+                    orbital_element_conversions::longitudeOfAscendingNodeIndex )
                 = rightAscensionOfAscendingNode_;
 
         // Get eccetricity double from stringstream.
         line2StringStream_ >> eccentricity_;
         eccentricity_ /= 10000000;
         twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                    basic_astrodynamics::eccentricityIndex ) = eccentricity_;
+                    orbital_element_conversions::eccentricityIndex ) = eccentricity_;
 
         // Get argument of perigee double from stringstream
         line2StringStream_ >> argumentOfPerigee_;
         twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                    basic_astrodynamics::argumentOfPeriapsisIndex ) = argumentOfPerigee_;
+                    orbital_element_conversions::argumentOfPeriapsisIndex ) = argumentOfPerigee_;
 
         // Get mean anomaly double from stringstream.
         line2StringStream_ >> twoLineElementData_[ objectNumberCounter_ ].meanAnomaly;
@@ -526,7 +526,7 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
                 .meanMotionInRevolutionsPerDay
                 * ( currentYear_
                     - twoLineElementData_[ objectNumberCounter_ ].fourDigitlaunchYear )
-                * tudat::physical_constants::JULIAN_YEAR_IN_DAYS;
+                * physical_constants::JULIAN_YEAR_IN_DAYS;
         approximateNumberOfRevolutionsRemainder_ = approximateNumberOfRevolutions_ % 100000;
         lostNumberOfRevolutions_ = approximateNumberOfRevolutions_
                 - approximateNumberOfRevolutionsRemainder_;
@@ -558,25 +558,26 @@ void TwoLineElementsTextFileReader::storeTwoLineElementData( )
 
         // Semi-major axis of the object is calculated from the other TLE variables.
         meanMotion_ = twoLineElementData_[ objectNumberCounter_ ].meanMotionInRevolutionsPerDay
-                * 2.0 * PI / tudat::physical_constants::JULIAN_DAY;
+                * 2.0 * PI / physical_constants::JULIAN_DAY;
         twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                    basic_astrodynamics::semiMajorAxisIndex )
-                = orbital_element_conversions::convertEllipticalMeanMotionToSemiMajorAxis(
+                    orbital_element_conversions::semiMajorAxisIndex )
+                = orbital_element_conversions::
+                convertEllipticalMeanMotionToSemiMajorAxis(
                     meanMotion_, earthWithWorldGeodeticSystem72GravitationalParameter );
 
         // Perigee of the object is calculated from the other TLE variables.
         twoLineElementData_[ objectNumberCounter_ ].perigee =
                 twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                    basic_astrodynamics::semiMajorAxisIndex )
+                    orbital_element_conversions::semiMajorAxisIndex )
                 * ( 1.0 - twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                        basic_astrodynamics::eccentricityIndex ) );
+                        orbital_element_conversions::eccentricityIndex ) );
 
         // Apogee of the object is calculated from the other TLE variables.
         twoLineElementData_[ objectNumberCounter_ ].apogee =
                 twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                    basic_astrodynamics::semiMajorAxisIndex )
+                    orbital_element_conversions::semiMajorAxisIndex )
                 * ( 1.0 + twoLineElementData_[ objectNumberCounter_ ].TLEKeplerianElements(
-                        basic_astrodynamics::eccentricityIndex ) );
+                        orbital_element_conversions::eccentricityIndex ) );
 
         // Increment object number counter by one.
         objectNumberCounter_++;

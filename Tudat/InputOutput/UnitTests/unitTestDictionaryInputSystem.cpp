@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -46,8 +46,8 @@
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/InputOutput/streamFilters.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/InputOutput/streamFilters.h"
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/dictionaryComparer.h"
@@ -125,7 +125,7 @@ std::string readAndFilterInputFile( const std::string& inputFileName,
     boost::iostreams::filtering_ostream filterProcessor;
 
     // Add remove comment lines filter.
-    filterProcessor.push( tudat::input_output::stream_filters::RemoveComment( commentCharacter ) );
+    filterProcessor.push( input_output::stream_filters::RemoveComment( commentCharacter ) );
 
     // Create filtered data string.
     std::string filteredData;
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE( testInputFileParsingUsingDictionary )
     using namespace input_output::field_types;
     using namespace input_output::parsed_data_vector_utilities;
     using namespace input_output::dictionary;
-    using tudat::unit_conversions::convertKilometersToMeters;
+    using unit_conversions::convertKilometersToMeters;
     using boost::assign::list_of;
 
     // Set input file.
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( testInputFileParsingUsingDictionary )
     std::string filteredData = readAndFilterInputFile( inputFile );
 
     // Declare a separated parser.
-    tudat::input_output::SeparatedParser parser( std::string( ": " ), 2,
+    input_output::SeparatedParser parser( std::string( ": " ), 2,
                                                  general::parameterName,
                                                  general::parameterValue );
 

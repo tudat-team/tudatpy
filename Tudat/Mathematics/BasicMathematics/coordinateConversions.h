@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -68,12 +68,46 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+
 namespace tudat
 {
-namespace basic_mathematics
-{
+
 namespace coordinate_conversions
 {
+
+//! Convert spherical (radius, zenith, azimuth) to Cartesian (x,y,z) coordinates.
+/*!
+ * Converts spherical to cartesian coordinates. Schematic representation can be found on, e.g.,
+ * http://mathworld.wolfram.com/SphericalCoordinates.html.
+ * The transformation equations are the following, with \f$ r \f$ the radius,
+ * \f$ \theta \f$ the azimuth angle and \f$ \phi \f$ the zenith angle:
+ * \f{eqnarray*}{
+ *      x &=& r\cos\theta\sin\phi \\
+ *      y &=& r\sin\theta\sin\phi \\
+ *      z &=& r\cos\phi \\
+ * \f}
+ * \param sphericalCoordinates Vector containing radius, zenith and azimuth (in that order).
+ * \return Vector containing Cartesian coordinates, as calculated from sphericalCoordinates.
+ */
+Eigen::Vector3d convertSphericalToCartesian( const Eigen::Vector3d& sphericalCoordinates );
+
+//! Convert Cartesian (x,y,z) to spherical (radius, zenith, azimuth) coordinates.
+/*!
+ * Converts Cartesian to spherical coordinates. Schematic representation can be found on, e.g.,
+ * http://mathworld.wolfram.com/SphericalCoordinates.html.
+ * The transformation equations are the following, with \f$ r \f$ the radius,
+ * \f$ \theta \f$ the azimuth angle and \f$ \phi \f$ the zenith angle:
+ * \f{eqnarray*}{
+ *      r &=& \sqrt{ x^{ 2 } + y^{ 2 } + z^{ 2 } } \\
+ *      \theta &=& \arctan\frac{ y }{ x } \\
+ *      \phi &=& \arccos\frac{ z }{ r } \\
+ * \f}
+ * \param cartesianCoordinates Vector containing Cartesian coordinates.
+ * \return Vector containing sphericalCoordinates radius, zenith and azimuth (in that
+ *          order), as calculated from sphericalCoordinates.
+*/
+Eigen::Vector3d convertCartesianToSpherical( const Eigen::Vector3d& cartesianCoordinates );
 
 //! Spherical coordinate indices.
 /*!
@@ -173,7 +207,8 @@ Eigen::Vector3d convertCylindricalToCartesian( const Eigen::Vector3d& cylindrica
  *           where Vtheta = r*thetadot.
  * \return Vector of Cartesian state [x,y,z,xdot,ydot,zdot].
  */
-Eigen::VectorXd convertCylindricalToCartesian( const Eigen::VectorXd& cylindricalState );
+basic_mathematics::Vector6d convertCylindricalToCartesianState(
+        const basic_mathematics::Vector6d& cylindricalState );
 
 //! Convert Cartesian to cylindrical coordinates.
 /*!
@@ -210,7 +245,8 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 * \param cartesianState Vector of Cartesian state [x,y,z,xdot,ydot,zdot].
 * \return Vector of cylindrical state [r,theta,z,Vr,Vtheta,Vz], where Vtheta = r*thetadot.
 */
-Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianState );
+basic_mathematics::Vector6d convertCartesianToCylindricalState(
+        const basic_mathematics::Vector6d& cartesianState );
 
 //! Convert spherical to Cartesian gradient.
 /*!
@@ -300,7 +336,8 @@ Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d& sphe
   *
   * Take care: here the elevation is used, not the zenith angle!
   */
-Eigen::VectorXd convertSphericalToCartesianState( const Eigen::VectorXd& sphericalState );
+basic_mathematics::Vector6d convertSphericalToCartesianState(
+        const basic_mathematics::Vector6d& sphericalState );
 
 //! Convert Cartesian to spherical state.
 /*!
@@ -348,10 +385,11 @@ Eigen::VectorXd convertSphericalToCartesianState( const Eigen::VectorXd& spheric
   *
   * Take care: here the elevation is used, not the zenith!
   */
-Eigen::VectorXd convertCartesianToSphericalState( const Eigen::VectorXd& cartesianState );
+basic_mathematics::Vector6d convertCartesianToSphericalState(
+        const basic_mathematics::Vector6d& cartesianState );
 
 } // namespace coordinate_conversions
-} // namespace basic_mathematics
+
 } // namespace tudat
 
 #endif // TUDAT_COORDINATE_CONVERSIONS_H

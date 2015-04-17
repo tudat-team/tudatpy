@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -65,8 +65,8 @@ public:
     // Function to access protected checkOptionalFieldType function.
     bool dummyCheckOptionalFieldType( ParsedDataLineMapPtr dataLineMap,
                                       int numberOfFields,
-                                      tudat::input_output::FieldType firstFieldType,
-                                      tudat::input_output::FieldType secondFieldType)
+                                      input_output::FieldType firstFieldType,
+                                      input_output::FieldType secondFieldType)
     {
         return checkOptionalFieldType( dataLineMap, numberOfFields,
                                        firstFieldType, secondFieldType );
@@ -75,8 +75,8 @@ public:
     // Function to access protected checkRequiredFieldType function.
     void dummyCheckRequiredFieldType( ParsedDataLineMapPtr dataLineMap,
                                       int numberOfFields,
-                                      tudat::input_output::FieldType firstFieldType,
-                                      tudat::input_output::FieldType secondFieldType)
+                                      input_output::FieldType firstFieldType,
+                                      input_output::FieldType secondFieldType)
    {
        checkRequiredFieldType( dataLineMap, numberOfFields, firstFieldType, secondFieldType );
    }
@@ -98,13 +98,13 @@ BOOST_AUTO_TEST_SUITE( test_extractor )
 BOOST_AUTO_TEST_CASE( extractor_Extract )
 {
     // Using declaration.
-    using namespace tudat::input_output;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace input_output;
+    namespace field_types = input_output::field_types;
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Create extractor.
@@ -121,12 +121,12 @@ BOOST_AUTO_TEST_CASE( extractor_Extract )
 BOOST_AUTO_TEST_CASE( extractor_CheckOptionalFieldTypes )
 {
     // Using declaration.
-    using namespace tudat::input_output;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace input_output;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings.
@@ -134,15 +134,15 @@ BOOST_AUTO_TEST_CASE( extractor_CheckOptionalFieldTypes )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueName(
-                new tudat::input_output::FieldValue( field_types::general::name,
+                new input_output::FieldValue( field_types::general::name,
                                                      testStringName ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch(
-                new tudat::input_output::FieldValue( field_types::time::epoch, testStringEpoch ) );
+                new input_output::FieldValue( field_types::time::epoch, testStringEpoch ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                 parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map.
@@ -175,12 +175,12 @@ BOOST_AUTO_TEST_CASE( extractor_CheckOptionalFieldTypes )
 BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
 {
     // Using declaration.
-    using namespace tudat::input_output;
-    namespace field_types = tudat::input_output::field_types;
+    using namespace input_output;
+    namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
     // Define a new type: pair of field type and pointer to value.
-    typedef std::pair< tudat::input_output::FieldType,
+    typedef std::pair< input_output::FieldType,
                        parsed_data_vector_utilities::FieldValuePtr > FieldDataPair;
 
     // Create test strings.
@@ -188,15 +188,15 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueName(
-                new tudat::input_output::FieldValue( field_types::general::name,
+                new input_output::FieldValue( field_types::general::name,
                                                      testStringName ) );
     parsed_data_vector_utilities::FieldValuePtr testFieldValueEpoch(
-                new tudat::input_output::FieldValue( field_types::time::epoch, testStringEpoch ) );
+                new input_output::FieldValue( field_types::time::epoch, testStringEpoch ) );
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
             boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
-                std::map< tudat::input_output::FieldType,
+                std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
     // Store field values in data map.

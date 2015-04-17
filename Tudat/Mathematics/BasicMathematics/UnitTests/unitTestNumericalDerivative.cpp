@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -40,7 +40,7 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Mathematics/BasicMathematics/numericalDerivative.h"
 
@@ -59,7 +59,7 @@ void compareAnalyticalAndNumericalDerivative( const Eigen::VectorXd& input,
                                               DerivativeCallback analyticalCallback,
                                               FunctionEvaluationCallback numericalCallback )
 {
-    using tudat::basic_mathematics::numerical_derivatives::computeCentralDifference;
+    using numerical_derivatives::computeCentralDifference;
 
     // Compute the expected partial.
     Eigen::MatrixXd analyticalDerivative = analyticalCallback( input );
@@ -75,7 +75,7 @@ void compareAnalyticalAndNumericalDerivative( const Eigen::VectorXd& input,
     {
         Eigen::MatrixXd numericalDerivative = computeCentralDifference(
                     input, numericalCallback, 0.0, 0.0,
-                    tudat::basic_mathematics::numerical_derivatives::order4 );
+                    numerical_derivatives::order4 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalDerivative, numericalDerivative,
                                            1.0e-9 );
 
@@ -85,7 +85,7 @@ void compareAnalyticalAndNumericalDerivative( const Eigen::VectorXd& input,
     {
         Eigen::MatrixXd numericalDerivative = computeCentralDifference(
                     input, numericalCallback, 0.0, 0.0,
-                    tudat::basic_mathematics::numerical_derivatives::order8 );
+                    numerical_derivatives::order8 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( analyticalDerivative, numericalDerivative,
                                            1.0e-9 );
     }

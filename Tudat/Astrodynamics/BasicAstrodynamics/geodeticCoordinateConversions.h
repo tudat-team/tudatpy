@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -43,8 +43,7 @@
 
 namespace tudat
 {
-namespace basic_astrodynamics
-{
+
 namespace coordinate_conversions
 {
 
@@ -178,7 +177,7 @@ Eigen::Vector3d convertCartesianToGeodeticCoordinates( const Eigen::Vector3d car
                                                        const double tolerance );
 
 } // namespace coordinate_conversions
-} // namespace basic_astrodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_GEODETIC_COORDINATE_CONVERSIONS_H

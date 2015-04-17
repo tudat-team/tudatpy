@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -36,7 +36,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
@@ -45,7 +45,7 @@ namespace tudat
 namespace spice_interface
 {
 
-using tudat::basic_mathematics::Vector6d;
+using basic_mathematics::Vector6d;
 
 //! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 double convertJulianDateToEphemerisTime( const double julianDate )
@@ -182,8 +182,8 @@ double getBodyGravitationalParameter( const std::string& body )
 
     // Convert from km^3/s^2 to m^3/s^2
     return unit_conversions::convertKilometersToMeters< double >(
-                unit_conversions::convertKilometersToMeters< double >(
-                    unit_conversions::convertKilometersToMeters< double >(
+               unit_conversions::convertKilometersToMeters< double >(
+                   unit_conversions::convertKilometersToMeters< double >(
                         gravitationalParameter[ 0 ] ) ) );
 }
 
@@ -198,8 +198,8 @@ double getAverageRadius( const std::string& body )
     bodvrd_c( body.c_str( ), "RADII", 3, &numberOfReturnedParameters, radii );
 
     // Compute average and convert from km to m.
-    return unit_conversions::convertKilometersToMeters< double >( radii[ 0 ] + radii[ 1 ] +
-                                                                  radii[ 2 ] ) / 3.0;
+    return unit_conversions::convertKilometersToMeters< double >(
+                radii[ 0 ] + radii[ 1 ] + radii[ 2 ] ) / 3.0;
 }
 
 //! Convert a body name to its NAIF identification number.
