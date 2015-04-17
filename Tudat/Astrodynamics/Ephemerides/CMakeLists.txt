@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2014, Delft University of Technology
+ #    Copyright (c) 2010-2015, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -63,21 +63,20 @@ setup_tudat_library_target(tudat_ephemerides "${SRCROOT}${EPHEMERIDESDIR}")
 # Add unit tests.
 add_executable(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestApproximatePlanetPositions.cpp")
 setup_custom_test_program(test_ApproximatePlanetPositions "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_ApproximatePlanetPositions tudat_ephemerides tudat_gravitation tudat_basic_astrodynamics tudat_input_output tudat_root_finders  ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_ApproximatePlanetPositions tudat_ephemerides tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output tudat_root_finders  ${Boost_LIBRARIES})
 
 add_executable(test_TabulatedEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestTabulatedEphemeris.cpp")
 setup_custom_test_program(test_TabulatedEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_TabulatedEphemeris tudat_ephemerides tudat_interpolators tudat_basic_astrodynamics  ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
-
+target_link_libraries(test_TabulatedEphemeris tudat_ephemerides tudat_interpolators tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_CartesianStateExtractor "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestCartesianStateExtractor.cpp")
 setup_custom_test_program(test_CartesianStateExtractor "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_CartesianStateExtractor tudat_input_output tudat_ephemerides ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_CartesianStateExtractor tudat_input_output tudat_ephemerides ${Boost_LIBRARIES})
 
 add_executable(test_KeplerStateExtractor "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestKeplerStateExtractor.cpp")
 setup_custom_test_program(test_KeplerStateExtractor "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_KeplerStateExtractor tudat_ephemerides tudat_input_output tudat_basic_astrodynamics tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_KeplerStateExtractor tudat_ephemerides tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders ${Boost_LIBRARIES})
 
 add_executable(test_SimpleRotationalEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestSimpleRotationalEphemeris.cpp")
 setup_custom_test_program(test_SimpleRotationalEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_SimpleRotationalEphemeris tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_SimpleRotationalEphemeris tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})

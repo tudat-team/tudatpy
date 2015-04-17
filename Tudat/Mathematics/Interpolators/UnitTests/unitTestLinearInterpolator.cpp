@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -55,8 +55,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/InputOutput/matrixTextFileReader.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_vector )
         const double targetIndependentVariableValue = 0.5;
 
         // Compute interpolation.
-        const double interpolatedValue = tudat::interpolators::computeLinearInterpolation(
+        const double interpolatedValue = interpolators::computeLinearInterpolation(
                     sortedIndependentVariables, associatedDependentVariables,
                     targetIndependentVariableValue );
 
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_vector )
     const double targetIndependentVariableValue = 2.0;
 
     // Compute interpolation.
-    const double interpolatedValue = tudat::interpolators::computeLinearInterpolation(
+    const double interpolatedValue = interpolators::computeLinearInterpolation(
                 sortedIndependentVariables, associatedDependentVariables,
                 targetIndependentVariableValue );
 

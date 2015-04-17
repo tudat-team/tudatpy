@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -43,8 +43,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 
 #include "Tudat/Astrodynamics/Gravitation/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 
@@ -58,9 +58,9 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
 {
     namespace crtbp = gravitation::circular_restricted_three_body_problem;
     using crtbp::StateDerivativeCircularRestrictedThreeBodyProblem;
-    using crtbp::xPositionIndex;
-    using crtbp::zPositionIndex;
-    using crtbp::yVelocityIndex;
+    using crtbp::xCartesianPositionIndex;
+    using crtbp::zCartesianPositionIndex;
+    using crtbp::yCartesianVelocityIndex;
 
     // Test 1: test state derivative at L1.
     {
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
 
         // Initialize position L1, from Table 3.4 (Wakker, 2007).
         Eigen::VectorXd stateAtL1 = Eigen::VectorXd::Zero( 6 );
-        stateAtL1( xPositionIndex ) = 0.836914;
+        stateAtL1( xCartesianPositionIndex ) = 0.836914;
 
         // Declare state derivative object.
         StateDerivativeCircularRestrictedThreeBodyProblem stateDerivative( massParameter );
@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeCircularRestrictedThreeBodyProblem )
 
         // Initialize position on Halo orbit around L1 (Howell, 1984).
         Eigen::VectorXd initialStateOnHaloOrbit = Eigen::VectorXd::Zero( 6 );
-        initialStateOnHaloOrbit( xPositionIndex ) = 0.723268;
-        initialStateOnHaloOrbit( zPositionIndex ) = 0.04;
-        initialStateOnHaloOrbit( yVelocityIndex ) = 0.198019;
+        initialStateOnHaloOrbit( xCartesianPositionIndex ) = 0.723268;
+        initialStateOnHaloOrbit( zCartesianPositionIndex ) = 0.04;
+        initialStateOnHaloOrbit( yCartesianVelocityIndex ) = 0.198019;
 
         // Declare state derivative object.
         StateDerivativeCircularRestrictedThreeBodyProblem stateDerivative( massParameter );

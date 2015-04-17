@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2014, Delft University of Technology
+ #    Copyright (c) 2010-2015, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -48,6 +48,8 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/modifiedEquinoctialElementConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/timeConversions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/astrodynamicsFunctions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/orbitalElementConversions.cpp"
 )
 
 # Set the header files.
@@ -65,6 +67,10 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/timeConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/testAccelerationModels.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/testBody.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/astrodynamicsFunctions.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/orbitalElementConversions.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/physicalConstants.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/unitConversions.h"
 )
 
 # Add static libraries.
@@ -72,17 +78,41 @@ add_library(tudat_basic_astrodynamics STATIC ${BASICASTRODYNAMICS_SOURCES} ${BAS
 setup_tudat_library_target(tudat_basic_astrodynamics "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 
 # Add unit tests.
+set(BASICASTRODYNAMICS_UNITTESTS
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestBasicAstrodynamics.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestAstrodynamicsFunctions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestOrbitalElementConversions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestPhysicalConstants.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnitConversions.cpp"
+)
+
+add_executable(test_AstrodynamicsFunctions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestAstrodynamicsFunctions.cpp")
+setup_custom_test_program(test_AstrodynamicsFunctions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_AstrodynamicsFunctions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_OrbitalElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestOrbitalElementConversions.cpp")
+setup_custom_test_program(test_OrbitalElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_OrbitalElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_PhysicalConstants "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestPhysicalConstants.cpp")
+setup_custom_test_program(test_PhysicalConstants "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_PhysicalConstants tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_UnitConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnitConversions.cpp")
+setup_custom_test_program(test_UnitConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_UnitConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
 add_executable(test_MeanToEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToEccentricAnomaly.cpp")
 setup_custom_test_program(test_MeanToEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_MeanToEccenticAnomalyConversion tudat_basic_astrodynamics tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_MeanToEccenticAnomalyConversion tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders ${Boost_LIBRARIES})
 
 add_executable(test_MeanToHyperbolicEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToHyperbolicEccentricAnomaly.cpp")
 setup_custom_test_program(test_MeanToHyperbolicEccenticAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_MeanToHyperbolicEccenticAnomalyConversion tudat_basic_astrodynamics tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_MeanToHyperbolicEccenticAnomalyConversion tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders ${Boost_LIBRARIES})
 
 add_executable(test_KeplerPropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestKeplerPropagator.cpp")
 setup_custom_test_program(test_KeplerPropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_KeplerPropagator tudat_input_output tudat_gravitation tudat_basic_astrodynamics tudat_root_finders ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_KeplerPropagator tudat_input_output tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders ${Boost_LIBRARIES})
 
 add_executable(test_AccelerationModel "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestAccelerationModel.cpp")
 setup_custom_test_program(test_AccelerationModel "${SRCROOT}${BASICASTRODYNAMICSDIR}")
@@ -90,24 +120,24 @@ target_link_libraries(test_AccelerationModel tudat_basic_astrodynamics ${Boost_L
 
 add_executable(test_ClohessyWiltshirePropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestClohessyWiltshirePropagator.cpp")
 setup_custom_test_program(test_ClohessyWiltshirePropagator "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_ClohessyWiltshirePropagator tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_ClohessyWiltshirePropagator tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_MissionGeometry "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestMissionGeometry.cpp")
 setup_custom_test_program(test_MissionGeometry "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_MissionGeometry tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_MissionGeometry tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_TimeConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestTimeConversions.cpp")
 setup_custom_test_program(test_TimeConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_TimeConversions tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_TimeConversions tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_CelestialBodyConstants "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestCelestialBodyConstants.cpp")
 setup_custom_test_program(test_CelestialBodyConstants "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_CelestialBodyConstants tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_CelestialBodyConstants tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_ModifiedEquinoctialElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestModifiedEquinoctialElementConversions.cpp")
 setup_custom_test_program(test_ModifiedEquinoctialElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_ModifiedEquinoctialElementConversions tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_ModifiedEquinoctialElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_GeodeticCoordinateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestGeodeticCoordinateConversions.cpp")
 setup_custom_test_program(test_GeodeticCoordinateConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_GeodeticCoordinateConversions tudat_basic_astrodynamics ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_GeodeticCoordinateConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})

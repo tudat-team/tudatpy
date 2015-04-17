@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_SUITE( test_basic_functions )
 //! Test if search for nearest left neighbor using binary search works correctly.
 BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
 {
-    using namespace tudat::basic_mathematics;
+    using namespace basic_mathematics;
 
     // Case 1: test Eigen-interface.
     {

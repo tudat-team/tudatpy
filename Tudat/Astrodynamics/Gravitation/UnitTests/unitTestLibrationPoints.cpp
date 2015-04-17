@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -71,7 +71,7 @@ namespace tudat
 namespace unit_tests
 {
 
-namespace crtbp = tudat::gravitation::circular_restricted_three_body_problem;
+namespace crtbp = gravitation::circular_restricted_three_body_problem;
 using namespace root_finders;
 
 BOOST_AUTO_TEST_SUITE( test_libration_points )
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfMassParameter )
 
     // Set Earth gravitational parameter.
     const double earthGravitationalParameter
-            = tudat::basic_astrodynamics::celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER;
+            = celestial_body_constants::EARTH_GRAVITATIONAL_PARAMETER;
 
     // Set Moon gravitational parameter (Earth/Moon mass ratio taken from (JPL, 2012).
     const double moonGravitationalParameter = earthGravitationalParameter / 81.30059;

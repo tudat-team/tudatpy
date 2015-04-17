@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -72,15 +72,15 @@ Eigen::Vector3d computeGravitationalAccelerationDueToJ2(
     // Compute components of acceleration due to J2-effect.
     Eigen::Vector3d gravitationalAccelerationDueToJ2 = Eigen::Vector3d::Constant( preMultiplier );
 
-    gravitationalAccelerationDueToJ2( basic_astrodynamics::xCartesianPositionIndex )
+    gravitationalAccelerationDueToJ2( orbital_element_conversions::xCartesianPositionIndex )
             *= ( positionOfBodySubjectToAcceleration.x( )
                  - positionOfBodyExertingAcceleration.x( ) ) * factorForXAndYDirections;
 
-    gravitationalAccelerationDueToJ2( basic_astrodynamics::yCartesianPositionIndex )
+    gravitationalAccelerationDueToJ2( orbital_element_conversions::yCartesianPositionIndex )
             *= ( positionOfBodySubjectToAcceleration.y( )
                  - positionOfBodyExertingAcceleration.y( ) ) * factorForXAndYDirections;
 
-    gravitationalAccelerationDueToJ2( basic_astrodynamics::zCartesianPositionIndex )
+    gravitationalAccelerationDueToJ2( orbital_element_conversions::zCartesianPositionIndex )
             *= ( 3.0 - 5.0 * scaledZCoordinateSquared ) * scaledZCoordinate;
 
     return gravitationalAccelerationDueToJ2;

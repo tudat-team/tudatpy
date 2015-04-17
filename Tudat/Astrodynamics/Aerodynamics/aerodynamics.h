@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -46,7 +46,7 @@
 
 #include <cmath>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -58,7 +58,7 @@ namespace aerodynamics
  * Maximum Prandtl-Meyer function value for ratio of specific heats = 1.4.
  */
 static const double maximumPrandtlMeyerFunctionValue = 
-    basic_mathematics::mathematical_constants::PI / 2.0 * ( std::sqrt( 6.0 ) - 1.0 );
+    mathematical_constants::PI / 2.0 * ( std::sqrt( 6.0 ) - 1.0 );
 
 //! Constant for use in inverse Prandtl-Meyer function calculation.
 /*!

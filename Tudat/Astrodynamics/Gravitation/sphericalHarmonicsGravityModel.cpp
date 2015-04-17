@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -41,7 +41,7 @@
 
 #include "Eigen/Core"
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
@@ -74,7 +74,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration = Eigen::Vector3d::Zero( );
 
     // Convert Cartesian coordinates to cylindrical.
-    const Eigen::Vector3d cylindricalCoordinates = basic_mathematics::coordinate_conversions::
+    const Eigen::Vector3d cylindricalCoordinates = coordinate_conversions::
             convertCartesianToCylindrical( positionOfBodySubjectToAcceleration );
 
     // Compute radius coordinate.
@@ -97,7 +97,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     {
         // ...set latitude coordinate to 90 degrees.
         sphericalpositionOfBodySubjectToAcceleration( 1 )
-                = basic_mathematics::mathematical_constants::PI / 2.0;
+                = mathematical_constants::PI / 2.0;
     }
 
     // Else...
@@ -155,7 +155,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
 
     // Convert from spherical gradient to Cartesian gradient (which equals acceleration vector) and
     // return the resulting acceleration vector.
-    return basic_mathematics::coordinate_conversions::convertSphericalToCartesianGradient(
+    return coordinate_conversions::convertSphericalToCartesianGradient(
                 sphericalGradient, positionOfBodySubjectToAcceleration );
 }
 
@@ -173,7 +173,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration;
 
     // Convert Cartesian coordinates to cylindrical.
-    const Eigen::Vector3d cylindricalCoordinates = basic_mathematics::coordinate_conversions::
+    const Eigen::Vector3d cylindricalCoordinates = coordinate_conversions::
             convertCartesianToCylindrical( positionOfBodySubjectToAcceleration );
 
     // Compute radius coordinate.
@@ -196,7 +196,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     {
         // ...set latitude coordinate to 90 degrees.
         sphericalpositionOfBodySubjectToAcceleration( 1 )
-                = basic_mathematics::mathematical_constants::PI / 2.0;
+                = mathematical_constants::PI / 2.0;
     }
 
     // Else...
@@ -242,7 +242,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
 
     // Convert from spherical gradient to Cartesian gradient (which equals acceleration vector),
     // and return resulting acceleration vector.
-    return basic_mathematics::coordinate_conversions::convertSphericalToCartesianGradient(
+    return coordinate_conversions::convertSphericalToCartesianGradient(
                 sphericalGradient, positionOfBodySubjectToAcceleration );
 }
 

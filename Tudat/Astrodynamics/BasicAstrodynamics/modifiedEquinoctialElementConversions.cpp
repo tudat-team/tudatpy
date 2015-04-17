@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -35,7 +35,7 @@
  *                                  retrogradeness based on Kepler state
  *      130301    R.C.A. Boon       Updated use of mathematics::PI to basic_mathematics::
  *                                  mathematical_constants::PI, minor textual changes.
- *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by basic_mathematics::Vector6d
  *
  *    References
  *      Verified Interval Propagation, Bart Rˆmgens; Delft (2011). Code archive.
@@ -53,9 +53,9 @@
 
 #include <boost/exception/all.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
-#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
@@ -63,18 +63,15 @@
 
 namespace tudat
 {
-namespace basic_astrodynamics
-{
+
 namespace orbital_element_conversions
 {
 
 //! Convert Keplerian to modified equinoctial orbital elements using implicit MEE equation set.
-tudat::basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
-        const tudat::basic_mathematics::Vector6d& keplerianElements )
+basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
+        const basic_mathematics::Vector6d& keplerianElements )
 // Based on Hintz, 2008.
 {
-    using tudat::basic_mathematics::mathematical_constants::PI;
-
     // Check if orbit is retrograde
     bool avoidSingularityAtPiInclination =
             mission_geometry::isOrbitRetrograde( keplerianElements );
@@ -85,15 +82,15 @@ tudat::basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements
 }
 
 //! Convert Keplerian to modified equinoctial orbital elements using MEE explicit equation set.
-tudat::basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
-        const tudat::basic_mathematics::Vector6d& keplerianElements,
+basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements(
+        const basic_mathematics::Vector6d& keplerianElements,
         const bool avoidSingularityAtPiInclination )
 // Based on Hintz, 2008.
 {
-    using basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    tudat::basic_mathematics::Vector6d modifiedEquinoctialState( 6 );
+    basic_mathematics::Vector6d modifiedEquinoctialState( 6 );
 
     // Compute semi-latus rectum.
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
@@ -174,7 +171,7 @@ tudat::basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements
 
     // Compute true longitude (modulo 2 PI to keep within interval -2PI to 2PI).
     modifiedEquinoctialState( trueLongitudeIndex )
-            = tudat::basic_mathematics::computeModulo(
+            = basic_mathematics::computeModulo(
                 argumentOfPeriapsisAndAscendingNode
                 + keplerianElements( trueAnomalyIndex ), 2.0 * PI );
 
@@ -183,15 +180,15 @@ tudat::basic_mathematics::Vector6d convertKeplerianToModifiedEquinoctialElements
 }
 
 //! Convert modified equinoctial to Keplerian orbital elements.
-tudat::basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements(
-        const tudat::basic_mathematics::Vector6d& modifiedEquinoctialElements,
+basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements(
+        const basic_mathematics::Vector6d& modifiedEquinoctialElements,
         const bool avoidSingularityAtPiInclination )
 // Using unknown source pdf, code archive E. Heeren and personal derivation based on Hintz 2008.
 {
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
 
     // Declaration of output vector.
-    tudat::basic_mathematics::Vector6d convertedKeplerianElements = tudat::basic_mathematics::
+    basic_mathematics::Vector6d convertedKeplerianElements = basic_mathematics::
             Vector6d::Zero( 6 );
 
     // for ease of referencing, almost all modified equinoctial elements.
@@ -230,7 +227,7 @@ tudat::basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements
     double longitudeOfAscendingNode = std::atan2( kElement, hElement );
 
     // Store longitude of ascending node.
-    convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = tudat::basic_mathematics::
+    convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = basic_mathematics::
             computeModulo( longitudeOfAscendingNode, 2.0 * PI );
 
     // Compute inclination.
@@ -269,13 +266,13 @@ tudat::basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements
         argumentOfPeriapsisAndLongitude = std::atan2( gElement, fElement );
 
         // Compute argument of periapsis.
-        convertedKeplerianElements( argumentOfPeriapsisIndex ) = tudat::basic_mathematics::
+        convertedKeplerianElements( argumentOfPeriapsisIndex ) = basic_mathematics::
                 computeModulo( argumentOfPeriapsisAndLongitude
                                - retrogradeFactor * longitudeOfAscendingNode, 2.0 * PI );
     }
 
     // Compute true anomaly.
-    convertedKeplerianElements( trueAnomalyIndex ) = tudat::basic_mathematics::
+    convertedKeplerianElements( trueAnomalyIndex ) = basic_mathematics::
             computeModulo( modifiedEquinoctialElements( trueLongitudeIndex )
                            - argumentOfPeriapsisAndLongitude, 2.0 * PI );
 
@@ -284,14 +281,14 @@ tudat::basic_mathematics::Vector6d convertModifiedEquinoctialToKeplerianElements
 }
 
 //! Convert Cartesian to modified equinoctial orbital elements using implicit MEE equation set.
-tudat::basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
-        const tudat::basic_mathematics::Vector6d& cartesianElements,
+basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
+        const basic_mathematics::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter )
 {
-    using basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
 
     // Convert to keplerian elements.
-    tudat::basic_mathematics::Vector6d keplerianElements = convertCartesianToKeplerianElements(
+    basic_mathematics::Vector6d keplerianElements = convertCartesianToKeplerianElements(
                 cartesianElements, centralBodyGravitationalParameter );
 
     // Check whether orbit is retrograde.
@@ -304,8 +301,8 @@ tudat::basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements
 }
 
 //! Convert Cartesian to modified equinoctial orbital elements using explicit MEE equation set.
-tudat::basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
-        const tudat::basic_mathematics::Vector6d& cartesianElements,
+basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements(
+        const basic_mathematics::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter,
         const bool avoidSingularityAtPiInclination )
 {
@@ -317,14 +314,14 @@ tudat::basic_mathematics::Vector6d convertCartesianToModifiedEquinoctialElements
 }
 
 //! Convert Modified Equinoctial Elements to Cartesian Elements.
-tudat::basic_mathematics::Vector6d convertModifiedEquinoctialToCartesianElements(
-        const tudat::basic_mathematics::Vector6d& modifiedEquinoctialElements,
+basic_mathematics::Vector6d convertModifiedEquinoctialToCartesianElements(
+        const basic_mathematics::Vector6d& modifiedEquinoctialElements,
         const double centralBodyGravitationalParameter,
         const bool avoidSingularityAtPiInclination )
 // Using unnamed pdf and code archive Bart Rˆmgens.
 {
     // Creating output vector.
-    tudat::basic_mathematics::Vector6d convertedCartesianElements = tudat::basic_mathematics::
+    basic_mathematics::Vector6d convertedCartesianElements = basic_mathematics::
             Vector6d::Zero( 6 );
 
     // If the prograde equations are to be used.
@@ -356,29 +353,29 @@ tudat::basic_mathematics::Vector6d convertModifiedEquinoctialToCartesianElements
         double radius = semiLatusRectum / wParameter;
 
         // Computing position and storing (using code archive Bart Rˆmgens and unnamed pdf).
-        convertedCartesianElements( xPositionIndex )
+        convertedCartesianElements( xCartesianPositionIndex )
                 = radius / sSquaredParameter * ( cosineTrueLongitude + aSquaredParameter
                                                  * cosineTrueLongitude + 2.0 * hElement * kElement
                                                  * sineTrueLongitude );
-        convertedCartesianElements( yPositionIndex )
+        convertedCartesianElements( yCartesianPositionIndex )
                 = radius / sSquaredParameter * ( sineTrueLongitude - aSquaredParameter
                                                  * sineTrueLongitude + 2.0 * hElement * kElement
                                                  * cosineTrueLongitude );
-        convertedCartesianElements( zPositionIndex ) = 2.0 * radius / sSquaredParameter
+        convertedCartesianElements( zCartesianPositionIndex ) = 2.0 * radius / sSquaredParameter
                 * ( hElement * sineTrueLongitude - kElement * cosineTrueLongitude );
 
         // Computing velocities (these can probably use more optimal computation).
-        convertedCartesianElements( xVelocityIndex ) = -1.0 / sSquaredParameter
+        convertedCartesianElements( xCartesianVelocityIndex ) = -1.0 / sSquaredParameter
                 * squareRootOfGravitationalParameterOverSemiLatusRectum
                 * ( sineTrueLongitude + aSquaredParameter * sineTrueLongitude
                     - 2.0 * hElement * kElement * cosineTrueLongitude + gElement
                     - 2.0 * fElement * hElement * kElement + aSquaredParameter * gElement );
-        convertedCartesianElements( yVelocityIndex ) = -1.0 / sSquaredParameter
+        convertedCartesianElements( yCartesianVelocityIndex ) = -1.0 / sSquaredParameter
                 * squareRootOfGravitationalParameterOverSemiLatusRectum
                 * ( -cosineTrueLongitude + aSquaredParameter * cosineTrueLongitude
                     + 2.0 * hElement * kElement * sineTrueLongitude - fElement
                     + 2.0 * gElement * hElement * kElement + aSquaredParameter * fElement );
-        convertedCartesianElements( zVelocityIndex ) = 2.0 / sSquaredParameter
+        convertedCartesianElements( zCartesianVelocityIndex ) = 2.0 / sSquaredParameter
                 * squareRootOfGravitationalParameterOverSemiLatusRectum
                 * ( hElement * cosineTrueLongitude + kElement * sineTrueLongitude
                     + fElement * hElement + gElement * kElement );
@@ -399,5 +396,5 @@ tudat::basic_mathematics::Vector6d convertModifiedEquinoctialToCartesianElements
 }
 
 } // namespace orbital_element_conversions
-} // namespace basic_astrodynamics
+
 } // namespace tudat

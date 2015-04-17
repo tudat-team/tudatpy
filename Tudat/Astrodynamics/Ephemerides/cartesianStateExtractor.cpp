@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -62,7 +62,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > CartesianStateExtractor::extrac
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::cartesianXCoordinate ) )
     {
-        ( *cartesianElements )( basic_astrodynamics::xCartesianPositionIndex )
+        ( *cartesianElements )( orbital_element_conversions::xCartesianPositionIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::cartesianXCoordinate );
     }
@@ -78,7 +78,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > CartesianStateExtractor::extrac
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::cartesianYCoordinate ) )
     {
-        ( *cartesianElements )( basic_astrodynamics::yCartesianPositionIndex )
+        ( *cartesianElements )( orbital_element_conversions::yCartesianPositionIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::cartesianYCoordinate );
     }
@@ -93,7 +93,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > CartesianStateExtractor::extrac
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::cartesianZCoordinate ) )
     {
-        ( *cartesianElements )( basic_astrodynamics::zCartesianPositionIndex )
+        ( *cartesianElements )( orbital_element_conversions::zCartesianPositionIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::cartesianZCoordinate );
     }
@@ -109,7 +109,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > CartesianStateExtractor::extrac
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::cartesianXVelocity ) )
     {
-        ( *cartesianElements )( basic_astrodynamics::xCartesianVelocityIndex )
+        ( *cartesianElements )( orbital_element_conversions::xCartesianVelocityIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::cartesianXVelocity );
     }
@@ -124,7 +124,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > CartesianStateExtractor::extrac
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::cartesianYVelocity ) )
     {
-        ( *cartesianElements )( basic_astrodynamics::yCartesianVelocityIndex )
+        ( *cartesianElements )( orbital_element_conversions::yCartesianVelocityIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::cartesianYVelocity );
     }
@@ -140,7 +140,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > CartesianStateExtractor::extrac
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::cartesianZVelocity ) )
     {
-        ( *cartesianElements )( basic_astrodynamics::zCartesianVelocityIndex )
+        ( *cartesianElements )( orbital_element_conversions::zCartesianVelocityIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::cartesianZVelocity );
     }

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -42,7 +42,7 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/improvedInversePolynomialWall.h"
 #include "Tudat/Astrodynamics/MissionSegments/oscillatingFunctionNovak.h"
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_SUITE( test_spherical_shape_function )
 BOOST_AUTO_TEST_CASE( ImprovedInversePolynomialWall )
 {
     // Using declaration.
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
 
     // Initialize parameters of the inverse polynomial function.
     std::pair< Eigen::Vector3d, Eigen::Vector3d > inversePolynomialParameters;
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( ImprovedInversePolynomialWall )
 BOOST_AUTO_TEST_CASE( OscillatingFunctionNovak )
 {
     // Using declaration.
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
 
     // Initialize parameters of the inverse polynomial function.
     std::pair< Eigen::Vector2d, Eigen::Vector2d > oscillatingFunctionParameters;

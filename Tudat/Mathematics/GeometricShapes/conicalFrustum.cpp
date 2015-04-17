@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -48,7 +48,7 @@ namespace tudat
 namespace geometric_shapes
 {
 
-using tudat::basic_mathematics::mathematical_constants::PI;
+using mathematical_constants::PI;
 using std::cerr;
 using std::endl;
 using std::sin;
@@ -79,7 +79,7 @@ Eigen::VectorXd ConicalFrustum::getSurfacePoint( double azimuthAngle, double len
 
 
     // Set x and y coordinate of untransformed cone.
-    cartesianPositionVector_ = basic_mathematics::coordinate_conversions::
+    cartesianPositionVector_ = coordinate_conversions::
             convertCylindricalToCartesian( Eigen::Vector3d( localRadius_, azimuthAngle, 0.0 ) );
 
     // Set z coordinate of untransformed cone.

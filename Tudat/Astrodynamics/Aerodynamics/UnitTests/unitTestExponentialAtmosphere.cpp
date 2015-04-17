@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -48,7 +48,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
 
@@ -74,14 +74,14 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereGetSet )
     const double scaleHeight = 7.050e3;
 
     // Create an exponential atmosphere object.
-    tudat::aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
+    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
     exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
     exponentialAtmosphere.setScaleHeight( scaleHeight );
     exponentialAtmosphere.setSpecificGasConstant(
-                    tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
+                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
 
     BOOST_CHECK_EQUAL( constantTemperature, exponentialAtmosphere.getConstantTemperature( ) );
     BOOST_CHECK_EQUAL( densityAtZeroAltitude, exponentialAtmosphere.getDensityAtZeroAltitude( ) );
@@ -102,14 +102,14 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereSeaLevel )
     const double pressureAtZeroAltitude = 101325.0;
 
     // Create an exponential atmosphere object.
-    tudat::aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
+    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
     exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
     exponentialAtmosphere.setScaleHeight( scaleHeight );
     exponentialAtmosphere.setSpecificGasConstant(
-                    tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
+                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
@@ -138,14 +138,14 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereAt10km )
     double time = 0.0;
 
     // Create an exponential atmosphere object.
-    tudat::aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
+    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
     exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
     exponentialAtmosphere.setScaleHeight( scaleHeight );
     exponentialAtmosphere.setSpecificGasConstant(
-                    tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
+                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
 
     // Declare and set expected density.
     const double expectedDensity  = densityAtZeroAltitude * std::exp ( -altitude / scaleHeight );
@@ -178,14 +178,14 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmospherePositionIndependentFunctions )
     double time = 0.0;
 
     // Create an exponential atmosphere object.
-    tudat::aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
+    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
 
     // Initialize the exponential atmosphere.
     exponentialAtmosphere.setConstantTemperature( constantTemperature );
     exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
     exponentialAtmosphere.setScaleHeight( scaleHeight );
     exponentialAtmosphere.setSpecificGasConstant(
-                    tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
+                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
 
     const double density1 = exponentialAtmosphere.getDensity( altitude );
     const double density2 = exponentialAtmosphere.getDensity( altitude, longitude, latitude,

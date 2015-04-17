@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -29,7 +29,7 @@
  *      121123    D. Dirkx          Added unit tests for computeSphereOfInfluence() function taking
  *                                  mass ratio.
  *      130227    D. Dirkx          Added unit test for isOrbitRetrograde() functions.
- *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by tudat::basic_mathematics::Vector6d.
+ *      130305    R.C.A. Boon       Replaced Eigen::VectorXd by basic_mathematics::Vector6d.
  *
  *    References
  *      Montebruck O, Gill E. Satellite Orbits, Corrected Third Printing, Springer, 2005.
@@ -49,8 +49,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullShadow )
             * Eigen::Vector3d( 1.0, 0.0, 0.0 );
 
     // Compute shadow function.
-    const double shadowFunction = basic_astrodynamics::mission_geometry::computeShadowFunction(
+    const double shadowFunction = mission_geometry::computeShadowFunction(
                 occultedBodyPosition,
                 occultedBodyRadius,
                 occultingBodyPosition,
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForFullLight )
             * Eigen::Vector3d( 0.0, 1.0, 0.0 );
 
     // Compute shadow function.
-    const double shadowFunction = basic_astrodynamics::mission_geometry::computeShadowFunction(
+    const double shadowFunction = mission_geometry::computeShadowFunction(
                 occultedBodyPosition,
                 occultedBodyRadius,
                 occultingBodyPosition,
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionForPartialShadow )
     const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e3 ) * satelliteDirection;
 
     // Compute shadow function
-    const double shadowFunction = basic_astrodynamics::mission_geometry::computeShadowFunction(
+    const double shadowFunction = mission_geometry::computeShadowFunction(
                 occultedBodyPosition,
                 occultedBodyRadius,
                 occultingBodyPosition,
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceEarth )
     {
         // Calculate the sphere of influence of the Earth with respect to the Sun.
         const double sphereOfInfluenceEarth
-                = basic_astrodynamics::mission_geometry::computeSphereOfInfluence(
+                = mission_geometry::computeSphereOfInfluence(
                     distanceEarthSun, massEarth, massSun );
 
         // Test values (Wikipedia, Sphere of Influence)
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceEarth )
     {
         // Calculate the sphere of influence of the Earth with respect to the Sun.
         const double sphereOfInfluenceEarth
-                = basic_astrodynamics::mission_geometry::computeSphereOfInfluence(
+                = mission_geometry::computeSphereOfInfluence(
                     distanceEarthSun, massEarth / massSun );
 
         // Test values (Wikipedia, Sphere of Influence)
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
     {
         // Calculate the sphere of influence of the Moon with respect to the Earth.
         const double sphereOfInfluenceEarth
-                = basic_astrodynamics::mission_geometry::computeSphereOfInfluence(
+                = mission_geometry::computeSphereOfInfluence(
                     distanceMoonEarth, massMoon, massEarth );
 
         // Test values (Wikipedia, Sphere of Influence)
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
     // Test 2: test function taking mass ratio.
     {
         const double sphereOfInfluenceMoon
-                = basic_astrodynamics::mission_geometry::computeSphereOfInfluence(
+                = mission_geometry::computeSphereOfInfluence(
                     distanceMoonEarth, massMoon / massEarth );
 
         // Test values (Wikipedia, Sphere of Influence)
@@ -203,12 +203,12 @@ BOOST_AUTO_TEST_CASE( testSphereOfInfluenceMoon )
 //! Unit test for testing for retrogradeness.
 BOOST_AUTO_TEST_CASE( testIsOrbitRetrograde )
 {
-    using namespace tudat::basic_astrodynamics::orbital_element_conversions;
-    using namespace tudat::basic_astrodynamics::mission_geometry;
-    using namespace tudat::basic_mathematics::mathematical_constants;
+    using namespace orbital_element_conversions;
+    using namespace mission_geometry;
+    using namespace mathematical_constants;
 
     // Initialize test Kepler elements.
-    tudat::basic_mathematics::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d testKepler = Eigen::VectorXd::Zero( 6 );
     testKepler( semiMajorAxisIndex ) = 1.0e7;
     testKepler( eccentricityIndex ) = 0.1;
     testKepler( inclinationIndex ) = 50.0 / 180.0 * PI;

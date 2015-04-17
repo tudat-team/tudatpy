@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -54,8 +54,6 @@
 #define TUDAT_CELESTIAL_BODY_CONSTANTS_H
 
 namespace tudat
-{
-namespace basic_astrodynamics
 {
 namespace celestial_body_constants
 {
@@ -146,7 +144,7 @@ const static double NEPTUNE_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETE
 const static double PLUTO_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER / 1.35e8;
 
 } // namespace celestial_body_constants
-} // namespace basic_astrodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_CELESTIAL_BODY_CONSTANTS_H

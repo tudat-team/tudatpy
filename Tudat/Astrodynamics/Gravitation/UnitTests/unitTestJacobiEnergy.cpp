@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testJacobiEnergy )
 
         // Initialize position L1, from Table 3.4 (Wakker, 2007).
         Eigen::VectorXd stateAtL1 = Eigen::VectorXd::Zero( 6 );
-        stateAtL1( crtbp::xPositionIndex ) = 0.836914;
+        stateAtL1( crtbp::xCartesianPositionIndex ) = 0.836914;
 
         // Set expected value of Jacobi energy at L1.
         double expectedJacobiEnergy = 3.1883;
@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE( testJacobiEnergy )
 
         // Initialize position L4, from Table 3.4 (Wakker, 2007).
         Eigen::VectorXd stateAtL4 = Eigen::VectorXd::Zero( 6 );
-        stateAtL4( crtbp::xPositionIndex ) = 0.487849;
-        stateAtL4( crtbp::yPositionIndex ) = 0.866025;
+        stateAtL4( crtbp::xCartesianPositionIndex ) = 0.487849;
+        stateAtL4( crtbp::yCartesianPositionIndex ) = 0.866025;
 
         // Set expected value of Jacobi energy at L4.
         double expectedJacobiEnergy = 2.9880;

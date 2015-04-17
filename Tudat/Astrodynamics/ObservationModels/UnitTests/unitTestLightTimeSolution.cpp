@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -45,8 +45,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
 #include "Tudat/Astrodynamics/ObservationModels/UnitTests/testLightTimeCorrections.h"
@@ -59,9 +59,9 @@ namespace tudat
 namespace unit_tests
 {
 
-using namespace tudat::ephemerides;
-using namespace tudat::observation_models;
-using namespace tudat::spice_interface;
+using namespace ephemerides;
+using namespace observation_models;
+using namespace spice_interface;
 
 BOOST_AUTO_TEST_SUITE( test_light_time )
 
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_SUITE( test_light_time )
 BOOST_AUTO_TEST_CASE( testLightWithSpice )
 {
     // Load spice kernels.
-    const std::string kernelsPath = tudat::input_output::getSpiceKernelPath( );
+    const std::string kernelsPath = input_output::getSpiceKernelPath( );
     loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
     loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
     loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate newtonian light time.
     double newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(
-                testTime, true ).norm( ) / basic_astrodynamics::physical_constants::SPEED_OF_LIGHT;
+                testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
 
     // Calculate light time (including correction), at reception.
     testMoonLightTime = lightTimeEarthToMoonWithCorrection->calculateLightTime( testTime, true );
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate newtonian light time.
     newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(
-                testTime, true ).norm( ) / basic_astrodynamics::physical_constants::SPEED_OF_LIGHT;
+                testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
 
     // Calculate light time (including correction), at reception.
     testMoonLightTime = lightTimeEarthToMoonWithCorrection->calculateLightTime( testTime, true );
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
 
     // Calculate newtonian light time.
     newtonianLightTime = lightTimeEarthToMoonWithCorrection->calculateRelativeRangeVector(
-                testTime, true ).norm( ) / basic_astrodynamics::physical_constants::SPEED_OF_LIGHT;
+                testTime, true ).norm( ) / physical_constants::SPEED_OF_LIGHT;
 
     // Calculate light time (including corrections), at reception.
     testMoonLightTime = lightTimeEarthToMoonWithCorrection->calculateLightTimeWithLinkEndsStates(

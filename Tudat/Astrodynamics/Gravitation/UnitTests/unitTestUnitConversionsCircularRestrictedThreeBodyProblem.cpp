@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -54,8 +54,8 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/Gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
 
@@ -89,19 +89,19 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
                 / ( gravitationalParameterJupiter + gravitationalParameterSun );
 
         // Set dimensionless state of the Sun.
-        using tudat::orbital_element_conversions::xPositionIndex;
+        using orbital_element_conversions::xCartesianPositionIndex;
         Eigen::VectorXd dimensionlessStateOfSun = Eigen::VectorXd::Zero( 6 );
-        dimensionlessStateOfSun( xPositionIndex ) = -massParameter;
+        dimensionlessStateOfSun( xCartesianPositionIndex ) = -massParameter;
 
         // Declare and set dimensionless state of Jupiter.
         Eigen::VectorXd dimensionlessStateOfJupiter = Eigen::VectorXd::Zero( 6 );
-        dimensionlessStateOfJupiter( xPositionIndex ) = 1.0 - massParameter;
+        dimensionlessStateOfJupiter( xCartesianPositionIndex ) = 1.0 - massParameter;
 
         // Set dimensionless state of test particle in Sun-Jupiter system.
-        using tudat::orbital_element_conversions::yVelocityIndex;
+        using orbital_element_conversions::yCartesianVelocityIndex;
         Eigen::VectorXd dimensionlessStateOfTestParticle = Eigen::VectorXd::Zero( 6 );
-        dimensionlessStateOfTestParticle( xPositionIndex ) = 1.0;
-        dimensionlessStateOfTestParticle( yVelocityIndex ) = 1.0;
+        dimensionlessStateOfTestParticle( xCartesianPositionIndex ) = 1.0;
+        dimensionlessStateOfTestParticle( yCartesianVelocityIndex ) = 1.0;
 
         // Convert dimensionless to dimensional Cartesian state vector for test particle [m, m/s].
         Eigen::VectorXd computedDimensionalStateOfTestParticle( 6 );
@@ -112,10 +112,10 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
 
         // Check if computed position and velocity matches expected value.
         BOOST_CHECK_CLOSE_FRACTION( distanceSunJupiter,
-                                    computedDimensionalStateOfTestParticle( xPositionIndex ),
+                                    computedDimensionalStateOfTestParticle( xCartesianPositionIndex ),
                                     std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_CLOSE_FRACTION( velocitySunJupiter,
-                                    computedDimensionalStateOfTestParticle( yVelocityIndex ),
+                                    computedDimensionalStateOfTestParticle( yCartesianVelocityIndex ),
                                     1.0e-2 );
     }
 }
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
 BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
 {
     namespace crtbp = gravitation::circular_restricted_three_body_problem;
-    using basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
 
     // Test 1: conversion of dimensionless to dimensional time for test particle in Sun-Jupiter
     // system [s] (Koon, 2006).

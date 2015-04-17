@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -58,7 +58,7 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( testGetInertialVelocity )
             testCartesianPositionAtArrival( 2.0 * distanceUnit, 2.0 * sqrt( 3.0 ) * distanceUnit,
                                             0.0 );
     // Declare Lambert targeter object.
-    tudat::mission_segments::LambertTargeterDummy
+    mission_segments::LambertTargeterDummy
             testLambertTargeter( testCartesianPositionAtDeparture, testCartesianPositionAtArrival,
                                  testTimeOfFlight, testGravitationalParameter );
 

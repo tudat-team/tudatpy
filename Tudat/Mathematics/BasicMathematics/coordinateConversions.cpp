@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -68,17 +68,66 @@
 
 #include <boost/math/special_functions/sign.hpp>
 
-#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
-
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 
 namespace tudat
 {
-namespace basic_mathematics
-{
+
 namespace coordinate_conversions
 {
+
+
+//! Convert spherical (radius_, zenith, azimuth) to Cartesian (x,y,z) coordinates.
+Eigen::Vector3d convertSphericalToCartesian( const Eigen::Vector3d& sphericalCoordinates )
+{
+    // Create local variables.
+    double radius_ = sphericalCoordinates( 0 );
+    double zenithAngle_ = sphericalCoordinates( 1 );
+    double azimuthAngle_ = sphericalCoordinates( 2 );
+
+    // Declaring sine which has multiple usages to save computation time.
+    double sineOfZenithAngle_ = std::sin( sphericalCoordinates( 1 ) );
+
+    // Create output Vector3d.
+    Eigen::Vector3d convertedCartesianCoordinates_ = Eigen::Vector3d::Zero( 3 );
+
+    // Perform transformation.
+    convertedCartesianCoordinates_( 0 ) = radius_ * std::cos( azimuthAngle_ ) * sineOfZenithAngle_;
+    convertedCartesianCoordinates_( 1 ) = radius_ * std::sin( azimuthAngle_ ) * sineOfZenithAngle_;
+    convertedCartesianCoordinates_( 2 ) = radius_ * std::cos( zenithAngle_ );
+
+    return convertedCartesianCoordinates_;
+}
+
+//! Convert Cartesian (x,y,z) to spherical (radius, zenith, azimuth) coordinates.
+Eigen::Vector3d convertCartesianToSpherical( const Eigen::Vector3d& cartesianCoordinates )
+{
+    // Create output Vector3d.
+    Eigen::Vector3d convertedSphericalCoordinates_ = Eigen::Vector3d::Zero( 3 );
+
+    // Compute transformation of Cartesian coordinates to spherical coordinates.
+    convertedSphericalCoordinates_( 0 ) = cartesianCoordinates.norm( );
+
+    // Check if coordinates are at origin.
+    if ( convertedSphericalCoordinates_( 0 ) < std::numeric_limits< double >::epsilon( ) )
+    {
+        convertedSphericalCoordinates_( 1 ) = 0.0;
+        convertedSphericalCoordinates_( 2 ) = 0.0;
+    }
+    // Else compute coordinates using trigonometric relationships.
+    else
+    {
+        convertedSphericalCoordinates_( 1 ) = std::acos( cartesianCoordinates( 2 )
+                                                         / convertedSphericalCoordinates_( 0 ) );
+        convertedSphericalCoordinates_( 2 ) = std::atan2( cartesianCoordinates( 1 ),
+                                                          cartesianCoordinates( 0 ) );
+    }
+
+    return convertedSphericalCoordinates_;
+}
+
 
 //! Convert cylindrical to Cartesian coordinates.
 Eigen::Vector3d convertCylindricalToCartesian( const double radius,
@@ -127,10 +176,11 @@ Eigen::Vector3d convertCylindricalToCartesian( const Eigen::Vector3d& cylindrica
 }
 
 //! Convert cylindrical to Cartesian state.
-Eigen::VectorXd convertCylindricalToCartesian( const Eigen::VectorXd& cylindricalState )
+basic_mathematics::Vector6d convertCylindricalToCartesianState(
+        const basic_mathematics::Vector6d& cylindricalState )
 {
     // Create Cartesian state vector, initialized with zero entries.
-    Eigen::VectorXd cartesianState = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d cartesianState = basic_mathematics::Vector6d::Zero( );
 
     // Get azimuth angle, theta.
     double azimuthAngle = cylindricalState( 1 );
@@ -180,17 +230,17 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
     /* If x = 0, then azimuthAngle = pi/2 (y>0) or 3*pi/2 (y<0) or 0 (y=0),
        else azimuthAngle = arctan(y/x).
     */
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
     if ( std::fabs(cartesianCoordinates( 0 ) ) <= std::numeric_limits< double >::epsilon( ) )
     {
-        azimuthAngle = tudat::basic_mathematics::computeModulo(
+        azimuthAngle = basic_mathematics::computeModulo(
                     static_cast< double >( boost::math::sign( cartesianCoordinates( 1 ) ) )
                     * 0.5 * PI, 2.0 * PI );
     }
 
     else
     {
-        azimuthAngle = tudat::basic_mathematics::computeModulo(
+        azimuthAngle = basic_mathematics::computeModulo(
                     std::atan2( cartesianCoordinates( 1 ),
                                 cartesianCoordinates( 0 ) ), 2.0 * PI );
     }
@@ -206,10 +256,11 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 }
 
 //! Convert Cartesian to cylindrical state.
-Eigen::VectorXd convertCartesianToCylindrical( const Eigen::VectorXd& cartesianState )
+basic_mathematics::Vector6d convertCartesianToCylindricalState(
+        const basic_mathematics::Vector6d& cartesianState )
 {
     // Create cylindrical state vector, initialized with zero entries.
-    Eigen::VectorXd cylindricalState = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d cylindricalState = basic_mathematics::Vector6d::Zero( );
 
     // Compute and set cylindrical coordinates.
     cylindricalState.head( 3 ) = convertCartesianToCylindrical(
@@ -277,10 +328,11 @@ Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d& sphe
 }
 
 //! Convert spherical to Cartesian state.
-Eigen::VectorXd convertSphericalToCartesianState( const Eigen::VectorXd& sphericalState )
+basic_mathematics::Vector6d convertSphericalToCartesianState(
+        const basic_mathematics::Vector6d& sphericalState )
 {
     // Create Cartesian state vector, initialized with zero entries.
-    Eigen::VectorXd convertedCartesianState = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d convertedCartesianState = basic_mathematics::Vector6d::Zero( );
 
     // Create local variables.
     const double radius = sphericalState( 0 );
@@ -328,10 +380,11 @@ Eigen::VectorXd convertSphericalToCartesianState( const Eigen::VectorXd& spheric
 }
 
 //! Convert Cartesian to spherical state.
-Eigen::VectorXd convertCartesianToSphericalState( const Eigen::VectorXd& cartesianState )
+basic_mathematics::Vector6d convertCartesianToSphericalState(
+        const basic_mathematics::Vector6d& cartesianState )
 {
     // Create spherical state vector, initialized with zero entries.
-    Eigen::VectorXd convertedSphericalState = Eigen::VectorXd::Zero( 6 );
+    basic_mathematics::Vector6d convertedSphericalState = basic_mathematics::Vector6d::Zero( );
 
     // Compute radius.
     convertedSphericalState( 0 ) = cartesianState.segment( 0, 3 ).norm( );
@@ -388,5 +441,5 @@ Eigen::VectorXd convertCartesianToSphericalState( const Eigen::VectorXd& cartesi
 }
 
 } // namespace coordinate_conversions
-} // namespace basic_mathematics
+
 } // namespace tudat

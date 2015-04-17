@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -43,7 +43,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
@@ -146,28 +146,28 @@ BOOST_AUTO_TEST_CASE( testComputationOfThirdBodyPerturbation )
     {
 
         // Create central gravity acceleration objects.
-        tudat::gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
-                boost::make_shared< tudat::gravitation::CentralGravitationalAccelerationModel3d >(
+        gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
+                boost::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
                     boost::lambda::constant( positionOfBodyForTestCase[ 0 ] ),
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
                     boost::lambda::constant( positionOfBodyForTestCase[ i ] ) );
 
-        tudat::gravitation::CentralGravitationalAccelerationModel3dPointer
+        gravitation::CentralGravitationalAccelerationModel3dPointer
                 centralBodyAccelerationModel =
-                boost::make_shared< tudat::gravitation::CentralGravitationalAccelerationModel3d >(
+                boost::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
                     boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
                     boost::lambda::constant( positionOfBodyForTestCase[ i ] ) );
 
         // Create third body gravity acceleration objects.
         boost::shared_ptr<
-                tudat::gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
-                    boost::make_shared< tudat::gravitation::ThirdBodyCentralGravityAcceleration >(
+                gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
+                    boost::make_shared< gravitation::ThirdBodyCentralGravityAcceleration >(
                         directAccelerationModel, centralBodyAccelerationModel );
         thirdBodyAcceleration->updateMembers( );
 
         // Compute perturbational acceleration for parameters given.
-        acceleration = tudat::gravitation::computeThirdBodyPerturbingAcceleration(
+        acceleration = gravitation::computeThirdBodyPerturbingAcceleration(
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
                     positionOfBodyForTestCase[ i ],
                     positionOfBodyForTestCase[ 0 ] );
@@ -177,11 +177,11 @@ BOOST_AUTO_TEST_CASE( testComputationOfThirdBodyPerturbation )
                                            tolerance );
 
         // Compute from manual sum.
-        acceleration = tudat::gravitation::computeGravitationalAcceleration(
+        acceleration = gravitation::computeGravitationalAcceleration(
                     positionOfBodyForTestCase[ 0 ],
                 gravitationalParameterOfPerturbingBodyForTestCase[ i ] ,
                 positionOfBodyForTestCase[ i ] ) -
-                tudat::gravitation::computeGravitationalAcceleration(
+                gravitation::computeGravitationalAcceleration(
                     Eigen::Vector3d::Zero( ),
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
                     positionOfBodyForTestCase[ i ] );
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
 
     // Compute the acceleration.
     Eigen::Vector3d realisticComputedAcceleration =
-            tudat::gravitation::computeThirdBodyPerturbingAcceleration(
+            gravitation::computeThirdBodyPerturbingAcceleration(
                 realisticGravitationalParameterOfPerturbingBody,
                 realisticPerturberPosition,
                 realisticTestPosition );
@@ -233,11 +233,11 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
                                        tolerance );
 
     // Compute from manual sum.
-    realisticComputedAcceleration = tudat::gravitation::computeGravitationalAcceleration(
+    realisticComputedAcceleration = gravitation::computeGravitationalAcceleration(
                 realisticTestPosition,
                 realisticGravitationalParameterOfPerturbingBody,
                 realisticPerturberPosition ) -
-            tudat::gravitation::computeGravitationalAcceleration(
+            gravitation::computeGravitationalAcceleration(
                 Eigen::Vector3d::Zero( ),
                 realisticGravitationalParameterOfPerturbingBody,
                 realisticPerturberPosition );
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
 
     // Compute the acceleration.
     realisticComputedAcceleration =
-            tudat::gravitation::computeThirdBodyPerturbingAcceleration(
+            gravitation::computeThirdBodyPerturbingAcceleration(
                 realisticGravitationalParameterOfPerturbingBody,
                 realisticPerturberPosition,
                 realisticTestPosition,
@@ -267,11 +267,11 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
                                        tolerance );
 
     // Compute from manual sum.
-    realisticComputedAcceleration = tudat::gravitation::computeGravitationalAcceleration(
+    realisticComputedAcceleration = gravitation::computeGravitationalAcceleration(
                 realisticTestPosition,
                 realisticGravitationalParameterOfPerturbingBody,
                 realisticPerturberPosition ) -
-            tudat::gravitation::computeGravitationalAcceleration(
+            gravitation::computeGravitationalAcceleration(
                 barycentricEarthPosition,
                 realisticGravitationalParameterOfPerturbingBody,
                 realisticPerturberPosition );
@@ -282,23 +282,23 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
                                        tolerance );
 
     // Create central gravity acceleration objects.
-    tudat::gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
-            boost::make_shared< tudat::gravitation::CentralGravitationalAccelerationModel3d >(
+    gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
+            boost::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
                 boost::lambda::constant( realisticTestPosition ),
                 realisticGravitationalParameterOfPerturbingBody,
                 boost::lambda::constant( realisticPerturberPosition ) );
 
-    tudat::gravitation::CentralGravitationalAccelerationModel3dPointer
+    gravitation::CentralGravitationalAccelerationModel3dPointer
             centralBodyAccelerationModel =
-            boost::make_shared< tudat::gravitation::CentralGravitationalAccelerationModel3d >(
+            boost::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
                 boost::lambda::constant( barycentricEarthPosition ),
                 realisticGravitationalParameterOfPerturbingBody,
                 boost::lambda::constant( realisticPerturberPosition ) );
 
     // Create third body gravity acceleration objects.
     boost::shared_ptr<
-            tudat::gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
-                boost::make_shared< tudat::gravitation::ThirdBodyCentralGravityAcceleration >(
+            gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
+                boost::make_shared< gravitation::ThirdBodyCentralGravityAcceleration >(
                     directAccelerationModel, centralBodyAccelerationModel );
     thirdBodyAcceleration->updateMembers( );
 

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2013, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -43,7 +43,7 @@
 
 #include <cmath>
 #include <Eigen/Core>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
 {

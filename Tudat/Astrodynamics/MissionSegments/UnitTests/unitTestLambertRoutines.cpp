@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -66,9 +66,9 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
 
@@ -76,6 +76,8 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+using namespace unit_conversions;
 
 //! Test the Lambert targeting routines.
 BOOST_AUTO_TEST_SUITE( test_lambert_routines )
@@ -96,7 +98,7 @@ BOOST_AUTO_TEST_CASE( testIzzoTimeOfFlightComputation )
 
     // Check that returned value is equal to expected value.
     BOOST_CHECK_CLOSE_FRACTION( expectedTimeOfFlight,
-                                tudat::mission_segments::computeTimeOfFlightIzzo(
+                                mission_segments::computeTimeOfFlightIzzo(
                                     testXParameter, testSemiPerimeter, testChord, testIsLongway,
                                     testSemiMajorAxisOfTheMinimumEnergyEllipse ),
                                 tolerance );
@@ -131,7 +133,7 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoElliptical )
     Eigen::Vector3d testInertialVelocityAtDeparture, testInertialVelocityAtArrival;
 
     // Solve Lambert problem.
-    tudat::mission_segments::solveLambertProblemIzzo( testCartesianPositionAtDeparture,
+    mission_segments::solveLambertProblemIzzo( testCartesianPositionAtDeparture,
                                                       testCartesianPositionAtArrival,
                                                       testTimeOfFlight,
                                                       testGravitationalParameter,
@@ -163,7 +165,7 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoHyperbolic )
 
     // Time conversions.
     const double testTimeOfFlightInDaysHyperbola = 100.0;
-    const double testTimeOfFlightHyperbola = tudat::unit_conversions::convertJulianDaysToSeconds(
+    const double testTimeOfFlightHyperbola = convertJulianDaysToSeconds(
             testTimeOfFlightInDaysHyperbola );
 
     // Set central body graviational parameter.
@@ -171,15 +173,15 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoHyperbolic )
 
     // Set position at departure and arrival.
     const Eigen::Vector3d testCartesianPositionAtDeparture(
-                tudat::unit_conversions::convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
+                convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
             testCartesianPositionAtArrival(
-                0.0, tudat::unit_conversions::convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
+                0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
 
     // Declare velocity vectors.
     Eigen::Vector3d testInertialVelocityAtDeparture, testInertialVelocityAtArrival;
 
     // Solve Lambert problem.
-    tudat::mission_segments::solveLambertProblemIzzo( testCartesianPositionAtDeparture,
+    mission_segments::solveLambertProblemIzzo( testCartesianPositionAtDeparture,
                                                       testCartesianPositionAtArrival,
                                                       testTimeOfFlightHyperbola,
                                                       testGravitationalParameter,
@@ -214,7 +216,7 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoRetrograde )
             testPositionAtArrival( 202564770723.92966, -42405023055.01754, -5861543784.413235);
 
     // Set time-of-flight, coherent with initial and final positions.
-    const double testTimeOfFlight = unit_conversions::convertJulianDaysToSeconds( 300.0 );
+    const double testTimeOfFlight = convertJulianDaysToSeconds( 300.0 );
 
     // Set central body (the Sun) gravitational parameter. Value taken from keptoolbox.
     const double testSolarGravitationalParameter = 1.32712428e20;
@@ -245,17 +247,17 @@ BOOST_AUTO_TEST_CASE( testSolveLambertProblemIzzoNearPi )
     const double tolerance = 1.0e-9;
 
     // Set time-of-flight, coherent with initial and final positions.
-    const double testTimeOfFlight = unit_conversions::convertJulianDaysToSeconds( 300.0 );
+    const double testTimeOfFlight = convertJulianDaysToSeconds( 300.0 );
 
     // Set central body (the Sun) gravitational parameter. Value taken from keptoolbox.
     const double testSolarGravitationalParameter = 1.32712428e20;
 
     // Set Keplerian elements at departure and arrival.
     Eigen::VectorXd keplerianStateAtDeparture( 6 ), keplerianStateAtArrival( 6 );
-    keplerianStateAtDeparture << unit_conversions::convertAstronomicalUnitsToMeters( 1.0 ),
+    keplerianStateAtDeparture << convertAstronomicalUnitsToMeters( 1.0 ),
                                     0.0, 0.0, 0.0, 0.0, 0.0;
-    keplerianStateAtArrival << unit_conversions::convertAstronomicalUnitsToMeters( 1.5 ),
-            0.0, 0.0, 0.0, 0.0, unit_conversions::convertDegreesToRadians( 179.999 );
+    keplerianStateAtArrival << convertAstronomicalUnitsToMeters( 1.5 ),
+            0.0, 0.0, 0.0, 0.0, convertDegreesToRadians( 179.999 );
 
     //  Convert to Cartesian elements.
     const Eigen::VectorXd cartesianStateAtDeparture =
@@ -306,7 +308,7 @@ BOOST_AUTO_TEST_CASE( testLambertFunctionPositiveGooding )
     const double expectedLambertFunctionPositiveValue = -0.4004214;
 
     // Create LambertFunctionsGooding object.
-    tudat::mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
+    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
                 testQParameter, testNormalizedTimeOfFlight);
 
     // Check that the result is equal to the expected value.
@@ -330,7 +332,7 @@ BOOST_AUTO_TEST_CASE( testLambertFunctionNegativeGooding )
     const double expectedLambertFunctionNegativeValue = -1.1439925;
 
     // Create LambertFunctionsGooding object.
-    tudat::mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
+    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
                 testQParameter, testNormalizedTimeOfFlight);
 
     // Check that the result is equal to the expected value.
@@ -356,7 +358,7 @@ BOOST_AUTO_TEST_CASE( testLambertFunctionGooding )
         const double expectedLambertFunctionValue = -0.4004214;
 
         // Create LambertFunctionsGooding object.
-        tudat::mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
+        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
                     testQParameter, testNormalizedTimeOfFlight );
 
         // Check that the result is equal to the expected value.
@@ -376,7 +378,7 @@ BOOST_AUTO_TEST_CASE( testLambertFunctionGooding )
         const double expectedLambertFunctionValue = -1.1439925;
 
         // Create LambertFunctionsGooding object.
-        tudat::mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
+        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
                     testQParameter, testNormalizedTimeOfFlight );
 
         // Check that the result is equal to the expected value.
@@ -401,7 +403,7 @@ BOOST_AUTO_TEST_CASE( testLambertFirstDerivativeFunctionPositiveGooding )
     const double expectedLambertFirstDerivativeFunctionPositiveValue = 0.7261451;
 
     // Create LambertFunctionsGooding object.
-    tudat::mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
+    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
                 testQParameter, testNormalizedTimeOfFlight);
 
     // Check that the result is equal to the expected value.
@@ -425,7 +427,7 @@ BOOST_AUTO_TEST_CASE( testLambertFirstDerivativeFunctionNegativeGooding )
     const double expectedLambertFirstDerivativeFunctionNegativeValue = 1.72419;
 
     // Create LambertFunctionsGooding object.
-    tudat::mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
+    mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
                 testQParameter, testNormalizedTimeOfFlight);
 
     // Check that the result is equal to the expected value.
@@ -451,7 +453,7 @@ BOOST_AUTO_TEST_CASE( testLambertFirstDerivativeFunctionGooding )
         const double expectedLambertFirstDerivativeFunctionValue = 0.7261451;
 
         // Create LambertFunctionsGooding object.
-        tudat::mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
+        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
                     testQParameter, testNormalizedTimeOfFlight);
 
         // Check that the result is equal to the expected value.
@@ -471,7 +473,7 @@ BOOST_AUTO_TEST_CASE( testLambertFirstDerivativeFunctionGooding )
         const double expectedLambertFirstDerivativeFunctionValue = 1.72419;
 
         // Create LambertFunctionsGooding object.
-        tudat::mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
+        mission_segments::LambertFunctionsGooding testLambertFunctionsGooding(
                     testQParameter, testNormalizedTimeOfFlight);
 
         // Check that the result is equal to the expected value.
@@ -493,7 +495,7 @@ BOOST_AUTO_TEST_CASE( testsolveLambertProblemGoodingHyperbolic )
 
     // Time conversions.
     const double testTimeOfFlightInDaysHyperbola = 100.0;
-    const double testTimeOfFlightHyperbola = tudat::unit_conversions::convertJulianDaysToSeconds(
+    const double testTimeOfFlightHyperbola = convertJulianDaysToSeconds(
             testTimeOfFlightInDaysHyperbola );
 
     // Set central body graviational parameter.
@@ -501,15 +503,15 @@ BOOST_AUTO_TEST_CASE( testsolveLambertProblemGoodingHyperbolic )
 
     // Set position at departure and arrival.
     const Eigen::Vector3d testCartesianPositionAtDeparture(
-                tudat::unit_conversions::convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
+                convertAstronomicalUnitsToMeters( 0.02 ), 0.0, 0.0 ),
             testCartesianPositionAtArrival(
-                0.0, tudat::unit_conversions::convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
+                0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
 
     // Declare velocity vectors.
     Eigen::Vector3d testInertialVelocityAtDeparture, testInertialVelocityAtArrival;
 
     // Solve Lambert problem.
-    tudat::mission_segments::solveLambertProblemGooding( testCartesianPositionAtDeparture,
+    mission_segments::solveLambertProblemGooding( testCartesianPositionAtDeparture,
                                                         testCartesianPositionAtArrival,
                                                         testTimeOfFlightHyperbola,
                                                         testGravitationalParameter,
@@ -558,7 +560,7 @@ BOOST_AUTO_TEST_CASE( testsolveLambertProblemGoodingElliptical )
     Eigen::Vector3d testInertialVelocityAtDeparture, testInertialVelocityAtArrival;
 
     // Solve Lambert problem.
-    tudat::mission_segments::solveLambertProblemGooding( testCartesianPositionAtDeparture,
+    mission_segments::solveLambertProblemGooding( testCartesianPositionAtDeparture,
                                                          testCartesianPositionAtArrival,
                                                          testTimeOfFlight,
                                                          testGravitationalParameter,

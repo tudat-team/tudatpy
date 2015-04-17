@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
 {
     // Using declaration.
     using namespace ephemerides;
-    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
     namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.

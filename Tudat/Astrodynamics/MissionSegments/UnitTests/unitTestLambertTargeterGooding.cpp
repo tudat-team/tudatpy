@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -69,7 +69,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeterGooding.h"
 
@@ -77,6 +77,8 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+using namespace unit_conversions;
 
 //! Test the Gooding Lambert targeting algorithm code.
 BOOST_AUTO_TEST_SUITE( test_lambert_targeter_gooding )
@@ -100,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
 
     // Time conversions.
     const double timeOfFlightInDaysHyperbola = 100.0;
-    const double timeOfFlightHyperbola = unit_conversions::convertJulianDaysToSeconds(
+    const double timeOfFlightHyperbola = convertJulianDaysToSeconds(
             timeOfFlightInDaysHyperbola );
 
     // Central body gravitational parameter.
@@ -108,13 +110,12 @@ BOOST_AUTO_TEST_CASE( testHyperbolicCase )
 
     // The starting point is twice as far as L1 and L2, which is not really
     // realistic, but it is not about the case, but about the verification.
-    using tudat::unit_conversions::convertAstronomicalUnitsToMeters;
     const Eigen::Vector3d positionAtDepartureHyperbola( convertAstronomicalUnitsToMeters( 0.02 ),
                                                         0.0, 0.0 ),
             positionAtArrivalHyperbola( 0.0, convertAstronomicalUnitsToMeters( -0.03 ), 0.0 );
 
     // Hyperbolic orbit case.
-    tudat::mission_segments::LambertTargeterGooding lambertTargeterHyperbola(
+    mission_segments::LambertTargeterGooding lambertTargeterHyperbola(
                 positionAtDepartureHyperbola, positionAtArrivalHyperbola, timeOfFlightHyperbola,
                 earthGravitationalParameter );
 
@@ -199,7 +200,7 @@ BOOST_AUTO_TEST_CASE( testEllipticalCase )
             positionAtArrivalEllipse( 2.0 * distanceUnit, 2.0 * sqrt( 3.0 ) * distanceUnit, 0.0 );
 
     // Elliptical orbit case.
-    tudat::mission_segments::LambertTargeterGooding lambertTargeterEllipse(
+    mission_segments::LambertTargeterGooding lambertTargeterEllipse(
                 positionAtDepartureEllipse, positionAtArrivalEllipse, timeOfFlightEllipse,
                 earthGravitationalParameter );
 

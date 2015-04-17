@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2014, Delft University of Technology
+ #    Copyright (c) 2010-2015, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -57,12 +57,12 @@ setup_tudat_library_target(tudat_state_derivative_models "${SRCROOT}${STATEDERIV
 # Add unit tests.
 add_executable(test_CartesianStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/UnitTests/unitTestCartesianStateDerivativeModel.cpp")
 setup_custom_test_program(test_CartesianStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}")
-target_link_libraries(test_CartesianStateDerivativeModel tudat_state_derivative_models ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_CartesianStateDerivativeModel tudat_state_derivative_models ${Boost_LIBRARIES})
 
 add_executable(test_CompositeStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/UnitTests/unitTestCompositeStateDerivativeModel.cpp")
 setup_custom_test_program(test_CompositeStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}")
-target_link_libraries(test_CompositeStateDerivativeModel tudat_state_derivative_models ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_CompositeStateDerivativeModel tudat_state_derivative_models ${Boost_LIBRARIES})
 
 add_executable(test_OrbitalStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}/UnitTests/unitTestOrbitalStateDerivativeModel.cpp")
 setup_custom_test_program(test_OrbitalStateDerivativeModel "${SRCROOT}${STATEDERIVATIVEMODELSDIR}")
-target_link_libraries(test_OrbitalStateDerivativeModel tudat_state_derivative_models ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_OrbitalStateDerivativeModel tudat_state_derivative_models ${Boost_LIBRARIES})

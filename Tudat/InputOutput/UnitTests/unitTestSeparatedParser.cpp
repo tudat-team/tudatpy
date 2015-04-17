@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -45,7 +45,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 #include "Tudat/InputOutput/fieldType.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
@@ -59,7 +59,7 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_suite_separated_parser )
 
-using namespace tudat::input_output::parsed_data_vector_utilities;
+using namespace input_output::parsed_data_vector_utilities;
 
 //! Create a parser that will be used in all tests (see fixtures).
 struct test_separated_parser_fixture
@@ -69,17 +69,17 @@ public:
     //! Default constructor.
     test_separated_parser_fixture( )
         : parser( std::string( ", " ), 4,
-                  tudat::input_output::field_types::general::id,
-                  tudat::input_output::field_types::state::cartesianXCoordinate,
-                  tudat::input_output::field_types::state::cartesianYCoordinate,
-                  tudat::input_output::field_types::state::cartesianZCoordinate )
+                  input_output::field_types::general::id,
+                  input_output::field_types::state::cartesianXCoordinate,
+                  input_output::field_types::state::cartesianYCoordinate,
+                  input_output::field_types::state::cartesianZCoordinate )
     { }
 
     //! Default destructor.
     ~test_separated_parser_fixture( ) { }
 
     //! A separated parser.
-    tudat::input_output::SeparatedParser parser;
+    input_output::SeparatedParser parser;
 
 protected:
 
@@ -91,7 +91,7 @@ BOOST_FIXTURE_TEST_SUITE( test_suite_separated_parser, test_separated_parser_fix
 
 BOOST_AUTO_TEST_CASE( testSeparatedParserSingleLine )
 {
-    using namespace tudat::input_output::field_types;
+    using namespace input_output::field_types;
 
     // Create test data.
     std::string csvText( " 12 , 1, 2, 3,2" );
@@ -124,8 +124,8 @@ BOOST_AUTO_TEST_CASE( testSeparatedParserSingleLine )
 
 BOOST_AUTO_TEST_CASE( testSeparatedParserMultiLine )
 {
-    using namespace tudat::input_output::parsed_data_vector_utilities;
-    using namespace tudat::input_output::field_types;
+    using namespace input_output::parsed_data_vector_utilities;
+    using namespace input_output::field_types;
 
     // Create test data.
     std::string csvText( " 12 , 1, 2, 3\n24, 5, 6, 7, 8\na, b c, d, e" );
@@ -204,11 +204,11 @@ BOOST_AUTO_TEST_CASE( testSeparatedParserMultiLine )
 
 BOOST_AUTO_TEST_CASE( testSeparatedParserWhitespace )
 {
-    using namespace tudat::input_output::parsed_data_vector_utilities;
-    using namespace tudat::input_output::field_types;
+    using namespace input_output::parsed_data_vector_utilities;
+    using namespace input_output::field_types;
 
     // Create GTOC2 white space parser.
-    tudat::input_output::SeparatedParser
+    input_output::SeparatedParser
             testWhiteSpaceParser( " ",
                                   8,
                                   general::id,
@@ -258,11 +258,11 @@ BOOST_AUTO_TEST_CASE( testSeparatedParserWhitespace )
 
 BOOST_AUTO_TEST_CASE( testSeparatedParserFieldTransform )
 {
-    using namespace tudat::input_output;
-    using namespace tudat::input_output;
+    using namespace input_output;
+    using namespace unit_conversions;
 
     // Create GTOC2 white space parser.
-    tudat::input_output::SeparatedParser
+    input_output::SeparatedParser
             testWhiteSpaceParser( " ",
                                   8,
                                   field_types::general::id,
@@ -283,23 +283,23 @@ BOOST_AUTO_TEST_CASE( testSeparatedParserFieldTransform )
             boost::assign::map_list_of
             ( field_types::state::semiMajorAxis, boost::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
-                      tudat::unit_conversions::convertAstronomicalUnitsToMeters< double >( 1.0 ),
+                      convertAstronomicalUnitsToMeters< double >( 1.0 ),
                       0.0 ) ) )
             ( field_types::state::inclination, boost::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
-                      tudat::unit_conversions::convertDegreesToRadians< double >( 1.0 ),
+                      convertDegreesToRadians< double >( 1.0 ),
                       0.0 ) ) )
             ( field_types::state::longitudeOfAscendingNode, boost::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
-                      tudat::unit_conversions::convertDegreesToRadians< double >( 1.0 ),
+                      convertDegreesToRadians< double >( 1.0 ),
                       0.0 ) ) )
             ( field_types::state::argumentOfPeriapsis, boost::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
-                      tudat::unit_conversions::convertDegreesToRadians< double >( 1.0 ),
+                      convertDegreesToRadians< double >( 1.0 ),
                       0.0 ) ) )
             ( field_types::state::meanAnomaly, boost::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
-                      tudat::unit_conversions::convertDegreesToRadians< double >( 1.0 ),
+                      convertDegreesToRadians< double >( 1.0 ),
                       0.0 ) ) )
             ( field_types::time::epoch, boost::shared_ptr< FieldTransform >(
                   new LinearFieldTransform( 1.0, 2400000.5 ) ) );

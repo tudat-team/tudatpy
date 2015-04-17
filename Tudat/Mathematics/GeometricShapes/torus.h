@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -49,7 +49,7 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 
@@ -88,9 +88,9 @@ public:
      */
     Torus( const double majorRadius, const double minorRadius,
            const double minimumMajorCircumferentialAngle = 0.0,
-           const double maximumMajorCircumferentialAngle = 2.0 * basic_mathematics::mathematical_constants::PI,
+           const double maximumMajorCircumferentialAngle = 2.0 * mathematical_constants::PI,
            const double minimumMinorCircumferentialAngle = 0.0,
-           const double maximumMinorCircumferentialAngle = 2.0 * basic_mathematics::mathematical_constants::PI );
+           const double maximumMinorCircumferentialAngle = 2.0 * mathematical_constants::PI );
 
     //! Get surface point on torus.
     /*!

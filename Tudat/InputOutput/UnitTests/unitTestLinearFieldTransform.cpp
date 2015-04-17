@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_SUITE( test_Linear_Field_Transform )
 BOOST_AUTO_TEST_CASE( testLinearFieldTransform1 )
 {
     // Using declaration.
-    using namespace tudat::input_output;
+    using namespace input_output;
 
     // Set tolerance.
     const double tolerance = 1.0e-6;
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform1 )
 BOOST_AUTO_TEST_CASE( testLinearFieldTransform2 )
 {
     // Using declaration.
-    using namespace tudat::input_output;
+    using namespace input_output;
 
     // Set tolerance.
     const double tolerance = 1.0e-6;
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform2 )
 BOOST_AUTO_TEST_CASE( testLinearFieldTransform3 )
 {
     // Using declaration.
-    using namespace tudat::input_output;
+    using namespace input_output;
 
     // Set tolerance.
     const double tolerance = 1.0e-6;
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform3 )
 BOOST_AUTO_TEST_CASE( testLinearFieldTransform4 )
 {
     // Using declaration.
-    using namespace tudat::input_output;
+    using namespace input_output;
 
     // Set tolerance.
     const double tolerance = 1.0e-6;

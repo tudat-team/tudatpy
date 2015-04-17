@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -46,8 +46,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/InputOutput/matrixTextFileReader.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/missileDatcomData.h"
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_SUITE( test_missile_datcom_data )
 
 BOOST_AUTO_TEST_CASE( testMissileDatcomData )
 {
-    using namespace tudat::input_output;
+    using namespace input_output;
     using std::string;
 
     // Read and process data file.

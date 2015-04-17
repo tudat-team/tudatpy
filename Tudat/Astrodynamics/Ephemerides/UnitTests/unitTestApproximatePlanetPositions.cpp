@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -59,9 +59,9 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_SUITE( test_approximate_planet_positions )
 //! Test the orbital elements function against the orbital elements of Mars at JD 2455626.5.
 BOOST_AUTO_TEST_CASE( testOrbitalElements )
 {
-    using tudat::unit_conversions::convertDegreesToRadians;
-    using namespace tudat::ephemerides;
+    using unit_conversions::convertDegreesToRadians;
+    using namespace ephemerides;
 
     // Set tolerance.
     const double tolerance = 2.0e-2;
@@ -97,7 +97,8 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
 
     // Convert the expected Keplerian elements to Cartesian elements.
     basic_mathematics::Vector6d expectedEphemeris;
-    expectedEphemeris = orbital_element_conversions::convertKeplerianToCartesianElements(
+    expectedEphemeris = orbital_element_conversions::
+            convertKeplerianToCartesianElements(
             expectedKeplerianElements,
             marsEphemeris.getSunGravitationalParameter( ) );
 
@@ -115,7 +116,7 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
 //! Test the cicular coplanar function against orbital elements of Mars at JD 2455626.5.
 BOOST_AUTO_TEST_CASE( testCircularCoplannar )
 {
-    using namespace tudat::ephemerides;
+    using namespace ephemerides;
 
     ApproximatePlanetPositionsCircularCoplanar marsEphemeris(
                 ApproximatePlanetPositionsBase::mars );

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -41,9 +41,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 namespace tudat
 {
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
 
         // Set expected seconds since epoch result.
         double expectedSecondsSinceEpoch
-                = basic_astrodynamics::physical_constants::JULIAN_DAY / 2.0;
+                = physical_constants::JULIAN_DAY / 2.0;
 
         // Compute seconds since epoch given Julian day and reference epoch.
         const double computedSecondsSinceEpoch = convertJulianDayToSecondsSinceEpoch(
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
         const double computedJulianDay = convertCalendarDateToJulianDay ( 2000, 1, 1, 12, 0, 0 );
 
         //Known Julian day at this calendar date.
-        const double expectedJulianDay = tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000;
+        const double expectedJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000;
 
         // Test that computed result matches expected result.
         BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
         const double computedJulianDay = convertCalendarDateToJulianDay( 1858, 11, 17, 0, 0, 0 );
 
         //Known Julian day at this calendar date
-        const double expectedJulianDay = tudat::basic_astrodynamics::JULIAN_DAY_AT_0_MJD;
+        const double expectedJulianDay = basic_astrodynamics::JULIAN_DAY_AT_0_MJD;
 
         // Test that computed result matches expected result.
         BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,

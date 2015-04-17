@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -36,7 +36,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
@@ -85,7 +85,7 @@ std::map< double, basic_mathematics::Vector6d > getStateHistoryMap(
 BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
 {
     // Create ephemeris from which table is to be generated; used as input to tabulated ephemeris
-    using namespace tudat::ephemerides;
+    using namespace ephemerides;
     boost::shared_ptr< ApproximatePlanetPositions > marsNominalEphemeris =
             boost::make_shared< ApproximatePlanetPositions >(
                 ApproximatePlanetPositionsBase::mars );

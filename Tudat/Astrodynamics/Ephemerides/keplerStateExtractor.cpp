@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -44,7 +44,7 @@
 #include <boost/exception/all.hpp>
 #include <boost/make_shared.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
@@ -72,7 +72,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::semiMajorAxis ) )
     {
-        ( *keplerianElements )( basic_astrodynamics::semiMajorAxisIndex )
+        ( *keplerianElements )( orbital_element_conversions::semiMajorAxisIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::semiMajorAxis );
     }
@@ -87,7 +87,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::eccentricity ) )
     {
-        ( *keplerianElements )( basic_astrodynamics::eccentricityIndex )
+        ( *keplerianElements )( orbital_element_conversions::eccentricityIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::eccentricity );
     }
@@ -102,7 +102,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::inclination ) )
     {
-        ( *keplerianElements )( basic_astrodynamics::inclinationIndex )
+        ( *keplerianElements )( orbital_element_conversions::inclinationIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::inclination );
     }
@@ -117,7 +117,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::longitudeOfAscendingNode ) )
     {
-        ( *keplerianElements )( basic_astrodynamics::longitudeOfAscendingNodeIndex )
+        ( *keplerianElements )( orbital_element_conversions::longitudeOfAscendingNodeIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::longitudeOfAscendingNode );
     }
@@ -133,7 +133,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::argumentOfPeriapsis ) )
     {
-        ( *keplerianElements )( basic_astrodynamics::argumentOfPeriapsisIndex )
+        ( *keplerianElements )( orbital_element_conversions::argumentOfPeriapsisIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::argumentOfPeriapsis );
     }
@@ -149,7 +149,7 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
     if ( checkOptionalFieldType( dataLineMap, 1,
                                  input_output::field_types::state::trueAnomaly ) )
     {
-        ( *keplerianElements )( basic_astrodynamics::trueAnomalyIndex )
+        ( *keplerianElements )( orbital_element_conversions::trueAnomalyIndex )
                 = parsed_data_vector_utilities::getField< double >(
                     dataLineMap, input_output::field_types::state::trueAnomaly );
     }
@@ -164,19 +164,19 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
 
         // Retrieve eccentricity.
         const double eccentricity
-                = ( *keplerianElements )( basic_astrodynamics::eccentricityIndex );
+                = ( *keplerianElements )( orbital_element_conversions::eccentricityIndex );
 
         // Declare mean to eccentric anomaly conversion class.
-        basic_astrodynamics::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
+        orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
                 convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly );
 
         // Convert to eccentric anomaly.
         const double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly.convert( );
 
         // Convert eccentric anomaly to true anomaly and set the latter.
-        ( *keplerianElements )( basic_astrodynamics::trueAnomalyIndex )
-                = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                    eccentricAnomaly, eccentricity );
+        ( *keplerianElements )( orbital_element_conversions::trueAnomalyIndex )
+                = orbital_element_conversions::
+                convertEccentricAnomalyToTrueAnomaly( eccentricAnomaly, eccentricity );
     }
 
     else

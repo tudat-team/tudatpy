@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -49,7 +49,7 @@
  *
  */
 
-#include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 
@@ -76,8 +76,8 @@ double calculateSphericalHarmonicGravitationalPotential(
 
     // Determine body fixed spherical position of body udnergoing acceleration.
     Eigen::Vector3d sphericalPositon =
-            basic_mathematics::coordinate_conversions::convertCartesianToSpherical( bodyFixedPosition );
-    double latitude = mathematics::PI / 2.0 - sphericalPositon.y( );
+            coordinate_conversions::convertCartesianToSpherical( bodyFixedPosition );
+    double latitude = mathematical_constants::PI / 2.0 - sphericalPositon.y( );
     double longitude = sphericalPositon.z( );
 
     double potential = 0.0;

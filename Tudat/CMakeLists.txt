@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2014, Delft University of Technology
+ #    Copyright (c) 2010-2015, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -173,6 +173,7 @@ install(FILES ${CODEROOT}/LICENSE ${CODEROOT}/NOTICE
 
 # Set the main sub-directories.
 set(ASTRODYNAMICSDIR "/Astrodynamics")
+set(BASICSDIR "/Basics")
 set(EXTERNALDIR "/External")
 set(INPUTOUTPUTDIR "/InputOutput")
 set(MATHEMATICSDIR "/Mathematics")
@@ -226,17 +227,6 @@ if(Boost_VERSION EQUAL 105200)
   endif()
 endif()
 
-# Find Tudat Core library on local system.
-find_package(TudatCore 2 REQUIRED)
-
-# Include TudatCore directories.
-# Set CMake flag to suppress TudatCore warnings (platform-dependent solution).
-if(NOT APPLE)
-  include_directories(SYSTEM AFTER "${TUDAT_CORE_INCLUDE_DIR}")
-else( )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${TUDAT_CORE_INCLUDE_DIR}\"")
-endif( )
-
 # Add an option to toggle the generation of the API documentation.
 option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 
@@ -288,7 +278,7 @@ elseif(USE_CSPICE)
 endif()
 
 # Set sub-directories.
-set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR})
+set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR})
 
 # Add sub-directories to CMake process.
 foreach(CURRENT_SUBDIR ${SUBDIRS})

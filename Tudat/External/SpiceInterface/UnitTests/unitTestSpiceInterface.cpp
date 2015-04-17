@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -54,8 +54,8 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
@@ -67,16 +67,16 @@ namespace tudat
 namespace unit_tests
 {
 
-using tudat::basic_mathematics::Vector6d;
+using basic_mathematics::Vector6d;
 
 BOOST_AUTO_TEST_SUITE( test_spice_wrappers )
 
 // Test 1: Test Julian day <-> Ephemeris time conversions at J2000.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
 {
-    using namespace tudat::spice_interface;
-    using namespace tudat::input_output;
-    using namespace tudat::physical_constants;
+    using namespace spice_interface;
+    using namespace input_output;
+    using namespace physical_constants;
 
     // Check if spice kernels exist.
     if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "de421.bsp" ) )
@@ -136,9 +136,9 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
 // Test 2: Test retrieval position and state of bodies.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
 {
-    using namespace tudat::spice_interface;
-    using namespace tudat::input_output;
-    using namespace tudat::physical_constants;
+    using namespace spice_interface;
+    using namespace input_output;
+    using namespace physical_constants;
 
     // Create settings at which states are to be evaluated.
     const std::string abberationCorrections = "NONE";
@@ -180,9 +180,9 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
 // Test 3: Test retrieval of rotational state from Spice.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
 {
-    using namespace tudat::spice_interface;
-    using namespace tudat::input_output;
-    using namespace tudat::physical_constants;
+    using namespace spice_interface;
+    using namespace input_output;
+    using namespace physical_constants;
 
     // Create settings at which orientation is to be evaluated.
     const std::string observer = "J2000";
@@ -232,9 +232,9 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
 // Test 4: Test retrieval of body properties.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_4 )
 {
-    using namespace tudat::spice_interface;
-    using namespace tudat::input_output;
-    using namespace tudat::physical_constants;
+    using namespace spice_interface;
+    using namespace input_output;
+    using namespace physical_constants;
 
     // Retrieve Sun's gravitational parameter from Spice.
     double sunGravitationalParameterSpice = getBodyGravitationalParameter( "Sun" );
@@ -276,10 +276,10 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_4 )
 // Test 5: Test Spice Ephemeris class using difference combinations of aberration corrections.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
 {
-    using namespace tudat::spice_interface;
-    using namespace tudat::input_output;
-    using namespace tudat::physical_constants;
-    using namespace tudat::ephemerides;
+    using namespace spice_interface;
+    using namespace input_output;
+    using namespace physical_constants;
+    using namespace ephemerides;
 
     // Create settings at which states are to be evaluated.
     std::string abberationCorrections = "NONE";
@@ -290,8 +290,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
 
     SpiceEphemeris spiceEphemeris = SpiceEphemeris( target, observer, 0, 0, 0, referenceFrame );
 
-    Eigen::VectorXd directState = Eigen::VectorXd( 6 );
-    Eigen::VectorXd ephemerisState = Eigen::VectorXd( 6 );
+    basic_mathematics::Vector6d directState = basic_mathematics::Vector6d( );
+    basic_mathematics::Vector6d ephemerisState = basic_mathematics::Vector6d( );
 
     // Check calculated state with no aberration corrections.
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
@@ -380,9 +380,9 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
 // Test 6: Compare Spice data with Horizons data.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
 {
-    using namespace tudat::spice_interface;
-    using namespace tudat::input_output;
-    using namespace tudat::physical_constants;
+    using namespace spice_interface;
+    using namespace input_output;
+    using namespace physical_constants;
 
     // Create settings at which states are to be evaluated.
     const std::string abberationCorrections = "NONE";
@@ -416,8 +416,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
 // Test 7: Loading and clearing kernels.
 BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
 {
-    using namespace tudat::spice_interface;
-    using namespace tudat::input_output;
+    using namespace spice_interface;
+    using namespace input_output;
 
     // Initially clear all Spice kernels.
     clearSpiceKernels( );

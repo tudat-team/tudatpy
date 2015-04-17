@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -43,7 +43,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
-#include <TudatCore/Mathematics/BasicMathematics/coordinateConversions.h>
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/keplerStateExtractor.h"
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_Extract )
 {
     // Using declaration.
     using namespace ephemerides;
-    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
     namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_ExtractWithMeanAnomaly )
 {
     // Using declaration.
     using namespace ephemerides;
-    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
     namespace field_types = input_output::field_types;
 
     // Create parsed data line map pointer.

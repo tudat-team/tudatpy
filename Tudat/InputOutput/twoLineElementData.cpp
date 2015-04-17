@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -116,13 +116,13 @@ std::ostream& operator<<( std::ostream& stream,
     stream << twoLineElementData.lineNumberLine2 << " ";
     stream << twoLineElementData.objectIdentificationNumberLine2 << " ";
     stream << twoLineElementData.TLEKeplerianElements(
-                  basic_astrodynamics::inclinationIndex ) << " ";
+                  orbital_element_conversions::inclinationIndex ) << " ";
     stream << twoLineElementData.TLEKeplerianElements(
-                  basic_astrodynamics::longitudeOfAscendingNodeIndex ) << " ";
+                  orbital_element_conversions::longitudeOfAscendingNodeIndex ) << " ";
     stream << twoLineElementData.TLEKeplerianElements(
-                  basic_astrodynamics::eccentricityIndex ) << " ";
+                  orbital_element_conversions::eccentricityIndex ) << " ";
     stream << twoLineElementData.TLEKeplerianElements(
-                  basic_astrodynamics::argumentOfPeriapsisIndex ) << " ";
+                  orbital_element_conversions::argumentOfPeriapsisIndex ) << " ";
     stream << twoLineElementData.meanAnomaly << " ";
     stream << twoLineElementData.meanMotionInRevolutionsPerDay << " ";
     stream << twoLineElementData.revolutionNumber << " ";
@@ -131,7 +131,7 @@ std::ostream& operator<<( std::ostream& stream,
 
     stream << "Calculated values: " << endl;
     stream << "Semi-Major Axis = " << twoLineElementData.TLEKeplerianElements(
-                  basic_astrodynamics::semiMajorAxisIndex )
+                  orbital_element_conversions::semiMajorAxisIndex )
            << endl;
     stream << "Perigee = " << twoLineElementData.perigee << endl;
     stream << "Apogee = " << twoLineElementData.apogee << endl;

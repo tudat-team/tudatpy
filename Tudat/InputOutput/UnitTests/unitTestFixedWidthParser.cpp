@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -55,11 +55,11 @@ BOOST_AUTO_TEST_SUITE( test_fixedwidth_parser )
 //! Test if a single line is correctly parsed.
 BOOST_AUTO_TEST_CASE( testFixedWidthParserSingleLine )
 {
-    using namespace tudat::input_output::parsed_data_vector_utilities;
-    using namespace tudat::input_output::field_types;
+    using namespace input_output::parsed_data_vector_utilities;
+    using namespace input_output::field_types;
 
     // Create GTOC2 fixed width parser.
-    tudat::input_output::FixedWidthParser
+    input_output::FixedWidthParser
             testFixedWidthParser( 9,
                                   general::name,
                                   time::epoch,
@@ -112,11 +112,11 @@ BOOST_AUTO_TEST_CASE( testFixedWidthParserSingleLine )
 
 BOOST_AUTO_TEST_CASE( testFixedWidthParserMultiLineWithoutTrim )
 {
-    using namespace tudat::input_output::parsed_data_vector_utilities;
-    using namespace tudat::input_output::field_types;
+    using namespace input_output::parsed_data_vector_utilities;
+    using namespace input_output::field_types;
 
     // Create GTOC2AsteroidEphemerides fixed width parser.
-    tudat::input_output::FixedWidthParser
+    input_output::FixedWidthParser
         testFixedWidthParser( 8,
                               general::id,
                               state::semiMajorAxis,

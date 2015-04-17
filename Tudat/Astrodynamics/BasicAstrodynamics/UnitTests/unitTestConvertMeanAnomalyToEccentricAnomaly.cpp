@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -68,9 +68,9 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -79,6 +79,8 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+using namespace unit_conversions;
 
 //! Conversion test fixture.
 /*!
@@ -127,7 +129,7 @@ public:
                                                  const double initialGuess = TUDAT_NAN )
     {
         // Conversion object to test; mean anomaly to eccentric anomaly conversion.
-        basic_astrodynamics::orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
+        orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
                 meanToEccentricAnomaly( eccentricity, meanAnomaly, useDefaultInitialGuess,
                                         initialGuess );
 
@@ -158,7 +160,7 @@ void writeErrorsToFile( std::vector< double > eccentricities, std::vector< doubl
     // Make a string containing the output file name. This output file is tagged with the date and
     // time at which the code was executed. The default date format is: YYYYMMDDTHHMMSS, in which T
     // separates date and time.
-    const std::string outputFileName = tudat::input_output::getTudatRootPath( ) +
+    const std::string outputFileName = input_output::getTudatRootPath( ) +
                                        "Astrodynamics/BasicAstrodynamics/UnitTests/" +
                                        "ErrorReportConversionMeanToEccentricAnomaly" +
                                        testName + "RunAt" + boost::posix_time::to_iso_string( now )
@@ -226,10 +228,10 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_range )
 
     // Set test values for mean anomaly.
     const double arrayOfTestMeanAnomalies [4] = {
-        tudat::unit_conversions::convertDegreesToRadians( 60.0 ),
-        tudat::unit_conversions::convertDegreesToRadians( 90.0 ),
-        tudat::unit_conversions::convertDegreesToRadians( 120.0 ),
-        tudat::unit_conversions::convertDegreesToRadians( 220.0 ) };
+        convertDegreesToRadians( 60.0 ),
+        convertDegreesToRadians( 90.0 ),
+        convertDegreesToRadians( 120.0 ),
+        convertDegreesToRadians( 220.0 ) };
 
     // Set reference values for eccentric anomaly. These were obtained using GTOP.
     const double arrayOfReferenceEccentricAnomalies [4] = { 1.06178920406832,
@@ -290,20 +292,20 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic )
    const double arrayOfTestMeanAnomalies [ 17 ] = { 0.0,
                                                     1.0e-10,
                                                     0.5,
-                                                    basic_mathematics::mathematical_constants::PI / 2 - 1.0e-10,
-                                                    basic_mathematics::mathematical_constants::PI / 2,
-                                                    basic_mathematics::mathematical_constants::PI / 2 + 1.0e-10,
+                                                    mathematical_constants::PI / 2 - 1.0e-10,
+                                                    mathematical_constants::PI / 2,
+                                                    mathematical_constants::PI / 2 + 1.0e-10,
                                                     2.5,
-                                                    basic_mathematics::mathematical_constants::PI - 1.0e-10,
-                                                    basic_mathematics::mathematical_constants::PI,
-                                                    basic_mathematics::mathematical_constants::PI + 1.0e-10,
+                                                    mathematical_constants::PI - 1.0e-10,
+                                                    mathematical_constants::PI,
+                                                    mathematical_constants::PI + 1.0e-10,
                                                     4.0,
-                                                    3.0 / 2.0 * basic_mathematics::mathematical_constants::PI - 1.0e-10,
-                                                    3.0 / 2.0 * basic_mathematics::mathematical_constants::PI,
-                                                    3.0 / 2.0 * basic_mathematics::mathematical_constants::PI + 1.0e-10,
+                                                    3.0 / 2.0 * mathematical_constants::PI - 1.0e-10,
+                                                    3.0 / 2.0 * mathematical_constants::PI,
+                                                    3.0 / 2.0 * mathematical_constants::PI + 1.0e-10,
                                                     5.5,
-                                                    2.0 * basic_mathematics::mathematical_constants::PI - 1.0e-10,
-                                                    2.0 * basic_mathematics::mathematical_constants::PI };
+                                                    2.0 * mathematical_constants::PI - 1.0e-10,
+                                                    2.0 * mathematical_constants::PI };
 
     // Set the expected eccentric anomalies corresponding to the corresponding test mean anomaly
     // array. These values were obtained using the convertMeanAnomalyToEccentricAnomaly method,
@@ -368,7 +370,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic_ra
 
     // Instantiate random number generator.
     boost::mt19937 randomNumbergenerator( time( 0 ) );
-    boost::random::uniform_real_distribution< > distribution0To2Pi( 0.0, 2 * basic_mathematics::mathematical_constants::PI );
+    boost::random::uniform_real_distribution< > distribution0To2Pi( 0.0, 2 * mathematical_constants::PI );
     boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
             generateRandomNumber0To2Pi( randomNumbergenerator, distribution0To2Pi );
 
@@ -451,7 +453,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_random )
     // lower than the limit (1.0 - 1.0e-15, because this could invoke machine precision problems
     // with the sharp tolerance used: 1.0e-13 instead of 1.0e-9).
     boost::mt19937 randomNumbergenerator( time( 0 ) );
-    boost::random::uniform_real_distribution< > distribution0To2Pi( 0.0, 2 * basic_mathematics::mathematical_constants::PI );
+    boost::random::uniform_real_distribution< > distribution0To2Pi( 0.0, 2 * mathematical_constants::PI );
     boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
             generateRandomNumber0To2Pi( randomNumbergenerator, distribution0To2Pi );
     boost::random::uniform_real_distribution< > distribution0To1( 0.0, 1.0 - 1.0e-11 );
@@ -526,14 +528,14 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_specificInitialG
     const double testEccentricity = 0.78514;
 
     // Set test value for mean anomaly.
-    const double testMeanAnomaly = tudat::unit_conversions::convertDegreesToRadians( 120.0 );
+    const double testMeanAnomaly = convertDegreesToRadians( 120.0 );
 
     // Set reference value for eccentric anomaly;
     const double referenceEccentricAnomaly = 2.5392410896466027;
 
     // Specify initial guess.
     const bool useDefaultGuess = false;
-    const double initialGuess = basic_mathematics::mathematical_constants::PI;
+    const double initialGuess = mathematical_constants::PI;
 
     // Compute eccentric anomaly.
     const double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly(

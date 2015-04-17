@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -46,7 +46,7 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/ReferenceFrames/apparentAccelerationModel.h"
 
@@ -55,8 +55,8 @@ namespace tudat
 namespace unit_tests
 {
 
-using tudat::reference_frames::computeApparentAcceleration;
-using tudat::reference_frames::ApparentAccelerationModel;
+using reference_frames::computeApparentAcceleration;
+using reference_frames::ApparentAccelerationModel;
 
 BOOST_AUTO_TEST_SUITE( test_reference_frame_transformations )
 

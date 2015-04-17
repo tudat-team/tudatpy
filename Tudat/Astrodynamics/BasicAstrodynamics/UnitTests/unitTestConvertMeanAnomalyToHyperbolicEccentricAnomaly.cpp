@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -57,9 +57,9 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -68,6 +68,8 @@ namespace tudat
 {
 namespace unit_tests
 {
+
+using namespace orbital_element_conversions;
 
 //! Conversion test fixture.
 /*!
@@ -116,7 +118,7 @@ public:
                                                            const double initialGuess = TUDAT_NAN )
     {
         // Conversion object to test; mean anomaly to eccentric anomaly conversion.
-        basic_astrodynamics::orbital_element_conversions::
+        orbital_element_conversions::
                 ConvertMeanAnomalyToHyperbolicEccentricAnomaly  meanToHyperbolicEccentricAnomaly(
                     eccentricity, meanAnomaly, useDefaultInitialGuess, initialGuess );
 
@@ -147,7 +149,7 @@ void writeErrorsToFile( std::vector< double > eccentricities, std::vector< doubl
     // Make a string containing the output file name. This output file is tagged with the date and
     // time at which the code was executed. The default date format is: YYYYMMDDTHHMMSS, in which T
     // separates date and time.
-    const std::string outputFileName = tudat::input_output::getTudatRootPath( ) +
+    const std::string outputFileName = input_output::getTudatRootPath( ) +
                                        "Astrodynamics/BasicAstrodynamics/UnitTests/" +
                                        "ErrorReportConversionMeanToHyperbolicEccentricAnomaly" +
                                        testName + "RunAt" + boost::posix_time::to_iso_string( now )
@@ -322,7 +324,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
         }
 
         // Calculate the mean anomaly from this eccentric anomaly.
-        reverseCalculatedMeanAnomaly = orbital_element_conversions::
+        reverseCalculatedMeanAnomaly =
                 convertHyperbolicEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly,
                                                                 testEccentricity );
 
@@ -409,7 +411,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
         }
 
         // Calculate the mean anomaly from this eccentric anomaly.
-        reverseCalculatedMeanAnomaly = orbital_element_conversions::
+        reverseCalculatedMeanAnomaly =
                 convertHyperbolicEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly,
                                                                 testEccentricity );
 
@@ -497,7 +499,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
         }
 
         // Calculate the mean anomaly from this eccentric anomaly.
-        reverseCalculatedMeanAnomaly = orbital_element_conversions::
+        reverseCalculatedMeanAnomaly =
                 convertHyperbolicEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly,
                                                                 testEccentricity );
 

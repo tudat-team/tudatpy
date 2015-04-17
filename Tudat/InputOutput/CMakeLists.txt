@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2014, Delft University of Technology
+ #    Copyright (c) 2010-2015, Delft University of Technology
  #    All rights reserved.
  #
  #    Redistribution and use in source and binary forms, with or without modification, are
@@ -47,6 +47,8 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/streamFilters.cpp"
 )
 
 # Add header files.
@@ -69,6 +71,16 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/textParser.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/streamFilters.h"
+)
+
+# Add unit test files.
+set(INPUTOUTPUT_UNITTESTS
+  "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestBasicInputOutput.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMatrixTextFileReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestStreamFilters.cpp"
 )
 
 # Add static libraries.
@@ -76,50 +88,58 @@ add_library(tudat_input_output STATIC ${INPUTOUTPUT_SOURCES} ${INPUTOUTPUT_HEADE
 setup_tudat_library_target(tudat_input_output "${SRCROOT}${INPUTOUTPUTDIR}")
 
 # Add unit tests.
+add_executable(test_MatrixTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMatrixTextFileReader.cpp")
+setup_custom_test_program(test_MatrixTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_MatrixTextFileReader tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
+
+add_executable(test_StreamFilters "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestStreamFilters.cpp")
+setup_custom_test_program(test_StreamFilters "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_StreamFilters tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
+
 add_executable(test_TwoLineElementsTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestTwoLineElementsTextFileReader.cpp")
 setup_custom_test_program(test_TwoLineElementsTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_TwoLineElementsTextFileReader tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_TwoLineElementsTextFileReader tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestBasicInputOutput.cpp")
 setup_custom_test_program(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_BasicInputOutput tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_BasicInputOutput tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_ParsedDataVectorUtilities "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestParsedDataVectorUtilities.cpp")
 setup_custom_test_program(test_ParsedDataVectorUtilities "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_ParsedDataVectorUtilities tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_ParsedDataVectorUtilities tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_FieldValue "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestFieldValue.cpp")
 setup_custom_test_program(test_FieldValue "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_FieldValue tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_FieldValue tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_TextParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestTextParser.cpp")
 setup_custom_test_program(test_TextParser "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_TextParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_TextParser tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_MissileDatcomReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMissileDatcomReader.cpp")
 setup_custom_test_program(test_MissileDatcomReader "${SRCROOT}${INPUTDIR}")
-target_link_libraries(test_MissileDatcomReader tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_MissileDatcomReader tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_MissileDatcomData "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMissileDatcomData.cpp")
 setup_custom_test_program(test_MissileDatcomData "${SRCROOT}${INPUTDIR}")
-target_link_libraries(test_MissileDatcomData tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_MissileDatcomData tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_DictionaryInputSystem "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestDictionaryInputSystem.cpp")
 setup_custom_test_program(test_DictionaryInputSystem "${SRCROOT}${INPUTDIR}")
-target_link_libraries(test_DictionaryInputSystem tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_DictionaryInputSystem tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_Extractor "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestExtractor.cpp")
 setup_custom_test_program(test_Extractor "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_Extractor tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_Extractor tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_FixedWidthParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestFixedWidthParser.cpp")
 setup_custom_test_program(test_FixedWidthParser "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_FixedWidthParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_FixedWidthParser tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_SeparatedParser "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestSeparatedParser.cpp")
 setup_custom_test_program(test_SeparatedParser "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_SeparatedParser tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_SeparatedParser tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_LinearFieldTransform "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestLinearFieldTransform.cpp")
 setup_custom_test_program(test_LinearFieldTransform "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_LinearFieldTransform tudat_input_output ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_LinearFieldTransform tudat_input_output ${Boost_LIBRARIES})

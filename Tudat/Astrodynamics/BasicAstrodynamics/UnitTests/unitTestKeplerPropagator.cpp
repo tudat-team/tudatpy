@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -66,10 +66,10 @@
 
 #include <Eigen/Core>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -79,8 +79,10 @@ namespace tudat
 namespace unit_tests
 {
 
+using namespace orbital_element_conversions;
+
 //! Typedef for propagation history.
-typedef std::map < double, Eigen::VectorXd > PropagationHistory;
+typedef std::map < double, basic_mathematics::Vector6d > PropagationHistory;
 
 //! Get Earth gravitational parameter for benchmark data from (Melman, 2010).
 double getMelmanEarthGravitationalParameter( )
@@ -96,17 +98,17 @@ PropagationHistory getMelmanBenchmarkData( )
     PropagationHistory benchmarkPropagationHistory;
 
     // Populate benchmark propagation history.
-    Eigen::VectorXd stateInCartesianElements( 6 );
-    Eigen::VectorXd stateInKeplerianElements( 6 );
+    basic_mathematics::Vector6d stateInCartesianElements;
+    basic_mathematics::Vector6d stateInKeplerianElements;
 
     stateInCartesianElements << 6.75e6, 0.0, 0.0, 0.0, 8.0595973215e3, 0.0;
-    stateInKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
+    stateInKeplerianElements = convertCartesianToKeplerianElements(
                 stateInCartesianElements, getMelmanEarthGravitationalParameter( ) );
     benchmarkPropagationHistory[ 0.0 ] = stateInKeplerianElements;
 
     stateInCartesianElements << -6.1318272067e6, 5.1974105627e6, 0.0,
             -4.7375063953e3, -4.8565484865e3, 0.0;
-    stateInKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
+    stateInKeplerianElements = convertCartesianToKeplerianElements(
                 stateInCartesianElements, getMelmanEarthGravitationalParameter( ) );
     benchmarkPropagationHistory[ 86400.0 ] = stateInKeplerianElements;
 
@@ -121,7 +123,7 @@ PropagationHistory getODTBXBenchmarkData( )
     PropagationHistory benchmarkPropagationHistory;
 
     // Populate benchmark propagation history.
-    Eigen::VectorXd stateInKeplerianElements( 6 );
+    basic_mathematics::Vector6d stateInKeplerianElements;
 
     stateInKeplerianElements << 42165.3431351313e3, 0.26248354351331, 0.30281462522101,
             4.71463172847351, 4.85569272927819, 2.37248926702153;
@@ -167,34 +169,34 @@ PropagationHistory getGTOPBenchmarkData( )
     // not work with similar Keplerian orbital elements, the cartesian elements resulting from that
     // are converted to Keplerian elements first. These initial starting coordinates correspond to
     // a semi major axis of -7.24873e+010 meters and an eccentricity of 3.06933.
-    Eigen::VectorXd stateInCartesianElements( 6 ), stateInKeplerianElements( 6 );
+    basic_mathematics::Vector6d stateInCartesianElements, stateInKeplerianElements;
 
     stateInCartesianElements << 1.5e11, 0.0, 0.0, 0.0, 6.0e4, 0.0;
-    stateInKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
+    stateInKeplerianElements = convertCartesianToKeplerianElements(
                 stateInCartesianElements, getGTOPGravitationalParameter( ) );
     benchmarkPropagationHistory[ 0.0 ] = stateInKeplerianElements;
 
     stateInCartesianElements << 50369576778.98602, 453006898372.5074, 2.156946592732799e-005,
             -14654.13750690802, 46884.94068619227, 4.665334803219454e-012;
-    stateInKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
+    stateInKeplerianElements = convertCartesianToKeplerianElements(
                 stateInCartesianElements, getGTOPGravitationalParameter( ) );
     benchmarkPropagationHistory[ 8640000.0 ] = stateInKeplerianElements;
 
     stateInCartesianElements << -76810236076.38216, 842661848023.4473, 6.100268297443444e-005,
             -14683.57015580225, 43917.12010513522, 4.48721854707566e-012;
-    stateInKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
+    stateInKeplerianElements = convertCartesianToKeplerianElements(
                 stateInCartesianElements, getGTOPGravitationalParameter( ) );
     benchmarkPropagationHistory[ 8640000.0 * 2.0 ] = stateInKeplerianElements;
 
     stateInCartesianElements << -203052258817.9893, 1216808019495.603, 9.937145023346651e-005,
             -14543.34378775917, 42828.66589049961, 4.403399939593385e-012;
-    stateInKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
+    stateInKeplerianElements = convertCartesianToKeplerianElements(
                 stateInCartesianElements, getGTOPGravitationalParameter( ) );
     benchmarkPropagationHistory[ 8640000.0 * 3.0 ] = stateInKeplerianElements;
 
     stateInCartesianElements << -328225472457.8796, 1584186440047.591, 0.0001371949389119038,
             -14437.813524927732, 42264.20425643964, 4.355914471377053e-012;
-    stateInKeplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
+    stateInKeplerianElements = convertCartesianToKeplerianElements(
                 stateInCartesianElements, getGTOPGravitationalParameter( ) );
     benchmarkPropagationHistory[ 8640000.0 * 4.0 ] = stateInKeplerianElements;
 
@@ -212,8 +214,8 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_Melman )
     PropagationHistory benchmarkKeplerPropagationHistory = getMelmanBenchmarkData( );
 
     // Propagate to final state in Keplerian elements.
-    Eigen::VectorXd computedFinalStateInKeplerianElements
-            = basic_astrodynamics::orbital_element_conversions::propagateKeplerOrbit(
+    basic_mathematics::Vector6d computedFinalStateInKeplerianElements
+            = propagateKeplerOrbit(
                 benchmarkKeplerPropagationHistory.begin( )->second,
                 benchmarkKeplerPropagationHistory.rbegin( )->first -
                 benchmarkKeplerPropagationHistory.begin( )->first,
@@ -222,8 +224,8 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_Melman )
     // Check that computed results match expected results.
     BOOST_CHECK_CLOSE_FRACTION(
                 benchmarkKeplerPropagationHistory.rbegin( )->second( 5 ),
-                mathematics::computeModulo( computedFinalStateInKeplerianElements( 5 ),
-                                            2.0 * basic_mathematics::mathematical_constants::PI ), 1.0e-8 );
+                basic_mathematics::computeModulo( computedFinalStateInKeplerianElements( 5 ),
+                                            2.0 * mathematical_constants::PI ), 1.0e-8 );
 }
 
 //! Test 2: Comparison of kepprop2b() test output from (GSFC, 2012) using modulo option.
@@ -245,14 +247,14 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_kepprop2b_modulo )
     for ( unsigned int i = 1; i < expectedPropagationHistory.size( ); i++ )
     {
         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]
-                = basic_astrodynamics::orbital_element_conversions::propagateKeplerOrbit(
+                = propagateKeplerOrbit(
                     computedPropagationHistory[ static_cast< double >( i - 1 ) * timeStep ],
                     timeStep, earthGravitationalParameter  );
 
         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
-                = mathematics::computeModulo(
+                = basic_mathematics::computeModulo(
                     computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                    2.0 * basic_mathematics::mathematical_constants::PI );
+                    2.0 * mathematical_constants::PI );
 
         // Check that computed results match expected results.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -281,14 +283,14 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_kepprop2b_backwards )
     for ( int i = expectedPropagationHistory.size( ) - 2; i >= 0; i-- )
     {
         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]
-                = basic_astrodynamics::orbital_element_conversions::propagateKeplerOrbit(
+                = propagateKeplerOrbit(
                     computedPropagationHistory[ static_cast< double >( i + 1 ) * timeStep ],
                     -timeStep, earthGravitationalParameter );
 
         computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 )
-                = mathematics::computeModulo(
+                = basic_mathematics::computeModulo(
                     computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
-                    2.0 * basic_mathematics::mathematical_constants::PI );
+                    2.0 * mathematical_constants::PI );
 
         // Check that computed results match expected results.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -315,7 +317,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_hyperbolic_GTOP )
     {
         // Compute next entry.
         computedPropagationHistory[ static_cast< double >( i ) * timeStep ] =
-                basic_astrodynamics::orbital_element_conversions::propagateKeplerOrbit(
+                propagateKeplerOrbit(
                     computedPropagationHistory[ static_cast< double >( i - 1 ) * timeStep ],
                     timeStep, getGTOPGravitationalParameter( ) );
 
@@ -340,16 +342,16 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_FunctionFailingOnOldModuloFunctio
     const double gravitationalParameter = 1.32712428e20;
 
     // Set initial Keplerian elements.
-    Eigen::VectorXd keplerElements( 6 );
+    basic_mathematics::Vector6d keplerElements;
     keplerElements << 56618890355.593132, 0.99961601437304082, 1.0238269559089248,
             3.1526292818328812, 1.5807574453453865, 3.1478950321924795;
 
     // Propagate Keplerian elements.
-    keplerElements = basic_astrodynamics::orbital_element_conversions::propagateKeplerOrbit(
+    keplerElements = propagateKeplerOrbit(
                 keplerElements, propagationTime, gravitationalParameter );
 
     // Check that computed results match expected results.
-    BOOST_CHECK_CLOSE_FRACTION( keplerElements( orbital_element_conversions::trueAnomalyIndex ),
+    BOOST_CHECK_CLOSE_FRACTION( keplerElements( trueAnomalyIndex ),
                                 expectedTrueAnomaly,
                                 1.0e-15 );
 }

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -59,15 +59,14 @@
 
 #include <boost/exception/all.hpp>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
 
 namespace tudat
 {
-namespace basic_astrodynamics
-{
+
 namespace orbital_element_conversions
 {
 
@@ -174,5 +173,5 @@ double ConvertMeanAnomalyToHyperbolicEccentricAnomaly::convert( )
 }
 
 } // namespace orbital_element_conversions
-} // namespace basic_astrodynamics
+
 } // namespace tudat

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -75,8 +75,7 @@
 
 namespace tudat
 {
-namespace basic_astrodynamics
-{
+
 namespace orbital_element_conversions
 {
 
@@ -195,7 +194,7 @@ typedef boost::shared_ptr< ConvertMeanAnomalyToHyperbolicEccentricAnomaly >
 ConvertMeanAnomalyToHyperbolicEccentricAnomalyPointer;
 
 } // namespace orbital_element_conversions
-} // namespace basic_astrodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_CONVERT_MEAN_ANOMALY_TO_HYPERBOLIC_ECCENTRIC_ANOMALY_H

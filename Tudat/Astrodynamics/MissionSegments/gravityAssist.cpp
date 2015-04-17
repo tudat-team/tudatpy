@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -85,7 +85,7 @@
 
 #include <Eigen/Dense>
 
-#include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
@@ -121,7 +121,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
     const double absoluteOutgoingExcessVelocity = outgoingHyperbolicExcessVelocity.norm( );
 
     // Compute bending angle.
-    double bendingAngle = basic_mathematics::linear_algebra::computeAngleBetweenVectors(
+    double bendingAngle = linear_algebra::computeAngleBetweenVectors(
                             incomingHyperbolicExcessVelocity, outgoingHyperbolicExcessVelocity );
 
     // Compute maximum achievable bending angle.

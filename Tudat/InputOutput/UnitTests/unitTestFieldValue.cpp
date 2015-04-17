@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -49,10 +49,10 @@ namespace tudat
 namespace unit_tests
 {
 
-using namespace tudat::input_output;
+using namespace input_output;
 
 //! Test transform struct used to test FieldTransform.
-struct TestTransform : public tudat::input_output::FieldTransform
+struct TestTransform : public input_output::FieldTransform
 {
     static const boost::shared_ptr< std::string > result;
     boost::shared_ptr< std::string > transform( const std::string& input ) { return result; }

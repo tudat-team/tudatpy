@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -61,9 +61,9 @@
 #include <boost/exception/all.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Basics/testMacros.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h>
-#include <TudatCore/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h>
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
@@ -73,9 +73,9 @@ namespace tudat
 namespace unit_tests
 {
 
-using tudat::numerical_integrators::RungeKuttaCoefficients;
-using tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegrator;
-using tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
+using numerical_integrators::RungeKuttaCoefficients;
+using numerical_integrators::RungeKuttaVariableStepSizeIntegrator;
+using numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
 using numerical_integrator_test_functions::computeZeroStateDerivative;
 
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_variable_step_size_integrator )
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
 //! Test if the state derivative evaliations are properly returned.
 BOOST_AUTO_TEST_CASE( testStateDerivativeRetrievalFunction )
 {
-    using namespace tudat::numerical_integrators;
+    using namespace numerical_integrators;
     using namespace unit_tests::numerical_integrator_test_functions;
 
     // This test is based on the Runge-Kutta-Fehlberg 4(5) coefficient set, hence the test does not
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE( testStateDerivativeRetrievalFunction )
 //! Test if integtrateTo function works for variable step size where last step is modified.
 BOOST_AUTO_TEST_CASE( testVariableStepIntegrateToFunction )
 {
-    using namespace tudat::numerical_integrators;
+    using namespace numerical_integrators;
     using namespace unit_tests::numerical_integrator_test_functions;
 
     // In this test, the integrateTo function is used with variable step size integrator, where the

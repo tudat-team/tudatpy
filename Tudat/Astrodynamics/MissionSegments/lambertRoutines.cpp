@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -87,8 +87,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <TudatCore/Mathematics/BasicMathematics/linearAlgebra.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
@@ -169,7 +169,7 @@ void solveLambertProblemIzzo( const Eigen::Vector3d& cartesianPositionAtDepartur
     double transferAngle = std::acos( cosineOfTransferAngle );
     if ( isLongway )
     {
-        transferAngle = 2.0 * tudat::basic_mathematics::mathematical_constants::PI - transferAngle;
+        transferAngle = 2.0 * mathematical_constants::PI - transferAngle;
     }
 
     // Lambda parameter.
@@ -440,12 +440,12 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
     Eigen::Vector3d planeNormalPosition =
             cartesianPositionAtDeparture.cross( cartesianPositionAtArrival ).normalized( );
 
-    double reducedLambertAngle = basic_mathematics::linear_algebra::computeAngleBetweenVectors(
+    double reducedLambertAngle = linear_algebra::computeAngleBetweenVectors(
                 cartesianPositionAtDeparture, cartesianPositionAtArrival );
 
     if ( planeNormalPosition.z( ) < 0.0 )
     {
-        reducedLambertAngle = 2.0 * basic_mathematics::mathematical_constants::PI
+        reducedLambertAngle = 2.0 * mathematical_constants::PI
                 - reducedLambertAngle;
     }
 
@@ -519,7 +519,7 @@ void solveLambertProblemGooding( const Eigen::Vector3d& cartesianPositionAtDepar
 
         // Formula (16) [3].
         const double W = x01 + 1.7 * std::sqrt(
-                    2.0 - phi / basic_mathematics::mathematical_constants::PI );
+                    2.0 - phi / mathematical_constants::PI );
 
         // Formula (17) [3].
         double x03;

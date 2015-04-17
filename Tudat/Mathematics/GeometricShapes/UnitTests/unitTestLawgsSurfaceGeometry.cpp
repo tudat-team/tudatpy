@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -48,7 +48,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_SUITE( test_Lawgs_Surface_Geometry )
 BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
 {
     using namespace tudat;
-    using namespace tudat::geometric_shapes;
+    using namespace geometric_shapes;
 
     // Create a full sphere as test geometry, with a radius of 2.0.
     const double sphereRadius = 2.0;
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
 
     // Retrieve the total surface area and check if it is sufficiently close
     // to the expected value.
-    using tudat::basic_mathematics::mathematical_constants::PI;
+    using mathematical_constants::PI;
     const double totalArea = lawgsSurface.getTotalArea( );
     BOOST_CHECK_SMALL( std::fabs( totalArea - 4.0 * PI
                                   * ( std::pow( sphereRadius, 2.0 ) ) ), 0.6 );

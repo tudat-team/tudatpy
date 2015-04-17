@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -34,9 +34,9 @@
  *
  */
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
-#include <TudatCore/Mathematics/BasicMathematics/basicMathematicsFunctions.h>
-#include <TudatCore/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 
@@ -60,7 +60,7 @@ Eigen::Quaterniond SimpleRotationalEphemeris::getRotationToTargetFrame(
     // Determine rotation angle compared to initial rotational state.
     double rotationAngle = basic_mathematics::computeModulo(
                 ( inputSecondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
-                2.0 * basic_mathematics::mathematical_constants::PI );
+                2.0 * mathematical_constants::PI );
 
     // Calculate and return rotation to base frame.
     return reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2014, Delft University of Technology
+/*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -39,8 +39,8 @@
 #include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <TudatCore/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <TudatCore/Basics/testMacros.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h"
 
@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_SUITE( test_geodetic_coordinate_conversions )
 
 BOOST_AUTO_TEST_CASE( testGeodeticCoordinateConversions )
 {
-    using namespace tudat::basic_astrodynamics::coordinate_conversions;
-    using namespace tudat::basic_astrodynamics::unit_conversions;
+    using namespace coordinate_conversions;
+    using namespace unit_conversions;
 
     // Expected Cartesian state, Montenbruck & Gill (2000) Exercise 5.3.
     const Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
