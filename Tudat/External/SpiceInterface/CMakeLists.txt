@@ -37,12 +37,14 @@
 #Set the source files.
 set(SPICEINTERFACE_SOURCES
   "${SRCROOT}${EXTERNALDIR}/SpiceInterface/spiceEphemeris.cpp"
+  "${SRCROOT}${EXTERNALDIR}/SpiceInterface/spiceRotationalEphemeris.cpp"
   "${SRCROOT}${EXTERNALDIR}/SpiceInterface/spiceInterface.cpp"
 )
 
 # Set the header files.
 set(SPICEINTERFACE_HEADERS
   "${SRCROOT}${EXTERNALDIR}/SpiceInterface/spiceEphemeris.h"
+  "${SRCROOT}${EXTERNALDIR}/SpiceInterface/spiceRotationalEphemeris.h"
   "${SRCROOT}${EXTERNALDIR}/SpiceInterface/spiceInterface.h"
 )
 

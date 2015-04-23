@@ -53,12 +53,13 @@
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Basics/testMacros.h"
-
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
@@ -211,8 +212,19 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
     rotationQuaternion = computeRotationQuaternionBetweenFrames(
                 observer, target, ephemerisTime );
 
+    // Create rotational ephemeris with Spice
+    boost::shared_ptr< ephemerides::SpiceRotationalEphemeris > spiceRotationalEphemeris =
+            boost::make_shared< ephemerides::SpiceRotationalEphemeris >(
+                observer, target );
+    Eigen::Quaterniond rotationQuaternionFromObject = spiceRotationalEphemeris->
+            getRotationToTargetFrame( ephemerisTime );
+    Eigen::Quaterniond inverseRotationQuaternionFromObject = spiceRotationalEphemeris->
+            getRotationToBaseFrame( ephemerisTime );
+
     // Convert result to Matrix3d for comparison.
     const Eigen::Matrix3d rotationMatrix = Eigen::Matrix3d( rotationQuaternion );
+    const Eigen::Matrix3d rotationMatrixFromObject =
+            Eigen::Matrix3d( rotationQuaternionFromObject );
 
     // Retrieve rotation directly from spice.
     double rotationMatrixSpice[ 3 ][ 3 ];
@@ -225,8 +237,23 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
         {
             BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrix( i, j ),
                                2.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrixFromObject( i, j ),
+                               2.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
+
+    // Check whether concatenation of forward and backward rotation from object yield no rotation.
+    Eigen::Quaterniond forwardBackwardRotation =
+            rotationQuaternionFromObject * inverseRotationQuaternionFromObject;
+    BOOST_CHECK_SMALL( forwardBackwardRotation.w( ) - 1.0,
+                       std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( forwardBackwardRotation.x( ),
+                       std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( forwardBackwardRotation.y( ),
+                       std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( forwardBackwardRotation.z( ),
+                       std::numeric_limits< double >::epsilon( ) );
+
 }
 
 // Test 4: Test retrieval of body properties.
