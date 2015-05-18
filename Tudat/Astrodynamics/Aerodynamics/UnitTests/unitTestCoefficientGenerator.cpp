@@ -185,11 +185,11 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     const double expectedValueOfAerodynamicCoefficients4 = -0.052;
 
     // Tolerance in absolute units.
-    const double toleranceAerodynamicCoefficients0 = 0.05;
+    const double toleranceAerodynamicCoefficients0 = 0.1;
     const double toleranceAerodynamicCoefficients1 = std::numeric_limits< double >::epsilon( );
     const double toleranceAerodynamicCoefficients2 = std::numeric_limits< double >::epsilon( );
     const double toleranceAerodynamicCoefficients3 = std::numeric_limits< double >::epsilon( );
-    const double toleranceAerodynamicCoefficients4 = 0.975;
+    const double toleranceAerodynamicCoefficients4 = 0.05;
     const double toleranceAerodynamicCoefficients5 = std::numeric_limits< double >::epsilon( );
 
     // Create test capsule.
