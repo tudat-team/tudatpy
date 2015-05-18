@@ -186,14 +186,13 @@ public:
 
     //! Determine inclination angles of panels on a given part.
     /*!
-     * Determines panel inclinations for all panels on a given part for given attitude.
+     * Determines panel inclinations for all panels on all parts for given attitude.
      * Outward pointing surface-normals are assumed!
-     * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
      * \param angleOfAttack Angle of attack at which to determine inclination angles.
      * \param angleOfSideslip Angle of sideslip at which to determine inclination angles.
      */
-    void determineInclination( const int partNumber, const double angleOfAttack,
-                               const double angleOfSideslip );
+    void determineInclinations( const double angleOfAttack,
+                                const double angleOfSideslip );
 
     //! Get the number of vehicle parts.
     /*!

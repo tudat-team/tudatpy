@@ -332,11 +332,11 @@ Vector6d HypersonicLocalInclinationAnalysis::determinePartCoefficients(
     Vector6d partCoefficients = Vector6d::Zero( );
 
     // Check whether the inclinations of the vehicle part have already been computed.
-    if ( previouslyComputedInclinations_.count(  std::pair< double, double >(
+    if ( previouslyComputedInclinations_.count( std::pair< double, double >(
             angleOfAttack, angleOfSideslip ) ) == 0 )
     {
         // Determine panel inclinations for part.
-        determineInclination( partNumber, angleOfAttack, angleOfSideslip );
+        determineInclinations( angleOfAttack, angleOfSideslip );
 
         // Add panel inclinations to container
         previouslyComputedInclinations_[ std::pair< double, double >(
@@ -439,9 +439,8 @@ Eigen::Vector3d HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
 }
 
 //! Determines the inclination angle of panels on a single part.
-void HypersonicLocalInclinationAnalysis::determineInclination( const int partNumber,
-                                                               const double angleOfAttack,
-                                                               const double angleOfSideslip )
+void HypersonicLocalInclinationAnalysis::determineInclinations( const double angleOfAttack,
+                                                                const double angleOfSideslip )
 {
     // Declare free-stream velocity vector.
     Eigen::Vector3d freestreamVelocityDirection;
@@ -458,19 +457,22 @@ void HypersonicLocalInclinationAnalysis::determineInclination( const int partNum
     double cosineOfInclination;
 
     // Loop over all panels of given vehicle part and set inclination angles.
-    for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
+    for( unsigned int k = 0; k < vehicleParts_.size( ); k++ )
     {
-        for ( int j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
+        for ( int i = 0 ; i < vehicleParts_[ k ]->getNumberOfLines( ) - 1 ; i++ )
         {
+            for ( int j = 0 ; j < vehicleParts_[ k ]->getNumberOfPoints( ) - 1 ; j++ )
+            {
 
-            // Determine cosine of inclination angle from inner product between
-            // surface normal and free-stream direction.
-            cosineOfInclination = vehicleParts_[ partNumber ]->
-                    getPanelSurfaceNormal( i, j ).
-                    dot( freestreamVelocityDirection );
+                // Determine cosine of inclination angle from inner product between
+                // surface normal and free-stream direction.
+                cosineOfInclination = vehicleParts_[ k ]->
+                        getPanelSurfaceNormal( i, j ).
+                        dot( freestreamVelocityDirection );
 
-            // Set inclination angle.
-            inclination_[ partNumber ][ i ][ j ] = PI / 2.0 - acos( cosineOfInclination );
+                // Set inclination angle.
+                inclination_[ k ][ i ][ j ] = PI / 2.0 - acos( cosineOfInclination );
+            }
         }
     }
 }
