@@ -96,7 +96,11 @@ GlobalRandomNumberGeneratorType& getGlobalRandomNumberGenerator( );
  * \param divisor Number that is divided by.
  * \return Remainder of division of dividend by divisor.
  */
-double computeModulo( const double dividend, const double divisor );
+template< typename ScalarType = double >
+ScalarType computeModulo( const ScalarType dividend, const ScalarType divisor )
+{
+    return dividend - divisor * std::floor( dividend / divisor );
+}
 
 } // namespace basic_mathematics
 } // namespace tudat

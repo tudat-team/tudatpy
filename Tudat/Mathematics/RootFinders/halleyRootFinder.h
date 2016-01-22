@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120208    S. Billemont      Creation of code.
  *      140219    E. Brandon        Adapted to current Tudat root-finder structure.
+ *      150417    D. Dirkx          Made modifications for templated root finding.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
@@ -113,9 +114,19 @@ public:
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *          terminated, i.e. convergence is assumed.
      */
-    HalleyRootFinderCore( const double relativeXTolerance, const unsigned int maxIterations );
+    HalleyRootFinderCore( const DataType relativeXTolerance, const unsigned int maxIterations )
+        : RootFinderCore< DataType >(
+              boost::bind(
+                  &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
+                  checkTerminationCondition, boost::make_shared<
+                  termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
+                      relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) )
+    { }
 
     //! Default destructor.
+    /*!
+     * Default destructor.
+     */
     ~HalleyRootFinderCore( ){ }
 
     //! Find a root of the function provided as input.
@@ -141,10 +152,10 @@ public:
         DataType nextFunctionValue            = this->rootFunction->evaluate( nextRootValue );
         DataType currentFirstDerivativeValue  = TUDAT_NAN;
         DataType nextFirstDerivativeValue     = this->rootFunction->
-                                                computeDerivative( 1, nextRootValue );
+                computeDerivative( 1, nextRootValue );
         DataType currentSecondDerivativeValue = TUDAT_NAN;
         DataType nextSecondDerivativeValue    = this->rootFunction->
-                                                computeDerivative( 2, nextRootValue );
+                computeDerivative( 2, nextRootValue );
 
         // Loop counter.
         unsigned int counter = 1;
@@ -161,8 +172,8 @@ public:
             // Compute next value of root using the following algorithm (see class documentation):
             nextRootValue               = currentRootValue
                     - ( ( 2.0 * currentFunctionValue * currentFirstDerivativeValue )
-                    / ( 2.0 * currentFirstDerivativeValue * currentFirstDerivativeValue
-                        - currentFunctionValue * currentSecondDerivativeValue ) );
+                        / ( 2.0 * currentFirstDerivativeValue * currentFirstDerivativeValue
+                            - currentFunctionValue * currentSecondDerivativeValue ) );
             nextFunctionValue           = this->rootFunction->evaluate( nextRootValue );
             nextFirstDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
             nextSecondDerivativeValue   = this->rootFunction->computeDerivative( 2, nextRootValue );
@@ -181,17 +192,6 @@ protected:
 private:
 
 };
-
-//! Constructor taking typical convergence criteria.
-template< typename DataType >
-HalleyRootFinderCore< DataType >::HalleyRootFinderCore( const double relativeXTolerance,
-                                                        const unsigned int maxIterations )
-    : RootFinderCore< DataType >(
-          boost::bind( &termination_conditions::RootRelativeToleranceTerminationCondition::
-                       checkTerminationCondition, boost::make_shared<
-                       termination_conditions::RootRelativeToleranceTerminationCondition >(
-                           relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) )
-{ }
 
 // Some handy typedefs.
 typedef HalleyRootFinderCore< double > HalleyRootFinder;

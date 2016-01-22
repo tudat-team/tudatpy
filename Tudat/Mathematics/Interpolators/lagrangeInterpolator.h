@@ -277,7 +277,8 @@ public:
         else
         {
             // Initialize repeated numerator to 1
-            ScalarType repeatedNumerator = 1.0;//mathematics::getOne< ScalarType >( );
+            ScalarType repeatedNumerator =
+                    mathematical_constants::getFloatingInteger< ScalarType >( 1 );
 
             // Check if requested independent variable is equal to data point
             if( independentValues_[ lowerEntry ] == targetIndependentVariableValue )
@@ -297,7 +298,7 @@ public:
                 // Set up repeated numerator and cache of independent variable values from which
                 // interpolant is created.
                 int j = 0;
-                for( int i = 0; i <= 2*offsetEntries_ + 1; i++ )
+                for( int i = 0; i <= 2 * offsetEntries_ + 1; i++ )
                 {
                     j = i + lowerEntry - offsetEntries_;
                     independentVariableDifferenceCache[ i ] =
@@ -309,8 +310,7 @@ public:
                 }
 
                 // Evaluate interpolating polynomial at requested data point.
-                for( int i = 0; i <= 2*offsetEntries_ + 1;
-                     i++ )
+                for( int i = 0; i <=  2 *offsetEntries_ + 1; i++ )
                 {
                     j = i + lowerEntry - offsetEntries_;
                     interpolatedValue += dependentValues_[ j ]  *
@@ -365,7 +365,8 @@ private:
             // Calculate all denominators for single interval.
             for( int j = 0; j <= 2 * offsetEntries_ + 1; j++ )
             {
-                denominators[ i ][ j ] = 1.0;//mathematics::getOne< ScalarType >( );
+                denominators[ i ][ j ] =
+                        mathematical_constants::getFloatingInteger< ScalarType >( 1 );
 
                 for( int k = 0; k <= 2 * offsetEntries_ + 1; k++ )
                 {
