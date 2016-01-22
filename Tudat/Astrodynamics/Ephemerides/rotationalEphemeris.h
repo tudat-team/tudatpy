@@ -41,6 +41,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+
 namespace tudat
 {
 namespace ephemerides
@@ -84,7 +86,8 @@ public:
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch ) = 0;
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
     //! Get rotation quaternion to target frame from base frame.
     /*!
@@ -96,7 +99,8 @@ public:
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch ) = 0;
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
     //! Get base reference frame orientation.
     /*!
