@@ -76,6 +76,41 @@ public:
         return getRotationToBaseFrame( secondsSinceEpoch, julianDayAtEpoch ).inverse( );
     }
 
+    //! Function to calculate the derivative of the rotation matrix from target frame to original
+    //! frame.
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from target frame to original
+     *  frame at specified time, calculated by SPICE sx_form function.
+     *  \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
+     *  \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
+     *          counted.
+     *  \return Derivative of rotation from target (typically local) to original (typically global)
+     *          frame at specified time.
+     */
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+
+    //! Function to calculate the derivative of the rotation matrix from original frame to target
+    //! frame.
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from target frame to original
+     *  frame at specified time, calculated by SPICE sx_form function.
+     *  \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
+     *  \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
+     *          counted.
+     *  \return Derivative of rotation from original (typically global) to target (typically local)
+     *          frame at specified time.
+     */
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+    {
+        return getDerivativeOfRotationToBaseFrame( secondsSinceEpoch, julianDayAtEpoch ).
+                transpose( );
+    }
+
 };
 
 }
