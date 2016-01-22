@@ -113,11 +113,9 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
     aerodynamics::TabulatedAtmosphere manualTabulatedAtmosphere(
                 input_output::getTudatRootPath( ) + "/External/AtmosphereTables/" +
                 "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
-    aerodynamics::ExponentialAtmosphere manualExponentialAtmosphere;
-    manualExponentialAtmosphere.setScaleHeight( densityScaleHeight );
-    manualExponentialAtmosphere.setConstantTemperature( constantTemperature );
-    manualExponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
-    manualExponentialAtmosphere.setSpecificGasConstant( specificGasConstant );
+    aerodynamics::ExponentialAtmosphere manualExponentialAtmosphere(
+                densityScaleHeight, constantTemperature, densityAtZeroAltitude,
+                specificGasConstant );
 
     // Verify equivalence of automatically set up and manual models.
     BOOST_CHECK_EQUAL( manualTabulatedAtmosphere.getDensity( 32.0, 0.0, 0.0, 0.0 ),
