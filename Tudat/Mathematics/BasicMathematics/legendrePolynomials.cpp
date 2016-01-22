@@ -38,6 +38,7 @@
 #include <stdexcept>
 
 #include <boost/exception/all.hpp>
+#include <boost/math/special_functions/factorials.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 
@@ -457,6 +458,22 @@ void dumpLegendrePolynomialCacheData( std::ostream& outputStream,
     }
 
     outputStream << std::endl;
+}
+
+//! Function to calculate the normalization factor for Legendre polynomials to geodesy-normalized.
+double calculateLegendreGeodesyNormalizationFactor( const int degree, const int order )
+{
+
+    double deltaFunction = 0.0;
+    if( order == 0 )
+    {
+        deltaFunction = 1.0;
+    }
+
+    double factor = std::sqrt( boost::math::factorial< double >( static_cast< double >( degree + order ) ) /
+                               ( ( 2.0 - deltaFunction ) * ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
+                                 boost::math::factorial< double >( static_cast< double >( degree - order ) ) ) );
+    return 1.0 / factor;
 }
 
 } // namespace basic_mathematics
