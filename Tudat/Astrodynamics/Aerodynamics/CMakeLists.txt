@@ -36,10 +36,13 @@
 # Set the source files.
 set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.cpp"
 )
 
 # Set the header files.
@@ -56,6 +59,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.h"
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/standardAtmosphere.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.h"
 )
 
 # Add static libraries.
@@ -71,9 +75,9 @@ add_executable(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}/UnitTest
 setup_custom_test_program(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_AerodynamicsNamespace tudat_aerodynamics ${Boost_LIBRARIES})
 
-add_executable(test_CoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestCoefficientGenerator.cpp")
-setup_custom_test_program(test_CoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_CoefficientGenerator tudat_aerodynamics tudat_geometric_shapes tudat_basic_mathematics ${Boost_LIBRARIES})
+add_executable(test_AerodynamicCoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestCoefficientGenerator.cpp")
+setup_custom_test_program(test_AerodynamicCoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}")
+target_link_libraries(test_AerodynamicCoefficientGenerator tudat_aerodynamics tudat_geometric_shapes tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestExponentialAtmosphere.cpp")
 setup_custom_test_program(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")
