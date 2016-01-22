@@ -42,6 +42,7 @@
  *      120318    S. Billemont      Move to new root_finders codebase.
  *      120402    T. Secretin       Code-check.
  *      120810    P. Musegaas       Code-check. Merged two branches. Various edits.
+ *      150417    D. Dirkx          Made modifications for templated root finding.
  *
  *    References
  *
@@ -81,8 +82,8 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction1 )
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Newton-Raphson object.
@@ -104,8 +105,8 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction2 )
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
     
     // Test Newton-Raphson object.
@@ -127,8 +128,8 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction3 )
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Newton-Raphson object.
@@ -165,8 +166,8 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithLargeRootDifference )
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction
-            = boost::bind( &RootRelativeToleranceTerminationCondition::checkTerminationCondition,
-                           boost::make_shared< RootRelativeToleranceTerminationCondition >(
+            = boost::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
+                           boost::make_shared< RootRelativeToleranceTerminationCondition< > >(
                                1.0e-10 ), _1, _2, _3, _4, _5 );
 
     // Make the Newton-Raphson object.
@@ -193,10 +194,11 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithZeroRoot )
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction
-            = boost::bind( &RootAbsoluteOrRelativeToleranceTerminationCondition::
-                           checkTerminationCondition,
-                           boost::make_shared< RootAbsoluteOrRelativeToleranceTerminationCondition >(
-                               1.0e-308, 1.0e-15 ), _1, _2, _3, _4, _5 );
+            = boost::bind(
+                &RootAbsoluteOrRelativeToleranceTerminationCondition< >::
+                checkTerminationCondition,
+                boost::make_shared< RootAbsoluteOrRelativeToleranceTerminationCondition< > >(
+                    1.0e-308, 1.0e-15 ), _1, _2, _3, _4, _5 );
 
     // Test Newton-Raphson object.
     NewtonRaphson newtonRaphson( terminationConditionFunction );

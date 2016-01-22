@@ -34,6 +34,7 @@
  *      120128    K. Kumar          Changed BOOST_CHECK to BOOST_CHECK_CLOSE_FRACTION for unit test
  *                                  comparisons.
  *      121205    K. Kumar          Updated license in file header.
+ *      150417    D. Dirkx          Added tests for floating ints.
  *
  *    References
  *
@@ -43,6 +44,8 @@
 
 #define BOOST_TEST_MAIN
 
+#include <iostream>
+#include <iomanip>
 #include <limits>
 
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -99,6 +102,46 @@ BOOST_AUTO_TEST_CASE( test_NAN )
     // Numerical value from:
     // http://www.wolframalpha.com/input/?i=golden+ratio+72+digits
     BOOST_CHECK( boost::math::isnan( TUDAT_NAN ) );
+}
+
+BOOST_AUTO_TEST_CASE( test_TemplatedValues )
+{
+    double one = 1.0;
+    long double longOne = 1.00000000000000000000L;
+
+    BOOST_CHECK_CLOSE(  mathematical_constants::getFloatingInteger< double >( 1 ),
+                        one, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE(  mathematical_constants::getFloatingInteger< long double >( 1 ),
+                        longOne, std::numeric_limits< long  double >::epsilon( ) );
+
+    BOOST_CHECK_SMALL(  mathematical_constants::getFloatingInteger< double >( 0 ),
+                        std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL(  mathematical_constants::getFloatingInteger< long double >( 0 ),
+                        std::numeric_limits< long  double >::epsilon( ) );
+
+    double two = 2.0;
+    long double longTwo = 2.00000000000000000000L;
+
+    BOOST_CHECK_CLOSE(  mathematical_constants::getFloatingInteger< double >( 2 ),
+                        two, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE(  mathematical_constants::getFloatingInteger< long double >( 2 ),
+                        longTwo, std::numeric_limits< long  double >::epsilon( ) );
+
+    BOOST_CHECK_CLOSE(  mathematical_constants::getFloatingFraction< double >( 1, 2 ),
+                        mathematical_constants::getFloatingInteger< double >( 1 ) /
+                        mathematical_constants::getFloatingInteger< double >( 2 ),
+                        std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE(  mathematical_constants::getFloatingFraction< long double >( 1, 2 ),
+                        mathematical_constants::getFloatingInteger< long double >( 1 ) /
+                        mathematical_constants::getFloatingInteger< long double >( 2 )
+                        , std::numeric_limits< long double >::epsilon( ) );
+
+
+    BOOST_CHECK_CLOSE(  mathematical_constants::getPi< double >( ),
+                        mathematical_constants::PI, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE(  mathematical_constants::getPi< long double >( ),
+                        mathematical_constants::LONG_PI, std::numeric_limits< long  double >::epsilon( ) );
+
 }
 
 // Close Boost test suite.

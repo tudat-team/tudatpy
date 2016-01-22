@@ -44,12 +44,12 @@ namespace orbital_element_conversions
 //! Keplerian elements indices.
 enum CartesianElementIndices
 {
-    xCartesianPositionIndex,
-    yCartesianPositionIndex,
-    zCartesianPositionIndex,
-    xCartesianVelocityIndex,
-    yCartesianVelocityIndex,
-    zCartesianVelocityIndex
+    xCartesianPositionIndex = 0,
+    yCartesianPositionIndex = 1,
+    zCartesianPositionIndex = 2,
+    xCartesianVelocityIndex = 3,
+    yCartesianVelocityIndex = 4,
+    zCartesianVelocityIndex = 5
 };
 
 //! Keplerian elements indices.

@@ -316,8 +316,8 @@ BOOST_AUTO_TEST_CASE( test_CartesianStateDerivativeModel4D )
                 boost::bind( &TestBody2d::getCurrentTime, body ) );
 
     // Create list of acceleration models to provide to state derivative model.
-    CartesianStateDerivativeModel4d::AccelerationModelPointerVector listOfAccelerations;
-    listOfAccelerations = list_of( firstAccelerationModel2d )( secondAccelerationModel2d );
+    CartesianStateDerivativeModel4d::AccelerationModelPointerVector listOfAccelerations
+            = list_of( firstAccelerationModel2d )( secondAccelerationModel2d );
 
     // Declare Cartesian state derivative model.
     CartesianStateDerivativeModel4dPointer stateDerivativeModel

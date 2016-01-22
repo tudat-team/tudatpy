@@ -145,15 +145,11 @@ basic_mathematics::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEph
         meanAnomalyAtGivenJulianDate_ -= 360.0;
     }
 
-    // Set eccentricity and mean anomaly for mean anomaly to eccentric anomaly conversion.
-    orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
-                convertMeanAnomalyToEccentricAnomaly_(
+    // Convert mean anomaly to eccentric anomaly.
+    eccentricAnomalyAtGivenJulianDate_ = convertMeanAnomalyToEccentricAnomaly(
                 planetKeplerianElementsAtGivenJulianDate_( eccentricityIndex ),
                 unit_conversions::convertDegreesToRadians(
                     meanAnomalyAtGivenJulianDate_ ) );
-
-    // Convert mean anomaly to eccentric anomaly.
-    eccentricAnomalyAtGivenJulianDate_ = convertMeanAnomalyToEccentricAnomaly_.convert( );
 
     // Convert eccentric anomaly to true anomaly and set in planet elements.
     trueAnomalyAtGivenJulianData_

@@ -80,11 +80,11 @@ if (WIN32)
     endforeach(flag_var)
   else()
     set(CMAKE_CXX_FLAGS 
-        "${CMAKE_CXX_FLAGS} -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+        "${CMAKE_CXX_FLAGS} -Wall -g -std=c++11 -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
   endif()
 else()
   set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -Wall -g -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+      "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -Wall -g -std=c++11 -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ else()
   # Load the user specified file.
   if (TUDAT_USER_SETTINGS)
     include($TUDAT_USER_SETTINGS OPTIONAL)
-  else()  
+  else()
     include($ENV{TUDAT_USER_SETTINGS} OPTIONAL)
   endif()
 endif()

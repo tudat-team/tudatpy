@@ -67,6 +67,7 @@
  *                                  testCartesianToKeplerianElementConversion to avoid failures
  *                                  under Windows. Added check for zero-valued angles in
  *                                  testCartesianToKeplerianElementConversion.
+ *      150417    D. Dirkx          Made modifications for templated element conversions.
  *
  *    References
  *      NASA, Goddard Spaceflight Center. Orbit Determination Toolbox (ODTBX), NASA - GSFC Open
@@ -111,7 +112,7 @@ namespace tudat
 namespace unit_tests
 {
 
-using mathematical_constants::PI;
+using namespace mathematical_constants;
 
 BOOST_AUTO_TEST_SUITE( test_orbital_element_conversions )
 
@@ -128,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         const double earthGravitationalParameter = 3.986004415e14;
 
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        Eigen::VectorXd keplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > keplerianElements ;
         keplerianElements( semiMajorAxisIndex ) = 8000.0 * 1000.0;
         keplerianElements( eccentricityIndex ) = 0.23;
         keplerianElements( inclinationIndex ) = 20.6 / 180.0 * PI;
@@ -137,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         keplerianElements( trueAnomalyIndex ) = 46.11 / 180.0 * PI;
 
         // Set expected Cartesian elements [m,m,m,m/s,m/s,m/s].
-        Eigen::VectorXd expectedCartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > expectedCartesianElements;
         expectedCartesianElements( xCartesianPositionIndex ) = 2.021874804243437e6;
         expectedCartesianElements( yCartesianPositionIndex ) = 6.042523817035284e6;
         expectedCartesianElements( zCartesianPositionIndex ) = -1.450371183512575e6;
@@ -146,7 +147,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         expectedCartesianElements( zCartesianVelocityIndex ) = 2.029066072016241e3;
 
         // Compute Cartesian elements.
-        Eigen::VectorXd computedCartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > computedCartesianElements;
         computedCartesianElements = orbital_element_conversions::
                 convertKeplerianToCartesianElements( keplerianElements,
                                                      earthGravitationalParameter );
@@ -166,7 +167,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         const double marsGravitationalParameter = 4.2828018915e13;
 
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        Eigen::VectorXd keplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > keplerianElements;
         keplerianElements( semiMajorAxisIndex ) = 9201.61 * 1000.0;
         keplerianElements( eccentricityIndex ) = 0.0;
         keplerianElements( inclinationIndex ) = 0.0;
@@ -175,7 +176,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         keplerianElements( trueAnomalyIndex ) = -244.09 / 180.0 * PI;
 
         // Set expected Cartesian elements [m,m,m,m/s,m/s,m/s].
-        Eigen::VectorXd expectedCartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > expectedCartesianElements;
         expectedCartesianElements( xCartesianPositionIndex ) = 7.968828015716932e6;
         expectedCartesianElements( yCartesianPositionIndex ) = -4.600804999999997e6;
         expectedCartesianElements( zCartesianPositionIndex ) = 0.0;
@@ -184,7 +185,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         expectedCartesianElements( zCartesianVelocityIndex ) = 0.0;
 
         // Compute Cartesian elements.
-        Eigen::VectorXd computedCartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > computedCartesianElements;
         computedCartesianElements = orbital_element_conversions::
                 convertKeplerianToCartesianElements( keplerianElements,
                                                      marsGravitationalParameter );
@@ -204,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         const double sunGravitationalParameter = 1.32712440018e20;
 
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        Eigen::VectorXd keplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > keplerianElements;
         keplerianElements( semiMajorAxisIndex ) = -4.5e11;
         keplerianElements( eccentricityIndex ) = 2.3;
         keplerianElements( inclinationIndex ) = 25.5 / 180.0 * PI;
@@ -213,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         keplerianElements( trueAnomalyIndex ) = 123.29 / 180.0 * PI;
 
         // Set expected Cartesian elements [m,m,m,m/s,m/s,m/s].
-        Eigen::VectorXd expectedCartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > expectedCartesianElements;
         expectedCartesianElements( xCartesianPositionIndex ) = -2.776328224174438e12;
         expectedCartesianElements( yCartesianPositionIndex ) = -6.053823869632723e12;
         expectedCartesianElements( zCartesianPositionIndex ) = 3.124576293512172e12;
@@ -222,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         expectedCartesianElements( zCartesianVelocityIndex ) = -6.923442392618828e3;
 
         // Compute Cartesian elements.
-        Eigen::VectorXd computedCartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > computedCartesianElements;
         computedCartesianElements = orbital_element_conversions::
                 convertKeplerianToCartesianElements( keplerianElements,
                                                      sunGravitationalParameter );
@@ -242,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         const double earthGravitationalParameter = 3.986005e14;
 
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        Eigen::VectorXd keplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > keplerianElements;
         keplerianElements( semiLatusRectumIndex ) = 2.0 * 6678140.0;
         keplerianElements( eccentricityIndex ) = 1.0;
         keplerianElements( inclinationIndex ) = 45.0 / 180.0 * PI;
@@ -254,7 +255,7 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
         const double expectedEscapeVelocity = 10926.0;
 
         // Compute Cartesian elements.
-        Eigen::VectorXd computedCartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > computedCartesianElements;
         computedCartesianElements = orbital_element_conversions::
                 convertKeplerianToCartesianElements( keplerianElements,
                                                      earthGravitationalParameter );
@@ -265,8 +266,9 @@ BOOST_AUTO_TEST_CASE( testKeplerianToCartesianElementConversion )
     }
 }
 
-//! Test if conversion from Cartesian elements to Keplerian elements is working correctly.
-BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
+//! Test if conversion from Cartesian elements to Keplerian elements is working correctly, using
+//! benchmark data.
+BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBenchmark )
 {
     // Case 1: Elliptical orbit around the Earth.
     // The benchmark data is obtained by running ODTBX (NASA, 2012).
@@ -278,7 +280,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         const double earthGravitationalParameter = 3.986004415e14;
 
         // Set Cartesian elements.
-        Eigen::VectorXd cartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > cartesianElements;
         cartesianElements( xCartesianPositionIndex ) = 3.75e6;
         cartesianElements( yCartesianPositionIndex ) = 4.24e6;
         cartesianElements( zCartesianPositionIndex ) = -1.39e6;
@@ -287,7 +289,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         cartesianElements( zCartesianVelocityIndex ) = 1.66e3;
 
         // Set expected Keplerian elements.
-        Eigen::VectorXd expectedKeplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > expectedKeplerianElements;
         expectedKeplerianElements( semiMajorAxisIndex ) = 3.707478199246163e6;
         expectedKeplerianElements( eccentricityIndex ) = 0.949175203660321;
         expectedKeplerianElements( inclinationIndex ) = 0.334622356632438;
@@ -296,7 +298,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         expectedKeplerianElements( trueAnomalyIndex ) = 3.302032232567084;
 
         // Compute Keplerian elements.
-        Eigen::VectorXd computedKeplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > computedKeplerianElements;
         computedKeplerianElements = orbital_element_conversions::
                 convertCartesianToKeplerianElements( cartesianElements,
                                                      earthGravitationalParameter );
@@ -316,7 +318,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         const double venusGravitationalParameter = 3.2485504415e14;
 
         // Set Cartesian elements.
-        Eigen::VectorXd cartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > cartesianElements;
         cartesianElements( xCartesianPositionIndex ) = 5.580537430785387e6;
         cartesianElements( yCartesianPositionIndex ) = 2.816487703435473e6;
         cartesianElements( zCartesianPositionIndex ) = 0.0;
@@ -325,7 +327,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         cartesianElements( zCartesianVelocityIndex ) = 0.0;
 
         // Set expected Keplerian elements.
-        Eigen::VectorXd expectedKeplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > expectedKeplerianElements;
         expectedKeplerianElements( semiMajorAxisIndex ) = 6.251e6;
         expectedKeplerianElements( eccentricityIndex ) = 0.0;
         expectedKeplerianElements( inclinationIndex ) = 0.0;
@@ -334,7 +336,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         expectedKeplerianElements( trueAnomalyIndex ) = 26.78 / 180.0 * PI;
 
         // Declare and compute converted Keplerian elements.
-        Eigen::VectorXd computedKeplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > computedKeplerianElements;
         computedKeplerianElements = orbital_element_conversions::
                 convertCartesianToKeplerianElements( cartesianElements,
                                                      venusGravitationalParameter );
@@ -375,7 +377,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         const double sunGravitationalParameter = 1.32712440018e20;
 
         // Declare and set Cartesian elements.
-        Eigen::VectorXd cartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > cartesianElements;
         cartesianElements( xCartesianPositionIndex ) = 7.035635643405699e11;
         cartesianElements( yCartesianPositionIndex ) = -2.351218213055550e11;
         cartesianElements( zCartesianPositionIndex ) = 0.037960971564309e11;
@@ -384,7 +386,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         cartesianElements( zCartesianVelocityIndex ) = 0.423498718768347e4;
 
         // Set expected Keplerian elements.
-        Eigen::VectorXd expectedKeplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > expectedKeplerianElements;
         expectedKeplerianElements( semiMajorAxisIndex ) = -6.78e11;
         expectedKeplerianElements( eccentricityIndex ) = 1.89;
         expectedKeplerianElements( inclinationIndex ) = 167.91 / 180 * PI;
@@ -393,7 +395,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         expectedKeplerianElements( trueAnomalyIndex ) = 315.62 / 180.0 * PI;
 
         // Compute Keplerian elements.
-        Eigen::VectorXd computedKeplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > computedKeplerianElements;
         computedKeplerianElements = orbital_element_conversions::
                 convertCartesianToKeplerianElements( cartesianElements,
                                                      sunGravitationalParameter );
@@ -403,44 +405,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
                                            computedKeplerianElements, 1.0e-15 );
     }
 
-    // Case 4: Parabolic orbit around the Sun.
-    // This test is based on converting Keplerian elements to Cartesian element and then
-    // recomputing the input Keplerian element values. Ideally, an independent check will replace
-    // this test in future.
-    {
-        // Using declarations.
-        using namespace orbital_element_conversions;
-
-        // Set Earth gravitational parameter [m^3/s^2].
-        const double earthGravitationalParameter = 3.986005e14;
-
-        // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        Eigen::VectorXd keplerianElements( 6 );
-        keplerianElements( semiLatusRectumIndex ) = 2.0 * 6678140.0;
-        keplerianElements( eccentricityIndex ) = 1.0;
-        keplerianElements( inclinationIndex ) = 45.0 / 180.0 * PI;
-        keplerianElements( argumentOfPeriapsisIndex ) = 0.0;
-        keplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
-        keplerianElements( trueAnomalyIndex ) = 0.0;
-
-        // Compute Cartesian elements.
-        Eigen::VectorXd computedCartesianElements( 6 );
-        computedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( keplerianElements,
-                                                     earthGravitationalParameter );
-
-        // Recompute Keplerian elements.
-        Eigen::VectorXd recomputedKeplerianElements( 6 );
-        recomputedKeplerianElements = orbital_element_conversions::
-                convertCartesianToKeplerianElements( computedCartesianElements,
-                                                     earthGravitationalParameter );
-
-        // Check if recomputed Keplerian elements match the expected values.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianElements,
-                                           recomputedKeplerianElements, 1.0e-15 );
-    }
-
-    // Case 5: Low-eccentricity, low-inclination orbit around Uranus.
+    // Case 4: Low-eccentricity, low-inclination orbit around Uranus.
     // The benchmark data is obtained by running Keplerian Toolbox (ESA, 2012). It is important to
     // note that Keplerian Toolbox uses a different order of elements than Tudat (argument of
     // periapsis and longitude of ascending node positions in vector are switched). Not all values
@@ -456,7 +421,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         const double uranusGravitationalParameter = 5.793943348799999e15;
 
         // Declare and set Cartesian elements.
-        Eigen::VectorXd cartesianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > cartesianElements;
         cartesianElements( xCartesianPositionIndex ) = -33760437.1526459;
         cartesianElements( yCartesianPositionIndex ) = -91719029.3283878;
         cartesianElements( zCartesianPositionIndex ) = -757.744826269064;
@@ -465,7 +430,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         cartesianElements( zCartesianVelocityIndex ) = -0.0486289999748532;
 
         // Set expected Keplerian elements.
-        Eigen::VectorXd expectedKeplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > expectedKeplerianElements;
         expectedKeplerianElements( semiMajorAxisIndex ) = 97736000.0;
         expectedKeplerianElements( eccentricityIndex ) = 1.0e-5;
         expectedKeplerianElements( inclinationIndex ) = 1.0e-5;
@@ -474,7 +439,7 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
         expectedKeplerianElements( trueAnomalyIndex ) = 5.914936209560839;
 
         // Compute Keplerian elements.
-        Eigen::VectorXd computedKeplerianElements( 6 );
+        Eigen::Matrix< double, 6, 1 > computedKeplerianElements;
         computedKeplerianElements = orbital_element_conversions::
                 convertCartesianToKeplerianElements( cartesianElements,
                                                      uranusGravitationalParameter );
@@ -505,203 +470,361 @@ BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversion )
                                     1.0e-6 );
     }
 
-    // Case 6: Converting to and fro between Keplerian and Cartesian elements for a
+}
+
+//! Test back and forth Kepler <-> Cartesian conversion for parabolic orbit
+template< typename ScalarType >
+void convertParabolicOrbitBackAndForth(
+        const ScalarType tolerance )
+{
+    // Using declarations.
+    using namespace orbital_element_conversions;
+
+    // Set Earth gravitational parameter [m^3/s^2].
+    const ScalarType earthGravitationalParameter = 3.986005e14;
+
+    // Set Keplerian elements [m,-,rad,rad,rad,rad].
+    Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
+    keplerianElements( semiLatusRectumIndex ) = static_cast< ScalarType >(
+                2.0 * 6678140.0 );
+    keplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 1 );
+    keplerianElements( inclinationIndex ) = static_cast< ScalarType >(
+                45.0 / 180.0 * PI );
+    keplerianElements( argumentOfPeriapsisIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( trueAnomalyIndex ) = getFloatingInteger< ScalarType >( 0 );
+
+    // Compute Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements =
+            convertKeplerianToCartesianElements< ScalarType >(
+                keplerianElements, earthGravitationalParameter );
+
+    // Recompute Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
+            convertCartesianToKeplerianElements< ScalarType >(
+                computedCartesianElements, earthGravitationalParameter );
+
+    // Check if recomputed Keplerian elements match the expected values.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( keplerianElements,
+                                       recomputedKeplerianElements, tolerance );
+
+    // Convert recomputed Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
+            convertKeplerianToCartesianElements(
+                recomputedKeplerianElements, earthGravitationalParameter );
+
+    // Check that computed Cartesian elements match.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+}
+
+//! Test back and forth Kepler <-> Cartesian conversion for circular equatorial orbit
+template< typename ScalarType >
+void convertCircularEquatorialOrbitBackAndForth(
+        const ScalarType tolerance )
+{
+    // Using declarations.
+    using namespace orbital_element_conversions;
+
+    // Earth gravitational parameter [m^3 s^-2].
+    const ScalarType earthGravitationalParameter = 3.9859383624e14;
+
+    // Set Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
+    keplerianElements( semiMajorAxisIndex ) =
+            static_cast< ScalarType >( 8000.0 );
+    keplerianElements( eccentricityIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( argumentOfPeriapsisIndex ) =
+            static_cast< ScalarType >( 243.0 / 180.0 * PI );
+    keplerianElements( longitudeOfAscendingNodeIndex ) =
+            static_cast< ScalarType >( -79.6 / 180.0 * PI );
+    keplerianElements( trueAnomalyIndex ) =
+            static_cast< ScalarType >( 126.45 / 180.0 * PI );
+
+    // Convert Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements;
+    computedCartesianElements = convertKeplerianToCartesianElements< ScalarType >(
+                keplerianElements, earthGravitationalParameter );
+
+    // Convert Cartesian elements back to Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements;
+    recomputedKeplerianElements = convertCartesianToKeplerianElements< ScalarType >(
+                computedCartesianElements, earthGravitationalParameter );
+
+    // Check that recomputed Keplerian elements match the input values. (In this limit case,
+    // the argument of periapsis and longitude of ascending node are set to zero, and the
+    // true anomaly "absorbs" everything).
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ),
+                                recomputedKeplerianElements( semiMajorAxisIndex ),
+                                tolerance );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( eccentricityIndex ), tolerance );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( inclinationIndex ),
+                       std::numeric_limits< ScalarType >::epsilon( ) );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( argumentOfPeriapsisIndex ),
+                       std::numeric_limits< ScalarType >::epsilon( ) );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( longitudeOfAscendingNodeIndex ),
+                       std::numeric_limits< ScalarType >::epsilon( ) );
+
+    BOOST_CHECK_CLOSE_FRACTION( std::fmod(
+                                    keplerianElements( argumentOfPeriapsisIndex )
+                                    + keplerianElements( longitudeOfAscendingNodeIndex )
+                                    + keplerianElements( trueAnomalyIndex ), 2.0 * PI ),
+                                recomputedKeplerianElements( trueAnomalyIndex ),
+                                std::numeric_limits< ScalarType >::epsilon( ) );
+
+    // Convert recomputed Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
+            convertKeplerianToCartesianElements(
+                recomputedKeplerianElements, earthGravitationalParameter );
+
+    // Check that computed Cartesian elements match.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+}
+
+//! Test back and forth Kepler <-> Cartesian conversion for circular non-equatorial orbit
+template< typename ScalarType >
+void convertCircularNonEquatorialOrbitBackAndForth(
+        const ScalarType tolerance )
+{
+    // Using declarations.
+    using namespace orbital_element_conversions;
+
+    // Earth gravitational parameter [m^3 s^-2].
+    const ScalarType earthGravitationalParameter = 3.9859383624e14;
+
+    // Set Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
+    keplerianElements( semiMajorAxisIndex ) = static_cast< ScalarType >( 8000.0 );
+    keplerianElements( eccentricityIndex ) =  getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( inclinationIndex ) = static_cast< ScalarType >( 176.11 / 180.0 * PI );
+    keplerianElements( argumentOfPeriapsisIndex ) =
+            static_cast< ScalarType >(  243.0 / 180.0 * PI );
+    keplerianElements( longitudeOfAscendingNodeIndex ) =
+            static_cast< ScalarType >( -79.6 / 180.0 * PI );
+    keplerianElements( trueAnomalyIndex ) =
+            static_cast< ScalarType >( 126.45 / 180.0 * PI );
+
+    // Convert Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements =
+            convertKeplerianToCartesianElements< ScalarType >(
+                keplerianElements, earthGravitationalParameter );
+
+    // Convert Cartesian elements back to Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
+            convertCartesianToKeplerianElements< ScalarType >(
+                computedCartesianElements, earthGravitationalParameter );
+
+    // Check that recomputed Keplerian elements match the input values. (In this limit case,
+    // the argument of periapsis is set to zero, and the true anomaly "absorbs" this).
+    BOOST_CHECK_CLOSE_FRACTION(
+                keplerianElements( semiMajorAxisIndex ),
+                recomputedKeplerianElements( semiMajorAxisIndex ), tolerance );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( eccentricityIndex ), tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION(
+                keplerianElements( inclinationIndex ),
+                recomputedKeplerianElements( inclinationIndex ), tolerance );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( argumentOfPeriapsisIndex ),
+                       std::numeric_limits< ScalarType >::epsilon( ) );
+
+    BOOST_CHECK_CLOSE_FRACTION(
+                keplerianElements( longitudeOfAscendingNodeIndex ) +
+                getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ),
+                recomputedKeplerianElements( longitudeOfAscendingNodeIndex ), tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION(
+                std::fmod( keplerianElements( argumentOfPeriapsisIndex )
+                           + keplerianElements( trueAnomalyIndex ),
+                           getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( ) ),
+                recomputedKeplerianElements( trueAnomalyIndex ), 10.0 * tolerance );
+
+    // Convert recomputed Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements =
+            convertKeplerianToCartesianElements< ScalarType >(
+                recomputedKeplerianElements, earthGravitationalParameter );
+
+    // Check that computed Cartesian elements match.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                computedCartesianElements, recomputedCartesianElements, ( 100.0 * tolerance ) );
+}
+
+//! Test back and forth Kepler <-> Cartesian conversion for non-circular equatorial orbit
+template< typename ScalarType >
+void convertNonCircularEquatorialOrbitBackAndForth(
+        const ScalarType tolerance )
+{
+    // Using declarations.
+    using namespace orbital_element_conversions;
+
+    // Earth gravitational parameter [m^3 s^-2].
+    const ScalarType earthGravitationalParameter = 3.9859383624e14;
+
+    // Set Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
+    keplerianElements( semiMajorAxisIndex ) = static_cast< ScalarType >( 8000.0 );
+    keplerianElements( eccentricityIndex ) = static_cast< ScalarType >( 0.2 );
+            keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( argumentOfPeriapsisIndex ) = static_cast< ScalarType >( 243.0 / 180.0 * PI );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >(
+                -79.6 / 180.0 * PI );
+    keplerianElements( trueAnomalyIndex ) = static_cast< ScalarType >( 126.45 / 180.0 * PI );
+
+    // Convert Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements =
+            convertKeplerianToCartesianElements( keplerianElements, earthGravitationalParameter );
+
+    // Convert Cartesian elements back to Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
+            convertCartesianToKeplerianElements(
+                computedCartesianElements, earthGravitationalParameter );
+
+    // Check that recomputed Keplerian elements match the input values. (In this limit case,
+    // the longitude of the ascending node is set to zero, and the argument of periapsis and
+    // true anomaly "absorb" this).
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ),
+                                recomputedKeplerianElements( semiMajorAxisIndex ),
+                                tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( eccentricityIndex ),
+                                recomputedKeplerianElements( eccentricityIndex ),
+                                tolerance );
+
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( inclinationIndex ),
+                                recomputedKeplerianElements( inclinationIndex ),
+                                std::numeric_limits< ScalarType >::epsilon( ) );
+
+    BOOST_CHECK_SMALL( recomputedKeplerianElements( longitudeOfAscendingNodeIndex ),
+                       std::numeric_limits< ScalarType >::epsilon( ) );
+
+    BOOST_CHECK_CLOSE_FRACTION( keplerianElements( longitudeOfAscendingNodeIndex )
+                                + keplerianElements( argumentOfPeriapsisIndex )
+                                + keplerianElements( trueAnomalyIndex ),
+                                recomputedKeplerianElements( argumentOfPeriapsisIndex )
+                                + recomputedKeplerianElements( trueAnomalyIndex ),
+                                std::numeric_limits< ScalarType >::epsilon( ) );
+
+    // Convert recomputed Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements;
+    recomputedCartesianElements = orbital_element_conversions::
+            convertKeplerianToCartesianElements(
+                recomputedKeplerianElements, earthGravitationalParameter );
+
+    // Check that computed Cartesian elements match.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+}
+
+//! Test back and forth Kepler <-> Cartesian conversion for non-circular non-equatorial orbit
+template< typename ScalarType >
+void convertNonCircularNonEquatorialOrbitBackAndForth(
+        const ScalarType tolerance )
+{
+    // Using declarations.
+    using namespace orbital_element_conversions;
+
+    // Earth gravitational parameter [m^3 s^-2].
+    const ScalarType earthGravitationalParameter = 3.9859383624e14;
+
+    // Set Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
+    keplerianElements( semiMajorAxisIndex ) = static_cast< ScalarType >( 8000.0 );
+    keplerianElements( eccentricityIndex ) = static_cast< ScalarType >( 0.2 );
+            keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >(
+                        176.11 / 180.0 * PI );
+    keplerianElements( argumentOfPeriapsisIndex ) = static_cast< ScalarType >( 243.0 / 180.0 * PI );
+    keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >(
+                -79.6 / 180.0 * PI );
+    keplerianElements( trueAnomalyIndex ) = static_cast< ScalarType >( 126.45 / 180.0 * PI );
+
+    // Convert Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > computedCartesianElements =
+            convertKeplerianToCartesianElements( keplerianElements, earthGravitationalParameter );
+
+    // Convert Cartesian elements back to Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedKeplerianElements =
+            convertCartesianToKeplerianElements(
+                computedCartesianElements, earthGravitationalParameter );
+
+    recomputedKeplerianElements( longitudeOfAscendingNodeIndex ) =
+            recomputedKeplerianElements( longitudeOfAscendingNodeIndex ) -
+                       getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( );
+
+    // Check that recomputed Keplerian elements match the input values. (In this limit case,
+    // the longitude of the ascending node is set to zero, and the argument of periapsis and
+    // true anomaly "absorb" this).
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                keplerianElements, recomputedKeplerianElements, ( tolerance ) );
+
+    // Convert recomputed Keplerian elements to Cartesian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > recomputedCartesianElements;
+    recomputedCartesianElements = orbital_element_conversions::
+            convertKeplerianToCartesianElements(
+                recomputedKeplerianElements, earthGravitationalParameter );
+
+    // Check that computed Cartesian elements match.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                computedCartesianElements, recomputedCartesianElements, ( 10.0 * tolerance ) );
+}
+
+//! Test if conversion from Cartesian elements to Keplerian elements is working correctly, using
+//! back and forth conversion, for both double and long double precision.
+BOOST_AUTO_TEST_CASE( testCartesianToKeplerianElementConversionBackAndForth )
+{
+    double ratioOfPrecision = std::numeric_limits< long double >::epsilon( ) /
+            std::numeric_limits< double >::epsilon( );
+
+    // Case 1: Parabolic orbit around the Sun.
+    // This test is based on converting Keplerian elements to Cartesian element and then
+    // recomputing the input Keplerian element values. Ideally, an independent check will replace
+    // this test in future.
+    {
+        convertParabolicOrbitBackAndForth< double >( 1.0E-15 );
+        convertParabolicOrbitBackAndForth< long double >( 1.0E-15L * ratioOfPrecision );
+    }
+    // Case 2: Converting to and fro between Keplerian and Cartesian elements for a
     // zero-eccentricity, zero-inclination orbit (circular, equatorial) around the Earth. This
     // test ensures internal consistency within Tudat between the Cartesian <-> Keplerian element
     // converters.
     {
-        // Using declarations.
-        using namespace orbital_element_conversions;
-
-        // Earth gravitational parameter [m^3 s^-2].
-        const double earthGravitationalParameter = 3.9859383624e14;
-
-        // Set Keplerian elements.
-        Eigen::VectorXd keplerianElements( 6 );
-        keplerianElements( semiMajorAxisIndex ) = 8000.0;
-        keplerianElements( eccentricityIndex ) = 0.0;
-        keplerianElements( inclinationIndex ) = 0.0;
-        keplerianElements( argumentOfPeriapsisIndex ) = 243 / 180.0 * PI;
-        keplerianElements( longitudeOfAscendingNodeIndex ) = -79.6 / 180.0 * PI;
-        keplerianElements( trueAnomalyIndex ) = 126.45 / 180.0 * PI;
-
-        // Convert Keplerian elements to Cartesian elements.
-        Eigen::VectorXd computedCartesianElements( 6 );
-        computedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( keplerianElements,
-                                                     earthGravitationalParameter );
-
-        // Convert Cartesian elements back to Keplerian elements.
-        Eigen::VectorXd recomputedKeplerianElements( 6 );
-        recomputedKeplerianElements = orbital_element_conversions::
-                convertCartesianToKeplerianElements( computedCartesianElements,
-                                                     earthGravitationalParameter );
-
-        // Check that recomputed Keplerian elements match the input values. (In this limit case,
-        // the argument of periapsis and longitude of ascending node are set to zero, and the
-        // true anomaly "absorbs" everything).
-        BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ),
-                                    recomputedKeplerianElements( semiMajorAxisIndex ),
-                                    1.0e-15 );
-
-        BOOST_CHECK_SMALL( recomputedKeplerianElements( eccentricityIndex ), 1.0e-15 );
-
-        BOOST_CHECK_SMALL( recomputedKeplerianElements( inclinationIndex ),
-                           std::numeric_limits< double >::epsilon( ) );
-
-        BOOST_CHECK_SMALL( recomputedKeplerianElements( argumentOfPeriapsisIndex ),
-                           std::numeric_limits< double >::epsilon( ) );
-
-        BOOST_CHECK_SMALL( recomputedKeplerianElements( longitudeOfAscendingNodeIndex ),
-                           std::numeric_limits< double >::epsilon( ) );
-
-        BOOST_CHECK_CLOSE_FRACTION( std::fmod( keplerianElements( argumentOfPeriapsisIndex )
-                                               + keplerianElements( longitudeOfAscendingNodeIndex )
-                                               + keplerianElements( trueAnomalyIndex ), 2.0 * PI ),
-                                    recomputedKeplerianElements( trueAnomalyIndex ),
-                                    std::numeric_limits< double >::epsilon( ) );
-
-        // Convert recomputed Keplerian elements to Cartesian elements.
-        Eigen::VectorXd recomputedCartesianElements( 6 );
-        recomputedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( recomputedKeplerianElements,
-                                                     earthGravitationalParameter );
-
-        // Check that computed Cartesian elements match.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedCartesianElements, recomputedCartesianElements,
-                                           1.0e-14 );
+        convertCircularEquatorialOrbitBackAndForth< double >( 1.0E-15 );
+        convertCircularEquatorialOrbitBackAndForth< long double >( 1.0E-15L * ratioOfPrecision );
     }
 
-    // Case 7: Converting to and fro between Keplerian and Cartesian elements for a
-     // zero-eccentricity, non-zero-inclination orbit (circular, inclined) around the Earth. This
+    // Case 3: Converting to and fro between Keplerian and Cartesian elements for a
+    // zero-eccentricity, non-zero-inclination orbit (circular, inclined) around the Earth. This
     // test ensures internal consistency within Tudat between the Cartesian <-> Keplerian element
     // converters.
     {
-        // Using declarations.
-        using namespace orbital_element_conversions;
-
-        // Earth gravitational parameter [m^3 s^-2].
-        const double earthGravitationalParameter = 3.9859383624e14;
-
-        // Set Keplerian elements.
-        Eigen::VectorXd keplerianElements( 6 );
-        keplerianElements( semiMajorAxisIndex ) = 8000.0;
-        keplerianElements( eccentricityIndex ) = 0.0;
-        keplerianElements( inclinationIndex ) = 176.11 / 180.0 * PI;
-        keplerianElements( argumentOfPeriapsisIndex ) = 243 / 180.0 * PI;
-        keplerianElements( longitudeOfAscendingNodeIndex ) = -79.6 / 180.0 * PI;
-        keplerianElements( trueAnomalyIndex ) = 126.45 / 180.0 * PI;
-
-        // Convert Keplerian elements to Cartesian elements.
-        Eigen::VectorXd computedCartesianElements( 6 );
-        computedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( keplerianElements,
-                                                     earthGravitationalParameter );
-
-        // Convert Cartesian elements back to Keplerian elements.
-        Eigen::VectorXd recomputedKeplerianElements( 6 );
-        recomputedKeplerianElements = orbital_element_conversions::
-                convertCartesianToKeplerianElements( computedCartesianElements,
-                                                     earthGravitationalParameter );
-
-        // Check that recomputed Keplerian elements match the input values. (In this limit case,
-        // the argument of periapsis is set to zero, and the true anomaly "absorbs" this).
-        BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ),
-                                    recomputedKeplerianElements( semiMajorAxisIndex ), 1.0e-15 );
-
-        BOOST_CHECK_SMALL( recomputedKeplerianElements( eccentricityIndex ), 1.0e-15 );
-
-        BOOST_CHECK_CLOSE_FRACTION( keplerianElements( inclinationIndex ),
-                                    recomputedKeplerianElements( inclinationIndex ), 1.0e-15 );
-
-        BOOST_CHECK_SMALL( recomputedKeplerianElements( argumentOfPeriapsisIndex ),
-                           std::numeric_limits< double >::epsilon( ) );
-
-        BOOST_CHECK_CLOSE_FRACTION(
-                    keplerianElements( longitudeOfAscendingNodeIndex ) + 2.0 * PI,
-                    recomputedKeplerianElements( longitudeOfAscendingNodeIndex ), 1.0e-15 );
-
-        BOOST_CHECK_CLOSE_FRACTION( std::fmod( keplerianElements( argumentOfPeriapsisIndex )
-                                               + keplerianElements( trueAnomalyIndex ), 2.0 * PI ),
-                                    recomputedKeplerianElements( trueAnomalyIndex ), 1.0e-14 );
-
-        // Convert recomputed Keplerian elements to Cartesian elements.
-        Eigen::VectorXd recomputedCartesianElements( 6 );
-        recomputedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( recomputedKeplerianElements,
-                                                     earthGravitationalParameter );
-
-        // Check that computed Cartesian elements match.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedCartesianElements, recomputedCartesianElements,
-                                           1.0e-13 );
+        convertCircularNonEquatorialOrbitBackAndForth< double >( 1.0E-15 );
+        convertCircularNonEquatorialOrbitBackAndForth< long double >( 1.0E-15L * ratioOfPrecision );
     }
 
-    // Case 8: Converting to and fro between Keplerian and Cartesian elements for a
+    // Case 4: Converting to and fro between Keplerian and Cartesian elements for a
     // non-zero-eccentricity, zero-inclination orbit (non-circular, equatorial) around the Earth.
     // This test ensures internal consistency within Tudat between the Cartesian <-> Keplerian
     // element converters.
     {
-        // Using declarations.
-        using namespace orbital_element_conversions;
+        convertNonCircularEquatorialOrbitBackAndForth< double >( 1.0E-15 );
+        convertNonCircularEquatorialOrbitBackAndForth< long double >( 1.0E-15L * ratioOfPrecision );
 
-        // Earth gravitational parameter [m^3 s^-2].
-        const double earthGravitationalParameter = 3.9859383624e14;
+    }
 
-        // Set Keplerian elements.
-        Eigen::VectorXd keplerianElements( 6 );
-        keplerianElements( semiMajorAxisIndex ) = 8000.0;
-        keplerianElements( eccentricityIndex ) = 0.2;
-        keplerianElements( inclinationIndex ) = 0.0;
-        keplerianElements( argumentOfPeriapsisIndex ) = 243 / 180.0 * PI;
-        keplerianElements( longitudeOfAscendingNodeIndex ) = -79.6 / 180.0 * PI;
-        keplerianElements( trueAnomalyIndex ) = 126.45 / 180.0 * PI;
+    // Case 5: Converting to and fro between Keplerian and Cartesian elements for a
+    // non-zero-eccentricity, non-zero-inclination orbit (non-circular, non-equatorial).
+    // This test ensures internal consistency within Tudat between the Cartesian <-> Keplerian
+    // element converters.
+    {
+        convertNonCircularNonEquatorialOrbitBackAndForth< double >( 5.0E-15 );
+        convertNonCircularNonEquatorialOrbitBackAndForth< long double >( 5.0E-15L * ratioOfPrecision );
 
-        // Convert Keplerian elements to Cartesian elements.
-        Eigen::VectorXd computedCartesianElements( 6 );
-        computedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( keplerianElements,
-                                                     earthGravitationalParameter );
-
-        // Convert Cartesian elements back to Keplerian elements.
-        Eigen::VectorXd recomputedKeplerianElements( 6 );
-        recomputedKeplerianElements = orbital_element_conversions::
-                convertCartesianToKeplerianElements( computedCartesianElements,
-                                                     earthGravitationalParameter );
-
-        // Check that recomputed Keplerian elements match the input values. (In this limit case,
-        // the longitude of the ascending node is set to zero, and the argument of periapsis and
-        // true anomaly "absorb" this).
-        BOOST_CHECK_CLOSE_FRACTION( keplerianElements( semiMajorAxisIndex ),
-                                    recomputedKeplerianElements( semiMajorAxisIndex ),
-                                    1.0e-15 );
-
-        BOOST_CHECK_CLOSE_FRACTION( keplerianElements( eccentricityIndex ),
-                                    recomputedKeplerianElements( eccentricityIndex ),
-                                    1.0e-15 );
-
-        BOOST_CHECK_CLOSE_FRACTION( keplerianElements( inclinationIndex ),
-                                    recomputedKeplerianElements( inclinationIndex ),
-                                    std::numeric_limits< double >::epsilon( ) );
-
-        BOOST_CHECK_SMALL( recomputedKeplerianElements( longitudeOfAscendingNodeIndex ),
-                           std::numeric_limits< double >::epsilon( ) );
-
-        BOOST_CHECK_CLOSE_FRACTION( keplerianElements( longitudeOfAscendingNodeIndex )
-                                    + keplerianElements( argumentOfPeriapsisIndex )
-                                    + keplerianElements( trueAnomalyIndex ),
-                                    recomputedKeplerianElements( argumentOfPeriapsisIndex )
-                                    + recomputedKeplerianElements( trueAnomalyIndex ),
-                                    std::numeric_limits< double >::epsilon( ) );
-
-        // Convert recomputed Keplerian elements to Cartesian elements.
-        Eigen::VectorXd recomputedCartesianElements( 6 );
-        recomputedCartesianElements = orbital_element_conversions::
-                convertKeplerianToCartesianElements( recomputedKeplerianElements,
-                                                     earthGravitationalParameter );
-
-        // Check that computed Cartesian elements match.
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( computedCartesianElements, recomputedCartesianElements,
-                                           1.0e-14 );
     }
 }
 
