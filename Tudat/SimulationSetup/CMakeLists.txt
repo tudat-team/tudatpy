@@ -25,6 +25,8 @@ set(SIMULATION_SETUP_SOURCES
   "${SRCROOT}${SIMULATIONSETUPDIR}/createGravityField.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRotationModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodies.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyShapeModel.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.cpp"
 )
 
@@ -37,6 +39,8 @@ set(SIMULATION_SETUP_HEADERS
   "${SRCROOT}${SIMULATIONSETUPDIR}/createGravityField.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRotationModel.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodies.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyShapeModel.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.h"
 )
