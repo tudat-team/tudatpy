@@ -74,14 +74,8 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereGetSet )
     const double scaleHeight = 7.050e3;
 
     // Create an exponential atmosphere object.
-    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
-
-    // Initialize the exponential atmosphere.
-    exponentialAtmosphere.setConstantTemperature( constantTemperature );
-    exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
-    exponentialAtmosphere.setScaleHeight( scaleHeight );
-    exponentialAtmosphere.setSpecificGasConstant(
-                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
+    aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
+                scaleHeight, constantTemperature, densityAtZeroAltitude );
 
     BOOST_CHECK_EQUAL( constantTemperature, exponentialAtmosphere.getConstantTemperature( ) );
     BOOST_CHECK_EQUAL( densityAtZeroAltitude, exponentialAtmosphere.getDensityAtZeroAltitude( ) );
@@ -102,14 +96,8 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereSeaLevel )
     const double pressureAtZeroAltitude = 101325.0;
 
     // Create an exponential atmosphere object.
-    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
-
-    // Initialize the exponential atmosphere.
-    exponentialAtmosphere.setConstantTemperature( constantTemperature );
-    exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
-    exponentialAtmosphere.setScaleHeight( scaleHeight );
-    exponentialAtmosphere.setSpecificGasConstant(
-                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
+    aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
+                scaleHeight, constantTemperature, densityAtZeroAltitude );
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
@@ -138,14 +126,8 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereAt10km )
     double time = 0.0;
 
     // Create an exponential atmosphere object.
-    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
-
-    // Initialize the exponential atmosphere.
-    exponentialAtmosphere.setConstantTemperature( constantTemperature );
-    exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
-    exponentialAtmosphere.setScaleHeight( scaleHeight );
-    exponentialAtmosphere.setSpecificGasConstant(
-                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
+    aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
+                scaleHeight, constantTemperature, densityAtZeroAltitude );
 
     // Declare and set expected density.
     const double expectedDensity  = densityAtZeroAltitude * std::exp ( -altitude / scaleHeight );
@@ -178,14 +160,8 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmospherePositionIndependentFunctions )
     double time = 0.0;
 
     // Create an exponential atmosphere object.
-    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
-
-    // Initialize the exponential atmosphere.
-    exponentialAtmosphere.setConstantTemperature( constantTemperature );
-    exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
-    exponentialAtmosphere.setScaleHeight( scaleHeight );
-    exponentialAtmosphere.setSpecificGasConstant(
-                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
+    aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
+                scaleHeight, constantTemperature, densityAtZeroAltitude );
 
     const double density1 = exponentialAtmosphere.getDensity( altitude );
     const double density2 = exponentialAtmosphere.getDensity( altitude, longitude, latitude,
