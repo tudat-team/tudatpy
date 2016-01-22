@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
+/*    Copyright (c) 2010-2013, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -27,7 +27,6 @@
  *      121030    K. Kumar          File created.
  *      130225    K. Kumar          Updated include-guard and namespace names; updated Vector6d
  *                                  references to use Tudat definition.
- *      150501    D. Dirkx          Ported from personal code
  *
  *    References
  *
@@ -46,11 +45,14 @@
 #include <Eigen/Core>
 
 #include <Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h>
+#include <Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
+#include <Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h>
 #include <Tudat/Astrodynamics/Ephemerides/ephemeris.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldModel.h>
+#include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
 
@@ -122,8 +124,19 @@ public:
         {
             currentRotationToGlobalFrame_ = rotationalEphemeris_->getRotationToBaseFrame(
                         time );
+            currentRotationMatrixDerivativeToGlobalFrame_ =
+                    rotationalEphemeris_->getDerivativeOfRotationToBaseFrame(
+                        time );
+        }
+
+        for( radiationPressureIterator_ = radiationPressureInterfaces_.begin( );
+             radiationPressureIterator_ != radiationPressureInterfaces_.end( );
+             radiationPressureIterator_++ )
+        {
+            radiationPressureIterator_->second->updateInterface( );
         }
     }
+
 
     //! Update body to current time
     /*!
@@ -213,6 +226,17 @@ public:
         rotationalEphemeris_ = rotationalEphemeris;
     }
 
+    void setShapeModel( const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel )
+    {
+        shapeModel_ = shapeModel;
+    }
+
+    void setAerodynamicCoefficientInterface(
+            const boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+            aerodynamicCoefficientInterface)
+    {
+        aerodynamicCoefficientInterface_ = aerodynamicCoefficientInterface;
+    }
 
     //! Function to get the gravity field model of the body.
     /*!
@@ -254,6 +278,17 @@ public:
         return rotationalEphemeris_;
     }
 
+    boost::shared_ptr< basic_astrodynamics::BodyShapeModel > getShapeModel( )
+    {
+        return shapeModel_;
+    }
+
+    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+    getAerodynamicCoefficientInterface( )
+    {
+        return aerodynamicCoefficientInterface_;
+    }
+
 
     //! Get current rotation from body-fixed to inertial frame.
     /*!
@@ -279,6 +314,35 @@ public:
         return currentRotationToGlobalFrame_.inverse( );
     }
 
+    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToGlobalFrame( )
+    {
+        return currentRotationMatrixDerivativeToGlobalFrame_;
+    }
+
+
+    Eigen::Matrix3d getCurrentRotationMatrixDerivativeToLocalFrame( )
+    {
+        return currentRotationMatrixDerivativeToGlobalFrame_.transpose( );
+    }
+
+    double getBodyMass( )
+    {
+        return bodyMass_;
+    }
+
+    std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+    getRadiationPressureInterfaces( )
+    {
+        return radiationPressureInterfaces_;
+    }
+
+    void setRadiationPressureInterface(
+            const std::string radiatingBody,
+            const boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface )
+    {
+        radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
+    }
+
 
 
 protected:
@@ -300,6 +364,9 @@ private:
     //! Current rotation from body-fixed to inertial frame.
     Eigen::Quaterniond currentRotationToGlobalFrame_;
 
+    //! Current rotation from body-fixed to inertial frame.
+    Eigen::Matrix3d currentRotationMatrixDerivativeToGlobalFrame_;
+
     //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
     double bodyMass_;
 
@@ -312,10 +379,16 @@ private:
     //! Atmosphere model of body.
     boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
+    boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+
+    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
+
     //! Rotation model of body.
     boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris_;
 
+    std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > > radiationPressureInterfaces_;
 
+    std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator radiationPressureIterator_;
 };
 
 typedef std::map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
