@@ -59,7 +59,7 @@ namespace aerodynamics
  *  Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
  *  Note that for a custom coefficient interface with other variables, you may use the
  *  undefined_independent_variable variable type, but at the expense of being able to use the
- *  FlightConditions class to automatically update the aerodynamic coefficients during propagation.
+ *  FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
  */
 enum AerodynamicCoefficientsIndependentVariables
 {
