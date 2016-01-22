@@ -99,7 +99,7 @@ const static long double LONG_PI = 3.14159265358979323846264338328L;
  * \return Integer in floating point representation.
  */
 template< typename ScalarType  >
-ScalarType getFloatingInteger( const int integer )
+constexpr ScalarType getFloatingInteger( const int integer )
 {
     return static_cast< ScalarType >( integer );
 }
@@ -115,7 +115,7 @@ ScalarType getFloatingInteger( const int integer )
  * \return Integer in floating point representation.
  */
 template< typename ScalarType  >
-ScalarType getFloatingFraction( const int numerator, const int denominator )
+constexpr ScalarType getFloatingFraction( const int numerator, const int denominator )
 {
     return static_cast< ScalarType >( numerator ) / static_cast< ScalarType >( denominator );
 }
