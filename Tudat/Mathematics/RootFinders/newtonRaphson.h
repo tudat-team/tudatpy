@@ -42,6 +42,7 @@
  *      120810    P. Musegaas       Code-check.
  *      140312    E. Brandon        Removed unneccesary include statement, minor correction Doxygen
  *                                  comments.
+ *      150417    D. Dirkx          Made modifications for templated root finding.
  *
  *    References
  *
@@ -114,13 +115,20 @@ public:
      *  \param maxIterations Maximum number of iterations after which the root finder is
      *  terminated, i.e. convergence is assumed
      */
-    NewtonRaphsonCore( const double relativeXTolerance, const unsigned int maxIterations );
-	
+    NewtonRaphsonCore( const DataType relativeXTolerance, const unsigned int maxIterations )
+        : RootFinderCore< DataType >(
+              boost::bind(
+                  &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
+                  checkTerminationCondition, boost::make_shared<
+                  termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
+                      relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) )
+    {}
+
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~NewtonRaphsonCore( ) { }
+     ~NewtonRaphsonCore( ) { }
 
     //! Find a root of the function provided as input.
     /*!
@@ -158,7 +166,7 @@ public:
 
             // Compute next value of root using the following algorithm (see class documentation):
             nextRootValue          = currentRootValue -
-                                     currentFunctionValue / currentDerivativeValue;
+                    currentFunctionValue / currentDerivativeValue;
             nextFunctionValue      = this->rootFunction->evaluate( nextRootValue );
             nextDerivativeValue    = this->rootFunction->computeDerivative( 1, nextRootValue );
 
@@ -167,25 +175,15 @@ public:
         }
         while( !this->terminationFunction( nextRootValue, currentRootValue, nextFunctionValue,
                                            currentFunctionValue, counter ) );
-		
+
         return nextRootValue;
     }
 
 protected:
 
 private:
-};
 
-//! Constructor taking typical convergence criteria.
-template< typename DataType >
-NewtonRaphsonCore< DataType >::NewtonRaphsonCore( const double relativeXTolerance,
-                                                  const unsigned int maxIterations )
-    : RootFinderCore< DataType >(
-          boost::bind( &termination_conditions::RootRelativeToleranceTerminationCondition::
-                       checkTerminationCondition, boost::make_shared<
-                       termination_conditions::RootRelativeToleranceTerminationCondition >(
-                           relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) )
-{ }
+};
 
 // Some handy typedefs.
 typedef NewtonRaphsonCore< > NewtonRaphson;

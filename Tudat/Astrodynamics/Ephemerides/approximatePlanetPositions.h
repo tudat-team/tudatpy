@@ -47,7 +47,7 @@
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
