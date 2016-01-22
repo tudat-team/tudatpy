@@ -41,9 +41,11 @@
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/SimulationSetup/createEphemeris.h"
 #include "Tudat/SimulationSetup/createAtmosphereModel.h"
+#include "Tudat/SimulationSetup/createBodyShapeModel.h"
 #include "Tudat/SimulationSetup/createEphemeris.h"
 #include "Tudat/SimulationSetup/createGravityField.h"
 #include "Tudat/SimulationSetup/createRotationModel.h"
+#include "Tudat/SimulationSetup/createRadiationPressureInterface.h"
 
 namespace tudat
 {
@@ -70,6 +72,10 @@ struct BodySettings
 
     //! Settings for the rotation model that the body is to contain.
     boost::shared_ptr< RotationModelSettings > rotationModelSettings;
+
+    boost::shared_ptr< BodyShapeSettings > shapeModelSettings;
+
+    std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
 };
 
 //! Function to create a map of bodies objects.
