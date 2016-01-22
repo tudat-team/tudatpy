@@ -38,8 +38,14 @@
 
 #include <string>
 
+#include <boost/function.hpp>
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -84,7 +90,8 @@ public:
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch ) = 0;
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
     //! Get rotation quaternion to target frame from base frame.
     /*!
@@ -96,7 +103,38 @@ public:
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch ) = 0;
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
+
+    //! Function to calculate the derivative of the rotation matrix from target frame to original
+    //! frame.
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from target frame to original
+     *  frame at specified time, to be implemented by derived class.
+     *  \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
+     *  \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
+     *          counted.
+     *  \return Derivative of rotation from target (typically local) to original (typically global)
+     *          frame at specified time.
+     */
+    virtual Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
+
+    //! Function to calculate the derivative of the rotation matrix from original frame to target
+    //! frame.
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from original frame to target
+     *  frame at specified time, to be implemented by derived class.
+     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
+     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
+     *          counted.
+     *  \return Derivative of rotation from original (typically global) to target (typically local)
+     *          frame at specified time.
+     */
+    virtual Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
     //! Get base reference frame orientation.
     /*!
@@ -127,6 +165,65 @@ protected:
     const std::string targetFrameOrientation_;
 
 };
+
+//! Function to calculate the rotational velocity vector of frame B w.r.t frame A.
+/*!
+ *  Function to calculate the rotational velocity vector of frame B (local) w.r.t frame A (global)
+ *  from the rotation matrix between the frames, as well as its time derivative.
+ *  \param rotationToTargetFrame Rotation matrix from frame A to frame B.
+ *  \param rotationMatrixToGlobalFrameDerivative Time derivative if rotation matrix from
+ *  frame B to frame A.
+ *  \return Angular velocity vector of frame B, expressed in frame A.
+ */
+Eigen::Vector3d getRotationalVelocityVectorInBaseFrameFromMatrices(
+        const Eigen::Matrix3d& rotationToTargetFrame,
+        const Eigen::Matrix3d& rotationMatrixToGlobalFrameDerivative );
+
+//! Function to calculate the time derivative of rotation matrix from frame A to frame B.
+/*!
+ *  Function to calculate the time derivative of rotation matrix from frame A (global) to frame B
+ *  (local) from the rotation matrix between the frames, as well as the angular velocity
+ *  vector of frame B w.r.t. frame A.
+ *  \param rotationToTargetFrame Rotation matrix from frame A to frame B.
+ *  \param rotationalVelocityVectorInTargetFrame Angular velocity vector of frame B,
+ *  expressed in frame A.
+ *  \return Time derivative if rotation matrix from frame A to frame B.
+ */
+Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
+        const Eigen::Matrix3d& rotationToTargetFrame,
+        const Eigen::Vector3d& rotationalVelocityVectorInTargetFrame );
+
+//! Transform a state (Cartesian position and velocity) from one frame to another.
+/*!
+ *  Transform a state (Cartesian position and velocity) from one frame to another, taking into
+ *  account both the instantaneous rotational state of the two frames, and the rotational
+ *  rate of one frame w.r.t. the other.
+ *  \param stateInBaseFrame State that is to be transformed from base to target frame.
+ *  \param rotationToFrame Rotation from base to target frame.
+ *  \param rotationMatrixToFrameDerivative Time derivative of rotation matrix from base to target
+ *  frame.
+ *  \return State (Cartesian position and velocity) in target frame.
+ */
+basic_mathematics::Vector6d transformStateToFrame(
+        const basic_mathematics::Vector6d& stateInBaseFrame,
+        const Eigen::Quaterniond& rotationToFrame,
+        const Eigen::Matrix3d& rotationMatrixToFrameDerivative );
+
+//! Transform a state (Cartesian position and velocity) from one frame to another.
+/*!
+ *  Transform a state (Cartesian position and velocity) from one frame to another, taking into
+ *  account both the instantaneous rotational state of the two frames, and the rotational
+ *  rate of one frame w.r.t. the other.
+ *  \param stateInBaseFrame State that is to be transformed from base to target frame.
+ *  \param rotationToFrameFunction Function returning rotation from base to target frame.
+ *  \param rotationMatrixToFrameDerivativeFunction Function returning time derivative of rotation
+ *   matrix from base to target frame.
+ *  \return State (Cartesian position and velocity) in target frame.
+ */
+basic_mathematics::Vector6d transformStateToFrame(
+        const basic_mathematics::Vector6d& stateInBaseFrame,
+        const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
+        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction );
 
 } // namespace tudat
 } // namespace ephemerides

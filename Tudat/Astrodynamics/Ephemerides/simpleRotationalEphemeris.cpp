@@ -67,5 +67,28 @@ Eigen::Quaterniond SimpleRotationalEphemeris::getRotationToTargetFrame(
                 rotationAngle ) * initialRotationToTargetFrame_;
 }
 
+//! Function to calculate the derivative of the rotation matrix from target frame to original frame.
+Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrame(
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
+{
+    // Determine number of seconds since initial rotational state, as set by constructor.
+    double inputSecondsSinceEpoch = secondsSinceEpoch;
+    if ( julianDayAtEpoch != inputReferenceJulianDay_ )
+    {
+        inputSecondsSinceEpoch -= ( inputReferenceJulianDay_ - julianDayAtEpoch )
+                * physical_constants::JULIAN_DAY;
+    }
+
+    // Determine rotation angle compared to initial rotational state.
+    double rotationAngle = basic_mathematics::computeModulo(
+                ( inputSecondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
+                2.0 * mathematical_constants::PI );
+
+    // Calculate derivative of rotation matrix.
+    return rotationRate_ * auxiliaryMatrix_ * tudat::reference_frames::
+            getInertialToPlanetocentricFrameTransformationQuaternion( rotationAngle )
+            * Eigen::Matrix3d( initialRotationToTargetFrame_ );
+}
+
 } // namespace tudat
 } // namespace ephemerides
