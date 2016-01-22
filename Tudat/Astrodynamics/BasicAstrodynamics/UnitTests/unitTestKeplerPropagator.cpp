@@ -43,6 +43,7 @@
  *                                  function in the Kepler propagator. Removed dedicated modulo
  *                                  unit test.
  *      121205    P. Musegaas       Updated code to final version of rootfinders.
+ *      150417    D. Dirkx          Made modifications for templated element conversions.
  *
  *    References
  *      Melman, J. Propagate software, J.C.P.Melman@tudelft.nl, 2010.
@@ -70,6 +71,7 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -225,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_Eccentric_Melman )
     BOOST_CHECK_CLOSE_FRACTION(
                 benchmarkKeplerPropagationHistory.rbegin( )->second( 5 ),
                 basic_mathematics::computeModulo( computedFinalStateInKeplerianElements( 5 ),
-                                            2.0 * mathematical_constants::PI ), 1.0e-8 );
+                                                  2.0 * mathematical_constants::PI ), 1.0e-8 );
 }
 
 //! Test 2: Comparison of kepprop2b() test output from (GSFC, 2012) using modulo option.
@@ -326,7 +328,7 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_hyperbolic_GTOP )
                     computedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
                     expectedPropagationHistory[ static_cast< double >( i ) * timeStep ]( 5 ),
                     1.0e-15 );
-   }
+    }
 }
 
 //! Test 5: Unit test that failed on versions that caused the old modulo function to crash.
@@ -356,5 +358,100 @@ BOOST_AUTO_TEST_CASE( testPropagateKeplerOrbit_FunctionFailingOnOldModuloFunctio
                                 1.0e-15 );
 }
 
+//! Test 6. Propagation test using ODTBX test Kepler elements.
+BOOST_AUTO_TEST_CASE( testMeanAnomalyAgainstMeanMotion )
+{
+    std::vector< double > doubleErrors;
+    // Test using double parameters.
+    {
+        double gravitationalParameter = 398600.4415e9;
+        basic_mathematics::Vector6d initialStateInKeplerianElements;
+
+        initialStateInKeplerianElements << 42165.3431351313e3, 0.26248354351331, 0.30281462522101,
+                4.71463172847351, 4.85569272927819, 2.37248926702153;
+        double timeStep = 600.0;
+        double meanMotion = std::sqrt( gravitationalParameter /
+                                       std::pow( initialStateInKeplerianElements( 0 ), 3.0 ) );
+
+        double initialMeanAnomaly = convertEccentricAnomalyToMeanAnomaly(
+                    convertTrueAnomalyToEccentricAnomaly(
+                        initialStateInKeplerianElements( 5 ), initialStateInKeplerianElements( 1 ) ),
+                    initialStateInKeplerianElements( 1 ) );
+
+        double propagationTime, propagatedMeanAnomaly;
+
+        basic_mathematics::Vector6d propagatedKeplerElements;
+
+
+        for( int i = -25; i < 26; i++ )
+        {
+            propagationTime = static_cast< double >( i ) * timeStep;
+            propagatedKeplerElements = propagateKeplerOrbit(
+                        initialStateInKeplerianElements, propagationTime, gravitationalParameter );
+            propagatedMeanAnomaly = convertEccentricAnomalyToMeanAnomaly(
+                        convertTrueAnomalyToEccentricAnomaly(
+                            propagatedKeplerElements( 5 ), initialStateInKeplerianElements( 1 ) ),
+                        initialStateInKeplerianElements( 1 ) );
+            doubleErrors.push_back( meanMotion * propagationTime - ( propagatedMeanAnomaly - initialMeanAnomaly ) );
+        }
+    }
+
+    std::vector< double > longDoubleErrors;
+    // Test using long double parameters.
+    {
+        long double gravitationalParameter = 398600.4415e9L;
+        Eigen::Matrix< long double, 6, 1 > initialStateInKeplerianElements;
+
+        initialStateInKeplerianElements << 42165.3431351313e3L, 0.26248354351331L, 0.30281462522101L,
+                4.71463172847351L, 4.85569272927819L, 2.37248926702153L;
+        long double timeStep = 600.0L;
+        long double meanMotion = std::sqrt( gravitationalParameter /
+                                            ( initialStateInKeplerianElements( 0 ) *
+                                              initialStateInKeplerianElements( 0 ) *
+                                              initialStateInKeplerianElements( 0 ) ) );
+
+        long double initialMeanAnomaly = convertEccentricAnomalyToMeanAnomaly< long double >(
+                    convertTrueAnomalyToEccentricAnomaly< long double >(
+                        initialStateInKeplerianElements( 5 ), initialStateInKeplerianElements( 1 ) ),
+                    initialStateInKeplerianElements( 1 ) );
+
+        long double propagationTime, propagatedMeanAnomaly;
+
+        Eigen::Matrix< long double, 6, 1 > propagatedKeplerElements;
+
+
+        for( int i = -25; i < 26; i++ )
+        {
+            propagationTime = static_cast< long double >( i ) * timeStep;
+
+            propagatedKeplerElements = propagateKeplerOrbit< long double >(
+                        initialStateInKeplerianElements, propagationTime, gravitationalParameter );
+            propagatedMeanAnomaly = convertEccentricAnomalyToMeanAnomaly< long double >(
+                        convertTrueAnomalyToEccentricAnomaly< long double >(
+                            propagatedKeplerElements( 5 ), initialStateInKeplerianElements( 1 ) ),
+                        initialStateInKeplerianElements( 1 ) );
+
+            longDoubleErrors.push_back( static_cast< double >(
+                                            meanMotion * propagationTime -
+                                            ( propagatedMeanAnomaly - initialMeanAnomaly ) ) );
+        }
+    }
+
+    for( unsigned int i = 0; i < doubleErrors.size( ); i++ )
+    {
+        if( std::fabs( doubleErrors.at( i ) ) > 0.0 )
+        {
+            BOOST_CHECK_SMALL(
+                        static_cast< double >( std::fabs( longDoubleErrors.at( i ) / doubleErrors.at( i ) ) ),
+                        static_cast< double >( 5.0 * std::numeric_limits< long double >::epsilon( ) /
+                        std::numeric_limits< double >::epsilon( ) ) );
+        }
+        else
+        {
+            BOOST_CHECK_SMALL( static_cast< double >( longDoubleErrors.at( i ) ),
+                               static_cast< double >( 5.0 * std::numeric_limits< long double >::epsilon( ) ) );
+        }
+    }
+}
 } // namespace unit_tests
 } // namespace tudat

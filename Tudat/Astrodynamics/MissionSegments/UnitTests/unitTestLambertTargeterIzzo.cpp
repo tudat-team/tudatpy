@@ -308,17 +308,17 @@ BOOST_AUTO_TEST_CASE ( testNearPi )
     const double solarGravitationalParameter = 1.32712428e20;
 
     // Set Keplerian elements at departure and arrival.
-    Eigen::VectorXd keplerianStateAtDeparture( 6 ), keplerianStateAtArrival( 6 );
+    Eigen::Matrix< double, 6, 1 > keplerianStateAtDeparture, keplerianStateAtArrival;
     keplerianStateAtDeparture << convertAstronomicalUnitsToMeters( 1.0 ), 0.0,
             0.0, 0.0, 0.0, 0.0;
     keplerianStateAtArrival << convertAstronomicalUnitsToMeters( 1.5 ), 0.0, 0.0,
             0.0, 0.0, convertDegreesToRadians( 179.999 );
 
     //  Convert to Cartesian elements.
-    const Eigen::VectorXd cartesianStateAtDeparture =
+    const Eigen::Matrix< double, 6, 1 > cartesianStateAtDeparture =
             orbital_element_conversions::convertKeplerianToCartesianElements(
                 keplerianStateAtDeparture, solarGravitationalParameter );
-    const Eigen::VectorXd cartesianStateAtArrival =
+    const Eigen::Matrix< double, 6, 1 > cartesianStateAtArrival =
             orbital_element_conversions::convertKeplerianToCartesianElements(
                 keplerianStateAtArrival, solarGravitationalParameter );
 

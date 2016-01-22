@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      140219    E. Brandon        File copied from Newton-Raphson unit test.
+ *      150417    D. Dirkx          Made modifications for templated root finding.
  *
  *    References
  *
@@ -63,9 +64,10 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunction1 )
 
     // The termination condition.
     SecantRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
-                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
+            boost::bind(
+                &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+                    testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Secant object. Use the default value of the first initial guess.
     SecantRootFinder secantRootFinder( terminationConditionFunction );
@@ -86,9 +88,10 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunction2 )
 
     // The termination condition.
     SecantRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
-                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
+            boost::bind(
+                &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+                    testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Secant object. Use the default value of the first initial guess.
     SecantRootFinder secantRootFinder( terminationConditionFunction );
@@ -109,9 +112,10 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunction3 )
 
     // The termination condition.
     SecantRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
-                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
+            boost::bind(
+                &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+                    testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Secant object. Use the default value of the first initial guess.
     SecantRootFinder secantRootFinder( terminationConditionFunction );
@@ -147,8 +151,8 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunctionWithLargeRootDifference 
 
     // The termination condition.
     SecantRootFinder::TerminationFunction terminationConditionFunction
-            = boost::bind( &RootRelativeToleranceTerminationCondition::checkTerminationCondition,
-                           boost::make_shared< RootRelativeToleranceTerminationCondition >(
+            = boost::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
+                           boost::make_shared< RootRelativeToleranceTerminationCondition< > >(
                                1.0e-10 ), _1, _2, _3, _4, _5 );
 
     // Test Secant object, per case.
@@ -176,9 +180,10 @@ BOOST_AUTO_TEST_CASE( test_secantRootFinder_testFunctionWithZeroRoot )
 
     // The termination condition.
     SecantRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
-                             1.0e-150 ), _1, _2, _3, _4, _5 );
+            boost::bind(
+                &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+                    1.0e-150 ), _1, _2, _3, _4, _5 );
 
     // Test Secant object. Use the default value of the first initial guess.
     SecantRootFinder secantRootFinder( terminationConditionFunction );

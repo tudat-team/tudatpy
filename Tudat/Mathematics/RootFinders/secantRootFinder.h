@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120208    S. Billemont      Creation of code.
  *      140219    E. Brandon        Adapted to current Tudat root-finder structure.
+ *      150417    D. Dirkx          Made modifications for templated root finding.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
@@ -124,7 +125,15 @@ public:
      *          (Default is 0.5)
      */
     SecantRootFinderCore( const double relativeXTolerance, const unsigned int maxIterations,
-                          const DataType initialGuessOfRootOne = 0.5 );
+                          const DataType initialGuessOfRootOne = 0.5 )
+        : RootFinderCore< DataType >(
+              boost::bind(
+                  &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
+                  checkTerminationCondition, boost::make_shared<
+                  termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
+                      relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) ),
+          initialGuessOfRootOne_( initialGuessOfRootOne )
+    { }
 
     //! Default destructor.
     ~SecantRootFinderCore( ) { }
@@ -185,8 +194,8 @@ public:
 
             // Compute next value of root using the following algorithm (see class documentation):
             nextRootValue           = currentRootValue - currentFunctionValue
-                                      * ( currentRootValue - lastRootValue )
-                                      / ( currentFunctionValue - lastFunctionValue );
+                    * ( currentRootValue - lastRootValue )
+                    / ( currentFunctionValue - lastFunctionValue );
             nextFunctionValue       = this->rootFunction->evaluate( nextRootValue );
 
             // Update the counter.
@@ -222,19 +231,6 @@ private:
     double initialGuessOfRootOne_;
 
 };
-
-//! Constructor taking typical convergence criteria and the least accurate initial guess.
-template< typename DataType >
-SecantRootFinderCore< DataType >::SecantRootFinderCore( const double relativeXTolerance,
-                                                        const unsigned int maxIterations,
-                                                        const DataType initialGuessOfRootOne )
-    : RootFinderCore< DataType >(
-          boost::bind( &termination_conditions::RootRelativeToleranceTerminationCondition::
-                       checkTerminationCondition, boost::make_shared<
-                       termination_conditions::RootRelativeToleranceTerminationCondition >(
-                           relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) ),
-      initialGuessOfRootOne_( initialGuessOfRootOne )
-{ }
 
 // Some handy typedefs.
 typedef SecantRootFinderCore< double > SecantRootFinder;
