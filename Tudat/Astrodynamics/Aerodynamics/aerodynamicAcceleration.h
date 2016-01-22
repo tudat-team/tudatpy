@@ -70,11 +70,7 @@ namespace aerodynamics
 Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
                                                 const double referenceArea,
                                                 const Eigen::Vector3d& aerodynamicCoefficients,
-                                                const double vehicleMass )
-{
-    return computeAerodynamicForce( dynamicPressure, referenceArea, aerodynamicCoefficients )
-            / vehicleMass;
-}
+                                                const double vehicleMass );
 
 //! Compute the aerodynamic acceleration in same reference frame as input coefficients.
 /*!
@@ -92,10 +88,7 @@ Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
 Eigen::Vector3d computeAerodynamicAcceleration(
         const double dynamicPressure,
         AerodynamicCoefficientInterfacePointer coefficientInterface,
-        const double vehicleMass )
-{
-    return computeAerodynamicForce( dynamicPressure, coefficientInterface ) / vehicleMass;
-}
+        const double vehicleMass );
 
 //! Class for calculation of aerodynamic accelerations.
 /*!
