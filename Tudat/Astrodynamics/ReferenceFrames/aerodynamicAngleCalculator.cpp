@@ -209,9 +209,8 @@ getAerodynamicForceTransformationFunction(
         const AerodynamicsReferenceFrames propagationFrame )
 {
     boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction;
-    AerodynamicsReferenceFrames aerodynamicBaseFrame = propagationFrame;
 
-    if( aerodynamicBaseFrame == inertial_frame )
+    if( propagationFrame == inertial_frame )
     {
         std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > > rotationsList;
 
@@ -238,10 +237,9 @@ getAerodynamicForceTransformationFunction(
     }
     else
     {
-
         boost::function< Eigen::Quaterniond( ) > rotationFunction =
                 boost::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
-                             aerodynamicAngleCalculator, accelerationFrame, aerodynamicBaseFrame );
+                             aerodynamicAngleCalculator, accelerationFrame, propagationFrame );
         transformationFunction = boost::bind(
                     static_cast< Eigen::Vector3d(&)(
                         const Eigen::Vector3d&,

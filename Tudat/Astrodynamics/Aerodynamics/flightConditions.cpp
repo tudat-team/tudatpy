@@ -48,17 +48,23 @@ FlightConditions::FlightConditions(
 void FlightConditions::updateConditions(  )
 {
     currentTime_ = currentTimeFunction_( );
+
+    // Calculate state of vehicle in global frame and corotating frame.
     currentBodyCenteredState_ = stateOfVehicle_( ) - stateOfCentralBody_( );
     currentBodyCenteredPseudoBodyFixedState_ = transformationToCentralBodyFrame_(
                 currentBodyCenteredState_ );
+
+    // Calculate altitute and airspeed of vehicle.
     currentAltitude_ = altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
     currentAirspeed_ = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
 
+    // Update aerodynamic/geometric angles.
     if( aerodynamicAngleCalculator_!= NULL )
     {
         aerodynamicAngleCalculator_->update( );
     }
 
+    // Update latitude and longitude (if required)
     if( updateLatitudeAndLongitude_ )
     {
         currentLatitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
@@ -67,18 +73,26 @@ void FlightConditions::updateConditions(  )
                     reference_frames::longitude_angle );
     }
 
+    // Update density
+    currentDensity_ = atmosphereModel_->getDensity( currentAltitude_, currentLongitude_,
+                                                    currentLatitude_, currentTime_ );
+
+    // Calculate independent variables for aerodynamic coefficients.
     std::vector< double > aerodynamicCoefficientIndependentVariables;
     for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->
          getNumberOfIndependentVariables( ); i++ )
     {
         switch( aerodynamicCoefficientInterface_->getIndependentVariableName( i ) )
         {
+        //Calculate Mach number if needed.
         case mach_number_dependent:
             aerodynamicCoefficientIndependentVariables.push_back(
                         currentAirspeed_ / atmosphereModel_->getSpeedOfSound(
                             currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) );
             break;
+        //Get angle of attack if needed.
         case angle_of_attack_dependent:
+
             if( aerodynamicAngleCalculator_== NULL )
             {
                 throw( "" );
@@ -86,6 +100,7 @@ void FlightConditions::updateConditions(  )
             aerodynamicCoefficientIndependentVariables.push_back(
                         aerodynamicAngleCalculator_->getAerodynamicAngle( reference_frames::angle_of_attack ) );
             break;
+        //Get angle of sideslip if needed.
         case angle_of_sideslip_dependent:
             if( aerodynamicAngleCalculator_== NULL )
             {
@@ -98,8 +113,10 @@ void FlightConditions::updateConditions(  )
         }
     }
 
-    currentDensity_ = atmosphereModel_->getDensity( currentAltitude_, currentLongitude_,
-                                                    currentLatitude_, currentTime_ );
+    // Update aerodynamic coefficients.
+    aerodynamicCoefficientInterface_->updateCurrentCoefficients(
+                aerodynamicCoefficientIndependentVariables );
+
 
 }
 
