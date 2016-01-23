@@ -37,12 +37,14 @@
 set(REFERENCEFRAMES_SOURCES
   "${SRCROOT}${REFERENCEFRAMESDIR}/referenceFrameTransformations.cpp"
   "${SRCROOT}${REFERENCEFRAMESDIR}/apparentAccelerationModel.cpp"
+  "${SRCROOT}${REFERENCEFRAMESDIR}/aerodynamicAngleCalculator.cpp"
 )
 
 # Add header files.
 set(REFERENCEFRAMES_HEADERS 
   "${SRCROOT}${REFERENCEFRAMESDIR}/referenceFrameTransformations.h"
   "${SRCROOT}${REFERENCEFRAMESDIR}/apparentAccelerationModel.h"
+  "${SRCROOT}${REFERENCEFRAMESDIR}/aerodynamicAngleCalculator.h"
 )
 
 # Add static libraries.

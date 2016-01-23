@@ -43,6 +43,7 @@ set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
 )
 
 # Set the header files.
@@ -60,6 +61,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/standardAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.h"
 )
 
 # Add static libraries.
