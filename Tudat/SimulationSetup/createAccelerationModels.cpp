@@ -277,6 +277,7 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
 
     boost::shared_ptr< FlightConditions > bodyFlightConditions =
             bodyUndergoingAcceleration->getFlightConditions( );
+
     if( bodyFlightConditions == NULL )
     {
         bodyUndergoingAcceleration->setFlightConditions(

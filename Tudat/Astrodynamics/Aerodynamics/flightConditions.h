@@ -74,7 +74,8 @@ public:
 
     //! Function to return density
     /*!
-     *  Function to return density that was set by previous call of updateConditions or updateDensity function.
+     *  Function to return density that was set by previous call of updateConditions or
+     *  updateDensity function.
      *  \return Current altitude
      */
     double getCurrentDensity( ) const
@@ -82,6 +83,11 @@ public:
         return currentDensity_;
     }
 
+    //! Function to return airspeed
+    /*!
+     *  Function to return airspeed that was set by previous call of updateConditions.
+     *  \return Current altitude
+     */
     double getCurrentAirspeed( ) const
     {
         return currentAirspeed_;
@@ -146,23 +152,31 @@ private:
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
+    //! Current state of vehicle in base frame for Body objects.
     basic_mathematics::Vector6d currentBodyCenteredState_;
 
+    //! Current state of vehicle in body-fixed frame.
     basic_mathematics::Vector6d currentBodyCenteredPseudoBodyFixedState_;
+
     //! Current density at vehicle's position.
     double currentDensity_;
 
+    //! Current airspeed at vehicle's position.
     double currentAirspeed_;
 
     //! Current altitude of vehicle above central body's shapeModel_
     double currentAltitude_;
 
+    //! Current latitude of vehicle above central body.
     double currentLatitude_;
 
+    //! Current longitude of vehicle above central body.
     double currentLongitude_;
 
+    //! Current time of propagation.
     double currentTime_;
 
+    //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitude_;
 };
 
