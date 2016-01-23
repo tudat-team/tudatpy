@@ -83,6 +83,13 @@ private:
     bool calculateVerticalToAerodynamicFrame_;
 };
 
+boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
+getAerodynamicForceTransformationFunction(
+        const boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+        const AerodynamicsReferenceFrames accelerationFrame,
+        const boost::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
+    boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+        const AerodynamicsReferenceFrames propagationFrame = inertial_frame);
 }
 
 }

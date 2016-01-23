@@ -46,6 +46,7 @@
 
 #include <Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h>
 #include <Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h>
+#include <Tudat/Astrodynamics/Aerodynamics/flightConditions.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h>
@@ -127,6 +128,11 @@ public:
             currentRotationMatrixDerivativeToGlobalFrame_ =
                     rotationalEphemeris_->getDerivativeOfRotationToBaseFrame(
                         time );
+        }
+
+        if( aerodynamicFlightConditions_ != NULL )
+        {
+            aerodynamicFlightConditions_->updateConditions( );
         }
 
         for( radiationPressureIterator_ = radiationPressureInterfaces_.begin( );
@@ -238,6 +244,13 @@ public:
         aerodynamicCoefficientInterface_ = aerodynamicCoefficientInterface;
     }
 
+    void setFlightConditions(
+            const boost::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions )
+    {
+       aerodynamicFlightConditions_ = aerodynamicFlightConditions;
+    }
+
+
     //! Function to get the gravity field model of the body.
     /*!
      *  Function to get the gravity field model of the body.
@@ -287,6 +300,11 @@ public:
     getAerodynamicCoefficientInterface( )
     {
         return aerodynamicCoefficientInterface_;
+    }
+
+    boost::shared_ptr< aerodynamics::FlightConditions > getFlightConditions( )
+    {
+       return aerodynamicFlightConditions_;
     }
 
 
@@ -382,6 +400,9 @@ private:
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
+
+    //! Body's aerodynamic coefficient interface object.
+    boost::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions_;
 
     //! Rotation model of body.
     boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris_;
