@@ -36,9 +36,12 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/SimulationSetup/accelerationModelTypes.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
+#include "Tudat/SimulationSetup/createFlightConditions.h"
 
 namespace tudat
 {
@@ -247,6 +250,102 @@ createThirdBodyCentralGravityAccelerationModel(
     return accelerationModelPointer;
 }
 
+
+boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcceleratioModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration )
+{
+    if( bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( ) == NULL )
+    {
+        std::cerr<<"Error when making aerodynamic acceleration, vehicle has no aerodynamic "
+                   "coefficients."<<std::endl;
+    }
+
+    if( bodyExertingAcceleration->getAtmosphereModel( ) == NULL )
+    {
+        std::cerr<<"Error when making aerodynamic acceleration, central body has no atmosphere "
+                   "model."<<std::endl;
+    }
+
+    if( bodyExertingAcceleration->getShapeModel( ) == NULL )
+    {
+        std::cerr<<"Error when making aerodynamic acceleration, central body has no shape "
+                   "model."<<std::endl;
+    }
+
+    boost::shared_ptr< FlightConditions > bodyFlightConditions =
+            bodyUndergoingAcceleration->getFlightConditions( );
+    if( bodyFlightConditions == NULL )
+    {
+        bodyUndergoingAcceleration->setFlightConditions(
+                    createFlightConditions( bodyUndergoingAcceleration,
+                                            bodyExertingAcceleration ) );
+        bodyFlightConditions = bodyUndergoingAcceleration->getFlightConditions( );
+    }
+
+    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
+            bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( );
+
+    boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
+
+    reference_frames::AerodynamicsReferenceFrames accelerationFrame;
+    if( aerodynamicCoefficients->getAreCoefficientsInAerodynamicFrame( ) )
+    {
+        accelerationFrame = reference_frames::aerodynamic_frame;
+    }
+    else
+    {
+        accelerationFrame = reference_frames::body_frame;
+    }
+
+    toPropagationFrameTransformation =
+            reference_frames::getAerodynamicForceTransformationFunction(
+                bodyFlightConditions->getAerodynamicAngleCalculator( ),
+                accelerationFrame,
+                boost::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
+                reference_frames::inertial_frame );
+
+    return boost::make_shared< AerodynamicAcceleration >(
+                boost::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
+                             aerodynamicCoefficients ),
+                boost::bind( &FlightConditions::getCurrentDensity, bodyFlightConditions ),
+                boost::bind( &FlightConditions::getCurrentAirspeed, bodyFlightConditions ),
+                boost::bind( &Body::getBodyMass, bodyUndergoingAcceleration ),
+                boost::bind( &AerodynamicCoefficientInterface::getReferenceArea,
+                             aerodynamicCoefficients ),
+                aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
+}
+
+boost::shared_ptr< CannonBallRadiationPressure >
+createCannonballRadiationPressureAcceleratioModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration )
+{
+    if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
+                nameOfBodyExertingAcceleration ) == 0 )
+    {
+        std::cerr<<"Error when making radiation pressure    , no radiation pressure "<<
+                   " interface found for body "<<nameOfBodyExertingAcceleration<<std::endl;
+    }
+    boost::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
+            bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
+                            nameOfBodyExertingAcceleration );
+
+    return boost::make_shared< CannonBallRadiationPressure >(
+                boost::bind( &Body::getPosition, bodyExertingAcceleration ),
+                boost::bind( &Body::getPosition, bodyUndergoingAcceleration ),
+                boost::bind( &RadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
+                boost::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
+                boost::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
+                boost::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+
+}
+
+
 //! Function to create acceleration model object.
 boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
@@ -315,6 +414,13 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                         "Error, cannot yet make third body spherical harmonic acceleration." );
 
         }
+        break;
+    case aerodynamic:
+        accelerationModelPointer = createAerodynamicAcceleratioModel(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration );
         break;
     default:
         throw std::runtime_error(

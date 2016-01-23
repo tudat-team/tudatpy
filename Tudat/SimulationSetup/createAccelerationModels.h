@@ -137,6 +137,20 @@ createThirdBodyCentralGravityAccelerationModel(
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody );
 
+boost::shared_ptr< aerodynamics::AerodynamicAcceleration >
+createAerodynamicAcceleratioModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration );
+
+boost::shared_ptr< electro_magnetism::CannonBallRadiationPressure >
+createCannonballRadiationPressureAcceleratioModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration );
+
 //! Function to create acceleration model object.
 /*!
  *  Function to create acceleration model object.

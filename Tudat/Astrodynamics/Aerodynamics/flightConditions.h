@@ -45,8 +45,7 @@ public:
      *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
      *  of the vehicle are calculated.
      */
-    FlightConditions( const std::string& centralBody,
-                      const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
+    FlightConditions( const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
                       const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
                       const boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle,
                       const boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody,
@@ -86,17 +85,6 @@ public:
     double getCurrentAirspeed( ) const
     {
         return currentAirspeed_;
-    }
-
-
-    //! Function to return central body name
-    /*!
-     *  Function to return central body name
-     *  \return Name of central body
-     */
-    std::string getCentralBodyName( ) const
-    {
-        return centralBody_;
     }
 
     //! Function to return atmosphere model object

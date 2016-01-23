@@ -1,3 +1,5 @@
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -199,6 +201,56 @@ double AerodynamicAngleCalculator::getAerodynamicAngle( const AerodynamicsRefere
     return angleValue;
 }
 
+boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
+getAerodynamicForceTransformationFunction(
+        const boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+        const AerodynamicsReferenceFrames accelerationFrame,
+        const boost::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction,
+        const AerodynamicsReferenceFrames propagationFrame )
+{
+    boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction;
+    AerodynamicsReferenceFrames aerodynamicBaseFrame = propagationFrame;
+
+    if( aerodynamicBaseFrame == inertial_frame )
+    {
+        std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > > rotationsList;
+
+        boost::function< Eigen::Quaterniond( ) > firstRotation =
+                boost::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
+                             aerodynamicAngleCalculator, accelerationFrame, corotating_frame );
+        rotationsList.push_back(
+                    boost::bind(
+                        static_cast< Eigen::Vector3d(&)(
+                            const Eigen::Vector3d&,
+                            const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ),
+                        _1, firstRotation ) );
+        rotationsList.push_back(
+                    boost::bind(
+                        static_cast< Eigen::Vector3d(&)(
+                            const Eigen::Vector3d&,
+                            const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ),
+                        _1, bodyFixedToInertialFrameFunction ) );
+        transformationFunction = boost::bind(
+                    static_cast< Eigen::Vector3d(&)(
+                        const Eigen::Vector3d&,
+                        const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& ) >( &transformVector ),
+                    _1, rotationsList );
+    }
+    else
+    {
+
+        boost::function< Eigen::Quaterniond( ) > rotationFunction =
+                boost::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
+                             aerodynamicAngleCalculator, accelerationFrame, aerodynamicBaseFrame );
+        transformationFunction = boost::bind(
+                    static_cast< Eigen::Vector3d(&)(
+                        const Eigen::Vector3d&,
+                        const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ), _1,
+                     rotationFunction );
+    }
+
+    return transformationFunction;
+}
 
 }
 

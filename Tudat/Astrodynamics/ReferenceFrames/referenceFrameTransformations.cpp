@@ -60,6 +60,27 @@ namespace tudat
 namespace reference_frames
 {
 
+Eigen::Vector3d transformVector(
+        const Eigen::Vector3d& originalVector,
+        const boost::function< Eigen::Quaterniond( ) > rotation )
+{
+    return rotation( ) * originalVector;
+}
+
+Eigen::Vector3d transformVector(
+        const Eigen::Vector3d& originalVector,
+        const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
+{
+    Eigen::Vector3d currentVector = originalVector;
+    Eigen::Vector3d newVector;
+    for( unsigned int i = 0; i < rotationsList.size( ); i++ )
+    {
+        newVector = rotationsList.at( i )( currentVector );
+        currentVector = newVector;
+    }
+    return currentVector;
+}
+
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Eigen::Matrix3d
 getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR )

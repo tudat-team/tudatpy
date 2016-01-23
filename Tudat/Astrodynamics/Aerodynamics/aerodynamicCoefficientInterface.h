@@ -244,6 +244,15 @@ public:
         return numberOfIndependentVariables_;
     }
 
+    bool getAreCoefficientsInAerodynamicFrame( )
+    {
+        return areCoefficientsInAerodynamicFrame_;
+    }
+
+    bool getAreCoefficientsInNegativeAxisDirection( )
+    {
+        return areCoefficientsInNegativeAxisDirection_;
+    }
 
 
 protected:

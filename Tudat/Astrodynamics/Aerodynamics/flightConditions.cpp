@@ -13,7 +13,6 @@ namespace aerodynamics
 
 
 FlightConditions::FlightConditions(
-        const std::string& centralBody,
         const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
         const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
         const boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle,
@@ -24,7 +23,7 @@ FlightConditions::FlightConditions(
         const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
         const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
         aerodynamicAngleCalculator ):
-    centralBody_( centralBody ), atmosphereModel_( atmosphereModel ),
+    atmosphereModel_( atmosphereModel ),
     altitudeFunction_( altitudeFunction ),
     stateOfVehicle_( stateOfVehicle ),
     stateOfCentralBody_( stateOfCentralBody ),
