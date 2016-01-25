@@ -43,6 +43,61 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
+template< >
+double getJulianDayOnJ2000< double >( )
+{
+    return JULIAN_DAY_ON_J2000;
+}
+
+template< >
+long double getJulianDayOnJ2000< long double >( )
+{
+    return JULIAN_DAY_ON_J2000_LONG;
+}
+
+template< >
+double getJulianDayOnMjd0< double >( )
+{
+    return JULIAN_DAY_AT_0_MJD;
+}
+
+template< >
+long double getJulianDayOnMjd0< long double >( )
+{
+    return JULIAN_DAY_AT_0_MJD_LONG;
+}
+
+template< >
+double getTimeOfTaiSynchronizationJulianDay< double >( )
+{
+    return TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION;
+}
+
+template< >
+long double getTimeOfTaiSynchronizationJulianDay< long double >( )
+{
+    return TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG;
+}
+
+template< >
+double getTimeOfTaiSynchronizationSinceJ2000< double >( )
+{
+    return TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION * physical_constants::getJulianDay< double >( );
+}
+
+template< >
+long double getTimeOfTaiSynchronizationSinceJ2000< long double >( )
+{
+    return TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG * physical_constants::getJulianDay< long double >( );
+}
+
+template< >
+Time getTimeOfTaiSynchronizationSinceJ2000< Time >( )
+{
+    return Time( getTimeOfTaiSynchronizationSinceJ2000< long double >( ) );
+}
+
+
 //! Compute number of seconds since a reference Julian day.
 double convertJulianDayToSecondsSinceEpoch( const double julianDay,
                                             const double epochSinceJulianDayZero )
@@ -55,6 +110,81 @@ double convertSecondsSinceEpochToJulianDay( const double secondsSinceEpoch,
                                             const double epochSinceJulianDayZero )
 {
     return ( secondsSinceEpoch / physical_constants::JULIAN_DAY + epochSinceJulianDayZero );
+}
+
+//! Compute the Julian day from the calendar date and time.
+double convertCalendarDateToJulianDay( const int calendarYear,
+                                       const int calendarMonth,
+                                       const int calendarDay,
+                                       const int calendarHour,
+                                       const int calendarMinutes,
+                                       const double calendarSeconds )
+{
+    // Calculate julian day of calendar date.
+    double julianDay = boost::gregorian::date( calendarYear, calendarMonth, calendarDay ).julian_day( );
+
+    //Compute day fraction
+    const double dayFraction = static_cast< double >( calendarHour ) / 24.0 +
+                               static_cast< double >( calendarMinutes ) / ( 24.0 * 60.0 ) +
+                               calendarSeconds / ( 24.0 * 3600.0 );
+
+    // Compute Julian day by adding day fraction and subtracting 0.5 to reference to midnight
+    // instead of noon..
+    return julianDay + dayFraction - 0.5;
+}
+
+template< >
+double getJulianDayOnJ2000< double >( )
+{
+    return JULIAN_DAY_ON_J2000;
+}
+
+template< >
+long double getJulianDayOnJ2000< long double >( )
+{
+    return JULIAN_DAY_ON_J2000_LONG;
+}
+
+template< >
+double getJulianDayOnMjd0< double >( )
+{
+    return JULIAN_DAY_AT_0_MJD;
+}
+
+template< >
+long double getJulianDayOnMjd0< long double >( )
+{
+    return JULIAN_DAY_AT_0_MJD_LONG;
+}
+
+template< >
+double getTimeOfTaiSynchronizationJulianDay< double >( )
+{
+    return TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION;
+}
+
+template< >
+long double getTimeOfTaiSynchronizationJulianDay< long double >( )
+{
+    return TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG;
+}
+
+template< >
+double getTimeOfTaiSynchronizationSinceJ2000< double >( )
+{
+    return TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION * physical_constants::getJulianDay< double >( );
+}
+
+template< >
+long double getTimeOfTaiSynchronizationSinceJ2000< long double >( )
+{
+    return TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG * physical_constants::getJulianDay< long double >( );
+}
+
+template< >
+Time getTimeOfTaiSynchronizationSinceJ2000< Time >( )
+{
+    return Time( getTimeOfTaiSynchronizationSinceJ2000< long double >( ) );
 }
 
 //! Compute the Julian day from the calendar date and time.

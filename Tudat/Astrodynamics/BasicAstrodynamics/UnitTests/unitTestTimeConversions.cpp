@@ -181,6 +181,150 @@ BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testTimeConversions )
+{
+    const double testModifiedJulianDay = 54583.87;
+    const double testJulianDay = testModifiedJulianDay + JULIAN_DAY_AT_0_MJD;
+
+    BOOST_CHECK_CLOSE_FRACTION( testJulianDay, convertModifiedJulianDayToJulianDay( testModifiedJulianDay ),
+                                5.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay, convertJulianDayToModifiedJulianDay( testJulianDay ),
+                                10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( convertJulianDayToModifiedJulianDay(
+                                    convertModifiedJulianDayToJulianDay( testModifiedJulianDay ) ),
+                                testModifiedJulianDay, 10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( convertModifiedJulianDayToJulianDay(
+                                    convertJulianDayToModifiedJulianDay( testJulianDay ) ),
+                                testJulianDay, 5.0 * std::numeric_limits< double >::epsilon( ) );
+
+    double secondsSinceModifedJulianDayZero = testModifiedJulianDay * JULIAN_DAY;
+
+    BOOST_CHECK_CLOSE_FRACTION( secondsSinceModifedJulianDayZero, convertJulianDayToSecondsSinceEpoch(
+                                    testJulianDay, JULIAN_DAY_AT_0_MJD ),
+                                10.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testJulianDay, convertSecondsSinceEpochToJulianDay(
+                                    secondsSinceModifedJulianDayZero, JULIAN_DAY_AT_0_MJD ),
+                                5.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay /  JULIAN_YEAR_IN_DAYS, convertSecondsSinceEpochToJulianYearsSinceEpoch(
+                                    secondsSinceModifedJulianDayZero ),
+                                5.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay / (  JULIAN_YEAR_IN_DAYS * 100.0 ),
+                                convertSecondsSinceEpochToJulianCenturiesSinceEpoch( secondsSinceModifedJulianDayZero ),
+                                5.0 * std::numeric_limits< double >::epsilon( ) );
+
+    int testYear = 2008;
+    int testMonth = 4;
+    int testDay = 27;
+    boost::gregorian::date testCalendarDate( testYear, testMonth, testDay );
+    double testFractionOfDay = 0.37;
+
+    boost::gregorian::date calendarDate = convertJulianDayToCalendarDate( testJulianDay );
+
+    BOOST_CHECK_EQUAL( testYear, calendarDate.year( ) );
+    BOOST_CHECK_EQUAL( testMonth, calendarDate.month( ) );
+    BOOST_CHECK_EQUAL( testDay, calendarDate.day( ) );
+
+    calendarDate = convertJulianDayToCalendarDate( testJulianDay + 0.5 );
+
+    BOOST_CHECK_EQUAL( testYear, calendarDate.year( ) );
+    BOOST_CHECK_EQUAL( testMonth, calendarDate.month( ) );
+    BOOST_CHECK_EQUAL( testDay + 1, calendarDate.day( ) );
+
+    BOOST_CHECK_CLOSE_FRACTION( calculateJulianDaySinceEpoch(
+                testCalendarDate, 0.87, JULIAN_DAY_AT_0_MJD ), testModifiedJulianDay,
+                                50.0 * std::numeric_limits< double >::epsilon( ) );
+
+    double secondsSinceJ2000Synchronization = ( TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION ) * JULIAN_DAY;
+
+    double testTcg = convertTtToTcg( secondsSinceJ2000Synchronization );
+    double testTt = convertTcgToTt( secondsSinceJ2000Synchronization );
+
+    BOOST_CHECK_CLOSE_FRACTION( testTcg, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testTt, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< double >::epsilon( ) );
+
+    double testTcb = convertTdbToTcb( secondsSinceJ2000Synchronization );
+    double testTdb = convertTcbToTdb( secondsSinceJ2000Synchronization );
+
+    BOOST_CHECK_CLOSE_FRACTION( testTdb, secondsSinceJ2000Synchronization + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testTcb, secondsSinceJ2000Synchronization - TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< double >::epsilon( ) );
+
+    double testTime = 0.0;
+
+    testTcg = convertTtToTcg( 0.0 );
+    testTt = convertTcgToTt( testTcg );
+
+    double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM;
+    BOOST_CHECK_CLOSE_FRACTION( testTcg, expectedTcg, 5.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( testTt, std::numeric_limits< double >::epsilon( ) );
+
+
+    testTdb = convertTcbToTdb( 0.0 );
+    testTcb = convertTdbToTcb( testTdb );
+
+    double expectedTdb = secondsSinceJ2000Synchronization * LB_TIME_RATE_TERM + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
+
+    BOOST_CHECK_CLOSE_FRACTION( testTdb, expectedTdb, 5.0 * std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_SMALL( testTcb, std::numeric_limits< double >::epsilon( ) );
+}
+
+BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
+{
+    const long double testModifiedJulianDay = static_cast< long double >( 54583.87 );
+    const long double testJulianDay = testModifiedJulianDay + JULIAN_DAY_AT_0_MJD_LONG;
+
+    BOOST_CHECK_CLOSE_FRACTION( testJulianDay, convertModifiedJulianDayToJulianDay< long double >( testModifiedJulianDay ),
+                                5.0 * std::numeric_limits< long double >::epsilon( ));
+    BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay, convertJulianDayToModifiedJulianDay< long double >( testJulianDay ),
+                                5.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( convertJulianDayToModifiedJulianDay< long double >(
+                                    convertModifiedJulianDayToJulianDay< long double >( testModifiedJulianDay ) ),
+                                testModifiedJulianDay, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( convertModifiedJulianDayToJulianDay(
+                                    convertJulianDayToModifiedJulianDay( testJulianDay ) ),
+                                testJulianDay, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+
+    long double secondsSinceModifedJulianDayZero = testModifiedJulianDay * JULIAN_DAY_LONG;
+
+    BOOST_CHECK_CLOSE_FRACTION( secondsSinceModifedJulianDayZero, convertJulianDayToSecondsSinceEpoch< long double >(
+                                    testJulianDay, JULIAN_DAY_AT_0_MJD_LONG ),
+                                5.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testJulianDay, convertSecondsSinceEpochToJulianDay< long double >(
+                                    secondsSinceModifedJulianDayZero, JULIAN_DAY_AT_0_MJD_LONG ),
+                                5.0 * std::numeric_limits< long double >::epsilon( ) );
+
+    long double secondsSinceJ2000Synchronization = ( TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG ) * JULIAN_DAY_LONG;
+
+    long double testTcg = convertTtToTcg< long double >( secondsSinceJ2000Synchronization );
+    long double testTt = convertTcgToTt< long double >( secondsSinceJ2000Synchronization );
+
+    BOOST_CHECK_CLOSE_FRACTION( testTcg, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testTt, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+
+    long double testTcb = convertTdbToTcb< long double >( secondsSinceJ2000Synchronization );
+    long double testTdb = convertTcbToTdb< long double >( secondsSinceJ2000Synchronization );
+
+    BOOST_CHECK_CLOSE_FRACTION( testTdb, secondsSinceJ2000Synchronization + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testTcb, secondsSinceJ2000Synchronization - TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+
+    long double testTime = 0.0;
+
+    testTcg = convertTtToTcg< long double >( static_cast< long double >( 0.0 ) );
+    testTt = convertTcgToTt< long double >( testTcg );
+
+    long double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM_LONG;
+    BOOST_CHECK_CLOSE_FRACTION( testTcg, expectedTcg, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testTt, 0.0, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+
+
+    testTdb = convertTcbToTdb< long double >( static_cast< long double >( 0.0 ) );
+    testTcb = convertTdbToTcb< long double >( testTdb );
+
+    long double expectedTdb = secondsSinceJ2000Synchronization * LB_TIME_RATE_TERM + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
+
+    BOOST_CHECK_CLOSE_FRACTION( testTdb, expectedTdb, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_SMALL( testTcb, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
