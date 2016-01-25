@@ -39,6 +39,8 @@
 
 # Set the source files.
 set(GRAVITATION_SOURCES
+  "${SRCROOT}${GRAVITATIONDIR}/basicSolidBodyTideGravityFieldVariations.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/gravityFieldVariations.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2GravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3GravityModel.cpp"
@@ -50,14 +52,18 @@ set(GRAVITATION_SOURCES
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityField.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/thirdBodyPerturbation.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/timeDependentSphericalHarmonicsGravityField.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/UnitTests/planetTestData.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/triAxialEllipsoidGravity.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/tabulatedGravityFieldVariations.cpp"
 )
 
 # Set the header files.
 set(GRAVITATION_HEADERS
+  "${SRCROOT}${GRAVITATIONDIR}/basicSolidBodyTideGravityFieldVariations.h"
+  "${SRCROOT}${GRAVITATIONDIR}/gravityFieldVariations.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2GravityModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3GravityModel.h"
@@ -70,9 +76,11 @@ set(GRAVITATION_HEADERS
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityField.h"
   "${SRCROOT}${GRAVITATIONDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
   "${SRCROOT}${GRAVITATIONDIR}/thirdBodyPerturbation.h"
+  "${SRCROOT}${GRAVITATIONDIR}/timeDependentSphericalHarmonicsGravityField.h"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.h"
   "${SRCROOT}${GRAVITATIONDIR}/UnitTests/planetTestData.h"
   "${SRCROOT}${GRAVITATIONDIR}/triAxialEllipsoidGravity.h"
+  "${SRCROOT}${GRAVITATIONDIR}/tabulatedGravityFieldVariations.h"
 )
 
 # Add static libraries.
