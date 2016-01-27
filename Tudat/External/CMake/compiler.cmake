@@ -60,11 +60,25 @@ elseif( CMAKE_COMPILER_IS_GNUCXX )
         endif()
     endif()
 
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-    set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g")
+    set(CMAKE_CXX_FLAGS_RELEASE        "-g -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g")
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0 -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
+	
+	# MinGW fixes
+	if( MINGW )
+	  # MinGW fails to build with O2 or O3 optimization on several math.h function
+	  # http://ehc.ac/p/mingw/bugs/2250/
+	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__NO_INLINE__ -ftrack-macro-expansion=0")
+	  # MinGW gives some c11plus.xe out of memory messages:
+	  # http://sourceforge.net/p/mingw-w64/mailman/message/33182613/
+	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrack-macro-expansion=0")
+	  # MinGW32 4.8.1 has no defenitions for _aligned_malloc/realloc/free
+	  # 
+	  add_definitions(-DEIGEN_MALLOC_ALREADY_ALIGNED=1) 
+	  add_definitions(-DEIGEN_DONT_ALIGN=1)
+	endif()
 
 elseif( MSVC )
     message(STATUS "Using msvc compiler.")
