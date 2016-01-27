@@ -47,22 +47,18 @@
 
 #define BOOST_TEST_MAIN
 
-#include <ctime>
-#include <fstream>
-#include <string>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
-#include <boost/random/variate_generator.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/mersenne_twister.hpp>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include <fstream>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
