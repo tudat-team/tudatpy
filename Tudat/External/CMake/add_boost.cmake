@@ -1,36 +1,11 @@
 
-# Gets the path to the temp directory using the same method as Boost.Filesystem:
-# http://www.boost.org/doc/libs/release/libs/filesystem/doc/reference.html#temp_directory_path
-function(ms_get_temp_dir)
-  if(TempDir)
-    return()
-  elseif(WIN32)
-    file(TO_CMAKE_PATH "$ENV{TEMP}" WindowsTempDir)
-    set(Temp "${WindowsTempDir}")
-  else()
-    foreach(Var TMPDIR TMP TEMP TEMPDIR)
-      if(IS_DIRECTORY "$ENV{${Var}}")
-        set(Temp $ENV{${Var}})
-        break()
-      endif()
-    endforeach()
-    if(NOT TempDir AND IS_DIRECTORY "/tmp")
-      set(Temp /tmp)
-    endif()
-  endif()
-  set(TempDir "${Temp}" CACHE INTERNAL "Path to temp directory")
-endfunction()
-
-function(ms_underscores_to_camel_case VarIn VarOut)
-  string(REPLACE "_" ";" Pieces ${VarIn})
-  foreach(Part ${Pieces})
-    string(SUBSTRING ${Part} 0 1 Initial)
-    string(SUBSTRING ${Part} 1 -1 Part)
-    string(TOUPPER ${Initial} Initial)
-    set(CamelCase ${CamelCase}${Initial}${Part})
-  endforeach()
-  set(${VarOut} ${CamelCase} PARENT_SCOPE)
-endfunction()
+# This add_boost.cmake heavily relies on code taken from the MaidSafe project, in specific:
+# add_boost.cmake:
+#   https://github.com/maidsafe-archive/MaidSafe/blob/next/cmake_modules/utils.cmake
+# utils.cmake:
+#   https://github.com/maidsafe-archive/MaidSafe/blob/next/cmake_modules/utils.cmake
+#
+# Original MaidSafe copyright and license below.
 
 #==================================================================================================#
 #                                                                                                  #
@@ -53,26 +28,32 @@ endfunction()
 #  use of the MaidSafe Software.                                                                   #
 #                                                                                                  #
 #==================================================================================================#
-#                                                                                                  #
-#  Sets up Boost using ExternalProject_Add.                                                        #
-#                                                                                                  #
-#  Only the first 2 variables should require regular maintenance, i.e. BoostVersion & BoostSHA1.   #
-#                                                                                                  #
-#  If USE_BOOST_CACHE is set, boost is downloaded, extracted and built to a directory outside of   #
-#  the MaidSafe build tree.  The chosen directory can be set in BOOST_CACHE_DIR, or if this is     #
-#  empty, an appropriate default is chosen for the given platform.                                 #
-#                                                                                                  #
-#  Variables set and cached by this module are:                                                    #
-#    BoostSourceDir (required for subsequent include_directories calls) and per-library            #
-#    variables defining the libraries, e.g. BoostDateTimeLibs, BoostFilesystemLibs.                #
-#                                                                                                  #
-#==================================================================================================#
+
+# Gets the path to the temp directory using the same method as Boost.Filesystem:
+# http://www.boost.org/doc/libs/release/libs/filesystem/doc/reference.html#temp_directory_path
+function(ms_get_temp_dir)
+  if(TempDir)
+    return()
+  elseif(WIN32)
+    file(TO_CMAKE_PATH "$ENV{TEMP}" WindowsTempDir)
+    set(Temp "${WindowsTempDir}")
+  else()
+    foreach(Var TMPDIR TMP TEMP TEMPDIR)
+      if(IS_DIRECTORY "$ENV{${Var}}")
+        set(Temp $ENV{${Var}})
+        break()
+      endif()
+    endforeach()
+    if(NOT TempDir AND IS_DIRECTORY "/tmp")
+      set(Temp /tmp)
+    endif()
+  endif()
+  set(TempDir "${Temp}" CACHE INTERNAL "Path to temp directory")
+endfunction()
 
 
 set(BoostVersion 1.57.0)
 set(BoostSHA1 e151557ae47afd1b43dc3fac46f8b04a8fe51c12)
-
-
 
 # Create build folder name derived from version
 string(REGEX REPLACE "beta\\.([0-9])$" "beta\\1" BoostFolderName ${BoostVersion})
@@ -118,9 +99,6 @@ if(HAVE_LIBC++ABI)
 endif()
 if(CMAKE_CL_64)
   set(BoostSourceDir "${BoostSourceDir}_Win64")
-endif()
-if(${ANDROID_BUILD})
-  set(BoostSourceDir "${BoostFolderName}_Android_v${AndroidApiLevel}_${CMAKE_CXX_COMPILER_ID}_${CMAKE_CXX_COMPILER_VERSION}")
 endif()
 string(REPLACE "." "_" BoostSourceDir ${BoostSourceDir})
 set(BoostSourceDir "${BoostCacheDir}/${BoostSourceDir}")
@@ -185,25 +163,34 @@ if(Found LESS "0" OR NOT IS_DIRECTORY "${BoostSourceDir}")
   file(REMOVE_RECURSE ${BoostExtractFolder})
 endif()
 
+# Set platform depenedent executables
+if(WIN32)
+  set(b2Bootstrap ".\\bootstrap.bat")
+  set(b2Args ".\\b2.exe")
+  set(b2ArgsToolsetPrefix "")
+else()
+  set(b2Bootstrap "./bootstrap.sh")
+  set(b2Args "./b2")
+  set(b2ArgsToolsetPrefix "--with-toolset=")
+endif()
+
 # Build b2 (bjam) if required
 unset(b2Path CACHE)
 find_program(b2Path NAMES b2 PATHS ${BoostSourceDir} NO_DEFAULT_PATH)
 if(NOT b2Path)
-  message(STATUS "Building b2 (bjam)")
   if(MSVC)
-    set(b2Bootstrap "bootstrap.bat")
-  else()
-    set(b2Bootstrap "./bootstrap.sh")
-    if(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
-      list(APPEND b2Bootstrap --with-toolset=clang)
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-      list(APPEND b2Bootstrap --with-toolset=gcc)
-    endif()
+    list(APPEND b2Bootstrap "${b2ArgsToolsetPrefix}msvc")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
+    list(APPEND b2Bootstrap "${b2ArgsToolsetPrefix}clang")
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    list(APPEND b2Bootstrap "${b2ArgsToolsetPrefix}gcc")
   endif()
+  message(STATUS "Building b2 (bjam)")
+  message(STATUS "  ${b2Bootstrap}")
   execute_process(COMMAND ${b2Bootstrap} WORKING_DIRECTORY ${BoostSourceDir}
                   RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
   if(NOT Result EQUAL "0")
-    message(FATAL_ERROR "Failed running ${b2Bootstrap}:\n${Output}\n${Error}\n")
+    message(FATAL_ERROR "Failed running bootstrap:\n${Output}\n${Error}\n")
   endif()
 endif()
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${BoostSourceDir}/Build)
@@ -218,16 +205,8 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${BoostSourceDir}/Bui
 set(BoostSourceDir ${BoostSourceDir})
 
 # Set up general b2 (bjam) command line arguments
-set(b2Args ./b2
-           link=static
-           threading=multi
-           runtime-link=shared
-           --build-dir=Build
-           stage
-           -d+2
-           --hash
-           --ignore-site-config
-           )
+list(APPEND b2Args link=static threading=multi runtime-link=shared --build-dir=Build stage -d+2 --hash --ignore-site-config)
+
 if(CMAKE_BUILD_TYPE STREQUAL "ReleaseNoInline")
   list(APPEND b2Args "cxxflags=${RELEASENOINLINE_FLAGS}")
 endif()
@@ -244,42 +223,52 @@ if(MSVC)
   elseif(MSVC14)
     list(APPEND b2Args toolset=msvc-14.0)
   endif()
-  list(APPEND b2Args
-              define=_BIND_TO_CURRENT_MFC_VERSION=1
-              define=_BIND_TO_CURRENT_CRT_VERSION=1
-              --layout=versioned
-              )
+  list(APPEND b2Args define=_BIND_TO_CURRENT_MFC_VERSION=1 define=_BIND_TO_CURRENT_CRT_VERSION=1 --layout=versioned)
   if(TargetArchitecture STREQUAL "x86_64")
     list(APPEND b2Args address-model=64)
   endif()
-elseif(APPLE)
-  list(APPEND b2Args variant=release toolset=clang cxxflags=-fPIC cxxflags=-std=c++11 cxxflags=-stdlib=libc++
-                     linkflags=-stdlib=libc++ architecture=combined address-model=32_64 --layout=tagged)
-elseif(UNIX)
-  list(APPEND b2Args --layout=tagged -sNO_BZIP2=1)
-  list(APPEND b2Args variant=release cxxflags=-fPIC cxxflags=-std=c++11)
+else()
   # Need to configure the toolset based on CMAKE_CXX_COMPILER
+  list(APPEND b2Args variant=release cxxflags=-fPIC cxxflags=-std=c++11 --layout=tagged)
+  # Apply MinGW32 fix for GCC 4.8.1
+  # http://stackoverflow.com/questions/29450016/o1-2-3-with-std-c1y-11-98-if-cmath-is-included-im-getting-error-hypo
+  # http://stackoverflow.com/questions/21826649/boost-test-on-windows-with-mingw-compiler-error-putenv-not-declared
+  if(MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
+    list(APPEND b2Args cxxflags=-D__NO_INLINE__ cxxflags=-Dputenv=)
+  endif()
   if(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
     file(WRITE "${BoostSourceDir}/tools/build/src/user-config.jam" "using clang : : ${CMAKE_CXX_COMPILER} ;\n")
-    list(APPEND b2Args toolset=clang)
+    list(APPEND b2Args toolset=clang architecture=combined address-model=32_64)
     if(HAVE_LIBC++)
       list(APPEND b2Args cxxflags=-stdlib=libc++ linkflags=-stdlib=libc++)
     endif()
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     file(WRITE "${BoostSourceDir}/tools/build/src/user-config.jam" "using gcc : : ${CMAKE_CXX_COMPILER} ;\n")
+    list(APPEND b2Args toolset=gcc -sNO_BZIP2=1)
+  endif()
+  if(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
+    list(APPEND b2Args toolset=clang)
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     list(APPEND b2Args toolset=gcc)
   endif()
 endif()
 
-# Get list of components
-message(STATUS "Build boost with the following arguments: (note that this may take a while, sit back)")
-message(STATUS ${b2Args})
+# Build only the necessary components
+foreach(Component ${BoostComponents})
+  if("${Component}" STREQUAL "unit_test_framework")
+    set(Component "test")
+  endif()
+  list(APPEND b2Args "--with-${Component}")
+endforeach()
+
 # Start boost build
+message(STATUS "Build boost (note that this may take a while, please sit back)")
+message(STATUS "  ${b2Args}")
 execute_process(COMMAND ${b2Args} WORKING_DIRECTORY ${BoostSourceDir}
                   RESULT_VARIABLE Result OUTPUT_VARIABLE Output ERROR_VARIABLE Error)
 
                   
-# Create the directory
+# Create the directory and copy source and libraries
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/boost")
 file(COPY "${BoostSourceDir}/stage" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/boost/")
 file(COPY "${BoostSourceDir}/boost" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/boost/")

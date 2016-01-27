@@ -67,10 +67,10 @@ elseif( CMAKE_COMPILER_IS_GNUCXX )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
 	
 	# MinGW fixes
-	if( MINGW )
+	if( MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
 	  # MinGW fails to build with O2 or O3 optimization on several math.h function
 	  # http://ehc.ac/p/mingw/bugs/2250/
-	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__NO_INLINE__ -ftrack-macro-expansion=0")
+	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__NO_INLINE__")
 	  # MinGW gives some c11plus.xe out of memory messages:
 	  # http://sourceforge.net/p/mingw-w64/mailman/message/33182613/
 	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftrack-macro-expansion=0")
