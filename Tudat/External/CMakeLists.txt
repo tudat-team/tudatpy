@@ -36,7 +36,6 @@
  #
 
  # Define the main sub-directories.
-if(USE_CSPICE)
   set(SPICEINTERFACEDIR "${EXTERNALDIR}/SpiceInterface")
 
   # Add subdirectories.
@@ -47,4 +46,3 @@ if(USE_CSPICE)
 
   # Set SPICE interface directory.
   set(SPICEINTERFACEDIR "${EXTERNALDIR}/SpiceInterface")
-endif( )
