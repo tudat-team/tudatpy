@@ -57,7 +57,6 @@ enum AvailableAcceleration
 {
     undefined_acceleration,
     central_gravity,
-    constant_drag_aerodynamic,
     aerodynamic,
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,

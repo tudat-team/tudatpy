@@ -1,6 +1,8 @@
 #ifndef CREATEFLIGHTCONDITIONS_H
 #define CREATEFLIGHTCONDITIONS_H
 
+#include <boost/multi_array.hpp>
+
 #include <vector>
 
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
@@ -21,7 +23,8 @@ namespace simulation_setup
 enum AerodynamicCoefficientTypes
 {
     constant_aerodynamic_coefficients,
-    hypersonic_local_inclincation_coefficients
+    hypersonic_local_inclincation_coefficients,
+    tabulated_coefficients
 };
 
 //! Class for providing settings for aerodynamic coefficient model.
@@ -52,11 +55,18 @@ public:
             const double referenceLength,
             const double referenceArea,
             const double lateralReferenceLength,
-            const Eigen::Vector3d& momentReferencePoint ):
+            const Eigen::Vector3d& momentReferencePoint,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+            independentVariableNames,
+            const bool areCoefficientsInAerodynamicFrame = 1,
+            const bool areCoefficientsInNegativeAxisDirection = 1 ):
         aerodynamicCoefficientTypes_( aerodynamicCoefficientTypes ),
         referenceLength_( referenceLength ), referenceArea_( referenceArea ),
         lateralReferenceLength_( lateralReferenceLength ),
-        momentReferencePoint_( momentReferencePoint ){ }
+        momentReferencePoint_( momentReferencePoint ),
+        independentVariableNames_( independentVariableNames ),
+        areCoefficientsInAerodynamicFrame_( areCoefficientsInAerodynamicFrame ),
+        areCoefficientsInNegativeAxisDirection_( areCoefficientsInNegativeAxisDirection ){ }
 
     //! Destructor
     virtual ~AerodynamicCoefficientSettings( ){ }
@@ -96,6 +106,24 @@ public:
      * \return Aerodynamic reference point.
      */
     Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
+
+
+    std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+    getIndependentVariableNames( )
+    {
+        return independentVariableNames_;
+    }
+
+    bool getAreCoefficientsInAerodynamicFrame( )
+    {
+        return areCoefficientsInAerodynamicFrame_;
+    }
+
+    bool getAreCoefficientsInNegativeAxisDirection( )
+    {
+        return areCoefficientsInNegativeAxisDirection_;
+    }
+
 private:
 
     //!  Type of atmosphere model that is to be created.
@@ -124,6 +152,13 @@ private:
      * Point w.r.t. which the arm of the moment on a vehicle panel is determined.
      */
     Eigen::Vector3d momentReferencePoint_;
+
+    std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+    independentVariableNames_;
+
+    bool areCoefficientsInAerodynamicFrame_;
+
+    bool areCoefficientsInNegativeAxisDirection_;
 };
 
 //! AerodynamicCoefficientSettings for defining a constant aerodynamic coefficients
@@ -160,20 +195,83 @@ public:
             const bool areCoefficientsInNegativeAxisDirection = 1  ):
         AerodynamicCoefficientSettings(
             constant_aerodynamic_coefficients, referenceLength, referenceArea,
-            lateralReferenceLength, momentReferencePoint ),
+            lateralReferenceLength, momentReferencePoint,
+            std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
+            areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection ),
         constantForceCoefficient_( constantForceCoefficient ),
-        constantMomentCoefficient_( constantMomentCoefficient ),
-        areCoefficientsInAerodynamicFrame_( areCoefficientsInAerodynamicFrame ),
-        areCoefficientsInNegativeAxisDirection_( areCoefficientsInNegativeAxisDirection )
+        constantMomentCoefficient_( constantMomentCoefficient )
     { }
+
+
+    Eigen::Vector3d getConstantForceCoefficient( )
+    {
+        return  constantForceCoefficient_;
+    }
+
+    Eigen::Vector3d getConstantMomentCoefficient( )
+    {
+        return constantMomentCoefficient_;
+    }
 
 private:
 
     Eigen::Vector3d constantForceCoefficient_;
     Eigen::Vector3d constantMomentCoefficient_;
-    bool areCoefficientsInAerodynamicFrame_;
-    bool areCoefficientsInNegativeAxisDirection_;
 };
+
+template< int NumberOfDimensions >
+class TabulatedAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
+{
+public:
+    TabulatedAerodynamicCoefficientSettings(
+            const std::vector< std::vector< double > > independentVariables,
+            const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
+            const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients,
+            const double referenceLength,
+            const double referenceArea,
+            const double lateralReferenceLength,
+            const Eigen::Vector3d& momentReferencePoint,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+            independentVariableNames,
+            const bool areCoefficientsInAerodynamicFrame = 1,
+            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+        AerodynamicCoefficientSettings(
+            tabulated_coefficients, referenceLength, referenceArea,
+            lateralReferenceLength, momentReferencePoint,
+            independentVariableNames, areCoefficientsInAerodynamicFrame,
+            areCoefficientsInNegativeAxisDirection ),
+        independentVariables_( independentVariables ),
+        forceCoefficients_( forceCoefficients ),
+        momentCoefficients_( momentCoefficients ){ }
+
+    std::vector< std::vector< double > > getIndependentVariables( )
+    {
+        return independentVariables_;
+    }
+
+    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > getForceCoefficients( )
+    {
+        return forceCoefficients_;
+    }
+
+    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > getMomentCoefficients( )
+    {
+        return momentCoefficients_;
+    }
+
+private:
+
+    std::vector< std::vector< double > > independentVariables_;
+    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients_;
+    boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients_;
+
+
+};
+
+
+boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterface(
+        const boost::shared_ptr< AerodynamicCoefficientSettings > shapeSettings,
+        const std::string& body );
 
 boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,

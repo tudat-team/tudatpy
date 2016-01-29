@@ -59,6 +59,8 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
                     spice_interface::getAverageRadius( body ) );
         break;
     }
+    default:
+        std::cerr<<"Error, did not recognize body shape settings for "<<body<<std::endl;
 
     }
     return shapeModel;

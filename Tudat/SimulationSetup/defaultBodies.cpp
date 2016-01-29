@@ -32,6 +32,7 @@
  *
  */
 
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/defaultBodies.h"
 
@@ -93,6 +94,14 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
                 spice_rotation_model, "ECLIPJ2000", "IAU_" + bodyName );
 }
 
+boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
+        const std::string& body,
+        const double initialTime, const double finalTime )
+{
+    return boost::make_shared< SphericalBodyShapeSettings >(
+                spice_interface::getAverageRadius( body ) );
+}
+
 //! Function to create default settings for a body's rotation model.
 boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& body,
@@ -109,6 +118,8 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
                 body, initialTime, finalTime );
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
+                body, initialTime, finalTime );
+    singleBodySettings->shapeModelSettings = getDefaultBodyShapeSettings(
                 body, initialTime, finalTime );
 
     return singleBodySettings;

@@ -68,6 +68,7 @@
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
 #include "Tudat/SimulationSetup/createBodies.h"
+#include "Tudat/SimulationSetup/defaultBodies.h"
 
 namespace tudat
 {
@@ -317,6 +318,44 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
+
+//! Test set up of spherical harmonic gravitational accelerations.
+BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
+{
+    using namespace tudat::simulation_setup;
+    using namespace tudat;
+
+    // Load Spice kernel with gravitational parameters.
+    const std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
+
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 86400.0 );
+    bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ]->aerodynamicCoefficientSettings =
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                1.0, 1.0, 1.0, Eigen::Vector3d::Zero( ), Eigen::Vector3d::UnitX( ), Eigen::Vector3d::Zero( ),
+            1, 1 );
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    // Define settings for accelerations: point  mass atraction by Jupiter and Sun on Mars
+    SelectedAccelerationMap accelerationSettingsMap;
+    accelerationSettingsMap[ "Vehicle" ][ "Earth" ].push_back(
+                boost::make_shared< AccelerationSettings >( aerodynamic ) );
+
+    // Define origin of integration to be barycenter.
+    std::map< std::string, std::string > centralBodies;
+    centralBodies[ "Vehicle" ] = "Earth";
+
+    // Create accelerations
+    AccelerationMap accelerationsMap = createAccelerationModelsMap(
+                bodyMap, accelerationSettingsMap, centralBodies );
+
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 
