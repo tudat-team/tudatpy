@@ -46,6 +46,7 @@
 #include "Tudat/SimulationSetup/createGravityField.h"
 #include "Tudat/SimulationSetup/createRotationModel.h"
 #include "Tudat/SimulationSetup/createRadiationPressureInterface.h"
+#include "Tudat/SimulationSetup/createFlightConditions.h"
 
 namespace tudat
 {
@@ -76,6 +77,9 @@ struct BodySettings
     boost::shared_ptr< BodyShapeSettings > shapeModelSettings;
 
     std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
+
+    boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
+
 };
 
 //! Function to create a map of bodies objects.

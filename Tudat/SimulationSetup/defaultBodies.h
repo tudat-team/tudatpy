@@ -121,6 +121,12 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const double initialTime,
         const double finalTime );
 
+//! Function to create default settings for a body's rotation model.
+boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
+        const std::string& body,
+        const double initialTime,
+        const double finalTime );
+
 //! Function to create default settings from which to create a set of body objects.
 /*!
  *  Function to create default settings from which to create a set of body objects using

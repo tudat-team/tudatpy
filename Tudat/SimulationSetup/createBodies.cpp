@@ -94,6 +94,19 @@ NamedBodyMap createBodies(
         }
     }
 
+    // Create body shape model objects for each body (if required).
+    for( std::map< std::string, boost::shared_ptr< BodySettings > >::const_iterator settingIterator
+         = bodySettings.begin( ); settingIterator != bodySettings.end( ); settingIterator++ )
+    {
+        if( settingIterator->second->shapeModelSettings != NULL )
+        {
+            bodyMap[ settingIterator->first ]->setShapeModel(
+                        createBodyShapeModel( settingIterator->second->shapeModelSettings,
+                                             settingIterator->first ) );
+        }
+    }
+
+
     // Create rotation model objects for each body (if required).
     for( std::map< std::string, boost::shared_ptr< BodySettings > >::const_iterator settingIterator
          = bodySettings.begin( ); settingIterator != bodySettings.end( ); settingIterator++ )
@@ -115,6 +128,19 @@ NamedBodyMap createBodies(
             bodyMap[ settingIterator->first ]->setGravityFieldModel(
                         createGravityFieldModel( settingIterator->second->gravityFieldSettings,
                                                  settingIterator->first ) );
+        }
+    }
+
+    // Create aerodynamic coefficient interface objects for each body (if required).
+    for( std::map< std::string, boost::shared_ptr< BodySettings > >::const_iterator settingIterator
+         = bodySettings.begin( ); settingIterator != bodySettings.end( ); settingIterator++ )
+    {
+        if( settingIterator->second->aerodynamicCoefficientSettings != NULL )
+        {
+            bodyMap[ settingIterator->first ]->setAerodynamicCoefficientInterface(
+                        createAerodynamicCoefficientInterface(
+                            settingIterator->second->aerodynamicCoefficientSettings,
+                            settingIterator->first ) );
         }
     }
 

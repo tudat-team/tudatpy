@@ -241,6 +241,58 @@ createConstantCoefficientAerodynamicCoefficientInterface(
         const bool areCoefficientsInAerodynamicFrame = 0,
         const bool areCoefficientsInNegativeAxisDirection = 1 );
 
+template< int NumberOfDimensions >
+boost::shared_ptr< AerodynamicCoefficientInterface >
+createTabulatedCoefficientAerodynamicCoefficientInterface(
+        const std::vector< std::vector< double > > independentVariables,
+        const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
+        const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+        independentVariableNames,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const bool areCoefficientsInAerodynamicFrame = 0,
+        const bool areCoefficientsInNegativeAxisDirection = 1 )
+{
+    if( independentVariables.size( ) != NumberOfDimensions )
+    {
+        std::cerr<<"Error when creating tabulated aerodynamic coefficient interface, "
+                <<"inconsistent variable vector dimensioning"<<std::endl;
+    }
+
+    if( independentVariableNames.size( ) != NumberOfDimensions )
+    {
+        std::cerr<<"Error when creating tabulated aerodynamic coefficient interface, "
+                <<"inconsistent variable name vector dimensioning"<<std::endl;
+
+    }
+
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, Eigen::Vector3d, NumberOfDimensions > > forceInterpolator =
+            boost::make_shared< interpolators::MultiLinearInterpolator
+            < double, Eigen::Vector3d, NumberOfDimensions > >(
+                independentVariables, forceCoefficients );
+
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, Eigen::Vector3d, NumberOfDimensions > > momentInterpolator =
+            boost::make_shared< interpolators::MultiLinearInterpolator
+            < double, Eigen::Vector3d, NumberOfDimensions > >(
+                independentVariables, momentCoefficients );
+
+    return  boost::make_shared< CustomAerodynamicCoefficientInterface >(
+                boost::bind( &interpolators::MultiLinearInterpolator
+                             < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
+                             forceInterpolator, _1 ),
+                boost::bind( &interpolators::MultiLinearInterpolator
+                             < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
+                             momentInterpolator, _1 ),
+                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
+                independentVariableNames,
+                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+}
+
 }
 
 }

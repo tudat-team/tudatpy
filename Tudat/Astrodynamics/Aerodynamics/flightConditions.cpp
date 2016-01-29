@@ -36,12 +36,12 @@ FlightConditions::FlightConditions(
 
     if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
     {
-        throw( "" );
+        throw( "Error when making flight conditions, no atmosphere is found" );
     }
 
     if( updateLatitudeAndLongitude_ && aerodynamicAngleCalculator_== NULL )
     {
-        throw( "" );
+        throw( "Error when making flight conditions, angles are to be updated, but con calculator is set" );
     }
 }
 
