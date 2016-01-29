@@ -273,5 +273,7 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/boost")
 file(COPY "${BoostSourceDir}/stage" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/boost/")
 file(COPY "${BoostSourceDir}/boost" DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/boost/")
 
+SET(Boost_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/boost/")
+
 # Clean
 # file(REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/${BoostFolderName}.tar.bz2")
