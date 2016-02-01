@@ -21,33 +21,62 @@
 # if you are interested in obtaining a differently licensed version.
 #
 
+# Provide options to force building with GNU or Clang, if the standard compiler is not desired
+option(USE_CLANG "Force build with clang (if gcc is standard)" OFF) # OFF is the default
+option(USE_GNU   "Force build with gcc (if clang is standard)" OFF) # OFF is the default
+set( CLANG_C_COMPILER   "/usr/bin/clang" CACHE FILEPATH "Path to clang C compiler" )
+set( CLANG_CXX_COMPILER "/usr/bin/clang++" CACHE FILEPATH "Path to clang C++ compiler" )
+set( GNU_C_COMPILER     "/usr/bin/gcc" CACHE FILEPATH "Path to C compiler" )
+set( GNU_CXX_COMPILER   "/usr/bin/g++" CACHE FILEPATH "Path to C++ compiler" )
 
-option(USE_CLANG "build application with clang" OFF) # OFF is the default
-SET (CLANG_C_COMPILER   "/usr/bin/clang" CACHE FILEPATH "Path to clang C compiler" )
-SET (CLANG_CXX_COMPILER "/usr/bin/clang++" CACHE FILEPATH "Path to clang C++ compiler" )
+# Set the platform type and override compiler if necessary
+if( USE_CLANG OR USE_GNU )
+    message(STATUS "Guessing compiler executables:")
+    if( USE_GNU )
+        message(STATUS "  GNU C     : ${GNU_C_COMPILER}")
+        message(STATUS "  GNU C++   : ${GNU_CXX_COMPILER}")
+        set( CMAKE_C_COMPILER        "${GNU_C_COMPILER}" )
+        set( CMAKE_CXX_COMPILER      "${GNU_CXX_COMPILER}" )
+        set( TUDAT_BUILD_GNU ON)
+    elseif( USE_CLANG )
+        message(STATUS "  Clang C   : ${CLANG_C_COMPILER}")
+        message(STATUS "  Clang C++ : ${CLANG_CXX_COMPILER}")
+        set( CMAKE_C_COMPILER        "${CLANG_C_COMPILER}" )
+        set( CMAKE_CXX_COMPILER      "${CLANG_CXX_COMPILER}" )
+        set( TUDAT_BUILD_CLANG ON)
 
-if(USE_CLANG)
+        # Gets unset by CMake, because "since llvm doesn't have its own binutils
+        # but uses the regular ar, objcopy, etc. (instead of llvm-objcopy etc.)".
+        # Note: -D_CMAKE_TOOLCHAIN_PREFIX=llvm- will persist.
+        set ( _CMAKE_TOOLCHAIN_PREFIX "llvm-" )
+    endif()
+    message(STATUS "  (if incorrect, please set these variables manually)")
+else()
+    if( "${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$" )
+        set( TUDAT_BUILD_CLANG ON)
+    elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
+        set( TUDAT_BUILD_GNU   ON)
+    elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC" )
+        set( TUDAT_BUILD_MSVC  ON)
+    endif()
+endif()
+
+# Set the compile flags
+if( TUDAT_BUILD_CLANG )
     message(STATUS "Using clang compiler.")
-    set ( CMAKE_C_COMPILER             "${CLANG_C_COMPILER}" )
     set ( CMAKE_C_FLAGS                "-Wall -std=c11" )
     set ( CMAKE_C_FLAGS_DEBUG          "-g" )
     set ( CMAKE_C_FLAGS_MINSIZEREL     "-Os -DNDEBUG" )
     set ( CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG" )
     set ( CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g" )
 
-    set ( CMAKE_CXX_COMPILER             "${CLANG_CXX_COMPILER}" )
     set ( CMAKE_CXX_FLAGS                "-Wall -std=c++11" )
     set ( CMAKE_CXX_FLAGS_DEBUG          "-g" )
     set ( CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG" )
     set ( CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG" )
     set ( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g" )
 
-    # Gets unset by CMake, because "since llvm doesn't have its own binutils
-    # but uses the regular ar, objcopy, etc. (instead of llvm-objcopy etc.)".
-    # Note: -D_CMAKE_TOOLCHAIN_PREFIX=llvm- will persist.
-    set ( _CMAKE_TOOLCHAIN_PREFIX "llvm-" )
-
-elseif( CMAKE_COMPILER_IS_GNUCXX )
+elseif( TUDAT_BUILD_GNU )
     message(STATUS "Using gnucxx compiler.")
     include( CheckCXXCompilerFlag )
     check_cxx_compiler_flag( "-std=c++11" CXX_SUPPORTS_CXX11 )
@@ -59,13 +88,13 @@ elseif( CMAKE_COMPILER_IS_GNUCXX )
             set ( CMAKE_CXX_FLAGS "-Wall -std=c++0x" )
         endif()
     endif()
-    
+
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
     set(CMAKE_CXX_FLAGS_RELEASE        "-O2 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG          "-g")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wold-style-cast -Wnon-virtual-dtor")
-	
+
     # MinGW fixes
     if( MINGW AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
       # MinGW fails to build with O2 or O3 optimization on several math.h function
@@ -80,7 +109,7 @@ elseif( CMAKE_COMPILER_IS_GNUCXX )
       add_definitions(-DEIGEN_DONT_ALIGN=1)
     endif()
 
-elseif( MSVC )
+elseif( TUDAT_BUILD_MSVC )
     message(STATUS "Using msvc compiler.")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /Ox /W3 /FC -D_SCL_SECURE_NO_WARNINGS")
     # Because we are using static boost libraries, with static runtime, we need to force MSVC to
@@ -97,4 +126,7 @@ elseif( MSVC )
         # Multiprocessor support during compilation
         add_definitions( "/MP" )
     endif()
+else()
+    message(STATUS "Compiler not identified: ${CMAKE_CXX_COMPILER_ID}" )
+    message(STATUS "  Path: ${CMAKE_CXX_COMPILER}")
 endif()
