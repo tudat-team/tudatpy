@@ -177,7 +177,7 @@ endif()
 # is "OFF". NB: It is important this section is placed AFTER the "UserSettings.txt" file is
 # included, to ensure that that the correct indiciation is given for whether SPICE should be
 # included or not has been selected.
-option(USE_CSPICE "build Tudat with CSPICE enabled" OFF) # OFF is the default
+option(USE_CSPICE "build Tudat with CSPICE enabled" ON) # OFF is the default
 if(NOT USE_CSPICE)
   message(STATUS "SPICE disabled!")
 else()
