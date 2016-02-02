@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
             BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrix( i, j ),
                                2.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrixFromObject( i, j ),
-                               2.0 * std::numeric_limits< double >::epsilon( ) );
+                               4.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
 
