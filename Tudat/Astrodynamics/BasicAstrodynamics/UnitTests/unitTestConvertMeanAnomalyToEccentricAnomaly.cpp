@@ -336,8 +336,14 @@ void testMeanToEccentricAnomalyConversions(
     boost::mt19937 randomNumbergenerator( time( 0 ) );
 
     // Create generator for eccentricity (only used if useConstantEccentricity is false).
-    boost::random::uniform_real_distribution< > eccentricityDistribution(
-                minimumEccentricity, maximumEccentricity );
+    boost::random::uniform_real_distribution< > eccentricityDistribution;
+    if( !useConstantEccentricity )
+    {
+                eccentricityDistribution =
+                        boost::random::uniform_real_distribution< >(
+                            minimumEccentricity, maximumEccentricity );
+    }
+
     boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
             eccentricityGenerator(
                 randomNumbergenerator, eccentricityDistribution );
