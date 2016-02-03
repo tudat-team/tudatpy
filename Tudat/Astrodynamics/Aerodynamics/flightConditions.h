@@ -17,26 +17,32 @@ namespace aerodynamics
 {
 
 
-//! Class for calculating aerodynamic flight characteristics of a vehicle during numerical integration.
+//! Class for calculating aerodynamic flight characteristics of a vehicle during numerical
+//! integration.
 /*!
- *  Class for calculating aerodynamic flight characteristics of a vehicle during numerical integration. Class is used to ensure that dependent variables
- *  such as density, altitude, etc. are only calculated once during each numerical integration step. The get functions of this class are
- *  linked to the various models in the code that subsequently require these values.
+ *  Class for calculating aerodynamic flight characteristics of a vehicle during numerical
+ *  integration. Class is used to ensure that dependent variables such as density, altitude, etc.
+ *  are only calculated once during each numerical integration step. The get functions of this class
+ *  are linked to the various models in the code that subsequently require these values.
  */
 class FlightConditions
 {
 public:
 
-    //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
+    //! Constructor, sets objects and functions from which relevant environment and state variables
+    //! are retrieved.
     /*!
-     *  Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
-     *  \param centralBody Name of central body (i.e. body with the atmosphere)
+     *  Constructor, sets objects and functions from which relevant environment and state variables
+     *  are retrieved.
      *  \param atmosphereModel Atmosphere model of atmosphere through which vehicle is flying
      *  \param altitudeFunction Function returning the altitude of the vehicle as a function of
      *  its body-fixed position.
-     *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment) coefficients are retrieved
-     *  \param stateOfVehicle Function returning the current state of the vehicle (in the global frame)
-     *  \param stateOfCentralBody Function returning the current state of the central body (in the global frame)
+     *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment)
+     *  coefficients are retrieved
+     *  \param stateOfVehicle Function returning the current state of the vehicle
+     *  (in the global frame)
+     *  \param stateOfCentralBody Function returning the current state of the central body
+     *  (in the global frame)
      *  \param transformationToCentralBodyFrame Function transforming the inertial body-centered to
      *  the body-centered, body-fixed (co-rotating) frame.
      *  \param currentTimeFunction Function returning the current time.
@@ -49,16 +55,20 @@ public:
                       const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
                       const boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle,
                       const boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody,
-                      const boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
+                      const boost::function< basic_mathematics::Vector6d(
+                          const basic_mathematics::Vector6d& ) >
                       transformationToCentralBodyFrame,
                       const boost::function< double( ) > currentTimeFunction,
-                      const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
+                      const boost::shared_ptr< AerodynamicCoefficientInterface >
+                      aerodynamicCoefficientInterface,
                       const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
-                      aerodynamicAngleCalculator = boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
+                      aerodynamicAngleCalculator =
+            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
 
     //! Function to update all flight conditions.
     /*!
-     *  Function to update all flight conditions (altitude, density, force coefficients) to current state of vehicle and central body.
+     *  Function to update all flight conditions (altitude, density, force coefficients) to
+     *  current state of vehicle and central body.
      */
     void updateConditions( );
 
@@ -103,18 +113,34 @@ public:
         return atmosphereModel_;
     }
 
+    //! Function to (re)set aerodynamic angle calculator object
+    /*!
+     *  Function to (re)set aerodynamic angle calculator object
+     *  \param aerodynamicAngleCalculator Aerodynamic angle calculator object to set.
+     */
     void setAerodynamicAngleCalculator(
-            const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
+            const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
+            aerodynamicAngleCalculator )
     {
         aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
     }
 
+    //! Function to return current central body-fixed state of vehicle.
+    /*!
+     *  Function to return central body-fixed state of vehicle.
+     *  \return Current central body-fixed state of vehicle.
+     */
     basic_mathematics::Vector6d getCurrentBodyCenteredBodyFixedState( )
     {
         return currentBodyCenteredPseudoBodyFixedState_;
 
     }
 
+    //! Function to return aerodynamic angle calculator object
+    /*!
+     *  Function to return aerodynamic angle calculator object
+     *  \return Aerodynamic angle calculator object
+     */
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
     getAerodynamicAngleCalculator( )
     {
@@ -139,7 +165,8 @@ private:
     //! Function returning the current state of the central body (in the global frame)
     boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody_;
 
-    //! Function transforming the inertial body-centered to the body-centered, body-fixed (co-rotating) frame.
+    //! Function transforming the inertial body-centered to the body-centered, body-fixed
+    //! co-rotating) frame.
     boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
     transformationToCentralBodyFrame_;
 
