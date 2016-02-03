@@ -49,6 +49,13 @@ public:
      *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
      *  \param independentVariableNames Vector with identifiers the physical meaning of each
      *  independent variable of the aerodynamic coefficients.
+     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  frame (typically denoted as Cx, Cy, Cz).
+     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+     *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  coefficients are typically defined in negative direction.
      */
     AerodynamicCoefficientSettings(
             const AerodynamicCoefficientTypes aerodynamicCoefficientTypes,
@@ -174,8 +181,6 @@ public:
      *  \param referenceArea Reference area with which aerodynamic forces and moments are non-dimensionalized.
      *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis) is non-dimensionalized.
      *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
-     *  \param independentVariableNames Vector with identifiers the physical meaning of each
-     *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
      *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).

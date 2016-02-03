@@ -34,17 +34,19 @@ FlightConditions::FlightConditions(
 {
     updateLatitudeAndLongitude_ = 0;
 
-    if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
+    if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) ==
+            NULL )
     {
         throw( "Error when making flight conditions, no atmosphere is found" );
     }
 
     if( updateLatitudeAndLongitude_ && aerodynamicAngleCalculator_== NULL )
     {
-        throw( "Error when making flight conditions, angles are to be updated, but con calculator is set" );
+        throw( "Error when making flight conditions, angles are to be updated, but no calculator is set" );
     }
 }
 
+//! Function to update all flight conditions.
 void FlightConditions::updateConditions(  )
 {
     currentTime_ = currentTimeFunction_( );
@@ -55,7 +57,8 @@ void FlightConditions::updateConditions(  )
                 currentBodyCenteredState_ );
 
     // Calculate altitute and airspeed of vehicle.
-    currentAltitude_ = altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
+    currentAltitude_ =
+            altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
     currentAirspeed_ = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
 
     // Update aerodynamic/geometric angles.
@@ -98,7 +101,8 @@ void FlightConditions::updateConditions(  )
                 throw( "" );
             }
             aerodynamicCoefficientIndependentVariables.push_back(
-                        aerodynamicAngleCalculator_->getAerodynamicAngle( reference_frames::angle_of_attack ) );
+                        aerodynamicAngleCalculator_->getAerodynamicAngle(
+                            reference_frames::angle_of_attack ) );
             break;
         //Get angle of sideslip if needed.
         case angle_of_sideslip_dependent:
@@ -107,7 +111,8 @@ void FlightConditions::updateConditions(  )
                 throw( "" );
             }
             aerodynamicCoefficientIndependentVariables.push_back(
-                        aerodynamicAngleCalculator_->getAerodynamicAngle( reference_frames::angle_of_sideslip ) );
+                        aerodynamicAngleCalculator_->getAerodynamicAngle(
+                            reference_frames::angle_of_sideslip ) );
         default:
             throw( "" );
         }
