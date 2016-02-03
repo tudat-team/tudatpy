@@ -41,6 +41,7 @@
 #include <boost/math/special_functions/factorials.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -67,7 +68,7 @@ double computeLegendrePolynomial( const int degree,
 
         // Throw a run-time error.
         boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               errorMessage.str( ) ) ) );
+                                                              errorMessage.str( ) ) ) );
     }
 
     // Else if order is greater than degree...
@@ -135,7 +136,7 @@ double computeGeodesyLegendrePolynomial( const int degree,
 
         // Throw a run-time error.
         boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               errorMessage.str( ) ) ) );
+                                                              errorMessage.str( ) ) ) );
     }
 
     // Else if order is greater than degree...
@@ -233,36 +234,80 @@ double computeLegendrePolynomialExplicit( const int degree,
                                           const int order,
                                           const double polynomialParameter )
 {
-    // If 0,0 term is requested return polynomial value.
-    if ( degree == 0 && order == 0 )
+    // Check which order is required for Legendre polynomial.
+    switch( degree )
     {
-        return 1.0;
-    }
+    case 0:
+        switch( order )
+        {
+        case 0:
+            return 1.0;
+        default:
+            std::cerr<<"Error, explicit legendre polynomial not possible for "<<degree<<" "<<order<<std::endl;
+        }
+        break;
+    case 1:
+        switch( order )
+        {
+        case 0:
+            return polynomialParameter;
+        case 1:
+            return std::sqrt( 1 - polynomialParameter * polynomialParameter );
+        default:
+            std::cerr<<"Error, explicit legendre polynomial not possible for "<<degree<<" "<<order<<std::endl;
+        }
+        break;
+    case 2:
+        switch( order )
+        {
+        case 0:
+            return 0.5 * ( 3.0 * polynomialParameter * polynomialParameter - 1.0 );
+        case 1:
+            return 3.0 * polynomialParameter * std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
+        case 2:
+            return 3.0 * ( 1.0 - polynomialParameter * polynomialParameter );
+        default:
+            std::cerr<<"Error, explicit legendre polynomial not possible for "<<degree<<" "<<order<<std::endl;
+        }
+        break;
+    case 3:
+        switch( order )
+        {
+        case 0:
+            return 0.5 * polynomialParameter * ( 5.0 * polynomialParameter * polynomialParameter - 3.0 );
+        case 1:
+            return 1.5 * ( 5.0 * polynomialParameter * polynomialParameter - 1.0 ) * std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
+        case 2:
+            return 15.0 * polynomialParameter * ( 1.0 - polynomialParameter * polynomialParameter );
+        case 3:
+            return 15.0 * ( 1.0 - polynomialParameter * polynomialParameter ) * std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
+        default:
+            std::cerr<<"Error, a explicit legendre polynomial not possible for "<<degree<<" "<<order<<std::endl;
+        }
+        break;
+    case 4:
+        switch( order )
+        {
+        case 0:
+            return ( 35.0 * polynomialParameter * polynomialParameter * polynomialParameter * polynomialParameter -
+                     30.0 * polynomialParameter * polynomialParameter + 3.0 ) / 8.0;
+        case 1:
+            return -2.5 * ( 7.0 * polynomialParameter * polynomialParameter * polynomialParameter - 3.0 * polynomialParameter ) * std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
+        case 2:
+            return 15.0 / 2.0 * ( - 1.0 + 7.0 * polynomialParameter * polynomialParameter ) * ( 1.0 - polynomialParameter * polynomialParameter );
+        case 3:
+            return -105.0 * polynomialParameter * ( 1.0 - polynomialParameter * polynomialParameter ) * std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
+        case 4:
+            return 105.0 * ( 1.0 - polynomialParameter * polynomialParameter ) * ( 1.0 - polynomialParameter * polynomialParameter );
 
-    // Else if 1,0 term is requested return polynomial value.
-    else if ( degree == 1 && order == 0 )
-    {
-        return polynomialParameter;
+        default:
+            std::cerr<<"Error, a explicit legendre polynomial not possible for "<<degree<<" "<<order<<std::endl;
+        }
+        break;
+    default:
+        std::cerr<<"Error, explicit legendre polynomial not possible for "<<degree<<" "<<order<<std::endl;
     }
-
-    // Else if 1,1 term is requested return Legendre polynomial value.
-    else if ( degree == 1 && order == 1 )
-    {
-        return std::sqrt( 1 - polynomialParameter * polynomialParameter );
-    }
-
-    // Else the requested term cannot be computed; throw a run-time error.
-    else
-    {
-        // Set error message.
-        std::stringstream errorMessage;
-        errorMessage << "Error: computation of Legendre polynomial of = " << degree
-                     << " and order = " << order << " is not supported." << std::endl;
-
-        // Throw a run-time error.
-        boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               errorMessage.str( ) ) ) );
-    }
+    return TUDAT_NAN;
 }
 
 //! Compute low degree/order geodesy-normalized Legendre polynomials explicitly.
@@ -298,7 +343,7 @@ double computeGeodesyLegendrePolynomialExplicit( const int degree,
 
         // Throw a run-time error.
         boost::throw_exception( boost::enable_error_info( std::runtime_error(
-               errorMessage.str( ) ) ) );
+                                                              errorMessage.str( ) ) ) );
     }
 }
 

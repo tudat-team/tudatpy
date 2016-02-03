@@ -49,7 +49,9 @@
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "Tudat/Astrodynamics/Gravitation/tabulatedGravityFieldVariations.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
@@ -59,6 +61,75 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_gravity_field_variations )
 
 using namespace tudat::gravitation;
+
+void getNominalJupiterGravityField(
+        Eigen::MatrixXd& cosineCoefficients, Eigen::MatrixXd& sineCoefficients )
+{
+    double jupiterJ2 = 14.736E-3;
+    double jupiterJ3 = 1.4E-6;
+    double jupiterJ4 = -587.0E-6;
+    double jupiterJ6 = 31.0E-6;
+    double jupiterc22 = -0.03E-6;
+    double jupiters22 = -0.007E-6;
+
+    cosineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
+    sineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
+
+    cosineCoefficients( 0, 0 ) = 1.0;
+    cosineCoefficients( 2, 0 ) =  -jupiterJ2 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+    cosineCoefficients( 2, 2 ) =  jupiterc22 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+    cosineCoefficients( 3, 0 ) =  -jupiterJ3 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 3, 0 );
+    cosineCoefficients( 4, 0 ) =  -jupiterJ4 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 4, 0 );
+    cosineCoefficients( 5, 0 ) =  -jupiterJ6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 6, 0 );
+
+    sineCoefficients( 2, 2 ) =  jupiters22/ basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+}
+
+void getTabulatedGravityFieldVariationValues(
+        std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
+        std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections )
+{
+    double angularFrequency = 2.0 * mathematical_constants::PI / 86400.0;
+    double amplitude = 1.0E-7;
+    double startTime = 0.99E7;
+    double endTime = 1.01E7;
+    double timeStep = 3600.0;
+
+    double currentTime = startTime;
+    while( currentTime < endTime )
+    {
+        cosineCoefficientCorrections[ currentTime ].setZero( 4, 5 );
+        sineCoefficientCorrections[ currentTime ].setZero( 4, 5 );
+
+        for( unsigned int i = 1; i < 5; i++ )
+        {
+            for( unsigned int j = 0; j <= i; j++ )
+            {
+                cosineCoefficientCorrections[ currentTime ]( i - 1, j ) =
+                        amplitude *
+                        std::cos( currentTime * angularFrequency + static_cast< double >( i * j ) );
+                if( j != 0 )
+                {
+                    sineCoefficientCorrections[ currentTime ]( i - 1, j ) =
+                            amplitude *
+                            std::cos( currentTime * angularFrequency - static_cast< double >( i * j ) );
+                }
+            }
+        }
+        currentTime += timeStep;
+    }
+}
+
+boost::shared_ptr< TabulatedGravityFieldVariations > getTabulatedGravityFieldVariations( )
+{
+    std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections;
+    std::map< double, Eigen::MatrixXd > sineCoefficientCorrections;
+    getTabulatedGravityFieldVariationValues(
+                cosineCoefficientCorrections, sineCoefficientCorrections );
+
+    return boost::make_shared< TabulatedGravityFieldVariations >(
+                cosineCoefficientCorrections, sineCoefficientCorrections, 1, 0 );
+}
 
 boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 {
@@ -99,7 +170,8 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
                 boost::bind( &spice_interface::getBodyGravitationalParameter, "Jupiter" ),
                 deformingBodyMasses, loveNumbers, deformingBodies );
 
-    boost::shared_ptr< GravityFieldVariations > tabulatedGravityFieldVariations;
+    boost::shared_ptr< GravityFieldVariations > tabulatedGravityFieldVariations =
+            getTabulatedGravityFieldVariations( );
 
     boost::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationsSet =
             boost::make_shared< GravityFieldVariationsSet >(
@@ -109,38 +181,54 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 
     return gravityFieldVariationsSet;
 }
-//! Test if gravitational force is computed correctly.
+
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
+    spice_interface::loadSpiceKernelInTudat(
+                input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat(
+                input_output::getSpiceKernelPath( ) + "gm_de431.tpc" );
+    spice_interface::loadSpiceKernelInTudat(
+                input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadSpiceKernelInTudat(
+                "/home/dominicdirkx/Software/ILRCode/trunk/DataFiles/SpiceKernels/jup310.bsp" );
+
     double testTime = 1.0E7;
 
-    double gravitationalParameter;
-    double referenceRadius;
+    double gravitationalParameter = spice_interface::getBodyGravitationalParameter( "Jupiter" );
+    double referenceRadius = spice_interface::getAverageRadius( "Jupiter" );
     Eigen::MatrixXd nominalCosineCoefficients;
     Eigen::MatrixXd nominalSineCoefficients;
+    getNominalJupiterGravityField( nominalCosineCoefficients, nominalSineCoefficients );
 
     std::vector< boost::shared_ptr< GravityFieldVariations > > gravityFieldVariationsList =
             getTestGravityFieldVariations( )->getVariationObjects( );
 
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directGravityFieldVariations;
-    Eigen::Matrix< double, 5, 5 > expectedCosineCoefficientsCorrections;
-    Eigen::Matrix< double, 5, 5 > expectedSineCoefficientsCorrections;
+    Eigen::Matrix< double, 5, 5 > expectedCosineCoefficientsCorrections =
+            Eigen::Matrix< double, 5, 5 >::Zero( );
+    Eigen::Matrix< double, 5, 5 > expectedSineCoefficientsCorrections =
+            Eigen::Matrix< double, 5, 5 >::Zero( );
 
-    int numberOfDegrees;
-    int numberOfOrders;
+    int minimumDegree, minimumOrder, numberOfDegrees, numberOfOrders;
 
     for( unsigned int i = 0; i < gravityFieldVariationsList.size( ); i++ )
     {
-        numberOfDegrees = gravityFieldVariationsList.at( i )->getMaximumDegree( );
-        numberOfOrders = gravityFieldVariationsList.at( i )->getMaximumOrder( );
+        minimumDegree = gravityFieldVariationsList.at( i )->getMinimumDegree( );
+        numberOfDegrees = gravityFieldVariationsList.at( i )->getNumberOfDegrees( );
+
+        minimumOrder = gravityFieldVariationsList.at( i )->getMinimumOrder( );
+        numberOfOrders = gravityFieldVariationsList.at( i )->getNumberOfOrders( );
 
         directGravityFieldVariations =
-                    gravityFieldVariationsList.at( i )->
-                    calculateSphericalHarmonicsCorrections( testTime );
+                gravityFieldVariationsList.at( i )->
+                calculateSphericalHarmonicsCorrections( testTime );
         expectedCosineCoefficientsCorrections.block(
-                    0, 0, numberOfDegrees, numberOfOrders ) += directGravityFieldVariations.first;
+                    minimumDegree, minimumOrder, numberOfDegrees, numberOfOrders ) +=
+                directGravityFieldVariations.first;
         expectedSineCoefficientsCorrections.block(
-                    0, 0, numberOfDegrees, numberOfOrders ) += directGravityFieldVariations.second;
+                    minimumDegree, minimumOrder, numberOfDegrees, numberOfOrders ) +=
+                directGravityFieldVariations.second;
     }
 
     boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
@@ -165,14 +253,11 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
         for( unsigned int j = 0; j < 5; j++ )
         {
             BOOST_CHECK_SMALL( calculatedCosineCoefficientCorrections( i, j ) -
-                               expectedCosineCoefficientsCorrections( i, j ), 1.0E-20 );
+                               expectedCosineCoefficientsCorrections( i, j ), 1.0E-18 );
             BOOST_CHECK_SMALL( calculatedSineCoefficientCorrections( i, j ) -
-                               expectedSineCoefficientsCorrections( i, j ), 1.0E-20 );
+                               expectedSineCoefficientsCorrections( i, j ), 1.0E-18 );
         }
     }
-
-
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
