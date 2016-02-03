@@ -1,5 +1,5 @@
-#ifndef GRAVITYFIELDVARIATIONS_H
-#define GRAVITYFIELDVARIATIONS_H
+#ifndef TUDAT_GRAVITYFIELDVARIATIONS_H
+#define TUDAT_GRAVITYFIELDVARIATIONS_H
 
 #include <boost/function.hpp>
 #include <iostream>
@@ -332,10 +332,11 @@ public:
             const std::vector< BodyDeformationTypes > variationType,
             const std::vector< std::string > variationIdentifier,
             const std::map< int, boost::shared_ptr< interpolators::InterpolatorSettings > >
-            createInterpolator,
-            const std::map< int, double > initialTimes,
-            const std::map< int, double > finalTimes,
-            const std::map< int, double > timeSteps );
+            createInterpolator =
+            std::map< int, boost::shared_ptr< interpolators::InterpolatorSettings > >( ),
+            const std::map< int, double > initialTimes = std::map< int, double >( ),
+            const std::map< int, double > finalTimes = std::map< int, double >( ),
+            const std::map< int, double > timeSteps = std::map< int, double >( ) );
 
     //! Function to retrieve a variation object of given type (and name if necessary).
     /*!
@@ -429,4 +430,4 @@ private:
 
 }
 
-#endif // GRAVITYFIELDVARIATIONS_H
+#endif // TUDAT_GRAVITYFIELDVARIATIONS_H
