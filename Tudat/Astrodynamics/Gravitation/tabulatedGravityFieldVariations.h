@@ -1,5 +1,5 @@
-#ifndef TABULATEDGRAVITYFIELDVARIATIONS_H
-#define TABULATEDGRAVITYFIELDVARIATIONS_H
+#ifndef TUDAT_TABULATEDGRAVITYFIELDVARIATIONS_H
+#define TUDAT_TABULATEDGRAVITYFIELDVARIATIONS_H
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
@@ -131,4 +131,4 @@ private:
 
 }
 
-#endif // TABULATEDGRAVITYFIELDVARIATIONS_H
+#endif // TUDAT_TABULATEDGRAVITYFIELDVARIATIONS_H
