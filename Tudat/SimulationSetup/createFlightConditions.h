@@ -232,8 +232,8 @@ public:
             const double referenceArea,
             const double lateralReferenceLength,
             const Eigen::Vector3d& momentReferencePoint,
-            const Eigen::Vector3d constantForceCoefficient,
-            const Eigen::Vector3d constantMomentCoefficient = Eigen::Vector3d::Zero( ),
+            const Eigen::Vector3d& constantForceCoefficient,
+            const Eigen::Vector3d& constantMomentCoefficient = Eigen::Vector3d::Zero( ),
             const bool areCoefficientsInAerodynamicFrame = 0,
             const bool areCoefficientsInNegativeAxisDirection = 1  ):
         AerodynamicCoefficientSettings(
@@ -414,6 +414,33 @@ createConstantCoefficientAerodynamicCoefficientInterface(
         const bool areCoefficientsInAerodynamicFrame = 0,
         const bool areCoefficientsInNegativeAxisDirection = 1 );
 
+//! Factory function for tabulated aerodynamic coefficient interface.
+/*!
+ *  Factory function for tabulated aerodynamic coefficient interface.
+ *  \param independentVariables Values of indepependent variables at which the coefficients
+ *  in the input multi arrays are defined.
+ *  \param forceCoefficients Values of force coefficients at independent variables defined
+ *  by independentVariables.
+ *  \param momentCoefficients Values of moment coefficients at independent variables defined
+ *  by independentVariables.
+ *  \param referenceLength Reference length with which aerodynamic moments
+ *  (about x- and z- axes) are non-dimensionalized.
+ *  \param referenceArea Reference area with which aerodynamic forces and moments are
+ *  non-dimensionalized.
+ *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+ *  is non-dimensionalized.
+ *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+ *  \param independentVariableNames Vector with identifiers the physical meaning of each
+ *  independent variable of the aerodynamic coefficients.
+ *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+ *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  frame (typically denoted as Cx, Cy, Cz).
+ *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+ *  coefficients are positive along the positive axes of the body or aerodynamic frame
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  coefficients are typically defined in negative direction.
+ *  \return Tabulated aerodynamic coefficient interface pointer.
+ */
 template< int NumberOfDimensions >
 boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createTabulatedCoefficientAerodynamicCoefficientInterface(
@@ -429,31 +456,31 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
         const bool areCoefficientsInAerodynamicFrame = 0,
         const bool areCoefficientsInNegativeAxisDirection = 1 )
 {
+    // Check input consistency.
     if( independentVariables.size( ) != NumberOfDimensions )
     {
-        std::cerr<<"Error when creating tabulated aerodynamic coefficient interface, "
-                <<"inconsistent variable vector dimensioning"<<std::endl;
+        throw std::runtime_error( "Error when creating tabulated aerodynamic coefficient interface, inconsistent variable vector dimensioning" );
     }
 
     if( independentVariableNames.size( ) != NumberOfDimensions )
     {
-        std::cerr<<"Error when creating tabulated aerodynamic coefficient interface, "
-                <<"inconsistent variable name vector dimensioning"<<std::endl;
+       throw std::runtime_error( "Error when creating tabulated aerodynamic coefficient interface, inconsistent variable name vector dimensioning" );
 
     }
 
+    // Create interpolators for coefficients.
     boost::shared_ptr< interpolators::MultiLinearInterpolator
             < double, Eigen::Vector3d, NumberOfDimensions > > forceInterpolator =
             boost::make_shared< interpolators::MultiLinearInterpolator
             < double, Eigen::Vector3d, NumberOfDimensions > >(
                 independentVariables, forceCoefficients );
-
     boost::shared_ptr< interpolators::MultiLinearInterpolator
             < double, Eigen::Vector3d, NumberOfDimensions > > momentInterpolator =
             boost::make_shared< interpolators::MultiLinearInterpolator
             < double, Eigen::Vector3d, NumberOfDimensions > >(
                 independentVariables, momentCoefficients );
 
+    // Create aerodynamic coefficient interface.
     return  boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
                 boost::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
@@ -466,6 +493,17 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 }
 
+//! Factory function for tabulated aerodynamic coefficient interface from coefficient settings.
+/*!
+ *  Factory function for tabulated aerodynamic coefficient interface from coefficient settings.
+ *  This function is included to allow easier interface between the non-templated general
+ *  createAerodynamicCoefficientInterface and the templated
+ *  createTabulatedCoefficientAerodynamicCoefficientInterface.
+ *  \param coefficientSettings Settings for aerodynamic coefficient interface, must be of derived
+ *  type TabulatedAerodynamicCoefficientSettings< NumberOfDimensions >/
+ *  \param body Name of body for which coefficient interface is to be made.
+ *  \return Tabulated aerodynamic coefficient interface pointer.
+ */
 template< int NumberOfDimensions >
 boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createTabulatedCoefficientAerodynamicCoefficientInterface(
@@ -499,12 +537,31 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
 }
 
 
-
+//! Function to create an aerodynamic coefficient interface.
+/*!
+ * Function to create an aerodynamic coefficient interface from interface settings.
+ * \param coefficientSettings Settings for the aerodynamic coefficient interface.
+ * \param body Name of body for which aerodynamic coefficients are to be made.
+ * \return Aerodynamic coefficient interface pointer of reqyested type and settings.
+ */
 boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createAerodynamicCoefficientInterface(
         const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body );
 
+//! Function to create a flight conditions object
+/*!
+ * Function to create a flight conditions object, which is responsible for calculating the various
+ * dependent variables required for calculation of the aerodynamic acceleration
+ * \param bodyWithFlightConditions Body for which flight conditions are to be created.
+ * \param centralBody Body in  the atmosphere of which bodyWithFlightConditions is flying
+ * \param nameOfBodyUndergoingAcceleration Name of body undergoing acceleration.
+ * \param nameOfBodyExertingAcceleration Name of body with the atmosphere causing acceleration.
+ * \param angleOfAttackFunction Function returning the current angle of attack (default 0).
+ * \param angleOfSideslipFunction Function returning the current angle of sideslip (default 0).
+ * \param bankAngleFunction Function returning the current bank angle (default 0).
+ * \return Flight conditions object for given bodies and settings.
+ */
 boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,
         const boost::shared_ptr< Body > centralBody,

@@ -1,5 +1,5 @@
-#ifndef CREATEBODYSHAPEMODEL_H
-#define CREATEBODYSHAPEMODEL_H
+#ifndef TUDAT_CREATEBODYSHAPEMODEL_H
+#define TUDAT_CREATEBODYSHAPEMODEL_H
 
 #include <boost/shared_ptr.hpp>
 
@@ -70,4 +70,4 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
 
 }
 
-#endif // CREATEBODYSHAPEMODEL_H
+#endif // TUDAT_CREATEBODYSHAPEMODEL_H

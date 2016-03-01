@@ -371,6 +371,23 @@ Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
 Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
         const double angleOfAttack, const double angleOfSideslip );
 
+//! Calculate current heading angle.
+/*!
+ * Calculate heading angle from velocity in vertical (LVLH) frame.
+ * \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
+ * \return Current heading angle.
+ */
+double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
+
+//! Calculate current flight path angle. Angle is defined positive upwards.
+/*!
+ *  Calculate flight path angle from velocity in vertical (LVLH) frame.
+ *  Angle is defined positive upwards.
+ *  \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
+ *  \return Current flight path angle.
+ */
+double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame );
+
 } // namespace reference_frames
 } // namespace tudat
 

@@ -34,7 +34,7 @@ enum AerodynamicsReferenceFrames
 //! body-fixed frame, using transformation chain via aerodynamic frame.
 enum AerodynamicsReferenceFrameAngles
 {
-    latitude_angle,
+    latitude_angle = 0,
     longitude_angle,
     heading_angle,
     flight_path_angle,

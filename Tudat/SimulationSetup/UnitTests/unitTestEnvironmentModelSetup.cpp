@@ -69,10 +69,12 @@
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/SimulationSetup/createAtmosphereModel.h"
 #include "Tudat/SimulationSetup/createEphemeris.h"
 #include "Tudat/SimulationSetup/createGravityField.h"
 #include "Tudat/SimulationSetup/createRotationModel.h"
+#include "Tudat/SimulationSetup/defaultBodies.h"
 
 namespace tudat
 {
@@ -80,6 +82,9 @@ namespace unit_tests
 {
 
 using namespace simulation_setup;
+using namespace spice_interface;
+using namespace input_output;
+using namespace reference_frames;
 
 BOOST_AUTO_TEST_SUITE( test_environment_model_setup )
 
@@ -292,6 +297,70 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
                 ( Eigen::Matrix3d( approximateEphemeris->getRotationToTargetFrame(
                                        4.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) ),
                 std::numeric_limits< double >::epsilon( ) );
+
+}
+
+//! Test set up of rotation model environment models.
+BOOST_AUTO_TEST_CASE( test_RadiationPressureInterfaceSetup )
+{
+
+}
+
+//! Test set up of rotation model environment models.
+BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
+{
+
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings(
+                "Earth", 0.0, 1.0E7 );
+
+    bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+
+    bodySettings[ "Vehicle" ] ->aerodynamicCoefficientSettings =
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
+                ( Eigen::Vector3d( )<<-1.1, 0.1, 2.3 ).finished( ),
+                Eigen::Vector3d::Zero( ), 1, 1 );
+
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    double angleOfAttack = 0.23;
+    double angleOfSideslip = -0.0043;
+    double bankAngle = 1.6544;
+
+    boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+            createFlightConditions( bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ),
+                                    "Vehicle", "Earth",
+                                    boost::lambda::constant( angleOfAttack ),
+                                    boost::lambda::constant( angleOfSideslip ),
+                                    boost::lambda::constant( bankAngle ) );
+
+    basic_mathematics::Vector6d vehicleState =
+            ( basic_mathematics::Vector6d( )<< 3.0E6, 4.0E6, 5.0E6, -3.0E3, 2.0E3, 1.2E3 ).finished( );
+    bodyMap[ "Earth" ]->setCurrentTimeAndState( 0.5E7, basic_mathematics::Vector6d::Zero( ) );
+    bodyMap[ "Vehicle" ]->setCurrentTimeAndState(
+                0.5E7, vehicleState );
+
+
+    vehicleFlightConditions->updateConditions( );
+    basic_mathematics::Vector6d bodyFixedState = vehicleFlightConditions->getCurrentBodyCenteredBodyFixedState( );
+
+    Eigen::Vector3d manualSphericalCoordinates = coordinate_conversions::convertCartesianToSpherical( bodyFixedState.segment( 0, 3 ) );
+
+    std::cout<<"altitude "<<vehicleFlightConditions->getCurrentAltitude( )<<std::endl;
+    std::cout<<"latitude "<<mathematical_constants::PI / 2.0 - manualSphericalCoordinates( 1 )<<vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( latitude_angle )<<std::endl;
+    std::cout<<"longitude "<<manualSphericalCoordinates( 2 )<<" "<<vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( longitude_angle ) <<std::endl;
+    std::cout<<"heading "<<vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( heading_angle )<<std::endl;
+    std::cout<<"flight path "<<vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( flight_path_angle )<<std::endl;
+    std::cout<<"angle of attack "<<vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_attack )<<std::endl;
+    std::cout<<"angle of sideslip "<<vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_sideslip )<<std::endl;
+    std::cout<<"bank angle "<<vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( bank_angle )<<std::endl;
+
 
 }
 
