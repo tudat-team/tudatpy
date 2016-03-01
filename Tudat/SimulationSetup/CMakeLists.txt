@@ -54,7 +54,7 @@ setup_tudat_library_target(tudat_simulation_setup "${SRCROOT}${SIMULATIONSETUPDI
 # Add unit tests.
 add_executable(test_EnvironmentSetup "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestEnvironmentModelSetup.cpp")
 setup_custom_test_program(test_EnvironmentSetup "${SRCROOT}${SIMULATIONSETUPDIR}/")
-target_link_libraries(test_EnvironmentSetup tudat_simulation_setup tudat_gravitation tudat_ephemerides tudat_reference_frames tudat_aerodynamics tudat_spice_interface tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics cspice ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_EnvironmentSetup tudat_simulation_setup tudat_electro_magnetism tudat_gravitation tudat_ephemerides tudat_aerodynamics tudat_reference_frames tudat_spice_interface tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics cspice ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_AccelerationModelSetup "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestAccelerationModelSetup.cpp")
 setup_custom_test_program(test_AccelerationModelSetup "${SRCROOT}${SIMULATIONSETUPDIR}/")

@@ -26,9 +26,9 @@ createConstantCoefficientAerodynamicCoefficientInterface(
     // Create coefficient interface
     boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                    boost::lambda::constant( constantForceCoefficient ),
-                    boost::lambda::constant( constantMomentCoefficient ),
-                    referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
+                boost::lambda::constant( constantForceCoefficient ),
+                boost::lambda::constant( constantMomentCoefficient ),
+                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
                 std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
     coefficientInterface->updateCurrentCoefficients( std::vector< double >( ) );
@@ -36,7 +36,9 @@ createConstantCoefficientAerodynamicCoefficientInterface(
     return coefficientInterface;
 }
 
-boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterface(
+//! Function to create and aerodynamic coefficient interface.
+boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createAerodynamicCoefficientInterface(
         const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body )
 {
@@ -122,11 +124,12 @@ boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodyn
 
     }
     default:
-        std::cerr<<"Error, did not recognize aerodynamic coefficient settings for "<<body<<std::endl;
+        std::cerr<<"Error, do not recognize aerodynamic coefficient settings for "<<body<<std::endl;
     }
     return coefficientInterface;
 }
 
+//! Function to create a flight conditions object
 boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,
         const boost::shared_ptr< Body > centralBody,
@@ -138,26 +141,30 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
 {
     if( centralBody->getAtmosphereModel( ) == NULL )
     {
-        throw( "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
-                " has no atmosphere model." );
+        throw std::runtime_error(
+                    "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
+                    " has no atmosphere model." );
     }
 
     if( centralBody->getShapeModel( ) == NULL )
     {
-        throw( "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
-                " has no shape model." );
+        throw std::runtime_error(
+                    "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
+                    " has no shape model." );
     }
 
     if( centralBody->getRotationalEphemeris( ) == NULL )
     {
-        throw( "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
-                " has no rotation model." );
+        throw std::runtime_error(
+                    "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
+                    " has no rotation model." );
     }
 
     if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == NULL )
     {
-        throw( "Error when making flight conditions, body " + nameOfBodyUndergoingAcceleration +
-                " has no aerodynamic coefficients." );
+        throw std::runtime_error(
+                    "Error when making flight conditions, body "+ nameOfBodyUndergoingAcceleration +
+                    " has no aerodynamic coefficients." );
     }
 
     boost::function< double( const Eigen::Vector3d ) > altitudeFunction =
@@ -174,7 +181,8 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
                 static_cast< basic_mathematics::Vector6d(&)(
                     const basic_mathematics::Vector6d&,
                     const boost::function< Eigen::Quaterniond( ) >,
-                    const boost::function< Eigen::Matrix3d( ) > ) >( &ephemerides::transformStateToFrame ),
+                    const boost::function< Eigen::Matrix3d( ) > ) >(
+                    &ephemerides::transformStateToFrame ),
                 _1, rotationToFrameFunction,
                 rotationMatrixToFrameDerivativeFunction );
 
@@ -191,7 +199,7 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
             boost::make_shared< reference_frames::AerodynamicAngleCalculator >(
                 boost::bind( &aerodynamics::FlightConditions::getCurrentBodyCenteredBodyFixedState,
                              flightConditions ),
-                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
+                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, 1 );
 
     flightConditions->setAerodynamicAngleCalculator( aerodynamicAngleCalculator );
 

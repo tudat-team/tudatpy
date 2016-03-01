@@ -261,20 +261,21 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
     // Check existence of required environment models
     if( bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( ) == NULL )
     {
-        std::cerr<<"Error when making aerodynamic acceleration, body "<<nameOfBodyUndergoingAcceleration<<
-                   "has no aerodynamic coefficients."<<std::endl;
+        throw std::runtime_error( "Error when making aerodynamic acceleration, body " +
+                                  nameOfBodyUndergoingAcceleration +
+                                  "has no aerodynamic coefficients." );
     }
 
     if( bodyExertingAcceleration->getAtmosphereModel( ) == NULL )
     {
-        std::cerr<<"Error when making aerodynamic acceleration, central body "<<
-                   nameOfBodyExertingAcceleration<<" has no atmosphere model."<<std::endl;
+        throw std::runtime_error(  "Error when making aerodynamic acceleration, central body " +
+                                   nameOfBodyExertingAcceleration + " has no atmosphere model.");
     }
 
     if( bodyExertingAcceleration->getShapeModel( ) == NULL )
     {
-        std::cerr<<"Error when making aerodynamic acceleration, central body "<<
-                   nameOfBodyExertingAcceleration<<" has no shape model."<<std::endl;
+        throw std::runtime_error( "Error when making aerodynamic acceleration, central body " +
+                                  nameOfBodyExertingAcceleration + " has no shape model." );
     }
 
     // Retrieve flight conditions; create object if not yet extant.
@@ -336,13 +337,14 @@ createCannonballRadiationPressureAcceleratioModel(
     if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
                 nameOfBodyExertingAcceleration ) == 0 )
     {
-        std::cerr<<"Error when making radiation pressure, no radiation pressure "<<
-                   " interface found  in "<<nameOfBodyUndergoingAcceleration<<
-                   " for body "<<nameOfBodyExertingAcceleration<<std::endl;
+        throw std::runtime_error(
+                    "Error when making radiation pressure, no radiation pressure interface found  in " +
+                    nameOfBodyUndergoingAcceleration +
+                    " for body " + nameOfBodyExertingAcceleration );
     }
     boost::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
             bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
-                            nameOfBodyExertingAcceleration );
+                nameOfBodyExertingAcceleration );
 
     // Create acceleration model.
     return boost::make_shared< CannonBallRadiationPressureAcceleration >(
@@ -499,8 +501,8 @@ AccelerationMap createAccelerationModelsMap(
         {
             throw std::runtime_error(
                         std::string( "Error when making acceleration models, requested forces" ) +
-                                     "acting on body " + bodyUndergoingAcceleration  +
-                                     ", but no such body found in map of bodies" );
+                        "acting on body " + bodyUndergoingAcceleration  +
+                        ", but no such body found in map of bodies" );
         }
 
         // Declare map of acceleration models acting on current body.

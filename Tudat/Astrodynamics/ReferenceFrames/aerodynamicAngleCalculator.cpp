@@ -1,5 +1,8 @@
+#include <iostream>
+
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -37,10 +40,9 @@ void AerodynamicAngleCalculator::update( )
                     currentAerodynamicAngles_.at( latitude_angle ) ) *
                 currentBodyFixedState_.segment( 3, 3 );
 
-        currentAerodynamicAngles_[ heading_angle ] = std::atan2(
-                    verticalFrameVelocity( 1 ), verticalFrameVelocity( 0 ) );
-        currentAerodynamicAngles_[ flight_path_angle ] = std::asin(
-                    verticalFrameVelocity( 2 ) / verticalFrameVelocity.norm( ) );
+        currentAerodynamicAngles_[ heading_angle ] = calculateHeadingAngle( verticalFrameVelocity );
+        currentAerodynamicAngles_[ flight_path_angle ] =
+                calculateFlightPathAngle( verticalFrameVelocity );
 
         currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
         currentAerodynamicAngles_[ angle_of_sideslip ] = angleOfSideslipFunction_( );
@@ -106,7 +108,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                 switch( currentFrameIndex )
                 {
                 case static_cast< int >( corotating_frame ):
-                {
+
                     if( isTargetFrameUp )
                     {
                         rotationToFrame =
@@ -120,14 +122,15 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                         throw std::runtime_error(
                                     "Error, corotating_frame is end frame in AerodynamicAngleCalculator" );
                     }
-                }
+                    break;
                 case static_cast< int >( vertical_frame ):
                     if( isTargetFrameUp )
                     {
 
                         rotationToFrame =
                                 getLocalVerticalFrameToTrajectoryTransformationQuaternion(
-                                    flight_path_angle, heading_angle ) * rotationToFrame;
+                                    currentAerodynamicAngles_.at( flight_path_angle ),
+                                    currentAerodynamicAngles_.at( heading_angle ) ) * rotationToFrame;
                     }
                     else
                     {
@@ -137,6 +140,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                                     currentAerodynamicAngles_.at( latitude_angle ) ) *
                                 rotationToFrame;
                     }
+                    break;
                 case static_cast< int >( trajectory_frame ):
                     if( isTargetFrameUp )
                     {
@@ -154,6 +158,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                                     currentAerodynamicAngles_.at( heading_angle ) ) *
                                 rotationToFrame;
                     }
+                    break;
                 case static_cast< int >( aerodynamic_frame ):
                     if( isTargetFrameUp )
                     {
@@ -170,6 +175,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                                     currentAerodynamicAngles_.at( bank_angle ) ) *
                                 rotationToFrame;
                     }
+                    break;
                 case static_cast< int >( body_frame ):
                     if( isTargetFrameUp )
                     {
@@ -185,8 +191,12 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                                     currentAerodynamicAngles_.at( angle_of_sideslip ) ) *
                                 rotationToFrame;
                     }
+                    break;
                 default:
-                    throw( "Error, body_frame is end frame in AerodynamicAngleCalculator." );
+                    throw std::runtime_error(
+                                "Error, index " +
+                                boost::lexical_cast< std::string>( currentFrameIndex ) +
+                                "not found in AerodynamicAngleCalculator" );
 
                 }
 
@@ -221,7 +231,8 @@ double AerodynamicAngleCalculator::getAerodynamicAngle(
     double angleValue = TUDAT_NAN;
     if( currentAerodynamicAngles_.count( angleId ) == 0 )
     {
-        throw( "Error in AerodynamicAngleCalculator, angleId not found" );
+        throw std::runtime_error( "Error in AerodynamicAngleCalculator, angleId " +
+                                  boost::lexical_cast< std::string >( angleId ) + "not found" );
     }
     else
     {
