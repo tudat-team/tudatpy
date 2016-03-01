@@ -11,7 +11,8 @@ namespace tudat
 namespace aerodynamics
 {
 
-
+//! Constructor, sets objects and functions from which relevant environment and state variables
+//! are retrieved.
 FlightConditions::FlightConditions(
         const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
         const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
@@ -37,12 +38,12 @@ FlightConditions::FlightConditions(
     if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) ==
             NULL )
     {
-        throw( "Error when making flight conditions, no atmosphere is found" );
+        throw std::runtime_error( "Error when making flight conditions, no atmosphere is found" );
     }
 
     if( updateLatitudeAndLongitude_ && aerodynamicAngleCalculator_== NULL )
     {
-        throw( "Error when making flight conditions, angles are to be updated, but no calculator is set" );
+        throw std::runtime_error( "Error when making flight conditions, angles are to be updated, but no calculator is set" );
     }
 }
 
@@ -98,7 +99,7 @@ void FlightConditions::updateConditions(  )
 
             if( aerodynamicAngleCalculator_== NULL )
             {
-                throw( "" );
+                throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of attack" );
             }
             aerodynamicCoefficientIndependentVariables.push_back(
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
@@ -108,13 +109,15 @@ void FlightConditions::updateConditions(  )
         case angle_of_sideslip_dependent:
             if( aerodynamicAngleCalculator_== NULL )
             {
-                throw( "" );
+                throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
             }
             aerodynamicCoefficientIndependentVariables.push_back(
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
                             reference_frames::angle_of_sideslip ) );
         default:
-            throw( "" );
+            throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
+                                      + boost::lexical_cast< std::string >(
+                            aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
         }
     }
 

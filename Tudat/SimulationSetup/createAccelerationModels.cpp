@@ -251,46 +251,48 @@ createThirdBodyCentralGravityAccelerationModel(
 }
 
 
+//! Function to create an aerodynamic acceleration model.
 boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcceleratioModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration )
 {
+    // Check existence of required environment models
     if( bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( ) == NULL )
     {
-        std::cerr<<"Error when making aerodynamic acceleration, vehicle has no aerodynamic "
-                   "coefficients."<<std::endl;
+        std::cerr<<"Error when making aerodynamic acceleration, body "<<nameOfBodyUndergoingAcceleration<<
+                   "has no aerodynamic coefficients."<<std::endl;
     }
 
     if( bodyExertingAcceleration->getAtmosphereModel( ) == NULL )
     {
-        std::cerr<<"Error when making aerodynamic acceleration, central body has no atmosphere "
-                   "model."<<std::endl;
+        std::cerr<<"Error when making aerodynamic acceleration, central body "<<
+                   nameOfBodyExertingAcceleration<<" has no atmosphere model."<<std::endl;
     }
 
     if( bodyExertingAcceleration->getShapeModel( ) == NULL )
     {
-        std::cerr<<"Error when making aerodynamic acceleration, central body has no shape "
-                   "model."<<std::endl;
+        std::cerr<<"Error when making aerodynamic acceleration, central body "<<
+                   nameOfBodyExertingAcceleration<<" has no shape model."<<std::endl;
     }
 
+    // Retrieve flight conditions; create object if not yet extant.
     boost::shared_ptr< FlightConditions > bodyFlightConditions =
             bodyUndergoingAcceleration->getFlightConditions( );
-
     if( bodyFlightConditions == NULL )
     {
         bodyUndergoingAcceleration->setFlightConditions(
                     createFlightConditions( bodyUndergoingAcceleration,
-                                            bodyExertingAcceleration ) );
+                                            bodyExertingAcceleration,
+                                            nameOfBodyUndergoingAcceleration,
+                                            nameOfBodyExertingAcceleration ) );
         bodyFlightConditions = bodyUndergoingAcceleration->getFlightConditions( );
     }
 
+    // Retrieve frame in which aerodynamic coefficients are defined.
     boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
             bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( );
-
-    boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
-
     reference_frames::AerodynamicsReferenceFrames accelerationFrame;
     if( aerodynamicCoefficients->getAreCoefficientsInAerodynamicFrame( ) )
     {
@@ -301,6 +303,8 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
         accelerationFrame = reference_frames::body_frame;
     }
 
+    // Create function to transform from frame of aerodynamic coefficienrs to that of propagation.
+    boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
     toPropagationFrameTransformation =
             reference_frames::getAerodynamicForceTransformationFunction(
                 bodyFlightConditions->getAerodynamicAngleCalculator( ),
@@ -308,6 +312,7 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
                 boost::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
 
+    // Create acceleration model.
     return boost::make_shared< AerodynamicAcceleration >(
                 boost::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
                              aerodynamicCoefficients ),
@@ -319,24 +324,28 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
                 aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
 }
 
-boost::shared_ptr< CannonBallRadiationPressure >
+//! Function to create a cannonball radiation pressure acceleration model.
+boost::shared_ptr< CannonBallRadiationPressureAcceleration >
 createCannonballRadiationPressureAcceleratioModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration )
 {
+    // Retrieve radiation pressure interface
     if( bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).count(
                 nameOfBodyExertingAcceleration ) == 0 )
     {
-        std::cerr<<"Error when making radiation pressure    , no radiation pressure "<<
-                   " interface found for body "<<nameOfBodyExertingAcceleration<<std::endl;
+        std::cerr<<"Error when making radiation pressure, no radiation pressure "<<
+                   " interface found  in "<<nameOfBodyUndergoingAcceleration<<
+                   " for body "<<nameOfBodyExertingAcceleration<<std::endl;
     }
     boost::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
             bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at(
                             nameOfBodyExertingAcceleration );
 
-    return boost::make_shared< CannonBallRadiationPressure >(
+    // Create acceleration model.
+    return boost::make_shared< CannonBallRadiationPressureAcceleration >(
                 boost::bind( &Body::getPosition, bodyExertingAcceleration ),
                 boost::bind( &Body::getPosition, bodyUndergoingAcceleration ),
                 boost::bind( &RadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
@@ -364,9 +373,12 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
     switch( accelerationSettings->accelerationType_ )
     {
     case central_gravity:
+        // Check if body is a single-body central gravity acceleration (use third-body if not)
         if( nameOfCentralBody == nameOfBodyExertingAcceleration ||
                 isFrameInertial( nameOfCentralBody ) )
         {
+            // Check if gravitational parameter to use is sum of gravitational paramater of the
+            // two bodies.
             bool useCentralBodyFixedFrame = 0;
             if( nameOfCentralBody == nameOfBodyExertingAcceleration )
             {
@@ -379,6 +391,7 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                         nameOfBodyUndergoingAcceleration,
                         nameOfBodyExertingAcceleration, useCentralBodyFixedFrame );
         }
+        // Create third body central gravity acceleration
         else
         {
 
@@ -395,6 +408,8 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
         if( nameOfCentralBody == nameOfBodyExertingAcceleration ||
                 isFrameInertial( nameOfCentralBody ) )
         {
+            // Check if gravitational parameter to use is sum of gravitational paramater of the
+            // two bodies.
             bool useCentralBodyFixedFrame = 0;
             if( nameOfCentralBody == nameOfBodyExertingAcceleration )
             {
@@ -423,6 +438,12 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
         break;
+    case cannon_ball_radiation_pressure:
+        accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration );
     default:
         throw std::runtime_error(
                     std::string( "Error, acceleration model ") +

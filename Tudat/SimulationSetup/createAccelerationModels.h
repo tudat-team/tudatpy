@@ -137,6 +137,17 @@ createThirdBodyCentralGravityAccelerationModel(
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody );
 
+//! Function to create an aerodynamic acceleration model.
+/*!
+ *  Function to create an aerodynamic acceleration model, automatically creates all required
+ *  links to environment models, vehicle properies and frame conversions
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration,
+ *  i.e. body with the atmosphere through which the accelerated body is flying.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
+ *  \return Pointer to object for calculating aerodynamic acceleration.
+ */
 boost::shared_ptr< aerodynamics::AerodynamicAcceleration >
 createAerodynamicAcceleratioModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
@@ -144,7 +155,18 @@ createAerodynamicAcceleratioModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
-boost::shared_ptr< electro_magnetism::CannonBallRadiationPressure >
+//! Function to create a cannonball radiation pressure acceleration model.
+/*!
+ *  Function to create a cannonball radiation pressure automatically creates all required
+ *  links to environment models, vehicle properies and frame conversions
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration,
+ *  i.e. body emitting the radiation.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
+ *  \return Pointer to object for calculating cannonball radiation pressures acceleration.
+ */
+boost::shared_ptr< electro_magnetism::CannonBallRadiationPressureAcceleration >
 createCannonballRadiationPressureAcceleratioModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
