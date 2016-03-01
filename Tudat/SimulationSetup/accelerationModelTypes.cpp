@@ -60,7 +60,7 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = central_gravity;
     }
-    else if( boost::dynamic_pointer_cast< CannonBallRadiationPressure >(
+    else if( boost::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >(
                  accelerationModel ) != NULL )
     {
         accelerationType = cannon_ball_radiation_pressure;

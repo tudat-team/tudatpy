@@ -95,8 +95,8 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
             }
             else
             {
-                throw(
-                "Error when identifying target frame direction in AerodynamicAngleCalculator." );
+                throw std::runtime_error(
+                            "Error when identifying target frame direction in AerodynamicAngleCalculator." );
 
             }
 
@@ -117,8 +117,8 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                     }
                     else
                     {
-                        throw(
-                        "Error, corotating_frame is end frame in AerodynamicAngleCalculator." );
+                        throw std::runtime_error(
+                                    "Error, corotating_frame is end frame in AerodynamicAngleCalculator" );
                     }
                 }
                 case static_cast< int >( vertical_frame ):
@@ -173,7 +173,9 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                 case static_cast< int >( body_frame ):
                     if( isTargetFrameUp )
                     {
-                        throw( "" );
+
+                        throw std::runtime_error(
+                                    "Error, body frame is end frame in AerodynamicAngleCalculator." );
                     }
                     else
                     {
@@ -282,7 +284,7 @@ getAerodynamicForceTransformationFunction(
                     static_cast< Eigen::Vector3d(&)(
                         const Eigen::Vector3d&,
                         const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ), _1,
-                     rotationFunction );
+                    rotationFunction );
     }
 
     return transformationFunction;

@@ -38,7 +38,6 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
-#include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
@@ -207,91 +206,6 @@ private:
 
 
 };
-
-//! Function to create an aerodynamic coefficient interface containing constant coefficients.
-/*!
- *  Function to create an aerodynamic coefficient interface containing constant coefficients,
- *  As a result, the generated coefficient interface depends on zero parameters.
- *  \param constantForceCoefficient Constant force coefficients.
- *  \param constantMomentCoefficient Constant moment coefficients.
- *  \param referenceLength Reference length with which aerodynamic moments
- *  (about x- and z- axes) are non-dimensionalized.
- *  \param referenceArea Reference area with which aerodynamic forces and moments are
- *  non-dimensionalized.
- *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
- *  is non-dimensionalized.
- *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
- *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
- *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
- *  frame (typically denoted as Cx, Cy, Cz).
- *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
- *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
- *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
- *  coefficients are typically defined in negative direction.
- *  \return Aerodynamic coefficient interface with constant coefficients.
- */
-boost::shared_ptr< AerodynamicCoefficientInterface >
-createConstantCoefficientAerodynamicCoefficientInterface(
-        const Eigen::Vector3d constantForceCoefficient,
-        const Eigen::Vector3d constantMomentCoefficient,
-        const double referenceLength,
-        const double referenceArea,
-        const double lateralReferenceLength,
-        const Eigen::Vector3d& momentReferencePoint,
-        const bool areCoefficientsInAerodynamicFrame = 0,
-        const bool areCoefficientsInNegativeAxisDirection = 1 );
-
-template< int NumberOfDimensions >
-boost::shared_ptr< AerodynamicCoefficientInterface >
-createTabulatedCoefficientAerodynamicCoefficientInterface(
-        const std::vector< std::vector< double > > independentVariables,
-        const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
-        const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
-        independentVariableNames,
-        const double referenceLength,
-        const double referenceArea,
-        const double lateralReferenceLength,
-        const Eigen::Vector3d& momentReferencePoint,
-        const bool areCoefficientsInAerodynamicFrame = 0,
-        const bool areCoefficientsInNegativeAxisDirection = 1 )
-{
-    if( independentVariables.size( ) != NumberOfDimensions )
-    {
-        std::cerr<<"Error when creating tabulated aerodynamic coefficient interface, "
-                <<"inconsistent variable vector dimensioning"<<std::endl;
-    }
-
-    if( independentVariableNames.size( ) != NumberOfDimensions )
-    {
-        std::cerr<<"Error when creating tabulated aerodynamic coefficient interface, "
-                <<"inconsistent variable name vector dimensioning"<<std::endl;
-
-    }
-
-    boost::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, Eigen::Vector3d, NumberOfDimensions > > forceInterpolator =
-            boost::make_shared< interpolators::MultiLinearInterpolator
-            < double, Eigen::Vector3d, NumberOfDimensions > >(
-                independentVariables, forceCoefficients );
-
-    boost::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, Eigen::Vector3d, NumberOfDimensions > > momentInterpolator =
-            boost::make_shared< interpolators::MultiLinearInterpolator
-            < double, Eigen::Vector3d, NumberOfDimensions > >(
-                independentVariables, momentCoefficients );
-
-    return  boost::make_shared< CustomAerodynamicCoefficientInterface >(
-                boost::bind( &interpolators::MultiLinearInterpolator
-                             < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             forceInterpolator, _1 ),
-                boost::bind( &interpolators::MultiLinearInterpolator
-                             < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             momentInterpolator, _1 ),
-                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
-                independentVariableNames,
-                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
-}
 
 }
 

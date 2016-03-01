@@ -1,11 +1,13 @@
-#ifndef CREATEFLIGHTCONDITIONS_H
-#define CREATEFLIGHTCONDITIONS_H
+#ifndef TUDAT_CREATEFLIGHTCONDITIONS_H
+#define TUDAT_CREATEFLIGHTCONDITIONS_H
 
 #include <boost/multi_array.hpp>
 
 #include <vector>
 
+#include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
+#include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/SimulationSetup/body.h"
 
 namespace tudat
@@ -40,12 +42,16 @@ public:
 
     //! Constructor, sets type of aerodynamic coefficient model.
     /*!
-     *  Constructor, sets type of aerodynamic coefficient model. Settings for aerodynamic coefficient
-     *  models requiring additional information should be defined in a derived class.
-     *  \param aerodynamicCoefficientTypes Type of aerodynamic coefficient model that is to be created.
-     *  \param referenceLength Reference length with which aerodynamic moments (about x- and z- axes) are non-dimensionalized.
-     *  \param referenceArea Reference area with which aerodynamic forces and moments are non-dimensionalized.
-     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis) is non-dimensionalized.
+     *  Constructor, sets type of aerodynamic coefficient model. Settings for aerodynamic
+     *  coefficient models requiring additional information should be defined in a derived class.
+     *  \param aerodynamicCoefficientTypes Type of aerodynamic coefficient model that is to be
+     * created.
+     *  \param referenceLength Reference length with which aerodynamic moments
+     *  (about x- and z- axes) are non-dimensionalized.
+     *  \param referenceArea Reference area with which aerodynamic forces and moments are
+     *  non-dimensionalized.
+     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+     *  is non-dimensionalized.
      *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
      *  \param independentVariableNames Vector with identifiers the physical meaning of each
      *  independent variable of the aerodynamic coefficients.
@@ -53,7 +59,7 @@ public:
      *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
-     *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
+     *  coefficients are positive along the positive axes of the body or aerodynamic frame
      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
      *  coefficients are typically defined in negative direction.
      */
@@ -83,7 +89,8 @@ public:
      *  Function to return type of aerodynamic coefficient model that is to be created.
      *  \return Type of aerodynamic coefficient model that is to be created.
      */
-    AerodynamicCoefficientTypes getAerodynamicCoefficientType( ){ return aerodynamicCoefficientTypes_; }
+    AerodynamicCoefficientTypes getAerodynamicCoefficientType( ){
+        return aerodynamicCoefficientTypes_; }
 
     //! Get reference area.
     /*!
@@ -114,18 +121,32 @@ public:
      */
     Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
 
-
+    //! Function to return identifiers of physical meaning of independent variables.
+    /*!
+     *  Function to return identifiers of physical meaning of independent variables.
+     *  \return Identifiers of physical meaning of independent variables.
+     */
     std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
     getIndependentVariableNames( )
     {
         return independentVariableNames_;
     }
 
+    //! Function to return whether coefficients are in aerodynamic frame.
+    /*!
+     *  Function to return whether coefficients are in aerodynamic frame.
+     *  \return Boolean defining whether coefficients are in aerodynamic frame.
+     */
     bool getAreCoefficientsInAerodynamicFrame( )
     {
         return areCoefficientsInAerodynamicFrame_;
     }
 
+    //! Function to return whether coefficients are positive along positive axes.
+    /*!
+     *  Function to return whether coefficients are positive along positive axes.
+     *  \return Boolean defining whether coefficients are positive along positive axes.
+     */
     bool getAreCoefficientsInNegativeAxisDirection( )
     {
         return areCoefficientsInNegativeAxisDirection_;
@@ -160,11 +181,25 @@ private:
      */
     Eigen::Vector3d momentReferencePoint_;
 
+    //! Vector with identifiers of the physical meaning of each independent variable of the
+    //! aerodynamic coefficients.
     std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
     independentVariableNames_;
 
+    //! Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame.
+    /*!
+     *  Boolean to define whether the aerodynamic coefficients are defined in the aerodynamic frame
+     *  (lift, drag, side force) or in the body frame (typically denoted as Cx, Cy, Cz).
+     */
     bool areCoefficientsInAerodynamicFrame_;
 
+    //! Boolean to define whether the coefficients are positive along the positive axes.
+    /*!
+     *  Boolean to define whether the aerodynamic coefficients are positive along the positive
+     *  axes of the body or aerodynamic frame (see areCoefficientsInAerodynamicFrame).
+     *  Note that for (lift, drag, side force), the coefficients are typically defined in
+     *  negative direction.
+     */
     bool areCoefficientsInNegativeAxisDirection_;
 };
 
@@ -177,9 +212,12 @@ public:
      *  Constructor.
      *  \param constantForceCoefficient Constant force coefficients.
      *  \param constantMomentCoefficient Constant moment coefficients.
-     *  \param referenceLength Reference length with which aerodynamic moments (about x- and z- axes) are non-dimensionalized.
-     *  \param referenceArea Reference area with which aerodynamic forces and moments are non-dimensionalized.
-     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis) is non-dimensionalized.
+     *  \param referenceLength Reference length with which aerodynamic moments
+     * (about x- and z- axes) are non-dimensionalized.
+     *  \param referenceArea Reference area with which aerodynamic forces and moments are
+     * non-dimensionalized.
+     *  \param lateralReferenceLength Reference length with which aerodynamic moments
+     * (about y-axis) is non-dimensionalized.
      *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
      *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
@@ -207,12 +245,21 @@ public:
         constantMomentCoefficient_( constantMomentCoefficient )
     { }
 
-
+    //! Function to return constant force coefficients.
+    /*!
+     *  Function to return constant force coefficients.
+     *  \return Cnstant force coefficients.
+     */
     Eigen::Vector3d getConstantForceCoefficient( )
     {
         return  constantForceCoefficient_;
     }
 
+    //! Function to return constant moment coefficients.
+    /*!
+     *  Function to return constant moment coefficients.
+     *  \return Cnstant force coefficients.
+     */
     Eigen::Vector3d getConstantMomentCoefficient( )
     {
         return constantMomentCoefficient_;
@@ -220,14 +267,51 @@ public:
 
 private:
 
+    //! Constant moment coefficients.
     Eigen::Vector3d constantForceCoefficient_;
+
+    //! Constant force coefficients.
     Eigen::Vector3d constantMomentCoefficient_;
 };
 
+
+//! Object for setting aerodynamic coefficients from a user-defined N-dimensional table.
+/*!
+ *  Object for setting aerodynamic coefficients from a user-defined N-dimensional table.
+ *  The user must provide the force and moment coefficients in boost multi_arrays, and
+ *  define the physical meaning of each of the independent variables.
+ */
 template< int NumberOfDimensions >
 class TabulatedAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
 {
 public:
+
+    //! Constructor, sets properties of aerodynamic coefficients.
+    /*!
+     *  Constructor, sets properties of aerodynamic coefficients.
+     *  \param independentVariables Values of indepependent variables at which the coefficients
+     *  in the input multi arrays are defined.
+     *  \param forceCoefficients Values of force coefficients at independent variables defined
+     *  by independentVariables.
+     *  \param momentCoefficients Values of moment coefficients at independent variables defined
+     *  by independentVariables.
+     *  \param referenceLength Reference length with which aerodynamic moments
+     *  (about x- and z- axes) are non-dimensionalized.
+     *  \param referenceArea Reference area with which aerodynamic forces and moments are
+     *  non-dimensionalized.
+     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+     *  is non-dimensionalized.
+     *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+     *  \param independentVariableNames Vector with identifiers the physical meaning of each
+     *  independent variable of the aerodynamic coefficients.
+     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  frame (typically denoted as Cx, Cy, Cz).
+     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+     *  coefficients are positive along the positive axes of the body or aerodynamic frame
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  coefficients are typically defined in negative direction.
+     */
     TabulatedAerodynamicCoefficientSettings(
             const std::vector< std::vector< double > > independentVariables,
             const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
@@ -249,16 +333,31 @@ public:
         forceCoefficients_( forceCoefficients ),
         momentCoefficients_( momentCoefficients ){ }
 
+    //! Function to return the values of the indepependent variables of tables of coefficients.
+    /*!
+     *  Function to return the values of the indepependent variables of tables of coefficients.
+     *  \return Values of the indepependent variables of tables of coefficients.
+     */
     std::vector< std::vector< double > > getIndependentVariables( )
     {
         return independentVariables_;
     }
 
+    //! Function to return values of force coefficients in table.
+    /*!
+     * Function to return values of force coefficients in table.
+     * \return Values of force coefficients in table.
+     */
     boost::multi_array< Eigen::Vector3d, NumberOfDimensions > getForceCoefficients( )
     {
         return forceCoefficients_;
     }
 
+    //! Function to return values of moment coefficients in table.
+    /*!
+     * Function to return values of moment coefficients in table.
+     * \return Values of moment coefficients in table.
+     */
     boost::multi_array< Eigen::Vector3d, NumberOfDimensions > getMomentCoefficients( )
     {
         return momentCoefficients_;
@@ -266,21 +365,151 @@ public:
 
 private:
 
+    //! Values of indepependent variables at which the coefficients in the tables are defined.
+    /*!
+     *  Values of indepependent variables at which the coefficients in the forceCoefficients_ and
+     *  momentCoefficients_ tables are defined.
+     */
     std::vector< std::vector< double > > independentVariables_;
+
+    //! Values of force coefficients at independent variables defined  by independentVariables_.
     boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients_;
+
+    //! Values of moment coefficients at independent variables defined  by independentVariables_.
     boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients_;
 
 
 };
 
+//! Function to create an aerodynamic coefficient interface containing constant coefficients.
+/*!
+ *  Function to create an aerodynamic coefficient interface containing constant coefficients,
+ *  As a result, the generated coefficient interface depends on zero parameters.
+ *  \param constantForceCoefficient Constant force coefficients.
+ *  \param constantMomentCoefficient Constant moment coefficients.
+ *  \param referenceLength Reference length with which aerodynamic moments
+ *  (about x- and z- axes) are non-dimensionalized.
+ *  \param referenceArea Reference area with which aerodynamic forces and moments are
+ *  non-dimensionalized.
+ *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+ *  is non-dimensionalized.
+ *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+ *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+ *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+ *  frame (typically denoted as Cx, Cy, Cz).
+ *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+ *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
+ *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+ *  coefficients are typically defined in negative direction.
+ *  \return Aerodynamic coefficient interface with constant coefficients.
+ */
+boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createConstantCoefficientAerodynamicCoefficientInterface(
+        const Eigen::Vector3d constantForceCoefficient,
+        const Eigen::Vector3d constantMomentCoefficient,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const bool areCoefficientsInAerodynamicFrame = 0,
+        const bool areCoefficientsInNegativeAxisDirection = 1 );
 
-boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createAerodynamicCoefficientInterface(
-        const boost::shared_ptr< AerodynamicCoefficientSettings > shapeSettings,
+template< int NumberOfDimensions >
+boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createTabulatedCoefficientAerodynamicCoefficientInterface(
+        const std::vector< std::vector< double > > independentVariables,
+        const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > forceCoefficients,
+        const boost::multi_array< Eigen::Vector3d, NumberOfDimensions > momentCoefficients,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+        independentVariableNames,
+        const double referenceLength,
+        const double referenceArea,
+        const double lateralReferenceLength,
+        const Eigen::Vector3d& momentReferencePoint,
+        const bool areCoefficientsInAerodynamicFrame = 0,
+        const bool areCoefficientsInNegativeAxisDirection = 1 )
+{
+    if( independentVariables.size( ) != NumberOfDimensions )
+    {
+        std::cerr<<"Error when creating tabulated aerodynamic coefficient interface, "
+                <<"inconsistent variable vector dimensioning"<<std::endl;
+    }
+
+    if( independentVariableNames.size( ) != NumberOfDimensions )
+    {
+        std::cerr<<"Error when creating tabulated aerodynamic coefficient interface, "
+                <<"inconsistent variable name vector dimensioning"<<std::endl;
+
+    }
+
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, Eigen::Vector3d, NumberOfDimensions > > forceInterpolator =
+            boost::make_shared< interpolators::MultiLinearInterpolator
+            < double, Eigen::Vector3d, NumberOfDimensions > >(
+                independentVariables, forceCoefficients );
+
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, Eigen::Vector3d, NumberOfDimensions > > momentInterpolator =
+            boost::make_shared< interpolators::MultiLinearInterpolator
+            < double, Eigen::Vector3d, NumberOfDimensions > >(
+                independentVariables, momentCoefficients );
+
+    return  boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                boost::bind( &interpolators::MultiLinearInterpolator
+                             < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
+                             forceInterpolator, _1 ),
+                boost::bind( &interpolators::MultiLinearInterpolator
+                             < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
+                             momentInterpolator, _1 ),
+                referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
+                independentVariableNames,
+                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+}
+
+template< int NumberOfDimensions >
+boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createTabulatedCoefficientAerodynamicCoefficientInterface(
+        const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
+        const std::string& body )
+{
+    // Check consistency of type.
+    boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > > tabulatedCoefficientSettings =
+            boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettings< NumberOfDimensions > >(
+                coefficientSettings );
+    if( tabulatedCoefficientSettings == NULL )
+    {
+        throw std::runtime_error(
+                    "Error, expected tabulated aerodynamic coefficients of size " +
+                    boost::lexical_cast<  std::string >( NumberOfDimensions ) + "for body " + body );
+    }
+    else
+    {
+        return createTabulatedCoefficientAerodynamicCoefficientInterface< NumberOfDimensions >(
+                    tabulatedCoefficientSettings->getIndependentVariables( ),
+                    tabulatedCoefficientSettings->getForceCoefficients( ),
+                    tabulatedCoefficientSettings->getMomentCoefficients( ),
+                    tabulatedCoefficientSettings->getIndependentVariableNames( ),
+                    tabulatedCoefficientSettings->getReferenceLength( ),
+                    tabulatedCoefficientSettings->getReferenceArea( ),
+                    tabulatedCoefficientSettings->getReferenceLength( ),
+                    tabulatedCoefficientSettings->getMomentReferencePoint( ),
+                    tabulatedCoefficientSettings->getAreCoefficientsInAerodynamicFrame( ),
+                    tabulatedCoefficientSettings->getAreCoefficientsInNegativeAxisDirection( ) );
+    }
+}
+
+
+
+boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+createAerodynamicCoefficientInterface(
+        const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body );
 
 boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,
         const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
         const boost::function< double( ) > angleOfAttackFunction =
         boost::lambda::constant ( 0.0 ),
         const boost::function< double( ) > angleOfSideslipFunction =
@@ -292,4 +521,4 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
 }
 
 }
-#endif // CREATEACCELERATIONMODELS_H
+#endif // TUDAT_CREATEACCELERATIONMODELS_H
