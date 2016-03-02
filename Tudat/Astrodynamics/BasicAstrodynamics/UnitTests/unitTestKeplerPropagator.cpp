@@ -58,23 +58,23 @@
 
 #define BOOST_TEST_MAIN
 
-#include <fstream>
-#include <limits>
-#include <map>
-
-#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 
 #include <Eigen/Core>
 
+#include <map>
+#include <limits>
+
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Basics/testMacros.h"
+
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
-
-#include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
-#include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
