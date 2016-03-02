@@ -59,14 +59,14 @@
 #ifndef TUDAT_LINEAR_INTERPOLATOR_H
 #define TUDAT_LINEAR_INTERPOLATOR_H
 
+#include <boost/multi_array.hpp>
+#include <boost/array.hpp>
+#include <boost/shared_ptr.hpp>
+
 #include <Eigen/Core>
 
 #include <map>
 #include <vector>
-
-#include <boost/array.hpp>
-#include <boost/multi_array.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
