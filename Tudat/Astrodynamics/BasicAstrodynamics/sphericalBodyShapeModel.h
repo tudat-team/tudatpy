@@ -1,5 +1,5 @@
-#ifndef SPHERICALBODYSHAPEMODEL_H
-#define SPHERICALBODYSHAPEMODEL_H
+#ifndef TUDAT_SPHERICALBODYSHAPEMODEL_H
+#define TUDAT_SPHERICALBODYSHAPEMODEL_H
 
 /*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
