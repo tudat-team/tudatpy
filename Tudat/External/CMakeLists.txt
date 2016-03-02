@@ -37,6 +37,7 @@
 
  # Define the main sub-directories.
 if(USE_CSPICE)
+# Set SPICE interface directory.
   set(SPICEINTERFACEDIR "${EXTERNALDIR}/SpiceInterface")
 
   # Add subdirectories.
@@ -45,6 +46,5 @@ if(USE_CSPICE)
   # Get target properties for static libraries.
   get_target_property(SPICEINTERFACESOURCES tudat_spice_interface SOURCES)
 
-  # Set SPICE interface directory.
-  set(SPICEINTERFACEDIR "${EXTERNALDIR}/SpiceInterface")
+  
 endif( )

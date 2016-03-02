@@ -46,15 +46,12 @@
  *
  */
 
-#include <cmath>
-#include <stdexcept>
-
 #include <Eigen/Core>
-
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include <cmath>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
 {

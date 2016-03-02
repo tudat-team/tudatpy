@@ -56,11 +56,6 @@
 #ifndef TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
-#include <limits>
-#include <stdexcept>
-#include <utility>
-#include <vector>
-
 #include <boost/bind.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/function.hpp>
@@ -68,9 +63,11 @@
 
 #include <Eigen/Core>
 
+#include <limits>
+#include <vector>
+
 #include "Tudat/Basics/utilityMacros.h"
 #include "Tudat/Mathematics/NumericalIntegrators/reinitializableNumericalIntegrator.h"
-
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 
 namespace tudat

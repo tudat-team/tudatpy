@@ -98,7 +98,7 @@ target_link_libraries(test_StreamFilters tudat_input_output tudat_basic_astrodyn
 
 add_executable(test_TwoLineElementsTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestTwoLineElementsTextFileReader.cpp")
 setup_custom_test_program(test_TwoLineElementsTextFileReader "${SRCROOT}${INPUTOUTPUTDIR}")
-target_link_libraries(test_TwoLineElementsTextFileReader tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
+target_link_libraries(test_TwoLineElementsTextFileReader tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestBasicInputOutput.cpp")
 setup_custom_test_program(test_BasicInputOutput "${SRCROOT}${INPUTOUTPUTDIR}")
