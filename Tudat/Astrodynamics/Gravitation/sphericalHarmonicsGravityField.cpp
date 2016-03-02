@@ -49,9 +49,8 @@
  *
  */
 
-#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 
 namespace tudat
 {

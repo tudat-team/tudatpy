@@ -851,7 +851,7 @@ BOOST_AUTO_TEST_CASE( testTrueAnomalyToEccentricAnomalyConversion )
         // Check if computed elliptic eccentric anomaly matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedEllipticEccentricAnomaly,
                                     computedEllipticEccentricAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+                                    2.0 * std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 2: Circular orbit.
@@ -942,7 +942,7 @@ BOOST_AUTO_TEST_CASE( testTrueAnomalyToEccentricAnomalyConversion )
         // Check if computed elliptic eccentric anomaly matches the expected value.
         BOOST_CHECK_CLOSE_FRACTION( expectedEllipticEccentricAnomaly,
                                     computedEllipticEccentricAnomaly,
-                                    std::numeric_limits< double >::epsilon( ) );
+                                    2.0 * std::numeric_limits< double >::epsilon( ) );
     }
 
     // Case 6: General hyperbolic orbit (test for wrapper function).
