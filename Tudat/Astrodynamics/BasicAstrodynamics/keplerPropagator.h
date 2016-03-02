@@ -50,17 +50,16 @@
 #ifndef TUDAT_KEPLER_PROPAGATOR_H
 #define TUDAT_KEPLER_PROPAGATOR_H
 
+#include <boost/exception/all.hpp>
+#include <boost/make_shared.hpp>
+
 #include <Eigen/Core>
 
-#include <boost/make_shared.hpp>
-#include <boost/exception/all.hpp>
-
-#include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-
+#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
 #include "Tudat/Mathematics/RootFinders/rootFinder.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
 
 
 namespace tudat
