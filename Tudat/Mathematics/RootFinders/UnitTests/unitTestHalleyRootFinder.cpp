@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      140219    E. Brandon        File copied from Newton-Raphson unit test.
+ *      150417    D. Dirkx          Made modifications for templated root finding.
  *
  *    References
  *
@@ -65,8 +66,8 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction1 )
 
     // The termination condition.
     HalleyRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Halley object.
@@ -88,8 +89,8 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction2 )
 
     // The termination condition.
     HalleyRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Halley object.
@@ -111,8 +112,8 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction3 )
 
     // The termination condition.
     HalleyRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Halley object.
@@ -138,9 +139,9 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunctionWithZeroRoot )
 
     // The termination condition.
     HalleyRootFinder::TerminationFunction terminationConditionFunction
-            = boost::bind( &RootAbsoluteToleranceTerminationCondition::
+            = boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::
                            checkTerminationCondition,
-                           boost::make_shared< RootAbsoluteToleranceTerminationCondition >(
+                           boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                                1.0e-150 ), _1, _2, _3, _4, _5 );
 
     // Test Halley object.

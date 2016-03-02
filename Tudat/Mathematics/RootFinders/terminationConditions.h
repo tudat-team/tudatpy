@@ -95,9 +95,10 @@ inline bool checkMaximumIterationsExceeded( const unsigned int numberOfIteration
  * \param absoluteTolerance Absolute tolerance.
  * \return Flag indicating if absolute tolerance has been achieved.
  */
-inline bool checkRootAbsoluteTolerance( const double currentRootGuess,
-                                        const double previousRootGuess,
-                                        const double absoluteTolerance )
+template< typename ScalarType >
+inline bool checkRootAbsoluteTolerance( const ScalarType currentRootGuess,
+                                        const ScalarType previousRootGuess,
+                                        const ScalarType absoluteTolerance )
 {
     return std::fabs( currentRootGuess - previousRootGuess ) < absoluteTolerance;
 }
@@ -111,9 +112,10 @@ inline bool checkRootAbsoluteTolerance( const double currentRootGuess,
  * \param relativeTolerance Relative tolerance.
  * \return Flag indicating if relative tolerance has been achieved.
  */
-inline bool checkRootRelativeTolerance( const double currentRootGuess,
-                                        const double previousRootGuess,
-                                        const double relativeTolerance )
+template< typename ScalarType >
+inline bool checkRootRelativeTolerance( const ScalarType currentRootGuess,
+                                        const ScalarType previousRootGuess,
+                                        const ScalarType relativeTolerance )
 {
     return std::fabs( ( currentRootGuess - previousRootGuess )
                       / currentRootGuess ) < relativeTolerance;
@@ -124,6 +126,7 @@ inline bool checkRootRelativeTolerance( const double currentRootGuess,
  * This base class should be used for all termination condition classes, as it specifies the
  * checkTerminationCondition()-function used by the root-finders in Tudat.
  */
+template< typename ScalarType = double >
 class TerminationConditionBase
 {
 public:
@@ -144,10 +147,10 @@ public:
      * \param numberOfIterations Number of iterations that have been completed.
      * \return Flag indicating if termination condition has been reached.
      */
-    virtual bool checkTerminationCondition( const double currentRootGuess,
-                                            const double previousRootGuess,
-                                            const double currentRootFunctionValue,
-                                            const double previousRootFunctionValue,
+    virtual bool checkTerminationCondition( const ScalarType currentRootGuess,
+                                            const ScalarType previousRootGuess,
+                                            const ScalarType currentRootFunctionValue,
+                                            const ScalarType previousRootFunctionValue,
                                             const unsigned int numberOfIterations ) = 0;
 };
 
@@ -158,7 +161,7 @@ public:
  * class effectively serves as a wrapper for the checkMaximumIterationsExceeded()-function.
  * \sa checkMaximumIterationsExceeded().
  */
-class MaximumIterationsTerminationCondition : public TerminationConditionBase
+class MaximumIterationsTerminationCondition : public TerminationConditionBase< double >
 {
 public:
 
@@ -206,7 +209,8 @@ private:
  * checkRootAbsoluteTolerance()- and checkMaximumIterationsExceeded()-functions.
  * \sa checkRootAbsoluteTolerance(), checkMaximumIterationsExceeded().
  */
-class RootAbsoluteToleranceTerminationCondition : public TerminationConditionBase
+template< typename ScalarType = double >
+class RootAbsoluteToleranceTerminationCondition : public TerminationConditionBase< ScalarType >
 {
 public:
 
@@ -221,7 +225,7 @@ public:
      * \param aThrowRunTimeExceptionFlag Flag that indicates if run-time error should be triggered
      * if maximum number of iterations is exceeded (default=true).
      */
-    RootAbsoluteToleranceTerminationCondition( const double anAbsoluteTolerance = 1.0e-15,
+    RootAbsoluteToleranceTerminationCondition( const ScalarType anAbsoluteTolerance = 1.0e-15,
                                                const unsigned int aMaximumNumberOfIterations = 1000,
                                                const bool aThrowRunTimeExceptionFlag = true )
         : absoluteTolerance( anAbsoluteTolerance ),
@@ -242,13 +246,14 @@ public:
      * \param numberOfIterations Number of iterations that have been completed.
      * \return Flag indicating if termination condition has been reached.
      */
-    bool checkTerminationCondition( const double currentRootGuess,
-                                    const double previousRootGuess,
-                                    const double currentRootFunctionValue,
-                                    const double previousRootFunctionValue,
+    bool checkTerminationCondition( const ScalarType currentRootGuess,
+                                    const ScalarType previousRootGuess,
+                                    const ScalarType currentRootFunctionValue,
+                                    const ScalarType previousRootFunctionValue,
                                     const unsigned int numberOfIterations )
     {
-        return checkRootAbsoluteTolerance( currentRootGuess, previousRootGuess, absoluteTolerance )
+        return checkRootAbsoluteTolerance< ScalarType >(
+                    currentRootGuess, previousRootGuess, absoluteTolerance )
                 || checkMaximumIterationsExceeded(
                     numberOfIterations, maximumNumberOfIterations, throwRunTimeException );
     }
@@ -256,7 +261,7 @@ public:
 private:
 
     //! Absolute tolerance.
-    const double absoluteTolerance;
+    const ScalarType absoluteTolerance;
 
     //! Maximum number of iterations.
     const unsigned int maximumNumberOfIterations;
@@ -274,7 +279,8 @@ private:
  * checkRootRelativeTolerance()- and checkMaximumIterationsExceeded()-functions.
  * \sa checkRootRelativeTolerance(), checkMaximumIterationsExceeded().
  */
-class RootRelativeToleranceTerminationCondition : public TerminationConditionBase
+template< typename ScalarType = double >
+class RootRelativeToleranceTerminationCondition : public TerminationConditionBase< ScalarType >
 {
 public:
 
@@ -289,9 +295,9 @@ public:
      * \param aThrowRunTimeExceptionFlag Flag that indicates if run-time error should be triggered
      *        if maximum number of iterations is exceeded (default=true).
      */
-    RootRelativeToleranceTerminationCondition( const double aRelativeTolerance = 1.0e-12,
+    RootRelativeToleranceTerminationCondition( const ScalarType aRelativeTolerance = 1.0e-12,
                                                const unsigned int aMaximumNumberOfIterations = 1000,
-                                               const bool aThrowRunTimeExceptionFlag = true )
+                                               const ScalarType aThrowRunTimeExceptionFlag = true )
         : relativeTolerance( aRelativeTolerance ),
           maximumNumberOfIterations( aMaximumNumberOfIterations ),
           throwRunTimeException( aThrowRunTimeExceptionFlag )
@@ -310,10 +316,10 @@ public:
      * \param numberOfIterations Number of iterations that have been completed.
      * \return Flag indicating if termination condition has been reached.
      */
-    bool checkTerminationCondition( const double currentRootGuess,
-                                    const double previousRootGuess,
-                                    const double currentRootFunctionValue,
-                                    const double previousRootFunctionValue,
+    bool checkTerminationCondition( const ScalarType currentRootGuess,
+                                    const ScalarType previousRootGuess,
+                                    const ScalarType currentRootFunctionValue,
+                                    const ScalarType previousRootFunctionValue,
                                     const unsigned int numberOfIterations )
     {
         return checkRootRelativeTolerance( currentRootGuess, previousRootGuess, relativeTolerance )
@@ -324,7 +330,7 @@ public:
 private:
 
     //! Relative tolerance.
-    const double relativeTolerance;
+    const ScalarType relativeTolerance;
 
     //! Maximum number of iterations.
     const unsigned int maximumNumberOfIterations;
@@ -344,7 +350,9 @@ private:
  * \sa checkRootAbsoluteTolerance(), checkRootRelativeTolerance(),
  *      checkMaximumIterationsExceeded().
  */
-class RootAbsoluteOrRelativeToleranceTerminationCondition : public TerminationConditionBase
+template< typename ScalarType = double >
+class RootAbsoluteOrRelativeToleranceTerminationCondition :
+        public TerminationConditionBase< ScalarType >
 {
 public:
 
@@ -362,8 +370,8 @@ public:
      *        if maximum number of iterations is exceeded (default=true).
      */
     RootAbsoluteOrRelativeToleranceTerminationCondition(
-            const double anAbsoluteTolerance = 1.0e-15,
-            const double aRelativeTolerance = 1.0e-12,
+            const ScalarType anAbsoluteTolerance = 1.0e-15,
+            const ScalarType aRelativeTolerance = 1.0e-12,
             const unsigned int aMaximumNumberOfIterations = 1000,
             const bool aThrowRunTimeExceptionFlag = true )
         : absoluteTolerance( anAbsoluteTolerance ),
@@ -385,10 +393,10 @@ public:
      * \param numberOfIterations Number of iterations that have been completed.
      * \return Flag indicating if termination condition has been reached.
      */
-    bool checkTerminationCondition( const double currentRootGuess,
-                                    const double previousRootGuess,
-                                    const double currentRootFunctionValue,
-                                    const double previousRootFunctionValue,
+    bool checkTerminationCondition( const ScalarType currentRootGuess,
+                                    const ScalarType previousRootGuess,
+                                    const ScalarType currentRootFunctionValue,
+                                    const ScalarType previousRootFunctionValue,
                                     const unsigned int numberOfIterations )
     {
         return checkRootAbsoluteTolerance( currentRootGuess, previousRootGuess, absoluteTolerance )
@@ -401,10 +409,10 @@ public:
 private:
 
     //! Absolute tolerance.
-    const double absoluteTolerance;
+    const ScalarType absoluteTolerance;
 
     //! Relative tolerance.
-    const double relativeTolerance;
+    const ScalarType relativeTolerance;
 
     //! Maximum number of iterations.
     const unsigned int maximumNumberOfIterations;
@@ -413,24 +421,9 @@ private:
     const bool throwRunTimeException;
 };
 
-//! Typedef for shared-pointer to TerminationConditionBase object.
-typedef boost::shared_ptr< TerminationConditionBase > TerminationConditionBasePointer;
-
 //! Typedef for shared-pointer to MaximumIterationsTerminationCondition object.
 typedef boost::shared_ptr< MaximumIterationsTerminationCondition >
 MaximumIterationsTerminationConditionPointer;
-
-//! Typedef for shared-pointer to RootAbsoluteToleranceTerminationCondition object.
-typedef boost::shared_ptr< RootAbsoluteToleranceTerminationCondition >
-RootAbsoluteToleranceTerminationConditionPointer;
-
-//! Typedef for shared-pointer to RootRelativeToleranceTerminationCondition object.
-typedef boost::shared_ptr< RootRelativeToleranceTerminationCondition >
-RootRelativeToleranceTerminationConditionPointer;
-
-//! Typedef for shared-pointer to RootAbsoluteOrRelativeToleranceTerminationCondition object.
-typedef boost::shared_ptr< RootAbsoluteOrRelativeToleranceTerminationCondition >
-RootAbsoluteOrRelativeToleranceTerminationConditionPointer;
 
 } // namespace termination_conditions
 } // namespace root_finders

@@ -46,7 +46,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToEccentricAnomaly.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Ephemerides/keplerStateExtractor.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
@@ -166,12 +166,9 @@ boost::shared_ptr< basic_mathematics::Vector6d > KeplerStateExtractor::extract(
         const double eccentricity
                 = ( *keplerianElements )( orbital_element_conversions::eccentricityIndex );
 
-        // Declare mean to eccentric anomaly conversion class.
-        orbital_element_conversions::ConvertMeanAnomalyToEccentricAnomaly
-                convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly );
-
         // Convert to eccentric anomaly.
-        const double eccentricAnomaly = convertMeanAnomalyToEccentricAnomaly.convert( );
+        const double eccentricAnomaly = orbital_element_conversions::
+                convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomaly );
 
         // Convert eccentric anomaly to true anomaly and set the latter.
         ( *keplerianElements )( orbital_element_conversions::trueAnomalyIndex )

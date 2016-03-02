@@ -32,6 +32,7 @@
  *      121205    P. Musegaas       Updated code to final version of rootfinders.
  *      130123    K. Kumar          Added separated test tolerance for near-parabolic cases in
  *                                  Test 4 to deal with conversion failure on some systems.
+ *      150417    D. Dirkx          Made modifications for templated element conversions.
  *
  *    References
  *      GTOP, http://www.esa.int/gsp/ACT/doc/INF/Code/globopt/GTOPtoolbox.rar.
@@ -46,22 +47,18 @@
 
 #define BOOST_TEST_MAIN
 
-#include <ctime>
-#include <fstream>
-#include <string>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
-#include <boost/random/variate_generator.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/mersenne_twister.hpp>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include <fstream>
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
-#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanAnomalyToHyperbolicEccentricAnomaly.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
@@ -70,66 +67,7 @@ namespace unit_tests
 {
 
 using namespace orbital_element_conversions;
-
-//! Conversion test fixture.
-/*!
- * Conversion test fixture used by the Boost unit test framework. This code is executed before each
- * test.
- */
-struct conversion_test_fixture
-{
-public:
-
-    //! Default constructor.
-    /*!
-     * Default constructor.
-     */
-    conversion_test_fixture( )
-    {
-        toleranceOrbitalElementConversion = 1.0e-14;
-        toleranceOrbitalElementConversionNearParabolic = 1.0e-9;
-    }
-
-    //! Conversion tolerance to test against.
-    /*!
-     * Conversion tolerance to test against.
-     */
-    double toleranceOrbitalElementConversion;
-
-    //! Conversion tolerance to test against for near-parabolic cases.
-    /*!
-     * Conversion tolerance to test against for near-parabolic cases.
-     */
-    double toleranceOrbitalElementConversionNearParabolic;
-
-    //! Convert mean anomaly to eccentric anomaly.
-    /*!
-     * Converts mean anomaly to eccentric anomaly by creating a conversion object to test and
-     * executing the conversion.
-     * \param eccentricity Eccentricity [-].
-     * \param meanAnomaly Mean anomaly [rad].
-     * \param useDefaultInitialGuess Boolean specifying whether to use default initial guess [-].
-     * \param initialGuess Initial guess for rootfinder [rad].
-     * \return eccentricAnomaly Eccentric anomaly [rad].
-     */
-    double convertMeanAnomalyToHyperbolicEccentricAnomaly( const double eccentricity,
-                                                           const double meanAnomaly,
-                                                           const bool useDefaultInitialGuess = true,
-                                                           const double initialGuess = TUDAT_NAN )
-    {
-        // Conversion object to test; mean anomaly to eccentric anomaly conversion.
-        orbital_element_conversions::
-                ConvertMeanAnomalyToHyperbolicEccentricAnomaly  meanToHyperbolicEccentricAnomaly(
-                    eccentricity, meanAnomaly, useDefaultInitialGuess, initialGuess );
-
-        // Convert to eccentric anomaly and return.
-        return meanToHyperbolicEccentricAnomaly.convert( );
-    }
-
-protected:
-
-private:
-};
+using namespace mathematical_constants;
 
 //! Error writing function.
 /*!
@@ -150,10 +88,10 @@ void writeErrorsToFile( std::vector< double > eccentricities, std::vector< doubl
     // time at which the code was executed. The default date format is: YYYYMMDDTHHMMSS, in which T
     // separates date and time.
     const std::string outputFileName = input_output::getTudatRootPath( ) +
-                                       "Astrodynamics/BasicAstrodynamics/UnitTests/" +
-                                       "ErrorReportConversionMeanToHyperbolicEccentricAnomaly" +
-                                       testName + "RunAt" + boost::posix_time::to_iso_string( now )
-                                       + ".txt";
+            "Astrodynamics/BasicAstrodynamics/UnitTests/" +
+            "ErrorReportConversionMeanToHyperbolicEccentricAnomaly" +
+            testName + "RunAt" + boost::posix_time::to_iso_string( now )
+            + ".txt";
 
     // Make a stream to a file.
     std::ofstream errorFile( outputFileName.c_str( ) );
@@ -185,9 +123,7 @@ void writeErrorsToFile( std::vector< double > eccentricities, std::vector< doubl
               << std::endl << outputFileName;
 }
 
-// Declare Boost fixture test suite.
-BOOST_FIXTURE_TEST_SUITE( testsuite_convertMeanAnomalyToHyperbolicEccentricAnomaly,
-                          conversion_test_fixture )
+BOOST_AUTO_TEST_SUITE( test_mean_to_hyperbolic_eccentric_anomaly_conversion )
 
 //! Test 1: Test a range of values for the conversion.
 BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_range )
@@ -220,7 +156,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_range 
         // Check if computed eccentric anomaly is less than error tolerance.
         BOOST_CHECK_CLOSE_FRACTION( arrayOfExpectedHyperbolicAnomalies[ counter ],
                                     hyperbolicEccentricAnomaly,
-                                    toleranceOrbitalElementConversion );
+                                    1.0E-14 );
     }
 }
 
@@ -244,7 +180,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_nearPa
     // Set test value for eccentricity.
     const double testEccentricity = 1.0 + 1.0e-10;
 
-     // Set array of test values for mean anomaly.
+    // Set array of test values for mean anomaly.
     const double arrayOfTestMeanAnomalies[ 4 ] = { -10.0, -1.4, 0.5, 7.6 };
 
     // Set array of expected values for hyperbolic eccentric anomaly. These values were converted
@@ -267,13 +203,47 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_nearPa
         // Check if computed eccentric anomaly is less than error tolerance.
         BOOST_CHECK_CLOSE_FRACTION( arrayOfExpectedHyperbolicAnomalies[ counter ],
                                     hyperbolicEccentricAnomaly,
-                                    toleranceOrbitalElementConversion );
+                                    1.0E-14 );
     }
 
 }
 
-//! Test 4: Test a large number of anomalies for near-parabolic orbits.
-BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_randomNearParabolic )
+//! Generalized function to test many to and fro mean to hyperbolic eccentric anomalies.
+/*!
+ *  Generalized function to test many to and fro mean to hyperbolic eccentric anomalies.
+ *  The function allows random variations of both the mean anomlay and eccentricity. The
+ *  eccentricity may be fixed, for instance to test near-parabolic orbits for many mean
+ *  anomalies. Furthermore, the range of mean anomalies and eccentricities may be set
+ *  as exponential, so that a random number of 4.5 generates an eccentricity of 10^(4.5), to allow
+ *  testing of extreme orbits.
+ *  \param caseId Name of test case, to be used for error output purposes.
+ *  \param testTolerance Acceptance tolerance to be used for difference between original and
+ *  reconverted mean anomaly. Tolerance is absolute if useExponentialValues is false and relative
+ *  if useExponentialValues is true.
+ *  \param meanAnomalyLimit Limit of mean anomaly values, range of mean anomalies is set as
+ *  [-meanAnomalyLimit,meanAnomalyLimit].
+ *  \param useConstantEccentricity Boolean determining if a constant eccentricity is used.
+ *  \param useExponentialValues Boolean determining whether exponential values are used for
+ *  random mean anomalies and eccentricities.
+ *  \param minimumEccentricity Minimum value to be used for random eccentricities (only used if
+ *  useConstantEccentricity is false).
+ *  \param maximumEccentricity Maximum value to be used for random eccentricities (only used if
+ *  useConstantEccentricity is false).
+ *  \param constantEccentricity Constant value to be used for eccentricity (only used if
+ *  useConstantEccentricity is true).
+ *  \param numberOfSamples Number of random cases that are to be tested.
+ */
+template< typename ScalarType >
+void testMeanToHyperbolicEccentricAnomalyConversions(
+        const std::string& caseId,
+        const ScalarType testTolerance,
+        const ScalarType meanAnomalyLimit,
+        const bool useConstantEccentricity = 0,
+        const bool useExponentialValues = 0,
+        const ScalarType minimumEccentricity = TUDAT_NAN,
+        const ScalarType maximumEccentricity = TUDAT_NAN,
+        const ScalarType constantEccentricity = TUDAT_NAN,
+        const int numberOfSamples = 1E5)
 {
     // Create vectors that will store the input variables of a test that resulted in an error, such
     // that the error scenario can be reproduced.
@@ -282,31 +252,59 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
     // Boolean that will be set true if a runtime error occurred.
     bool aRuntimeErrorOccurred = false;
 
-    // Set test value for eccentricity, which is just above 1.0.
-    const double testEccentricity = 1.0 + 1.0e-15;
+    // Set test value for eccentricity.
+    ScalarType testEccentricity = constantEccentricity;
 
-    // Initialize both test and reverse calculated hyperbolic mean anomaly and the hyperbolic
-    // eccentric anomaly.
-    double testMeanAnomaly, reverseCalculatedMeanAnomaly, hyperbolicEccentricAnomaly = TUDAT_NAN;
+    // Initialize both test and reverse calculated mean anomaly and the eccentric anomaly.
+    ScalarType testMeanAnomaly, reverseCalculatedMeanAnomaly, eccentricAnomaly = 0.0;
 
-    // Instantiate a random number generator for the mean anomaly generation, from -20 to 20.
+    // Instantiate random number generator.
     boost::mt19937 randomNumbergenerator( time( 0 ) );
-    boost::random::uniform_real_distribution< > distributionMinus20To20( -20.0, 20.0 );
-    boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
-            generateRandomNumberMinus20To20( randomNumbergenerator, distributionMinus20To20 );
 
-    // Specify the number of random samples should be taken. A test of 100,000,000 was performed
-    // by the author before the code was submitted. This test remains included to verify that any
-    // future method will not fail. The behaviour of the conversion is namely very sensitive and
-    // non-converging cases are highly sensitive to input values and the initial guess that is used.
-    const int numberOfSamples = 10000;
+    // Create generator for eccentricity (only used if useConstantEccentricity is false).
+    boost::random::uniform_real_distribution< > eccentricityDistribution;
+    if( !useConstantEccentricity )
+    {
+        eccentricityDistribution =
+                boost::random::uniform_real_distribution< >(
+                    minimumEccentricity, maximumEccentricity );
+    }
+
+
+    boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
+            eccentricityGenerator(
+                randomNumbergenerator, eccentricityDistribution );
+
+    // Create generator for mean anomaly.
+    boost::random::uniform_real_distribution< ScalarType > meanAnomalyDistibution(
+                -meanAnomalyLimit, meanAnomalyLimit );
+    boost::variate_generator<
+            boost::mt19937&, boost::random::uniform_real_distribution < ScalarType > >
+            generateMeanAnomaly( randomNumbergenerator, meanAnomalyDistibution );
 
     // Perform the conversion for the specified number of samples and test whether the values that
     // are subsequently converted back match the initial values.
     for ( int counter = 0; counter < numberOfSamples; counter++ )
     {
-        // Set random value in test mean anomaly and the test eccentricity.
-        testMeanAnomaly = generateRandomNumberMinus20To20( );
+        // Set random value in test mean anomaly.
+        testMeanAnomaly = generateMeanAnomaly( );
+
+        if( useExponentialValues )
+        {
+            testMeanAnomaly = testMeanAnomaly *
+                    std::pow( getFloatingInteger< ScalarType >( 10 ), generateMeanAnomaly( ) );
+        }
+        // If eccentricity is to be varied, generate random value
+        if( !useConstantEccentricity )
+        {
+            testEccentricity = eccentricityGenerator( );
+
+            if( useExponentialValues )
+            {
+                testEccentricity = getFloatingInteger< ScalarType >( 1 ) +
+                        std::pow( getFloatingInteger< ScalarType >( 10 ), testEccentricity );
+            }
+        }
 
         // If the Rootfinder does not converge, it will produce a runtime error. In order to make
         // sure that these values that led to the error will not be lost, they will be stored in
@@ -314,8 +312,8 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
         try
         {
             // Compute eccentric anomaly.
-            hyperbolicEccentricAnomaly = convertMeanAnomalyToHyperbolicEccentricAnomaly(
-                    testEccentricity, testMeanAnomaly );
+            eccentricAnomaly = convertMeanAnomalyToHyperbolicEccentricAnomaly< ScalarType>(
+                        testEccentricity, testMeanAnomaly );
         }
         catch( std::runtime_error )
         {
@@ -324,21 +322,37 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
         }
 
         // Calculate the mean anomaly from this eccentric anomaly.
-        reverseCalculatedMeanAnomaly =
-                convertHyperbolicEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly,
-                                                                testEccentricity );
+        reverseCalculatedMeanAnomaly = convertHyperbolicEccentricAnomalyToMeanAnomaly< ScalarType>(
+                    eccentricAnomaly, testEccentricity );
 
         // Test whether the computed mean anomaly is equal to the mean anomaly from the input and
         // that no runtime errors occurred. If an error was found, store the values leading to this
         // error in a vector for later use. '!' operator is there to ensure that a NaN value will
         // result in the values being written away. It is also checked that the mean anomaly is
         // not equal to 0.0, because that would result in falsely writing an error.
-        if ( ( ( !( std::abs( testMeanAnomaly - reverseCalculatedMeanAnomaly ) / testMeanAnomaly <
-                toleranceOrbitalElementConversionNearParabolic ) ) && ( testMeanAnomaly != 0.0 ) )
-             || aRuntimeErrorOccurred )
+        if( !useExponentialValues )
         {
-            failedMeanAnomalies.push_back( testMeanAnomaly );
-            failedEccentricities.push_back( testEccentricity );
+            if ( ( ( !( std::abs( testMeanAnomaly - reverseCalculatedMeanAnomaly ) <
+                        testTolerance ) )
+                   && !( testMeanAnomaly == getFloatingInteger< ScalarType >( 0 ) ||
+                         reverseCalculatedMeanAnomaly == getFloatingInteger< ScalarType >( 0 ) ) )
+                 && !aRuntimeErrorOccurred )
+            {
+                failedMeanAnomalies.push_back( testMeanAnomaly );
+                failedEccentricities.push_back( testEccentricity );
+            }
+        }
+        else
+        {
+            if ( ( ( !( std::abs( testMeanAnomaly - reverseCalculatedMeanAnomaly ) /
+                        testMeanAnomaly < testTolerance ) )
+                   && !( testMeanAnomaly == getFloatingInteger< ScalarType >( 0 ) ||
+                         reverseCalculatedMeanAnomaly == getFloatingInteger< ScalarType >( 0 ) ) )
+                 && !aRuntimeErrorOccurred )
+            {
+                failedMeanAnomalies.push_back( testMeanAnomaly );
+                failedEccentricities.push_back( testEccentricity );
+            }
         }
 
         // Reset boolean.
@@ -352,186 +366,39 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random
     // If the vector is not empty, write the failed cases of this test case to a file.
     if ( !( failedMeanAnomalies.empty( ) ) )
     {
-        writeErrorsToFile( failedEccentricities, failedMeanAnomalies, "Test4" );
+        writeErrorsToFile( failedEccentricities, failedMeanAnomalies, caseId );
     }
 }
 
-//! Test 5: Test large number of anomalies with a large number of eccentricities, in common regime.
-BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random )
+//! Test 4: Test large number of anomalies and eccentricities
+BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToEccentricAnomaly_nearParabolic_random_double )
 {
-    // Create vectors that will store the input variables of a test that resulted in an error, such
-    // that the error scenario can be reproduced.
-    std::vector< double > failedMeanAnomalies, failedEccentricities;
+    long double ratioOfPrecision = std::numeric_limits< long double >::epsilon( ) /
+            std::numeric_limits< double >::epsilon( );
 
-    // Boolean that will be set true if a runtime error occurred.
-    bool aRuntimeErrorOccurred = false;
+    // Test random conversions for near-parabolic orbits
+    testMeanToHyperbolicEccentricAnomalyConversions< double >(
+                "DoubleParabolic", 1.0E-13, 20.0, 1, 0, TUDAT_NAN, TUDAT_NAN, 1.0 + 1.0e-15 );
+    testMeanToHyperbolicEccentricAnomalyConversions< long double >(
+                "LongDoubleParabolic", 1.0E-13L * ratioOfPrecision, 20.0L, 1, 0,
+                TUDAT_NAN, TUDAT_NAN, 1.0L + 1.0e-15L * ratioOfPrecision );
 
-    // Initialize both test and reverse calculated hyperbolic mean anomaly, the hyperbolic
-    // eccentric anomaly and the eccentricity.
-    double testEccentricity, testMeanAnomaly, reverseCalculatedMeanAnomaly,
-           hyperbolicEccentricAnomaly = TUDAT_NAN;
+    // Test random conversions for random orbits
+    testMeanToHyperbolicEccentricAnomalyConversions< double >(
+                "DoubleTypical", 1.0E-13, 20.0, 0, 0, 1.0 + 1.0e-15, 10.0, TUDAT_NAN );
+    testMeanToHyperbolicEccentricAnomalyConversions< long double >(
+                "LongDoubleTypical", 1.0E-13L, 20.0L, 0, 0, 1.0L + 1.0e-15L * ratioOfPrecision,
+                10.0L, TUDAT_NAN );
 
-    // Instantiate random number generators. One for the mean anomaly generation, from -20 to 20,
-    // another one for the eccentricity generation, from 1 to 10.
-    boost::mt19937 randomNumbergenerator( time( 0 ) );
-    boost::random::uniform_real_distribution< > distributionMinus20To20( -20.0, 20.0 );
-    boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
-            generateRandomNumberMinus20To20( randomNumbergenerator, distributionMinus20To20 );
-    boost::random::uniform_real_distribution< > distribution1To10( 1.0 + 1.0e-15, 10.0 );
-    boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
-            generateRandomNumber1To10( randomNumbergenerator, distribution1To10 );
+    // Test random conversions for extreme values of eccentricity and mean anomaly.
+    testMeanToHyperbolicEccentricAnomalyConversions< double >(
+                "DoubleHighlyEccentric", 1.0E-14, 12.0, 0, 1, 0.0, 15.0, TUDAT_NAN );
+    testMeanToHyperbolicEccentricAnomalyConversions< long double >(
+                "LongDoubleHighlyEccentric", 1.0E-14L, 12.0L, 0, 1, 0.0L, 15.0L, TUDAT_NAN );
 
-    // Specify the number of random samples should be taken. A test of 100,000,000 was performed
-    // by the author before the code was submitted. This test remains included to verify that any
-    // future method will not fail. The behaviour of the conversion is namely very sensitive and
-    // non-converging cases are highly sensitive to input values and the initial guess that is used.
-    const int numberOfSamples = 10000;
-
-    // Perform the conversion for the specified number of samples and test whether the values that
-    // are subsequently converted back match the initial values.
-    for ( int counter = 0; counter < numberOfSamples; counter++ )
-    {
-        // Set random value in test mean anomaly and the test eccentricity.
-        testMeanAnomaly = generateRandomNumberMinus20To20( );
-        testEccentricity = generateRandomNumber1To10( );
-
-        // If the Rootfinder does not converge, it will produce a runtime error. In order to make
-        // sure that these values that led to the error will not be lost, they will be stored in
-        // the failed input data vectors. To do so, a try-catch sequence is used.
-        try
-        {
-            // Compute eccentric anomaly.
-            hyperbolicEccentricAnomaly = convertMeanAnomalyToHyperbolicEccentricAnomaly(
-                    testEccentricity, testMeanAnomaly );
-        }
-        catch( std::runtime_error )
-        {
-            // Store the fact that a runtime error occurred, such that the values will be stored.
-            aRuntimeErrorOccurred = true;
-        }
-
-        // Calculate the mean anomaly from this eccentric anomaly.
-        reverseCalculatedMeanAnomaly =
-                convertHyperbolicEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly,
-                                                                testEccentricity );
-
-        // Test whether the computed mean anomaly is equal to the mean anomaly from the input and
-        // that no runtime errors occurred. If an error was found, store the values leading to this
-        // error in a vector for later use. '!' operator is there to ensure that a NaN value will
-        // result in the values being written away. It is also checked that the mean anomaly is
-        // not equal to 0.0, because that would result in falsely writing an error.
-        if ( ( ( !( std::abs( testMeanAnomaly - reverseCalculatedMeanAnomaly ) / testMeanAnomaly <
-                toleranceOrbitalElementConversion ) ) && ( testMeanAnomaly != 0.0 ) )
-             || aRuntimeErrorOccurred )
-        {
-            failedMeanAnomalies.push_back( testMeanAnomaly );
-            failedEccentricities.push_back( testEccentricity );
-        }
-
-        // Reset boolean.
-        aRuntimeErrorOccurred = false;
-    }
-
-    // Check that no values have been written to the failedMeanAnomalies vector.  If so, this test
-    // is passed. Otherwisely these values will be written away and this test will fail.
-    BOOST_CHECK( failedMeanAnomalies.empty( ) );
-
-    // If the vector is not empty, write the failed cases of this test case to a file.
-    if ( !( failedMeanAnomalies.empty( ) ) )
-    {
-        writeErrorsToFile( failedEccentricities, failedMeanAnomalies, "Test5" );
-    }
 }
 
-//! Test 6: Test large number of high anomalies with a large number of high eccentricities.
-BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_random_high )
-{
-    // Create vectors that will store the input variables of a test that resulted in an error, such
-    // that the error scenario can be reproduced.
-    std::vector< double > failedMeanAnomalies, failedEccentricities;
-
-    // Boolean that will be set true if a runtime error occurred.
-    bool aRuntimeErrorOccurred = false;
-
-    // Initialize both test and reverse calculated hyperbolic mean anomaly, the hyperbolic
-    // eccentric anomaly and the eccentricity.
-    double testEccentricity, testMeanAnomaly, reverseCalculatedMeanAnomaly,
-           hyperbolicEccentricAnomaly = TUDAT_NAN;
-
-    // Instantiate random number generators. One for the mean anomaly generation, from -1.2e12 to
-    // 1.2e12, another one for the eccentricity generation, from 1.0 to 1.0e15.
-    boost::mt19937 randomNumbergenerator( time( 0 ) );
-    boost::random::uniform_real_distribution< > distributionMinus12To12( -12, 12 );
-    boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
-            generateRandomNumberMinus12To12( randomNumbergenerator, distributionMinus12To12 );
-    boost::random::uniform_real_distribution< > distribution0To15( 0, 15 );
-    boost::variate_generator< boost::mt19937&, boost::random::uniform_real_distribution < > >
-            generateRandomNumber0To15( randomNumbergenerator, distribution0To15 );
-
-    // Specify the number of random samples should be taken. A test of 100,000,000 was performed
-    // by the author before the code was submitted. This test remains included to verify that any
-    // future method will not fail. The behaviour of the conversion is namely very sensitive and
-    // non-converging cases are highly sensitive to input values and the initial guess that is used.
-    const int numberOfSamples = 10000;
-
-    // Perform the conversion for the specified number of samples and test whether the values that
-    // are subsequently converted back match the initial values.
-    for ( int counter = 0; counter < numberOfSamples; counter++ )
-    {
-        // Set random value in test mean anomaly and the test eccentricity.
-        testMeanAnomaly = generateRandomNumberMinus12To12( ) *
-                          std::pow( 10, generateRandomNumberMinus12To12( ) );
-        testEccentricity = 1.0 + 1.0 * std::pow( 10, generateRandomNumber0To15( ) );
-
-        // If the Rootfinder does not converge, it will produce a runtime error. In order to make
-        // sure that these values that led to the error will not be lost, they will be stored in
-        // the failed input data vectors. To do so, a try-catch sequence is used.
-        try
-        {
-            // Compute eccentric anomaly.
-            hyperbolicEccentricAnomaly = convertMeanAnomalyToHyperbolicEccentricAnomaly(
-                    testEccentricity, testMeanAnomaly );
-        }
-        catch( std::runtime_error )
-        {
-            // Store the fact that a runtime error occurred, such that the values will be stored.
-            aRuntimeErrorOccurred = true;
-        }
-
-        // Calculate the mean anomaly from this eccentric anomaly.
-        reverseCalculatedMeanAnomaly =
-                convertHyperbolicEccentricAnomalyToMeanAnomaly( hyperbolicEccentricAnomaly,
-                                                                testEccentricity );
-
-        // Test whether the computed mean anomaly is equal to the mean anomaly from the input and
-        // that no runtime errors occurred. If an error was found, store the values leading to this
-        // error in a vector for later use. '!' operator is there to ensure that a NaN value will
-        // result in the values being written away. It is also checked that the mean anomaly is
-        // not equal to 0.0, because that would result in falsely writing an error.
-        if ( ( ( !( std::abs( testMeanAnomaly - reverseCalculatedMeanAnomaly ) / testMeanAnomaly <
-                toleranceOrbitalElementConversion ) ) && ( testMeanAnomaly != 0.0 ) )
-             || aRuntimeErrorOccurred )
-        {
-            failedMeanAnomalies.push_back( testMeanAnomaly );
-            failedEccentricities.push_back( testEccentricity );
-        }
-
-        // Reset boolean.
-        aRuntimeErrorOccurred = false;
-    }
-
-    // Check that no values have been written to the failedMeanAnomalies vector.  If so, this test
-    // is passed. Otherwisely these values will be written away and this test will fail.
-    BOOST_CHECK( failedMeanAnomalies.empty( ) );
-
-    // If the vector is not empty, write the failed cases of this test case to a file.
-    if ( !( failedMeanAnomalies.empty( ) ) )
-    {
-        writeErrorsToFile( failedEccentricities, failedMeanAnomalies, "Test6" );
-    }
-}
-
-//! Test 7: Test functionality of specifying the initial guess.
+//! Test 5: Test functionality of specifying the initial guess.
 BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_specificInitialGuess )
 {
     // Set test value for eccentricity.
@@ -552,7 +419,7 @@ BOOST_AUTO_TEST_CASE( test_convertMeanAnomalyToHyperbolicEccentricAnomaly_specif
 
     // Check if computed eccentric anomaly is NaN for invalid eccentricity.
     BOOST_CHECK_CLOSE_FRACTION( expectedHyperbolicEccentricAnomaly, hyperbolicEccentricAnomaly,
-                                toleranceOrbitalElementConversion );
+                                1.0E-14 );
 }
 
 // End Boost test suite.
