@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicNamespacePressureFunctions )
     const double highMachBasePressure_ = computeHighMachBasePressure( machNumber_ );
 
     const double expectedHighMachBasePressure_ = -1.0 / ( machNumber_ * machNumber_ );
-    const double toleranceHighMachBasePressure_ = 1.0e-15 * 100.0 / expectedHighMachBasePressure_;
+    const double toleranceHighMachBasePressure_ = std::fabs( 1.0e-15 * 100.0 / expectedHighMachBasePressure_ );
 
     // Check if computed high Mach base pressure coefficient matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( highMachBasePressure_,
@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicNamespacePressureFunctions )
 
     const double expectedVacuumPressureCoefficient_ = -2.0 / ( ratioOfSpecificHeats_
                                                                * machNumber_ * machNumber_ );
-    const double toleranceVacuumPressureCoefficient_ = 1.0e-15 * 100.0
-            / expectedVacuumPressureCoefficient_;
+    const double toleranceVacuumPressureCoefficient_ = std::fabs( 1.0e-15 * 100.0
+            / expectedVacuumPressureCoefficient_ );
 
     // Check if computed vacuum pressure coefficient matches expected value.
     BOOST_CHECK_CLOSE_FRACTION( vacuumPressureCoefficient_,
