@@ -50,18 +50,16 @@
 
 #define BOOST_TEST_MAIN
 
+#include <boost/test/unit_test.hpp>
+
+#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
+
 #include <cmath>
 #include <limits>
 
-#include <boost/test/floating_point_comparison.hpp>
-#include <boost/test/unit_test.hpp>
-
 #include <Eigen/Core>
-
-#include "Tudat/Basics/testMacros.h"
-
-#include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
-#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 
 namespace tudat
 {

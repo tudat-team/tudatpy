@@ -43,8 +43,8 @@
  *
  */
 
+#include <boost/multi_array.hpp>
 #include <limits>
-
 #include <Eigen/Geometry>
 
 #include "Tudat/Mathematics/GeometricShapes/quadrilateralMeshedSurfaceGeometry.h"

@@ -63,18 +63,17 @@
 #ifndef TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 
-#include <cmath>
-#include <limits>
-#include <numeric>
-
 #include <boost/exception/all.hpp>
 #include <boost/math/special_functions/atanh.hpp>
+
+#include <cmath>
+#include <limits>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
