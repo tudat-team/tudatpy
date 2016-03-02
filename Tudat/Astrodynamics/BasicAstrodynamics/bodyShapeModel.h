@@ -1,5 +1,5 @@
-#ifndef BODYSHAPEMODEL_H
-#define BODYSHAPEMODEL_H
+#ifndef TUDAT_BODYSHAPEMODEL_H
+#define TUDAT_BODYSHAPEMODEL_H
 
 /*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
@@ -95,8 +95,8 @@ protected:
  *  the input for the altitude function of the bodyShapeModel, which is to be in a body-fixed frame.
  *  \param bodyShapeModel Shape model of central body
  *  \param position Position of point of which altitude is to be calculated
- *  \param position Position of central body above which altitude is to be calculated
- *  \param position Rotation from frame in which input vectors are given to body-fixed frame.
+ *  \param bodyPosition Position of central body above which altitude is to be calculated
+ *  \param toBodyFixedFrame Rotation from frame in which input vectors are given to body-fixed frame.
  *  \return Altitude above body shape.
  */
 double getAltitudeFromNonBodyFixedPosition(
@@ -115,9 +115,9 @@ double getAltitudeFromNonBodyFixedPosition(
  *  e.g. a Body class.
  *  \param bodyShapeModel Shape model of central body
  *  \param position Position of point of which altitude is to be calculated
- *  \param position Function returning position of central body above which altitude is to be
+ *  \param bodyPositionFunction Function returning position of central body above which altitude is to be
  *  calculated
- *  \param position Function returning rotation from frame in which input vectors are given to
+ *  \param toBodyFixedFrameFunction Function returning rotation from frame in which input vectors are given to
  *  body-fixed frame.
  *  \return Altitude above body shape.
  */
@@ -132,4 +132,4 @@ double getAltitudeFromNonBodyFixedPositionFunctions(
 
 }
 
-#endif // BODYSHAPEMODEL_H
+#endif // TUDAT_BODYSHAPEMODEL_H
