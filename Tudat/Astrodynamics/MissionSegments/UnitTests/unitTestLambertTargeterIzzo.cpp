@@ -68,10 +68,9 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-#include "Tudat/Basics/testMacros.h"
-
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeterIzzo.h"
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 namespace tudat
 {
