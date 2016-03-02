@@ -429,7 +429,7 @@ void dumpLegendrePolynomialCacheData( std::ostream& outputStream,
 //! Function to calculate the normalization factor for Legendre polynomials to geodesy-normalized.
 /*!
  *  Function to calculate the normalization factor K_nm to convert regular Legendre polynomials P_nm
- *  to geodesy-normalized Legendre polynomials \bar{P}_nm, so that \bar{P}_nm=K_nm*P_nm.
+ *  to geodesy-normalized Legendre polynomials P^bar_nm, so that P^bar_nm=K_nm*P_nm.
  *  Note that the same conversion for spherical harmonic coefficients from regular to geodesy-
  *  normalized requires the inverse factor: 1/K_nm
  * \param degree Degree of Legendre polynomial

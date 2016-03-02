@@ -15,12 +15,13 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
         const std::complex< double > loveNumber, const double massRatio,
         const double radiusRatioPowerN,
         const double amplitude, const std::complex< double > tideArgument,
-        const int n, const int m )
+        const int degree, const int order )
 {
     // Calculate and return corrections.
-    return loveNumber / ( 2.0 * static_cast< double >( n ) + 1.0 ) *
+    return loveNumber / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
             massRatio * radiusRatioPowerN *
-            amplitude * basic_mathematics::calculateLegendreGeodesyNormalizationFactor( n, m ) *
+            amplitude * basic_mathematics::calculateLegendreGeodesyNormalizationFactor(
+                degree, order ) *
             std::exp( -tideArgument );
 }
 

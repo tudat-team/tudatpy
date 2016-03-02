@@ -64,6 +64,8 @@ public:
      *  \param loveNumbers List of love numbers for each degree and order. First vector level
      *  denotes degree (index 0 = degree 2), second vector level must be of size
      *  (loveNumbers.size( ) + 2, i.e. maximum degree == maximum order)
+     *  \param deformingBodies List of names of bodies causing deformation.
+     *
      */
     BasicSolidBodyTideGravityFieldVariations(
             const boost::function< basic_mathematics::Vector6d( const double ) >
@@ -151,7 +153,7 @@ public:
      *  Function to reset the love numbers at given degree. Input requires a vector containing
      *  (complex) love numbers at all orders in current degree.
      *  \param degree Degree from which love numbers are to be retrieved.
-     *  \param Vector of love numbers (i^{th} entry representing i^{th} order in requested degree)
+     *  \param loveNumbers Vector of love numbers (i^{th} entry representing i^{th} order in requested degree)
      *  containing new love numbers at current degree.
      */
     void resetLoveNumbersOfDegree( const std::vector< std::complex< double > > loveNumbers,
