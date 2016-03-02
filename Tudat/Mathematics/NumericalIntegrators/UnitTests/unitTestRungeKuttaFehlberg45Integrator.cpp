@@ -62,25 +62,25 @@
 
 #define BOOST_TEST_MAIN
 
-#include <limits>
-#include <string>
-
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <Eigen/Core>
-
-#include "Tudat/InputOutput/matrixTextFileReader.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/reinitializableNumericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTests.h"
 #include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h"
+#include "Tudat/Mathematics/NumericalIntegrators/UnitTests/burdenAndFairesNumericalIntegratorTest.h"
 
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Mathematics/NumericalIntegrators/UnitTests/burdenAndFairesNumericalIntegratorTest.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
+
+#include <limits>
+#include <string>
+
+#include <Eigen/Core>
 
 namespace tudat
 {

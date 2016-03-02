@@ -54,19 +54,19 @@
 
 #define BOOST_TEST_MAIN
 
-#include <limits>
-#include <string>
-#include <typeinfo>
 
 #include <boost/exception/all.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
+#include <limits>
+#include <string>
+#include <typeinfo>
 
 namespace tudat
 {

@@ -59,8 +59,6 @@
 #ifndef TUDAT_UNIT_CONVERSIONS_H
 #define TUDAT_UNIT_CONVERSIONS_H
 
-#include <cmath>
-
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
