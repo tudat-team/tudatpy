@@ -52,13 +52,12 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
+#include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 
 #include <Eigen/Core>
 
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
-
-#include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat

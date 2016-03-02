@@ -40,10 +40,10 @@
  *
  */
 
-#include <Eigen/Geometry>
-
-#include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeterIzzo.h"
+#include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
+
+#include <Eigen/Geometry>
 
 namespace tudat
 {

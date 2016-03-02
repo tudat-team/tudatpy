@@ -65,14 +65,13 @@
 #ifndef TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 #define TUDAT_CONVERT_MEAN_ANOMALY_TO_ECCENTRIC_ANOMALY_H
 
-#include <cmath>
-#include <stdexcept>
-
-#include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/exception/all.hpp>
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/math/special_functions/asinh.hpp>
+
+#include <cmath>
 
 #include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
 #include "Tudat/Mathematics/RootFinders/rootFinder.h"
