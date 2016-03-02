@@ -47,21 +47,24 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-#include <limits>
-#include <stdexcept>
-
-#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/bind.hpp>
+#include <boost/exception/all.hpp>
+#include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Basics/testMacros.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
-#include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+
+#include <limits>
+#include <iostream>
+#include <stdexcept>
 
 namespace tudat
 {
@@ -238,7 +241,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
             BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrix( i, j ),
                                2.0 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrixFromObject( i, j ),
-                               2.0 * std::numeric_limits< double >::epsilon( ) );
+                               4.0 * std::numeric_limits< double >::epsilon( ) );
         }
     }
 
