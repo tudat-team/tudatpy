@@ -63,12 +63,14 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
+#include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
+#include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 #include "Tudat/SimulationSetup/createAtmosphereModel.h"
 #include "Tudat/SimulationSetup/createEphemeris.h"
 #include "Tudat/SimulationSetup/createGravityField.h"
@@ -137,27 +139,100 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 //! Test set up of ephemeris environment models.
 BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 {
-    // Create settings for approximate planet positions.
-    ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier =
-            ephemerides::ApproximatePlanetPositionsBase::mars;
-    bool useCircularCoplanarApproximation = 0;
-    boost::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
-            boost::make_shared< ApproximatePlanetPositionSettings >(
-                bodyIdentifier, useCircularCoplanarApproximation );
+    const std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls" );
 
-    // Create ephemeris using setup function.
-    boost::shared_ptr< ephemerides::Ephemeris > approximateEphemeris =
-            createBodyEphemeris( approximateEphemerisSettings, "Earth" );
+    {
+        // Create settings for approximate planet positions.
+        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier =
+                ephemerides::ApproximatePlanetPositionsBase::mars;
+        bool useCircularCoplanarApproximation = 0;
+        boost::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
+                boost::make_shared< ApproximatePlanetPositionSettings >(
+                    bodyIdentifier, useCircularCoplanarApproximation );
 
-    // Create manual ephemeris.
-    ephemerides::ApproximatePlanetPositions manualApproximateEphemeris(
-                bodyIdentifier );
+        // Create ephemeris using setup function.
+        boost::shared_ptr< ephemerides::Ephemeris > approximateEphemeris =
+                createBodyEphemeris( approximateEphemerisSettings, "Earth" );
 
-    // Verify equivalence of automatically set up and manual models.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( manualApproximateEphemeris.getCartesianStateFromEphemeris( 1.0E7 ) ),
-                ( approximateEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
-                std::numeric_limits< double >::epsilon( ) );
+        // Create manual ephemeris.
+        ephemerides::ApproximatePlanetPositions manualApproximateEphemeris(
+                    bodyIdentifier );
+
+        // Verify equivalence of automatically set up and manual models.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( manualApproximateEphemeris.getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    ( approximateEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+    {
+        // Create spice ephemeris.
+        boost::shared_ptr< EphemerisSettings > spiceEphemerisSettings =
+                boost::make_shared< DirectSpiceEphemerisSettings >( "Earth", "J2000" );
+        boost::shared_ptr< ephemerides::Ephemeris > spiceEphemeris =
+                createBodyEphemeris( spiceEphemerisSettings, "Moon" );
+
+        // Compare spice ephemeris against direct spice state.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( spice_interface::getBodyCartesianStateAtEpoch(
+                          "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
+                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+    {
+        // Create tabulated spice ephemeris
+        boost::shared_ptr< EphemerisSettings > spiceEphemerisSettings =
+                boost::make_shared< InterpolatedSpiceEphemerisSettings >(
+                    1.0E7 - 50.0 * 600.0, 1.0E7 + 50.0 * 600.0, 600.0, "Earth", "J2000" );
+        boost::shared_ptr< ephemerides::Ephemeris > spiceEphemeris =
+                createBodyEphemeris( spiceEphemerisSettings, "Moon" );
+
+        // Compare tabulated spice ephemeris against direct spice state on node point.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( spice_interface::getBodyCartesianStateAtEpoch(
+                          "Moon", "Earth", "J2000", "None", 1.0E7 ) ),
+                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 ) ),
+                    std::numeric_limits< double >::epsilon( ) );
+
+        // Manually create table of states from spice
+        std::map< double, basic_mathematics::Vector6d > tabulatedStates;
+        double currentTime = 1.0E7 - 50.0 * 600.0;
+        while( currentTime <= 1.0E7 + 50.0 * 600.0 )
+        {
+            tabulatedStates[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
+                        "Moon", "Earth", "J2000", "None", currentTime );
+            currentTime += 600.0;
+        }
+
+        // Create tabulated ephemeris.
+        boost::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings =
+                boost::make_shared< TabulatedEphemerisSettings >(
+                    tabulatedStates, "Earth", "J2000" );
+        boost::shared_ptr< ephemerides::Ephemeris > tabulatedEphemeris =
+                createBodyEphemeris( tabulatedEphemerisSettings, "Moon" );
+
+        // Manually create tabulated ephemeris.
+        boost::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
+                boost::make_shared< ephemerides::TabulatedCartesianEphemeris >(
+                    boost::make_shared< interpolators::LagrangeInterpolator
+                    < double, basic_mathematics::Vector6d > >( tabulatedStates, 6 ),
+                    "Earth", "J2000" );
+
+        // Compare ephemerides away from node point.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
+                    ( tabulatedEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
+                    std::numeric_limits< double >::epsilon( ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( spiceEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
+                    ( manualTabulatedEphemeris->getCartesianStateFromEphemeris( 1.0E7 + 110.0 ) ),
+                    std::numeric_limits< double >::epsilon( ) );
+    }
+
 
 }
 
