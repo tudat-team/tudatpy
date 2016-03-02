@@ -26,6 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120208    S. Billemont      Creation of code.
  *      140219    E. Brandon        Adapted to current Tudat root-finder structure.
+ *      150417    D. Dirkx          Made modifications for templated root finding.
  *
  *    References
  *      Press W.H., et al. Numerical Recipes in C++: The Art of Scientific Computing. Cambridge
@@ -125,16 +126,17 @@ public:
      * \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
      * \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
      */
-    BisectionCore( const double relativeXTolerance, const unsigned int maxIterations,
+    BisectionCore( const DataType relativeXTolerance, const unsigned int maxIterations,
                    const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ):
         RootFinderCore< DataType >(
-            boost::bind( &termination_conditions::RootRelativeToleranceTerminationCondition::
-                         checkTerminationCondition, boost::make_shared<
-                         termination_conditions::RootRelativeToleranceTerminationCondition >(
-                             relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) ),
+            boost::bind(
+                &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
+                checkTerminationCondition, boost::make_shared<
+                termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
+                    relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) ),
         lowerBound_( lowerBound ),
         upperBound_( upperBound )
-  { }
+    { }
 
     //! Default destructor.
     ~BisectionCore( ) { }
@@ -181,9 +183,9 @@ public:
         if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
         {
             boost::throw_exception( boost::enable_error_info( std::runtime_error(
-                boost::str( boost::format(
-                         "The Bisection algorithm requires that the values at the upper "
-                         "and lower bounds have a different sign." ) ) ) ) );
+                                                                  boost::str( boost::format(
+                                                                                  "The Bisection algorithm requires that the values at the upper "
+                                                                                  "and lower bounds have a different sign." ) ) ) ) );
         }
 
         // Loop counter.
@@ -216,12 +218,20 @@ public:
             rootFunctionValue = this->rootFunction->evaluate( rootValue );
 
             // Sanity check.
-            assert( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue < 0.0 );
+            if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
+            {
+                boost::throw_exception( boost::enable_error_info( std::runtime_error(
+                                                                      boost::str( boost::format(
+                                                                                      "The Bisection algorithm requires that the values at the upper "
+                                                                                      "and lower bounds have a different sign, error during iteration." ) ) ) ) );
+            }
 
             counter++;
         }
         while( !this->terminationFunction( rootValue, previousRootValue, rootFunctionValue,
                                            previousRootFunctionValue, counter ) );
+
+        //std::cout<<"Ecc B: "<<rootValue<<" "<<this->rootFunction->evaluate( rootValue )<<std::endl;
 
         return rootValue;
 

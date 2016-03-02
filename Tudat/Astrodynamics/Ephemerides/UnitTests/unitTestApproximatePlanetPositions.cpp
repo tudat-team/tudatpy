@@ -56,12 +56,11 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
@@ -84,7 +83,7 @@ BOOST_AUTO_TEST_CASE( testOrbitalElements )
     const double tolerance = 2.0e-2;
 
     // Expected result.
-    Eigen::VectorXd expectedKeplerianElements( 6 );
+    Eigen::Matrix< double, 6, 1 > expectedKeplerianElements;
     expectedKeplerianElements[ 0 ] = 2.279361944126564e11;
     expectedKeplerianElements[ 1 ] = 9.338126166083623e-2;
     expectedKeplerianElements[ 2 ] = convertDegreesToRadians( 1.848907897011101 );

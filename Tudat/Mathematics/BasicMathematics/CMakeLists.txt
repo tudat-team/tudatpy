@@ -49,7 +49,7 @@ set(BASICMATHEMATICS_SOURCES
 )
 
 # Add header files.
-set(BASICMATHEMATICS_HEADERS 
+set(BASICMATHEMATICS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/basicFunction.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/convergenceException.h"
   "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/coordinateConversions.h"

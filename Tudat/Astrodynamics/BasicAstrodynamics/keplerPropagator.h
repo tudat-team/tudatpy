@@ -39,6 +39,7 @@
  *                                  Comments.
  *      121205    P. Musegaas       Updated code to final version of rootfinders.
  *      130120    K. Kumar          Updated VectorXd to Vector6d.
+ *      150417    D. Dirkx          Made modifications for templated element conversions.
  *
  *    References
  *
@@ -49,15 +50,17 @@
 #ifndef TUDAT_KEPLER_PROPAGATOR_H
 #define TUDAT_KEPLER_PROPAGATOR_H
 
-#include <Eigen/Core>
-
-#include <boost/bind.hpp>
+#include <boost/exception/all.hpp>
 #include <boost/make_shared.hpp>
 
-#include "Tudat/Mathematics/RootFinders/newtonRaphson.h"
+#include <Eigen/Core>
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
 #include "Tudat/Mathematics/RootFinders/rootFinder.h"
-#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 
 namespace tudat
 {
@@ -97,11 +100,106 @@ namespace orbital_element_conversions
  *          finalStateInKeplerianElements( 4 ) = longitude of ascending node,                 [rad]
  *          finalStateInKeplerianElements( 5 ) = true anomaly.                                [rad]
  */
-basic_mathematics::Vector6d propagateKeplerOrbit(
-        const basic_mathematics::Vector6d& initialStateInKeplerianElements,
-        const double propagationTime,
-        const double centralBodyGravitationalParameter,
-        root_finders::RootFinderPointer aRootFinder = root_finders::RootFinderPointer( ) );
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 6, 1 > propagateKeplerOrbit(
+        const Eigen::Matrix< ScalarType, 6, 1 >& initialStateInKeplerianElements,
+        const ScalarType propagationTime,
+        const ScalarType centralBodyGravitationalParameter,
+        boost::shared_ptr< root_finders::RootFinderCore< ScalarType > > aRootFinder =
+        boost::shared_ptr< root_finders::RootFinderCore< ScalarType > >( ) )
+{
+    // Create final state in Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > finalStateInKeplerianElements =
+            initialStateInKeplerianElements;
+
+    // Check if eccentricity is valid.
+    if ( initialStateInKeplerianElements( eccentricityIndex ) <
+         mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
+    {
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error( "Eccentricity is invalid (smaller than 0)." ) ) );
+    }
+
+    // Check if orbit is elliptical.
+    else if ( initialStateInKeplerianElements( eccentricityIndex ) <
+              mathematical_constants::getFloatingInteger< ScalarType >( 1 ) )
+    {
+        // Convert initial true anomaly to eccentric anomaly.
+        const ScalarType initialEccentricAnomaly =
+                convertTrueAnomalyToEccentricAnomaly< ScalarType >(
+                    initialStateInKeplerianElements( trueAnomalyIndex ),
+                    initialStateInKeplerianElements( eccentricityIndex ) );
+
+        // Convert initial eccentric anomaly to mean anomaly.
+        const ScalarType initialMeanAnomaly =
+                convertEccentricAnomalyToMeanAnomaly< ScalarType >(
+                    initialEccentricAnomaly,
+                    initialStateInKeplerianElements( eccentricityIndex ) );
+
+        // Compute change of mean anomaly between start and end of propagation.
+        const ScalarType meanAnomalyChange =
+                convertElapsedTimeToEllipticalMeanAnomalyChange< ScalarType >(
+                    propagationTime, centralBodyGravitationalParameter,
+                    initialStateInKeplerianElements( semiMajorAxisIndex ) );
+
+        // Compute eccentric anomaly for mean anomaly.
+        const ScalarType finalEccentricAnomaly =
+                convertMeanAnomalyToEccentricAnomaly< ScalarType >(
+                    initialStateInKeplerianElements( eccentricityIndex ),
+                    initialMeanAnomaly + meanAnomalyChange );
+
+        // Compute true anomaly for computed eccentric anomaly.
+        finalStateInKeplerianElements( trueAnomalyIndex ) =
+                convertEccentricAnomalyToTrueAnomaly< ScalarType >(
+                    finalEccentricAnomaly, finalStateInKeplerianElements( eccentricityIndex ) );
+    }
+
+    // Check if the orbit is hyperbolic.
+    else if ( initialStateInKeplerianElements( eccentricityIndex ) >
+              mathematical_constants::getFloatingInteger< ScalarType >( 1 ))
+    {
+        // Convert initial true anomaly to hyperbolic eccentric anomaly.
+        const ScalarType initialHyperbolicEccentricAnomaly =
+                convertTrueAnomalyToHyperbolicEccentricAnomaly(
+                    initialStateInKeplerianElements( trueAnomalyIndex ),
+                    initialStateInKeplerianElements( eccentricityIndex ) );
+
+        // Convert initial hyperbolic eccentric anomaly to the hyperbolic mean anomaly.
+        const ScalarType initialHyperbolicMeanAnomaly =
+                convertHyperbolicEccentricAnomalyToMeanAnomaly(
+                    initialHyperbolicEccentricAnomaly,
+                    initialStateInKeplerianElements( eccentricityIndex ) );
+
+        // Compute change of mean anomaly because of the propagation time.
+        const ScalarType hyperbolicMeanAnomalyChange =
+                convertElapsedTimeToHyperbolicMeanAnomalyChange(
+                    propagationTime, centralBodyGravitationalParameter,
+                    initialStateInKeplerianElements( semiMajorAxisIndex ) );
+
+        // Compute hyperbolic eccentric anomaly for mean anomaly.
+        const ScalarType finalHyperbolicEccentricAnomaly =
+                convertMeanAnomalyToHyperbolicEccentricAnomaly(
+                    initialStateInKeplerianElements( eccentricityIndex ),
+                    initialHyperbolicMeanAnomaly + hyperbolicMeanAnomalyChange );
+
+        // Compute true anomaly for computed hyperbolic eccentric anomaly.
+        finalStateInKeplerianElements( trueAnomalyIndex ) =
+                convertHyperbolicEccentricAnomalyToTrueAnomaly(
+                               finalHyperbolicEccentricAnomaly,
+                               finalStateInKeplerianElements( eccentricityIndex ) );
+    }
+
+    // In this case the eccentricity has to be 1.0, hence the orbit is parabolic.
+    else
+    {
+        boost::throw_exception(
+                    boost::enable_error_info(
+                        std::runtime_error( "Parabolic orbits are not (yet) supported." ) ) );
+    }
+
+    return finalStateInKeplerianElements;
+}
 
 } // namespace orbital_element_conversions
 
