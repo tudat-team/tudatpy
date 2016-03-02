@@ -36,10 +36,11 @@
 #ifndef TUDAT_LIGHT_TIME_SOLUTIONS_H
 #define TUDAT_LIGHT_TIME_SOLUTIONS_H
 
-#include <map>
-#include <vector>
 
 #include <boost/function.hpp>
+
+#include <map>
+#include <vector>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
