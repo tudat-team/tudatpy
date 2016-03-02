@@ -605,6 +605,7 @@ set(Boost_ERROR_REASON)
     "$ENV{ProgramFiles}/boost/include"
     "$ENV{ProgramFiles}/boost"
     /sw/local/include
+    "${PROJECT_SOURCE_DIR}/boost"
     "${PROJECT_SOURCE_DIR}/../boost"
     "${PROJECT_SOURCE_DIR}/../../boost"
     "${PROJECT_SOURCE_DIR}/../../../boost"
