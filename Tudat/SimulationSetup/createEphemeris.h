@@ -342,11 +342,16 @@ public:
     /*!
      *  Constructor.
      *  \param bodyStateHistory Data map (time as key, Cartesian state as values) defining data
-     *  from which an interpolated ephemeris is to be creaed.
+     *  from which an interpolated ephemeris is to be created.
+     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated.
+     * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
+     *          calculated.
      */
     TabulatedEphemerisSettings(
-            const std::map< double, basic_mathematics::Vector6d >& bodyStateHistory ):
-        EphemerisSettings( tabulated_ephemeris ),
+            const std::map< double, basic_mathematics::Vector6d >& bodyStateHistory,
+            std::string frameOrigin = "SSB",
+            std::string frameOrientation = "ECLIPJ2000" ):
+        EphemerisSettings( tabulated_ephemeris, frameOrigin, frameOrientation ),
         bodyStateHistory_( bodyStateHistory ){ }
 
     //! Function returning data map defining discrete data from which an ephemeris is to be created.
