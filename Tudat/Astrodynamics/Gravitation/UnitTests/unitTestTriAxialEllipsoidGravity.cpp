@@ -17,6 +17,7 @@ namespace unit_tests
 using namespace tudat::gravitation;
 
 
+
 double getZonalTermForEllipsoidOfRevolution(
         const double axisA, const double axisC, const double referenceRadius, const int degree )
 {

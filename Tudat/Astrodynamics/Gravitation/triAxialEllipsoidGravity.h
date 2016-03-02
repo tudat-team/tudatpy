@@ -48,7 +48,7 @@ double calculateTriAxialEllipsoidReferenceRadius(
  *  aligned with largest axis, y-axis with middle axis and z-axis with smallest axis
  *  \param axisA Largest axis of triaxial ellipsoid
  *  \param axisB Middle axis of triaxial ellipsoid
- *  \param referenceRadius Reference radius of spherical harmonic gravity field.
+ *  \param axisC Smallest axis of triaxial ellipsoid
  *  \param maximumDegree Maximum degree of expansion
  *  \param maximumOrder Maximum oredr of expansion
  *  \return Spherical harmonic cosine coefficient matrix (non-normalized) of triaxial ellipsoid up
@@ -68,7 +68,7 @@ Eigen::MatrixXd createTriAxialEllipsoidSphericalHarmonicCosineCoefficients(
  *  (in given frame).
  *  \param axisA Largest axis of triaxial ellipsoid
  *  \param axisB Middle axis of triaxial ellipsoid
- *  \param referenceRadius Reference radius of spherical harmonic gravity field.
+ *  \param axisC Smallest axis of triaxial ellipsoid
  *  \param maximumDegree Maximum degree of expansion
  *  \param maximumOrder Maximum oredr of expansion
  *  \return Spherical harmonic cosine and coefficient matrix (non-normalized) pair of triaxial
@@ -88,7 +88,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > createTriAxialEllipsoidSphericalHa
  *  (in given frame).
  *  \param axisA Largest axis of triaxial ellipsoid
  *  \param axisB Middle axis of triaxial ellipsoid
- *  \param referenceRadius Reference radius of spherical harmonic gravity field.
+ *  \param axisC Smallest axis of triaxial ellipsoid
  *  \param maximumDegree Maximum degree of expansion
  *  \param maximumOrder Maximum oredr of expansion
  *  \return Spherical harmonic cosine and coefficient matrix (normalized) pair of triaxial
