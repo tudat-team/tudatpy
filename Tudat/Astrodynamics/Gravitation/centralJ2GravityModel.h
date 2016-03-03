@@ -159,7 +159,13 @@ public:
      * case the function simply updates the members in the base class.
      * \sa SphericalHarmonicsGravitationalAccelerationModelBase.
      */
-    void updateMembers( ) { this->updateBaseMembers( ); }
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            this->updateBaseMembers( );
+        }
+    }
 
 protected:
 

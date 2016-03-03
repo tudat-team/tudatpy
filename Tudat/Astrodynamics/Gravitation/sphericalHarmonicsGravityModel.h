@@ -274,11 +274,14 @@ public:
      * Updates all the base class members to their current values and also updates the class
      * members of this class.
      */
-    void updateMembers( )
+    void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
-        sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
-        this->updateBaseMembers( );
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
+            sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
+            this->updateBaseMembers( );
+        }
     }
 
 protected:

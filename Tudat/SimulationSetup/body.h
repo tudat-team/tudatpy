@@ -92,13 +92,13 @@ public:
     Body( const basic_mathematics::Vector6d& state =
             basic_mathematics::Vector6d::Zero( ),
           const double time = 0.0, const double bodyMass = 0.0,
-          const Eigen::Quaterniond currentRotationToGlobalFrame =
+          const Eigen::Quaterniond currentRotationToLocalFrame =
             Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) )
         : currentState( state ),
           currentPosition( state.segment( 0, 3 ) ),
           currentVelocity( state.segment( 3, 3 ) ),
           currentTime( time ),
-          currentRotationToGlobalFrame_( currentRotationToGlobalFrame ),
+          currentRotationToLocalFrame_( currentRotationToLocalFrame ),
           bodyMass_( bodyMass )
     { }
 
@@ -123,10 +123,10 @@ public:
 
         if( rotationalEphemeris_ != NULL )
         {
-            currentRotationToGlobalFrame_ = rotationalEphemeris_->getRotationToBaseFrame(
+            currentRotationToLocalFrame_ = rotationalEphemeris_->getRotationToTargetFrame(
                         time );
-            currentRotationMatrixDerivativeToGlobalFrame_ =
-                    rotationalEphemeris_->getDerivativeOfRotationToBaseFrame(
+            currentRotationToLocalFrameDerivative_ =
+                    rotationalEphemeris_->getDerivativeOfRotationToTargetFrame(
                         time );
         }
 
@@ -156,6 +156,31 @@ public:
         setCurrentTimeAndState(
                     time, bodyEphemeris_->getCartesianStateFromEphemeris(
                         time, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) );
+    }
+
+
+    void setCurrentRotationToLocalFrameFromEphemeris( const double time )
+    {
+        currentRotationToLocalFrame_ = rotationalEphemeris_->getRotationToTargetFrame( time );
+    }
+
+    void setCurrentRotationToLocalFrameDerivativeFromEphemeris( const double time )
+    {
+        currentRotationToLocalFrameDerivative_ = rotationalEphemeris_->getDerivativeOfRotationToFrame( time );
+    }
+
+    void setCurrentAngularVelocityVectorInGlobalFrame( const double time )
+    {
+        currentAngularVelocityVectorInGlobalFrame_ = rotationalEphemeris_->getRotationalVelocityVectorInBaseFrame( time );
+    }
+
+    void setCurrentRotationalStateToLocalFrameFromEphemeris( const double time )
+    {
+        rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrame(
+                    currentRotationToLocalFrame_, currentRotationToLocalFrameDerivative_, currentAngularVelocityVectorInGlobalFrame_, time );
+        //setCurrentRotationToLocalFrameFromEphemeris( time );
+        //setCurrentRotationToLocalFrameDerivativeFromEphemeris( time );
+        //setCurrentAngularVelocityVectorInGlobalFrame( time );
     }
 
     //! Get current state.
@@ -317,7 +342,7 @@ public:
      */
     Eigen::Quaterniond getCurrentRotationToGlobalFrame( )
     {
-        return currentRotationToGlobalFrame_;
+        return currentRotationToLocalFrame_.inverse( );
     }
 
     //! Get current rotation from inertial to body-fixed frame.
@@ -329,18 +354,18 @@ public:
      */
     Eigen::Quaterniond getCurrentRotationToLocalFrame( )
     {
-        return currentRotationToGlobalFrame_.inverse( );
+        return currentRotationToLocalFrame_;
     }
 
     Eigen::Matrix3d getCurrentRotationMatrixDerivativeToGlobalFrame( )
     {
-        return currentRotationMatrixDerivativeToGlobalFrame_;
+        return currentRotationToLocalFrameDerivative_.inverse( );
     }
 
 
     Eigen::Matrix3d getCurrentRotationMatrixDerivativeToLocalFrame( )
     {
-        return currentRotationMatrixDerivativeToGlobalFrame_.transpose( );
+        return currentRotationToLocalFrameDerivative_;
     }
 
     double getBodyMass( )
@@ -379,11 +404,11 @@ private:
     //! Current time.
     double currentTime;
 
-    //! Current rotation from body-fixed to inertial frame.
-    Eigen::Quaterniond currentRotationToGlobalFrame_;
+    Eigen::Quaterniond currentRotationToLocalFrame_;
 
-    //! Current rotation from body-fixed to inertial frame.
-    Eigen::Matrix3d currentRotationMatrixDerivativeToGlobalFrame_;
+    Eigen::Matrix3d currentRotationToLocalFrameDerivative_;
+
+    Eigen::Vector3d currentAngularVelocityVectorInGlobalFrame_;
 
     //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
     double bodyMass_;

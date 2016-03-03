@@ -135,11 +135,14 @@ public:
     /*!
      *  Update member variables to current state.
      */
-    void updateMembers( )
+    void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        // Update two constituent acceleration models.
-        accelerationModelForBodyUndergoingAcceleration_->updateMembers( );
-        accelerationModelForCentralBody_->updateMembers( );
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            // Update two constituent acceleration models.
+            accelerationModelForBodyUndergoingAcceleration_->updateMembers( );
+            accelerationModelForCentralBody_->updateMembers( );
+        }
     }
 
     //! Function to return the direct acceleration model on body undergoing acceleration.

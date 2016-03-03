@@ -38,7 +38,7 @@ public:
      *  Checks which central bodies are integrated bodies and sets the update order of the bodies' states accordingly.
      *  \param centralBodies Names of central bodies, belonging to the entries in the bodiesToIntegrate vector of same index.
      *  \param bodiesToIntegrate Names of bodies that are to be integrated numerically.
-     *  \param bodymap Named list of pointers to body objects.
+     *  \param bodyStateFunctions List of functions for the origins of selected bodies.
      */
     CentralBodyData( const std::vector< std::string >& centralBodies,
                      const std::vector< std::string >& bodiesToIntegrate,

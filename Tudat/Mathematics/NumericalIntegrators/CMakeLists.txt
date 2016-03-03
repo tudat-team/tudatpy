@@ -37,6 +37,7 @@
 set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaCoefficients.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/numericalIntegrator.cpp"
+  "${SRCROOT}${NUMERICALINTEGRATORSDIR}/createNumericalIntegrator.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/numericalIntegratorTests.cpp"
 )
 
@@ -49,6 +50,7 @@ set(NUMERICALINTEGRATORS_HEADERS
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/numericalIntegrator.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/reinitializableNumericalIntegrator.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/rungeKutta4Integrator.h"
+  "${SRCROOT}${NUMERICALINTEGRATORSDIR}/createNumericalIntegrator.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/numericalIntegratorTests.h"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/numericalIntegratorTestFunctions.h"
 )

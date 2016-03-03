@@ -41,6 +41,7 @@
 #define TUDAT_EPHEMERIS_H
 
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
@@ -50,6 +51,14 @@ namespace tudat
 {
 namespace ephemerides
 {
+
+basic_mathematics::Vector6d getDifferenceBetweenStates(
+        const boost::function< basic_mathematics::Vector6d( const double ) > stateFunction,
+        const boost::function< basic_mathematics::Vector6d( const double ) > centralBodyStateFunction,
+        const double time );
+
+Eigen::Vector3d calculateAccelerationFromEphemeris(
+        const boost::function< basic_mathematics::Vector6d( const double ) > stateFunction, const double time, const double timePerturbation );
 
 //! Ephemeris base class.
 /*!
@@ -85,8 +94,16 @@ public:
      * \return State from ephemeris.
      */
     virtual basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch,
-            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
+            const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
+
+    virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
+            const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+    {
+        return getCartesianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ).cast< long double >( );
+    }
+
+    template< typename StateScalarType, typename TimeType >
+    Eigen::Matrix< StateScalarType, 6, 1 > getTemplatedStateFromEphemeris( const TimeType& time );
 
     //! Get reference frame origin.
     /*!

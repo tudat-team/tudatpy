@@ -180,7 +180,7 @@ public:
      * dependent variables to the 'current' values of these parameters. Only these current values,
      * not the function-pointers are then used by the getAcceleration( ) function.
      */
-    void updateMembers( );
+    void updateMembers( const double currentTime = TUDAT_NAN );
 
 private:
 

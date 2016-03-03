@@ -233,7 +233,7 @@ public:
      * boost::functions that may or may not give constant return values, depending on the
      * user input. This function sets the member variables using these functions.
      */
-    void updateMembers( );
+    void updateMembers( const double currentTime = TUDAT_NAN );
 
 protected:
 

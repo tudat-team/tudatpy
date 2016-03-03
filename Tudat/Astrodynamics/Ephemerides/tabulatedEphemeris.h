@@ -56,13 +56,16 @@ namespace ephemerides
  *  This class may for instance be used for setting the numerically integrated state of a body
  *  as its 'new' ephemeris
  */
+template< typename StateScalarType = double, typename TimeType = double >
 class TabulatedCartesianEphemeris : public Ephemeris
 {
 public:
 
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+
     //! Typedef for state interpolator
     typedef boost::shared_ptr< interpolators::OneDimensionalInterpolator
-    < double, basic_mathematics::Vector6d  > > StateInterpolatorPointer;
+    < TimeType, StateType  > > StateInterpolatorPointer;
 
     //! Constructor, sets data interpolator and frame data.
     /*!
@@ -112,17 +115,11 @@ public:
      * \return State in Cartesian elements from ephemeris.
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-                basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-    {
-        if( julianDayAtEpoch != julianDayAtEpoch_ )
-        {
-            throw std::runtime_error(
-                        "Error in Tabulated Ephemeris, reference epochs are inconsistent" );
-        }
+            const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-        return interpolator_->interpolate( secondsSinceEpoch );
-    }
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
+            const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
 
     //! Function to return the interpolator
     /*!

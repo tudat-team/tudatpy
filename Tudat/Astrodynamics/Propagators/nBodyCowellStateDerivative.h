@@ -24,7 +24,7 @@ public:
     /*!
      * Calculates the state derivative (velocity+acceleration of each body) of the translational motion of the system
      * at the given time and position/velocity of bodies.
-     *  \param ephemerisTime Time (TDB seconds since J2000) at which the system is to be updated.
+     *  \param time Time (TDB seconds since J2000) at which the system is to be updated.
      *  \param stateOfSystemToBeIntegrated List of 6 * bodiesToBeIntegratedNumerically_.size( ), containing Caartesian
      *  position/velocity of the bodies being integrated. The order of the values is defined by the order of bodies in
      *  bodiesToBeIntegratedNumerically_

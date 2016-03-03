@@ -51,6 +51,8 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 namespace tudat
 {  
 namespace basic_astrodynamics
@@ -97,7 +99,16 @@ public:
      *
      * N.B.: This pure virtual function must be overridden by derived classes!
      */
-    virtual void updateMembers( ) = 0;
+    virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
+
+    virtual void resetTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+    }
+
+protected:
+
+    double currentTime_;
 
 protected:
 
