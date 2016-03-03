@@ -45,8 +45,9 @@
 namespace tudat
 {
 
-namespace simulation_setup
+namespace basic_astrodynamics
 {
+
 
 //! List of accelerations available in simulations
 /*!
@@ -64,67 +65,17 @@ enum AvailableAcceleration
     third_body_spherical_harmonic_gravity
 };
 
-//! Class for providing settings for acceleration model.
+//! Function to identify the derived class type of an acceleration model.
 /*!
- *  Class for providing settings for acceleration model. This class is a functional (base) class for
- *  settings of acceleration models that  require no information in addition to their type.
- *  Classes defining settings for acceleration models requiring additional information must be
- *  derived from this class.
- *  Bodies exerting and undergong acceleration are set externally from this class.
- *  This class can be used for the easy setup of acceleration models
- *  (see createAccelerationModels.h), but users may also chose to do so manually.
- *  (Derived) Class members are all public, for ease of access and modification.
+ *  Function to identify the derived class type of an acceleration model. The type must be defined
+ *  in the AvailableAcceleration enum to be recognized by this function.
+ *  \param accelerationModel Acceleration model of which the type is to be identified.
+ *  \return Type of the accelerationModel, as identified by AvailableAcceleration enum.
  */
-class AccelerationSettings
-{
-public:
-    //! Constructor, sets type of acceleration.
-    /*!
-     *  Constructor, sets type of acceleration.
-     *  \param accelerationType Type of acceleration from AvailableAcceleration enum.
-     */
-    AccelerationSettings( const AvailableAcceleration accelerationType ):
-        accelerationType_( accelerationType ){ }
+AvailableAcceleration getAccelerationModelType(
+        const boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+        accelerationModel );
 
-    //! Destructor.
-    virtual ~AccelerationSettings( ){ }
-
-    //! Type of acceleration from AvailableAcceleration enum.
-    AvailableAcceleration accelerationType_;
-
-};
-
-//! Class for providing settings for spherical harmonics acceleration model.
-/*!
- *  Class for providing settings for spherical harmonics acceleration model,
- *  specifically the maximum degree and order up to which the field is to be expanded. Note that
- *  the minimum degree and order are currently always set to zero.
- */
-class SphericalHarmonicAccelerationSettings: public AccelerationSettings
-{
-public:
-    //! Constructor to set maximum degree and order that is to be taken into account.
-    /*!
-     *  Constructor to set maximum degree and order that is to be taken into account.
-     *  \param maximumDegree Maximum degree
-     *  \param maximumOrder Maximum order
-     */
-    SphericalHarmonicAccelerationSettings( const int maximumDegree,
-                                           const int maximumOrder ):
-        AccelerationSettings( spherical_harmonic_gravity ), maximumDegree_( maximumDegree ),
-        maximumOrder_( maximumOrder ){ }
-
-    //! Maximum degree that is to be used for spherical harmonic acceleration
-    int maximumDegree_;
-
-    //! Maximum order that is to be used for spherical harmonic acceleration
-    int maximumOrder_;
-};
-
-//! Typedef defining a list of acceleration settings, set up in the same manner as the
-//! AccelerationMap typedef.
-typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr<
-AccelerationSettings > > > > SelectedAccelerationMap;
 
 }
 

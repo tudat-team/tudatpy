@@ -39,7 +39,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
-#include "Tudat/SimulationSetup/accelerationModelTypes.h"
+#include "Tudat/SimulationSetup/accelerationSettings.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
 #include "Tudat/SimulationSetup/createFlightConditions.h"
 

@@ -34,12 +34,12 @@
 
 #include <iostream>
 
-#include "Tudat/SimulationSetup/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
 namespace tudat
 {
 
-namespace simulation_setup
+namespace basic_astrodynamics
 {
 
 //! Function to identify the derived class type of an acceleration model.
