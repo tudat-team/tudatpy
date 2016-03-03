@@ -99,7 +99,9 @@ public:
           currentVelocity( state.segment( 3, 3 ) ),
           currentTime( time ),
           currentRotationToLocalFrame_( currentRotationToLocalFrame ),
-          bodyMass_( bodyMass )
+          bodyMass_( bodyMass ),
+          ephemerisFrameToBaseFrameFunction_( boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) ),
+          ephemerisFrameToBaseFrameLongFunction_( boost::lambda::constant( Eigen::Matrix< long double, 6, 1 >::Zero( ) ) )
     { }
 
     //! Set current time and state.
@@ -146,7 +148,7 @@ public:
 
     //! Update body to current time
     /*!
-     *  Update body to current time, calculating the current state from the ephemeris_ member
+     *  Update body to current time, calculating the current state from the bodyEphemeris_ member
      *  variable.
      *  \param time Current time of body (from which to calculate the state, as well as any dependent
      *  variables infuture code modifications).
@@ -158,6 +160,43 @@ public:
                         time, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) );
     }
 
+    void setState( const basic_mathematics::Vector6d& state )
+    {
+        currentState = state; // Must be in global frame.
+        //currentLongState = state.cast< long double >( );
+    }
+
+    void setLongState( const Eigen::Matrix< long double, 6, 1 >& longState )
+    {
+        currentLongState = longState; // Must be in global frame.
+        currentState = longState.cast< double >( );
+    }
+
+    template< typename ScalarStateType >
+    void setTemplatedState( const Eigen::Matrix< ScalarStateType, 6, 1 >& state );
+
+    basic_mathematics::Vector6d getStateInBaseFrameFromEphemeris( const double& time )
+    {
+        return bodyEphemeris_->getCartesianStateFromEphemeris( time ) + ephemerisFrameToBaseFrameFunction_( time );
+    }
+
+    Eigen::Matrix< long double, 6, 1 > getLongStateInBaseFrameFromEphemeris( const double& time )
+    {
+        return bodyEphemeris_->getCartesianLongStateFromEphemeris( time ) + ephemerisFrameToBaseFrameLongFunction_( time );
+    }
+
+    void setStateFromEphemeris( const double& time )
+    {
+        currentState = bodyEphemeris_->getCartesianStateFromEphemeris( time ) + ephemerisFrameToBaseFrameFunction_( time );
+        //currentLongState = state.cast< long double >( );
+
+    }
+
+    template< typename StateScalarType, typename TimeType >
+    void setTemplatedStateFromEphemeris( const TimeType& time );
+
+    template< typename ScalarStateType, typename TimeType >
+    Eigen::Matrix< ScalarStateType, 6, 1 > getTemplatedStateInBaseFrameFromEphemeris( const TimeType& time );
 
     void setCurrentRotationToLocalFrameFromEphemeris( const double time )
     {
@@ -166,7 +205,7 @@ public:
 
     void setCurrentRotationToLocalFrameDerivativeFromEphemeris( const double time )
     {
-        currentRotationToLocalFrameDerivative_ = rotationalEphemeris_->getDerivativeOfRotationToFrame( time );
+        currentRotationToLocalFrameDerivative_ = rotationalEphemeris_->getDerivativeOfRotationToTargetFrame( time );
     }
 
     void setCurrentAngularVelocityVectorInGlobalFrame( const double time )
@@ -220,6 +259,16 @@ public:
     void setEphemeris( const boost::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
     {
         bodyEphemeris_ = bodyEphemeris;
+    }
+
+    void setBaseFrameFunction( boost::function< basic_mathematics::Vector6d( const double& ) > ephemerisFrameToBaseFrameFunction )
+    {
+        ephemerisFrameToBaseFrameFunction_ = ephemerisFrameToBaseFrameFunction;
+    }
+
+    void setBaseFrameLongFunction( boost::function< Eigen::Matrix< long double, 6, 1 >( const double& ) > ephemerisFrameToBaseFrameLongFunction )
+    {
+        ephemerisFrameToBaseFrameLongFunction_ = ephemerisFrameToBaseFrameLongFunction;
     }
 
     //! Function to set the gravity field of the body.
@@ -373,6 +422,11 @@ public:
         return bodyMass_;
     }
 
+    void updateMass( const double bodyMass )
+    {
+        bodyMass_ = bodyMass;
+    }
+
     std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
     getRadiationPressureInterfaces( )
     {
@@ -395,6 +449,8 @@ private:
     //! Current state.
     basic_mathematics::Vector6d currentState;
 
+    Eigen::Matrix< long double, 6, 1 > currentLongState;
+
     //! Current position.
     Eigen::Vector3d currentPosition;
 
@@ -412,6 +468,10 @@ private:
 
     //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
     double bodyMass_;
+
+    boost::function< basic_mathematics::Vector6d( const double& ) > ephemerisFrameToBaseFrameFunction_;
+
+    boost::function< Eigen::Matrix< long double, 6, 1 >( const double& ) > ephemerisFrameToBaseFrameLongFunction_;
 
     //! Ephemeris of body.
     boost::shared_ptr< ephemerides::Ephemeris > bodyEphemeris_;
@@ -438,6 +498,7 @@ private:
 };
 
 typedef std::map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
+
 
 }
 

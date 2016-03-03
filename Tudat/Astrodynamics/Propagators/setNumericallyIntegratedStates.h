@@ -42,7 +42,7 @@ void resetIntegratedEphemerisOfBody(
         boost::shared_ptr< TabulatedCartesianEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
                 boost::dynamic_pointer_cast< TabulatedCartesianEphemeris<  StateScalarType, TimeType > >(
                     bodyMap.at( bodyToIntegrate )->getEphemeris( ) );
-        tabulatedEphemeris->reset( ephemerisInterpolator );
+        tabulatedEphemeris->resetInterpolator( ephemerisInterpolator );
     }
 }
 
@@ -148,7 +148,8 @@ void resetIntegratedEphemerides(
     for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::const_iterator bodyIterator = bodyMap.begin( );
          bodyIterator != bodyMap.end( ); bodyIterator++ )
     {
-        bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
+        //throw std::runtime_error( "Update of ephemeris dependent quantities not yet implemented" );
+        //bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
     }
 }
 
@@ -172,10 +173,6 @@ public:
     virtual void processIntegratedStates(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution ) = 0;
 
-    virtual void processIntegratedMultiArcStates(
-            const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
-            const std::vector< std::pair< double, double > >& arcStartEndTimes ) = 0;
-
     IntegratedStateType stateType_;
 
     std::pair< int, int > startIndexAndSize_;
@@ -187,7 +184,7 @@ class TranslationalStateIntegratedStateProcessor: public IntegratedStateProcesso
 public:
     TranslationalStateIntegratedStateProcessor(
             const int startIndex,
-            const NamedBodyMap& bodyMap,
+            const simulation_setup::NamedBodyMap& bodyMap,
             const std::vector< std::string >& bodiesToIntegrate,
             const std::vector< std::string >& centralBodies,
             const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager ):
@@ -209,17 +206,8 @@ public:
                     integrationToEphemerisFrameFunctions_ );
     }
 
-    void processIntegratedMultiArcStates(
-            const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& numericalSolution,
-            const std::vector< std::pair< double, double > >& arcStartEndTimes )
-    {
-        resetMultiArcIntegratedEphemerides< TimeType, StateScalarType >(
-                    bodyMap_, numericalSolution, arcStartEndTimes,
-                    bodiesToIntegrate_, ephemerisUpdateOrder_, integrationToEphemerisFrameFunctions_ );
-    }
-
 private:
-    NamedBodyMap bodyMap_;
+    simulation_setup::NamedBodyMap bodyMap_;
 
     std::vector< std::string > bodiesToIntegrate_;
 
@@ -231,14 +219,14 @@ private:
 
 void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
-        const NamedBodyMap& bodyMap );
+        const simulation_setup::NamedBodyMap& bodyMap );
 
 
 template< typename TimeType, typename StateScalarType >
 std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
 createIntegratedStateProcessors(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const NamedBodyMap& bodyMap,
+        const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager,
         const int startIndex = 0 )
 {

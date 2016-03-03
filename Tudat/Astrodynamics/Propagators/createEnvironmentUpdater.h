@@ -1,6 +1,8 @@
 #ifndef CREATEENVIRONMENTUPDATER_H
 #define CREATEENVIRONMENTUPDATER_H
 
+#include <boost/make_shared.hpp>
+
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
@@ -13,24 +15,18 @@ namespace propagators
 
 void checkValidityOfRequiredEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& requestedUpdates,
-        const NamedBodyMap& bodyMap );
+        const simulation_setup::NamedBodyMap& bodyMap );
 
 void addEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateList,
         const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > updatesToAdd );
 
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
-        const AccelerationMap& translationalAccelerationModels, const NamedBodyMap& bodyMap );
-
-std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-        const basic_astrodynamics::TorqueModelMap& torqueModels, const NamedBodyMap& bodyMap );
-
-std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createProperTimeEquationEnvironmentUpdaterSettings(
-        const boost::shared_ptr< RelativisticTimeStatePropagatorSettings > stateDerivativeModel, const NamedBodyMap& bodyMap );
+        const basic_astrodynamics::AccelerationMap& translationalAccelerationModels, const simulation_setup::NamedBodyMap& bodyMap );
 
 template< typename StateScalarType >
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const NamedBodyMap& bodyMap,
+        const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
@@ -73,18 +69,9 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                     bodyMap );
         break;
     }
-    case rotational_state:
+    default:
     {
-        environmentModelsToUpdate = createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-                    boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->torqueModelMap_,
-                    bodyMap );
-        break;
-    }
-    case proper_time:
-    {
-        environmentModelsToUpdate = createProperTimeEquationEnvironmentUpdaterSettings(
-                    boost::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings >( propagatorSettings ), bodyMap );
-        break;
+        std::cerr<<"Error, cannot create environment updates for type "<<propagatorSettings->stateType_ <<std::endl;
     }
     }
     return environmentModelsToUpdate;
@@ -92,13 +79,13 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 }
 
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createFullEnvironmentUpdaterSettings(
-        const NamedBodyMap& bodyMap );
+        const simulation_setup::NamedBodyMap& bodyMap );
 
 
 template< typename StateScalarType, typename TimeType >
 boost::shared_ptr< propagators::EnvironmentUpdater< StateScalarType, TimeType > > createEnvironmentUpdaterForDynamicalEquations(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const NamedBodyMap& bodyMap )
+        const simulation_setup::NamedBodyMap& bodyMap )
 {    
     std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >integratedTypeAndBodyList =
             getIntegratedTypeAndBodyList< StateScalarType >( propagatorSettings );

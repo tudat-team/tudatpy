@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
             sunStateInterpolaotor = boost::make_shared<
             interpolators::LinearInterpolator< double, basic_mathematics::Vector6d > >(
                 sunStateHistory );
-    bodyMap[ "Sun" ] ->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris >(
+    bodyMap[ "Sun" ] ->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                          sunStateInterpolaotor ) );
 
     // Update bodies to current state (normally done by numerical integrator).

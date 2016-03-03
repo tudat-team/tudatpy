@@ -93,6 +93,12 @@ double convertCalendarDateToJulianDay( const int calendarYear,
                                        const int calendarMinutes,
                                        const double calendarSeconds );
 
+template< typename TimeType >
+TimeType doDummyTimeConversion( const TimeType inputTime )
+{
+    return inputTime;
+}
+
 
 } // namespace basic_astrodynamics
 } // tudat

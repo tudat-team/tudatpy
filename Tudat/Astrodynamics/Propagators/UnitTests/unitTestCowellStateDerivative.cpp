@@ -11,6 +11,7 @@
 
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
+#include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -18,6 +19,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/SimulationSetup/createBodies.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
@@ -52,7 +54,6 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "jup291.bsp");
 
     unsigned int totalNumberOfBodies = 4;
     std::vector< std::string > bodyNames;
@@ -239,13 +240,12 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getDataFilesRootPath( ) + "SpiceKernels/";
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
 
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "jup291.bsp");
 
     unsigned int totalNumberOfBodies;
     std::vector< std::string > bodyNames;
@@ -261,14 +261,14 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
 
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings< double, double >( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, simple );
-    bodySettings[ "Earth" ]->bodyDeformationSettings.clear( );
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+
     boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
             resetFrameOrigin( "Earth" );
     bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
                 basic_mathematics::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createCelestialBodies( bodySettings );
+    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies( bodySettings );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -313,12 +313,12 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
     SingleArcDynamicsSimulator< > dynamicsSimulator(
                 bodyMap, integratorSettings, propagatorSettings, true, false );
 
-    output::writeVectorHistoryToFile( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ), "ssbCentralBodyResult.dat" );
+    //output::writeVectorHistoryToFile( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ), "ssbCentralBodyResult.dat" );
 
-    double earthGravitationalParameter = boost::dynamic_pointer_cast< CelestialBody >( bodyMap.at( "Earth" ) )->
+    double earthGravitationalParameter = bodyMap.at( "Earth" )->
             getGravityFieldModel( )->getGravitationalParameter( );
     basic_mathematics::Vector6d initialKeplerElements = orbital_element_conversions::convertCartesianToKeplerianElements(
-                systemInitialState, earthGravitationalParameter );
+                basic_mathematics::Vector6d( systemInitialState ), earthGravitationalParameter );
 
     boost::shared_ptr< Ephemeris > moonEphemeris = bodyMap.at( "Moon" )->getEphemeris( );
 

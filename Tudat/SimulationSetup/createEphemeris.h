@@ -60,7 +60,8 @@ enum EphemerisType
     approximate_planet_positions,
     direct_spice_ephemeris,
     tabulated_ephemeris,
-    interpolated_spice
+    interpolated_spice,
+    constant_ephemeris
 };
 
 //! Class for providing settings for ephemeris model.
@@ -113,6 +114,9 @@ public:
      *  \return Orientation of frame in which ephemeris data is defined.
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
+
+    void resetFrameOrigin( const std::string& frameOrigin ){ frameOrigin_ = frameOrigin; }
+
 
 protected:
 
@@ -324,6 +328,22 @@ private:
      *  (creating an ApproximatePlanetPositions object).
      */
      bool useCircularCoplanarApproximation_;
+};
+
+class ConstantEphemerisSettings: public EphemerisSettings
+{
+public:
+    ConstantEphemerisSettings( basic_mathematics::Vector6d constantState,
+                               std::string frameOrigin = "SSB",
+                               std::string frameOrientation = "ECLIPJ2000" ):
+        EphemerisSettings( constant_ephemeris,
+                           frameOrigin,
+                           frameOrientation ), constantState_( constantState ){ }
+
+    basic_mathematics::Vector6d getConstantState( ){ return constantState_; }
+
+private:
+    basic_mathematics::Vector6d constantState_;
 };
 
 //! EphemerisSettings derived class for defining settings of an ephemeris created from tabulated

@@ -6,10 +6,10 @@ namespace tudat
 namespace propagators
 {
 
-bool isBodyAccelerationDependentOnBody( const SingleBodyAccelerationMap& bodyAccelerations, const std::string bodyToCheck )
+bool isBodyAccelerationDependentOnBody( const basic_astrodynamics::SingleBodyAccelerationMap& bodyAccelerations, const std::string bodyToCheck )
 {
     bool isAccelerationDependentOnRequestedBody = 0;
-    for( SingleBodyAccelerationMap::const_iterator accelerationIterator = bodyAccelerations.begin( );
+    for( basic_astrodynamics::SingleBodyAccelerationMap::const_iterator accelerationIterator = bodyAccelerations.begin( );
          accelerationIterator != bodyAccelerations.end( ); accelerationIterator++ )
     {
         if( accelerationIterator->first == bodyToCheck )
@@ -20,7 +20,7 @@ bool isBodyAccelerationDependentOnBody( const SingleBodyAccelerationMap& bodyAcc
     return isAccelerationDependentOnRequestedBody;
 }
 
-bool isBodyAccelerationDependentOnBody( const SingleBodyAccelerationMap& bodyAccelerations,
+bool isBodyAccelerationDependentOnBody( const basic_astrodynamics::SingleBodyAccelerationMap& bodyAccelerations,
                                         const std::vector< std::string > bodiesToCheck )
 {
     bool isAccelerationDependentOnRequestedBody = 0;
@@ -34,11 +34,11 @@ bool isBodyAccelerationDependentOnBody( const SingleBodyAccelerationMap& bodyAcc
     return isAccelerationDependentOnRequestedBody;
 }
 
-bool isBodyListAccelerationDependentOnBody( const AccelerationMap& bodyAccelerations,
+bool isBodyListAccelerationDependentOnBody( const basic_astrodynamics::AccelerationMap& bodyAccelerations,
                                             const std::vector< std::string > bodiesToCheck )
 {
     bool isAccelerationDependentOnRequestedBody = 0;
-    for( AccelerationMap::const_iterator accelerationIterator = bodyAccelerations.begin( );
+    for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = bodyAccelerations.begin( );
          accelerationIterator != bodyAccelerations.end( ); accelerationIterator++ )
     {
         if( isBodyAccelerationDependentOnBody( accelerationIterator->second, bodiesToCheck ) )

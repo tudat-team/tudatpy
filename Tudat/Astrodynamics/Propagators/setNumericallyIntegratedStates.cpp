@@ -1,4 +1,5 @@
 #include "Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.h"
+#include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
 namespace tudat
 {
@@ -8,9 +9,9 @@ namespace propagators
 
 void checkTranslationalStatesFeasibility(
         const std::vector< std::string >& bodiesToIntegrate,
-        const NamedBodyMap& bodyMap )
+        const simulation_setup::NamedBodyMap& bodyMap )
 {
-    for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
     {
         if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), bodyIterator->first ) == bodiesToIntegrate.end( ) )
         {
@@ -39,21 +40,6 @@ boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Mat
 createStateInterpolator( const std::map< double, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
     return boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
-}
-
-
-template< >
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > >
-createRotationalStateInterpolator( const std::map< double, Eigen::Matrix< double, 7, 1 > >& stateMap )
-{
-    return boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( stateMap, 6 );
-}
-
-template< >
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< long double, 7, 1 > > >
-createRotationalStateInterpolator( const std::map< double, Eigen::Matrix< long double, 7, 1 > >& stateMap )
-{
-    return boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 7, 1 > > >( stateMap, 6 );
 }
 
 std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::string > integratedBodies,

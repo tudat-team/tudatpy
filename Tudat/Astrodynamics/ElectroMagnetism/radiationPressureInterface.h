@@ -110,7 +110,7 @@ public:
      *  Function to update the current value of the radiation pressure, based on functions returning
      *  the positions of the bodies involved and the source power.
      */
-    void updateInterface( );
+    void updateInterface( const double currentTime = TUDAT_NAN );
 
     //! Function to return the current radiation pressure due to source at target (in N/m^2).
     /*!
