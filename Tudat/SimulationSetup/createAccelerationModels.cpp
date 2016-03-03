@@ -53,6 +53,7 @@ using namespace aerodynamics;
 using namespace gravitation;
 using namespace basic_astrodynamics;
 using namespace electro_magnetism;
+using namespace ephemerides;
 
 //! Function to determine if a given frame is an inertial frame.
 bool isFrameInertial( const std::string& frame )
@@ -166,6 +167,9 @@ createSphericalHarmonicsGravityAcceleration(
         boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
                 boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                     bodyExertingAcceleration->getGravityFieldModel( ) );
+
+        boost::shared_ptr< RotationalEphemeris> rotationalEphemeris =
+                bodyExertingAcceleration->getRotationalEphemeris( );
         if( sphericalHarmonicsGravityField == NULL )
         {
             throw std::runtime_error(
@@ -176,6 +180,13 @@ createSphericalHarmonicsGravityAcceleration(
         }
         else
         {
+            if( rotationalEphemeris == NULL )
+            {
+                std::cerr<<"Warning when making spherical harmonic acceleration on body "<<
+                           nameOfBodyUndergoingAcceleration<<", no rotation model found for "<<
+                           nameOfBodyExertingAcceleration<<std::endl;
+            }
+
             boost::function< double( ) > gravitationalParameterFunction;
 
             // Check if mutual acceleration is to be used.
@@ -215,7 +226,9 @@ createSphericalHarmonicsGravityAcceleration(
                                    sphericalHarmonicsGravityField,
                                    sphericalHarmonicsSettings->maximumDegree_,
                                    sphericalHarmonicsSettings->maximumOrder_ ),
-                      boost::bind( &Body::getPosition, bodyExertingAcceleration ) );
+                      boost::bind( &Body::getPosition, bodyExertingAcceleration ),
+                      boost::bind( &Body::getCurrentRotationToGlobalFrame,
+                                   bodyExertingAcceleration ) );
         }
     }
     return accelerationModel;
