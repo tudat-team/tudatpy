@@ -17,13 +17,22 @@
 # Set the source files.
 set(OBSERVATION_MODELS_SOURCES
   "${SRCROOT}${OBSERVATIONMODELSDIR}/lightTimeSolution.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/linkTypeDefs.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.cpp"
 )
 
 # Set the header files.
 set(OBSERVATION_MODELS_HEADERS
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/angularPositionObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/lightTimeSolution.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/linkTypeDefs.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayRangeObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/nWayRangeObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/testLightTimeCorrections.h"
- )
+)
+
 
 # Add static libraries.
 add_library(tudat_observation_models STATIC ${OBSERVATION_MODELS_SOURCES} ${OBSERVATION_MODELS_HEADERS})
@@ -36,3 +45,11 @@ if(USE_CSPICE)
     target_link_libraries(test_LightTime tudat_observation_models tudat_ephemerides tudat_spice_interface ${SPICE_LIBRARIES} ${Boost_LIBRARIES})
 
 endif( )
+
+    add_executable(test_AngularPositionModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestAngularPositionModel.cpp")
+    setup_custom_test_program(test_AngularPositionModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_AngularPositionModel tudat_observation_models tudat_ephemerides tudat_spice_interface ${SPICE_LIBRARIES} ${Boost_LIBRARIES})
+
+    add_executable(test_NWayRangePositionModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestNWayObservationModels.cpp")
+    setup_custom_test_program(test_NWayRangePositionModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_NWayRangePositionModel tudat_observation_models tudat_ephemerides tudat_spice_interface ${SPICE_LIBRARIES} ${Boost_LIBRARIES})
