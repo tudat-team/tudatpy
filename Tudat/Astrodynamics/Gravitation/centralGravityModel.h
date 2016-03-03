@@ -43,6 +43,8 @@
 #ifndef TUDAT_CENTRAL_GRAVITY_MODEL_H
 #define TUDAT_CENTRAL_GRAVITY_MODEL_H
 
+#include <iostream>
+
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_ptr.hpp>
 

@@ -95,8 +95,6 @@ public:
           const Eigen::Quaterniond currentRotationToLocalFrame =
             Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) )
         : currentState( state ),
-          currentPosition( state.segment( 0, 3 ) ),
-          currentVelocity( state.segment( 3, 3 ) ),
           currentTime( time ),
           currentRotationToLocalFrame_( currentRotationToLocalFrame ),
           bodyMass_( bodyMass ),
@@ -120,8 +118,6 @@ public:
     {
         currentTime = time;
         currentState = state;
-        currentPosition = state.segment( 0, 3 );
-        currentVelocity = state.segment( 3, 3 );
 
         if( rotationalEphemeris_ != NULL )
         {
@@ -234,14 +230,14 @@ public:
      * Returns the internally stored current position vector.
      * \return Current position.
      */
-    Eigen::Vector3d getPosition( ) { return currentPosition; }
+    Eigen::Vector3d getPosition( ) { return currentState.segment( 0, 3 ); }
 
     //! Get current velocity.
     /*!
      * Returns the internally stored current velocity vector.
      * \return Current velocity.
      */
-    Eigen::Vector3d getVelocity( ) { return currentVelocity; }
+    Eigen::Vector3d getVelocity( ) { return currentState.segment( 3, 3 ); }
 
     //! Get current time.
     /*!
@@ -450,12 +446,6 @@ private:
     basic_mathematics::Vector6d currentState;
 
     Eigen::Matrix< long double, 6, 1 > currentLongState;
-
-    //! Current position.
-    Eigen::Vector3d currentPosition;
-
-    //! Current position.
-    Eigen::Vector3d currentVelocity;
 
     //! Current time.
     double currentTime;

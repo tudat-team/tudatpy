@@ -44,8 +44,6 @@ std::map< TimeType, StateType > integrateEquations(
     TimeType currentTime = integratorSettings->initialTime_;
     StateType newState = initialState;
 
-    std::cout<<currentTime<<" "<<newState.transpose( )<<std::endl;
-
     // Initialization of numerical solutions for variational equations.
     std::map< TimeType, StateType > solutionHistory;
     solutionHistory[ currentTime ] = newState;
@@ -62,12 +60,8 @@ std::map< TimeType, StateType > integrateEquations(
     TimeType endTime = integratorSettings->endTime_;
     TimeType previousTime = currentTime;
 
-    std::cout<<"pre-step"<<std::endl;
-
     // Perform first integration step.
     newState = integrator->performIntegrationStep( timeStep );
-    std::cout<<"post-step"<<std::endl;
-    std::cout<<currentTime<<" "<<newState.transpose( )<<std::endl;
 
     currentTime = integrator->getCurrentIndependentVariable( );
 
@@ -86,7 +80,6 @@ std::map< TimeType, StateType > integrateEquations(
         currentTime = integrator->getCurrentIndependentVariable( );
         timeStep = timeStepSign * integrator->getNextStepSize( );
 
-        std::cout<<currentTime<<" "<<newState.transpose( )<<std::endl;
         printIndex++;
         printIndex = printIndex % printFrequency;
 
