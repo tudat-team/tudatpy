@@ -79,7 +79,7 @@ boost::shared_ptr< Ephemeris > createTabulatedEphemerisFromSpice(
                 lagrange_cubic_spline_boundary_interpolation );
 
     // Create ephemeris and return.
-    return boost::make_shared< TabulatedCartesianEphemeris >(
+    return boost::make_shared< TabulatedCartesianEphemeris< > >(
                 interpolator, observerName, referenceFrameName );
 }
 //! Function to create a ephemeris model.
@@ -166,7 +166,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         else
         {
             // Create corresponding ephemeris object.
-            ephemeris = boost::make_shared< TabulatedCartesianEphemeris >(
+            ephemeris = boost::make_shared< TabulatedCartesianEphemeris< > >(
                         boost::make_shared<
                         interpolators::LagrangeInterpolator< double, basic_mathematics::Vector6d > >
                         ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,

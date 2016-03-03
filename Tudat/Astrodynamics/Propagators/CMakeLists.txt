@@ -36,17 +36,24 @@
 # Add source files.
 set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/createStateDerivativeModel.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.cpp"
 )
 
 # Add header files.
 set(PROPAGATORS_HEADERS 
   "${SRCROOT}${PROPAGATORSDIR}/createStateDerivativeModel.h"
+  "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.h"
   "${SRCROOT}${PROPAGATORSDIR}/centralBodyData.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyCowellStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.h"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.h"
+  "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"
+  "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
 )
 
 # Add static libraries.
@@ -56,5 +63,8 @@ setup_tudat_library_target(tudat_propagators "${SRCROOT}${PROPAGATORSDIR}")
 # Add unit tests.
 add_executable(test_CentralBodyData "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCentralBodyData.cpp")
 setup_custom_test_program(test_CentralBodyData "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_CentralBodyData tudat_reference_frames ${Boost_LIBRARIES})
+target_link_libraries(test_CentralBodyData tudat_propagators ${Boost_LIBRARIES})
 
+add_executable(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCowellStateDerivative.cpp")
+setup_custom_test_program(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_CowellStateDerivative tudat_propagators ${Boost_LIBRARIES})

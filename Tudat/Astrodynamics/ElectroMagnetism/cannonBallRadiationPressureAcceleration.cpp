@@ -66,14 +66,17 @@ Eigen::Vector3d CannonBallRadiationPressureAcceleration::getAcceleration( )
 }
 
 //! Update member variables used by the radiation pressure acceleration model.
-void CannonBallRadiationPressureAcceleration::updateMembers( )
+void CannonBallRadiationPressureAcceleration::updateMembers( const double currentTime )
 {
-    currentVectorToSource_ = ( sourcePositionFunction_( )
-                               - acceleratedBodyPositionFunction_( ) ).normalized( );
-    currentRadiationPressure_ = radiationPressureFunction_( );
-    currentRadiationPressureCoefficient_ = radiationPressureCoefficientFunction_( );
-    currentArea_ = areaFunction_( );
-    currentMass_ = massFunction_( );
+    if( !( this->currentTime_ == currentTime ) )
+    {
+        currentVectorToSource_ = ( sourcePositionFunction_( )
+                                   - acceleratedBodyPositionFunction_( ) ).normalized( );
+        currentRadiationPressure_ = radiationPressureFunction_( );
+        currentRadiationPressureCoefficient_ = radiationPressureCoefficientFunction_( );
+        currentArea_ = areaFunction_( );
+        currentMass_ = massFunction_( );
+    }
 }
 
 } // namespace electro_magnetism

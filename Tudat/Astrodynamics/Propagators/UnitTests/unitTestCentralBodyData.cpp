@@ -1,5 +1,7 @@
 #define BOOST_TEST_MAIN
 
+#include <boost/make_shared.hpp>
+
 #include <limits>
 
 #include <boost/test/unit_test.hpp>
@@ -14,11 +16,10 @@ namespace unit_tests
 {
 
 using namespace tudat::propagators;
-using namespace tudat::bodies;
 
-BOOST_AUTO_TEST_SUITE( test_hardware_creation )
+BOOST_AUTO_TEST_SUITE( test_central_body_data )
 
-BOOST_AUTO_TEST_CASE( testHardwareCreation )
+BOOST_AUTO_TEST_CASE( testCentralBodyData )
 {
 
     std::vector< std::string > bodiesToIntegrate;

@@ -15,16 +15,13 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
-#include "Astrodynamics/BasicAstrodynamics/orbitalElementConversionsTemplated.h"
-#include "Astrodynamics/Bodies/body.h"
-#include "Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
-#include "InputOutput/writeDataToFile.h"
-#include "Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
-#include "SimulationSetup/createBodies.h"
-#include "SimulationSetup/createAccelerationModels.h"
-#include "SimulationSetup/createEstimatableParameters.h"
-#include "SimulationSetup/createGroundStations.h"
-#include "SimulationSetup/defaultBodies.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
+#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
+#include "Tudat/SimulationSetup/createBodies.h"
+#include "Tudat/SimulationSetup/createAccelerationModels.h"
+#include "Tudat/SimulationSetup/defaultBodies.h"
 
 
 namespace tudat
@@ -35,17 +32,12 @@ namespace unit_tests
 
 
 //Using declarations.
-using namespace tudat::observation_models;
-using namespace tudat::orbit_determination;
-using namespace tudat::orbit_determination::partial_derivatives;
-using namespace tudat::estimatable_parameters;
 using namespace tudat::ephemerides;
 using namespace tudat::interpolators;
 using namespace tudat::numerical_integrators;
 using namespace tudat::spice_interface;
-using namespace tudat::bodies;
 using namespace tudat::simulation_setup;
-using namespace tudat::astrodynamics::acceleration_models;
+using namespace tudat::basic_astrodynamics;
 using namespace tudat::orbital_element_conversions;
 using namespace tudat::propagators;
 
@@ -54,7 +46,7 @@ BOOST_AUTO_TEST_SUITE( test_cowell_propagator )
 BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getDataFilesRootPath( ) + "SpiceKernels/";
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
 
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
@@ -78,8 +70,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createCelestialBodies(
-                getDefaultBodySettings< double, double >( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, simple ) );
+    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies(
+                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;

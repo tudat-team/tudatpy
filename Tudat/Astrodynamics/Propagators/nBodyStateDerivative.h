@@ -10,9 +10,10 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
-#include "Tudat/SimulationSetup/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/Propagators/centralBodyData.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
 
 
 namespace tudat
@@ -45,7 +46,6 @@ public:
      *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
      *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
      *  a pointer to an acceleration model.
-     *  \param bodyList. Map of string and pointers to body objects, providing the named list of bodies in simulation.
      *  \param bodiesToIntegrate. List of names of bodies that are to be integrated numerically.
      */
     NBodyStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
@@ -141,27 +141,6 @@ public:
             cartesianLocalSolution.segment( i * 6, 6 ) += centralBodyInertialStates[ i ];
         }
         return cartesianLocalSolution;
-    }
-
-    void setCurrentArcIndex( const int currentArcIndex )
-    {
-        for( accelerationMapIterator = accelerationModelsPerBody_.begin( ); accelerationMapIterator != accelerationModelsPerBody_.end( );
-             accelerationMapIterator++ )
-        {
-            for( innerAccelerationIterator = accelerationMapIterator->second.begin( ); innerAccelerationIterator != accelerationMapIterator->second.end( );
-                 innerAccelerationIterator++ )
-            {
-                for( unsigned int i = 0; i < innerAccelerationIterator->second.size( ); i++ )
-                {
-                    if( astrodynamics::acceleration_models::getAccelerationModelType( innerAccelerationIterator->second.at( i ) ) ==
-                            astrodynamics::acceleration_models::power_spectrum_acceleration )
-                    {
-                        boost::dynamic_pointer_cast< basic_astrodynamics::PowerSpectrumAcceleration >(
-                                    innerAccelerationIterator->second.at( i ) )->setCurrentArc( currentArcIndex );
-                    }
-                }
-            }
-        }
     }
 
     std::vector< std::string > getBodiesToBeIntegratedNumerically( )

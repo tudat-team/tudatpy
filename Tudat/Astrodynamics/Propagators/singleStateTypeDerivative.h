@@ -3,20 +3,13 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
+
 namespace tudat
 {
 
 namespace propagators
 {
-
-enum IntegratedStateType
-{
-    hybrid,
-    transational_state,
-    rotational_state,
-    proper_time
-};
-
 
 template< typename StateScalarType = double, typename TimeType = double >
 class SingleStateTypeDerivative

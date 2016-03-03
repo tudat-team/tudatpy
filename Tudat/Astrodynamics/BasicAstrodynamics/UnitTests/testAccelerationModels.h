@@ -107,7 +107,7 @@ public:
      * Updates member variables used by the acceleration model. In this case, the internally stored
      * position and time are updated by calling the function-pointers passed to the constructor.
      */
-    void updateMembers( ) { position = getPosition( ); time = getTime( ); }
+    void updateMembers( const double currentTime = TUDAT_NAN ) { position = getPosition( ); time = getTime( ); }
 
 protected:
 
@@ -210,7 +210,7 @@ public:
      * position, velocity, and time are updated by calling the function-pointers passed to the
      * constructor.
      */
-    void updateMembers( )
+    void updateMembers( const double currentTimes = TUDAT_NAN )
     {
         position = getPosition( );
         velocity = getVelocity( );
