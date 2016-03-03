@@ -214,6 +214,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
     // Retrieve rotation from wrapper.
     rotationQuaternion = computeRotationQuaternionBetweenFrames(
                 observer, target, ephemerisTime );
+    Eigen::Matrix3d rotationMatrixDerivative = computeRotationMatrixDerivativeBetweenFrames(
+                observer, target, ephemerisTime );
 
     // Create rotational ephemeris with Spice
     boost::shared_ptr< ephemerides::SpiceRotationalEphemeris > spiceRotationalEphemeris =
@@ -224,24 +226,54 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
     Eigen::Quaterniond inverseRotationQuaternionFromObject = spiceRotationalEphemeris->
             getRotationToBaseFrame( ephemerisTime );
 
+    Eigen::Matrix3d rotationMatrixDerivativeFromObject = spiceRotationalEphemeris->
+            getDerivativeOfRotationToTargetFrame( ephemerisTime );
+    Eigen::Matrix3d inverseRotationMatrixDerivativeFromObject = spiceRotationalEphemeris->
+            getDerivativeOfRotationToBaseFrame( ephemerisTime );
+
     // Convert result to Matrix3d for comparison.
     const Eigen::Matrix3d rotationMatrix = Eigen::Matrix3d( rotationQuaternion );
     const Eigen::Matrix3d rotationMatrixFromObject =
             Eigen::Matrix3d( rotationQuaternionFromObject );
+    const Eigen::Matrix3d inverseRotationMatrixFromObject =
+            Eigen::Matrix3d( inverseRotationQuaternionFromObject );
+
 
     // Retrieve rotation directly from spice.
-    double rotationMatrixSpice[ 3 ][ 3 ];
-    pxform_c( observer.c_str( ), target.c_str( ), ephemerisTime, rotationMatrixSpice );
+    double stateTransitionMatrix[ 6 ][ 6 ];
+    sxform_c( observer.c_str( ), target.c_str( ), ephemerisTime, stateTransitionMatrix );
+
+    double inverseStateTransitionMatrix[ 6 ][ 6 ];
+    sxform_c( target.c_str( ), observer.c_str( ), ephemerisTime, inverseStateTransitionMatrix );
 
     // Check equality of results.
     for ( unsigned int i = 0; i < 3; i++ )
     {
         for ( unsigned int j = 0; j < 3; j++ )
         {
-            BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrix( i, j ),
+            BOOST_CHECK_SMALL( stateTransitionMatrix[ i ][ j ] - rotationMatrix( i, j ),
                                2.0 * std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( rotationMatrixSpice[ i ][ j ] - rotationMatrixFromObject( i, j ),
+            BOOST_CHECK_SMALL( stateTransitionMatrix[ i ][ j ] -
+                               rotationMatrixFromObject( i, j ),
                                4.0 * std::numeric_limits< double >::epsilon( ) );
+
+            BOOST_CHECK_SMALL( stateTransitionMatrix[ i + 3 ][ j ] -
+                               rotationMatrixDerivative( i, j ),
+                               2.0E-4 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( stateTransitionMatrix[ i + 3 ][ j ] -
+                               rotationMatrixDerivativeFromObject( i, j ),
+                               2.0E-4 * std::numeric_limits< double >::epsilon( ) );
+
+            BOOST_CHECK_SMALL( inverseStateTransitionMatrix[ i ][ j ] -
+                               inverseRotationMatrixFromObject( i, j ),
+                               2.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( inverseStateTransitionMatrix[ i + 3 ][ j ] -
+                               inverseRotationMatrixDerivativeFromObject( i, j ),
+                               2.0E-4 * std::numeric_limits< double >::epsilon( ) );
+<<<<<<< HEAD
+
+=======
+>>>>>>> RotationUpdate
         }
     }
 

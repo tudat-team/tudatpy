@@ -57,6 +57,8 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
+#include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -69,7 +71,7 @@ namespace aerodynamics
  * and data points of independent variables. Coefficients are stored in a multi_array of pointers.
  */
 template< int NumberOfIndependentVariables, int NumberOfCoefficients = 6 >
-class AerodynamicCoefficientGenerator
+class AerodynamicCoefficientGenerator: public AerodynamicCoefficientInterface
 {
 public:
 
@@ -81,20 +83,37 @@ public:
      *  the data points of each of the independent variables for the coefficient generation.
      *  The number of subvectors must be equal to the number of independent variables. It is
      *  recommended that each of the subvectors is sorted in ascending order.
-     *  \param referenceArea Reference area used to non-dimensionalize aerodynamic forces
-     *  and moments.
-     *  \param referenceLength Reference length used to non-dimensionalize aerodynamic moments.
-     *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
+     *  \param referenceLength Reference length with which aerodynamic moments (about x- and
+     *  z- axes) are non-dimensionalized.
+     *  \param referenceArea Reference area with which aerodynamic forces and moments are
+     *  non-dimensionalized.
+     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+     *  is non-dimensionalized.
+     *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+     *  \param independentVariableNames Vector with identifiers the physical meaning of each
+     *  independent variable of the aerodynamic coefficients.
+     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  frame (typically denoted as Cx, Cy, Cz).
+     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+     *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  coefficients are typically defined in negative direction.
      */
     AerodynamicCoefficientGenerator(
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
-            const double referenceArea,
             const double referenceLength,
-            const Eigen::Vector3d momentReferencePoint ):
-        dataPointsOfIndependentVariables_( dataPointsOfIndependentVariables ),
-        referenceArea_( referenceArea ),
-        referenceLength_( referenceLength ),
-        momentReferencePoint_( momentReferencePoint )
+            const double referenceArea,
+            const double lateralReferenceLength,
+            const Eigen::Vector3d& momentReferencePoint,
+            const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+            const bool areCoefficientsInAerodynamicFrame = 1,
+            const bool areCoefficientsInNegativeAxisDirection = 1  ):
+        AerodynamicCoefficientInterface(
+            referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
+            independentVariableNames, areCoefficientsInAerodynamicFrame,
+            areCoefficientsInNegativeAxisDirection ),
+        dataPointsOfIndependentVariables_( dataPointsOfIndependentVariables )
     {
         // Check that the size of dataPointsOfIndependentVariables matches the template parameter.
         assert( dataPointsOfIndependentVariables_.size( ) == NumberOfIndependentVariables );
@@ -149,8 +168,61 @@ public:
      * dataPointsOfIndependentVariables_ for which to retrieve aerodynamic coefficients.
      * \return vector of coefficients at specified independent variable indices.
      */
-    virtual Eigen::Matrix< double, NumberOfCoefficients, 1 > getAerodynamicCoefficients(
+    virtual Eigen::Matrix< double, NumberOfCoefficients, 1 > getAerodynamicCoefficientsDataPoint(
             const boost::array< int, NumberOfIndependentVariables > independentVariables ) = 0;
+
+    //! Function to return the complete set of aerodynamic coefficients that have been calculated.
+    /*!
+     *  Function to return the complete set of aerodynamic coefficients that have been calculated.
+     *  \return Complete set of aerodynamic coefficients that have been calculated.
+     */
+    boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients, 1 >,
+    NumberOfIndependentVariables > getAerodynamicCoefficientsTables( )
+    {
+        return aerodynamicCoefficients_;
+    }
+\
+    //! Get the data points of the independent variables at which the coefficients are calculated.
+    /*!
+     *  Get the data points of the independent variables at which the coefficients are calculated.
+     *  The aerodynamic coefficients are calculated each set of combinations of the independent
+     *  variables.
+     *  \return Data points of the independent variables at which the coefficients are calculated.
+     */
+    std::vector< std::vector< double > > getDataPointsOfIndependentVariables( )
+    {
+        return dataPointsOfIndependentVariables_;
+    }
+
+    //! Compute the aerodynamic coefficients at current flight condition.
+    /*!
+     *  Compute the aerodynamic coefficients at current flight conditions (independent variables).
+     *  Input is a set of independent variables (doubles) which represent the variables from which
+     *  the coefficients are calculated. The physical nature of these variables depends on
+     *  the coefficientFunction_ variables. The size of the independent variable vector must be
+     *  numberOfIndependentVariables_
+     *  \param independentVariables Independent variables of force and moment coefficient
+     *  determination implemented by derived class
+     */
+    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables )
+    {
+        // Check if the correct number of aerodynamic coefficients is provided.
+        if( independentVariables.size( ) != numberOfIndependentVariables_ )
+        {
+            throw std::runtime_error(
+                        "Error in AerodynamicCoefficientGenerator, number of "
+                        "input variables is inconsistent " );
+        }
+
+        // Update current coefficients.
+        basic_mathematics::Vector6d currentCoefficients = coefficientInterpolator_->interpolate(
+                    independentVariables );
+        currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
+        currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
+    }
+
+protected:
+
 
     //! Generate aerodynamic coefficients.
     /*!
@@ -159,38 +231,41 @@ public:
      */
     virtual void generateCoefficients( ) = 0;
 
-protected:
+    //! Function to create the coefficient interpolator from the discrete set in
+    //! aerodynamicCoefficients_
+    void createInterpolator( )
+    {
+        // Create interpolator for coefficients.
+        coefficientInterpolator_ =
+                boost::make_shared< interpolators::MultiLinearInterpolator< double,
+                basic_mathematics::Vector6d, 3 > >
+                ( dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
 
-    //! List of pointers to VectorXds containing coefficients.
+    }
+
+    //! N-dimensional array containing all computer aerodynamic coefficients.
     /*!
-     * List of pointers to VectorXds containing coefficients.
+     *  N-dimensional array containing all computer aerodynamic coefficients. The k-th dimension
+     *  pertains to coefficients at the k-th independent variable, the data points for which are
+     *  defined by dataPointsOfIndependentVariables_ and the physical meaning of which are defined
+     *  by independentVariableNames_
      */
     boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients, 1 >,
     NumberOfIndependentVariables > aerodynamicCoefficients_;
 
-    //! Array of arrays of data points for independent variables.
+    //! Data points of the independent variables at which the coefficients are calculated.
     /*!
-     * Array of arrays of data points for independent variables.
+     *  Data points of the independent variables at which the coefficients are calculated. The
+     *  k-th vector contains the vector of data points to which the k-th independent variables
+     *  (defined by independentVariableNames_) are set during the calculation of the aerodynamic
+     *  coefficients.
      */
     std::vector< std::vector< double > > dataPointsOfIndependentVariables_;
 
-    //! Aerodynamic reference area.
-    /*!
-     * Reference area with which aerodynamic forces and moments are non-dimensionalized.
-     */
-    double referenceArea_;
-
-    //! Aerodynamic reference length.
-    /*!
-     * Reference length with which aerodynamic moments are non-dimensionalized.
-     */
-    double referenceLength_;
-
-    //! Aerodynamic moment reference point.
-    /*!
-     * Point w.r.t. which the arm of the moment on a vehicle panel is determined.
-     */
-    Eigen::Vector3d momentReferencePoint_;
+    //! Interpolator producing continuous aerodynamic coefficients from the discrete calculations
+    //! contained in aerodynamicCoefficients_.
+    boost::shared_ptr< interpolators::Interpolator< double, basic_mathematics::Vector6d > >
+            coefficientInterpolator_;
 };
 
 } // namespace aerodynamics

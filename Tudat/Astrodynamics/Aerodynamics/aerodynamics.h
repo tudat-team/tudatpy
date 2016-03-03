@@ -342,6 +342,9 @@ double computeShockTotalPressureRatio( double normalMachNumber,
 double computeShockDeflectionAngle( double shockAngle, double machNumber,
                                     double ratioOfSpecificHeats );
 
+double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
+                            const double specificGasConstant );
+
 } // namespace aerodynamics
 } // namespace tudat
 
