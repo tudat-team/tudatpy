@@ -62,9 +62,16 @@ BOOST_AUTO_TEST_SUITE( test_gravity_field_variations )
 
 using namespace tudat::gravitation;
 
+//! Function to get nominal gravity field coefficients for Jupiter
+/*!
+ * Function to get nominal gravity field coefficients for Jupiter (returned by reference)
+ * \param cosineCoefficients Jupiter's cosine coefficients
+ * \param sineCoefficients Jupiter's sine coefficients
+ */
 void getNominalJupiterGravityField(
         Eigen::MatrixXd& cosineCoefficients, Eigen::MatrixXd& sineCoefficients )
 {
+    // Define unnormalized coefficients.
     double jupiterJ2 = 14.736E-3;
     double jupiterJ3 = 1.4E-6;
     double jupiterJ4 = -587.0E-6;
@@ -75,6 +82,7 @@ void getNominalJupiterGravityField(
     cosineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
     sineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
 
+    // Normalize coefficients and set in matrices.
     cosineCoefficients( 0, 0 ) = 1.0;
     cosineCoefficients( 2, 0 ) =  -jupiterJ2 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
     cosineCoefficients( 2, 2 ) =  jupiterc22 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
@@ -85,22 +93,36 @@ void getNominalJupiterGravityField(
     sineCoefficients( 2, 2 ) =  jupiters22/ basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
 }
 
+//! Function to get tabulated gravity field variations
+/*!
+ * Function to get tabulated gravity field variations, based on arbitrary values, purely for test
+ * purposes.
+ * \param cosineCoefficientCorrections Map of corrections to cosine coefficients as function of
+ * time.
+ * \param sineCoefficientCorrections Map of corrections to sine coefficients as function of
+ * time.
+ */
 void getTabulatedGravityFieldVariationValues(
         std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
         std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections )
 {
+
+    // Define settings for coefficient variations
     double angularFrequency = 2.0 * mathematical_constants::PI / 86400.0;
     double amplitude = 1.0E-7;
     double startTime = 0.99E7;
     double endTime = 1.01E7;
     double timeStep = 3600.0;
 
+    // Iterate over time steps
     double currentTime = startTime;
     while( currentTime < endTime )
     {
+        // Initialize correctiuons to zero
         cosineCoefficientCorrections[ currentTime ].setZero( 4, 5 );
         sineCoefficientCorrections[ currentTime ].setZero( 4, 5 );
 
+        // Set corrections for current time step.
         for( unsigned int i = 1; i < 5; i++ )
         {
             for( unsigned int j = 0; j <= i; j++ )
@@ -112,7 +134,8 @@ void getTabulatedGravityFieldVariationValues(
                 {
                     sineCoefficientCorrections[ currentTime ]( i - 1, j ) =
                             amplitude *
-                            std::cos( currentTime * angularFrequency - static_cast< double >( i * j ) );
+                            std::cos( currentTime * angularFrequency -
+                                      static_cast< double >( i * j ) );
                 }
             }
         }
@@ -120,27 +143,42 @@ void getTabulatedGravityFieldVariationValues(
     }
 }
 
+//! Function to get predefined tabulated gravity field variations.
+/*!
+ * Function to get predefined tabulated gravity field variations (non-physical values, purelu
+ * for test purposes) using getTabulatedGravityFieldVariationValues function
+ * \return Predefined tabulated gravity field variations.
+ */
 boost::shared_ptr< TabulatedGravityFieldVariations > getTabulatedGravityFieldVariations( )
 {
+    // Get coefficient tables.
     std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections;
     std::map< double, Eigen::MatrixXd > sineCoefficientCorrections;
     getTabulatedGravityFieldVariationValues(
                 cosineCoefficientCorrections, sineCoefficientCorrections );
 
+    // Create correction object.
     return boost::make_shared< TabulatedGravityFieldVariations >(
                 cosineCoefficientCorrections, sineCoefficientCorrections, 1, 0 );
 }
 
+//! Function to get predefined gravity field variations object.
+/*!
+ *  Function to get predefined gravity field variations object, consisting of dummy tabulated
+ *  variations from getTabulatedGravityFieldVariationValues and degree 2 tidal variations.
+ * \return Predefined gravity field variations object.
+ */
 boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 {
+    // Define bodies raising rides.
     std::vector< std::string > deformingBodies;
     deformingBodies.push_back( "Io" );
     deformingBodies.push_back( "Europa" );
 
+    // Retrieve required data of bodies raising tides.
     std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
             deformingBodyStateFunctions;
     std::vector< boost::function< double( ) > > deformingBodyMasses;
-
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
     {
         deformingBodyStateFunctions.push_back(
@@ -148,12 +186,13 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
                                  deformingBodies.at( i ), "SSB", "J2000",
                                  "None", _1 ) );
         deformingBodyMasses.push_back(
-                    boost::bind( &spice_interface::getBodyGravitationalParameter, deformingBodies.at( i ) ) );
+                    boost::bind( &spice_interface::getBodyGravitationalParameter,
+                                 deformingBodies.at( i ) ) );
     }
 
+    // Define Love numbers ( constant for degree 2 only)
     std::vector< std::vector< std::complex< double > > > loveNumbers;
     std::complex< double > constantLoveNumber = std::complex< double >( 0.5, 0.5E-3 );
-
     std::vector< std::complex< double > > constantSingleDegreeLoveNumber =
     { constantLoveNumber, constantLoveNumber, constantLoveNumber };
     loveNumbers.push_back( constantSingleDegreeLoveNumber );
@@ -170,20 +209,21 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
                 boost::bind( &spice_interface::getBodyGravitationalParameter, "Jupiter" ),
                 deformingBodyMasses, loveNumbers, deformingBodies );
 
+    // Get tabulated gravity field variations.
     boost::shared_ptr< GravityFieldVariations > tabulatedGravityFieldVariations =
             getTabulatedGravityFieldVariations( );
 
-    boost::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationsSet =
-            boost::make_shared< GravityFieldVariationsSet >(
-                boost::assign::list_of( solidBodyGravityFieldVariations )( tabulatedGravityFieldVariations ),
+    // Create and return full gravity field variations object.
+    return boost::make_shared< GravityFieldVariationsSet >(
+                boost::assign::list_of( solidBodyGravityFieldVariations )
+                ( tabulatedGravityFieldVariations ),
                 boost::assign::list_of( basic_solid_body )( tabulated_variation ),
                 boost::assign::list_of( "BasicTidal" )( "Tabulated" ) );
-
-    return gravityFieldVariationsSet;
 }
 
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
+    // Load spice kernels.
     spice_interface::loadSpiceKernelInTudat(
                 input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
     spice_interface::loadSpiceKernelInTudat(
@@ -193,25 +233,27 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     spice_interface::loadSpiceKernelInTudat(
                 "/home/dominicdirkx/Software/ILRCode/trunk/DataFiles/SpiceKernels/jup310.bsp" );
 
-    double testTime = 1.0E7;
-
+    // Define properties of nominal field
     double gravitationalParameter = spice_interface::getBodyGravitationalParameter( "Jupiter" );
     double referenceRadius = spice_interface::getAverageRadius( "Jupiter" );
     Eigen::MatrixXd nominalCosineCoefficients;
     Eigen::MatrixXd nominalSineCoefficients;
     getNominalJupiterGravityField( nominalCosineCoefficients, nominalSineCoefficients );
 
+    // Create gravity field corrections object and retrieve corrections
     std::vector< boost::shared_ptr< GravityFieldVariations > > gravityFieldVariationsList =
             getTestGravityFieldVariations( )->getVariationObjects( );
 
+    // Define data structures for storing expected gravity field variations.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directGravityFieldVariations;
     Eigen::Matrix< double, 5, 5 > expectedCosineCoefficientsCorrections =
             Eigen::Matrix< double, 5, 5 >::Zero( );
     Eigen::Matrix< double, 5, 5 > expectedSineCoefficientsCorrections =
             Eigen::Matrix< double, 5, 5 >::Zero( );
 
+    // Calculate gravity field variations directly.
     int minimumDegree, minimumOrder, numberOfDegrees, numberOfOrders;
-
+    double testTime = 1.0E7;
     for( unsigned int i = 0; i < gravityFieldVariationsList.size( ); i++ )
     {
         minimumDegree = gravityFieldVariationsList.at( i )->getMinimumDegree( );
@@ -231,23 +273,27 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
                 directGravityFieldVariations.second;
     }
 
+    // Create time-varying gravity field.
     boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
             boost::make_shared< TimeDependentSphericalHarmonicsGravityField >(
                 gravitationalParameter, referenceRadius, nominalCosineCoefficients,
                 nominalSineCoefficients, getTestGravityFieldVariations( ) );
+    timeDependentGravityField->update( 2.0 * testTime );
 
+    // Calculate variations for current test time.
     timeDependentGravityField->update( testTime );
 
+    // Get corrections at current time step from timeDependentGravityField
     Eigen::MatrixXd perturbedCosineCoefficients =
             timeDependentGravityField->getCosineCoefficients( );
     Eigen::MatrixXd perturbedSineCoefficients =
             timeDependentGravityField->getSineCoefficients( );
-
     Eigen::MatrixXd calculatedCosineCoefficientCorrections =
             ( perturbedCosineCoefficients - nominalCosineCoefficients ).block( 0, 0, 5, 5 );
     Eigen::MatrixXd calculatedSineCoefficientCorrections =
             ( perturbedSineCoefficients - nominalSineCoefficients ).block( 0, 0, 5, 5 );
 
+    // Compare corrections against expected variations.
     for( unsigned int i = 0; i < 5; i++ )
     {
         for( unsigned int j = 0; j < 5; j++ )
