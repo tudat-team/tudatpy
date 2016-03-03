@@ -10,7 +10,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/SimulationSetup/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/Propagators/centralBodyData.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 
@@ -48,7 +48,7 @@ public:
      *  \param bodyList. Map of string and pointers to body objects, providing the named list of bodies in simulation.
      *  \param bodiesToIntegrate. List of names of bodies that are to be integrated numerically.
      */
-    NBodyStateDerivative( const AccelerationMap& accelerationModelsPerBody,
+    NBodyStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                           const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                           const TranslationalPropagatorType propagatorType,
                           const std::vector< std::string >& bodiesToIntegrate ):
@@ -169,7 +169,7 @@ public:
         return bodiesToBeIntegratedNumerically_;
     }
 
-    AccelerationMap getAccelerationsMap( )
+    basic_astrodynamics::AccelerationMap getAccelerationsMap( )
     {
         return accelerationModelsPerBody_;
     }
@@ -229,7 +229,7 @@ protected:
     }
 
 
-    AccelerationMap accelerationModelsPerBody_;
+    basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
 
     boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData_;
 
@@ -238,7 +238,7 @@ protected:
     std::vector< std::string > bodiesToBeIntegratedNumerically_;
 
 
-    AccelerationMap::iterator accelerationMapIterator;
+    basic_astrodynamics::AccelerationMap::iterator accelerationMapIterator;
 
     std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator
     innerAccelerationIterator;

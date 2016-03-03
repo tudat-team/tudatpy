@@ -3,14 +3,13 @@
 
 #include <vector>
 #include <string>
+#include <map>
+#include <iostream>
 
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
-
-#include "Astrodynamics/BasicAstrodynamics/torqueModel.h"
-#include "Astrodynamics/BasicAstrodynamics/timeConversions.h"
-#include "Basics/utilities.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 namespace tudat
 {
@@ -247,7 +246,7 @@ public:
      *  \param propagator Type of propagator to use.
      */
     TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
-                                          const AccelerationMap& accelerationsMap,
+                                          const basic_astrodynamics::AccelerationMap& accelerationsMap,
                                           const std::vector< std::string >& bodiesToIntegrate,
                                           const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
                                           const TranslationalPropagatorType propagator = cowell):
@@ -267,7 +266,7 @@ public:
      */
     TranslationalPropagatorType propagator_;
 
-    AccelerationMap accelerationsMap_;
+    basic_astrodynamics::AccelerationMap accelerationsMap_;
 
     std::vector< std::string > bodiesToIntegrate_;
 

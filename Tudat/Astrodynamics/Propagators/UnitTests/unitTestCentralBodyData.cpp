@@ -4,8 +4,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Astrodynamics/Propagators/nBodyStateDerivative.h"
-#include "Astrodynamics/Bodies/body.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
+#include "Tudat/SimulationSetup/body.h"
 
 namespace tudat
 {

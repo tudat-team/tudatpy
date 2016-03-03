@@ -209,7 +209,7 @@ createAccelerationModel(
  *  \param centralBodies Map of central bodies for each body undergoing acceleration.
  *  \return List of acceleration model objects, in form of AccelerationMap.
  */
-AccelerationMap createAccelerationModelsMap(
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
         const NamedBodyMap& bodyMap,
         const SelectedAccelerationMap& selectedAccelerationPerBody,
         const std::map< std::string, std::string >& centralBodies );
