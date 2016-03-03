@@ -40,6 +40,7 @@
 
 # Set the source files.
 set(BASICASTRODYNAMICS_SOURCES
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/accelerationModelTypes.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/geodeticCoordinateConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.cpp"
@@ -51,6 +52,7 @@ set(BASICASTRODYNAMICS_SOURCES
 
 # Set the header files.
 set(BASICASTRODYNAMICS_HEADERS
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/accelerationModelTypes.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/accelerationModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/celestialBodyConstants.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanToEccentricAnomalies.h"
