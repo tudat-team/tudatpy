@@ -42,7 +42,7 @@
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
-#include "Tudat/SimulationSetup/accelerationModelTypes.h"
+#include "Tudat/SimulationSetup/accelerationSettings.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 
@@ -209,7 +209,7 @@ createAccelerationModel(
  *  \param centralBodies Map of central bodies for each body undergoing acceleration.
  *  \return List of acceleration model objects, in form of AccelerationMap.
  */
-AccelerationMap createAccelerationModelsMap(
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
         const NamedBodyMap& bodyMap,
         const SelectedAccelerationMap& selectedAccelerationPerBody,
         const std::map< std::string, std::string >& centralBodies );

@@ -76,6 +76,7 @@ namespace unit_tests
 {
 
 using namespace simulation_setup;
+using namespace basic_astrodynamics;
 
 BOOST_AUTO_TEST_SUITE( test_acceleration_model_setup )
 
