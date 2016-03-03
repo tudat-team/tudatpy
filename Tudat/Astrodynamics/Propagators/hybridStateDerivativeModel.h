@@ -118,6 +118,8 @@ public:
             //std::cerr<<"Error, no evaluation of dynamical equations not yet implemented"<<std::endl;
         }
 
+
+
         std::pair< int, int > currentIndices;
 
 
@@ -146,8 +148,6 @@ public:
                 }
             }
         }
-
-        std::cout<<time<<std::endl<<state.transpose( )<<std::endl<<stateDerivative.transpose( )<<std::endl;
 
         return stateDerivative;
     }

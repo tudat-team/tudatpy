@@ -45,6 +45,7 @@ using namespace tudat::propagators;
 
 BOOST_AUTO_TEST_SUITE( test_cowell_propagator )
 
+
 BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 {
     //Load spice kernels.
@@ -172,11 +173,6 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     std::map< double, Eigen::VectorXd > solutionSet1 = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
 
     std::map< double, Eigen::VectorXd > solutionSet2 = dynamicsSimulator2.getEquationsOfMotionNumericalSolution( );
-
-    std::cout<<solutionSet1.size( )<<std::endl;
-    std::cout<<solutionSet2.size( )<<std::endl;
-
-
 
     LagrangeInterpolator< double, Eigen::VectorXd > interpolator1( solutionSet1, 8 );
     LagrangeInterpolator< double, Eigen::VectorXd > interpolator2( solutionSet2, 8 );

@@ -154,9 +154,6 @@ public:
         stateDerivativeFunction_ =
                 boost::bind( &HybridStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
                              dynamicsStateDerivative_, _1, _2 );
-        doubleStateDerivativeFunction_ =
-                boost::bind( &HybridStateDerivativeModel< TimeType, StateScalarType >::computeStateDoubleDerivative,
-                             dynamicsStateDerivative_, _1, _2 );
     }
 
     //! Virtual destructor
@@ -178,12 +175,6 @@ public:
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > getIntegratorSettings( )
     {
         return integratorSettings_;
-    }
-
-    boost::function< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >
-    ( const double, const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& ) > getDoubleStateDerivativeFunction( )
-    {
-        return doubleStateDerivativeFunction_;
     }
 
     boost::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
@@ -228,11 +219,6 @@ protected:
 
     boost::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
     ( const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > stateDerivativeFunction_;
-
-    boost::function< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >
-    ( const double, const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& ) > doubleStateDerivativeFunction_;
-
-
 
 
     //! Settings for numerical integrator.
@@ -301,9 +287,7 @@ public:
      *  Virtual destructor
      */
     ~SingleArcDynamicsSimulator( )
-    {
-        std::cerr<<"Deleting SingleArcDynamicsSimulator"<<std::endl;
-    }
+    { }
 
     //! This function numerically (re-)integrates the equations of motion.
     /*!

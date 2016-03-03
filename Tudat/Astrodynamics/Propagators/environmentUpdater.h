@@ -68,9 +68,6 @@ public:
             }
         }
 
-        //std::cout<<bodyList_[ "Earth" ]->getState( ).transpose( )<<std::endl;
-        //std::cout<<bodyList_[ "Moon" ]->getState( ).transpose( )<<std::endl<<std::endl;
-
         // Evaluate update functions (dependent variables of state and time) determined by setUpdateFunctions
         for( updateFunctionIterator = updateFunctionList_.begin( ); updateFunctionIterator != updateFunctionList_.end( );
              updateFunctionIterator++ )
@@ -90,9 +87,6 @@ public:
                 updateTimeIterator->second.at( i ).second( static_cast< double >( currentTime ) );
             }
         }
-
-
-
     }
 
 private:
@@ -161,7 +155,6 @@ private:
             {
                 boost::function< void( const TimeType ) > stateSetFunction =
                         boost::bind( &simulation_setup::Body::setTemplatedStateFromEphemeris< StateScalarType, TimeType >, bodyIterator->second, _1 );
-
                 currentStateFromEnvironmentList_[ body_transational_state_update ].insert( std::make_pair( bodyIterator->first, stateSetFunction ) );
             }
         }
@@ -225,15 +218,6 @@ private:
                             {
                                 addUpdate = 0;
                             }
-                        }
-                        if( addUpdate == 1 )
-                        {
-                            boost::function< void( const TimeType ) > stateSetFunction =
-                                    boost::bind( &simulation_setup::Body::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
-                                                 bodyList_.at( currentBodies.at( i ) ), _1 );
-
-                            //NOTE: Check whether this is not superfluous with setTranslationalStateUpdateFunctions above
-                            currentStateFromEnvironmentList_[ body_transational_state_update ].insert( std::make_pair( currentBodies.at( i ), stateSetFunction ) );
                         }
                         break;
                     }
