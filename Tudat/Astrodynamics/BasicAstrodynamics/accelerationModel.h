@@ -45,6 +45,8 @@
 #ifndef TUDAT_ACCELERATION_MODEL_H
 #define TUDAT_ACCELERATION_MODEL_H
 
+#include <map>
+
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
@@ -134,6 +136,17 @@ AccelerationDataType updateAndGetAcceleration(
     // Evaluate and return acceleration.
     return accelerationModel->getAcceleration( );
 }
+
+//! Typedef defining a list of accelerations acting on a single body, key is the name of each
+//! body exerting a acceletation, value is a list of accelerations exerted by that body.
+typedef std::map< std::string, std::vector<
+boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
+SingleBodyAccelerationMap;
+
+//! Typedef defining a list of accelerations acting on a set of bodies, key is the name of each
+//! body undergoing a acceletation, value is SingleBodyAccelerationMap, defining all accelerations
+//! acting on it.
+typedef std::map< std::string, SingleBodyAccelerationMap > AccelerationMap;
 
 } // namespace basic_astrodynamics
 } // namespace tudat

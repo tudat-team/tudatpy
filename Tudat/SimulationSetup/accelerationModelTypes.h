@@ -121,28 +121,6 @@ public:
     int maximumOrder_;
 };
 
-//! Function to identify the derived class type of an acceleration model.
-/*!
- *  Function to identify the derived class type of an acceleration model. The type must be defined
- *  in the AvailableAcceleration enum to be recognized by this function.
- *  \param accelerationModel Acceleration model of which the type is to be identified.
- *  \return Type of the accelerationModel, as identified by AvailableAcceleration enum.
- */
-AvailableAcceleration getAccelerationModelType(
-        const boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
-        accelerationModel );
-
-//! Typedef defining a list of accelerations acting on a single body, key is the name of each
-//! body exerting a acceletation, value is a list of accelerations exerted by that body.
-typedef std::map< std::string, std::vector<
-boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
-SingleBodyAccelerationMap;
-
-//! Typedef defining a list of accelerations acting on a set of bodies, key is the name of each
-//! body undergoing a acceletation, value is SingleBodyAccelerationMap, defining all accelerations
-//! acting on it.
-typedef std::map< std::string, SingleBodyAccelerationMap > AccelerationMap;
-
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr<

@@ -1,7 +1,7 @@
 #ifndef NBODYCOWELLSTATEDERIVATIVE_H
 #define NBODYCOWELLSTATEDERIVATIVE_H
 
-#include "Astrodynamics/Propagators/nBodyStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 
 namespace tudat
 {
@@ -13,7 +13,7 @@ template< typename StateScalarType = double, typename TimeType = double >
 class NBodyCowellStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
-    NBodyCowellStateDerivative( const AccelerationMap& accelerationModelsPerBody,
+    NBodyCowellStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                                 const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                 const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody, centralBodyData, cowell, bodiesToIntegrate ){ }

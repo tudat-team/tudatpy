@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <iostream>
 
 #include <boost/function.hpp>
 
@@ -211,55 +212,6 @@ private:
     }
 };
 
-
-template< typename ScalarStateType, typename TimeType >
-boost::shared_ptr< CentralBodyData< ScalarStateType, TimeType > > createCentralBodyData(
-        const std::vector< std::string >& centralBodies,
-        const std::vector< std::string >& bodiesToIntegrate,
-        const NamedBodyMap& bodyMap )
-{
-
-    // Check whether the bodies that are to e integrated exist in bodyMap
-    for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
-    {
-        if( bodyMap.count( bodiesToIntegrate.at( i ) ) == 0 )
-        {
-            std::cerr<<"Warning when creating CentralBodyData, body "<<bodiesToIntegrate.at( i )<<std::endl;
-            std::cerr<<" not present in provided body map, cannot integrate body!"<<std::endl;
-        }
-    }
-
-    std::vector< std::string > centralBodiesToUse;
-    // Generate central body data for requested settings; if no central bodies provided, get inertial SSB as central body
-    if( centralBodies.size( ) == 0 )
-    {
-        for( int i = 0; i < bodiesToIntegrate.size( ); i++ )
-        {
-            centralBodiesToUse.push_back( "SSB" );
-        }
-    }
-    else
-    {
-        centralBodiesToUse = centralBodies;
-    }
-
-    std::map< std::string, boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType ) > > bodyStateFunctions;
-
-    for( unsigned int i = 0; i < centralBodiesToUse.size( ); i++ )
-    {
-        if( centralBodiesToUse.at( i )  != "SSB" )
-        {
-            bodyStateFunctions[ centralBodiesToUse.at( i ) ] =
-                    boost::bind( &bodies::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >,
-                                 bodyMap.at( centralBodiesToUse.at( i ) ), _1 );
-        }
-        else
-        {
-            bodyStateFunctions[ centralBodiesToUse.at( i ) ] = boost::lambda::constant( Eigen::Matrix< ScalarStateType, 6, 1 >::Zero( ) );
-        }
-    }
-    return boost::make_shared< CentralBodyData< ScalarStateType, TimeType > >( centralBodiesToUse, bodiesToIntegrate, bodyStateFunctions );
-}
 
 }
 
