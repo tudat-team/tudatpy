@@ -13,7 +13,6 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Astrodynamics/StateDerivativeModels/stateDerivativeModel.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 
@@ -30,7 +29,6 @@ namespace propagators
  */
 template< typename TimeType = double, typename StateScalarType = double >
 class HybridStateDerivativeModel
-        : public state_derivative_models::StateDerivativeModel< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >
 {
 public:
 
