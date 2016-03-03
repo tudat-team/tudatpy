@@ -41,7 +41,11 @@
 #ifndef TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 #define TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 
+#include <stdexcept>
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <Eigen/Core>
 
@@ -49,6 +53,21 @@ namespace tudat
 {
 namespace aerodynamics
 {
+
+//! Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
+/*!
+ *  Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
+ *  Note that for a custom coefficient interface with other variables, you may use the
+ *  undefined_independent_variable variable type, but at the expense of being able to use the
+ *  FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
+ */
+enum AerodynamicCoefficientsIndependentVariables
+{
+    mach_number_dependent = 0,
+    angle_of_attack_dependent = 1,
+    angle_of_sideslip_dependent = 2,
+    undefined_independent_variable = 3
+};
 
 //! Base class to hold an aerodynamic coefficient interface.
 /*!
@@ -59,27 +78,51 @@ class AerodynamicCoefficientInterface
 {
 public:
 
-    //! Default constructor.
+    //! Constructor.
     /*!
-     * Default constructor.
+     *  Constructor, sets quantities common to all derived class aerodynamic coefficient interfaces.
+     *  \param referenceLength Reference length with which aerodynamic moments
+     *  (about x- and z- axes) are non-dimensionalized.
+     *  \param referenceArea Reference area with which aerodynamic forces and moments are
+     *  non-dimensionalized.
+     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+     *  is non-dimensionalized.
+     *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+     *  \param independentVariableNames Vector with identifiers the physical meaning of each
+     *  independent variable of the aerodynamic coefficients.
+     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
+     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  frame (typically denoted as Cx, Cy, Cz).
+     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
+     *  coefficients are positive along tyhe positive axes of the body or aerodynamic frame
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  coefficients are typically defined in negative direction.
      */
-    AerodynamicCoefficientInterface( ) : currentForceCoefficients_( Eigen::Vector3d::Zero( ) ),
-        currentMomentCoefficients_( Eigen::Vector3d::Zero( ) ), referenceLength_( -0.0 ),
-        referenceArea_( -0.0 ), lateralReferenceLength_( -0.0 ),
-        momentReferencePoint_( Eigen::Vector3d::Zero( ) ) { }
+    AerodynamicCoefficientInterface(
+            const double referenceLength,
+            const double referenceArea,
+            const double lateralReferenceLength,
+            const Eigen::Vector3d& momentReferencePoint,
+            const std::vector< AerodynamicCoefficientsIndependentVariables >
+            independentVariableNames,
+            const bool areCoefficientsInAerodynamicFrame = 1,
+            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+        referenceLength_( referenceLength ),
+        referenceArea_( referenceArea ),
+        lateralReferenceLength_( lateralReferenceLength ),
+        momentReferencePoint_( momentReferencePoint ),
+        independentVariableNames_( independentVariableNames ),
+        areCoefficientsInAerodynamicFrame_( areCoefficientsInAerodynamicFrame ),
+        areCoefficientsInNegativeAxisDirection_( areCoefficientsInNegativeAxisDirection )\
+    {
+        numberOfIndependentVariables_ = independentVariableNames.size( );
+    }
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
     virtual ~AerodynamicCoefficientInterface( ) { }
-
-    //! Set reference area.
-    /*!
-     * Sets reference area used to non-dimensionalize aerodynamic forces and moments.
-     * \param referenceArea Aerodynamic reference area.
-     */
-    void setReferenceArea( double referenceArea ) { referenceArea_ = referenceArea; }
 
     //! Get reference area.
     /*!
@@ -88,13 +131,6 @@ public:
      */
     double getReferenceArea( ) { return referenceArea_; }
 
-    //! Set reference length.
-    /*!
-     * Sets reference length used to non-dimensionalize aerodynamic moments.
-     * \param referenceLength Aerodynamic reference length.
-     */
-    void setReferenceLength( double referenceLength ) { referenceLength_ = referenceLength; }
-
     //! Get reference length.
     /*!
      * Returns reference length used to non-dimensionalize aerodynamic moments.
@@ -102,33 +138,12 @@ public:
      */
     double getReferenceLength( ) { return referenceLength_; }
 
-    //! Set lateral reference length.
-    /*!
-     * Sets lateral reference length used to non-dimensionalize aerodynamic moments.
-     * \param lateralReferenceLength Aerodynamic reference length.
-     */
-    void setLateralReferenceLength( double lateralReferenceLength )
-    {
-        lateralReferenceLength_ = lateralReferenceLength;
-    }
-
     //! Get lateral reference length.
     /*!
      * Returns lateral reference length used to non-dimensionalize aerodynamic moments.
      * \return Aerodynamic lateral reference length.
      */
     double getLateralReferenceLength( ) { return lateralReferenceLength_; }
-
-    //! Set moment reference point.
-    /*!
-     * Sets the point w.r.t. which the arm of the aerodynamic moment on a vehicle panel is
-     * determined.
-     * \param momentReferencePoint Aerodynamic moment reference point.
-     */
-    void setMomentReferencePoint( const Eigen::Vector3d& momentReferencePoint )
-    {
-        momentReferencePoint_ = momentReferencePoint;
-    }
 
     //! Get moment reference point.
     /*!
@@ -138,51 +153,118 @@ public:
      */
     Eigen::VectorXd getMomentReferencePoint( ) { return momentReferencePoint_; }
 
-    //! Get the current force coefficients.
-    /*!
-     * Returns the force coefficients that have been set as the 'current' force coefficients,
-     * i.e. at the current flight condition.
-     * \return current force coefficients.
-     */
-    Eigen::Vector3d getCurrentForceCoefficients( ) { return currentForceCoefficients_; }
-
-    //! Get the moment coefficients
-    /*!
-     * Return the moment coefficients that have been set as the 'current' moment coefficients,
-     * i.e. at the current flight condition.
-     * \return current moment coefficients.
-     */
-    Eigen::Vector3d getCurrentMomentCoefficients( ) { return currentMomentCoefficients_; }
-
-    //! Set the force coefficients.
-    /*!
-     * Sets the current force coefficients, i.e. at the current flight condition.
-     * \param currentForceCoefficients the current force coefficients.
-     */
-    void setCurrentForceCoefficients( const Eigen::Vector3d& currentForceCoefficients )
-    {
-        currentForceCoefficients_ = currentForceCoefficients;
-    }
-
-    //! Set the moment coefficients.
-    /*!
-     * Sets the current moment coefficients, i.e. at the current flight condition.
-     * \param currentMomentCoefficients the current force coefficients.
-     */
-    void setCurrentMomentCoefficients( const Eigen::Vector3d& currentMomentCoefficients )
-    {
-        currentMomentCoefficients_ = currentMomentCoefficients;
-    }
-
     //! Compute the aerodynamic coefficients at current flight condition.
     /*!
-     * Computes the current force and moment coefficients and is to be
-     * implemented in derived classes. Such a calculation would be performed by, for instance,
-     * including a pointer to a Vehicle object, from which the current flight condition can
-     * be retrieved. The function here is not made pure virtual pending the inclusion of
-     * such functionality in derived classes.
+     *  Computes the current force and moment coefficients and is to be
+     *  implemented in derived classes. Input is a set of independent variables
+     *  (doubles) which represent the variables from which the coefficients are calculated
+     *  \param independentVariables Independent variables of force and moment coefficient
+     *  determination implemented by derived class
      */
-    virtual void computeCurrentCoefficients( ) { }
+    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables ) = 0;
+
+    //! Pure virtual function for calculating and returning aerodynamic force coefficients
+    /*!
+     *  Pure virtual function for calculating and returning aerodynamic force coefficients.
+     *  \return Force coefficients at current independent variables
+     */
+    Eigen::Vector3d getCurrentForceCoefficients( )
+    {
+        return currentForceCoefficients_;
+    }
+
+    //! Pure virtual function for calculating and returning aerodynamic moment coefficients
+    /*!
+     *  Pure virtual function for calculating and returning aerodynamic moment coefficients.
+     *  \return Moment coefficients at current independent variables
+     */
+    Eigen::Vector3d getCurrentMomentCoefficients( )
+    {
+        return currentMomentCoefficients_;
+    }
+
+    //! Function for calculating and returning aerodynamic force and moment coefficients
+    /*!
+     *  Function for calculating and returning aerodynamic force and moment coefficients
+     *  \return Force and moment coefficients at given independent variables
+     */
+    Eigen::Matrix< double, 6, 1 > getCurrentAerodynamicCoefficients(  )
+    {
+        Eigen::Matrix< double, 6, 1 > coefficients;
+        coefficients.segment( 0, 3 ) = getCurrentForceCoefficients( );
+        coefficients.segment( 3, 3 ) = getCurrentMomentCoefficients( );
+        return coefficients;
+    }
+
+    //! Function to return the identifiers of the physical meaning of each independent variable.
+    /*!
+     *  Function to return the identifiers of the physical meaning of each independent variable
+     *  of the aerodynamic coefficient interface.
+     *  \return A vector with the identifiers of the physical meaning of each independent variable.
+     */
+    std::vector< AerodynamicCoefficientsIndependentVariables > getIndependentVariableNames( )
+    {
+        return independentVariableNames_;
+    }
+
+    //! Function to return a single identifier of the physical meaning of one independent variable.
+    /*!
+     *  Function to return a single identifier of the physical meaning of one of the independent
+     *  independent variable of the coefficient interface. The index of the variable is defined
+     *  by the input variable.
+     *  \param index Index of list of identfiers to return
+     *  \return The identifiers of the physical meaning of the independent variable at the position
+     *  of the input variable.
+     */
+    AerodynamicCoefficientsIndependentVariables getIndependentVariableName(
+            const unsigned int index )
+    {
+        if( index >= numberOfIndependentVariables_ )
+        {
+            throw std::runtime_error(
+                        std::string( "Error when retrieving aerodynamic coefficient interface " ) +
+                        ( " variable name, requested variable index " ) +
+                        boost::lexical_cast< std::string >( index ) +
+                        ", but only " + boost::lexical_cast< std::string >(
+                            numberOfIndependentVariables_ ) + " variables available." );
+        }
+
+        return independentVariableNames_.at( index );
+    }
+
+    //! Function to return the number of independent variables upon which the coeficients depend.
+    /*!
+     *  Function to return the number of independent variables upon which the coeficients depend.
+     *  The size of the vector used as input for updateCurrentCoefficients should always have the
+     *  size returned by this variable.
+     *  \return Number of independent variables upon which the coeficients depend
+     */
+    unsigned int getNumberOfIndependentVariables( )
+    {
+        return numberOfIndependentVariables_;
+    }
+
+    //! Function that returns whether the coefficients are given in aerodynamic frame.
+    /*!
+     * Function that returns whether the coefficients are given in aerodynamic frame (given in body)
+     * frame if false.
+     * \return Boolean whether coefficients are in aerodynamic frame
+     */
+    bool getAreCoefficientsInAerodynamicFrame( )
+    {
+        return areCoefficientsInAerodynamicFrame_;
+    }
+
+    //! Function that returns whether the coefficients are positive in positive axes directions.
+    /*!
+     * Function that returns whether the coefficients are positive in positive axes directions, i.e.
+     * if positive force (in given frame) gives positive coefficients.
+     * \return Boolean whether coefficients are in positive direction.
+     */
+    bool getAreCoefficientsInNegativeAxisDirection( )
+    {
+        return areCoefficientsInNegativeAxisDirection_;
+    }
 
 protected:
 
@@ -221,6 +303,33 @@ protected:
      * Point w.r.t. which the arm of the moment on a vehicle panel is determined.
      */
     Eigen::Vector3d momentReferencePoint_;
+
+    //! Vector with identifiers for the physical meaning of each independent variable of the
+    //! aerodynamic coefficients.
+    std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames_;
+
+    //! Number of independent variables upon which the force and moment coefficients depend.
+    /*!
+     *  Number of independent variables upon which the force and moment coefficients depend, i.e.
+     *  the length of the vectors that should be used as input to forceCoefficientFunction and
+     *  momentCoefficientFunction.
+     */
+    unsigned int numberOfIndependentVariables_;
+
+    //! Boolean to denote whether coefficients are defined in aerodynamic or body frame
+    /*! Boolean to define whether the aerodynamic
+     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  frame (typically denoted as Cx, Cy, Cz).
+     */
+    bool areCoefficientsInAerodynamicFrame_;
+
+     //! Boolean to denote whether coefficients are positive along frame axes
+     /*! Boolean to define whether the aerodynamic coefficients are
+      *  positive along tyhe positive axes of the body or aerodynamic frame
+      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+      *  coefficients are typically defined in negative direction.
+     */
+    bool areCoefficientsInNegativeAxisDirection_;
 
 private:
 };

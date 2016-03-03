@@ -51,6 +51,8 @@
  *
  */
 
+#include <iostream>
+
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -59,6 +61,27 @@ namespace tudat
 {
 namespace reference_frames
 {
+
+Eigen::Vector3d transformVector(
+        const Eigen::Vector3d& originalVector,
+        const boost::function< Eigen::Quaterniond( ) > rotation )
+{
+    return rotation( ) * originalVector;
+}
+
+Eigen::Vector3d transformVector(
+        const Eigen::Vector3d& originalVector,
+        const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
+{
+    Eigen::Vector3d currentVector = originalVector;
+    Eigen::Vector3d newVector;
+    for( unsigned int i = 0; i < rotationsList.size( ); i++ )
+    {
+        newVector = rotationsList.at( i )( currentVector );
+        currentVector = newVector;
+    }
+    return currentVector;
+}
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 Eigen::Matrix3d
@@ -325,6 +348,19 @@ Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternio
     return getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
             angleOfAttack, angleOfSideslip ).inverse( );
 }
+
+//! Calculate current heading angle.
+double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame )
+{
+    return std::atan2( velocityInVerticalFrame( 1 ), velocityInVerticalFrame( 0 ) );
+}
+
+//! Calculatre current flight path angle.
+double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame )
+{
+    return -std::asin( velocityInVerticalFrame( 2 ) / velocityInVerticalFrame.norm( ) );
+}
+
 
 } // namespace reference_frames
 } // namespace tudat

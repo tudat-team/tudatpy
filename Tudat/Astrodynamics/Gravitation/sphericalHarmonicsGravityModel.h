@@ -233,7 +233,7 @@ public:
      * gravitational acceleration is an optional parameter; the default position is the origin.
      * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
      *          body subject to gravitational acceleration.
-     * \param aGravitationalParameter Pointer to function returning gravitational parameter.
+     * \param aGravitationalParameterFunction Pointer to function returning gravitational parameter.
      * \param anEquatorialRadius Pointer to function returning equatorial radius.
      * \param cosineHarmonicCoefficientsFunction Pointer to function returning matrix of
                 cosine-coefficients of spherical harmonics expansion.
@@ -244,14 +244,14 @@ public:
      */
     SphericalHarmonicsGravitationalAccelerationModel(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
-            const double aGravitationalParameter,
+            const boost::function< double( ) > aGravitationalParameterFunction,
             const double anEquatorialRadius,
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction
             = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
-                aGravitationalParameter,
+                aGravitationalParameterFunction,
                 positionOfBodyExertingAccelerationFunction ),
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),

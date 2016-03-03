@@ -58,7 +58,7 @@ Eigen::Vector3d computeCannonBallRadiationPressureAcceleration(
 }
 
 //! Get radiation pressure acceleration.
-Eigen::Vector3d CannonBallRadiationPressure::getAcceleration( )
+Eigen::Vector3d CannonBallRadiationPressureAcceleration::getAcceleration( )
 {
     return computeCannonBallRadiationPressureAcceleration(
                 currentRadiationPressure_, currentVectorToSource_, currentArea_,
@@ -66,7 +66,7 @@ Eigen::Vector3d CannonBallRadiationPressure::getAcceleration( )
 }
 
 //! Update member variables used by the radiation pressure acceleration model.
-void CannonBallRadiationPressure::updateMembers( )
+void CannonBallRadiationPressureAcceleration::updateMembers( )
 {
     currentVectorToSource_ = ( sourcePositionFunction_( )
                                - acceleratedBodyPositionFunction_( ) ).normalized( );

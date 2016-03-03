@@ -36,10 +36,14 @@
 # Set the source files.
 set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
 )
 
 # Set the header files.
@@ -56,6 +60,8 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.h"
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/standardAtmosphere.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.h"
 )
 
 # Add static libraries.
@@ -65,15 +71,15 @@ setup_tudat_library_target(tudat_aerodynamics "${SRCROOT}{AERODYNAMICSDIR}")
 # Add unit tests.
 add_executable(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp")
 setup_custom_test_program(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_AerodynamicMomentAndAerodynamicForce tudat_aerodynamics ${Boost_LIBRARIES})
+target_link_libraries(test_AerodynamicMomentAndAerodynamicForce tudat_simulation_setup tudat_aerodynamics tudat_reference_frames tudat_ephemerides tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicsNamespace.cpp")
 setup_custom_test_program(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_AerodynamicsNamespace tudat_aerodynamics ${Boost_LIBRARIES})
 
-add_executable(test_CoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestCoefficientGenerator.cpp")
-setup_custom_test_program(test_CoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_CoefficientGenerator tudat_aerodynamics tudat_geometric_shapes tudat_basic_mathematics ${Boost_LIBRARIES})
+add_executable(test_AerodynamicCoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestCoefficientGenerator.cpp")
+setup_custom_test_program(test_AerodynamicCoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}")
+target_link_libraries(test_AerodynamicCoefficientGenerator tudat_aerodynamics tudat_geometric_shapes tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestExponentialAtmosphere.cpp")
 setup_custom_test_program(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")

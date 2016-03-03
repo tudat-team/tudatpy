@@ -54,6 +54,8 @@
 
 #include <cmath>
 
+#include <boost/function.hpp>
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -61,6 +63,14 @@ namespace tudat
 {
 namespace reference_frames
 {
+
+Eigen::Vector3d transformVector(
+        const Eigen::Vector3d& originalVector,
+        const boost::function< Eigen::Quaterniond( ) > rotation );
+
+Eigen::Vector3d transformVector(
+        const Eigen::Vector3d& originalVector,
+        const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 /*!
@@ -360,6 +370,23 @@ Eigen::Matrix3d getAirspeedBasedAerodynamicToBodyFrameTransformationMatrix(
  */
 Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
         const double angleOfAttack, const double angleOfSideslip );
+
+//! Calculate current heading angle.
+/*!
+ * Calculate heading angle from velocity in vertical (LVLH) frame.
+ * \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
+ * \return Current heading angle.
+ */
+double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
+
+//! Calculate current flight path angle. Angle is defined positive upwards.
+/*!
+ *  Calculate flight path angle from velocity in vertical (LVLH) frame.
+ *  Angle is defined positive upwards.
+ *  \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
+ *  \return Current flight path angle.
+ */
+double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame );
 
 } // namespace reference_frames
 } // namespace tudat

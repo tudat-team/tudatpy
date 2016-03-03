@@ -500,5 +500,11 @@ double computeShockDeflectionAngle( double shockAngle, double machNumber,
     return atan( tangentOfDeflectionAngle_ );
 }
 
+double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
+                            const double specificGasConstant )
+{
+    return std::sqrt( temperature * ratioOfSpecificHeats * specificGasConstant );
+}
+
 } // namespace aerodynamics
 } // namespace tudat

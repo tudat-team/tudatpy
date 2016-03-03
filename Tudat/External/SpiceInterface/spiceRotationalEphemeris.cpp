@@ -16,22 +16,37 @@ namespace ephemerides
 
 //! Function to calculate the rotation quaternion from target frame to original frame.
 Eigen::Quaterniond SpiceRotationalEphemeris::getRotationToBaseFrame(
-        const double ephemerisTime, const double julianDayAtEpoch )
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
 {
-    if( julianDayAtEpoch != basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+    // Set number of seconds since J2000.
+    double ephemerisTime = secondsSinceEpoch;
+    if ( julianDayAtEpoch != basic_astrodynamics::JULIAN_DAY_ON_J2000 )
     {
-        boost::throw_exception(
-                    boost::enable_error_info(
-                        std::runtime_error(
-                            "Spice rotational ephemeris must take J2000 as"
-                            " reference input time.") ) );
+        ephemerisTime -= ( basic_astrodynamics::JULIAN_DAY_ON_J2000 - julianDayAtEpoch )
+                * physical_constants::JULIAN_DAY;
     }
 
     // Get rotational quaternion from spice wrapper function
-    Eigen::Quaterniond rotationalState = spice_interface::computeRotationQuaternionBetweenFrames(
+    return spice_interface::computeRotationQuaternionBetweenFrames(
                 targetFrameOrientation_, baseFrameOrientation_, ephemerisTime );
+}
 
-    return rotationalState;
+//! Function to calculate the derivative of the rotation matrix from target frame to original
+//! frame.
+Eigen::Matrix3d SpiceRotationalEphemeris::getDerivativeOfRotationToBaseFrame(
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
+{
+    // Set number of seconds since J2000.
+    double ephemerisTime = secondsSinceEpoch;
+    if ( julianDayAtEpoch != basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+    {
+        ephemerisTime -= ( basic_astrodynamics::JULIAN_DAY_ON_J2000 - julianDayAtEpoch )
+                * physical_constants::JULIAN_DAY;
+    }
+
+    // Get rotation matrix derivative from spice wrapper function
+    return spice_interface::computeRotationMatrixDerivativeBetweenFrames(
+                targetFrameOrientation_, baseFrameOrientation_, ephemerisTime );
 }
 
 
