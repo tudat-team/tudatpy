@@ -142,8 +142,6 @@ public:
         DynamicsSimulatorBase< StateScalarType, TimeType >( bodyMap ),  integratorSettings_( integratorSettings ),
         propagatorSettings_( propagatorSettings ), clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult )
     {
-        using namespace state_derivative_models;
-
         integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(  propagatorSettings_, bodyMap_, frameManager_ );
         environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >( propagatorSettings_, bodyMap_ );
         dynamicsStateDerivative_ = boost::make_shared< HybridStateDerivativeModel< TimeType, StateScalarType > >(
@@ -298,8 +296,6 @@ public:
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates )
     {
-        using namespace state_derivative_models;
-
         // Update body properties that are independent of integrated states.
         for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::iterator bodyIterator = bodyMap_.begin( );
              bodyIterator != bodyMap_.end( ); bodyIterator++ )
