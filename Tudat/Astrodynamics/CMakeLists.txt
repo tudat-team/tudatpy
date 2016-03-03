@@ -45,6 +45,7 @@ set(MISSIONSEGMENTSDIR "${ASTRODYNAMICSDIR}/MissionSegments")
 set(REFERENCEFRAMESDIR "${ASTRODYNAMICSDIR}/ReferenceFrames")
 set(STATEDERIVATIVEMODELSDIR "${ASTRODYNAMICSDIR}/StateDerivativeModels")
 set(OBSERVATIONMODELSDIR "${ASTRODYNAMICSDIR}/ObservationModels")
+set(PROPAGATORSDIR "${ASTRODYNAMICSDIR}/Propagators")
 
 # Add subdirectories.
 add_subdirectory("${SRCROOT}${AERODYNAMICSDIR}")
@@ -56,6 +57,7 @@ add_subdirectory("${SRCROOT}${MISSIONSEGMENTSDIR}")
 add_subdirectory("${SRCROOT}${REFERENCEFRAMESDIR}")
 add_subdirectory("${SRCROOT}${STATEDERIVATIVEMODELSDIR}")
 add_subdirectory("${SRCROOT}${OBSERVATIONMODELSDIR}")
+add_subdirectory("${SRCROOT}${PROPAGATORSDIR}")
 
 # Get target properties for static libraries.
 get_target_property(AERODYNAMICSSOURCES tudat_aerodynamics SOURCES)
@@ -67,3 +69,4 @@ get_target_property(MISSIONSEGMENTSSOURCES tudat_mission_segments SOURCES)
 get_target_property(REFERENCEFRAMESSOURCES tudat_reference_frames SOURCES)
 get_target_property(STATEDERIVATIVEMODELSSOURCES tudat_state_derivative_models SOURCES)
 get_target_property(OBSERVATIONMODELSDIR tudat_observation_models SOURCES)
+get_target_property(PROPAGATORSDIR tudat_propagators SOURCES)
