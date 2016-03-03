@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
         // Manually create tabulated ephemeris.
         boost::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
-                boost::make_shared< ephemerides::TabulatedCartesianEphemeris >(
+                boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     boost::make_shared< interpolators::LagrangeInterpolator
                     < double, basic_mathematics::Vector6d > >( tabulatedStates, 6 ),
                     "Earth", "J2000" );

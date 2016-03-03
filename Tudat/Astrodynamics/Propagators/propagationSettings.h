@@ -20,9 +20,7 @@ namespace propagators
 enum IntegratedStateType
 {
     hybrid,
-    transational_state,
-    rotational_state,
-    proper_time
+    transational_state
 };
 
 int getSingleIntegrationSize( const IntegratedStateType stateType );

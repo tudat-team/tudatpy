@@ -16,12 +16,8 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     case transational_state:
         singleStateSize = 6;
         break;
-    case rotational_state:
-        singleStateSize = 7;
-        break;
-    case proper_time:
-        singleStateSize = 1;
-        break;
+    default:
+        std::cerr<<"Error, did not recognize state type "<<stateType<<" when getting integration size"<<std::endl;
     }
     return singleStateSize;
 }
@@ -36,12 +32,8 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
     case transational_state:
         singleStateSize = 2;
         break;
-    case rotational_state:
-        std::cerr<<"Error, cannot yet return order of rotational state"<<std::endl;
-        break;
-    case proper_time:
-        singleStateSize = 1;
-        break;
+    default:
+        std::cerr<<"Error, did not recognize state type "<<stateType<<" when getting equation order"<<std::endl;
     }
     return singleStateSize;
 }

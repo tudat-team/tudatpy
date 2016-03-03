@@ -39,6 +39,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
+#include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 #include "Tudat/SimulationSetup/createEphemeris.h"
 
@@ -174,6 +175,23 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                           interpolators::lagrange_cubic_spline_boundary_interpolation ),
                         tabulatedEphemerisSettings->getFrameOrigin( ),
                         tabulatedEphemerisSettings->getFrameOrientation( ) );
+        }
+        break;
+    }
+    case constant_ephemeris:
+    {
+        boost::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
+                boost::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
+        if( constantEphemerisSettings == NULL )
+        {
+            std::cerr<<"Error, expected interpolated spice ephemeris settings."<<std::endl;
+        }
+        else
+        {
+            ephemeris = boost::make_shared< ConstantEphemeris >(
+                        boost::lambda::constant( constantEphemerisSettings->getConstantState( ) ),
+                        constantEphemerisSettings->getFrameOrigin( ),
+                        constantEphemerisSettings->getFrameOrientation( ) );
         }
         break;
     }

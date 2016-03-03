@@ -11,6 +11,7 @@
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
+#include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
 namespace tudat
 {
@@ -26,35 +27,38 @@ namespace propagators
  *  \param integratorSettings Settings for numerical integrator.
  *  \return History of numerical states (first of pair) and derivatives of states (second of pair) given as maps with time as key.
  */
-template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = double >
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
 std::map< TimeType, StateType > integrateEquations(
         boost::function< StateType( const TimeType, const StateType&) > stateDerivativeFunction,
         const StateType initialState,
-        boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType, TimeStepType > > integratorSettings )
+        boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings )
 {
     using namespace tudat::numerical_integrators;
 
+
     // Create numerical integrator.
-    boost::shared_ptr< NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator =
-            createIntegrator< TimeType, StateType, double >( stateDerivativeFunction, initialState, integratorSettings );
+    boost::shared_ptr< NumericalIntegrator< TimeType, StateType, StateType > > integrator =
+            createIntegrator< TimeType, StateType >( stateDerivativeFunction, initialState, integratorSettings );
 
     // Get Initial state and time.
     TimeType currentTime = integratorSettings->initialTime_;
     StateType newState = initialState;
+
+    std::cout<<currentTime<<" "<<newState.transpose( )<<std::endl;
 
     // Initialization of numerical solutions for variational equations.
     std::map< TimeType, StateType > solutionHistory;
     solutionHistory[ currentTime ] = newState;
 
     // Check if numerical integration is forward or backwrd.
-    TimeStepType timeStepSign = 1.0L;
+    TimeType timeStepSign = 1.0L;
     if( integratorSettings->initialTimeStep_ < 0.0 )
     {
         timeStepSign = -1.0L;
     }
 
     // Set initial time step and total integration time.
-    TimeStepType timeStep = integratorSettings->initialTimeStep_;
+    TimeType timeStep = integratorSettings->initialTimeStep_;
     TimeType endTime = integratorSettings->endTime_;
     TimeType previousTime = currentTime;
 
@@ -63,6 +67,7 @@ std::map< TimeType, StateType > integrateEquations(
     // Perform first integration step.
     newState = integrator->performIntegrationStep( timeStep );
     std::cout<<"post-step"<<std::endl;
+    std::cout<<currentTime<<" "<<newState.transpose( )<<std::endl;
 
     currentTime = integrator->getCurrentIndependentVariable( );
 
@@ -72,7 +77,7 @@ std::map< TimeType, StateType > integrateEquations(
     int printIndex = 0;
     int printFrequency = integratorSettings->printFrequency_;
     // Perform numerical integration steps until end time reached.
-    while( timeStepSign * static_cast< TimeStepType >( currentTime ) < timeStepSign * static_cast< TimeStepType >( endTime ) )
+    while( timeStepSign * static_cast< TimeType >( currentTime ) < timeStepSign * static_cast< TimeType >( endTime ) )
     {
         previousTime = currentTime;
 
@@ -81,6 +86,7 @@ std::map< TimeType, StateType > integrateEquations(
         currentTime = integrator->getCurrentIndependentVariable( );
         timeStep = timeStepSign * integrator->getNextStepSize( );
 
+        std::cout<<currentTime<<" "<<newState.transpose( )<<std::endl;
         printIndex++;
         printIndex = printIndex % printFrequency;
 
@@ -116,19 +122,19 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > updateEnvironmentAndCalculat
     return stateDerivativeModel->calculateSystemStateDerivative( currentTime, currentState );
 }
 
-template< typename StateScalarType = double, typename TimeType = double, typename TimeStepType = double >
+template< typename StateScalarType = double, typename TimeType = double >
 std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > integrateEquations(
         const boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel,
         const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater,
         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState,
-        boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType, TimeStepType > > integratorSettings,
+        boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const boost::function< double( const double ) > timeConverterToUpdateTime = &basic_astrodynamics::doDummyTimeConversion< TimeType >  )
 {
     boost::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >(
         const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >&) > stateDerivativeFunction =
             boost::bind( &updateEnvironmentAndCalculateStateDerivative< StateScalarType, TimeType >, stateDerivativeModel, environmentUpdater, _1, _2,
                          timeConverterToUpdateTime );
-    return integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType, TimeStepType >(
+    return integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >(
                 stateDerivativeFunction, initialState, integratorSettings );
 }
 

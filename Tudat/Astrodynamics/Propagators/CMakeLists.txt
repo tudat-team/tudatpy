@@ -50,10 +50,12 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyCowellStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.h"
+  "${SRCROOT}${PROPAGATORSDIR}/hybridStateDerivativeModel.h"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.h"
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
+  "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
 )
 
 # Add static libraries.
@@ -67,4 +69,4 @@ target_link_libraries(test_CentralBodyData tudat_propagators ${Boost_LIBRARIES})
 
 add_executable(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCowellStateDerivative.cpp")
 setup_custom_test_program(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_CowellStateDerivative tudat_propagators ${Boost_LIBRARIES})
+target_link_libraries(test_CowellStateDerivative tudat_simulation_setup tudat_propagators tudat_aerodynamics tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})

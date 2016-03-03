@@ -50,7 +50,7 @@ boost::shared_ptr< CentralBodyData< ScalarStateType, TimeType > > createCentralB
         if( centralBodiesToUse.at( i )  != "SSB" )
         {
             bodyStateFunctions[ centralBodiesToUse.at( i ) ] =
-                    boost::bind( &bodies::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >,
+                    boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris< ScalarStateType, TimeType >,
                                  bodyMap.at( centralBodiesToUse.at( i ) ), _1 );
         }
         else
@@ -64,7 +64,7 @@ boost::shared_ptr< CentralBodyData< ScalarStateType, TimeType > > createCentralB
 template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createTranslationalStateDerivativeModel(
         const boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationPropagatorSettings,
-        const NamedBodyMap& bodyMap, const TimeType startTime )
+        const  simulation_setup::NamedBodyMap& bodyMap, const TimeType startTime )
 {
     boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel;\
 
@@ -82,28 +82,6 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData, translationPropagatorSettings->bodiesToIntegrate_ );
         break;
     }
-    case encke:
-    {
-        // Calculate initial Kepler elements for Encke propagator
-        std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > initialKeplerElements;
-        initialKeplerElements.resize( translationPropagatorSettings->bodiesToIntegrate_.size( ) );
-        std::vector< std::string > centralBodies = translationPropagatorSettings->centralBodies_;
-
-        for( unsigned int i = 0; i < translationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
-        {
-            initialKeplerElements[ i ] = orbital_element_conversions::convertCartesianToKeplerianElementsTemplated< StateScalarType >(
-                        translationPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ), static_cast< StateScalarType >(
-                            boost::dynamic_pointer_cast< bodies::CelestialBody >(
-                                bodyMap.at( centralBodies[ i ] ) )->getGravityFieldModel( )->getGravitationalParameter( ) ) );
-        }
-
-        // Create Encke state derivative object.
-        stateDerivativeModel = boost::make_shared< NBodyEnckeStateDerivative< StateScalarType, TimeType > >
-                ( translationPropagatorSettings->accelerationsMap_, centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
-                  initialKeplerElements, startTime );
-
-        break;
-    }
     default:
         std::cerr<<"Error, did not recognize translational state propagation type: "<<translationPropagatorSettings->propagator_<<std::endl;
     }
@@ -112,7 +90,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
 
 template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createStateDerivativeModel(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings, const NamedBodyMap& bodyMap, const TimeType startTime )
+        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings, const  simulation_setup::NamedBodyMap& bodyMap, const TimeType startTime )
 {
     boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel;
     switch( propagatorSettings->stateType_ )
@@ -131,37 +109,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
                         translationPropagatorSettings, bodyMap, startTime );
         }
         break;
-    }
-    case rotational_state:
-    {
-        boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagatorSettings =
-                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( rotationPropagatorSettings == NULL )
-        {
-            std::cerr<<"Error, expected rotation state propagation settings when making state derivative model"<<std::endl;
-        }
-        else
-        {
-            stateDerivativeModel = createRotationalStateDerivativeModel< StateScalarType, TimeType >(
-                        rotationPropagatorSettings, bodyMap, startTime );
-        }
-        break;
-    }
-    case proper_time:
-    {
-        boost::shared_ptr< RelativisticTimeStatePropagatorSettings > timePropagatorSettings =
-                boost::dynamic_pointer_cast< RelativisticTimeStatePropagatorSettings >( propagatorSettings );
-        if( timePropagatorSettings == NULL )
-        {
-            std::cerr<<"Error, expected time propagation settings when making state derivative model"<<std::endl;
-        }
-        else
-        {
-            stateDerivativeModel = createRelativisticTimeStateDerivativeModel< StateScalarType, TimeType >(
-                        timePropagatorSettings, bodyMap );
-        }
-        break;
-    }
+    }    
     default:
         std::cerr<<"Error, could not process state type "<<propagatorSettings->stateType_<<" when making state derivative model"<<std::endl;
     }
@@ -170,7 +118,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
 
 template< typename StateScalarType = double, typename TimeType = double >
 std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > createStateDerivativeModels(
-        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings, const NamedBodyMap& bodyMap, const TimeType startTime )
+        const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings, const  simulation_setup::NamedBodyMap& bodyMap, const TimeType startTime )
 {
     std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels;
     switch( propagatorSettings->stateType_ )

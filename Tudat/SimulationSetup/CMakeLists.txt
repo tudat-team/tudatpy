@@ -28,6 +28,7 @@ set(SIMULATION_SETUP_SOURCES
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyShapeModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/body.cpp"
 )
 
 # Add header files.

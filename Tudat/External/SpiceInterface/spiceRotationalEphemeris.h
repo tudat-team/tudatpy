@@ -111,6 +111,12 @@ public:
                 transpose( );
     }
 
+    void getFullRotationalQuantitiesToTargetFrame(
+            Eigen::Quaterniond& currentRotationToLocalFrame,
+            Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+            Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+            const double ephemerisTime );
+
 };
 
 }
