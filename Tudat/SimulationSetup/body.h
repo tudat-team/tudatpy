@@ -102,61 +102,7 @@ public:
           ephemerisFrameToBaseFrameLongFunction_( boost::lambda::constant( Eigen::Matrix< long double, 6, 1 >::Zero( ) ) )
     { }
 
-    //! Set current time and state.
-    /*!
-     *  Sets the current time, position and current velocity of the body based on the input
-     *  arguments. The current position is taken as a segment of the input state given by the
-     *  indices (0, 3)), and the current velocity is taken as a segment of the input state given by
-     *  the indices (3, 3).
-     *  Note: any updates of dependent variables which depend on time should be made here.
-     *  \param time Current time of body (from which to calculate any dependent variables in
-     *  future code modifications).
-     *  \param state Current state of body.
-     */
-    void setCurrentTimeAndState( const double time,
-                                 const basic_mathematics::Vector6d& state )
-    {
-        currentTime = time;
-        currentState = state;
-
-        if( rotationalEphemeris_ != NULL )
-        {
-            currentRotationToLocalFrame_ = rotationalEphemeris_->getRotationToTargetFrame(
-                        time );
-            currentRotationToLocalFrameDerivative_ =
-                    rotationalEphemeris_->getDerivativeOfRotationToTargetFrame(
-                        time );
-        }
-
-        if( aerodynamicFlightConditions_ != NULL )
-        {
-            aerodynamicFlightConditions_->updateConditions( );
-        }
-
-        for( radiationPressureIterator_ = radiationPressureInterfaces_.begin( );
-             radiationPressureIterator_ != radiationPressureInterfaces_.end( );
-             radiationPressureIterator_++ )
-        {
-            radiationPressureIterator_->second->updateInterface( );
-        }
-    }
-
-
-    //! Update body to current time
-    /*!
-     *  Update body to current time, calculating the current state from the bodyEphemeris_ member
-     *  variable.
-     *  \param time Current time of body (from which to calculate the state, as well as any dependent
-     *  variables infuture code modifications).
-     */
-    void updateStateFromEphemeris( const double time )
-    {
-        setCurrentTimeAndState(
-                    time, bodyEphemeris_->getCartesianStateFromEphemeris(
-                        time, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) );
-    }
-
-    void setState( const basic_mathematics::Vector6d& state )
+      void setState( const basic_mathematics::Vector6d& state )
     {
         currentState = state; // Must be in global frame.
         //currentLongState = state.cast< long double >( );

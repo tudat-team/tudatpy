@@ -10,7 +10,7 @@ namespace ephemerides
 //! Get state from ephemeris.
 template< >
 basic_mathematics::Vector6d CompositeEphemeris< double, double >::getCartesianStateFromEphemeris(
-        const double ephemerisTime, const double julianDayAtEpoch )
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
 {
     // Initialize state to zero;
     basic_mathematics::Vector6d state = basic_mathematics::Vector6d::Zero( );
@@ -25,14 +25,14 @@ basic_mathematics::Vector6d CompositeEphemeris< double, double >::getCartesianSt
         // If current ephemeris is translational, add it and increment currentTranslationIndex
         if( isCurrentEphemerisTranslational_[ i ] == true )
         {
-            state += translationalEphemerides_[ currentTranslationIndex ].first( ephemerisTime ) *
+            state += translationalEphemerides_[ currentTranslationIndex ].first( secondsSinceEpoch ) *
                     static_cast< double >( translationalEphemerides_[ currentTranslationIndex ].second );
             currentTranslationIndex++;
         }
         // If current ephemeris is rotational, multiply position and state by rotation.
         else
         {
-            state = rotationalEphemerides_[ currentRotationIndex ]( ephemerisTime, state );
+            state = rotationalEphemerides_[ currentRotationIndex ]( secondsSinceEpoch, state );
             currentRotationIndex++;
         }
     }
@@ -40,18 +40,19 @@ basic_mathematics::Vector6d CompositeEphemeris< double, double >::getCartesianSt
     return state;
 }
 
-
+//! Get state from ephemeris (with long double as state scalar).
 template< >
 Eigen::Matrix< long double, 6, 1 > CompositeEphemeris< double, double >::getCartesianLongStateFromEphemeris(
-        const double ephemerisTime, const double julianDayAtEpoch )
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
 {
-    return getCartesianStateFromEphemeris( ephemerisTime, julianDayAtEpoch ).cast< long double >( );
+    return getCartesianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ).cast< long double >( );
 }
 
 
+//! Get state from ephemeris (with long double as state scalar).
 template< >
 Eigen::Matrix< long double, 6, 1 > CompositeEphemeris< double, long double >::getCartesianLongStateFromEphemeris(
-        const double ephemerisTime, const double julianDayAtEpoch )
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
 
 {
     // Initialize state to zero;
@@ -67,14 +68,14 @@ Eigen::Matrix< long double, 6, 1 > CompositeEphemeris< double, long double >::ge
         // If current ephemeris is translational, add it and increment currentTranslationIndex
         if( isCurrentEphemerisTranslational_[ i ] == true )
         {
-            state += translationalEphemerides_[ currentTranslationIndex ].first( ephemerisTime ) *
+            state += translationalEphemerides_[ currentTranslationIndex ].first( secondsSinceEpoch ) *
                     static_cast< long double >( translationalEphemerides_[ currentTranslationIndex ].second );
             currentTranslationIndex++;
         }
         // If current ephemeris is rotational, multiply position and state by rotation.
         else
         {
-            state = rotationalEphemerides_[ currentRotationIndex ]( ephemerisTime, state );
+            state = rotationalEphemerides_[ currentRotationIndex ]( secondsSinceEpoch, state );
             currentRotationIndex++;
         }
     }
@@ -82,12 +83,13 @@ Eigen::Matrix< long double, 6, 1 > CompositeEphemeris< double, long double >::ge
 }
 
 
+//! Get state from ephemeris.r).
 template< >
 basic_mathematics::Vector6d CompositeEphemeris< double, long double >::getCartesianStateFromEphemeris(
-        const double ephemerisTime, const double julianDayAtEpoch )
+        const double secondsSinceEpoch, const double julianDayAtEpoch )
 
 {
-    return getCartesianLongStateFromEphemeris( ephemerisTime, julianDayAtEpoch ).cast< double >( );
+    return getCartesianLongStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ).cast< double >( );
 }
 
 }

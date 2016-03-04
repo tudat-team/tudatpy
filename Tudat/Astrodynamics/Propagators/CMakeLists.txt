@@ -35,11 +35,8 @@
 
 # Add source files.
 set(PROPAGATORS_SOURCES
-  "${SRCROOT}${PROPAGATORSDIR}/createStateDerivativeModel.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
-  "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
-  "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.cpp"
 )
 
 # Add header files.
@@ -50,7 +47,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyCowellStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.h"
-  "${SRCROOT}${PROPAGATORSDIR}/hybridStateDerivativeModel.h"
+  "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.h"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.h"
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"

@@ -23,8 +23,20 @@ namespace ephemerides
 
 bool isFrameInertial( const std::string frame );
 
+//! Function to return base frame, i.e. in which the states of the bodies are defined during the integration.
+/*!
+ * Function to return base frame, i.e. in which the states of the bodies are defined during the integration.
+ * \return Base frame for simulations.
+ */
 std::string getBaseFrameName( );
 
+
+//! Class to retrieve translation functions between different frames
+/*!
+ * Class to retrieve translation functions between different frames, as calculated from a list of ephemeris objects.
+ * Using this class, the various Ephemeris objects may be 'pasted' together to obtain the state of one body w.r.t. any\
+ * other body.
+ */
 class ReferenceFrameManager
 {
 public:
@@ -32,14 +44,16 @@ public:
     //! Constructor from named list of bodies.
     /*!
      *  Constructor from named list of bodies. Ephemerides used in class are retrieved from bodies.
+     *  \param bodyMap List of bodies used in simulations.
      */
-    ReferenceFrameManager( const simulation_setup::NamedBodyMap bodyMap );
+    ReferenceFrameManager( const simulation_setup::NamedBodyMap& bodyMap );
 
     //! Constructor from named list of ephemerides.
     /*!
      *  Constructor from named list of ephemerides.
+     *  \param ephemerisMap List of ephemerides per body.
      */
-    ReferenceFrameManager( std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerisMap );
+    ReferenceFrameManager( const std::map< std::string, boost::shared_ptr< Ephemeris > >& ephemerisMap );
 
     //! Function to retrieve the ephemeris of a body with a requested frame origin.
     /*!
@@ -135,10 +149,10 @@ public:
     //! Return the level at which the requested ephemeris is in the hierarchy.
     /*!
      *  Return the level at which the requested ephemeris is in the hierarchy.
-     *  \param Frame for which the frame level is requested.
+     *  \param frame Frame for which the frame level is requested.
      *  \return Pair of frame level and boolean. Boolean is true if frame exists, false if not (and frame level NAN).
      */
-    std::pair< int, bool > getFrameLevel( std::string frame );
+    std::pair< int, bool > getFrameLevel( const std::string& frame );
 
     //! Returns the nearest common frame between frames.
     /*!
@@ -148,7 +162,7 @@ public:
      */
     std::pair< std::string, int > getNearestCommonFrame( std::vector< std::string > frameList );
 
-    std::string getBaseFrameNameOfBody( const std::string bodyName );
+    std::string getBaseFrameNameOfBody( const std::string& bodyName );
 
     std::vector< std::string > getEphemerisOrigins( const std::vector< std::string >& bodiesToIntegrate );
 
@@ -181,13 +195,13 @@ private:
      *  continuously increasing
      */
     std::vector< boost::shared_ptr< Ephemeris > > getDirectEphemerisFromLowerToUpperFrame(
-            std::string lowerFrame, std::string upperFrame );
+            const std::string& lowerFrame, const std::string& upperFrame );
 
     //! Function to determine frame levels and base frames of all frames.
     /*!
      *  Function to determine frame levels and base frames of all frames; called by constructor.
      */
-    void setEphemerides( std::map< std::string, boost::shared_ptr< Ephemeris > > additionalEphemerides );
+    void setEphemerides( const std::map< std::string, boost::shared_ptr< Ephemeris > >& additionalEphemerides );
 
 };
 

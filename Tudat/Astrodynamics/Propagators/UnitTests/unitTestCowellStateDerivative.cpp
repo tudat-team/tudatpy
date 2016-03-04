@@ -243,9 +243,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
 
-    unsigned int totalNumberOfBodies;
     std::vector< std::string > bodyNames;
-    bodyNames.resize( totalNumberOfBodies );
     bodyNames.push_back( "Earth" );
     bodyNames.push_back( "Moon" );
 

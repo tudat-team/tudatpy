@@ -52,14 +52,6 @@ namespace tudat
 namespace ephemerides
 {
 
-basic_mathematics::Vector6d getDifferenceBetweenStates(
-        const boost::function< basic_mathematics::Vector6d( const double ) > stateFunction,
-        const boost::function< basic_mathematics::Vector6d( const double ) > centralBodyStateFunction,
-        const double time );
-
-Eigen::Vector3d calculateAccelerationFromEphemeris(
-        const boost::function< basic_mathematics::Vector6d( const double ) > stateFunction, const double time, const double timePerturbation );
-
 //! Ephemeris base class.
 /*!
  * Ephemeris base class.
@@ -96,12 +88,27 @@ public:
     virtual basic_mathematics::Vector6d getCartesianStateFromEphemeris(
             const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
+    //! Get state from ephemeris (with long double as state scalar).
+    /*!
+     * Returns state from ephemeris with long double as state scalar at given time. By default, this function casts the
+     * double getCartesianStateFromEphemeris to long double. It may be overridden by derived classes to make use of
+     * full long double computations.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
+     * \return State from ephemeris with long double as state scalar
+     */
     virtual Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
             const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
     {
         return getCartesianStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ).cast< long double >( );
     }
 
+    //! Get state from ephemeris, with state scalar as template type.
+    /*!
+     * Returns state from ephemeris (state scalar as template type) at given time.
+     * \param time Time at which ephemeris is to be evaluated (JULIAN_DAY_ON_J2000 used as reference julian day when needed).
+     * \return State from ephemeris with requested state scalar type.
+     */
     template< typename StateScalarType, typename TimeType >
     Eigen::Matrix< StateScalarType, 6, 1 > getTemplatedStateFromEphemeris( const TimeType& time );
 

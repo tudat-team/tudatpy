@@ -21,12 +21,6 @@ namespace tudat
 namespace ephemerides
 {
 
-template< typename TimeType >
-Eigen::Matrix< long double, 6, 1 > convertLongDoubleStateFromDoubleStateFunction(
-        const TimeType& time, const boost::function< basic_mathematics::Vector6d( const TimeType& ) >& doubleStateFunction )
-{
-    return ( doubleStateFunction( time ) ).template cast< long double >( );
-}
 
 //! Class that combines a series of translational and rotational ephemeris functions to yield a single translational ephemeris.
 /*!
@@ -162,22 +156,27 @@ public:
     }
 
     //! Destructor
-    /*!
-     *  Destructor.
-     */
     ~CompositeEphemeris( ){ }
 
     //! Get state from ephemeris.
     /*!
      * Returns state from ephemeris at given time.
-     * \param ephemerisTime Seconds since epoch at which ephemeris is to be evaluated.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return Constant state given by combined rotations and translations.
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double ephemerisTime, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
+    //! Get state from ephemeris (with long double as state scalar).
+    /*!
+     * Returns state from ephemeris with long double as state scalar at given time.
+     * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
+     * \return Constant state with long double as state scalar given by combined rotations and translations.
+     */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
-                const double ephemerisTime, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     //! Add an additional translational ephemeris at the end of the chain.
     /*!
@@ -201,19 +200,19 @@ public:
 
 private:
 
-    //! Vector of translational ephemeris functions
+    //! Vector of translational ephemeris functions.
     /*!
      *  Vector of translational ephemeris functions and addition (1) or subtraction (-1) indicator.
      */
     std::vector< std::pair< boost::function< StateType( const TimeType& ) > , int > > translationalEphemerides_;
 
-    //! Vector of rotational ephemeris functions
+    //! Vector of rotational ephemeris functions.
     /*!
-     *  Vector of rotational ephemeris functions
+     *  Vector of rotational ephemeris functions.
      */
     std::vector< boost::function< StateType( const double, const StateType& ) > > rotationalEphemerides_;
 
-    //! Vector indicating order of translational and rotational ephemeris
+    //! Vector indicating order of translational and rotational ephemeris.
     /*!
      *  Vector indicating order of translational and rotational ephemeris (0 is first, highest is last)
      */

@@ -26,7 +26,7 @@ bool isFrameInertial( const std::string frame )
 }
 
 //! Constructor from named list of bodies.
-ReferenceFrameManager::ReferenceFrameManager( const simulation_setup::NamedBodyMap bodyMap )
+ReferenceFrameManager::ReferenceFrameManager( const simulation_setup::NamedBodyMap& bodyMap )
 {
     // Get ephemerides from bodies
     std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerides;
@@ -46,7 +46,8 @@ ReferenceFrameManager::ReferenceFrameManager( const simulation_setup::NamedBodyM
 }
 
 //! Constructor from named list of ephemerides.
-ReferenceFrameManager::ReferenceFrameManager( std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerisMap )
+ReferenceFrameManager::ReferenceFrameManager(
+        const std::map< std::string, boost::shared_ptr< Ephemeris > >& ephemerisMap )
 {
     // Set name of global base frame.
     frameIndexList_[ getBaseFrameName( ) ] = -1;
@@ -56,13 +57,14 @@ ReferenceFrameManager::ReferenceFrameManager( std::map< std::string, boost::shar
 }
 
 //! Function to determine frame levels and base frames of all frames.
-void ReferenceFrameManager::setEphemerides( std::map< std::string, boost::shared_ptr< Ephemeris > > additionalEphemerides )
+void ReferenceFrameManager::setEphemerides(
+        const std::map< std::string, boost::shared_ptr< Ephemeris > >& additionalEphemerides )
 {
     // Set list of all frames for which frame level and base frame have not yet been determined.
     std::map< std::string, boost::shared_ptr< Ephemeris > > unhandledFrames_ = additionalEphemerides;
 
     // Set list of available ephemerides and check whether it already exists (not possible incurrent implementation)
-    for( std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator ephemerisIterator =
+    for( std::map< std::string, boost::shared_ptr< Ephemeris > >::const_iterator ephemerisIterator =
          additionalEphemerides.begin( ); ephemerisIterator != additionalEphemerides.end( ); ephemerisIterator++ )
     {
         if( availableEphemerides_.count( ephemerisIterator->first ) == 0 )
@@ -158,7 +160,7 @@ void ReferenceFrameManager::setEphemerides( std::map< std::string, boost::shared
 
 //! Returns an ephemeris along a single line of the hierarchy tree.
 std::vector< boost::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEphemerisFromLowerToUpperFrame(
-        std::string lowerFrame, std::string upperFrame )
+        const std::string& lowerFrame, const std::string& upperFrame )
 {
     // Get indices of frames.
     int upperIndex = frameIndexList_.at( upperFrame );
@@ -200,7 +202,7 @@ std::vector< boost::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEp
 }
 
 //! Return the level at which the requested ephemeris is in the hierarchy.
-std::pair< int, bool > ReferenceFrameManager::getFrameLevel( std::string frame )
+std::pair< int, bool > ReferenceFrameManager::getFrameLevel( const std::string& frame )
 {
     std::pair< int, bool > returnValue;
 
@@ -313,7 +315,7 @@ std::pair< std::string, int > ReferenceFrameManager::getNearestCommonFrame( std:
     return output;
 }
 
-std::string ReferenceFrameManager::getBaseFrameNameOfBody( const std::string bodyName )
+std::string ReferenceFrameManager::getBaseFrameNameOfBody( const std::string& bodyName )
 {
     std::string frameName;
 

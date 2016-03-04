@@ -5,6 +5,7 @@
 #include <map>
 #include <iostream>
 
+#include <boost/lexical_cast.hpp>
 #include <boost/function.hpp>
 
 #include <Eigen/Core>
@@ -48,7 +49,8 @@ public:
         // Check consistency of input.
         if( centralBodies.size( ) != bodiesToIntegrate.size( ) )
         {
-            std::cerr<<"Error, number of central bodies not equal to number of bodies to integrate "<<std::endl;
+            throw std::runtime_error(
+                        "Error in CentralBodyData, number of central bodies not equal to number of bodies to integrate " );
         }
 
 
@@ -74,7 +76,8 @@ public:
                         centralBodyIndex = j;
                         if( i == j )
                         {
-                            std::cerr<<"Error, body "<< bodiesToIntegrate[ j ]<<" cannot be its own central body"<<std::endl;
+                            throw std::runtime_error( "Error, body "+ bodiesToIntegrate[ j ] +
+                                                      " cannot be its own central body" );
                         }
                     }
                 }
@@ -196,16 +199,16 @@ private:
         switch( bodyOriginType_[ bodyIndex ] )
         {
         case inertial:
-            //std::cerr<<"Warning, checking for inertial correction state"<<std::endl;
             break;
         case from_ephemeris:
             originState = centralBodiesFromEphemerides_.at( bodyIndex )( static_cast< double >( time ) );
             break;
         case from_integration:
-            //std::cout<<"From int. "<<bodyIndex<<" "<<centralBodiesFromIntegration_.at( bodyIndex )<<std::endl;
             originState = internalSolution.segment( centralBodiesFromIntegration_.at( bodyIndex ) * 6, 6 );
-            //std::cout<<"From int. "<<originState.transpose( )<<std::endl;
-
+            break;
+        default:
+            throw std::runtime_error( "Error, do not recognize boy origin type " +
+                                      boost::lexical_cast< std::string >( bodyOriginType_[ bodyIndex ] ) );
             break;
         }
         return originState;

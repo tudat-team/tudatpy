@@ -105,30 +105,6 @@ public:
         }
     }
 
-    //! Calculates the state derivative of the translational motion of the system.
-    /*!
-     * Calculates the state derivative (velocity+acceleration of each body) of the translational motion of the system
-     * at the given time and position/velocity of bodies.
-     *  \param ephemerisTime Time (TDB seconds since J2000) at which the system is to be updated.
-     *  \param stateOfSystemToBeIntegrated List of 6 * bodiesToBeIntegratedNumerically_.size( ), containing Caartesian
-     *  position/velocity of the bodies being integrated. The order of the values is defined by the order of bodies in
-     *  bodiesToBeIntegratedNumerically_
-     *  \return Current state derivative (velocty+acceleration) of system of bodies integrated numerically.
-     */
-//    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > calculateSystemStateDerivative(
-//            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated ) = 0;
-
-
-//    //! Returns the name of nth body from which the state is retrieved from the ephemeris.
-//    /*!
-//     *  Returns the name of nth body from which the state is retrieved from the ephemeris (i.e. which is involved in simulation,
-//     *  but whose state is not integrated numerically).
-//     *  \param bodyIndex Index from bodiesWithStateFromEphemeris_ of body of which name is to be retrieved.
-//     *  \return Name of requested body.
-//     */
-//    std::string getNameOfEphemerisBody( int bodyIndex ) { return bodiesWithStateFromEphemeris_[ bodyIndex ]; }
-
-
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertCurrentStateToGlobalRepresentation(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time )
     {

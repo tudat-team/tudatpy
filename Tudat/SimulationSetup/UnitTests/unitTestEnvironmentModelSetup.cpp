@@ -417,9 +417,8 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
     basic_mathematics::Vector6d vehicleState =
             ( basic_mathematics::Vector6d( )<< 3.0E6, 4.0E6, 5.0E6, -3.0E3, 2.0E3, 1.2E3 ).finished( );
-    bodyMap[ "Earth" ]->setCurrentTimeAndState( 0.5E7, basic_mathematics::Vector6d::Zero( ) );
-    bodyMap[ "Vehicle" ]->setCurrentTimeAndState(
-                0.5E7, vehicleState );
+    bodyMap[ "Earth" ]->setState( basic_mathematics::Vector6d::Zero( ) );
+    bodyMap[ "Vehicle" ]->setState( vehicleState );
 
 
     vehicleFlightConditions->updateConditions( );

@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator !=
          bodyMap.end( ); bodyIterator++ )
     {
-        bodyIterator->second->updateStateFromEphemeris( 1.0E7 );
+        bodyIterator->second->setStateFromEphemeris( 1.0E7 );
     }
 
 
@@ -229,9 +229,9 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     basic_mathematics::Vector6d dummyEarthState =
             ( basic_mathematics::Vector6d ( ) << 1.1E11, 0.5E11, 0.01E11, 0.0
               ).finished( );
-    bodyMap[ "Earth" ]->setCurrentTimeAndState( 0.0, dummyEarthState );
-    bodyMap[ "Vehicle" ]->setCurrentTimeAndState(
-                0.0, ( basic_mathematics::Vector6d ( ) << 7.0e6, 8.0e6, 9.0e6, 0.0, 0.0, 0.0
+    bodyMap[ "Earth" ]->setState( dummyEarthState );
+    bodyMap[ "Vehicle" ]->setState(
+                ( basic_mathematics::Vector6d ( ) << 7.0e6, 8.0e6, 9.0e6, 0.0, 0.0, 0.0
                        ).finished( ) + dummyEarthState );
 
     // Define Earth gravity field.
