@@ -10,15 +10,17 @@ namespace propagators
 
 
 void checkValidityOfRequiredEnvironmentUpdates(
-        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& requestedUpdates,
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >&
+        requestedUpdates,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace propagators;
 
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< int > > fullMapIndicesToRemove;
 
-    for( std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >::iterator updateIterator =
-         requestedUpdates.begin( ); updateIterator != requestedUpdates.end( ); updateIterator++ )
+    for( std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >::iterator
+         updateIterator = requestedUpdates.begin( );
+         updateIterator != requestedUpdates.end( ); updateIterator++ )
     {
         std::vector< int > indicesToRemove;
         for( unsigned int i = 0; i < updateIterator->second.size( ); i++ )
@@ -27,7 +29,8 @@ void checkValidityOfRequiredEnvironmentUpdates(
             {
                 if( bodyMap.count( updateIterator->second.at( i ) ) == 0 )
                 {
-                    std::cerr<<"Error when making environment model update settings, could not find body "<<updateIterator->second.at( i )<<std::endl;
+                    throw std::runtime_error( "Error when making environment model update settings, could not find body " +
+                                              boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                 }
 
                 switch( updateIterator->first )
@@ -36,8 +39,8 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 {
                     if( bodyMap.at( updateIterator->second.at( i ) )->getEphemeris( ) == NULL )
                     {
-                        std::cerr<<"Error when making environment model update settings, could not find ephemeris of body "<<
-                                   updateIterator->second.at( i )<<std::endl;
+                        throw std::runtime_error( "Error when making environment model update settings, could not find ephemeris of body " +
+                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                         indicesToRemove.push_back( i );
                     }
                     break;
@@ -46,8 +49,8 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 {
                     if( bodyMap.at( updateIterator->second.at( i ) )->getRotationalEphemeris( ) == NULL )
                     {
-                        std::cerr<<"Error when making environment model update settings, could not find rotational ephemeris of body "<<
-                                   updateIterator->second.at( i )<<std::endl;
+                        throw std::runtime_error( "Error when making environment model update settings, could not find rotational ephemeris of body " +
+                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                         indicesToRemove.push_back( i );
                     }
                     break;
@@ -57,15 +60,24 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodyMap.at( updateIterator->second.at( i ) )->getFlightConditions( );
                     if( flightConditions == NULL )
                     {
-                        std::cerr<<"Error when making environment model update settings, could not find flight conditions of body "<<
-                                   updateIterator->second.at( i )<<std::endl;
+                        throw std::runtime_error( "Error when making environment model update settings, could not find flight conditions of body " +
+                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                         indicesToRemove.push_back( i );
                     }
                     break;
                 }
                 case radiation_pressure_interface_update:
+                {
+                    std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+                     radiationPressureInterfaces = bodyMap.at( updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
+                    if( radiationPressureInterfaces.size( ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when making environment model update settings, could not find radiation pressure interface of body " +
+                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                        indicesToRemove.push_back( i );
+                    }
                     break;
-
+                }
                 case body_mass_update:
                     break;
                 }

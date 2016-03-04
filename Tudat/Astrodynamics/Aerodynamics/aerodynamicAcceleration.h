@@ -188,6 +188,7 @@ public:
      * Function pointers to retrieve the current values of quantities from which the
      * acceleration is to be calculated are set by constructor. This function calls
      * them to update the associated variables to their current state.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {

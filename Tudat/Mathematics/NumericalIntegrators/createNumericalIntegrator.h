@@ -5,6 +5,7 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
@@ -47,6 +48,8 @@ public:
      *  \param endTime Stop time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration
      *  for variable step size integrators.
+     *  \param printFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *  time steps, with n = printFrequency).
      */
     IntegratorSettings( const AvailableIntegrators integratorType, const TimeType initialTime,
                         const TimeType endTime, const TimeType initialTimeStep,
@@ -85,6 +88,11 @@ public:
      */
     TimeType initialTimeStep_;
 
+    //! Frequency which with to save numerical integration result.
+    /*!
+     *  Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *  time steps, with n = printFrequency).
+     */
     int printFrequency_;
 };
 
@@ -104,12 +112,16 @@ public:
      *  \param integratorType Type of numerical integrator (must be an RK variable step type)
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param endTime Stop time (independent variable) of numerical integration.
-     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
+     *  Adapted during integration
      *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
-     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value.
+     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
+     *  comes below this value.
      *  \param maximumStepSize Maximum step size for integration.
      *  \param relativeErrorTolerance Relative error tolerance for step size control
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control
+     *  \param printFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *  time steps, with n = printFrequency).
      *  \param safetyFactorForNextStepSize Safety factor for step size control
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
      *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
@@ -142,9 +154,6 @@ public:
     ~RungeKuttaVariableStepSizeSettings( ){ }
 
     //! Type of numerical integrator (must be an RK variable step type)
-    /*!
-     *  Type of numerical integrator (must be an RK variable step type)
-     */
     numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet_;
 
     //! Minimum step size for integration.
@@ -154,39 +163,21 @@ public:
     const TimeType minimumStepSize_;
 
     //! Maximum step size for integration.
-    /*!
-     *  Maximum step size for integration.
-     */
     const TimeType maximumStepSize_;
 
     //! Relative error tolerance for step size control
-    /*!
-     *  Relative error tolerance for step size control
-     */
     const TimeType relativeErrorTolerance_;
 
     //! Absolute error tolerance for step size control
-    /*!
-     *  Absolute error tolerance for step size control
-     */
     const TimeType absoluteErrorTolerance_;
 
     //! Safety factor for step size control
-    /*!
-     *  Safety factor for step size control
-     */
     const TimeType safetyFactorForNextStepSize_;
 
     //! Maximum increase factor in time step in subsequent iterations.
-    /*!
-     *  Maximum increase factor in time step in subsequent iterations.
-     */
     const TimeType maximumFactorIncreaseForNextStepSize_;
 
     //! Maximum decrease factor in time step in subsequent iterations.
-    /*!
-     *  Maximum decrease factor in time step in subsequent iterations.
-     */
     const TimeType minimumFactorDecreaseForNextStepSize_;
 };
 
@@ -194,48 +185,56 @@ public:
 /*!
  *  Function to create a numerical integrator from given integrator settings, state derivative function and initial state.
  *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
- *  \param initialState Initial state
+ *  \param initialState Initial state for numerical integration
  *  \param integratorSettings Settings for numerical integrator.
  *  \return Numerical integrator object
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
 DependentVariableType > > createIntegrator(
-        boost::function< DependentVariableType( const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
+        boost::function< DependentVariableType(
+            const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
         const DependentVariableType initialState,
         boost::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
 
 {    
+    boost::shared_ptr< NumericalIntegrator
+            < IndependentVariableType, DependentVariableType, DependentVariableType > > integrator;
 
-    boost::shared_ptr< NumericalIntegrator< IndependentVariableType, DependentVariableType, DependentVariableType > > integrator;
+    // Retrieve requested type of integrator
     switch( integratorSettings->integratorType_ )
     {
     case euler:
-        integrator = boost::make_shared< EulerIntegrator< IndependentVariableType, DependentVariableType, DependentVariableType > >
+        integrator = boost::make_shared< EulerIntegrator
+                < IndependentVariableType, DependentVariableType, DependentVariableType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
     case rungeKutta4:
 
-        integrator = boost::make_shared< RungeKutta4Integrator< IndependentVariableType, DependentVariableType, DependentVariableType > >
+        integrator = boost::make_shared< RungeKutta4Integrator
+                < IndependentVariableType, DependentVariableType, DependentVariableType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
 
 
     case rungeKuttaVariableStepSize:
     {
-        if( boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >(
-                    integratorSettings ) == NULL )
+        // Check input consistency
+        boost::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > > variableStepIntegratorSettings =
+                boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >(
+                    integratorSettings );
+        if( variableStepIntegratorSettings == NULL )
         {
-            std::cerr<<"Error, type of integrator settings not compatible with selected integrator"<<std::endl;
+           std::runtime_error( "Error, type of integrator settings not compatible with selected integrator" );
         }
         else
         {
-            boost::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > > variableStepIntegratorSettings =
-                    boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >(
-                        integratorSettings );
-            RungeKuttaCoefficients coefficients =  RungeKuttaCoefficients::get( variableStepIntegratorSettings->coefficientSet_ );
+            // Get requested RK coefficients and create integrator.
+            RungeKuttaCoefficients coefficients =  RungeKuttaCoefficients::get(
+                        variableStepIntegratorSettings->coefficientSet_ );
             integrator = boost::make_shared<
-                    RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, DependentVariableType, DependentVariableType > >
+                    RungeKuttaVariableStepSizeIntegrator
+                    < IndependentVariableType, DependentVariableType, DependentVariableType > >
                     ( coefficients,
                       stateDerivativeFunction, integratorSettings->initialTime_, initialState,
                       variableStepIntegratorSettings->minimumStepSize_,
@@ -249,8 +248,9 @@ DependentVariableType > > createIntegrator(
         break;
     }
     default:
-        std::cerr<<"Error, integrator "<<integratorSettings->integratorType_<<" not found. "<<std::endl;
-    }
+        std::runtime_error(
+                    "Error, integrator " +  boost::lexical_cast< std::string >( integratorSettings->integratorType_ ) +
+                    "not found. " );    }
     return integrator;
 }
 
@@ -265,27 +265,34 @@ DependentVariableType > > createIntegrator(
 template< typename IndependentVariableType, typename DependentVariableType, typename TimeType = double >
 boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
 DependentVariableType > > createFixedStepSizeIntegrator(
-        boost::function< DependentVariableType( const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
+        boost::function< DependentVariableType(
+            const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
         const DependentVariableType initialState,
         boost::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
 
 {
+    boost::shared_ptr< NumericalIntegrator
+            < IndependentVariableType, DependentVariableType, DependentVariableType > > integrator;
 
-    boost::shared_ptr< NumericalIntegrator< IndependentVariableType, DependentVariableType, DependentVariableType > > integrator;
+    // Retrieve requested type of integrator
     switch( integratorSettings->integratorType_ )
     {
     case euler:
-        integrator = boost::make_shared< EulerIntegrator< IndependentVariableType, DependentVariableType, DependentVariableType > >
+        integrator = boost::make_shared< EulerIntegrator
+                < IndependentVariableType, DependentVariableType, DependentVariableType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
     case rungeKutta4:
 
-        integrator = boost::make_shared< RungeKutta4Integrator< IndependentVariableType, DependentVariableType, DependentVariableType > >
+        integrator = boost::make_shared< RungeKutta4Integrator
+                < IndependentVariableType, DependentVariableType, DependentVariableType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
 
     default:
-        std::cerr<<"Error, integrator "<<integratorSettings->integratorType_<<" not found. "<<std::endl;
+        std::runtime_error(
+                    "Error, fixed step integrator " +
+                    boost::lexical_cast< std::string >( integratorSettings->integratorType_ ) + "not found. " );
     }
     return integrator;
 }

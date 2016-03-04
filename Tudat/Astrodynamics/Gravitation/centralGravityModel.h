@@ -253,6 +253,7 @@ public:
      * Updates class members relevant for computing the central gravitational acceleration. In this
      * case the function simply updates the members in the base class.
      * \sa SphericalHarmonicsGravitationalAccelerationModelBase.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {

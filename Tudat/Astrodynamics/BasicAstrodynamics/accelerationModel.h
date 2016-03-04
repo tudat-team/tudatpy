@@ -98,6 +98,7 @@ public:
      * used by the getAcceleration() function.
      *
      * N.B.: This pure virtual function must be overridden by derived classes!
+     * \param currentTime Time at which acceleration model is to be updated.
      */
     virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
 

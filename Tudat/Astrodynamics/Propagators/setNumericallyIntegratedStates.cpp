@@ -18,16 +18,16 @@ void checkTranslationalStatesFeasibility(
             std::string ephemerisOrigin = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
             if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin ) != bodiesToIntegrate.end( ) )
             {
-                std::cerr<<"Warning, found non-integrated body with an integrated body as ephemeris origin"<<" "<<
-                           bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( )<<" "<<bodyIterator->first<<std::endl;
-                //boost::throw_exception(
-                //            boost::enable_error_info(
-                //                std::runtime_error( "Error, found non-integrated body with an integrated body as ephemeris origin" ) ) );
+                throw std::runtime_error(
+                            "Warning, found non-integrated body with an integrated body as ephemeris origin" +
+                           bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
+                            bodyIterator->first );
             }
         }
     }
 }
 
+//! Function to create an interpolator for the new translational state of a body.
 template< >
 boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > >
 createStateInterpolator( const std::map< double, Eigen::Matrix< double, 6, 1 > >& stateMap )
@@ -35,6 +35,7 @@ createStateInterpolator( const std::map< double, Eigen::Matrix< double, 6, 1 > >
     return boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( stateMap, 6 );
 }
 
+//! Function to create an interpolator for the new translational state of a body.
 template< >
 boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >
 createStateInterpolator( const std::map< double, Eigen::Matrix< long double, 6, 1 > >& stateMap )
@@ -101,7 +102,8 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
         counter++;
         if( counter > 10000 )
         {
-            std::cerr<<"Warning, ephemeris update order determination now at iteration "<<counter<<std::endl;
+            throw std::runtime_error( "Warning, ephemeris update order determination now at iteration " +
+                                      boost::lexical_cast< std::string>( counter ) );
         }
     }
 

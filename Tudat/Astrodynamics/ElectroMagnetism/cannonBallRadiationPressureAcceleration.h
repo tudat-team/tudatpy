@@ -179,6 +179,7 @@ public:
      * Updates member variables used by the acceleration model. This function evaluates all
      * dependent variables to the 'current' values of these parameters. Only these current values,
      * not the function-pointers are then used by the getAcceleration( ) function.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
     void updateMembers( const double currentTime = TUDAT_NAN );
 

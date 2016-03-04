@@ -287,6 +287,7 @@ public:
     /*!
      * Updates all the base class members to their current values and also updates the class
      * members of this class.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {

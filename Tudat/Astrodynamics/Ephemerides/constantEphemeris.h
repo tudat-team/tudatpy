@@ -13,10 +13,7 @@ namespace tudat
 namespace ephemerides
 {
 
-//! Ephemeris class that gives a constant (i.e. time independent state).
-/*!
- *  Ephemeris class that gives a constant (i.e. time independent state).
- */
+//! Ephemeris class that gives a constant (i.e. time independent) state.
 class ConstantEphemeris : public Ephemeris
 {
 public:
@@ -25,6 +22,7 @@ public:
 
     //! Constructor
     /*!
+     *  Constructor.
      *  \param constantStateFunction Function returning the constant state.
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
@@ -36,6 +34,7 @@ public:
 
     //! Constructor
     /*!
+     *  Constructor
      *  \param constantState Constant state value.
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
@@ -49,11 +48,12 @@ public:
     //! Get state from ephemeris.
     /*!
      * Returns state from ephemeris at given time.
-     * \param ephemerisTime Seconds since epoch at which ephemeris is to be evaluated (not used in this derived class)
+     * \param seconsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated (not used in this derived class)
+     * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return Constant state given by constantStateFunction_
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double ephemerisTime = 0.0, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000)
+            const double seconsSinceEpoch = 0.0, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000)
     {
         return constantStateFunction_( );
     }
@@ -63,7 +63,7 @@ public:
      * Changes the constant state value to a new value.
      * \param newState New value for constant state.
      */
-    void updateConstantState( const basic_mathematics::Vector6d newState )
+    void updateConstantState( const basic_mathematics::Vector6d& newState )
     {
         constantStateFunction_ = boost::lambda::constant( newState );
     }
@@ -71,7 +71,7 @@ private:
 
     //! Time-independent state function.
     /*!
-     *  Function that returns a (constant) cartesian state.
+     *  Function that returns a constant cartesian state.
      */
     boost::function< basic_mathematics::Vector6d( ) > constantStateFunction_;
 

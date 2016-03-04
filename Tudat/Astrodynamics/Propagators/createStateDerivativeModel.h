@@ -24,8 +24,9 @@ boost::shared_ptr< CentralBodyData< ScalarStateType, TimeType > > createCentralB
     {
         if( bodyMap.count( bodiesToIntegrate.at( i ) ) == 0 )
         {
-            std::cerr<<"Warning when creating CentralBodyData, body "<<bodiesToIntegrate.at( i )<<std::endl;
-            std::cerr<<" not present in provided body map, cannot integrate body!"<<std::endl;
+            throw std::runtime_error(
+                        "Warning when creating CentralBodyData, body " + bodiesToIntegrate.at( i ) +
+                                      " not present in provided body map." );
         }
     }
 
@@ -83,7 +84,9 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
         break;
     }
     default:
-        std::cerr<<"Error, did not recognize translational state propagation type: "<<translationPropagatorSettings->propagator_<<std::endl;
+        throw std::runtime_error(
+                    "Error, did not recognize translational state propagation type: " +
+                    boost::lexical_cast< std::string >( translationPropagatorSettings->propagator_ ) );
     }
     return stateDerivativeModel;
 }
@@ -101,7 +104,8 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
                 boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
         if( translationPropagatorSettings == NULL )
         {
-            std::cerr<<"Error, expected translational state propagation settings when making state derivative model"<<std::endl;
+            throw std::runtime_error(
+                        "Error, expected translational state propagation settings when making state derivative model" );
         }
         else
         {
@@ -111,7 +115,10 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
         break;
     }    
     default:
-        std::cerr<<"Error, could not process state type "<<propagatorSettings->stateType_<<" when making state derivative model"<<std::endl;
+        throw std::runtime_error(
+                    "Error, could not process state type " +
+                    boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) +
+                    " when making state derivative model" );
     }
     return stateDerivativeModel;
 }
@@ -123,30 +130,6 @@ std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, Time
     std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels;
     switch( propagatorSettings->stateType_ )
     {
-    case hybrid:
-    {
-        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
-
-        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::iterator
-             propagatorIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
-             propagatorIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); propagatorIterator++ )
-        {
-            for( unsigned int i = 0; i < propagatorIterator->second.size( ); i++ )
-            {
-                if( propagatorIterator->first != hybrid )
-                {
-                    stateDerivativeModels.push_back( createStateDerivativeModel< StateScalarType, TimeType >(
-                                                         propagatorIterator->second.at( i ), bodyMap, startTime ) );
-                }
-                else
-                {
-                    std::cerr<<"Error when making state derivative model, cannot process nested hybrid propagators"<<std::endl;
-                }
-            }
-        }
-        break;
-    }
     default:
         stateDerivativeModels.push_back( createStateDerivativeModel< StateScalarType, TimeType >(
                                              propagatorSettings, bodyMap, startTime ) );

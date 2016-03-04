@@ -134,6 +134,7 @@ public:
     //! Update member variables to current state.
     /*!
      *  Update member variables to current state.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {

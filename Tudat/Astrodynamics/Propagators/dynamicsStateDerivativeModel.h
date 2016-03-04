@@ -28,7 +28,7 @@ namespace propagators
  *  Class for the numerical integrations of general dynamical equations.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-class HybridStateDerivativeModel
+class DynamicsStateDerivativeModel
 {
 public:
 
@@ -42,7 +42,7 @@ public:
      *  \param environmentUpdater Object which is used to update time-dependent environment models to current time and state,
      *  must be consistent with member environment updaters of stateDerivativeModels entries.
      */
-    HybridStateDerivativeModel(
+    DynamicsStateDerivativeModel(
             const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels,
             const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater ):
         environmentUpdater_( environmentUpdater )
@@ -289,7 +289,7 @@ private:
 };
 
 template< typename TimeType = double, typename StateScalarType = double,
-          typename ConversionClassType = HybridStateDerivativeModel< TimeType, StateScalarType > >
+          typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
 std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
         boost::shared_ptr< ConversionClassType > converterClass )
