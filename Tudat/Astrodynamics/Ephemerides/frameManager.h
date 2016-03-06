@@ -64,7 +64,8 @@ public:
      *  \return Ephemeris of requested body qith requested frame origin
      */
     template< typename StateScalarType = double, typename TimeType = double >
-    boost::shared_ptr< Ephemeris > getEphemeris( std::string origin, std::string body )
+    boost::shared_ptr< Ephemeris > getEphemeris(
+            const std::string& origin, const std::string& body )
     {
         typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
         boost::shared_ptr< Ephemeris > ephemerisBetweenFrames;

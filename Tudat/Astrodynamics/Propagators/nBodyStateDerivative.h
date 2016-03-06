@@ -22,8 +22,9 @@ namespace tudat
 namespace propagators
 {
 
+//! State derivative for the translational dynamics of N bodies
 /*!
- * This class calculates the state derivative of any number of bodies each under the influence of any
+ * This class calculates the trabnslational state derivative of any number of bodies, each under the influence of any
  * number of bodies, both from the set being integrated and otherwise.
  */
 template< typename StateScalarType = double, typename TimeType = double >
@@ -46,7 +47,9 @@ public:
      *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
      *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
      *  a pointer to an acceleration model.
-     *  \param bodiesToIntegrate. List of names of bodies that are to be integrated numerically.
+     *  \param centralBodyData Object responsible for providing the current integration origins from the global origins.
+     *  \param propagatorType Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
+     *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      */
     NBodyStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                           const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
@@ -60,26 +63,31 @@ public:
         bodiesToBeIntegratedNumerically_( bodiesToIntegrate )
     { }
 
+    //! Destructor
     virtual ~NBodyStateDerivative( ){ }
 
+    //! Function to update the state derivative model to the current time.
+    /*!
+     * Function to update the state derivative model (i.e. acceleration, torque, etc. models) to the current time. Note that
+     * this function only updates the state derivative model itself, the environment models must be updated before calling
+     * this function
+     * \param currentTime Time at which state derivative is to be calculated
+     */
     void updateStateDerivativeModel( const TimeType currentTime )
     {
         // Reser all acceleration times (to allow multiple evaluations at same time, e.g. stage 2 and 3 in RK4 integrator)
         for( accelerationMapIterator = accelerationModelsPerBody_.begin( );
              accelerationMapIterator != accelerationModelsPerBody_.end( ); accelerationMapIterator++ )
         {
-            // Retrieve list of accelerations
+            // Iterate over all accelerations acting on body
+            for( innerAccelerationIterator  = accelerationMapIterator->second.begin( ); innerAccelerationIterator !=
+                 accelerationMapIterator->second.end( ); innerAccelerationIterator++ )
             {
-                // Iterate over all accelerations acting on body
-                for( innerAccelerationIterator  = accelerationMapIterator->second.begin( ); innerAccelerationIterator !=
-                     accelerationMapIterator->second.end( ); innerAccelerationIterator++ )
+                // Update accelerations
+                for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
-                    // Update accelerations
-                    for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
-                    {
 
-                        innerAccelerationIterator->second[ j ]->resetTime( TUDAT_NAN );
-                    }
+                    innerAccelerationIterator->second[ j ]->resetTime( TUDAT_NAN );
                 }
             }
         }
@@ -88,18 +96,15 @@ public:
         for( accelerationMapIterator = accelerationModelsPerBody_.begin( );
              accelerationMapIterator != accelerationModelsPerBody_.end( ); accelerationMapIterator++ )
         {
-            // Retrieve list of accelerations
+            // Iterate over all accelerations acting on body
+            for( innerAccelerationIterator  = accelerationMapIterator->second.begin( ); innerAccelerationIterator !=
+                 accelerationMapIterator->second.end( ); innerAccelerationIterator++ )
             {
-                // Iterate over all accelerations acting on body
-                for( innerAccelerationIterator  = accelerationMapIterator->second.begin( ); innerAccelerationIterator !=
-                     accelerationMapIterator->second.end( ); innerAccelerationIterator++ )
+                // Update accelerations
+                for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
-                    // Update accelerations
-                    for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
-                    {
 
-                        innerAccelerationIterator->second[ j ]->updateMembers( currentTime );
-                    }
+                    innerAccelerationIterator->second[ j ]->updateMembers( currentTime );
                 }
             }
         }
@@ -184,34 +189,35 @@ protected:
     }
 
 
+    //! A map containing the list of accelerations acting on each body,
+    /*!
+     * A map containing the list of accelerations acting on each body, identifying
+     * the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+     * the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+     * This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+     * a pointer to an acceleration model.
+     */
     basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
 
+    //! Object responsible for providing the current integration origins from the global origins.
     boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData_;
 
+    //! Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
     TranslationalPropagatorType propagatorType_;
 
+    //! List of names of bodies that are to be integrated numerically.
     std::vector< std::string > bodiesToBeIntegratedNumerically_;
 
-
+    //! Predefined iterator to save (de-)allocation time.
     basic_astrodynamics::AccelerationMap::iterator accelerationMapIterator;
 
+    //! Predefined iterator to save (de-)allocation time.
     std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator
     innerAccelerationIterator;
 
 };
 
 }
-
-/*
-std::map< std::string, std::map< double, Eigen::VectorXd > > propagateBodies(
-        AccelerationMap accelerationModelsPerBody,
-        NamedBodyMap bodyMap,
-        Eigen::VectorXd systemInitialState,
-        double initialEphemerisTime,
-        double timeStep,
-        int numberOfTimeSteps,
-        std::vector< std::string > bodiesToIntegrate);
-*/
 
 }
 #endif // NBODYSTATEDERIVATIVE_H

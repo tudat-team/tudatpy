@@ -179,8 +179,9 @@ private:
     /*!
      * Function to explicitly use existing environment models to update current states of integrated bodies, overriding
      * the numerically integrated states .
-     * \param integratedStatesToSet Integrated state types which are not to be used for updating the
-     * environment, but which are to be set from existing environment models instead.
+     * \param statesToSet Integrated state types which are not to be used for updating the environment, but
+     * which are to be set from existing environment models instead.
+     * \param currentTime Time to which environment is to be updated.
      */
     void setStatesFromEnvironment(
             const std::vector< IntegratedStateType >& statesToSet,

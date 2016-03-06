@@ -46,7 +46,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
         const std::vector< std::string >& centralBodies,
         const simulation_setup::NamedBodyMap& bodyMap,
         const TimeType initialTime,
-        const ephemerides::ReferenceFrameManager& frameManager )
+        const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager )
 {
     // Set initial states of bodies to integrate.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState =
@@ -63,7 +63,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
         if( centralBodies.at( i ) != ephemerisOfCurrentBody->getReferenceFrameOrigin( ) )
         {
             boost::shared_ptr< ephemerides::Ephemeris > correctionEphemeris =
-                    frameManager.getEphemeris( ephemerisOfCurrentBody->getReferenceFrameOrigin( ), centralBodies.at( i ) );
+                    frameManager->getEphemeris( ephemerisOfCurrentBody->getReferenceFrameOrigin( ), centralBodies.at( i ) );
             systemInitialState.segment( i * 6 , 6 ) -= correctionEphemeris->getTemplatedStateFromEphemeris<
                     StateScalarType, TimeType >( initialTime );
         }
@@ -90,7 +90,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
 {
 
     return getInitialStatesOfBodies( bodiesToIntegrate, centralBodies, bodyMap, initialTime,
-                                     ephemerides::ReferenceFrameManager( bodyMap ) );
+                                     boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap ) );
 }
 
 //! Function to get the states of single, w.r.t. some set of central body, at the requested time.
@@ -116,68 +116,15 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
 
 //! Base class for performing full numerical integration of a dynamical system.
 /*!
- *  Base class for performing full numerical integration of a dynamical system, derived classes define the specific kind
- *  of integration that is performed (single-arc/multi-arc; dynamics/variational equations, etc.)/
+ *  Base class for performing full numerical integration of a dynamical system. Governing equations are set once,
+ *  but can be re-integrated for different initial conditions using the same instance of the class.
+ *  Derived classes define the specific kind of integration that is performed
+ *  (single-arc/multi-arc; dynamics/variational equations, etc.)
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class DynamicsSimulatorBase
+class DynamicsSimulator
 {
 public:
-
-    //! Constructor
-    /*!
-     * Constructor
-      * \param bodyMap List of bodies to use in simulations.
-     */
-    DynamicsSimulatorBase( const simulation_setup::NamedBodyMap& bodyMap ): bodyMap_( bodyMap )
-    {
-        // Create frame origin transformation object,.
-        frameManager_ = boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap );
-    }
-
-    //! Virtual destructor.
-    virtual ~DynamicsSimulatorBase( ){ }
-
-    virtual void integrateEquationsOfMotion(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates ) = 0;
-
-    //! Function to get the map of named bodies involved in simulation.
-    /*!
-     *  Function to get the map of named bodies involved in simulation.
-     *  \return Map of named bodies involved in simulation.
-     */
-    simulation_setup::NamedBodyMap getNamedBodyMap( )
-    {
-        return bodyMap_;
-    }
-protected:
-
-    //! Object for retrieving ephemerides for transformation of reference frame (origins)
-    /*!
-     *  Object for retrieving ephemerides for transformation of reference frame (origins)
-     */
-    boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
-
-    //!  Map of bodies (with names) of all bodies in integration.
-    /*!
-     *   Map of bodies (with names) of all bodies in integration.
-     */
-    simulation_setup::NamedBodyMap bodyMap_;
-
-};
-
-//! Class to manage integration of equations of motion of bodies undergoing accelerations.
-/*!
- *  Class to manage integration of equations of motion of bodies undergoing accelerations. Equations of motion are set once, can be re-integrated
- *  for different initial conditions.
- */
-template< typename StateScalarType = double, typename TimeType = double >
-class DynamicsSimulator: public DynamicsSimulatorBase< StateScalarType, TimeType >
-{
-public:
-
-    using DynamicsSimulatorBase< StateScalarType, TimeType >::frameManager_;
-    using DynamicsSimulatorBase< StateScalarType, TimeType >::bodyMap_;
 
     //! Constructor of simulator.
     /*!
@@ -185,40 +132,46 @@ public:
      *  \param bodyMap Map of bodies (with names) of all bodies in integration.
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
-     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at the end of the contructor or not.
+     *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
+     *  after propagation and resetting ephemerides.
+     *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
+     *  ephemerides.
      */
+
     DynamicsSimulator(
             const  simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const bool clearNumericalSolutions = true,
             const bool setIntegratedResult = true ):
-        DynamicsSimulatorBase< StateScalarType, TimeType >( bodyMap ),  integratorSettings_( integratorSettings ),
-        propagatorSettings_( propagatorSettings ), clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult )
+        bodyMap_( bodyMap ), integratorSettings_( integratorSettings ),
+        propagatorSettings_( propagatorSettings ), clearNumericalSolutions_( clearNumericalSolutions ),
+        setIntegratedResult_( setIntegratedResult )
     {
-        integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(  propagatorSettings_, bodyMap_, frameManager_ );
-        environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >( propagatorSettings_, bodyMap_ );
+        frameManager_ = boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap );
+        integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
+                    propagatorSettings_, bodyMap_, frameManager_ );
+        environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >(
+                    propagatorSettings_, bodyMap_ );
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
-                    createStateDerivativeModels< StateScalarType, TimeType >( propagatorSettings_, bodyMap_, integratorSettings_->initialTime_ ),
-                    environmentUpdater_ );
-
-        // Create function evaluation for differential equations.
+                    createStateDerivativeModels< StateScalarType, TimeType >(
+                        propagatorSettings_, bodyMap_, integratorSettings_->initialTime_ ), environmentUpdater_ );
         stateDerivativeFunction_ =
                 boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
                              dynamicsStateDerivative_, _1, _2 );
     }
 
     //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
     virtual ~DynamicsSimulator( ) { }
 
     //! This function numerically (re-)integrates the equations of motion.
     /*!
      *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
      *  and a new initial state vector provided here. The raw results are set in the equationsOfMotionNumericalSolution_
-     *  \param initialState Initial state vector that is to be used for numerical integration.
+     *  \param initialGlobalStates Initial state vector that is to be used for numerical integration.
+     *  Note that this state should be in the correct frame (i.e. corresponding to centralBodies in propagatorSettings_),
+     *  but not in the propagator-specific form (i.e Encke, Gauss, etc. for translational dynamics)
+     * \sa SingleStateTypeDerivative::convertToOutputSolution
      */
     virtual void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates ) = 0;
@@ -230,7 +183,8 @@ public:
     }
 
     boost::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
-    ( const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >&) > getStateDerivativeFunction( )
+    ( const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >&) >
+    getStateDerivativeFunction( )
     {
         return stateDerivativeFunction_;
     }
@@ -250,39 +204,61 @@ public:
         return dynamicsStateDerivative_;
     }
 
+    //! Function to get the map of named bodies involved in simulation.
+    /*!
+     *  Function to get the map of named bodies involved in simulation.
+     *  \return Map of named bodies involved in simulation.
+     */
+    simulation_setup::NamedBodyMap getNamedBodyMap( )
+    {
+        return bodyMap_;
+    }
+
 protected:
 
     virtual void processRawNumericalEquationsOfMotionSolution( ) = 0;
 
-    std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > > integratedStateProcessors_;
+    std::map< IntegratedStateType, std::vector< boost::shared_ptr<
+    IntegratedStateProcessor< TimeType, StateScalarType > > > > integratedStateProcessors_;
 
+    //! Object resposible for updating the environment based on the current state and time.
+    /*!
+     *  Object resposible for updating the environment based on the current state and time. Calling the updateEnvironment
+     * function automatically updates all dependent variables that are needed to calulate the state derivative.
+     */
     boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater_;
 
     //! Interface object that updates current environment and return state derivative from single function call
-    /*!
-     *  Interface object that updates current environment and return state derivative from single function call
-     */
     boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 
-
+    //! Function that performs a single state derivative function evaluation.
+    /*!
+     *  Function that performs a single state derivative function evaluation, will typically be set to
+     *  DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative function.
+     *  Calling this function will first update the environment (using environmentUpdater_) and then calculate the
+     *  full system state derivative.
+     */
     boost::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
     ( const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > stateDerivativeFunction_;
 
 
+    //!  Map of bodies (with names) of all bodies in integration.
+    simulation_setup::NamedBodyMap bodyMap_;
+
     //! Settings for numerical integrator.
-    /*!
-     *  Settings for numerical integrator.
-     */
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
     //! Settings for propagator.
-    /*!
-     *  Settings for propagator.
-     */
     boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings_;
 
+    //! Object for retrieving ephemerides for transformation of reference frame (origins)
+    boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
+
+    //! Boolean to determine whether to clear the raw numerical solution member variables after propagation and
+    //! resetting ephemerides.
     bool clearNumericalSolutions_;
 
+    //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
     bool setIntegratedResult_;
 
 
@@ -294,8 +270,7 @@ class SingleArcDynamicsSimulator: public DynamicsSimulator< StateScalarType, Tim
 
 public:
 
-    using DynamicsSimulatorBase< StateScalarType, TimeType >::bodyMap_;
-
+    using DynamicsSimulator< StateScalarType, TimeType >::bodyMap_;
     using DynamicsSimulator< StateScalarType, TimeType >::environmentUpdater_;
     using DynamicsSimulator< StateScalarType, TimeType >::dynamicsStateDerivative_;
     using DynamicsSimulator< StateScalarType, TimeType >::clearNumericalSolutions_;
@@ -311,7 +286,12 @@ public:
      *  \param bodyMap Map of bodies (with names) of all bodies in integration.
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
-     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated at the end of the contructor or not.
+     *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated
+     *  immediately at the end of the contructor or not.
+     *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
+     *  after propagation and resetting ephemerides.
+     *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
+     *  ephemerides.
      */
     SingleArcDynamicsSimulator(
             const  simulation_setup::NamedBodyMap& bodyMap,
@@ -319,21 +299,18 @@ public:
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true ):DynamicsSimulator< StateScalarType, TimeType >(
-                                                        bodyMap, integratorSettings, propagatorSettings, clearNumericalSolutions, setIntegratedResult )
+            const bool setIntegratedResult = true ):
+        DynamicsSimulator< StateScalarType, TimeType >(
+            bodyMap, integratorSettings, propagatorSettings, clearNumericalSolutions, setIntegratedResult )
     {
-
+        // Integrate equations of motion if required.
         if( areEquationsOfMotionToBeIntegrated )
         {
-            // Integrate equations of motion.
             integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
         }
     }
 
     //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
     ~SingleArcDynamicsSimulator( )
     { }
 
@@ -341,10 +318,13 @@ public:
     /*!
      *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
      *  and a new initial state vector provided here. The raw results are set in the equationsOfMotionNumericalSolution_
-     *  \param initialState Initial state vector that is to be used for numerical integration.
+     *  \param initialStates Initial state vector that is to be used for numerical integration. Note that this state should
+     *  be in the correct frame (i.e. corresponding to centralBodies in propagatorSettings_), but not in the propagator-
+     *  specific form (i.e Encke, Gauss, etc. for translational dynamics)
+     * \sa SingleStateTypeDerivative::convertToOutputSolution
      */
     void integrateEquationsOfMotion(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
         // Update body properties that are independent of integrated states.
         for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::iterator bodyIterator = bodyMap_.begin( );
@@ -362,7 +342,7 @@ public:
         equationsOfMotionNumericalSolution_ =
                 integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >(
                     stateDerivativeFunction_, dynamicsStateDerivative_->convertFromOutputSolution(
-                        initialGlobalStates, integratorSettings_->initialTime_ ), integratorSettings_ );
+                        initialStates, integratorSettings_->initialTime_ ), integratorSettings_ );
         equationsOfMotionNumericalSolution_ = convertNumericalStateSolutionsToOutputSolutions(
                     equationsOfMotionNumericalSolution_, dynamicsStateDerivative_ );
         if( this->setIntegratedResult_ )
@@ -402,60 +382,6 @@ protected:
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution_;
 };
-
-template< typename StateScalarType = double, typename TimeType = double >
-class HybridDynamicsSimulator: public DynamicsSimulatorBase< StateScalarType, TimeType >
-{
-public:
-
-    HybridDynamicsSimulator(
-            const  simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::vector< boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > > propagatorSettings,
-            const bool areEquationsOfMotionToBeIntegrated = true,
-            const bool clearNumericalSolutions = true ):
-        DynamicsSimulatorBase< StateScalarType, TimeType >( bodyMap )
-    {
-
-        for( unsigned int i = 0; i < propagatorSettings.size( ); i++ )
-        {
-            dynamicsSimulators_.push_back(
-                        boost::make_shared< DynamicsSimulator< StateScalarType, TimeType > >(
-                            integratorSettings, propagatorSettings.at( i ), areEquationsOfMotionToBeIntegrated,
-                            clearNumericalSolutions ) );
-        }
-    }
-
-    ~HybridDynamicsSimulator( ){ }
-
-    void integrateEquationsOfMotion(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates )
-    {
-        for( unsigned int i = 0; i < dynamicsSimulators_.size( ); i++ )
-        {
-            dynamicsSimulators_.at( i )->integrateEquationsOfMotion(
-                        initialGlobalStates.block( initialStateSegments_.at( i ).first, 0,
-                                                   initialStateSegments_.at( i ).second, 1 ) );
-        }
-    }
-
-private:
-
-    std::vector< DynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulators_;
-
-    std::vector< std::pair< int, int > > initialStateSegments_;
-};
-
-template< typename StateScalarType = double, typename TimeType = double >
-std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >
-getForwardAndBackwardIntegrationDifference(
-        boost::shared_ptr< DynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator,
-        const double interpolationTimeStep )
-{
-    return getForwardAndBackwardIntegrationDifference< StateScalarType, TimeType >(
-                dynamicsSimulator->getStateDerivativeFunction( ), dynamicsSimulator->getPropagatorSettings( )->getInitialStates( ),
-                dynamicsSimulator->getIntegratorSettings( ), interpolationTimeStep );
-}
 
 }
 
