@@ -1,6 +1,5 @@
-#ifndef COMPOSITEEPHEMERIS_H
-
-#define COMPOSITEEPHEMERIS_H
+#ifndef TUDAT_COMPOSITEEPHEMERIS_H
+#define TUDAT_COMPOSITEEPHEMERIS_H
 
 #include <iostream>
 #include <vector>
@@ -222,4 +221,4 @@ private:
 }
 
 }
-#endif // COMPOSITEEPHEMERIS_H
+#endif // TUDAT_COMPOSITEEPHEMERIS_H

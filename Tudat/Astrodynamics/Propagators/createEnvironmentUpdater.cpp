@@ -8,31 +8,33 @@ namespace tudat
 namespace propagators
 {
 
-
+//! Function to check whether the requested environment updates are possible with the existing environment.
 void checkValidityOfRequiredEnvironmentUpdates(
-        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >&
+        const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >&
         requestedUpdates,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace propagators;
 
-    std::map< propagators::EnvironmentModelsToUpdate, std::vector< int > > fullMapIndicesToRemove;
-
-    for( std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >::iterator
+    // Iterate over all environment update types.
+    for( std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator
          updateIterator = requestedUpdates.begin( );
          updateIterator != requestedUpdates.end( ); updateIterator++ )
     {
-        std::vector< int > indicesToRemove;
+        // Iterate over all updated bodies.
         for( unsigned int i = 0; i < updateIterator->second.size( ); i++ )
         {
+            // Ignore global required updates.
             if( updateIterator->second.at( i ) != "" )
             {
+                // Check if body exists.
                 if( bodyMap.count( updateIterator->second.at( i ) ) == 0 )
                 {
                     throw std::runtime_error( "Error when making environment model update settings, could not find body " +
                                               boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                 }
 
+                // Check if requested environment model exists.
                 switch( updateIterator->first )
                 {
                 case body_transational_state_update:
@@ -41,7 +43,6 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error( "Error when making environment model update settings, could not find ephemeris of body " +
                                    boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
-                        indicesToRemove.push_back( i );
                     }
                     break;
                 }
@@ -51,18 +52,17 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error( "Error when making environment model update settings, could not find rotational ephemeris of body " +
                                    boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
-                        indicesToRemove.push_back( i );
                     }
                     break;
                 }
                 case vehicle_flight_conditions_update:
                 {
-                    boost::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodyMap.at( updateIterator->second.at( i ) )->getFlightConditions( );
+                    boost::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodyMap.at(
+                                updateIterator->second.at( i ) )->getFlightConditions( );
                     if( flightConditions == NULL )
                     {
                         throw std::runtime_error( "Error when making environment model update settings, could not find flight conditions of body " +
                                    boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
-                        indicesToRemove.push_back( i );
                     }
                     break;
                 }
@@ -74,43 +74,46 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     {
                         throw std::runtime_error( "Error when making environment model update settings, could not find radiation pressure interface of body " +
                                    boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
-                        indicesToRemove.push_back( i );
                     }
                     break;
                 }
                 case body_mass_update:
+                    if( bodyMap.at( updateIterator->second.at( i ) )->getVehicleMassFunction( ) == NULL )
+                    {
+                        throw std::runtime_error( "Error when making environment model update settings, no body mass function of body " +
+                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                    }
+
                     break;
                 }
             }
-            fullMapIndicesToRemove[ updateIterator->first ] = indicesToRemove;
-        }
-    }
-
-    for( std::map< propagators::EnvironmentModelsToUpdate, std::vector< int > >::iterator removalIterator =
-         fullMapIndicesToRemove.begin( ); removalIterator != fullMapIndicesToRemove.end( ); removalIterator++ )
-    {
-        for( int i = removalIterator->second.size( ) - 1; i >= 0; i-- )
-        {
-            requestedUpdates[ removalIterator->first ].erase( requestedUpdates[ removalIterator->first ].begin( ) + removalIterator->second.at( i ) );
         }
     }
 }
 
+//! Function to extend existing list of required environment update types
 void addEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentUpdateList,
         const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > updatesToAdd )
 {
-    for( std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator environmentUpdateIterator =
-         updatesToAdd.begin( ); environmentUpdateIterator != updatesToAdd.end( ); environmentUpdateIterator++ )
+    // Iterate over all environment update types.
+    for( std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator
+         environmentUpdateIterator = updatesToAdd.begin( );
+         environmentUpdateIterator != updatesToAdd.end( ); environmentUpdateIterator++ )
     {
         bool addCurrentUpdate = 0;
+
+        // Iterate over all updated bodies.
         for( unsigned int i = 0; i < environmentUpdateIterator->second.size( ); i++ )
         {
             addCurrentUpdate = 0;
+
+            // Check if current update type exists.
             if( environmentUpdateList.count( environmentUpdateIterator->first ) == 0 )
             {
                 addCurrentUpdate = 1;
             }
+            // Check if current body exists for update type.
             else if( std::find( environmentUpdateList.at( environmentUpdateIterator->first ).begin( ),
                                 environmentUpdateList.at( environmentUpdateIterator->first ).end( ),
                                 environmentUpdateIterator->second.at( i ) ) ==
@@ -119,17 +122,21 @@ void addEnvironmentUpdates(
                 addCurrentUpdate = 1;
             }
 
+            // Add update type if required.
             if( addCurrentUpdate )
             {
-                environmentUpdateList[ environmentUpdateIterator->first ].push_back( environmentUpdateIterator->second.at( i ) );
+                environmentUpdateList[ environmentUpdateIterator->first ].push_back(
+                            environmentUpdateIterator->second.at( i ) );
             }
         }
     }
 }
 
-
-std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
-        const basic_astrodynamics::AccelerationMap& translationalAccelerationModels, const simulation_setup::NamedBodyMap& bodyMap )
+//! Get list of required environment model update settings from translational acceleration models.
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
+        const basic_astrodynamics::AccelerationMap& translationalAccelerationModels,
+        const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace basic_astrodynamics;
     using namespace propagators;
@@ -137,9 +144,11 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
 
+    // Iterate over all bodies being accelerated
     for( AccelerationMap::const_iterator acceleratedBodyIterator = translationalAccelerationModels.begin( );
          acceleratedBodyIterator != translationalAccelerationModels.end( ); acceleratedBodyIterator++ )
     {
+        // Iterate over all bodies exerting acceleration.
         for( SingleBodyAccelerationMap::const_iterator accelerationModelIterator = acceleratedBodyIterator->second.begin( );
              accelerationModelIterator != acceleratedBodyIterator->second.end( ); accelerationModelIterator++ )
         {
@@ -149,25 +158,36 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                 AvailableAcceleration currentAccelerationModelType =
                         getAccelerationModelType( accelerationModelIterator->second.at( i ) );
 
-                singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back( accelerationModelIterator->first );
-                singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back( acceleratedBodyIterator->first );
+                // Add translational state of both bodies to update list for current acceleration model.
+                singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                            accelerationModelIterator->first );
+                singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                            acceleratedBodyIterator->first );
 
+                // Check acceleration model type and change environment update list accordingly.
                 switch( currentAccelerationModelType )
                 {
                 case aerodynamic:
-                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
-                    singleAccelerationUpdateNeeds[ vehicle_flight_conditions_update ].push_back( acceleratedBodyIterator->first );
-                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ vehicle_flight_conditions_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
+                                acceleratedBodyIterator->first );
                     break;
                 case cannon_ball_radiation_pressure:
-                    singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back( acceleratedBodyIterator->first );
-                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
+                                acceleratedBodyIterator->first );
                     break;
                 case spherical_harmonic_gravity:
-                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
                     break;
                 case third_body_spherical_harmonic_gravity:
-                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
                     break;
                 default:
                     break;
@@ -175,7 +195,10 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 
             }
 
+            // Check whether requested updates are possible.
             checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodyMap );
+
+            // Add requested updates of current acceleration model to full list of environment updates.
             addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
         }
     }
@@ -184,6 +207,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 }
 
 
+//! Function to create 'brute-force' update settings, in which each environment model is updated.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         const simulation_setup::NamedBodyMap& bodyMap )
 {
@@ -196,7 +220,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
 
     // Iterate over all bodies.
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( simulation_setup::NamedBodyMap::const_iterator
+         bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
     {
         singleAccelerationUpdateNeeds.clear( );
 
@@ -214,14 +239,16 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
                 bodyIterator->second->getRadiationPressureInterfaces( );
 
         // Add each interface update function to update list.
-        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterface > > ::iterator iterator = radiationPressureInterfaces.begin( );
+        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterface > > ::iterator iterator =
+             radiationPressureInterfaces.begin( );
              iterator != radiationPressureInterfaces.end( ); iterator++ )
         {
             singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].push_back( bodyIterator->first );
         }
 
         // If body has rotation model, update rotational state in each time step.
-        boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris = bodyIterator->second->getRotationalEphemeris( );
+        boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
+                bodyIterator->second->getRotationalEphemeris( );
         if( rotationalEphemeris != NULL )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( bodyIterator->first );
@@ -229,7 +256,10 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 
         singleAccelerationUpdateNeeds[ body_mass_update ].push_back( bodyIterator->first );
 
+        // Check whether requested updates are possible.
         checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodyMap );
+
+        // Add requested updates of current acceleration model to full list of environment updates.
         addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
     }
     return environmentModelsToUpdate;

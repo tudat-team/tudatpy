@@ -78,26 +78,21 @@ public:
 
     //! Constructor for a body
     /*!
-     * Constructor for a body, sets current time, state, rotation and mass values
-     * (all with default parameters). The input state is used internally to
+     * Constructor for a body, sets current time and state
+     * (with zero default parameters). The input state is used internally to
      * set the current position (taken as a segment of the input state given by the indices
      * (0, 3)) and the current velocity (taken as a segment of the input state given by the indices
      * (3, 3).
      * \param state Current state of body at initialization (default = zeroes).
      * \param time Current time of body at initialization (default = zeroes).
-     * \param bodyMass Current mass of body at initialization (default = zeroes).
-     * \param currentRotationToGlobalFrame Current rotation of from body-fixed to inertial frames
-     *  at initialization (default = identity)
      */
     Body( const basic_mathematics::Vector6d& state =
             basic_mathematics::Vector6d::Zero( ),
-          const double time = 0.0, const double bodyMass = 0.0,
-          const Eigen::Quaterniond currentRotationToLocalFrame =
-            Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) )
+          const double time = 0.0 )
         : currentState( state ),
           currentTime( time ),
-          currentRotationToLocalFrame_( currentRotationToLocalFrame ),
-          bodyMass_( bodyMass ),
+          currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+          bodyMassFunction_( NULL ),
           ephemerisFrameToBaseFrameFunction_( boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) ),
           ephemerisFrameToBaseFrameLongFunction_( boost::lambda::constant( Eigen::Matrix< long double, 6, 1 >::Zero( ) ) )
     { }
@@ -223,7 +218,14 @@ public:
             const boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
     {
         gravityFieldModel_ = gravityFieldModel;
-        bodyMass_ = gravityFieldModel_->getGravitationalParameter( );
+        if( bodyMassFunction_ != NULL )
+        {
+            std::cerr<<"Warning when settings gravity field model for body, mass function already found: resetting"<<std::endl;
+        }
+
+        currentMass_ = gravityFieldModel_->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT;
+        bodyMassFunction_ = boost::lambda::constant( currentMass_ );
+
     }
 
     //! Function to set the atmosphere model of the body.
@@ -359,14 +361,24 @@ public:
         return currentRotationToLocalFrameDerivative_;
     }
 
-    double getBodyMass( )
+    void setVehicleMassFunction( const boost::function< double( const double ) > bodyMassFunction )
     {
-        return bodyMass_;
+        bodyMassFunction_ = bodyMassFunction;
     }
 
-    void updateMass( const double bodyMass )
+    boost::function< double( const double ) > getVehicleMassFunction( )
     {
-        bodyMass_ = bodyMass;
+        return bodyMassFunction_;
+    }
+
+    void updateMass( const double time )
+    {
+        currentMass_ = bodyMassFunction_( time );
+    }
+
+    double getBodyMass( )
+    {
+        return currentMass_;
     }
 
     std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
@@ -381,7 +393,6 @@ public:
     {
         radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
     }
-
 
 
 protected:
@@ -402,8 +413,10 @@ private:
 
     Eigen::Vector3d currentAngularVelocityVectorInGlobalFrame_;
 
-    //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
-    double bodyMass_;
+    //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).   
+    double currentMass_;
+
+    boost::function< double( const double ) > bodyMassFunction_;
 
     boost::function< basic_mathematics::Vector6d( const double& ) > ephemerisFrameToBaseFrameFunction_;
 

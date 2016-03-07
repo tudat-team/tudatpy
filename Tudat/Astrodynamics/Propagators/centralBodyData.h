@@ -1,5 +1,5 @@
-#ifndef CENTRALBODYDATA_H
-#define CENTRALBODYDATA_H
+#ifndef TUDAT_CENTRALBODYDATA_H
+#define TUDAT_CENTRALBODYDATA_H
 
 #include <vector>
 #include <map>
@@ -16,11 +16,12 @@ namespace tudat
 namespace propagators
 {
 
+//! Types of integration origins that can be used in the simulations.
 enum OriginType
 {
-    inertial,
-    from_ephemeris,
-    from_integration
+    inertial,// origin is inertial.
+    from_ephemeris, // origin is moving with origin of body which is not propagated.
+    from_integration // origin is moving with origin of body which is propagated.
 };
 
 //! This class acts as a data container for properties of central bodies in a numerical integration
@@ -43,7 +44,8 @@ public:
      */
     CentralBodyData( const std::vector< std::string >& centralBodies,
                      const std::vector< std::string >& bodiesToIntegrate,
-                     const std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >& bodyStateFunctions ):
+                     const std::map< std::string,
+                     boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >& bodyStateFunctions ):
         centralBodies_( centralBodies )
     {
         // Check consistency of input.
@@ -60,7 +62,9 @@ public:
         for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
         {
             // Check if central body is inertial.
-            if( ( centralBodies.at( i ) == "Inertial" ) || ( centralBodies.at( i ) == "" ) ||( centralBodies.at( i ) == "SSB" ) )
+            if( ( centralBodies.at( i ) == "Inertial" ) ||
+                    ( centralBodies.at( i ) == "" ) ||
+                    ( centralBodies.at( i ) == "SSB" ) )
             {
                 bodyOriginType_.at( i ) = inertial;
             }
@@ -88,7 +92,8 @@ public:
                     bodyOriginType_.at( i ) = from_ephemeris;
                     centralBodiesFromEphemerides_[ i ] = bodyStateFunctions.at( centralBodies.at( i ) );
                 }
-                // Else, set body origin as being from another integrated body, set indices of both bodies in centralBodiesFromIntegration_
+                // Else, set body origin as being from another integrated body, set indices of both bodies in
+                // centralBodiesFromIntegration_
                 else
                 {
                     bodyOriginType_.at( i ) = from_integration;
@@ -99,11 +104,13 @@ public:
 
         std::vector< int > numericalBodies_;
 
+        // Set initial update order of bodies.
         updateOrder_.resize( bodiesToIntegrate.size( ) );
         int currentUpdateIndex = 0;
         for( unsigned int i = 0; i < bodyOriginType_.size( ); i++ )
         {
-            // If body origin is not from another integrated body, order in update is irrelevant, set at current index of vector.
+            // If body origin is not from another integrated body, order in update is irrelevant,
+            // set at current index of vector.
             if( bodyOriginType_.at( i ) == inertial || bodyOriginType_.at( i ) == from_ephemeris  )
             {
                 updateOrder_[ currentUpdateIndex ] = i;
@@ -116,6 +123,7 @@ public:
             }
         }
 
+        // Switch body order if there are dependencies between bodies,
         int bodyToMove;
         for( unsigned int i = 0; i < numericalBodies_.size( ); i++ )
         {
@@ -132,6 +140,7 @@ public:
             }
         }
 
+        // Add propagated bodies to list.
         for( unsigned int i = 0; i < numericalBodies_.size( ); i++ )
         {
             updateOrder_[ currentUpdateIndex ] = numericalBodies_.at( i );
@@ -219,4 +228,4 @@ private:
 }
 
 }
-#endif // CENTRALBODYDATA_H
+#endif // TUDAT_CENTRALBODYDATA_H

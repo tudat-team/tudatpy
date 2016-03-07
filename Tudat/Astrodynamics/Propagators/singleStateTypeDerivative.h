@@ -1,5 +1,5 @@
-#ifndef STATEDERIVATIVE_H
-#define STATEDERIVATIVE_H
+#ifndef TUDAT_STATEDERIVATIVE_H
+#define TUDAT_STATEDERIVATIVE_H
 
 #include <Eigen/Core>
 
@@ -128,4 +128,4 @@ protected:
 
 }
 
-#endif // STATEDERIVATIVE_H
+#endif // TUDAT_STATEDERIVATIVE_H

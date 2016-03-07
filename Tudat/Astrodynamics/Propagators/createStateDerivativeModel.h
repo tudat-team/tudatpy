@@ -1,5 +1,5 @@
-#ifndef CREATESTATEDERIVATIVEMODEL_H
-#define CREATESTATEDERIVATIVEMODEL_H
+#ifndef TUDAT_CREATESTATEDERIVATIVEMODEL_H
+#define TUDAT_CREATESTATEDERIVATIVEMODEL_H
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
@@ -142,4 +142,4 @@ std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, Time
 
 }
 
-#endif // CREATESTATEDERIVATIVEMODEL_H
+#endif // TUDAT_CREATESTATEDERIVATIVEMODEL_H

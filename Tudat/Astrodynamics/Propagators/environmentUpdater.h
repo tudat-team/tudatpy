@@ -1,5 +1,5 @@
-#ifndef ENVIRONMENTUPDATER_H
-#define ENVIRONMENTUPDATER_H
+#ifndef TUDAT_ENVIRONMENTUPDATER_H
+#define TUDAT_ENVIRONMENTUPDATER_H
 
 #include <vector>
 #include <string>
@@ -76,23 +76,25 @@ public:
      * \param currentTime Current time.
      * \param integratedStatesToSet Current list of integrated states, with specific integrated states defined by
      * integratedStates_ member variable. Note that these states must have been converted to the global state before
-     * input to this function, as is done by the getStatesPerTypeInConventionalRepresentation function of the
+     * input to this function, as is done by the convertCurrentStateToGlobalRepresentationPerType function of the
      * DynamicsStateDerivativeModel.
      * \param setIntegratedStatesFromEnvironment Integrated state types which are not to be used for updating the
      * environment, but which are to be set from existing environment models instead.
      */
     void updateEnvironment(
             const TimeType currentTime,
-            const std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& integratedStatesToSet,
-            const std::vector< IntegratedStateType >& setIntegratedStatesFromEnvironment = std::vector< IntegratedStateType >( ) )
+            const std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
+            integratedStatesToSet,
+            const std::vector< IntegratedStateType >& setIntegratedStatesFromEnvironment =
+            std::vector< IntegratedStateType >( ) )
     {
         // Check consistency of input.
         if( integratedStatesToSet.size( ) + setIntegratedStatesFromEnvironment.size( ) != integratedStates_.size( ) )
         {
             throw std::runtime_error( "Error when updating environment, input size is inconsistent " +
                                       boost::lexical_cast< std::string >( integratedStatesToSet.size( ) ) + " " +
-                                      boost::lexical_cast< std::string >( setIntegratedStatesFromEnvironment.size( ) ) + " " +
-                                      boost::lexical_cast< std::string >( integratedStates_.size( ) ) );
+                                      boost::lexical_cast< std::string >( setIntegratedStatesFromEnvironment.size( ) ) +
+                                      " " + boost::lexical_cast< std::string >( integratedStates_.size( ) ) );
         }
 
         // Set integrated state variables in environment.
@@ -142,7 +144,7 @@ private:
      * Function to set numerically integrated states in environment.
      * \param integratedStatesToSet Integrated states which are to be set in environment.
      * Note that these states must have been converted to the global state before
-     * input to this function, as is done by the getStatesPerTypeInConventionalRepresentation function of the
+     * input to this function, as is done by the convertCurrentStateToGlobalRepresentationPerType function of the
      * DynamicsStateDerivativeModel.
      */
     void setIntegratedStatesInEnvironment(
@@ -212,6 +214,11 @@ private:
         }
     }
 
+    //! Function to set the update functions for the environment from the required update settings.
+    /*!
+     * Function to set the update functions for the environment from the required update settings.
+     * \param updateSettings Settings for the environment updates.
+     */
     void setUpdateFunctions( const std::map< EnvironmentModelsToUpdate, std::vector< std::string > >& updateSettings )
     {
 
@@ -265,7 +272,8 @@ private:
                             boost::function< void( const TimeType ) > rotationalStateSetFunction =
                                     boost::bind( &simulation_setup::Body::setCurrentRotationalStateToLocalFrameFromEphemeris,
                                                  bodyList_.at( currentBodies.at( i ) ), _1 );
-                            currentStateFromEnvironmentList_[ body_rotational_state_update ].insert( std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
+                            currentStateFromEnvironmentList_[ body_rotational_state_update ].insert(
+                                        std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
                         }
 
                         break;
@@ -275,7 +283,8 @@ private:
                     {
                         updateTimeFunctionList_[ body_mass_update ].push_back(
                                     std::make_pair( currentBodies.at( i ),
-                                                    boost::bind( &simulation_setup::Body::updateMass, bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
+                                                    boost::bind( &simulation_setup::Body::updateMass,
+                                                                 bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
                         break;
                     }
                     case vehicle_flight_conditions_update:
@@ -348,22 +357,33 @@ private:
     std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
     integratedStates_;
 
+    //! List of function to call for updating the state (i.e. translational, rotational, etc.) from the environment.
+    std::map< EnvironmentModelsToUpdate, std::multimap< std::string, boost::function< void( const TimeType ) > > >
+    currentStateFromEnvironmentList_;
 
-    std::map< EnvironmentModelsToUpdate, std::multimap< std::string, boost::function< void( const TimeType ) > > > currentStateFromEnvironmentList_;
+    //! Predefined iterator for computational efficiency.
+    typename std::map< EnvironmentModelsToUpdate, std::multimap< std::string, boost::function< void( const TimeType ) > > >
+    ::iterator outerCurrentStateFromEnvironmentIterator_;
 
-    typename std::map< EnvironmentModelsToUpdate, std::multimap< std::string, boost::function< void( const TimeType ) > > >::iterator outerCurrentStateFromEnvironmentIterator_;
+    //! Predefined iterator for computational efficiency.
+    typename std::multimap< std::string, boost::function< void( const TimeType ) > >
+    ::iterator currentStateFromEnvironmentIterator_;
 
-    typename std::multimap< std::string, boost::function< void( const TimeType ) > >::iterator currentStateFromEnvironmentIterator_;
+    //! List of time-independent functions to call to update the environment.
+    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( ) > > > >
+    updateFunctionList_;
 
+    //! Predefined iterator for computational efficiency.
+    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( ) > > > >
+    ::iterator updateFunctionIterator;
 
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( ) > > > > updateFunctionList_;
+    //! List of time-dependent functions to call to update the environment.
+    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
+    updateTimeFunctionList_;
 
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( ) > > > >::iterator updateFunctionIterator;
-
-
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > > updateTimeFunctionList_;
-
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >::iterator updateTimeIterator;
+    //! Predefined iterator for computational efficiency.
+    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
+    ::iterator updateTimeIterator;
 
 
 };
@@ -372,4 +392,4 @@ private:
 
 }
 
-#endif // ENVIRONMENTUPDATER_H
+#endif // TUDAT_ENVIRONMENTUPDATER_H

@@ -1,5 +1,5 @@
-#ifndef CONSTANTEPHEMERIS_H
-#define CONSTANTEPHEMERIS_H
+#ifndef TUDAT_CONSTANTEPHEMERIS_H
+#define TUDAT_CONSTANTEPHEMERIS_H
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -81,4 +81,4 @@ private:
 
 }
 
-#endif // CONSTANTEPHEMERIS_H
+#endif // TUDAT_CONSTANTEPHEMERIS_H
