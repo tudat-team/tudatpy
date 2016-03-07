@@ -1,5 +1,5 @@
-#ifndef INTEGRATEEQUATIONS_H
-#define INTEGRATEEQUATIONS_H
+#ifndef TUDAT_INTEGRATEEQUATIONS_H
+#define TUDAT_INTEGRATEEQUATIONS_H
 
 #include <Eigen/Core>
 
@@ -19,9 +19,10 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to numerically integrate a given equation
+//! Function to numerically integrate a given first order differential equation
 /*!
- *  Function to numerically integrate a given equation of a single independent variable and the current state
+ *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
+ *  a single independent variable and the current state
  *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
  *  \param initialState Initial state
  *  \param integratorSettings Settings for numerical integrator.
@@ -107,4 +108,4 @@ std::map< TimeType, StateType > integrateEquations(
 }
 
 }
-#endif // INTEGRATEEQUATIONS_H
+#endif // TUDAT_INTEGRATEEQUATIONS_H

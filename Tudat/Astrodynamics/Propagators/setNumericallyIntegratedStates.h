@@ -1,5 +1,5 @@
-#ifndef SETNUMERICALLYINTEGRATEDSTATES_H
-#define SETNUMERICALLYINTEGRATEDSTATES_H
+#ifndef TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
+#define TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
 
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
@@ -502,4 +502,4 @@ void resetIntegratedStates(
 
 }
 
-#endif // SETNUMERICALLYINTEGRATEDSTATES_H
+#endif // TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H

@@ -1,5 +1,5 @@
-#ifndef PROPAGATIONSETTINGS_H
-#define PROPAGATIONSETTINGS_H
+#ifndef TUDAT_PROPAGATIONSETTINGS_H
+#define TUDAT_PROPAGATIONSETTINGS_H
 
 #include <vector>
 #include <string>
@@ -194,4 +194,4 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 
 }
 
-#endif // PROPAGATIONSETTINGS_H
+#endif // TUDAT_PROPAGATIONSETTINGS_H

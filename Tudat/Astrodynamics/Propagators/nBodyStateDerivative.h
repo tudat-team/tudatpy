@@ -1,5 +1,5 @@
-#ifndef NBODYSTATEDERIVATIVE_H
-#define NBODYSTATEDERIVATIVE_H
+#ifndef TUDAT_NBODYSTATEDERIVATIVE_H
+#define TUDAT_NBODYSTATEDERIVATIVE_H
 
 #include <vector>
 #include <map>
@@ -110,6 +110,16 @@ public:
         }
     }
 
+    //! Function to convert the propagator-specific form of the state to the conventional form in the global frame.
+    /*!
+     * Function to convert the propagator-specific form of the state to the conventional form in the global frame.
+     * The conventional form for translational dynamics this is the Cartesian position and velocity).
+     * The inertial frame is typically the barycenter with J2000/ECLIPJ2000 orientation, but may differ depending on
+     * simulation settings.
+     * \param internalSolution State in propagator-specific form (i.e. form that is used in numerical integration).
+     * \param time Current time at which the state is valid.
+     * \return State (internalSolution), converted to the Cartesian state in inertial coordinates.
+     */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertCurrentStateToGlobalRepresentation(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time )
     {
@@ -124,33 +134,66 @@ public:
         return cartesianLocalSolution;
     }
 
+    //! Function to get list of names of bodies that are to be integrated numerically.
+    /*!
+     * Function to get list of names of bodies that are to be integrated numerically.
+     * \return List of names of bodies that are to be integrated numerically.
+     */
     std::vector< std::string > getBodiesToBeIntegratedNumerically( )
     {
         return bodiesToBeIntegratedNumerically_;
     }
 
+    //! Function to get map containing the list of accelerations acting on each body,
+    /*!
+     * Function to get map containing the list of accelerations acting on each body,
+     * \return A map containing the list of accelerations acting on each body,
+     */
     basic_astrodynamics::AccelerationMap getAccelerationsMap( )
     {
         return accelerationModelsPerBody_;
     }
 
+    //! Function to get object responsible for providing the current integration origins from the global origins.
+    /*!
+     * Function to get object responsible for providing the current integration origins from the global origins.
+     * \return Object responsible for providing the current integration origins from the global origins.
+     */
     boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > getCentralBodyData( )
     {
         return centralBodyData_;
     }
 
-    int getStateSize( )
-    {
-        return 6 * bodiesToBeIntegratedNumerically_.size( );
-    }
-
+    //! Function to get type of propagator that is to be used (i.e. Cowell, Encke, etc.)
+    /*!
+     * Function to type of propagator that is to be used (i.e. Cowell, Encke, etc.)
+     * \return Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
+     */
     TranslationalPropagatorType getPropagatorType( )
     {
         return propagatorType_;
     }
 
+    //! Function to return the size of the state handled by the object
+    /*!
+     * Function to return the size of the state handled by the object
+     * \return Size of the state under consideration (6 times the number if integrated bodies).
+     */
+    int getStateSize( )
+    {
+        return 6 * bodiesToBeIntegratedNumerically_.size( );
+    }
+
 protected:
 
+    //! Function to get the state derivative of the system in Cartesian coordinates.
+    /*!
+     * Function to get the state derivative of the system in Cartesian coordinates. The environment and acceleration models
+     * must have been updated to the current state before calling this function.
+     * \param stateOfSystemToBeIntegrated Current Cartesian state of the system.
+     * \param time Time at which the state derivative is to be computed
+     * \return State derivative of the system in Cartesian coordinates.
+     */
     Eigen::VectorXd sumStateDerivativeContributions(
             const Eigen::VectorXd& stateOfSystemToBeIntegrated, const TimeType time )
     {
@@ -220,4 +263,4 @@ protected:
 }
 
 }
-#endif // NBODYSTATEDERIVATIVE_H
+#endif // TUDAT_NBODYSTATEDERIVATIVE_H
