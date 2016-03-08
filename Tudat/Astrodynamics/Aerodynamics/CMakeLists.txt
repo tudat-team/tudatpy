@@ -62,6 +62,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/standardAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.h"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.h"
+  "${SRCROOT}${AERODYNAMICSDIR}//UnitTests/testApolloCapsuleCoefficients.h"
 )
 
 # Add static libraries.

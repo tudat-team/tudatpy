@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 
@@ -114,6 +115,7 @@ void FlightConditions::updateConditions(  )
             aerodynamicCoefficientIndependentVariables.push_back(
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
                             reference_frames::angle_of_sideslip ) );
+            break;
         default:
             throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
                                       + boost::lexical_cast< std::string >(

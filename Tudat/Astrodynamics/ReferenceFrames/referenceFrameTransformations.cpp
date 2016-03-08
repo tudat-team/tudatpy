@@ -70,6 +70,13 @@ Eigen::Vector3d transformVector(
 }
 
 Eigen::Vector3d transformVector(
+        const boost::function< Eigen::Vector3d( ) > originalVector,
+        const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction )
+{
+    return transformationFunction( originalVector( ) );
+}
+
+Eigen::Vector3d transformVector(
         const Eigen::Vector3d& originalVector,
         const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
 {
