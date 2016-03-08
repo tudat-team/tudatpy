@@ -65,6 +65,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/timeConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/testAccelerationModels.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/testBody.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/keplerPropagatorTestData.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/astrodynamicsFunctions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/orbitalElementConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/physicalConstants.h"
