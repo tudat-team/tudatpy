@@ -52,6 +52,15 @@ namespace tudat
 namespace ephemerides
 {
 
+
+template< typename OldStateScalarType, typename NewStateScalarType, typename TimeType, int StateSize >
+Eigen::Matrix< NewStateScalarType, StateSize, 1 > convertStateFunctionStateScalarOutput(
+        const boost::function< Eigen::Matrix< OldStateScalarType, StateSize, 1 >( const double& ) > originalStateFunction,
+        const TimeType currentTime )
+{
+    return originalStateFunction( currentTime ).template cast< NewStateScalarType >( );
+}
+
 //! Ephemeris base class.
 /*!
  * Ephemeris base class.

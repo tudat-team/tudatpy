@@ -4,7 +4,9 @@
 #include <iostream>
 #include <vector>
 
+#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
 
@@ -27,7 +29,7 @@ namespace ephemerides
  *  By using this class, a single object can be used for calling a series of translations and rotations.
  *  The option is provided for both adding or subtracting a given translational state.
  */
-template< typename TimeType = double, typename ScalarStateType = double >
+template< typename TimeType = double, typename StateScalarType = double >
 class CompositeEphemeris : public Ephemeris
 {
 public:
@@ -35,7 +37,7 @@ public:
     using Ephemeris::getCartesianLongStateFromEphemeris;
     using Ephemeris::getCartesianStateFromEphemeris;
 
-    typedef Eigen::Matrix< ScalarStateType, 6, 1 > StateType;
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     //! Constructor from series of translational and rotational ephemeris functions.
     /*!
@@ -217,6 +219,38 @@ private:
      */
     std::vector< bool > isCurrentEphemerisTranslational_;
 };
+
+template< typename TimeType = double, typename StateScalarType = double >
+boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
+        boost::shared_ptr< Ephemeris > bodyEphemeris,
+        boost::shared_ptr< RotationalEphemeris > bodyRotationModel,
+        boost::function< basic_mathematics::Vector6d( const double& ) > referencePointRelativeStateFunction )
+{
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+
+    std::map< int, boost::function< StateType( const TimeType& ) > > referencePointEphemerisVector;
+    referencePointEphemerisVector[ 2 ] = boost::bind(
+                &Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, bodyEphemeris, _1 );
+    referencePointEphemerisVector[ 0 ] = boost::bind(
+                &convertStateFunctionStateScalarOutput< double, StateScalarType, TimeType, 6 >,
+                                               referencePointRelativeStateFunction, _1 );
+
+
+    boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction =
+            boost::bind( &RotationalEphemeris::getRotationToBaseFrame, bodyRotationModel, _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    boost::function< Eigen::Matrix3d( const double ) > rotationMatrixToFrameDerivativeFunction =
+            boost::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrame, bodyRotationModel, _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+    std::map< int, boost::function< StateType( const double, const StateType& ) > > referencePointRotationVector;
+    referencePointRotationVector[ 1 ] = boost::bind(
+        transformStateToFrameFromStateFunctions< StateScalarType >,
+                _2, _1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
+
+    boost::shared_ptr< Ephemeris > ephemeris = boost::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
+                referencePointEphemerisVector, referencePointRotationVector, "SSB", "ECLIPJ2000" );
+
+    return ephemeris;
+}
 
 }
 

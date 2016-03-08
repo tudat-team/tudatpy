@@ -21,8 +21,8 @@ namespace propagators
  * \param bodyMap List of body objects used in simulation.
  * \return Object handling frame origin transformations during numerical integration
  */
-template< typename ScalarStateType, typename TimeType >
-boost::shared_ptr< CentralBodyData< ScalarStateType, TimeType > > createCentralBodyData(
+template< typename StateScalarType, typename TimeType >
+boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBodyData(
         const std::vector< std::string >& centralBodies,
         const std::vector< std::string >& bodiesToIntegrate,
         const simulation_setup::NamedBodyMap& bodyMap )
@@ -53,7 +53,7 @@ boost::shared_ptr< CentralBodyData< ScalarStateType, TimeType > > createCentralB
         centralBodiesToUse = centralBodies;
     }
 
-    std::map< std::string, boost::function< Eigen::Matrix< ScalarStateType, 6, 1 >( const TimeType ) > > bodyStateFunctions;
+    std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > bodyStateFunctions;
 
     // Retrieve frame origin state functions
     for( unsigned int i = 0; i < centralBodiesToUse.size( ); i++ )
@@ -62,16 +62,16 @@ boost::shared_ptr< CentralBodyData< ScalarStateType, TimeType > > createCentralB
         {
             bodyStateFunctions[ centralBodiesToUse.at( i ) ] =
                     boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris
-                                 < ScalarStateType, TimeType >,
+                                 < StateScalarType, TimeType >,
                                  bodyMap.at( centralBodiesToUse.at( i ) ), _1 );
         }
         else
         {
             bodyStateFunctions[ centralBodiesToUse.at( i ) ] = boost::lambda::constant(
-                        Eigen::Matrix< ScalarStateType, 6, 1 >::Zero( ) );
+                        Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ) );
         }
     }
-    return boost::make_shared< CentralBodyData< ScalarStateType, TimeType > >(
+    return boost::make_shared< CentralBodyData< StateScalarType, TimeType > >(
                 centralBodiesToUse, bodiesToIntegrate, bodyStateFunctions );
 }
 

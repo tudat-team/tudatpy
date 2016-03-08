@@ -92,10 +92,21 @@ Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
  *  frame.
  *  \return State (Cartesian position and velocity) in target frame.
  */
-basic_mathematics::Vector6d transformStateToFrame(
-        const basic_mathematics::Vector6d& stateInBaseFrame,
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const Eigen::Quaterniond& rotationToFrame,
-        const Eigen::Matrix3d& rotationMatrixToFrameDerivative );
+        const Eigen::Matrix3d& rotationMatrixToFrameDerivative )
+{
+    Eigen::Matrix< StateScalarType, 6, 1 >stateInTargetFrame;
+    stateInTargetFrame.segment( 0, 3 ) =
+            rotationToFrame.template cast< StateScalarType >( ) * stateInBaseFrame.segment( 0, 3 );
+    stateInTargetFrame.segment( 3, 3 ) =
+            rotationMatrixToFrameDerivative.template cast< StateScalarType >( ) * stateInBaseFrame.segment( 0, 3 ) +
+            rotationToFrame.template cast< StateScalarType >( ) * stateInBaseFrame.segment( 3, 3 );
+    return stateInTargetFrame;
+
+}
 
 //! Transform a state (Cartesian position and velocity) from one frame to another.
 /*!
@@ -108,10 +119,40 @@ basic_mathematics::Vector6d transformStateToFrame(
  *   matrix from base to target frame.
  *  \return State (Cartesian position and velocity) in target frame.
  */
-basic_mathematics::Vector6d transformStateToFrame(
-        const basic_mathematics::Vector6d& stateInBaseFrame,
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
-        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction );
+        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
+{
+    return transformStateToFrame(
+                stateInBaseFrame, rotationToFrameFunction( ),
+                rotationMatrixToFrameDerivativeFunction( ) );
+}
+
+//! Transform a state (Cartesian position and velocity) from one frame to another.
+/*!
+ *  Transform a state (Cartesian position and velocity) from one frame to another, taking into
+ *  account both the instantaneous rotational state of the two frames, and the rotational
+ *  rate of one frame w.r.t. the other.
+ *  \param stateInBaseFrame State that is to be transformed from base to target frame.
+ *  \param currentTime Input time for rotationToFrameFunction and rotationMatrixToFrameDerivativeFunction
+ *  \param rotationToFrameFunction Function returning rotation from base to target frame.
+ *  \param rotationMatrixToFrameDerivativeFunction Function returning time derivative of rotation
+ *   matrix from base to target frame.
+ *  \return State (Cartesian position and velocity) in target frame.
+ */
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromStateFunctions(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
+        const double currentTime,
+        const boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction,
+        const boost::function< Eigen::Matrix3d( const double ) > rotationMatrixToFrameDerivativeFunction )
+{
+    return transformStateToFrame(
+                stateInBaseFrame, rotationToFrameFunction( currentTime ),
+                rotationMatrixToFrameDerivativeFunction( currentTime ) );
+}
 
 //! Base class for rotational ephemerides of bodies
 /*!
