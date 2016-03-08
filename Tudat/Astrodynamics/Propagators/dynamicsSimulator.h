@@ -157,7 +157,7 @@ public:
                     propagatorSettings_, bodyMap_ );
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                     createStateDerivativeModels< StateScalarType, TimeType >(
-                        propagatorSettings_, bodyMap_, integratorSettings_->initialTime_ ), environmentUpdater_ );
+                        propagatorSettings_, bodyMap_ ), environmentUpdater_ );
         stateDerivativeFunction_ =
                 boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
                              dynamicsStateDerivative_, _1, _2 );
@@ -383,8 +383,9 @@ public:
                 integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >(
                     stateDerivativeFunction_, dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, integratorSettings_->initialTime_ ), integratorSettings_ );
-        equationsOfMotionNumericalSolution_ = convertNumericalStateSolutionsToOutputSolutions(
-                    equationsOfMotionNumericalSolution_, dynamicsStateDerivative_ );
+        equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
+                convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
+
         if( this->setIntegratedResult_ )
         {
             processNumericalEquationsOfMotionSolution( );
@@ -394,7 +395,7 @@ public:
     //! Function to return the map of state history of numerically integrated bodies.
     /*!
      * Function to return the map of state history of numerically integrated bodies.
-     * \return
+     * \return Map of state history of numerically integrated bodies.
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolution( )
     {

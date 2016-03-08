@@ -162,9 +162,9 @@ public:
      * Function to convert the state in the conventional form to the propagator-specific form.
      * The conventional form is one that is typically used to represent the current state in the environment
      * (e.g. Body class). For translational dynamics this is the Cartesian position and velocity).
-     * \param outputSolution State in 'conventional form'
+     * \param outputState State in 'conventional form'
      * \param time Current time at which the state is valid.
-     * \return State (outputSolution), converted to the 'propagator-specific form'
+     * \return State (outputState), converted to the 'propagator-specific form'
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertFromOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& outputState, const TimeType& time )
@@ -225,6 +225,33 @@ public:
         return outputState;
     }
 
+    //! Function to convert a state history from propagator-specific form to the conventional form.
+    /*!
+     * Function to convert a state history from propagator-specific form to the conventional form (not necessarily in
+     * inertial frame).
+     * \sa DynamicsStateDerivativeModel::convertToOutputSolution
+     * \param rawSolution State history in propagator-specific form (i.e. form that is used in numerical integration).
+     * \return State history (rawSolution), converted to the 'conventional form'
+     */
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
+    convertNumericalStateSolutionsToOutputSolutions(
+            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution )
+    {
+        // Initialize converted solution.
+        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
+
+        // Iterate over all times.
+        for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
+             stateIterator = rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
+        {
+            // Convert solution at this time to output (Cartesian with propagation origin frame for translational dynamics)
+            // solution
+            convertedSolution[ stateIterator->first ] =
+                    convertToOutputSolution( stateIterator->second, stateIterator->first );
+        }
+        return convertedSolution;
+    }
+
     //! Function to set which segments of the full state to propagate
     /*!
      * Function to set which segments of the full state to propagate, i.e. whether to propagate the variational/dynamical
@@ -241,12 +268,22 @@ public:
         dynamicsStartColumn_ = 0;
     }
 
+    //! Function to get complete list of state derivative models, sorted per state type.
+    /*!
+     * Function to get complete list of state derivative models, sorted per state type.
+     * \return Complete list of state derivative models, sorted per state type.
+     */
     std::map< IntegratedStateType, std::vector< boost::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeModels( )
     {
         return stateDerivativeModels_;
     }
 
+    //! Function to get state start index per state type in the complete state vector.
+    /*!
+     * Function to get state start index per state type in the complete state vector.
+     * \return State start index per state type in the complete state vector.
+     */
     std::map< IntegratedStateType, int > getStateTypeStartIndices( )
     {
         return stateTypeStartIndex_;
@@ -263,9 +300,9 @@ private:
      * (e.g. Body class). For translational dynamics this is the Cartesian position and velocity).
      * The inertial frame is typically the barycenter with J2000/ECLIPJ2000 orientation, but may differ depending on
      * simulation settings
-     * \param internalSolution State in propagator-specific form (i.e. form that is used in numerical integration).
+     * \param state State in propagator-specific form (i.e. form that is used in numerical integration).
      * \param time Current time at which the state is valid.
-     * \return State (internalSolution), converted to the 'conventional form' in inertial coordinates,
+     * \return State (state), converted to the 'conventional form' in inertial coordinates,
      * that can for instance be set directly  in the body object.
      */
     std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
@@ -341,24 +378,6 @@ private:
 
 };
 
-template< typename TimeType = double, typename StateScalarType = double,
-          typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
-std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
-        boost::shared_ptr< ConversionClassType > converterClass )
-{
-    // Initialize converted solution.
-    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
-
-    // Iterate over all times.
-    for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
-         rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
-    {
-        // Convert solution at this time to output (typically ephemeris frame of given body) solution
-        convertedSolution[ stateIterator->first ] = converterClass->convertToOutputSolution( stateIterator->second, stateIterator->first );
-    }
-    return convertedSolution;
-}
 
 } // namespace state_derivative_models
 } // namespace tudat
