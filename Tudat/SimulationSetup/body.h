@@ -109,8 +109,8 @@ public:
         currentState = longState.cast< double >( );
     }
 
-    template< typename ScalarStateType >
-    void setTemplatedState( const Eigen::Matrix< ScalarStateType, 6, 1 >& state );
+    template< typename StateScalarType >
+    void setTemplatedState( const Eigen::Matrix< StateScalarType, 6, 1 >& state );
 
     basic_mathematics::Vector6d getStateInBaseFrameFromEphemeris( const double& time )
     {
@@ -132,8 +132,8 @@ public:
     template< typename StateScalarType, typename TimeType >
     void setTemplatedStateFromEphemeris( const TimeType& time );
 
-    template< typename ScalarStateType, typename TimeType >
-    Eigen::Matrix< ScalarStateType, 6, 1 > getTemplatedStateInBaseFrameFromEphemeris( const TimeType& time );
+    template< typename StateScalarType, typename TimeType >
+    Eigen::Matrix< StateScalarType, 6, 1 > getTemplatedStateInBaseFrameFromEphemeris( const TimeType& time );
 
     void setCurrentRotationToLocalFrameFromEphemeris( const double time )
     {

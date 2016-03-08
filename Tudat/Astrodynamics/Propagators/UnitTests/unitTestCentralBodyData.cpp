@@ -19,9 +19,11 @@ using namespace tudat::propagators;
 
 BOOST_AUTO_TEST_SUITE( test_central_body_data )
 
+//! Test update order of central body data
+//! NOTE: The transformatons done by CentralBodyData are effectively handled by testCowellPopagatorCentralBodies
 BOOST_AUTO_TEST_CASE( testCentralBodyData )
 {
-
+    // Define list of propagated  bodies and origins (with multi-levelled hierarchy).
     std::vector< std::string > bodiesToIntegrate;
     bodiesToIntegrate.push_back( "Moon" );
     bodiesToIntegrate.push_back( "Satellite1" );
@@ -31,7 +33,6 @@ BOOST_AUTO_TEST_CASE( testCentralBodyData )
     bodiesToIntegrate.push_back( "Satellite2" );
     bodiesToIntegrate.push_back( "Mars" );
     bodiesToIntegrate.push_back( "Deimos" );
-
     std::vector< std::string > centralBodies;
     centralBodies.push_back( "Earth" );
     centralBodies.push_back( "Moon" );
@@ -42,24 +43,26 @@ BOOST_AUTO_TEST_CASE( testCentralBodyData )
     centralBodies.push_back( "Sun" );
     centralBodies.push_back( "Mars" );
 
+    // Create dummy state functions.
     std::map< std::string, boost::function< Eigen::Matrix< double, 6, 1 >( const double ) > > stateFunctions;
-
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         stateFunctions[ bodiesToIntegrate[ i ] ] =  boost::lambda::constant( Eigen::Matrix< double, 6, 1 >::Zero( ) );
     }
 
+    // Create central bodies object.
     boost::shared_ptr< CentralBodyData< double > > centralBodyData = boost::make_shared< CentralBodyData< double > >(
                 centralBodies, bodiesToIntegrate, stateFunctions );
 
+    // Get update order.
     std::vector< int > updateOrder = centralBodyData->getUpdateOrder( );
-
     std::map< std::string, int > updateOrderMap;
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         updateOrderMap[ bodiesToIntegrate[ updateOrder[ i ] ] ] = i;
     }
 
+    // Check whether the update order is consistent with input data.
     BOOST_CHECK_EQUAL( updateOrderMap[ "Moon" ] < updateOrderMap[ "Earth" ], 0 );
     BOOST_CHECK_EQUAL( updateOrderMap[ "Satellite1" ] < updateOrderMap[ "Moon" ], 0  );
     BOOST_CHECK_EQUAL( updateOrderMap[ "Phobos" ] < updateOrderMap[ "Mars" ], 0 );
