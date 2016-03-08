@@ -39,6 +39,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/SimulationSetup/accelerationSettings.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
 #include "Tudat/SimulationSetup/createFlightConditions.h"
@@ -326,10 +327,19 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
                 boost::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
 
+    boost::function< Eigen::Vector3d( ) > coefficientFunction =
+            boost::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
+                         aerodynamicCoefficients );
+    boost::function< Eigen::Vector3d( ) > coefficientInPropagationFrameFunction =
+            boost::bind( static_cast< Eigen::Vector3d(&)(
+                             const boost::function< Eigen::Vector3d( ) >,
+                             const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > ) >(
+                             &reference_frames::transformVector ),
+                         coefficientFunction, toPropagationFrameTransformation );
+
     // Create acceleration model.
     return boost::make_shared< AerodynamicAcceleration >(
-                boost::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
-                             aerodynamicCoefficients ),
+                coefficientInPropagationFrameFunction,
                 boost::bind( &FlightConditions::getCurrentDensity, bodyFlightConditions ),
                 boost::bind( &FlightConditions::getCurrentAirspeed, bodyFlightConditions ),
                 boost::bind( &Body::getBodyMass, bodyUndergoingAcceleration ),

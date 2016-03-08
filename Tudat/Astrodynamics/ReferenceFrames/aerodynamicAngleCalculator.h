@@ -110,6 +110,20 @@ public:
      */
     double getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId );
 
+    void setOrientationAngleFunctions(
+            const boost::function< double( ) > angleOfAttackFunction =
+            boost::lambda::constant ( 0.0 ),
+            const boost::function< double( ) > angleOfSideslipFunction =
+            boost::lambda::constant ( 0.0 ),
+            const boost::function< double( ) > bankAngleFunction =
+            boost::lambda::constant ( 0.0 ) )
+    {
+        angleOfAttackFunction_ = angleOfAttackFunction;
+        angleOfSideslipFunction_ = angleOfSideslipFunction;
+        bankAngleFunction_ = bankAngleFunction;
+
+    }
+
 private:
 
     //! Map of current angles, as calculated by previous call to update( ) function.

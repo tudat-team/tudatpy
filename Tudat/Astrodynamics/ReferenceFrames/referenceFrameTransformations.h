@@ -69,6 +69,10 @@ Eigen::Vector3d transformVector(
         const boost::function< Eigen::Quaterniond( ) > rotation );
 
 Eigen::Vector3d transformVector(
+        const boost::function< Eigen::Vector3d( ) > originalVector,
+        const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction );
+
+Eigen::Vector3d transformVector(
         const Eigen::Vector3d& originalVector,
         const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );
 
