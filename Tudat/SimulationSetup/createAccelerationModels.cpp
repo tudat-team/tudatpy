@@ -469,6 +469,7 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
+        break;
     default:
         throw std::runtime_error(
                     std::string( "Error, acceleration model ") +

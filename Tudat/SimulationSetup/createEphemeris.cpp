@@ -36,6 +36,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/keplerEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
@@ -184,7 +185,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 boost::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
         if( constantEphemerisSettings == NULL )
         {
-            std::cerr<<"Error, expected interpolated spice ephemeris settings."<<std::endl;
+            std::cerr<<"Error, expected constant ephemeris settings."<<std::endl;
         }
         else
         {
@@ -192,6 +193,27 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                         boost::lambda::constant( constantEphemerisSettings->getConstantState( ) ),
                         constantEphemerisSettings->getFrameOrigin( ),
                         constantEphemerisSettings->getFrameOrientation( ) );
+        }
+        break;
+    }
+    case kepler_ephemeris:
+    {
+        boost::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
+                boost::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
+        if( keplerEphemerisSettings == NULL )
+        {
+            std::cerr<<"Error, expected Kepler ephemeris settings."<<std::endl;
+        }
+        else
+        {
+            ephemeris = boost::make_shared< KeplerEphemeris >(
+                        keplerEphemerisSettings->getInitialStateInKeplerianElements( ),
+                        keplerEphemerisSettings->getEpochOfInitialState( ),
+                        keplerEphemerisSettings->getCentralBodyGravitationalParameter( ),
+                        keplerEphemerisSettings->getFrameOrigin( ),
+                        keplerEphemerisSettings->getFrameOrientation( ),
+                        keplerEphemerisSettings->getRootFinderAbsoluteTolerance( ),
+                        keplerEphemerisSettings->getRootFinderMaximumNumberOfIterations( ) );
         }
         break;
     }

@@ -61,7 +61,8 @@ enum EphemerisType
     direct_spice_ephemeris,
     tabulated_ephemeris,
     interpolated_spice,
-    constant_ephemeris
+    constant_ephemeris,
+    kepler_ephemeris
 };
 
 //! Class for providing settings for ephemeris model.
@@ -333,9 +334,9 @@ private:
 class ConstantEphemerisSettings: public EphemerisSettings
 {
 public:
-    ConstantEphemerisSettings( basic_mathematics::Vector6d constantState,
-                               std::string frameOrigin = "SSB",
-                               std::string frameOrientation = "ECLIPJ2000" ):
+    ConstantEphemerisSettings( const basic_mathematics::Vector6d& constantState,
+                               const std::string frameOrigin = "SSB",
+                               const std::string frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( constant_ephemeris,
                            frameOrigin,
                            frameOrientation ), constantState_( constantState ){ }
@@ -344,6 +345,59 @@ public:
 
 private:
     basic_mathematics::Vector6d constantState_;
+};
+
+class KeplerEphemerisSettings: public EphemerisSettings
+{
+public:
+    KeplerEphemerisSettings( const basic_mathematics::Vector6d& initialStateInKeplerianElements,
+                             const double epochOfInitialState,
+                             const double centralBodyGravitationalParameter,
+                             const std::string& referenceFrameOrigin = "SSB",
+                             const std::string& referenceFrameOrientation = "ECLIPJ2000",
+                             const double rootFinderAbsoluteTolerance =
+            200.0 * std::numeric_limits< double >::epsilon( ),
+                             const double rootFinderMaximumNumberOfIterations = 1000.0 ):
+        EphemerisSettings( kepler_ephemeris, referenceFrameOrigin, referenceFrameOrientation ),
+        initialStateInKeplerianElements_( initialStateInKeplerianElements ),
+        epochOfInitialState_( epochOfInitialState ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+        rootFinderAbsoluteTolerance_( rootFinderAbsoluteTolerance ),
+        rootFinderMaximumNumberOfIterations_( rootFinderMaximumNumberOfIterations ){ }
+
+
+    basic_mathematics::Vector6d getInitialStateInKeplerianElements( )
+    {
+        return initialStateInKeplerianElements_;
+    }
+
+    double getEpochOfInitialState( )
+    {
+        return epochOfInitialState_;
+    }
+
+    double getCentralBodyGravitationalParameter( )
+    {
+        return centralBodyGravitationalParameter_;
+    }
+
+    double getRootFinderAbsoluteTolerance( )
+    {
+        return rootFinderAbsoluteTolerance_;
+    }
+
+    double getRootFinderMaximumNumberOfIterations( )
+    {
+        return rootFinderMaximumNumberOfIterations_;
+    }
+
+private:
+
+    basic_mathematics::Vector6d initialStateInKeplerianElements_;
+    double epochOfInitialState_;
+    double centralBodyGravitationalParameter_;
+    double rootFinderAbsoluteTolerance_;
+    double rootFinderMaximumNumberOfIterations_;
 };
 
 //! EphemerisSettings derived class for defining settings of an ephemeris created from tabulated

@@ -124,6 +124,7 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
                     cannonBallSettings->getRadiationPressureCoefficient( ),
                     cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
                     sourceRadius );
+        break;
 
     }
     default:

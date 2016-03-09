@@ -74,6 +74,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies(
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
     SelectedAccelerationMap accelerationMap;
@@ -272,6 +273,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
                 basic_mathematics::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
     std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
