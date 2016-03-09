@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     bodySettings[ "Sun" ]->gravityFieldSettings =
             boost::make_shared< GravityFieldSettings >( central_spice );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
     // Defins state of Sun to be all zero.
     std::map< double, basic_mathematics::Vector6d > sunStateHistory;
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
             boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
     bodySettings[ "Vehicle" ]->ephemerisSettings =
             boost::make_shared< KeplerEphemerisSettings >(
-                ( basic_mathematics::Vector6d( ) << 12000.0E3, 0.13, 0.3 ).finished( ),
+                ( basic_mathematics::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( ),
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
     // Create bodies
@@ -518,7 +518,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         bodyMap[ "Vehicle" ]->updateMass( testTime );
 
         // Update flight conditions.
-        vehicleFlightConditions->updateConditions( );
+        vehicleFlightConditions->updateConditions( testTime );
 
         // Check whether flight conditions object has been correctly automatically created
         // (see testAerodynamicAngleCalculator)
@@ -696,7 +696,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
                     boost::lambda::constant( bankAngle ) );
 
         // Update flight conditions
-        vehicleFlightConditions->updateConditions( );
+        vehicleFlightConditions->updateConditions( testTime );
 
         // Calculate Mach number
         double velocity = vehicleBodyFixedState.segment( 3, 3 ).norm( );

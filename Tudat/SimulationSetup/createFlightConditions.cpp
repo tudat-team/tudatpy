@@ -118,13 +118,13 @@ createAerodynamicCoefficientInterface(
             break;
         }
         default:
-            std::cerr<<"Error when making tabulated aerodynamic coefficient interface, "<<
-                       numberOfDimensions<<" dimensions not yet implemented"<<std::endl;
+            throw std::runtime_error( "Error when making tabulated aerodynamic coefficient interface, " +
+                       boost::lexical_cast< std::string >( numberOfDimensions ) + " dimensions not yet implemented" );
         }
 
     }
     default:
-        std::cerr<<"Error, do not recognize aerodynamic coefficient settings for "<<body<<std::endl;
+        throw std::runtime_error( "Error, do not recognize aerodynamic coefficient settings for " + body );
     }
     return coefficientInterface;
 }
@@ -139,6 +139,7 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::function< double( ) > angleOfSideslipFunction,
         const boost::function< double( ) > bankAngleFunction )
 {
+    // Check whether all required environment models are set.
     if( centralBody->getAtmosphereModel( ) == NULL )
     {
         throw std::runtime_error(
@@ -167,10 +168,12 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
                     " has no aerodynamic coefficients." );
     }
 
+    // Create function to calculate the altitude from current body-fixed state
     boost::function< double( const Eigen::Vector3d ) > altitudeFunction =
             boost::bind( &basic_astrodynamics::BodyShapeModel::getAltitude,
                          centralBody->getShapeModel( ), _1 );
 
+    // Create function to rotate state from intertial to body-fixed frame.
     boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
             boost::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
     boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
@@ -186,21 +189,21 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
                 _1, rotationToFrameFunction,
                 rotationMatrixToFrameDerivativeFunction );
 
+    // Create flight conditions.
     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
             boost::make_shared< aerodynamics::FlightConditions >(
                 centralBody->getAtmosphereModel( ), altitudeFunction,
                 boost::bind( &Body::getState, bodyWithFlightConditions ),
                 boost::bind( &Body::getState, centralBody ),
                 transformationToCentralBodyFrame,
-                boost::bind( &Body::getCurrentTime, centralBody ),
                 bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) );
 
+    // Create aerodynamic angles calculator and set in flight conditions.
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
             boost::make_shared< reference_frames::AerodynamicAngleCalculator >(
                 boost::bind( &aerodynamics::FlightConditions::getCurrentBodyCenteredBodyFixedState,
                              flightConditions ),
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, 1 );
-
     flightConditions->setAerodynamicAngleCalculator( aerodynamicAngleCalculator );
 
     return flightConditions;

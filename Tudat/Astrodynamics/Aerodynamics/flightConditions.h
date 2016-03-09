@@ -45,7 +45,6 @@ public:
      *  (in the global frame)
      *  \param transformationToCentralBodyFrame Function transforming the inertial body-centered to
      *  the body-centered, body-fixed (co-rotating) frame.
-     *  \param currentTimeFunction Function returning the current time.
      *  \param aerodynamicCoefficientInterface Object from which the aerodynamic coefficients
      *  are obtained.
      *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
@@ -58,7 +57,6 @@ public:
                       const boost::function< basic_mathematics::Vector6d(
                           const basic_mathematics::Vector6d& ) >
                       transformationToCentralBodyFrame,
-                      const boost::function< double( ) > currentTimeFunction,
                       const boost::shared_ptr< AerodynamicCoefficientInterface >
                       aerodynamicCoefficientInterface,
                       const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
@@ -69,8 +67,9 @@ public:
     /*!
      *  Function to update all flight conditions (altitude, density, force coefficients) to
      *  current state of vehicle and central body.
+     *  \param currentTime Time to which conditions are to be updated.
      */
-    void updateConditions( );
+    void updateConditions( const double currentTime );
 
     //! Function to return altitude
     /*!

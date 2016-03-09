@@ -208,15 +208,18 @@ private:
 
 template< typename StateScalarType = double, typename TimeType = double >
 std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
-getTranslationFunctionsFromIntegrationFrameToEphemerisFrame( const std::vector< std::string >& centralBodies,
-                                                             const std::vector< std::string >& bodiesToIntegrate,
-                                                             const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager )
+getTranslationFunctionsFromIntegrationFrameToEphemerisFrame(
+        const std::vector< std::string >& centralBodies,
+        const std::vector< std::string >& bodiesToIntegrate,
+        const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager )
 {
-    std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > translationFunctionMap;
+    std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
+            translationFunctionMap;
 
     if( centralBodies.size( ) != bodiesToIntegrate.size( ) )
     {
-        std::cerr<<"Error when making translation functrions from integration to ephemeris frame, input vector sizes inconsistent"<<std::endl;
+        throw std::runtime_error(
+                    "Error when making translation functrions from integration to ephemeris frame, input vector sizes inconsistent" );
     }
     else
     {
@@ -224,11 +227,11 @@ getTranslationFunctionsFromIntegrationFrameToEphemerisFrame( const std::vector< 
         {
             if( centralBodies.at( i ) != frameManager->getBaseFrameNameOfBody( bodiesToIntegrate.at( i ) ) )
             {
-                //std::cout<<"Diff. "<<bodiesToIntegrate.at( i )<<" "<<centralBodies.at( i )<<" "<<frameManager->getBaseFrameNameOfBody( bodiesToIntegrate.at( i ) )<<std::endl;
                 translationFunctionMap[ bodiesToIntegrate.at( i ) ] = boost::bind(
                             &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >,
                             frameManager->getEphemeris< StateScalarType, TimeType >(
-                                centralBodies.at( i ), frameManager->getBaseFrameNameOfBody( bodiesToIntegrate.at( i ) )  ), _1 );
+                                centralBodies.at( i ),
+                                frameManager->getBaseFrameNameOfBody( bodiesToIntegrate.at( i ) )  ), _1 );
             }
         }
     }

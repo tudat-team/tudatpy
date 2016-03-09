@@ -62,6 +62,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
@@ -87,6 +88,7 @@ using namespace simulation_setup;
 using namespace spice_interface;
 using namespace input_output;
 using namespace reference_frames;
+using namespace basic_astrodynamics;
 
 BOOST_AUTO_TEST_SUITE( test_environment_model_setup )
 
@@ -332,7 +334,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 
 }
 
-//! Test set up of rotation model environment models.
+//! Test set up of rotation models.
 BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 {
 
@@ -375,20 +377,105 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 
 }
 
-//! Test set up of rotation model environment models.
-BOOST_AUTO_TEST_CASE( test_RadiationPressureInterfaceSetup )
+//! Test set up of radiation pressure interfacel environment models.
+BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 {
+    // Load Spice kernels
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+
+    // Define body settings/
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
+    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
+
+    // Get settings for vehicle
+    double area = 2.34;
+    double coefficient = 1.2;
+    basic_mathematics::Vector6d initialKeplerElements =
+            ( basic_mathematics::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
+    bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
+            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
+    bodySettings[ "Vehicle" ]->ephemerisSettings =
+            boost::make_shared< KeplerEphemerisSettings >(
+                initialKeplerElements,
+                0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+
+    double testTime = 0.5E7;
+
+    // Update environment to current time.
+    bodyMap[ "Sun" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setTemplatedStateFromEphemeris< double, double >( testTime );
+
+    boost::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
+            bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
+
+    vehicleRadiationPressureInterface->updateInterface( testTime );
+    double sourceDistance = ( ( bodyMap[ "Vehicle" ]->getState( ) -  bodyMap[ "Sun" ]->getState( ) ).
+            segment( 0, 3 ) ).norm( );
+    double expectedRadiationPressure = electro_magnetism::calculateRadiationPressure(
+                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedRadiationPressure,
+                                vehicleRadiationPressureInterface->getCurrentRadiationPressure( ),
+                                std::numeric_limits< double >::epsilon( ) );
 
 }
 
-//! Test set up of rotation model environment models.
-BOOST_AUTO_TEST_CASE( test_ShapeModelSetup )
+//! Test set up of body shape environment models (see testShapeModels).
+BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
 {
+    // Define test values.
+    const Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
+    const double flattening = 1.0 / 298.257223563;
+    const double equatorialRadius = 6378137.0;
+
+    // Test spherical body setup
+    {
+        boost::shared_ptr< BodyShapeSettings > shapeSettings = boost::make_shared< SphericalBodyShapeSettings >(
+                    equatorialRadius );
+        boost::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel(
+                    shapeSettings, "Earth" );
+
+
+        double calculatedAltitude = shapeModel->getAltitude(
+                    testCartesianPosition );
+        BOOST_CHECK_CLOSE_FRACTION( calculatedAltitude, testCartesianPosition.norm( ) - equatorialRadius,
+                                    std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( shapeModel->getAverageRadius( ), equatorialRadius,
+                                    std::numeric_limits< double >::epsilon( ) );
+    }
+    // Test oblate spheroid setup
+    {
+        boost::shared_ptr< BodyShapeSettings > shapeSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
+                    equatorialRadius, flattening );
+        boost::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel(
+                    shapeSettings, "Earth" );
+
+
+        double calculatedAltitude = shapeModel->getAltitude(
+                    testCartesianPosition );
+        double manualAltitude = coordinate_conversions::calculateAltitudeOverOblateSpheroid(
+                    testCartesianPosition, equatorialRadius, flattening, 1.0E-4 );
+        BOOST_CHECK_CLOSE_FRACTION( calculatedAltitude, manualAltitude,
+                                    std::numeric_limits< double >::epsilon( ) );
+    }
 
 }
 
 
-//! Test set up of rotation model environment models.
+//! Test set up of flight conditions object.
 BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 {
     // Load Spice kernels
@@ -447,7 +534,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
 
     // Update flight conditions
-    vehicleFlightConditions->updateConditions( );
+    vehicleFlightConditions->updateConditions( testTime );
 
     // Check whether calulcate angles and body-fixed state correspond to expected results
     BOOST_CHECK_SMALL(

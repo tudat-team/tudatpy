@@ -181,14 +181,16 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
     }
     case constant_ephemeris:
     {
+        // Check consistency of type and class.
         boost::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
                 boost::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
         if( constantEphemerisSettings == NULL )
         {
-            std::cerr<<"Error, expected constant ephemeris settings."<<std::endl;
+            throw std::runtime_error( "Error, expected constant ephemeris settings for " + bodyName );
         }
         else
         {
+            // Create ephemeris
             ephemeris = boost::make_shared< ConstantEphemeris >(
                         boost::lambda::constant( constantEphemerisSettings->getConstantState( ) ),
                         constantEphemerisSettings->getFrameOrigin( ),
@@ -198,14 +200,16 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
     }
     case kepler_ephemeris:
     {
+        // Check consistency of type and class.
         boost::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
                 boost::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
         if( keplerEphemerisSettings == NULL )
         {
-            std::cerr<<"Error, expected Kepler ephemeris settings."<<std::endl;
+            throw std::runtime_error( "Error, expected Kepler ephemeris settings for " + bodyName );
         }
         else
         {
+            // Create ephemeris
             ephemeris = boost::make_shared< KeplerEphemeris >(
                         keplerEphemerisSettings->getInitialStateInKeplerianElements( ),
                         keplerEphemerisSettings->getEpochOfInitialState( ),

@@ -183,7 +183,7 @@ createSphericalHarmonicsGravityAcceleration(
         {
             if( rotationalEphemeris == NULL )
             {
-                std::cerr<<"Warning when making spherical harmonic acceleration on body "<<
+              std::cerr<<"Warning when making spherical harmonic acceleration on body "<<
                            nameOfBodyUndergoingAcceleration<<", no rotation model found for "<<
                            nameOfBodyExertingAcceleration<<std::endl;
             }
