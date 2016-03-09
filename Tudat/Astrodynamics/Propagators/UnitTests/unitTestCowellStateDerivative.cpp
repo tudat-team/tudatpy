@@ -72,8 +72,15 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies(
-                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
+   bodySettings[ "Mars" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+   bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
+   bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+
+
+    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies( bodySettings );
+
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
@@ -126,13 +133,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     }
 
     // Get initial state vector as input to integration.
-    Eigen::VectorXd systemInitialState = Eigen::VectorXd( bodiesToIntegrate.size( ) * 6 );
-    for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
-    {
-        systemInitialState.segment( i * 6 , 6 ) =
-                spice_interface::getBodyCartesianStateAtEpoch(
-                    bodiesToIntegrate[ i ], "SSB", "ECLIPJ2000", "NONE", initialEphemerisTime );
-    }
+    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
+                bodiesToIntegrate, centralBodies, bodyMap, initialEphemerisTime );
 
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -155,13 +157,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
         centralBodyMap[ bodiesToIntegrate[ i ] ] = centralBodies[ i ];
     }
 
-    // Define new initial state.
-    for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
-    {
-        systemInitialState.segment( i * 6 , 6 ) =
-                spice_interface::getBodyCartesianStateAtEpoch(
-                    bodiesToIntegrate[ i ], centralBodies[ i ], "ECLIPJ2000", "NONE", initialEphemerisTime );
-    }
+    systemInitialState = getInitialStatesOfBodies(
+                   bodiesToIntegrate, centralBodies, bodyMap, initialEphemerisTime );
 
     // Create new acceleration models and propagation settings.
     AccelerationMap accelerationModelMap2 = createAccelerationModelsMap(
@@ -197,6 +194,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Define error maps.
     Eigen::VectorXd stateDifference = Eigen::VectorXd::Zero( 6 * numberOfNumericalBodies );
 
+    // Test numerical output against results with SSB as origin for ech body,
     boost::shared_ptr< ephemerides::Ephemeris > sunEphemeris = bodyMap[ "Sun" ]->getEphemeris( );
     while( currentTime < finalEphemerisTime - stepSize )
     {
@@ -236,6 +234,55 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
                 BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 2.0E-7 );
             }
         }
+        currentTime += stepSize;
+    }
+
+    // Test whether ephemeris objects have been properly reset, i.e. whether all states have been properly transformed to the
+    // ephemeris frame.
+    boost::shared_ptr< ephemerides::Ephemeris > earthEphemeris = bodyMap[ "Earth" ]->getEphemeris( );
+    boost::shared_ptr< ephemerides::Ephemeris > marsEphemeris = bodyMap[ "Mars" ]->getEphemeris( );
+    boost::shared_ptr< ephemerides::Ephemeris > moonEphemeris = bodyMap[ "Moon" ]->getEphemeris( );
+
+    while( currentTime < finalEphemerisTime - stepSize )
+    {
+        // Retrieve data from interpolators; transform to inertial frames and compare.
+        currentInertialSolution = interpolator1.interpolate( currentTime );
+
+        reconstructedInertialSolution.segment( 0, 6 ) = earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
+                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+        reconstructedInertialSolution.segment( 6, 6 ) = sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+        reconstructedInertialSolution.segment( 12, 6 ) = moonEphemeris->getCartesianStateFromEphemeris( currentTime ) +
+                earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
+                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+        reconstructedInertialSolution.segment( 18, 6 ) = marsEphemeris->getCartesianStateFromEphemeris( currentTime ) +
+                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+
+        // Compare states.
+        stateDifference = reconstructedInertialSolution - currentInertialSolution;
+        for( unsigned j = 0; j < 4; j++ )
+        {
+            if( j != 2 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 1.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 1.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 1.0E-2 );
+
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 2.0E-9 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 2.0E-9 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 2.0E-9 );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 0 + 6 * j ) ), 1.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 1.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 1.0E-1 );
+
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 2.0E-7 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 2.0E-7 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 2.0E-7 );
+            }
+        }
+
         currentTime += stepSize;
     }
 

@@ -78,7 +78,7 @@ public:
             const double gravitationalParameter, const double referenceRadius,
             const Eigen::MatrixXd& nominalCosineCoefficients,
             const Eigen::MatrixXd& nominalSineCoefficients,
-            const boost::shared_ptr< GravityFieldVariationsSet >&
+            const boost::shared_ptr< GravityFieldVariationsSet >
             gravityFieldVariationUpdateSettings,
             const boost::function< Eigen::Quaterniond( ) > rotationWrapper =
             boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) ):

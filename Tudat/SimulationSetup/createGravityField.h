@@ -51,8 +51,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/createGravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
+#include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 
 namespace tudat
 {
@@ -159,7 +161,8 @@ public:
         referenceRadius_( referenceRadius ),
         cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ),
-        associatedReferenceFrame_( associatedReferenceFrame )
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        createTimeDependentField_( 0 )
     {  }
 
     //! Function to return gravitational parameter for gravity field.
@@ -198,6 +201,13 @@ public:
      */
     std::string getAssociatedReferenceFrame( ){ return associatedReferenceFrame_; }
 
+    bool getCreateTimeDependentField( ){ return createTimeDependentField_; }
+
+    void setCreateTimeDependentField( const bool createTimeDependentField )
+    {
+        createTimeDependentField_ = createTimeDependentField;
+    }
+
 private:
 
 
@@ -215,7 +225,15 @@ private:
 
     //! Identifier for body-fixed reference frame to which the coefficients are referred.
     std::string associatedReferenceFrame_;
+
+    bool createTimeDependentField_;
+
 };
+
+boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
+        const std::string& body,
+        const NamedBodyMap& bodyMap,
+        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
 
 //! Function to create a gravity field model.
 /*!
@@ -227,7 +245,11 @@ private:
  */
 boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const boost::shared_ptr< GravityFieldSettings > gravityFieldSettings,
-        const std::string& body);
+        const std::string& body,
+        const NamedBodyMap& bodyMap = NamedBodyMap( ),
+        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
+        std::vector< boost::shared_ptr< GravityFieldVariationSettings > >( ),
+        const bool immediatelySetVariations = 0 );
 }
 
 }
