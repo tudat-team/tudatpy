@@ -220,6 +220,14 @@ private:
     std::vector< bool > isCurrentEphemerisTranslational_;
 };
 
+template< typename OldStateScalarType, typename NewStateScalarType, typename TimeType, int StateSize >
+Eigen::Matrix< NewStateScalarType, StateSize, 1 > convertStateFunctionStateScalarOutput(
+        const boost::function< Eigen::Matrix< OldStateScalarType, StateSize, 1 >( const double& ) > originalStateFunction,
+        const TimeType currentTime )
+{
+    return originalStateFunction( currentTime ).template cast< NewStateScalarType >( );
+}
+
 template< typename TimeType = double, typename StateScalarType = double >
 boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
         boost::shared_ptr< Ephemeris > bodyEphemeris,
@@ -237,9 +245,11 @@ boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
 
 
     boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction =
-            boost::bind( &RotationalEphemeris::getRotationToBaseFrame, bodyRotationModel, _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            boost::bind( &RotationalEphemeris::getRotationToBaseFrame, bodyRotationModel, _1,
+                         basic_astrodynamics::JULIAN_DAY_ON_J2000 );
     boost::function< Eigen::Matrix3d( const double ) > rotationMatrixToFrameDerivativeFunction =
-            boost::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrame, bodyRotationModel, _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            boost::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrame, bodyRotationModel, _1,
+                         basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     std::map< int, boost::function< StateType( const double, const StateType& ) > > referencePointRotationVector;
     referencePointRotationVector[ 1 ] = boost::bind(

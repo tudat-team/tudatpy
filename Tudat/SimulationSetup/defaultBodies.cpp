@@ -94,6 +94,7 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
                 spice_rotation_model, "ECLIPJ2000", "IAU_" + bodyName );
 }
 
+//! Function to create default settings for a body's shape model.
 boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
         const std::string& body,
         const double initialTime, const double finalTime )

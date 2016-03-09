@@ -153,7 +153,7 @@ public:
                                             const double referenceRadius,
                                             const Eigen::MatrixXd cosineCoefficients,
                                             const Eigen::MatrixXd sineCoefficients,
-                                            const std::string associatedReferenceFrame ):
+                                            const std::string& associatedReferenceFrame ):
         GravityFieldSettings( spherical_harmonic ),
         gravitationalParameter_( gravitationalParameter ),
         referenceRadius_( referenceRadius ),

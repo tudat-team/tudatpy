@@ -37,6 +37,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
+#include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -56,22 +57,7 @@ using namespace basic_astrodynamics;
 using namespace electro_magnetism;
 using namespace ephemerides;
 
-//! Function to determine if a given frame is an inertial frame.
-bool isFrameInertial( const std::string& frame )
-{
-    bool isFrameInertial_;
-    if( frame == "SSB" || frame == "" || frame == "Inertial" )
-    {
-        isFrameInertial_ = true;
-    }
-    else
-    {
-        isFrameInertial_ = false;
-    }
-    return isFrameInertial_;
-}
-
-
+//! Function to add to double-returning functions.
 double evaluateDoubleFunctions(
         const boost::function< double( ) >& function1,
         const boost::function< double( ) >& function2 )

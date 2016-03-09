@@ -1,5 +1,5 @@
-#ifndef FRAMEMANAGER_H
-#define FRAMEMANAGER_H
+#ifndef TUDAT_FRAMEMANAGER_H
+#define TUDAT_FRAMEMANAGER_H
 
 #include <map>
 #include <vector>
@@ -21,7 +21,14 @@ namespace tudat
 namespace ephemerides
 {
 
-bool isFrameInertial( const std::string frame );
+//! Function to determine if a given frame is an inertial frame.
+/*!
+ *  Function to determine if a given frame is an inertial frame. Currently a frame identified as
+ *  "SSB" (solar system barycenter), "inertial" or "" (empty) is recognized as inertial.
+ *  \param frame Name of frame for which it is to be determined whether it is inertial.
+ *  \return True if inertial, false if not.
+ */
+bool isFrameInertial( const std::string& frame );
 
 //! Function to return base frame, i.e. in which the states of the bodies are defined during the integration.
 /*!
@@ -34,7 +41,7 @@ std::string getBaseFrameName( );
 //! Class to retrieve translation functions between different frames
 /*!
  * Class to retrieve translation functions between different frames, as calculated from a list of ephemeris objects.
- * Using this class, the various Ephemeris objects may be 'pasted' together to obtain the state of one body w.r.t. any\
+ * Using this class, the various Ephemeris objects may be 'pasted' together to obtain the state of one body w.r.t. any
  * other body.
  */
 class ReferenceFrameManager
@@ -57,8 +64,8 @@ public:
 
     //! Function to retrieve the ephemeris of a body with a requested frame origin.
     /*!
-     *  Function to retrieve the ephemeris of a body with a requested frame origin. Both the body and the origin must be loaded into the
-     *  frame manager.
+     *  Function to retrieve the ephemeris of a body with a requested frame origin. Both the body and the origin must be
+     *  loaded into the frame manager.
      *  \param origin Origin of ephemeris
      *  \param body Body for which ephemeris is requested.
      *  \return Ephemeris of requested body qith requested frame origin
@@ -90,7 +97,8 @@ public:
             // Initialize list of ephemeris functions for composite ephemeris creation
             std::map< int, std::pair< boost::function< StateType( const TimeType& ) >, bool > > totalEphemerisList;
 
-            // If body is nearest common frame, get set of ephemeris and set to subtract them when making composite ephemeris.
+            // If body is nearest common frame, get set of ephemeris and set to subtract them when making composite
+            // ephemeris.
             std::vector< boost::shared_ptr< Ephemeris > > ephemerisList;
             if( nearestCommonFrame.first == body )
             {
@@ -116,7 +124,8 @@ public:
             // If nearest common frame is neither input, create link from both to nearest common frame.
             else
             {
-                // Get set of ephemeris from nearest common frame to body and set to add them when making composite ephemeris.
+                // Get set of ephemeris from nearest common frame to body and set to add them when making composite
+                // ephemeris.
                 ephemerisList = getDirectEphemerisFromLowerToUpperFrame( nearestCommonFrame.first, body );
                 for( unsigned int i = 0; i < ephemerisList.size( ); i++ )
                 {
@@ -126,7 +135,8 @@ public:
                 }
                 int firstListSize = ephemerisList.size( );
 
-                // Get set of ephemeris from nearest common frame to origin and set to subtract them when making composite ephemeris.
+                // Get set of ephemeris from nearest common frame to origin and set to subtract them when making composite
+                // ephemeris.
                 ephemerisList = getDirectEphemerisFromLowerToUpperFrame( nearestCommonFrame.first, origin );
                 for( unsigned int i = 0; i < ephemerisList.size( ); i++ )
                 {
@@ -141,7 +151,8 @@ public:
 
             // Create composite ephemeris
             ephemerisBetweenFrames = boost::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
-                        totalEphemerisList, std::map< int, boost::function< StateType( const double, const StateType& ) > >( ), origin );
+                        totalEphemerisList,
+                        std::map< int, boost::function< StateType( const double, const StateType& ) > >( ), origin );
         }
 
         return ephemerisBetweenFrames;
@@ -163,24 +174,37 @@ public:
      */
     std::pair< std::string, int > getNearestCommonFrame( std::vector< std::string > frameList );
 
+    //! Get name of the base frame for a given body.
+    /*!
+     * Get name of the base frame for a given body.
+     * \param bodyName Name of body for which the base frame is to be returned.
+     * \return Name od base frame of bodyName.
+     */
     std::string getBaseFrameNameOfBody( const std::string& bodyName );
 
-    std::vector< std::string > getEphemerisOrigins( const std::vector< std::string >& bodiesToIntegrate );
+    //! Get ephemeris origins (base frame names) for a list of bodies.
+    /*!
+     * Get ephemeris origins (base frame names) for a list of bodies, calls getBaseFrameNameOfBody for each entry of
+     * bodyList
+     * \param bodyList List of bodies for which ephemeris origins are to be calculated.
+     * \return Ephemeris origins of bodyList
+     */
+    std::vector< std::string > getEphemerisOrigins( const std::vector< std::string >& bodyList );
 
 private:
 
     //! Vector of frames with associated base frames, ordered by frame level.
     /*!
-     *  Vector of frames with associated base frames, ordered by frame level. Index of vector indicates at which frame level the frames
-     *  in the maps at that index are. The map contains frame names (key) with their associated base frames (value). Each base frame
-     *  must be a frame of one level lower; base frame of level 0 frames must be global base frame.
+     *  Vector of frames with associated base frames, ordered by frame level. Index of vector indicates at which frame level
+     *  the frames in the maps at that index are. The map contains frame names (key) with their associated base frames
+     *  (value). Each base frame  must be a frame of one level lower; base frame of level 0 frames must be global base frame.
      */
     std::vector< std::map< std::string, std::string > > baseFrameList_;
 
     //! Map of ephemerides (values) of bodies (keys)
     /*!
-     *  Map of ephemerides (values) of bodies (keys). The frame origins and orientations of these ephemerides can be retrievd from the
-     *  objects themselves.
+     *  Map of ephemerides (values) of bodies (keys). The frame origins and orientations of these ephemerides can be retrievd
+     *  from the objects themselves.
      */
     std::map< std::string, boost::shared_ptr< Ephemeris > > availableEphemerides_;
 
@@ -192,8 +216,8 @@ private:
 
     //! Returns an ephemeris along a single line of the hierarchy tree.
     /*!
-     *  Returns an ephemeris along a single line of the hierarchy tree, i.e. returned ephemeris constituent frame levels must be
-     *  continuously increasing
+     *  Returns an ephemeris along a single line of the hierarchy tree, i.e. returned ephemeris constituent frame levels
+     *  must be continuously increasing
      */
     std::vector< boost::shared_ptr< Ephemeris > > getDirectEphemerisFromLowerToUpperFrame(
             const std::string& lowerFrame, const std::string& upperFrame );
@@ -207,6 +231,15 @@ private:
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
+//! Function to get a list of translation functions from integration frames to ephemeris frames.
+/*!
+ * Function to get a list of translation functions from integration frames to ephemeris frames. The output functions
+ * provide the state of the ephemeris origin in the integration origin.
+ * \param centralBodies List of integration origins.
+ * \param bodiesToIntegrate List of bodies for which the origins are considered.
+ * \param frameManager Object to retrieve translations between origins
+ * \return List of translation functions from integration frames to ephemeris frames.
+ */
 std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
 getTranslationFunctionsFromIntegrationFrameToEphemerisFrame(
         const std::vector< std::string >& centralBodies,
@@ -216,15 +249,17 @@ getTranslationFunctionsFromIntegrationFrameToEphemerisFrame(
     std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
             translationFunctionMap;
 
+    // Check consistency of input.
     if( centralBodies.size( ) != bodiesToIntegrate.size( ) )
     {
         throw std::runtime_error(
-                    "Error when making translation functrions from integration to ephemeris frame, input vector sizes inconsistent" );
+         "Error when making translation functrions from integration to ephemeris frame, input vector sizes inconsistent" );
     }
     else
     {
         for( unsigned int i = 0; i < centralBodies.size( ); i++ )
         {
+            // If ephemeris and integration origin are not equal, provide translation function.
             if( centralBodies.at( i ) != frameManager->getBaseFrameNameOfBody( bodiesToIntegrate.at( i ) ) )
             {
                 translationFunctionMap[ bodiesToIntegrate.at( i ) ] = boost::bind(
@@ -243,4 +278,4 @@ getTranslationFunctionsFromIntegrationFrameToEphemerisFrame(
 
 }
 
-#endif // FRAMEMANAGER_H
+#endif // TUDAT_FRAMEMANAGER_H

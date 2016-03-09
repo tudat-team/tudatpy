@@ -28,8 +28,8 @@ public:
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
     ConstantEphemeris( const boost::function< basic_mathematics::Vector6d( ) > constantStateFunction,
-                       const std::string referenceFrameOrigin = "SSB",
-                       const std::string referenceFrameOrientation = "ECLIPJ2000" ):
+                       const std::string& referenceFrameOrigin = "SSB",
+                       const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), constantStateFunction_( constantStateFunction ) { }
 
     //! Constructor
@@ -40,8 +40,8 @@ public:
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
     ConstantEphemeris( const basic_mathematics::Vector6d constantState,
-                       const std::string referenceFrameOrigin = "SSB",
-                       const std::string referenceFrameOrientation = "ECLIPJ2000" ):
+                       const std::string& referenceFrameOrigin = "SSB",
+                       const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
         { constantStateFunction_ = boost::lambda::constant( constantState ); }
 

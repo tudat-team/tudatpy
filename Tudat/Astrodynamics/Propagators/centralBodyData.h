@@ -151,8 +151,8 @@ public:
 
     //! Function to return the state of the central bodies in an inertial frame.
     /*!
-     *  Function to return the state of the central bodies in an inertial frame. The states of the integrated bodies in either their local
-     *  frame or the inertial frame, and the current time have to be passed as arguments to this function.
+     *  Function to return the state of the central bodies in an inertial frame. The states of the integrated bodies in
+     *  either their local frame or the inertial frame, and the current time have to be passed as arguments to this function.
      *  \param internalState States of bodies that are numerically integrated, size should be 6 * size of bodiesToIntegrate,
      *  with entries in the order of the bodies in the bodiesToIntegrate vector.
      *  \param time Current time (used for retrieving states from ephemerides)
@@ -161,14 +161,19 @@ public:
      *  \return Vector of states of the reference frame origins for each body.
      */
     std::vector<  Eigen::Matrix< StateScalarType, 6, 1 > > getReferenceFrameOriginInertialStates(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalState, const TimeType time, const bool areInputStateLocal = true )
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalState, const TimeType time,
+            const bool areInputStateLocal = true )
     {
         std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > referenceFrameOriginStates_;
         referenceFrameOriginStates_.resize( updateOrder_.size( ) );
+
+        // Update state in correct order.
         for( unsigned int i = 0; i < updateOrder_.size( ); i++ )
         {
             referenceFrameOriginStates_[ updateOrder_[ i ] ] =
                     getSingleReferenceFrameOriginInertialState( internalState, time, updateOrder_[ i ] );
+
+            // Modify current input state to global frame if input is local (in propagation frame).
             if( areInputStateLocal )
             {
                 internalState.segment( 6 * updateOrder_[ i ], 6 ) += referenceFrameOriginStates_[ updateOrder_[ i ] ];
@@ -179,32 +184,67 @@ public:
     }
 
 
+    //! Function to get the order in which the body states are to be called when getting global states.
+    /*!
+     * Function to get the order in which the body states are to be called when getting global states.
+     * \return Order in which the body states are to be called when getting global states.
+     */
     std::vector< int > getUpdateOrder( ){ return updateOrder_; }
 
+    //! Function to get the type of reference frame origin for each of the propagated bodies.
+    /*!
+     * Function to get the type of reference frame origin for each of the propagated bodies.
+     * \return Type of reference frame origin for each of the propagated bodies.
+     */
     std::vector< OriginType > getBodyOriginType( ){ return bodyOriginType_; }
 
-    std::map< int, int > getCentralBodiesFromIntegration( ){ return centralBodiesFromIntegration_; }
-
+    //! Function to get the names of central bodies, belonging to the entries in the bodiesToIntegrate vector of same index.
+    /*!
+     * Function to get the names of central bodies, belonging to the entries in the bodiesToIntegrate vector of same index.
+     * \return Names of central bodies, belonging to the entries in the bodiesToIntegrate vector of same index.
+     */
     std::vector< std::string > getCentralBodies( ){ return centralBodies_; }
 
 
 private:
+
+    //! Names of central bodies, belonging to the entries in the bodiesToIntegrate vector of same index.
     std::vector< std::string > centralBodies_;
 
+    //! Order in which the body states are to be called  when getting global states
+    //! (taking into account frame origin dependencies).
     std::vector< int > updateOrder_;
 
+    //! Type of reference frame origin for each of the propagated bodies.
     std::vector< OriginType > bodyOriginType_;
 
-    std::map< int, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > centralBodiesFromEphemerides_;
+    //!  List of functions for the origins of selected bodies.
+    std::map< int, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
+    centralBodiesFromEphemerides_;
 
+    //! Map defining frame origin body index, for bodies having one of the other propagated bodies as propagation origin
     std::map< int, int > centralBodiesFromIntegration_;
 
-       Eigen::Matrix< StateScalarType, 6, 1 > getSingleReferenceFrameOriginInertialState(
+    //! Function to get the global origin of the propagation center of a single body.
+    /*!
+     *  Function to get the global origin of the propagation center of a single body, where the origin may be inertial,
+     *  from an ephemeris, or from one of the other propagated bodies.
+     *  \param internalSolution Full current state of the bodies being propagated, modified so that the origin of the
+     *  current body is already translated to the global origin (if from integration)
+     *  \sa getReferenceFrameOriginInertialStates
+     *  \sa updateOrder
+     *  \param time Current time.
+     *  \param bodyIndex Index of the body for which the global origin state is to be retrieved
+     *  \return Global origin state of the requested body.
+     */
+    Eigen::Matrix< StateScalarType, 6, 1 > getSingleReferenceFrameOriginInertialState(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalSolution,
             const TimeType time,
             const int bodyIndex )
     {
         Eigen::Matrix< StateScalarType, 6, 1 > originState = Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
+
+        // Check origin type.
         switch( bodyOriginType_[ bodyIndex ] )
         {
         case inertial:

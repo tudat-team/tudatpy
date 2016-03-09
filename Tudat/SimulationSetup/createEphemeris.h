@@ -152,8 +152,8 @@ public:
      *          InterpolatedSpiceEphemerisSettings sets this parameter to a different value. Not
      *          to be changed by used.
      */
-    DirectSpiceEphemerisSettings( const std::string frameOrigin = "SSB",
-                                  const std::string frameOrientation = "ECLIPJ2000",
+    DirectSpiceEphemerisSettings( const std::string& frameOrigin = "SSB",
+                                  const std::string& frameOrientation = "ECLIPJ2000",
                                   const bool correctForStellarAbberation = 0,
                                   const bool correctForLightTimeAbberation = 0,
                                   const bool convergeLighTimeAbberation = 0,
@@ -345,8 +345,8 @@ public:
      * \param frameOrientation Orientation of frame in which ephemeris data is defined.
      */
     ConstantEphemerisSettings( const basic_mathematics::Vector6d& constantState,
-                               const std::string frameOrigin = "SSB",
-                               const std::string frameOrientation = "ECLIPJ2000" ):
+                               const std::string& frameOrigin = "SSB",
+                               const std::string& frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( constant_ephemeris,
                            frameOrigin,
                            frameOrientation ), constantState_( constantState ){ }

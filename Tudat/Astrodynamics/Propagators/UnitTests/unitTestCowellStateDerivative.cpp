@@ -203,12 +203,13 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
         // Retrieve data from interpolators; transform to inertial frames and compare.
         currentInertialSolution = interpolator1.interpolate( currentTime );
         currentNonInertialSolution = interpolator2.interpolate( currentTime );
-        reconstructedInertialSolution.segment( 0, 6 ) = currentNonInertialSolution.segment( 0, 6 ) + sunEphemeris->getCartesianStateFromEphemeris(
-                    currentTime );
+        reconstructedInertialSolution.segment( 0, 6 ) = currentNonInertialSolution.segment( 0, 6 ) +
+                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
         reconstructedInertialSolution.segment( 6, 6 ) = currentNonInertialSolution.segment( 6, 6 );
-        reconstructedInertialSolution.segment( 12, 6 )= currentNonInertialSolution.segment( 12, 6 ) + reconstructedInertialSolution.segment( 0, 6 );
-        reconstructedInertialSolution.segment( 18, 6 ) = currentNonInertialSolution.segment( 18, 6 ) + sunEphemeris->getCartesianStateFromEphemeris(
-                    currentTime );
+        reconstructedInertialSolution.segment( 12, 6 )= currentNonInertialSolution.segment( 12, 6 ) +
+                reconstructedInertialSolution.segment( 0, 6 );
+        reconstructedInertialSolution.segment( 18, 6 ) = currentNonInertialSolution.segment( 18, 6 ) +
+                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
 
         // Compare states.
         stateDifference = reconstructedInertialSolution - currentInertialSolution;
@@ -358,7 +359,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
         while( currentTime < finalEphemerisTime - buffer )
         {
             basic_mathematics::Vector6d stateDifference = orbital_element_conversions::convertKeplerianToCartesianElements(
-                        propagateKeplerOrbit( initialKeplerElements, currentTime - initialEphemerisTime, effectiveGravitationalParameter ),
+                        propagateKeplerOrbit( initialKeplerElements, currentTime - initialEphemerisTime,
+                                              effectiveGravitationalParameter ),
                         effectiveGravitationalParameter ) - moonEphemeris->getCartesianStateFromEphemeris( currentTime );
             for( int i = 0; i < 3; i++ )
             {

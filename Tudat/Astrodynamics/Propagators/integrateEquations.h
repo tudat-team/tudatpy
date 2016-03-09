@@ -27,7 +27,8 @@ namespace propagators
  *  \param initialState Initial state
  *  \param integratorSettings Settings for numerical integrator.
  *  \param printInterval Frequency with which to print progress to console (nan = never).
- *  \return History of numerical states (first of pair) and derivatives of states (second of pair) given as maps with time as key.
+ *  \return History of numerical states (first of pair) and derivatives of states (second of pair) given as maps with time
+ *  as key.
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
 std::map< TimeType, StateType > integrateEquations(
@@ -94,10 +95,13 @@ std::map< TimeType, StateType > integrateEquations(
         // Print solutions
         if( printInterval == printInterval )
         {
-            if( ( static_cast<int>( std::fabs( currentTime - integratorSettings->initialTime_ ) ) % static_cast< int >( printInterval ) ) <
-                    ( static_cast< int >( std::fabs( previousTime - integratorSettings->initialTime_ ) ) % static_cast<int>( printInterval ) )  )
+            if( ( static_cast<int>( std::fabs( currentTime - integratorSettings->initialTime_ ) ) %
+                  static_cast< int >( printInterval ) ) <
+                    ( static_cast< int >( std::fabs( previousTime - integratorSettings->initialTime_ ) ) %
+                      static_cast<int>( printInterval ) )  )
             {
-                std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
+                std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
+                           timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
             }
         }
     }

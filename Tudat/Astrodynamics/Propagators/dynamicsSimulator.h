@@ -370,7 +370,7 @@ public:
         for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::iterator bodyIterator = bodyMap_.begin( );
              bodyIterator != bodyMap_.end( ); bodyIterator++ )
         {
-            //throw std::runtime_error( "Error, updateConstantEphemerisIndependentMemberQuantities not set" );
+            std::cerr<<( "Error, updateConstantEphemerisIndependentMemberQuantities not set" )<<std::endl;
             //bodyIterator->second->updateConstantEphemerisIndependentMemberQuantities( );
         }
 
