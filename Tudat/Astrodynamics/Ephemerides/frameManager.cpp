@@ -73,7 +73,7 @@ void ReferenceFrameManager::setEphemerides(
         }
         else
         {
-            std::cerr<<"Error when adding ephemerides to frame manager, frame already exists"<<std::endl;
+            throw std::runtime_error( "Error when adding ephemerides to frame manager, frame already exists" );
         }
     }
 
@@ -130,14 +130,15 @@ void ReferenceFrameManager::setEphemerides(
             }
             else
             {
-                std::cerr<<"Error when making frame manager, could not find frame "<<singleListIterator->first<<" when deleting"<<std::endl;
+                throw std::runtime_error( "Error when making frame manager, could not find frame " +
+                                          singleListIterator->first + " when deleting" );
             }
         }
 
         // If no new frame matches found and unhandled frame list is not empty: stuck in infinite loop.
         if( singleLevelList.size( ) == 0 )
         {
-            std::cerr<<"Error, found no new frame matches at current level, but list is not empty"<<std::endl;
+            throw std::runtime_error( "Error, found no new frame matches at current level, but list is not empty" );
         }
 
         // Add to base frame list.
@@ -152,7 +153,8 @@ void ReferenceFrameManager::setEphemerides(
     {
         if( ephemerisIterator->second->getReferenceFrameOrientation( ) != firstFrameOrientation )
         {
-            std::cerr<<"Error, multiple reference frame orientations of ephemerides currently not supported"<<std::endl;
+            throw std::runtime_error(
+                        "Error, multiple reference frame orientations of ephemerides currently not supported" );
         }
     }
 }
@@ -171,7 +173,8 @@ std::vector< boost::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEp
     // Check validity of input (i.e. upper > lower)
     if( upperIndex < lowerIndex )
     {
-        std::cerr<<"Error when making direct ephemeris link in frame manager, upper index is smaller than lower index"<<std::endl;
+        throw std::runtime_error(
+                    "Error when making direct ephemeris link in frame manager, upper index is smaller than lower index" );
     }
     // If frames are not equal, make list of ephemeris
     else if( upperIndex != lowerIndex )
@@ -186,7 +189,8 @@ std::vector< boost::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEp
             // Check whether current frame is consistent with current frame index.
             if( frameIndexList_[ currentFrame ] != currentIndex )
             {
-                std::cerr<<"Error when making direct constituent ephemeris, frame index inconsistent."<<std::endl;
+                throw std::runtime_error(
+                            "Error when making direct constituent ephemeris, frame index inconsistent." );
             }
 
             // Add base frame of current frame.
@@ -321,7 +325,8 @@ std::string ReferenceFrameManager::getBaseFrameNameOfBody( const std::string& bo
 
     if( availableEphemerides_.count( bodyName ) == 0 )
     {
-        std::cerr<<"Error wgen getting base frame name of body, body "<<bodyName<<" not found"<<std::endl;
+        throw std::runtime_error(
+                    "Error wgen getting base frame name of body, body " + bodyName + " not found" );
     }
     else
     {

@@ -293,10 +293,10 @@ private:
                         if( bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ) != NULL )
                         {
                             // If vehicle has flight conditions, add flight conditions update function to update list.
-                            updateFunctionList_[ vehicle_flight_conditions_update ].push_back(
+                            updateTimeFunctionList_[ vehicle_flight_conditions_update ].push_back(
                                         std::make_pair(
                                             currentBodies.at( i ), boost::bind( &aerodynamics::FlightConditions::updateConditions,
-                                                                                bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ) ) ) );
+                                                                                bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ), _1 ) ) );
                         }
                         else
                         {

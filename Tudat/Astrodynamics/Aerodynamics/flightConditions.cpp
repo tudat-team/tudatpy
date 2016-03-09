@@ -21,7 +21,6 @@ FlightConditions::FlightConditions(
         const boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody,
         const boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
         transformationToCentralBodyFrame,
-        const boost::function< double( ) > currentTimeFunction,
         const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
         const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
         aerodynamicAngleCalculator ):
@@ -30,7 +29,6 @@ FlightConditions::FlightConditions(
     stateOfVehicle_( stateOfVehicle ),
     stateOfCentralBody_( stateOfCentralBody ),
     transformationToCentralBodyFrame_( transformationToCentralBodyFrame ),
-    currentTimeFunction_( currentTimeFunction ),
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
     aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
 {
@@ -49,9 +47,9 @@ FlightConditions::FlightConditions(
 }
 
 //! Function to update all flight conditions.
-void FlightConditions::updateConditions(  )
+void FlightConditions::updateConditions( const double currentTime )
 {
-    currentTime_ = currentTimeFunction_( );
+    currentTime_ = currentTime;
 
     // Calculate state of vehicle in global frame and corotating frame.
     currentBodyCenteredState_ = stateOfVehicle_( ) - stateOfCentralBody_( );

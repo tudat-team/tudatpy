@@ -62,13 +62,13 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
         }
 
         // Retrieve source body and check consistency.
+        if( bodyMap.count( radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
+        {
+            throw std::runtime_error( "Error when making cannon ball radiation interface, source not found.");
+        }
+
         boost::shared_ptr< Body > sourceBody =
                 bodyMap.at( radiationPressureInterfaceSettings->getSourceBody( ) );
-        if( sourceBody == NULL )
-        {
-            std::cerr<<"Error when making cannon ball radiation interface, source "<<
-                       radiationPressureInterfaceSettings->getSourceBody( )<<" is not a celestial body"<<std::endl;
-        }
 
         // Get reqruied data for occulting bodies.
         std::vector< std::string > occultingBodies = cannonBallSettings->getOccultingBodies( );

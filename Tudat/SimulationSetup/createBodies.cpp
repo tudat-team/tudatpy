@@ -162,51 +162,76 @@ NamedBodyMap createBodies(
 
 }
 
+//! Function to define the global origin and orientation of the reference frame that is to be used in the simulations.
 void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
                                     const std::string& globalFrameOrigin,
                                     const std::string& globalFrameOrientation )
 {
     using namespace tudat::simulation_setup;
-    std::string ephemerisFrame_;
-    std::string rotationModelFrame_;
+    std::string ephemerisFrameOrigin;
+    std::string ephemerisFrameOrientation;
+    std::string rotationModelFrame;
 
+    // Iterate over all bodies
     for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
     {
+        // Check id body contains an ephemeris
         if( bodyIterator->second->getEphemeris( ) != NULL )
         {
-            ephemerisFrame_ = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
+            // Retrieve ephemeris origin
+            ephemerisFrameOrigin = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
 
-            if( ephemerisFrame_ != globalFrameOrigin )
+            // Check if ephemeris origin differs from global origin.
+            if( ephemerisFrameOrigin != globalFrameOrigin )
             {
-                if( bodyMap.count( ephemerisFrame_ ) == 0 )
+                // Check if correction can be made
+                if( bodyMap.count( ephemerisFrameOrigin ) == 0 )
                 {
                     throw std::runtime_error(
                             "Error, body " + bodyIterator->first + " has ephemeris in frame " +
-                            ephemerisFrame_ + ", but no conversion to frame " + globalFrameOrigin +
+                            ephemerisFrameOrigin + ", but no conversion to frame " + globalFrameOrigin +
                             " can be made" );
                 }
                 else
                 {
+                    // Retrieve and set frame correction functions.
                     boost::function< basic_mathematics::Vector6d( const double& ) > correctionFunction =
-                            boost::bind( &Body::getStateInBaseFrameFromEphemeris, bodyMap.at( ephemerisFrame_ ), _1 );
+                            boost::bind( &Body::getStateInBaseFrameFromEphemeris, bodyMap.at( ephemerisFrameOrigin ), _1 );
                     bodyIterator->second->setBaseFrameFunction( correctionFunction );
 
                     boost::function< Eigen::Matrix< long double, 6, 1 >( const double& ) > longCorrectionFunction =
-                            boost::bind( &Body::getLongStateInBaseFrameFromEphemeris, bodyMap.at( ephemerisFrame_ ), _1 );
+                            boost::bind( &Body::getLongStateInBaseFrameFromEphemeris, bodyMap.at( ephemerisFrameOrigin ), _1 );
                     bodyIterator->second->setBaseFrameLongFunction( longCorrectionFunction );
                 }
             }
-        }
 
-        if( bodyIterator->second->getRotationalEphemeris( ) != NULL )
-        {
-            rotationModelFrame_ = bodyIterator->second->getRotationalEphemeris( )->getBaseFrameOrientation( );
+            // Retrieve ephemeris orientation
+            ephemerisFrameOrientation = bodyIterator->second->getEphemeris( )->getReferenceFrameOrientation( );
 
-            if( rotationModelFrame_ != globalFrameOrientation )
+            // If two are not equal, throw error.
+            if( ephemerisFrameOrientation != globalFrameOrientation )
             {
                 throw std::runtime_error(
-                            "Error, rotation origin of body " + bodyIterator->first +
-                            " is not the same as global orientation " + rotationModelFrame_ + ", " +
+                            "Error, ephemeris orientation of body " + bodyIterator->first +
+                            " is not the same as global orientation " + ephemerisFrameOrientation + ", " +
+                            globalFrameOrientation );
+            }
+
+
+        }
+
+        // Check if body has rotational ephemeris.
+        if( bodyIterator->second->getRotationalEphemeris( ) != NULL )
+        {
+            // Check if rotational ephemeris base frame orienatation is equal to to global orientation.
+            rotationModelFrame = bodyIterator->second->getRotationalEphemeris( )->getBaseFrameOrientation( );
+
+            // Throw error if two frames are not equal.
+            if( rotationModelFrame != globalFrameOrientation )
+            {
+                throw std::runtime_error(
+                            "Error, rotation base orientation of body " + bodyIterator->first +
+                            " is not the same as global orientation " + rotationModelFrame + ", " +
                             globalFrameOrientation );
             }
         }

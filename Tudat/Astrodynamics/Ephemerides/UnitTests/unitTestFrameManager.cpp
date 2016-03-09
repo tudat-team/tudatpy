@@ -80,7 +80,10 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
     {
         if( frameManager->getFrameLevel( it->first ).first != it->second )
         {
-            std::cerr<<"Error when identifying frame level of "<<it->first<<" found "<<frameManager->getFrameLevel( it->first ).first<<" expected"<<it->second<<std::endl;
+            throw std::runtime_error(
+                        "Error when identifying frame level of " + it->first + " found " +
+                        boost::lexical_cast< std::string >( frameManager->getFrameLevel( it->first ).first ) + " expected" +
+                        boost::lexical_cast< std::string >( it->second ) );
         }
     }
 
