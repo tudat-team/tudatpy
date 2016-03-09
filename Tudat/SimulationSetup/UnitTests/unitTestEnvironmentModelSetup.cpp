@@ -391,26 +391,28 @@ BOOST_AUTO_TEST_CASE( test_ShapeModelSetup )
 //! Test set up of rotation model environment models.
 BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 {
-
+    // Load Spice kernels
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
 
+    // Define body settings/
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings(
                 "Earth", 0.0, 1.0E7 );
-
     bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
-
     bodySettings[ "Vehicle" ] ->aerodynamicCoefficientSettings =
             boost::make_shared< ConstantAerodynamicCoefficientSettings >(
                 1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
                 ( Eigen::Vector3d( )<<-1.1, 0.1, 2.3 ).finished( ),
                 Eigen::Vector3d::Zero( ), 1, 1 );
 
+    // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
+    // Define expected aerodynamic angles (see testAerodynamicAngleCalculator)
     double testHeadingAngle = 1.229357188236127;
     double testFlightPathAngle = -0.024894033070522;
     double testLatitude = -0.385027359562548;
@@ -420,6 +422,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     double angleOfSideslip = -0.00322;
     double bankAngle = 2.323432;
 
+    // Create flight conditions object.
     boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
             createFlightConditions( bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ),
                                     "Vehicle", "Earth",
@@ -427,52 +430,52 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
                                     boost::lambda::constant( angleOfSideslip ),
                                     boost::lambda::constant( bankAngle ) );
 
+    // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     basic_mathematics::Vector6d vehicleBodyFixedState =
             ( basic_mathematics::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
               6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
 
+    // Set states in environment.
     double testTime = 0.5E7;
-
     basic_mathematics::Vector6d vehicleInertialState =
             ephemerides::transformStateToFrame(
                 vehicleBodyFixedState,
                 bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
             bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
-
-
-
     bodyMap[ "Earth" ]->setState( basic_mathematics::Vector6d::Zero( ) );
     bodyMap[ "Vehicle" ]->setState( vehicleInertialState );
     bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
 
-
+    // Update flight conditions
     vehicleFlightConditions->updateConditions( );
 
+    // Check whether calulcate angles and body-fixed state correspond to expected results
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( latitude_angle ) -
-                           testLatitude), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( latitude_angle )
+                           - testLatitude), 10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( longitude_angle ) -
-                           testLongitude), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( longitude_angle )
+                           - testLongitude), 10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( heading_angle ) -
-                           testHeadingAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( heading_angle )
+                           - testHeadingAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( flight_path_angle ) -
-                           testFlightPathAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( flight_path_angle)
+                           - testFlightPathAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
 
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_attack ) -
-                           angleOfAttack ), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_attack )
+                           - angleOfAttack ), 10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_sideslip ) -
-                           angleOfSideslip), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_sideslip)
+                           - angleOfSideslip), 10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( bank_angle ) -
-                           bankAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( bank_angle )
+                           - bankAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( vehicleFlightConditions->getCurrentBodyCenteredBodyFixedState( ), vehicleBodyFixedState,
-                                       ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                vehicleFlightConditions->getCurrentBodyCenteredBodyFixedState( ),vehicleBodyFixedState,
+                ( 2.0 * std::numeric_limits< double >::epsilon( ) ) );
 
 
 }

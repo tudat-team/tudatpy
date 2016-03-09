@@ -93,6 +93,10 @@ struct BodySettings
 NamedBodyMap createBodies(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings );
 
+void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
+                                    const std::string& globalFrameOrigin,
+                                    const std::string& globalFrameOrientation );
+
 }
 
 }

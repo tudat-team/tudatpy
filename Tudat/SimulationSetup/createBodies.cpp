@@ -73,12 +73,7 @@ NamedBodyMap createBodies(
         {
             bodyMap[ settingIterator->first ]->setEphemeris(
                         createBodyEphemeris( settingIterator->second->ephemerisSettings,
-                                                 settingIterator->first ) );
-        }
-        else
-        {
-            std::cerr<<"Warning, no ephemeris data found for body "<<
-                       settingIterator->first<<std::endl;
+                                             settingIterator->first ) );
         }
     }
 
@@ -102,7 +97,7 @@ NamedBodyMap createBodies(
         {
             bodyMap[ settingIterator->first ]->setShapeModel(
                         createBodyShapeModel( settingIterator->second->shapeModelSettings,
-                                             settingIterator->first ) );
+                                              settingIterator->first ) );
         }
     }
 
@@ -144,7 +139,78 @@ NamedBodyMap createBodies(
         }
     }
 
+
+    // Create radiation pressure coefficient objects for each body (if required).
+    for( std::map< std::string, boost::shared_ptr< BodySettings > >::const_iterator settingIterator
+         = bodySettings.begin( ); settingIterator != bodySettings.end( ); settingIterator++ )
+    {
+        std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings =
+                settingIterator->second->radiationPressureSettings;
+        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > >::iterator
+             radiationPressureSettingsIterator = radiationPressureSettings.begin( );
+             radiationPressureSettingsIterator != radiationPressureSettings.end( );
+             radiationPressureSettingsIterator++ )
+        {
+            bodyMap[ settingIterator->first ]->setRadiationPressureInterface(
+                        radiationPressureSettingsIterator->first,
+                        createRadiationPressureInterface(
+                            radiationPressureSettingsIterator->second, settingIterator->first, bodyMap ) );
+        }
+
+    }
     return bodyMap;
+
+}
+
+void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
+                                    const std::string& globalFrameOrigin,
+                                    const std::string& globalFrameOrientation )
+{
+    using namespace tudat::simulation_setup;
+    std::string ephemerisFrame_;
+    std::string rotationModelFrame_;
+
+    for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
+    {
+        if( bodyIterator->second->getEphemeris( ) != NULL )
+        {
+            ephemerisFrame_ = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
+
+            if( ephemerisFrame_ != globalFrameOrigin )
+            {
+                if( bodyMap.count( ephemerisFrame_ ) == 0 )
+                {
+                    throw std::runtime_error(
+                            "Error, body " + bodyIterator->first + " has ephemeris in frame " +
+                            ephemerisFrame_ + ", but no conversion to frame " + globalFrameOrigin +
+                            " can be made" );
+                }
+                else
+                {
+                    boost::function< basic_mathematics::Vector6d( const double& ) > correctionFunction =
+                            boost::bind( &Body::getStateInBaseFrameFromEphemeris, bodyMap.at( ephemerisFrame_ ), _1 );
+                    bodyIterator->second->setBaseFrameFunction( correctionFunction );
+
+                    boost::function< Eigen::Matrix< long double, 6, 1 >( const double& ) > longCorrectionFunction =
+                            boost::bind( &Body::getLongStateInBaseFrameFromEphemeris, bodyMap.at( ephemerisFrame_ ), _1 );
+                    bodyIterator->second->setBaseFrameLongFunction( longCorrectionFunction );
+                }
+            }
+        }
+
+        if( bodyIterator->second->getRotationalEphemeris( ) != NULL )
+        {
+            rotationModelFrame_ = bodyIterator->second->getRotationalEphemeris( )->getBaseFrameOrientation( );
+
+            if( rotationModelFrame_ != globalFrameOrientation )
+            {
+                throw std::runtime_error(
+                            "Error, rotation origin of body " + bodyIterator->first +
+                            " is not the same as global orientation " + rotationModelFrame_ + ", " +
+                            globalFrameOrientation );
+            }
+        }
+    }
 
 }
 
