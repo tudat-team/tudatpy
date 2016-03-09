@@ -17,6 +17,7 @@
 #include <Tudat/Astrodynamics/Ephemerides/ephemeris.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldModel.h>
+#include <Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h>
 #include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
@@ -475,6 +476,12 @@ public:
         radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
     }
 
+    void setGravityFieldVariationSet(
+            const boost::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet )
+    {
+        gravityFieldVariationSet_ = gravityFieldVariationSet;
+    }
+
     //! Function to get the gravity field model of the body.
     /*!
      *  Function to get the gravity field model of the body.
@@ -546,6 +553,19 @@ public:
     {
         return radiationPressureInterfaces_;
     }
+
+    std::pair< bool, boost::shared_ptr< gravitation::GravityFieldVariations > > getGravityFieldVariation(
+            const gravitation::BodyDeformationTypes& deformationType,
+            const std::string identifier = "" )
+    {
+        return gravityFieldVariationSet_->getGravityFieldVariation( deformationType, identifier );
+    }
+
+    boost::shared_ptr< gravitation::GravityFieldVariationsSet > getGravityFieldVariationSet( )
+    {
+        return gravityFieldVariationSet_;
+    }
+
 
 
     //! Function to set the function returning vehicle mass as a function of time
@@ -659,6 +679,8 @@ private:
 
     //! Gravity field model of body.
     boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
+
+    boost::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet_;
 
     //! Atmosphere model of body.
     boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;

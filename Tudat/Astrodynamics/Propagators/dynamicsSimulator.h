@@ -56,12 +56,13 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
     // Iterate over all bodies.
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ) ; i++ )
     {
+        ephemerisOfCurrentBody = bodyMap.at( bodiesToIntegrate.at( i ) )->getEphemeris( );
+
         // Get body initial state from ephemeris
         systemInitialState.segment( i * 6 , 6 ) = ephemerisOfCurrentBody->getTemplatedStateFromEphemeris<
                 StateScalarType, TimeType >( initialTime );
 
         // Correct initial state if integration origin and ephemeris origin are not equal.
-        ephemerisOfCurrentBody = bodyMap.at( bodiesToIntegrate.at( i ) )->getEphemeris( );
         if( centralBodies.at( i ) != ephemerisOfCurrentBody->getReferenceFrameOrigin( ) )
         {
             boost::shared_ptr< ephemerides::Ephemeris > correctionEphemeris =

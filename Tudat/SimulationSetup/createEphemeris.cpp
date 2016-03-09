@@ -140,7 +140,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                     bodyName == "Uranus" || bodyName == "Neptune" )
             {
                 inputName += " Barycenter";
-                std::cerr<<"Warning, position of "<<bodyName<<" taken as baycenter of that body's "
+                std::cerr<<"Warning, position of "<<bodyName<<" taken as barycenter of that body's "
                         <<"planetary system."<<std::endl;
             }
 

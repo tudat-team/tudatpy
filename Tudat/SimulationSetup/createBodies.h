@@ -83,7 +83,12 @@ struct BodySettings
     //! Settings for the aerodynamic coefficients that the body is to contain.
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
+    std::vector< boost::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings;
+
 };
+
+std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > determineBodyCreationOrder(
+        const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings );
 
 //! Function to create a map of bodies objects.
 /*!
