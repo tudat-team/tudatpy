@@ -25,7 +25,7 @@ namespace tudat
 namespace unit_tests
 {
 
-basic_mathematics::Vector6d getGroundStationPositionFunction(
+basic_mathematics::Vector6d getGroundStationPosition(
         const double time )
 {
     Eigen::Vector3d nominalPosition;
@@ -38,6 +38,7 @@ basic_mathematics::Vector6d getGroundStationPositionFunction(
 
 BOOST_AUTO_TEST_SUITE( test_composite_ephemeris )
 
+//! Test functionality of composite ephemeris. NOTE: Part of the functionality is also tested by test_FrameManager
 BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
 {
     using namespace tudat::interpolators;
@@ -75,24 +76,24 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     boost::shared_ptr< RotationalEphemeris > rotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
 
     boost::shared_ptr< Ephemeris > ephemeris1 = createReferencePointEphemeris< double, double >(
-                earthEphemeris, rotationModel, &getGroundStationPositionFunction );
+                earthEphemeris, rotationModel, &getGroundStationPosition );
     boost::shared_ptr< Ephemeris > ephemeris2 = createReferencePointEphemeris< double, long double >(
-                earthEphemeris, rotationModel, &getGroundStationPositionFunction );
+                earthEphemeris, rotationModel, &getGroundStationPosition );
     double testTime = 1.05E7;
 
     basic_mathematics::Vector6d doubleStateFromDoubleTime;
     doubleStateFromDoubleTime.segment( 0, 3 ) = earthEphemeris->getCartesianStateFromEphemeris( testTime ).segment( 0, 3 ) +
-            rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPositionFunction( testTime ).segment( 0, 3 );
+            rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 );
     doubleStateFromDoubleTime.segment( 3, 3 ) = earthEphemeris->getCartesianStateFromEphemeris( testTime ).segment( 3, 3 ) +
-            rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPositionFunction( testTime ).segment( 3, 3 ) +
-            rotationModel->getDerivativeOfRotationToBaseFrame( testTime ) * getGroundStationPositionFunction( testTime ).segment( 0, 3 );
+            rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 3, 3 ) +
+            rotationModel->getDerivativeOfRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 );
 
     Eigen::Matrix< long double, 6, 1 > longDoubleStateFromDoubleTime;
     longDoubleStateFromDoubleTime.segment( 0, 3 ) = earthEphemeris->getCartesianLongStateFromEphemeris( testTime ).segment( 0, 3 ) +
-            ( rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPositionFunction( testTime ).segment( 0, 3 ) ).cast< long double >( );
+            ( rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 ) ).cast< long double >( );
     longDoubleStateFromDoubleTime.segment( 3, 3 ) = earthEphemeris->getCartesianLongStateFromEphemeris( testTime ).segment( 3, 3 ) +
-            ( rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPositionFunction( testTime ).segment( 3, 3 ) ).cast< long double >( ) +
-            ( rotationModel->getDerivativeOfRotationToBaseFrame( testTime ) * getGroundStationPositionFunction( testTime ).segment( 0, 3 ) ).cast< long double >( );
+            ( rotationModel->getRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 3, 3 ) ).cast< long double >( ) +
+            ( rotationModel->getDerivativeOfRotationToBaseFrame( testTime ) * getGroundStationPosition( testTime ).segment( 0, 3 ) ).cast< long double >( );
     double doubleTolerance = std::numeric_limits< double >::epsilon( );
     double longDoubleTolerance = std::numeric_limits< long double >::epsilon( );
 

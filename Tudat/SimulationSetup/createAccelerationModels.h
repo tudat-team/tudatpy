@@ -52,15 +52,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Function to determine if a given frame is an inertial frame.
-/*!
- *  Function to determine if a given frame is an inertial frame. Currently a frame identified as
- *  "SSB" (solar system barycenter), "inertial" or "" (empty) is recognized as inertial.
- *  \param frame Name of frame for which it is to be determined whether it is inertial.
- *  \return True if inertial, false if not.
- */
-bool isFrameInertial( const std::string& frame );
-
 //! Function to create central gravity acceleration model.
 /*!
  *  Function to create central gravity acceleration model from bodies exerting and undergoing

@@ -469,7 +469,7 @@ public:
      *  \param radiationPressureInterface Radiation pressure interface of the body.
      */
     void setRadiationPressureInterface(
-            const std::string radiatingBody,
+            const std::string& radiatingBody,
             const boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface )
     {
         radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;

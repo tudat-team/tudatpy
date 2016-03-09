@@ -221,52 +221,66 @@ private:
      */
     void setUpdateFunctions( const std::map< EnvironmentModelsToUpdate, std::vector< std::string > >& updateSettings )
     {
-
+        // Iterate over all required updates and set associated update function in lists
         for( std::map< EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator updateIterator =
              updateSettings.begin( ); updateIterator != updateSettings.end( ); updateIterator++ )
         {
+            // Get list of bodies for which current environment type is to be updated.
             std::vector< std::string > currentBodies = updateIterator->second;
             for( unsigned int i = 0; i < currentBodies.size( ); i++ )
             {
                 if( currentBodies.at( i ) != "" )
                 {
+                    // Check whether body exists
                     if( bodyList_.count( currentBodies.at( i ) ) == 0 )
                     {
                         throw std::runtime_error(
                                     "Error when setting environment update functions, could not find body " +
                                     currentBodies.at( i ) );
                     }
+
+                    // Find type of environment.
                     switch( updateIterator->first )
                     {
+
+                    // If requested body is not propagated, add to list.
                     case body_transational_state_update:
                     {
                         bool addUpdate = 1;
+
+                        // Check if translational state is propagated
                         if( integratedStates_.count( transational_state ) > 0 )
                         {
+                            // Check if current body is propagated
                             std::pair< std::string, std::string > bodyToCheck = std::make_pair( currentBodies.at( i ), "" );
                             std::vector< std::pair< std::string, std::string > > integratedTranslationalStates =
                                     integratedStates_.at( transational_state );
-                            if( std::find( integratedTranslationalStates.begin( ), integratedTranslationalStates.end( ), bodyToCheck ) !=
-                                    integratedTranslationalStates.end( ) )
+                            if( std::find( integratedTranslationalStates.begin( ), integratedTranslationalStates.end( ),
+                                           bodyToCheck ) != integratedTranslationalStates.end( ) )
                             {
                                 addUpdate = 0;
                             }
                         }
+
+                        // Add state update function to list.
                         if( addUpdate == 1 )
                         {
                             boost::function< void( const TimeType ) > stateSetFunction =
-                                    boost::bind( &simulation_setup::Body::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
-                                                 bodyList_.at( currentBodies.at( i ) ), _1 );
+                                    boost::bind(
+                                        &simulation_setup::Body::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
+                                        bodyList_.at( currentBodies.at( i ) ), _1 );
 
-                            currentStateFromEnvironmentList_[ body_transational_state_update ].insert( std::make_pair( currentBodies.at( i ), stateSetFunction ) );
+                            currentStateFromEnvironmentList_[ body_transational_state_update ].insert(
+                                        std::make_pair( currentBodies.at( i ), stateSetFunction ) );
                         }
                         break;
                     }
                     case body_rotational_state_update:
                     {
-
                         boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
                                 bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( );
+
+                        // Check if rotational ephemeris exists
                         if( rotationalEphemeris != NULL )
                         {
                             boost::function< void( const TimeType ) > rotationalStateSetFunction =
@@ -274,6 +288,12 @@ private:
                                                  bodyList_.at( currentBodies.at( i ) ), _1 );
                             currentStateFromEnvironmentList_[ body_rotational_state_update ].insert(
                                         std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
+                        }
+                        else
+                        {
+                            throw std::runtime_error(
+                                        "Request rotation update of " + currentBodies.at( i ) +
+                                        ", but body has no rotational ephemeris" );
                         }
 
                         break;
@@ -295,8 +315,9 @@ private:
                             // If vehicle has flight conditions, add flight conditions update function to update list.
                             updateTimeFunctionList_[ vehicle_flight_conditions_update ].push_back(
                                         std::make_pair(
-                                            currentBodies.at( i ), boost::bind( &aerodynamics::FlightConditions::updateConditions,
-                                                                                bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ), _1 ) ) );
+                                            currentBodies.at( i ), boost::bind(
+                                                &aerodynamics::FlightConditions::updateConditions,
+                                                bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ), _1 ) ) );
                         }
                         else
                         {
@@ -326,13 +347,15 @@ private:
                         }
 
                         // Add each interface update function to update list.
-                        for( std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > > ::iterator iterator =
-                             radiationPressureInterfaces.begin( ); iterator != radiationPressureInterfaces.end( ); iterator++ )
+                        for( std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+                             ::iterator iterator = radiationPressureInterfaces.begin( );
+                             iterator != radiationPressureInterfaces.end( ); iterator++ )
                         {
                             updateTimeFunctionList_[ radiation_pressure_interface_update ].push_back(
                                         std::make_pair( currentBodies.at( i ),
-                                                        boost::bind( &electro_magnetism::RadiationPressureInterface::updateInterface,
-                                                                     iterator->second, _1 ) ) );
+                                                        boost::bind(
+                                                            &electro_magnetism::RadiationPressureInterface::updateInterface,
+                                                            iterator->second, _1 ) ) );
                         }
                         break;
                     }

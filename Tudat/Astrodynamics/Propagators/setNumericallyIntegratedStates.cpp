@@ -21,7 +21,8 @@ template< >
 boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >
 createStateInterpolator( const std::map< double, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
-    return boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
+    return boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >(
+                stateMap, 6 );
 }
 
 //! Function to determine in which order the ephemerides are to be updated

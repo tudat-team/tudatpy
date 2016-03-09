@@ -11,7 +11,8 @@ std::string getBaseFrameName( )
     return "SSB";
 }
 
-bool isFrameInertial( const std::string frame )
+//! Function to determine if a given frame is an inertial frame.
+bool isFrameInertial( const std::string& frame )
 {
     bool isFrameInertial_;
     if( frame == "SSB" || frame == "" || frame == "Inertial" )
@@ -25,12 +26,14 @@ bool isFrameInertial( const std::string frame )
     return isFrameInertial_;
 }
 
+
 //! Constructor from named list of bodies.
 ReferenceFrameManager::ReferenceFrameManager( const simulation_setup::NamedBodyMap& bodyMap )
 {
     // Get ephemerides from bodies
     std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerides;
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( );
+         bodyIterator++ )
     {
         if( bodyIterator->second->getEphemeris( ) != NULL )
         {
@@ -108,7 +111,8 @@ void ReferenceFrameManager::setEphemerides(
                  frameIterator != unhandledFrames_.end( ); frameIterator++ )
             {
                 // If base frame of current ephemeris is on previous level, add to list of current level.
-                previousLevelIterator = baseFrameList_[ currentLevel - 1 ].find( frameIterator->second->getReferenceFrameOrigin( ) );
+                previousLevelIterator = baseFrameList_[ currentLevel - 1 ].find(
+                            frameIterator->second->getReferenceFrameOrigin( ) );
                 if( previousLevelIterator != baseFrameList_[ currentLevel - 1 ].end( ) )
                 {
                     singleLevelList[ frameIterator->first ] = frameIterator->second->getReferenceFrameOrigin( );
@@ -319,6 +323,7 @@ std::pair< std::string, int > ReferenceFrameManager::getNearestCommonFrame( std:
     return output;
 }
 
+//! Get name of the base frame for a given body.
 std::string ReferenceFrameManager::getBaseFrameNameOfBody( const std::string& bodyName )
 {
     std::string frameName;
@@ -335,12 +340,13 @@ std::string ReferenceFrameManager::getBaseFrameNameOfBody( const std::string& bo
     return frameName;
 }
 
-std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins( const std::vector< std::string >& bodiesToIntegrate )
+//! Get ephemeris origins (base frame names) for a list of bodies.
+std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins( const std::vector< std::string >& bodyList )
 {
     std::vector< std::string > ephemerisOrigins;
-    for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
+    for( unsigned int i = 0; i < bodyList.size( ); i++ )
     {
-        ephemerisOrigins.push_back( getBaseFrameNameOfBody( bodiesToIntegrate.at( i ) ) );
+        ephemerisOrigins.push_back( getBaseFrameNameOfBody( bodyList.at( i ) ) );
     }
     return ephemerisOrigins;
 }

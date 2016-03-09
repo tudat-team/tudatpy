@@ -123,7 +123,8 @@ public:
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertCurrentStateToGlobalRepresentation(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time )
     {
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > cartesianLocalSolution = this->convertToOutputSolution( internalSolution, time );
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > cartesianLocalSolution =
+                this->convertToOutputSolution( internalSolution, time );
 
         std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyInertialStates =
                 centralBodyData_->getReferenceFrameOriginInertialStates( cartesianLocalSolution, time, true );
@@ -211,8 +212,10 @@ protected:
 
                 {
                     // Iterate over all accelerations acting on body
-                    for( innerAccelerationIterator  = accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_[ i ] ].begin( );
-                         innerAccelerationIterator != accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_[ i ] ].end( );
+                    for( innerAccelerationIterator  =
+                         accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_[ i ] ].begin( );
+                         innerAccelerationIterator !=
+                         accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_[ i ] ].end( );
                          innerAccelerationIterator++ )
                     {
                         for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
@@ -255,8 +258,8 @@ protected:
     basic_astrodynamics::AccelerationMap::iterator accelerationMapIterator;
 
     //! Predefined iterator to save (de-)allocation time.
-    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator
-    innerAccelerationIterator;
+    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::
+    iterator innerAccelerationIterator;
 
 };
 
