@@ -120,7 +120,6 @@ std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > deter
 NamedBodyMap createBodies(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings )
 {
-
     std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > orderedBodySettings =
             determineBodyCreationOrder( bodySettings );
 
@@ -166,7 +165,6 @@ NamedBodyMap createBodies(
         }
     }
 
-
     // Create rotation model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
     {
@@ -185,7 +183,8 @@ NamedBodyMap createBodies(
         {
             bodyMap[ orderedBodySettings.at( i ).first ]->setGravityFieldModel(
                         createGravityFieldModel( orderedBodySettings.at( i ).second->gravityFieldSettings,
-                                                 orderedBodySettings.at( i ).first, bodyMap ) );
+                                                 orderedBodySettings.at( i ).first, bodyMap,
+                                                 orderedBodySettings.at( i ).second->gravityFieldVariationSettings ) );
         }
     }
 

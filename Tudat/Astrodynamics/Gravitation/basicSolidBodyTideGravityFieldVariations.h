@@ -23,6 +23,13 @@ namespace tudat
 namespace gravitation
 {
 
+std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder );
+
+
+std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const double constantLoveNumber, const int maximumDegree, const int maximumOrder );
+
 //! Function to calculate solid body tide gravity field variations due to single body at single
 //! degree and order.
 /*!
@@ -44,6 +51,14 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
         const std::complex< double > loveNumber, const double massRatio,
         const double radiusRatioPowerN, const double amplitude,
         const std::complex< double > tideArgument, const int degree, const int order );
+
+std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+        const std::complex< double > loveNumber, const double massRatio,
+        const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition, const int degree, const int order );
+
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+        const std::vector< std::vector< std::complex< double > > > loveNumbers, const double massRatio,
+        const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition, const int maximumDegree, const int maximumOrder );
 
 //! Class to calculate first-order solid body tide gravity field variations on a single body raised
 //! by any number of bodies up to any degree and order.
@@ -95,8 +110,10 @@ public:
                     boost::bind(
                         &BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections,
                         this, _1, _2 ) );
-        currentCosineCorrections_ = Eigen::MatrixXd::Zero( maximumDegree_ + 1, maximumOrder_ + 1 );
-        currentSineCorrections_ = Eigen::MatrixXd::Zero( maximumDegree_ + 1, maximumOrder_ + 1 );
+        currentCosineCorrections_ = Eigen::MatrixXd::Zero(
+                    maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 );
+        currentSineCorrections_ = Eigen::MatrixXd::Zero(
+                    maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 );
     }
 
     //! Destructor

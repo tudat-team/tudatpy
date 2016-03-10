@@ -67,6 +67,8 @@
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
+#include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -334,6 +336,207 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 
 }
 
+//! Test set up of gravity field model environment models.
+BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
+{
+    // Load Spice kernel with gravitational parameters.
+    const std::string kernelsPath = input_output::getSpiceKernelPath( );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+
+
+    // Settings for spherical harmonic acceleration.
+    double gravitationalParameter = 398600.4418E9;
+    double referenceRadius = 6378.0E3;
+    Eigen::MatrixXd cosineCoefficients =
+            ( Eigen::MatrixXd( 6, 6 ) <<
+              1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              -4.841651437908150e-4, -2.066155090741760e-10, 2.439383573283130e-6, 0.0, 0.0, 0.0,
+              9.571612070934730e-7, 2.030462010478640e-6, 9.047878948095281e-7,
+              7.213217571215680e-7, 0.0, 0.0, 5.399658666389910e-7, -5.361573893888670e-7,
+              3.505016239626490e-7, 9.908567666723210e-7, -1.885196330230330e-7, 0.0,
+              6.867029137366810e-8, -6.292119230425290e-8, 6.520780431761640e-7,
+              -4.518471523288430e-7, -2.953287611756290e-7, 1.748117954960020e-7
+              ).finished( );
+    Eigen::MatrixXd sineCoefficients =
+            ( Eigen::MatrixXd( 6, 6 ) <<
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 1.384413891379790e-9, -1.400273703859340e-6, 0.0, 0.0, 0.0,
+              0.0, 2.482004158568720e-7, -6.190054751776180e-7, 1.414349261929410e-6, 0.0, 0.0,
+              0.0, -4.735673465180860e-7, 6.624800262758290e-7, -2.009567235674520e-7,
+              3.088038821491940e-7, 0.0, 0.0, -9.436980733957690e-8, -3.233531925405220e-7,
+              -2.149554083060460e-7, 4.980705501023510e-8, -6.693799351801650e-7
+              ).finished( );
+
+
+    // Define body settings.
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Moon" ] = getDefaultSingleBodySettings( "Moon", 0.0, 1.0E7 );
+    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
+
+    bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "IAU_Earth" );
+
+
+    double loveNumber = 0.25;
+
+    double testTime = 0.5E7;
+
+    std::vector< std::vector< std::complex< double > > > fullLoveNumberVector =
+            gravitation::getFullLoveNumbersVector( loveNumber, 3, 2 );
+
+    Eigen::MatrixXd cosineCorrections1, cosineCorrections2, cosineCorrections3;
+    Eigen::MatrixXd sineCorrections1, sineCorrections2, sineCorrections3;
+
+
+    {
+        std::vector< std::string > deformingBodies;
+        deformingBodies.push_back( "Moon" );
+        deformingBodies.push_back( "Sun" );
+
+        bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
+                    boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                        deformingBodies, fullLoveNumberVector, referenceRadius ) );
+
+        // Create bodies
+        NamedBodyMap bodyMap = createBodies( bodySettings );
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+        bodyMap[ "Earth" ]->setStateFromEphemeris( testTime );
+        bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+        bodyMap[ "Sun" ]->setStateFromEphemeris( testTime );
+        bodyMap[ "Moon" ]->setStateFromEphemeris( testTime );
+
+        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                    bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+
+        earthGravityField->update( testTime );
+
+        cosineCorrections1 = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
+        sineCorrections1 = earthGravityField->getSineCoefficients( ) - sineCoefficients;
+
+
+    }
+
+    {
+        bodySettings[ "Earth" ]->gravityFieldVariationSettings.clear( );
+
+        std::vector< std::string > deformingBodies;
+        deformingBodies.push_back( "Moon" );
+        bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
+                    boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                        deformingBodies, fullLoveNumberVector, referenceRadius ) );
+
+        deformingBodies.clear( );
+        deformingBodies.push_back( "Sun" );
+        bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
+                    boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                        deformingBodies, fullLoveNumberVector, referenceRadius ) );
+
+        // Create bodies
+        NamedBodyMap bodyMap = createBodies( bodySettings );
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+        bodyMap[ "Earth" ]->setStateFromEphemeris( testTime );
+        bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+        bodyMap[ "Sun" ]->setStateFromEphemeris( testTime );
+        bodyMap[ "Moon" ]->setStateFromEphemeris( testTime );
+
+        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                    bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+
+        earthGravityField->update( testTime );
+
+        cosineCorrections2 = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
+        sineCorrections2 = earthGravityField->getSineCoefficients( ) - sineCoefficients;
+    }
+
+    {
+        bodySettings[ "Earth" ]->gravityFieldVariationSettings.clear( );
+
+        std::vector< std::string > deformingBodies;
+        deformingBodies.push_back( "Moon" );
+        deformingBodies.push_back( "Sun" );
+
+        bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
+                    boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                        deformingBodies, fullLoveNumberVector, referenceRadius,
+                        boost::make_shared< ModelInterpolationSettings >(
+                            0.25E7, 0.75E7, 600.0,
+                            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) ) );
+
+        // Create bodies
+        NamedBodyMap bodyMap = createBodies( bodySettings );
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                    bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+
+        earthGravityField->update( testTime );
+
+        cosineCorrections3 = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
+        sineCorrections3= earthGravityField->getSineCoefficients( ) - sineCoefficients;
+
+    }
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ),  cosineCorrections2.block( 2, 0, 2, 3 ), 1.0E-11 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ),  cosineCorrections3.block( 2, 0, 2, 3 ), 1.0E-11 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ),  sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-11 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ),  sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-11 );
+
+    for( unsigned int i = 0; i < 6; i++ )
+    {
+        for( unsigned int j = 0; j < 6; j++ )
+        {
+            if( i < 2 || i > 3 || j > 2 )
+            {
+                BOOST_CHECK_EQUAL( cosineCorrections1( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( cosineCorrections2( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( cosineCorrections3( i, j ), 0.0 );
+
+                BOOST_CHECK_EQUAL( sineCorrections1( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( sineCorrections2( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( sineCorrections3( i, j ), 0.0 );
+            }
+            else if( j == 0 )
+            {
+                BOOST_CHECK_EQUAL( sineCorrections1( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( sineCorrections2( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( sineCorrections3( i, j ), 0.0 );
+            }
+
+        }
+    }
+
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directMoonTide =
+            gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                fullLoveNumberVector, getBodyGravitationalParameter( "Moon" ) / gravitationalParameter,
+                referenceRadius,  spice_interface::getBodyCartesianPositionAtEpoch(
+                    "Moon", "Earth", "IAU_Earth", "None", testTime ), 3, 2 );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directSunTide =
+            gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                fullLoveNumberVector, getBodyGravitationalParameter( "Sun" ) / gravitationalParameter,
+                referenceRadius,  spice_interface::getBodyCartesianPositionAtEpoch(
+                    "Sun", "Earth", "IAU_Earth", "None", testTime ), 3, 2 );
+
+    for( unsigned int n = 2; n <= 3; n++ )
+    {
+        for( unsigned m = 0; m <=2; m++ )
+        {
+            BOOST_CHECK_SMALL( directMoonTide.first( n, m ) + directSunTide.first( n, m ) - cosineCorrections1( n, m ), 1.0E-20 );
+            BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-20 );
+        }
+    }
+}
+
 //! Test set up of rotation models.
 BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 {
@@ -386,10 +589,10 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
     loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
 
-    // Define body settings/
+    // Define body settings.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
-    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
+    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
 
     // Get settings for vehicle
     double area = 2.34;

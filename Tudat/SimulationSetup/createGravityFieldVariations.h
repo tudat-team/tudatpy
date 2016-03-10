@@ -25,8 +25,8 @@ public:
             const double finalTime = 0.0,
             const double timeStep = 0.0,
             const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator, interpolators::huntingAlgorithm ) ):
-        interpolatorSettings_( interpolatorSettings ), initialTime_( initialTime ), finalTime_( timeStep ), timeStep_( timeStep ){ }
+            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
+        interpolatorSettings_( interpolatorSettings ), initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ){ }
 
     boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
     double initialTime_;
@@ -38,33 +38,21 @@ class GravityFieldVariationSettings
 {
 public:
     GravityFieldVariationSettings( const gravitation::BodyDeformationTypes bodyDeformationType,
-                                   const bool interpolateVariation,
-                                   const double initialTime = 0.0,
-                                   const double finalTime = 0.0,
-                                   const double timeStep = 0.0,
-                                   const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator, interpolators::huntingAlgorithm ) ):
-        bodyDeformationType_( bodyDeformationType ), interpolateVariation_( interpolateVariation ),
-        initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
+                                   const boost::shared_ptr< ModelInterpolationSettings > interpolatorSettings = NULL ):
+        bodyDeformationType_( bodyDeformationType ),
         interpolatorSettings_( interpolatorSettings ){ }
 
     virtual ~GravityFieldVariationSettings( ){ }
 
     gravitation::BodyDeformationTypes getBodyDeformationType( ){ return bodyDeformationType_;  }
-    bool getInterpolateVariation( ){ return interpolateVariation_; }
-    double getInitialTime( ){ return initialTime_; }
-    double getFinalTime( ){ return finalTime_; }
-    double getTimeStep( ){ return timeStep_; }
-    boost::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( ){ return interpolatorSettings_; }
+
+    boost::shared_ptr< ModelInterpolationSettings > getInterpolatorSettings( ){ return interpolatorSettings_; }
 
 protected:
 
     gravitation::BodyDeformationTypes bodyDeformationType_;
-    bool interpolateVariation_;
-    double initialTime_;
-    double finalTime_;
-    double timeStep_;
-    boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+
+    boost::shared_ptr< ModelInterpolationSettings > interpolatorSettings_;
 
 };
 
@@ -75,15 +63,8 @@ public:
             const std::vector< std::string > deformingBodies,
             const std::vector< std::vector< std::complex< double > > > loveNumbers,
             const double bodyReferenceRadius,
-            const bool interpolateVariation,
-            const double initialTime = 0.0,
-            const double finalTime = 0.0,
-            const double timeStep = 0.0,
-            const gravitation::BodyDeformationTypes bodyDeformationType = gravitation::basic_solid_body,
-            const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< interpolators::InterpolatorSettings >(
-                interpolators::linear_interpolator, interpolators::huntingAlgorithm ) ):
-        GravityFieldVariationSettings( bodyDeformationType, interpolateVariation, initialTime, finalTime, timeStep, interpolatorSettings ),
+            const boost::shared_ptr< ModelInterpolationSettings > interpolatorSettings = NULL ):
+        GravityFieldVariationSettings( gravitation::basic_solid_body, interpolatorSettings ),
         deformingBodies_( deformingBodies ), loveNumbers_( loveNumbers ), bodyReferenceRadius_( bodyReferenceRadius ){ }
 
     virtual ~BasicSolidBodyGravityFieldVariationSettings( ){ }
@@ -105,14 +86,17 @@ protected:
 class TabulatedGravityFieldVariationSettings: public GravityFieldVariationSettings
 {
 public:
-    TabulatedGravityFieldVariationSettings( const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections,
-                                            const std::map< double, Eigen::MatrixXd > sineCoefficientCorrections,
-                                            const int minimumDegree, const int minimumOrder,
-                                            const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator, interpolators::huntingAlgorithm ) ):
-        GravityFieldVariationSettings( gravitation::tabulated_variation, false ), cosineCoefficientCorrections_( cosineCoefficientCorrections ),
-        sineCoefficientCorrections_( sineCoefficientCorrections ), minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ),
-        interpolatorSettings_( interpolatorSettings ){ }
+    TabulatedGravityFieldVariationSettings(
+            const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections,
+            const std::map< double, Eigen::MatrixXd > sineCoefficientCorrections,
+            const int minimumDegree, const int minimumOrder,
+            const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings ):
+        GravityFieldVariationSettings(
+            gravitation::tabulated_variation, boost::make_shared< ModelInterpolationSettings >(
+                TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, interpolatorSettings ) ),
+        cosineCoefficientCorrections_( cosineCoefficientCorrections ),
+        sineCoefficientCorrections_( sineCoefficientCorrections ),
+        minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ){ }
 
     std::map< double, Eigen::MatrixXd > getCosineCoefficientCorrections( )
     {
@@ -133,28 +117,20 @@ public:
     {
         return minimumOrder_;
     }
-
-    boost::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
-    {
-        return interpolatorSettings_;
-    }
-
 private:
 
     std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections_;
     std::map< double, Eigen::MatrixXd > sineCoefficientCorrections_;
+
     int minimumDegree_;
     int minimumOrder_;
-    boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+
 };
 
-boost::shared_ptr< TabulatedGravityFieldVariationSettings > createTabulatedGravityFieldVariationSettings(
-        const boost::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVariations,
-        const double startTime,
-        const double endTime,
-        const double interpolationStep,
-        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        boost::make_shared< interpolators::InterpolatorSettings >( interpolators::linear_interpolator, interpolators::huntingAlgorithm ) );
+boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
+        const std::string& body,
+        const NamedBodyMap& bodyMap,
+        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
 
 boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
         const boost::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
