@@ -61,6 +61,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_gravity_field_variations )
 
 using namespace tudat::gravitation;
+using namespace tudat::spice_interface;
 
 //! Function to get nominal gravity field coefficients for Jupiter
 /*!
@@ -181,11 +182,11 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
     {
         deformingBodyStateFunctions.push_back(
-                    boost::bind( &spice_interface::getBodyCartesianStateAtEpoch,
+                    boost::bind( &getBodyCartesianStateAtEpoch,
                                  deformingBodies.at( i ), "SSB", "J2000",
                                  "None", _1 ) );
         deformingBodyMasses.push_back(
-                    boost::bind( &spice_interface::getBodyGravitationalParameter,
+                    boost::bind( &getBodyGravitationalParameter,
                                  deformingBodies.at( i ) ) );
     }
 
@@ -199,13 +200,13 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
     // Set up gravity field variation of Jupiter due to Galilean moons.
     boost::shared_ptr< GravityFieldVariations > solidBodyGravityFieldVariations =
             boost::make_shared< BasicSolidBodyTideGravityFieldVariations >(
-                boost::bind( &spice_interface::getBodyCartesianStateAtEpoch,
+                boost::bind( &getBodyCartesianStateAtEpoch,
                              "Jupiter", "SSB", "J2000", "None", _1 ),
-                boost::bind( &spice_interface::computeRotationQuaternionBetweenFrames,
+                boost::bind( &computeRotationQuaternionBetweenFrames,
                              "J2000", "IAU_Jupiter", _1 ),
                 deformingBodyStateFunctions,
-                spice_interface::getAverageRadius( "Jupiter" ),
-                boost::bind( &spice_interface::getBodyGravitationalParameter, "Jupiter" ),
+                getAverageRadius( "Jupiter" ),
+                boost::bind( &getBodyGravitationalParameter, "Jupiter" ),
                 deformingBodyMasses, loveNumbers, deformingBodies );
 
     // Get tabulated gravity field variations.
@@ -223,18 +224,18 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
     // Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat(
+    loadSpiceKernelInTudat(
                 input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat(
+    loadSpiceKernelInTudat(
                 input_output::getSpiceKernelPath( ) + "gm_de431.tpc" );
-    spice_interface::loadSpiceKernelInTudat(
+    loadSpiceKernelInTudat(
                 input_output::getSpiceKernelPath( ) + "de421.bsp" );
-    spice_interface::loadSpiceKernelInTudat(
+    loadSpiceKernelInTudat(
                 "/home/dominicdirkx/Software/ILRCode/trunk/DataFiles/SpiceKernels/jup310.bsp" );
 
     // Define properties of nominal field
-    double gravitationalParameter = spice_interface::getBodyGravitationalParameter( "Jupiter" );
-    double referenceRadius = spice_interface::getAverageRadius( "Jupiter" );
+    double gravitationalParameter = getBodyGravitationalParameter( "Jupiter" );
+    double referenceRadius = getAverageRadius( "Jupiter" );
     Eigen::MatrixXd nominalCosineCoefficients;
     Eigen::MatrixXd nominalSineCoefficients;
     getNominalJupiterGravityField( nominalCosineCoefficients, nominalSineCoefficients );
@@ -302,6 +303,37 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
             BOOST_CHECK_SMALL( calculatedSineCoefficientCorrections( i, j ) -
                                expectedSineCoefficientsCorrections( i, j ), 1.0E-18 );
         }
+    }
+
+    std::vector< std::vector< std::complex< double > > > loveNumbers;
+    std::complex< double > constantLoveNumber = std::complex< double >( 0.5, 0.5E-3 );
+    std::vector< std::complex< double > > constantSingleDegreeLoveNumber = { constantLoveNumber,
+                                                                             constantLoveNumber,
+                                                                             constantLoveNumber };
+    loveNumbers.push_back( constantSingleDegreeLoveNumber );
+
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directIoTide =
+            calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                loveNumbers, getBodyGravitationalParameter( "Io" ) / getBodyGravitationalParameter( "Jupiter" ),
+                getAverageRadius( "Jupiter" ),  spice_interface::getBodyCartesianPositionAtEpoch(
+                    "Io", "Jupiter", "IAU_Jupiter", "None", testTime ), 2, 2 );
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directEuropaTide =
+            calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                loveNumbers, getBodyGravitationalParameter( "Europa" ) / getBodyGravitationalParameter( "Jupiter" ),
+                getAverageRadius( "Jupiter" ),  spice_interface::getBodyCartesianPositionAtEpoch(
+                    "Europa", "Jupiter", "IAU_Jupiter", "None", testTime ), 2, 2 );
+
+    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > tidalCorrectionsFromObject =
+            ( ( timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
+                basic_solid_body ) ).second->calculateSphericalHarmonicsCorrections( testTime ) );
+
+    Eigen::MatrixXd directCosineCorrections = directIoTide.first + directEuropaTide.first;
+    Eigen::MatrixXd directSineCorrections = directIoTide.second + directEuropaTide.second;
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( directCosineCorrections( 2, i ) - tidalCorrectionsFromObject.first( 0, i ), 1.0E-20 );
+        BOOST_CHECK_SMALL( directSineCorrections( 2, i ) - tidalCorrectionsFromObject.second( 0, i ), 1.0E-20 );
     }
 }
 

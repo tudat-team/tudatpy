@@ -44,65 +44,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-
-boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
-        const std::string& body,
-        const NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
-{
-
-    using namespace tudat::gravitation;
-
-    // Declare lists for input to GravityFieldVariationsSet
-    std::vector< boost::shared_ptr< GravityFieldVariations > > variationObjects;
-    std::vector< BodyDeformationTypes > variationTypes;
-    std::vector< std::string > variationIdentifiers;
-    std::map< int, boost::shared_ptr< interpolators::InterpolatorSettings > > createInterpolators;
-    std::map< int, double > initialTimes;
-    std::map< int, double > finalTimes;
-    std::map< int, double > timeSteps;
-
-    // Iterate over all variations to create.
-    for( unsigned int i = 0; i < gravityFieldVariationSettings.size( ); i++ )
-    {
-        // Get current type of deformation
-        variationTypes.push_back( gravityFieldVariationSettings[ i ]->getBodyDeformationType( ) );
-
-        // Set current variation object in list.
-        variationObjects.push_back( createGravityFieldVariationsModel(
-                                        gravityFieldVariationSettings[ i ], body, bodyMap  ) );
-
-        variationIdentifiers.push_back( "" );
-
-        // Check if current variation is interpolated, and set settings if necessary.
-        if( gravityFieldVariationSettings[ i ]->getInterpolateVariation( ) == true )
-        {
-            createInterpolators[ i ] = gravityFieldVariationSettings[ i ]->getInterpolatorSettings( );
-            initialTimes[ i ] = gravityFieldVariationSettings[ i ]->getInitialTime( );
-            finalTimes[ i ] = gravityFieldVariationSettings[ i ]->getFinalTime( );
-            timeSteps[ i ] = gravityFieldVariationSettings[ i ]->getTimeStep( );
-        }
-    }
-
-    // Create object with settings for updating variations from new parameter values.
-    boost::shared_ptr< GravityFieldVariationsSet > fieldVariationsSet =
-            boost::make_shared< GravityFieldVariationsSet >(
-                variationObjects, variationTypes, variationIdentifiers,
-                createInterpolators, initialTimes, finalTimes, timeSteps );
-
-    if( boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodyMap.at( body )->getGravityFieldModel( ) ) == NULL )
-    {
-        std::cerr<<"Error when making gravity field variations of body "<<body<<", base type is not time dependent"<<std::endl;
-    }
-
-    boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodyMap.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, 1 );
-
-
-    return fieldVariationsSet;
-}
-
 //! Function to create a gravity field model.
 boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const boost::shared_ptr< GravityFieldSettings > gravityFieldSettings,
@@ -202,7 +143,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                     if( bodyMap.at( body )->getGravityFieldModel( ) != NULL )
                     {
                         std::cerr<<"Warning when making time-dependent gravity field model for body "<<body<<" existing gravity field "
-                                <<" is not empty but overwritten in CelestialBody! "<<std::endl;
+                                <<" is not empty but overwritten in Body! "<<std::endl;
                     }
 
                     // Create preliminary TimeDependentSphericalHarmonicsGravityField, without actual variation settings.

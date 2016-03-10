@@ -230,11 +230,6 @@ private:
 
 };
 
-boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
-        const std::string& body,
-        const NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings );
-
 //! Function to create a gravity field model.
 /*!
  *  Function to create a gravity field model based on model-specific settings for the gravity field.

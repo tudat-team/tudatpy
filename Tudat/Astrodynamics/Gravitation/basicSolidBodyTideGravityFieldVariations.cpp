@@ -9,6 +9,39 @@ namespace tudat
 namespace gravitation
 {
 
+
+std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder )
+{
+    std::vector< std::vector< std::complex< double > > > fullLoveNumbersVector;
+
+    fullLoveNumbersVector.resize( maximumDegree - 1 );
+
+    for( unsigned int i = 0; i <= static_cast< unsigned int >( maximumDegree ) - 2;i++ )
+    {
+        for( unsigned int j = 0; j <= ( i + 2 ); j++ )
+        {
+            if( static_cast< int >( j ) <= maximumOrder  )
+            {
+                fullLoveNumbersVector[ i ].push_back( constantLoveNumber );
+            }
+            else
+            {
+                fullLoveNumbersVector[ i ].push_back( std::complex< double >( 0.0, 0.0 ) );
+            }
+        }
+    }
+
+    return fullLoveNumbersVector;
+}
+
+
+std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
+        const double constantLoveNumber, const int maximumDegree, const int maximumOrder )
+{
+    return getFullLoveNumbersVector( std::complex< double >( constantLoveNumber, 0.0 ), maximumDegree, maximumOrder );
+}
+
 //! Function to calculate solid body tide gravity field variation due to single body at single
 //! degree and order.
 std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
@@ -23,6 +56,51 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
             amplitude * basic_mathematics::calculateLegendreGeodesyNormalizationFactor(
                 degree, order ) * std::exp( -tideArgument );
 }
+
+std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+        const std::complex< double > loveNumber, const double massRatio,
+        const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition, const int degree, const int order )
+{
+    Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical(
+                relativeBodyFixedPosition );
+    double tideAmplitude = basic_mathematics::computeLegendrePolynomialExplicit(
+                degree, order, std::sin( mathematical_constants::PI / 2.0 - sphericalPosition.y( ) ) ) *
+            basic_mathematics::calculateLegendreGeodesyNormalizationFactor(
+                            degree, order );
+    std::complex< double > tideArgument = static_cast< double >( order ) * std::complex< double >( 0.0, sphericalPosition( 2 ) );
+
+    return loveNumber / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
+            massRatio * std::pow( referenceRadius / sphericalPosition( 0 ), degree + 1 ) *
+            tideAmplitude * std::exp( -tideArgument );
+}
+
+std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+        const std::vector< std::vector< std::complex< double > > > loveNumbers, const double massRatio,
+        const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition,
+        const int maximumDegree, const int maximumOrder )
+{
+    Eigen::MatrixXd cosineCorrections = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
+    Eigen::MatrixXd sineCorrections = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
+
+    std::complex< double > currentCorrections;
+
+    for( int n = 2; n <= maximumDegree; n++ )
+    {
+        for( int m = 0; m <= maximumOrder; m++ )
+        {
+            currentCorrections = calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                       loveNumbers.at( n - 2 ).at( m ), massRatio, referenceRadius, relativeBodyFixedPosition, n, m );
+            cosineCorrections( n, m ) = currentCorrections.real( );
+            if( m > 0 )
+            {
+                sineCorrections( n, m ) = -currentCorrections.imag( );
+            }
+        }
+    }
+
+    return std::make_pair( cosineCorrections, sineCorrections );
+}
+
 
 //! Sets current properties (mass state) of body involved in tidal deformation.
 void BasicSolidBodyTideGravityFieldVariations::setBodyGeometryParameters(
@@ -58,7 +136,6 @@ calculateBasicSphericalHarmonicsCorrections(
     Eigen::MatrixXd cTermCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
     Eigen::MatrixXd sTermCorrections = Eigen::MatrixXd::Zero( numberOfDegrees_, numberOfOrders_ );
 
-
     // Iterate over all bodies causing deformation and calculate and add associated corrections
     for( unsigned int i = 0; i < deformingBodyStateFunctions_.size( ); i++ )
     {
@@ -82,18 +159,18 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
         Eigen::MatrixXd& cTermCorrections,
         Eigen::MatrixXd& sTermCorrections )
 {
-    // Initialize power of radiusRatio^(N+1) (calculation starts at N=2)
+//    // Initialize power of radiusRatio^(N+1) (calculation starts at N=2)
     radiusRatioPower = radiusRatio * radiusRatio * radiusRatio;
 
     currentCosineCorrections_.setZero( );
     currentSineCorrections_.setZero( );
 
-    // Iterate over all love
+    //    // Iterate over all love
     std::complex< double > stokesCoefficientCorrection( 0.0, 0.0 );
 
     for( unsigned int n = 2; n < loveNumbers_.size( ) + 2; n++ )
     {
-        for( unsigned int m = 0; m <= n; m++ )
+        for( unsigned int m = 0; ( m <= n && m < loveNumbers_.at( n - 2 ).size( ) ); m++ )
         {
             updateTidalAmplitudeAndArgument( n, m );
 
@@ -115,9 +192,9 @@ void BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections(
         radiusRatioPower *= radiusRatio;
     }
 
-    cTermCorrections.block( 0, 0, maximumDegree_ + 1, maximumOrder_ + 1 ) +=
+    cTermCorrections.block( 0, 0, maximumDegree_ - minimumDegree_ + 1, maximumOrder_  - minimumOrder_ + 1 ) +=
             currentCosineCorrections_;
-    sTermCorrections.block( 0, 0, maximumDegree_ + 1, maximumOrder_ + 1 ) +=
+    sTermCorrections.block( 0, 0, maximumDegree_ - minimumDegree_ + 1, maximumOrder_  - minimumOrder_ + 1 ) +=
             currentSineCorrections_;
 
 }
