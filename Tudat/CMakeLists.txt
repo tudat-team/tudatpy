@@ -194,6 +194,16 @@ else()
   endif( )
 endif()
 
+
+# Find CSPICE library on local system.
+find_package(Sofa)
+
+# Include CSpice directories.
+if(NOT APPLE)
+  include_directories(SYSTEM AFTER "${SOFA_INCLUDE_DIR}")
+else( )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${SOFA_INCLUDE_DIR}\"")
+endif( )
 #
 # NRLMSISE-00
 #

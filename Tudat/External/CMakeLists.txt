@@ -36,6 +36,17 @@
  #
 
  # Define the main sub-directories.
+
+# Set SPICE interface directory.
+  set(SOFAINTERFACEDIR "${EXTERNALDIR}/SofaInterface")
+
+  # Add subdirectories.
+  add_subdirectory("${SRCROOT}${SOFAINTERFACEDIR}")
+
+  # Get target properties for static libraries.
+  get_target_property(SOFAINTERFACESOURCES tudat_sofa_interface SOURCES)
+
+
 if(USE_CSPICE)
 # Set SPICE interface directory.
   set(SPICEINTERFACEDIR "${EXTERNALDIR}/SpiceInterface")
