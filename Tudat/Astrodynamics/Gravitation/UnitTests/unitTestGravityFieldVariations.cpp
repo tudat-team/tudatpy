@@ -305,35 +305,42 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
         }
     }
 
-    std::vector< std::vector< std::complex< double > > > loveNumbers;
-    std::complex< double > constantLoveNumber = std::complex< double >( 0.5, 0.5E-3 );
-    std::vector< std::complex< double > > constantSingleDegreeLoveNumber = { constantLoveNumber,
-                                                                             constantLoveNumber,
-                                                                             constantLoveNumber };
-    loveNumbers.push_back( constantSingleDegreeLoveNumber );
-
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directIoTide =
-            calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                loveNumbers, getBodyGravitationalParameter( "Io" ) / getBodyGravitationalParameter( "Jupiter" ),
-                getAverageRadius( "Jupiter" ),  spice_interface::getBodyCartesianPositionAtEpoch(
-                    "Io", "Jupiter", "IAU_Jupiter", "None", testTime ), 2, 2 );
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directEuropaTide =
-            calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                loveNumbers, getBodyGravitationalParameter( "Europa" ) / getBodyGravitationalParameter( "Jupiter" ),
-                getAverageRadius( "Jupiter" ),  spice_interface::getBodyCartesianPositionAtEpoch(
-                    "Europa", "Jupiter", "IAU_Jupiter", "None", testTime ), 2, 2 );
-
-    std::pair< Eigen::MatrixXd, Eigen::MatrixXd > tidalCorrectionsFromObject =
-            ( ( timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
-                basic_solid_body ) ).second->calculateSphericalHarmonicsCorrections( testTime ) );
-
-    Eigen::MatrixXd directCosineCorrections = directIoTide.first + directEuropaTide.first;
-    Eigen::MatrixXd directSineCorrections = directIoTide.second + directEuropaTide.second;
-
-    for( unsigned int i = 0; i < 3; i++ )
+    // Test calculated tidal corrections against manual corrections directly from Cartesian states of perturbing bodies.
     {
-        BOOST_CHECK_SMALL( directCosineCorrections( 2, i ) - tidalCorrectionsFromObject.first( 0, i ), 1.0E-20 );
-        BOOST_CHECK_SMALL( directSineCorrections( 2, i ) - tidalCorrectionsFromObject.second( 0, i ), 1.0E-20 );
+        // Define Love numbers
+        std::vector< std::vector< std::complex< double > > > loveNumbers;
+        std::complex< double > constantLoveNumber = std::complex< double >( 0.5, 0.5E-3 );
+        std::vector< std::complex< double > > constantSingleDegreeLoveNumber = { constantLoveNumber,
+                                                                                 constantLoveNumber,
+                                                                                 constantLoveNumber };
+        loveNumbers.push_back( constantSingleDegreeLoveNumber );
+
+        // Manually calculate tidal corrections directly.
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directIoTide =
+                calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                    loveNumbers, getBodyGravitationalParameter( "Io" ) / getBodyGravitationalParameter( "Jupiter" ),
+                    getAverageRadius( "Jupiter" ),  spice_interface::getBodyCartesianPositionAtEpoch(
+                        "Io", "Jupiter", "IAU_Jupiter", "None", testTime ), 2, 2 );
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directEuropaTide =
+                calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                    loveNumbers, getBodyGravitationalParameter( "Europa" ) / getBodyGravitationalParameter( "Jupiter" ),
+                    getAverageRadius( "Jupiter" ),  spice_interface::getBodyCartesianPositionAtEpoch(
+                        "Europa", "Jupiter", "IAU_Jupiter", "None", testTime ), 2, 2 );
+
+        // Calculate tidal corrections from objects
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > tidalCorrectionsFromObject =
+                ( ( timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
+                        basic_solid_body ) ).second->calculateSphericalHarmonicsCorrections( testTime ) );
+
+        // Compare results.
+        Eigen::MatrixXd directCosineCorrections = directIoTide.first + directEuropaTide.first;
+        Eigen::MatrixXd directSineCorrections = directIoTide.second + directEuropaTide.second;
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( directCosineCorrections( 2, i ) - tidalCorrectionsFromObject.first( 0, i ), 1.0E-20 );
+            BOOST_CHECK_SMALL( directSineCorrections( 2, i ) - tidalCorrectionsFromObject.second( 0, i ), 1.0E-20 );
+        }
     }
 }
 

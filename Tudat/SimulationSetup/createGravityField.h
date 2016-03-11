@@ -236,6 +236,9 @@ private:
  *  \param gravityFieldSettings Settings for the gravity field model that is to be created, defined
  *  a pointer to an object of class (derived from) GravityFieldSettings.
  *  \param body Name of the body for which the gravity field model is to be created.
+ *  \param bodyMap List of body objects, as currently created (used when setting gravityFieldVariationSettings)
+ *  \param gravityFieldVariationSettings List of settings for the variations of the gravity field that are to be used
+ *  (but not immediately set!) by current body under consideration.
  *  \return Gravity field model created according to settings in gravityFieldSettings.
  */
 boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
@@ -243,8 +246,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const std::string& body,
         const NamedBodyMap& bodyMap = NamedBodyMap( ),
         const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
-        std::vector< boost::shared_ptr< GravityFieldVariationSettings > >( ),
-        const bool immediatelySetVariations = 0 );
+        std::vector< boost::shared_ptr< GravityFieldVariationSettings > >( ) );
 }
 
 }
