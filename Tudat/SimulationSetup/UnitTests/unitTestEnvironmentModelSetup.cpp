@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 
 }
 
-//! Test set up of gravity field model environment models.
+//! Test set up of gravity field model variations environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 {
     // Load Spice kernel with gravitational parameters.
@@ -383,18 +383,19 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
                 gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "IAU_Earth" );
 
 
+    // Define settings for tidal variations.
     double loveNumber = 0.25;
-
-    double testTime = 0.5E7;
-
     std::vector< std::vector< std::complex< double > > > fullLoveNumberVector =
             gravitation::getFullLoveNumbersVector( loveNumber, 3, 2 );
+    double testTime = 0.5E7;
+
 
     Eigen::MatrixXd cosineCorrections1, cosineCorrections2, cosineCorrections3;
     Eigen::MatrixXd sineCorrections1, sineCorrections2, sineCorrections3;
 
-
+    // Calculate non-interpolated corrections from two bodies in single object.
     {
+        // Define correction settings
         std::vector< std::string > deformingBodies;
         deformingBodies.push_back( "Moon" );
         deformingBodies.push_back( "Sun" );
@@ -407,26 +408,30 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         NamedBodyMap bodyMap = createBodies( bodySettings );
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
+        // Update states.
         bodyMap[ "Earth" ]->setStateFromEphemeris( testTime );
         bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
         bodyMap[ "Sun" ]->setStateFromEphemeris( testTime );
         bodyMap[ "Moon" ]->setStateFromEphemeris( testTime );
 
+        // Update gravity field
         boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
-
         earthGravityField->update( testTime );
 
+        // Retrieve corrections.
         cosineCorrections1 = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
         sineCorrections1 = earthGravityField->getSineCoefficients( ) - sineCoefficients;
 
 
     }
 
+    // Calculate non-interpolated corrections from two bodies in separate objects.
     {
         bodySettings[ "Earth" ]->gravityFieldVariationSettings.clear( );
 
+        // Define correction settings
         std::vector< std::string > deformingBodies;
         deformingBodies.push_back( "Moon" );
         bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
@@ -443,17 +448,19 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         NamedBodyMap bodyMap = createBodies( bodySettings );
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
+        // Update states.
         bodyMap[ "Earth" ]->setStateFromEphemeris( testTime );
         bodyMap[ "Earth" ]->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
         bodyMap[ "Sun" ]->setStateFromEphemeris( testTime );
         bodyMap[ "Moon" ]->setStateFromEphemeris( testTime );
 
+        // Update gravity field
         boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
-
         earthGravityField->update( testTime );
 
+        // Retrieve corrections.
         cosineCorrections2 = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
         sineCorrections2 = earthGravityField->getSineCoefficients( ) - sineCoefficients;
     }
@@ -461,10 +468,10 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     {
         bodySettings[ "Earth" ]->gravityFieldVariationSettings.clear( );
 
+        // Define correction settings
         std::vector< std::string > deformingBodies;
         deformingBodies.push_back( "Moon" );
         deformingBodies.push_back( "Sun" );
-
         bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
                     boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius,
@@ -476,22 +483,25 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         NamedBodyMap bodyMap = createBodies( bodySettings );
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
+        // Update gravity field
         boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
-
         earthGravityField->update( testTime );
 
+        // Retrieve corrections.
         cosineCorrections3 = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
         sineCorrections3= earthGravityField->getSineCoefficients( ) - sineCoefficients;
 
     }
 
+    // Mutually compare results of three methods.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ),  cosineCorrections2.block( 2, 0, 2, 3 ), 1.0E-11 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ),  cosineCorrections3.block( 2, 0, 2, 3 ), 1.0E-11 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ),  sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-11 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ),  sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-11 );
 
+    // Check whether 0 coefficients are actually 0.
     for( unsigned int i = 0; i < 6; i++ )
     {
         for( unsigned int j = 0; j < 6; j++ )
@@ -516,6 +526,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         }
     }
 
+    // Calculate corrections manually and compare against created results.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directMoonTide =
             gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
                 fullLoveNumberVector, getBodyGravitationalParameter( "Moon" ) / gravitationalParameter,

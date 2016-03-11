@@ -470,7 +470,6 @@ createIntegratedStateProcessors(
     return integratedStateProcessors;
 }
 
-template< typename TimeType, typename StateScalarType >
 //! Function to reset the dynamical properties of the environment from the numerically integrated dynamics solution
 /*!
  * Function to reset the dynamical properties of the environment from the numerically integrated dynamics solution
@@ -479,6 +478,7 @@ template< typename TimeType, typename StateScalarType >
  * \param integratedStateProcessors List of objects (per dynamics type) used to process integrated results into
  * environment
  */
+template< typename TimeType, typename StateScalarType >
 void resetIntegratedStates(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
         const std::map< IntegratedStateType, std::vector< boost::shared_ptr

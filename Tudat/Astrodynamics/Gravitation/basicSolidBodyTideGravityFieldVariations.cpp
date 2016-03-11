@@ -9,18 +9,20 @@ namespace tudat
 namespace gravitation
 {
 
-
+//! Function to create constant complex Love number list for a range of degrees and orders.
 std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
         const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder )
 {
+    // Define list of Love numbers
     std::vector< std::vector< std::complex< double > > > fullLoveNumbersVector;
-
     fullLoveNumbersVector.resize( maximumDegree - 1 );
 
+    // Iterate over all degrees and orders.
     for( unsigned int i = 0; i <= static_cast< unsigned int >( maximumDegree ) - 2;i++ )
     {
         for( unsigned int j = 0; j <= ( i + 2 ); j++ )
         {
+            // Set current Love numbers.
             if( static_cast< int >( j ) <= maximumOrder  )
             {
                 fullLoveNumbersVector[ i ].push_back( constantLoveNumber );
@@ -35,7 +37,7 @@ std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
     return fullLoveNumbersVector;
 }
 
-
+//! Function to create constant real Love number list for a range of degrees and orders.
 std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
         const double constantLoveNumber, const int maximumDegree, const int maximumOrder )
 {
@@ -57,37 +59,48 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
                 degree, order ) * std::exp( -tideArgument );
 }
 
+//! Function to calculate solid body tide gravity field variations due to single body at single degree and order directly
+//! from perturbing body's Cartesian state.
 std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
         const std::complex< double > loveNumber, const double massRatio,
         const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition, const int degree, const int order )
 {
+    // Calculate spherical position of perturbing body.
     Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical(
                 relativeBodyFixedPosition );
+
+    // Calculate amplitude and argument of tide
     double tideAmplitude = basic_mathematics::computeLegendrePolynomialExplicit(
                 degree, order, std::sin( mathematical_constants::PI / 2.0 - sphericalPosition.y( ) ) ) *
             basic_mathematics::calculateLegendreGeodesyNormalizationFactor(
                             degree, order );
     std::complex< double > tideArgument = static_cast< double >( order ) * std::complex< double >( 0.0, sphericalPosition( 2 ) );
 
+    // Calculate tidal corrections.
     return loveNumber / ( 2.0 * static_cast< double >( degree ) + 1.0 ) *
             massRatio * std::pow( referenceRadius / sphericalPosition( 0 ), degree + 1 ) *
             tideAmplitude * std::exp( -tideArgument );
 }
 
+//! Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders
+//! from perturbing body's Cartesian state.
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
         const std::vector< std::vector< std::complex< double > > > loveNumbers, const double massRatio,
         const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree, const int maximumOrder )
 {
+    // Initialize results.
     Eigen::MatrixXd cosineCorrections = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
     Eigen::MatrixXd sineCorrections = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
 
     std::complex< double > currentCorrections;
 
+    // Iterate over all requested degrees and orders
     for( int n = 2; n <= maximumDegree; n++ )
     {
-        for( int m = 0; m <= maximumOrder; m++ )
+        for( int m = 0; ( m <= maximumOrder && m <= n ); m++ )
         {
+            // Calculate and set corrections at current degree and order.
             currentCorrections = calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
                        loveNumbers.at( n - 2 ).at( m ), massRatio, referenceRadius, relativeBodyFixedPosition, n, m );
             cosineCorrections( n, m ) = currentCorrections.real( );

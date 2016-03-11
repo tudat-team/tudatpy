@@ -62,6 +62,7 @@ namespace tudat
 namespace reference_frames
 {
 
+//! Wrapper function to transform a vector to a different frame from a single rotation function.
 Eigen::Vector3d transformVector(
         const Eigen::Vector3d& originalVector,
         const boost::function< Eigen::Quaterniond( ) > rotation )
@@ -69,6 +70,7 @@ Eigen::Vector3d transformVector(
     return rotation( ) * originalVector;
 }
 
+//! Wrapper function to transform a vector to a different frame from a single transformation function.
 Eigen::Vector3d transformVector(
         const boost::function< Eigen::Vector3d( ) > originalVector,
         const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction )
@@ -76,12 +78,15 @@ Eigen::Vector3d transformVector(
     return transformationFunction( originalVector( ) );
 }
 
+//! Wrapper function to transform a vector to a different frame from a list of transformation function.
 Eigen::Vector3d transformVector(
         const Eigen::Vector3d& originalVector,
         const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
 {
     Eigen::Vector3d currentVector = originalVector;
     Eigen::Vector3d newVector;
+
+    // Apply each of the required tranformations.
     for( unsigned int i = 0; i < rotationsList.size( ); i++ )
     {
         newVector = rotationsList.at( i )( currentVector );

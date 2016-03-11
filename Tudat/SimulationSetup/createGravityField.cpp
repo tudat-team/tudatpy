@@ -49,8 +49,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const boost::shared_ptr< GravityFieldSettings > gravityFieldSettings,
         const std::string& body,
         const NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings,
-        const bool immediatelySetVariations )
+        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
 {
     using namespace tudat::gravitation;
 
@@ -109,7 +108,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         if( sphericalHarmonicFieldSettings == NULL )
         {
             throw std::runtime_error(
-             "Error, expected spherical harmonic field settings when making gravity field model of "
+                        "Error, expected spherical harmonic field settings when making gravity field model of "
                         + body );
         }
         else
@@ -152,24 +151,17 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ) );
-                    if( immediatelySetVariations && gravityFieldVariationSettings.size( ) > 0 )
-                    {
-                        bodyMap.at( body )->setGravityFieldModel( gravityFieldModel );
-                        boost::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariations =
-                                createGravityFieldModelVariationsSet( body, bodyMap, gravityFieldVariationSettings );
-                        bodyMap.at( body )->setGravityFieldVariationSet( gravityFieldVariations );
-                    }
                 }
+
+
             }
-
-
         }
         break;
     }
     default:
         throw std::runtime_error(
-                 "Error, did not recognize gravity field model settings type " +
-                  boost::lexical_cast< std::string >(
+                    "Error, did not recognize gravity field model settings type " +
+                    boost::lexical_cast< std::string >(
                         gravityFieldSettings->getGravityFieldType( ) ) );
     }
 

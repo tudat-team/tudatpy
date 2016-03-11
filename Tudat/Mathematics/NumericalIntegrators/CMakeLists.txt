@@ -37,7 +37,6 @@
 set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/rungeKuttaCoefficients.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/numericalIntegrator.cpp"
-  "${SRCROOT}${NUMERICALINTEGRATORSDIR}/createNumericalIntegrator.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/numericalIntegratorTests.cpp"
 )
 

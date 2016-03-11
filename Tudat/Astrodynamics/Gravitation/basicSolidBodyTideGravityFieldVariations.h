@@ -23,19 +23,38 @@ namespace tudat
 namespace gravitation
 {
 
+
+//! Function to create constant complex Love number list for a range of degrees and orders.
+/*!
+ * Function to create constant complex Love number list for a range of degrees and orders, maximum degree and order
+ * are given as input, minimum degree and order are 2 and 0, respectively.
+ * \param constantLoveNumber Love number to be set at each degree and order
+ * \param maximumDegree Maximum degree for Love numbers.
+ * \param maximumOrder Maximum order for Love numbers.
+ * \return List of Love numbers with requested settings.
+ */
 std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
         const std::complex< double > constantLoveNumber, const int maximumDegree, const int maximumOrder );
 
-
+//! Function to create constant real Love number list for a range of degrees and orders
+/*!
+* Function to create constant real Love number list for a range of degrees and orders, maximum degree and order
+* are given as input, minimum degree and order are 2 and 0, respectively.
+* \param constantLoveNumber Love number to be set at each degree and order
+* \param maximumDegree Maximum degree for Love numbers.
+* \param maximumOrder Maximum order for Love numbers.
+* \return List of Love numbers with requested settings.
+*/
 std::vector< std::vector< std::complex< double > > > getFullLoveNumbersVector(
         const double constantLoveNumber, const int maximumDegree, const int maximumOrder );
 
-//! Function to calculate solid body tide gravity field variations due to single body at single
-//! degree and order.
+//! Function to calculate solid body tide gravity field variations due to single body at single degree and order from
+//! precomputed quantaties.
 /*!
  *  Function to calculate solid body tide gravity field variations due to single body at single
  *  degree and order, (frequency-independent part), after (Petit et al. 2010, eq. 6.6), using
- *  complex tidal love numbers.
+ *  complex tidal love numbers. Using this function requires the computation of a number of precomputed quantities
+ *  (as is done by the BasicSolidBodyTideGravityFieldVariations class).
  *  \param loveNumber Complex Love number for given degree and order.
  *  \param massRatio Ratio of masses of body causing deformation to body being deformed.
  *  \param radiusRatioPowerN Ratio of equatorial radius of body being deformed over distance
@@ -52,13 +71,50 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
         const double radiusRatioPowerN, const double amplitude,
         const std::complex< double > tideArgument, const int degree, const int order );
 
+//! Function to calculate solid body tide gravity field variations due to single body at single degree and order directly
+//! from perturbing body's Cartesian state.
+/*!
+ *  Function to calculate solid body tide gravity field variations due to single body at single
+ *  degree and order, (frequency-independent part), after (Petit et al. 2010, eq. 6.6), using
+ *  complex tidal love numbers. This function directly uses the perturbing body's Cartesian state, and should be used for
+ *  'external' computations. The BasicSolidBodyTideGravityFieldVariations uses the alternative overloaded function.
+ *  \param loveNumber Complex Love number for given degree and order.
+ *  \param massRatio Ratio of masses of body causing deformation to body being deformed.
+ *  \param referenceRadius Equatorial radius of body being deformed.
+ *  \param relativeBodyFixedPosition Cartesian position of body causing deformation in a frame centered on and fixed to
+ *  the body that is being deformed.
+ *  \param degree Degree of current coefficients
+ *  \param order Order of current coefficients
+ *  \return Combined variation in cosine (Delta C_{n,m}) and sine (Delta S_{n,m}) coefficients as:
+ *  Delta C_{n,m} - i * Delta S_{n,m}
+ */
 std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
         const std::complex< double > loveNumber, const double massRatio,
         const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition, const int degree, const int order );
 
+//! Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders
+//! from perturbing body's Cartesian state.
+/*!
+ *  Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders
+ *  (frequency-independent part), after (Petit et al. 2010, eq. 6.6), using complex tidal love numbers.
+ *  This function directly uses the perturbing body's Cartesian state, and should be used for
+ *  'external' computations. The BasicSolidBodyTideGravityFieldVariations uses the alternative overloaded function.
+ *  This function defines the maximum degree and order, and always starts at degree 2 and order 0
+ *  \param loveNumbers Complex Love numbers for each degree and order (index of first vector is degree-2; index of second
+ *  vector is order.
+ *  \param massRatio Ratio of masses of body causing deformation to body being deformed.
+ *  \param referenceRadius Equatorial radius of body being deformed.
+ *  \param relativeBodyFixedPosition Cartesian position of body causing deformation in a frame centered on and fixed to
+ *  the body that is being deformed.
+ *  \param maximumDegree Maximum degree of current coefficient corrections.
+ *  \param maximumOrder Maximum order of current coefficient corrections.
+ *  \return Combined variation in cosine (Delta C_{n,m}) and sine (Delta S_{n,m}) matrices as first and second entry of
+ *  pair, respectively. Both matrices start at degree and order 0.
+ */
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
         const std::vector< std::vector< std::complex< double > > > loveNumbers, const double massRatio,
-        const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition, const int maximumDegree, const int maximumOrder );
+        const double referenceRadius, const Eigen::Vector3d& relativeBodyFixedPosition,
+        const int maximumDegree, const int maximumOrder );
 
 //! Class to calculate first-order solid body tide gravity field variations on a single body raised
 //! by any number of bodies up to any degree and order.
@@ -79,8 +135,8 @@ public:
      *  \param deformingBodyMasses List of functions returning masses (or gravitational parameters)
      *  of bodies causing deformation.
      *  \param loveNumbers List of love numbers for each degree and order. First vector level
-     *  denotes degree (index 0 = degree 2), second vector level must be of size
-     *  (loveNumbers.size( ) + 2, i.e. maximum degree == maximum order)
+     *  denotes degree (index 0 = degree 2), second vector level denotes order and must be of maximum size
+     *  (loveNumbers.size( ) + 2, i.e. maximum degree >= maximum order)
      *  \param deformingBodies List of names of bodies causing deformation
      */
     BasicSolidBodyTideGravityFieldVariations(
