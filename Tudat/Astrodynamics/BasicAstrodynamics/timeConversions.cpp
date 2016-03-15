@@ -91,6 +91,18 @@ long double getTimeOfTaiSynchronizationSinceJ2000< long double >( )
     return TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG * physical_constants::getJulianDay< long double >( );
 }
 
+template< >
+double getTTMinusTai< double >( )
+{
+    return TT_MINUS_TAI;
+}
+
+template< >
+long double getTTMinusTai< long double >( )
+{
+    return TT_MINUS_TAI_LONG;
+}
+
 //! Function to convert julian day to gregorian calendar date.
 boost::gregorian::date convertJulianDayToCalendarDate( const double julianDay )
 {
@@ -143,41 +155,6 @@ boost::gregorian::date convertJulianDayToCalendarDate( const double julianDay )
     // Create and return date object
 
     return boost::gregorian::date( year, month, static_cast< double >( day ) );
-}
-
-//! Compute the Julian day from the calendar date and time.
-double convertCalendarDateToJulianDay( const int calendarYear,
-                                       const int calendarMonth,
-                                       const int calendarDay,
-                                       const int calendarHour,
-                                       const int calendarMinutes,
-                                       const double calendarSeconds )
-{
-    return convertCalendarDateToJulianDaysSinceEpoch( calendarYear, calendarMonth, calendarDay, calendarHour, calendarMinutes,
-                                           calendarSeconds, 0.0 );
-}
-
-double convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear,
-                                                  const int calendarMonth,
-                                                  const int calendarDay,
-                                                  const int calendarHour,
-                                                  const int calendarMinutes,
-                                                  const double calendarSeconds,
-                                                  const double referenceJulianDay )
-{
-    // Calculate julian day of calendar date.
-    double julianDay =
-            static_cast< double >( boost::gregorian::date( calendarYear, calendarMonth, calendarDay ).julian_day( ) ) -
-            referenceJulianDay;
-
-    //Compute day fraction
-    const double dayFraction = static_cast< double >( calendarHour ) / 24.0 +
-                               static_cast< double >( calendarMinutes ) / ( 24.0 * 60.0 ) +
-                               calendarSeconds / ( 24.0 * 3600.0 );
-
-    // Compute Julian day by adding day fraction and subtracting 0.5 to reference to midnight
-    // instead of noon..
-    return julianDay + dayFraction - 0.5;
 }
 
 
@@ -283,6 +260,12 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
 
     return date;
 }
+
+double approximateConvertTTtoTDB( const double tt, const double earthMeanAnomaly )
+{
+    return tt + 0.001657  * std::sin( earthMeanAnomaly );
+}
+
 
 } // namespace basic_astrodynamics
 } // namespace tudat
