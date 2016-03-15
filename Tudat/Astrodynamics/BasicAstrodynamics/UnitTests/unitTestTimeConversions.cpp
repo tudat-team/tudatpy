@@ -41,6 +41,12 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 
+extern "C"
+{
+#include "sofa/src/sofa.h"
+#include "sofa/src/sofam.h"
+}
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
@@ -51,6 +57,7 @@ namespace unit_tests
 {
 
 using namespace basic_astrodynamics;
+using namespace physical_constants;
 
 //! Test the functionality of the time conversion functions.
 BOOST_AUTO_TEST_SUITE( test_Time_Conversions )
@@ -98,28 +105,91 @@ BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
         BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch,
                                     std::numeric_limits< double >::epsilon( ) );
     }
+
+    // Test conversion from Julian day to seconds since epoch at 0 MJD with long doubles.
+    {
+        // Set reference epoch and Julian day for tests.
+        const long double referenceEpoch = JULIAN_DAY_AT_0_MJD_LONG;
+        const long double julianDay = JULIAN_DAY_AT_0_MJD_LONG + 1.0e6L / 86400.0L;
+
+        // Set expected seconds since epoch result.
+        const long double expectedSecondsSinceEpoch = 1.0e6L;
+
+        // Compute seconds since epoch given Julian day and reference epoch.
+        const long double computedSecondsSinceEpoch = convertJulianDayToSecondsSinceEpoch< long double >(
+                    julianDay, referenceEpoch );
+
+        // Test that computed result matches expected result.
+        // Test is run at reduced tolerance, because the final digits of the seconds were lost
+        // when converting to Julian day.
+        BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch,
+                                    1.0e-14 );
+    }
+
+    // Test conversion from Julian day to seconds since J2000 epoch  with long doubles
+    {
+        // Set reference epoch and Julian day for tests.
+        const long double referenceEpoch = JULIAN_DAY_ON_J2000_LONG;
+        const long double julianDay = JULIAN_DAY_ON_J2000_LONG + 0.5L;
+
+        // Set expected seconds since epoch result.
+        long double expectedSecondsSinceEpoch
+                = physical_constants::JULIAN_DAY_LONG / 2.0L;
+
+        // Compute seconds since epoch given Julian day and reference epoch.
+        const long double computedSecondsSinceEpoch = convertJulianDayToSecondsSinceEpoch< long double >(
+                    julianDay, referenceEpoch );
+
+        // Test that computed result matches expected result.
+        // Test is run at reduced tolerance, because the final digits of the seconds were lost
+        // when converting to Julian day.
+        BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch,
+                                    std::numeric_limits< long double >::epsilon( ) );
+    }
 }
 
 //! Unit test for seconds to Julian day conversion function.
 BOOST_AUTO_TEST_CASE( testSecondsSinceEpochToJulianDayConversions )
 {
-    // Test conversion from seconds since epoch to Julian day.
+    {
+        // Test conversion from seconds since epoch to Julian day.
 
-    // Set reference epoch and seconds since epoch for tests.
-    const double referenceEpoch = JULIAN_DAY_AT_0_MJD;
-    const double secondsSinceEpoch = 1.0e6;
+        // Set reference epoch and seconds since epoch for tests.
+        const double referenceEpoch = JULIAN_DAY_AT_0_MJD;
+        const double secondsSinceEpoch = 1.0e6;
 
-    // Set expected Julian day result.
-    const double expectedJulianDay = JULIAN_DAY_AT_0_MJD + 1.0e6 / 86400.0;
+        // Set expected Julian day result.
+        const double expectedJulianDay = JULIAN_DAY_AT_0_MJD + 1.0e6 / 86400.0;
 
-    // Compute Julian day with seconds since reference epoch specified.
-    const double computedJulianDay = convertSecondsSinceEpochToJulianDay(
-                secondsSinceEpoch, referenceEpoch );
+        // Compute Julian day with seconds since reference epoch specified.
+        const double computedJulianDay = convertSecondsSinceEpochToJulianDay(
+                    secondsSinceEpoch, referenceEpoch );
 
-    // Test that computed result matches expected result.
-    BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
-                                std::numeric_limits< double >::epsilon( ) );
+        // Test that computed result matches expected result.
+        BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
+                                    std::numeric_limits< double >::epsilon( ) );
+    }
+
+    {
+        // Test conversion from seconds since epoch to Julian day with long doubles.
+
+        // Set reference epoch and seconds since epoch for tests.
+        const long double referenceEpoch = JULIAN_DAY_AT_0_MJD_LONG;
+        const long double secondsSinceEpoch = 1.0e6L;
+
+        // Set expected Julian day result.
+        const long double expectedJulianDay = JULIAN_DAY_AT_0_MJD_LONG + 1.0e6L / 86400.0L;
+
+        // Compute Julian day with seconds since reference epoch specified.
+        const long double computedJulianDay = convertSecondsSinceEpochToJulianDay< long double >(
+                    secondsSinceEpoch, referenceEpoch );
+
+        // Test that computed result matches expected result.
+        BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
+                                    std::numeric_limits< long double >::epsilon( ) );
+    }
 }
+
 
 //! Unit test for calendar date to Julian day conversion function.
 BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
@@ -134,7 +204,7 @@ BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
 
         // Test that computed result matches expected result.
         BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
-                                std::numeric_limits< double >::epsilon( ) );
+                                    std::numeric_limits< double >::epsilon( ) );
     }
 
     //Compute the Julian day of the calendar date: November 17th, 1858, At 0h0m0s.
@@ -147,7 +217,7 @@ BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
 
         // Test that computed result matches expected result.
         BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
-                                std::numeric_limits< double >::epsilon( ) );
+                                    std::numeric_limits< double >::epsilon( ) );
     }
 
     //Test conversion wrapper against boost result.
@@ -185,86 +255,122 @@ BOOST_AUTO_TEST_CASE( testTimeConversions )
 {
     const double testModifiedJulianDay = 54583.87;
     const double testJulianDay = testModifiedJulianDay + JULIAN_DAY_AT_0_MJD;
+    {
+        // Test conversions to/from Modified Julian day
 
-    BOOST_CHECK_CLOSE_FRACTION( testJulianDay, convertModifiedJulianDayToJulianDay( testModifiedJulianDay ),
-                                5.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay, convertJulianDayToModifiedJulianDay( testJulianDay ),
-                                10.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( convertJulianDayToModifiedJulianDay(
-                                    convertModifiedJulianDayToJulianDay( testModifiedJulianDay ) ),
-                                testModifiedJulianDay, 10.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( convertModifiedJulianDayToJulianDay(
-                                    convertJulianDayToModifiedJulianDay( testJulianDay ) ),
-                                testJulianDay, 5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testJulianDay, convertModifiedJulianDayToJulianDay( testModifiedJulianDay ),
+                                    5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay, convertJulianDayToModifiedJulianDay( testJulianDay ),
+                                    10.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( convertJulianDayToModifiedJulianDay(
+                                        convertModifiedJulianDayToJulianDay( testModifiedJulianDay ) ),
+                                    testModifiedJulianDay, 10.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( convertModifiedJulianDayToJulianDay(
+                                        convertJulianDayToModifiedJulianDay( testJulianDay ) ),
+                                    testJulianDay, 5.0 * std::numeric_limits< double >::epsilon( ) );
 
-    double secondsSinceModifedJulianDayZero = testModifiedJulianDay * JULIAN_DAY;
+        // Test conversions to/from seconds since epoch
+        double secondsSinceModifedJulianDayZero = testModifiedJulianDay * JULIAN_DAY;
+        BOOST_CHECK_CLOSE_FRACTION( secondsSinceModifedJulianDayZero, convertJulianDayToSecondsSinceEpoch(
+                                        testJulianDay, JULIAN_DAY_AT_0_MJD ),
+                                    10.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testJulianDay, convertSecondsSinceEpochToJulianDay(
+                                        secondsSinceModifedJulianDayZero, JULIAN_DAY_AT_0_MJD ),
+                                    5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay /  JULIAN_YEAR_IN_DAYS, convertSecondsSinceEpochToJulianYearsSinceEpoch(
+                                        secondsSinceModifedJulianDayZero ),
+                                    5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay / (  JULIAN_YEAR_IN_DAYS * 100.0 ),
+                                    convertSecondsSinceEpochToJulianCenturiesSinceEpoch( secondsSinceModifedJulianDayZero ),
+                                    5.0 * std::numeric_limits< double >::epsilon( ) );
+    }
 
-    BOOST_CHECK_CLOSE_FRACTION( secondsSinceModifedJulianDayZero, convertJulianDayToSecondsSinceEpoch(
-                                    testJulianDay, JULIAN_DAY_AT_0_MJD ),
-                                10.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( testJulianDay, convertSecondsSinceEpochToJulianDay(
-                                    secondsSinceModifedJulianDayZero, JULIAN_DAY_AT_0_MJD ),
-                                5.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay /  JULIAN_YEAR_IN_DAYS, convertSecondsSinceEpochToJulianYearsSinceEpoch(
-                                    secondsSinceModifedJulianDayZero ),
-                                5.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay / (  JULIAN_YEAR_IN_DAYS * 100.0 ),
-                                convertSecondsSinceEpochToJulianCenturiesSinceEpoch( secondsSinceModifedJulianDayZero ),
-                                5.0 * std::numeric_limits< double >::epsilon( ) );
+    {
+        // Test conversion from Julian day to calendar date
+        int testYear = 2008;
+        int testMonth = 4;
+        int testDay = 27;
+        boost::gregorian::date testCalendarDate( testYear, testMonth, testDay );
+        double testFractionOfDay = 0.37;
 
-    int testYear = 2008;
-    int testMonth = 4;
-    int testDay = 27;
-    boost::gregorian::date testCalendarDate( testYear, testMonth, testDay );
-    double testFractionOfDay = 0.37;
+        // Check direct conversion from julian day to calendar date
+        boost::gregorian::date calendarDate = convertJulianDayToCalendarDate( testJulianDay );
+        BOOST_CHECK_EQUAL( testYear, calendarDate.year( ) );
+        BOOST_CHECK_EQUAL( testMonth, calendarDate.month( ) );
+        BOOST_CHECK_EQUAL( testDay, calendarDate.day( ) );
 
-    boost::gregorian::date calendarDate = convertJulianDayToCalendarDate( testJulianDay );
+        // Check indirect conversion from julian day to calendar date
+        BOOST_CHECK_EQUAL( getDaysInMonth( 1, testYear ) + getDaysInMonth( 2, testYear ) + getDaysInMonth( 3, testYear ) +
+                           testDay, testCalendarDate.day_of_year( ) );
 
-    BOOST_CHECK_EQUAL( testYear, calendarDate.year( ) );
-    BOOST_CHECK_EQUAL( testMonth, calendarDate.month( ) );
-    BOOST_CHECK_EQUAL( testDay, calendarDate.day( ) );
+        calendarDate = convertYearAndDaysInYearToDate(
+                    testYear, ( getDaysInMonth( 1, testYear ) + getDaysInMonth( 2, testYear ) + getDaysInMonth( 3, testYear ) +
+                                testDay ) - 1 ); // Subtract 1 to go to day 0 for first day of year.
+        BOOST_CHECK_EQUAL( testYear, calendarDate.year( ) );
+        BOOST_CHECK_EQUAL( testMonth, calendarDate.month( ) );
+        BOOST_CHECK_EQUAL( testDay, calendarDate.day( ) );
 
-    calendarDate = convertJulianDayToCalendarDate( testJulianDay + 0.5 );
+        // Check if noon reference of Julian day is handled properly
+        calendarDate = convertJulianDayToCalendarDate( testJulianDay + 0.5 );
+        BOOST_CHECK_EQUAL( testYear, calendarDate.year( ) );
+        BOOST_CHECK_EQUAL( testMonth, calendarDate.month( ) );
+        BOOST_CHECK_EQUAL( testDay + 1, calendarDate.day( ) );
 
-    BOOST_CHECK_EQUAL( testYear, calendarDate.year( ) );
-    BOOST_CHECK_EQUAL( testMonth, calendarDate.month( ) );
-    BOOST_CHECK_EQUAL( testDay + 1, calendarDate.day( ) );
+        BOOST_CHECK_CLOSE_FRACTION( calculateJulianDaySinceEpoch(
+                                        testCalendarDate, 0.5 + testFractionOfDay, JULIAN_DAY_AT_0_MJD ), testModifiedJulianDay,
+                                    50.0 * std::numeric_limits< double >::epsilon( ) );
+    }
 
-    BOOST_CHECK_CLOSE_FRACTION( calculateJulianDaySinceEpoch(
-                testCalendarDate, 0.87, JULIAN_DAY_AT_0_MJD ), testModifiedJulianDay,
-                                50.0 * std::numeric_limits< double >::epsilon( ) );
+    {
+        double secondsSinceJ2000Synchronization = ( TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION ) * JULIAN_DAY;
 
-    double secondsSinceJ2000Synchronization = ( TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION ) * JULIAN_DAY;
+        double testTcg = convertTtToTcg( secondsSinceJ2000Synchronization );
+        double testTt = convertTcgToTt( secondsSinceJ2000Synchronization );
 
-    double testTcg = convertTtToTcg( secondsSinceJ2000Synchronization );
-    double testTt = convertTcgToTt( secondsSinceJ2000Synchronization );
+        std::cout<<testTcg - secondsSinceJ2000Synchronization<<" "<<testTt - secondsSinceJ2000Synchronization<<std::endl;
 
-    BOOST_CHECK_CLOSE_FRACTION( testTcg, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( testTt, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testTcg, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testTt, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< double >::epsilon( ) );
 
-    double testTcb = convertTdbToTcb( secondsSinceJ2000Synchronization );
-    double testTdb = convertTcbToTdb( secondsSinceJ2000Synchronization );
+        double testTcb = convertTdbToTcb( secondsSinceJ2000Synchronization );
+        double testTdb = convertTcbToTdb( secondsSinceJ2000Synchronization );
 
-    BOOST_CHECK_CLOSE_FRACTION( testTdb, secondsSinceJ2000Synchronization + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( testTcb, secondsSinceJ2000Synchronization - TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testTdb, secondsSinceJ2000Synchronization + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testTcb, secondsSinceJ2000Synchronization - TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< double >::epsilon( ) );
 
-    double testTime = 0.0;
+        double testTime = 0.0;
 
-    testTcg = convertTtToTcg( 0.0 );
-    testTt = convertTcgToTt( testTcg );
+        testTcg = convertTtToTcg( testTime);
+        testTt = convertTcgToTt( testTcg );
 
-    double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM;
-    BOOST_CHECK_CLOSE_FRACTION( testTcg, expectedTcg, 5.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( testTt, std::numeric_limits< double >::epsilon( ) );
+        double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM / ( 1.0 - physical_constants::LG_TIME_RATE_TERM_LONG );
+        BOOST_CHECK_CLOSE_FRACTION( testTcg, expectedTcg, 5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( testTt, std::numeric_limits< double >::epsilon( ) );
 
 
-    testTdb = convertTcbToTdb( 0.0 );
-    testTcb = convertTdbToTcb( testTdb );
+        testTdb = convertTcbToTdb( testTime );
+        testTcb = convertTdbToTcb( testTdb );
 
-    double expectedTdb = secondsSinceJ2000Synchronization * LB_TIME_RATE_TERM + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
+        double expectedTdb = secondsSinceJ2000Synchronization * LB_TIME_RATE_TERM + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
 
-    BOOST_CHECK_CLOSE_FRACTION( testTdb, expectedTdb, 5.0 * std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_SMALL( testTcb, std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_CLOSE_FRACTION( testTdb, expectedTdb, 5.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( testTcb, std::numeric_limits< double >::epsilon( ) );
+    }
+
+    // Compare against Sofa cookbook
+    {
+        double expectedTT = physical_constants::JULIAN_DAY *
+                convertCalendarDateToJulianDaysSinceEpoch( 2006, 1, 15, 12, 25, 42.684000, JULIAN_DAY_ON_J2000 );
+        double expectedTCG = physical_constants::JULIAN_DAY *
+                convertCalendarDateToJulianDaysSinceEpoch( 2006, 1, 15, 12, 25, 43.322690, JULIAN_DAY_ON_J2000 );
+
+        double calculatedTT = convertTcgToTt( expectedTCG );
+        double calculatedTCG = convertTtToTcg( expectedTT );
+
+        BOOST_CHECK_SMALL( calculatedTCG - expectedTCG, 5.0E-5 );
+        BOOST_CHECK_SMALL( calculatedTT - expectedTT, 5.0E-5 );
+
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
@@ -306,17 +412,17 @@ BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
     BOOST_CHECK_CLOSE_FRACTION( testTdb, secondsSinceJ2000Synchronization + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< long double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( testTcb, secondsSinceJ2000Synchronization - TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION, 5.0 * std::numeric_limits< long double >::epsilon( ) );
 
-    long double testTime = 0.0;
+    long double testTime = 0.0L;
 
-    testTcg = convertTtToTcg< long double >( static_cast< long double >( 0.0 ) );
+    testTcg = convertTtToTcg< long double >( testTime);
     testTt = convertTcgToTt< long double >( testTcg );
 
-    long double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM_LONG;
+    long double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM_LONG / ( 1.0 - LG_TIME_RATE_TERM_LONG);
     BOOST_CHECK_CLOSE_FRACTION( testTcg, expectedTcg, 5.0 * std::numeric_limits< long double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( testTt, 0.0, 5.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( testTt, testTime, 5.0 * std::numeric_limits< long double >::epsilon( ) );
 
 
-    testTdb = convertTcbToTdb< long double >( static_cast< long double >( 0.0 ) );
+    testTdb = convertTcbToTdb< long double >( testTime );
     testTcb = convertTdbToTcb< long double >( testTdb );
 
     long double expectedTdb = secondsSinceJ2000Synchronization * LB_TIME_RATE_TERM + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
