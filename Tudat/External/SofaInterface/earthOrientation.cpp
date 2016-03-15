@@ -1,6 +1,5 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-
-#include "External/SofaInterface/earthOrientation.h"
+#include "Tudat/External/SofaInterface/earthOrientation.h"
 
 
 namespace tudat
@@ -35,7 +34,7 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
                    &xAngle, &yAngle, &originLocator );
         break;
     default:
-        std::cerr<<"Warning, precession nutation theory selection not recongnized"<<std::endl;
+        throw std::runtime_error( "Warning, precession nutation theory selection not recongnized" );
 
     }
 
@@ -49,7 +48,7 @@ double calculateGreenwichMeanSiderealTime(
         const double terrestrialTime, const double universalTime1JulianDaysSinceJ2000, const IAUConventions iauConvention )
 {
     // Declare GMST variable
-    double gmst;
+    double gmst = TUDAT_NAN;
 
     // Check for IAU convention and retrieve requested GMST
     switch( iauConvention )
@@ -69,7 +68,7 @@ double calculateGreenwichMeanSiderealTime(
                           basic_astrodynamics::JULIAN_DAY_ON_J2000, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY );
         break;
     default:
-        std::cerr<<"Warning, iau convention for GMST calculation not recongnized"<<std::endl;
+       throw std::runtime_error( "Warning, iau convention for GMST calculation not recongnized" );
 
     }
 
@@ -80,7 +79,7 @@ double calculateGreenwichMeanSiderealTime(
 //! Function to calculate ERA (earth rotation angle)
 double calculateEarthRotationAngle( const double ut1, const double julianDaysEpochShift )
 {
-    return iauEra00Unnormalized( julianDaysEpochShift, ut1 / physical_constants::JULIAN_DAY );
+    return iauEra00( julianDaysEpochShift, ut1 / physical_constants::JULIAN_DAY );
 }
 
 }

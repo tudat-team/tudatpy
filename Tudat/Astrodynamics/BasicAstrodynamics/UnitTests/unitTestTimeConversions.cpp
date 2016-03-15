@@ -209,8 +209,10 @@ BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
 
     //Compute the Julian day of the calendar date: November 17th, 1858, At 0h0m0s.
     {
+
         //Use the function to compute the Julian day.
-        const double computedJulianDay = convertCalendarDateToJulianDay( 1858, 11, 17, 0, 0, 0 );
+        const double computedJulianDay = convertCalendarDateToJulianDay(
+                    1858, 11, 17, 0, 0, 0.0 );
 
         //Known Julian day at this calendar date
         const double expectedJulianDay = basic_astrodynamics::JULIAN_DAY_AT_0_MJD;
@@ -218,6 +220,7 @@ BOOST_AUTO_TEST_CASE( testConversionCalendarDateToJulianDay )
         // Test that computed result matches expected result.
         BOOST_CHECK_CLOSE_FRACTION( computedJulianDay, expectedJulianDay,
                                     std::numeric_limits< double >::epsilon( ) );
+
     }
 
     //Test conversion wrapper against boost result.
