@@ -74,11 +74,18 @@ namespace physical_constants
  */
 const static double JULIAN_DAY = 86400.0;
 
+const static double JULIAN_DAY_LONG = static_cast< long double >( 86400.0 );
+
+template< typename ScalarType >
+ScalarType getJulianDay( );
+
 //! Julian year in days.
 /*!
  * Julian year in Julian days (NASA, 2012).
  */
 const static double JULIAN_YEAR_IN_DAYS = 365.25;
+
+const static double JULIAN_YEAR_IN_DAYS_LONG = static_cast< long double >( 365.25 );
 
 //! Julian year.
 /*!
@@ -110,6 +117,11 @@ const static double SIDEREAL_YEAR = 3.1558149504e7;
  * Speed of light in meters per second (Standish, 1995).
  */
 const static double SPEED_OF_LIGHT = 299792458.0;
+
+const static double LONG_SPEED_OF_LIGHT = static_cast< long double >( 299792458.0 );
+
+template< typename ScalarType >
+ScalarType getSpeedOfLight( );
 
 //! Gravitational constant.
 /*!
@@ -151,6 +163,39 @@ const static double STEFAN_BOLTZMANN_CONSTANT = 2.0 *
         std::pow( BOLTZMANN_CONSTANT, 4.0 ) /
         ( 15.0 * SPEED_OF_LIGHT * SPEED_OF_LIGHT *
           PLANCK_CONSTANT * PLANCK_CONSTANT * PLANCK_CONSTANT );
+
+const static double INVERSE_SQUARE_SPEED_OF_LIGHT = 1.0 / ( SPEED_OF_LIGHT * SPEED_OF_LIGHT );
+
+const static double INVERSE_CUBIC_SPEED_OF_LIGHT = 1.0 / ( SPEED_OF_LIGHT * SPEED_OF_LIGHT * SPEED_OF_LIGHT );
+
+const static double INVERSE_QUARTIC_SPEED_OF_LIGHT = INVERSE_SQUARE_SPEED_OF_LIGHT * INVERSE_SQUARE_SPEED_OF_LIGHT;
+
+const static double INVERSE_QUINTIC_SPEED_OF_LIGHT = INVERSE_SQUARE_SPEED_OF_LIGHT * INVERSE_CUBIC_SPEED_OF_LIGHT;
+
+const static double VACUUM_PERMEABILITY = 4.0 * mathematical_constants::PI * 1.0E-7;
+
+const static double VACUUM_PERMITTIVITY = INVERSE_SQUARE_SPEED_OF_LIGHT / VACUUM_PERMEABILITY;
+
+const static double LG_TIME_RATE_TERM = 6.969290134E-10;
+
+const static long double LG_TIME_RATE_TERM_LONG = static_cast< long double >( 6.969290134E-10 );
+
+template< typename ScalarType >
+ScalarType getLgTimeRateTerm( );
+
+const static double LB_TIME_RATE_TERM = 1.550519768E-8;
+
+const static long double LB_TIME_RATE_TERM_LONG = static_cast< long double >( 1.550519768E-8 );
+
+template< typename ScalarType >
+ScalarType getLbTimeRateTerm( );
+
+const static double LC_TIME_RATE_TERM = 1.48082686741-8;
+
+const static long double LC_TIME_RATE_TERM_LONG = static_cast< long double >( 1.48082686741-8 );
+
+template< typename ScalarType >
+ScalarType getLcTimeRateTerm( );
 
 } // namespace physical_constants
 
