@@ -45,24 +45,6 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-//! List of time scales available
-/*!
- *  List of time scales available. Two types of scales are included, earth-based time scales (which can be handled, in part, by SOFA),
- *  which represent a unique specific scale, and three relativistic scales, of which only barycentric is unique. The bodycentric and
- *  topocentric scales require additional identifiers to fully determine.
- */
-enum TimeScales
-{
-    dummy_scale = -1,
-    tai_scale = 0,
-    tt_scale = 1,
-    tdb_scale = 2,
-    utc_scale = 3,
-    ut1_scale = 4,
-    body_centered_coordinate_time_scale = 5,
-    barycentric_coordinate_time_scale = 6,
-    local_proper_time_scale = 7
-};
 
 //! Julian day at J2000.
 /*!
@@ -70,8 +52,18 @@ enum TimeScales
  */
 const static double JULIAN_DAY_ON_J2000 = 2451545.0;
 
+
+//! Julian day at J2000 in long double precision.
+/*!
+ * Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT),  in long double precision.
+ */
 const static long double JULIAN_DAY_ON_J2000_LONG = static_cast< long double >( 2451545.0 );
 
+//! Function to get the Julian day on J2000
+/*!
+ *  Function to get the Julian day on J2000, in the requested time representation type
+ *  \return  Julian day on J2000
+ */
 template< typename TimeType >
 TimeType getJulianDayOnJ2000( );
 
@@ -81,19 +73,41 @@ TimeType getJulianDayOnJ2000( );
  */
 const static double JULIAN_DAY_AT_0_MJD = 2400000.5;
 
+//! Julian day at Modified Julain Date 0 in long double precision.
+/*!
+ * Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00, in long double precision.
+ */
 const static long double JULIAN_DAY_AT_0_MJD_LONG = static_cast< long double >( 2400000.5 );
 
+//! Function to get the Julian day on zero modified Julian day.
+/*!
+ *  Function to get the Julian day on on zero modified Julian day, in the requested time representation type
+ *  \return Julian day on zero modified Julian day.
+ */
 template< typename TimeType >
 TimeType getJulianDayOnMjd0( );
 
+//! Julian day at which TT, TCG, and TCB all show exact same time
+/*!
+ *  Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184)
+ */
 const static double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION = 2443144.5003725;
 
+//! Julian day at which TT, TCG, and TCB all show exact same time, in long double precision.
+/*!
+ *  Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184), in long double precision.
+ */
 const static long double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG = static_cast< long double >( 2443144.5003725 );
 
+//! Function to get the synchronization Julian day of TT, TCG, and TCB.
+/*!
+ *  Function to get the synchronization Julian day of TT, TCG, and TCB, in the requested time representation type
+ *  \return Synchronization Julian day of TT, TCG, and TCB.
+ */
 template< typename TimeType >
 TimeType getTimeOfTaiSynchronizationJulianDay( );
 
-const static double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION = -8.4004996275E3;
+const static double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION = -8400.4996275;
 
 const static long double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG = static_cast< long double >( -8400.4996275 );
 
@@ -112,8 +126,12 @@ const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG = static_cast< lo
  * \param epochSinceJulianDayZero Epoch in Julian day.
  * \return Number of seconds since epoch.
  */
-double convertJulianDayToSecondsSinceEpoch( const double julianDay,
-                                            const double epochSinceJulianDayZero );
+template< typename TimeScalarType = double >
+TimeScalarType convertJulianDayToSecondsSinceEpoch( const TimeScalarType julianDay,
+                                                    const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
+{
+    return ( julianDay - epochSinceJulianDayZero ) * physical_constants::getJulianDay< TimeScalarType >( );
+}
 
 //! Compute Julian day from seconds since reference Julian day epoch.
 /*!
@@ -122,9 +140,13 @@ double convertJulianDayToSecondsSinceEpoch( const double julianDay,
  * \param epochSinceJulianDayZero Epoch in Julian day.
  * \return Number of Julian days since epoch.
  */
-double convertSecondsSinceEpochToJulianDay(
-                                      const double secondsSinceEpoch,
-                                      const double epochSinceJulianDayZero = JULIAN_DAY_ON_J2000 );
+template< typename TimeScalarType = double >
+TimeScalarType convertSecondsSinceEpochToJulianDay(
+                                      const TimeScalarType secondsSinceEpoch,
+                                      const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
+{
+    return ( secondsSinceEpoch / physical_constants::getJulianDay< TimeScalarType >( ) + epochSinceJulianDayZero );
+}
 
 //! Compute Julian day from given date and time
 /*!
@@ -145,27 +167,25 @@ double convertCalendarDateToJulianDay( const int calendarYear,
                                        const int calendarMinutes,
                                        const double calendarSeconds );
 
-//! Function to determine whether a time scale is a general, relativistic time scale.
+//! Compute Julian day from given date and time
 /*!
- *  Function to determine whether a time scale is a general, relativistic time scale. Available time scales are barycentric (TCB),
- *  bodycentric, of which TCG is a specific (Earth-centered) case, and topocentric, which represents the proper time at a
- *  body-fixed point.
- *  \param timeScale Time scale which is to be checked.
- *  \return True if timeScale is one of the general, relativistic scales, false otherwise.
- */
-bool isTimeScaleRelativistic( const TimeScales timeScale );
-
-//! Function to determine whether a time scale is one of the specific Earth-based scales
-/*!
- *  Function to determine whether a time scale is one of the specific Earth-based scales, which are (in part) handled by sofa.
- *  These are the UTC and UT1 sidereal times, the TT and TAI atomic times and the TDB (rescaled TCB)
- *  \param timeScale Time scale which is to be checked.
- *  \return True if timeScale is one of the specific Earth-based time scales, false otherwise.
- */
-bool isTimeScaleFromSofa( const TimeScales timeScale );
-
-namespace basic_astrodynamics
-{
+  * Computes the Julian day from given year, month, day, hour, minutes, seconds as used in everyday
+  * life. The function uses the internal calcualtions of the boost::date_time::gregorian class.
+  *
+  * \param calendarYear Year of the standard calendar in years.
+  * \param calendarMonth Month of the standard calendar in months.
+  * \param calendarDay Day of the standard calendar in days.
+  * \param calendarHour Hour of the time of this day in hours.
+  * \param calendarMinutes Minutes of the time of this day in minutes.
+  * \param calendarSeconds Seconds of the time of this day in seconds.
+  */
+double convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear,
+                                                  const int calendarMonth,
+                                                  const int calendarDay,
+                                                  const int calendarHour,
+                                                  const int calendarMinutes,
+                                                  const double calendarSeconds,
+                                                  const double referenceJulianDay );
 
 
 //! Function to convert julian day to modified julian day.
@@ -183,7 +203,7 @@ TimeScalarType convertJulianDayToModifiedJulianDay( const TimeScalarType julianD
 //! Function to convert modified julian dat to julian day.
 /*!
  *  Function to convert modified julian dat to julian day.
- *  \param julianDay Modified julian day to convert
+ *  \param modifiedJulianDay Modified julian day to convert
  *  \return Julian day as obtained from modified julian day.
  */
 template< typename TimeScalarType >
@@ -198,7 +218,11 @@ TimeScalarType convertModifiedJulianDayToJulianDay( const TimeScalarType modifie
  *  \param secondsSinceEpoch Seconds since some reference epoch to convert to julian year.
  *  \return Number of julian years since epoch
  */
-double convertSecondsSinceEpochToJulianYearsSinceEpoch( const double secondsSinceEpoch );
+template< typename TimeScalarType = double >
+TimeScalarType convertSecondsSinceEpochToJulianYearsSinceEpoch( const TimeScalarType secondsSinceEpoch )
+{
+    return secondsSinceEpoch / ( physical_constants::JULIAN_DAY * physical_constants::JULIAN_YEAR_IN_DAYS );
+}
 
 //! Function to convert the number of seconds since some reference julian day to a julian century since that epoch.
 /*!
@@ -206,19 +230,11 @@ double convertSecondsSinceEpochToJulianYearsSinceEpoch( const double secondsSinc
  *  \param secondsSinceEpoch Seconds since some reference epoch to convert to julian year.
  *  \return Number of julian centuries since epoch
  */
-double convertSecondsSinceEpochToJulianCenturiesSinceEpoch( const double secondsSinceEpoch );
-
-//! Function to convert the number of seconds since a reference julian day to a number of full julian days + fraction of day since that epoch.
-/*!
- *  Function to convert the number of seconds since a reference julian day to a number of full julian days + fraction of day since that epoch.
- *  Values are returned by passing to this function by reference.
- *  \param secondsSinceEpoch Seconds since epoch to convert to number of full julian days + fraction of day since that epoch.
- *  \param fullDays Full julian days since epochs (return by reference)
- *  \param fractionOfDay Fraction of day in current day since reference epoch (return by reference)
- *  \return Number of julian days since epoch
- */
-void convertSecondsSinceEpochToFullJulianDaysAndFractionOfDay(
-        const double secondsSinceEpoch, double& fullDays, double& fractionOfDay );
+template< typename TimeScalarType = double >
+TimeScalarType convertSecondsSinceEpochToJulianCenturiesSinceEpoch( const TimeScalarType secondsSinceEpoch )
+{
+    return convertSecondsSinceEpochToJulianYearsSinceEpoch( secondsSinceEpoch ) / 100.0;
+}
 
 //! Function to convert julian day to gregorian calendar date.
 /*!
@@ -242,7 +258,7 @@ TimeScalarType calculateJulianDaySinceEpoch( const boost::gregorian::date calend
                                              const TimeScalarType epochSinceJulianDayZero = JULIAN_DAY_ON_J2000 )
 {
     TimeScalarType julianDayAtMiddleOfDay = static_cast< TimeScalarType >( calendarDate.julian_day( ) );
-    return julianDayAtMiddleOfDay + ( fractionOfDay - mathematical_constants< TimeScalarType >( ) ) -
+    return julianDayAtMiddleOfDay + ( fractionOfDay - mathematical_constants::getFloatingFraction< TimeScalarType >( 1, 2 ) ) -
             epochSinceJulianDayZero;
 }
 
@@ -292,16 +308,6 @@ int convertDayMonthYearToDayOfYear( const boost::gregorian::date calendarDate );
  */
 double calculateSecondsInCurrentJulianDay( const double julianDay );
 
-//! Calculates the number of full days between 01-Jan of two given years.
-/*!
- *  Calculates the number of full days between 01-Jan of two given years. Start year may be smaller than end year, in which case a negative
- *  result is produced. If the two input years are equal, result is zero.
- *  \param startYear Year from which to start counting number of days
- *  \param endYear Year up to which to start counting number of days.
- *  \param Number of days from first to second year (01 Jan)
- */
-int calculateDaysBetweenYears( int startYear, int endYear );
-
 //! Function to create the calendar date from the year and the number of days in the year
 /*!
  *  Function to create the calendar date from the year and the number of days in the year, where Jan. 1 is day in year 0.
@@ -321,7 +327,7 @@ TimeType doDummyTimeConversion( const TimeType inputTime )
 /*!
  *  Function to convert TCB to TDB times scale, with both input and output referenced to the J2000 reference time.
  *  \param inputTime Input time in TCB scale
- *  \param Converted time in TDB scale
+ *  \return Converted time in TDB scale
  */
 template< typename TimeType >
 TimeType convertTcbToTdb( const TimeType inputTime )
@@ -334,7 +340,7 @@ TimeType convertTcbToTdb( const TimeType inputTime )
 /*!
  *  Function to convert TDB to TCB times scale, with both input and output referenced to the J2000 reference time.
  *  \param inputTime Input time in TDB scale
- *  \param Converted time in TCB scale
+ *  \return Converted time in TCB scale
  */
 template< typename TimeType >
 TimeType convertTdbToTcb( const TimeType inputTime )
@@ -348,67 +354,27 @@ TimeType convertTdbToTcb( const TimeType inputTime )
 /*!
  *  Function to convert TCG to TT times scale, with both input and output referenced to the J2000 reference time.
  *  \param inputTime Input time in TCG scale
- *  \param Converted time in TT scale
+ *  \return Converted time in TT scale
  */
 template< typename TimeType >
-TimeType convertTcgToTt( const TimeType inputTime  )
+TimeType convertTcgToTt( const TimeType tcgTime  )
 {
-    return ( inputTime + physical_constants::LG_TIME_RATE_TERM_LONG *
-             getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) ) /
-            ( 1.0L + physical_constants::LG_TIME_RATE_TERM_LONG );
+    return tcgTime - physical_constants::LG_TIME_RATE_TERM_LONG *
+            ( tcgTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
 }
 
 //! Function to convert TT to TCG times scale
 /*!
  *  Function to convert TT to TCG times scale, with both input and output referenced to the J2000 reference time.
  *  \param inputTime Input time in TT scale
- *  \param Converted time in TCG scale
+ *  \return Converted time in TCG scale
  */
 template< typename TimeType >
-TimeType convertTtToTcg( const TimeType inputTime  )
+TimeType convertTtToTcg( const TimeType ttTime  )
 {
-    return inputTime + physical_constants::LG_TIME_RATE_TERM_LONG *
-            ( inputTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
-}
-
-//! Function to calculate the difference between TCG and TT time scales from TT input
-/*!
- *  Function to calculate the difference between TCG and TT time scales from TT input, with input value referenced to the J2000 reference time.
- *  \param terrestrialTime Input time in TT scale
- *  \param TCG minus TT at requested TT
- */
-template< typename TimeType >
-TimeType getTcgMinusTT( const TimeType terrestrialTime )
-{
-    return physical_constants::LG_TIME_RATE_TERM_LONG / ( 1.0L - physical_constants::LG_TIME_RATE_TERM_LONG ) * (
-                terrestrialTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
-}
-
-//! Function to calculate the difference between TCB and TDB time scales from TDB input
-/*!
- *  Function to calculate the difference between TCB and TDB time scales from TDB input, with input value referenced to the J2000 reference time.
- *  \param tdbTime Input time in TDB scale
- *  \param TCB minus TDB at requested TDB
- */
-template< typename TimeType >
-TimeType getTcbMinusTdb( const TimeType tdbTime )
-{
-    return ( physical_constants::LB_TIME_RATE_TERM_LONG * (
-                 tdbTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) ) -
-             TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION ) / ( 1.0L - physical_constants::LB_TIME_RATE_TERM_LONG );
-}
-
-//! Function to calculate the difference between TDB and TCB time scales from TCB input
-/*!
- *  Function to calculate the difference between TDB and TCB time scales from TCB input, with input value referenced to the J2000 reference time.
- *  \param tdbTime Input time in TCB scale
- *  \param TDB minus TCB at requested TCB
- */
-template< typename TimeType >
-TimeType getTdbMinusTcb( const TimeType tcbTime )
-{
-    return TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION - physical_constants::LB_TIME_RATE_TERM_LONG *
-            ( tcbTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
+    return ttTime + physical_constants::getLgTimeRateTerm< TimeType >( )
+            / ( mathematical_constants::getFloatingInteger< TimeType >( 1 ) - physical_constants::getLgTimeRateTerm< TimeType >( ) ) *
+            ( ttTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
 }
 
 } // namespace basic_astrodynamics
