@@ -35,10 +35,16 @@
 #ifndef TUDAT_TIME_CONVERSIONS_H
 #define TUDAT_TIME_CONVERSIONS_H
 
+#include "boost/date_time/gregorian/gregorian.hpp"
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+
 namespace tudat
 {
 namespace basic_astrodynamics
 {
+
 
 //! Julian day at J2000.
 /*!
@@ -46,11 +52,71 @@ namespace basic_astrodynamics
  */
 const static double JULIAN_DAY_ON_J2000 = 2451545.0;
 
+
+//! Julian day at J2000 in long double precision.
+/*!
+ * Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT),  in long double precision.
+ */
+const static long double JULIAN_DAY_ON_J2000_LONG = static_cast< long double >( 2451545.0 );
+
+//! Function to get the Julian day on J2000
+/*!
+ *  Function to get the Julian day on J2000, in the requested time representation type
+ *  \return  Julian day on J2000
+ */
+template< typename TimeType >
+TimeType getJulianDayOnJ2000( );
+
 //! Julian day at Modified Julain Date 0.
 /*!
  * Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00.
  */
 const static double JULIAN_DAY_AT_0_MJD = 2400000.5;
+
+//! Julian day at Modified Julain Date 0 in long double precision.
+/*!
+ * Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00, in long double precision.
+ */
+const static long double JULIAN_DAY_AT_0_MJD_LONG = static_cast< long double >( 2400000.5 );
+
+//! Function to get the Julian day on zero modified Julian day.
+/*!
+ *  Function to get the Julian day on on zero modified Julian day, in the requested time representation type
+ *  \return Julian day on zero modified Julian day.
+ */
+template< typename TimeType >
+TimeType getJulianDayOnMjd0( );
+
+//! Julian day at which TT, TCG, and TCB all show exact same time
+/*!
+ *  Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184)
+ */
+const static double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION = 2443144.5003725;
+
+//! Julian day at which TT, TCG, and TCB all show exact same time, in long double precision.
+/*!
+ *  Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184), in long double precision.
+ */
+const static long double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG = static_cast< long double >( 2443144.5003725 );
+
+//! Function to get the synchronization Julian day of TT, TCG, and TCB.
+/*!
+ *  Function to get the synchronization Julian day of TT, TCG, and TCB, in the requested time representation type
+ *  \return Synchronization Julian day of TT, TCG, and TCB.
+ */
+template< typename TimeType >
+TimeType getTimeOfTaiSynchronizationJulianDay( );
+
+const static double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION = -8400.4996275;
+
+const static long double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG = static_cast< long double >( -8400.4996275 );
+
+template< typename TimeType >
+TimeType getTimeOfTaiSynchronizationSinceJ2000( );
+
+const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION = -6.55E-5;
+
+const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG = static_cast< long double >( -6.55E-5 );
 
 //! Compute number of seconds since a reference Julian day.
 /*!
@@ -60,8 +126,12 @@ const static double JULIAN_DAY_AT_0_MJD = 2400000.5;
  * \param epochSinceJulianDayZero Epoch in Julian day.
  * \return Number of seconds since epoch.
  */
-double convertJulianDayToSecondsSinceEpoch( const double julianDay,
-                                            const double epochSinceJulianDayZero );
+template< typename TimeScalarType = double >
+TimeScalarType convertJulianDayToSecondsSinceEpoch( const TimeScalarType julianDay,
+                                                    const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
+{
+    return ( julianDay - epochSinceJulianDayZero ) * physical_constants::getJulianDay< TimeScalarType >( );
+}
 
 //! Compute Julian day from seconds since reference Julian day epoch.
 /*!
@@ -70,9 +140,13 @@ double convertJulianDayToSecondsSinceEpoch( const double julianDay,
  * \param epochSinceJulianDayZero Epoch in Julian day.
  * \return Number of Julian days since epoch.
  */
-double convertSecondsSinceEpochToJulianDay(
-                                      const double secondsSinceEpoch,
-                                      const double epochSinceJulianDayZero = JULIAN_DAY_ON_J2000 );
+template< typename TimeScalarType = double >
+TimeScalarType convertSecondsSinceEpochToJulianDay(
+                                      const TimeScalarType secondsSinceEpoch,
+                                      const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
+{
+    return ( secondsSinceEpoch / physical_constants::getJulianDay< TimeScalarType >( ) + epochSinceJulianDayZero );
+}
 
 //! Compute Julian day from given date and time
 /*!
@@ -93,6 +167,215 @@ double convertCalendarDateToJulianDay( const int calendarYear,
                                        const int calendarMinutes,
                                        const double calendarSeconds );
 
+//! Compute Julian day from given date and time
+/*!
+  * Computes the Julian day from given year, month, day, hour, minutes, seconds as used in everyday
+  * life. The function uses the internal calcualtions of the boost::date_time::gregorian class.
+  *
+  * \param calendarYear Year of the standard calendar in years.
+  * \param calendarMonth Month of the standard calendar in months.
+  * \param calendarDay Day of the standard calendar in days.
+  * \param calendarHour Hour of the time of this day in hours.
+  * \param calendarMinutes Minutes of the time of this day in minutes.
+  * \param calendarSeconds Seconds of the time of this day in seconds.
+  */
+double convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear,
+                                                  const int calendarMonth,
+                                                  const int calendarDay,
+                                                  const int calendarHour,
+                                                  const int calendarMinutes,
+                                                  const double calendarSeconds,
+                                                  const double referenceJulianDay );
+
+
+//! Function to convert julian day to modified julian day.
+/*!
+ *  Function to convert julian day to modified julian day.
+ *  \param julianDay Julian day to convert
+ *  \return Modified julian day as obtained from julian day.
+ */
+template< typename TimeScalarType >
+TimeScalarType convertJulianDayToModifiedJulianDay( const TimeScalarType julianDay )
+{
+    return julianDay - getJulianDayOnMjd0< TimeScalarType >( );
+}
+
+//! Function to convert modified julian dat to julian day.
+/*!
+ *  Function to convert modified julian dat to julian day.
+ *  \param modifiedJulianDay Modified julian day to convert
+ *  \return Julian day as obtained from modified julian day.
+ */
+template< typename TimeScalarType >
+TimeScalarType convertModifiedJulianDayToJulianDay( const TimeScalarType modifiedJulianDay )
+{
+    return modifiedJulianDay + getJulianDayOnMjd0< TimeScalarType >( );
+}
+
+//! Function to convert the number of seconds since some reference julian day to a julian day since that epoch.
+/*!
+ *  Function to convert the number of seconds since some reference julian day to a julian year since that epoch.
+ *  \param secondsSinceEpoch Seconds since some reference epoch to convert to julian year.
+ *  \return Number of julian years since epoch
+ */
+template< typename TimeScalarType = double >
+TimeScalarType convertSecondsSinceEpochToJulianYearsSinceEpoch( const TimeScalarType secondsSinceEpoch )
+{
+    return secondsSinceEpoch / ( physical_constants::JULIAN_DAY * physical_constants::JULIAN_YEAR_IN_DAYS );
+}
+
+//! Function to convert the number of seconds since some reference julian day to a julian century since that epoch.
+/*!
+ *  Function to convert the number of seconds since some reference julian day to a julian century since that epoch.
+ *  \param secondsSinceEpoch Seconds since some reference epoch to convert to julian year.
+ *  \return Number of julian centuries since epoch
+ */
+template< typename TimeScalarType = double >
+TimeScalarType convertSecondsSinceEpochToJulianCenturiesSinceEpoch( const TimeScalarType secondsSinceEpoch )
+{
+    return convertSecondsSinceEpochToJulianYearsSinceEpoch( secondsSinceEpoch ) / 100.0;
+}
+
+//! Function to convert julian day to gregorian calendar date.
+/*!
+ *  Function to convert julian day to gregorian calendar date. Algorithm from (Wertz, 2009, Eq. 4.3)
+ *  \param julianDay Julian day to convert to gregorian calendar date.
+ *  \return Gregorian calendar date at given julian day.
+ */
+boost::gregorian::date convertJulianDayToCalendarDate( const double julianDay );
+
+//! Function to convert gregorian calendar date and fraction of day to a number of julian days since a reference epoch.
+/*!
+ *  Function to convert gregorian calendar date and fraction of day to a number of julian days since a reference epoch.
+ *  \param calendarDate Calendar date at which conversion is to be performed.
+ *  \param fractionOfDay Fraction of day in current gregorian date.
+ *  \param epochSinceJulianDayZero Reference epoch since which number of julian days is to be determined.
+ *  \return Number of julian days since a reference epoch.
+ */
+template< typename TimeScalarType >
+TimeScalarType calculateJulianDaySinceEpoch( const boost::gregorian::date calendarDate,
+                                             const TimeScalarType fractionOfDay,
+                                             const TimeScalarType epochSinceJulianDayZero = JULIAN_DAY_ON_J2000 )
+{
+    TimeScalarType julianDayAtMiddleOfDay = static_cast< TimeScalarType >( calendarDate.julian_day( ) );
+    return julianDayAtMiddleOfDay + ( fractionOfDay - mathematical_constants::getFloatingFraction< TimeScalarType >( 1, 2 ) ) -
+            epochSinceJulianDayZero;
+}
+
+//! Function to determine whether the given year is a leap year (i.e. has 366 days)
+/*!
+ *  Function to determine whether the given year is a leap year (i.e. has 366 days)
+ *  \param year Year for which it is to be determined whether it is a leap year.
+ *  \return True if year is a leap year, false otherwise.
+ */
+bool isLeapYear( const int year );
+
+//! Function that returns number of days in given month number
+/*!
+ *  Function that returns number of days in given month number (January = 1, December = 12)
+ *  \param month Month number
+ *  \param year Year
+ *  \return Number of days in given month
+ */
+int getDaysInMonth( const int month, const int year );
+
+//! Determine number of full days that have passed in current year
+/*!
+ *  Determine number of full days that have passed in current year (i.e. 0 to 364 or 0 to 365 for leap year)
+ *  This function creates a boost::gregorian::date object and calls the overloaded function.
+ *  \param day Day in current year (1 is first day)
+ *  \param month Month in current year (1 is first month)
+ *  \param year Current year (for leap year purposes)
+ *  \return Number of full days that have passed in current year
+ */
+int convertDayMonthYearToDayOfYear( const int day,
+                                    const int month,
+                                    const int year );
+
+//! Determine number of full days that have passed in current year
+/*!
+ *  Determine number of full days that have passed in current year (i.e. 0 to 364 or 0 to 365 for leap year)
+ *  \param calendarDate Gregorian calendat date object containing current date information.
+ *  \return Number of full days that have passed in current year
+ */
+int convertDayMonthYearToDayOfYear( const boost::gregorian::date calendarDate );
+
+//! Determine number of seconds into current day of given time
+/*!
+ *  Determine number of seconds into current day of given time
+ *  \param julianDay Current julian day
+ *  \return Number of seconds into current day.
+ */
+double calculateSecondsInCurrentJulianDay( const double julianDay );
+
+//! Function to create the calendar date from the year and the number of days in the year
+/*!
+ *  Function to create the calendar date from the year and the number of days in the year, where Jan. 1 is day in year 0.
+ *  \param year Year in which days in year are given
+ *  \param daysInYear Number of days in current year, note that day must be in current year (i.e <= 365 of 366 for leap year)
+ *  \return Gregorian date object as generated from input
+ */
+boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int daysInYear );
+
+template< typename TimeType >
+TimeType doDummyTimeConversion( const TimeType inputTime )
+{
+    return inputTime;
+}
+
+//! Function to convert TCB to TDB times scale
+/*!
+ *  Function to convert TCB to TDB times scale, with both input and output referenced to the J2000 reference time.
+ *  \param inputTime Input time in TCB scale
+ *  \return Converted time in TDB scale
+ */
+template< typename TimeType >
+TimeType convertTcbToTdb( const TimeType inputTime )
+{
+    return inputTime + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION - physical_constants::LB_TIME_RATE_TERM_LONG *
+            ( inputTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
+}
+
+//! Function to convert TDB to TCB times scale
+/*!
+ *  Function to convert TDB to TCB times scale, with both input and output referenced to the J2000 reference time.
+ *  \param inputTime Input time in TDB scale
+ *  \return Converted time in TCB scale
+ */
+template< typename TimeType >
+TimeType convertTdbToTcb( const TimeType inputTime )
+{
+    return ( inputTime - TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION - physical_constants::LB_TIME_RATE_TERM_LONG *
+             getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) ) /
+            ( 1.0L - physical_constants::LB_TIME_RATE_TERM_LONG );
+}
+
+//! Function to convert TCG to TT times scale
+/*!
+ *  Function to convert TCG to TT times scale, with both input and output referenced to the J2000 reference time.
+ *  \param inputTime Input time in TCG scale
+ *  \return Converted time in TT scale
+ */
+template< typename TimeType >
+TimeType convertTcgToTt( const TimeType tcgTime  )
+{
+    return tcgTime - physical_constants::LG_TIME_RATE_TERM_LONG *
+            ( tcgTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
+}
+
+//! Function to convert TT to TCG times scale
+/*!
+ *  Function to convert TT to TCG times scale, with both input and output referenced to the J2000 reference time.
+ *  \param inputTime Input time in TT scale
+ *  \return Converted time in TCG scale
+ */
+template< typename TimeType >
+TimeType convertTtToTcg( const TimeType ttTime  )
+{
+    return ttTime + physical_constants::getLgTimeRateTerm< TimeType >( )
+            / ( mathematical_constants::getFloatingInteger< TimeType >( 1 ) - physical_constants::getLgTimeRateTerm< TimeType >( ) ) *
+            ( ttTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
+}
 
 } // namespace basic_astrodynamics
 } // tudat
