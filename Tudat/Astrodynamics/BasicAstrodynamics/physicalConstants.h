@@ -74,7 +74,7 @@ namespace physical_constants
  */
 const static double JULIAN_DAY = 86400.0;
 
-const static double JULIAN_DAY_LONG = static_cast< long double >( 86400.0 );
+const static double JULIAN_DAY_LONG = 86400.0L;
 
 template< typename ScalarType >
 ScalarType getJulianDay( );
@@ -85,7 +85,7 @@ ScalarType getJulianDay( );
  */
 const static double JULIAN_YEAR_IN_DAYS = 365.25;
 
-const static double JULIAN_YEAR_IN_DAYS_LONG = static_cast< long double >( 365.25 );
+const static double JULIAN_YEAR_IN_DAYS_LONG = 365.25L;
 
 //! Julian year.
 /*!
@@ -118,7 +118,7 @@ const static double SIDEREAL_YEAR = 3.1558149504e7;
  */
 const static double SPEED_OF_LIGHT = 299792458.0;
 
-const static double LONG_SPEED_OF_LIGHT = static_cast< long double >( 299792458.0 );
+const static double LONG_SPEED_OF_LIGHT = 299792458.0L;
 
 template< typename ScalarType >
 ScalarType getSpeedOfLight( );
@@ -178,21 +178,21 @@ const static double VACUUM_PERMITTIVITY = INVERSE_SQUARE_SPEED_OF_LIGHT / VACUUM
 
 const static double LG_TIME_RATE_TERM = 6.969290134E-10;
 
-const static long double LG_TIME_RATE_TERM_LONG = static_cast< long double >( 6.969290134E-10 );
+const static long double LG_TIME_RATE_TERM_LONG = 6.969290134E-10L;
 
 template< typename ScalarType >
 ScalarType getLgTimeRateTerm( );
 
 const static double LB_TIME_RATE_TERM = 1.550519768E-8;
 
-const static long double LB_TIME_RATE_TERM_LONG = static_cast< long double >( 1.550519768E-8 );
+const static long double LB_TIME_RATE_TERM_LONG = 1.550519768E-8L;
 
 template< typename ScalarType >
 ScalarType getLbTimeRateTerm( );
 
 const static double LC_TIME_RATE_TERM = 1.48082686741-8;
 
-const static long double LC_TIME_RATE_TERM_LONG = static_cast< long double >( 1.48082686741-8 );
+const static long double LC_TIME_RATE_TERM_LONG = 1.48082686741-8L;
 
 template< typename ScalarType >
 ScalarType getLcTimeRateTerm( );
