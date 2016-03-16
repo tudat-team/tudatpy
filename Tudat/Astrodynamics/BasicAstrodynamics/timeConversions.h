@@ -46,18 +46,11 @@ namespace basic_astrodynamics
 {
 
 
-//! Julian day at J2000.
-/*!
- * Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT).
- */
+//! Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT).
 const static double JULIAN_DAY_ON_J2000 = 2451545.0;
 
-
-//! Julian day at J2000 in long double precision.
-/*!
- * Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT),  in long double precision.
- */
-const static long double JULIAN_DAY_ON_J2000_LONG = static_cast< long double >( 2451545.0 );
+//! Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT),  in long double precision.
+const static long double JULIAN_DAY_ON_J2000_LONG = 2451545.0L;
 
 //! Function to get the Julian day on J2000
 /*!
@@ -67,17 +60,11 @@ const static long double JULIAN_DAY_ON_J2000_LONG = static_cast< long double >( 
 template< typename TimeType >
 TimeType getJulianDayOnJ2000( );
 
-//! Julian day at Modified Julain Date 0.
-/*!
- * Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00.
- */
+//! Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00.
 const static double JULIAN_DAY_AT_0_MJD = 2400000.5;
 
-//! Julian day at Modified Julain Date 0 in long double precision.
-/*!
- * Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00, in long double precision.
- */
-const static long double JULIAN_DAY_AT_0_MJD_LONG = static_cast< long double >( 2400000.5 );
+//! Julian day at Modified Julain Date 0, i.e. Nov 17, 1858, 00:00, in long double precision.
+const static long double JULIAN_DAY_AT_0_MJD_LONG = 2400000.5L;
 
 //! Function to get the Julian day on zero modified Julian day.
 /*!
@@ -87,17 +74,11 @@ const static long double JULIAN_DAY_AT_0_MJD_LONG = static_cast< long double >( 
 template< typename TimeType >
 TimeType getJulianDayOnMjd0( );
 
-//! Julian day at which TT, TCG, and TCB all show exact same time
-/*!
- *  Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184)
- */
+//! Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184)
 const static double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION = 2443144.5003725;
 
-//! Julian day at which TT, TCG, and TCB all show exact same time, in long double precision.
-/*!
- *  Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184), in long double precision.
- */
-const static long double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG = static_cast< long double >( 2443144.5003725 );
+//! Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184), in long double precision.
+const static long double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG = 2443144.5003725L;
 
 //! Function to get the synchronization Julian day of TT, TCG, and TCB.
 /*!
@@ -109,19 +90,19 @@ TimeType getTimeOfTaiSynchronizationJulianDay( );
 
 const static double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION = -8400.4996275;
 
-const static long double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG = static_cast< long double >( -8400.4996275 );
+const static long double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG = -8400.4996275L;
 
 template< typename TimeType >
 TimeType getTimeOfTaiSynchronizationSinceJ2000( );
 
 const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION = -6.55E-5;
 
-const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG = static_cast< long double >( -6.55E-5 );
+const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG = -6.55E-5L;
 
 
 const static double TT_MINUS_TAI = 32.184;
 
-const static double TT_MINUS_TAI_LONG = static_cast< long double >( 32.184 );
+const static double TT_MINUS_TAI_LONG = 32.184L;
 
 
 template< typename TimeType >
@@ -136,8 +117,9 @@ TimeType getTTMinusTai( );
  * \return Number of seconds since epoch.
  */
 template< typename TimeScalarType = double >
-TimeScalarType convertJulianDayToSecondsSinceEpoch( const TimeScalarType julianDay,
-                                                    const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
+TimeScalarType convertJulianDayToSecondsSinceEpoch(
+        const TimeScalarType julianDay,
+        const TimeScalarType epochSinceJulianDayZero = getJulianDayOnJ2000< TimeScalarType >( ) )
 {
     return ( julianDay - epochSinceJulianDayZero ) * physical_constants::getJulianDay< TimeScalarType >( );
 }
@@ -181,8 +163,8 @@ TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear
 {
     // Calculate julian day of calendar date.
     TimeScalarType julianDay =
-            static_cast< TimeScalarType >( boost::gregorian::date( calendarYear, calendarMonth, calendarDay ).julian_day( ) ) -
-            referenceJulianDay;
+            static_cast< TimeScalarType >( boost::gregorian::date( calendarYear, calendarMonth, calendarDay ).
+                                           julian_day( ) ) - referenceJulianDay;
 
     //Compute day fraction
     const TimeScalarType dayFraction =
@@ -190,8 +172,7 @@ TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear
             static_cast< TimeScalarType >( calendarMinutes ) / static_cast< TimeScalarType >( 24.0 * 60.0 ) +
             calendarSeconds / static_cast< TimeScalarType >( 24.0 * 3600.0 );
 
-    // Compute Julian day by adding day fraction and subtracting 0.5 to reference to midnight
-    // instead of noon..
+    // Compute Julian day by adding day fraction and subtracting 0.5 to reference to midnight instead of noon..
     return julianDay + dayFraction - mathematical_constants::getFloatingFraction< TimeScalarType >( 1, 2 );
 }
 
@@ -290,7 +271,8 @@ TimeScalarType calculateJulianDaySinceEpoch( const boost::gregorian::date calend
                                              const TimeScalarType epochSinceJulianDayZero = JULIAN_DAY_ON_J2000 )
 {
     TimeScalarType julianDayAtMiddleOfDay = static_cast< TimeScalarType >( calendarDate.julian_day( ) );
-    return julianDayAtMiddleOfDay + ( fractionOfDay - mathematical_constants::getFloatingFraction< TimeScalarType >( 1, 2 ) ) -
+    return julianDayAtMiddleOfDay +
+            ( fractionOfDay - mathematical_constants::getFloatingFraction< TimeScalarType >( 1, 2 ) ) -
             epochSinceJulianDayZero;
 }
 
@@ -435,7 +417,14 @@ TimeType convertTTtoTAI( const TimeType tt )
     return tt - getTTMinusTai< TimeType >( );
 }
 
-double approximateConvertTTtoTDB( const double tt, const double earthMeanAnomaly );
+//! Perform apprixmate conversion of TT to TDB
+/*!
+ * Perform apprixmate conversion of TT to TDB, in which only the once-per-orbit sinusoidal effect of O(e) is taken into
+ * account. Accurate conversions are calculated usinf Sofa
+ * \param ttSecondsSinceJ2000 Terrestrial time in seconds since J2000
+ * \return TDB in seconds since J2000
+ */
+double approximateConvertTTtoTDB( const double ttSecondsSinceJ2000);
 
 
 } // namespace basic_astrodynamics
