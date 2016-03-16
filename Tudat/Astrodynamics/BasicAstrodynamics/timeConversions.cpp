@@ -261,9 +261,11 @@ boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int
     return date;
 }
 
-double approximateConvertTTtoTDB( const double tt, const double earthMeanAnomaly )
+//! Perform apprixmate conversion of TT to TDB
+double approximateConvertTTtoTDB( const double ttSecondsSinceJ2000 )
 {
-    return tt + 0.001657  * std::sin( earthMeanAnomaly );
+    double ttCenturiesSinceJ2000 = ttSecondsSinceJ2000 / ( 100.0 * physical_constants::JULIAN_YEAR );
+    return ttSecondsSinceJ2000 + 0.001657  * std::sin( 628.3076 * ttCenturiesSinceJ2000 + 6.2401 );
 }
 
 
