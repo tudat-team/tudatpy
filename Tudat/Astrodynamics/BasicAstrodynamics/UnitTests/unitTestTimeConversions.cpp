@@ -65,6 +65,12 @@ BOOST_AUTO_TEST_SUITE( test_Time_Conversions )
 //! Unit test for Julian day to seconds conversion function.
 BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
 {
+
+    double a = TT_MINUS_TAI;
+    long double b = TT_MINUS_TAI_LONG;
+    long double c = 6.969290134E-10L;
+    long double d = 6.969290134E-10;
+    std::cout<<std::setprecision( 19 )<<a<<std::endl<<b<<std::endl<<c<<std::endl<<d<<std::endl;
     // Test conversion from Julian day to seconds since epoch at 0 MJD.
     {
         // Set reference epoch and Julian day for tests.
