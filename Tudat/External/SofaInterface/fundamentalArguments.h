@@ -1,25 +1,52 @@
-#ifndef FUNDAMENTALARGUMENTS_H
-#define FUNDAMENTALARGUMENTS_H
-
-#include <vector>
-
-#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
-#include "Tudat/External/SpiceInterface/spiceInterface.h"
-#include "Tudat/External/SofaInterface/sofaTimeConversions.h"
+#ifndef TUDAT_SOFAFUNDAMENTALARGUMENTS_H
+#define TUDAT_SOFAFUNDAMENTALARGUMENTS_H
 
 extern "C"
 {
     #include "sofa/src/sofa.h"
     #include "sofa/src/sofam.h"
 }
+#include <vector>
+
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
+#include "Tudat/External/SofaInterface/sofaTimeConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
 
 namespace sofa_interface
 {
+
+//! Matrix to convert 5 Doodson arguments (without GMST) to Delaunay arguments.
+/*!
+ * Matrix to convert 5 Doodson arguments (without GMST) to Delaunay arguments. For order:
+ * \sa calculateDoodsonFundamentalArguments
+ * \sa calculateDelaunayFundamentalArguments
+ */
+static const Eigen::Matrix< double, 5, 5 > delaunayToDoodsonArguments =
+        ( Eigen::Matrix< double, 5, 5 >( ) <<
+           0.0,  0.0, 1.0,  0.0,  1.0,
+           0.0,  0.0, 1.0, -1.0,  1.0,
+          -1.0,  0.0, 1.0,  0.0,  1.0,
+           0.0,  0.0, 0.0,  0.0, -1.0,
+           0.0, -1.0, 1.0, -1.0,  1.0 ).finished( );
+
+//! Matrix to convert delaunay arguments to 5 Doodson arguments (without GMST).
+/*!
+ * Matrix to convert delaunay arguments to 5 Doodson arguments (without GMST). For order:
+ * \sa calculateDoodsonFundamentalArguments
+ * \sa calculateDelaunayFundamentalArguments
+ */
+static const Eigen::Matrix< double, 5, 5 > doodsonToDelaunayArguments =
+        ( Eigen::Matrix< double, 5, 5 >( ) <<
+          1.0,  0.0, -1.0,  0.0,  0.0,
+          0.0,  1.0,  0.0,  0.0, -1.0,
+          1.0,  0.0,  0.0,  1.0,  0.0,
+          1.0, -1.0,  0.0,  0.0,  0.0,
+          0.0,  0.0,  0.0, -1.0,  0.0 ).finished( );
 
 //! Function to calculate mean elongation of the Moon from the Sun
 /*!
@@ -61,21 +88,70 @@ double calculateMeanAnomalyOfSun( const double julianCenturiesSinceJ2000 );
  */
 double calculateLongitudeOfMoonsAscendingNode( const double julianCenturiesSinceJ2000 );
 
-//Eigen::Vector3d calculateOceanTideArgumets( const double ephemerisTime );
-
+//! Function to calculate the Delaunay fundamental arguments at the requested time.
+/*!
+ * Function to calculate the Delaunay fundamental arguments at the requested time, using Sofa implementation of
+ * angle calculations. Using the typical notation of teh angles, the output order is: l, l', F, D, Omega.
+ * \param tdbTime Time in TDB at which the arguments are to be calculated.
+ * \return Delaunay fundamental arguments at the requested time.
+ */
 Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments(
-        const double ephemerisTime );
+        const double tdbTime );
 
-basic_mathematics::Vector6d  calculateFundamentalArguments(
-        const double ephemerisTime );
+//! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
+/*!
+ * Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation
+ * of angle calculations.
+ * Using the typical notation of teh angles, the output order is: (GMST + pi), l, l', F, D, Omega.
+ * We stress that the first argument is GMST with a 180 degree phase shift
+ * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
+ * \param terrestrialTime Time in TT at which the arguments are to be calculated, in seconds since J2000.
+ * \param universalTime1 Time in UT1 at which the arguments are to be calculated, in seconds since J2000.
+ * \return Delaunay fundamental arguments and (GMST + pi) at the requested time.
+ */
+basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+        const double tdbTime, const double terrestrialTime, const double universalTime1 );
 
+//! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
+/*!
+ * Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation
+ * of angle calculations. When using this function, TT and TDB are assumed equal, as are UTC and UT1, for the purposes of
+ * calculating GMST (which requires TT and UT1).
+ * Using the typical notation of teh angles, the output order is: (GMST + pi), l, l', F, D, Omega.
+ * We stress that the first argument is GMST with a 180 degree phase shift
+ * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
+ * \return Delaunay fundamental arguments and (GMST + pi) at the requested time.
+ */
+basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+        const double tdbTime );
+
+//! Function to calculate the Doodson arguments at the requested time.
+/*!
+ * Function to calculate the Doodson arguments at the requested time, using Sofa implementation
+ * of angle calculations.
+ * Using the typical notation of teh angles, the output order is: (GMST + pi - s), s, h, p, N', p_{s}.
+ * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
+ * \param terrestrialTime Time in TT at which the arguments are to be calculated, in seconds since J2000.
+ * \param universalTime1 Time in UT1 at which the arguments are to be calculated, in seconds since J2000.
+ * \return Doodson arguments and at the requested time.
+ */
 basic_mathematics::Vector6d calculateDoodsonFundamentalArguments(
-        const double ephemerisTime, const double terrestrialTime, const double universalTime1, const double ttAndUt1EpochShift );
+        const double tdbTime, const double terrestrialTime, const double universalTime1 );
 
-basic_mathematics::Vector6d calculateDoodsonFundamentalArguments( const double ephemerisTime );
+//! Function to calculate the Doodson arguments at the requested time.
+/*!
+ * Function to calculate the Doodson arguments at the requested time, using Sofa implementation
+ * of angle calculations. he Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation
+ * of angle calculations. When using this function, TT and TDB are assumed equal, as are UTC and UT1, for the purposes of
+ * calculating GMST (which requires TT and UT1).
+ * Using the typical notation of teh angles, the output order is: (GMST + pi - s), s, h, p, N', p_{s}.
+ * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
+ * \return Doodson arguments and at the requested time.
+ */
+basic_mathematics::Vector6d calculateDoodsonFundamentalArguments( const double tdbTime );
 
 } // namespace sofa_interfaces
 
 } // namespace tudat
 
-#endif // FUNDAMENTALARGUMENTS_H
+#endif // TUDAT_SOFAFUNDAMENTALARGUMENTS_H

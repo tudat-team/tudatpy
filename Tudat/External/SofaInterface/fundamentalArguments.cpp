@@ -1,4 +1,4 @@
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 #include "Tudat/External/SofaInterface/fundamentalArguments.h"
@@ -39,27 +39,12 @@ double calculateLongitudeOfMoonsAscendingNode( const double julianCenturiesSince
     return iauFaom03( julianCenturiesSinceJ2000 );
 }
 
-//Eigen::Vector3d calculateOceanTideArgumets( const double ephemerisTime )
-//{
-//    double julianCenturiesSinceJ2000 = basic_astrodynamics::convertSecondsSinceEpochToJulianCenturiesSinceEpoch( ephemerisTime );
-
-//    double meanElongationOfMoonFromSun = calculateMeanElongationOfMoonFromSun( julianCenturiesSinceJ2000 );
-//    double meanArgumentOfLatitudeOfMoon = calculateMeanArgumentOfLatitudeOfMoon( julianCenturiesSinceJ2000 );
-//    double meanAnomalyOfMoon = calculateMeanAnomalyOfMoon( julianCenturiesSinceJ2000 );
-//    double longitudeOfMoonsAscendingNode = calculateLongitudeOfMoonsAscendingNode( julianCenturiesSinceJ2000 );
-
-//    Eigen::Vector3d oceanTideArguments;
-//    oceanTideArguments( 0 ) = meanArgumentOfLatitudeOfMoon + longitudeOfMoonsAscendingNode;
-//    oceanTideArguments( 1 ) = oceanTideArguments( 0 ) - meanElongationOfMoonFromSun;
-//    oceanTideArguments( 2 ) = oceanTideArguments( 0 ) - meanAnomalyOfMoon;
-
-//    return oceanTideArguments;
-//}
-
+//! Function to calculate the Delaunay fundamental arguments at the requested time.
 Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments(
-        const double ephemerisTime )
+        const double tdbTime )
 {
-    double julianCenturiesSinceJ2000 = basic_astrodynamics::convertSecondsSinceEpochToJulianCenturiesSinceEpoch( ephemerisTime );
+    // Calculate current centuries since J2000.
+    double julianCenturiesSinceJ2000 = basic_astrodynamics::convertSecondsSinceEpochToJulianCenturiesSinceEpoch( tdbTime );
 
     return ( Eigen::Matrix< double, 5, 1 >( ) <<
              calculateMeanAnomalyOfMoon( julianCenturiesSinceJ2000 ),
@@ -69,39 +54,52 @@ Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments(
              calculateLongitudeOfMoonsAscendingNode( julianCenturiesSinceJ2000 ) ).finished( );
 }
 
-
-basic_mathematics::Vector6d  calculateFundamentalArguments(
-        const double ephemerisTime )
+//! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
+basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+        const double tdbTime, const double terrestrialTime, const double universalTime1 )
 {
-    double utc = convertTTtoUTC( ephemerisTime );
+    // Calculate GMST
+    double greenwichMeanSiderealTime = iauGmst06(
+                basic_astrodynamics::JULIAN_DAY_ON_J2000, universalTime1 / physical_constants::JULIAN_DAY,
+                basic_astrodynamics::JULIAN_DAY_ON_J2000, terrestrialTime / physical_constants::JULIAN_DAY );
 
-    double greenwichMeanSiderealTime = iauGmst06( basic_astrodynamics::JULIAN_DAY_ON_J2000, utc / physical_constants::JULIAN_DAY,
-                                                  basic_astrodynamics::JULIAN_DAY_ON_J2000, ephemerisTime / physical_constants::JULIAN_DAY );
-
+    // Calculate fundamental arguments.
     basic_mathematics::Vector6d fundamentalArguments;
-    fundamentalArguments << greenwichMeanSiderealTime + mathematical_constants::PI, calculateDelaunayFundamentalArguments( ephemerisTime );
+    fundamentalArguments << greenwichMeanSiderealTime + mathematical_constants::PI,
+            calculateDelaunayFundamentalArguments( tdbTime );
 
     return fundamentalArguments;
-
 }
 
+//! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
+basic_mathematics::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+        const double tdbTime )
+{
+    return calculateDelaunayFundamentalArgumentsWithGmst( tdbTime, tdbTime, convertTTtoUTC( tdbTime ) );
+}
+
+//! Function to calculate the Doodson arguments at the requested time.
 basic_mathematics::Vector6d calculateDoodsonFundamentalArguments(
-        const double ephemerisTime, const double terrestrialTime, const double universalTime1, const double ttAndUt1EpochShift )
+        const double tdbTime, const double terrestrialTime, const double universalTime1 )
 {
     using mathematical_constants::PI;
 
-    double julianCenturiesSinceJ2000 = basic_astrodynamics::convertSecondsSinceEpochToJulianCenturiesSinceEpoch( ephemerisTime );
+    // Calculate current centuries since J2000.
+    double julianCenturiesSinceJ2000 = basic_astrodynamics::convertSecondsSinceEpochToJulianCenturiesSinceEpoch( tdbTime );
 
-    //std::cout<<"Centuries since J2000 "<<std::setprecision( 26 )<<julianCenturiesSinceJ2000 - 0.07995893223819302<<std::endl;
-    double greenwichMeanSiderealTime = iauGmst06( ttAndUt1EpochShift, universalTime1 / physical_constants::JULIAN_DAY,
-                                                  ttAndUt1EpochShift, terrestrialTime / physical_constants::JULIAN_DAY );
+    // Calculate GMST
+    double greenwichMeanSiderealTime = iauGmst06(
+                basic_astrodynamics::JULIAN_DAY_ON_J2000, universalTime1 / physical_constants::JULIAN_DAY,
+                basic_astrodynamics::JULIAN_DAY_ON_J2000, terrestrialTime / physical_constants::JULIAN_DAY );
 
+    // Calculate relevant angles.
     double meanElongationOfMoonFromSun = calculateMeanElongationOfMoonFromSun( julianCenturiesSinceJ2000 );
     double meanArgumentOfLatitudeOfMoon = calculateMeanArgumentOfLatitudeOfMoon( julianCenturiesSinceJ2000 );
     double meanAnomalyOfMoon = calculateMeanAnomalyOfMoon( julianCenturiesSinceJ2000 );
     double meanAnomalyOfSun = calculateMeanAnomalyOfSun( julianCenturiesSinceJ2000 );
     double longitudeOfMoonsAscendingNode = calculateLongitudeOfMoonsAscendingNode( julianCenturiesSinceJ2000 );
 
+    // Calculate Doodson arguments.
     basic_mathematics::Vector6d doodsonArguments;
     doodsonArguments( 1 ) = meanArgumentOfLatitudeOfMoon + longitudeOfMoonsAscendingNode;
     doodsonArguments( 0 ) = greenwichMeanSiderealTime + PI - doodsonArguments( 1 );
@@ -113,12 +111,10 @@ basic_mathematics::Vector6d calculateDoodsonFundamentalArguments(
     return doodsonArguments;
 }
 
-// Aproximations TT = TDB and UT1 = UTC used!
-basic_mathematics::Vector6d calculateDoodsonFundamentalArguments( const double ephemerisTime )
+//! Function to calculate the Doodson arguments at the requested time.
+basic_mathematics::Vector6d calculateDoodsonFundamentalArguments( const double tdbTime )
 {
-    double utc = convertTTtoUTC( ephemerisTime );
-
-    return calculateDoodsonFundamentalArguments( ephemerisTime, ephemerisTime,  utc, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+    return calculateDoodsonFundamentalArguments( tdbTime, tdbTime,  convertTTtoUTC( tdbTime ) );
 }
 
 } // namespace sofa_interfaces

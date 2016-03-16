@@ -44,8 +44,10 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
     return std::pair< Eigen::Vector2d, double >( cioPosition, originLocator );
 }
 
+//! Function to calculate GMST according to requested IAU conventions
 double calculateGreenwichMeanSiderealTime(
-        const double terrestrialTime, const double universalTime1JulianDaysSinceJ2000, const IAUConventions iauConvention )
+        const double terrestrialTime, const double universalTime1JulianDaysSinceJ2000,
+        const double referenceJulianDay, const IAUConventions iauConvention )
 {
     // Declare GMST variable
     double gmst = TUDAT_NAN;
@@ -54,18 +56,18 @@ double calculateGreenwichMeanSiderealTime(
     switch( iauConvention )
     {
     case iau_2000_a:
-        gmst = iauGmst00( basic_astrodynamics::JULIAN_DAY_ON_J2000, terrestrialTime / physical_constants::JULIAN_DAY,
-                          basic_astrodynamics::JULIAN_DAY_ON_J2000, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY);
+        gmst = iauGmst00( referenceJulianDay, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY,
+                          referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
 
     case iau_2000_b:
-        gmst = iauGmst00( basic_astrodynamics::JULIAN_DAY_ON_J2000, terrestrialTime / physical_constants::JULIAN_DAY,
-                          basic_astrodynamics::JULIAN_DAY_ON_J2000, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY);
+        gmst = iauGmst00( referenceJulianDay, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY,
+                          referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
 
     case iau_2006:
-        gmst = iauGmst06( basic_astrodynamics::JULIAN_DAY_ON_J2000, terrestrialTime / physical_constants::JULIAN_DAY,
-                          basic_astrodynamics::JULIAN_DAY_ON_J2000, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY );
+        gmst = iauGmst06( referenceJulianDay, universalTime1JulianDaysSinceJ2000 / physical_constants::JULIAN_DAY,
+                          referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
     default:
        throw std::runtime_error( "Warning, iau convention for GMST calculation not recongnized" );
