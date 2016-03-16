@@ -169,6 +169,8 @@ TimeScalarType convertSecondsSinceEpochToJulianDay(
   * \param calendarHour Hour of the time of this day in hours.
   * \param calendarMinutes Minutes of the time of this day in minutes.
   * \param calendarSeconds Seconds of the time of this day in seconds.
+  * \param referenceJulianDay Reference epoch of output time, in Julian days.
+  * \return Julian days of input calendar date/time since referenceJulianDay
   */
 template< typename TimeScalarType = double >
 TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear,

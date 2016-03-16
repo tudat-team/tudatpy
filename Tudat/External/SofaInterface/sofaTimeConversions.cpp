@@ -63,7 +63,7 @@ double getDeltaAtFromTai( const double taiInJulianDays )
     int deltaAtReturn = iauDat( year, month, day, fractionOfDay, &deltaAt);
     if( deltaAtReturn != 0 )
     {
-        throw std::runtime_error( "Provided caledar date cannot properly give Delta AT 2" );
+        throw std::runtime_error( "Provided caledar date cannot properly give Delta AT" );
     }
 
     // Reperform calculation with converted utc time and check consistency with previous calculation.
@@ -88,10 +88,10 @@ double getTDBminusTT( const double tdbTime, const double universalTimeFractionOf
                     distanceFromSpinAxis / 1000.0, distanceFromEquatorialPlane / 1000.0 );
 }
 
+//! Function to calculate difference between TDB and TT.
 double getTDBminusTT( const double tdbTime, const double universalTimeFractionOfDay,
                       const Eigen::Vector3d& stationCartesianPosition )
 {
-
     double stationLongitude = std::atan2( stationCartesianPosition( 1 ),
                                           stationCartesianPosition( 0 ) );
     return getTDBminusTT( tdbTime, universalTimeFractionOfDay, stationLongitude,
@@ -100,6 +100,7 @@ double getTDBminusTT( const double tdbTime, const double universalTimeFractionOf
                           stationCartesianPosition.z( ) );
 }
 
+//! Function to calculate difference between TDB and TT.
 double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongitude, const double distanceFromSpinAxis,
                       const double distanceFromEquatorialPlane )
 {
@@ -116,11 +117,11 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongit
                           distanceFromEquatorialPlane );
 }
 
+//! Function to calculate difference between TDB and TT.
 double getTDBminusTT( const double ttOrTdbSinceJ2000, const Eigen::Vector3d& stationCartesianPosition )
 {
     double stationLongitude = std::atan2( stationCartesianPosition( 1 ),
                                           stationCartesianPosition( 0 ) );
-
     return getTDBminusTT( ttOrTdbSinceJ2000, stationLongitude,
                           std::sqrt( stationCartesianPosition.x( ) * stationCartesianPosition.x( ) +
                                      stationCartesianPosition.y( ) * stationCartesianPosition.y( ) ),
