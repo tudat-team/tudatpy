@@ -92,6 +92,18 @@ long double getTimeOfTaiSynchronizationSinceJ2000< long double >( )
 }
 
 template< >
+long double getTdbSecondsOffsetAtSynchronization< long double >( )
+{
+    return TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
+}
+
+template< >
+long double getTdbSecondsOffsetAtSynchronization< long double >( )
+{
+    return TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG;
+}
+
+template< >
 double getTTMinusTai< double >( )
 {
     return TT_MINUS_TAI;

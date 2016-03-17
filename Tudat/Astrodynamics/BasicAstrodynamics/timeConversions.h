@@ -88,23 +88,32 @@ const static long double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG = 2443144.5
 template< typename TimeType >
 TimeType getTimeOfTaiSynchronizationJulianDay( );
 
-const static double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION = -8400.4996275;
-
-const static long double TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG = -8400.4996275L;
-
-template< typename TimeType >
-TimeType getTimeOfTaiSynchronizationSinceJ2000( );
-
+//! Difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION
 const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION = -6.55E-5;
 
+//! Difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION, in the requested time type
 const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG = -6.55E-5L;
 
+//! Function to get the difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION
+/*!
+ *  Function to get the difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION,
+ *  in the requested time representation type
+ *  \return Difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION (constant by definition).
+ */
+template< typename TimeType >
+TimeType getTdbSecondsOffsetAtSynchronization( );
 
+//! Offset of TT from TAI (constant by definition).
 const static double TT_MINUS_TAI = 32.184;
 
+//! Offset of TT from TAI (constant by definition), in long double precision.
 const static double TT_MINUS_TAI_LONG = 32.184L;
 
-
+//! Function to get the offset of TT from TAI (constant by definition)
+/*!
+ *  Function to get the offset of TT from TAI (constant by definition), in the requested time representation type
+ *  \return Offset of TT from TAI (constant by definition).
+ */
 template< typename TimeType >
 TimeType getTTMinusTai( );
 
