@@ -6,10 +6,10 @@ extern "C"
     #include "sofa/src/sofa.h"
     #include "sofa/src/sofam.h"
 }
+
 #include <vector>
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
 #include "Tudat/External/SofaInterface/sofaTimeConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"

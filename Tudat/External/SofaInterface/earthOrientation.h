@@ -8,7 +8,6 @@ extern "C"
 }
 
 #include <map>
-#include <iostream>
 
 #include <Eigen/Core>
 
