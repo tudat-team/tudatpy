@@ -108,15 +108,6 @@ const static double TT_MINUS_TAI_LONG = 32.184L;
 template< typename TimeType >
 TimeType getTTMinusTai( );
 
-
-const static double TT_MINUS_TAI = 32.184;
-
-const static double TT_MINUS_TAI_LONG = static_cast< long double >( 32.184 );
-
-
-template< typename TimeType >
-TimeType getTTMinusTai( );
-
 //! Compute number of seconds since a reference Julian day.
 /*!
  * Computes the number of seconds since a reference Julian day from

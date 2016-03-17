@@ -1,6 +1,4 @@
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
-
 #include "Tudat/External/SofaInterface/fundamentalArguments.h"
 
 namespace tudat

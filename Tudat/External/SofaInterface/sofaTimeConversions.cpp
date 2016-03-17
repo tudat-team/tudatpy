@@ -1,10 +1,7 @@
 
 #include <cmath>
-#include <iostream>
-#include <iomanip>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/External/SofaInterface/sofaTimeConversions.h"
 
