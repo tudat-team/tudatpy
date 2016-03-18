@@ -79,7 +79,7 @@ Eigen::Vector3d transformVector(
 /*!
  * Wrapper function to transform a vector to a different frame from a single transformation function.
  * \param originalVector Vector that is to be transformed to a new frame
- * \param rotation Function transforming a vector to a new frame
+ * \param transformationFunction Function transforming a vector to a new frame
  * \return Vector originalVector, transformed to new frame.
  */
 Eigen::Vector3d transformVector(
@@ -90,7 +90,7 @@ Eigen::Vector3d transformVector(
 /*!
  * Wrapper function to transform a vector to a different frame from a list of transformation function.
  * \param originalVector Vector that is to be transformed to a new frame
- * \param rotation List of transformation function, each of which transforms a vector to a new frame. The functions
+ * \param rotationsList List of transformation function, each of which transforms a vector to a new frame. The functions
  * in this list are called in descending order.
  * \return Vector originalVector, transformed to new frame.
  */

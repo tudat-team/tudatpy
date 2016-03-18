@@ -74,9 +74,9 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-   bodySettings[ "Mars" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
-   bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
-   bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+    bodySettings[ "Mars" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
+    bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
+    bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
 
 
     std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies( bodySettings );
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     }
 
     systemInitialState = getInitialStatesOfBodies(
-                   bodiesToIntegrate, centralBodies, bodyMap, initialEphemerisTime );
+                bodiesToIntegrate, centralBodies, bodyMap, initialEphemerisTime );
 
     // Create new acceleration models and propagation settings.
     AccelerationMap accelerationModelMap2 = createAccelerationModelsMap(
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
         {
             effectiveGravitationalParameter =
                     bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
-                bodyMap.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
+                    bodyMap.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
         }
         else
         {
@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
         {
             effectiveGravitationalParameter =
                     bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) +
-                bodyMap.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
+                    bodyMap.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( );
             centralBodies.push_back( "Earth" );
 
         }
