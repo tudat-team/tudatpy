@@ -88,6 +88,18 @@ const static long double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG = 2443144.5
 template< typename TimeType >
 TimeType getTimeOfTaiSynchronizationJulianDay( );
 
+//! Function to get the synchronization time of TT, TCG, and TCB, in seconds since J2000.
+/*!
+ *  Function to get the synchronization time of TT, TCG, and TCB, in seconds since J2000 (constant by definition).
+ *  \return Synchronization time of TT, TCG, and TCB, in seconds since J2000.
+ */
+template< typename TimeType >
+TimeType getTimeOfTaiSynchronizationSinceJ2000( )
+{
+    return ( getTimeOfTaiSynchronizationJulianDay< TimeType >( ) - getJulianDayOnJ2000< TimeType >( ) ) *
+             physical_constants::getJulianDay< TimeType >( );
+}
+
 //! Difference between TDB and (TT, TCB and TCB) at TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION
 const static double TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION = -6.55E-5;
 
@@ -160,6 +172,8 @@ TimeScalarType convertSecondsSinceEpochToJulianDay(
   * \param calendarHour Hour of the time of this day in hours.
   * \param calendarMinutes Minutes of the time of this day in minutes.
   * \param calendarSeconds Seconds of the time of this day in seconds.
+  * \param referenceJulianDay Reference Julian day (i.e. t=0) for input time.
+  * \return Seconds since referenceJulianDay for input date/time.
   */
 template< typename TimeScalarType = double >
 TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear,
@@ -177,9 +191,11 @@ TimeScalarType convertCalendarDateToJulianDaysSinceEpoch( const int calendarYear
 
     //Compute day fraction
     const TimeScalarType dayFraction =
-            static_cast< TimeScalarType >( calendarHour ) / static_cast< TimeScalarType >( 24.0 ) +
-            static_cast< TimeScalarType >( calendarMinutes ) / static_cast< TimeScalarType >( 24.0 * 60.0 ) +
-            calendarSeconds / static_cast< TimeScalarType >( 24.0 * 3600.0 );
+            static_cast< TimeScalarType >( calendarHour ) /
+            mathematical_constants::getFloatingInteger< TimeScalarType >( 24 )  +
+            static_cast< TimeScalarType >( calendarMinutes ) /
+            mathematical_constants::getFloatingInteger< TimeScalarType >( 24 * 60 ) +
+            calendarSeconds / mathematical_constants::getFloatingInteger< TimeScalarType >( 24 * 3600 );
 
     // Compute Julian day by adding day fraction and subtracting 0.5 to reference to midnight instead of noon..
     return julianDay + dayFraction - mathematical_constants::getFloatingFraction< TimeScalarType >( 1, 2 );
@@ -243,7 +259,8 @@ TimeScalarType convertModifiedJulianDayToJulianDay( const TimeScalarType modifie
 template< typename TimeScalarType = double >
 TimeScalarType convertSecondsSinceEpochToJulianYearsSinceEpoch( const TimeScalarType secondsSinceEpoch )
 {
-    return secondsSinceEpoch / ( physical_constants::JULIAN_DAY * physical_constants::JULIAN_YEAR_IN_DAYS );
+    return secondsSinceEpoch / ( physical_constants::getJulianDay< TimeScalarType >( ) *
+                                 physical_constants::getJulianYearInDays< TimeScalarType >( ) );
 }
 
 //! Function to convert the number of seconds since some reference julian day to a julian century since that epoch.
@@ -340,56 +357,53 @@ double calculateSecondsInCurrentJulianDay( const double julianDay );
  */
 boost::gregorian::date convertYearAndDaysInYearToDate( const int year, const int daysInYear );
 
-template< typename TimeType >
-TimeType doDummyTimeConversion( const TimeType inputTime )
-{
-    return inputTime;
-}
-
 //! Function to convert TCB to TDB times scale
 /*!
  *  Function to convert TCB to TDB times scale, with both input and output referenced to the J2000 reference time.
- *  \param inputTime Input time in TCB scale
+ *  \param tcbTime Input time in TCB scale
  *  \return Converted time in TDB scale
  */
 template< typename TimeType >
-TimeType convertTcbToTdb( const TimeType inputTime )
+TimeType convertTcbToTdb( const TimeType tcbTime )
 {
-    return inputTime + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION - physical_constants::LB_TIME_RATE_TERM_LONG *
-            ( inputTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
+    return tcbTime + getTdbSecondsOffsetAtSynchronization< TimeType >( ) -
+            physical_constants::getLbTimeRateTerm< TimeType >( ) *
+            ( tcbTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
 }
 
 //! Function to convert TDB to TCB times scale
 /*!
  *  Function to convert TDB to TCB times scale, with both input and output referenced to the J2000 reference time.
- *  \param inputTime Input time in TDB scale
+ *  \param tdbTime Input time in TDB scale
  *  \return Converted time in TCB scale
  */
 template< typename TimeType >
-TimeType convertTdbToTcb( const TimeType inputTime )
+TimeType convertTdbToTcb( const TimeType tdbTime )
 {
-    return ( inputTime - TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION - physical_constants::LB_TIME_RATE_TERM_LONG *
+    return ( tdbTime - getTdbSecondsOffsetAtSynchronization< TimeType >( ) -
+             physical_constants::getLbTimeRateTerm< TimeType >( ) *
              getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) ) /
-            ( 1.0L - physical_constants::LB_TIME_RATE_TERM_LONG );
+            ( mathematical_constants::getFloatingInteger< TimeType >( 1 ) -
+              physical_constants::getLbTimeRateTerm< TimeType >( ) );
 }
 
 //! Function to convert TCG to TT times scale
 /*!
  *  Function to convert TCG to TT times scale, with both input and output referenced to the J2000 reference time.
- *  \param inputTime Input time in TCG scale
+ *  \param tcgTime Input time in TCG scale
  *  \return Converted time in TT scale
  */
 template< typename TimeType >
 TimeType convertTcgToTt( const TimeType tcgTime  )
 {
-    return tcgTime - physical_constants::LG_TIME_RATE_TERM_LONG *
+    return tcgTime - physical_constants::getLgTimeRateTerm< TimeType >( ) *
             ( tcgTime - getTimeOfTaiSynchronizationSinceJ2000< TimeType >( ) );
 }
 
 //! Function to convert TT to TCG times scale
 /*!
  *  Function to convert TT to TCG times scale, with both input and output referenced to the J2000 reference time.
- *  \param inputTime Input time in TT scale
+ *  \param ttTime Input time in TT scale
  *  \return Converted time in TCG scale
  */
 template< typename TimeType >
@@ -404,26 +418,26 @@ TimeType convertTtToTcg( const TimeType ttTime  )
 //! Function to convert TAI to TT
 /*!
  *  Function to convert TAI (International Atomic Time) to TT (Terrestrial Time) by adding bias as defined by Sofa.
- *  \param tai Time in TAI
+ *  \param taiTime Time in TAI
  *  \return Time in TT
  */
 template< typename TimeType >
-TimeType convertTAItoTT( const TimeType tai )
+TimeType convertTAItoTT( const TimeType taiTime )
 {
-    return tai + getTTMinusTai< TimeType >( );
+    return taiTime + getTTMinusTai< TimeType >( );
 }
 
 
 //! Function to convert TT to TAI
 /*!
  *  Function to convert TT (Terrestrial Time) to TAI (International Atomic Time) by subtracting bias as defined by Sofa.
- *  \param tt Time in TT
+ *  \param ttTime Time in TT
  *  \return Time in TAI
  */
 template< typename TimeType >
-TimeType convertTTtoTAI( const TimeType tt )
+TimeType convertTTtoTAI( const TimeType ttTime )
 {
-    return tt - getTTMinusTai< TimeType >( );
+    return ttTime - getTTMinusTai< TimeType >( );
 }
 
 //! Perform apprixmate conversion of TT to TDB
