@@ -381,11 +381,99 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
         }
     }
+}
+
+double getBodyMass( const double time )
+{
+    return 1000.0 - 500.0 * ( time / ( 10.0 * 86400.0 ) );
+}
+
+//! Test radiation pressure acceleration
+BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
+{
+    double initialTime = 86400.0;
+
+    using namespace tudat::simulation_setup;
+    using namespace tudat;
+
+    // Load Spice kernels
+    const std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
+
+    // Get settings for celestial bodies
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 );
+    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 );
+
+    // Get settings for vehicle
+    double area = 2.34;
+    double coefficient = 1.2;
+    bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
+            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
+    bodySettings[ "Vehicle" ]->ephemerisSettings =
+            boost::make_shared< KeplerEphemerisSettings >(
+                ( basic_mathematics::Vector6d( ) << 7000.0E3, 0.05, 0.3, 0.0, 0.0, 0.0 ).finished( ),
+                0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( &getBodyMass );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    // Define settings for accelerations
+    SelectedAccelerationMap accelerationSettingsMap;
+    accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
+                boost::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+
+    // Define origin of integration
+    std::map< std::string, std::string > centralBodies;
+    centralBodies[ "Vehicle" ] = "Earth";
+    std::vector< std::string > propagatedBodyList;
+    propagatedBodyList.push_back( "Vehicle" );
+    std::vector< std::string > centralBodyList;
+    centralBodyList.push_back( centralBodies[ "Vehicle" ] );
+
+    // Create accelerations
+    AccelerationMap accelerationsMap = createAccelerationModelsMap(
+                bodyMap, accelerationSettingsMap, centralBodies );
 
 
-    }
+    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >(
+                centralBodyList, accelerationsMap, propagatedBodyList, getInitialStateOfBody(
+                    "Vehicle", centralBodies[ "Vehicle" ], bodyMap, initialTime ) );
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate =
+            createEnvironmentUpdaterSettings< double >( bodyMap, propagatorSettings );
 
-    BOOST_AUTO_TEST_SUITE_END( )
+    BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 3 );
+    BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_transational_state_update ), 1 );
+    BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_transational_state_update ).size( ), 2 );
+    BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( radiation_pressure_interface_update ), 1 );
+    BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( radiation_pressure_interface_update ).size( ), 1 );
+    BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_mass_update ), 1 );
+    BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_mass_update ).size( ), 1 );
+
+
+    boost::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =
+            createEnvironmentUpdaterForDynamicalEquations< double, double >(
+                propagatorSettings, bodyMap );
+}
+
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 4 );
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_transational_state_update ), 1 );
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_transational_state_update ).size( ), 2 );
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_rotational_state_update ), 1 );
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_rotational_state_update ).size( ), 1 );
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( vehicle_flight_conditions_update ), 1 );
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( vehicle_flight_conditions_update ).size( ), 1 );
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_mass_update ), 1 );
+//    BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_mass_update ).size( ), 1 );
+
+
+BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
 } // namespace tudat

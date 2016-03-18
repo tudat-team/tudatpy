@@ -209,15 +209,6 @@ void resetIntegratedEphemerides(
     createAndSetInterpolatorsForEphemerides(
                 bodyMap, bodiesToIntegrate, ephemerisUpdateOrder, equationsOfMotionNumericalSolution,
                                              integrationToEphemerisFrameFunctions );
-
-    // Having set new ephemerides, update body properties depending on ephemerides.
-    for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::const_iterator
-         bodyIterator = bodyMap.begin( );
-         bodyIterator != bodyMap.end( ); bodyIterator++ )
-    {
-        //throw std::runtime_error( "Update of ephemeris dependent quantities not yet implemented" );
-        //bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
-    }
 }
 
 //! Function to determine in which order the ephemerides are to be updated

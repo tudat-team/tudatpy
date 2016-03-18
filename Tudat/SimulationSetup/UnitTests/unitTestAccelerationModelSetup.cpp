@@ -65,6 +65,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
@@ -267,7 +268,11 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     bodyMap[ "Earth" ]->setGravityFieldModel(
                 boost::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     gravitationalParameter, planetaryRadius, cosineCoefficients,
-                    sineCoefficients ) );
+                    sineCoefficients, "IAU_Earth" ) );
+    bodyMap[ "Earth" ]->setRotationalEphemeris(
+                boost::make_shared< ephemerides::SpiceRotationalEphemeris >(
+                    "ECLIPJ2000", "IAU_Earth" ) );
+
 
     // Define settings for acceleration model (spherical harmonic due to Earth up to degree and
     // order 5.
@@ -377,7 +382,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
     // Set vehicle mass
     double bodyMass = 500.0;
-    bodyMap[ "Vehicle" ]->setVehicleMassFunction( boost::lambda::constant( bodyMass ) );
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( boost::lambda::constant( bodyMass ) );
     bodyMap[ "Vehicle" ]->updateMass( testTime );
 
     // Update environment to current time.
@@ -514,7 +519,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         // Set vehicle mass
         double bodyMass = 500.0;
-        bodyMap[ "Vehicle" ]->setVehicleMassFunction( boost::lambda::constant( bodyMass ) );
+        bodyMap[ "Vehicle" ]->setBodyMassFunction( boost::lambda::constant( bodyMass ) );
         bodyMap[ "Vehicle" ]->updateMass( testTime );
 
         // Update flight conditions.
@@ -658,7 +663,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     double bodyMass = 500.0;
 
     // Set vehicle mass
-    bodyMap[ "Vehicle" ]->setVehicleMassFunction( boost::lambda::constant( bodyMass ) );
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( boost::lambda::constant( bodyMass ) );
     bodyMap[ "Vehicle" ]->updateMass( testTime );
 
     // Test aerodynamic coefficients for various cases of independent variables.
