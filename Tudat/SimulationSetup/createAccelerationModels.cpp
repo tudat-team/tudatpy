@@ -169,9 +169,19 @@ createSphericalHarmonicsGravityAcceleration(
         {
             if( rotationalEphemeris == NULL )
             {
-              std::cerr<<"Warning when making spherical harmonic acceleration on body "<<
-                           nameOfBodyUndergoingAcceleration<<", no rotation model found for "<<
-                           nameOfBodyExertingAcceleration<<std::endl;
+                throw std::runtime_error( "Warning when making spherical harmonic acceleration on body " +
+                                          nameOfBodyUndergoingAcceleration + ", no rotation model found for " +
+                                          nameOfBodyExertingAcceleration );
+            }
+
+            if( rotationalEphemeris->getTargetFrameOrientation( ) !=
+                    sphericalHarmonicsGravityField->getFixedReferenceFrame( ) )
+            {
+                throw std::runtime_error( "Warning when making spherical harmonic acceleration on body " +
+                                          nameOfBodyUndergoingAcceleration + ", rotation model found for " +
+                                          nameOfBodyExertingAcceleration + " is incompatible, frames are: " +
+                                          rotationalEphemeris->getTargetFrameOrientation( ) + " and " +
+                                          sphericalHarmonicsGravityField->getFixedReferenceFrame( ) );
             }
 
             boost::function< double( ) > gravitationalParameterFunction;

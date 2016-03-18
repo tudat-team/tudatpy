@@ -44,18 +44,16 @@ public:
      *  harmonic coefficients.
      *  \param nominalSineCoefficients Nominal (i.e. with zero variation) sine spherical harmonic
      *  coefficients.
-     *  \param rotationWrapper Object from which rotation between frame fixed to massive body and
-     *  inertial frame is retrieved.
+     *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
      */
     TimeDependentSphericalHarmonicsGravityField(
             const double gravitationalParameter, const double referenceRadius,
             const Eigen::MatrixXd& nominalCosineCoefficients,
             const Eigen::MatrixXd& nominalSineCoefficients,
-            const boost::function< Eigen::Quaterniond( ) > rotationWrapper =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) ):
+            const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius, nominalCosineCoefficients,
-            nominalSineCoefficients, rotationWrapper ),
+            nominalSineCoefficients, fixedReferenceFrame ),
         nominalSineCoefficients_( nominalSineCoefficients ),
         nominalCosineCoefficients_( nominalCosineCoefficients )
     { }
@@ -71,8 +69,7 @@ public:
      *  coefficients.
      *  \param gravityFieldVariationUpdateSettings Object containing all gravity field variations
      *  and related settings.
-     *  \param rotationWrapper Object from which rotation between frame fixed to massive body
-     *  and inertial frame is retrieved.
+     *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
      */
     TimeDependentSphericalHarmonicsGravityField(
             const double gravitationalParameter, const double referenceRadius,
@@ -80,11 +77,10 @@ public:
             const Eigen::MatrixXd& nominalSineCoefficients,
             const boost::shared_ptr< GravityFieldVariationsSet >
             gravityFieldVariationUpdateSettings,
-            const boost::function< Eigen::Quaterniond( ) > rotationWrapper =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) ):
+            const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius,
-            nominalCosineCoefficients, nominalSineCoefficients, rotationWrapper ),
+            nominalCosineCoefficients, nominalSineCoefficients, fixedReferenceFrame ),
         nominalSineCoefficients_( nominalSineCoefficients ),
         nominalCosineCoefficients_( nominalCosineCoefficients ),
         gravityFieldVariationsSet_( gravityFieldVariationUpdateSettings )

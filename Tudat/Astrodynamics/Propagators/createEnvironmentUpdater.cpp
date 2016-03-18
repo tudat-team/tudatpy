@@ -90,7 +90,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     break;
                 }
                 case body_mass_update:
-                    if( bodyMap.at( updateIterator->second.at( i ) )->getVehicleMassFunction( ) == NULL )
+                    if( bodyMap.at( updateIterator->second.at( i ) )->getBodyMassFunction( ) == NULL )
                     {
                         throw std::runtime_error( "Error when making environment model update settings, no body mass function of body " +
                                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );

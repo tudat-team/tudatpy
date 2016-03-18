@@ -18,6 +18,7 @@
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldModel.h>
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h>
+#include <Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h>
 #include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
@@ -564,40 +565,40 @@ public:
 
 
 
-    //! Function to set the function returning vehicle mass as a function of time
+    //! Function to set the function returning body mass as a function of time
     /*!
-     * Function to set the function returning vehicle mass as a function of time
-     * \param bodyMassFunction Function returning vehicle mass as a function of time
+     * Function to set the function returning body mass as a function of time
+     * \param bodyMassFunction Function returning body mass as a function of time
      */
-    void setVehicleMassFunction( const boost::function< double( const double ) > bodyMassFunction )
+    void setBodyMassFunction( const boost::function< double( const double ) > bodyMassFunction )
     {
         bodyMassFunction_ = bodyMassFunction;
     }
 
-    //! Function to set the vehicle mass as being constant (i.e. time-independent)
+    //! Function to set the body mass as being constant (i.e. time-independent)
     /*!
-     * Function to set the vehicle mass as being constant (i.e. time-independent)
+     * Function to set the body mass as being constant (i.e. time-independent)
      * \param bodyMass New constant body mass
      */
-    void setConstantVehicleMass( const double bodyMass )
+    void setConstantBodyMass( const double bodyMass )
     {
         bodyMassFunction_ = boost::lambda::constant( bodyMass );
         currentMass_ = bodyMass;
     }
 
-    //! Function to get the function returning vehicle mass as a function of time
+    //! Function to get the function returning body mass as a function of time
     /*!
-     * Function to get the function returning vehicle mass as a function of time
-     * \return Function returning vehicle mass as a function of time
+     * Function to get the function returning body mass as a function of time
+     * \return Function returning body mass as a function of time
      */
-    boost::function< double( const double ) > getVehicleMassFunction( )
+    boost::function< double( const double ) > getBodyMassFunction( )
     {
         return bodyMassFunction_;
     }
 
-    //! Function to update the vehicle mass to the current time
+    //! Function to update the body mass to the current time
     /*!
-     * Function to update the vehicle mass to the current time, using the bodyMassFunction_ function
+     * Function to update the body mass to the current time, using the bodyMassFunction_ function
      * \param time Current time
      */
     void updateMass( const double time )
@@ -623,6 +624,16 @@ public:
     }
 
 
+    void updateConstantEphemerisDependentMemberQuantities( )
+    {
+        if( boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                    gravityFieldModel_ ) != NULL )
+        {
+            //std::cerr<<"Error, time. dep. update disabled due to circular dependency"<<std::endl;
+            boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        gravityFieldModel_ )->updateCorrectionFunctions( );
+        }
+    }
 
 protected:
 
@@ -664,7 +675,7 @@ private:
     //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
     double currentMass_;
 
-    //! Function returning vehicle mass as a function of time.
+    //! Function returning body mass as a function of time.
     boost::function< double( const double ) > bodyMassFunction_;
 
 

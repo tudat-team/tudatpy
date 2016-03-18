@@ -113,7 +113,6 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         else
         {
-            std::cerr<<"Warning, spherical harmonic reference frame rotation not found"<<std::endl;
             // Check consistency of cosine and sine coefficients.
             if( ( sphericalHarmonicFieldSettings->getCosineCoefficients( ).rows( ) !=
                   sphericalHarmonicFieldSettings->getSineCoefficients( ).rows( ) ) ||
@@ -135,7 +134,8 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getGravitationalParameter( ),
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
-                                sphericalHarmonicFieldSettings->getSineCoefficients( ) );
+                                sphericalHarmonicFieldSettings->getSineCoefficients( ),
+                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ) );
                 }
                 else
                 {
@@ -150,7 +150,8 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getGravitationalParameter( ),
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
-                                sphericalHarmonicFieldSettings->getSineCoefficients( ) );
+                                sphericalHarmonicFieldSettings->getSineCoefficients( ),
+                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ) );
                 }
 
 

@@ -367,17 +367,10 @@ public:
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
-        // Update body properties that are independent of integrated states.
-        for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::iterator bodyIterator = bodyMap_.begin( );
-             bodyIterator != bodyMap_.end( ); bodyIterator++ )
-        {
-            std::cerr<<( "Error, updateConstantEphemerisIndependentMemberQuantities not set" )<<std::endl;
-            //bodyIterator->second->updateConstantEphemerisIndependentMemberQuantities( );
-        }
 
         equationsOfMotionNumericalSolution_.clear( );
-        dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1 );
 
+        dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1 );
 
         // Integrate equations of motion numerically.
         equationsOfMotionNumericalSolution_ =
@@ -431,10 +424,18 @@ protected:
         // Create and set interpolators for ephemerides
         resetIntegratedStates( equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
 
+
         // Clear numerical solution if so required.
         if( clearNumericalSolutions_ )
         {
             equationsOfMotionNumericalSolution_.clear( );
+        }
+
+        for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::const_iterator
+             bodyIterator = bodyMap_.begin( );
+             bodyIterator != bodyMap_.end( ); bodyIterator++ )
+        {
+            bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
         }
     }
 
