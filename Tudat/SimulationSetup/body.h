@@ -334,7 +334,7 @@ public:
      */
     Eigen::Matrix3d getCurrentRotationMatrixDerivativeToGlobalFrame( )
     {
-        return currentRotationToLocalFrameDerivative_.inverse( );
+        return currentRotationToLocalFrameDerivative_.transpose( );
     }
 
     //! Get current rotation matrix derivative from global to body-fixed frame.
@@ -348,8 +348,6 @@ public:
     {
         return currentRotationToLocalFrameDerivative_;
     }
-
-
 
     //! Function to set the ephemeris of the body.
     /*!
@@ -386,8 +384,6 @@ public:
     {
         ephemerisFrameToBaseFrameLongFunction_ = ephemerisFrameToBaseFrameLongFunction;
     }
-
-
 
     //! Function to set the gravity field of the body.
     /*!

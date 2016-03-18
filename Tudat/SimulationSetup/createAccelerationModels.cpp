@@ -245,7 +245,7 @@ createThirdBodyCentralGravityAccelerationModel(
                 boost::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
                     createCentralGravityAcceleratioModel( centralBody, bodyExertingAcceleration,
                                                           nameOfCentralBody,
-                                                          nameOfBodyExertingAcceleration, 0 ) ) );
+                                                          nameOfBodyExertingAcceleration, 0 ) ), nameOfCentralBody );
 
     return accelerationModelPointer;
 }

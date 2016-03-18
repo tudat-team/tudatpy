@@ -109,7 +109,7 @@ public:
 
     //! Get cartesian state from ephemeris.
     /*!
-     * Returns cartesian state from ephemeris.
+     * Returns cartesian state from ephemeris, as calculated from interpolator_.
      * \param secondsSinceEpoch Seconds since epoch.
      * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Cartesian elements from ephemeris.
@@ -117,6 +117,15 @@ public:
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
             const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
+    //! Get cartesian state from ephemeris (in long double precision).
+    /*!
+     * Returns cartesian state from ephemeris  (in long double precision), as calculated from interpolator_. For
+     * double StateScalarType class template argument, this function returns the double precision interpolated values,
+     * cast to long double. Only for long double StateScalarType argument is this function used to its fullest.
+     * \param secondsSinceEpoch Seconds since epoch.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
+     * \return State in Cartesian elements from ephemeris.
+     */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
             const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 

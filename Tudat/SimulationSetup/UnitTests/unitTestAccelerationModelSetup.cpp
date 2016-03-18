@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
             boost::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
                 boost::bind( &Body::getPosition, bodyMap[ "Sun" ] ),
             spice_interface::getBodyGravitationalParameter( "Jupiter" ),
-            boost::bind( &Body::getPosition, bodyMap[ "Jupiter" ] ) ) );
+            boost::bind( &Body::getPosition, bodyMap[ "Jupiter" ] ) ), "Jupiter" );
 
     // Test equivalence of two acceleration models.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(

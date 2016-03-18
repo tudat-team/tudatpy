@@ -9,6 +9,7 @@
 #include <boost/function.hpp>
 
 #include "Tudat/SimulationSetup/body.h"
+#include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
 
 namespace tudat
@@ -23,8 +24,9 @@ enum EnvironmentModelsToUpdate
     body_transational_state_update = 0,
     body_rotational_state_update = 1,
     body_mass_update = 2,
-    vehicle_flight_conditions_update = 3,
-    radiation_pressure_interface_update = 4,
+    spherical_harmonic_gravity_field_update = 3,
+    vehicle_flight_conditions_update = 4,
+    radiation_pressure_interface_update = 5
 };
 
 //! Class used to update the environment during numerical integration.
@@ -157,6 +159,7 @@ private:
              integratedStateIterator != integratedStatesToSet.end( );
              integratedStateIterator++ )
         {
+
             switch( integratedStateIterator->first )
             {
             case transational_state:
@@ -307,6 +310,31 @@ private:
                                                                  bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
                         break;
                     }
+                    case spherical_harmonic_gravity_field_update:
+                    {
+
+                        // Check if body has time-dependent sh field
+                        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > gravityField =
+                                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >
+                                (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) );
+                        if( gravityField != NULL )
+                        {
+                            updateTimeFunctionList_[ spherical_harmonic_gravity_field_update ].push_back(
+                                        std::make_pair(
+                                            currentBodies.at( i ),
+                                            boost::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::update,
+                                                         gravityField, _1 ) ) );
+                        }
+                        // If no sh field at all, throw eeror.
+                        else if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >
+                                 (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) ) == NULL )
+                        {
+                            throw std::runtime_error( "Request sh update of " + currentBodies.at( i ) +
+                                                      ", but body has no sh model" );
+                        }
+
+                        break;
+                    }
                     case vehicle_flight_conditions_update:
                     {
                         // Check if current body has flight conditions set.
@@ -331,7 +359,8 @@ private:
                     case radiation_pressure_interface_update:
                     {
                         // Get body radiation pressure interface(s) (one per source)
-                        std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > > radiationPressureInterfaces =
+                        std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+                                radiationPressureInterfaces =
                                 bodyList_.at( currentBodies.at( i ) )->getRadiationPressureInterfaces( );
 
                         if( radiationPressureInterfaces.size( ) == 0 )

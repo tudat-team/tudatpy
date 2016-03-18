@@ -42,7 +42,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     if( bodyMap.at( updateIterator->second.at( i ) )->getEphemeris( ) == NULL )
                     {
                         throw std::runtime_error( "Error when making environment model update settings, could not find ephemeris of body " +
-                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                                                  boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                     }
                     break;
                 }
@@ -51,7 +51,19 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     if( bodyMap.at( updateIterator->second.at( i ) )->getRotationalEphemeris( ) == NULL )
                     {
                         throw std::runtime_error( "Error when making environment model update settings, could not find rotational ephemeris of body " +
-                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                                                  boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                    }
+                    break;
+                }
+                case spherical_harmonic_gravity_field_update:
+                {
+                    boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > gravityFieldModel =
+                            boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                                bodyMap.at( updateIterator->second.at( i ) )->getGravityFieldModel( ) );
+                    if( gravityFieldModel == NULL )
+                    {
+                        throw std::runtime_error( "Error when making environment model update settings, could not find spherical harmonic gravity field of body " +
+                                                  boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                     }
                     break;
                 }
@@ -62,18 +74,18 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     if( flightConditions == NULL )
                     {
                         throw std::runtime_error( "Error when making environment model update settings, could not find flight conditions of body " +
-                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                                                  boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                     }
                     break;
                 }
                 case radiation_pressure_interface_update:
                 {
                     std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
-                     radiationPressureInterfaces = bodyMap.at( updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
+                            radiationPressureInterfaces = bodyMap.at( updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
                     if( radiationPressureInterfaces.size( ) == 0 )
                     {
                         throw std::runtime_error( "Error when making environment model update settings, could not find radiation pressure interface of body " +
-                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                                                  boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                     }
                     break;
                 }
@@ -81,7 +93,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     if( bodyMap.at( updateIterator->second.at( i ) )->getVehicleMassFunction( ) == NULL )
                     {
                         throw std::runtime_error( "Error when making environment model update settings, no body mass function of body " +
-                                   boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
+                                                  boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                     }
 
                     break;
@@ -167,6 +179,26 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 // Check acceleration model type and change environment update list accordingly.
                 switch( currentAccelerationModelType )
                 {
+                case central_gravity:
+                    break;
+                case third_body_central_gravity:
+                {
+                    boost::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
+                            boost::dynamic_pointer_cast< gravitation::ThirdBodyCentralGravityAcceleration >(
+                                accelerationModelIterator->second.at( i ) );
+                    if( thirdBodyAcceleration != NULL )
+                    {
+                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                    std::string( "Error, incompatible input (ThirdBodyCentralGravityAcceleration) to" )
+                                    + std::string(  "createTranslationalEquationsOfMotionEnvironmentUpdaterSettings" ) );
+                    }
+                    break;
+                }
                 case aerodynamic:
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                                 accelerationModelIterator->first );
@@ -184,11 +216,34 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 case spherical_harmonic_gravity:
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                                 accelerationModelIterator->first );
-                    break;
-                case third_body_spherical_harmonic_gravity:
-                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 accelerationModelIterator->first );
                     break;
+                case third_body_spherical_harmonic_gravity:
+                {
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                accelerationModelIterator->first );
+
+                    boost::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
+                            thirdBodyAcceleration = boost::dynamic_pointer_cast<
+                            gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
+                                accelerationModelIterator->second.at( i ) );;
+                    if( thirdBodyAcceleration != NULL )
+                    {
+                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                    std::string( "Error, incompatible input (ThirdBodySphericalHarmonicsGravitational" ) +
+                                    std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ") +
+                                    std::string( "EnvironmentUpdaterSettings" ) );
+                    }
+                    break;
+                }
                 default:
                     break;
                 }
@@ -252,6 +307,15 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         if( rotationalEphemeris != NULL )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( bodyIterator->first );
+        }
+
+
+        boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
+                boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >
+                ( bodyIterator->second->getGravityFieldModel( ) );
+        if( gravityField != NULL )
+        {
+            singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back( bodyIterator->first );
         }
 
         singleAccelerationUpdateNeeds[ body_mass_update ].push_back( bodyIterator->first );
