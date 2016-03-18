@@ -65,12 +65,6 @@ BOOST_AUTO_TEST_SUITE( test_Time_Conversions )
 //! Unit test for Julian day to seconds conversion function.
 BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
 {
-
-    double a = TT_MINUS_TAI;
-    long double b = TT_MINUS_TAI_LONG;
-    long double c = 6.969290134E-10L;
-    long double d = 6.969290134E-10;
-    std::cout<<std::setprecision( 19 )<<a<<std::endl<<b<<std::endl<<c<<std::endl<<d<<std::endl;
     // Test conversion from Julian day to seconds since epoch at 0 MJD.
     {
         // Set reference epoch and Julian day for tests.
@@ -331,12 +325,10 @@ BOOST_AUTO_TEST_CASE( testTimeConversions )
     }
 
     {
-        double secondsSinceJ2000Synchronization = ( TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION ) * JULIAN_DAY;
+        double secondsSinceJ2000Synchronization = getTimeOfTaiSynchronizationSinceJ2000< double >( );
 
         double testTcg = convertTtToTcg( secondsSinceJ2000Synchronization );
         double testTt = convertTcgToTt( secondsSinceJ2000Synchronization );
-
-        std::cout<<testTcg - secondsSinceJ2000Synchronization<<" "<<testTt - secondsSinceJ2000Synchronization<<std::endl;
 
         BOOST_CHECK_CLOSE_FRACTION( testTcg, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_CLOSE_FRACTION( testTt, secondsSinceJ2000Synchronization, 5.0 * std::numeric_limits< double >::epsilon( ) );
@@ -407,7 +399,8 @@ BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
                                     secondsSinceModifedJulianDayZero, JULIAN_DAY_AT_0_MJD_LONG ),
                                 5.0 * std::numeric_limits< long double >::epsilon( ) );
 
-    long double secondsSinceJ2000Synchronization = ( TAI_JULIAN_DAY_SINCE_J2000_AT_TIME_SYNCHRONIZATION_LONG ) * JULIAN_DAY_LONG;
+    long double secondsSinceJ2000Synchronization = getTimeOfTaiSynchronizationSinceJ2000< long double >( );
+
 
     long double testTcg = convertTtToTcg< long double >( secondsSinceJ2000Synchronization );
     long double testTt = convertTcgToTt< long double >( secondsSinceJ2000Synchronization );
@@ -426,7 +419,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
     testTcg = convertTtToTcg< long double >( testTime);
     testTt = convertTcgToTt< long double >( testTcg );
 
-    long double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM_LONG / ( 1.0 - LG_TIME_RATE_TERM_LONG);
+    long double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM_LONG / ( 1.0L - LG_TIME_RATE_TERM_LONG);
     BOOST_CHECK_CLOSE_FRACTION( testTcg, expectedTcg, 5.0 * std::numeric_limits< long double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( testTt, testTime, 5.0 * std::numeric_limits< long double >::epsilon( ) );
 
@@ -434,7 +427,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
     testTdb = convertTcbToTdb< long double >( testTime );
     testTcb = convertTdbToTcb< long double >( testTdb );
 
-    long double expectedTdb = secondsSinceJ2000Synchronization * LB_TIME_RATE_TERM + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION;
+    long double expectedTdb = secondsSinceJ2000Synchronization * LB_TIME_RATE_TERM_LONG + TDB_SECONDS_OFFSET_AT_SYNCHRONIZATION_LONG;
 
     BOOST_CHECK_CLOSE_FRACTION( testTdb, expectedTdb, 5.0 * std::numeric_limits< long double >::epsilon( ) );
     BOOST_CHECK_SMALL( testTcb, 5.0 * std::numeric_limits< long double >::epsilon( ) );
