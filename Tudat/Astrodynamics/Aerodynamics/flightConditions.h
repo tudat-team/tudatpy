@@ -102,6 +102,15 @@ public:
         return currentAirspeed_;
     }
 
+    //! Function to return the current time of the FlightConditions
+    /*!
+     *  Function to return the current time of the FlightConditions.
+     *  \return Current time of the FlightConditions
+     */
+    double getCurrentTime( ) const
+    {
+        return currentTime_;
+    }
     //! Function to return atmosphere model object
     /*!
      *  Function to return atmosphere model object
@@ -168,9 +177,6 @@ private:
     //! co-rotating) frame.
     boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
     transformationToCentralBodyFrame_;
-
-    //! Function returning the current time.
-    boost::function< double( ) > currentTimeFunction_;
 
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;

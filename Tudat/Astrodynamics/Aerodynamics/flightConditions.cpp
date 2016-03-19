@@ -30,7 +30,8 @@ FlightConditions::FlightConditions(
     stateOfCentralBody_( stateOfCentralBody ),
     transformationToCentralBodyFrame_( transformationToCentralBodyFrame ),
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
-    aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
+    aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),currentAltitude_( TUDAT_NAN ),
+    currentLatitude_( TUDAT_NAN ), currentLongitude_( TUDAT_NAN ), currentTime_( TUDAT_NAN )
 {
     updateLatitudeAndLongitude_ = 0;
 
