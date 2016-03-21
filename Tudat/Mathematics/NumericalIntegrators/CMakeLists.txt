@@ -82,6 +82,10 @@ add_executable(test_RungeKuttaFehlberg45Integrator "${SRCROOT}${MATHEMATICSDIR}/
 setup_custom_test_program(test_RungeKuttaFehlberg45Integrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
 target_link_libraries(test_RungeKuttaFehlberg45Integrator tudat_numerical_integrators tudat_input_output ${Boost_LIBRARIES})
 
+add_executable(test_RungeKuttaFehlberg56Integrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/unitTestRungeKuttaFehlberg56Integrator.cpp")
+setup_custom_test_program(test_RungeKuttaFehlberg56Integrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
+target_link_libraries(test_RungeKuttaFehlberg56Integrator tudat_numerical_integrators tudat_input_output ${Boost_LIBRARIES})
+
 add_executable(test_RungeKuttaFehlberg78Integrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators/UnitTests/unitTestRungeKuttaFehlberg78Integrator.cpp")
 setup_custom_test_program(test_RungeKuttaFehlberg78Integrator "${SRCROOT}${MATHEMATICSDIR}/NumericalIntegrators")
 target_link_libraries(test_RungeKuttaFehlberg78Integrator tudat_numerical_integrators tudat_input_output ${Boost_LIBRARIES})
