@@ -197,7 +197,7 @@ endif()
 #
 # NRLMSISE-00
 #
-# Set whether to use the SPICE library integration with Tudat or not. If it not supplied by the
+# Set whether to use the NRLMSISE-00 library integration with Tudat or not. If it not supplied by the
 # user (either directly as an argument or through the "UserSettings.txt" file, the default setting
 # is "OFF".
 option(USE_NRLMSISE00 "build Tudat with NRLMSISE-00 enabled" OFF)
