@@ -68,6 +68,8 @@
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
+#include <math.h>
+
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 #include "Tudat/Mathematics/NumericalIntegrators/UnitTests/numericalIntegratorTestFunctions.h"
@@ -86,7 +88,52 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_fehlberg_56_integrator )
 
+Eigen::Vector2d FehlbergLogirithmicTestDifferentialEquation( double x, Eigen::Vector2d state){
+    Eigen::Vector2d stateDerivative;
+    stateDerivative( 0 ) = -2*x*state(0)*log(state(1));
+    stateDerivative( 1 ) =  2*x*state(1)*log(state(0));
+    return stateDerivative;
+}
+
 using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
+
+//! Test Compare with Runge Kutta 78
+BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Fehlberg_Benchmark )
+{
+    tudat::numerical_integrators::RungeKuttaCoefficients coeff56 =
+            tudat::numerical_integrators::RungeKuttaCoefficients::get(
+                tudat::numerical_integrators::RungeKuttaCoefficients::rungeKuttaFehlberg56) ;
+
+    // Integrator settings
+    double minimumStepSize   = std::numeric_limits<double>::epsilon() ;
+    double maximumStepSize   = std::numeric_limits<double>::infinity() ;
+    double initialStepSize   = 1E-16;
+    double relativeTolerance = 1E-16;
+    double absoluteTolerance = 1E-16;
+
+    // Initial conditions
+    double initialTime = 0.0;
+    double finalTime   = 5.0;
+    Eigen::Vector2d initialState(exp(1.0), 1.0);
+
+    // Setup integrator
+    tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator56(
+                coeff56, boost::bind(FehlbergLogirithmicTestDifferentialEquation,_1,_2), 
+                initialTime , initialState, minimumStepSize,
+                maximumStepSize, relativeTolerance, absoluteTolerance );
+
+    double finalTimeSquared = finalTime * finalTime;
+
+    Eigen::Vector2d numSol = integrator56.integrateTo(finalTime, initialStepSize);
+    Eigen::Vector2d anaSol(exp(cos(finalTimeSquared)), exp(sin(finalTimeSquared)));
+
+    Eigen::Vector2d computedDifference = numSol - anaSol;
+    std::cout << computedDifference << std::endl;
+   // std::cout << solution56 << std::endl;
+//    BOOST_CHECK_SMALL( std::fabs(Difference(0)) , 1E-14 ) ;
+
+}
+
 
 //! Test Compare with Runge Kutta 78
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Compare78 )
