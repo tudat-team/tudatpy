@@ -37,6 +37,7 @@
 #define TUDAT_NUMERICAL_INTEGRATOR_TEST_FUNCTIONS_H
 
 #include <cmath>
+#include <math.h>
 
 #include <Eigen/Core>
 
@@ -106,6 +107,71 @@ static inline Eigen::VectorXd computeVanDerPolStateDerivative( const double time
 
     // Return computed state derivative.
     return vanDerPolStateDerivative;
+}
+
+//! Computes state derivative of a Logarithmic 2-dimensional ODE
+/*!
+ * Computes the state derivative of a 2-dimensional ODE that is autonomous and includes log functions.
+ * This function is used by Fehlberg for testing the RK5(6) integrator and has an analytical solution.
+ *
+ * \f{eqnarray*}{
+ *      \frac{ dx }{ dt }( 0 ) &=& -2 * t * x( 0 ) * log( x(1) ) \\
+ *      \frac{ dx }{ dt }( 0 ) &=&  2 * t * x( 1 ) * log( x(0) ) \\
+ * \f}
+ *
+ * Reference:   Fehlberg, E. (1968). Classical Fifth-, Sixth-, Seventh- and Eigth-Order Runge-Kutta Formalas with Stepsize Control
+ *              page 30
+ *
+ * \param time Time at which the state derivative needs to be evaluated.
+ * \param state State at which the state derivative needs to be evaluated.
+ * \return Computed state derivative.
+ */
+static inline Eigen::VectorXd computeFehlbergLogirithmicTestODEStateDerivative( const double time,
+                                                                                const Eigen::VectorXd& state){
+    // Declare state derivative vector
+    Eigen::VectorXd stateDerivative( state.rows() );
+
+    // Compute state derivative
+    stateDerivative( 0 ) = -2.0 * time * state(0) * std::log( state(1) );
+    stateDerivative( 1 ) =  2.0 * time * state(1) * std::log( state(0) );
+
+    // Return computed state derivative.
+    return stateDerivative;
+}
+
+//! Computes the analytical solution of the state for the Logarithmic test ODE of Fehlberg
+/*!
+ * Analytical solution:
+ * \f{eqnarray*}{
+ *      x(0) = exp( cos( t^{2} ) ) \\
+ *      x(1) = exp( sin( t^{2} ) ) \\
+ * \f}
+ *
+ * with initial conditions:
+ * \f{eqnarray*}{
+ *      x_{0}(0) = exp(1) \\
+ *      x_{0}(1) = 1
+ * \f}
+ *
+ * Reference:   Fehlberg, E. (1968). Classical Fifth-, Sixth-, Seventh- and Eigth-Order Runge-Kutta Formalas with Stepsize Control
+ *              page 30
+ *
+ * \param time Time at which the state derivative needs to be evaluated.
+ * \param initialState State at which the state derivative needs to be evaluated.
+ * \return Computed state.
+ */
+
+static inline Eigen::VectorXd computeAnalyticalStateFehlbergODE( const double time,
+                                                                 const Eigen::VectorXd& initialState){
+    // Declare state derivative vector
+    Eigen::VectorXd state( initialState.rows() );
+
+    // Compute state derivative
+    state(0) = exp( cos( pow(time,2.0) ) ) ; // x(0) = exp( cos( t^{2} ) )
+    state(1) = exp( sin( pow(time,2.0) ) ) ; // x(1) = exp( sin( t^{2} ) )
+
+    // Return computed state derivative.
+    return state;
 }
 
 //! Compute non-autonomous model state derivative.
