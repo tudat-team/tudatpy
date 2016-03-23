@@ -90,7 +90,7 @@ using numerical_integrator_test_functions::computeVanDerPolStateDerivative ;
 using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative ;
 using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE ;
 
-//! Compare with analytical solution
+//! Compare with analytical solution of Fehlberg
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Fehlberg_Benchmark )
 {
     tudat::numerical_integrators::RungeKuttaCoefficients coeff56 =
@@ -132,8 +132,8 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Fehlberg_Benchmark )
     Eigen::VectorXd FehlbergError(2) ;
     FehlbergError << 0.1072E-12 , -0.2190E-12 ;
 
-    // sign check -> same sign -> positive
-    // Not always same sign -> initial step size = 1 or 1E-2, failure computedError(1)/FehlbergError(1)
+    // sign check
+    // Not always same sign -> initial step size = 1 or 1E-2, failure: computedError(1) , FehlbergError(1) not same sign
     BOOST_CHECK_GE(computedError(0)/FehlbergError(0) ,0.0);
     BOOST_CHECK_GE(computedError(1)/FehlbergError(1) ,0.0);
 
