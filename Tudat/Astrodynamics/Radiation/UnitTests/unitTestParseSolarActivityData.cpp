@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
+/*    Copyright (c) 2010-2016, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -25,6 +25,7 @@
  *    Changelog
  *      YYMMDD    Author            Comment
  *      120701    A. Ronse          Creation of code.
+ *      160324    R. Hoogendoorn    Update for use in current version of Tudat
  *
  *    References
  *      Data source for validation figures:
@@ -49,7 +50,7 @@
 #include "Tudat/Astrodynamics/Radiation/solarActivityData.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
-#include <TudatCore/Basics/testMacros.h>
+#include <tudat/Basics/testMacros.h>
 
 namespace tudat
 {
@@ -67,10 +68,19 @@ tudat::radiation::solar_activity::ParseSolarActivityData solarActivityParser;
 tudat::radiation::solar_activity::ExtractSolarActivityData solarActivityExtractor;
 
 // Parse file
-std::string fileName = tudat::input_output::getTudatRootPath( ) +
-                       "Astrodynamics/Radiation/UnitTests/testSolarActivity.txt";
+// save path of cpp file
+std::string cppPath( __FILE__ );
+
+// Strip filename from temporary string and return root-path string.
+std::string folder = cppPath.substr( 0, cppPath.find_last_of("/\\")+1);
+std::string filePath = folder + "testSolarActivity.txt" ;
+//std::string fileName = tudat::input_output::getTudatRootPath( ) +
+//                       "Astrodynamics/Radiation/UnitTests/testSolarActivity.txt";
+
+// Open dataFile
 std::ifstream dataFile;
-dataFile.open(fileName.c_str(), std::ifstream::in);
+//dataFile.open(fileName.c_str(), std::ifstream::in);
+dataFile.open(filePath.c_str(), std::ifstream::in);
 parsedDataVectorPtr = solarActivityParser.parse( dataFile );
 dataFile.close();
 
