@@ -27,6 +27,7 @@
  #      110820    S.M. Persson      File created.
  #      111025    K. Kumar          Adapted file to work with Revision 194.
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
+ #      160323    R. Hoogendoorn    Copied code of A. Ronse
  #
 
 # Set the source files.
@@ -48,6 +49,6 @@ add_library(tudat_radiation STATIC ${RADIATION_SOURCES} ${RADIATION_HEADERS})
 setup_tudat_library_target(tudat_radiation "${SRCROOT}{RADIATIONDIR}")
 
 # Add unit tests.
-#add_executable(test_ParseSolarActivityData "${SRCROOT}${RADIATIONDIR}/UnitTests/unitTestParseSolarActivityData.cpp")
-#setup_custom_test_program(test_ParseSolarActivityData "${SRCROOT}${RADIATIONDIR}")
-#target_link_libraries(test_ParseSolarActivityData tudat_radiation tudat_input_output ${Boost_LIBRARIES})
+add_executable(test_ParseSolarActivityData "${SRCROOT}${RADIATIONDIR}/UnitTests/unitTestParseSolarActivityData.cpp")
+setup_custom_test_program(test_ParseSolarActivityData "${SRCROOT}${RADIATIONDIR}")
+target_link_libraries(test_ParseSolarActivityData tudat_radiation tudat_input_output ${Boost_LIBRARIES})
