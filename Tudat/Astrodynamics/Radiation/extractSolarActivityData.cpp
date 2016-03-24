@@ -89,11 +89,11 @@ boost::shared_ptr<SolarActivityData> ExtractSolarActivityData::extract(
              data, centered81DaySolarRadioFlux107Observed);
      solarActivityContainer->last81DaySolarRadioFlux107Observed = getField<double>(
              data, last81DaySolarRadioFlux107Observed);
-     //solarActivityContainer->dataType = getField<unsigned int>(data, datatype);
+     solarActivityContainer->dataType = getField<unsigned int>(data, datatype);
 
 
      // Make sure only non-empty fields are extracted
-     if (!data->find( planetaryRangeIndex0to3 )->second->getRaw( )->empty( ) )
+     if (!data->find( planetaryRangeIndex0to3 )->second->getRaw( ).empty( ) ) // check if string is empty
      {
          solarActivityContainer->planetaryRangeIndexSum = getField<unsigned int>(
                  data, planetaryRangeIndexSum);
