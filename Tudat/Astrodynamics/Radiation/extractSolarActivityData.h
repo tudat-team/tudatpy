@@ -27,6 +27,11 @@
  *      120607    A. Ronse          Creation of code.
  *
  *    References
+ *      Data file:
+ *                        http://celestrak.com/SpaceData/sw19571001.txt
+ *                        http://celestrak.com/SpaceData/sw20110101.txt
+ *      Data format explanation:
+ *                        http://celestrak.com/SpaceData/SpaceWx-format.asp
  *
  */
 
