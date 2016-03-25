@@ -51,7 +51,7 @@
 
 namespace tudat
 {
-namespace radiation
+namespace input_output
 {
 namespace solar_activity
 {
@@ -198,7 +198,7 @@ typedef std::map< double , SolarActivityDataPtr >  SolarActivityDataMap ;
 SolarActivityDataMap readSolarActivityData(std::string filePath) ;
 
 } // namespace solar_activity
-} // namespace radiation
+} // namespace input_output
 } // namespace tudat
 
 #endif //TUDAT_SOLAR_ACTIVITY_DATA_H
