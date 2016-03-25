@@ -49,6 +49,6 @@ add_library(tudat_radiation STATIC ${RADIATION_SOURCES} ${RADIATION_HEADERS})
 setup_tudat_library_target(tudat_radiation "${SRCROOT}{RADIATIONDIR}")
 
 # Add unit tests.
-add_executable(test_ParseSolarActivityData "${SRCROOT}${RADIATIONDIR}/UnitTests/unitTestParseSolarActivityData.cpp")
-setup_custom_test_program(test_ParseSolarActivityData "${SRCROOT}${RADIATIONDIR}")
-target_link_libraries(test_ParseSolarActivityData tudat_radiation tudat_input_output ${Boost_LIBRARIES})
+add_executable(test_SolarActivityData "${SRCROOT}${RADIATIONDIR}/UnitTests/unitTestSolarActivityData.cpp")
+setup_custom_test_program(test_SolarActivityData "${SRCROOT}${RADIATIONDIR}")
+target_link_libraries(test_SolarActivityData tudat_radiation tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})

@@ -38,6 +38,7 @@
 #include <istream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/test/unit_test.hpp>
@@ -74,12 +75,9 @@ std::string cppPath( __FILE__ );
 // Strip filename from temporary string and return root-path string.
 std::string folder = cppPath.substr( 0, cppPath.find_last_of("/\\")+1);
 std::string filePath = folder + "testSolarActivity.txt" ;
-//std::string fileName = tudat::input_output::getTudatRootPath( ) +
-//                       "Astrodynamics/Radiation/UnitTests/testSolarActivity.txt";
 
 // Open dataFile
 std::ifstream dataFile;
-//dataFile.open(fileName.c_str(), std::ifstream::in);
 dataFile.open(filePath.c_str(), std::ifstream::in);
 parsedDataVectorPtr = solarActivityParser.parse( dataFile );
 dataFile.close();
@@ -116,6 +114,73 @@ TUDAT_CHECK_MATRIX_CLOSE(  solarActivityData[4]->planetaryEquivalentAmplitudeVec
                     correctPlanetaryEquivalentAmplitudeVector2 , 0);
 TUDAT_CHECK_MATRIX_CLOSE(  solarActivityData[5]->planetaryEquivalentAmplitudeVector,
                     correctPlanetaryEquivalentAmplitudeVector2, 0 );
+}
+
+BOOST_AUTO_TEST_CASE( test_function_readSolarActivityData ){
+    using tudat::radiation::solar_activity::SolarActivityDataMap ;
+    using tudat::radiation::solar_activity::SolarActivityData ;
+
+    // Parse file
+    // save path of cpp file
+    std::string cppPath( __FILE__ );
+
+    // Strip filename from temporary string and return root-path string.
+    std::string folder = cppPath.substr( 0, cppPath.find_last_of("/\\")+1);
+    std::string filePath = folder + "testSolarActivity.txt" ;
+
+    SolarActivityDataMap SolarActivity = tudat::radiation::solar_activity::readSolarActivityData(filePath) ;
+
+    double JulianDate ;
+    JulianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
+                1957,
+                10,
+                3,
+                0, 0, 0.0) ;
+
+    SolarActivityDataMap::iterator it;
+    it = SolarActivity.find(JulianDate) ;
+
+    BOOST_CHECK_EQUAL(  it->second->day , 3 );
+    BOOST_CHECK_EQUAL(  it->second->centered81DaySolarRadioFlux107Observed , 268.1 ) ;
+    BOOST_CHECK_EQUAL(  it->second->planetaryEquivalentAmplitudeAverage , 19 ) ;
+    BOOST_CHECK_EQUAL(  it->second->planetaryRangeIndexSum , 250 ) ;
+
+    JulianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
+                2023,
+                1,
+                1,
+                0, 0, 0.0) ;
+
+    it = SolarActivity.find(JulianDate) ;
+
+    BOOST_CHECK_EQUAL(  it->second->day , 1 );
+    BOOST_CHECK_EQUAL(  it->second->bartelsSolarRotationNumber , 2583 ) ;
+    BOOST_CHECK_EQUAL(  it->second->centered81DaySolarRadioFlux107Observed , 0.0 ) ;
+    BOOST_CHECK_EQUAL(  it->second->last81DaySolarRadioFlux107Adjusted , 0.0 ) ;
+    BOOST_CHECK_EQUAL(  it->second->planetaryEquivalentAmplitudeAverage , 0.0 ) ;
+    BOOST_CHECK_EQUAL(  it->second->planetaryRangeIndexSum , 0.0 ) ;
+
+    std::string filePath2 = folder + "sw19571001.txt" ;
+
+    SolarActivityDataMap SolarActivity2 = tudat::radiation::solar_activity::readSolarActivityData(filePath2) ;
+
+    JulianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
+                1993,
+                12,
+                11,
+                0, 0, 0.0) ;
+
+    it = SolarActivity2.find(JulianDate) ;
+
+    BOOST_CHECK_EQUAL(  it->second->day , 11 );
+    BOOST_CHECK_EQUAL(  it->second->bartelsSolarRotationNumber , 2190 ) ;
+    BOOST_CHECK_EQUAL(  it->second->centered81DaySolarRadioFlux107Observed , 104.0 ) ;
+    BOOST_CHECK_EQUAL(  it->second->last81DaySolarRadioFlux107Adjusted , 97.6 ) ;
+    BOOST_CHECK_EQUAL(  it->second->planetaryEquivalentAmplitudeAverage , 7 ) ;
+    BOOST_CHECK_EQUAL(  it->second->planetaryRangeIndexSum , 143 ) ;
+    BOOST_CHECK_EQUAL(  it->second->planetaryDailyCharacterFigure , 0.4 ) ;
+    BOOST_CHECK_EQUAL(  it->second->planetaryDailyCharacterFigureConverted , 2 ) ;
+    BOOST_CHECK_EQUAL(  it->second->internationalSunspotNumber , 31 ) ;
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
