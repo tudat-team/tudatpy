@@ -34,7 +34,7 @@
  *
  */
 
-#include "Tudat/Astrodynamics/Radiation/parseSolarActivityData.h"
+#include "Tudat/InputOutput/parseSolarActivityData.h"
 #include "Tudat/InputOutput/fixedWidthParser.h"
 
 #include <vector>
@@ -43,7 +43,7 @@
 
 namespace tudat
 {
-namespace radiation
+namespace input_output
 {
 namespace solar_activity
 {
@@ -145,5 +145,5 @@ void ParseSolarActivityData::parseStream( std::istream& fileContent)
 }
 
 }   // namespace solar_activity
-}   // namespace radiation
+}   // namespace input_output
 }   // namespace tudat

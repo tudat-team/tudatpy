@@ -127,7 +127,7 @@ namespace time
 }   // field_types
 }   // input_output
 
-namespace radiation
+namespace input_output
 {
 namespace solar_activity
 {
@@ -162,7 +162,7 @@ private:
 };
 
 } // namespace solar_activity
-} // namespace radiation
+} // namespace input_output
 } // namerspace tudat
 
 #endif // TUDAT_PARSESOLARACTIVITY_H

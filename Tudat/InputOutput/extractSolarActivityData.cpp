@@ -35,8 +35,8 @@
  *
  */
 
-#include "Tudat/Astrodynamics/Radiation/extractSolarActivityData.h"
-#include "Tudat/Astrodynamics/Radiation/parseSolarActivityData.h"  // For the FieldTypes
+#include "Tudat/InputOutput/extractSolarActivityData.h"
+#include "Tudat/InputOutput/parseSolarActivityData.h"  // For the FieldTypes
 
 
 using namespace tudat::input_output::parsed_data_vector_utilities;
@@ -45,7 +45,7 @@ using namespace tudat::input_output::field_types::time;
 
 namespace tudat
 {
-namespace radiation
+namespace input_output
 {
 namespace solar_activity
 {
@@ -148,5 +148,5 @@ boost::shared_ptr<SolarActivityData> ExtractSolarActivityData::extract(
 }
 
 } // namespace solar_activity
-} // namespace radiation
+} // namespace input_output
 } // namespace tudat

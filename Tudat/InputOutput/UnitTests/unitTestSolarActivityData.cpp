@@ -46,9 +46,9 @@
 #include <Eigen/Core>
 
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
-#include "Tudat/Astrodynamics/Radiation/parseSolarActivityData.h"
-#include "Tudat/Astrodynamics/Radiation/extractSolarActivityData.h"
-#include "Tudat/Astrodynamics/Radiation/solarActivityData.h"
+#include "Tudat/InputOutput/parseSolarActivityData.h"
+#include "Tudat/InputOutput/extractSolarActivityData.h"
+#include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 #include <tudat/Basics/testMacros.h>
@@ -65,8 +65,8 @@ BOOST_AUTO_TEST_CASE( test_parsing_and_extraction )
 {
 tudat::input_output::parsed_data_vector_utilities::ParsedDataVectorPtr parsedDataVectorPtr;
 
-tudat::radiation::solar_activity::ParseSolarActivityData solarActivityParser;
-tudat::radiation::solar_activity::ExtractSolarActivityData solarActivityExtractor;
+tudat::input_output::solar_activity::ParseSolarActivityData solarActivityParser;
+tudat::input_output::solar_activity::ExtractSolarActivityData solarActivityExtractor;
 
 // Parse file
 // save path of cpp file
@@ -83,7 +83,7 @@ parsedDataVectorPtr = solarActivityParser.parse( dataFile );
 dataFile.close();
 
 // Extract data to object of solarActivityData class
-std::vector< boost::shared_ptr<tudat::radiation::solar_activity::SolarActivityData> >
+std::vector< boost::shared_ptr<tudat::input_output::solar_activity::SolarActivityData> >
         solarActivityData( 6 );
 solarActivityData[0] = solarActivityExtractor.extract( parsedDataVectorPtr->at( 0 ) );
 solarActivityData[1] = solarActivityExtractor.extract( parsedDataVectorPtr->at( 3 ) );
@@ -117,8 +117,8 @@ TUDAT_CHECK_MATRIX_CLOSE(  solarActivityData[5]->planetaryEquivalentAmplitudeVec
 }
 
 BOOST_AUTO_TEST_CASE( test_function_readSolarActivityData ){
-    using tudat::radiation::solar_activity::SolarActivityDataMap ;
-    using tudat::radiation::solar_activity::SolarActivityData ;
+    using tudat::input_output::solar_activity::SolarActivityDataMap ;
+    using tudat::input_output::solar_activity::SolarActivityData ;
 
     // Parse file
     // save path of cpp file
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( test_function_readSolarActivityData ){
     std::string folder = cppPath.substr( 0, cppPath.find_last_of("/\\")+1);
     std::string filePath = folder + "testSolarActivity.txt" ;
 
-    SolarActivityDataMap SolarActivity = tudat::radiation::solar_activity::readSolarActivityData(filePath) ;
+    SolarActivityDataMap SolarActivity = tudat::input_output::solar_activity::readSolarActivityData(filePath) ;
 
     double JulianDate ;
     JulianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( test_function_readSolarActivityData ){
 
     std::string filePath2 = folder + "sw19571001.txt" ;
 
-    SolarActivityDataMap SolarActivity2 = tudat::radiation::solar_activity::readSolarActivityData(filePath2) ;
+    SolarActivityDataMap SolarActivity2 = tudat::input_output::solar_activity::readSolarActivityData(filePath2) ;
 
     JulianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
                 1993,

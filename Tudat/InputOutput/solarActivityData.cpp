@@ -41,17 +41,18 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Tudat/Astrodynamics/Radiation/solarActivityData.h"
+#include "tudat/InputOutput/solarActivityData.h"
+#include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
-#include "Tudat/Astrodynamics/Radiation/parseSolarActivityData.h"
-#include "Tudat/Astrodynamics/Radiation/extractSolarActivityData.h"
+#include "Tudat/InputOutput/parseSolarActivityData.h"
+#include "Tudat/InputOutput/extractSolarActivityData.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 #include <tudat/Basics/testMacros.h>
 
 namespace tudat
 {
-namespace radiation
+namespace input_output
 {
 namespace solar_activity
 {
@@ -116,12 +117,11 @@ std::ostream& operator<<( std::ostream& stream,
 //! This function reads a SpaceWeather data file and returns a map with SolarActivityData
 SolarActivityDataMap readSolarActivityData(std::string filePath){
     // Data Vector container
-//    using tudat::radiation::solar_activity::SolarActivityDataPtr;
     tudat::input_output::parsed_data_vector_utilities::ParsedDataVectorPtr parsedDataVectorPtr;
 
     // datafile Parser and Extractor
-    tudat::radiation::solar_activity::ParseSolarActivityData solarActivityParser;
-    tudat::radiation::solar_activity::ExtractSolarActivityData solarActivityExtractor;
+    tudat::input_output::solar_activity::ParseSolarActivityData solarActivityParser;
+    tudat::input_output::solar_activity::ExtractSolarActivityData solarActivityExtractor;
 
 
     // Open dataFile and Parse
@@ -133,8 +133,6 @@ SolarActivityDataMap readSolarActivityData(std::string filePath){
     int numberOfLines = parsedDataVectorPtr->size() ;
     SolarActivityDataMap DataMap ;
     double JulianDate ;
-
-//    SolarActivityDataPtr SolarData ;
 
     // Save each line to datamap
     for(int i = 0 ; i < numberOfLines ; i++ ){
@@ -151,5 +149,5 @@ SolarActivityDataMap readSolarActivityData(std::string filePath){
 }
 
 } // solar_activity
-} // radiation
+} // input_output
 } // tudat
