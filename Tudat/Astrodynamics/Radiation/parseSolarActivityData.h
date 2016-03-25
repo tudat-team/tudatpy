@@ -113,7 +113,7 @@ namespace solar_activity
             "Solar: Centered_81_Day_Solar_Radio_Flux_10.7_Observed" );
     static const FieldType last81DaySolarRadioFlux107Observed = hash_constructor(
             "Solar: Last_81_Day_Solar_Radio_Flux_10.7_Observed" );
-    static const FieldType datatype = hash_constructor( "Data: type");
+    static const FieldType dataType = hash_constructor( "Data: type");
 
 }   // solar_activity
 

@@ -94,7 +94,7 @@ boost::shared_ptr<SolarActivityData> ExtractSolarActivityData::extract(
              data, centered81DaySolarRadioFlux107Observed);
      solarActivityContainer->last81DaySolarRadioFlux107Observed = getField<double>(
              data, last81DaySolarRadioFlux107Observed);
-     solarActivityContainer->dataType = getField<unsigned int>(data, datatype);
+     solarActivityContainer->dataType = getField<unsigned int>(data, dataType);
 
 
      // Make sure only non-empty fields are extracted
@@ -126,24 +126,24 @@ boost::shared_ptr<SolarActivityData> ExtractSolarActivityData::extract(
          getField<unsigned int>( data, planetaryEquivalentAmplitude21to24 );
      }
 
-  //   if ( !data->find( planetaryDailyCharacterFigure )->second->getRaw( )->empty( ) )
-  //   {
-  //       solarActivityContainer->planetaryDailyCharacterFigure = getField<double>(
-  //               data, planetaryDailyCharacterFigure);
-  //       solarActivityContainer->planetaryDailyCharacterFigureConverted = getField<unsigned int>(
-  //               data, planetaryDailyCharacterFigureConverted);
-  //   }
-  //
-  //   if  ( !data->find( internationalSunspotNumber )->second->getRaw( )->empty( ) )
- //    {
- //        solarActivityContainer->internationalSunspotNumber = getField<unsigned int>(
- //                data, internationalSunspotNumber);
- //    }
+     if ( !data->find( planetaryDailyCharacterFigure )->second->getRaw( ).empty( ) )
+     {
+         solarActivityContainer->planetaryDailyCharacterFigure = getField<double>(
+                 data, planetaryDailyCharacterFigure);
+         solarActivityContainer->planetaryDailyCharacterFigureConverted = getField<unsigned int>(
+                 data, planetaryDailyCharacterFigureConverted);
+     }
 
- //    if ( !data->find( fluxQualifier )->second->getRaw( )->empty( ) )
- //   {
- //        solarActivityContainer->fluxQualifier = getField<unsigned int>(data, fluxQualifier);
- //    }
+     if  ( !data->find( internationalSunspotNumber )->second->getRaw( ).empty( ) )
+     {
+         solarActivityContainer->internationalSunspotNumber = getField<unsigned int>(
+                 data, internationalSunspotNumber);
+     }
+
+     if ( !data->find( fluxQualifier )->second->getRaw( ).empty( ) )
+     {
+         solarActivityContainer->fluxQualifier = getField<unsigned int>(data, fluxQualifier);
+     }
      return solarActivityContainer;
 }
 
