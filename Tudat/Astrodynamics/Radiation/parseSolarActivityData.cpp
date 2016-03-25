@@ -68,45 +68,45 @@ void ParseSolarActivityData::parseStream( std::istream& fileContent)
             planetaryDailyCharacterFigureConverted, internationalSunspotNumber,
             solarRadioFlux107Adjusted, fluxQualifier, centered81DaySolarRadioFlux107Adjusted,
             last81DaySolarRadioFlux107Adjusted, solarRadioFlux107Observed,
-            centered81DaySolarRadioFlux107Observed, last81DaySolarRadioFlux107Observed, datatype,
+            centered81DaySolarRadioFlux107Observed, last81DaySolarRadioFlux107Observed, dataType,
             4, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 4, 6, 2, 6,
             6, 6, 6, 6, 2 );
 
     // String containing line to be parsed
     std::string line;
 
-    int datatype = 0;
+    int dataType = 0;
     bool validdata = false;
 
     while ( !fileContent.fail( ) && !fileContent.eof( ) )   // Read stream line by line
     {
         std::getline (fileContent,line);
 
-        // Determine datatype of line (observed/daily predicted/monthly predicted/monthly fit)
+        // Determine dataType of line (observed/daily predicted/monthly predicted/monthly fit)
         if (line.substr( 0, 14 ).compare("BEGIN OBSERVED") == 0)
         {
-            datatype = 1;
+            dataType = 1;
             validdata = true;
             continue;
         }
 
         if (line.substr( 0, 21 ).compare("BEGIN DAILY_PREDICTED")== 0)
         {
-            datatype = 2;
+            dataType = 2;
             validdata = true;
             continue;
         }
 
         if (line.substr( 0, 23 ).compare("BEGIN MONTHLY_PREDICTED")== 0)
         {
-            datatype = 3;
+            dataType = 3;
             validdata = true;
             continue;
         }
 
         if (line.substr( 0, 17 ).compare("BEGIN MONTHLY_FIT") == 0)
         {
-            datatype = 4;
+            dataType = 4;
             validdata = true;
             continue;
         }
@@ -137,7 +137,7 @@ void ParseSolarActivityData::parseStream( std::istream& fileContent)
         if (validdata == true)
         {
             // add datatype at the end of the parsed line
-            line = line + " " + boost::lexical_cast<string>( datatype );
+            line = line + " " + boost::lexical_cast<string>( dataType );
 
             parsedData->push_back( solarParser.parse( line )->at(0) );
         }
