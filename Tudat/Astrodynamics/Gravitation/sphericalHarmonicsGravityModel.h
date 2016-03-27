@@ -216,10 +216,12 @@ public:
             = boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
             const boost::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) )
+            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+            const bool isMutualAttractionUsed = 0 )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
-                positionOfBodyExertingAccelerationFunction ),
+                positionOfBodyExertingAccelerationFunction,
+                isMutualAttractionUsed ),
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients(
               boost::lambda::constant(aCosineHarmonicCoefficientMatrix ) ),
@@ -262,10 +264,12 @@ public:
             = boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
             const boost::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) )
+            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+            const bool isMutualAttractionUsed = 0 )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
-                positionOfBodyExertingAccelerationFunction ),
+                positionOfBodyExertingAccelerationFunction,
+                isMutualAttractionUsed ),
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
           getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),

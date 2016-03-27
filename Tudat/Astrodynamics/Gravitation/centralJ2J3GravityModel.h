@@ -142,7 +142,7 @@ public:
             = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
-                positionOfBodyExertingAccelerationFunction ),
+                positionOfBodyExertingAccelerationFunction, 0 ),
           equatorialRadius( anEquatorialRadius ),
           j2GravityCoefficient( aJ2GravityCoefficient ),
           j3GravityCoefficient( aJ3GravityCoefficient )

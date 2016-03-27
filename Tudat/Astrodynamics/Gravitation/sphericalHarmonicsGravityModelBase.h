@@ -79,10 +79,12 @@ public:
     SphericalHarmonicsGravitationalAccelerationModelBase(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
-            const StateFunction positionOfBodyExertingAccelerationFunction )
+            const StateFunction positionOfBodyExertingAccelerationFunction,
+            const bool isMutualAttractionUsed )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
           gravitationalParameterFunction( boost::lambda::constant( aGravitationalParameter ) ),
-          sourcePositionFunction( positionOfBodyExertingAccelerationFunction )
+          sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
+          isMutualAttractionUsed_( isMutualAttractionUsed )
     { }
 
     //! Default constructor taking position of body subject to acceleration, variable
@@ -103,10 +105,12 @@ public:
     SphericalHarmonicsGravitationalAccelerationModelBase(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const boost::function< double( ) > aGravitationalParameterFunction,
-            const StateFunction positionOfBodyExertingAccelerationFunction )
+            const StateFunction positionOfBodyExertingAccelerationFunction,
+            const bool isMutualAttractionUsed )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
           gravitationalParameterFunction( aGravitationalParameterFunction ),
-          sourcePositionFunction( positionOfBodyExertingAccelerationFunction )
+          sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
+          isMutualAttractionUsed_( isMutualAttractionUsed )
     { }
 
     //! Virtual destructor.
@@ -129,6 +133,20 @@ public:
         this->positionOfBodySubjectToAcceleration = this->subjectPositionFunction( );
         this->positionOfBodyExertingAcceleration  = this->sourcePositionFunction( );
         return true;
+    }
+
+    boost::function< double( ) > getGravitationalParameterFunction( )
+    { return gravitationalParameterFunction; }
+
+    boost::function< StateMatrix( ) > getStateFunctionOfBodyExertingAcceleration( )
+    { return sourcePositionFunction; }
+
+    boost::function< StateMatrix( ) > getStateFunctionOfBodyUndergoingAcceleration( )
+    { return subjectPositionFunction; }
+
+    bool getIsMutualAttractionUsed( )
+    {
+        return isMutualAttractionUsed_;
     }
 
 protected:
@@ -170,6 +188,9 @@ protected:
      * gravitational acceleration.
      */
     const StateFunction sourcePositionFunction;
+
+    bool isMutualAttractionUsed_;
+
 
 private:
 };
