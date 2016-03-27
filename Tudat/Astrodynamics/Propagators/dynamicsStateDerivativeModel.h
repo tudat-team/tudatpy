@@ -15,6 +15,7 @@
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 
 namespace tudat
 {
@@ -261,11 +262,20 @@ public:
      */
     void setPropagationSettings(
             const std::vector< IntegratedStateType >& stateTypesToNotIntegrate,
-            const bool evaluateDynamicsEquations )
+            const bool evaluateDynamicsEquations,
+            const bool evaluateVariationalEquations )
     {
         integratedStatesFromEnvironment_ = stateTypesToNotIntegrate;
         evaluateDynamicsEquations_ = evaluateDynamicsEquations;
-        dynamicsStartColumn_ = 0;
+        evaluateVariationalEquations_ = evaluateVariationalEquations;
+        if( evaluateVariationalEquations_ )
+        {
+            startColumn_ = variationalEquations_->getNumberOfParameterValues( );
+        }
+        else
+        {
+            startColumn_ = 0;
+        }
     }
 
     //! Function to get complete list of state derivative models, sorted per state type.
@@ -288,6 +298,39 @@ public:
     {
         return stateTypeStartIndex_;
     }
+
+    void updateStateDerivativeModelSettings(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
+            const int currentStateArcIndex )
+    {
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( ); stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            switch( stateDerivativeModelsIterator_->first )
+            {
+            case transational_state:
+            {
+                for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+                {
+                    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
+                            boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                                stateDerivativeModelsIterator_->second.at( i ) );
+                    switch( currentTranslationalStateDerivative->getPropagatorType( ) )
+                    {
+                    case cowell:
+                        break;
+                    default:
+                        throw std::runtime_error( "Error when updating state derivative model settings, did not recognize propagator type" );
+                        break;
+                    }
+                }
+            }
+            default:
+                break;
+            }
+        }
+    }
+
 
 private:
 
@@ -371,6 +414,8 @@ private:
 
     //! Boolean denoting whether the equations of motion are to be propagated or not.
     bool evaluateDynamicsEquations_;
+
+    bool evaluateVariationalEquations_;
 
     //! Start index in propagated matrix of the equations of motion (=0 if variational equations are not propagated).
     int dynamicsStartColumn_;

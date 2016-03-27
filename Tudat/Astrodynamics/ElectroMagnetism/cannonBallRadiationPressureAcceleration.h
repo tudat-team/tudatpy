@@ -183,6 +183,11 @@ public:
      */
     void updateMembers( const double currentTime = TUDAT_NAN );
 
+    boost::function< double( ) > getMassFunction( )
+    {
+        return massFunction_;
+    }
+
 private:
 
     //! Function pointer returning position of source.

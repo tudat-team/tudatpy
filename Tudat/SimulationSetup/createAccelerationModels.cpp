@@ -117,7 +117,8 @@ boost::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravit
                 boost::make_shared< CentralGravitationalAccelerationModel3d >(
                     boost::bind( &Body::getPosition, bodyUndergoingAcceleration ),
                     gravitationalParameterFunction,
-                    boost::bind( &Body::getPosition, bodyExertingAcceleration ) );
+                    boost::bind( &Body::getPosition, bodyExertingAcceleration ),
+                    useCentralBodyFixedFrame );
     }
 
 
@@ -225,7 +226,7 @@ createSphericalHarmonicsGravityAcceleration(
                                    sphericalHarmonicsSettings->maximumOrder_ ),
                       boost::bind( &Body::getPosition, bodyExertingAcceleration ),
                       boost::bind( &Body::getCurrentRotationToGlobalFrame,
-                                   bodyExertingAcceleration ) );
+                                   bodyExertingAcceleration ), useCentralBodyFixedFrame );
         }
     }
     return accelerationModel;

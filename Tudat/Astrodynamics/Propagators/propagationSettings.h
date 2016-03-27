@@ -32,6 +32,10 @@ enum TranslationalPropagatorType
     cowell = 0
 };
 
+int getSingleIntegrationSize( const IntegratedStateType stateType );
+
+int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType );
+
 //! Base class for defining setting of a propagator
 /*!
  *  Base class for defining setting of a propagator. This class is non-functional, and each state type requires its
