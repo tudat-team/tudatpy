@@ -41,8 +41,8 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
-#include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -82,7 +82,7 @@ public:
      *  causing occultations (default none) NOTE: Multplie concurrent occultations may currently
      *  result in slighlty underestimted radiation pressure.
      *  \param occultingBodyRadii List of radii of the bodies causing occultations (default none).
-     *  \param sourceRadius Radius of the source body (used for occultation calculations)
+     *  \param sourceRadius Radius of the source body (used for occultation calculations) (default 0).
      */
     RadiationPressureInterface(
             const boost::function< double( ) > sourcePower,
@@ -103,7 +103,7 @@ public:
         currentRadiationPressure_( 0.0 ){ }
 
     //! Destructor
-    ~RadiationPressureInterface( ){ }
+    virtual ~RadiationPressureInterface( ){ }
 
     //! Function to update the current value of the radiation pressure
     /*!
@@ -139,7 +139,7 @@ public:
      */
     boost::function< Eigen::Vector3d( ) > getSourcePositionFunction( ) const
     {
-        return sourcePositionFunction_ ;
+        return sourcePositionFunction_;
     }
 
     //! Function to return the function returning the current position of the target body.
@@ -149,7 +149,7 @@ public:
      */
     boost::function< Eigen::Vector3d( ) > getTargetPositionFunction( ) const
     {
-        return targetPositionFunction_ ;
+        return targetPositionFunction_;
     }
 
     //! Function to return the reflecting area of the target body.
@@ -251,8 +251,7 @@ protected:
     Eigen::Vector3d currentSolarVector_;
 };
 
-}
+} // namespace electro_magnetism
+} // namespace tudat
 
-}
-
-#endif // RADIATIONPRESSUREINTERFACE_H
+#endif // TUDAT_RADIATIONPRESSUREINTERFACE_H
