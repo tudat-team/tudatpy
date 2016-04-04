@@ -37,9 +37,9 @@ set(EPHEMERIDES_SOURCES
   "${SRCROOT}${EPHEMERIDESDIR}/approximatePlanetPositionsBase.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/approximatePlanetPositions.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/approximatePlanetPositionsCircularCoplanar.cpp"
-  "${SRCROOT}${EPHEMERIDESDIR}/rotationalEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/cartesianStateExtractor.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/keplerStateExtractor.cpp"
+  "${SRCROOT}${EPHEMERIDESDIR}/rotationalEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/simpleRotationalEphemeris.cpp"
 )
 
