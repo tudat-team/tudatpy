@@ -69,12 +69,15 @@ public:
      *  the Keplerian state.
      *  \param centralBodyGravitationalParameter Gravitational parameter of the central body
      *  that is used in the computations.
-     *  \param referenceFrameOrigin Origin of reference frame (string identifier).
+     *  \param referenceFrameOrigin Origin of reference frame (string identifier) (default SSB).
      *  \param referenceFrameOrientation Orientation of reference frame (string identifier)
+     *  (default ECLIPJ000
      *  \param rootFinderAbsoluteTolerance Convergence tolerance for root finder used to
-     *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris.
+     *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris
+     *  (default 200*epsilon).
      *  \param rootFinderMaximumNumberOfIterations Maximum iteration for root finder used to
-     *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris.
+     *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris
+     *  (default 1000).
      */
     KeplerEphemeris( const basic_mathematics::Vector6d& initialStateInKeplerianElements,
                      const double epochOfInitialState,
@@ -82,7 +85,7 @@ public:
                      const std::string& referenceFrameOrigin = "SSB",
                      const std::string& referenceFrameOrientation = "ECLIPJ2000",
                      const double rootFinderAbsoluteTolerance =
-            200.0 * std::numeric_limits< double >::epsilon( ),
+                         200.0 * std::numeric_limits< double >::epsilon( ),
                      const double rootFinderMaximumNumberOfIterations = 1000.0 );
 
     //! Function to get state from ephemeris.
@@ -90,7 +93,7 @@ public:
      *  Returns state from ephemeris at given time, assuming a purely Keplerian orbit
      *  \param secondsSinceEpoch Seconds since epoch (should be w.r.t. same reference time
      *  as epochOfInitialState), and does not represent the time since epochOfInitialState.
-     *  \param julianDayAtEpoch Reference epoch in Julian day.
+     *  \param julianDayAtEpoch Reference epoch in Julian day (default JD on J2000).
      *  \return Keplerian orbit Cartesian state at given time.
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
@@ -130,8 +133,8 @@ private:
     bool isOrbitHyperbolic_;
 };
 
-}
+} // namespace ephemerides
 
-}
+} // namespace tudat
 
 #endif // TUDAT_KEPLEREPHEMERIS_H
