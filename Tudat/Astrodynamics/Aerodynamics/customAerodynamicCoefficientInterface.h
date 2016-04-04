@@ -102,11 +102,11 @@ public:
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
      *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
-     *  frame (typically denoted as Cx, Cy, Cz).
+     *  frame (typically denoted as Cx, Cy, Cz) (default true).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
-     *  coefficients are typically defined in negative direction.
+     *  coefficients are typically defined in negative direction (default true).
      */
     CustomAerodynamicCoefficientInterface(
             const boost::function< Eigen::Vector3d( const std::vector< double >& ) >
@@ -119,8 +119,8 @@ public:
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables >
             independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = 1,
-            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+            const bool areCoefficientsInAerodynamicFrame = true,
+            const bool areCoefficientsInNegativeAxisDirection = true ):
         AerodynamicCoefficientInterface( referenceLength, referenceArea, lateralReferenceLength,
                                          momentReferencePoint, independentVariableNames,
                                          areCoefficientsInAerodynamicFrame,
@@ -148,11 +148,11 @@ public:
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
      *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
-     *  frame (typically denoted as Cx, Cy, Cz).
+     *  frame (typically denoted as Cx, Cy, Cz) (default true).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
-     *  coefficients are typically defined in negative direction.
+     *  coefficients are typically defined in negative direction (default true).
      */
     CustomAerodynamicCoefficientInterface(
             const boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) >
@@ -163,8 +163,8 @@ public:
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables >
             independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = 1,
-            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+            const bool areCoefficientsInAerodynamicFrame = true,
+            const bool areCoefficientsInNegativeAxisDirection = true ):
         AerodynamicCoefficientInterface( referenceLength, referenceArea, lateralReferenceLength,
                                          momentReferencePoint, independentVariableNames,
                                          areCoefficientsInAerodynamicFrame,
@@ -227,8 +227,8 @@ private:
  *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
  *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
  *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
- *  coefficients are typically defined in negative direction.
- *  \return Aerodynamic coefficient interface with constant coefficients.
+ *  coefficients are typically defined in negative direction (default false).
+ *  \return Aerodynamic coefficient interface with constant coefficients (default true).
  */
 boost::shared_ptr< AerodynamicCoefficientInterface >
 createConstantCoefficientAerodynamicCoefficientInterface(
@@ -238,11 +238,10 @@ createConstantCoefficientAerodynamicCoefficientInterface(
         const double referenceArea,
         const double lateralReferenceLength,
         const Eigen::Vector3d& momentReferencePoint,
-        const bool areCoefficientsInAerodynamicFrame = 0,
-        const bool areCoefficientsInNegativeAxisDirection = 1 );
+        const bool areCoefficientsInAerodynamicFrame = false,
+        const bool areCoefficientsInNegativeAxisDirection = true );
 
-}
+} // namespace aerodynamics
+} // namespace tudat
 
-}
-
-#endif // CUSTOM_TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
+#endif // TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
