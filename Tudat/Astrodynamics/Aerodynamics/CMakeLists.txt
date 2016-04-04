@@ -46,12 +46,12 @@ set(AERODYNAMICS_SOURCES
 )
 
 # Set the header files.
-set(AERODYNAMICS_HEADERS 
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.h"
+set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientGenerator.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientInterface.h"
-  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicRotationalAcceleration.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.h"
   "${SRCROOT}${AERODYNAMICSDIR}/atmosphereModel.h"

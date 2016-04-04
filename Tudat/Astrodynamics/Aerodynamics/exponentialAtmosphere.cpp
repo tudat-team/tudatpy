@@ -40,6 +40,6 @@ ExponentialAtmosphere::ExponentialAtmosphere(
     }
 }
 
-}
+} // namespace aerodynamics
 
-}
+} // namespace tudat
