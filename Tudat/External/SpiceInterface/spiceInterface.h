@@ -58,7 +58,7 @@
 
 extern "C"
 {
-    #include "cspice/include/SpiceUsr.h"
+#include "cspice/include/SpiceUsr.h"
 }
 
 namespace tudat
@@ -159,15 +159,45 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
 //! Compute quaternion of rotation between two frames.
 /*!
  * This function computes the quaternion of rotation between two frames at a given time instant.
- * Kernels defining the two frames, as well as any required intermeidate frames, at the requested
+ * Kernels defining the two frames, as well as any required intermediate frames, at the requested
  * time must have been loaded. Wrapper for pxform_c spice function.
  * \param originalFrame Reference frame from which the rotation is made.
  * \param newFrame Reference frame to which the rotation is made.
  * \param ephemerisTime Value of ephemeris time at which rotation is to be determined.
+ * \return Rotation quaternion from original to new frame at given time.
  */
 Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string& originalFrame,
                                                            const std::string& newFrame,
                                                            const double ephemerisTime );
+
+//! Computes time derivative of rotation matrix between two frames.
+/*!
+ * This function computes the derivative of the rotation matrix between two frames at a given
+ * time instant. Kernels defining the two frames, as well as any required intermediate frames, at
+ * the requested time must have been loaded. Wrapper for (part of) sxform_c spice function.
+ * \param originalFrame Reference frame from which the rotation is made.
+ * \param newFrame Reference frame to which the rotation is made.
+ * \param ephemerisTime Value of ephemeris time at which rotation is to be determined.
+ * \return Time derivative of rotation matrix from original to new frame at given time.
+ */
+Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string& originalFrame,
+                                                              const std::string& newFrame,
+                                                              const double ephemerisTime );
+
+//! Computes the angular velocity of one frame w.r.t. to another frame.
+/*!
+ * Computes the angular velocity of one frame w.r.t. to another frame. at a given
+ * time instant. Kernels defining the two frames, as well as any required intermediate frames, at
+ * the requested time must have been loaded. Wrapper for xf2rav_c spice function (utilizing
+ *  sxform_c).
+ * \param originalFrame Reference frame from which the rotation is made.
+ * \param newFrame Reference frame to which the rotation is made.
+ * \param ephemerisTime Value of ephemeris time at which rotation is to be determined.
+ * \return Angular velocity of newFrame w.r.t. originalFrame, expressed in originalFrame.
+ */
+Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::string& originalFrame,
+                                                                const std::string& newFrame,
+                                                                const double ephemerisTime );
 
 //! Get property of a body from Spice.
 /*!
