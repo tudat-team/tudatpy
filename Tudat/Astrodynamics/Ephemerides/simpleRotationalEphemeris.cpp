@@ -37,7 +37,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 
 namespace tudat

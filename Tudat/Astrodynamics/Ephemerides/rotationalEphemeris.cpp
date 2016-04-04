@@ -33,8 +33,6 @@
    *
    */
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
@@ -93,6 +91,5 @@ basic_mathematics::Vector6d transformStateToFrame(
 }
 
 } // namespace tudat
-
 } // namespace ephemerides
 
