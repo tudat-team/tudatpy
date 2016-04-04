@@ -43,11 +43,10 @@ set(ELECTROMAGNETISM_SOURCES
 )
 
 # Set the header files.
-set(ELECTROMAGNETISM_HEADERS 
+set(ELECTROMAGNETISM_HEADERS
   "${SRCROOT}${ELECTROMAGNETISMDIR}/cannonBallRadiationPressureAcceleration.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/cannonBallRadiationPressureForce.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticForce.cpp"
-  "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticAcceleration.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticAcceleration.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/radiationPressureInterface.cpp"
 )
