@@ -62,6 +62,5 @@ createConstantCoefficientAerodynamicCoefficientInterface(
     return coefficientInterface;
 }
 
-}
-
-}
+} // namespace aerodynamics
+} // namespace tudat
