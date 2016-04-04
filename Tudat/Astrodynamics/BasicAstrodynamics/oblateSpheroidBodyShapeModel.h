@@ -146,9 +146,8 @@ private:
     double flattening_;
 };
 
-}
+} // namespace basic_astrodynamics
+} // namespace tudat
 
-}
 
-
-#endif // OBLATESPHEROIDBODYSHAPEMODEL_H
+#endif // TUDAT_OBLATESPHEROIDBODYSHAPEMODEL_H
