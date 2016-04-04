@@ -48,54 +48,103 @@ namespace aerodynamics {
 
 //! Struct for Solar Activity data.
 /*!
- * 
+ *
  */
-struct NRLMSISE00Input {
-    NRLMSISE00Input(int year = 0, int dayOfTheYear = 0, double secondOfTheDay = 0.0,
-                    double localSolarTime = 0.0, double f107 = 0.0, double f107a = 0.0,
-                    double apDaily = 0.0,
-                    std::vector<double> apVector = std::vector<double>(7, 0.0),
-                    std::vector<int>    switches = std::vector<int>())
-    : year(year), dayOfTheYear(dayOfTheYear), secondOfTheDay(secondOfTheDay),
-      localSolarTime(localSolarTime), f107(f107), f107a(f107a),
-      apDaily(apDaily), apVector(apVector), switches(switches) {
-        if (switches.empty()) {
-            this->switches = std::vector<int>(24, 1);
-            this->switches[0] = 0;
+struct NRLMSISE00Input
+{
+    //! Input for computation of NRLMSISE00 atmospheric conditions at current time and position.
+    /*!
+     * Input for computation of NRLMSISE00 atmospheric conditions at current time and position. The computation of
+     * this struct may be reperformed every time step, to reflect the changes in atmospheric condition.
+     * \param year Current year
+     * \param dayOfTheYear Day in the current year
+     * \param secondOfTheDay Number of seconds into the current day.
+     * \param localSolarTime Local solar time at the computation position
+     * \param f107 Current daily F10.7 flux for previous day
+     * \param f107a 81 day average of F10.7 flux (centered on current dayOfTheYear).
+     * \param apDaily Current daily magnetic index
+     * \param apVector Current magnetic index data vector: \sa ap_array
+     * \param switches List of NRLMSISE-specific flags: \sa nrlmsise_flags
+     */
+    NRLMSISE00Input(
+            int year = 0, int dayOfTheYear = 0, double secondOfTheDay = 0.0,
+            double localSolarTime = 0.0, double f107 = 0.0, double f107a = 0.0,
+            double apDaily = 0.0,
+            std::vector< double > apVector = std::vector< double>( 7, 0.0 ),
+            std::vector< int > switches = std::vector< int >( ) )
+        : year( year ), dayOfTheYear( dayOfTheYear ), secondOfTheDay( secondOfTheDay) ,
+          localSolarTime( localSolarTime ), f107( f107 ), f107a( f107a ),
+          apDaily( apDaily ), apVector( apVector ), switches( switches )
+    {
+        if( switches.empty( ) )
+        {
+            this->switches = std::vector< int >( 24, 1 );
+            this->switches[ 0 ] = 0;
         }
     }
-    int    year;
-    int    dayOfTheYear;
-    double secondOfTheDay;
+
+    //! Current year
+    int year;
+
+    //! Day in the current year
+    int dayOfTheYear;
+
+    //! Number of seconds into the current day.
+    double secondOfTheDay;\
+
+    //! Local solar time at the computation position
     double localSolarTime;
+
+    //! Current daily F10.7 flux for previous day
     double f107;
+
+    //! 81 day average of F10.7 flux (centered on current dayOfTheYear).
     double f107a;
+
+    //! Current daily magnetic index
     double apDaily;
+
+    //! Current magnetic index data vector: \sa ap_array
     std::vector< double > apVector;
-    std::vector< int >    switches;
+
+    //! List of NRLMSISE-specific flags: \sa nrlmsise_flag
+    std::vector< int > switches;
 };
 
 //! NRLMSISE-00 atmosphere model class.
 /*!
- * Needs proper description.
+ *  NRLMSISE-00 atmosphere model class. This class uses the NRLMSISE00 atmosphere model to calculate atmospheric
+ *  density and temperature. The GTD7 function is used: Neutral Atmosphere Empircial Model from the surface to lower
+ *  exosphere.
+ *  Compositional data is currently not used (computation of pressure; speed of sound, etc.).
+ *
  */
 class NRLMSISE00Atmosphere : public AtmosphereModel {
  public:
+
     //! Solar activity function
     /*!
-     * Boost function that accepts julian date and returns solar activity data.
+     * Boost function that accepts (altitude, longitude, latitude, time) and returns solar activity data.
      */
-    typedef boost::function< NRLMSISE00Input (double, double, double, double) >
+    typedef boost::function< NRLMSISE00Input( double, double, double, double ) >
         NRLMSISE00InputFunction;
 
     //! Default constructor.
     /*!
      * Default constructor.
-     * \param nrlmsise00InputFunction shared function pointer to provide all necessary input.
+     * \param nrlmsise00InputFunction Function which provides the NRLMSISE00 model input as a function of
+     * (altitude, longitude, latitude, time).
+     * \param useIdealGasLaw Variable denoting whether to use the ideal gas law for computation of pressure.
      */
-    NRLMSISE00Atmosphere(const NRLMSISE00InputFunction nrlmsise00InputFunction)
-        : nrlmsise00InputFunction_(nrlmsise00InputFunction) {
-        resetHashKey();
+    NRLMSISE00Atmosphere( const NRLMSISE00InputFunction nrlmsise00InputFunction,
+                          const bool useIdealGasLaw = false )
+        :nrlmsise00InputFunction_( nrlmsise00InputFunction ), useIdealGasLaw_( useIdealGasLaw )
+    {
+        if( useIdealGasLaw )
+        {
+            std::cerr<<"Warning, using ideal gas law with R at standard atmospheric conditions in pressure computation of NRLMSISE00InputFunction."<<std::endl;
+        }
+        resetHashKey( );
     }
 
     //! Get local density.
@@ -107,9 +156,10 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * \param time time since simulation start epoch.
      * \return Atmospheric density [kg/m^3].
      */
-    double getDensity(double altitude, double longitude,
-                      double latitude, double time) {
-        computeProperties(altitude, longitude, latitude, time);
+    double getDensity( const double altitude, const double longitude,
+                       const double latitude, const double time)
+    {
+        computeProperties( altitude, longitude, latitude, time );
         return density_;
     }
 
@@ -122,9 +172,17 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * \param time Time. (optional)
      * \return Atmospheric pressure.
      */
-    double getPressure(double altitude, double longitude,
-                       double latitude, double time) {
-        computeProperties(altitude, longitude, latitude, time);
+    double getPressure( const double altitude, const double longitude,
+                        const double latitude, const double time )
+    {
+        if( useIdealGasLaw_ )
+        {
+            computeProperties( altitude, longitude, latitude, time );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, non-ideal gas-law pressure-computation not yet implemented in NRLMSISE00Atmosphere." );
+        }
         return pressure_;
     }
 
@@ -137,9 +195,10 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
     * \param time Time.
     * \return Atmospheric temperature.
     */
-    double getTemperature(const double altitude, const double longitude,
-                          const double latitude, const double time) {
-        computeProperties(altitude, longitude, latitude, time);
+    double getTemperature( const double altitude, const double longitude,
+                           const double latitude, const double time )
+    {
+        computeProperties( altitude, longitude, latitude, time );
         return temperature_;
     }
 
@@ -154,7 +213,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
     * \param time Time.
     * \return Full density and temperature values
      */
-    std::pair< std::vector< double >, std::vector< double >> getFullOutput(
+    std::pair< std::vector< double >, std::vector< double > > getFullOutput(
         const double altitude, const double longitude,
         const double latitude, const double time);
 
@@ -164,43 +223,36 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * independent parameters haven't changed. Such as in the case of
      * changes to the model.
      */
-    void resetHashKey() {
-      hashKey_ = 0;
+    void resetHashKey( )
+    {
+        hashKey_ = 0;
     }
 
  private:
-    /*!
-     *  Shared pointer to solar activity function
-     */
+    //! Shared pointer to solar activity function
     NRLMSISE00InputFunction nrlmsise00InputFunction_;
 
-    /*!
-     *  Current key hash
-     */
+    //! Current key hash
     size_t hashKey_;
 
-    /*!
-     *  Current local density
-     */
+    //! Current local density
     double density_;
 
-    /*!
-     *  Current local temperature
-     */
+    //! Current local temperature
     double temperature_;
 
-    /*!
-     *  Current local pressure
-     */
+    //! Current local pressure
     double pressure_;
 
-    /*!
-     *  The file name of the solar activity data.
-     */
+    //! Variable denoting whether to use the ideal gas law for computation of pressure.
+    bool useIdealGasLaw_;
+
+    //! The file name of the solar activity data.
     struct nrlmsise_flags flags_;
 
+    //!  Magnetic index structure of 7d array.
     /*!
-     *  Magnetic index structure of 7d array:
+     *   Magnetic index structure of 7d array:
      *   0 : daily AP
      *   1 : 3 hr AP index for current time
      *   2 : 3 hr AP index for 3 hrs before current time
@@ -213,6 +265,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      */
     struct ap_array aph_;
 
+    //! Input structure with 10 scalar settings and magnetic values struct.
     /*!
      *  Input structure with 10 scalar settings and magnetic values struct.
      *      year   - year, currently ignored           (int)
@@ -229,6 +282,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      */
     struct nrlmsise_input input_;
 
+    //! Ouput structure of densities (9d) and temperature (2d) arrays.
     /*!
      *  Ouput structure of densities (9d) and temperature (2d) arrays:
      *      d[0] - HE NUMBER DENSITY(CM-3)
@@ -264,7 +318,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      */
     struct nrlmsise_output output_;
 
-    //! Get Hash Key
+    //! Get Hash Key.
     /*!
      * Returns hash key value based on a vector of keys
      * \param altitude Altitude.
@@ -273,17 +327,18 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * \param time Time.
      * \return hash key value.
      */
-    size_t hashFunc(double altitude, double longitude,
-                    double latitude, double time) {
+    size_t hashFunc( const double altitude, const double longitude,
+                     const double latitude, const double time )
+    {
         size_t seed = 0;
-        boost::hash_combine(seed, boost::hash<double>()(altitude));
-        boost::hash_combine(seed, boost::hash<double>()(longitude));
-        boost::hash_combine(seed, boost::hash<double>()(latitude));
-        boost::hash_combine(seed, boost::hash<double>()(time));
+        boost::hash_combine( seed, boost::hash< double >( )( altitude ) );
+        boost::hash_combine( seed, boost::hash< double >( )( longitude ) );
+        boost::hash_combine( seed, boost::hash< double >( )( latitude ) );
+        boost::hash_combine( seed, boost::hash< double >( )( time ) );
         return seed;
     }
 
-    //! Compute the local atmospheric properties
+    //! Compute the local atmospheric properties.
     /*!
      * Computes the local atmospheric density, pressure and temperature.
      * \param altitude Altitude.
@@ -291,8 +346,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * \param latitude Latitude.
      * \param time Time.
      */
-    void computeProperties(double altitude, double longitude,
-                           double latitude, double time);
+    void computeProperties( const double altitude, const double longitude,
+                            const double latitude, const double time );
 };
 
 }  // namespace aerodynamics
