@@ -32,11 +32,11 @@
  *
  */
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h>
-
 #include "Tudat/Astrodynamics/Ephemerides/keplerEphemeris.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/convertMeanToEccentricAnomalies.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+
 namespace tudat
 {
 
@@ -72,11 +72,8 @@ KeplerEphemeris::KeplerEphemeris(
     }
     else
     {
-        boost::throw_exception(
-                    std::runtime_error(
-                        boost::str(
-                            boost::format(
-                                "Error, Kepler ephemeris cannot handle parabolic orbit" ) ) ) );
+        boost::throw_exception( std::runtime_error( boost::str( boost::format(
+            "Error, Kepler ephemeris cannot handle parabolic orbit" ) ) ) );
     }
 
     // Convert initial true anomaly to mean anomaly.
@@ -168,21 +165,21 @@ basic_mathematics::Vector6d KeplerEphemeris::getCartesianStateFromEphemeris(
     // Calculate true anomaly.
     double trueAnomaly = convertEccentricAnomalyToTrueAnomaly(
                 eccentricAnomaly, eccentricity_ );
-    double cosineOfTrueAnomaly_ = cos( trueAnomaly );
-    double sineOfTrueAnomaly_ = sin( trueAnomaly );
+    double cosineOfTrueAnomaly = cos( trueAnomaly );
+    double sineOfTrueAnomaly = sin( trueAnomaly );
 
     // Definition of position in the perifocal coordinate system.
-    currentCartesianState( 0 ) = semiLatusRectum_ * cosineOfTrueAnomaly_
-            / ( 1.0 + eccentricity_ * cosineOfTrueAnomaly_ );
-    currentCartesianState( 1 ) = semiLatusRectum_ * sineOfTrueAnomaly_
-            / ( 1.0 + eccentricity_ * cosineOfTrueAnomaly_ );
+    currentCartesianState( 0 ) = semiLatusRectum_ * cosineOfTrueAnomaly
+            / ( 1.0 + eccentricity_ * cosineOfTrueAnomaly );
+    currentCartesianState( 1 ) = semiLatusRectum_ * sineOfTrueAnomaly
+            / ( 1.0 + eccentricity_ * cosineOfTrueAnomaly );
 
     // Definition of velocity in the perifocal coordinate system.
     currentCartesianState( 3 ) =
-            -sqrt( centralBodyGravitationalParameter_ / semiLatusRectum_ ) * sineOfTrueAnomaly_;
+            -sqrt( centralBodyGravitationalParameter_ / semiLatusRectum_ ) * sineOfTrueAnomaly;
     currentCartesianState( 4 ) =
             sqrt( centralBodyGravitationalParameter_ / semiLatusRectum_ )
-            * ( eccentricity_ + cosineOfTrueAnomaly_ );
+            * ( eccentricity_ + cosineOfTrueAnomaly );
 
     // Rotate orbital plane to correct orientation.
     currentCartesianState.segment( 0, 3 ) = rotationFromOrbitalPlane_ *
@@ -193,6 +190,5 @@ basic_mathematics::Vector6d KeplerEphemeris::getCartesianStateFromEphemeris(
     return currentCartesianState;
 }
 
-}
-
-}
+} // namespace ephemerides
+} // namespace tudat
