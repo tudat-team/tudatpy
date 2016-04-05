@@ -147,7 +147,7 @@ public:
     /*!
      * Default constructor.
      */
-    ParseSolarActivityData(): TextParser( true ) { }
+    ParseSolarActivityData( ): TextParser( true ) { }
 
 protected:
 

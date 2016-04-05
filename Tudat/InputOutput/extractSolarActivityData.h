@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef EXTRACTSOLARACTIVITY_H
-#define EXTRACTSOLARACTIVITY_H
+#ifndef TUDAT_EXTRACTSOLARACTIVITY_H
+#define TUDAT_EXTRACTSOLARACTIVITY_H
 
 #include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/extractor.h"
@@ -60,6 +60,7 @@ class ExtractSolarActivityData : public tudat::input_output::Extractor<
 {
 
 public:
+
     //! Extracts the solar activity data to a SolarActivityData container.
     /*!
      * Extracts the solar activity data from a "ParsedDataLineMap" object and saves it in a
@@ -78,4 +79,4 @@ private:
 }   // namespace input_output
 }   // namespace tudat
 
-#endif  // EXTRACTSOLARACTIVITY_H
+#endif  // TUDAT_EXTRACTSOLARACTIVITY_H
