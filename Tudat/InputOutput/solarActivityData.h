@@ -47,7 +47,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h>
+#include <Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h>
 
 namespace tudat
 {
@@ -183,7 +183,7 @@ private:
 };
 
 //! Pointer to a SolarActivityData structure
-typedef boost::shared_ptr< SolarActivityData> SolarActivityDataPtr;
+typedef boost::shared_ptr< SolarActivityData > SolarActivityDataPtr;
 
 //! Data map of SolarActivityData structure Pointers
 typedef std::map< double , SolarActivityDataPtr >  SolarActivityDataMap ;
@@ -195,7 +195,7 @@ typedef std::map< double , SolarActivityDataPtr >  SolarActivityDataMap ;
  * \param filePath std::string
  * \return solarActivityDataMap std::map< double , SolarActivityDataPtr >
  */
-SolarActivityDataMap readSolarActivityData(std::string filePath) ;
+SolarActivityDataMap readSolarActivityData( std::string filePath ) ;
 
 } // namespace solar_activity
 } // namespace input_output

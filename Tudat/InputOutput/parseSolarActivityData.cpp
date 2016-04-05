@@ -48,6 +48,7 @@ namespace input_output
 namespace solar_activity
 {
 
+//! Parses the stream of text.
 void ParseSolarActivityData::parseStream( std::istream& fileContent)
 {
 
@@ -80,66 +81,67 @@ void ParseSolarActivityData::parseStream( std::istream& fileContent)
 
     while ( !fileContent.fail( ) && !fileContent.eof( ) )   // Read stream line by line
     {
-        std::getline (fileContent,line);
+        std::getline( fileContent,line );
 
         // Determine dataType of line (observed/daily predicted/monthly predicted/monthly fit)
-        if (line.substr( 0, 14 ).compare("BEGIN OBSERVED") == 0)
+        if ( line.substr( 0, 14 ).compare( "BEGIN OBSERVED" ) == 0)
         {
             dataType = 1;
             validdata = true;
             continue;
         }
 
-        if (line.substr( 0, 21 ).compare("BEGIN DAILY_PREDICTED")== 0)
+        if ( line.substr( 0, 21 ).compare( "BEGIN DAILY_PREDICTED" ) == 0 )
         {
             dataType = 2;
             validdata = true;
             continue;
         }
 
-        if (line.substr( 0, 23 ).compare("BEGIN MONTHLY_PREDICTED")== 0)
+        if ( line.substr( 0, 23 ).compare( "BEGIN MONTHLY_PREDICTED" ) == 0 )
         {
             dataType = 3;
             validdata = true;
             continue;
         }
 
-        if (line.substr( 0, 17 ).compare("BEGIN MONTHLY_FIT") == 0)
+        if ( line.substr( 0, 17 ).compare( "BEGIN MONTHLY_FIT" ) == 0)
         {
             dataType = 4;
             validdata = true;
             continue;
         }
 
-        if (line.substr( 0, 12 ).compare("END OBSERVED")== 0  )
-        {
-            validdata = false;
-            continue;
-        }
-        if (line.substr( 0, 19 ).compare("END DAILY_PREDICTED")== 0)
+        if ( line.substr( 0, 12 ).compare( "END OBSERVED" )== 0  )
         {
             validdata = false;
             continue;
         }
 
-        if (line.substr( 0, 21 ).compare("END MONTHLY_PREDICTED")== 0)
+        if ( line.substr( 0, 19 ).compare( "END DAILY_PREDICTED" ) == 0 )
         {
             validdata = false;
             continue;
         }
 
-        if (line.substr( 0, 15 ).compare("END MONTHLY_FIT")== 0)
+        if ( line.substr( 0, 21 ).compare( "END MONTHLY_PREDICTED" ) == 0 )
         {
             validdata = false;
             continue;
         }
 
-        if (validdata == true)
+        if ( line.substr( 0, 15 ).compare( "END MONTHLY_FIT" ) == 0 )
+        {
+            validdata = false;
+            continue;
+        }
+
+        if ( validdata == true )
         {
             // add datatype at the end of the parsed line
-            line = line + " " + boost::lexical_cast<string>( dataType );
+            line = line + " " + boost::lexical_cast< std::string >( dataType );
 
-            parsedData->push_back( solarParser.parse( line )->at(0) );
+            parsedData->push_back( solarParser.parse( line )->at( 0 ) );
         }
     }
 }

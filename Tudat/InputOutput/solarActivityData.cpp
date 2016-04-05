@@ -41,14 +41,14 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "tudat/InputOutput/solarActivityData.h"
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 #include "Tudat/InputOutput/parseSolarActivityData.h"
 #include "Tudat/InputOutput/extractSolarActivityData.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
-
-#include <tudat/Basics/testMacros.h>
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -57,20 +57,20 @@ namespace input_output
 namespace solar_activity
 {
 
- //! Default constructor.
- SolarActivityData::SolarActivityData( ) : year( 0 ), month( 0 ), day( 0 ),
- bartelsSolarRotationNumber( 0 ), dayOfBartelsCycle( 0 ), planetaryRangeIndexSum( 0 ),
- planetaryEquivalentAmplitudeAverage( 0 ), planetaryDailyCharacterFigure( -0.0 ),
- planetaryDailyCharacterFigureConverted( 0 ), internationalSunspotNumber( 0 ),
- solarRadioFlux107Adjusted( -0.0 ), fluxQualifier( 0 ),
- centered81DaySolarRadioFlux107Adjusted( -0.0 ), last81DaySolarRadioFlux107Adjusted ( -0.0 ),
-solarRadioFlux107Observed( -0.0 ), centered81DaySolarRadioFlux107Observed( -0.0 ),
-last81DaySolarRadioFlux107Observed ( -0.0 ), planetaryRangeIndexVector( Eigen::VectorXd::Zero(8) ),
-planetaryEquivalentAmplitudeVector( Eigen::VectorXd::Zero(8) ), dataType( 0 ) { }
+//! Default constructor.
+SolarActivityData::SolarActivityData( ) : year( 0 ), month( 0 ), day( 0 ),
+    bartelsSolarRotationNumber( 0 ), dayOfBartelsCycle( 0 ), planetaryRangeIndexSum( 0 ),
+    planetaryEquivalentAmplitudeAverage( 0 ), planetaryDailyCharacterFigure( -0.0 ),
+    planetaryDailyCharacterFigureConverted( 0 ), internationalSunspotNumber( 0 ),
+    solarRadioFlux107Adjusted( -0.0 ), fluxQualifier( 0 ),
+    centered81DaySolarRadioFlux107Adjusted( -0.0 ), last81DaySolarRadioFlux107Adjusted ( -0.0 ),
+    solarRadioFlux107Observed( -0.0 ), centered81DaySolarRadioFlux107Observed( -0.0 ),
+    last81DaySolarRadioFlux107Observed ( -0.0 ), planetaryRangeIndexVector( Eigen::VectorXd::Zero( 8 ) ),
+    planetaryEquivalentAmplitudeVector( Eigen::VectorXd::Zero( 8 ) ), dataType( 0 ) { }
 
 //! Overload ostream to print class information.
 std::ostream& operator<<( std::ostream& stream,
-                              SolarActivityData& solarActivityData )
+                          SolarActivityData& solarActivityData )
 {
     stream << "This is a Solar Activity data object." << std::endl;
     stream << "The solar activity information is stored as: " << std::endl;
@@ -115,9 +115,10 @@ std::ostream& operator<<( std::ostream& stream,
 }
 
 //! This function reads a SpaceWeather data file and returns a map with SolarActivityData
-SolarActivityDataMap readSolarActivityData(std::string filePath){
+SolarActivityDataMap readSolarActivityData( std::string filePath )
+{
     // Data Vector container
-    tudat::input_output::parsed_data_vector_utilities::ParsedDataVectorPtr parsedDataVectorPtr;
+    tudat::input_output::parsed_data_vector_utilities::ParsedDataVectorPtr parsedDataVector;
 
     // datafile Parser and Extractor
     tudat::input_output::solar_activity::ParseSolarActivityData solarActivityParser;
@@ -126,25 +127,25 @@ SolarActivityDataMap readSolarActivityData(std::string filePath){
 
     // Open dataFile and Parse
     std::ifstream dataFile;
-    dataFile.open(filePath.c_str(), std::ifstream::in);
-    parsedDataVectorPtr = solarActivityParser.parse( dataFile );
-    dataFile.close();
+    dataFile.open( filePath.c_str( ), std::ifstream::in );
+    parsedDataVector = solarActivityParser.parse( dataFile );
+    dataFile.close( );
 
-    int numberOfLines = parsedDataVectorPtr->size() ;
-    SolarActivityDataMap DataMap ;
-    double JulianDate ;
+    int numberOfLines = parsedDataVector->size( );
+    SolarActivityDataMap dataMap;
+    double julianDate = TUDAT_NAN;
 
     // Save each line to datamap
     for(int i = 0 ; i < numberOfLines ; i++ ){
-        JulianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
-                    solarActivityExtractor.extract( parsedDataVectorPtr->at( i ) )->year,
-                    solarActivityExtractor.extract( parsedDataVectorPtr->at( i ) )->month,
-                    solarActivityExtractor.extract( parsedDataVectorPtr->at( i ) )->day,
-                    0, 0, 0.0) ;
-        DataMap[ JulianDate ] = solarActivityExtractor.extract( parsedDataVectorPtr->at( i ) ) ;
+        julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(
+                    solarActivityExtractor.extract( parsedDataVector->at( i ) )->year,
+                    solarActivityExtractor.extract( parsedDataVector->at( i ) )->month,
+                    solarActivityExtractor.extract( parsedDataVector->at( i ) )->day,
+                    0, 0, 0.0 ) ;
+        dataMap[ julianDate ] = solarActivityExtractor.extract( parsedDataVector->at( i ) ) ;
     }
 
-    return DataMap;
+    return dataMap;
 
 }
 
