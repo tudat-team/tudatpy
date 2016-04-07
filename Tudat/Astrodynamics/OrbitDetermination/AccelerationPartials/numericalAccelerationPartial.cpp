@@ -1,0 +1,175 @@
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/numericalAccelerationPartial.h"
+
+namespace tudat
+{
+
+namespace orbit_determination
+{
+
+namespace partial_derivatives
+{
+
+void emptyFunction( ){ }
+
+void emptyTimeFunction( const double time ){ }
+
+Eigen::Matrix3d calculateAccelerationWrtStatePartials(
+        boost::function< void( basic_mathematics::Vector6d ) > setBodyState,
+        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        basic_mathematics::Vector6d originalState,
+        Eigen::Vector3d statePerturbation,
+        int startIndex,
+        boost::function< void( ) > updateFunction )
+{
+    Eigen::Matrix3d upAccelerations = Eigen::Matrix3d::Zero( );
+
+    basic_mathematics::Vector6d perturbedState = originalState;
+
+    for( int i = 0; i < 3; i++ )
+    {
+        perturbedState( i + startIndex ) += statePerturbation( i );
+        setBodyState( perturbedState );
+        updateFunction( );
+        upAccelerations.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                    accelerationModel );
+        accelerationModel->resetTime( TUDAT_NAN );
+        perturbedState = originalState;
+    }
+
+    Eigen::Matrix3d downAccelerations = Eigen::Matrix3d::Zero( );
+    for( int i = 0; i < 3; i++ )
+    {
+        perturbedState( i + startIndex ) -= statePerturbation( i );
+        setBodyState( perturbedState );
+        updateFunction( );
+        downAccelerations.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                    accelerationModel );
+        accelerationModel->resetTime( TUDAT_NAN );
+        perturbedState = originalState;
+    }
+
+    setBodyState( perturbedState );
+    updateFunction( );
+
+    Eigen::Matrix3d accelerationPartials = upAccelerations - downAccelerations;
+
+    for( int i = 0; i < 3; i++ )
+    {
+        accelerationPartials.block( 0, i, 3, 1 ) /= ( 2.0 * statePerturbation( i ) );
+    }
+
+    return accelerationPartials;
+}
+
+Eigen::Vector3d calculateAccelerationWrtParameterPartials(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        double parameterPerturbation,
+        boost::function< void( ) > updateDependentVariables,
+        const double currentTime,
+        boost::function< void( const double ) > timeDependentUpdateDependentVariables )
+{
+    // Store uperturbed value.
+    double unperturbedParameterValue = parameter->getParameterValue( );
+
+    // Calculate up-perturbation
+    parameter->setParameterValue(
+                unperturbedParameterValue + parameterPerturbation );
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+
+    Eigen::Vector3d upPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, currentTime );
+    accelerationModel->resetTime( TUDAT_NAN );
+
+    // Calculate down-perturbation.
+    parameter->setParameterValue(
+                unperturbedParameterValue - parameterPerturbation );
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+
+    Eigen::Vector3d downPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, currentTime );
+    accelerationModel->resetTime( TUDAT_NAN );
+
+    // Reset to original value.
+    parameter->setParameterValue(
+                unperturbedParameterValue ) ;
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+
+    // Calculate partial using central difference.
+    return ( upPerturbedAcceleration - downPerturbedAcceleration ) / ( 2.0 * parameterPerturbation );
+
+}
+
+Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPartials(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        Eigen::VectorXd parameterPerturbation,
+        boost::function< void( ) > updateDependentVariables,
+        const double currentTime,
+        boost::function< void( const double ) > timeDependentUpdateDependentVariables )
+{
+    // Store uperturbed value.
+
+    Eigen::VectorXd unperturbedParameterValue = parameter->getParameterValue( );
+
+
+    if( unperturbedParameterValue.size( ) != parameterPerturbation.size( ) )
+    {
+        std::cerr<<parameter->getParameterName( ).first<<" "<<parameter->getParameterName( ).second.first<<" "
+                <<unperturbedParameterValue.size( )<<" "<<parameterPerturbation.size( )<<std::endl;
+        std::cerr<<"Error when calculating numerical parameter partial of acceleration, parameter and"<<
+                   " perturbations are not the same size"<<std::endl;
+    }
+
+    Eigen::Matrix< double, 3, Eigen::Dynamic > partialMatrix = Eigen::MatrixXd::Zero( 3, unperturbedParameterValue.size( ) );
+
+    Eigen::VectorXd perturbedParameterValue;
+    for( int i = 0; i < unperturbedParameterValue.size( ); i++ )
+    {
+
+        perturbedParameterValue = unperturbedParameterValue;
+        perturbedParameterValue( i ) += parameterPerturbation( i );
+        // Calculate up-perturbation
+        parameter->setParameterValue( perturbedParameterValue );
+        updateDependentVariables( );
+        timeDependentUpdateDependentVariables( currentTime );
+        Eigen::Vector3d upPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                    accelerationModel, currentTime );
+        accelerationModel->resetTime( TUDAT_NAN );
+
+        // Calculate down-perturbation.
+        perturbedParameterValue = unperturbedParameterValue;
+        perturbedParameterValue( i ) -= parameterPerturbation( i );
+        parameter->setParameterValue( perturbedParameterValue );
+        updateDependentVariables( );
+        timeDependentUpdateDependentVariables( currentTime );
+
+        Eigen::Vector3d downPerturbedAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                    accelerationModel, currentTime );
+        accelerationModel->resetTime( TUDAT_NAN );
+
+        partialMatrix.block( 0, i, 3, 1 ) =
+                ( upPerturbedAcceleration - downPerturbedAcceleration ) / ( 2.0 * parameterPerturbation( i ) );
+
+    }
+
+    // Reset to original value.
+    parameter->setParameterValue(
+                unperturbedParameterValue ) ;
+    updateDependentVariables( );
+    timeDependentUpdateDependentVariables( currentTime );
+
+    // Calculate partial using central difference.
+    return partialMatrix;
+}
+
+
+}
+
+}
+
+}
+

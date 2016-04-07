@@ -140,10 +140,11 @@ typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
  */
 template < typename AccelerationDataType >
 AccelerationDataType updateAndGetAcceleration(
-        boost::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel )
+        const boost::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel,
+        const double currentTime = TUDAT_NAN )
 {
     // Update members.
-    accelerationModel->updateMembers( );
+    accelerationModel->updateMembers( currentTime );
 
     // Evaluate and return acceleration.
     return accelerationModel->getAcceleration( );
