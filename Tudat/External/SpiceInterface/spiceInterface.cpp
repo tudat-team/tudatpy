@@ -34,12 +34,10 @@
  *
  */
 
-#include <iostream>
 
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
 namespace tudat

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
+/*    Copyright (c) 2010-2012, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -24,42 +24,59 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      150409    D. Dirkx          Migrated from personal code.
+ *      120607    A. Ronse          Creation of code.
  *
  *    References
- *      Montebruck O, Gill E. Satellite Orbits, Springer, 2000.
- *
- *    Notes
+ *      Data file:
+ *                        http://celestrak.com/SpaceData/sw19571001.txt
+ *                        http://celestrak.com/SpaceData/sw20110101.txt
+ *      Data format explanation:
+ *                        http://celestrak.com/SpaceData/SpaceWx-format.asp
  *
  */
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
+#ifndef TUDAT_EXTRACTSOLARACTIVITY_H
+#define TUDAT_EXTRACTSOLARACTIVITY_H
+
+#include "Tudat/InputOutput/solarActivityData.h"
+#include "Tudat/InputOutput/extractor.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace tudat
 {
-
-namespace basic_astrodynamics
+namespace input_output
+{
+namespace solar_activity
 {
 
-//! Function to calculate the altitude of a point over a central body
-//! from positions of both the point and the body (in any frame)
-double getAltitudeFromNonBodyFixedPosition(
-        const boost::shared_ptr< BodyShapeModel > bodyShapeModel, const Eigen::Vector3d& position,
-        const Eigen::Vector3d& bodyPosition, const Eigen::Quaterniond& toBodyFixedFrame )
+//! Solar activity extractor class.
+/*!
+ * This class extracts the numeric information from a ParsedDataLineMapPtr containing parsed
+ * solar activity data designed and placec them in a container of class SolarActivityData
+ */
+class ExtractSolarActivityData : public tudat::input_output::Extractor<
+            tudat::input_output::solar_activity::SolarActivityData >
 {
-    return bodyShapeModel->getAltitude( toBodyFixedFrame * ( position - bodyPosition ) );
-}
 
-//! Function to calculate the altitude of a point over a central body
-//! from positions of both the point and the body (in any frame)
-double getAltitudeFromNonBodyFixedPositionFunctions(
-        const boost::shared_ptr< BodyShapeModel > bodyShapeModel, const Eigen::Vector3d& position,
-        const boost::function< Eigen::Vector3d( ) > bodyPositionFunction,
-        const boost::function< Eigen::Quaterniond( ) > toBodyFixedFrameFunction )
-{
-    return getAltitudeFromNonBodyFixedPosition( bodyShapeModel, position,  bodyPositionFunction( ),
-                                                toBodyFixedFrameFunction( ) );
-}
+public:
 
-} // namespace basic_astrodynamics
-} // namespace tudat
+    //! Extracts the solar activity data to a SolarActivityData container.
+    /*!
+     * Extracts the solar activity data from a "ParsedDataLineMap" object and saves it in a
+     * "SolarActivityData" contatiner.
+     */
+    boost::shared_ptr< tudat::input_output::solar_activity::SolarActivityData > extract(
+                tudat::input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr data );
+
+protected:
+
+private:
+
+};
+
+}   // namespace solar_activity
+}   // namespace input_output
+}   // namespace tudat
+
+#endif  // TUDAT_EXTRACTSOLARACTIVITY_H

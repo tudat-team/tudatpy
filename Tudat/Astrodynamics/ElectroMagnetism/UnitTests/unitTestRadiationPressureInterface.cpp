@@ -132,6 +132,9 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionLink )
     unoccultedRadiationPressureInterface->updateInterface( );
 
     // Test application of shadow function (see testShadowFunctionForPartialShadow)
+    // Satellite partially visible. Satellite is located between the locations of the previous
+    // tests in penumbra. According to analytical derivations in Matlab the shadow function should
+    // be around 0.4547. Altitude of satellite = 1000 km (from unitTestMissionGeometry.cpp).
     BOOST_CHECK_CLOSE_FRACTION(
                 occultedRadiationPressureInterface->getCurrentRadiationPressure( ) /
                 unoccultedRadiationPressureInterface->getCurrentRadiationPressure( ) , 0.4547,

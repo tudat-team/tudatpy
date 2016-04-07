@@ -33,8 +33,6 @@
    *
    */
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
@@ -66,6 +64,5 @@ Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
 }
 
 } // namespace tudat
-
 } // namespace ephemerides
 
