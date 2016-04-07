@@ -16,6 +16,7 @@
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
 
 namespace tudat
 {
@@ -48,8 +49,10 @@ public:
     DynamicsStateDerivativeModel(
             const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
             stateDerivativeModels,
-            const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater ):
-        environmentUpdater_( environmentUpdater )
+            const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater,
+            const boost::shared_ptr< VariationalEquations > variationalEquations =
+            boost::shared_ptr< VariationalEquations >( )  ):
+        environmentUpdater_( environmentUpdater ), variationalEquations_( variationalEquations )
     {
         std::vector< IntegratedStateType > stateTypeList;
         totalStateSize_ = 0;
@@ -115,7 +118,7 @@ public:
         {
             std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
                     statesPerTypeInConventionalRepresentation =
-                    convertCurrentStateToGlobalRepresentationPerType( state, time );
+                    convertCurrentStateToGlobalRepresentationPerType( state, time, evaluateVariationalEquations_ );
             environmentUpdater_->updateEnvironment( time, statesPerTypeInConventionalRepresentation,
                                                     integratedStatesFromEnvironment_ );
         }
@@ -154,9 +157,23 @@ public:
             }
         }
 
+        // If variational equations are to be integrated: evaluate and set.
+        if( evaluateVariationalEquations_ )
+        {
+            variationalEquations_->updatePartials( time );
+            stateDerivative.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ) =
+                    variationalEquations_->evaluateVariationalEquations< StateScalarType >(
+                        time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ) );
+        }
+
         return stateDerivative;
     }
 
+    Eigen::MatrixXd computeStateDoubleDerivative(
+            const double time, const Eigen::MatrixXd& state )
+    {
+        return computeStateDerivative( static_cast< TimeType >( time ), state.template cast< StateScalarType >( ) ).template cast< double >( );
+    }
 
     //! Function to convert the state in the conventional form to the propagator-specific form.
     /*!
@@ -253,6 +270,11 @@ public:
         return convertedSolution;
     }
 
+    void addVariationalEquations( boost::shared_ptr< VariationalEquations > variationalEquations )
+    {
+        variationalEquations_ = variationalEquations;
+    }
+
     //! Function to set which segments of the full state to propagate
     /*!
      * Function to set which segments of the full state to propagate, i.e. whether to propagate the variational/dynamical
@@ -268,13 +290,14 @@ public:
         integratedStatesFromEnvironment_ = stateTypesToNotIntegrate;
         evaluateDynamicsEquations_ = evaluateDynamicsEquations;
         evaluateVariationalEquations_ = evaluateVariationalEquations;
+
         if( evaluateVariationalEquations_ )
         {
-            startColumn_ = variationalEquations_->getNumberOfParameterValues( );
+            dynamicsStartColumn_ = variationalEquations_->getNumberOfParameterValues( );
         }
         else
         {
-            startColumn_ = 0;
+            dynamicsStartColumn_ = 0;
         }
     }
 
@@ -349,9 +372,18 @@ private:
      * that can for instance be set directly  in the body object.
      */
     std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
-    convertCurrentStateToGlobalRepresentationPerType( const StateType& state, const TimeType& time )
+    convertCurrentStateToGlobalRepresentationPerType(
+            const StateType& state, const TimeType& time, const bool stateIncludesVariationalState )
     {
         int startColumn = 0;
+        if( stateIncludesVariationalState )
+        {
+            startColumn = variationalEquations_->getNumberOfParameterValues( );
+        }
+        else
+        {
+            startColumn = 0;
+        }
 
         std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitConventionalStates;
 
@@ -386,6 +418,8 @@ private:
 
     //! Object used to update the environment to the current state and time.
     boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater_;
+
+    boost::shared_ptr< VariationalEquations > variationalEquations_;
 
     //! Map that denotes for each state derivative model the start index and size of the associated state in the full state
     //! vector.
@@ -423,6 +457,24 @@ private:
 
 };
 
+template< typename TimeType = double, typename StateScalarType = double,
+          typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
+std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
+        boost::shared_ptr< ConversionClassType > converterClass )
+{
+    // Initialize converted solution.
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
+
+    // Iterate over all times.
+    for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
+         rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
+    {
+        // Convert solution at this time to output (typically ephemeris frame of given body) solution
+        convertedSolution[ stateIterator->first ] = converterClass->convertToOutputSolution( stateIterator->second, stateIterator->first );
+    }
+    return convertedSolution;
+}
 
 } // namespace state_derivative_models
 } // namespace tudat

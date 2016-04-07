@@ -492,7 +492,7 @@ private:
         if( stateTransitionInterface_ == NULL )
         {
             stateTransitionInterface_ = boost::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                        stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, propagatorSettings_->getSingleArcStateSize( ),
+                        stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator, propagatorSettings_->getStateSize( ),
                         parameterVectorSize_ );
         }
         else

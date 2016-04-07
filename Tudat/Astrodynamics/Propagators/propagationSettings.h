@@ -54,7 +54,7 @@ public:
      */
     PropagatorSettings( const IntegratedStateType stateType,
                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates ):
-        stateType_( stateType ), initialStates_( initialBodyStates ){ }
+        stateType_( stateType ), initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ){ }
 
     //! Virtual destructor.
     virtual ~PropagatorSettings( ){ }
@@ -80,12 +80,21 @@ public:
     virtual void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
     {
         initialStates_ = initialBodyStates;
+        stateSize_ = initialStates_.rows( );
+    }
+
+
+    int getStateSize( )
+    {
+        return stateSize_;
     }
 
 protected:
 
     //!  Initial state used as input for numerical integration
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates_;
+
+    int stateSize_;
 
 };
 

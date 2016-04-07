@@ -145,11 +145,11 @@ execute( const std::vector< std::string > centralBodies,
                               ( "Sun", gravitational_parameter ) );
     {
         parameterNames.push_back( boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                                      "Moon", propagators::setInitialStateOfBody< TimeType, StateScalarType >(
+                                      "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
                                           "Moon", centralBodies[ 0 ], bodyMap, TimeType( initialEphemerisTime ) ) + initialStateDifference.segment( 0, 6 ),
                                   centralBodies[ 0 ] ) );
         parameterNames.push_back( boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                                      "Earth", propagators::setInitialStateOfBody< TimeType, StateScalarType >(
+                                      "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
                                           "Earth", centralBodies[ 1 ], bodyMap, TimeType( initialEphemerisTime ) ) + initialStateDifference.segment( 6, 6 ),
                                       centralBodies[ 1 ] ) );
     }
