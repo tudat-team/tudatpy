@@ -46,6 +46,7 @@
 set(ACCELERATION_PARTIALS_SOURCES
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/accelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/centralGravityAccelerationPartial.cpp"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/numericalAccelerationPartial.cpp"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/radiationPressureAccelerationPartial.cpp"
 )
 
@@ -54,11 +55,17 @@ set(ACCELERATION_PARTIALS_HEADERS
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/accelerationPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/thirdBodyGravityPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/centralGravityAccelerationPartial.h"
+  "${SRCROOT}${ACCELERATIONPARTIALSDIR}/numericalAccelerationPartial.h"
   "${SRCROOT}${ACCELERATIONPARTIALSDIR}/radiationPressureAccelerationPartial.h"
 )
 
 # Add static libraries.
 add_library(tudat_acceleration_partials STATIC ${ACCELERATION_PARTIALS_SOURCES} ${ACCELERATION_PARTIALS_HEADERS})
 setup_tudat_library_target(tudat_acceleration_partials "${SRCROOT}{ACCELERATIONPARTIALSDIR}")
+
+# Add unit tests
+add_executable(test_AccelerationPartials "${SRCROOT}${ACCELERATIONPARTIALSDIR}/UnitTests/unitTestAccelerationPartials.cpp")
+setup_custom_test_program(test_AccelerationPartials "${SRCROOT}${ACCELERATIONPARTIALSDIR}")
+target_link_libraries(test_AccelerationPartials tudat_simulation_setup tudat_propagators tudat_acceleration_partials tudat_estimatable_parameters tudat_orbit_determination tudat_electro_magnetism tudat_ephemerides tudat_aerodynamics tudat_interpolators tudat_spice_interface tudat_numerical_integrators tudat_gravitation tudat_reference_frames tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders tudat_input_output cspice ${Boost_LIBRARIES})
 
 
