@@ -69,15 +69,15 @@ PropagationHistory getODTBXBenchmarkData( )
                 = stateInKeplerianElements;
     }
 
-    benchmarkPropagationHistory[ 1.0 * timeStep ]( 5 ) = 2.79722436211144;
-    benchmarkPropagationHistory[ 2.0 * timeStep ]( 5 ) = 3.18337407409023;
-    benchmarkPropagationHistory[ 3.0 * timeStep ]( 5 ) = 3.57400974200765;
-    benchmarkPropagationHistory[ 4.0 * timeStep ]( 5 ) = 4.01425565759545;
-    benchmarkPropagationHistory[ 5.0 * timeStep ]( 5 ) = 4.57232665706546;
-    benchmarkPropagationHistory[ 6.0 * timeStep ]( 5 ) = 5.35956850972672;
-    benchmarkPropagationHistory[ 7.0 * timeStep ]( 5 ) = 0.137251905665217;
-    benchmarkPropagationHistory[ 8.0 * timeStep ]( 5 ) = 1.14521863765007;
-    benchmarkPropagationHistory[ 9.0 * timeStep ]( 5 ) = 1.86433634881636;
+    benchmarkPropagationHistory[  1.0 * timeStep ]( 5 ) = 2.79722436211144;
+    benchmarkPropagationHistory[  2.0 * timeStep ]( 5 ) = 3.18337407409023;
+    benchmarkPropagationHistory[  3.0 * timeStep ]( 5 ) = 3.57400974200765;
+    benchmarkPropagationHistory[  4.0 * timeStep ]( 5 ) = 4.01425565759545;
+    benchmarkPropagationHistory[  5.0 * timeStep ]( 5 ) = 4.57232665706546;
+    benchmarkPropagationHistory[  6.0 * timeStep ]( 5 ) = 5.35956850972672;
+    benchmarkPropagationHistory[  7.0 * timeStep ]( 5 ) = 0.137251905665217;
+    benchmarkPropagationHistory[  8.0 * timeStep ]( 5 ) = 1.14521863765007;
+    benchmarkPropagationHistory[  9.0 * timeStep ]( 5 ) = 1.86433634881636;
     benchmarkPropagationHistory[ 10.0 * timeStep ]( 5 ) = 2.38486787064101;
 
     return benchmarkPropagationHistory;
@@ -136,7 +136,6 @@ PropagationHistory getGTOPBenchmarkData( )
     return benchmarkPropagationHistory;
 }
 
-}
-
-}
+} // namespace unit_tests
+} // namespace tudat
 #endif // TUDAT_KEPLERPROPAGATORTESTDATA_H

@@ -1,6 +1,3 @@
-#ifndef TUDAT_BODYSHAPEMODEL_H
-#define TUDAT_BODYSHAPEMODEL_H
-
 /*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
@@ -36,6 +33,8 @@
  *
  */
 
+#ifndef TUDAT_BODYSHAPEMODEL_H
+#define TUDAT_BODYSHAPEMODEL_H
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -115,10 +114,10 @@ double getAltitudeFromNonBodyFixedPosition(
  *  e.g. a Body class.
  *  \param bodyShapeModel Shape model of central body
  *  \param position Position of point of which altitude is to be calculated
- *  \param bodyPositionFunction Function returning position of central body above which altitude is to be
- *  calculated
- *  \param toBodyFixedFrameFunction Function returning rotation from frame in which input vectors are given to
- *  body-fixed frame.
+ *  \param bodyPositionFunction Function returning position of central body above which altitude is
+ *  to be calculated
+ *  \param toBodyFixedFrameFunction Function returning rotation from frame in which input vectors are
+ *  given to body-fixed frame.
  *  \return Altitude above body shape.
  */
 double getAltitudeFromNonBodyFixedPositionFunctions(
@@ -128,8 +127,7 @@ double getAltitudeFromNonBodyFixedPositionFunctions(
         const boost::function< Eigen::Quaterniond( ) > toBodyFixedFrameFunction );
 
 
-}
-
-}
+} // namespace basic_astrodynamics
+} // namespace tudat
 
 #endif // TUDAT_BODYSHAPEMODEL_H

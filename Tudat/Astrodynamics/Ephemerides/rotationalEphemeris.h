@@ -45,7 +45,6 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
@@ -188,7 +187,7 @@ public:
      * base frame at specified time.
      * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
      * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds
-     *          are counted.
+     *          are counted (default 0).
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToBaseFrame(
@@ -201,7 +200,7 @@ public:
      * base frame at specified time.
      * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
      * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted.
+     *          counted (default 0).
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToTargetFrame(
@@ -230,7 +229,7 @@ public:
      *  frame at specified time, to be implemented by derived class.
      * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
      * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted.
+     *          counted (default 0).
      *  \return Derivative of rotation from original (typically global) to target (typically local)
      *          frame at specified time.
      */
