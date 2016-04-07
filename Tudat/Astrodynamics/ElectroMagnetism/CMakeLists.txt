@@ -39,14 +39,16 @@ set(ELECTROMAGNETISM_SOURCES
   "${SRCROOT}${ELECTROMAGNETISMDIR}/cannonBallRadiationPressureForce.h"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticForce.h"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticAcceleration.h"
+  "${SRCROOT}${ELECTROMAGNETISMDIR}/radiationPressureInterface.h"
 )
 
 # Set the header files.
-set(ELECTROMAGNETISM_HEADERS 
+set(ELECTROMAGNETISM_HEADERS
   "${SRCROOT}${ELECTROMAGNETISMDIR}/cannonBallRadiationPressureAcceleration.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/cannonBallRadiationPressureForce.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticForce.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticAcceleration.cpp"
+  "${SRCROOT}${ELECTROMAGNETISMDIR}/radiationPressureInterface.cpp"
 )
 
 # Add static libraries.
@@ -61,3 +63,7 @@ target_link_libraries(test_CannonBallRadiationPressureAccelerationAndForce tudat
 add_executable(test_LorentzStaticMagneticAccelerationAndForce "${SRCROOT}${ELECTROMAGNETISMDIR}/UnitTests/unitTestLorentzStaticMagneticAccelerationAndForce.cpp")
 setup_custom_test_program(test_LorentzStaticMagneticAccelerationAndForce "${SRCROOT}${ELECTROMAGNETISMDIR}")
 target_link_libraries(test_LorentzStaticMagneticAccelerationAndForce tudat_electro_magnetism ${Boost_LIBRARIES})
+
+add_executable(test_RadiationPressureInterface "${SRCROOT}${ELECTROMAGNETISMDIR}/UnitTests/unitTestRadiationPressureInterface.cpp")
+setup_custom_test_program(test_RadiationPressureInterface "${SRCROOT}${ELECTROMAGNETISMDIR}")
+target_link_libraries(test_RadiationPressureInterface tudat_electro_magnetism tudat_basic_astrodynamics ${Boost_LIBRARIES})
