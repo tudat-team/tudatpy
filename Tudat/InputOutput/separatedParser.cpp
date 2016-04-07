@@ -53,7 +53,6 @@ SeparatedParser::SeparatedParser( std::string separator, int numberOfFields, ...
 {
     // Copy number of fields.
     numberOfFields_ = numberOfFields;
-
     separator_ = separator;
 
     // Create a fancy vector (list) of all the fields.
@@ -72,7 +71,6 @@ SeparatedParser::SeparatedParser( std::string separator, int numberOfFields, ...
 void SeparatedParser::parseLine( std::string& line )
 {
     // Some short hand notations.
-    using namespace std;
     using namespace parsed_data_vector_utilities;
     typedef std::pair< FieldType, FieldValuePtr > FieldDataPair;
 
@@ -84,16 +82,16 @@ void SeparatedParser::parseLine( std::string& line )
 
     // Split string into multiple strings based on provided separator and place in vector.
     typedef boost::algorithm::split_iterator< std::string::iterator > string_split_iterator;
-    for( string_split_iterator It=
+    for( string_split_iterator stringIterator =
          boost::algorithm::make_split_iterator( line, boost::algorithm::first_finder(
                                                     separator_, boost::algorithm::is_iequal( ) ) );
-         It!=string_split_iterator( );
-         ++It )
+         stringIterator!=string_split_iterator( );
+         ++stringIterator )
     {
         // Prevent empty rows due to a double separator.
-        if ( !boost::copy_range< std::string >( *It ).empty( ) )
+        if ( !boost::copy_range< std::string >( *stringIterator ).empty( ) )
         {
-            vectorOfIndividualStrings_.push_back( boost::copy_range< std::string >( *It ) );
+            vectorOfIndividualStrings_.push_back( boost::copy_range< std::string >( *stringIterator ) );
         }
     }
 

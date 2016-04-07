@@ -43,6 +43,15 @@ namespace tudat
 namespace linear_algebra
 {
 
+//! Function that returns that 'cross-product matrix'
+/*!
+ *  Function that returns that 'cross-product matrix', i.e. for vectors a,b and c, with c = a x b, the matrix A such that
+ *  c = Ab.
+ *  \param leftHandVector The left-multiplying vector (a in above example)
+ *  \return The matrix by which to premultiply the right-multiplying vector to obtain the cross product of the two matrices.
+ */
+Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& leftHandVector );
+
 //! Compute cosine of the angle between two vectors.
 /*!
  * Computes the cosine of the angle between two vectors; both vectors must have non-zero norm.

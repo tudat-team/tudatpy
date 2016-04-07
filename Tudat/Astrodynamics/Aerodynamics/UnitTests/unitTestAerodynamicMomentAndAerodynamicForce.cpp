@@ -63,8 +63,7 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Basics/testMacros.h"
-
-#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
+#include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicRotationalAcceleration.h"
 
@@ -113,10 +112,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
         AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
-                boost::make_shared< AerodynamicCoefficientInterface >( );
-        aerodynamicCoefficientInterface->setCurrentForceCoefficients( forceCoefficients );
-        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
-        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
+                createConstantCoefficientAerodynamicCoefficientInterface(
+                    forceCoefficients, Eigen::Vector3d::Zero( ),
+                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
 
         // Compute aerodynamic force using free function with coefficient interface argument.
         Eigen::Vector3d force = computeAerodynamicForce( dynamicPressure,
@@ -124,6 +122,21 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
 
         // Check if computed force matches expected.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
+
+        // Test aerodynamic coefficient interface properties
+        BOOST_CHECK_EQUAL(
+                    aerodynamicCoefficientInterface->getIndependentVariableNames( ).size( ), 0 );
+
+        bool isVariableIndexTooHigh = 0;
+        try
+        {
+            aerodynamicCoefficientInterface->getIndependentVariableName( 0 );
+        }
+        catch ( std::runtime_error )
+        {
+            isVariableIndexTooHigh = 1;
+        }
+        BOOST_CHECK_EQUAL( isVariableIndexTooHigh, 1 );
     }
 
     // Test 3: test the acceleration model implemented as free function with primitive arguments,
@@ -131,10 +144,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
         AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
-                boost::make_shared< AerodynamicCoefficientInterface >( );
-        aerodynamicCoefficientInterface->setCurrentForceCoefficients( forceCoefficients );
-        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
-        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
+                createConstantCoefficientAerodynamicCoefficientInterface(
+                    forceCoefficients, Eigen::Vector3d::Zero( ),
+                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
 
         // Compute aerodynamic force from aerodynamic acceleration free function with primitive
         // arguments.
@@ -258,11 +270,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
         AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
-                boost::make_shared< AerodynamicCoefficientInterface >( );
-        aerodynamicCoefficientInterface->setCurrentMomentCoefficients( momentCoefficients );
-        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
-        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
-        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
+        createConstantCoefficientAerodynamicCoefficientInterface(
+            Eigen::Vector3d::Zero( ), momentCoefficients,
+            referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
 
         // Compute aerodynamic moment using free function with coefficient interface argument.
         Eigen::Vector3d moment = computeAerodynamicMoment( dynamicPressure,
@@ -278,11 +288,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicMomentAndRotationalAcceleration )
     {
         // Set coefficients and model parameters in aerodynamics coefficient interface object.
         AerodynamicCoefficientInterfacePointer aerodynamicCoefficientInterface =
-                boost::make_shared< AerodynamicCoefficientInterface >( );
-        aerodynamicCoefficientInterface->setCurrentMomentCoefficients( momentCoefficients );
-        aerodynamicCoefficientInterface->setReferenceArea( referenceArea );
-        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
-        aerodynamicCoefficientInterface->setReferenceLength( referenceLength );
+                createConstantCoefficientAerodynamicCoefficientInterface(
+                    Eigen::Vector3d::Zero( ), momentCoefficients,
+                    referenceLength, referenceArea, referenceLength, Eigen::Vector3d::Zero( ) );
 
         // Compute aerodynamic moment from aerodynamic rotational acceleration free function with
         // primitive arguments.
