@@ -51,8 +51,8 @@ add_subdirectory("${SRCROOT}${ACCELERATIONPARTIALSDIR}")
 add_subdirectory("${SRCROOT}${ESTIMATABLEPARAMETERSDIR}")
 
 # Get target properties for static libraries.
-get_target_property(ACCELERATIONPARTIALSSOURCES ilr_acceleration_partials SOURCES)
-get_target_property(ESTIMATABLEPARAMETERSOURCES ilr_estimatable_parameters SOURCES)
+get_target_property(ACCELERATIONPARTIALSSOURCES tudat_acceleration_partials SOURCES)
+get_target_property(ESTIMATABLEPARAMETERSOURCES tudat_estimatable_parameters SOURCES)
 
 # Set the source files.
 set(ORBIT_DETERMINATION_SOURCES
