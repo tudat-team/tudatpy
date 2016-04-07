@@ -91,15 +91,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
             = boost::make_shared< geometric_shapes::SphereSegment >( 1.0 );
 
     // Set vehicle in analysis with 10,000 panels.
-    vector< int > numberOfLines;
-    vector< int > numberOfPoints;
-    vector< bool > invertOrder;
-    numberOfLines.resize( 1 );
-    numberOfPoints.resize( 1 );
-    invertOrder.resize( 1 );
-    numberOfLines[ 0 ] = 31;
-    numberOfPoints[ 0 ] = 31;
-    invertOrder[ 0 ] = 0;
+    vector< int > numberOfLines( 1, 31 );
+    vector< int > numberOfPoints( 1, 31 );
+    vector< bool > invertOrder( 1, false );
 
     // Create analysis object.
     std::vector< std::vector< double > > independentVariableDataPoints;
@@ -114,11 +108,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
 
 
     // Set methods to use for aerodynamic analysis.
-    std::vector< std::vector< int > > analysisMethod;
-    analysisMethod.resize( 2 );
-    analysisMethod[ 0 ].resize( 1 );
-    analysisMethod[ 1 ].resize( 1 );
-    analysisMethod[ 0 ][ 0 ] = 0;
+    std::vector< std::vector< int > > analysisMethod( 2, std::vector< int >( 1, 0 ));
     analysisMethod[ 1 ][ 0 ] = 1;
 
     // Generate sphere database of aerodynamic coefficients.
@@ -156,10 +146,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
     independentVariables[ 0 ] = 0;
     independentVariables[ 1 ] = 0;
     independentVariables[ 2 ] = 0;
-    std::vector< double > independentVariablesVector;
-    independentVariablesVector.resize( 3 );
-    std::vector< double > interpolatingIndependentVariablesVector;
-    interpolatingIndependentVariablesVector.resize( 3 );
+    std::vector< double > independentVariablesVector( 3 );
+    std::vector< double > interpolatingIndependentVariablesVector( 3 );
 
     // Declare local test variables.
     Vector6d aerodynamicCoefficients_ = Vector6d::Zero( );
@@ -306,12 +294,9 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
             = boost::make_shared< geometric_shapes::Capsule >(
                 4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
-    vector< int > numberOfLines;
-    vector< int > numberOfPoints;
-    vector< bool > invertOrders;
-    numberOfLines.resize( 4 );
-    numberOfPoints.resize( 4 );
-    invertOrders.resize( 4 );
+    vector< int > numberOfLines( 4 );
+    vector< int > numberOfPoints( 4 );
+    vector< bool > invertOrders( 4 );
 
     // Set number of analysis points.
     numberOfLines[ 0 ] = 31;
@@ -332,11 +317,9 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     momentReference( 1 ) = 0.0;
     momentReference( 2 ) = -0.1369;
 
-    std::vector< std::vector< double > > independentVariableDataPoints;
-    independentVariableDataPoints.resize( 3 );
+    std::vector< std::vector< double > > independentVariableDataPoints( 3 );
     independentVariableDataPoints[ 0 ] = getDefaultHypersonicLocalInclinationMachPoints( "Full" );
-    std::vector< double > angleOfAttackPoints;
-    angleOfAttackPoints.resize( 7 );
+    std::vector< double > angleOfAttackPoints( 7 );
 
     for ( int i = 0; i < 7; i++ )
     {
@@ -346,10 +329,7 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     independentVariableDataPoints[ 1 ] = angleOfAttackPoints;
     independentVariableDataPoints[ 2 ] =
             getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
-    std::vector< std::vector< int > > selectedMethods;
-    selectedMethods.resize( 2 );
-    selectedMethods[ 0 ].resize( 4 );
-    selectedMethods[ 1 ].resize( 4 );
+    std::vector< std::vector< int > > selectedMethods( 2, std::vector< int >( 4 ));
 
     selectedMethods[ 0 ][ 0 ] = 1;
     selectedMethods[ 0 ][ 1 ] = 5;
@@ -402,8 +382,7 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
                        toleranceAerodynamicCoefficients5 );
 
 
-    std::vector< double > independentVariablesVector;
-    independentVariablesVector.resize( 3 );
+    std::vector< double > independentVariablesVector( 3 );
     independentVariablesVector[ 0 ] = coefficientInterface->getIndependentVariablePoint(
                 0, coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1 );
     independentVariablesVector[ 1 ] = coefficientInterface->getIndependentVariablePoint(

@@ -34,10 +34,10 @@
  *
  */
 
+
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 
 namespace tudat
@@ -148,6 +148,49 @@ Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string& or
     return Eigen::Quaterniond( rotationMatrix );
 }
 
+//! Computes time derivative of rotation matrix between two frames.
+Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string& originalFrame,
+                                                              const std::string& newFrame,
+                                                              const double ephemerisTime )
+{
+    double stateTransition[ 6 ][ 6 ];
+
+    // Calculate state transition matrix.
+    sxform_c( originalFrame.c_str( ), newFrame.c_str( ), ephemerisTime, stateTransition );
+
+    // Put rotation matrix derivative in Eigen Matrix3d
+    Eigen::Matrix3d matrixDerivative = Eigen::Matrix3d::Zero( );
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            matrixDerivative( i, j ) = stateTransition[ i + 3 ][ j ];
+        }
+    }
+
+    return matrixDerivative;
+}
+
+//! Computes the angular velocity of one frame w.r.t. to another frame.
+Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::string& originalFrame,
+                                                                const std::string& newFrame,
+                                                                const double ephemerisTime )
+{
+    double stateTransition[ 6 ][ 6 ];
+
+    // Calculate state transition matrix.
+    sxform_c( originalFrame.c_str( ), newFrame.c_str( ), ephemerisTime, stateTransition );
+
+    double rotation[ 3 ][ 3 ];
+    double angularVelocity[ 3 ];
+
+    // Calculate angular velocity vector.
+    xf2rav_c( stateTransition, rotation, angularVelocity );
+
+    return ( Eigen::Vector3d( )<<angularVelocity[ 0 ], angularVelocity[ 1 ], angularVelocity[ 2 ] ).
+            finished( );
+}
+
 //! Get property of a body from Spice.
 std::vector< double > getBodyProperties( const std::string& body, const std::string& property,
                                          const int maximumNumberOfValues )
@@ -182,8 +225,8 @@ double getBodyGravitationalParameter( const std::string& body )
 
     // Convert from km^3/s^2 to m^3/s^2
     return unit_conversions::convertKilometersToMeters< double >(
-               unit_conversions::convertKilometersToMeters< double >(
-                   unit_conversions::convertKilometersToMeters< double >(
+                unit_conversions::convertKilometersToMeters< double >(
+                    unit_conversions::convertKilometersToMeters< double >(
                         gravitationalParameter[ 0 ] ) ) );
 }
 

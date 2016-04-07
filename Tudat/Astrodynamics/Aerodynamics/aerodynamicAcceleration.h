@@ -119,7 +119,8 @@ public:
      *          for all calls of this class.
      * \param areCoefficientsInNegativeDirection Boolean that determines whether to invert
      *          direction of aerodynamic coefficients. This is typically done for lift, drag and
-     *          side force coefficients that point in negative direction in the local frame.
+     *          side force coefficients that point in negative direction in the local frame
+     *          (default true).
      */
     AerodynamicAcceleration( const CoefficientReturningFunction coefficientFunction,
                              const DoubleReturningFunction densityFunction,
@@ -148,7 +149,8 @@ public:
      *          coefficient reference area.
      * \param areCoefficientsInNegativeDirection Boolean that determines whether to invert
      *          direction of aerodynamic coefficients. This is typically done for lift, drag and
-     *          side force coefficients that point in negative direction in the local frame.
+     *          side force coefficients that point in negative direction in the local frame
+     *          (default true).
      */
     AerodynamicAcceleration( const CoefficientReturningFunction coefficientFunction,
                              const DoubleReturningFunction densityFunction,
@@ -201,69 +203,36 @@ public:
 private:
 
     //! Function to retrieve the current aerodynamic force coefficients.
-    /*!
-     *  Function to retrieve the current aerodynamic force coefficients.
-     */
     const CoefficientReturningFunction coefficientFunction_;
 
     //! Function to retrieve the current density.
-    /*!
-     *  Function to retrieve the current density.
-     */
     const DoubleReturningFunction densityFunction_;
 
     //! Function to retrieve the current airspeed.
-    /*!
-     *  Function to retrieve the current airspeed.
-     */
     const DoubleReturningFunction airSpeedFunction_;
 
     //! Function to retrieve the current mass.
-    /*!
-     *  Function to retrieve the current mass.
-     */
     const DoubleReturningFunction massFunction_;
 
     //! Function to retrieve the current reference area.
-    /*!
-     *  Function to retrieve the current reference area.
-     */
     const DoubleReturningFunction referenceAreaFunction_;
 
     //! Current aerodynamic force coefficients.
-    /*!
-     *  Current aerodynamic force coefficients, as set by coefficientFunction_.
-     */
     Eigen::Vector3d currentForceCoefficients_;
 
     //! Current density.
-    /*!
-     *  Current density, as set by densityFunction_.
-     */
     double currentDensity_;
 
     //! Current airspeed.
-    /*!
-     *  Current airspeed, as set by airspeedFunction_.
-     */
     double currentAirspeed_;
 
-    //! Current mass.
-    /*!
-     *  Current mass, as set by massFunction_.
-     */
+    //! Current mass as set by massFunction_.
     double currentMass_;
 
-    //! Current reference area.
-    /*!
-     *  Current reference area, as set by referenceAreaFunction_.
-     */
+    //! Current reference area, as set by referenceAreaFunction_.
     double currentReferenceArea_;
 
     //! Multiplier to reverse direction of coefficients.
-    /*!
-     *  Multiplier to reverse direction of coefficients.
-     */
     double coefficientMultiplier_;
 };
 

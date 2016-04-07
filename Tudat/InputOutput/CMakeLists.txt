@@ -49,6 +49,9 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/twoLineElementsTextFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/streamFilters.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/parseSolarActivityData.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/extractSolarActivityData.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/solarActivityData.cpp"
 )
 
 # Add header files.
@@ -74,6 +77,9 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/basicInputOutput.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/matrixTextFileReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/streamFilters.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/parseSolarActivityData.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/extractSolarActivityData.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/solarActivityData.h"
 )
 
 # Add unit test files.
@@ -143,3 +149,7 @@ target_link_libraries(test_SeparatedParser tudat_input_output ${Boost_LIBRARIES}
 add_executable(test_LinearFieldTransform "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestLinearFieldTransform.cpp")
 setup_custom_test_program(test_LinearFieldTransform "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_LinearFieldTransform tudat_input_output ${Boost_LIBRARIES})
+
+add_executable(test_SolarActivityData "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestSolarActivityData.cpp")
+setup_custom_test_program(test_SolarActivityData "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_SolarActivityData tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})

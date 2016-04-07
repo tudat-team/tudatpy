@@ -24,43 +24,42 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      150416    D. Dirkx          File created.
+ *      150409    D. Dirkx          Migrated from personal code.
+ *
+ *    References
+ *      Montebruck O, Gill E. Satellite Orbits, Springer, 2000.
+ *
+ *    Notes
  *
  */
 
-#include <boost/lambda/lambda.hpp>
-
-#include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 
 namespace tudat
 {
-namespace aerodynamics
+
+namespace basic_astrodynamics
 {
 
-//! Function to create an aerodynamic coefficient interface containing constant coefficients.
-boost::shared_ptr< AerodynamicCoefficientInterface >
-createConstantCoefficientAerodynamicCoefficientInterface(
-        const Eigen::Vector3d constantForceCoefficient,
-        const Eigen::Vector3d constantMomentCoefficient,
-        const double referenceLength,
-        const double referenceArea,
-        const double lateralReferenceLength,
-        const Eigen::Vector3d& momentReferencePoint,
-        const bool areCoefficientsInAerodynamicFrame,
-        const bool areCoefficientsInNegativeAxisDirection  )
+//! Function to calculate the altitude of a point over a central body
+//! from positions of both the point and the body (in any frame)
+double getAltitudeFromNonBodyFixedPosition(
+        const boost::shared_ptr< BodyShapeModel > bodyShapeModel, const Eigen::Vector3d& position,
+        const Eigen::Vector3d& bodyPosition, const Eigen::Quaterniond& toBodyFixedFrame )
 {
-    // Create coefficient interface
-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface =
-            boost::make_shared< CustomAerodynamicCoefficientInterface >(
-                    boost::lambda::constant( constantForceCoefficient ),
-                    boost::lambda::constant( constantMomentCoefficient ),
-                    referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
-                std::vector< AerodynamicCoefficientsIndependentVariables >( ),
-                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
-    coefficientInterface->updateCurrentCoefficients( std::vector< double >( ) );
-
-    return coefficientInterface;
+    return bodyShapeModel->getAltitude( toBodyFixedFrame * ( position - bodyPosition ) );
 }
 
-} // namespace aerodynamics
+//! Function to calculate the altitude of a point over a central body
+//! from positions of both the point and the body (in any frame)
+double getAltitudeFromNonBodyFixedPositionFunctions(
+        const boost::shared_ptr< BodyShapeModel > bodyShapeModel, const Eigen::Vector3d& position,
+        const boost::function< Eigen::Vector3d( ) > bodyPositionFunction,
+        const boost::function< Eigen::Quaterniond( ) > toBodyFixedFrameFunction )
+{
+    return getAltitudeFromNonBodyFixedPosition( bodyShapeModel, position,  bodyPositionFunction( ),
+                                                toBodyFixedFrameFunction( ) );
+}
+
+} // namespace basic_astrodynamics
 } // namespace tudat
