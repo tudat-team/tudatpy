@@ -92,11 +92,11 @@ public:
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
      *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
-     *  frame (typically denoted as Cx, Cy, Cz).
+     *  frame (typically denoted as Cx, Cy, Cz) (default true).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positive along tyhe positive axes of the body or aerodynamic frame
      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
-     *  coefficients are typically defined in negative direction.
+     *  coefficients are typically defined in negative direction (default true).
      */
     AerodynamicCoefficientInterface(
             const double referenceLength,
@@ -105,8 +105,8 @@ public:
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables >
             independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = 1,
-            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+            const bool areCoefficientsInAerodynamicFrame = true,
+            const bool areCoefficientsInNegativeAxisDirection = true ):
         referenceLength_( referenceLength ),
         referenceArea_( referenceArea ),
         lateralReferenceLength_( lateralReferenceLength ),
@@ -119,9 +119,6 @@ public:
     }
 
     //! Default destructor.
-    /*!
-     * Default destructor.
-     */
     virtual ~AerodynamicCoefficientInterface( ) { }
 
     //! Get reference area.

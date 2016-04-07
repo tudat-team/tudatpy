@@ -38,6 +38,9 @@
  *    References
  *
  *    Notes
+ *      The accuracy of this model could be increased by implementing different values for the
+ *      scale height and temperature for different altitudes (e.g., lower, middle and upper
+ *      atmosphere).
  *
  */
 

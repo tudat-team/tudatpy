@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
+/*    Copyright (c) 2010-2012, Delft University of Technology
  *    All rights reserved.
  *
  *    Redistribution and use in source and binary forms, with or without modification, are
@@ -24,43 +24,59 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      150416    D. Dirkx          File created.
+ *      120607    A. Ronse          Creation of code.
+ *
+ *    References
+ *      Data file:
+ *                        http://celestrak.com/SpaceData/sw19571001.txt
+ *                        http://celestrak.com/SpaceData/sw20110101.txt
+ *      Data format explanation:
+ *                        http://celestrak.com/SpaceData/SpaceWx-format.asp
  *
  */
 
-#include <boost/lambda/lambda.hpp>
+#ifndef TUDAT_EXTRACTSOLARACTIVITY_H
+#define TUDAT_EXTRACTSOLARACTIVITY_H
 
-#include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
+#include "Tudat/InputOutput/solarActivityData.h"
+#include "Tudat/InputOutput/extractor.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace tudat
 {
-namespace aerodynamics
+namespace input_output
+{
+namespace solar_activity
 {
 
-//! Function to create an aerodynamic coefficient interface containing constant coefficients.
-boost::shared_ptr< AerodynamicCoefficientInterface >
-createConstantCoefficientAerodynamicCoefficientInterface(
-        const Eigen::Vector3d constantForceCoefficient,
-        const Eigen::Vector3d constantMomentCoefficient,
-        const double referenceLength,
-        const double referenceArea,
-        const double lateralReferenceLength,
-        const Eigen::Vector3d& momentReferencePoint,
-        const bool areCoefficientsInAerodynamicFrame,
-        const bool areCoefficientsInNegativeAxisDirection  )
+//! Solar activity extractor class.
+/*!
+ * This class extracts the numeric information from a ParsedDataLineMapPtr containing parsed
+ * solar activity data designed and placec them in a container of class SolarActivityData
+ */
+class ExtractSolarActivityData : public tudat::input_output::Extractor<
+            tudat::input_output::solar_activity::SolarActivityData >
 {
-    // Create coefficient interface
-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface =
-            boost::make_shared< CustomAerodynamicCoefficientInterface >(
-                    boost::lambda::constant( constantForceCoefficient ),
-                    boost::lambda::constant( constantMomentCoefficient ),
-                    referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
-                std::vector< AerodynamicCoefficientsIndependentVariables >( ),
-                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
-    coefficientInterface->updateCurrentCoefficients( std::vector< double >( ) );
 
-    return coefficientInterface;
-}
+public:
 
-} // namespace aerodynamics
-} // namespace tudat
+    //! Extracts the solar activity data to a SolarActivityData container.
+    /*!
+     * Extracts the solar activity data from a "ParsedDataLineMap" object and saves it in a
+     * "SolarActivityData" contatiner.
+     */
+    boost::shared_ptr< tudat::input_output::solar_activity::SolarActivityData > extract(
+                tudat::input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr data );
+
+protected:
+
+private:
+
+};
+
+}   // namespace solar_activity
+}   // namespace input_output
+}   // namespace tudat
+
+#endif  // TUDAT_EXTRACTSOLARACTIVITY_H
