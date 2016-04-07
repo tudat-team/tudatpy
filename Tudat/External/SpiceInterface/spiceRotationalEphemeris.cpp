@@ -3,6 +3,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"

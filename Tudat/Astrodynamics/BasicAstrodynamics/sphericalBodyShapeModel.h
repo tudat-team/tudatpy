@@ -97,8 +97,7 @@ private:
     double radius_;
 };
 
-}
+} // namespace basic_astrodynamics
+} // namespace tudat
 
-}
-
-#endif // SPHERICALBODYSHAPEMODEL_H
+#endif // TUDAT_SPHERICALBODYSHAPEMODEL_H

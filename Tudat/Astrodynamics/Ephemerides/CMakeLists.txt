@@ -42,6 +42,7 @@ set(EPHEMERIDES_SOURCES
   "${SRCROOT}${EPHEMERIDESDIR}/cartesianStateExtractor.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/keplerStateExtractor.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/keplerEphemeris.cpp"
+  "${SRCROOT}${EPHEMERIDESDIR}/rotationalEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/simpleRotationalEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/frameManager.cpp"
