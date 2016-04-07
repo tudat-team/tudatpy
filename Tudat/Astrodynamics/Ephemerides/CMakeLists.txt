@@ -39,6 +39,8 @@ set(EPHEMERIDES_SOURCES
   "${SRCROOT}${EPHEMERIDESDIR}/approximatePlanetPositionsCircularCoplanar.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/cartesianStateExtractor.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/keplerStateExtractor.cpp"
+  "${SRCROOT}${EPHEMERIDESDIR}/keplerEphemeris.cpp"
+  "${SRCROOT}${EPHEMERIDESDIR}/rotationalEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/simpleRotationalEphemeris.cpp"
 )
 
@@ -51,6 +53,7 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/ephemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/cartesianStateExtractor.h"
   "${SRCROOT}${EPHEMERIDESDIR}/keplerStateExtractor.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/keplerEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/rotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/simpleRotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedEphemeris.h"
@@ -77,6 +80,14 @@ add_executable(test_KeplerStateExtractor "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/
 setup_custom_test_program(test_KeplerStateExtractor "${SRCROOT}${EPHEMERIDESDIR}")
 target_link_libraries(test_KeplerStateExtractor tudat_ephemerides tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders ${Boost_LIBRARIES})
 
+add_executable(test_RotationalEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestRotationalEphemeris.cpp")
+setup_custom_test_program(test_RotationalEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
+target_link_libraries(test_RotationalEphemeris tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
 add_executable(test_SimpleRotationalEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestSimpleRotationalEphemeris.cpp")
 setup_custom_test_program(test_SimpleRotationalEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
 target_link_libraries(test_SimpleRotationalEphemeris tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_KeplerEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestKeplerEphemeris.cpp")
+setup_custom_test_program(test_KeplerEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
+target_link_libraries(test_KeplerEphemeris tudat_ephemerides tudat_reference_frames tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
