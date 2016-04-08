@@ -44,10 +44,7 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
-<<<<<<< HEAD
-=======
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
->>>>>>> master
 
 namespace tudat
 {
