@@ -1,5 +1,5 @@
-#ifndef INITIALTRANSLATIONALSTATE_H
-#define INITIALTRANSLATIONALSTATE_H
+#ifndef TUDAT_INITIALTRANSLATIONALSTATE_H
+#define TUDAT_INITIALTRANSLATIONALSTATE_H
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
@@ -86,4 +86,4 @@ int getSingleArcInitialDynamicalStateParameterSetSize(
 
 }
 
-#endif // INITIALTRANSLATIONALSTATE_H
+#endif // TUDAT_INITIALTRANSLATIONALSTATE_H

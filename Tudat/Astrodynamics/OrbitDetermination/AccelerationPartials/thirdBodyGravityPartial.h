@@ -1,5 +1,15 @@
-#ifndef THIRDBODYGRAVITYPARTIAL_H
-#define THIRDBODYGRAVITYPARTIAL_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_THIRDBODYGRAVITYPARTIAL_H
+#define TUDAT_THIRDBODYGRAVITYPARTIAL_H
 
 #include <boost/shared_ptr.hpp>
 
@@ -266,8 +276,6 @@ protected:
 
     void updateParameterPartialsOfMemberObjects( )
     {
-        //std::cout<<"Updating parameter partials (third body)"<<std::endl;
-
         partialOfDirectGravityOnBodyUndergoingAcceleration_->updateParameterPartials( );
         partialOfDirectGravityOnCentralBody_->updateParameterPartials( );
     }
@@ -287,4 +295,4 @@ private:
 
 }
 
-#endif // THIRDBODYGRAVITYPARTIAL_H
+#endif // TUDAT_THIRDBODYGRAVITYPARTIAL_H

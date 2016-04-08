@@ -1,5 +1,5 @@
-#ifndef ESTIMATABLEPARAMETERS_H
-#define ESTIMATABLEPARAMETERS_H
+#ifndef TUDAT_ESTIMATABLEPARAMETERS_H
+#define TUDAT_ESTIMATABLEPARAMETERS_H
 
 #include <iomanip>
 #include <iostream>
@@ -561,4 +561,4 @@ Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getInitialStateVec
 
 }
 
-#endif // ESTIMATABLEPARAMETERS_H
+#endif // TUDAT_ESTIMATABLEPARAMETERS_H

@@ -136,6 +136,7 @@ typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
  * \tparam AccelerationDataType Data type used to represent accelerations
  *          (default=Eigen::Vector3d).
  * \param accelerationModel Acceleration model that is to be evaluated.
+ * \param currentTime Time at which acceleration model is to be updated.
  * \return Acceleration that is obtained following the member update.
  */
 template < typename AccelerationDataType >

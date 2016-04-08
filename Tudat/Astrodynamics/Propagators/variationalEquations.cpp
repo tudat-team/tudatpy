@@ -104,20 +104,7 @@ Eigen::MatrixXd& VariationalEquations::getParameterPartialMatrix( const double e
 
     if( estimatedUnintegratedBodiesVectorSize_ > 0 )
     {
-        std::cerr<<"Error, unintegrated body partials disabled 2"<<std::endl;
-        //        for( unsigned int i = 0; i < unintegratedBodyPartialList_.size( ); i++ )
-        //        {
-        //            // Iterate over all parameter partial functions determined by setParameterPartialFunctionList( )
-        //            for( stateFunctionIterator = unintegratedBodyPartialList_[ i ].begin( );
-        //                 stateFunctionIterator != unintegratedBodyPartialList_[ i ].end( );
-        //                 stateFunctionIterator++ )
-        //            {
-        //                // Add parameter partial to matrix.
-        //                variationalMatrix.block( 3 + 6 * i, stateFunctionIterator->first, 3, 3 ) = stateFunctionIterator->second( );
-        //            }
-        //        }
-        //        variationalMatrix.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_, estimatedUnintegratedBodiesVectorSize_ ) *=
-        //                estimatedUnintegratedBodiesStateTransitionMatrixFunction_( ephemerisTime );
+        std::cerr<<"Error, unintegrated body partials disabled "<<std::endl;
     }
 
     // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
@@ -162,9 +149,12 @@ Eigen::MatrixXd& VariationalEquations::evaluateVariationalEquations< double >(
     currentMatrixDerivative_.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
             getBodyInitialStatePartialMatrix( ) * stateTransitionAndSensitivityMatrices;
 
-    // Add partials of parameters.
-    currentMatrixDerivative_.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
-            getParameterPartialMatrix( ephemerisTime );
+    if( numberOfParameterValues_ > totalDynamicalStateSize_ )
+    {
+        // Add partials of parameters.
+        currentMatrixDerivative_.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
+                getParameterPartialMatrix( ephemerisTime );
+    }
 
     return currentMatrixDerivative_;
 }
@@ -216,7 +206,6 @@ void VariationalEquations::updatePartials( const double currentTime )
         }
     }
 
-//    std::cout<<"Updating partials"<<std::endl;
     for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
          stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
          stateDerivativeTypeIterator++ )

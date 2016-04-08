@@ -1,5 +1,5 @@
-#ifndef GRAVITATIONALPARAMETER_H
-#define GRAVITATIONALPARAMETER_H
+#ifndef TUDAT_GRAVITATIONALPARAMETER_H
+#define TUDAT_GRAVITATIONALPARAMETER_H
 
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
@@ -43,4 +43,4 @@ private:
 }
 
 
-#endif // GRAVITATIONALPARAMETER_H
+#endif // TUDAT_GRAVITATIONALPARAMETER_H

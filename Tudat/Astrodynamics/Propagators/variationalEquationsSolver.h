@@ -1,5 +1,5 @@
-#ifndef DYNAMICSSIMULATOR3_H
-#define DYNAMICSSIMULATOR3_H
+#ifndef TUDAT_VARIATIONALEQUATIONSSOLVER_H
+#define TUDAT_VARIATIONALEQUATIONSSOLVER_H
 
 #include <boost/make_shared.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -527,4 +527,4 @@ private:
 
 
 
-#endif // DYNAMICSMANAGER_H
+#endif // TUDAT_VARIATIONALEQUATIONSSOLVER_H
