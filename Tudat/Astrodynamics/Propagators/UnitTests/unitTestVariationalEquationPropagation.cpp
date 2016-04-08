@@ -65,6 +65,9 @@ execute( const std::vector< std::string > centralBodies,
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
     bodyNames.push_back( "Mars" );
+    bodyNames.push_back( "Venus" );
+    bodyNames.push_back( "Mercury" );
+    bodyNames.push_back( "Jupiter" );
 
     // Specify initial time
     TimeType initialEphemerisTime = TimeType( 1.0E7 );
@@ -87,11 +90,21 @@ execute( const std::vector< std::string > centralBodies,
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
     accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Venus" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Mercury" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
     accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+
+    accelerationsOfMoon[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Venus" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Mercury" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfSun;
@@ -141,8 +154,8 @@ execute( const std::vector< std::string > centralBodies,
     }
 
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
-                              ( "Sun", gravitational_parameter ) );
+    //parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
+    //                          ( "Sun", gravitational_parameter ) );
     {
         parameterNames.push_back( boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                                       "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(

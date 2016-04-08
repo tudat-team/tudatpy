@@ -43,6 +43,8 @@ namespace tudat
 namespace basic_mathematics
 {
 
+static Eigen::Matrix3d Zero3DMatrix = Eigen::Matrix3d::Zero( );
+
 //! Typedef for Vector6d.
 typedef Eigen::Matrix< double, 6, 1 > Vector6d;
 

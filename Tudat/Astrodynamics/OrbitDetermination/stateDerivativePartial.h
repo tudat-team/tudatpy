@@ -1,5 +1,5 @@
-#ifndef STATEDERIVATIVEPARTIAL_H
-#define STATEDERIVATIVEPARTIAL_H
+#ifndef TUDAT_STATEDERIVATIVEPARTIAL_H
+#define TUDAT_STATEDERIVATIVEPARTIAL_H
 
 #include <string>
 #include <map>
@@ -218,7 +218,6 @@ public:
 
     void updateParameterPartials( )
     {
-        //std::cout<<"Updating parameter partials (base)"<<std::endl;
         updateParameterPartialsOfMemberObjects( );
 
         for( parameterDoublePartialFunctionIterator_ = parameterDoublePartialFunctions_.begin( );
@@ -342,4 +341,4 @@ boost::function< Eigen::MatrixXd( ) > getCombinedCurrentVectorParameterFunction(
 
 }
 
-#endif // STATEDERIVATIVEPARTIAL_H
+#endif // TUDAT_STATEDERIVATIVEPARTIAL_H

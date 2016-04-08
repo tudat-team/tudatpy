@@ -71,7 +71,26 @@ public:
         centralBodyData_( centralBodyData ),
         propagatorType_( propagatorType ),
         bodiesToBeIntegratedNumerically_( bodiesToIntegrate )
-    { }
+    {
+        for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
+        {
+            if( accelerationModelsPerBody_.count( bodiesToBeIntegratedNumerically_.at( i ) ) == 0 )
+            {
+                accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_.at( i ) ] =
+                        basic_astrodynamics::SingleBodyAccelerationMap( );
+            }
+        }
+
+        for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
+             outerAccelerationIterator != accelerationModelsPerBody_.end( );
+             outerAccelerationIterator++ )
+        {
+            std::vector< std::string >::iterator findIterator =
+                    std::find( bodiesToBeIntegratedNumerically_.begin( ), bodiesToBeIntegratedNumerically_.end( ), outerAccelerationIterator->first );
+            bodyOrder_.push_back( std::distance( bodiesToBeIntegratedNumerically_.begin( ), findIterator ) );
+        }
+
+    }
 
     //! Destructor
     virtual ~NBodyStateDerivative( ){ }
@@ -213,32 +232,30 @@ protected:
         // Declare and initialize to zero vector to be returned.
         Eigen::VectorXd stateDerivative = Eigen::VectorXd::Zero( stateOfSystemToBeIntegrated.size( ) );
 
-        // Iterate over all bodies with accelerations.
-        for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
-        {
-            // If body undergoes acceleration, calculate and add accelerations.
-            if( accelerationModelsPerBody_.count( bodiesToBeIntegratedNumerically_[ i ] ) != 0 )
-            {
+        int currentBodyIndex = TUDAT_NAN;
+        int currentAccelerationIndex = 0;
 
+        // Iterate over all bodies with accelerations.
+        for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
+             outerAccelerationIterator != accelerationModelsPerBody_.end( );
+             outerAccelerationIterator++ )
+        {
+            currentBodyIndex = bodyOrder_.at( currentAccelerationIndex );
+            // Iterate over all accelerations acting on body
+            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
+                 innerAccelerationIterator != outerAccelerationIterator->second.end( );
+                 innerAccelerationIterator++ )
+            {
+                for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
-                    // Iterate over all accelerations acting on body
-                    for( innerAccelerationIterator  =
-                         accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_[ i ] ].begin( );
-                         innerAccelerationIterator !=
-                         accelerationModelsPerBody_[ bodiesToBeIntegratedNumerically_[ i ] ].end( );
-                         innerAccelerationIterator++ )
-                    {
-                        for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
-                        {
-                            // Calculate acceleration and add to state derivative.
-                            stateDerivative.segment( i * 6 + 3, 3 ) += (
-                                        innerAccelerationIterator->second[ j ]->getAcceleration( ) );
-                        }
-                    }
+                    // Calculate acceleration and add to state derivative.
+                    stateDerivative.segment( currentBodyIndex * 6 + 3, 3 ) += (
+                                innerAccelerationIterator->second.at( j )->getAcceleration( ) );
                 }
             }
             // Add body velocity as derivative of its position.
-            stateDerivative.segment( i * 6, 3 ) = stateOfSystemToBeIntegrated.segment( i * 6 + 3, 3 );
+            stateDerivative.segment( currentBodyIndex * 6, 3 ) = stateOfSystemToBeIntegrated.segment( currentBodyIndex * 6 + 3, 3 );
+            currentAccelerationIndex++;
         }
 
         return stateDerivative;
@@ -250,7 +267,7 @@ protected:
      * A map containing the list of accelerations acting on each body, identifying
      * the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
      * the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
-     * This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+     * This map-value is again a map with string as key, denoting the body exerting the accel   eration, and as value
      * a pointer to an acceleration model.
      */
     basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
@@ -267,9 +284,15 @@ protected:
     //! Predefined iterator to save (de-)allocation time.
     basic_astrodynamics::AccelerationMap::iterator accelerationMapIterator;
 
+    std::vector< int > bodyOrder_;
+
     //! Predefined iterator to save (de-)allocation time.
     std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::
     iterator innerAccelerationIterator;
+
+    std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::
+    iterator outerAccelerationIterator;
+
 
 };
 
