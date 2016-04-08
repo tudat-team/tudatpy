@@ -187,7 +187,7 @@ public:
      * base frame at specified time.
      * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
      * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds
-     *          are counted (default 0).
+     *          are counted (ddefault J2000).
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToBaseFrame(
@@ -200,7 +200,7 @@ public:
      * base frame at specified time.
      * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
      * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted (default 0).
+     *          counted (ddefault J2000).
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToTargetFrame(
@@ -229,7 +229,7 @@ public:
      *  frame at specified time, to be implemented by derived class.
      * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
      * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
-     *          counted (default 0).
+     *          counted (default J2000).
      *  \return Derivative of rotation from original (typically global) to target (typically local)
      *          frame at specified time.
      */
@@ -237,25 +237,65 @@ public:
             const double secondsSinceEpoch, const double julianDayAtEpoch =
             basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
-    virtual Eigen::Vector3d getRotationalVelocityVectorInBaseFrame( const double ephemerisTime )
+    //! Function to retrieve the angular velocity vector, expressed in base frame.
+    /*!
+     * Function to retrieve the angular velocity vector, expressed in base frame. Thsi function uses the functions
+     * that calculate the rotation matrix and its time derivative. It may be redefined in a derived class, to
+     * calculate the angular velocity vector directly
+     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
+     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
+     * counted (default J2000).
+     * \return Angular velocity vector, expressed in base frame.
+     */
+    virtual Eigen::Vector3d getRotationalVelocityVectorInBaseFrame(
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 )
     {
         return getRotationalVelocityVectorInBaseFrameFromMatrices(
-                    Eigen::Matrix3d( getRotationToTargetFrame( ephemerisTime ) ), getDerivativeOfRotationToTargetFrame( ephemerisTime ) );
+                    Eigen::Matrix3d( getRotationToTargetFrame( secondsSinceEpoch, julianDayAtEpoch ) ),
+                    getDerivativeOfRotationToTargetFrame( secondsSinceEpoch, julianDayAtEpoch ) );
     }
 
-    virtual Eigen::Vector3d getRotationalVelocityVectorInTargetFrame( const double ephemerisTime )
+    //! Function to retrieve the angular velocity vector, expressed in target frame.
+    /*!
+     * Function to retrieve the angular velocity vector, expressed in target frame. This function calls the function
+     * that calculates the angular velocioty vector in the base frame, and rotates it to teh target frame.
+     * It may be redefined in a derived class, to calculate the angular velocity vector directly
+     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
+     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
+     * counted (default J2000).
+     * \return Angular velocity vector, expressed in target frame.
+     */
+    virtual Eigen::Vector3d getRotationalVelocityVectorInTargetFrame(
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000  )
     {
-        return getRotationToTargetFrame( ephemerisTime ) * getRotationalVelocityVectorInBaseFrame( ephemerisTime );
+        return getRotationToTargetFrame( secondsSinceEpoch, julianDayAtEpoch ) *
+                getRotationalVelocityVectorInBaseFrame( secondsSinceEpoch, julianDayAtEpoch );
     }
 
+    //! Function to calculate the full rotational state at given time
+    /*!
+     * Function to calculate the full rotational state at given time (rotation matrix, derivative of rotation matrix
+     * and angular velocity vector).
+     * \param currentRotationToLocalFrame Current rotation to local frame (returned by reference)
+     * \param currentRotationToLocalFrameDerivative Current derivative of rotation matrix to local frame
+     * (returned by reference)
+     * \param currentAngularVelocityVectorInGlobalFrame Current angular velocity vector, expressed in global frame
+     * (returned by reference)
+     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
+     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
+     * counted (default J2000).
+     */
     virtual void getFullRotationalQuantitiesToTargetFrame(
             Eigen::Quaterniond& currentRotationToLocalFrame,
             Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
             Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
-            const double ephemerisTime )
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 )
     {
-        currentRotationToLocalFrame = getRotationToTargetFrame( ephemerisTime );
-        currentRotationToLocalFrameDerivative = getDerivativeOfRotationToTargetFrame( ephemerisTime );
+        currentRotationToLocalFrame = getRotationToTargetFrame( secondsSinceEpoch, julianDayAtEpoch );
+        currentRotationToLocalFrameDerivative = getDerivativeOfRotationToTargetFrame( secondsSinceEpoch, julianDayAtEpoch );
         currentAngularVelocityVectorInGlobalFrame = getRotationalVelocityVectorInBaseFrameFromMatrices(
                     Eigen::Matrix3d( currentRotationToLocalFrame ), currentRotationToLocalFrameDerivative.transpose( ) );
     }
