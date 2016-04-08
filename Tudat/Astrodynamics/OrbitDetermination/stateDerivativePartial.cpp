@@ -51,8 +51,7 @@ std::pair< boost::function< Eigen::MatrixXd( ) >, int > createMergedParameterPar
     else if( partialFunctionOfAccelerationToSubtract.second !=
              partialFunctionOfAccelerationToAdd.second )
     {
-        std::cerr<<"Error when making merged parameter partial function, ";
-        std::cout<<"separate functions are incompatible"<<std::endl;
+        throw std::runtime_error( "Error when making merged parameter partial function, separate functions are incompatible" );
     }
     else
     {
@@ -80,7 +79,7 @@ boost::function< Eigen::MatrixXd( ) > getCombinedCurrentDoubleParameterFunction(
 
     if( firstPartialSize == 0 && secondPartialSize == 0 )
     {
-        std::cerr<<"Error when getting combined current partial size, both partials have size zero "<<std::endl;
+        throw std::runtime_error( "Error when getting combined current partial size, both partials have size zero " );
     }
     else if( secondPartialSize == 0 )
     {
@@ -117,7 +116,7 @@ boost::function< Eigen::MatrixXd( ) > getCombinedCurrentDoubleParameterFunction(
     }
     else
     {
-        std::cerr<<"Error when getting combined current partial size, both partials have different non-zero size."<<std::endl;
+        throw std::runtime_error( "Error when getting combined current partial size, both partials have different non-zero size." );
     }
     return partialFunction;
 }
@@ -139,7 +138,7 @@ boost::function< Eigen::MatrixXd( ) > getCombinedCurrentVectorParameterFunction(
 
     if( firstPartialSize == 0 && secondPartialSize == 0 )
     {
-        std::cerr<<"Error when getting combined current partial size, both partials have size zero "<<std::endl;
+        throw std::runtime_error( "Error when getting combined current partial size, both partials have size zero " );
     }
     else if( secondPartialSize == 0 )
     {
@@ -176,7 +175,7 @@ boost::function< Eigen::MatrixXd( ) > getCombinedCurrentVectorParameterFunction(
     }
     else
     {
-        std::cerr<<"Error when getting combined current partial size, both partials have different non-zero size."<<std::endl;
+        throw std::runtime_error( "Error when getting combined current partial size, both partials have different non-zero size." );
     }
     return partialFunction;
 }

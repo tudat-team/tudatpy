@@ -23,9 +23,6 @@ namespace tudat
 namespace propagators
 {
 
-//std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap > makeStateDerivativePartialList(
-//        const orbit_determination::partial_derivatives::AccelerationPartialsMap& accelerationPartials );
-
 //! Class from which the variational equations can be evaluated.
 class VariationalEquations
 {

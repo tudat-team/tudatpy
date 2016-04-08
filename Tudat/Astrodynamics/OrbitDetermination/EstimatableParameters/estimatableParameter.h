@@ -13,9 +13,6 @@
 
 
 #include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
-
-using std::string;
-
 namespace tudat
 {
 
@@ -188,7 +185,7 @@ public:
         // Check input consistency.
         if( considerParameterSetSize_ != static_cast< int >( considerDoubleParameters.size( ) ) )
         {
-            std::cerr<<"Error when making estimatable parameter set, inconsistent parameter size of double parameter vector."<<std::endl;
+            throw std::runtime_error( "Error when making estimatable parameter set, inconsistent parameter size of double parameter vector." );
         }
 
         // Iterate over all vector parameter, add to total number of parameters and set indices in vectorParameterIndices_
@@ -274,7 +271,9 @@ public:
         // Check input consistency
         if( newParameterValues.rows( ) != totalParameterSetSize_ )
         {
-            std::cerr<<"Error when resetting parameters of parameter set, given vector has size "<<newParameterValues.rows( )<<", while internal size is "<<totalParameterSetSize_<<std::endl;
+            throw std::runtime_error( "Error when resetting parameters of parameter set, given vector has size " +
+                                      boost::lexical_cast< std::string >( newParameterValues.rows( ) ) +
+                                       ", while internal size is " + boost::lexical_cast< std::string >( totalParameterSetSize_ ) );
         }
         else
         {

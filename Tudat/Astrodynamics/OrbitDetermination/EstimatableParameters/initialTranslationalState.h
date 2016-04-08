@@ -66,8 +66,8 @@ int getSingleArcParameterSetSize(
     {
         if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) )
         {
-            std::cerr<<"Error when getting single arc paramater vector, did not recognize initial state parameter "<<
-                        initialStateParameters.at( i )->getParameterName( ).first<<std::endl;
+            throw std::runtime_error( "Error when getting single arc paramater vector, did not recognize initial state parameter " +
+                        boost::lexical_cast< std::string >( initialStateParameters.at( i )->getParameterName( ).first ) );
         }
     }
     return totalParameterSetSize;

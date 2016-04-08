@@ -408,6 +408,7 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
                                        Eigen::Vector3d::Zero( ), std::numeric_limits< double >::epsilon(  ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter,
                                        Eigen::Vector3d::Zero( ), std::numeric_limits< double >::epsilon(  ) );
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

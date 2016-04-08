@@ -137,9 +137,11 @@ public:
         {
             if( parameterDoublePartialFunctions_.count( parameter ) == 0 )
             {
-                std::cerr<<"Parameter of type "<<parameter->getParameterName( ).first<<", "<<
-                           parameter->getParameterName( ).second.first<<", "<<
-                           parameter->getParameterName( ).second.second<<" not found in list of existing partials"<<std::endl;
+                throw std::runtime_error(
+                            "Parameter of type " +
+                            boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + ", " +
+                            parameter->getParameterName( ).second.first + ", " +
+                            parameter->getParameterName( ).second.second + ", " + " not found in list of existing partials" );
             }
             else
             {

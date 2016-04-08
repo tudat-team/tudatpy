@@ -37,7 +37,8 @@ std::string getParameterType( EstimatebleParametersEnum parameter )
         parameterType = "double";
         break;
     default:
-        std::cerr<<"Error, parameter type "<<parameter<<" not found when getting parameter type"<<std::endl;
+        throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameter ) +
+                                  " not found when getting parameter type" );
     }
     return parameterType;
 }
