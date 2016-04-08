@@ -578,4 +578,5 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
 }
 
 }
+
 #endif // TUDAT_CREATEACCELERATIONMODELS_H

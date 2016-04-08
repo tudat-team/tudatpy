@@ -104,7 +104,7 @@ boost::shared_ptr< AccelerationPartial > createAnalyticalAccelerationPartial(
             std::map< std::string, boost::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces =
                     acceleratedBody.second->getRadiationPressureInterfaces( );
 
-            if( radiationPressureInterfaces.count( acceleratingBody.first ) = 0 )
+            if( radiationPressureInterfaces.count( acceleratingBody.first ) == 0 )
             {
                 std::cerr<<"No radiation pressure coefficient interface found when making acceleration partial."<<std::endl;
             }
@@ -217,13 +217,6 @@ StateDerivativePartialsMap createAccelerationPartialsMap(
 
 }
 
-//AccelerationPartialsMap createAccelerationPartialsMap(
-//        const AccelerationMap accelerationMap,
-//        const std::vector< std::string > bodiesToEstimate,
-//        const std::map< std::string, boost::shared_ptr< simulation_setup::Body > > bodyMap,
-//        const std::map< std::string, std::map< std::string,
-//        astrodynamics::acceleration_models::AvailableAcceleration > > useAnalyticalPartial,
-//        const std::vector< estimatable_parameters::EstimatebleParameterIdentifier > parametersToEstimate );
 }
 
 }

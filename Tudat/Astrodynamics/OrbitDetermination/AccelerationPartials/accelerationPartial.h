@@ -63,7 +63,7 @@ public:
         {
             if( stateReferencePoint.second != "" )
             {
-                std::cerr<<"Error when getting state derivative partial acceleration model, cannot have reference point on body for dynamics"<<std::endl;
+                throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for dynamics" );
             }
             else if( stateReferencePoint.first == acceleratedBody_ )
             {
@@ -95,7 +95,7 @@ public:
         {
             if( stateReferencePoint.second != "" )
             {
-                std::cerr<<"Error when checking state derivative partial dependency of acceleration model, cannot have reference point on body for dynamics"<<std::endl;
+                throw std::runtime_error( "Error when checking state derivative partial dependency of acceleration model, cannot have reference point on body for dynamics" );
             }
             else if( stateReferencePoint.first == acceleratedBody_ || stateReferencePoint.first == acceleratingBody_ ||
                      isAccelerationPartialWrtAdditionalBodyNonNull( stateReferencePoint.first ) )

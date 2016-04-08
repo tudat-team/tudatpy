@@ -29,7 +29,7 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     }    
     else
     {
-        std::cerr<<"Error when getting third body partial type, type not identified"<<std::endl;
+        throw std::runtime_error( "Error when getting third body partial type, type not identified" );
     }
     return accelerationType;
 }
