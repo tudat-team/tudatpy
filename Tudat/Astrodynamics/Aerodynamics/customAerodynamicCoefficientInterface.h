@@ -207,8 +207,8 @@ private:
 
 };
 
-}
+} // namespace aerodynamics
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
