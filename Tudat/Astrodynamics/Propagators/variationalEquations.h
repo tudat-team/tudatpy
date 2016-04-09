@@ -82,56 +82,25 @@ public:
         setParameterPartialFunctionList( parametersToEstimate );
     }
     
-    //    template< typename ParameterType >
-    //    VariationalEquations(
-    //            const orbit_determination::partial_derivatives::AccelerationPartialsMap accelerationPartialList,
-    //            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-    //            const std::vector< std::string >& bodiesToOnlyEstimate,
-    //            const boost::function< Eigen::MatrixXd( const double ) > estimatedUnintegratedBodiesStateTransitionMatrixFunction,
-    //            const std::vector< std::string >& bodiesToOmit = std::vector< std::string >( ) ):
-    //        accelerationPartialList_( accelerationPartialList ), estimatedUnintegratedBodies_( bodiesToOnlyEstimate ),
-    //        estimatedUnintegratedBodiesStateTransitionMatrixFunction_( estimatedUnintegratedBodiesStateTransitionMatrixFunction )
-    //    {
-    
-    //        numberOfParameterValues_ = parametersToEstimate->getParameterSetSize( );
-    //        integratedBodies_ = estimatable_parameters::getListOfBodiesToEstimate< ParameterType >( parametersToEstimate );
-    
-    //        for( unsigned int i = 0; i < bodiesToOnlyEstimate.size( ); i++ )
-    //        {
-    //            std::vector< std::string >::iterator findIterator = std::find(
-    //                        integratedBodies_.begin( ), integratedBodies_.end( ), bodiesToOnlyEstimate.at( i ) );
-    //            if( findIterator != integratedBodies_.end( ) )
-    //            {
-    //                integratedBodies_.erase( findIterator );
-    //            }
-    //            else
-    //            {
-    //                std::cerr<<"Error when removing unintegrated body "<<bodiesToOnlyEstimate.at( i )<<
-    //                           " from list in variational equations, body not found"<<std::endl;
-    //            }
-    //        }
-    
-    //        if( integratedBodies_.size( ) != accelerationPartialList_.size( ) )
-    //        {
-    //            std::cerr<<"Error when making variational equations object, input partial list size is inconsistent"<<std::endl;
-    //        }
-    
-    //        estimatedUnintegratedBodiesVectorSize_ = static_cast< int >( estimatedUnintegratedBodies_.size( ) ) * 6;
-    //        integratedBodyVectorSize_ = static_cast< int >( integratedBodies_.size( ) ) * 6;
-    
-    //        // Set parameter partial functions.
-    //        setStatePartialFunctionList( );
-    //        setUnintegratedBodyPartialList( );
-    //        setParameterPartialFunctionList( parametersToEstimate );
-    //    }
-    
     //! Calculates matrix containing partial derivatives of accelerarion w.r.t. body state.
     /*!
      *  Calculates matrix containing partial derivatives of accelerarion w.r.t. body state, i.e.
      *  first matrix in rhs of Eq. 7.45 in (Montenbruck & Gill, 2000).
      *  \return Matrix containing partial derivatives of accelerarion w.r.t. body state
      */
-    const Eigen::MatrixXd& getBodyStatePartialMatrix( );
+    void setBodyStatePartialMatrix( );
+
+    template< typename StateScalarType >
+    void getBodyInitialStatePartialMatrix(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
+    {
+        setBodyStatePartialMatrix( );
+
+        // Add partials of body positions and velocities.
+        currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
+                ( variationalMatrix_ * stateTransitionAndSensitivityMatrices ).template cast< StateScalarType >( );
+    }
 
     //! Calculates matrix containing partial derivatives of accelerarion w.r.t. parameters.
     /*!
@@ -139,7 +108,46 @@ public:
      *  second matrix in rhs of Eq. 7.45 in (Montenbruck & Gill, 2000).
      *  \return Matrix containing partial derivatives of accelerarion w.r.t. parameters
      */
-    const Eigen::MatrixXd& getParameterPartialMatrix( const double ephemerisTime );
+    template< typename StateScalarType >
+    void getParameterPartialMatrix(
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
+    {
+        // Initialize matrix to zeros
+        variationalParameterMatrix_.setZero( );
+
+        if( estimatedUnintegratedBodiesVectorSize_ > 0 )
+        {
+            std::cerr<<"Error, unintegrated body partials disabled "<<std::endl;
+        }
+
+        // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
+        for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd& ( ) > > > >::iterator typeIterator =
+             parameterPartialList_.begin( ); typeIterator != parameterPartialList_.end( ); typeIterator++ )
+        {
+            int startIndex = stateTypeStartIndices_.at( typeIterator->first );
+            int currentStateSize = getSingleIntegrationSize( typeIterator->first );
+            int entriesToSkipPerEntry = currentStateSize - currentStateSize / getSingleIntegrationDifferentialEquationOrder( typeIterator->first );
+
+            // Iterate over all bodies being estimated.
+            for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+            {
+                // Iterate over all parameter partial functions determined by setParameterPartialFunctionList( )
+                for( functionIterator = typeIterator->second[ i ].begin( ); functionIterator != typeIterator->second[ i ].end( );
+                     functionIterator++ )
+                {
+                    // Add parameter partial to matrix.
+                    variationalParameterMatrix_.block(
+                                startIndex + entriesToSkipPerEntry + currentStateSize * i,
+                                functionIterator->first.first,
+                                currentStateSize - entriesToSkipPerEntry, functionIterator->first.second ) += functionIterator->second( );
+                }
+            }
+
+        }
+
+        currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
+                variationalParameterMatrix_.template cast< StateScalarType >( );
+    }
     
     //! Evaluates the variational equations.
     /*!
@@ -155,15 +163,12 @@ public:
             const double time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
     {
-        // Add partials of body positions and velocities.
-        currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
-                ( getBodyStatePartialMatrix( ) * stateTransitionAndSensitivityMatrices ).template cast< StateScalarType >( );
+        getBodyInitialStatePartialMatrix< StateScalarType >( stateTransitionAndSensitivityMatrices, currentMatrixDerivative );
 
         if( numberOfParameterValues_ > totalDynamicalStateSize_ )
         {
             // Add partials of parameters.
-            currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
-                    ( getParameterPartialMatrix( time ) ).template cast< StateScalarType >( );;
+            getParameterPartialMatrix< StateScalarType >( currentMatrixDerivative );
         }
     }
     
@@ -315,8 +320,8 @@ private:
                 {
 
                     statePartialAdditionIndices_.push_back( std::make_pair( stateTypeStartIndices_[ propagators::transational_state ] +
-                                             currentBodyIndex * propagators::getSingleIntegrationSize( propagators::transational_state ),
-                                             stateTypeStartIndices_[ propagators::transational_state ] +
+                                                            currentBodyIndex * propagators::getSingleIntegrationSize( propagators::transational_state ),
+                                                            stateTypeStartIndices_[ propagators::transational_state ] +
                             j * propagators::getSingleIntegrationSize( propagators::transational_state ) ) );
                 }
             }

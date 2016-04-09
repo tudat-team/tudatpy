@@ -183,13 +183,13 @@ public:
         // Update state in correct order.
         for( unsigned int i = 0; i < updateOrder_.size( ); i++ )
         {
-            referenceFrameOriginStates[ updateOrder_[ i ] ] =
-                    getSingleReferenceFrameOriginInertialState( internalState, time, updateOrder_[ i ] );
+            referenceFrameOriginStates.at( updateOrder_.at( i ) ) =
+                    getSingleReferenceFrameOriginInertialState( internalState, time, updateOrder_.at( i ) );
 
             // Modify current input state to global frame if input is local (in propagation frame).
             if( areInputStateLocal )
             {
-                internalState.segment( 6 * updateOrder_[ i ], 6 ) += referenceFrameOriginStates[ updateOrder_[ i ] ];
+                internalState.segment( 6 * updateOrder_.at( i ), 6 ) += referenceFrameOriginStates.at( updateOrder_.at( i ) )   ;
             }
         }
     }
