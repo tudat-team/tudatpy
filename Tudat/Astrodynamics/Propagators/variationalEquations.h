@@ -131,15 +131,15 @@ public:
      *  first matrix in rhs of Eq. 7.45 in (Montenbruck & Gill, 2000).
      *  \return Matrix containing partial derivatives of accelerarion w.r.t. body state
      */
-    Eigen::MatrixXd& getBodyInitialStatePartialMatrix( );
-    
+    const Eigen::MatrixXd& getBodyStatePartialMatrix( );
+
     //! Calculates matrix containing partial derivatives of accelerarion w.r.t. parameters.
     /*!
      *  Calculates matrix containing partial derivatives of accelerarion w.r.t. parameters, i.e.
      *  second matrix in rhs of Eq. 7.45 in (Montenbruck & Gill, 2000).
      *  \return Matrix containing partial derivatives of accelerarion w.r.t. parameters
      */
-    Eigen::MatrixXd& getParameterPartialMatrix( const double ephemerisTime );
+    const Eigen::MatrixXd& getParameterPartialMatrix( const double ephemerisTime );
     
     //! Evaluates the variational equations.
     /*!
@@ -151,8 +151,21 @@ public:
      *  \return Evaluated variation equations.
      */
     template< typename StateScalarType >
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& evaluateVariationalEquations(
-            const double time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateAndSensitivityMatrices );
+    void evaluateVariationalEquations(
+            const double time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
+    {
+        // Add partials of body positions and velocities.
+        currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
+                ( getBodyStatePartialMatrix( ) * stateTransitionAndSensitivityMatrices ).template cast< StateScalarType >( );
+
+        if( numberOfParameterValues_ > totalDynamicalStateSize_ )
+        {
+            // Add partials of parameters.
+            currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
+                    ( getParameterPartialMatrix( time ) ).template cast< StateScalarType >( );;
+        }
+    }
     
     //! This function updates the total state of each body, acceleration and acceleration partial in the simulation at the given time and state
     //! of bodies that are integrated numerically.
@@ -320,9 +333,9 @@ private:
     std::map< IntegratedStateType, int > stateTypeStartIndices_;
     
     
-    std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd( ) > > > > statePartialList_;
+    std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > > statePartialList_;
     
-    std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd( ) > >::iterator statePartialIterator_;
+    std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >::iterator statePartialIterator_;
     
     std::vector< std::pair< int, int > > statePartialAdditionIndices_;
 
@@ -371,9 +384,9 @@ private:
     int totalDynamicalStateSize_;
     
     Eigen::MatrixXd currentMatrixDerivative_;
-    
+
     Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > currentLongMatrixDerivative_;
-    
+
     Eigen::MatrixXd variationalMatrix_;
     
     Eigen::MatrixXd variationalParameterMatrix_;

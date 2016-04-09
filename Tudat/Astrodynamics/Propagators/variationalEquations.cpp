@@ -46,8 +46,9 @@ using namespace tudat::estimatable_parameters;
 //}
 
 
+
 //! Calculates matrix containing partial derivatives of accelerarion w.r.t. body state.
-Eigen::MatrixXd& VariationalEquations::getBodyInitialStatePartialMatrix( )
+const Eigen::MatrixXd& VariationalEquations::getBodyStatePartialMatrix( )
 {
     using namespace orbit_determination::partial_derivatives;
 
@@ -64,7 +65,7 @@ Eigen::MatrixXd& VariationalEquations::getBodyInitialStatePartialMatrix( )
     }
 
     // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
-    for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd( ) > > > >::iterator
+    for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >::iterator
          typeIterator = statePartialList_.begin( ); typeIterator != statePartialList_.end( ); typeIterator++ )
     {
         int startIndex = stateTypeStartIndices_.at( typeIterator->first );
@@ -76,9 +77,10 @@ Eigen::MatrixXd& VariationalEquations::getBodyInitialStatePartialMatrix( )
             for( statePartialIterator_ = typeIterator->second.at( i ).begin( ); statePartialIterator_ != typeIterator->second.at( i ).end( );
                  statePartialIterator_++ )
             {
-                variationalMatrix_.block(
-                            startIndex + entriesToSkipPerEntry + i * currentStateSize, statePartialIterator_->first.first,
-                            currentStateSize - entriesToSkipPerEntry, statePartialIterator_->first.second ) += statePartialIterator_->second( );
+                statePartialIterator_->second(
+                            variationalMatrix_.block(
+                                        startIndex + entriesToSkipPerEntry + i * currentStateSize, statePartialIterator_->first.first,
+                                        currentStateSize - entriesToSkipPerEntry, statePartialIterator_->first.second ) );
 
             }
         }
@@ -97,7 +99,7 @@ Eigen::MatrixXd& VariationalEquations::getBodyInitialStatePartialMatrix( )
 }
 
 //! Calculates matrix containing partial derivatives of accelerarion w.r.t. parameters.
-Eigen::MatrixXd& VariationalEquations::getParameterPartialMatrix( const double ephemerisTime )
+const Eigen::MatrixXd& VariationalEquations::getParameterPartialMatrix( const double ephemerisTime )
 {
     // Initialize matrix to zeros
     variationalParameterMatrix_.setZero( );
@@ -133,43 +135,6 @@ Eigen::MatrixXd& VariationalEquations::getParameterPartialMatrix( const double e
     }
 
     return variationalParameterMatrix_;
-}
-
-
-//! Evaluates the variational equations.
-template< >
-Eigen::MatrixXd& VariationalEquations::evaluateVariationalEquations< double >(
-        const double ephemerisTime,
-        const Eigen::MatrixXd& stateTransitionAndSensitivityMatrices )
-{
-    // Initialize return matrix to zero.
-    currentMatrixDerivative_.setZero( );
-
-    // Add partials of body positions and velocities.
-    currentMatrixDerivative_.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
-            getBodyInitialStatePartialMatrix( ) * stateTransitionAndSensitivityMatrices;
-
-    if( numberOfParameterValues_ > totalDynamicalStateSize_ )
-    {
-        // Add partials of parameters.
-        currentMatrixDerivative_.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
-                getParameterPartialMatrix( ephemerisTime );
-    }
-
-    return currentMatrixDerivative_;
-}
-
-template< >
-Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& VariationalEquations::evaluateVariationalEquations< long double >(
-        const double ephemerisTime,
-        const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices )
-{
-    currentLongMatrixDerivative_  =
-            evaluateVariationalEquations< double >( ephemerisTime, stateTransitionAndSensitivityMatrices.cast< double >( ) ).
-                cast< long double >( );
-
-   //std::cout<<"state trans: "<<std::endl<<stateTransitionAndSensitivityMatrices<<std::endl<<std::endl;
-    return currentLongMatrixDerivative_;
 }
 
 //! This function updates the total state of each body, acceleration and acceleration partial in the simulation at the given time and state
@@ -225,7 +190,7 @@ void VariationalEquations::setStatePartialFunctionList( )
 {
     using namespace orbit_determination::partial_derivatives;
 
-    std::pair< boost::function< Eigen::MatrixXd( ) >, int > currentDerivativeFunction;
+    std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > currentDerivativeFunction;
 
     for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
          stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
@@ -234,7 +199,7 @@ void VariationalEquations::setStatePartialFunctionList( )
         // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
         for( unsigned int i = 0; i < stateDerivativeTypeIterator->second.size( ); i++ )
         {
-            std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd( ) > > currentBodyPartialList;
+            std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > currentBodyPartialList;
             // Iterate over all accelerations from single body on other single body
             for( unsigned int j = 0; j < stateDerivativeTypeIterator->second.at( i ).size( ); j++ )
             {

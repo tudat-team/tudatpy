@@ -39,14 +39,14 @@ public:
 
     virtual ~StateDerivativePartial( ) { }
 
-    Eigen::MatrixXd wrtStateOfIntegratedBody(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
-    {
-        return getDerivativeFunctionWrtStateOfIntegratedBody( stateReferencePoint, integratedStateType ).first( );
-    }
+//    Eigen::MatrixXd wrtStateOfIntegratedBody(
+//            const std::pair< std::string, std::string >& stateReferencePoint,
+//            const propagators::IntegratedStateType integratedStateType )
+//    {
+//        return getDerivativeFunctionWrtStateOfIntegratedBody( stateReferencePoint, integratedStateType ).first( );
+//    }
 
-    virtual std::pair< boost::function< Eigen::MatrixXd( ) >, int >  getDerivativeFunctionWrtStateOfIntegratedBody(
+    virtual std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >  getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType ) = 0;
 
