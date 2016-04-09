@@ -19,14 +19,14 @@ namespace partial_derivatives
 
 template< typename StateScalarType, typename TimeType, typename InitialStateParameterType >
 std::map< propagators::IntegratedStateType, StateDerivativePartialsMap > createStateDerivativePartials(
-        const std::map< propagators::IntegratedStateType,
+        const std::unordered_map< propagators::IntegratedStateType,
         std::vector< boost::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > parametersToEstimate )
 {
     std::map< propagators::IntegratedStateType, StateDerivativePartialsMap > stateDerivativePartials;
 
-    for( typename std::map< propagators::IntegratedStateType,
+    for( typename std::unordered_map< propagators::IntegratedStateType,
          std::vector< boost::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > >::const_iterator
          stateDerivativeIterator = stateDerivativeModels.begin( ); stateDerivativeIterator != stateDerivativeModels.end( );
          stateDerivativeIterator++ )

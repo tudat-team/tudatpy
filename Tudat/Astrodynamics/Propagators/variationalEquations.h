@@ -147,7 +147,6 @@ public:
 
         currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_, totalDynamicalStateSize_ - numberOfParameterValues_ ) +=
                 variationalParameterMatrix_.template cast< StateScalarType >( );
-
     }
     
     //! Evaluates the variational equations.
@@ -375,7 +374,6 @@ private:
     
     std::vector< std::string > estimatedUnintegratedBodies_;
     
-    boost::function< Eigen::MatrixXd( const double ) > estimatedUnintegratedBodiesStateTransitionMatrixFunction_;
     
     //! Number of parameter values in estimation
     /*!
@@ -389,6 +387,8 @@ private:
      */
     int estimatedUnintegratedBodiesVectorSize_;
     
+    boost::function< Eigen::MatrixXd( const double ) > estimatedUnintegratedBodiesStateTransitionMatrixFunction_;
+
     int totalDynamicalStateSize_;
     
     Eigen::MatrixXd currentMatrixDerivative_;
