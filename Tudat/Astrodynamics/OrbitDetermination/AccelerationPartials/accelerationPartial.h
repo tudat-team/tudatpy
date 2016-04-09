@@ -196,7 +196,8 @@ public:
      *  \param bodyName Name of third body.
      *  \return Partial derivative of acceleration w.r.t. position of third body.
      */
-    virtual Eigen::Matrix3d wrtPositionOfAdditionalBody( const std::string& bodyName )
+    virtual Eigen::Matrix3d wrtPositionOfAdditionalBody(
+            const std::string& bodyName )
     {
         return Eigen::Matrix3d::Zero( );
     }

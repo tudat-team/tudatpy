@@ -48,7 +48,7 @@ using namespace tudat::estimatable_parameters;
 
 
 //! Calculates matrix containing partial derivatives of accelerarion w.r.t. body state.
-const Eigen::MatrixXd& VariationalEquations::getBodyStatePartialMatrix( )
+void VariationalEquations::setBodyStatePartialMatrix( )
 {
     using namespace orbit_determination::partial_derivatives;
 
@@ -92,50 +92,8 @@ const Eigen::MatrixXd& VariationalEquations::getBodyStatePartialMatrix( )
        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 3 ) +=
                variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).first, totalDynamicalStateSize_, 3 );
    }
-
-    //variationalMatrix_.block( 0, 6, 12, 3 ) += variationalMatrix_.block( 0, 0, 12, 3 );
-
-    return variationalMatrix_;
 }
 
-//! Calculates matrix containing partial derivatives of accelerarion w.r.t. parameters.
-const Eigen::MatrixXd& VariationalEquations::getParameterPartialMatrix( const double ephemerisTime )
-{
-    // Initialize matrix to zeros
-    variationalParameterMatrix_.setZero( );
-
-    if( estimatedUnintegratedBodiesVectorSize_ > 0 )
-    {
-        std::cerr<<"Error, unintegrated body partials disabled "<<std::endl;
-    }
-
-    // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
-    for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd& ( ) > > > >::iterator typeIterator =
-         parameterPartialList_.begin( ); typeIterator != parameterPartialList_.end( ); typeIterator++ )
-    {
-        int startIndex = stateTypeStartIndices_.at( typeIterator->first );
-        int currentStateSize = getSingleIntegrationSize( typeIterator->first );
-        int entriesToSkipPerEntry = currentStateSize - currentStateSize / getSingleIntegrationDifferentialEquationOrder( typeIterator->first );
-
-        // Iterate over all bodies being estimated.
-        for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
-        {
-            // Iterate over all parameter partial functions determined by setParameterPartialFunctionList( )
-            for( functionIterator = typeIterator->second[ i ].begin( ); functionIterator != typeIterator->second[ i ].end( );
-                 functionIterator++ )
-            {
-                // Add parameter partial to matrix.
-                variationalParameterMatrix_.block(
-                            startIndex + entriesToSkipPerEntry + currentStateSize * i,
-                            functionIterator->first.first,
-                            currentStateSize - entriesToSkipPerEntry, functionIterator->first.second ) += functionIterator->second( );
-            }
-        }
-
-    }
-
-    return variationalParameterMatrix_;
-}
 
 //! This function updates the total state of each body, acceleration and acceleration partial in the simulation at the given time and state
 //! of bodies that are integrated numerically.

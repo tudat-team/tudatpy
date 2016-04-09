@@ -129,8 +129,7 @@ public:
         // If dynamical equations are integrated, update the environment with the current state.
         if( evaluateDynamicsEquations_ )
         {
-            currentStatesPerTypeInConventionalRepresentation_ =
-                    convertCurrentStateToGlobalRepresentationPerType( state, time, evaluateVariationalEquations_ );
+            convertCurrentStateToGlobalRepresentationPerType( state, time, evaluateVariationalEquations_ );
             environmentUpdater_->updateEnvironment( time, currentStatesPerTypeInConventionalRepresentation_,
                                                     integratedStatesFromEnvironment_ );
         }
@@ -380,8 +379,7 @@ private:
      * \return State (state), converted to the 'conventional form' in inertial coordinates,
      * that can for instance be set directly  in the body object.
      */
-    std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
-    convertCurrentStateToGlobalRepresentationPerType(
+    void convertCurrentStateToGlobalRepresentationPerType(
             const StateType& state, const TimeType& time, const bool stateIncludesVariationalState )
     {
         int startColumn = 0;
@@ -394,8 +392,6 @@ private:
             startColumn = 0;
         }
 
-        std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitConventionalStates;
-
         std::pair< int, int > currentIndices;
 
         // Iterate over all state derivative models
@@ -403,7 +399,8 @@ private:
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {            
-            splitConventionalStates[ stateDerivativeModelsIterator_->first ] =
+
+            currentStatesPerTypeInConventionalRepresentation_[ stateDerivativeModelsIterator_->first ] =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
                         stateTypeSize_.at( stateDerivativeModelsIterator_->first ), 1 );
             int currentStateTypeSize = 0;
@@ -417,12 +414,11 @@ private:
                 // Set current block in split state (in global form)
                 stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
                             state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time,
-                            splitConventionalStates.at( stateDerivativeModelsIterator_->first ).block(
+                            currentStatesPerTypeInConventionalRepresentation_.at( stateDerivativeModelsIterator_->first ).block(
                                         currentStateTypeSize, 0, currentIndices.second, 1 ) );
                 currentStateTypeSize += currentIndices.second;
             }
         }
-        return splitConventionalStates;
     }
 
     //! Object used to update the environment to the current state and time.
