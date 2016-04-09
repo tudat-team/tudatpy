@@ -99,15 +99,14 @@ void VariationalEquations::setBodyStatePartialMatrix( )
 //! of bodies that are integrated numerically.
 void VariationalEquations::updatePartials( const double currentTime )
 {
-    for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
-         stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
-         stateDerivativeTypeIterator++ )
+    for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+         stateDerivativeTypeIterator_++ )
     {
-        for( unsigned int i = 0; i < stateDerivativeTypeIterator->second.size( ); i++ )
+        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
         {
-            for( unsigned int j = 0; j < stateDerivativeTypeIterator->second.at( i ).size( ); j++ )
+            for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
             {
-                stateDerivativeTypeIterator->second.at( i ).at( j )->resetTime( TUDAT_NAN );
+                stateDerivativeTypeIterator_->second.at( i ).at( j )->resetTime( TUDAT_NAN );
             }
 
         }
@@ -115,29 +114,27 @@ void VariationalEquations::updatePartials( const double currentTime )
 
     // Update all acceleration partials to current state and time. Information is passed indirectly from here, through
     // (function) pointers set in acceleration partial classes
-    for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
-         stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
-         stateDerivativeTypeIterator++ )
+    for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+         stateDerivativeTypeIterator_++ )
     {
-        for( unsigned int i = 0; i < stateDerivativeTypeIterator->second.size( ); i++ )
+        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
         {
-            for( unsigned int j = 0; j < stateDerivativeTypeIterator->second.at( i ).size( ); j++ )
+            for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
             {
-                stateDerivativeTypeIterator->second.at( i ).at( j )->update( currentTime );
+                stateDerivativeTypeIterator_->second.at( i ).at( j )->update( currentTime );
             }
 
         }
     }
 
-    for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
-         stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
-         stateDerivativeTypeIterator++ )
+    for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+         stateDerivativeTypeIterator_++ )
     {
-        for( unsigned int i = 0; i < stateDerivativeTypeIterator->second.size( ); i++ )
+        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
         {
-            for( unsigned int j = 0; j < stateDerivativeTypeIterator->second.at( i ).size( ); j++ )
+            for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
             {
-                stateDerivativeTypeIterator->second.at( i ).at( j )->updateParameterPartials( );
+                stateDerivativeTypeIterator_->second.at( i ).at( j )->updateParameterPartials( );
             }
 
         }
@@ -151,15 +148,15 @@ void VariationalEquations::setStatePartialFunctionList( )
     std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > currentDerivativeFunction;
 
     for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
-         stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
-         stateDerivativeTypeIterator++ )
+         stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+         stateDerivativeTypeIterator_++ )
     {
         // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
-        for( unsigned int i = 0; i < stateDerivativeTypeIterator->second.size( ); i++ )
+        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
         {
             std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > currentBodyPartialList;
             // Iterate over all accelerations from single body on other single body
-            for( unsigned int j = 0; j < stateDerivativeTypeIterator->second.at( i ).size( ); j++ )
+            for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
             {
                 for( std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >::iterator
                      estimatedStateIterator = dynamicalStatesToEstimate_.begin( ); estimatedStateIterator != dynamicalStatesToEstimate_.end( );
@@ -168,7 +165,7 @@ void VariationalEquations::setStatePartialFunctionList( )
                     // Iterate over all bodies to see if body exerting acceleration is also to be estimated (cross-terms)
                     for( unsigned int k = 0; k < estimatedStateIterator->second.size( ); k++ )
                     {
-                        currentDerivativeFunction = stateDerivativeTypeIterator->second.at( i ).at( j )->
+                        currentDerivativeFunction = stateDerivativeTypeIterator_->second.at( i ).at( j )->
                                 getDerivativeFunctionWrtStateOfIntegratedBody(
                                     estimatedStateIterator->second.at( k ), estimatedStateIterator->first );
 
@@ -184,7 +181,7 @@ void VariationalEquations::setStatePartialFunctionList( )
                     }
                 }
             }
-            statePartialList_[ stateDerivativeTypeIterator->first ].push_back( currentBodyPartialList );
+            statePartialList_[ stateDerivativeTypeIterator_->first ].push_back( currentBodyPartialList );
         }
     }
 }
@@ -195,11 +192,11 @@ void VariationalEquations::setUnintegratedBodyPartialList( )
     using namespace tudat::orbit_determination::partial_derivatives;
 
     for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
-         stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
-         stateDerivativeTypeIterator++ )
+         stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+         stateDerivativeTypeIterator_++ )
     {
         // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
-        for( unsigned int i = 0; i < stateDerivativeTypeIterator->second.size( ); i++ )
+        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
         {
             std::multimap< int, boost::function< Eigen::Matrix3d( ) > > functionListOfBody;
 
@@ -207,9 +204,9 @@ void VariationalEquations::setUnintegratedBodyPartialList( )
             for( unsigned int k = 0; k < estimatedUnintegratedBodies_.size( ); k++ )
             {
                 // Iterate over all bodies exerting an acceleration on this body.
-                for( unsigned int j = 0; j < stateDerivativeTypeIterator->second.at( i ).size( ); j++ )
+                for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
                 {
-                    if( stateDerivativeTypeIterator->second.at( i ).at( j )->getIntegrationReferencePoint( ).first ==
+                    if( stateDerivativeTypeIterator_->second.at( i ).at( j )->getIntegrationReferencePoint( ).first ==
                             estimatedUnintegratedBodies_[ k ] )
                     {
 

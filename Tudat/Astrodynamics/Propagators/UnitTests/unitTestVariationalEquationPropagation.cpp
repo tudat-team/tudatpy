@@ -177,6 +177,10 @@ execute( const std::vector< std::string > centralBodies,
             std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
 
     {
+        SingleArcDynamicsSimulator< >(
+                    bodyMap, integratorSettings, propagatorSettings );
+
+        sleep( 10000.0 );
         SingleArcVariationalEquationsSolver< StateScalarType, TimeType, double > dynamicsSimulator =
                 SingleArcVariationalEquationsSolver< StateScalarType, TimeType, double >(
                     bodyMap, integratorSettings, propagatorSettings,

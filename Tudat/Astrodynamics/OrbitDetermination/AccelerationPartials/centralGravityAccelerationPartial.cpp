@@ -74,12 +74,12 @@ CentralGravitationPartial::CentralGravitationPartial(
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< boost::function< Eigen::MatrixXd( ) >, int >
+std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
 CentralGravitationPartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
 {
-    std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionPair;
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
 
     // Check dependencies.
     if( parameter->getParameterName( ).first ==  estimatable_parameters::gravitational_parameter )
@@ -89,18 +89,18 @@ CentralGravitationPartial::getParameterPartialFunction(
     }
     else
     {
-        partialFunctionPair = std::make_pair( boost::function< Eigen::MatrixXd( ) >( ), 0 );
+        partialFunctionPair = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
     }
 
     return partialFunctionPair;
 }
 
 //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
-std::pair< boost::function< Eigen::MatrixXd( ) >, int >
+std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
 CentralGravitationPartial::getGravitationalParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterId )
 {
-    boost::function< Eigen::MatrixXd( ) > partialFunction;
+    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfColumns = 0;
 
     // Check if parameter is gravitational parameter.
@@ -110,7 +110,7 @@ CentralGravitationPartial::getGravitationalParameterPartialFunction(
         if( parameterId.second.first == acceleratingBody_ )
         {
             partialFunction = boost::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
-                                           this );
+                                           this, _1 );
             numberOfColumns = 1;
 
         }
@@ -121,7 +121,7 @@ CentralGravitationPartial::getGravitationalParameterPartialFunction(
             if( accelerationUsesMutualAttraction_ )
             {
                 partialFunction = boost::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
-                                               this );
+                                               this, _1 );
                 numberOfColumns = 1;
             }
         }
@@ -131,10 +131,10 @@ CentralGravitationPartial::getGravitationalParameterPartialFunction(
 }
 
 //! Function to calculate central gravity partial w.r.t. central body gravitational parameter
-Eigen::Vector3d CentralGravitationPartial::wrtGravitationalParameterOfCentralBody( )
+void CentralGravitationPartial::wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& gravitationalParameterPartial )
 {
-    return computePartialOfCentralGravityWrtGravitationalParameter(
-                acceleratedBodyState_( ).segment( 0, 3 ), centralBodyState_( ).segment( 0, 3 ) );
+    gravitationalParameterPartial = computePartialOfCentralGravityWrtGravitationalParameter(
+                currentAcceleratedBodyState_, currentCentralBodyState_ );
 }
 
 

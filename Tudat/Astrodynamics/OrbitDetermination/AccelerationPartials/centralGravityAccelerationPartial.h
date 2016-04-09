@@ -126,7 +126,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    virtual std::pair< boost::function< Eigen::MatrixXd( ) >, int >
+    virtual std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
@@ -136,10 +136,10 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    virtual std::pair< boost::function< Eigen::MatrixXd( ) >, int > getParameterPartialFunction(
+    virtual std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
-        boost::function< Eigen::MatrixXd( ) > partialFunction;
+        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
         return std::make_pair( partialFunction, 0 );
     }
 
@@ -153,10 +153,14 @@ public:
     {
         if( !( currentTime_ == currentTime ) )
         {
+            currentAcceleratedBodyState_ = acceleratedBodyState_( );
+            currentCentralBodyState_ = centralBodyState_( );
+            currentGravitationalParameter_ = gravitationalParameterFunction_( );
+
             currentPositionPartial = calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
-                        acceleratedBodyState_( ),
-                        centralBodyState_( ),
-                        gravitationalParameterFunction_( ) );
+                        currentAcceleratedBodyState_,
+                        currentCentralBodyState_,
+                        currentGravitationalParameter_ );
             currentTime_ = currentTime;
         }
     }
@@ -171,11 +175,11 @@ protected:
      * if the parameterId input represents the gravitational parameter of acceleratingBody_ (or acceleratedBody_ if
      * accelerationUsesMutualAttraction_ is true).
      */
-    std::pair< boost::function< Eigen::MatrixXd( ) >, int > getGravitationalParameterPartialFunction(
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getGravitationalParameterPartialFunction(
             const estimatable_parameters::EstimatebleParameterIdentifier& parameterId );
 
     //! Function to calculate central gravity partial w.r.t. central body gravitational parameter.
-    Eigen::Vector3d wrtGravitationalParameterOfCentralBody( );
+    void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& gravitationalParameterPartial );
 
     //! Function to retrieve current gravitational parameter of central body.
     boost::function< double( ) > gravitationalParameterFunction_;
@@ -189,6 +193,12 @@ protected:
     //! Boolean denoting whether the gravitational attraction of the central body on the accelerated body is included.
     bool accelerationUsesMutualAttraction_;
 
+
+    Eigen::Vector3d currentAcceleratedBodyState_;
+
+    Eigen::Vector3d currentCentralBodyState_;
+    \
+    double currentGravitationalParameter_;
 
     //! Current partial of central gravity acceleration w.r.t. position of body undergoing acceleration
     /*!
