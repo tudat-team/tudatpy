@@ -121,7 +121,8 @@ public:
         }
 
         // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
-        for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd& ( ) > > > >::iterator typeIterator =
+        for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >,
+             boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >::iterator typeIterator =
              parameterPartialList_.begin( ); typeIterator != parameterPartialList_.end( ); typeIterator++ )
         {
             int startIndex = stateTypeStartIndices_.at( typeIterator->first );
@@ -135,11 +136,10 @@ public:
                 for( functionIterator = typeIterator->second[ i ].begin( ); functionIterator != typeIterator->second[ i ].end( );
                      functionIterator++ )
                 {
-                    // Add parameter partial to matrix.
-                    variationalParameterMatrix_.block(
-                                startIndex + entriesToSkipPerEntry + currentStateSize * i,
-                                functionIterator->first.first,
-                                currentStateSize - entriesToSkipPerEntry, functionIterator->first.second ) += functionIterator->second( );
+                    functionIterator->second(
+                                variationalParameterMatrix_.block(
+                                startIndex + entriesToSkipPerEntry + currentStateSize * i, functionIterator->first.first,
+                                currentStateSize - entriesToSkipPerEntry, functionIterator->first.second ) );
                 }
             }
 
@@ -203,7 +203,7 @@ private:
     void addParameterPartialToList(
             const std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > >& parameterList,
             const boost::shared_ptr< orbit_determination::partial_derivatives::StateDerivativePartial > partialObject,
-            std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd&( ) > >& functionListOfBody,
+            std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >& functionListOfBody,
             const int totalParameterVectorIndicesToSubtract = 0 )
     {
         using namespace orbit_determination::partial_derivatives;
@@ -226,11 +226,12 @@ private:
                 
                 // Add to list.
                 functionListOfBody.insert(
-                            std::pair< std::pair< int, int >, boost::function< Eigen::MatrixXd&( ) > >
+                            std::pair< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
                             ( indexPair, boost::bind(
-                                  static_cast< Eigen::MatrixXd& ( StateDerivativePartial::* )
-                                  ( const boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > )>
-                                  ( &StateDerivativePartial::getCurrentParameterPartial ), partialObject, parameterIterator->second  ) ) );
+                                  static_cast< void ( StateDerivativePartial::* )
+                                  ( const boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > >,
+                                    Eigen::Block< Eigen::MatrixXd > )>
+                                  ( &StateDerivativePartial::getCurrentParameterPartial ), partialObject, parameterIterator->second, _1  ) ) );
             }
         }
     }
@@ -267,15 +268,17 @@ private:
             for( unsigned int i = 0; i < stateDerivativeTypeIterator->second.size( ); i++ )
             {
                 // Initialize list of parameter partial functions for single body.
-                std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd&( ) > > functionListOfBody;
+                std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > functionListOfBody;
                 
                 // Iterate over all accelerations due to this body on current body.
                 for( unsigned int j = 0; j < stateDerivativeTypeIterator->second.at( i ).size( ); j++ )
                 {
-                    addParameterPartialToList< double >( doubleParametersToEstimate, stateDerivativeTypeIterator->second.at( i ).at( j ),
-                                                         functionListOfBody, totalParameterVectorIndicesToSubtract );
-                    addParameterPartialToList< Eigen::VectorXd >( vectorParametersToEstimate, stateDerivativeTypeIterator->second.at( i ).at( j ),
-                                                                  functionListOfBody, totalParameterVectorIndicesToSubtract );
+                    addParameterPartialToList< double >(
+                                doubleParametersToEstimate, stateDerivativeTypeIterator->second.at( i ).at( j ),
+                                functionListOfBody, totalParameterVectorIndicesToSubtract );
+                    addParameterPartialToList< Eigen::VectorXd >(
+                                vectorParametersToEstimate, stateDerivativeTypeIterator->second.at( i ).at( j ),
+                                functionListOfBody, totalParameterVectorIndicesToSubtract );
                 }
                 
                 
@@ -351,20 +354,17 @@ private:
      *  The vector indices coincide with the bodiesToEstimate indices. The key pair of the multimap indicates the start column on the sensitivity matrix
      *  part of the variational equations and the number of columns that the return of the function occupies (number of rows = 3 from size of acceleration)
      */
-    std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd&( ) > > > > parameterPartialList_;
+    std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >,
+    boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > > parameterPartialList_;
     
     //! Pre-declared iterator over all parameter partial functions
     /*!
      *  Pre-declared iterator over all parameter partial functions. Declared to prevent large number of iterator crations and destructions (performance)
      */
-    std::multimap< std::pair< int, int >, boost::function< Eigen::MatrixXd&( ) > >::iterator functionIterator;
+    std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >::iterator functionIterator;
     
     
-    
-    std::vector< std::multimap< int, boost::function< Eigen::Matrix3d( ) > > > unintegratedBodyPartialList_;
-    
-    std::multimap< int, boost::function< Eigen::Matrix3d( ) > >::iterator stateFunctionIterator;
-    
+
     
     std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > > dynamicalStatesToEstimate_;
     
@@ -393,7 +393,7 @@ private:
     Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > currentLongMatrixDerivative_;
 
     Eigen::MatrixXd variationalMatrix_;
-    
+
     Eigen::MatrixXd variationalParameterMatrix_;
 };
 
