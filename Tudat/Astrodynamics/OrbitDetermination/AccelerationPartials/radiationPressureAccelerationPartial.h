@@ -50,15 +50,32 @@ public:
 
     ~CannonBallRadiationPressurePartial( ){ }
 
-    Eigen::Matrix3d wrtPositionOfAcceleratedBody( );
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    {
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
+        }
+    }
 
-    Eigen::Matrix3d wrtVelocityOfAcceleratedBody( )
-    { return Eigen::Matrix3d::Zero( ); }
 
-    Eigen::Matrix3d wrtPositionOfAcceleratingBody( );
-
-    Eigen::Matrix3d wrtVelocityOfAcceleratingBody( )
-    { return Eigen::Matrix3d::Zero( ); }
+    void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    {
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
+        }
+    }
 
     std::pair< boost::function< Eigen::MatrixXd( ) >, int >
     getParameterPartialFunction(

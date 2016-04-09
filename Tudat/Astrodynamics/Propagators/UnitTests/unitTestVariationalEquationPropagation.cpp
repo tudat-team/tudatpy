@@ -66,9 +66,9 @@ execute( const std::vector< std::string > centralBodies,
     bodyNames.push_back( "Moon" );
     bodyNames.push_back( "Mars" );
     bodyNames.push_back( "Mercury" );
+    bodyNames.push_back( "Venus" );
     bodyNames.push_back( "Jupiter" );
     bodyNames.push_back( "Saturn" );
-    bodyNames.push_back( "Venus" );
 
     // Specify initial time
     TimeType initialEphemerisTime = TimeType( 1.0E7 );

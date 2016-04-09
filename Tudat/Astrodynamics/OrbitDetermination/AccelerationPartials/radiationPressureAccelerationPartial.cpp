@@ -31,17 +31,6 @@ Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiat
     return -radiationPressure * area / bodyMass * vectorToSource;
 }
 
-
-Eigen::Matrix3d CannonBallRadiationPressurePartial::wrtPositionOfAcceleratedBody( )
-{
-    return currentPartialWrtPosition_;
-}
-
-Eigen::Matrix3d CannonBallRadiationPressurePartial::wrtPositionOfAcceleratingBody( )
-{
-    return -currentPartialWrtPosition_;
-}
-
 std::pair< boost::function< Eigen::MatrixXd( ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {

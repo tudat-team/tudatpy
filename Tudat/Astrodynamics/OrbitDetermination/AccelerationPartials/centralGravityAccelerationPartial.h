@@ -86,20 +86,18 @@ public:
      *  Update( ) function must have been called during current time step before calling this function.
      *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
      */
-    Eigen::Matrix3d wrtPositionOfAcceleratedBody( )
+    void wrtPositionOfAcceleratedBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     {
-        return currentPositionPartial;
-    }
-
-    //! Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration..
-    /*!
-     *  Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration.
-     *  The update( ) function must have been called during current time step before calling this function.
-     *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
-     */
-    Eigen::Matrix3d wrtVelocityOfAcceleratedBody( )
-    {
-        return Eigen::Matrix3d::Zero( );
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPositionPartial;
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPositionPartial;
+        }
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
@@ -108,20 +106,17 @@ public:
      *  The update( ) function must have been called during current time step before calling this function.
      *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
      */
-    Eigen::Matrix3d wrtPositionOfAcceleratingBody( )
+    void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     {
-        return -currentPositionPartial;
-    }
-
-    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration..
-    /*!
-     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration.
-     *  The update( ) function must have been called during current time step before calling this function.
-     *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
-     */
-    Eigen::Matrix3d wrtVelocityOfAcceleratingBody( )
-    {
-        return Eigen::Matrix3d::Zero( );
+        if( addContribution )
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPositionPartial;
+        }
+        else
+        {
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPositionPartial;
+        }
     }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.

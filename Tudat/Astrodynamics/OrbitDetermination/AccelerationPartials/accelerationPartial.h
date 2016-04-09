@@ -141,14 +141,19 @@ public:
      *  Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the accelerated body.
      *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
      */
-    virtual Eigen::Matrix3d wrtPositionOfAcceleratedBody( ) = 0;
+    virtual void wrtPositionOfAcceleratedBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ) = 0;
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body.
     /*!
      *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body.
      *  \return Partial derivative of acceleration w.r.t. velocity of body undergoing acceleration.
      */
-    virtual Eigen::Matrix3d wrtVelocityOfAcceleratedBody( ) = 0;
+    virtual void wrtVelocityOfAcceleratedBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
+    { }
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body undergoing acceleration.
     /*!
@@ -158,8 +163,8 @@ public:
      */
     void wrtStateOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
-        partialMatrix.block( 0, 0, 3, 3 ) += wrtPositionOfAcceleratedBody( );
-        partialMatrix.block( 3, 0, 3, 3 ) += wrtVelocityOfAcceleratedBody( );
+        wrtPositionOfAcceleratedBody( partialMatrix, true, 0, 0 );
+        wrtVelocityOfAcceleratedBody( partialMatrix, true, 0, 3 );
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of the body exerting acceleration.
@@ -168,7 +173,9 @@ public:
      *  acceleration.
      *  \return Partial derivative of acceleration w.r.t. position of body exerting acceleration.
      */
-    virtual Eigen::Matrix3d wrtPositionOfAcceleratingBody( ) = 0;
+    virtual void wrtPositionOfAcceleratingBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ) = 0;
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of the body exerting acceleration.
     /*!
@@ -176,7 +183,9 @@ public:
      *  acceleration.
      *  \return Partial derivative of acceleration w.r.t. velocity of body exerting acceleration.
      */
-    virtual Eigen::Matrix3d wrtVelocityOfAcceleratingBody( ) = 0;
+    virtual void wrtVelocityOfAcceleratingBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 ){ }
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body exerting acceleration.
     /*!
@@ -186,8 +195,8 @@ public:
      */
     void wrtStateOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
-        partialMatrix.block( 0, 0, 3, 3 ) += wrtPositionOfAcceleratingBody( );
-        partialMatrix.block( 3, 0, 3, 3 ) += wrtVelocityOfAcceleratingBody( );
+        wrtPositionOfAcceleratingBody( partialMatrix, true, 0, 0 );
+        wrtVelocityOfAcceleratingBody( partialMatrix, true, 0, 3 );
     }
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the third body.
@@ -196,11 +205,9 @@ public:
      *  \param bodyName Name of third body.
      *  \return Partial derivative of acceleration w.r.t. position of third body.
      */
-    virtual Eigen::Matrix3d wrtPositionOfAdditionalBody(
-            const std::string& bodyName )
-    {
-        return Eigen::Matrix3d::Zero( );
-    }
+    virtual void wrtPositionOfAdditionalBody(
+            const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the third body.
     /*!
@@ -208,10 +215,9 @@ public:
      *  \param bodyName Name of third body.
      *  \return Partial derivative of acceleration w.r.t. velocity of third body.
      */
-    virtual Eigen::Matrix3d wrtVelocityOfAdditionalBody( const std::string& bodyName )
-    {
-        return Eigen::Matrix3d::Zero( );
-    }
+    virtual void wrtVelocityOfAdditionalBody(
+            const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 ){ }
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body.
     /*!
@@ -221,8 +227,8 @@ public:
      */
     void wrtStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix, const std::string& bodyName )
     {
-        partialMatrix.block( 0, 0, 3, 3 ) += wrtPositionOfAdditionalBody( bodyName );
-        partialMatrix.block( 3, 0, 3, 3 ) += wrtVelocityOfAdditionalBody( bodyName );
+        wrtPositionOfAdditionalBody( bodyName, partialMatrix, true, 0, 0 );
+        wrtVelocityOfAdditionalBody( bodyName, partialMatrix, true, 0, 3 );
     }
 
     //! Function to check whether the partial derivative w.r.t. the translational state of a third body is non-zero.
