@@ -239,6 +239,8 @@ BOOST_AUTO_TEST_CASE( test_variational_equation_calculation )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateTransitionMatrixAtEpoch.block( 0, 0, 12, 12 ), manualPartial, 1.0E-3 );
 
+        std::cout<<(stateTransitionMatrixAtEpoch.block( 0, 0, 12, 12 ) - manualPartial ).cwiseQuotient( manualPartial )<<std::endl;
+
     }
 }
 

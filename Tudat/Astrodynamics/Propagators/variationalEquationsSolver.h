@@ -202,7 +202,12 @@ protected:
         return varSystemInitialState;
     }
 
-    boost::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface_;
+
+    simulation_setup::NamedBodyMap bodyMap_;
+
+    boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings_;
+
+    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
     boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings_;
 
@@ -210,16 +215,13 @@ protected:
 
     int parameterVectorSize_;
 
+    bool clearNumericalSolution_;
 
-    boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings_;
 
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
+    boost::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface_;  
 
     boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 
-    simulation_setup::NamedBodyMap bodyMap_;
-
-    bool clearNumericalSolution_;
 };
 
 template< typename MapTimeType, typename MapStateScalarType >

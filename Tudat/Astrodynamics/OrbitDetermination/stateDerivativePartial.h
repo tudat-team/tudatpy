@@ -35,7 +35,8 @@ public:
         integratedStateType_( integratedStateType ), integrationReferencePoint_( integrationReferencePoint )
     {
         currentTime_ = TUDAT_NAN;
-        stateSize_ = propagators::getSingleIntegrationSize( integratedStateType_ );
+        accelerationSize_ = propagators::getSingleIntegrationSize( integratedStateType_ ) /
+                propagators::getSingleIntegrationDifferentialEquationOrder( integratedStateType_ );
     }
 
     virtual ~StateDerivativePartial( ) { }
@@ -58,7 +59,7 @@ public:
     Eigen::MatrixXd wrtParameter(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
-        Eigen::MatrixXd partial = Eigen::MatrixXd( stateSize_, 1 );
+        Eigen::MatrixXd partial = Eigen::MatrixXd( accelerationSize_, 1 );
 
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunction = getParameterPartialFunction( parameter );
         if( partialFunction.second > 0 )
@@ -82,7 +83,7 @@ public:
 
     Eigen::MatrixXd wrtParameter( boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
-        Eigen::MatrixXd partial = Eigen::MatrixXd( stateSize_, parameter->getParameterSize( ) );
+        Eigen::MatrixXd partial = Eigen::MatrixXd( accelerationSize_, parameter->getParameterSize( ) );
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunction = getParameterPartialFunction( parameter );
         if( partialFunction.second > 0 )
         {
@@ -151,14 +152,14 @@ public:
                 parameterDoublePartialFunctions_.at( parameter )( currentDoubleParameterPartials_[ parameter ] );
             }
         }
-        partialMatrix += currentDoubleParameterPartials_[ parameter ];
+        partialMatrix = currentDoubleParameterPartials_[ parameter ];
     }
 
     void getCurrentDoubleParameterPartial(
             const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
             Eigen::MatrixXd& parameterPartial )
     {
-        getCurrentParameterPartial( parameter, parameterPartial.block( 0, 0, stateSize_, 1 ) );
+        getCurrentParameterPartial( parameter, parameterPartial.block( 0, 0, accelerationSize_, 1 ) );
     }
 
     void getCurrentParameterPartial(
@@ -179,14 +180,14 @@ public:
                 parameterVectorPartialFunctions_.at( parameter )( currentVectorParameterPartials_[ parameter ] );
             }
         }
-        partialMatrix += currentVectorParameterPartials_[ parameter ];
+        partialMatrix = currentVectorParameterPartials_[ parameter ];
     }
 
     void getCurrentVectorParameterPartial(
             const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
             Eigen::MatrixXd& parameterPartial )
     {
-        getCurrentParameterPartial( parameter, parameterPartial.block( 0, 0, stateSize_, parameter->getParameterSize( ) ) );
+        getCurrentParameterPartial( parameter, parameterPartial.block( 0, 0, accelerationSize_, parameter->getParameterSize( ) ) );
     }
 
     virtual int setParameterPartialUpdateFunction(
@@ -199,7 +200,7 @@ public:
             {
                 parameterDoublePartialFunctions_[ parameter ] = parameterPartialFunction.first;
                 doesCurrentDoubleParameterPartialExist_[ parameter ] = 0;
-                currentDoubleParameterPartials_[ parameter ] = Eigen::MatrixXd( stateSize_, 1 );
+                currentDoubleParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, 1 );
             }
         }
 
@@ -216,7 +217,7 @@ public:
             {
                 parameterVectorPartialFunctions_[ parameter ] = parameterPartialFunction.first;
                 doesCurrentVectorParameterPartialExist_[ parameter ] = 0;
-                currentVectorParameterPartials_[ parameter ] = Eigen::MatrixXd( stateSize_, parameter->getParameterSize( ) );
+                currentVectorParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, parameter->getParameterSize( ) );
             }
         }
 
@@ -242,7 +243,6 @@ public:
              parameterVectorPartialFunctionIterator_ != parameterVectorPartialFunctions_.end( );
              parameterVectorPartialFunctionIterator_++ )
         {
-            //std::cout<<"New vec. partial: "<<parameterVectorPartialFunctionIterator_->first->getParameterName( ).first<<std::endl;
             if( doesCurrentVectorParameterPartialExist_.at( parameterVectorPartialFunctionIterator_->first ) == 0 )
             {
                 parameterVectorPartialFunctionIterator_->second( currentVectorParameterPartials_[ parameterVectorPartialFunctionIterator_->first ]  );
@@ -283,7 +283,7 @@ protected:
 
     propagators::IntegratedStateType integratedStateType_;
 
-    int stateSize_;
+    int accelerationSize_;
 
     std::pair< std::string, std::string > integrationReferencePoint_;
 

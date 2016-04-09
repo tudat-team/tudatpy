@@ -472,13 +472,13 @@ public:
         EstimatableParameterSettings( associatedBody, initial_body_state ), initialTime_( initialTime ), centralBody_( centralBody ),
         frameOrientation_( frameOrientation ), isStateSet_( 0 ){ }
 
-    Eigen::Matrix< InitialStateParameterType, 6, 1 > initialStateValue_;
     double initialTime_;
-
-    bool isStateSet_;
+    Eigen::Matrix< InitialStateParameterType, 6, 1 > initialStateValue_;
 
     std::string centralBody_;
     std::string frameOrientation_;
+    bool isStateSet_;
+
 };
 
 template< typename InitialStateParameterType >

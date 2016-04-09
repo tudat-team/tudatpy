@@ -18,12 +18,12 @@ void evaluateNegativeParameterPartialFunction( const boost::function< void( Eige
 }
 
 void evaluateSubtractedParameterPartialFunction( const boost::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
-                                                            const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToSubtract,
-                                                            Eigen::MatrixXd& partial )
+                                                 const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToSubtract,
+                                                 Eigen::MatrixXd& partial )
 {
     firstParameterPartialFunction( partial );
 
-    static Eigen::MatrixXd subtractedPartial;
+    Eigen::MatrixXd subtractedPartial = Eigen::MatrixXd::Zero( partial.rows( ), partial.cols( ) );
     parameterPartialFunctionToSubtract( subtractedPartial );
 
     partial -= subtractedPartial;
@@ -35,7 +35,7 @@ void evaluateAddedParameterPartialFunction( const boost::function< void( Eigen::
 {
     firstParameterPartialFunction( partial );
 
-    static Eigen::MatrixXd addedPartial;
+    Eigen::MatrixXd addedPartial = Eigen::MatrixXd::Zero( partial.rows( ), partial.cols( ) );
     parameterPartialFunctionToAdd( addedPartial );
 
     partial += addedPartial;
