@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
     std::vector< std::string > propagatedBodyList;
     std::vector< std::string > centralBodyList;
 
-    std::map< IntegratedStateType, Eigen::VectorXd > integratedStateToSet;
+    std::unordered_map< IntegratedStateType, Eigen::VectorXd > integratedStateToSet;
     double testTime = 0.0;
 
     {
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
-                        0.5 * testTime, std::map< IntegratedStateType, Eigen::VectorXd >( ),
+                        0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
                         boost::assign::list_of( transational_state ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Earth" )->getState( ),
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
-                        0.5 * testTime, std::map< IntegratedStateType, Eigen::VectorXd >( ),
+                        0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
                         boost::assign::list_of( transational_state ) );
 
         }
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
-                        0.5 * testTime, std::map< IntegratedStateType, Eigen::VectorXd >( ),
+                        0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
                         boost::assign::list_of( transational_state ) );
 
         }
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
     // Define test time and state.
     double testTime = 2.0 * 86400.0;
-    std::map< IntegratedStateType, Eigen::VectorXd > integratedStateToSet;
+    std::unordered_map< IntegratedStateType, Eigen::VectorXd > integratedStateToSet;
     Eigen::VectorXd testState = 1.1 * bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianStateFromEphemeris( testTime ) +
             bodyMap.at( "Earth" )->getEphemeris( )->getCartesianStateFromEphemeris( testTime );
     integratedStateToSet[ transational_state ] = testState;
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
 
         updater->updateEnvironment(
-                    0.5 * testTime, std::map< IntegratedStateType, Eigen::VectorXd >( ),
+                    0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
                     boost::assign::list_of( transational_state ) );
 
 
@@ -589,7 +589,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
                     std::numeric_limits< double >::epsilon( ) );
 
         updater->updateEnvironment(
-                    0.5 * testTime, std::map< IntegratedStateType, Eigen::VectorXd >( ),
+                    0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
                     boost::assign::list_of( transational_state ) );
 
 

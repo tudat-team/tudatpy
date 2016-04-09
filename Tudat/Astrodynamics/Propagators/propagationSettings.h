@@ -15,6 +15,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <unordered_map>
 
 #include <boost/lexical_cast.hpp>
 
@@ -35,6 +36,7 @@ enum IntegratedStateType
 {
     transational_state
 };
+
 
 //! Enum listing propagator types for translational dynamics that can be used.
 enum TranslationalPropagatorType
@@ -214,6 +216,24 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 }
 
 }
+
+}
+
+namespace std
+{
+
+template<>
+struct hash< tudat::propagators::IntegratedStateType >
+{
+   typedef tudat::propagators::IntegratedStateType argument_type;
+   typedef size_t result_type;
+
+   result_type operator () (const argument_type& x) const
+   {
+      using type = typename std::underlying_type<argument_type>::type;
+      return std::hash<type>()(static_cast<type>(x));
+   }
+};
 
 }
 

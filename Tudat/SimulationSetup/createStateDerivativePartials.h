@@ -21,7 +21,7 @@ template< typename StateScalarType, typename TimeType, typename InitialStatePara
 std::map< propagators::IntegratedStateType, StateDerivativePartialsMap > createStateDerivativePartials(
         const std::map< propagators::IntegratedStateType,
         std::vector< boost::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
-        const std::map< std::string, boost::shared_ptr< simulation_setup::Body > >& bodyMap,
+        const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > parametersToEstimate )
 {
     std::map< propagators::IntegratedStateType, StateDerivativePartialsMap > stateDerivativePartials;

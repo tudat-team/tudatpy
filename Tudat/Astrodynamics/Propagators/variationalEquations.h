@@ -145,7 +145,7 @@ public:
 
         }
 
-        currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
+        currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_, totalDynamicalStateSize_ - numberOfParameterValues_ ) +=
                 variationalParameterMatrix_.template cast< StateScalarType >( );
 
     }

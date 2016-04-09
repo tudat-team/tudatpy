@@ -136,7 +136,7 @@ public:
         else
         {
             environmentUpdater_->updateEnvironment(
-                        time, std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
+                        time, std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
                                                     integratedStatesFromEnvironment_ );
         }
 
@@ -169,6 +169,7 @@ public:
         if( evaluateVariationalEquations_ )
         {
             variationalEquations_->updatePartials( time );
+
             variationalEquations_->evaluateVariationalEquations< StateScalarType >(
                         time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
                         stateDerivative_.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
@@ -314,7 +315,7 @@ public:
      * Function to get complete list of state derivative models, sorted per state type.
      * \return Complete list of state derivative models, sorted per state type.
      */
-    std::map< IntegratedStateType, std::vector< boost::shared_ptr
+    std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeModels( )
     {
         return stateDerivativeModels_;
@@ -437,11 +438,11 @@ private:
     std::map< IntegratedStateType, int > stateTypeStartIndex_;
 
     //! Complete list of state derivative models, sorted per state type.
-    std::map< IntegratedStateType,
+    std::unordered_map< IntegratedStateType,
     std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels_;
 
     //! Predefined iterator for computational efficiency.
-    typename std::map< IntegratedStateType, std::vector< boost::shared_ptr
+    typename std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > >::iterator stateDerivativeModelsIterator_;
 
     //! Total length of state vector.
@@ -462,7 +463,7 @@ private:
 
     StateType stateDerivative_;
 
-    std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
+    std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
             currentStatesPerTypeInConventionalRepresentation_;
 };
 

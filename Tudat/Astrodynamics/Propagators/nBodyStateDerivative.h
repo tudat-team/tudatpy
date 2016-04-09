@@ -105,12 +105,12 @@ public:
     void updateStateDerivativeModel( const TimeType currentTime )
     {
         // Reser all acceleration times (to allow multiple evaluations at same time, e.g. stage 2 and 3 in RK4 integrator)
-        for( accelerationMapIterator = accelerationModelsPerBody_.begin( );
-             accelerationMapIterator != accelerationModelsPerBody_.end( ); accelerationMapIterator++ )
+        for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
+             outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
         {
             // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = accelerationMapIterator->second.begin( ); innerAccelerationIterator !=
-                 accelerationMapIterator->second.end( ); innerAccelerationIterator++ )
+            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( ); innerAccelerationIterator !=
+                 outerAccelerationIterator->second.end( ); innerAccelerationIterator++ )
             {
                 // Update accelerations
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
@@ -121,12 +121,12 @@ public:
         }
 
         // Iterate over all accelerations and update their internal state.
-        for( accelerationMapIterator = accelerationModelsPerBody_.begin( );
-             accelerationMapIterator != accelerationModelsPerBody_.end( ); accelerationMapIterator++ )
+        for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
+             outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
         {
             // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = accelerationMapIterator->second.begin( ); innerAccelerationIterator !=
-                 accelerationMapIterator->second.end( ); innerAccelerationIterator++ )
+            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( ); innerAccelerationIterator !=
+                 outerAccelerationIterator->second.end( ); innerAccelerationIterator++ )
             {
                 // Update accelerations
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
@@ -276,16 +276,13 @@ protected:
     //! List of names of bodies that are to be integrated numerically.
     std::vector< std::string > bodiesToBeIntegratedNumerically_;
 
-    //! Predefined iterator to save (de-)allocation time.
-    basic_astrodynamics::AccelerationMap::iterator accelerationMapIterator;
-
     std::vector< int > bodyOrder_;
 
     //! Predefined iterator to save (de-)allocation time.
-    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::
+    std::unordered_map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::
     iterator innerAccelerationIterator;
 
-    std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::
+    std::unordered_map< std::string, std::unordered_map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::
     iterator outerAccelerationIterator;
 
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyInertialStates_;

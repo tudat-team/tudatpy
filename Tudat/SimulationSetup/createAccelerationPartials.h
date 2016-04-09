@@ -139,8 +139,8 @@ boost::shared_ptr< AccelerationPartial > createAnalyticalAccelerationPartial(
  */
 template< typename InitialStateParameterType >
 StateDerivativePartialsMap createAccelerationPartialsMap(
-        const basic_astrodynamics::AccelerationMap accelerationMap,
-        const std::map< std::string, boost::shared_ptr< simulation_setup::Body > > bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > parametersToEstimate =
         boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >( ) )
 

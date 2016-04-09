@@ -101,10 +101,14 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
 
     // Calculate analytical partials.
     centralGravitationPartial->update( );
-    Eigen::Matrix3d partialWrtEarthPosition = centralGravitationPartial->wrtPositionOfAcceleratedBody( );
-    Eigen::Matrix3d partialWrtEarthVelocity = centralGravitationPartial->wrtVelocityOfAcceleratedBody( );
-    Eigen::Matrix3d partialWrtSunPosition = centralGravitationPartial->wrtPositionOfAcceleratingBody( );
-    Eigen::Matrix3d partialWrtSunVelocity = centralGravitationPartial->wrtVelocityOfAcceleratingBody( );
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    centralGravitationPartial->wrtPositionOfAcceleratedBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    centralGravitationPartial->wrtVelocityOfAcceleratedBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+    Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    centralGravitationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+    centralGravitationPartial->wrtVelocityOfAcceleratingBody( partialWrtSunVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
     Eigen::Vector3d partialWrtSunGravitationalParameter = centralGravitationPartial->wrtParameter(
                 sunGravitationalParameterParameter );
     Eigen::Vector3d partialWrtEarthGravitationalParameter = centralGravitationPartial->wrtParameter(
@@ -225,10 +229,14 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
 
     // Calculate analytical partials.
     accelerationPartial->update( );
-    Eigen::Matrix3d partialWrtSunPosition = accelerationPartial->wrtPositionOfAcceleratingBody( );
-    Eigen::Matrix3d partialWrtSunVelocity = accelerationPartial->wrtVelocityOfAcceleratingBody( );
-    Eigen::Matrix3d partialWrtVehiclePosition = accelerationPartial->wrtPositionOfAcceleratedBody( );
-    Eigen::Matrix3d partialWrtVehicleVelocity = accelerationPartial->wrtVelocityOfAcceleratedBody( );
+    Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtSunVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+    Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
     Eigen::Vector3d partialWrtRadiationPressureCoefficient = accelerationPartial->wrtParameter(
                 radiationPressureCoefficient );
 
@@ -334,12 +342,19 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
 
     // Calculate analytical partials.
     thirdBodyGravitationPartial->update( 1.0E6 );
-    Eigen::Matrix3d partialWrtMoonPosition = thirdBodyGravitationPartial->wrtPositionOfAcceleratedBody( );
-    Eigen::Matrix3d partialWrtMoonVelocity = thirdBodyGravitationPartial->wrtVelocityOfAcceleratedBody( );
-    Eigen::Matrix3d partialWrtSunPosition = thirdBodyGravitationPartial->wrtPositionOfAcceleratingBody( );
-    Eigen::Matrix3d partialWrtSunVelocity = thirdBodyGravitationPartial->wrtVelocityOfAcceleratingBody( );
-    Eigen::Matrix3d partialWrtEarthPosition = thirdBodyGravitationPartial->wrtPositionOfAdditionalBody( "Earth" );
-    Eigen::Matrix3d partialWrtEarthVelocity = thirdBodyGravitationPartial->wrtVelocityOfAdditionalBody( "Earth" );
+    Eigen::MatrixXd partialWrtMoonPosition = Eigen::Matrix3d::Zero( );
+    thirdBodyGravitationPartial->wrtPositionOfAcceleratedBody( partialWrtMoonPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtMoonVelocity = Eigen::Matrix3d::Zero( );
+    thirdBodyGravitationPartial->wrtVelocityOfAcceleratedBody( partialWrtMoonVelocity.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
+    thirdBodyGravitationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
+    thirdBodyGravitationPartial->wrtVelocityOfAcceleratingBody( partialWrtSunVelocity.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    thirdBodyGravitationPartial->wrtPositionOfAdditionalBody( "Earth", partialWrtEarthPosition.block( 0, 0, 3, 3 )  );
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    thirdBodyGravitationPartial->wrtVelocityOfAdditionalBody( "Earth", partialWrtEarthVelocity.block( 0, 0, 3, 3 )  );
+
     Eigen::Vector3d partialWrtSunGravitationalParameter = thirdBodyGravitationPartial->wrtParameter(
                 gravitationalParameterParameter );
     Eigen::Vector3d partialWrtMoonGravitationalParameter = thirdBodyGravitationPartial->wrtParameter(
