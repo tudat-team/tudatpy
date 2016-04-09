@@ -161,6 +161,7 @@ public:
                         currentAcceleratedBodyState_,
                         currentCentralBodyState_,
                         currentGravitationalParameter_ );
+
             currentTime_ = currentTime;
         }
     }

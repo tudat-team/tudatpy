@@ -33,7 +33,7 @@ Eigen::Matrix3d calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
     double relativePositionNorm = relativePosition.norm( );
     double invSquareOfPositionNorm = 1.0 / ( relativePositionNorm * relativePositionNorm );
     double invCubeOfPositionNorm = invSquareOfPositionNorm / relativePositionNorm;
-    Eigen::Matrix3d partialMatrix = -1.0 * gravitationalParameter *
+    Eigen::Matrix3d partialMatrix = -gravitationalParameter *
             ( Eigen::Matrix3d::Identity( ) * invCubeOfPositionNorm -
               ( 3.0 * invSquareOfPositionNorm * invCubeOfPositionNorm ) * relativePosition * relativePosition.transpose( ) );
 

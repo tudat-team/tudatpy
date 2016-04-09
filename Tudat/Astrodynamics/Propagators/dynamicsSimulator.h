@@ -453,7 +453,7 @@ protected:
             equationsOfMotionNumericalSolution_.clear( );
         }
 
-        for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::const_iterator
+        for( simulation_setup::NamedBodyMap::const_iterator
              bodyIterator = bodyMap_.begin( );
              bodyIterator != bodyMap_.end( ); bodyIterator++ )
         {

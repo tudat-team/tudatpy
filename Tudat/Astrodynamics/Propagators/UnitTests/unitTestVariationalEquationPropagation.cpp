@@ -65,14 +65,10 @@ execute( const std::vector< std::string > centralBodies,
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
     bodyNames.push_back( "Mars" );
-    bodyNames.push_back( "Mercury" );
-    bodyNames.push_back( "Venus" );
-    bodyNames.push_back( "Jupiter" );
-    bodyNames.push_back( "Saturn" );
 
     // Specify initial time
     TimeType initialEphemerisTime = TimeType( 1.0E7 );
-    TimeType finalEphemerisTime = initialEphemerisTime + 0.005E7;
+    TimeType finalEphemerisTime = initialEphemerisTime + 0.5E7;
     double maximumTimeStep = 3600.0;
 
     double buffer = 10.0 * maximumTimeStep;
@@ -82,7 +78,7 @@ execute( const std::vector< std::string > centralBodies,
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
 
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies( bodySettings );
+    NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
 
@@ -91,23 +87,11 @@ execute( const std::vector< std::string > centralBodies,
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
     accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Mercury" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Venus" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Saturn" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
     accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Mercury" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Venus" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Saturn" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfSun;
@@ -138,7 +122,7 @@ execute( const std::vector< std::string > centralBodies,
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             boost::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, TimeType( initialEphemerisTime ),
-              TimeType( finalEphemerisTime ), 1.0E-4 );
+              TimeType( finalEphemerisTime ), 300.0 );
 
 
     // Set initial states of bodies to integrate.
@@ -177,10 +161,6 @@ execute( const std::vector< std::string > centralBodies,
             std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
 
     {
-        SingleArcDynamicsSimulator< >(
-                    bodyMap, integratorSettings, propagatorSettings );
-
-        sleep( 10000.0 );
         SingleArcVariationalEquationsSolver< StateScalarType, TimeType, double > dynamicsSimulator =
                 SingleArcVariationalEquationsSolver< StateScalarType, TimeType, double >(
                     bodyMap, integratorSettings, propagatorSettings,

@@ -95,7 +95,7 @@ public:
      */
     void updateEnvironment(
             const TimeType currentTime,
-            const std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
+            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
             integratedStatesToSet,
             const std::vector< IntegratedStateType >& setIntegratedStatesFromEnvironment =
             std::vector< IntegratedStateType >( ) )
@@ -160,7 +160,7 @@ private:
      * DynamicsStateDerivativeModel.
      */
     void setIntegratedStatesInEnvironment(
-            const std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&  integratedStatesToSet )
+            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&  integratedStatesToSet )
     {
         // Iterate over state types and set states in environment
         for( integratedStateIterator_ = integratedStatesToSet.begin( );
@@ -173,10 +173,9 @@ private:
             case transational_state:
             {
                 // Set translational states for bodies provided as input.
-                bodiesWithIntegratedStates_ = integratedStates_[ transational_state ];
-                for( unsigned int i = 0; i < bodiesWithIntegratedStates_.size( ); i++ )
+                for( unsigned int i = 0; i < integratedStates_[ transational_state ].size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates_[ i ].first ]->template setTemplatedState< StateScalarType >(
+                    bodyList_[ integratedStates_[ transational_state ][ i ].first ]->template setTemplatedState< StateScalarType >(
                                 integratedStateIterator_->second.segment( i * 6, 6 ) );
                 }
                 break;
@@ -444,10 +443,8 @@ private:
     std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
     ::iterator updateTimeIterator;
 
-    typename std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
+    typename std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
     integratedStateIterator_;
-
-    std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates_;
 
 
 };
