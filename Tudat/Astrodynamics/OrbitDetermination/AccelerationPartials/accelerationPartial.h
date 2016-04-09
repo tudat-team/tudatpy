@@ -68,13 +68,13 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return Pair with function, returning partial derivative, and number of columns in partial vector,
      */
-    std::pair< boost::function< Eigen::MatrixXd( ) >, int >  getDerivativeFunctionWrtStateOfIntegratedBody(
+    std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >  getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
         // Initialize to empty function; 0 parameter size.
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int >
-                partialFunction = std::make_pair( boost::function< Eigen::MatrixXd( ) >( ), 0 );
+        std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
+                partialFunction = std::make_pair( boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
 
         // Check if state is translational.
         if( integratedStateType == propagators::transational_state )
@@ -87,16 +87,16 @@ public:
             // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
             else if( stateReferencePoint.first == acceleratedBody_ )
             {
-                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this ), 3 );
+                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, _1 ), 3 );
             }
             else if( stateReferencePoint.first == acceleratingBody_ )
             {
-                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this ), 3 );
+                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, _1 ), 3 );
             }
             else if( isAccelerationPartialWrtAdditionalBodyNonNull( stateReferencePoint.first ) )
             {
                 partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
-                                                               this, stateReferencePoint.first ), 3 );
+                                                               this, _1, stateReferencePoint.first ), 3 );
             }
         }
 
@@ -156,10 +156,10 @@ public:
      *  undergoing acceleration.
      *  \return Partial derivative of acceleration w.r.t. state of body exerting acceleration.
      */
-    Eigen::Matrix< double, 3, 6 > wrtStateOfAcceleratedBody( )
+    void wrtStateOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
-        return ( Eigen::Matrix< double, 3, 6 >( )<<
-                 wrtPositionOfAcceleratedBody( ), wrtVelocityOfAcceleratedBody( ) ).finished( );
+        partialMatrix.block( 0, 0, 3, 3 ) += wrtPositionOfAcceleratedBody( );
+        partialMatrix.block( 3, 0, 3, 3 ) += wrtVelocityOfAcceleratedBody( );
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of the body exerting acceleration.
@@ -184,9 +184,10 @@ public:
      *  acceleration.
      *  \return Partial derivative of acceleration w.r.t. state of body exerting acceleration.
      */
-    Eigen::Matrix< double, 3, 6 > wrtStateOfAcceleratingBody( )
+    void wrtStateOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
-        return ( Eigen::Matrix< double, 3, 6 >( )<<wrtPositionOfAcceleratingBody( ), wrtVelocityOfAcceleratingBody( ) ).finished( );
+        partialMatrix.block( 0, 0, 3, 3 ) += wrtPositionOfAcceleratingBody( );
+        partialMatrix.block( 3, 0, 3, 3 ) += wrtVelocityOfAcceleratingBody( );
     }
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the third body.
@@ -217,9 +218,10 @@ public:
      *  \param bodyName Name of third body.
      *  \return Partial derivative of acceleration w.r.t. Cartesian state of third body.
      */
-    Eigen::Matrix< double, 3, 6 > wrtStateOfAdditionalBody( const std::string& bodyName )
+    void wrtStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix, const std::string& bodyName )
     {
-        return ( Eigen::Matrix< double, 3, 6 >( )<<wrtPositionOfAdditionalBody( bodyName ), wrtVelocityOfAdditionalBody( bodyName ) ).finished( );
+        partialMatrix.block( 0, 0, 3, 3 ) += wrtPositionOfAdditionalBody( bodyName );
+        partialMatrix.block( 3, 0, 3, 3 ) += wrtVelocityOfAdditionalBody( bodyName );
     }
 
     //! Function to check whether the partial derivative w.r.t. the translational state of a third body is non-zero.

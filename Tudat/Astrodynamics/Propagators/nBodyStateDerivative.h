@@ -149,19 +149,19 @@ public:
      * \param time Current time at which the state is valid.
      * \return State (internalSolution), converted to the Cartesian state in inertial coordinates.
      */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertCurrentStateToGlobalRepresentation(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time )
+    void convertCurrentStateToGlobalRepresentation(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > cartesianLocalSolution =
-                this->convertToOutputSolution( internalSolution, time );
+        this->convertToOutputSolution( internalSolution, time, currentCartesianLocalSoluton );
 
-        std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyInertialStates =
-                centralBodyData_->getReferenceFrameOriginInertialStates( cartesianLocalSolution, time, true );
-        for( unsigned int i = 0; i < centralBodyInertialStates.size( ); i++ )
+        centralBodyData_->getReferenceFrameOriginInertialStates(
+                    currentCartesianLocalSoluton, time, centralBodyInertialStates_, true );
+
+        for( unsigned int i = 0; i < centralBodyInertialStates_.size( ); i++ )
         {
-            cartesianLocalSolution.segment( i * 6, 6 ) += centralBodyInertialStates[ i ];
+            currentCartesianLocalSoluton.block( i * 6, 0, 6, 1 ) += centralBodyInertialStates_.at( i );
         }
-        return cartesianLocalSolution;
     }
 
     //! Function to get list of names of bodies that are to be integrated numerically.
@@ -293,6 +293,7 @@ protected:
     std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::
     iterator outerAccelerationIterator;
 
+    std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyInertialStates_;
 
 };
 

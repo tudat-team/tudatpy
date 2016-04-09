@@ -121,15 +121,17 @@ public:
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
         // Initialize state derivative
-        StateType stateDerivative = StateType::Zero( state.rows( ), state.cols( ) );
+        if( stateDerivative_.rows( ) != state.rows( ) || stateDerivative_.cols( ) != state.cols( )  )
+        {
+            stateDerivative_.resize( state.rows( ), state.cols( ) );
+        }
 
         // If dynamical equations are integrated, update the environment with the current state.
         if( evaluateDynamicsEquations_ )
         {
-            std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
-                    statesPerTypeInConventionalRepresentation =
+            currentStatesPerTypeInConventionalRepresentation_ =
                     convertCurrentStateToGlobalRepresentationPerType( state, time, evaluateVariationalEquations_ );
-            environmentUpdater_->updateEnvironment( time, statesPerTypeInConventionalRepresentation,
+            environmentUpdater_->updateEnvironment( time, currentStatesPerTypeInConventionalRepresentation_,
                                                     integratedStatesFromEnvironment_ );
         }
         else
@@ -158,11 +160,8 @@ public:
                     currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
                     stateDerivativeModelsIterator_->second.at( i )->calculateSystemStateDerivative(
-                        time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
-
-                    stateDerivative.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) =
-                            stateDerivativeModelsIterator_->second.at( i )->calculateSystemStateDerivative(
-                                time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
+                                time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ),
+                                stateDerivative_.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
                 }
             }
         }
@@ -171,12 +170,12 @@ public:
         if( evaluateVariationalEquations_ )
         {
             variationalEquations_->updatePartials( time );
-            stateDerivative.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ) =
-                    variationalEquations_->evaluateVariationalEquations< StateScalarType >(
-                        time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ) );
+            variationalEquations_->evaluateVariationalEquations< StateScalarType >(
+                        time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
+                        stateDerivative_.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
         }
 
-        return stateDerivative;
+        return stateDerivative_;
     }
 
     Eigen::MatrixXd computeStateDoubleDerivative(
@@ -244,10 +243,10 @@ public:
                         stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
-                outputState.segment( currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ) =
-                        stateDerivativeModelsIterator_->second.at( i )->convertToOutputSolution(
+                stateDerivativeModelsIterator_->second.at( i )->convertToOutputSolution(
                             internalSolution.segment(
-                                currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ), time );
+                                currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ), time,
+                            outputState.block( currentStateIndices.at( i ).first, 0, currentStateIndices.at( i ).second, 1 ) );
             }
         }
         return outputState;
@@ -416,10 +415,10 @@ private:
                 currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
                 // Set current block in split state (in global form)
-                splitConventionalStates[ stateDerivativeModelsIterator_->first ].block(
-                            currentStateTypeSize, 0, currentIndices.second, 1 ) =
-                        stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
-                            state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time );
+                stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
+                            state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time,
+                            splitConventionalStates.at( stateDerivativeModelsIterator_->first ).block(
+                                        currentStateTypeSize, 0, currentIndices.second, 1 ) );
                 currentStateTypeSize += currentIndices.second;
             }
         }
@@ -465,6 +464,10 @@ private:
     int dynamicsStartColumn_;
 
 
+    StateType stateDerivative_;
+
+    std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
+            currentStatesPerTypeInConventionalRepresentation_;
 };
 
 template< typename TimeType = double, typename StateScalarType = double,

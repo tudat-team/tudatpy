@@ -170,27 +170,28 @@ public:
      *  the global frame.
      *  \return Vector of states of the reference frame origins for each body.
      */
-    std::vector<  Eigen::Matrix< StateScalarType, 6, 1 > > getReferenceFrameOriginInertialStates(
+    void getReferenceFrameOriginInertialStates(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalState, const TimeType time,
+            std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& referenceFrameOriginStates,
             const bool areInputStateLocal = true )
     {
-        std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > referenceFrameOriginStates_;
-        referenceFrameOriginStates_.resize( updateOrder_.size( ) );
+        if( referenceFrameOriginStates.size( ) != updateOrder_.size( ) )\
+        {
+            referenceFrameOriginStates.resize( updateOrder_.size( ) );
+        }
 
         // Update state in correct order.
         for( unsigned int i = 0; i < updateOrder_.size( ); i++ )
         {
-            referenceFrameOriginStates_[ updateOrder_[ i ] ] =
+            referenceFrameOriginStates[ updateOrder_[ i ] ] =
                     getSingleReferenceFrameOriginInertialState( internalState, time, updateOrder_[ i ] );
 
             // Modify current input state to global frame if input is local (in propagation frame).
             if( areInputStateLocal )
             {
-                internalState.segment( 6 * updateOrder_[ i ], 6 ) += referenceFrameOriginStates_[ updateOrder_[ i ] ];
+                internalState.segment( 6 * updateOrder_[ i ], 6 ) += referenceFrameOriginStates[ updateOrder_[ i ] ];
             }
         }
-
-        return referenceFrameOriginStates_;
     }
 
 
