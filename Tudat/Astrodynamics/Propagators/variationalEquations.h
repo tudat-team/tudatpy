@@ -73,7 +73,7 @@ public:
         currentMatrixDerivative_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, numberOfParameterValues_ );
         currentLongMatrixDerivative_ = Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >::Zero( totalDynamicalStateSize_, numberOfParameterValues_ );
         variationalMatrix_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, totalDynamicalStateSize_ );
-        variationalParameterMatrix_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, numberOfParameterValues_ );
+        variationalParameterMatrix_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, numberOfParameterValues_ - totalDynamicalStateSize_ );
 
         // Set parameter partial functions.
         setStatePartialFunctionList( );
@@ -138,15 +138,16 @@ public:
                 {
                     functionIterator->second(
                                 variationalParameterMatrix_.block(
-                                startIndex + entriesToSkipPerEntry + currentStateSize * i, functionIterator->first.first,
+                                startIndex + entriesToSkipPerEntry + currentStateSize * i, functionIterator->first.first - totalDynamicalStateSize_,
                                 currentStateSize - entriesToSkipPerEntry, functionIterator->first.second ) );
                 }
             }
 
         }
 
-        currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
+        currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_, numberOfParameterValues_ ) +=
                 variationalParameterMatrix_.template cast< StateScalarType >( );
+
     }
     
     //! Evaluates the variational equations.
@@ -255,7 +256,7 @@ private:
         
         int totalParameterVectorIndicesToSubtract = parametersToEstimate->getInitialDynamicalStateParameterSize( ) -
                 estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate );
-        
+
         for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
              stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
              stateDerivativeTypeIterator++ )
@@ -362,6 +363,8 @@ private:
      *  Pre-declared iterator over all parameter partial functions. Declared to prevent large number of iterator crations and destructions (performance)
      */
     std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >::iterator functionIterator;
+
+    std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator stateDerivativeTypeIterator_;
     
     
 

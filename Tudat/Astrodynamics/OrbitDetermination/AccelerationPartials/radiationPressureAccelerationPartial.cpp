@@ -31,10 +31,10 @@ Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiat
     return -radiationPressure * area / bodyMass * vectorToSource;
 }
 
-std::pair< boost::function< Eigen::MatrixXd( ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
+std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    boost::function< Eigen::MatrixXd( ) > partialFunction;
+    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
     if( parameter->getParameterName( ).second.first == acceleratedBody_ )
     {
@@ -43,7 +43,7 @@ std::pair< boost::function< Eigen::MatrixXd( ) >, int > CannonBallRadiationPress
         case estimatable_parameters::radiation_pressure_coefficient:
 
             partialFunction = boost::bind( &CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient,
-                                           this );
+                                           this, _1 );
             numberOfRows = 1;
 
             break;
@@ -55,10 +55,10 @@ std::pair< boost::function< Eigen::MatrixXd( ) >, int > CannonBallRadiationPress
 }
 
 
-std::pair< boost::function< Eigen::MatrixXd( ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
+std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
-    boost::function< Eigen::MatrixXd( ) > partialFunction;
+    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
     if( parameter->getParameterName( ).second.first == acceleratedBody_ )
     {

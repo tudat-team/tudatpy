@@ -115,7 +115,6 @@ public:
                 // Update accelerations
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
-
                     innerAccelerationIterator->second[ j ]->resetTime( TUDAT_NAN );
                 }
             }
@@ -132,7 +131,6 @@ public:
                 // Update accelerations
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
-
                     innerAccelerationIterator->second[ j ]->updateMembers( currentTime );
                 }
             }
@@ -160,7 +158,7 @@ public:
 
         for( unsigned int i = 0; i < centralBodyInertialStates_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.block( i * 6, 0, 6, 1 ) += centralBodyInertialStates_.at( i );
+            currentCartesianLocalSoluton.segment( i * 6, 6 ) += centralBodyInertialStates_[ i ];
         }
     }
 
@@ -221,16 +219,13 @@ protected:
      * Function to get the state derivative of the system in Cartesian coordinates. The environment and acceleration models
      * must have been updated to the current state before calling this function.
      * \param stateOfSystemToBeIntegrated Current Cartesian state of the system.
-     * \param time Time at which the state derivative is to be computed
      * \return State derivative of the system in Cartesian coordinates.
      */
-    Eigen::VectorXd sumStateDerivativeContributions(
-            const Eigen::VectorXd& stateOfSystemToBeIntegrated, const TimeType time )
+    void sumStateDerivativeContributions(
+            const Eigen::VectorXd& stateOfSystemToBeIntegrated,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >stateDerivative )
     {
         using namespace basic_astrodynamics;
-
-        // Declare and initialize to zero vector to be returned.
-        Eigen::VectorXd stateDerivative = Eigen::VectorXd::Zero( stateOfSystemToBeIntegrated.size( ) );
 
         int currentBodyIndex = TUDAT_NAN;
         int currentAccelerationIndex = 0;
@@ -240,7 +235,8 @@ protected:
              outerAccelerationIterator != accelerationModelsPerBody_.end( );
              outerAccelerationIterator++ )
         {
-            currentBodyIndex = bodyOrder_.at( currentAccelerationIndex );
+            currentBodyIndex = bodyOrder_[ currentAccelerationIndex ];
+
             // Iterate over all accelerations acting on body
             for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
                  innerAccelerationIterator != outerAccelerationIterator->second.end( );
@@ -249,16 +245,15 @@ protected:
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
                     // Calculate acceleration and add to state derivative.
-                    stateDerivative.segment( currentBodyIndex * 6 + 3, 3 ) += (
-                                innerAccelerationIterator->second.at( j )->getAcceleration( ) );
+                    stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += (
+                                innerAccelerationIterator->second[ j ]->getAcceleration( ) );
                 }
             }
+
             // Add body velocity as derivative of its position.
-            stateDerivative.segment( currentBodyIndex * 6, 3 ) = stateOfSystemToBeIntegrated.segment( currentBodyIndex * 6 + 3, 3 );
+            stateDerivative.block( currentBodyIndex * 6, 0, 3, 1 ) = stateOfSystemToBeIntegrated.segment( currentBodyIndex * 6 + 3, 3 );
             currentAccelerationIndex++;
         }
-
-        return stateDerivative;
     }
 
 
@@ -300,4 +295,5 @@ protected:
 }
 
 }
+
 #endif // TUDAT_NBODYSTATEDERIVATIVE_H

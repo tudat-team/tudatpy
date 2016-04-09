@@ -164,24 +164,24 @@ public:
         return isAccelerationDependentOnBody;
     }
 
-    std::pair< boost::function< Eigen::MatrixXd( ) >, int > getParameterPartialFunction(
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionFromDirectGravity =
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionFromCentralGravity =
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
 
         return createMergedParameterPartialFunction( partialFunctionFromDirectGravity,
                                                      partialFunctionFromCentralGravity );
     }
 
-    std::pair< boost::function< Eigen::MatrixXd( ) >, int > getParameterPartialFunction(
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionFromDirectGravity =
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionFromCentralGravity =
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
 
         return createMergedParameterPartialFunction( partialFunctionFromDirectGravity,
@@ -191,14 +191,14 @@ public:
     int setParameterPartialUpdateFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionFromDirectGravity =
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
         if( partialFunctionFromDirectGravity.second > 0 )
         {
             partialOfDirectGravityOnBodyUndergoingAcceleration_->setParameterPartialUpdateFunction( parameter );
         }
 
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionFromCentralGravity =
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
         if( partialFunctionFromCentralGravity.second > 0 )
         {
@@ -213,6 +213,7 @@ public:
                         partialOfDirectGravityOnCentralBody_,
                         parameter, partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second, 1 );
             doesCurrentDoubleParameterPartialExist_[ parameter ] = 0;
+            currentDoubleParameterPartials_[ parameter ] = Eigen::MatrixXd( stateSize_, 1 );
         }
         return std::max( partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second );
     }
@@ -221,14 +222,14 @@ public:
     int setParameterPartialUpdateFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionFromDirectGravity =
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
         if( partialFunctionFromDirectGravity.second > 0 )
         {
             partialOfDirectGravityOnBodyUndergoingAcceleration_->setParameterPartialUpdateFunction( parameter );
         }
 
-        std::pair< boost::function< Eigen::MatrixXd( ) >, int > partialFunctionFromCentralGravity =
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
         if( partialFunctionFromCentralGravity.second > 0 )
         {
@@ -243,6 +244,7 @@ public:
                         partialOfDirectGravityOnCentralBody_,
                         parameter, partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second, 1 );
             doesCurrentVectorParameterPartialExist_[ parameter ] = 0;
+            currentVectorParameterPartials_[ parameter ] = Eigen::MatrixXd( stateSize_, parameter->getParameterSize( ) );
 
         }
         return std::max( partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second );

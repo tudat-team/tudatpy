@@ -45,8 +45,7 @@ public:
             const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
-        stateDerivative = ( this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), time ) ).
-                template cast< StateScalarType >( );
+        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), stateDerivative );
     }
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(

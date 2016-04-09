@@ -77,17 +77,17 @@ public:
         }
     }
 
-    std::pair< boost::function< Eigen::MatrixXd( ) >, int >
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
 
-    std::pair< boost::function< Eigen::MatrixXd( ) >, int > getParameterPartialFunction(
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
-    Eigen::MatrixXd wrtRadiationPressureCoefficient( )
+    void wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial )
     {
-        return computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
+        partial = computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
                     radiationPressureFunction_( ), areaFunction_( ), acceleratedBodyMassFunction_( ),
                     ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) );
     }

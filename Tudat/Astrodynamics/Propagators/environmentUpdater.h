@@ -134,7 +134,7 @@ public:
         {
             for( unsigned int i = 0; i < updateFunctionIterator->second.size( ); i++ )
             {
-                updateFunctionIterator->second.at( i ).second( );
+                updateFunctionIterator->second[ i ].second( );
             }
         }
 
@@ -144,7 +144,7 @@ public:
         {
             for( unsigned int i = 0; i < updateTimeIterator->second.size( ); i++ )
             {
-                updateTimeIterator->second.at( i ).second( static_cast< double >( currentTime ) );
+                updateTimeIterator->second[ i ].second( static_cast< double >( currentTime ) );
             }
         }
     }
@@ -160,33 +160,30 @@ private:
      * DynamicsStateDerivativeModel.
      */
     void setIntegratedStatesInEnvironment(
-            const std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
-            integratedStatesToSet )
+            const std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&  integratedStatesToSet )
     {
         // Iterate over state types and set states in environment
-        for( typename std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
-             integratedStateIterator = integratedStatesToSet.begin( );
-             integratedStateIterator != integratedStatesToSet.end( );
-             integratedStateIterator++ )
+        for( integratedStateIterator_ = integratedStatesToSet.begin( );
+             integratedStateIterator_ != integratedStatesToSet.end( );
+             integratedStateIterator_++ )
         {
 
-            switch( integratedStateIterator->first )
+            switch( integratedStateIterator_->first )
             {
             case transational_state:
             {
                 // Set translational states for bodies provided as input.
-                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
-                        integratedStates_.at( transational_state );
-                for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
+                bodiesWithIntegratedStates_ = integratedStates_[ transational_state ];
+                for( unsigned int i = 0; i < bodiesWithIntegratedStates_.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->template setTemplatedState< StateScalarType >(
-                                integratedStateIterator->second.segment( i * 6, 6 ) );
+                    bodyList_[ bodiesWithIntegratedStates_[ i ].first ]->template setTemplatedState< StateScalarType >(
+                                integratedStateIterator_->second.segment( i * 6, 6 ) );
                 }
                 break;
             };
             default:
                 throw std::runtime_error( "Error, could not find integrated state settings for " +
-                                          boost::lexical_cast< std::string >( integratedStateIterator->first ) );
+                                          boost::lexical_cast< std::string >( integratedStateIterator_->first ) );
             }
         }
     }
@@ -211,7 +208,7 @@ private:
             {
                 // Iterate over all integrated translational states.
                 std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
-                        integratedStates_.at( transational_state );
+                        integratedStates_[ transational_state ];
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
                     bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
@@ -446,6 +443,11 @@ private:
     //! Predefined iterator for computational efficiency.
     std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
     ::iterator updateTimeIterator;
+
+    typename std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
+    integratedStateIterator_;
+
+    std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates_;
 
 
 };
