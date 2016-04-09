@@ -36,7 +36,7 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     if( boost::dynamic_pointer_cast< CentralGravitationPartial >( directGravityPartial ) != NULL )
     {
         accelerationType = third_body_central_gravity;
-    }    
+    }
     else
     {
         throw std::runtime_error( "Error when getting third body partial type, type not identified" );
@@ -57,86 +57,94 @@ public:
         partialOfDirectGravityOnBodyUndergoingAcceleration_( partialOfDirectGravityOnBodyUndergoingAcceleration ),
         partialOfDirectGravityOnCentralBody_( partialOfDirectGravityOnCentralBody ), centralBodyName_( centralBodyName ){ }
 
-    Eigen::Matrix3d wrtPositionOfAcceleratedBody( )
+    void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     {
-        Eigen::Matrix3d partial = partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAcceleratedBody( );
+        partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAcceleratedBody(
+                    partialMatrix, addContribution, startRow, startColumn );
 
         if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( acceleratedBody_ ) == 1 )
         {
-            partial += partialOfDirectGravityOnCentralBody_->wrtPositionOfAdditionalBody( acceleratedBody_ );
+            partialOfDirectGravityOnCentralBody_->wrtPositionOfAdditionalBody(
+                        acceleratedBody_, partialMatrix, addContribution, startRow, startColumn   );
         }
-
-        return partial;
     }
 
-    Eigen::Matrix3d wrtVelocityOfAcceleratedBody( )
+    void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                       const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     {
-        Eigen::Matrix3d partial = partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAcceleratedBody( );
+        partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAcceleratedBody(
+                    partialMatrix, addContribution, startRow, startColumn  );
 
         if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( acceleratedBody_ ) == 1 )
         {
-            partial += partialOfDirectGravityOnCentralBody_->wrtVelocityOfAdditionalBody( acceleratedBody_ );
+            partialOfDirectGravityOnCentralBody_->wrtVelocityOfAdditionalBody(
+                        acceleratedBody_, partialMatrix, addContribution, startRow, startColumn  );
         }
-
-        return partial;
     }
 
-    Eigen::Matrix3d wrtPositionOfAcceleratingBody( )
+    void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+
     {
-        Eigen::Matrix3d partial = partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAcceleratingBody( ) -
-                partialOfDirectGravityOnCentralBody_->wrtPositionOfAcceleratingBody( );
-        return partial;
+        partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAcceleratingBody(
+                    partialMatrix, addContribution, startRow, startColumn  );
+        partialOfDirectGravityOnCentralBody_->wrtPositionOfAcceleratingBody(
+                    partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn  );
 
     }
 
-    Eigen::Matrix3d wrtVelocityOfAcceleratingBody( )
+    void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     {
-        return partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAcceleratingBody( ) -
-                partialOfDirectGravityOnCentralBody_->wrtVelocityOfAcceleratingBody( );
+        partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAcceleratingBody(
+                    partialMatrix, addContribution, startRow, startColumn );
+        partialOfDirectGravityOnCentralBody_->wrtVelocityOfAcceleratingBody(
+                    partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn );
     }
 
-    Eigen::Matrix3d wrtPositionOfAdditionalBody( const std::string& bodyName )
+    void wrtPositionOfAdditionalBody( const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                      const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     {
-        Eigen::Matrix3d positionPartial = Eigen::Matrix3d::Zero( );
-
         if( bodyName == centralBodyName_ )
         {
-            positionPartial -= partialOfDirectGravityOnCentralBody_->wrtPositionOfAcceleratedBody( );
+            partialOfDirectGravityOnCentralBody_->wrtPositionOfAcceleratedBody(
+                        partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn  );
         }
 
         if( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) )
         {
-            positionPartial += partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAdditionalBody( bodyName );
+            partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAdditionalBody(
+                        bodyName, partialMatrix, addContribution, startRow, startColumn  );
         }
 
         if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) )
         {
-            positionPartial -= partialOfDirectGravityOnCentralBody_->wrtPositionOfAdditionalBody( bodyName );
+            partialOfDirectGravityOnCentralBody_->wrtPositionOfAdditionalBody(
+                        bodyName, partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn );
         }
-
-        return positionPartial;
     }
 
-    Eigen::Matrix3d wrtVelocityOfAdditionalBody( const std::string& bodyName )
+    void wrtVelocityOfAdditionalBody( const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
+                                      const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     {
-        Eigen::Matrix3d velocityPartial = Eigen::Matrix3d::Zero( );
-
         if( bodyName == centralBodyName_ )
         {
-            velocityPartial -= partialOfDirectGravityOnCentralBody_->wrtVelocityOfAcceleratedBody( );
+            partialOfDirectGravityOnCentralBody_->wrtVelocityOfAcceleratedBody(
+                        partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn  );
         }
 
         if( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) )
         {
-            velocityPartial += partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAdditionalBody( bodyName );
+            partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAdditionalBody(
+                        bodyName, partialMatrix, addContribution, startRow, startColumn );
         }
 
         if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) )
         {
-            velocityPartial -= partialOfDirectGravityOnCentralBody_->wrtVelocityOfAdditionalBody( bodyName );
+            partialOfDirectGravityOnCentralBody_->wrtVelocityOfAdditionalBody(
+                        bodyName, partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn );
         }
-
-        return velocityPartial;
     }
 
     bool isAccelerationPartialWrtAdditionalBodyNonNull( const std::string& bodyName )
@@ -148,7 +156,7 @@ public:
         }
 
         if( ( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) == 1 ) ||
-            ( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) == 1 ) )
+                ( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) == 1 ) )
         {
             isAccelerationDependentOnBody = 1;
         }
