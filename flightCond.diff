@@ -1,0 +1,2803 @@
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/CMakeLists.txt'
+--- Tudat/Astrodynamics/Aerodynamics/CMakeLists.txt	2015-06-05 12:02:45 +0000
++++ Tudat/Astrodynamics/Aerodynamics/CMakeLists.txt	2015-06-11 08:49:05 +0000
+@@ -36,6 +36,8 @@
+ # Set the source files.
+ set(AERODYNAMICS_SOURCES
+   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicMoment.cpp"
++  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.cpp"
++  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.cpp"
+   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.cpp"
+   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.cpp"
+   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.cpp"
+@@ -73,9 +75,9 @@
+ setup_custom_test_program(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}")
+ target_link_libraries(test_AerodynamicsNamespace tudat_aerodynamics ${Boost_LIBRARIES})
+ 
+-add_executable(test_CoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestCoefficientGenerator.cpp")
+-setup_custom_test_program(test_CoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}")
+-target_link_libraries(test_CoefficientGenerator tudat_aerodynamics tudat_geometric_shapes tudat_basic_mathematics ${Boost_LIBRARIES})
++add_executable(test_AerodynamicCoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestCoefficientGenerator.cpp")
++setup_custom_test_program(test_AerodynamicCoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}")
++target_link_libraries(test_AerodynamicCoefficientGenerator tudat_aerodynamics tudat_geometric_shapes tudat_basic_mathematics ${Boost_LIBRARIES})
+ 
+ add_executable(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestExponentialAtmosphere.cpp")
+ setup_custom_test_program(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp	2015-06-05 12:02:45 +0000
++++ Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp	2015-06-11 08:48:41 +0000
+@@ -122,6 +122,21 @@
+ 
+         // Check if computed force matches expected.
+         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
++
++        // Test aerodynamic coefficient interface properties
++        BOOST_CHECK_EQUAL(
++                    aerodynamicCoefficientInterface->getIndependentVariableNames( ).size( ), 0 );
++
++        bool isVariableIndexTooHigh = 0;
++        try
++        {
++            aerodynamicCoefficientInterface->getIndependentVariableName( 0 );
++        }
++        catch ( std::runtime_error )
++        {
++            isVariableIndexTooHigh = 1;
++        }
++        BOOST_CHECK_EQUAL( isVariableIndexTooHigh, 1 );
+     }
+ 
+     // Test 3: test the acceleration model implemented as free function with primitive arguments,
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestCoefficientGenerator.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestCoefficientGenerator.cpp	2015-06-05 12:02:45 +0000
++++ Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestCoefficientGenerator.cpp	2015-06-11 08:48:41 +0000
+@@ -65,17 +65,17 @@
+ {
+ 
+ using basic_mathematics::Vector6d;
++using mathematical_constants::PI;
++using std::vector;
++
++using namespace aerodynamics;
+ 
+ BOOST_AUTO_TEST_SUITE( test_aerodynamic_coefficient_generator )
+ 
+ //! Test coefficient generator.
+ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
+ {
+-    using mathematical_constants::PI;
+-
+-
+-    using std::vector;
+-    using namespace aerodynamics;
++
+ 
+     // Set units of coefficients
+     const double expectedValueOfForceCoefficient = 1.0;
+@@ -112,6 +112,8 @@
+     independentVariableDataPoints[ 2 ] =
+             getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
+ 
++
++    // Set methods to use for aerodynamic analysis.
+     std::vector< std::vector< int > > analysisMethod;
+     analysisMethod.resize( 2 );
+     analysisMethod[ 0 ].resize( 1 );
+@@ -119,19 +121,35 @@
+     analysisMethod[ 0 ][ 0 ] = 0;
+     analysisMethod[ 1 ][ 0 ] = 1;
+ 
+-    boost::shared_ptr< HypersonicLocalInclinationAnalysis > analysis =
++    // Generate sphere database of aerodynamic coefficients.
++    boost::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientInterface =
+             boost::make_shared< HypersonicLocalInclinationAnalysis >(
+                 independentVariableDataPoints, sphere,
+                 numberOfLines, numberOfPoints,
+                 invertOrder, analysisMethod, PI, 1.0,
+                 Eigen::Vector3d::Zero( ) );
+ 
+-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface =
+-            createAerodynamicCoefficientInterfaceFromGenerator< 3 >(
+-                analysis );
+-
+-    // Generate sphere database.
+-    analysis->generateCoefficients( );
++    // Test basic properties of coefficient generator
++    BOOST_CHECK_EQUAL(
++                coefficientInterface->getIndependentVariableNames( ).size( ), 3 );
++    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 0 ),
++                       mach_number_dependent );
++    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 1 ),
++                       angle_of_attack_dependent );
++    BOOST_CHECK_EQUAL( coefficientInterface->getIndependentVariableName( 2 ),
++                       angle_of_sideslip_dependent );
++
++    bool isVariableIndexTooHigh = 0;
++    try
++    {
++        coefficientInterface->getIndependentVariableName( 3 );
++    }
++    catch ( std::runtime_error )
++    {
++        isVariableIndexTooHigh = 1;
++    }
++    BOOST_CHECK_EQUAL( isVariableIndexTooHigh, 1 );
++
+ 
+     // Allocate memory for independent variables to pass to analysis for retrieval.
+     boost::array< int, 3 > independentVariables;
+@@ -140,7 +158,6 @@
+     independentVariables[ 2 ] = 0;
+     std::vector< double > independentVariablesVector;
+     independentVariablesVector.resize( 3 );
+-
+     std::vector< double > interpolatingIndependentVariablesVector;
+     interpolatingIndependentVariablesVector.resize( 3 );
+ 
+@@ -152,45 +169,50 @@
+     // should be one; all moment coefficients should be zero.
+     // The functionality is tested directly from the generator, as well as from the
+     // coefficient interface, both interpolated at the nodes, and halfway between the nodes.
+-    for ( int i = 0; i < analysis->getNumberOfValuesOfIndependentVariable( 0 ); i++ )
++    for ( int i = 0; i < coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ); i++ )
+     {
+         independentVariables[ 0 ] = i;
+-        independentVariablesVector[ 0 ] = analysis->getIndependentVariablePoint( 0, i );
+-        if( i < analysis->getNumberOfValuesOfIndependentVariable( 0 ) - 1 )
++        independentVariablesVector[ 0 ] = coefficientInterface->getIndependentVariablePoint( 0, i );
++        if( i < coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1 )
+         {
+             interpolatingIndependentVariablesVector[ 0 ] =
+-                    analysis->getIndependentVariablePoint( 0, i ) + 0.5 * (
+-                        analysis->getIndependentVariablePoint( 0, i + 1 ) -
+-                        analysis->getIndependentVariablePoint( 0, i ) );
++                    coefficientInterface->getIndependentVariablePoint( 0, i ) + 0.5 * (
++                        coefficientInterface->getIndependentVariablePoint( 0, i + 1 ) -
++                        coefficientInterface->getIndependentVariablePoint( 0, i ) );
+         }
+ 
+ 
+-        for ( int j = 0; j < analysis->getNumberOfValuesOfIndependentVariable( 1 ); j++ )
++        for ( int j = 0; j <
++              coefficientInterface->getNumberOfValuesOfIndependentVariable( 1 ); j++ )
+         {
+             independentVariables[ 1 ] = j;
+-            independentVariablesVector[ 1 ] = analysis->getIndependentVariablePoint( 1, j );
+-            if( j < analysis->getNumberOfValuesOfIndependentVariable( 1 ) - 1 )
++            independentVariablesVector[ 1 ] =
++                    coefficientInterface->getIndependentVariablePoint( 1, j );
++            if( j < coefficientInterface->getNumberOfValuesOfIndependentVariable( 1 ) - 1 )
+             {
+                 interpolatingIndependentVariablesVector[ 1 ] =
+-                        analysis->getIndependentVariablePoint( 1, j ) + 0.5 * (
+-                            analysis->getIndependentVariablePoint( 1, j + 1 ) -
+-                            analysis->getIndependentVariablePoint( 1, j ) );
++                        coefficientInterface->getIndependentVariablePoint( 1, j ) + 0.5 * (
++                            coefficientInterface->getIndependentVariablePoint( 1, j + 1 ) -
++                            coefficientInterface->getIndependentVariablePoint( 1, j ) );
+             }
+ 
+-            for ( int k = 0; k < analysis->getNumberOfValuesOfIndependentVariable( 2 ); k++ )
++            for ( int k = 0; k <
++                  coefficientInterface->getNumberOfValuesOfIndependentVariable( 2 ); k++ )
+             {
+                 independentVariables[ 2 ] = k;
+-                independentVariablesVector[ 2 ] = analysis->getIndependentVariablePoint( 2, k );
+-                if( k < analysis->getNumberOfValuesOfIndependentVariable( 2 ) - 1 )
++                independentVariablesVector[ 2 ] =
++                        coefficientInterface->getIndependentVariablePoint( 2, k );
++                if( k < coefficientInterface->getNumberOfValuesOfIndependentVariable( 2 ) - 1 )
+                 {
+                     interpolatingIndependentVariablesVector[ 2 ] =
+-                            analysis->getIndependentVariablePoint( 2, k ) + 0.5 * (
+-                                analysis->getIndependentVariablePoint( 2, k + 1 ) -
+-                                analysis->getIndependentVariablePoint( 2, k ) );
++                            coefficientInterface->getIndependentVariablePoint( 2, k ) + 0.5 * (
++                                coefficientInterface->getIndependentVariablePoint( 2, k + 1 ) -
++                                coefficientInterface->getIndependentVariablePoint( 2, k ) );
+                 }
+ 
+                 // Retrieve aerodynamic coefficients.
+-                aerodynamicCoefficients_ = analysis->getAerodynamicCoefficients(
++                aerodynamicCoefficients_ =
++                        coefficientInterface->getAerodynamicCoefficientsDataPoint(
+                             independentVariables );
+                 forceCoefficient_ = ( aerodynamicCoefficients_.head( 3 ) ).norm( );
+ 
+@@ -214,7 +236,8 @@
+                 // Retrieve aerodynamic coefficients from coefficient interface.
+                 coefficientInterface->updateCurrentCoefficients( independentVariablesVector );
+ 
+-                aerodynamicCoefficients_ = coefficientInterface->getCurrentAerodynamicCoefficients( );
++                aerodynamicCoefficients_ =
++                        coefficientInterface->getCurrentAerodynamicCoefficients( );
+                 forceCoefficient_ = ( aerodynamicCoefficients_.head( 3 ) ).norm( );
+ 
+                 // Test if the computed force coefficient corresponds to the expected value
+@@ -235,9 +258,11 @@
+                                    toleranceAerodynamicCoefficients5 );
+ 
+                 // Retrieve aerodynamic coefficients from coefficient interface.
+-                coefficientInterface->updateCurrentCoefficients( interpolatingIndependentVariablesVector );
++                coefficientInterface->updateCurrentCoefficients(
++                            interpolatingIndependentVariablesVector );
+ 
+-                aerodynamicCoefficients_ = coefficientInterface->getCurrentAerodynamicCoefficients( );
++                aerodynamicCoefficients_ =
++                        coefficientInterface->getCurrentAerodynamicCoefficients( );
+                 forceCoefficient_ = ( aerodynamicCoefficients_.head( 3 ) ).norm( );
+ 
+                 // Test if the computed force coefficient corresponds to the expected value
+@@ -264,11 +289,6 @@
+ //! Apollo capsule test case.
+ BOOST_AUTO_TEST_CASE( testApolloCapsule )
+ {
+-    using mathematical_constants::PI;
+-
+-    using std::vector;
+-    using namespace aerodynamics;
+-
+     // Set units of coefficients.
+     const double expectedValueOfAerodynamicCoefficients0 = -1.51;
+     const double expectedValueOfAerodynamicCoefficients4 = -0.052;
+@@ -340,30 +360,25 @@
+     selectedMethods[ 1 ][ 2 ] = 3;
+     selectedMethods[ 1 ][ 3 ] = 3;
+ 
+-    // Create analysis object.
+-    boost::shared_ptr< HypersonicLocalInclinationAnalysis > analysis =
++    // Create analysis object and capsule database.
++    boost::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientInterface =
+             boost::make_shared< HypersonicLocalInclinationAnalysis >(
+                 independentVariableDataPoints, capsule, numberOfLines, numberOfPoints,
+                 invertOrders, selectedMethods, PI * pow( capsule->getMiddleRadius( ), 2.0 ),
+                 3.9116, momentReference );
+ 
+-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface =
+-            createAerodynamicCoefficientInterfaceFromGenerator< 3 >(
+-                analysis );
+-
+-    // Generate capsule database.
+-    analysis->generateCoefficients( );
+-
+     // Retrieve coefficients at zero angle of attack for comparison.
+     boost::array< int, 3 > independentVariables;
+ 
+-    independentVariables[ 0 ] = analysis->getNumberOfValuesOfIndependentVariable( 0 ) - 1;
++    independentVariables[ 0 ] =
++            coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1;
+     independentVariables[ 1 ] = 6;
+     independentVariables[ 2 ] = 0;
+ 
+     // Declare local test variables.
+     Eigen::VectorXd aerodynamicCoefficients_;
+-    aerodynamicCoefficients_ = analysis->getAerodynamicCoefficients( independentVariables );
++    aerodynamicCoefficients_ = coefficientInterface->getAerodynamicCoefficientsDataPoint(
++                independentVariables );
+ 
+     // Compare values to database values.
+     BOOST_CHECK_SMALL(
+@@ -389,11 +404,11 @@
+ 
+     std::vector< double > independentVariablesVector;
+     independentVariablesVector.resize( 3 );
+-    independentVariablesVector[ 0 ] = analysis->getIndependentVariablePoint(
+-                0, analysis->getNumberOfValuesOfIndependentVariable( 0 ) - 1 );
+-    independentVariablesVector[ 1 ] = analysis->getIndependentVariablePoint(
++    independentVariablesVector[ 0 ] = coefficientInterface->getIndependentVariablePoint(
++                0, coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1 );
++    independentVariablesVector[ 1 ] = coefficientInterface->getIndependentVariablePoint(
+                 1, 6 );
+-    independentVariablesVector[ 2 ] = analysis->getIndependentVariablePoint(
++    independentVariablesVector[ 2 ] = coefficientInterface->getIndependentVariablePoint(
+                 2, 0 );
+ 
+     coefficientInterface->updateCurrentCoefficients( independentVariablesVector );
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestExponentialAtmosphere.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestExponentialAtmosphere.cpp	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/UnitTests/unitTestExponentialAtmosphere.cpp	2015-06-08 15:16:26 +0000
+@@ -74,14 +74,8 @@
+     const double scaleHeight = 7.050e3;
+ 
+     // Create an exponential atmosphere object.
+-    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
+-
+-    // Initialize the exponential atmosphere.
+-    exponentialAtmosphere.setConstantTemperature( constantTemperature );
+-    exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
+-    exponentialAtmosphere.setScaleHeight( scaleHeight );
+-    exponentialAtmosphere.setSpecificGasConstant(
+-                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
++    aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
++                scaleHeight, constantTemperature, densityAtZeroAltitude );
+ 
+     BOOST_CHECK_EQUAL( constantTemperature, exponentialAtmosphere.getConstantTemperature( ) );
+     BOOST_CHECK_EQUAL( densityAtZeroAltitude, exponentialAtmosphere.getDensityAtZeroAltitude( ) );
+@@ -102,14 +96,8 @@
+     const double pressureAtZeroAltitude = 101325.0;
+ 
+     // Create an exponential atmosphere object.
+-    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
+-
+-    // Initialize the exponential atmosphere.
+-    exponentialAtmosphere.setConstantTemperature( constantTemperature );
+-    exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
+-    exponentialAtmosphere.setScaleHeight( scaleHeight );
+-    exponentialAtmosphere.setSpecificGasConstant(
+-                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
++    aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
++                scaleHeight, constantTemperature, densityAtZeroAltitude );
+ 
+     // Declare tolerance used for Boost tests.
+     const double tolerance = std::numeric_limits< double >::epsilon( );
+@@ -138,14 +126,8 @@
+     double time = 0.0;
+ 
+     // Create an exponential atmosphere object.
+-    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
+-
+-    // Initialize the exponential atmosphere.
+-    exponentialAtmosphere.setConstantTemperature( constantTemperature );
+-    exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
+-    exponentialAtmosphere.setScaleHeight( scaleHeight );
+-    exponentialAtmosphere.setSpecificGasConstant(
+-                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
++    aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
++                scaleHeight, constantTemperature, densityAtZeroAltitude );
+ 
+     // Declare and set expected density.
+     const double expectedDensity  = densityAtZeroAltitude * std::exp ( -altitude / scaleHeight );
+@@ -178,14 +160,8 @@
+     double time = 0.0;
+ 
+     // Create an exponential atmosphere object.
+-    aerodynamics::ExponentialAtmosphere exponentialAtmosphere;
+-
+-    // Initialize the exponential atmosphere.
+-    exponentialAtmosphere.setConstantTemperature( constantTemperature );
+-    exponentialAtmosphere.setDensityAtZeroAltitude( densityAtZeroAltitude );
+-    exponentialAtmosphere.setScaleHeight( scaleHeight );
+-    exponentialAtmosphere.setSpecificGasConstant(
+-                    physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
++    aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
++                scaleHeight, constantTemperature, densityAtZeroAltitude );
+ 
+     const double density1 = exponentialAtmosphere.getDensity( altitude );
+     const double density2 = exponentialAtmosphere.getDensity( altitude, longitude, latitude,
+
+=== added file 'Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.cpp	1970-01-01 00:00:00 +0000
++++ Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.cpp	2015-06-10 09:18:34 +0000
+@@ -0,0 +1,68 @@
++/*    Copyright (c) 2010-2015, Delft University of Technology
++ *    All rights reserved.
++ *
++ *    Redistribution and use in source and binary forms, with or without modification, are
++ *    permitted provided that the following conditions are met:
++ *      - Redistributions of source code must retain the above copyright notice, this list of
++ *        conditions and the following disclaimer.
++ *      - Redistributions in binary form must reproduce the above copyright notice, this list of
++ *        conditions and the following disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *      - Neither the name of the Delft University of Technology nor the names of its contributors
++ *        may be used to endorse or promote products derived from this software without specific
++ *        prior written permission.
++ *
++ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
++ *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
++ *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
++ *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
++ *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
++ *    OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ *    Changelog
++ *      YYMMDD    Author            Comment
++ *      110617    D. Dirkx          File created.
++ *      120324    K. Kumar          Minor Doxygen comment corrections, added astrodynamics
++ *                                  namespace layer; added missing Eigen include-statement.
++ *      121020    D. Dirkx          Update to new acceleration model architecture.
++ *      130120    K. Kumar          Added shared pointer to AerodynamicAcceleration object.
++ *      140129    D. Dirkx          Changed Doxygen descriptions
++ *
++ *    References
++ *
++ *    Notes
++ *
++ */
++
++#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
++
++namespace tudat
++{
++namespace aerodynamics
++{
++
++//! Compute the aerodynamic acceleration in same reference frame as input coefficients.
++Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
++                                                const double referenceArea,
++                                                const Eigen::Vector3d& aerodynamicCoefficients,
++                                                const double vehicleMass )
++{
++    return computeAerodynamicForce( dynamicPressure, referenceArea, aerodynamicCoefficients )
++            / vehicleMass;
++}
++
++//! Compute the aerodynamic acceleration in same reference frame as input coefficients.
++Eigen::Vector3d computeAerodynamicAcceleration(
++        const double dynamicPressure,
++        AerodynamicCoefficientInterfacePointer coefficientInterface,
++        const double vehicleMass )
++{
++    return computeAerodynamicForce( dynamicPressure, coefficientInterface ) / vehicleMass;
++}
++
++
++} // namespace aerodynamics
++} // namespace tudat
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h'
+--- Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h	2015-06-10 09:18:34 +0000
+@@ -70,11 +70,7 @@
+ Eigen::Vector3d computeAerodynamicAcceleration( const double dynamicPressure,
+                                                 const double referenceArea,
+                                                 const Eigen::Vector3d& aerodynamicCoefficients,
+-                                                const double vehicleMass )
+-{
+-    return computeAerodynamicForce( dynamicPressure, referenceArea, aerodynamicCoefficients )
+-            / vehicleMass;
+-}
++                                                const double vehicleMass );
+ 
+ //! Compute the aerodynamic acceleration in same reference frame as input coefficients.
+ /*!
+@@ -92,10 +88,7 @@
+ Eigen::Vector3d computeAerodynamicAcceleration(
+         const double dynamicPressure,
+         AerodynamicCoefficientInterfacePointer coefficientInterface,
+-        const double vehicleMass )
+-{
+-    return computeAerodynamicForce( dynamicPressure, coefficientInterface ) / vehicleMass;
+-}
++        const double vehicleMass );
+ 
+ //! Class for calculation of aerodynamic accelerations.
+ /*!
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h'
+--- Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h	2015-06-05 12:02:45 +0000
++++ Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h	2015-06-11 08:48:41 +0000
+@@ -1,4 +1,4 @@
+-/*    Copyright (c) 2010-2014, Delft University of Technology
++/*    Copyright (c) 2010-2015, Delft University of Technology
+  *    All rights reserved.
+  *
+  *    Redistribution and use in source and binary forms, with or without modification, are
+@@ -57,6 +57,8 @@
+ #include <Eigen/Core>
+ 
+ #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
++#include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
++#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+ 
+ namespace tudat
+ {
+@@ -69,7 +71,7 @@
+  * and data points of independent variables. Coefficients are stored in a multi_array of pointers.
+  */
+ template< int NumberOfIndependentVariables, int NumberOfCoefficients = 6 >
+-class AerodynamicCoefficientGenerator
++class AerodynamicCoefficientGenerator: public AerodynamicCoefficientInterface
+ {
+ public:
+ 
+@@ -81,20 +83,37 @@
+      *  the data points of each of the independent variables for the coefficient generation.
+      *  The number of subvectors must be equal to the number of independent variables. It is
+      *  recommended that each of the subvectors is sorted in ascending order.
+-     *  \param referenceArea Reference area used to non-dimensionalize aerodynamic forces
+-     *  and moments.
+-     *  \param referenceLength Reference length used to non-dimensionalize aerodynamic moments.
+-     *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
++     *  \param referenceLength Reference length with which aerodynamic moments (about x- and
++     *  z- axes) are non-dimensionalized.
++     *  \param referenceArea Reference area with which aerodynamic forces and moments are
++     *  non-dimensionalized.
++     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
++     *  is non-dimensionalized.
++     *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
++     *  \param independentVariableNames Vector with identifiers the physical meaning of each
++     *  independent variable of the aerodynamic coefficients.
++     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
++     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
++     *  frame (typically denoted as Cx, Cy, Cz).
++     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
++     *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
++     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
++     *  coefficients are typically defined in negative direction.
+      */
+     AerodynamicCoefficientGenerator(
+             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
++            const double referenceLength,
+             const double referenceArea,
+-            const double referenceLength,
+-            const Eigen::Vector3d momentReferencePoint ):
+-        dataPointsOfIndependentVariables_( dataPointsOfIndependentVariables ),
+-        referenceArea_( referenceArea ),
+-        referenceLength_( referenceLength ),
+-        momentReferencePoint_( momentReferencePoint )
++            const double lateralReferenceLength,
++            const Eigen::Vector3d& momentReferencePoint,
++            const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
++            const bool areCoefficientsInAerodynamicFrame = 1,
++            const bool areCoefficientsInNegativeAxisDirection = 1  ):
++        AerodynamicCoefficientInterface(
++            referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
++            independentVariableNames, areCoefficientsInAerodynamicFrame,
++            areCoefficientsInNegativeAxisDirection ),
++        dataPointsOfIndependentVariables_( dataPointsOfIndependentVariables )
+     {
+         // Check that the size of dataPointsOfIndependentVariables matches the template parameter.
+         assert( dataPointsOfIndependentVariables_.size( ) == NumberOfIndependentVariables );
+@@ -149,75 +168,104 @@
+      * dataPointsOfIndependentVariables_ for which to retrieve aerodynamic coefficients.
+      * \return vector of coefficients at specified independent variable indices.
+      */
+-    virtual Eigen::Matrix< double, NumberOfCoefficients, 1 > getAerodynamicCoefficients(
++    virtual Eigen::Matrix< double, NumberOfCoefficients, 1 > getAerodynamicCoefficientsDataPoint(
+             const boost::array< int, NumberOfIndependentVariables > independentVariables ) = 0;
+ 
+-    //! Generate aerodynamic coefficients.
++    //! Function to return the complete set of aerodynamic coefficients that have been calculated.
+     /*!
+-     * Virtual function to generate aerodynamic coefficients for the list of independent variables
+-     * passed to the constructor.
++     *  Function to return the complete set of aerodynamic coefficients that have been calculated.
++     *  \return Complete set of aerodynamic coefficients that have been calculated.
+      */
+-    virtual void generateCoefficients( ) = 0;
+-
+     boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients, 1 >,
+     NumberOfIndependentVariables > getAerodynamicCoefficientsTables( )
+     {
+         return aerodynamicCoefficients_;
+     }
+-
++\
++    //! Get the data points of the independent variables at which the coefficients are calculated.
++    /*!
++     *  Get the data points of the independent variables at which the coefficients are calculated.
++     *  The aerodynamic coefficients are calculated each set of combinations of the independent
++     *  variables.
++     *  \return Data points of the independent variables at which the coefficients are calculated.
++     */
+     std::vector< std::vector< double > > getDataPointsOfIndependentVariables( )
+     {
+         return dataPointsOfIndependentVariables_;
+     }
+ 
+-    double getReferenceArea( )
+-    {
+-        return referenceArea_;
+-    }
+-
+-    double getReferenceLength( )
+-    {
+-        return referenceLength_;
+-    }
+-
+-    Eigen::Vector3d getMomentReferencePoint( )
+-    {
+-        return momentReferencePoint_;
+-    }
+-
++    //! Compute the aerodynamic coefficients at current flight condition.
++    /*!
++     *  Compute the aerodynamic coefficients at current flight conditions (independent variables).
++     *  Input is a set of independent variables (doubles) which represent the variables from which
++     *  the coefficients are calculated. The physical nature of these variables depends on
++     *  the coefficientFunction_ variables. The size of the independent variable vector must be
++     *  numberOfIndependentVariables_
++     *  \param independentVariables Independent variables of force and moment coefficient
++     *  determination implemented by derived class
++     */
++    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables )
++    {
++        // Check if the correct number of aerodynamic coefficients is provided.
++        if( independentVariables.size( ) != numberOfIndependentVariables_ )
++        {
++            throw std::runtime_error(
++                        "Error in AerodynamicCoefficientGenerator, number of "
++                        "input variables is inconsistent " );
++        }
++
++        // Update current coefficients.
++        basic_mathematics::Vector6d currentCoefficients = coefficientInterpolator_->interpolate(
++                    independentVariables );
++        currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
++        currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
++    }
+ 
+ protected:
+ 
+-    //! List of pointers to VectorXds containing coefficients.
+-    /*!
+-     * List of pointers to VectorXds containing coefficients.
++
++    //! Generate aerodynamic coefficients.
++    /*!
++     * Virtual function to generate aerodynamic coefficients for the list of independent variables
++     * passed to the constructor.
++     */
++    virtual void generateCoefficients( ) = 0;
++
++    //! Function to create the coefficient interpolator from the discrete set in
++    //! aerodynamicCoefficients_
++    void createInterpolator( )
++    {
++        // Create interpolator for coefficients.
++        coefficientInterpolator_ =
++                boost::make_shared< interpolators::MultiLinearInterpolator< double,
++                basic_mathematics::Vector6d, 3 > >
++                ( dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
++
++    }
++
++    //! N-dimensional array containing all computer aerodynamic coefficients.
++    /*!
++     *  N-dimensional array containing all computer aerodynamic coefficients. The k-th dimension
++     *  pertains to coefficients at the k-th independent variable, the data points for which are
++     *  defined by dataPointsOfIndependentVariables_ and the physical meaning of which are defined
++     *  by independentVariableNames_
+      */
+     boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients, 1 >,
+     NumberOfIndependentVariables > aerodynamicCoefficients_;
+ 
+-    //! Array of arrays of data points for independent variables.
++    //! Data points of the independent variables at which the coefficients are calculated.
+     /*!
+-     * Array of arrays of data points for independent variables.
++     *  Data points of the independent variables at which the coefficients are calculated. The
++     *  k-th vector contains the vector of data points to which the k-th independent variables
++     *  (defined by independentVariableNames_) are set during the calculation of the aerodynamic
++     *  coefficients.
+      */
+     std::vector< std::vector< double > > dataPointsOfIndependentVariables_;
+ 
+-    //! Aerodynamic reference area.
+-    /*!
+-     * Reference area with which aerodynamic forces and moments are non-dimensionalized.
+-     */
+-    double referenceArea_;
+-
+-    //! Aerodynamic reference length.
+-    /*!
+-     * Reference length with which aerodynamic moments are non-dimensionalized.
+-     */
+-    double referenceLength_;
+-
+-    //! Aerodynamic moment reference point.
+-    /*!
+-     * Point w.r.t. which the arm of the moment on a vehicle panel is determined.
+-     */
+-    Eigen::Vector3d momentReferencePoint_;
++    //! Interpolator producing continuous aerodynamic coefficients from the discrete calculations
++    //! contained in aerodynamicCoefficients_.
++    boost::shared_ptr< interpolators::Interpolator< double, basic_mathematics::Vector6d > >
++            coefficientInterpolator_;
+ };
+ 
+ } // namespace aerodynamics
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h'
+--- Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h	2015-06-05 12:02:45 +0000
++++ Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h	2015-06-11 08:16:35 +0000
+@@ -1,4 +1,4 @@
+-/*    Copyright (c) 2010-2014, Delft University of Technology
++/*    Copyright (c) 2010-2015, Delft University of Technology
+  *    All rights reserved.
+  *
+  *    Redistribution and use in source and binary forms, with or without modification, are
+@@ -41,9 +41,11 @@
+ #ifndef TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
+ #define TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
+ 
++#include <stdexcept>
+ #include <vector>
+ 
+ #include <boost/shared_ptr.hpp>
++#include <boost/lexical_cast.hpp>
+ 
+ #include <Eigen/Core>
+ 
+@@ -52,6 +54,21 @@
+ namespace aerodynamics
+ {
+ 
++//! Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
++/*!
++ *  Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
++ *  Note that for a custom coefficient interface with other variables, you may use the
++ *  undefined_independent_variable variable type, but at the expense of being able to use the
++ *  FlightConditions class to automatically update the aerodynamic coefficients during propagation.
++ */
++enum AerodynamicCoefficientsIndependentVariables
++{
++    mach_number_dependent = 0,
++    angle_of_attack_dependent = 1,
++    angle_of_sideslip_dependent = 2,
++    undefined_independent_variable = 3
++};
++
+ //! Base class to hold an aerodynamic coefficient interface.
+ /*!
+  * This interface can, for instance, be a database of coefficients or an aerodynamic analysis code
+@@ -64,17 +81,42 @@
+     //! Constructor.
+     /*!
+      *  Constructor, sets quantities common to all derived class aerodynamic coefficient interfaces.
+-     *  \param referenceLength Reference length with which aerodynamic moments (about x- and z- axes) are non-dimensionalized.
+-     *  \param referenceArea Reference area with which aerodynamic forces and moments are non-dimensionalized.
+-     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis) is non-dimensionalized.
++     *  \param referenceLength Reference length with which aerodynamic moments
++     *  (about x- and z- axes) are non-dimensionalized.
++     *  \param referenceArea Reference area with which aerodynamic forces and moments are
++     *  non-dimensionalized.
++     *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
++     *  is non-dimensionalized.
+      *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
++     *  \param independentVariableNames Vector with identifiers the physical meaning of each
++     *  independent variable of the aerodynamic coefficients.
++     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
++     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
++     *  frame (typically denoted as Cx, Cy, Cz).
++     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
++     *  coefficients are positive along tyhe positive axes of the body or aerodynamic frame
++     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
++     *  coefficients are typically defined in negative direction.
+      */
+-    AerodynamicCoefficientInterface( const double referenceLength,
+-                                     const double referenceArea,
+-                                     const double lateralReferenceLength,
+-                                     const Eigen::Vector3d& momentReferencePoint ):
+-        referenceLength_( referenceLength ), referenceArea_( referenceArea ), lateralReferenceLength_( lateralReferenceLength ),
+-        momentReferencePoint_( momentReferencePoint ) { }
++    AerodynamicCoefficientInterface(
++            const double referenceLength,
++            const double referenceArea,
++            const double lateralReferenceLength,
++            const Eigen::Vector3d& momentReferencePoint,
++            const std::vector< AerodynamicCoefficientsIndependentVariables >
++            independentVariableNames,
++            const bool areCoefficientsInAerodynamicFrame = 1,
++            const bool areCoefficientsInNegativeAxisDirection = 1 ):
++        referenceLength_( referenceLength ),
++        referenceArea_( referenceArea ),
++        lateralReferenceLength_( lateralReferenceLength ),
++        momentReferencePoint_( momentReferencePoint ),
++        independentVariableNames_( independentVariableNames ),
++        areCoefficientsInAerodynamicFrame_( areCoefficientsInAerodynamicFrame ),
++        areCoefficientsInNegativeAxisDirection_( areCoefficientsInNegativeAxisDirection )\
++    {
++        numberOfIndependentVariables_ = independentVariableNames.size( );
++    }
+ 
+     //! Default destructor.
+     /*!
+@@ -113,8 +155,8 @@
+ 
+     //! Compute the aerodynamic coefficients at current flight condition.
+     /*!
+-     * Computes the current force and moment coefficients and is to be
+-     * implemented in derived classes. Input is a set of independent variables
++     *  Computes the current force and moment coefficients and is to be
++     *  implemented in derived classes. Input is a set of independent variables
+      *  (doubles) which represent the variables from which the coefficients are calculated
+      *  \param independentVariables Independent variables of force and moment coefficient
+      *  determination implemented by derived class
+@@ -154,6 +196,56 @@
+         return coefficients;
+     }
+ 
++    //! Function to return the identifiers of the physical meaning of each independent variable.
++    /*!
++     *  Function to return the identifiers of the physical meaning of each independent variable
++     *  of the aerodynamic coefficient interface.
++     *  \return A vector with the identifiers of the physical meaning of each independent variable.
++     */
++    std::vector< AerodynamicCoefficientsIndependentVariables > getIndependentVariableNames( )
++    {
++        return independentVariableNames_;
++    }
++
++    //! Function to return a single identifier of the physical meaning of one independent variable.
++    /*!
++     *  Function to return a single identifier of the physical meaning of one of the independent
++     *  independent variable of the coefficient interface. The index of the variable is defined
++     *  by the input variable.
++     *  \param index Index of list of identfiers to return
++     *  \return The identifiers of the physical meaning of the independent variable at the position
++     *  of the input variable.
++     */
++    AerodynamicCoefficientsIndependentVariables getIndependentVariableName(
++            const unsigned int index )
++    {
++        if( index >= numberOfIndependentVariables_ )
++        {
++            throw std::runtime_error(
++                        std::string( "Error when retrieving aerodynamic coefficient interface " ) +
++                        ( " variable name, requested variable index " ) +
++                        boost::lexical_cast< std::string >( index ) +
++                        ", but only " + boost::lexical_cast< std::string >(
++                            numberOfIndependentVariables_ ) + " variables available." );
++        }
++
++        return independentVariableNames_.at( index );
++    }
++
++    //! Function to return the number of independent variables upon which the coeficients depend.
++    /*!
++     *  Function to return the number of independent variables upon which the coeficients depend.
++     *  The size of the vector used as input for updateCurrentCoefficients should always have the
++     *  size returned by this variable.
++     *  \return Number of independent variables upon which the coeficients depend
++     */
++    unsigned int getNumberOfIndependentVariables( )
++    {
++        return numberOfIndependentVariables_;
++    }
++
++
++
+ protected:
+ 
+     //! The current force coefficients.
+@@ -192,6 +284,33 @@
+      */
+     Eigen::Vector3d momentReferencePoint_;
+ 
++    //! Vector with identifiers for the physical meaning of each independent variable of the
++    //! aerodynamic coefficients.
++    std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames_;
++
++    //! Number of independent variables upon which the force and moment coefficients depend.
++    /*!
++     *  Number of independent variables upon which the force and moment coefficients depend, i.e.
++     *  the length of the vectors that should be used as input to forceCoefficientFunction and
++     *  momentCoefficientFunction.
++     */
++    unsigned int numberOfIndependentVariables_;
++
++    //! Boolean to denote whether coefficients are defined in aerodynamic or body frame
++    /*! Boolean to define whether the aerodynamic
++     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
++     *  frame (typically denoted as Cx, Cy, Cz).
++     */
++    bool areCoefficientsInAerodynamicFrame_;
++
++     //! Boolean to denote whether coefficients are positive along frame axes
++     /*! Boolean to define whether the aerodynamic coefficients are
++      *  positive along tyhe positive axes of the body or aerodynamic frame
++      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
++      *  coefficients are typically defined in negative direction.
++     */
++    bool areCoefficientsInNegativeAxisDirection_;
++
+ private:
+ };
+ 
+
+=== added file 'Tudat/Astrodynamics/Aerodynamics/aerodynamicForce.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/aerodynamicForce.cpp	1970-01-01 00:00:00 +0000
++++ Tudat/Astrodynamics/Aerodynamics/aerodynamicForce.cpp	2015-06-10 09:18:34 +0000
+@@ -0,0 +1,38 @@
++#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicForce.h"
++
++namespace tudat
++{
++namespace aerodynamics
++{
++
++//! Compute the aerodynamic force in same reference frame as input coefficients.
++Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure,
++                                         const double referenceArea,
++                                         const Eigen::Vector3d& aerodynamicCoefficients )
++{
++    return dynamicPressure * referenceArea * aerodynamicCoefficients;
++}
++
++//! Compute the aerodynamic force in same reference frame as input coefficients.
++/*!
++ * This function calculates the aerodynamic force. It takes the dynamic pressure and an
++ * aerodynamic coefficient interface as input. The coefficient interface has to have been
++ * updated with current vehicle conditions before being passed to this function. Aerodynamic
++ * coefficients and reference area are then retrieved from it.
++ * \param dynamicPressure Dynamic pressure at which the body undergoing the force flies.
++ * \param coefficientInterface AerodynamicCoefficientInterface class from which reference area
++ *          and coefficients are retrieved.
++ * \return Resultant aerodynamic force, given in reference frame in which the
++ *          aerodynamic coefficients were given.
++ */
++Eigen::Vector3d computeAerodynamicForce(
++        const double dynamicPressure,
++        AerodynamicCoefficientInterfacePointer coefficientInterface )
++{
++    return computeAerodynamicForce( dynamicPressure,
++                                    coefficientInterface->getReferenceArea( ),
++                                    coefficientInterface->getCurrentForceCoefficients( ) );
++}
++
++} // namespace aerodynamics
++} // namespace tudat
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/aerodynamicForce.h'
+--- Tudat/Astrodynamics/Aerodynamics/aerodynamicForce.h	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/aerodynamicForce.h	2015-06-10 09:18:34 +0000
+@@ -68,10 +68,7 @@
+  */
+ Eigen::Vector3d computeAerodynamicForce( const double dynamicPressure,
+                                          const double referenceArea,
+-                                         const Eigen::Vector3d& aerodynamicCoefficients )
+-{
+-    return dynamicPressure * referenceArea * aerodynamicCoefficients;
+-}
++                                         const Eigen::Vector3d& aerodynamicCoefficients );
+ 
+ //! Compute the aerodynamic force in same reference frame as input coefficients.
+ /*!
+@@ -87,12 +84,7 @@
+  */
+ Eigen::Vector3d computeAerodynamicForce(
+         const double dynamicPressure,
+-        AerodynamicCoefficientInterfacePointer coefficientInterface )
+-{
+-    return computeAerodynamicForce( dynamicPressure,
+-                                    coefficientInterface->getReferenceArea( ),
+-                                    coefficientInterface->getCurrentForceCoefficients( ) );
+-}
++        AerodynamicCoefficientInterfacePointer coefficientInterface );
+ 
+ } // namespace aerodynamics
+ } // namespace tudat
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/aerodynamics.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/aerodynamics.cpp	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/aerodynamics.cpp	2015-06-08 14:13:13 +0000
+@@ -500,5 +500,11 @@
+     return atan( tangentOfDeflectionAngle_ );
+ }
+ 
++double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
++                            const double specificGasConstant )
++{
++    return std::sqrt( temperature * ratioOfSpecificHeats * specificGasConstant );
++}
++
+ } // namespace aerodynamics
+ } // namespace tudat
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/aerodynamics.h'
+--- Tudat/Astrodynamics/Aerodynamics/aerodynamics.h	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/aerodynamics.h	2015-06-08 14:13:13 +0000
+@@ -342,6 +342,9 @@
+ double computeShockDeflectionAngle( double shockAngle, double machNumber,
+                                     double ratioOfSpecificHeats );
+ 
++double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
++                            const double specificGasConstant );
++
+ } // namespace aerodynamics
+ } // namespace tudat
+ 
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h'
+--- Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h	2015-06-11 08:16:35 +0000
+@@ -100,6 +100,18 @@
+     virtual double getTemperature( const double altitude, const double longitude,
+                                    const double latitude, const double time ) = 0;
+ 
++    //! Get local speed of sound.
++    /*!
++    * Returns the local speed of sound of the atmosphere in m/s.
++    * \param altitude Altitude.
++    * \param longitude Longitude.
++    * \param latitude Latitude.
++    * \param time Time.
++    * \return Atmospheric speed of sound.
++    */
++    virtual double getSpeedOfSound( const double altitude, const double longitude,
++                                    const double latitude, const double time ) = 0;
++
+ protected:
+ 
+ private:
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.cpp	2015-06-05 12:02:45 +0000
++++ Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.cpp	2015-06-05 13:58:54 +0000
+@@ -45,14 +45,18 @@
+         const double referenceLength,
+         const double referenceArea,
+         const double lateralReferenceLength,
+-        const Eigen::Vector3d& momentReferencePoint )
++        const Eigen::Vector3d& momentReferencePoint,
++        const bool areCoefficientsInAerodynamicFrame,
++        const bool areCoefficientsInNegativeAxisDirection  )
+ {
+     // Create coefficient interface
+     boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface =
+             boost::make_shared< CustomAerodynamicCoefficientInterface >(
+-                    0, boost::lambda::constant( constantForceCoefficient ),
++                    boost::lambda::constant( constantForceCoefficient ),
+                     boost::lambda::constant( constantMomentCoefficient ),
+-                    referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint );
++                    referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
++                std::vector< AerodynamicCoefficientsIndependentVariables >( ),
++                areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
+     coefficientInterface->updateCurrentCoefficients( std::vector< double >( ) );
+ 
+     return coefficientInterface;
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h'
+--- Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h	2015-06-05 12:02:45 +0000
++++ Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h	2015-06-11 08:16:35 +0000
+@@ -35,8 +35,9 @@
+ #include <boost/bind.hpp>
+ #include <boost/make_shared.hpp>
+ 
++#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
+ #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
+-#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
++#include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
+ #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
+ #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+ 
+@@ -51,10 +52,8 @@
+  *  Aerodynamic coefficient interface taking function pointers providing aerodynamics
+  *  coefficients as a function of independent variables (doubles). The origin of the coefficients
+  *  or the nature of the independent variables is irrelevant for this class.
+- *  Two factory functions (createConstantCoefficientAerodynamicCoefficientInterface and
+- *  createAerodynamicCoefficientInterfaceFromGenerator) are provided at the end of this file,
+- *  which can be used to define constant coefficients, or coefficients from an aerodynamic
+- *  coefficient generator.
++ *  A factory functios (createConstantCoefficientAerodynamicCoefficientInterface) is provided
++ *  at the end of this file, which can be used to define constant coefficients.
+  *  NOTE: Functionality of this class is tested in test_aerodynamic_coefficient_generator
+  *  test suite.
+  */
+@@ -88,9 +87,6 @@
+     //! Constructor.
+     /*!
+      *  Constructor.
+-     *  \param numberOfIndependentVariables Number of independent variables upon which the
+-     *  force and moment coefficients depend, i.e. the length of the vectors that should be used
+-     *  as input to forceCoefficientFunction and momentCoefficientFunction.
+      *  \param forceCoefficientFunction Function returning the aerodynamic force coefficients as
+      *  function of the set of independent variables.
+      *  \param momentCoefficientFunction Function returning the aerodynamic force coefficients as
+@@ -101,10 +97,18 @@
+      *  non-dimensionalized.
+      *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+      *  is non-dimensionalized.
+-     *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
++     *  \param momentReferencePoint Point w.r.t. which aerodynamic moment is calculated.
++     *  \param independentVariableNames Vector with identifiers for the physical meaning of each
++     *  independent variable of the aerodynamic coefficients.
++     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
++     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
++     *  frame (typically denoted as Cx, Cy, Cz).
++     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
++     *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
++     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
++     *  coefficients are typically defined in negative direction.
+      */
+     CustomAerodynamicCoefficientInterface(
+-            const unsigned int numberOfIndependentVariables,
+             const boost::function< Eigen::Vector3d( const std::vector< double >& ) >
+             forceCoefficientFunction,
+             const boost::function< Eigen::Vector3d( const std::vector< double >& ) >
+@@ -112,10 +116,15 @@
+             const double referenceLength,
+             const double referenceArea,
+             const double lateralReferenceLength,
+-            const Eigen::Vector3d& momentReferencePoint ):
++            const Eigen::Vector3d& momentReferencePoint,
++            const std::vector< AerodynamicCoefficientsIndependentVariables >
++            independentVariableNames,
++            const bool areCoefficientsInAerodynamicFrame = 1,
++            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+         AerodynamicCoefficientInterface( referenceLength, referenceArea, lateralReferenceLength,
+-                                         momentReferencePoint ),
+-        numberOfIndependentVariables_( numberOfIndependentVariables )
++                                         momentReferencePoint, independentVariableNames,
++                                         areCoefficientsInAerodynamicFrame,
++                                         areCoefficientsInNegativeAxisDirection )
+     {
+         coefficientFunction_ = boost::bind(
+                     &CustomAerodynamicCoefficientInterface::concatenateForceAndMomentCoefficients,
+@@ -125,9 +134,7 @@
+     //! Constructor.
+     /*!
+      *  Constructor.
+-     *  \param numberOfIndependentVariables Number of independent variables upon which the
+-     *  force and moment coefficients depend, i.e. the length of the vectors that should be used
+-     *  as input to forceCoefficientFunction and momentCoefficientFunction.
++
+      *  \param coefficientFunction Function returning the concatenated aerodynamic force and moment
+      *  coefficients as function of the set of independent variables.
+      *  \param referenceLength Reference length with which aerodynamic moments
+@@ -136,19 +143,32 @@
+      *  non-dimensionalized.
+      *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+      *  is non-dimensionalized.
+-     *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
++     *  \param momentReferencePoint Point w.r.t. which aerodynamic moment is calculated
++     *  \param independentVariableNames Vector with identifiers for the physical meaning of each
++     *  independent variable of the aerodynamic coefficients.
++     *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
++     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
++     *  frame (typically denoted as Cx, Cy, Cz).
++     *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
++     *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
++     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
++     *  coefficients are typically defined in negative direction.
+      */
+     CustomAerodynamicCoefficientInterface(
+-            const unsigned int numberOfIndependentVariables,
+             const boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) >
+             coefficientFunction,
+             const double referenceLength,
+             const double referenceArea,
+             const double lateralReferenceLength,
+-            const Eigen::Vector3d& momentReferencePoint ):
++            const Eigen::Vector3d& momentReferencePoint,
++            const std::vector< AerodynamicCoefficientsIndependentVariables >
++            independentVariableNames,
++            const bool areCoefficientsInAerodynamicFrame = 1,
++            const bool areCoefficientsInNegativeAxisDirection = 1 ):
+         AerodynamicCoefficientInterface( referenceLength, referenceArea, lateralReferenceLength,
+-                                         momentReferencePoint ),
+-        numberOfIndependentVariables_( numberOfIndependentVariables ),
++                                         momentReferencePoint, independentVariableNames,
++                                         areCoefficientsInAerodynamicFrame,
++                                         areCoefficientsInNegativeAxisDirection ),
+         coefficientFunction_( coefficientFunction ){ }
+ 
+     //! Compute the aerodynamic coefficients at current flight condition.
+@@ -180,14 +200,6 @@
+ 
+ private:
+ 
+-    //! Number of independent variables upon which the force and moment coefficients depend.
+-    /*!
+-     *  Number of independent variables upon which the force and moment coefficients depend, i.e.
+-     *  the length of the vectors that should be used as input to forceCoefficientFunction and
+-     *  momentCoefficientFunction.
+-     */
+-    unsigned int numberOfIndependentVariables_;
+-
+     //! Function returning the concatenated aerodynamic force and moment coefficients as function of
+     //! the set of independent variables.
+     boost::function< basic_mathematics::Vector6d( const std::vector< double >& ) >
+@@ -198,19 +210,26 @@
+ 
+ //! Function to create an aerodynamic coefficient interface containing constant coefficients.
+ /*!
+-*  Function to create an aerodynamic coefficient interface containing constant coefficients,
+-*  As a result, the generated coefficient interface depends on zero parameters.
+-*  \param constantForceCoefficient Constant force coefficients.
+-*  \param constantMomentCoefficient Constant moment coefficients.
+-*  \param referenceLength Reference length with which aerodynamic moments
+-*  (about x- and z- axes) are non-dimensionalized.
+-*  \param referenceArea Reference area with which aerodynamic forces and moments are
+-*  non-dimensionalized.
+-*  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
+-*  is non-dimensionalized.
+-*  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
+-*  \return Aerodynamic coefficient interface with constant coefficients.
+-*/
++ *  Function to create an aerodynamic coefficient interface containing constant coefficients,
++ *  As a result, the generated coefficient interface depends on zero parameters.
++ *  \param constantForceCoefficient Constant force coefficients.
++ *  \param constantMomentCoefficient Constant moment coefficients.
++ *  \param referenceLength Reference length with which aerodynamic moments
++ *  (about x- and z- axes) are non-dimensionalized.
++ *  \param referenceArea Reference area with which aerodynamic forces and moments are
++ *  non-dimensionalized.
++ *  \param lateralReferenceLength Reference length with which aerodynamic moments (about y-axis)
++ *  is non-dimensionalized.
++ *  \param momentReferencePoint Point w.r.t. aerodynamic moment is calculated
++ *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
++ *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
++ *  frame (typically denoted as Cx, Cy, Cz).
++ *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
++ *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
++ *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
++ *  coefficients are typically defined in negative direction.
++ *  \return Aerodynamic coefficient interface with constant coefficients.
++ */
+ boost::shared_ptr< AerodynamicCoefficientInterface >
+ createConstantCoefficientAerodynamicCoefficientInterface(
+         const Eigen::Vector3d constantForceCoefficient,
+@@ -218,45 +237,9 @@
+         const double referenceLength,
+         const double referenceArea,
+         const double lateralReferenceLength,
+-        const Eigen::Vector3d& momentReferencePoint );
+-
+-//! Function to create an aerodynamic coefficient interface from a coefficient generator.
+-/*!
+-*  Function to create an aerodynamic coefficient interface from a coefficient generator. This
+-*  function creates a multilinear interpolator, using the results of an
+-*  AerodynamicCoefficientGenerator to produce aerodynamic coefficients at an arbitrary
+-*  (interpolated) values of the independent variables. The list of independent variables is the
+-*  same as for the coefficient generator.
+-*  \param coefficientGenerator Object used to calculated the aerodynamic coefficients.
+-*  \return Aerodynamic coefficient interface with coefficients from coefficient generator.
+-*/
+-template< int numberOfIndependentVariables >
+-boost::shared_ptr< AerodynamicCoefficientInterface >
+-createAerodynamicCoefficientInterfaceFromGenerator(
+-        const boost::shared_ptr<
+-        AerodynamicCoefficientGenerator< numberOfIndependentVariables, 6 > > coefficientGenerator )
+-{
+-    // Calculate coefficients at grid points.
+-    coefficientGenerator->generateCoefficients( );
+-
+-    // Create interpolator for coefficients.
+-    boost::shared_ptr< interpolators::Interpolator< double, basic_mathematics::Vector6d > >
+-            coefficientInterpolator =
+-            boost::make_shared< interpolators::MultiLinearInterpolator< double,
+-            basic_mathematics::Vector6d, numberOfIndependentVariables > >
+-            ( coefficientGenerator->getDataPointsOfIndependentVariables( ),
+-              coefficientGenerator->getAerodynamicCoefficientsTables( ) );
+-
+-    // Create coefficient interface
+-    return boost::make_shared< CustomAerodynamicCoefficientInterface >(
+-                numberOfIndependentVariables, boost::bind(
+-                    &interpolators::Interpolator< double,
+-                    basic_mathematics::Vector6d >::interpolate, coefficientInterpolator,
+-                    _1 ), coefficientGenerator->getReferenceLength( ),
+-                coefficientGenerator->getReferenceArea( ),
+-                coefficientGenerator->getReferenceLength( ),
+-                coefficientGenerator->getMomentReferencePoint( ) );
+-}
++        const Eigen::Vector3d& momentReferencePoint,
++        const bool areCoefficientsInAerodynamicFrame = 0,
++        const bool areCoefficientsInNegativeAxisDirection = 1 );
+ 
+ }
+ 
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.cpp	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.cpp	2015-06-11 08:16:35 +0000
+@@ -1,47 +1,4 @@
+-/*    Copyright (c) 2010-2015, Delft University of Technology
+- *    All rights reserved.
+- *
+- *    Redistribution and use in source and binary forms, with or without modification, are
+- *    permitted provided that the following conditions are met:
+- *      - Redistributions of source code must retain the above copyright notice, this list of
+- *        conditions and the following disclaimer.
+- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
+- *        conditions and the following disclaimer in the documentation and/or other materials
+- *        provided with the distribution.
+- *      - Neither the name of the Delft University of Technology nor the names of its contributors
+- *        may be used to endorse or promote products derived from this software without specific
+- *        prior written permission.
+- *
+- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+- *    OF THE POSSIBILITY OF SUCH DAMAGE.
+- *
+- *    Changelog
+- *      YYMMDD    Author            Comment
+- *      110224    F.M. Engelen      File created.
+- *      110324    J. Melman         Added overloaded get functions.
+- *      110427    F.M. Engelen      Changed input parameter to altitude, longitude and latitude.
+- *      110629    F.M. Engelen      Added predefined feature.
+- *      110705    F.M. Engelen      Changed to passing by reference. Changed reference values.
+- *
+- *    References
+- *
+- *    Notes
+- *      The accuracy of this model could be increased by implementing different values for the
+- *      scale height and temperature for different altitudes (e.g., lower, middle and upper
+- *      atmosphere).
+- *
+- */
+-
+-#include <iostream>
+-
+-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
++#include <stdexcept>
+ 
+ #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
+ 
+@@ -50,10 +7,8 @@
+ namespace aerodynamics
+ {
+ 
+-//! Set predefined exponential atmosphere settings.
+-void ExponentialAtmosphere::setPredefinedExponentialAtmosphere(
+-        ExponentialAtmosphere::BodiesWithPredefinedExponentialAtmospheres
+-        bodyWithPredefinedExponentialAtmosphere )
++ExponentialAtmosphere::ExponentialAtmosphere(
++        const BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere )
+ {
+     switch( bodyWithPredefinedExponentialAtmosphere )
+     {
+@@ -62,24 +17,29 @@
+         // Rocket Motion by Prof. Ir. B.A.C. Ambrosius, November 2009.
+ 
+         // Set scale height.
+-        setScaleHeight( 7.200e3 );
++        scaleHeight_ = 7.200e3;
+ 
+         //Set density at zero altitude.
+-        setDensityAtZeroAltitude( 1.225 );
++        densityAtZeroAltitude_ = 1.225;
+ 
+         //Set atmosphere temperature.
+-        setConstantTemperature( 246.0 );
++        constantTemperature_ = 246.0;
+ 
+         // Set specific gas constant.
+-        setSpecificGasConstant( physical_constants::SPECIFIC_GAS_CONSTANT_AIR );
++        specificGasConstant_ = physical_constants::SPECIFIC_GAS_CONSTANT_AIR;
++
++        ratioOfSpecificHeats_ = 1.4;
+ 
+         break;
+ 
+     default:
+-
+-        std::cerr << "This is not a body with a predefined exponential atmophere." << std::endl;
++        throw std::runtime_error(
++                    "Error when making exponential atmosphere, predefined atmosphere" +
++                    boost::lexical_cast< std::string >(
++                        bodyWithPredefinedExponentialAtmosphere ) + "not recognized." );
+     }
+ }
+ 
+-} // namespace aerodynamics
+-} // namespace tudat
++}
++
++}
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h'
+--- Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h	2015-06-11 08:16:35 +0000
+@@ -44,6 +44,7 @@
+ #ifndef TUDAT_EXPONENTIAL_ATMOSPHERE_H
+ #define TUDAT_EXPONENTIAL_ATMOSPHERE_H
+ 
++#include <boost/lexical_cast.hpp>
+ #include <boost/shared_ptr.hpp>
+ 
+ #include <cmath>
+@@ -51,6 +52,8 @@
+ #include "Tudat/Basics/utilityMacros.h"
+ 
+ #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
++#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
++#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+ 
+ namespace tudat
+ {
+@@ -78,30 +81,34 @@
+ 
+     //! Default constructor.
+     /*!
+-     * Default constructor.
++     *  Default constructor setting all parameters manually.
++     *  \param scaleHeight Scale height of atmosphere model.
++     *  \param constantTemperature Constant atmospheric temperature.
++     *  \param densityAtZeroAltitude Atmospheric density at zero altitude.
++     *  \param specificGasConstant The constant specific gas constant of the air
++     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
+      */
+-    ExponentialAtmosphere( )
+-        : scaleHeight_( -0.0 ),
+-          constantTemperature_( -0.0 ),
+-          densityAtZeroAltitude_( -0.0 ),
+-          specificGasConstant_( -0.0 )
++    ExponentialAtmosphere(
++            const double scaleHeight,
++            const double constantTemperature,
++            const double densityAtZeroAltitude,
++            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
++            const double ratioOfSpecificHeats = 1.4 )
++        : scaleHeight_( scaleHeight ),
++          constantTemperature_( constantTemperature ),
++          densityAtZeroAltitude_( densityAtZeroAltitude ),
++          specificGasConstant_( specificGasConstant ),
++          ratioOfSpecificHeats_( ratioOfSpecificHeats )
+     { }
+ 
+-    //! Set predefined exponential atmosphere settings.
+-    /*!
+-     * Sets predefined exponential atmosphere settings.
+-     * \param bodyWithPredefinedExponentialAtmosphere Body with a predefined exponential
+-     *          atmosphere.
+-     */
+-    void setPredefinedExponentialAtmosphere( BodiesWithPredefinedExponentialAtmospheres
+-                                             bodyWithPredefinedExponentialAtmosphere );
+-
+-    //! Set scale height.
+-    /*!
+-     * Sets the scale height (property of exponential atmosphere) in meters.
+-     * \param scaleHeight New scale height of exponential atmosphere.
+-     */
+-    void setScaleHeight( const double scaleHeight ) { scaleHeight_ = scaleHeight; }
++    //! Constructor from default atmospheric settings.
++    /*!
++     *  Constructor from default atmospheric settings.
++     *  \param bodyWithPredefinedExponentialAtmosphere Identifier of body for which the
++     *  atmosphere is to be created.
++     */
++    ExponentialAtmosphere(
++         const BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere );
+ 
+     //! Get scale height.
+     /*!
+@@ -110,16 +117,6 @@
+      */
+     double getScaleHeight( ) { return scaleHeight_; }
+ 
+-    //! Set density at zero altitude.
+-    /*!
+-     * Sets the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
+-     * \param densityAtZeroAltitude Atmospheric density at zero altitude.
+-     */
+-    void setDensityAtZeroAltitude( const double densityAtZeroAltitude )
+-    {
+-        densityAtZeroAltitude_ = densityAtZeroAltitude;
+-    }
+-
+     //! Get density at zero altitude.
+     /*!
+      * Returns the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
+@@ -127,16 +124,6 @@
+      */
+     double getDensityAtZeroAltitude( ) { return densityAtZeroAltitude_; }
+ 
+-    //! Set constant temperature.
+-    /*!
+-     * Sets the atmospheric temperature (constant, property of exponential atmosphere) in Kelvin.
+-     * \param constantTemperature Constant atmospheric temperature in exponential atmosphere.
+-     */
+-    void setConstantTemperature( const double constantTemperature )
+-    {
+-        constantTemperature_ = constantTemperature;
+-    }
+-
+     //! Get constant temperature.
+     /*!
+      * Returns the atmospheric temperature (constant, property of exponential atmosphere) in
+@@ -145,25 +132,22 @@
+      */
+     double getConstantTemperature( ) { return constantTemperature_; }
+ 
+-    //! Set specific gas constant.
+-    /*!
+-     * Sets the specific gas constant of the air in J/(kg K), its value is assumed constant,
+-     * due to the assumption of constant atmospheric composition.
+-     * \param specificGasConstant Constant specific gas constant in exponential atmosphere.
+-     */
+-    void setSpecificGasConstant( const double specificGasConstant )
+-    {
+-        specificGasConstant_ = specificGasConstant;
+-    }
+-
+     //! Get specific gas constant.
+     /*!
+      * Returns the specific gas constant of the air in J/(kg K), its value is assumed constant,
+      * due to the assumption of constant atmospheric composition.
+-     * \return specificGasConstant Specific gas constant in exponential atmosphere.
++     * \return Specific gas constant in exponential atmosphere.
+      */
+     double getSpecificGasConstant( ) { return specificGasConstant_; }
+ 
++    //! Get ratio of specific heats.
++    /*!
++     * Returns the ratio of specific hears of the air, its value is assumed constant,
++     * due to the assumption of constant atmospheric composition.
++     * \return Ratio of specific heats exponential atmosphere.
++     */
++    double getRatioOfSpecificHeats( ) { return ratioOfSpecificHeats_; }
++
+     //! Get local density.
+     /*!
+      * Returns the local density of the atmosphere in kg per meter^3.
+@@ -228,6 +212,30 @@
+         return constantTemperature_;
+     }
+ 
++    //! Get local speed of sound in the atmosphere.
++    /*!
++     * Returns the speed of sound in the atmosphere in m/s.
++     * \param altitude Altitude at which speed of sounds is to be computed.
++     * \param longitude Longitude at which speed of sounds is to be computed (not used but included
++     * for consistency with base class interface).
++     * \param latitude Latitude at which speed of sounds is to be computed (not used but included
++     * for consistency with base class interface).
++     * \param time Time at which speed of sounds is to be computed (not used but included for
++     * consistency with base class interface).
++     * \return Atmospheric speed of sounds at specified altitude.
++     */
++    double getSpeedOfSound( const double altitude, const double longitude = 0.0,
++                                    const double latitude = 0.0, const double time = 0.0 )
++    {
++        TUDAT_UNUSED_PARAMETER( altitude );
++        TUDAT_UNUSED_PARAMETER( longitude );
++        TUDAT_UNUSED_PARAMETER( latitude );
++        TUDAT_UNUSED_PARAMETER( time );
++        return computeSpeedOfSound(
++                    getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_,
++                    specificGasConstant_ );
++    }
++
+ protected:
+ 
+ private:
+@@ -253,9 +261,17 @@
+     //! Specific gas constant.
+     /*!
+      * Specific gas constant of the air, its value is assumed constant, due to the assumption of
+-     * constant atmospheric composition.
++     * constant atmospheric composition.    
+      */
+     double specificGasConstant_;
++
++    //! Ratio of specific heats at constant pressure and constant volume.
++    /*!
++     *  Ratio of specific heats of the atmosphrer at constant pressure and constant volume.
++     *  This value is set to a constant, implying constant atmospheric composition.
++     */
++    double ratioOfSpecificHeats_;
++
+ };
+ 
+ //! Typedef for shared-pointer to ExponentialAtmosphere object.
+
+=== added file 'Tudat/Astrodynamics/Aerodynamics/flightConditions.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/flightConditions.cpp	1970-01-01 00:00:00 +0000
++++ Tudat/Astrodynamics/Aerodynamics/flightConditions.cpp	2015-06-08 14:13:13 +0000
+@@ -0,0 +1,110 @@
++
++#include <boost/shared_ptr.hpp>
++
++#include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
++#include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
++#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
++
++namespace tudat
++{
++
++namespace aerodynamics
++{
++
++
++FlightConditions::FlightConditions(
++        const std::string& centralBody,
++        const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
++        const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
++        const boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle,
++        const boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody,
++        const boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
++        transformationToCentralBodyFrame,
++        const boost::function< double( ) > currentTimeFunction,
++        const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
++        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
++        aerodynamicAngleCalculator ):
++    centralBody_( centralBody ), atmosphereModel_( atmosphereModel ),
++    altitudeFunction_( altitudeFunction ),
++    stateOfVehicle_( stateOfVehicle ),
++    stateOfCentralBody_( stateOfCentralBody ),
++    transformationToCentralBodyFrame_( transformationToCentralBodyFrame ),
++    currentTimeFunction_( currentTimeFunction ),
++    aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
++    aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
++{
++    updateLatitudeAndLongitude_ = 0;
++
++    if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
++    {
++        throw( "" );
++    }
++
++    if( updateLatitudeAndLongitude_ && aerodynamicAngleCalculator_== NULL )
++    {
++        throw( "" );
++    }
++}
++
++void FlightConditions::updateConditions(  )
++{
++    currentTime_ = currentTimeFunction_( );
++    currentBodyCenteredState_ = stateOfVehicle_( ) - stateOfCentralBody_( );
++    currentBodyCenteredPseudoBodyFixedState_ = transformationToCentralBodyFrame_(
++                currentBodyCenteredState_ );
++    currentAltitude_ = altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
++    currentAirspeed_ = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
++
++    if( aerodynamicAngleCalculator_!= NULL )
++    {
++        aerodynamicAngleCalculator_->update( );
++    }
++
++    if( updateLatitudeAndLongitude_ )
++    {
++        currentLatitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
++                    reference_frames::latitude_angle );
++        currentLongitude_ = aerodynamicAngleCalculator_->getAerodynamicAngle(
++                    reference_frames::longitude_angle );
++    }
++
++    std::vector< double > aerodynamicCoefficientIndependentVariables;
++    for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->
++         getNumberOfIndependentVariables( ); i++ )
++    {
++        switch( aerodynamicCoefficientInterface_->getIndependentVariableName( i ) )
++        {
++        case mach_number_dependent:
++            aerodynamicCoefficientIndependentVariables.push_back(
++                        currentAirspeed_ / atmosphereModel_->getSpeedOfSound(
++                            currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) );
++            break;
++        case angle_of_attack_dependent:
++            if( aerodynamicAngleCalculator_== NULL )
++            {
++                throw( "" );
++            }
++            aerodynamicCoefficientIndependentVariables.push_back(
++                        aerodynamicAngleCalculator_->getAerodynamicAngle( reference_frames::angle_of_attack ) );
++            break;
++        case angle_of_sideslip_dependent:
++            if( aerodynamicAngleCalculator_== NULL )
++            {
++                throw( "" );
++            }
++            aerodynamicCoefficientIndependentVariables.push_back(
++                        aerodynamicAngleCalculator_->getAerodynamicAngle( reference_frames::angle_of_sideslip ) );
++        default:
++            throw( "" );
++        }
++    }
++
++    currentDensity_ = atmosphereModel_->getDensity( currentAltitude_, currentLongitude_,
++                                                    currentLatitude_, currentTime_ );
++
++}
++
++
++}
++
++}
+
+=== added file 'Tudat/Astrodynamics/Aerodynamics/flightConditions.h'
+--- Tudat/Astrodynamics/Aerodynamics/flightConditions.h	1970-01-01 00:00:00 +0000
++++ Tudat/Astrodynamics/Aerodynamics/flightConditions.h	2015-06-10 09:18:34 +0000
+@@ -0,0 +1,184 @@
++#ifndef FLIGHTCONDITIONS_H
++#define FLIGHTCONDITIONS_H
++
++#include <vector>
++
++#include <boost/function.hpp>
++
++#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
++#include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
++#include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
++#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
++
++namespace tudat
++{
++
++namespace aerodynamics
++{
++
++
++//! Class for calculating aerodynamic flight characteristics of a vehicle during numerical integration.
++/*!
++ *  Class for calculating aerodynamic flight characteristics of a vehicle during numerical integration. Class is used to ensure that dependent variables
++ *  such as density, altitude, etc. are only calculated once during each numerical integration step. The get functions of this class are
++ *  linked to the various models in the code that subsequently require these values.
++ */
++class FlightConditions
++{
++public:
++
++    //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
++    /*!
++     *  Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
++     *  \param centralBody Name of central body (i.e. body with the atmosphere)
++     *  \param atmosphereModel Atmosphere model of atmosphere through which vehicle is flying
++     *  \param altitudeFunction Function returning the altitude of the vehicle as a function of
++     *  its body-fixed position.
++     *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment) coefficients are retrieved
++     *  \param stateOfVehicle Function returning the current state of the vehicle (in the global frame)
++     *  \param stateOfCentralBody Function returning the current state of the central body (in the global frame)
++     *  \param transformationToCentralBodyFrame Function transforming the inertial body-centered to
++     *  the body-centered, body-fixed (co-rotating) frame.
++     *  \param currentTimeFunction Function returning the current time.
++     *  \param aerodynamicCoefficientInterface Object from which the aerodynamic coefficients
++     *  are obtained.
++     *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
++     *  of the vehicle are calculated.
++     */
++    FlightConditions( const std::string& centralBody,
++                      const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
++                      const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
++                      const boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle,
++                      const boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody,
++                      const boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
++                      transformationToCentralBodyFrame,
++                      const boost::function< double( ) > currentTimeFunction,
++                      const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
++                      const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
++                      aerodynamicAngleCalculator = boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
++
++    //! Function to update all flight conditions.
++    /*!
++     *  Function to update all flight conditions (altitude, density, force coefficients) to current state of vehicle and central body.
++     */
++    void updateConditions( );
++
++    //! Function to return altitude
++    /*!
++     *  Function to return altitude that was set by previous call of updateConditions function.
++     *  \return Current altitude
++     */
++    double getCurrentAltitude( ) const
++    {
++        return currentAltitude_;
++    }
++
++    //! Function to return density
++    /*!
++     *  Function to return density that was set by previous call of updateConditions or updateDensity function.
++     *  \return Current altitude
++     */
++    double getCurrentDensity( ) const
++    {
++        return currentDensity_;
++    }
++
++    double getCurrentAirspeed( ) const
++    {
++        return currentAirspeed_;
++    }
++
++
++    //! Function to return central body name
++    /*!
++     *  Function to return central body name
++     *  \return Name of central body
++     */
++    std::string getCentralBodyName( ) const
++    {
++        return centralBody_;
++    }
++
++    //! Function to return atmosphere model object
++    /*!
++     *  Function to return atmosphere model object
++     *  \return Atmosphere model object
++     */
++    boost::shared_ptr< aerodynamics::AtmosphereModel > getAtmosphereModel( ) const
++    {
++        return atmosphereModel_;
++    }
++
++    void setAerodynamicAngleCalculator(
++            const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator )
++    {
++        aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
++    }
++
++    basic_mathematics::Vector6d getCurrentBodyCenteredBodyFixedState( )
++    {
++        return currentBodyCenteredPseudoBodyFixedState_;
++
++    }
++
++    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
++    getAerodynamicAngleCalculator( )
++    {
++        return aerodynamicAngleCalculator_;
++    }
++
++
++private:
++
++    //! Name of central body (i.e. body with the atmosphere)
++    std::string centralBody_;
++
++    //! Atmosphere model of atmosphere through which vehicle is flying
++    boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
++
++    //! Function returning the altitude of the vehicle as a function of its body-fixed position.
++    const boost::function< double( const Eigen::Vector3d ) > altitudeFunction_;
++
++    //! Function returning the current state of the vehicle (in the global frame)
++    boost::function< basic_mathematics::Vector6d( ) > stateOfVehicle_;
++
++    //! Function returning the current state of the central body (in the global frame)
++    boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody_;
++
++    //! Function transforming the inertial body-centered to the body-centered, body-fixed (co-rotating) frame.
++    boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
++    transformationToCentralBodyFrame_;
++
++    //! Function returning the current time.
++    boost::function< double( ) > currentTimeFunction_;
++
++    //! Object from which the aerodynamic coefficients are obtained.
++    boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
++
++    //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
++    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
++
++    basic_mathematics::Vector6d currentBodyCenteredState_;
++
++    basic_mathematics::Vector6d currentBodyCenteredPseudoBodyFixedState_;
++    //! Current density at vehicle's position.
++    double currentDensity_;
++
++    double currentAirspeed_;
++
++    //! Current altitude of vehicle above central body's shapeModel_
++    double currentAltitude_;
++
++    double currentLatitude_;
++
++    double currentLongitude_;
++
++    double currentTime_;
++
++    bool updateLatitudeAndLongitude_;
++};
++
++}
++
++}
++#endif // FLIGHTCONDITIONS_H
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.cpp'
+--- Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.cpp	2015-05-18 13:31:05 +0000
++++ Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.cpp	2015-06-10 19:56:19 +0000
+@@ -51,6 +51,7 @@
+ #include <boost/make_shared.hpp>
+ #include <boost/pointer_cast.hpp>
+ #include <boost/shared_ptr.hpp>
++#include <boost/assign/list_of.hpp>
+ 
+ #include <Eigen/Geometry>
+ 
+@@ -157,14 +158,15 @@
+         const std::vector< std::vector< int > >& selectedMethods,
+         const double referenceArea,
+         const double referenceLength,
+-        const Eigen::Vector3d& momentReferencePoint,
+-        const std::string& machRegime )
++        const Eigen::Vector3d& momentReferencePoint )
+     : AerodynamicCoefficientGenerator< 3, 6 >(
+-          dataPointsOfIndependentVariables, referenceArea, referenceLength, momentReferencePoint ),
++          dataPointsOfIndependentVariables, referenceLength, referenceArea, referenceLength,
++          momentReferencePoint,
++          boost::assign::list_of( mach_number_dependent )( angle_of_attack_dependent )
++          ( angle_of_sideslip_dependent ), 1, 1 ),
+       stagnationPressureCoefficient( 2.0 ),
+-      ratioOfSpecificHeats( 1.4 ),      // Refer to a constant in "constants file" in the future!
+-      selectedMethods_( selectedMethods ),
+-      machRegime_( machRegime )
++      ratioOfSpecificHeats( 1.4 ),
++      selectedMethods_( selectedMethods )
+ {
+     // Set geometry if it is a single surface.
+     if ( boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( inputVehicleSurface ) !=
+@@ -183,15 +185,15 @@
+         {
+             // Convert geometry to LaWGS surface mesh and set in vehicleParts_ list.
+             vehicleParts_[ 0 ]->setMesh(
+-                    boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( inputVehicleSurface ),
+-                    numberOfLines[ 0 ], numberOfPoints[ 0 ] );
++                        boost::dynamic_pointer_cast< SingleSurfaceGeometry > ( inputVehicleSurface ),
++                        numberOfLines[ 0 ], numberOfPoints[ 0 ] );
+         }
+ 
+         // Else, set geometry directly.
+         else
+         {
+             vehicleParts_[ 0 ] = boost::dynamic_pointer_cast< LawgsPartGeometry >
+-                                 ( inputVehicleSurface );
++                    ( inputVehicleSurface );
+         }
+     }
+ 
+@@ -254,20 +256,25 @@
+         numberOfPointsPerIndependentVariables[ i ] =
+                 dataPointsOfIndependentVariables_[ i ].size( );
+     }
++
+     isCoefficientGenerated_.resize( numberOfPointsPerIndependentVariables );
+ 
+     std::fill( isCoefficientGenerated_.origin( ),
+                isCoefficientGenerated_.origin( ) + isCoefficientGenerated_.num_elements( ), 0 );
++
++    generateCoefficients( );
++    createInterpolator( );
+ }
+ 
+ //! Get aerodynamic coefficients.
+-Vector6d HypersonicLocalInclinationAnalysis::getAerodynamicCoefficients(
++Vector6d HypersonicLocalInclinationAnalysis::getAerodynamicCoefficientsDataPoint(
+         const boost::array< int, 3 > independentVariables )
+ {
+     if( isCoefficientGenerated_( independentVariables ) == 0 )
+     {
+         determineVehicleCoefficients( independentVariables );
+     }
++
+     // Return requested coefficients.
+     return aerodynamicCoefficients_( independentVariables );
+ 
+@@ -281,17 +288,17 @@
+     boost::array< int, 3 > independentVariableIndices;
+ 
+     // Iterate over all combinations of independent variables.
+-    for ( unsigned int i = 0 ; i < dataPointsOfIndependentVariables_[ machIndex ].size( ) ; i++ )
++    for ( unsigned int i = 0 ; i < dataPointsOfIndependentVariables_[ 0 ].size( ) ; i++ )
+     {
+-        independentVariableIndices[ machIndex ] = i;
++        independentVariableIndices[ 0 ] = i;
+         for ( unsigned  int j = 0 ; j < dataPointsOfIndependentVariables_[
+-              angleOfAttackIndex ].size( ) ; j++ )
++              1 ].size( ) ; j++ )
+         {
+-            independentVariableIndices[ angleOfAttackIndex ] = j;
++            independentVariableIndices[ 1 ] = j;
+             for ( unsigned  int k = 0 ; k < dataPointsOfIndependentVariables_[
+-                  angleOfSideslipIndex ].size( ) ; k++ )
++                  2 ].size( ) ; k++ )
+             {
+-                independentVariableIndices[ angleOfSideslipIndex ] = k;
++                independentVariableIndices[ 2 ] = k;
+ 
+                 determineVehicleCoefficients( independentVariableIndices );
+             }
+@@ -322,32 +329,32 @@
+         const int partNumber, const boost::array< int, 3 > independentVariableIndices )
+ {
+     // Declare and determine angles of attack and sideslip for analysis.
+-    double angleOfAttack =  dataPointsOfIndependentVariables_[ angleOfAttackIndex ]
+-            [ independentVariableIndices[ angleOfAttackIndex ] ];
++    double angleOfAttack =  dataPointsOfIndependentVariables_[ 1 ]
++            [ independentVariableIndices[ 1 ] ];
+ 
+-    double angleOfSideslip =  dataPointsOfIndependentVariables_[ angleOfSideslipIndex ]
+-            [ independentVariableIndices[ angleOfSideslipIndex ] ];
++    double angleOfSideslip =  dataPointsOfIndependentVariables_[ 2 ]
++            [ independentVariableIndices[ 2 ] ];
+ 
+     // Declare partCoefficient vector.
+     Vector6d partCoefficients = Vector6d::Zero( );
+ 
+     // Check whether the inclinations of the vehicle part have already been computed.
+     if ( previouslyComputedInclinations_.count( std::pair< double, double >(
+-            angleOfAttack, angleOfSideslip ) ) == 0 )
++                                                    angleOfAttack, angleOfSideslip ) ) == 0 )
+     {
+         // Determine panel inclinations for part.
+         determineInclinations( angleOfAttack, angleOfSideslip );
+ 
+         // Add panel inclinations to container
+         previouslyComputedInclinations_[ std::pair< double, double >(
+-                        angleOfAttack, angleOfSideslip ) ] = inclination_;
++                    angleOfAttack, angleOfSideslip ) ] = inclination_;
+     }
+ 
+     else
+     {
+         // Fetch inclinations from container
+         inclination_ = previouslyComputedInclinations_[ std::pair< double, double >(
+-                angleOfAttack, angleOfSideslip ) ];
++                    angleOfAttack, angleOfSideslip ) ];
+     }
+ 
+     // Set pressureCoefficient_ array for given independent variables.
+@@ -367,8 +374,8 @@
+         const int partNumber, const boost::array< int, 3 > independentVariableIndices )
+ {
+     // Retrieve Mach number.
+-    double machNumber = dataPointsOfIndependentVariables_[ machIndex ]
+-            [ independentVariableIndices[ machIndex ] ];
++    double machNumber = dataPointsOfIndependentVariables_[ 0 ]
++            [ independentVariableIndices[ 0 ] ];
+ 
+     // Determine stagnation point pressure coefficients. Value is computed once
+     // here to prevent its calculation in inner loop.
+@@ -496,7 +503,7 @@
+     case 1:
+         pressureFunction =
+                 boost::bind( aerodynamics::computeModifiedNewtonianPressureCoefficient, _1,
+-                                        stagnationPressureCoefficient );
++                             stagnationPressureCoefficient );
+         break;
+ 
+     case 2:
+@@ -510,37 +517,37 @@
+     case 4:
+         pressureFunction =
+                 boost::bind( aerodynamics::computeEmpiricalTangentWedgePressureCoefficient, _1,
+-                                        machNumber );
++                             machNumber );
+         break;
+ 
+     case 5:
+         pressureFunction =
+                 boost::bind( aerodynamics::computeEmpiricalTangentConePressureCoefficient, _1,
+-                                        machNumber );
++                             machNumber );
+         break;
+ 
+     case 6:
+         pressureFunction =
+                 boost::bind( aerodynamics::computeModifiedDahlemBuckPressureCoefficient, _1,
+-                                        machNumber );
++                             machNumber );
+         break;
+ 
+     case 7:
+         pressureFunction =
+                 boost::bind( aerodynamics::computeVanDykeUnifiedPressureCoefficient, _1,
+-                                        machNumber, ratioOfSpecificHeats, 1 );
++                             machNumber, ratioOfSpecificHeats, 1 );
+         break;
+ 
+     case 8:
+         pressureFunction =
+                 boost::bind( aerodynamics::computeSmythDeltaWingPressureCoefficient, _1,
+-                                        machNumber );
++                             machNumber );
+         break;
+ 
+     case 9:
+         pressureFunction =
+                 boost::bind( aerodynamics::computeHankeyFlatSurfacePressureCoefficient, _1,
+-                                        machNumber );
++                             machNumber );
+         break;
+ 
+     default:
+@@ -622,14 +629,14 @@
+                         machNumber, ratioOfSpecificHeats );
+             pressureFunction =
+                     boost::bind( &aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient,
+-                                            _1, machNumber, ratioOfSpecificHeats,
+-                                            freestreamPrandtlMeyerFunction );
++                                 _1, machNumber, ratioOfSpecificHeats,
++                                 freestreamPrandtlMeyerFunction );
+             break;
+ 
+         case 5:
+             pressureFunction =
+                     boost::bind( &aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient,
+-                                            _1, machNumber, ratioOfSpecificHeats, -1 );
++                                 _1, machNumber, ratioOfSpecificHeats, -1 );
+             break;
+ 
+         case 6:
+@@ -657,31 +664,8 @@
+     else
+     {
+         std::cerr << "Error, expansion local inclination method number "<< method <<
+-                " not recognized" << std::endl;
+-    }
+-}
+-
+-//! Overload ostream to print class information.
+-std::ostream& operator<<( std::ostream& stream,
+-                          HypersonicLocalInclinationAnalysis& hypersonicLocalInclinationAnalysis )
+-{
+-    stream << "This is a hypersonic local inclination analysis object."<< endl;
+-    stream << "The Mach regime is "
+-           << hypersonicLocalInclinationAnalysis.getMachRegime( ) << endl;
+-    stream << "It contains "
+-           << hypersonicLocalInclinationAnalysis.getNumberOfVehicleParts( )
+-           << " parts in Lawgs format. " << endl;
+-    stream << "The names of the vehicle parts are ";
+-
+-    for ( int i = 0; i < hypersonicLocalInclinationAnalysis.getNumberOfVehicleParts( ); i++ )
+-    {
+-        stream << hypersonicLocalInclinationAnalysis.getVehiclePart( i )->getName( ) << ", ";
+-    }
+-
+-    stream << endl;
+-
+-    // Return stream.
+-    return stream;
++                     " not recognized" << std::endl;
++    }
+ }
+ 
+ } // namespace aerodynamics
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h'
+--- Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h	2015-05-18 13:31:05 +0000
++++ Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h	2015-06-11 08:48:41 +0000
+@@ -98,7 +98,7 @@
+  * dependent on the local inclination angle w.r.t. the freestream flow and
+  * freestream conditions, such as Mach number and ratio of specific heats.
+  * All aerodynamic coefficients can be calculated using the generateCoefficients function, or on an
+- * as needed basis by using the getAerodynamicCoefficients function. Note that during the
++ * as needed basis by using the getAerodynamicCoefficientsDataPoint function. Note that during the
+  * panel inclination determination process, a geometry with outward surface-normals is assumed.
+  * The resulting coefficients are expressed in the same reference frame as that of the input
+  * geometry.
+@@ -107,18 +107,6 @@
+ {
+ public:
+ 
+-    //! Enum specifying meaning of indices of independent variables of generated coefficients
+-    /*!
+-     *  Enum specifying meaning of indices of independent variables of generated coefficients,
+-     *  i.e. the three physical variables that can be varied in the analysis.
+-     */
+-    enum HypersonicLocalInclinationAnalysisIndependentVariables
+-    {
+-        machIndex = 0,
+-        angleOfAttackIndex = 1,
+-        angleOfSideslipIndex = 2
+-    };
+-
+     //! Default constructor.
+     /*!
+      *  Default constructor of class, specified vehicle geometry, discretization properties,
+@@ -126,9 +114,9 @@
+      *  to be used
+      *  \param dataPointsOfIndependentVariables Vector of vector, with each subvector containing
+      *  the data points of each of the independent variables for the coefficient generation.
+-     *  The physical meaning of each of the three independent variables is defined by the
+-     *  HypersonicLocalInclinationAnalysisIndependentVariables enum. Each of the subvectors must
+-     *  be sorted in ascending order.
++     *  The physical meaning of each of the three independent variables is: 0 = mach numner,
++     *  1 = angle of attack, 2 = angle of sideslip.
++     *  Each of the subvectors must be sorted in ascending order.
+      *  \param inputVehicleSurface Vehicle surface geometry for which the coefficients are to be
+      *  determined.
+      *  \param numberOfLines Number of discretization points in the first independent surface
+@@ -146,7 +134,6 @@
+      *  and moments.
+      *  \param referenceLength Reference length used to non-dimensionalize aerodynamic moments.
+      *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
+-     *  \param machRegime NOTE: Variable no longer used. Remove?
+      */
+     HypersonicLocalInclinationAnalysis(
+             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
+@@ -157,33 +144,26 @@
+             const std::vector< std::vector< int > >& selectedMethods,
+             const double referenceArea,
+             const double referenceLength,
+-            const Eigen::Vector3d& momentReferencePoint,
+-            const std::string& machRegime = "Full" );
++            const Eigen::Vector3d& momentReferencePoint );
+ 
+     //! Default destructor.
+     /*!
+      * Default destructor.
+      */
+-    virtual ~HypersonicLocalInclinationAnalysis( ) { }
++    ~HypersonicLocalInclinationAnalysis( ) { }
+ 
+     //! Get aerodynamic coefficients.
+     /*!
+-     * Returns aerodynamic coefficients.
++     *  Returns aerodynamic coefficients.
++     *  The physical meaning of each of the three independent variables is: 0 = mach numner,
++     *  1 = angle of attack, 2 = angle of sideslip.
+      * \param independentVariables Array of values of independent variable
+      *          indices in dataPointsOfIndependentVariables_.
+      * \return vector of coefficients at specified independent variable indices.
+      */
+-    basic_mathematics::Vector6d getAerodynamicCoefficients(
++    basic_mathematics::Vector6d getAerodynamicCoefficientsDataPoint(
+             const boost::array< int, 3 > independentVariables );
+ 
+-    //! Generate aerodynamic database.
+-    /*!
+-     * Generates aerodynamic database. Settings of geometry,
+-     * reference quantities, database point settings and analysis methods
+-     *  should have been set previously.
+-     */
+-    void generateCoefficients( );
+-
+     //! Determine inclination angles of panels on a given part.
+     /*!
+      * Determines panel inclinations for all panels on all parts for given attitude.
+@@ -216,16 +196,6 @@
+          return vehicleParts_[ vehicleIndex ];
+      }
+ 
+-    //! Get Mach regime.
+-    /*!
+-     * Returns Mach regime, see machRegime_.
+-     * \return Mach regime.
+-     */
+-    std::string getMachRegime( ) const
+-    {
+-        return machRegime_;
+-    }
+-
+     //! Overload ostream to print class information.
+     /*!
+      * Overloads ostream to print class information, prints the number of lawgs geometry parts and
+@@ -240,6 +210,14 @@
+ 
+ private:
+ 
++    //! Generate aerodynamic database.
++    /*!
++     * Generates aerodynamic database. Settings of geometry,
++     * reference quantities, database point settings and analysis methods
++     *  should have been set previously.
++     */
++    void generateCoefficients( );
++
+     //! Generate aerodynamic coefficients at a single set of independent variables.
+     /*!
+      * Generates aerodynamic coefficients at a single set of independent variables.
+@@ -360,12 +338,6 @@
+      * second index represents vehicle part.
+      */
+     std::vector< std::vector< int > > selectedMethods_;
+-
+-    //! Mach regime.
+-    /*!
+-     * Mach regime, permissible values are "Full", "High" or "Low", default is "Full".
+-     */
+-    std::string machRegime_;
+ };
+ 
+ //! Typedef for shared-pointer to HypersonicLocalInclinationAnalysis object.
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h'
+--- Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h	2015-06-11 08:16:35 +0000
+@@ -92,6 +92,18 @@
+     */
+     virtual double getTemperature( const double altitude, const double longitude = 0.0,
+                                    const double latitude = 0.0, const double time = 0.0 ) = 0;
++
++    //! Get local speed of sound.
++    /*!
++    * Returns the local speed of sound of the atmosphere in m/s.
++    * \param altitude Altitude.
++    * \param longitude Longitude.
++    * \param latitude Latitude.
++    * \param time Time.
++    * \return Atmospheric speed of sound.
++    */
++    virtual double getSpeedOfSound( const double altitude, const double longitude = 0.0,
++                                    const double latitude = 0.0, const double time = 0.0 ) = 0;
+ };
+ 
+ //! Typedef for shared-pointer to StandardAtmosphere object.
+
+=== modified file 'Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h'
+--- Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h	2015-06-11 08:16:35 +0000
+@@ -50,6 +50,8 @@
+ #include "Tudat/Basics/utilityMacros.h"
+ 
+ #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
++#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
++#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+ #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
+ 
+ namespace tudat
+@@ -70,10 +72,19 @@
+ 
+     //! Default constructor.
+     /*!
+-     * Default constructor.
++     *  Default constructor.
++     *  \param atmosphereTableFile File containing atmospheric properties.
++     *  The file name of the atmosphere table. The file should contain four columns of data,
++     *  containing altitude (first column), and the associated density, pressure and density values
++     *  in the second, third and fourth columns
++     *  \param specificGasConstant The constant specific gas constant of the air
++     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
+      */
+-    TabulatedAtmosphere( const std::string& atmosphereTableFile )
+-        : atmosphereTableFile_( atmosphereTableFile )
++    TabulatedAtmosphere( const std::string& atmosphereTableFile,
++                         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
++                         const double ratioOfSpecificHeats = 1.4 )
++        : atmosphereTableFile_( atmosphereTableFile ), specificGasConstant_( specificGasConstant ),
++          ratioOfSpecificHeats_( ratioOfSpecificHeats )
+     {
+         initialize( atmosphereTableFile_ );
+     }
+@@ -85,14 +96,31 @@
+      */
+     std::string getAtmosphereTableFile( ) { return atmosphereTableFile_; }
+ 
++    //! Get specific gas constant.
++    /*!
++     * Returns the specific gas constant of the air in J/(kg K), its value is assumed constant.
++     * \return specificGasConstant Specific gas constant in exponential atmosphere.
++     */
++    double getSpecificGasConstant( ) { return specificGasConstant_; }
++
++    //! Get ratio of specific heats.
++    /*!
++     * Returns the ratio of specific hears of the air, its value is assumed constant,.
++     * \return Ratio of specific heats exponential atmosphere.
++     */
++    double getRatioOfSpecificHeats( ) { return ratioOfSpecificHeats_; }
++
+     //! Get local density.
+     /*!
+      * Returns the local density parameter of the atmosphere in kg per meter^3.
+-     * \param altitude Altitude.
+-     * \param longitude Longitude.
+-     * \param latitude Latitude.
+-     * \param time Time.
+-     * \return Atmospheric density.
++     * \param altitude Altitude at which density is to be computed.
++     * \param longitude Longitude at which density is to be computed (not used but included for
++     * consistency with base class interface).
++     * \param latitude Latitude at which density is to be computed (not used but included for
++     * consistency with base class interface).
++     * \param time Time at which density is to be computed (not used but included for
++     * consistency with base class interface).
++     * \return Atmospheric density at specified altitude.
+      */
+     double getDensity( const double altitude, const double longitude = 0.0,
+                        const double latitude = 0.0, const double time = 0.0 )
+@@ -106,11 +134,14 @@
+     //! Get local pressure.
+     /*!
+      * Returns the local pressure of the atmosphere in Newton per meter^2.
+-     * \param altitude Altitude.
+-     * \param longitude Longitude.
+-     * \param latitude Latitude.
+-     * \param time Time.
+-     * \return Atmospheric pressure.
++     * \param altitude Altitude  at which pressure is to be computed.
++     * \param longitude Longitude at which pressure is to be computed (not used but included for
++     * consistency with base class interface).
++     * \param latitude Latitude at which pressure is to be computed (not used but included for
++     * consistency with base class interface).
++     * \param time Time at which pressure is to be computed (not used but included for
++     * consistency with base class interface).
++     * \return Atmospheric pressure at specified altitude.
+      */
+     double getPressure( const double altitude, const double longitude = 0.0,
+                         const double latitude = 0.0, const double time = 0.0 )
+@@ -124,11 +155,14 @@
+     //! Get local temperature.
+     /*!
+      * Returns the local temperature of the atmosphere in Kelvin.
+-     * \param altitude Altitude.
+-     * \param longitude Longitude.
+-     * \param latitude Latitude.
+-     * \param time Time.
+-     * \return Atmospheric temperature.
++     * \param altitude Altitude at which temperature is to be computed
++     * \param longitude Longitude at which temperature is to be computed (not used but included for
++     * consistency with base class interface).
++     * \param latitude Latitude at which temperature is to be computed (not used but included for
++     * consistency with base class interface).
++     * \param time Time at which temperature is to be computed (not used but included for
++     * consistency with base class interface).
++     * \return constantTemperature Atmospheric temperature at specified altitude.
+      */
+     double getTemperature( const double altitude, const double longitude = 0.0,
+                            const double latitude = 0.0, const double time = 0.0 )
+@@ -139,6 +173,29 @@
+         return cubicSplineInterpolationForTemperature_->interpolate( altitude );
+     }
+ 
++    //! Get local speed of sound in the atmosphere.
++    /*!
++     * Returns the speed of sound in the atmosphere in m/s.
++     * \param altitude Altitude at which speed of sound is to be computed.
++     * \param longitude Longitude at which speed of sound is to be computed (not used but included
++     * for consistency with base class interface).
++     * \param latitude Latitude at which speed of sound is to be computed (not used but included
++     * for consistency with base class interface).
++     * \param time Time at which speed of sound is to be computed (not used but included for
++     * consistency with base class interface).
++     * \return Atmospheric speed of sound at specified altitude.
++     */
++    double getSpeedOfSound( const double altitude, const double longitude = 0.0,
++                            const double latitude = 0.0, const double time = 0.0 )
++    {
++        TUDAT_UNUSED_PARAMETER( longitude );
++        TUDAT_UNUSED_PARAMETER( latitude );
++        TUDAT_UNUSED_PARAMETER( time );
++        return computeSpeedOfSound(
++                    getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_,
++                    specificGasConstant_ );
++    }
++
+ protected:
+ 
+ private:
+@@ -152,7 +209,9 @@
+ 
+     //! The file name of the atmosphere table.
+     /*!
+-     *  The file name of the atmosphere table.
++     *  The file name of the atmosphere table. The file should contain four columns of data,
++     *  containing altitude (first column), and the associated density, pressure and density values
++     *  in the second, third and fourth columns.
+      */
+     std::string atmosphereTableFile_;
+ 
+@@ -197,6 +256,19 @@
+      *  Cubic spline interpolation for temperature.
+      */
+     interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForTemperature_;
++
++    //! Specific gas constant.
++    /*!
++     * Specific gas constant of the air, its value is assumed constant, due to the assumption of
++     * constant atmospheric composition.
++     */
++    double specificGasConstant_;
++
++    /*!
++     *  Ratio of specific heats of the atmosphrer at constant pressure and constant volume.
++     *  This value is set to a constant, implying constant atmospheric composition.
++     */
++    double ratioOfSpecificHeats_;
+ };
+ 
+ //! Typedef for shared-pointer to TabulatedAtmosphere object.
+
+=== modified file 'Tudat/Astrodynamics/ReferenceFrames/CMakeLists.txt'
+--- Tudat/Astrodynamics/ReferenceFrames/CMakeLists.txt	2015-04-17 14:14:12 +0000
++++ Tudat/Astrodynamics/ReferenceFrames/CMakeLists.txt	2015-06-05 13:58:54 +0000
+@@ -36,12 +36,14 @@
+ # Add source files.
+ set(REFERENCEFRAMES_SOURCES
+   "${SRCROOT}${REFERENCEFRAMESDIR}/referenceFrameTransformations.cpp"
++  "${SRCROOT}${REFERENCEFRAMESDIR}/aerodynamicAngleCalculator.cpp"
+   "${SRCROOT}${REFERENCEFRAMESDIR}/apparentAccelerationModel.cpp"
+ )
+ 
+ # Add header files.
+ set(REFERENCEFRAMES_HEADERS 
+   "${SRCROOT}${REFERENCEFRAMESDIR}/referenceFrameTransformations.h"
++  "${SRCROOT}${REFERENCEFRAMESDIR}/aerodynamicAngleCalculator.h"
+   "${SRCROOT}${REFERENCEFRAMESDIR}/apparentAccelerationModel.h"
+ )
+ 
+
+=== added file 'Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.cpp'
+--- Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.cpp	1970-01-01 00:00:00 +0000
++++ Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.cpp	2015-06-10 09:18:34 +0000
+@@ -0,0 +1,208 @@
++
++#include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
++#include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
++#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
++#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
++
++namespace tudat
++{
++
++namespace reference_frames
++{
++
++void AerodynamicAngleCalculator::update( )
++{
++    currentRotationMatrices_.clear( );
++
++    currentBodyFixedState_ = bodyFixedStateFunction_( );
++    Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical(
++                currentBodyFixedState_.segment( 0, 3 ) );
++
++    currentAerodynamicAngles_[ latitude_angle ] = mathematical_constants::PI / 2.0 - sphericalCoordinates( 1 );
++    currentAerodynamicAngles_[ longitude_angle ] = sphericalCoordinates( 2 );
++
++    if( calculateVerticalToAerodynamicFrame_ )
++    {
++        Eigen::Vector3d verticalFrameVelocity =
++                getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
++                    currentAerodynamicAngles_.at( longitude_angle ),
++                    currentAerodynamicAngles_.at( latitude_angle ) ) * currentBodyFixedState_.segment(
++                    3, 3 );
++
++        currentAerodynamicAngles_[ heading_angle ] = std::atan2(
++                    verticalFrameVelocity( 1 ), verticalFrameVelocity( 0 ) );
++        currentAerodynamicAngles_[ flight_path_angle ] = std::asin(
++                    verticalFrameVelocity( 2 ) / verticalFrameVelocity.norm( ) );
++
++        currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
++        currentAerodynamicAngles_[ angle_of_sideslip ] = angleOfSideslipFunction_( );
++        currentAerodynamicAngles_[ bank_angle ] = bankAngleFunction_( );
++    }
++}
++
++Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames(
++        const AerodynamicsReferenceFrames originalFrame,
++        const AerodynamicsReferenceFrames targetFrame )
++{
++    Eigen::Quaterniond rotationToFrame = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
++
++    if( originalFrame == inertial_frame || targetFrame == inertial_frame)
++    {
++        throw( "" );
++    }
++
++    // Check if update settings are consistent with requested frames.
++    if( !calculateVerticalToAerodynamicFrame_ &&
++            ( originalFrame > vertical_frame || targetFrame > vertical_frame ) )
++    {
++        throw( "" );
++    }
++
++    // Set current frame pair.
++    std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames > currentRotationPair =
++            std::make_pair( originalFrame, targetFrame );
++
++    // Calculate rotation matrix if current rotation is not yet calculated.
++    if( currentRotationMatrices_.count( currentRotationPair ) == 0 )
++    {
++        int currentFrameIndex = static_cast< int >( originalFrame );
++        int targetFrameIndex = static_cast< int >( targetFrame );
++
++        if( currentFrameIndex != targetFrameIndex )
++        {
++            bool isTargetFrameUp;
++
++            if( targetFrameIndex > currentFrameIndex )
++            {
++                isTargetFrameUp = 1;
++            }
++            else if( targetFrameIndex < currentFrameIndex )
++            {
++                isTargetFrameUp = 0;
++            }
++            else
++            {
++                throw( "" );
++
++            }
++            while( currentFrameIndex != targetFrameIndex )
++            {
++                switch( currentFrameIndex )
++                {
++                case static_cast< int >( corotating_frame ):
++                {
++                    if( isTargetFrameUp )
++                    {
++                        rotationToFrame =
++                                getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
++                                    currentAerodynamicAngles_.at( longitude_angle ),
++                                    currentAerodynamicAngles_.at( latitude_angle ) ) * rotationToFrame;
++                    }
++                    else
++                    {
++                        throw( "" );
++                    }
++                }
++                case static_cast< int >( vertical_frame ):
++                    if( isTargetFrameUp )
++                    {
++
++                        rotationToFrame =
++                                getLocalVerticalFrameToTrajectoryTransformationQuaternion(
++                                    flight_path_angle, heading_angle ) * rotationToFrame;
++                    }
++                    else
++                    {
++                        rotationToFrame =
++                                getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
++                                    currentAerodynamicAngles_.at( longitude_angle ),
++                                    currentAerodynamicAngles_.at( latitude_angle ) ) * rotationToFrame;
++                    }
++                case static_cast< int >( trajectory_frame ):
++                    if( isTargetFrameUp )
++                    {
++                        rotationToFrame =
++                                getTrajectoryToAerodynamicFrameTransformationQuaternion(
++                                    currentAerodynamicAngles_.at( bank_angle ) ) *
++                                rotationToFrame;
++
++                    }
++                    else
++                    {
++                        rotationToFrame =
++                                getTrajectoryToLocalVerticalFrameTransformationQuaternion(
++                                    currentAerodynamicAngles_.at( flight_path_angle ),
++                                    currentAerodynamicAngles_.at( heading_angle ) ) * rotationToFrame;
++                    }
++                case static_cast< int >( aerodynamic_frame ):
++                    if( isTargetFrameUp )
++                    {
++                        rotationToFrame =
++                                getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
++                                    currentAerodynamicAngles_.at( angle_of_attack ),
++                                    currentAerodynamicAngles_.at( angle_of_sideslip ) ) * rotationToFrame;
++                    }
++                    else
++                    {
++                        rotationToFrame =
++                                getAerodynamicToTrajectoryFrameTransformationQuaternion(
++                                    currentAerodynamicAngles_.at( bank_angle ) ) *
++                                rotationToFrame;
++                    }
++                case static_cast< int >( body_frame ):
++                    if( isTargetFrameUp )
++                    {
++                        throw( "" );
++                    }
++                    else
++                    {
++                        rotationToFrame =
++                                getBodyToAirspeedBasedAerodynamicFrameTransformationQuaternion(
++                                    currentAerodynamicAngles_.at( angle_of_attack ),
++                                    currentAerodynamicAngles_.at( angle_of_sideslip ) ) * rotationToFrame;
++                    }
++                default:
++                    throw( "" );
++                }
++                if( isTargetFrameUp )
++                {
++                    currentFrameIndex++;
++                }
++                else
++                {
++                    currentFrameIndex--;
++                }
++            }
++        }
++        currentRotationMatrices_[ currentRotationPair ] = rotationToFrame;
++        currentRotationMatrices_[ std::make_pair( targetFrame, originalFrame ) ] =
++                rotationToFrame.inverse( );
++    }
++    else
++    {
++        rotationToFrame = currentRotationMatrices_.at( currentRotationPair );
++    }
++    return rotationToFrame;
++}
++
++double AerodynamicAngleCalculator::getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId )
++{
++    double angleValue = TUDAT_NAN;
++    if( currentAerodynamicAngles_.count( angleId ) == 0 )
++    {
++        throw( "" );
++    }
++    else
++    {
++        angleValue = currentAerodynamicAngles_.at( angleId );
++    }
++    return angleValue;
++}
++
++
++}
++
++}
++
++
++
+
+=== added file 'Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h'
+--- Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h	1970-01-01 00:00:00 +0000
++++ Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h	2015-06-10 09:18:34 +0000
+@@ -0,0 +1,89 @@
++#ifndef TUDAT_AERODYNAMICANGLECALCULATOR_H
++#define TUDAT_AERODYNAMICANGLECALCULATOR_H
++
++#include <vector>
++#include <map>
++
++#include <boost/function.hpp>
++#include <boost/lambda/lambda.hpp>
++
++#include <Eigen/Core>
++#include <Eigen/Geometry>
++
++#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
++
++namespace tudat
++{
++
++namespace reference_frames
++{
++
++enum AerodynamicsReferenceFrames
++{
++    inertial_frame = -1,
++    corotating_frame = 0,
++    vertical_frame = 1,
++    trajectory_frame = 2,
++    aerodynamic_frame = 3,
++    body_frame = 4
++};
++
++enum AerodynamicsReferenceFrameAngles
++{
++    latitude_angle,
++    longitude_angle,
++    heading_angle,
++    flight_path_angle,
++    angle_of_attack,
++    angle_of_sideslip,
++    bank_angle
++};
++
++class AerodynamicAngleCalculator
++{
++public:
++    AerodynamicAngleCalculator(
++            const boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction,
++            const boost::function< double( ) > angleOfAttackFunction =
++            boost::lambda::constant ( 0.0 ),
++            const boost::function< double( ) > angleOfSideslipFunction =
++            boost::lambda::constant ( 0.0 ),
++            const boost::function< double( ) > bankAngleFunction =
++            boost::lambda::constant ( 0.0 ),
++            const bool calculateVerticalToAerodynamicFrame = 0 ):
++        bodyFixedStateFunction_( bodyFixedStateFunction ),
++        angleOfAttackFunction_( angleOfAttackFunction ),
++        angleOfSideslipFunction_( angleOfSideslipFunction ),
++        bankAngleFunction_( bankAngleFunction ),
++        calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ){ }
++
++    void update( );
++
++    Eigen::Quaterniond getRotationQuaternionBetweenFrames(
++            const AerodynamicsReferenceFrames originalFrame,
++            const AerodynamicsReferenceFrames targetFrame );
++
++    double getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId );
++
++private:
++    std::map< AerodynamicsReferenceFrameAngles, double > currentAerodynamicAngles_;
++
++    std::map< std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames >, Eigen::Quaterniond > currentRotationMatrices_;
++
++    basic_mathematics::Vector6d currentBodyFixedState_;
++
++    boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction_;
++
++    boost::function< double( ) > angleOfAttackFunction_;
++
++    boost::function< double( ) > angleOfSideslipFunction_;
++
++    boost::function< double( ) > bankAngleFunction_;
++
++    bool calculateVerticalToAerodynamicFrame_;
++};
++
++}
++
++}
++#endif // TUDAT_AERODYNAMICANGLECALCULATOR_H
+

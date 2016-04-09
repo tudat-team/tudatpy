@@ -1,0 +1,508 @@
+diff --git a/Tudat/Astrodynamics/ElectroMagnetism/UnitTests/unitTestRadiationPressureInterface.cpp b/Tudat/Astrodynamics/ElectroMagnetism/UnitTests/unitTestRadiationPressureInterface.cpp
+new file mode 100644
+index 0000000..3c7b35f
+--- /dev/null
++++ b/Tudat/Astrodynamics/ElectroMagnetism/UnitTests/unitTestRadiationPressureInterface.cpp
+@@ -0,0 +1,145 @@
++/*    Copyright (c) 2010-2014, Delft University of Technology
++ *    All rights reserved.
++ *
++ *    Redistribution and use in source and binary forms, with or without modification, are
++ *    permitted provided that the following conditions are met:
++ *      - Redistributions of source code must retain the above copyright notice, this list of
++ *        conditions and the following disclaimer.
++ *      - Redistributions in binary form must reproduce the above copyright notice, this list of
++ *        conditions and the following disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *      - Neither the name of the Delft University of Technology nor the names of its contributors
++ *        may be used to endorse or promote products derived from this software without specific
++ *        prior written permission.
++ *
++ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
++ *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
++ *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
++ *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
++ *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
++ *    OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ *    Changelog
++ *      YYMMDD    Author            Comment
++ *      150408    D. Dirkx          File created.
++ *
++ *    References
++ *
++ *    Notes
++ *
++ */
++
++#define BOOST_TEST_MAIN
++
++
++#include <boost/make_shared.hpp>
++#include <boost/lambda/lambda.hpp>
++#include <boost/test/floating_point_comparison.hpp>
++#include <boost/test/unit_test.hpp>
++
++#include <Eigen/Core>
++
++#include "Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h"
++
++namespace tudat
++{
++namespace unit_tests
++{
++
++BOOST_AUTO_TEST_SUITE( test_radiation_pressure_interface )
++
++//! Test implementation of radiation pressure calculation
++BOOST_AUTO_TEST_CASE( testRadiationPressureCalculation )
++{
++    // Calculate total solar power (Montenbruck & Gill, 2000, p.77)
++    double totalSolarPower = 1367.0 * 4.0 * mathematical_constants::PI *
++            physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT;
++
++    // Calculate radiation pressure at 1 AU.
++    double calculatedRadiationPressure = electro_magnetism::calculateRadiationPressure(
++                totalSolarPower, physical_constants::ASTRONOMICAL_UNIT );
++
++    // Set literature radiation pressure (Montenbruck & Gill, 2000, p.77)
++    double expectedRadiationPressure = 4.56E-6;
++
++    BOOST_CHECK_CLOSE_FRACTION( calculatedRadiationPressure, expectedRadiationPressure, 1.0E-4 );
++
++    // Test calculation of radiation pressure from class interface.
++    boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface =
++            boost::make_shared< electro_magnetism::RadiationPressureInterface >(
++                boost::lambda::constant( totalSolarPower ),
++                boost::lambda::constant(
++                    ( Eigen::Vector3d( )<<
++                      0.0, physical_constants::ASTRONOMICAL_UNIT / std::sqrt( 2.0 ), 0.0 ).finished( ) ),
++                boost::lambda::constant(
++                    ( Eigen::Vector3d( )<<
++                      physical_constants::ASTRONOMICAL_UNIT / std::sqrt( 2.0 ), 0.0, 0.0 ).finished( ) ),
++                1.0, 1.0 );
++    radiationPressureInterface->updateInterface( );
++    double classCalculatedRadiationPressure =
++            radiationPressureInterface->getCurrentRadiationPressure( );
++
++    BOOST_CHECK_CLOSE_FRACTION( classCalculatedRadiationPressure, expectedRadiationPressure,
++                                1.0E-4 );
++    BOOST_CHECK_CLOSE_FRACTION( classCalculatedRadiationPressure, calculatedRadiationPressure,
++                                2.0 * std::numeric_limits< double >::epsilon( ) );
++
++}
++
++//! Test application of shadow function.
++BOOST_AUTO_TEST_CASE( testShadowFunctionLink )
++{
++    // Set test geometry (see testShadowFunctionForPartialShadow for details)
++    double totalSolarPower = 1367.0 * 4.0 * mathematical_constants::PI *
++            physical_constants::ASTRONOMICAL_UNIT * physical_constants::ASTRONOMICAL_UNIT;
++
++    const Eigen::Vector3d occultingBodyPosition = Eigen::Vector3d::Zero( );
++    const double occultedBodyRadius = 6.96e8; // Siedelmann 1992.
++    const double occultingBodyRadius = 6378.137e3; // WGS-84.
++
++    std::vector< boost::function< Eigen::Vector3d( ) > > occultingBodyPositionFunctions;
++    occultingBodyPositionFunctions.push_back( boost::lambda::constant( occultingBodyPosition ) );
++    std::vector< double > occultingBodyRadii;
++    occultingBodyRadii.push_back( occultingBodyRadius );
++
++    Eigen::Vector3d satelliteDirection( 0.018, 1.0, 0.0 );
++    satelliteDirection.normalize( );
++    const Eigen::Vector3d satellitePosition = ( occultingBodyRadius + 1.0e3 ) * satelliteDirection;
++    const Eigen::Vector3d occultedBodyPosition = -149598000.0e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
++
++    // Create radiation pressure interface with occultation.
++    boost::shared_ptr< electro_magnetism::RadiationPressureInterface >
++            occultedRadiationPressureInterface =
++            boost::make_shared< electro_magnetism::RadiationPressureInterface >(
++                boost::lambda::constant( totalSolarPower ),
++                boost::lambda::constant( occultedBodyPosition ),
++                boost::lambda::constant( satellitePosition ),
++                1.0, 1.0, occultingBodyPositionFunctions, occultingBodyRadii,
++                occultedBodyRadius );
++    occultedRadiationPressureInterface->updateInterface( );
++
++    // Create radiation pressure interface without occultation.
++    boost::shared_ptr< electro_magnetism::RadiationPressureInterface >
++            unoccultedRadiationPressureInterface =
++            boost::make_shared< electro_magnetism::RadiationPressureInterface >(
++                boost::lambda::constant( totalSolarPower ),
++                boost::lambda::constant( occultedBodyPosition ),
++                boost::lambda::constant( satellitePosition ),
++                1.0, 1.0 );
++    unoccultedRadiationPressureInterface->updateInterface( );
++
++    // Test application of shadow function (see testShadowFunctionForPartialShadow)
++    BOOST_CHECK_CLOSE_FRACTION(
++                occultedRadiationPressureInterface->getCurrentRadiationPressure( ) /
++                unoccultedRadiationPressureInterface->getCurrentRadiationPressure( ) , 0.4547,
++                                1.0E-4 );
++
++}
++
++BOOST_AUTO_TEST_SUITE_END( )
++
++} // namespace unit_tests
++} // namespace tudat
+diff --git a/Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.cpp b/Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.cpp
+new file mode 100644
+index 0000000..faccb9d
+--- /dev/null
++++ b/Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.cpp
+@@ -0,0 +1,87 @@
++/*    Copyright (c) 2010-2014, Delft University of Technology
++ *    All rights reserved.
++ *
++ *    Redistribution and use in source and binary forms, with or without modification, are
++ *    permitted provided that the following conditions are met:
++ *      - Redistributions of source code must retain the above copyright notice, this list of
++ *        conditions and the following disclaimer.
++ *      - Redistributions in binary form must reproduce the above copyright notice, this list of
++ *        conditions and the following disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *      - Neither the name of the Delft University of Technology nor the names of its contributors
++ *        may be used to endorse or promote products derived from this software without specific
++ *        prior written permission.
++ *
++ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
++ *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
++ *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
++ *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
++ *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
++ *    OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ *    Changelog
++ *      YYMMDD    Author            Comment
++ *      150408    D. Dirkx          File created.
++ *
++ *    References
++ *
++ *    Notes
++ *
++ */
++
++#include <iostream>
++
++#include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
++#include "Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h"
++
++
++namespace tudat
++{
++
++namespace electro_magnetism
++{
++
++//! Calculate radiation pressure at certain distance from a source.
++double calculateRadiationPressure( const double sourcePower, const double distanceFromSource )
++{
++    return sourcePower / ( 4.0 * mathematical_constants::PI * distanceFromSource *
++                           distanceFromSource * physical_constants::SPEED_OF_LIGHT );
++}
++
++//! Function to update the current value of the radiation pressure
++void RadiationPressureInterface::updateInterface( )
++{
++    // Calculate current radiation pressure
++    currentSolarVector_ = sourcePositionFunction_( ) - targetPositionFunction_( );
++    double distanceFromSource = currentSolarVector_.norm( );
++    currentRadiationPressure_ = calculateRadiationPressure(
++                sourcePower_( ), distanceFromSource );
++
++    // Calculate total shadowing due to occulting body; note that multiple concurrent
++    // occultations are not completely correctly (prints warning).
++    double shadowFunction = 1.0;
++    double currentShadowFunction = 1.0;
++    for( unsigned int i = 0; i < occultingBodyPositions_.size( ); i++ )
++    {
++        currentShadowFunction *= mission_geometry::computeShadowFunction(
++                    sourcePositionFunction_( ), sourceRadius_, occultingBodyPositions_[ i ]( ),
++                    occultingBodyRadii_[ i ], targetPositionFunction_( ) );
++
++        if( currentShadowFunction != 1.0 && shadowFunction != 1.0 )
++        {
++            std::cerr<<"Warning, multiple occultation occured in radiation pressure interface, "
++                    <<"results may be slightly in error"<<std::endl;
++        }
++
++        shadowFunction *= currentShadowFunction;
++    }
++
++    currentRadiationPressure_ *= shadowFunction;
++}
++
++}
++
++}
+diff --git a/Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h b/Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h
+new file mode 100644
+index 0000000..2e5d3cb
+--- /dev/null
++++ b/Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h
+@@ -0,0 +1,258 @@
++/*    Copyright (c) 2010-2014, Delft University of Technology
++ *    All rights reserved.
++ *
++ *    Redistribution and use in source and binary forms, with or without modification, are
++ *    permitted provided that the following conditions are met:
++ *      - Redistributions of source code must retain the above copyright notice, this list of
++ *        conditions and the following disclaimer.
++ *      - Redistributions in binary form must reproduce the above copyright notice, this list of
++ *        conditions and the following disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *      - Neither the name of the Delft University of Technology nor the names of its contributors
++ *        may be used to endorse or promote products derived from this software without specific
++ *        prior written permission.
++ *
++ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
++ *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
++ *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
++ *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
++ *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
++ *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
++ *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
++ *    OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ *    Changelog
++ *      YYMMDD    Author            Comment
++ *      150408    D. Dirkx          File created.
++ *
++ *    References
++ *
++ *    Notes
++ *
++ */
++
++#ifndef TUDAT_RADIATIONPRESSUREINTERFACE_H
++#define TUDAT_RADIATIONPRESSUREINTERFACE_H
++
++#include <vector>
++
++#include <boost/function.hpp>
++
++#include <Eigen/Core>
++
++#include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
++#include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
++
++namespace tudat
++{
++
++namespace electro_magnetism
++{
++
++//! Calculate radiation pressure at certain distance from a source.
++/*!
++ *  Calculate radiation pressure at certain distance from a source, in N/m^2.
++ *  \param sourcePower Total power radiated by the source (isotropically) in W.
++ *  \param distanceFromSource Distance from center of (spherical) source where radiation pressure
++ *  is to be calculated.
++ *  \return Radiation pressure at given distance from the source.
++ */
++double calculateRadiationPressure( const double sourcePower, const double distanceFromSource );
++
++//! Class in which the properties of a solar radiation pressure acceleration model are stored.
++/*!
++ *  Class in which the properties of a solar radiation pressure acceleration model are stored and
++ *  the current radiation pressure is calculated based on the source power and geometry. The
++ *  current implementation is limited to a cannonball model.
++ */
++class RadiationPressureInterface{
++public:
++
++    //! Constructor.
++    /*!
++     *  Class construtor for radiation pressure interface.
++     *  \param sourcePower Function returning the current total power (in W) emitted by the source
++     *  body.
++     *  \param sourcePositionFunction Function returning the current position of the source body.
++     *  \param targetPositionFunction Function returning the current position of the target body.
++     *  \param radiationPressureCoefficient Reflectivity coefficient of the target body.
++     *  \param area Reflecting area of the target body.
++     *  \param occultingBodyPositions List of functions returning the positions of the bodies
++     *  causing occultations (default none) NOTE: Multplie concurrent occultations may currently
++     *  result in slighlty underestimted radiation pressure.
++     *  \param occultingBodyRadii List of radii of the bodies causing occultations (default none).
++     *  \param sourceRadius Radius of the source body (used for occultation calculations)
++     */
++    RadiationPressureInterface(
++            const boost::function< double( ) > sourcePower,
++            const boost::function< Eigen::Vector3d( ) > sourcePositionFunction,
++            const boost::function< Eigen::Vector3d( ) > targetPositionFunction,
++            const double radiationPressureCoefficient,
++            const double area,
++            const std::vector< boost::function< Eigen::Vector3d( ) > > occultingBodyPositions =
++            std::vector< boost::function< Eigen::Vector3d( ) > >( ),
++            const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
++            const double sourceRadius = 0.0 ):
++        sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
++        targetPositionFunction_( targetPositionFunction ),
++        radiationPressureCoefficient_( radiationPressureCoefficient ), area_( area ),
++        occultingBodyPositions_( occultingBodyPositions ),
++        occultingBodyRadii_( occultingBodyRadii ),
++        sourceRadius_( sourceRadius ),
++        currentRadiationPressure_( 0.0 ){ }
++
++    //! Destructor
++    ~RadiationPressureInterface( ){ }
++
++    //! Function to update the current value of the radiation pressure
++    /*!
++     *  Function to update the current value of the radiation pressure, based on functions returning
++     *  the positions of the bodies involved and the source power.
++     */
++    void updateInterface( );
++
++    //! Function to return the current radiation pressure due to source at target (in N/m^2).
++    /*!
++     *  Function to return the current radiation pressure due to source at target (in N/m^2).
++     *  \return Current radiation pressure due to source at target (in N/m^2).
++     */
++    double getCurrentRadiationPressure( ) const
++    {
++        return currentRadiationPressure_;
++    }
++
++    //! Function to return the current vector from the target to the source.
++    /*!
++     *  Function to return the current vector from the target to the source.
++     *  \return Current vector from the target to the source.
++     */
++    Eigen::Vector3d getCurrentSolarVector( ) const
++    {
++        return currentSolarVector_;
++    }
++
++    //! Function to return the function returning the current position of the source body.
++    /*!
++     *  Function to return the function returning the current position of the source body.
++     *  \return The function returning the current position of the source body.
++     */
++    boost::function< Eigen::Vector3d( ) > getSourcePositionFunction( ) const
++    {
++        return sourcePositionFunction_ ;
++    }
++
++    //! Function to return the function returning the current position of the target body.
++    /*!
++     *  Function to return the function returning the current position of the target body.
++     *  \return The function returning the current position of the target body.
++     */
++    boost::function< Eigen::Vector3d( ) > getTargetPositionFunction( ) const
++    {
++        return targetPositionFunction_ ;
++    }
++
++    //! Function to return the reflecting area of the target body.
++    /*!
++     *  Function to return the reflecting area of the target body.
++     *  \return The reflecting area of the target body.
++     */
++    double getArea( ) const
++    {
++        return area_;
++    }
++
++    //! Function to return the radiation pressure coefficient of the target body.
++    /*!
++     *  Function to return the radiation pressure coefficient of the target body.
++     *  \return The radiation pressure coefficient of the target body.
++     */
++    double getRadiationPressureCoefficient( ) const
++    {
++        return radiationPressureCoefficient_;
++    }
++
++    //! Function to return the function returning the current total power (in W) emitted by the
++    //! source body.
++    /*!
++     *  Function to return the function returning the current total power (in W) emitted by the
++     *  source body.
++     *  \return  The function returning the current total power emitted by the source body.
++     */
++    boost::function< double( ) > getSourcePowerFunction( ) const
++    {
++        return sourcePower_;
++    }
++
++    //! Function to return the list of functions returning the positions of the bodies causing
++    //! occultations
++    /*!
++     *  Function to return the list of functions returning the positions of the bodies causing
++     *  occultations
++     *  \return List of functions returning the positions of the bodies causing
++     *  occultations
++     */
++    std::vector< boost::function< Eigen::Vector3d( ) > > getOccultingBodyPositions( )
++    {
++        return occultingBodyPositions_;
++    }
++
++    //! Function to return the list of radii of the bodies causing occultations.
++    /*!
++     *  Function to return the list of radii of the bodies causing occultations
++     *  \return List of radii of the bodies causing occultations
++     */
++    std::vector< double > getOccultingBodyRadii( )
++    {
++        return occultingBodyRadii_;
++    }
++
++    //! Function to return the radius of the source body.
++    /*!
++     *  Function to return the source radius of the target body.
++     *  \return The source radius of the target body.
++     */
++    double getSourceRadius( )
++    {
++        return sourceRadius_;
++    }
++
++
++protected:
++
++    //! Function returning the current total power (in W) emitted by the source body.
++    boost::function< double( ) > sourcePower_;
++
++    //! Function returning the current position of the source body.
++    boost::function< Eigen::Vector3d( ) > sourcePositionFunction_;
++
++    //! Function returning the current position of the target body.
++    boost::function< Eigen::Vector3d( ) > targetPositionFunction_;
++
++    //! Radiation pressure coefficient of the target body.
++    double radiationPressureCoefficient_;
++
++    //! Reflecting area of the target body.
++    double area_;
++
++    //! List of functions returning the positions of the bodies causing occultations
++    std::vector< boost::function< Eigen::Vector3d( ) > > occultingBodyPositions_;
++
++    //! List of radii of the bodies causing occultations.
++    std::vector< double > occultingBodyRadii_;
++
++    //! Radius of the source body.
++    double sourceRadius_;
++
++    //! Current radiation pressure due to source at target (in N/m^2).
++    double currentRadiationPressure_;
++
++    //! Current vector from the target to the source.
++    Eigen::Vector3d currentSolarVector_;
++};
++
++}
++
++}
++
++#endif // RADIATIONPRESSUREINTERFACE_H
