@@ -180,10 +180,17 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         getAccelerationModelType( accelerationModelIterator->second.at( i ) );
 
                 // Add translational state of both bodies to update list for current acceleration model.
-                singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
-                            accelerationModelIterator->first );
-                singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
-                            acceleratedBodyIterator->first );
+                if( translationalAccelerationModels.count( accelerationModelIterator->first ) == 0 )
+                {
+                    singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                }
+
+                if( translationalAccelerationModels.count( acceleratedBodyIterator->first ) == 0 )
+                {
+                    singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                }
 
                 // Check acceleration model type and change environment update list accordingly.
                 switch( currentAccelerationModelType )
@@ -197,8 +204,11 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                 accelerationModelIterator->second.at( i ) );
                     if( thirdBodyAcceleration != NULL )
                     {
-                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
-                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                        if( translationalAccelerationModels.count( thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                        thirdBodyAcceleration->getCentralBodyName( ) );
+                        }
                     }
                     else
                     {

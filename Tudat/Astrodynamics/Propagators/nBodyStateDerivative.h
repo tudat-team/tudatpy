@@ -109,8 +109,8 @@ public:
              outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
         {
             // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( ); innerAccelerationIterator !=
-                 outerAccelerationIterator->second.end( ); innerAccelerationIterator++ )
+            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
+                 innerAccelerationIterator != outerAccelerationIterator->second.end( ); innerAccelerationIterator++ )
             {
                 // Update accelerations
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
@@ -125,8 +125,8 @@ public:
              outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
         {
             // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( ); innerAccelerationIterator !=
-                 outerAccelerationIterator->second.end( ); innerAccelerationIterator++ )
+            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
+                 innerAccelerationIterator != outerAccelerationIterator->second.end( ); innerAccelerationIterator++ )
             {
                 // Update accelerations
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
@@ -223,7 +223,7 @@ protected:
      */
     void sumStateDerivativeContributions(
             const Eigen::VectorXd& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >stateDerivative )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         using namespace basic_astrodynamics;
 

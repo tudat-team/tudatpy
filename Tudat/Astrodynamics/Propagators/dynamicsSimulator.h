@@ -161,9 +161,13 @@ public:
         propagatorSettings_( propagatorSettings ), clearNumericalSolutions_( clearNumericalSolutions ),
         setIntegratedResult_( setIntegratedResult )
     {
-        frameManager_ = boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap );
-        integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
-                    propagatorSettings_, bodyMap_, frameManager_ );
+        if( setIntegratedResult_ )
+        {
+            frameManager_ = boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap );
+            integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
+                        propagatorSettings_, bodyMap_, frameManager_ );
+        }
+
         environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >(
                     propagatorSettings_, bodyMap_ );
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(

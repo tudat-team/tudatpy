@@ -92,11 +92,11 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPositionPartial;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPositionPartial;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
         }
     }
 
@@ -111,11 +111,11 @@ public:
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPositionPartial;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPositionPartial;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
         }
     }
 
@@ -157,7 +157,7 @@ public:
             currentCentralBodyState_ = centralBodyState_( );
             currentGravitationalParameter_ = gravitationalParameterFunction_( );
 
-            currentPositionPartial = calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
+            currentPartialWrtPosition_ = calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
                         currentAcceleratedBodyState_,
                         currentCentralBodyState_,
                         currentGravitationalParameter_ );
@@ -207,7 +207,7 @@ protected:
      * ( = -partial of central gravity acceleration w.r.t. position of body exerting acceleration),
      *  calculated and set by update( ) function.
      */
-    Eigen::Matrix3d currentPositionPartial;
+    Eigen::Matrix3d currentPartialWrtPosition_;
 
 };
 
