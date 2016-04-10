@@ -295,6 +295,7 @@ public:
         {
             cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
             sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
+            rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
             this->updateBaseMembers( );
         }
     }
@@ -335,7 +336,11 @@ private:
      */
     const CoefficientMatrixReturningFunction getSineHarmonicsCoefficients;
 
+    //! Function returning the current rotation from body-fixed frame to integration frame.
     boost::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction_;
+
+    //! Current rotation from body-fixed frame to integration frame.
+    Eigen::Quaterniond rotationToIntegrationFrame_;
 
 };
 
@@ -356,13 +361,10 @@ template< typename CoefficientMatrixType >
 Eigen::Vector3d SphericalHarmonicsGravitationalAccelerationModel< CoefficientMatrixType >
 ::getAcceleration( )
 {
-    return rotationFromBodyFixedToIntegrationFrameFunction_( ) *computeGeodesyNormalizedGravitationalAccelerationSum(
-                this->positionOfBodySubjectToAcceleration
-                - this->positionOfBodyExertingAcceleration,
-                gravitationalParameter,
-                equatorialRadius,
-                cosineHarmonicCoefficients,
-                sineHarmonicCoefficients );
+    return rotationToIntegrationFrame_ * computeGeodesyNormalizedGravitationalAccelerationSum(
+                rotationToIntegrationFrame_.inverse( ) *
+                ( this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration ),
+                gravitationalParameter, equatorialRadius, cosineHarmonicCoefficients, sineHarmonicCoefficients );
 }
 
 } // namespace gravitation
