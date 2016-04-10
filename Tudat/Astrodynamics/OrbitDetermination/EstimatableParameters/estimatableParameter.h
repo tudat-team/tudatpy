@@ -42,8 +42,7 @@ typedef std::vector< std::pair< std::string, EstimatebleParametersEnum > > Selec
 //! Base class for a parameter that is to be estimated.
 /*!
  *  Base class for a parameter that is to be estimated. A separate derived class is to be made for each type of parameter
- *  (i.e. gravitational parameter, h2 love number, etc. ). Body initial positions are estimated separately, not using this base class.
- *  \tparam ParameterType Data type of parameter (i.e. double or VectorXd)
+ *  (i.e. gravitational parameter, initial translational state, etc. ).
  */
 template< typename ParameterType >
 class EstimatableParameter
@@ -55,7 +54,7 @@ public:
      *  Constructor taking parameter name and associated body. All parameters are identified by a these two variables.
      *  Any additional information that may be required for uniquely defining a parameter is to be defined in the derived class.
      *  \param parameterName Enum value defining the type of the parameter.
-     *  \param associatedBody Body of which parameter is a property.
+     *  \param associatedBody Reference point on body associated with parameter (empty by default).
      */
     EstimatableParameter( const EstimatebleParametersEnum parameterName,
                           const std::string associatedBody,
@@ -63,22 +62,19 @@ public:
         parameterName_( std::make_pair( parameterName, std::make_pair( associatedBody, pointOnBodyId ) ) ){ }
 
     //! Virtual destructor.
-    /*!
-     *  Virtual destructor.
-     */
     virtual ~EstimatableParameter( ) { }
 
-    //! Function to retrieve the value of the parameter
+    //! Pure virtual function to retrieve the value of the parameter
     /*!
      *  Pure virtual function to retrieve the value of the parameter
      *  \return Current value of parameter.
      */
     virtual ParameterType getParameterValue( ) = 0;
 
-    //! Function to (re)set the value of the parameter.
+    //! Pure virtual function to (re)set the value of the parameter.
     /*!
      *  Pure virtual function to (re)set the value of the parameter.
-     *  \param Value to which the parameter is to be set.
+     *  \param parameterValue to which the parameter is to be set.
      */
     virtual void setParameterValue( ParameterType parameterValue ) = 0;
 
@@ -96,6 +92,12 @@ public:
      */
     virtual int getParameterSize( ) = 0;
 
+    //! Function to return additional identifier for parameter
+    /*!
+     *  Function to return additional identifier for parameter, beyond information stored in parameterName_, default
+     *  none.
+     *  \return Additional identifier for parameter (default empty string).
+     */
     virtual std::string getSecondaryIdentifier( )
     {
         return "";
@@ -104,15 +106,13 @@ public:
 protected:
 
     //! Identifier of parameter.
-    /*!
-     *  Identifier of parameter as a pair of parameter type and body of which parameter is a property.
-     */
     EstimatebleParameterIdentifier parameterName_;
 };
 
 //! Container class for all parameters that are to be estimated.
 /*!
- *  Container class for all parameters that are to be estimated, both of double and vector type.
+ *  Container class for all parameters that are to be estimated. Class is templated with the scalar type used for the
+ *  estimation of any initial dynamical states that may be included
  */
 template< typename InitialStateParameterType = double >
 class EstimatableParameterSet
@@ -122,8 +122,9 @@ public:
     //! Constructor of parameter set.
     /*!
      *  Constructor of parameter set.
-     *  \param doubleParameters Vector of double parameters that are estimated.
-     *  \param vectorParameters Vector of vector parameters that are estimated.
+     *  \param doubleParameters List of double parameters that are estimated.
+     *  \param vectorParameters List of vector parameters that are estimated.
+     *  \param estimateInitialStateParameters List of initial dynamical states that are to be estimated.
      */
     EstimatableParameterSet(
             const std::vector< boost::shared_ptr< EstimatableParameter< double > > >& estimatedDoubleParameters,
@@ -131,14 +132,9 @@ public:
             const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix
             < InitialStateParameterType, Eigen::Dynamic, 1 > > > >& estimateInitialStateParameters =
             ( std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix
-            < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ),
-            const std::vector< boost::shared_ptr< EstimatableParameter< double > > >& considerDoubleParameters =
-            ( std::vector< boost::shared_ptr< EstimatableParameter< double > > >( ) ),
-            const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& considerVectorParameters =
-            ( std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >( ) ) ):
+            < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ) ):
         estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ),
-        estimateInitialStateParameters_( estimateInitialStateParameters ),
-        considerDoubleParameters_( considerDoubleParameters ), considerVectorParameters_( considerVectorParameters )
+        estimateInitialStateParameters_( estimateInitialStateParameters )
     {
         // Initialize total number of parameters to 0.
         estimatedParameterSetSize_ = 0;
@@ -171,59 +167,38 @@ public:
             estimatedParameterSetSize_ += estimatedVectorParameters_[ i ]->getParameterSize( );
         }
 
-
-        // Initialize total number of consider parameters to 0.
+        // Initialize consider parameter set size to 0.
         considerParameterSetSize_ = 0;
-
-        // Iterate over all double parameters and add to parameter size.
-        for( unsigned int i = 0; i < considerDoubleParameters.size( ); i++ )
-        {
-            considerParameterSetSize_ += considerDoubleParameters[ i ]->getParameterSize( );
-            doubleParameters_[ i + estimatedParameterSetSize_ ] = considerDoubleParameters[ i ];
-        }
-
-        // Check input consistency.
-        if( considerParameterSetSize_ != static_cast< int >( considerDoubleParameters.size( ) ) )
-        {
-            throw std::runtime_error( "Error when making estimatable parameter set, inconsistent parameter size of double parameter vector." );
-        }
-
-        // Iterate over all vector parameter, add to total number of parameters and set indices in vectorParameterIndices_
-        int vectorParameterSize;
-        for( unsigned int i = 0; i < considerVectorParameters.size( ); i++ )
-        {
-            vectorParameterSize = considerVectorParameters[ i ]->getParameterSize( );
-            vectorParameters_[ estimatedParameterSetSize_ + considerParameterSetSize_ ] = considerVectorParameters[ i ];
-            considerParameterSetSize_ += vectorParameterSize;
-        }
 
         totalParameterSetSize_ = considerParameterSetSize_ + estimatedParameterSetSize_;
     }
 
-    //! Function to return the total number of parameter values.
+    //! Function to return the total number of parameter values (including consider parameters)
     /*!
-     *  Function to return the total number of parameter values.
-     *  \return Size of parameter vector
+     *  Function to return the total number of parameter values (including consider parameters)
+     *  \return Size of parameter vector (including consider parameters)
      */
     int getParameterSetSize( )
     {
         return totalParameterSetSize_;
     }
 
+    //! Function to return the total number of parameter values (excluding consider parameters).
+    /*!
+     *  Function to return the total number of parameter values (excluding consider parameters)
+     *  \return Size of parameter vector (excluding consider parameters)
+     */
     int getEstimatedParameterSetSize( )
     {
         return estimatedParameterSetSize_;
     }
 
-    int getConsiderParameterSetSize( )
-    {
-        return considerParameterSetSize_;
-    }
-
     //! Function that returns a vector containing all current parameter values
     /*!
-     *  Function that returns a vector containing all current parameter values. Double and vector parameter values are concatenated
-     *  in the order in which they are in the doubleParameters_ and vectorParameters_ members.
+     *  Function that returns a vector containing all current parameter values. The total vector starts with the initial
+     *  state parameters, followed by the double and vector parameters, respectively.
+     *  Initial state, double and vector parameter values are concatenated in the order in which they are set in the
+     *  estimateInitialStateParameters_, doubleParameters_ and vectorParameters_ members.
      *  \return Vector containing all parameter values
      */
     template< typename ParameterScalar >
@@ -234,6 +209,7 @@ public:
 
         int currentStartIndex = 0;
 
+        // Retrieve initial state parameter values.
         for( unsigned int i = 0; i < estimateInitialStateParameters_.size( ); i++ )
         {
             parameterValues.segment( currentStartIndex, estimateInitialStateParameters_[ i ]->getParameterSize( ) ) =

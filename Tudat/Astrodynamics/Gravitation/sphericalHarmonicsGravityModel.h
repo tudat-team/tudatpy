@@ -299,6 +299,7 @@ public:
         {
             cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
             sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
+            rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
             this->updateBaseMembers( );
         }
     }
@@ -341,6 +342,8 @@ private:
 
     boost::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction_;
 
+    Eigen::Quaterniond rotationToIntegrationFrame_;
+
 };
 
 //! Typedef for SphericalHarmonicsGravitationalAccelerationModelXd.
@@ -360,9 +363,10 @@ template< typename CoefficientMatrixType >
 Eigen::Vector3d SphericalHarmonicsGravitationalAccelerationModel< CoefficientMatrixType >
 ::getAcceleration( )
 {
-    return rotationFromBodyFixedToIntegrationFrameFunction_( ) *computeGeodesyNormalizedGravitationalAccelerationSum(
-                this->positionOfBodySubjectToAcceleration
-                - this->positionOfBodyExertingAcceleration,
+   return rotationToIntegrationFrame_ *
+            computeGeodesyNormalizedGravitationalAccelerationSum(
+                rotationToIntegrationFrame_.inverse( ) * (
+                    this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration ),
                 gravitationalParameter,
                 equatorialRadius,
                 cosineHarmonicCoefficients,

@@ -94,16 +94,10 @@ execute( const std::vector< std::string > centralBodies,
     accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfSun;
-    //accelerationsOfSun[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    //accelerationsOfSun[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    //accelerationMap[ "Sun" ] = accelerationsOfSun;
-
     // Set bodies for which initial state is to be estimated and integrated.
     std::vector< std::string > bodiesToIntegrate;
     bodiesToIntegrate.push_back( "Moon" );
     bodiesToIntegrate.push_back( "Earth" );
-    //bodiesToIntegrate.push_back( "Sun" );
 
     unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
 
@@ -122,7 +116,7 @@ execute( const std::vector< std::string > centralBodies,
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             boost::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, TimeType( initialEphemerisTime ),
-              TimeType( finalEphemerisTime ), 300.0 );
+              TimeType( finalEphemerisTime ), 1800.0 );
 
 
     // Set initial states of bodies to integrate.
@@ -193,12 +187,10 @@ BOOST_AUTO_TEST_CASE( test_variational_equation_calculation )
 
     centralBodies[ 0 ] = "SSB";
     centralBodies[ 1 ] = "SSB";
-    //    //centralBodies[ 2 ] = "SSB";
     centralBodiesSet.push_back( centralBodies );
 
     centralBodies[ 0 ] = "Earth";
     centralBodies[ 1 ] = "Sun";
-    //centralBodies[ 2 ] = "SSB";
     centralBodiesSet.push_back( centralBodies );
 
 
@@ -211,6 +203,8 @@ BOOST_AUTO_TEST_CASE( test_variational_equation_calculation )
 
     for( unsigned int i = 0; i < centralBodiesSet.size( ); i++ )
     {
+        std::cout<<"test"<<std::endl;
+
         currentOutput = execute< double, double >( centralBodiesSet[ i ] );
         Eigen::MatrixXd stateTransitionMatrixAtEpoch = currentOutput.first.at( 0 );
         Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 12, 12 );

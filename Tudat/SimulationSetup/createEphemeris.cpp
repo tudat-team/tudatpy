@@ -35,7 +35,9 @@ boost::shared_ptr< Ephemeris > createTabulatedEphemerisFromSpice(
         const double endTime,
         const double timeStep,
         const std::string& observerName,
-        const std::string& referenceFrameName )
+        const std::string& referenceFrameName,
+        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
     using namespace interpolators;
 
@@ -51,10 +53,9 @@ boost::shared_ptr< Ephemeris > createTabulatedEphemerisFromSpice(
     }
 
     // Create interpolator.
-    boost::shared_ptr< LagrangeInterpolator< double, basic_mathematics::Vector6d > > interpolator =
-            boost::make_shared< LagrangeInterpolator< double, basic_mathematics::Vector6d > >(
-                timeHistoryOfState, 6, huntingAlgorithm,
-                lagrange_cubic_spline_boundary_interpolation );
+    boost::shared_ptr< OneDimensionalInterpolator< double, basic_mathematics::Vector6d > > interpolator =
+            interpolators::createOneDimensionalInterpolator(
+                timeHistoryOfState, interpolatorSettings );
 
     // Create ephemeris and return.
     return boost::make_shared< TabulatedCartesianEphemeris< > >(
@@ -127,7 +128,8 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                         interpolatedEphemerisSettings->getFinalTime( ),
                         interpolatedEphemerisSettings->getTimeStep( ),
                         interpolatedEphemerisSettings->getFrameOrigin( ),
-                        interpolatedEphemerisSettings->getFrameOrientation( ) );
+                        interpolatedEphemerisSettings->getFrameOrientation( ),
+                        interpolatedEphemerisSettings->getInterpolatorSettings( ) );
         }
         break;
     }

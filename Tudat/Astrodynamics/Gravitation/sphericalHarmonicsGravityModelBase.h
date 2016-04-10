@@ -127,12 +127,11 @@ public:
      * \return True; this should be modified to return a flag indicating if the update was
      *          successful.
      */
-    bool updateBaseMembers( )
+    void updateBaseMembers( )
     {
         this->gravitationalParameter = this->gravitationalParameterFunction( );
         this->positionOfBodySubjectToAcceleration = this->subjectPositionFunction( );
         this->positionOfBodyExertingAcceleration  = this->sourcePositionFunction( );
-        return true;
     }
 
     boost::function< double( ) > getGravitationalParameterFunction( )

@@ -476,8 +476,6 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         updater->updateEnvironment(
                     0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
                     boost::assign::list_of( transational_state ) );
-
-
     }
 
     {

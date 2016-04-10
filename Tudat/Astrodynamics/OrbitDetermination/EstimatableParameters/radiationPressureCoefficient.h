@@ -22,9 +22,7 @@ public:
             std::string& associatedBody ):
         EstimatableParameter< double >( radiation_pressure_coefficient, associatedBody ),
         radiationPressureInterface_( radiationPressureInterface )
-    {
-
-    }
+    { }
 
     ~RadiationPressureCoefficient( ) { }
 

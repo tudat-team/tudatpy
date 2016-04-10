@@ -104,6 +104,11 @@ public:
             // Set current model in member map.
             stateDerivativeModels_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back(
                         stateDerivativeModels.at( i ) );
+
+
+            currentStatesPerTypeInConventionalRepresentation_[ stateDerivativeModels.at( i )->getIntegratedStateType( )  ] =
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                        stateTypeSize_.at( stateDerivativeModels.at( i )->getIntegratedStateType( )  ), 1 );
         }
     }
 
@@ -399,11 +404,7 @@ private:
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
-        {            
-
-            currentStatesPerTypeInConventionalRepresentation_[ stateDerivativeModelsIterator_->first ] =
-                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
-                        stateTypeSize_.at( stateDerivativeModelsIterator_->first ), 1 );
+        {
             int currentStateTypeSize = 0;
 
             // Iterate over all state derivative models of current type

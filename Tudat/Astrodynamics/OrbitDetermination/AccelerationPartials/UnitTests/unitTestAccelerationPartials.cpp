@@ -420,9 +420,9 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunGravitationalParameter,
                                        partialWrtSunGravitationalParameter, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMoonGravitationalParameter,
-                                       Eigen::Vector3d::Zero( ), std::numeric_limits< double >::epsilon(  ) );
+                                       partialWrtMoonGravitationalParameter, std::numeric_limits< double >::epsilon(  ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter,
-                                       Eigen::Vector3d::Zero( ), std::numeric_limits< double >::epsilon(  ) );
+                                       partialWrtEarthGravitationalParameter, std::numeric_limits< double >::epsilon(  ) );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
