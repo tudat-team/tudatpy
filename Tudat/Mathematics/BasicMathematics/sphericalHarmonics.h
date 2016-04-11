@@ -37,12 +37,118 @@
 
 #include <Eigen/Core>
 
+#include <boost/make_shared.hpp>
+
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 
 namespace tudat
 {
 namespace basic_mathematics
 {
+
+class SphericalHarmonicsCache
+{
+public:
+
+    SphericalHarmonicsCache( )
+    {
+        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( );
+
+        currentLongitude_ = TUDAT_NAN;
+        referenceRadiusRatio_ = TUDAT_NAN;
+
+        resetMaximumDegreeAndOrder( 0, 0 );
+    }
+
+    SphericalHarmonicsCache( const int maximumDegree, const int maximumOrder )
+    {
+        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( maximumDegree, maximumOrder );
+
+        currentLongitude_ = TUDAT_NAN;
+        referenceRadiusRatio_ = TUDAT_NAN;
+
+        resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
+    }
+
+    void resetMaximumDegreeAndOrder( const int degree, const int order );
+
+    void updateSines( const double longitude )
+    {
+        if( !(currentLongitude_ == longitude ) )
+        {
+            currentLongitude_ = longitude;
+            for( unsigned int i = 0; i < sinesOfLongitude_.size( ); i++ )
+            {
+                sinesOfLongitude_[ i ] = std::sin( static_cast< double >( i ) * longitude );
+                cosinesOfLongitude_[ i ] = std::cos( static_cast< double >( i ) * longitude );
+            }
+        }
+    }
+    void updateRadiusPowers( const double referenceRadiusRatio )
+    {
+        if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
+        {
+            referenceRadiusRatio_ = referenceRadiusRatio;
+            double currentRatioPower = 1.0;
+            for( int i = 0; i <= maximumDegree_ + 1; i++ )
+            {
+                referenceRadiusRatioPowers_[ i ] = currentRatioPower;
+                currentRatioPower *= referenceRadiusRatio_;
+            }
+        }
+    }
+
+    double getSineOfMultipleLongitude( const int i )
+    {
+        return sinesOfLongitude_[ i ];
+    }
+
+    double getCosineOfMultipleLongitude( const int i )
+    {
+        return cosinesOfLongitude_[ i ];
+    }
+
+    double getReferenceRadiusRatioPowers( const int i )
+    {
+        return referenceRadiusRatioPowers_[ i ];
+    }
+
+    int getMaximumDegree( ){ return maximumDegree_; }
+
+    int getMaximumOrder( ){ return maximumOrder_; }
+
+    double getCurrentLongitude( ){ return currentLongitude_; }
+
+    boost::shared_ptr< LegendreCache > getLegendreCache( )
+    {
+        return sphericalHarmonicsCache_;
+    }
+
+private:
+
+    int maximumDegree_;
+
+    int maximumOrder_;
+
+    double currentLongitude_;
+
+    double referenceRadiusRatio_;
+
+    std::vector< double > legendreValues_;
+
+    std::vector< double > sinesOfLongitude_;
+
+    std::vector< double > cosinesOfLongitude_;
+
+    std::vector< double > referenceRadiusRatioPowers_;
+
+    double returnValue_ ;
+
+    boost::shared_ptr< LegendreCache > sphericalHarmonicsCache_;
+
+
+
+};
 
 //! Spherical coordinate indices.
 enum SphericalCoordinatesIndices{ radiusIndex, latitudeIndex, longitudeIndex };
@@ -135,7 +241,7 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double sineHarmonicCoefficient,
                                           const double legendrePolynomial,
                                           const double legendrePolynomialDerivative,
-                                          LegendreCache* legendreCache );
+                                          boost::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 } // namespace basic_mathematics
 } // namespace tudat
