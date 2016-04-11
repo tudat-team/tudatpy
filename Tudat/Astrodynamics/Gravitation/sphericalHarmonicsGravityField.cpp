@@ -64,7 +64,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         const double referenceRadius,
         const Eigen::MatrixXd& cosineCoefficients,
         const Eigen::MatrixXd& sineCoefficients,
-        basic_mathematics::LegendreCache* legendreCache,
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int minimumumDegree,
         const int minimumumOrder )
 {
@@ -108,7 +108,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         {
             // Calculate legendre polynomial (geodesy-normalized) at current degree and order
             legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
-                        degree, order, std::sin( latitude ), legendreCache );
+                        degree, order, std::sin( latitude ), sphericalHarmonicsCache->getLegendreCache( ) );
 
             // Calculate contribution to potential from current degree and order
             singleDegreeTerm += legendrePolynomial * ( cosineCoefficients( degree, order ) *
