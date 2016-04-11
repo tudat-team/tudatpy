@@ -120,7 +120,9 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     // Initialize gradient vector.
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
-    sphericalHarmonicsCache->getLegendreCache( )->update( sineOfAngle, basic_mathematics::geodesyNormalizedLegendrePolynomialFunction );
+
+    basic_mathematics::LegendreCache& legendreCacheReference = *sphericalHarmonicsCache->getLegendreCache( );
+    legendreCacheReference.update( sineOfAngle, basic_mathematics::geodesyNormalizedLegendrePolynomialFunction );
 
     // Loop through all degrees.
     for ( int degree = 0; degree < highestDegree; degree++ )
@@ -131,11 +133,11 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
             // Compute geodesy-normalized Legendre polynomials.
             const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
                         degree, order,
-                        sineOfAngle, sphericalHarmonicsCache->getLegendreCache( ) );
+                        sineOfAngle, legendreCacheReference );
             const double incrementedLegendrePolynomial =
                     basic_mathematics::computeGeodesyLegendrePolynomial(
                         degree, order + 1,
-                        sineOfAngle, sphericalHarmonicsCache->getLegendreCache( ) );
+                        sineOfAngle, legendreCacheReference );
 
             // Compute geodesy-normalized Legendre polynomial derivative.
             const double legendrePolynomialDerivative =
@@ -222,15 +224,17 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     const double preMultiplier = gravitationalParameter / equatorialRadius;
 
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
-    sphericalHarmonicsCache->getLegendreCache( )->update( sineOfAngle, basic_mathematics::geodesyNormalizedLegendrePolynomialFunction );
+
+    basic_mathematics::LegendreCache& legendreCacheReference = *sphericalHarmonicsCache->getLegendreCache( );
+    legendreCacheReference.update( sineOfAngle, basic_mathematics::geodesyNormalizedLegendrePolynomialFunction );
 
     // Compute geodesy-normalized Legendre polynomials.
     const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
-                degree, order, sineOfAngle, sphericalHarmonicsCache->getLegendreCache( ) );
+                degree, order, sineOfAngle, legendreCacheReference );
     const double incrementedLegendrePolynomial =
             basic_mathematics::computeGeodesyLegendrePolynomial(
                 degree, order + 1,
-                sineOfAngle, sphericalHarmonicsCache->getLegendreCache( ) );
+                sineOfAngle, legendreCacheReference );
 
     // Compute geodesy-normalized Legendre polynomial derivative.
     const double legendrePolynomialDerivative =
