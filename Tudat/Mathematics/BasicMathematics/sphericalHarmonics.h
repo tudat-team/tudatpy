@@ -49,9 +49,9 @@ enum SphericalCoordinatesIndices{ radiusIndex, latitudeIndex, longitudeIndex };
 
 Eigen::Vector3d computePotentialGradient(
         const double distance,
+        const double radiusPowerTerm,
         const double cosineOfOrderLongitude, const double sineOfOrderLongitude,
         const double cosineOfLatitude,
-        const double referenceRadius,
         const double preMultiplier,
         const int degree,
         const int order,
@@ -59,6 +59,8 @@ Eigen::Vector3d computePotentialGradient(
         const double sineHarmonicCoefficient,
         const double legendrePolynomial,
         const double legendrePolynomialDerivative );
+
+
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.
 /*!
@@ -126,7 +128,6 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double legendrePolynomialDerivative );
 
 Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPosition,
-                                          const double referenceRadius,
                                           const double preMultiplier,
                                           const int degree,
                                           const int order,

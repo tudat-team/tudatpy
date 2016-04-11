@@ -72,22 +72,27 @@ class LegendreCache
 {
 private:
 
-    //! Define Legendre polynomial function pointer.
-    typedef boost::function< double ( int, int, double, LegendreCache* ) > LegendrePolynomialFunction;
 
 public:
+
+    //! Define Legendre polynomial function pointer.
+    typedef boost::function< double ( int, int, double, LegendreCache* ) > LegendrePolynomialFunction;
 
     //! Initialize LegendreCache instance.
     LegendreCache( )
     {
         resetMaximumDegreeAndOrder( 0, 0 );
         currentLongitude_ = TUDAT_NAN;
+        referenceRadiusRatio_ = TUDAT_NAN;
+        returnValue_ = TUDAT_NAN;
     }
 
     LegendreCache( const int maximumDegree, const int maximumOrder )
     {
         resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
         currentLongitude_ = TUDAT_NAN;
+        referenceRadiusRatio_ = TUDAT_NAN;
+        returnValue_ = TUDAT_NAN;
     }
 
     ~LegendreCache( ){ }
@@ -110,6 +115,19 @@ public:
             }
         }
     }
+    void updateRadiusPowers( const double referenceRadiusRatio )
+    {
+        if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
+        {
+            referenceRadiusRatio_ = referenceRadiusRatio;
+            double currentRatioPower = 1.0;
+            for( int i = 0; i <= maximumDegree_ + 1; i++ )
+            {
+                referenceRadiusRatioPowers_[ i ] = currentRatioPower;
+                currentRatioPower *= referenceRadiusRatio_;
+            }
+        }
+    }
 
     double getSineOfMultipleLongitude( const int i )
     {
@@ -121,10 +139,22 @@ public:
         return cosinesOfLongitude_[ i ];
     }
 
+    double getReferenceRadiusRatioPowers( const int i )
+    {
+        return referenceRadiusRatioPowers_[ i ];
+    }
+
+
     double getCurrentPolynomialParameter( )
     {
         return currentPolynomialParameter_;
     }
+
+    double getCurrentPolynomialParameterComplement( )
+    {
+        return currentPolynomialParameterComplement_;
+    }
+
 
     //! Get Legendre polynomial value from either cache or from computation.
     /*!
@@ -137,7 +167,7 @@ public:
     * \return Legendre polynomial value.
     */
     double getOrElseUpdate( const int degree, const int order, const double polynomialParameter,
-                            const LegendrePolynomialFunction legendrePolynomialFunction );
+                            const LegendrePolynomialFunction& legendrePolynomialFunction );
 
     double getNormalizationCoefficient( int i, int j )
     {
@@ -159,15 +189,24 @@ private:
 
     double currentPolynomialParameter_;
 
+    double currentPolynomialParameterComplement_;
+
     double currentLongitude_;
 
-    std::vector< std::vector< double > > legendreValues_;
+    double referenceRadiusRatio_;
+
+    std::vector< double > legendreValues_;
 
     std::vector< std::vector< double > > normalizationCoefficients_;
 
     std::vector< double > sinesOfLongitude_;
 
     std::vector< double > cosinesOfLongitude_;
+
+    std::vector< double > referenceRadiusRatioPowers_;
+
+    double returnValue_ ;
+
 
 };
 
@@ -442,6 +481,9 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
  */
 double calculateLegendreGeodesyNormalizationFactor( const int degree, const int order );
 
+
+static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction = &computeGeodesyLegendrePolynomial;
+static const LegendreCache::LegendrePolynomialFunction legendrePolynomialFunction = &computeLegendrePolynomial;
 
 } // namespace basic_mathematics
 } // namespace tudat
