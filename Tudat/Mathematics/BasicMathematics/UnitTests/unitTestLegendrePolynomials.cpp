@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
     const Vector12i order
             = ( Eigen::VectorXi( 12 ) << 0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 150 ).finished( );
 
-    boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache = boost::make_shared< basic_mathematics::LegendreCache >( 150, 150 );
+    basic_mathematics::LegendreCache legendreCache = basic_mathematics::LegendreCache( 150, 150 );
 
     // Define polynomial parameter.
     const double polynomialParameter = 0.5;
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
     // Declare test values vector.
     Vector10d computedTestValues;
 
-    boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache = boost::make_shared< basic_mathematics::LegendreCache >( 4, 4 );
+    basic_mathematics::LegendreCache legendreCache = basic_mathematics::LegendreCache( 4, 4 );
 
     // Define degree and order vectors.
     const Vector10i degree = ( Eigen::VectorXi( 10 ) << 0, 1, 1, 2, 2, 2, 3, 3, 3, 3 ).finished( );
