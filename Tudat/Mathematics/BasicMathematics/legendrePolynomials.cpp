@@ -46,6 +46,20 @@ namespace tudat
 namespace basic_mathematics
 {
 
+
+//! Initialize LegendreCache instance.
+LegendreCache::LegendreCache( )
+{
+    resetMaximumDegreeAndOrder( 0, 0 );
+    returnValue_ = TUDAT_NAN;
+}
+
+LegendreCache::LegendreCache( const int maximumDegree, const int maximumOrder )
+{
+    resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
+    returnValue_ = TUDAT_NAN;
+}
+
 //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
 void LegendreCache::update( const double polynomialParameter,
                             const LegendrePolynomialFunction legendrePolynomialFunction )
@@ -53,11 +67,12 @@ void LegendreCache::update( const double polynomialParameter,
     currentPolynomialParameter_ = polynomialParameter;
     currentPolynomialParameterComplement_ = std::sqrt( 1.0 - polynomialParameter * polynomialParameter ); // cosine of latitude is always positive!
 
+    LegendreCache& thisReference = *this;
     for( int i = 0; i <= maximumDegree_; i++ )
     {
         for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder_ ) ) ; j++ )
         {
-            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction( i, j, polynomialParameter, shared_from_this( ) );
+            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction( i, j, polynomialParameter, thisReference );
         }
     }
 }
@@ -75,11 +90,18 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int degree, const int orde
 //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
 double LegendreCache::getOrElseUpdate(
         const int degree, const int order, const double polynomialParameter,
-        const LegendrePolynomialFunction& legendrePolynomialFunction )
+        const bool useGeodesyNormalizedFunction )
 {
     if( ! ( polynomialParameter == currentPolynomialParameter_ ) )
     {
-        update( polynomialParameter, legendrePolynomialFunction );
+        if( useGeodesyNormalizedFunction )
+        {
+            update( polynomialParameter, geodesyNormalizedLegendrePolynomialFunction );
+        }
+        else
+        {
+            update( polynomialParameter, regularLegendrePolynomialFunction );
+        }
     }
 
     if( degree > maximumDegree_ || order > maximumOrder_ )
@@ -104,7 +126,7 @@ double LegendreCache::getOrElseUpdate(
 double computeLegendrePolynomial( const int degree,
                                   const int order,
                                   const double polynomialParameter,
-                                  boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache )
+                                  LegendreCache& legendreCache )
 {
     // If degree or order is negative...
     if ( degree < 0 || order < 0 )
@@ -137,12 +159,12 @@ double computeLegendrePolynomial( const int degree,
     else if ( degree == order )
     {
         // Obtain polynomial of degree one and order one.
-        const double degreeOneOrderOnePolynomial = legendreCache->getOrElseUpdate(
-                    1, 1, polynomialParameter, legendrePolynomialFunction);
+        const double degreeOneOrderOnePolynomial = legendreCache.getOrElseUpdate(
+                    1, 1, polynomialParameter, 0 );
 
         // Obtain prior sectoral polynomial.
-        const double priorSectoralPolynomial = legendreCache->getOrElseUpdate(
-                    degree - 1, order - 1, polynomialParameter, legendrePolynomialFunction);
+        const double priorSectoralPolynomial = legendreCache.getOrElseUpdate(
+                    degree - 1, order - 1, polynomialParameter, 0 );
 
         // Compute polynomial.
         return computeLegendrePolynomialDiagonal(
@@ -153,12 +175,12 @@ double computeLegendrePolynomial( const int degree,
     else
     {
         // Obtain prior degree polynomial.
-        const double oneDegreePriorPolynomial = legendreCache->getOrElseUpdate(
-                    degree - 1, order, polynomialParameter, legendrePolynomialFunction);
+        const double oneDegreePriorPolynomial = legendreCache.getOrElseUpdate(
+                    degree - 1, order, polynomialParameter, 0 );
 
         // Obtain two degrees prior polynomial.
-        const double twoDegreesPriorPolynomial = legendreCache->getOrElseUpdate(
-                    degree - 2, order, polynomialParameter, legendrePolynomialFunction);
+        const double twoDegreesPriorPolynomial = legendreCache.getOrElseUpdate(
+                    degree - 2, order, polynomialParameter, 0 );
 
         // Compute polynomial.
         return computeLegendrePolynomialVertical( degree,
@@ -173,7 +195,7 @@ double computeLegendrePolynomial( const int degree,
 double computeGeodesyLegendrePolynomial( const int degree,
                                          const int order,
                                          const double polynomialParameter,
-                                         boost::shared_ptr< basic_mathematics::LegendreCache > geodesyLegendreCache )
+                                         LegendreCache& geodesyLegendreCache )
 {
     // If degree or order is negative...
     if ( degree < 0 || order < 0 )
@@ -206,12 +228,12 @@ double computeGeodesyLegendrePolynomial( const int degree,
     else if ( degree == order )
     {
         // Obtain polynomial of degree one and order one.
-        double degreeOneOrderOnePolynomial = geodesyLegendreCache->getOrElseUpdate(
-                    1, 1, polynomialParameter, geodesyNormalizedLegendrePolynomialFunction );
+        double degreeOneOrderOnePolynomial = geodesyLegendreCache.getOrElseUpdate(
+                    1, 1, polynomialParameter, 1 );
 
         // Obtain prior sectoral polynomial.
-        double priorSectoralPolynomial = geodesyLegendreCache->getOrElseUpdate(
-                    degree - 1, order - 1, polynomialParameter, geodesyNormalizedLegendrePolynomialFunction);
+        double priorSectoralPolynomial = geodesyLegendreCache.getOrElseUpdate(
+                    degree - 1, order - 1, polynomialParameter, 1 );
 
         // Compute polynomial.
         return computeGeodesyLegendrePolynomialDiagonal(
@@ -222,12 +244,12 @@ double computeGeodesyLegendrePolynomial( const int degree,
     else
     {
         // Obtain prior degree polynomial.
-        double oneDegreePriorPolynomial = geodesyLegendreCache->getOrElseUpdate(
-                    degree - 1, order, polynomialParameter, geodesyNormalizedLegendrePolynomialFunction);
+        double oneDegreePriorPolynomial = geodesyLegendreCache.getOrElseUpdate(
+                    degree - 1, order, polynomialParameter, 1 );
 
         // Obtain two degrees prior polynomial.
-        double twoDegreesPriorPolynomial = geodesyLegendreCache->getOrElseUpdate(
-                    degree - 2, order, polynomialParameter, geodesyNormalizedLegendrePolynomialFunction);
+        double twoDegreesPriorPolynomial = geodesyLegendreCache.getOrElseUpdate(
+                    degree - 2, order, polynomialParameter, 1 );
 
         // Compute polynomial.
         return computeGeodesyLegendrePolynomialVertical( degree,

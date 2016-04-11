@@ -124,6 +124,7 @@ public:
         return sphericalHarmonicsCache_;
     }
 
+
 private:
 
     int maximumDegree_;
