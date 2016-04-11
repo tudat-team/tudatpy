@@ -97,7 +97,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo1 )
                 degree,
                 order,
                 cosineCoefficient,
-                sineCoefficient );
+                sineCoefficient,
+                new basic_mathematics::LegendreCache( 3, 1 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -140,7 +141,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo2 )
                 degree,
                 order,
                 cosineCoefficient,
-                sineCoefficient );
+                sineCoefficient,
+                new basic_mathematics::LegendreCache( 3, 2 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -183,7 +185,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo3 )
                 degree,
                 order,
                 cosineCoefficient,
-                sineCoefficient );
+                sineCoefficient,
+                new basic_mathematics::LegendreCache( 3, 3 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -240,7 +243,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo4 )
                 gravitationalParameter,
                 planetaryRadius,
                 cosineCoefficients,
-                sineCoefficients );
+                sineCoefficients,
+                new basic_mathematics::LegendreCache( 6, 6 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].

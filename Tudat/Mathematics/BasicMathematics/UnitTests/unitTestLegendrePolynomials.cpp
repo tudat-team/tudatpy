@@ -81,6 +81,8 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
     const Vector12i order
             = ( Eigen::VectorXi( 12 ) << 0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 150 ).finished( );
 
+    basic_mathematics::LegendreCache* legendreCache = new basic_mathematics::LegendreCache( 150, 150 );
+
     // Define polynomial parameter.
     const double polynomialParameter = 0.5;
 
@@ -91,7 +93,8 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
         computedTestValues( index ) = basic_mathematics::computeLegendrePolynomial(
                     degree( index ),
                     order( index ),
-                    polynomialParameter );
+                    polynomialParameter,
+                    legendreCache );
     }
 
     // Set expected values. These values have been obtained from the MATLAB function "legendre"
@@ -125,6 +128,8 @@ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
     // Declare test values vector.
     Vector10d computedTestValues;
 
+    basic_mathematics::LegendreCache* legendreCache = new basic_mathematics::LegendreCache( 4, 4 );
+
     // Define degree and order vectors.
     const Vector10i degree = ( Eigen::VectorXi( 10 ) << 0, 1, 1, 2, 2, 2, 3, 3, 3, 3 ).finished( );
     const Vector10i order = ( Eigen::VectorXi( 10 ) << 0, 0, 1, 0, 1, 2, 0, 1, 2, 3 ).finished( );
@@ -139,7 +144,7 @@ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
         computedTestValues( index ) = basic_mathematics::computeGeodesyLegendrePolynomial(
                     degree( index ),
                     order( index ),
-                    polynomialParameter );
+                    polynomialParameter, legendreCache );
     }
 
     // Set expected values. These values have been obtained from the MATLAB subfunction
