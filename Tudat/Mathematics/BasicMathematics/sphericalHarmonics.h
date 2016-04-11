@@ -50,9 +50,9 @@ class SphericalHarmonicsCache
 {
 public:
 
-    SphericalHarmonicsCache( )
+    SphericalHarmonicsCache( const bool useGeodesyNormalization = 1 )
     {
-        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( );
+        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( useGeodesyNormalization );
 
         currentLongitude_ = TUDAT_NAN;
         referenceRadiusRatio_ = TUDAT_NAN;
@@ -60,9 +60,9 @@ public:
         resetMaximumDegreeAndOrder( 0, 0 );
     }
 
-    SphericalHarmonicsCache( const int maximumDegree, const int maximumOrder )
+    SphericalHarmonicsCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 )
     {
-        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( maximumDegree, maximumOrder );
+        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( maximumDegree, maximumOrder, useGeodesyNormalization );
 
         currentLongitude_ = TUDAT_NAN;
         referenceRadiusRatio_ = TUDAT_NAN;
