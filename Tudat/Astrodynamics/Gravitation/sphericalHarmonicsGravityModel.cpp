@@ -113,6 +113,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
 
     legendreCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
+    legendreCache->updateRadiusPowers( equatorialRadius / sphericalpositionOfBodySubjectToAcceleration( 0 ) );
 
     // Compute gradient premultiplier.
     const double preMultiplier = gravitationalParameter / equatorialRadius;
@@ -146,7 +147,6 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
             // Compute the potential gradient of a single spherical harmonic term.
             sphericalGradient += basic_mathematics::computePotentialGradient(
                         sphericalpositionOfBodySubjectToAcceleration,
-                        equatorialRadius,
                         preMultiplier,
                         degree,
                         order,
@@ -215,6 +215,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     // Compute longitude coordinate.
     sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
     legendreCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
+    legendreCache->updateRadiusPowers( equatorialRadius / sphericalpositionOfBodySubjectToAcceleration( 0 ) );
 
     // Compute gradient premultiplier.
     const double preMultiplier = gravitationalParameter / equatorialRadius;
@@ -239,7 +240,6 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     // Compute the potential gradient resulting from the spherical harmonic term.
     const Eigen::Vector3d sphericalGradient = basic_mathematics::computePotentialGradient(
                 sphericalpositionOfBodySubjectToAcceleration,
-                equatorialRadius,
                 preMultiplier,
                 degree,
                 order,
