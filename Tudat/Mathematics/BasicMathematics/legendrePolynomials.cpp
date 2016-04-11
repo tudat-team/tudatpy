@@ -54,7 +54,7 @@ void LegendreCache::update( const double polynomialParameter,
     {
         for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder_ ) ) ; j++ )
         {
-            legendreValues_[ i ][ j ] = legendrePolynomialFunction( i, j, polynomialParameter, this );
+            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction( i, j, polynomialParameter, this );
         }
     }
 }
@@ -63,29 +63,25 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int degree, const int orde
 {
     maximumDegree_ = degree;
     maximumOrder_ = order;
-    legendreValues_.resize( maximumDegree_ + 1 );
-    for( int i = 0; i < maximumDegree_ + 1; i++ )
-    {
-        legendreValues_[ i ].resize( i + 1 );
-    }
-    sinesOfLongitude_.resize( maximumDegree_ + 3 );
-    cosinesOfLongitude_.resize( maximumDegree_ + 3 );
+    legendreValues_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
+    sinesOfLongitude_.resize( maximumOrder_ + 3 );
+    cosinesOfLongitude_.resize( maximumOrder_ + 3 );
+    referenceRadiusRatioPowers_.resize( maximumDegree_ + 3 );
 
     currentPolynomialParameter_ = -1.0E100;
+    currentPolynomialParameterComplement_ = -1.0E100;
 }
-
 
 //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
 double LegendreCache::getOrElseUpdate(
         const int degree, const int order, const double polynomialParameter,
-        const LegendrePolynomialFunction legendrePolynomialFunction )
+        const LegendrePolynomialFunction& legendrePolynomialFunction )
 {
-    double returnValue = TUDAT_NAN;
-    //std::cout<<std::setprecision( 10 )<<this<<" "<<polynomialParameter<<" "<<currentPolynomialParameter_<<" "<<degree<<" "<<order<<" "<<
-    //           maximumDegree_<<" "<<maximumOrder_<<std::endl;
     if( polynomialParameter != currentPolynomialParameter_ )
     {
         currentPolynomialParameter_ = polynomialParameter;
+        currentPolynomialParameterComplement_ = std::sqrt( 1.0 - currentPolynomialParameter_ * currentPolynomialParameter_ );
+
         update( polynomialParameter, legendrePolynomialFunction );
     }
 
@@ -96,16 +92,17 @@ double LegendreCache::getOrElseUpdate(
     }
     else if( order > degree )
     {
-        returnValue = 0.0;
+        returnValue_ = 0.0;
     }
     else
     {
-         returnValue = legendreValues_[ degree ][ order ];
+        returnValue_ = legendreValues_[ degree * ( maximumOrder_ + 1  ) + order ];
     }
 
-    return returnValue;
+    return returnValue_;
 
 }
+
 //! Compute unnormalized associated Legendre polynomial.
 double computeLegendrePolynomial( const int degree,
                                   const int order,
@@ -144,11 +141,11 @@ double computeLegendrePolynomial( const int degree,
     {
         // Obtain polynomial of degree one and order one.
         const double degreeOneOrderOnePolynomial = legendreCache->getOrElseUpdate(
-                    1, 1, polynomialParameter, &computeLegendrePolynomial );
+                    1, 1, polynomialParameter, legendrePolynomialFunction);
 
         // Obtain prior sectoral polynomial.
         const double priorSectoralPolynomial = legendreCache->getOrElseUpdate(
-                    degree - 1, order - 1, polynomialParameter, &computeLegendrePolynomial );
+                    degree - 1, order - 1, polynomialParameter, legendrePolynomialFunction);
 
         // Compute polynomial.
         return computeLegendrePolynomialDiagonal(
@@ -160,11 +157,11 @@ double computeLegendrePolynomial( const int degree,
     {
         // Obtain prior degree polynomial.
         const double oneDegreePriorPolynomial = legendreCache->getOrElseUpdate(
-                    degree - 1, order, polynomialParameter, &computeLegendrePolynomial );
+                    degree - 1, order, polynomialParameter, legendrePolynomialFunction);
 
         // Obtain two degrees prior polynomial.
         const double twoDegreesPriorPolynomial = legendreCache->getOrElseUpdate(
-                    degree - 2, order, polynomialParameter, &computeLegendrePolynomial );
+                    degree - 2, order, polynomialParameter, legendrePolynomialFunction);
 
         // Compute polynomial.
         return computeLegendrePolynomialVertical( degree,
@@ -213,11 +210,11 @@ double computeGeodesyLegendrePolynomial( const int degree,
     {
         // Obtain polynomial of degree one and order one.
         double degreeOneOrderOnePolynomial = geodesyLegendreCache->getOrElseUpdate(
-                    1, 1, polynomialParameter, &computeGeodesyLegendrePolynomial );
+                    1, 1, polynomialParameter, geodesyNormalizedLegendrePolynomialFunction );
 
         // Obtain prior sectoral polynomial.
         double priorSectoralPolynomial = geodesyLegendreCache->getOrElseUpdate(
-                    degree - 1, order - 1, polynomialParameter, &computeGeodesyLegendrePolynomial );
+                    degree - 1, order - 1, polynomialParameter, geodesyNormalizedLegendrePolynomialFunction);
 
         // Compute polynomial.
         return computeGeodesyLegendrePolynomialDiagonal(
@@ -229,11 +226,11 @@ double computeGeodesyLegendrePolynomial( const int degree,
     {
         // Obtain prior degree polynomial.
         double oneDegreePriorPolynomial = geodesyLegendreCache->getOrElseUpdate(
-                    degree - 1, order, polynomialParameter, &computeGeodesyLegendrePolynomial );
+                    degree - 1, order, polynomialParameter, geodesyNormalizedLegendrePolynomialFunction);
 
         // Obtain two degrees prior polynomial.
         double twoDegreesPriorPolynomial = geodesyLegendreCache->getOrElseUpdate(
-                    degree - 2, order, polynomialParameter, &computeGeodesyLegendrePolynomial );
+                    degree - 2, order, polynomialParameter, geodesyNormalizedLegendrePolynomialFunction);
 
         // Compute polynomial.
         return computeGeodesyLegendrePolynomialVertical( degree,
@@ -402,10 +399,8 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
 {
     // Return polynomial.
     return std::sqrt( ( 2.0 * static_cast< double >( degree ) + 1.0 )
-                      / ( static_cast< double >( degree + order ) )
-                      / ( static_cast< double >( degree - order ) ) )
-            * ( std::sqrt( 2.0 * static_cast< double >( degree ) - 1.0 ) * polynomialParameter
-                * oneDegreePriorPolynomial
+                      / ( ( static_cast< double >( degree + order ) ) * ( static_cast< double >( degree - order ) ) ) )
+            * ( std::sqrt( 2.0 * static_cast< double >( degree ) - 1.0 ) * polynomialParameter * oneDegreePriorPolynomial
                 - std::sqrt( ( static_cast< double >( degree + order ) - 1.0 )
                              * ( static_cast< double >( degree - order ) - 1.0 )
                              / ( 2.0 * static_cast< double >( degree ) - 3.0 ) )
