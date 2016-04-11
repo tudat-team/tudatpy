@@ -59,6 +59,7 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
@@ -68,7 +69,7 @@ namespace basic_mathematics
 {
 
 //! Class for creating and accessing a back-end cache of Legendre polynomials.
-class LegendreCache
+class LegendreCache: public boost::enable_shared_from_this< LegendreCache >
 {
 private:
 
@@ -76,74 +77,26 @@ private:
 public:
 
     //! Define Legendre polynomial function pointer.
-    typedef boost::function< double ( int, int, double, LegendreCache* ) > LegendrePolynomialFunction;
+    typedef boost::function< double ( int, int, double, boost::shared_ptr< LegendreCache > ) > LegendrePolynomialFunction;
 
     //! Initialize LegendreCache instance.
     LegendreCache( )
     {
         resetMaximumDegreeAndOrder( 0, 0 );
-        currentLongitude_ = TUDAT_NAN;
-        referenceRadiusRatio_ = TUDAT_NAN;
         returnValue_ = TUDAT_NAN;
     }
 
     LegendreCache( const int maximumDegree, const int maximumOrder )
     {
         resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
-        currentLongitude_ = TUDAT_NAN;
-        referenceRadiusRatio_ = TUDAT_NAN;
         returnValue_ = TUDAT_NAN;
     }
-
-    ~LegendreCache( ){ }
 
     void resetMaximumDegreeAndOrder( const int degree, const int order );
 
 
     void update( const double polynomialParameter,
                  const LegendrePolynomialFunction legendrePolynomialFunction );
-
-    void updateSines( const double longitude )
-    {
-        if( !(currentLongitude_ == longitude ) )
-        {
-            currentLongitude_ = longitude;
-            for( unsigned int i = 0; i < sinesOfLongitude_.size( ); i++ )
-            {
-                sinesOfLongitude_[ i ] = std::sin( static_cast< double >( i ) * longitude );
-                cosinesOfLongitude_[ i ] = std::cos( static_cast< double >( i ) * longitude );
-            }
-        }
-    }
-    void updateRadiusPowers( const double referenceRadiusRatio )
-    {
-        if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
-        {
-            referenceRadiusRatio_ = referenceRadiusRatio;
-            double currentRatioPower = 1.0;
-            for( int i = 0; i <= maximumDegree_ + 1; i++ )
-            {
-                referenceRadiusRatioPowers_[ i ] = currentRatioPower;
-                currentRatioPower *= referenceRadiusRatio_;
-            }
-        }
-    }
-
-    double getSineOfMultipleLongitude( const int i )
-    {
-        return sinesOfLongitude_[ i ];
-    }
-
-    double getCosineOfMultipleLongitude( const int i )
-    {
-        return cosinesOfLongitude_[ i ];
-    }
-
-    double getReferenceRadiusRatioPowers( const int i )
-    {
-        return referenceRadiusRatioPowers_[ i ];
-    }
-
 
     double getCurrentPolynomialParameter( )
     {
@@ -169,19 +122,10 @@ public:
     double getOrElseUpdate( const int degree, const int order, const double polynomialParameter,
                             const LegendrePolynomialFunction& legendrePolynomialFunction );
 
-    double getNormalizationCoefficient( int i, int j )
-    {
-        return normalizationCoefficients_[ i ][ j ];
-    }
-
-    void setNormalizationCoefficients( std::vector< std::vector< double > > normalizationCoefficients )
-    { normalizationCoefficients_ = normalizationCoefficients; }
-
     int getMaximumDegree( ){ return maximumDegree_; }
 
     int getMaximumOrder( ){ return maximumOrder_; }
 
-    double getCurrentLongitude( ){ return currentLongitude_; }
 private:
     int maximumDegree_;
 
@@ -191,22 +135,9 @@ private:
 
     double currentPolynomialParameterComplement_;
 
-    double currentLongitude_;
-
-    double referenceRadiusRatio_;
-
     std::vector< double > legendreValues_;
 
-    std::vector< std::vector< double > > normalizationCoefficients_;
-
-    std::vector< double > sinesOfLongitude_;
-
-    std::vector< double > cosinesOfLongitude_;
-
-    std::vector< double > referenceRadiusRatioPowers_;
-
     double returnValue_ ;
-
 
 };
 
@@ -239,7 +170,7 @@ private:
 double computeLegendrePolynomial( const int degree,
                                   const int order,
                                   const double polynomialParameter,
-                                  basic_mathematics::LegendreCache* legendreCache );
+                                  boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache );
 
 //! Compute geodesy-normalized associated Legendre polynomial.
 /*!
@@ -283,7 +214,7 @@ double computeLegendrePolynomial( const int degree,
 double computeGeodesyLegendrePolynomial( const int degree,
                                          const int order,
                                          const double polynomialParameter,
-                                         basic_mathematics::LegendreCache* geodesyLegendreCache );
+                                         boost::shared_ptr< basic_mathematics::LegendreCache > geodesyLegendreCache );
 
 //! Compute derivative of unnormalized Legendre polynomial.
 /*!
