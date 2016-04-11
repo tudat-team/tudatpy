@@ -37,6 +37,8 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
+
 namespace tudat
 {
 namespace basic_mathematics
@@ -44,6 +46,19 @@ namespace basic_mathematics
 
 //! Spherical coordinate indices.
 enum SphericalCoordinatesIndices{ radiusIndex, latitudeIndex, longitudeIndex };
+
+Eigen::Vector3d computePotentialGradient(
+        const double distance,
+        const double cosineOfOrderLongitude, const double sineOfOrderLongitude,
+        const double cosineOfLatitude,
+        const double referenceRadius,
+        const double preMultiplier,
+        const int degree,
+        const int order,
+        const double cosineHarmonicCoefficient,
+        const double sineHarmonicCoefficient,
+        const double legendrePolynomial,
+        const double legendrePolynomialDerivative );
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.
 /*!
@@ -109,6 +124,17 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double sineHarmonicCoefficient,
                                           const double legendrePolynomial,
                                           const double legendrePolynomialDerivative );
+
+Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPosition,
+                                          const double referenceRadius,
+                                          const double preMultiplier,
+                                          const int degree,
+                                          const int order,
+                                          const double cosineHarmonicCoefficient,
+                                          const double sineHarmonicCoefficient,
+                                          const double legendrePolynomial,
+                                          const double legendrePolynomialDerivative,
+                                          LegendreCache* legendreCache );
 
 } // namespace basic_mathematics
 } // namespace tudat
