@@ -88,7 +88,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         const Eigen::Vector3d& bodyFixedPosition, const double gravitationalParameter,
         const double referenceRadius,
         const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients,
-        basic_mathematics::LegendreCache* legendreCache,
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int minimumumDegree = 0, const int minimumumOrder = 0 );
 
 //! Class to represent a spherical harmonic gravity field expansion.
@@ -120,8 +120,8 @@ public:
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
           fixedReferenceFrame_( fixedReferenceFrame )
     {
-        legendreCache_ = new basic_mathematics::LegendreCache( );
-        legendreCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
+        sphericalHarmonicsCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
+        sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
                                                     cosineCoefficients_.cols( ) + 1 );
     }
 
@@ -268,7 +268,7 @@ public:
                     bodyFixedPosition, gravitationalParameter_, referenceRadius_,
                     cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
                     sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
-                    legendreCache_,
+                    sphericalHarmonicsCache_,
                     minimumDegree, minimumOrder );
     }
 
@@ -301,7 +301,7 @@ public:
         return computeGeodesyNormalizedGravitationalAccelerationSum(
                     bodyFixedPosition, gravitationalParameter_, referenceRadius_,
                     cosineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ),
-                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ), legendreCache_ );
+                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ), sphericalHarmonicsCache_ );
     }
 
     //! Function to retrieve the tdentifier for body-fixed reference frame
@@ -340,7 +340,7 @@ protected:
      */
     std::string fixedReferenceFrame_;
 
-    basic_mathematics::LegendreCache* legendreCache_;
+    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 };
 
 } // namespace gravitation

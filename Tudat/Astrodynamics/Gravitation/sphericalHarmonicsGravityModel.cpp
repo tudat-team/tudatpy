@@ -65,7 +65,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const double equatorialRadius,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        basic_mathematics::LegendreCache* legendreCache )
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     // Set highest degree and order.
     const int highestDegree = cosineHarmonicCoefficients.rows( );
@@ -112,8 +112,9 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     // Compute longitude coordinate.
     sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
 
-    legendreCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
-    legendreCache->updateRadiusPowers( equatorialRadius / sphericalpositionOfBodySubjectToAcceleration( 0 ) );
+
+    sphericalHarmonicsCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
+    sphericalHarmonicsCache->updateRadiusPowers( equatorialRadius / sphericalpositionOfBodySubjectToAcceleration( 0 ) );
 
     // Compute gradient premultiplier.
     const double preMultiplier = gravitationalParameter / equatorialRadius;
@@ -121,6 +122,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     // Initialize gradient vector.
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
+    sphericalHarmonicsCache->getLegendreCache( )->update( sineOfAngle, basic_mathematics::geodesyNormalizedLegendrePolynomialFunction );
 
     // Loop through all degrees.
     for ( int degree = 0; degree < highestDegree; degree++ )
@@ -131,11 +133,11 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
             // Compute geodesy-normalized Legendre polynomials.
             const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
                         degree, order,
-                        sineOfAngle, legendreCache );
+                        sineOfAngle, sphericalHarmonicsCache->getLegendreCache( ) );
             const double incrementedLegendrePolynomial =
                     basic_mathematics::computeGeodesyLegendrePolynomial(
                         degree, order + 1,
-                        sineOfAngle, legendreCache );
+                        sineOfAngle, sphericalHarmonicsCache->getLegendreCache( ) );
 
             // Compute geodesy-normalized Legendre polynomial derivative.
             const double legendrePolynomialDerivative =
@@ -153,7 +155,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
                         cosineHarmonicCoefficients( degree, order ),
                         sineHarmonicCoefficients( degree, order ),
                         legendrePolynomial,
-                        legendrePolynomialDerivative, legendreCache );
+                        legendrePolynomialDerivative, sphericalHarmonicsCache );
         }
     }
 
@@ -172,7 +174,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const int order,
         const double cosineHarmonicCoefficient,
         const double sineHarmonicCoefficient,
-        basic_mathematics::LegendreCache* legendreCache )
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration;
@@ -214,21 +216,23 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
 
     // Compute longitude coordinate.
     sphericalpositionOfBodySubjectToAcceleration( 2 ) = cylindricalCoordinates( 1 );
-    legendreCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
-    legendreCache->updateRadiusPowers( equatorialRadius / sphericalpositionOfBodySubjectToAcceleration( 0 ) );
+
+    sphericalHarmonicsCache->updateSines( sphericalpositionOfBodySubjectToAcceleration( 2 ) );
+    sphericalHarmonicsCache->updateRadiusPowers( equatorialRadius / sphericalpositionOfBodySubjectToAcceleration( 0 ) );
 
     // Compute gradient premultiplier.
     const double preMultiplier = gravitationalParameter / equatorialRadius;
 
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
+    sphericalHarmonicsCache->getLegendreCache( )->update( sineOfAngle, basic_mathematics::geodesyNormalizedLegendrePolynomialFunction );
 
     // Compute geodesy-normalized Legendre polynomials.
     const double legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
-                degree, order, sineOfAngle, legendreCache );
+                degree, order, sineOfAngle, sphericalHarmonicsCache->getLegendreCache( ) );
     const double incrementedLegendrePolynomial =
             basic_mathematics::computeGeodesyLegendrePolynomial(
                 degree, order + 1,
-                sineOfAngle, legendreCache );
+                sineOfAngle, sphericalHarmonicsCache->getLegendreCache( ) );
 
     // Compute geodesy-normalized Legendre polynomial derivative.
     const double legendrePolynomialDerivative =
@@ -246,7 +250,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
                 cosineHarmonicCoefficient,
                 sineHarmonicCoefficient,
                 legendrePolynomial,
-                legendrePolynomialDerivative, legendreCache );
+                legendrePolynomialDerivative, sphericalHarmonicsCache );
 
     // Convert from spherical gradient to Cartesian gradient (which equals acceleration vector),
     // and return resulting acceleration vector.

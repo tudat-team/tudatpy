@@ -52,11 +52,15 @@ namespace basic_mathematics
 void LegendreCache::update( const double polynomialParameter,
                             const LegendrePolynomialFunction legendrePolynomialFunction )
 {
+    currentPolynomialParameter_ = polynomialParameter;
+    currentPolynomialParameterComplement_ = std::sqrt( 1.0 - polynomialParameter * polynomialParameter ); // cosine of latitude is always positive!
+
     for( int i = 0; i <= maximumDegree_; i++ )
     {
         for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder_ ) ) ; j++ )
         {
-            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction( i, j, polynomialParameter, this );
+
+            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction( i, j, polynomialParameter, shared_from_this( ) );
         }
     }
 }
@@ -66,12 +70,9 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int degree, const int orde
     maximumDegree_ = degree;
     maximumOrder_ = order;
     legendreValues_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
-    sinesOfLongitude_.resize( maximumOrder_ + 3 );
-    cosinesOfLongitude_.resize( maximumOrder_ + 3 );
-    referenceRadiusRatioPowers_.resize( maximumDegree_ + 3 );
 
-    currentPolynomialParameter_ = -1.0E100;
-    currentPolynomialParameterComplement_ = -1.0E100;
+    currentPolynomialParameter_ = TUDAT_NAN;
+    currentPolynomialParameterComplement_ = TUDAT_NAN;
 }
 
 //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
@@ -79,11 +80,9 @@ double LegendreCache::getOrElseUpdate(
         const int degree, const int order, const double polynomialParameter,
         const LegendrePolynomialFunction& legendrePolynomialFunction )
 {
-    if( polynomialParameter != currentPolynomialParameter_ )
-    {
-        currentPolynomialParameter_ = polynomialParameter;
-        currentPolynomialParameterComplement_ = std::sqrt( 1.0 - currentPolynomialParameter_ * currentPolynomialParameter_ );
 
+    if( ! ( polynomialParameter == currentPolynomialParameter_ ) )
+    {
         update( polynomialParameter, legendrePolynomialFunction );
     }
 
@@ -109,7 +108,7 @@ double LegendreCache::getOrElseUpdate(
 double computeLegendrePolynomial( const int degree,
                                   const int order,
                                   const double polynomialParameter,
-                                  basic_mathematics::LegendreCache* legendreCache )
+                                  boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache )
 {
     // If degree or order is negative...
     if ( degree < 0 || order < 0 )
@@ -178,7 +177,7 @@ double computeLegendrePolynomial( const int degree,
 double computeGeodesyLegendrePolynomial( const int degree,
                                          const int order,
                                          const double polynomialParameter,
-                                         basic_mathematics::LegendreCache* geodesyLegendreCache )
+                                         boost::shared_ptr< basic_mathematics::LegendreCache > geodesyLegendreCache )
 {
     // If degree or order is negative...
     if ( degree < 0 || order < 0 )

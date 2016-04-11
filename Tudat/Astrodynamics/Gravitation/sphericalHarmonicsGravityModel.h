@@ -49,13 +49,14 @@
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModelBase.h"
-#include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
+#include "Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h"
 
 namespace tudat
 {
@@ -110,7 +111,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const double equatorialRadius,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        basic_mathematics::LegendreCache* legendreCache );
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Compute gravitational acceleration due to single spherical harmonics term.
 /*!
@@ -159,7 +160,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const int order,
         const double cosineHarmonicCoefficient,
         const double sineHarmonicCoefficient,
-        basic_mathematics::LegendreCache* legendreCache );
+        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Template class for general spherical harmonics gravitational acceleration model.
 /*!
@@ -221,7 +222,7 @@ public:
             rotationFromBodyFixedToIntegrationFrameFunction =
             boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
             const bool isMutualAttractionUsed = 0,
-            basic_mathematics::LegendreCache* legendreCache = new basic_mathematics::LegendreCache( ) )
+            boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction,
@@ -232,11 +233,11 @@ public:
           getSineHarmonicsCoefficients( boost::lambda::constant(aSineHarmonicCoefficientMatrix ) ),
           rotationFromBodyFixedToIntegrationFrameFunction_(
               rotationFromBodyFixedToIntegrationFrameFunction ),
-          legendreCache_( legendreCache )
+          sphericalHarmonicsCache_( sphericalHarmonicsCache )
     {
-        legendreCache_->resetMaximumDegreeAndOrder(
-                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), legendreCache_->getMaximumDegree( ) ),
-                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ), legendreCache_->getMaximumOrder( ) ) );
+        sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
+                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), sphericalHarmonicsCache_->getMaximumDegree( ) ),
+                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ), sphericalHarmonicsCache_->getMaximumOrder( ) ) );
         this->updateMembers( );
     }
 
@@ -274,7 +275,7 @@ public:
             rotationFromBodyFixedToIntegrationFrameFunction =
             boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
             const bool isMutualAttractionUsed = 0,
-            basic_mathematics::LegendreCache* legendreCache = new basic_mathematics::LegendreCache( ) )
+            boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
                 positionOfBodyExertingAccelerationFunction,
@@ -283,11 +284,12 @@ public:
           getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
           getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
           rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-          legendreCache_( legendreCache )
+
+          sphericalHarmonicsCache_( sphericalHarmonicsCache )
     {
-        legendreCache_->resetMaximumDegreeAndOrder(
-                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), legendreCache_->getMaximumDegree( ) ),
-                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ), legendreCache_->getMaximumOrder( ) ) );
+        sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
+                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), sphericalHarmonicsCache_->getMaximumDegree( ) ),
+                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ), sphericalHarmonicsCache_->getMaximumOrder( ) ) );
 
 
         this->updateMembers( );
@@ -319,9 +321,9 @@ public:
         }
     }
 
-    basic_mathematics::LegendreCache* getLegendreCache( )
+    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getLegendreCache( )
     {
-        return legendreCache_;
+        return sphericalHarmonicsCache_;
     }
 
 protected:
@@ -364,8 +366,8 @@ private:
 
     Eigen::Quaterniond rotationToIntegrationFrame_;
 
-    basic_mathematics::LegendreCache* legendreCache_;
-};
+    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+                                                                                                                                                                                                                                                                                                                                                                            };
 
 //! Typedef for SphericalHarmonicsGravitationalAccelerationModelXd.
 typedef SphericalHarmonicsGravitationalAccelerationModel< >
@@ -391,7 +393,7 @@ Eigen::Vector3d SphericalHarmonicsGravitationalAccelerationModel< CoefficientMat
                 gravitationalParameter,
                 equatorialRadius,
                 cosineHarmonicCoefficients,
-                sineHarmonicCoefficients, legendreCache_ );
+                sineHarmonicCoefficients, sphericalHarmonicsCache_ );
 }
 
 } // namespace gravitation
