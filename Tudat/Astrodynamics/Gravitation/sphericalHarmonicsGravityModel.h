@@ -54,6 +54,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModelBase.h"
+#include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 
 namespace tudat
 {
@@ -107,7 +108,8 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const double gravitationalParameter,
         const double equatorialRadius,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
-        const Eigen::MatrixXd& sineHarmonicCoefficients );
+        const Eigen::MatrixXd& sineHarmonicCoefficients,
+        basic_mathematics::LegendreCache* legendreCache );
 
 //! Compute gravitational acceleration due to single spherical harmonics term.
 /*!
@@ -155,7 +157,8 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const int degree,
         const int order,
         const double cosineHarmonicCoefficient,
-        const double sineHarmonicCoefficient );
+        const double sineHarmonicCoefficient,
+        basic_mathematics::LegendreCache* legendreCache );
 
 //! Template class for general spherical harmonics gravitational acceleration model.
 /*!
@@ -210,15 +213,20 @@ public:
             const CoefficientMatrixType aCosineHarmonicCoefficientMatrix,
             const CoefficientMatrixType aSineHarmonicCoefficientMatrix,
             const StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
+            basic_mathematics::LegendreCache* legendreCache = new basic_mathematics::LegendreCache( ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction ),
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients(
               boost::lambda::constant(aCosineHarmonicCoefficientMatrix ) ),
-          getSineHarmonicsCoefficients( boost::lambda::constant(aSineHarmonicCoefficientMatrix ) )
+          getSineHarmonicsCoefficients( boost::lambda::constant(aSineHarmonicCoefficientMatrix ) ),
+          legendreCache_( legendreCache )
     {
+        legendreCache_->resetMaximumDegreeAndOrder(
+                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), legendreCache_->getMaximumDegree( ) ),
+                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ), legendreCache_->getMaximumOrder( ) ) );
         this->updateMembers( );
     }
 
@@ -249,14 +257,21 @@ public:
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
+            basic_mathematics::LegendreCache* legendreCache = new basic_mathematics::LegendreCache( ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction ),
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
-          getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction )
+          getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
+          legendreCache_( legendreCache )
     {
+        legendreCache_->resetMaximumDegreeAndOrder(
+                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), legendreCache_->getMaximumDegree( ) ),
+                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ), legendreCache_->getMaximumOrder( ) ) );
+
+
         this->updateMembers( );
     }
 
@@ -279,6 +294,11 @@ public:
         cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
         sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
         this->updateBaseMembers( );
+    }
+
+    basic_mathematics::LegendreCache* getLegendreCache( )
+    {
+        return legendreCache_;
     }
 
 protected:
@@ -316,6 +336,8 @@ private:
      * spherical harmonics expansion.
      */
     const CoefficientMatrixReturningFunction getSineHarmonicsCoefficients;
+
+    basic_mathematics::LegendreCache* legendreCache_;
 };
 
 //! Typedef for SphericalHarmonicsGravitationalAccelerationModelXd.
@@ -341,7 +363,7 @@ Eigen::Vector3d SphericalHarmonicsGravitationalAccelerationModel< CoefficientMat
                 gravitationalParameter,
                 equatorialRadius,
                 cosineHarmonicCoefficients,
-                sineHarmonicCoefficients );
+                sineHarmonicCoefficients, legendreCache_ );
 }
 
 } // namespace gravitation

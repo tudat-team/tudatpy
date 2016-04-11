@@ -88,6 +88,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         const Eigen::Vector3d& bodyFixedPosition, const double gravitationalParameter,
         const double referenceRadius,
         const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients,
+        basic_mathematics::LegendreCache* legendreCache,
         const int minimumumDegree = 0, const int minimumumOrder = 0 );
 
 //! Class to represent a spherical harmonic gravity field expansion.
@@ -122,7 +123,11 @@ public:
         : GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ),
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
           rotationWrapper_( rotationWrapper ), fixedReferenceFrame_( fixedReferenceFrame )
-    { }
+    {
+        legendreCache_ = new basic_mathematics::LegendreCache( );
+        legendreCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
+                                                    cosineCoefficients_.cols( ) + 1 );
+    }
 
     //! Virtual destructor.
     /*!
@@ -280,6 +285,7 @@ public:
                     bodyFixedPosition, gravitationalParameter_, referenceRadius_,
                     cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
                     sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ),
+                    legendreCache_,
                     minimumDegree, minimumOrder );
     }
 
@@ -294,7 +300,7 @@ public:
     Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition )
     {
         return getGradientOfPotential( bodyFixedPosition, cosineCoefficients_.rows( ),
-                                          sineCoefficients_.cols( ) );
+                                       sineCoefficients_.cols( ) );
     }
 
     //! Get the gradient of the potential.
@@ -306,13 +312,13 @@ public:
      *  \return Gradient of potential.
      */
     Eigen::Vector3d getGradientOfPotential( const Eigen::Vector3d& bodyFixedPosition,
-                                                    const double maximumDegree,
-                                                    const double maximumOrder )
+                                            const double maximumDegree,
+                                            const double maximumOrder )
     {
         return computeGeodesyNormalizedGravitationalAccelerationSum(
                     bodyFixedPosition, gravitationalParameter_, referenceRadius_,
                     cosineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ),
-                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ) );
+                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ), legendreCache_ );
     }
 
     //! Function to retrieve the tdentifier for body-fixed reference frame
@@ -358,6 +364,8 @@ protected:
      *  Identifier for body-fixed reference frame
      */
     std::string fixedReferenceFrame_;
+
+    basic_mathematics::LegendreCache* legendreCache_;
 };
 
 } // namespace gravitation

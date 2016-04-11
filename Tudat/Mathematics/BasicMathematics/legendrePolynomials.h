@@ -60,10 +60,116 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 namespace tudat
 {
 namespace basic_mathematics
 {
+
+//! Class for creating and accessing a back-end cache of Legendre polynomials.
+class LegendreCache
+{
+private:
+
+    //! Define Legendre polynomial function pointer.
+    typedef boost::function< double ( int, int, double, LegendreCache* ) > LegendrePolynomialFunction;
+
+public:
+
+    //! Initialize LegendreCache instance.
+    LegendreCache( )
+    {
+        resetMaximumDegreeAndOrder( 0, 0 );
+        currentLongitude_ = TUDAT_NAN;
+    }
+
+    LegendreCache( const int maximumDegree, const int maximumOrder )
+    {
+        resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
+        currentLongitude_ = TUDAT_NAN;
+    }
+
+    ~LegendreCache( ){ }
+
+    void resetMaximumDegreeAndOrder( const int degree, const int order );
+
+
+    void update( const double polynomialParameter,
+                 const LegendrePolynomialFunction legendrePolynomialFunction );
+
+    void updateSines( const double longitude )
+    {
+        if( !(currentLongitude_ == longitude ) )
+        {
+            currentLongitude_ = longitude;
+            for( unsigned int i = 0; i < sinesOfLongitude_.size( ); i++ )
+            {
+                sinesOfLongitude_[ i ] = std::sin( static_cast< double >( i ) * longitude );
+                cosinesOfLongitude_[ i ] = std::cos( static_cast< double >( i ) * longitude );
+            }
+        }
+    }
+
+    double getSineOfMultipleLongitude( const int i )
+    {
+        return sinesOfLongitude_[ i ];
+    }
+
+    double getCosineOfMultipleLongitude( const int i )
+    {
+        return cosinesOfLongitude_[ i ];
+    }
+
+    double getCurrentPolynomialParameter( )
+    {
+        return currentPolynomialParameter_;
+    }
+
+    //! Get Legendre polynomial value from either cache or from computation.
+    /*!
+    * \param degree Degree of requested Legendre polynomial.
+    * \param order Order of requested Legendre polynomial.
+    * \param polynomialParameter Free variable  of requested Legendre polynomial.
+    * \param legendrePolynomialFunction Function which takes degree, order and
+    *          polynomialParameter as arguments. The function must return the corresponding
+    *          Legendre polynomial value.
+    * \return Legendre polynomial value.
+    */
+    double getOrElseUpdate( const int degree, const int order, const double polynomialParameter,
+                            const LegendrePolynomialFunction legendrePolynomialFunction );
+
+    double getNormalizationCoefficient( int i, int j )
+    {
+        return normalizationCoefficients_[ i ][ j ];
+    }
+
+    void setNormalizationCoefficients( std::vector< std::vector< double > > normalizationCoefficients )
+    { normalizationCoefficients_ = normalizationCoefficients; }
+
+    int getMaximumDegree( ){ return maximumDegree_; }
+
+    int getMaximumOrder( ){ return maximumOrder_; }
+
+    double getCurrentLongitude( ){ return currentLongitude_; }
+private:
+    int maximumDegree_;
+
+    int maximumOrder_;
+
+    double currentPolynomialParameter_;
+
+    double currentLongitude_;
+
+    std::vector< std::vector< double > > legendreValues_;
+
+    std::vector< std::vector< double > > normalizationCoefficients_;
+
+    std::vector< double > sinesOfLongitude_;
+
+    std::vector< double > cosinesOfLongitude_;
+
+};
 
 //! Compute unnormalized associated Legendre polynomial.
 /*!
@@ -93,7 +199,8 @@ namespace basic_mathematics
 */
 double computeLegendrePolynomial( const int degree,
                                   const int order,
-                                  const double polynomialParameter );
+                                  const double polynomialParameter,
+                                  basic_mathematics::LegendreCache* legendreCache );
 
 //! Compute geodesy-normalized associated Legendre polynomial.
 /*!
@@ -136,7 +243,8 @@ double computeLegendrePolynomial( const int degree,
 */
 double computeGeodesyLegendrePolynomial( const int degree,
                                          const int order,
-                                         const double polynomialParameter );
+                                         const double polynomialParameter,
+                                         basic_mathematics::LegendreCache* geodesyLegendreCache );
 
 //! Compute derivative of unnormalized Legendre polynomial.
 /*!
@@ -320,111 +428,7 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
                                                  const double oneDegreePriorPolynomial,
                                                  const double twoDegreesPriorPolynomial );
 
-//! Declare structure for arguments of Legendre polynomial (for use in back-end cache).
-struct Point
-{
-public:
 
-    //! Self-referential structure.
-    Point( const int aDegree, const int anOrder, const double aPolynomialParameter )
-        : degree( aDegree ),
-          order( anOrder ),
-          polynomialParameter( aPolynomialParameter )
-    { }
-
-    //! Degree of Legendre polynomial.
-    int degree;
-
-    //! Order of Legendre polynomial.
-    int order;
-
-    //! Polynomial parameter of Legendre polynomial.
-    double polynomialParameter; 
-
-protected:
-
-private:
-};
-
-//! Typedef for shared-pointer to Point object.
-typedef boost::shared_ptr< Point > PointPointer;
-
-//! Define overloaded 'equals' operator for use with 'Point' structure.
-bool operator==( const Point& polynomialArguments1, const Point& polynomialArguments2 );
-
-//! Set hash value.
-std::size_t hash_value( Point const& polynomialArguments );
-
-//! Class for creating and accessing a back-end cache of Legendre polynomials.
-class LegendreCache
-{
-private:
-
-    //! Define Legendre polynomial function pointer.
-    typedef boost::function< double ( int, int, double ) > LegendrePolynomialFunction;
-
-    //! Define map variables type.
-    typedef boost::unordered_map< Point, double > CacheTable;
-
-    //! Define buffer variables type.
-    typedef boost::circular_buffer< Point > CacheHistory;
-
-public:
-
-    //! Initialize LegendreCache instance.
-    LegendreCache( );
-
-    //! Get Legendre polynomial value from either cache or from computation.
-    /*!
-    * \param degree Degree of requested Legendre polynomial.
-    * \param order Order of requested Legendre polynomial.
-    * \param polynomialParameter Free variable  of requested Legendre polynomial.
-    * \param legendrePolynomialFunction Function which takes degree, order and
-    *          polynomialParameter as arguments. The function must return the corresponding
-    *          Legendre polynomial value.
-    * \return Legendre polynomial value.
-    */
-    double getOrElseUpdate( const int degree, const int order, const double polynomialParameter,
-                            const LegendrePolynomialFunction legendrePolynomialFunction );
-
-private:
-
-    //! Hashmap which links a specific degree, order and polynomial parameter to its
-    //! corresponding Legendre polynomial value.
-    CacheTable backendCache;
-
-    //! History buffer.
-    CacheHistory history;
-};
-
-//! Typedef shared-pointer to LegendreCache object.
-typedef boost::shared_ptr< LegendreCache > LegendreCachePointer;
-
-//! Global instances of LegendreCache class for unnormalized polynomials.
-static LegendreCache legendreCache;
-
-//! Global instances of LegendreCache class for geodesy-normalized polynomials.
-static LegendreCache geodesyLegendreCache;
-
-//! Write contents of Legendre polynomial structure to string.
-/*!
- * Writes contents of Legendre polynomial structure, containing degree, order, and value of
- * polynomial parameter, to string.
- * \param legendrePolynomialStructure Structure containing legendre polynomial data.
- * \return String containing degree, order, and value of polynomial paramter stored in structure.
- */
-std::string writeLegendrePolynomialStructureToString( const Point legendrePolynomialStructure );
-
-//! Dump Legendre polynomial cache data to stream (table and history).
-/*!
- * Dumps cached table and history data for Legendre polynomials to given output stream.
- * \param outputStream Output stream.
- * \param cacheTable Cache table containing current values of Legendre polynomials.
- * \param cacheHistory Cached history of Legendre polynomials.
- */
-void dumpLegendrePolynomialCacheData( std::ostream& outputStream,
-                                      boost::unordered_map< Point, double > cacheTable,
-                                      boost::circular_buffer< Point > cacheHistory );
 
 } // namespace basic_mathematics
 } // namespace tudat
