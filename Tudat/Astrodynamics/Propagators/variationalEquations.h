@@ -78,7 +78,6 @@ public:
         // Set parameter partial functions.
         setStatePartialFunctionList( );
         setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate );
-        setUnintegratedBodyPartialList( );
         setParameterPartialFunctionList( parametersToEstimate );
     }
     
@@ -196,9 +195,7 @@ protected:
 private:
     
     void setStatePartialFunctionList( );
-    
-    void setUnintegratedBodyPartialList( );
-    
+        
     template< typename CurrentParameterType >
     void addParameterPartialToList(
             const std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > >& parameterList,
@@ -390,7 +387,7 @@ private:
     boost::function< Eigen::MatrixXd( const double ) > estimatedUnintegratedBodiesStateTransitionMatrixFunction_;
 
     int totalDynamicalStateSize_;
-    
+
     Eigen::MatrixXd currentMatrixDerivative_;
 
     Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > currentLongMatrixDerivative_;

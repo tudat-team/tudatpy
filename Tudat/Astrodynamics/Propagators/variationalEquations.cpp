@@ -186,50 +186,6 @@ void VariationalEquations::setStatePartialFunctionList( )
     }
 }
 
-
-void VariationalEquations::setUnintegratedBodyPartialList( )
-{
-    using namespace tudat::orbit_determination::partial_derivatives;
-
-    for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
-         stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
-         stateDerivativeTypeIterator_++ )
-    {
-        // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
-        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
-        {
-            std::multimap< int, boost::function< Eigen::Matrix3d( ) > > functionListOfBody;
-
-            // Iterate over all bodies to see if body exerting acceleration is also to be estimated (cross-terms)
-            for( unsigned int k = 0; k < estimatedUnintegratedBodies_.size( ); k++ )
-            {
-                // Iterate over all bodies exerting an acceleration on this body.
-                for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
-                {
-                    if( stateDerivativeTypeIterator_->second.at( i ).at( j )->getIntegrationReferencePoint( ).first ==
-                            estimatedUnintegratedBodies_[ k ] )
-                    {
-
-                        std::cerr<<"Error, unintegrated body partials disabled"<<std::endl;
-                        //                        functionListOfBody.insert(
-                        //                                    std::pair< int, boost::function< Eigen::Matrix3d( ) > >
-                        //                                    ( totalDynamicalStateSize_ + k * 6,
-                        //                                      boost::bind( &AccelerationPartial::wrtPositionOfAcceleratingBody,
-                        //                                                   accelerationIterator->second[ j ] ) ) );
-                        //                        functionListOfBody.insert(
-                        //                                    std::pair< int, boost::function< Eigen::Matrix3d( ) > >
-                        //                                    ( totalDynamicalStateSize_ + k * 6 + 3,
-                        //                                      boost::bind( &AccelerationPartial::wrtVelocityOfAcceleratingBody,
-                        //                                                   accelerationIterator->second[ j ] ) ) );
-                    }
-                }
-            }
-        }
-        //unintegratedBodyPartialList_.push_back( functionListOfBody );
-    }
-}
-
-
 }
 
 }
