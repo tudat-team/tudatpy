@@ -98,6 +98,7 @@ double calculateSphericalHarmonicGravitationalPotential(
     }
 
     basic_mathematics::LegendreCache& legendreCacheReference = *sphericalHarmonicsCache->getLegendreCache( );
+    legendreCacheReference.update( std::sin( latitude ) );
 
     // Iterate over all degrees
     for( int degree = startDegree; degree < cosineCoefficients.rows( ); degree++ )
@@ -110,7 +111,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         {
             // Calculate legendre polynomial (geodesy-normalized) at current degree and order
             legendrePolynomial = basic_mathematics::computeGeodesyLegendrePolynomial(
-                        degree, order, std::sin( latitude ), legendreCacheReference );
+                        degree, order, legendreCacheReference );
 
             // Calculate contribution to potential from current degree and order
             singleDegreeTerm += legendrePolynomial * ( cosineCoefficients( degree, order ) *
