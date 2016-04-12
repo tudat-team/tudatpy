@@ -52,7 +52,7 @@ public:
 
     SphericalHarmonicsCache( const bool useGeodesyNormalization = 1 )
     {
-        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( useGeodesyNormalization );
+        legendreCache_ = boost::make_shared< LegendreCache >( useGeodesyNormalization );
 
         currentLongitude_ = TUDAT_NAN;
         referenceRadiusRatio_ = TUDAT_NAN;
@@ -62,7 +62,7 @@ public:
 
     SphericalHarmonicsCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 )
     {
-        sphericalHarmonicsCache_ = boost::make_shared< LegendreCache >( maximumDegree, maximumOrder, useGeodesyNormalization );
+        legendreCache_ = boost::make_shared< LegendreCache >( maximumDegree, maximumOrder, useGeodesyNormalization );
 
         currentLongitude_ = TUDAT_NAN;
         referenceRadiusRatio_ = TUDAT_NAN;
@@ -71,6 +71,42 @@ public:
     }
 
     void resetMaximumDegreeAndOrder( const int degree, const int order );
+
+
+    double getSineOfMultipleLongitude( const int i )
+    {
+        return sinesOfLongitude_[ i ];
+    }
+
+    double getCosineOfMultipleLongitude( const int i )
+    {
+        return cosinesOfLongitude_[ i ];
+    }
+
+    double getReferenceRadiusRatioPowers( const int i )
+    {
+        return referenceRadiusRatioPowers_[ i ];
+    }
+
+    int getMaximumDegree( ){ return maximumDegree_; }
+
+    int getMaximumOrder( ){ return maximumOrder_; }
+
+    double getCurrentLongitude( ){ return currentLongitude_; }
+
+    boost::shared_ptr< LegendreCache > getLegendreCache( )
+    {
+        return legendreCache_;
+    }
+
+    void update( const double radius, const double polynomialParameter, const double longitude, const double referenceRadius )
+    {
+        legendreCache_->update( polynomialParameter );
+        updateSines( longitude );
+        updateRadiusPowers( referenceRadius / radius );
+    }
+
+private:
 
     void updateSines( const double longitude )
     {
@@ -98,35 +134,6 @@ public:
         }
     }
 
-    double getSineOfMultipleLongitude( const int i )
-    {
-        return sinesOfLongitude_[ i ];
-    }
-
-    double getCosineOfMultipleLongitude( const int i )
-    {
-        return cosinesOfLongitude_[ i ];
-    }
-
-    double getReferenceRadiusRatioPowers( const int i )
-    {
-        return referenceRadiusRatioPowers_[ i ];
-    }
-
-    int getMaximumDegree( ){ return maximumDegree_; }
-
-    int getMaximumOrder( ){ return maximumOrder_; }
-
-    double getCurrentLongitude( ){ return currentLongitude_; }
-
-    boost::shared_ptr< LegendreCache > getLegendreCache( )
-    {
-        return sphericalHarmonicsCache_;
-    }
-
-
-private:
-
     int maximumDegree_;
 
     int maximumOrder_;
@@ -134,8 +141,6 @@ private:
     double currentLongitude_;
 
     double referenceRadiusRatio_;
-
-    std::vector< double > legendreValues_;
 
     std::vector< double > sinesOfLongitude_;
 
@@ -145,7 +150,7 @@ private:
 
     double returnValue_ ;
 
-    boost::shared_ptr< LegendreCache > sphericalHarmonicsCache_;
+    boost::shared_ptr< LegendreCache > legendreCache_;
 
 
 
