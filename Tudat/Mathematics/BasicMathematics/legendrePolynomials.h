@@ -55,6 +55,8 @@
 #include <cstddef>
 #include <iostream>
 
+#include <boost/bind.hpp>
+
 #include <boost/circular_buffer.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -77,18 +79,17 @@ private:
 public:
 
     //! Define Legendre polynomial function pointer.
-    typedef boost::function< double ( int, int, double, LegendreCache& ) > LegendrePolynomialFunction;
+    typedef boost::function< double ( int, int, LegendreCache& ) > LegendrePolynomialFunction;
 
     //! Initialize LegendreCache instance.
-    LegendreCache( );
+    LegendreCache( const bool useGeodesyNormalization = 1 );
 
-    LegendreCache( const int maximumDegree, const int maximumOrder );
+    LegendreCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 );
 
     void resetMaximumDegreeAndOrder( const int degree, const int order );
 
 
-    void update( const double polynomialParameter,
-                 const LegendrePolynomialFunction legendrePolynomialFunction );
+    void update( const double polynomialParameter );
 
     double getCurrentPolynomialParameter( )
     {
@@ -111,12 +112,17 @@ public:
     *          Legendre polynomial value.
     * \return Legendre polynomial value.
     */
-    double getOrElseUpdate( const int degree, const int order, const double polynomialParameter,
-                            const bool useGeodesyNormalizedFunction );
+    double getLegendrePolynomial( const int degree, const int order );
 
     int getMaximumDegree( ){ return maximumDegree_; }
 
     int getMaximumOrder( ){ return maximumOrder_; }
+
+    bool getUseGeodesyNormalization( )
+    {
+        return useGeodesyNormalization_;
+    }
+
 
 private:
     int maximumDegree_;
@@ -130,6 +136,10 @@ private:
     std::vector< double > legendreValues_;
 
     double returnValue_ ;
+
+    LegendrePolynomialFunction legendrePolynomialFunction_;
+
+    bool useGeodesyNormalization_;
 
 };
 
@@ -163,8 +173,11 @@ private:
 */
 double computeLegendrePolynomial( const int degree,
                                   const int order,
-                                  const double polynomialParameter,
                                   LegendreCache& legendreCache );
+
+double computeLegendrePolynomial( const int degree,
+                                  const int order,
+                                  const double legendreParameter );
 
 //! Compute geodesy-normalized associated Legendre polynomial.
 /*!
@@ -207,8 +220,11 @@ double computeLegendrePolynomial( const int degree,
 */
 double computeGeodesyLegendrePolynomial( const int degree,
                                          const int order,
-                                         const double polynomialParameter,
                                          LegendreCache& geodesyLegendreCache );
+
+double computeGeodesyLegendrePolynomial( const int degree,
+                                         const int order,
+                                         const double legendreParameter );
 
 //! Compute derivative of unnormalized Legendre polynomial.
 /*!
@@ -394,8 +410,11 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
 
 
 
-static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction = &computeGeodesyLegendrePolynomial;
-static const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction = &computeLegendrePolynomial;
+static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction =
+        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache&  )>( &computeGeodesyLegendrePolynomial ), _1, _2, _3 );
+
+static const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction =
+        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache& )>( &computeLegendrePolynomial ), _1, _2, _3 );
 
 } // namespace basic_mathematics
 } // namespace tudat
