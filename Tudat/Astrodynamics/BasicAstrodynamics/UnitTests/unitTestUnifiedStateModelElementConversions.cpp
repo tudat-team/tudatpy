@@ -34,12 +34,20 @@
 
 #define BOOST_TEST_MAIN
 
+#include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
-#include <tudat/Basics/testMacros.h>
 
-#include <tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelElementConversions.h>
+#include <Eigen/Core>
 
-#include <tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelElementConversions.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
 {
@@ -66,7 +74,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
     // Initializing default Keplerian orbit
     basic_mathematics::Vector6d keplerianElements = Eigen::VectorXd::Zero( 6 );
-    keplerianElements( semiMajorAxisIndex ) = 1.0e7;
+    keplerianElements( semiMajorAxisIndex ) = 1.5e11;
     keplerianElements( eccentricityIndex ) = 0.1;
     keplerianElements( inclinationIndex ) = convertDegreesToRadians( 50.0 );
     keplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 350.0 );
@@ -84,17 +92,16 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
         // Expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using code archive B. Rˆmgens (2011)).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( Rf1HodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = 0.0;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.0;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
-                basic_mathematics::computeModulo( 6.544984694978736, 2.0 * PI );
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = 0.0;
+        expectedUnifiedStateModelElements( CHodographIndex ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 2978.08312848463;
+        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.419002703925548;
+        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = -0.0551627524676706;
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.118296904421275;
+        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -0.898554198280556;
 
         // Compute Unified State Model elements.
-        basic_mathematics::Vector6d computedUnifiedStateModelElements =
+        computedUnifiedStateModelElements =
                 convertKeplerianToUnifiedStateModelElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
@@ -104,30 +111,26 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
     }
 
+
+
+
     // Case 2: Hyperbolic retrograde orbit.
     {
-        // Modify Keplerian elements [m,-,rad,rad,rad,rad].
-        keplerianElements( semiMajorAxisIndex ) = -1.0e7;
+        // Modify Keplerian elements [m,-,rad,rad,rad,rad], i.e. overwrite them.
+        keplerianElements( semiMajorAxisIndex ) = -1.5e11;
         keplerianElements( eccentricityIndex ) = 2.0;
         keplerianElements( inclinationIndex ) = convertDegreesToRadians( 170.0 );
-        avoidSingularity = true;
         keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
 
         // Set expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-]. (Results were calculated by
         // hand).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( Rf1HodographIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( Rf2HodographIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex )
-                = 0.0; //Minor error?
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( etaQuaternionIndex )
-                = 0.0;
+        expectedUnifiedStateModelElements( CHodographIndex ) = 17173.1340579794;
+        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -2993.47450825659;
+        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 34215.5701963558;
+        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.987672114350896; //Minor error?
+        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = -0.130029500651719;
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.0113761072309622;
+        expectedUnifiedStateModelElements( etaQuaternionIndex )= -0.10864101132863834;
 
         // Compute Unified State Model elements.
         basic_mathematics::Vector6d computedUnifiedStateModelElements =
@@ -140,28 +143,24 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
     }
 
+
     // Case 3: Parabolic retrograde orbit.
     {
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        keplerianElements( semiMajorAxisIndex ) = 1.0e7;
+        keplerianElements( semiLatusRectumIndex ) = 1.5e11;
         keplerianElements( eccentricityIndex ) = 1.0;
         keplerianElements( inclinationIndex ) = convertDegreesToRadians( 170.0 );
         keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 170.0 );
 
         // Set expected modified equinoctial elements [m/s,m/s,m/s,-,-,-,-]. (Results were calculated by
         // hand)
-        expectedUnifiedStateModelElements( CHodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( Rf1HodographIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( Rf2HodographIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = 0.0;
+        expectedUnifiedStateModelElements( CHodographIndex ) = 29744.7407136119;
+        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -2592.42496973134;
+        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 29631.5529950138;
+        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.299561523151596;
+        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.95008776981561;
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.0870727897926938;
+        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -0.00380168010402369;
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
@@ -181,14 +180,13 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
         // Expected Unified State Model elements [m,-,-,-,-,rad].
         // (Results obtained using code archive B. Rˆmgens (2011)).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 0.0;
+        expectedUnifiedStateModelElements( CHodographIndex ) = 29744.7407136119;
         expectedUnifiedStateModelElements( Rf1HodographIndex ) = 0.0;
         expectedUnifiedStateModelElements( Rf2HodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = 0.0;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.0;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
-                basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = 0.0;
+        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.127083762281843;
+        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.403058199917856;
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.905445182844754;
+        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -0.0395325904349722;
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
@@ -217,14 +215,13 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
         // Expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using code archive B. Rˆmgens (2011)).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( Rf1HodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 0.0;
+        expectedUnifiedStateModelElements( CHodographIndex ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 2978.08312848463;
         expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = 0;
         expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
-                basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = 0.0;
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.999048221581858;
+        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -0.0436193873653361;
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
@@ -241,52 +238,36 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
     {
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
         keplerianElements( inclinationIndex ) = PI; // = 180 deg
-        avoidSingularity = true;
 
         // Set expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-]. (Results were calculated by
         // hand).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 0.0;
-        expectedUnifiedStateModelElements( Rf1HodographIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( Rf2HodographIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = 0.0;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.0;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex )
-                = 0.0;
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = 0.0;
+        expectedUnifiedStateModelElements( CHodographIndex ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 2978.08312848463;
+        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.300705799504273;
+        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.953716950748227;
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -6.11740603377039e-17;
+        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -2.67091715588637e-18;
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
                 convertKeplerianToUnifiedStateModelElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
-        // Check if computed elements match the expected values.
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this
-        basic_mathematics::Vector6d vectorToAdd
-                = ( basic_mathematics::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-        basic_mathematics::Vector6d expectedUnifiedStateModelElementsPlusOne =
-                expectedUnifiedStateModelElements + vectorToAdd;
-        basic_mathematics::Vector6d computedUnifiedStateModelElementsPlusOne =
-                computedUnifiedStateModelElements + vectorToAdd;
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUnifiedStateModelElementsPlusOne,
-                                           computedUnifiedStateModelElementsPlusOne, tolerance );
-
-        // Compute Unified State Model elements using direct function.
-        computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelElements( keplerianElements,
-                                                             centralBodyGravitationalParameter );
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
+                expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) + 1.0;
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
+                expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) + 1.0;
+        computedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
+                computedUnifiedStateModelElements( epsilon3QuaternionIndex ) + 1.0;
+        computedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
+                computedUnifiedStateModelElements( epsilon3QuaternionIndex ) + 1.0;
 
         // Check if computed elements match the expected values.
-        // Because two elements are near-zero, a close fraction/percentage check will fail.
-        // Therefore, 1.0 is added to the elements to avoid this
-        expectedUnifiedStateModelElementsPlusOne =
-                expectedUnifiedStateModelElements + vectorToAdd;
-        computedUnifiedStateModelElementsPlusOne =
-                computedUnifiedStateModelElements + vectorToAdd;
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUnifiedStateModelElementsPlusOne,
-                                           computedUnifiedStateModelElementsPlusOne, tolerance );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUnifiedStateModelElements,
+                                           computedUnifiedStateModelElements, tolerance );
     }
 
     // Case 7: 0 eccentricity and inclination orbit.
@@ -294,48 +275,25 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
         keplerianElements( eccentricityIndex ) = 0.0;
         keplerianElements( inclinationIndex ) = 0.0;
-        avoidSingularity = false;
 
         // Expected modified equinoctial elements [m,-,-,-,-,rad].
         // (Results obtained using code archive B. Rˆmgens (2011)).
-        expectedUnifiedStateModelElements( semiLatusRectumIndex ) = 10000000;
-        expectedUnifiedStateModelElements( fElementIndex ) = 0;
-        expectedUnifiedStateModelElements( gElementIndex ) = 0;
-        expectedUnifiedStateModelElements( hElementIndex ) = 0;
-        expectedUnifiedStateModelElements( kElementIndex ) = 0;
-        expectedUnifiedStateModelElements( trueLongitudeIndex ) =
-                basic_mathematics::computeModulo( 9.337511498169663, 2.0 * PI );
+        expectedUnifiedStateModelElements( CHodographIndex ) = 29744.7407136119;
+        expectedUnifiedStateModelElements( Rf1HodographIndex ) = 0;
+        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 0;
+        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = 0;
+        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0;
+        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.999048221581858;
+        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -0.0436193873653361;
 
         // Compute modified equinoctial elements.
         computedUnifiedStateModelElements =
                 convertKeplerianToUnifiedStateModelElements( keplerianElements,
-                                                               avoidSingularity );
+                                                               centralBodyGravitationalParameter );
 
         // Check if computed elements match the expected values.
-        // Because two elements are near-zero, a close fraction/percentage check will fail.
-        // Therefore, 1.0 is added to the elements to avoid this
-        basic_mathematics::Vector6d vectorToAdd
-                = ( basic_mathematics::Vector6d( ) << 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ).finished( );
-        basic_mathematics::Vector6d expectedUnifiedStateModelElementsPlusOne =
-                expectedUnifiedStateModelElements + vectorToAdd;
-        basic_mathematics::Vector6d computedUnifiedStateModelElementsPlusOne =
-                computedUnifiedStateModelElements + vectorToAdd;
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUnifiedStateModelElementsPlusOne,
-                                           computedUnifiedStateModelElementsPlusOne, tolerance );
-
-        // Compute modified equinoctial elements using direct function.
-        computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelElements( keplerianElements );
-
-        // Check if computed elements match the expected values.
-        // Because two elements are near-zero, a close fraction/percentage check will fail.
-        // Therefore, 1.0 is added to the elements to avoid this
-        expectedUnifiedStateModelElementsPlusOne =
-                expectedUnifiedStateModelElements + vectorToAdd;
-        computedUnifiedStateModelElementsPlusOne =
-                computedUnifiedStateModelElements + vectorToAdd;
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUnifiedStateModelElementsPlusOne,
-                                           computedUnifiedStateModelElementsPlusOne, tolerance );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUnifiedStateModelElements,
+                                           computedUnifiedStateModelElements, tolerance );
     }
 
     // Case 8: 200 degree inclination orbit, test for error.
@@ -360,7 +318,8 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
     }
 }
 
-//! Unit test for conversion modified equinoctial elements to Keplerian orbital elements
+
+//! Unit test for the conversion of Unified State Model elements to Keplerian elements
 BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
 {
     /* Used procedure:
@@ -376,12 +335,14 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
     // Setting fraction tolerance for correctness evaluation
     double tolerance = 1.0E-14;
 
+    // Declare gravitational parameter of central body
+    const double centralBodyGravitationalParameter = 1.32712440018e20; // [m^3/s^2]
+
     // Initializing default Keplerian orbit
     basic_mathematics::Vector6d expectedKeplerianElements = Eigen::VectorXd::Zero( 6 );
-    expectedKeplerianElements( semiMajorAxisIndex ) = 1.0e7;
+    expectedKeplerianElements( semiMajorAxisIndex ) = 1.5e11;
     expectedKeplerianElements( eccentricityIndex ) = 0.1;
     expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 50.0 );
-    bool avoidSingularity = false;
     expectedKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 350.0 );
     expectedKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 15.0 );
     expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 170.0 );
@@ -389,15 +350,17 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
     // Declaring computed output vector.
     basic_mathematics::Vector6d computedKeplerianElements = Eigen::VectorXd::Zero( 6 );
 
+
+
     // Case 1: Elliptical prograde orbit (default case).
     {
         // Default case, so no modification necessary.
 
-        // Convert to modified equinoctial elements and back.
+        // Convert to Unified State Model elements and back.
         computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
                     convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
-                                                                   avoidSingularity ),
-                    avoidSingularity );
+                                                                   centralBodyGravitationalParameter ),
+                    centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
@@ -407,18 +370,16 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
     // Case 2: Hyperbolic retrograde orbit.
     {
         // Modify Keplerian elements [m,-,rad,rad,rad,rad].
-        expectedKeplerianElements( semiMajorAxisIndex ) = -1.0e7;
+        expectedKeplerianElements( semiMajorAxisIndex ) = -1.5e11;
         expectedKeplerianElements( eccentricityIndex ) = 2.0;
         expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 160.0 );
-        avoidSingularity = true;
-        expectedKeplerianElements( trueAnomalyIndex )
-                = convertDegreesToRadians( 10.0 ); // 170 is above limit
+        expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 ); // 170 is above limit
 
-        // Convert to modified equinoctial elements and back.
+        // Convert to Unified State Model elements and back.
         computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
                     convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
-                                                                   avoidSingularity ),
-                    avoidSingularity );
+                                                                   centralBodyGravitationalParameter ),
+                    centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
@@ -428,35 +389,34 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
     // Case 3: Parabolic retrograde orbit.
     {
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        expectedKeplerianElements( semiMajorAxisIndex ) = 3.678e7;
+        expectedKeplerianElements( semiLatusRectumIndex ) = 3.5e11;
         expectedKeplerianElements( eccentricityIndex ) = 1.0;
         expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 90.0 );
-        avoidSingularity = true;
 
-        // Convert to modified equinoctial elements and back.
+        // Convert to Unified State Model elements and back.
         computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
                     convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
-                                                                   avoidSingularity ),
-                    avoidSingularity );
+                                                                   centralBodyGravitationalParameter ),
+                    centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
                                            computedKeplerianElements, tolerance );
-    }
+       }
 
     // Case 4: Circular prograde orbit.
     {
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
+        expectedKeplerianElements( semiMajorAxisIndex ) = 3.5e11;
         expectedKeplerianElements( eccentricityIndex ) = 0.0;
         expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 70.0 );
-        avoidSingularity = false;
         expectedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // For e = 0, undefined.
 
-        // Convert to modified equinoctial elements and back.
+        // Convert to Unified State Model elements and back.
         computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
                     convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
-                                                                   avoidSingularity ),
-                    avoidSingularity );
+                                                                   centralBodyGravitationalParameter ),
+                    centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
@@ -468,15 +428,14 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
         expectedKeplerianElements( eccentricityIndex ) = 0.3;
         expectedKeplerianElements( inclinationIndex ) = 0.0;
-        avoidSingularity = false;
         expectedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // Set to zero as for
         // non-inclined orbit planes, this parameter is undefined
 
-        // Convert to modified equinoctial elements and back.
+        // Convert to Unified State Model elements and back.
         computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
                     convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
-                                                                   avoidSingularity ),
-                    avoidSingularity );
+                                                                   centralBodyGravitationalParameter ),
+                    centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
@@ -486,16 +445,15 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
     // Case 6: 180 inclination orbit.
     {
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        expectedKeplerianElements( semiMajorAxisIndex ) = 1.0e10;
+        expectedKeplerianElements( semiMajorAxisIndex ) = 1.5e15;
         expectedKeplerianElements( inclinationIndex ) = PI;
-        avoidSingularity = true;
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 240.0 );
 
-        // Convert to modified equinoctial elements and back.
+        // Convert to Unified State Model elements and back.
         computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
                     convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
-                                                                   avoidSingularity ),
-                    avoidSingularity );
+                                                                   centralBodyGravitationalParameter ),
+                    centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
@@ -507,19 +465,40 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
         expectedKeplerianElements( eccentricityIndex ) = 0.0;
         expectedKeplerianElements( inclinationIndex ) = 0.0;
-        avoidSingularity = false;
 
-        // Convert to modified equinoctial elements and back
+        // Convert to Unified State Model elements and back
         computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
                     convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
-                                                                   avoidSingularity ),
-                    avoidSingularity );
+                                                                   centralBodyGravitationalParameter ),
+                    centralBodyGravitationalParameter );
+
+        // Check if computed Keplerian elements match the expected values.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
+                                           computedKeplerianElements, tolerance );
+    }
+
+    // Case 8: true anomaly exceeding 180 degrees.
+    {
+        // Set Keplerian elements [m,-,rad,rad,rad,rad].
+        expectedKeplerianElements( semiMajorAxisIndex ) = 1.5e11;
+        expectedKeplerianElements( eccentricityIndex ) = 0.1;
+        expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 50.0 );
+        expectedKeplerianElements( argumentOfPeriapsisIndex ) = convertDegreesToRadians( 350.0 );
+        expectedKeplerianElements( longitudeOfAscendingNodeIndex ) = convertDegreesToRadians( 15.0 );
+        expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 240.0 );
+
+        // Convert to Unified State Model elements and back
+        computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+                                                                   centralBodyGravitationalParameter ),
+                    centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerianElements,
                                            computedKeplerianElements, tolerance );
     }
 }
+BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+} // end namespace unit_tests
+} // end namespace tudat
