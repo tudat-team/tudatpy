@@ -90,7 +90,7 @@ basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
  *         convertedKeplerianElements( 4 ) = longitude of ascending node,                     [rad]
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
-basic_mathematics::Vector6d convertUnifiedStateModelElementsToKeplerianElements(
+basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
         const basic_mathematics::Vector6d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
