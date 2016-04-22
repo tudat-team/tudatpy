@@ -28,7 +28,8 @@
  *      <YYMMDD>  <author name>     <comment>
  *
  *    References
- *      <First reference>
+ *      Vittaldev, V. (2010). The Unified State Model: Derivation and application in astrodynamics
+ *          and navigation. Master's thesis, Delft University of Technology.
  *      <Second reference>
  *
  *    Notes
@@ -57,15 +58,32 @@ namespace orbital_element_conversions
 basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
         const basic_mathematics::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
-// Based on Vittaldev, 2010.
 {
+    using mathematical_constants::PI;
 
     // Declaring eventual output vector.
     basic_mathematics::Vector6d convertedUnifiedStateModelElements = basic_mathematics::
             Vector6d::Zero( 7 );
 
+    // Define the tolerance of a singularity
+    double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
+                                           // orbitalElementConversions.cpp in Tudat Core.
+
+    // If inclination is outside range [0,PI].
+    if ( ( keplerianElements( inclinationIndex ) < 0.0 ) || ( keplerianElements( inclinationIndex ) > PI ) )
+    {
+        // Define the error message.
+        std::stringstream errorMessage;
+        errorMessage << "Inclination is expected in range [0," << PI << "]\n"
+                     << "Specified inclination: " << keplerianElements( inclinationIndex ) << " rad." << std::endl;
+
+        // Throw exception.
+        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+    }
+    //Else, nothing wrong and continue.
+
     // Compute the C hodograph element of the Unified State Model
-    if ( keplerianElements( eccentricityIndex ) == 1 ) // parabolic orbit -> semi-major axis is not defined
+    if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance ) // parabolic orbit -> semi-major axis is not defined
     {
         convertedUnifiedStateModelElements( CHodographIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / keplerianElements( semiLatusRectumIndex ) );
@@ -121,23 +139,28 @@ basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
 }
 
 //! Convert Unified State Model elements to Keplerian elements.
-basic_mathematics::Vector6d convertUnifiedStateModelElementsToKeplerianElements(
+basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
         const basic_mathematics::Vector6d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
-// Based on Vittaldev, 2010.
 {
+    using mathematical_constants::PI;
+
     // Declaring eventual output vector.
     basic_mathematics::Vector6d convertedKeplerianElements = basic_mathematics::
             Vector6d::Zero( 6 );
 
-    // Declaring
+    // Define the tolerance of a singularity
+    double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
+                                           // orbitalElementConversions.cpp in Tudat Core.
+
+    // Declare auxiliary parameters before using them in the if loop
     double cosineLambda = 0.0;
-    double sineLambda =0.0;
-    double lambdaFromSineLambda = 0.0;
+    double sineLambda = 0.0;
+    double lambdaFromSineAndCosine = 0.0;
 
     // Compute auxiliary parameters cosineLambda, sineLambda and Lambda
-    if ( ( unifiedStateModelElements( epsilon3QuaternionIndex ) == 0 )
-        && ( unifiedStateModelElements( etaQuaternionIndex ) == 0 ) ) // pure-retrograde orbit -> inclination  = pi
+    if ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
+        && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) ) // pure-retrograde orbit -> inclination  = pi
     {
         std::cerr << "Pure-retrograde orbit (i=pi). The auxiliary parameters cosineLambda, sineLambda and Lambda cannot be calculated." << std::endl;
         return convertedKeplerianElements;
@@ -159,9 +182,8 @@ basic_mathematics::Vector6d convertUnifiedStateModelElementsToKeplerianElements(
                     unifiedStateModelElements( epsilon3QuaternionIndex ) +
                     unifiedStateModelElements( etaQuaternionIndex ) *
                     unifiedStateModelElements( etaQuaternionIndex ) );
-        lambdaFromSineLambda = std::asin( sineLambda );
+        lambdaFromSineAndCosine = std::atan2( sineLambda, cosineLambda );
     }
-
 
     // Compute auxiliary parameters ve1 and ve2
     double ve1 = unifiedStateModelElements( Rf1HodographIndex ) * cosineLambda +
@@ -176,9 +198,12 @@ basic_mathematics::Vector6d convertUnifiedStateModelElementsToKeplerianElements(
                                           + unifiedStateModelElements( Rf2HodographIndex )
                                           * unifiedStateModelElements( Rf2HodographIndex ));
 
+    // Compute eccentricity
+    convertedKeplerianElements( eccentricityIndex ) =
+            RHodographElement / unifiedStateModelElements( CHodographIndex );
+
     // Compute semi-major axis or, in case of a parabolic orbit, the semi-latus rectum.
-    if ( RHodographElement ==
-         unifiedStateModelElements( CHodographIndex ) ) // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
+    if ( std::fabs( convertedKeplerianElements( eccentricityIndex ) - 1.0 ) < singularityTolerance ) // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
     {
         convertedKeplerianElements( semiLatusRectumIndex ) = centralBodyGravitationalParameter /
                 ( unifiedStateModelElements( CHodographIndex ) * unifiedStateModelElements( CHodographIndex ) );
@@ -191,10 +216,6 @@ basic_mathematics::Vector6d convertUnifiedStateModelElementsToKeplerianElements(
                     ( ve1 * ve1 + ve2 * ve2 ) );
     }
 
-    // Compute eccentricity
-    convertedKeplerianElements( eccentricityIndex ) =
-            RHodographElement / unifiedStateModelElements( CHodographIndex );
-
     // Compute inclination
     convertedKeplerianElements( inclinationIndex ) =
             std::acos( 1.0 - 2.0 * ( unifiedStateModelElements( epsilon1QuaternionIndex ) *
@@ -203,12 +224,12 @@ basic_mathematics::Vector6d convertUnifiedStateModelElementsToKeplerianElements(
                                      unifiedStateModelElements( epsilon2QuaternionIndex ) ) );
 
     // Compute longitude of ascending node
-    if ( ( ( unifiedStateModelElements( epsilon1QuaternionIndex ) == 0 )
-           && ( unifiedStateModelElements( epsilon2QuaternionIndex ) == 0 ) ) ||
-         ( ( unifiedStateModelElements( epsilon3QuaternionIndex ) == 0 )
-         && ( unifiedStateModelElements( etaQuaternionIndex ) == 0 ) ) ) // pure-prograde or pure-retrograde orbit
+    if ( ( ( std::fabs( unifiedStateModelElements( epsilon1QuaternionIndex ) ) < singularityTolerance )
+           && ( std::fabs( unifiedStateModelElements( epsilon2QuaternionIndex ) ) < singularityTolerance ) ) ||
+         ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
+         && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) ) ) // pure-prograde or pure-retrograde orbit
     {
-        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0; // by definition
+        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
     }
     else
     {
@@ -225,30 +246,56 @@ basic_mathematics::Vector6d convertUnifiedStateModelElementsToKeplerianElements(
                                             unifiedStateModelElements( etaQuaternionIndex ) +
                                             unifiedStateModelElements( epsilon3QuaternionIndex ) *
                                             unifiedStateModelElements( epsilon3QuaternionIndex ) ) ) ) );
+
+        // Ensure the longitude of ascending node is positive
+        while ( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) < -singularityTolerance )
+        {
+            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) =
+                    convertedKeplerianElements( longitudeOfAscendingNodeIndex ) + 2.0 * PI;
+        }
     }
 
     // Compute true anomaly and argument of periapsis
-    if ( RHodographElement == 0 ) // circular orbit
+    if ( std::fabs( RHodographElement ) < singularityTolerance ) // circular orbit
     {
-        convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0; // by definition
-        convertedKeplerianElements( trueAnomalyIndex ) = lambdaFromSineLambda - convertedKeplerianElements( longitudeOfAscendingNodeIndex );
+        convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // by definition
+        convertedKeplerianElements( trueAnomalyIndex ) = lambdaFromSineAndCosine - convertedKeplerianElements( longitudeOfAscendingNodeIndex );
 
+        // Ensure the true anomaly is positive
+        while ( convertedKeplerianElements( trueAnomalyIndex ) < -singularityTolerance )
+        {
+            convertedKeplerianElements( trueAnomalyIndex ) =
+                    convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
+        }
     }
     else
     {
         convertedKeplerianElements( trueAnomalyIndex ) =
                 std::acos( ( ve2 - unifiedStateModelElements( CHodographIndex ) )
                            / RHodographElement );
+
+        // Ensure the true anomaly is positive
+        while ( convertedKeplerianElements( trueAnomalyIndex ) < -singularityTolerance )
+        {
+            convertedKeplerianElements( trueAnomalyIndex ) =
+                    convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
+        }
+
         convertedKeplerianElements( argumentOfPeriapsisIndex ) =
-                lambdaFromSineLambda -
+                lambdaFromSineAndCosine -
                 convertedKeplerianElements( longitudeOfAscendingNodeIndex ) -
                 convertedKeplerianElements( trueAnomalyIndex );
+
+        // Ensure the argument of periapsis is positive
+        while ( convertedKeplerianElements( argumentOfPeriapsisIndex ) < -singularityTolerance )
+        {
+            convertedKeplerianElements( argumentOfPeriapsisIndex ) =
+                    convertedKeplerianElements( argumentOfPeriapsisIndex ) + 2.0 * PI;
+        }
     }
 
     // Give back result
     return convertedKeplerianElements;
-
-
 }
 
 } // close namespace orbital_element_conversions
