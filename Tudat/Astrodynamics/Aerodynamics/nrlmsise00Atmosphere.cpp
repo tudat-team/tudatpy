@@ -81,7 +81,6 @@ void NRLMSISE00Atmosphere::computeProperties(double altitude, double longitude,
 
     density_ = output_.d[5]*1000.0; // GM/CM3 to kg/M3
     temperature_ = output_.t[1];
-    pressure_ = TUDAT_NAN;
 
     // Get number densities
     numberDensities_.resize(7);
@@ -101,7 +100,7 @@ void NRLMSISE00Atmosphere::computeProperties(double altitude, double longitude,
     }
     averageNumberDensity_ = sumOfNumberDensity / double( numberDensities_.size() ) ;
 
-    // Mean molar mass (SOURCE)
+    // Mean molar mass (Thermodynamics an Engineering Approach, Michael A. Boles)
     meanMolarMass_ = numberDensities_[0] * gasComponentProperties_.molarMassHelium;
     meanMolarMass_ += numberDensities_[1] * gasComponentProperties_.molarMassAtomicOxygen;
     meanMolarMass_ += numberDensities_[2] * gasComponentProperties_.molarMassNitrogen;
@@ -129,6 +128,14 @@ void NRLMSISE00Atmosphere::computeProperties(double altitude, double longitude,
     // Mean free path (Chapman, S. & Cowling, T. The mathematical theory of nonuniform gases Cambridge University Press, 1970)
     meanFreePath_ = (std::pow( std::sqrt(2.0) * tudat::mathematical_constants::PI * std::pow(weightedAverageCollisionDiameter_,2.0) *
                                averageNumberDensity_ , -1.0 )) ;
+
+    // Calculate pressure using ideal gas law (Thermodynamics an Engineering Approach, Michael A. Boles)
+    if( useIdealGasLaw_ ){
+        pressure_ = density_ * molarGasConstant_ * temperature_ / meanMolarMass_ ;
+    }
+    else{
+        pressure_ = TUDAT_NAN;
+    }
 }
 
 //! Overloaded ostream to print class information.
@@ -152,11 +159,8 @@ std::ostream& operator<<( std::ostream& stream,
     for(unsigned int i = 0 ; i < nrlmsiseInput.switches.size() ; i++){
         stream << "switches[ " << i << " ]     = " << nrlmsiseInput.switches[i] << std::endl;
     }
-    else
-    {
-        pressure_ = TUDAT_NAN;
-    }
 
+    return stream;
 }
 
 //! Get the full model output
