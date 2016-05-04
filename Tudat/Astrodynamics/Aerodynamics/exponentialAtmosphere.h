@@ -38,12 +38,16 @@
  *    References
  *
  *    Notes
+ *      The accuracy of this model could be increased by implementing different values for the
+ *      scale height and temperature for different altitudes (e.g., lower, middle and upper
+ *      atmosphere).
  *
  */
 
 #ifndef TUDAT_EXPONENTIAL_ATMOSPHERE_H
 #define TUDAT_EXPONENTIAL_ATMOSPHERE_H
 
+#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <cmath>
@@ -51,6 +55,8 @@
 #include "Tudat/Basics/utilityMacros.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 namespace tudat
 {
@@ -78,30 +84,34 @@ public:
 
     //! Default constructor.
     /*!
-     * Default constructor.
+     *  Default constructor setting all parameters manually.
+     *  \param scaleHeight Scale height of atmosphere model.
+     *  \param constantTemperature Constant atmospheric temperature.
+     *  \param densityAtZeroAltitude Atmospheric density at zero altitude.
+     *  \param specificGasConstant The constant specific gas constant of the air
+     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
      */
-    ExponentialAtmosphere( )
-        : scaleHeight_( -0.0 ),
-          constantTemperature_( -0.0 ),
-          densityAtZeroAltitude_( -0.0 ),
-          specificGasConstant_( -0.0 )
+    ExponentialAtmosphere(
+            const double scaleHeight,
+            const double constantTemperature,
+            const double densityAtZeroAltitude,
+            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+            const double ratioOfSpecificHeats = 1.4 )
+        : scaleHeight_( scaleHeight ),
+          constantTemperature_( constantTemperature ),
+          densityAtZeroAltitude_( densityAtZeroAltitude ),
+          specificGasConstant_( specificGasConstant ),
+          ratioOfSpecificHeats_( ratioOfSpecificHeats )
     { }
 
-    //! Set predefined exponential atmosphere settings.
+    //! Constructor from default atmospheric settings.
     /*!
-     * Sets predefined exponential atmosphere settings.
-     * \param bodyWithPredefinedExponentialAtmosphere Body with a predefined exponential
-     *          atmosphere.
+     *  Constructor from default atmospheric settings.
+     *  \param bodyWithPredefinedExponentialAtmosphere Identifier of body for which the
+     *  atmosphere is to be created.
      */
-    void setPredefinedExponentialAtmosphere( BodiesWithPredefinedExponentialAtmospheres
-                                             bodyWithPredefinedExponentialAtmosphere );
-
-    //! Set scale height.
-    /*!
-     * Sets the scale height (property of exponential atmosphere) in meters.
-     * \param scaleHeight New scale height of exponential atmosphere.
-     */
-    void setScaleHeight( const double scaleHeight ) { scaleHeight_ = scaleHeight; }
+    ExponentialAtmosphere(
+         const BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere );
 
     //! Get scale height.
     /*!
@@ -110,32 +120,12 @@ public:
      */
     double getScaleHeight( ) { return scaleHeight_; }
 
-    //! Set density at zero altitude.
-    /*!
-     * Sets the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
-     * \param densityAtZeroAltitude Atmospheric density at zero altitude.
-     */
-    void setDensityAtZeroAltitude( const double densityAtZeroAltitude )
-    {
-        densityAtZeroAltitude_ = densityAtZeroAltitude;
-    }
-
     //! Get density at zero altitude.
     /*!
      * Returns the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      * \return densityAtZeroAltitude Atmospheric density at zero altitude.
      */
     double getDensityAtZeroAltitude( ) { return densityAtZeroAltitude_; }
-
-    //! Set constant temperature.
-    /*!
-     * Sets the atmospheric temperature (constant, property of exponential atmosphere) in Kelvin.
-     * \param constantTemperature Constant atmospheric temperature in exponential atmosphere.
-     */
-    void setConstantTemperature( const double constantTemperature )
-    {
-        constantTemperature_ = constantTemperature;
-    }
 
     //! Get constant temperature.
     /*!
@@ -145,24 +135,21 @@ public:
      */
     double getConstantTemperature( ) { return constantTemperature_; }
 
-    //! Set specific gas constant.
-    /*!
-     * Sets the specific gas constant of the air in J/(kg K), its value is assumed constant,
-     * due to the assumption of constant atmospheric composition.
-     * \param specificGasConstant Constant specific gas constant in exponential atmosphere.
-     */
-    void setSpecificGasConstant( const double specificGasConstant )
-    {
-        specificGasConstant_ = specificGasConstant;
-    }
-
     //! Get specific gas constant.
     /*!
      * Returns the specific gas constant of the air in J/(kg K), its value is assumed constant,
      * due to the assumption of constant atmospheric composition.
-     * \return specificGasConstant Specific gas constant in exponential atmosphere.
+     * \return Specific gas constant in exponential atmosphere.
      */
     double getSpecificGasConstant( ) { return specificGasConstant_; }
+
+    //! Get ratio of specific heats.
+    /*!
+     * Returns the ratio of specific hears of the air, its value is assumed constant,
+     * due to the assumption of constant atmospheric composition.
+     * \return Ratio of specific heats exponential atmosphere.
+     */
+    double getRatioOfSpecificHeats( ) { return ratioOfSpecificHeats_; }
 
     //! Get local density.
     /*!
@@ -228,6 +215,30 @@ public:
         return constantTemperature_;
     }
 
+    //! Get local speed of sound in the atmosphere.
+    /*!
+     * Returns the speed of sound in the atmosphere in m/s.
+     * \param altitude Altitude at which speed of sounds is to be computed.
+     * \param longitude Longitude at which speed of sounds is to be computed (not used but included
+     * for consistency with base class interface).
+     * \param latitude Latitude at which speed of sounds is to be computed (not used but included
+     * for consistency with base class interface).
+     * \param time Time at which speed of sounds is to be computed (not used but included for
+     * consistency with base class interface).
+     * \return Atmospheric speed of sounds at specified altitude.
+     */
+    double getSpeedOfSound( const double altitude, const double longitude = 0.0,
+                                    const double latitude = 0.0, const double time = 0.0 )
+    {
+        TUDAT_UNUSED_PARAMETER( altitude );
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return computeSpeedOfSound(
+                    getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_,
+                    specificGasConstant_ );
+    }
+
 protected:
 
 private:
@@ -253,9 +264,17 @@ private:
     //! Specific gas constant.
     /*!
      * Specific gas constant of the air, its value is assumed constant, due to the assumption of
-     * constant atmospheric composition.
+     * constant atmospheric composition.    
      */
     double specificGasConstant_;
+
+    //! Ratio of specific heats at constant pressure and constant volume.
+    /*!
+     *  Ratio of specific heats of the atmosphrer at constant pressure and constant volume.
+     *  This value is set to a constant, implying constant atmospheric composition.
+     */
+    double ratioOfSpecificHeats_;
+
 };
 
 //! Typedef for shared-pointer to ExponentialAtmosphere object.

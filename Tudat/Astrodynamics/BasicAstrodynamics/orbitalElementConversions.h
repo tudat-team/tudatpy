@@ -392,13 +392,20 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
     ScalarType dotProductPositionAndEccentricityVectors
             = position_.normalized( ).dot( eccentricityVector_.normalized( ) );
 
-    // Check if the dot-product is one of the limiting cases: 0.0 or 1.0
+    // Check if the dot-product is one of the limiting cases: 0.0, -1.0 or 1.0
     // (within prescribed tolerance).
     if ( std::fabs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) -
                     dotProductPositionAndEccentricityVectors ) < tolerance )
     {
         dotProductPositionAndEccentricityVectors =
                 mathematical_constants::getFloatingInteger< ScalarType >( 1 );
+    }
+    
+    if ( std::fabs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) +
+                    dotProductPositionAndEccentricityVectors ) < tolerance )
+    {
+        dotProductPositionAndEccentricityVectors =
+                -mathematical_constants::getFloatingInteger< ScalarType >( 1 );
     }
 
     if ( std::fabs( dotProductPositionAndEccentricityVectors ) < tolerance )
