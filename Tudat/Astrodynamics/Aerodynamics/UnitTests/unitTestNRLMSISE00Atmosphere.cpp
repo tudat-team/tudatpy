@@ -57,6 +57,8 @@
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
+#include "tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 
 namespace tudat
 {
@@ -70,12 +72,14 @@ BOOST_AUTO_TEST_SUITE( test_nrlmsise00_atmosphere )
 using tudat::aerodynamics::NRLMSISE00Input;
 using tudat::aerodynamics::NRLMSISE00Atmosphere;
 
+using tudat::mathematical_constants::PI;
+
 // Global variable to be changed by tests and function.
 NRLMSISE00Input data;
 
 // Define input data generic (or almost completely) for all tests.
 NRLMSISE00Input gen_data(0, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
-std::vector< double > gen_input = boost::assign::list_of(400.0)(-70.0)(60.0)(0.0);
+std::vector< double > gen_input = boost::assign::list_of(400.0E3)(-70.0*PI/180.0)(60.0*PI/180.0)(0.0);
 
 //! Test function to update the NRLMSISE00 iunput data as a function of time and geometry.
 NRLMSISE00Input function( double altitude, double longitude,
@@ -301,7 +305,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest3 )
     std::vector< double > input = gen_input;
     // Define variations from the standard case
     data.secondOfTheDay = 75000.0;
-    input[ 0 ] =  1000.0;
+    input[0]            =  1000.0E3;
 
     // We change parameters other than alt, lat, long, and/or time,
     // so it's best to reset the hash.
@@ -346,7 +350,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest4 )
     std::vector< double > input = gen_input;
 
     // Define variations from the standard case
-    input[ 0 ] = 100.0;
+    input[0] = 100.0E3;
 
     // We change parameters other than alt, lat, long, and/or time,
     // so it's best to reset the hash.
@@ -706,7 +710,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest12 )
     std::vector< double > input = gen_input;
 
     // Define variations from the standard case
-    input[ 0 ] = 10.0;
+    input[0] = 10.0E3;
 
     // We change parameters other than alt, lat, long, and/or time,
     // so it's best to reset the hash.
@@ -751,7 +755,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest13 )
     std::vector< double > input = gen_input;
 
     // Define variations from the standard case
-    input[ 0 ] = 30.0;
+    input[0] = 30.0E3;
 
     // We change parameters other than alt, lat, long, and/or time,
     // so it's best to reset the hash.
@@ -796,7 +800,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest14 )
     std::vector< double > input = gen_input;
 
     // Define variations from the standard case
-    input[ 0 ] = 50.0;
+    input[0] = 50.0E3;
 
     // We change parameters other than alt, lat, long, and/or time,
     // so it's best to reset the hash.
@@ -841,7 +845,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest15 )
     std::vector< double > input = gen_input;
 
     // Define variations from the standard case
-    input[ 0 ] = 70.0;
+    input[0] = 70.0E3;
 
     // We change parameters other than alt, lat, long, and/or time,
     // so it's best to reset the hash.
@@ -932,9 +936,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest17 )
     std::vector< double > input = gen_input;
 
     // Define variations from the standard case
-    input[ 0 ] = 100.0;
-    data.apVector = std::vector< double >( 7, 100.0 );
-    data.switches[ 9 ] = -1;
+    input[0]         = 100.0E3;
+    data.apVector    = std::vector< double >(7, 100.0);
+    data.switches[9] = -1;
 
     // We change parameters other than alt, lat, long, and/or time,
     // so it's best to reset the hash.
