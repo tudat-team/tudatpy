@@ -98,7 +98,7 @@ std::vector< double > getDefaultHypersonicLocalInclinationAngleOfSideslipPoints(
  * dependent on the local inclination angle w.r.t. the freestream flow and
  * freestream conditions, such as Mach number and ratio of specific heats.
  * All aerodynamic coefficients can be calculated using the generateCoefficients function, or on an
- * as needed basis by using the getAerodynamicCoefficients function. Note that during the
+ * as needed basis by using the getAerodynamicCoefficientsDataPoint function. Note that during the
  * panel inclination determination process, a geometry with outward surface-normals is assumed.
  * The resulting coefficients are expressed in the same reference frame as that of the input
  * geometry.
@@ -107,18 +107,6 @@ class HypersonicLocalInclinationAnalysis: public AerodynamicCoefficientGenerator
 {
 public:
 
-    //! Enum specifying meaning of indices of independent variables of generated coefficients
-    /*!
-     *  Enum specifying meaning of indices of independent variables of generated coefficients,
-     *  i.e. the three physical variables that can be varied in the analysis.
-     */
-    enum HypersonicLocalInclinationAnalysisIndependentVariables
-    {
-        machIndex = 0,
-        angleOfAttackIndex = 1,
-        angleOfSideslipIndex = 2
-    };
-
     //! Default constructor.
     /*!
      *  Default constructor of class, specified vehicle geometry, discretization properties,
@@ -126,9 +114,9 @@ public:
      *  to be used
      *  \param dataPointsOfIndependentVariables Vector of vector, with each subvector containing
      *  the data points of each of the independent variables for the coefficient generation.
-     *  The physical meaning of each of the three independent variables is defined by the
-     *  HypersonicLocalInclinationAnalysisIndependentVariables enum. Each of the subvectors must
-     *  be sorted in ascending order.
+     *  The physical meaning of each of the three independent variables is: 0 = mach numner,
+     *  1 = angle of attack, 2 = angle of sideslip.
+     *  Each of the subvectors must be sorted in ascending order.
      *  \param inputVehicleSurface Vehicle surface geometry for which the coefficients are to be
      *  determined.
      *  \param numberOfLines Number of discretization points in the first independent surface
@@ -146,7 +134,6 @@ public:
      *  and moments.
      *  \param referenceLength Reference length used to non-dimensionalize aerodynamic moments.
      *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
-     *  \param machRegime NOTE: Variable no longer used. Remove?
      */
     HypersonicLocalInclinationAnalysis(
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
@@ -157,32 +144,25 @@ public:
             const std::vector< std::vector< int > >& selectedMethods,
             const double referenceArea,
             const double referenceLength,
-            const Eigen::Vector3d& momentReferencePoint,
-            const std::string& machRegime = "Full" );
+            const Eigen::Vector3d& momentReferencePoint );
 
     //! Default destructor.
     /*!
      * Default destructor.
      */
-    virtual ~HypersonicLocalInclinationAnalysis( ) { }
+    ~HypersonicLocalInclinationAnalysis( ) { }
 
     //! Get aerodynamic coefficients.
     /*!
-     * Returns aerodynamic coefficients.
+     *  Returns aerodynamic coefficients.
+     *  The physical meaning of each of the three independent variables is: 0 = mach numner,
+     *  1 = angle of attack, 2 = angle of sideslip.
      * \param independentVariables Array of values of independent variable
      *          indices in dataPointsOfIndependentVariables_.
      * \return vector of coefficients at specified independent variable indices.
      */
-    basic_mathematics::Vector6d getAerodynamicCoefficients(
+    basic_mathematics::Vector6d getAerodynamicCoefficientsDataPoint(
             const boost::array< int, 3 > independentVariables );
-
-    //! Generate aerodynamic database.
-    /*!
-     * Generates aerodynamic database. Settings of geometry,
-     * reference quantities, database point settings and analysis methods
-     *  should have been set previously.
-     */
-    void generateCoefficients( );
 
     //! Determine inclination angles of panels on a given part.
     /*!
@@ -216,16 +196,6 @@ public:
          return vehicleParts_[ vehicleIndex ];
      }
 
-    //! Get Mach regime.
-    /*!
-     * Returns Mach regime, see machRegime_.
-     * \return Mach regime.
-     */
-    std::string getMachRegime( ) const
-    {
-        return machRegime_;
-    }
-
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information, prints the number of lawgs geometry parts and
@@ -239,6 +209,14 @@ public:
                                      hypersonicLocalInclinationAnalysis );
 
 private:
+
+    //! Generate aerodynamic database.
+    /*!
+     * Generates aerodynamic database. Settings of geometry,
+     * reference quantities, database point settings and analysis methods
+     *  should have been set previously.
+     */
+    void generateCoefficients( );
 
     //! Generate aerodynamic coefficients at a single set of independent variables.
     /*!
@@ -360,12 +338,6 @@ private:
      * second index represents vehicle part.
      */
     std::vector< std::vector< int > > selectedMethods_;
-
-    //! Mach regime.
-    /*!
-     * Mach regime, permissible values are "Full", "High" or "Low", default is "Full".
-     */
-    std::string machRegime_;
 };
 
 //! Typedef for shared-pointer to HypersonicLocalInclinationAnalysis object.
