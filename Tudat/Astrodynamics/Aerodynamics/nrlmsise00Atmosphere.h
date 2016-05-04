@@ -117,15 +117,15 @@ struct NRLMSISE00Input
  *  NRLMSISE-00 atmosphere model class. This class uses the NRLMSISE00 atmosphere model to calculate atmospheric
  *  density and temperature. The GTD7 function is used: Neutral Atmosphere Empircial Model from the surface to lower
  *  exosphere.
- *  Compositional data is currently not used (computation of pressure; speed of sound, etc.).
- *
+ *  Currently the ideal gas law is used to compute the speed of sound.
+ *  The specific heat ratio is assumed to be constant and equal to 1.4.
  */
 class NRLMSISE00Atmosphere : public AtmosphereModel {
  public:
 
-    //! Solar activity function
+    //! NRLMSISEInput function
     /*!
-     * Boost function that accepts (altitude, longitude, latitude, time) and returns solar activity data.
+     * Boost function that accepts (altitude, longitude, latitude, time) and returns NRLMSISEInput data.
      */
     typedef boost::function< NRLMSISE00Input( double, double, double, double ) >
         NRLMSISE00InputFunction;
@@ -137,13 +137,16 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * (altitude, longitude, latitude, time).
      * \param useIdealGasLaw Variable denoting whether to use the ideal gas law for computation of pressure.
      */
-    NRLMSISE00Atmosphere(const NRLMSISE00InputFunction nrlmsise00InputFunction)
-        : nrlmsise00InputFunction_(nrlmsise00InputFunction) {
+    NRLMSISE00Atmosphere(const NRLMSISE00InputFunction nrlmsise00InputFunction,
+                         bool useIdealGasLaw = false)
+        : nrlmsise00InputFunction_(nrlmsise00InputFunction)
+    {
         resetHashKey();
         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
         specificHeatRatio_ = 1.4 ;
         GasComponentProperties gasProperties;
         gasComponentProperties_ = gasProperties; // Default gas properties
+        useIdealGasLaw_ = useIdealGasLaw;
     }
 
     //! Constructor
@@ -156,12 +159,15 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      */
     NRLMSISE00Atmosphere(const NRLMSISE00InputFunction nrlmsise00InputFunction,
                          double specificHeatRatio,
-                         GasComponentProperties gasProperties)
-        : nrlmsise00InputFunction_(nrlmsise00InputFunction) {
+                         GasComponentProperties gasProperties,
+                         bool useIdealGasLaw = false)
+        : nrlmsise00InputFunction_(nrlmsise00InputFunction)
+    {
         resetHashKey();
         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
         specificHeatRatio_ = specificHeatRatio ;
-        gasComponentProperties_ = gasProperties; // Default gas properties
+        gasComponentProperties_ = gasProperties;
+        useIdealGasLaw_ = useIdealGasLaw ;
     }
 
     //! Set gas component properties.
@@ -171,7 +177,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * \param GasComponentProperties .
      * \return void.
      */
-    void setGasComponentProperties(GasComponentProperties gasComponentProperties){
+    void setGasComponentProperties(GasComponentProperties gasComponentProperties)
+    {
         gasComponentProperties_ = gasComponentProperties;
     }
 
@@ -241,7 +248,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
     * \return speed of sound.
     */
     double getSpeedOfSound(const double altitude, const double longitude,
-                          const double latitude, const double time) {
+                          const double latitude, const double time)
+    {
         computeProperties(altitude, longitude, latitude, time);
         return speedOfSound_;
     }
@@ -256,7 +264,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
     * \return mean free path.
     */
     double getMeanFreePath(const double altitude, const double longitude,
-                          const double latitude, const double time) {
+                          const double latitude, const double time)
+    {
         computeProperties(altitude, longitude, latitude, time);
         return meanFreePath_;
     }
@@ -271,7 +280,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
     * \return mean molar mass.
     */
     double getMeanMolarMass(const double altitude, const double longitude,
-                          const double latitude, const double time) {
+                          const double latitude, const double time)
+    {
         computeProperties(altitude, longitude, latitude, time);
         return meanMolarMass_;
     }
@@ -286,7 +296,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
     * \return number densities of gas components
     */
     std::vector<double> getNumberDensities(const double altitude, const double longitude,
-                                           const double latitude, const double time) {
+                                           const double latitude, const double time)
+    {
         computeProperties(altitude, longitude, latitude, time);
         return numberDensities_;
     }
@@ -301,7 +312,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
     * \return average number density.
     */
     double getAverageNumberDensity(const double altitude, const double longitude,
-                          const double latitude, const double time) {
+                          const double latitude, const double time)
+    {
         computeProperties(altitude, longitude, latitude, time);
         return averageNumberDensity_;
     }
@@ -316,7 +328,8 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
     * \return weighted average collision diameter.
     */
     double getWeightedAverageCollisionDiameter(const double altitude, const double longitude,
-                          const double latitude, const double time) {
+                          const double latitude, const double time)
+    {
         computeProperties(altitude, longitude, latitude, time);
         return weightedAverageCollisionDiameter_;
     }
@@ -350,6 +363,9 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
  private:
     //! Shared pointer to solar activity function
     NRLMSISE00InputFunction nrlmsise00InputFunction_;
+
+    //! Use the ideal gas law for the computation of the pressure.
+    bool useIdealGasLaw_;
 
     //! Current key hash
     size_t hashKey_;
