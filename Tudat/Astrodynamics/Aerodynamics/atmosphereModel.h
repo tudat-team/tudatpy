@@ -42,11 +42,81 @@
 #define TUDAT_ATMOSPHERE_MODEL_H
 
 #include <boost/shared_ptr.hpp>
+#include <limits>
 
 namespace tudat
 {
 namespace aerodynamics
 {
+
+//! Gas component properties data structure
+/*!
+ * This data structure contains the molar mass and collision diameter of
+ * the most frequently observed gasses in the atmosphere.
+ */
+struct GasComponentProperties
+{
+    //! default constructor
+    /*!
+     * Constructs a GasComponentProperties data structure with values obtained from the following sources:
+     * Collision diameters from: Tables of Physical & Chemical Constants Kaye & Laby Online, Kaye & Laby Online, 2016
+     * (http://www.kayelaby.npl.co.uk/general_physics/2_2/2_2_4.html)
+     * Molar mass from: NIST,2016 (http://www.nist.gov/pml/data/images/illo_for_2014_PT_1.PNG)
+     *
+     * Data to be verified
+     *
+     */
+    GasComponentProperties():
+    diameterArgon(340E-12), diameterAtomicHydrogen(260E-12), diameterHelium(256E-12),
+      diameterNitrogen(370E-12), diameterOxygen(358E-12), diameterAtomicNitrogen(290E-12),
+      diameterAtomicOxygen(280E-12), molarMassArgon(39.948E-3), molarMassAtomicHydrogen(1.008E-3),
+      molarMassHelium(4.002602E-3), molarMassNitrogen(2.0*14.007E-3), molarMassOxygen(2.0*15.999E-3),
+      molarMassAtomicNitrogen(14.007E-3), molarMassAtomicOxygen(15.999E-3)
+    { }
+
+    //! Molecular colision diameter of Argon in m
+    double diameterArgon;
+
+    //! Molecular colision diameter of Atomic Hydrogen in m
+    double diameterAtomicHydrogen;
+
+    //! Molecular colision diameter of Helium in m
+    double diameterHelium;
+
+    //! Molecular colision diameter of Nitrogen in m
+    double diameterNitrogen;
+
+    //! Molecular colision diameter of Oxygen in m
+    double diameterOxygen;
+
+    //! Molecular colision diameter of Atomic Nitrogen in m
+    double diameterAtomicNitrogen;
+
+    //! Molecular colision diameter of Atomic Oxygen in m
+    double diameterAtomicOxygen;
+
+
+    //! molar mass of Argon in kg/mole
+    double molarMassArgon;
+
+    //! Molar mass of Atomic Hydrogen in kg/mole
+    double molarMassAtomicHydrogen;
+
+    //! Molar mass of Helium in kg/mole
+    double molarMassHelium;
+
+    //! Molar mass of Nitrogen in kg/mole
+    double molarMassNitrogen;
+
+    //! Molar mass of Oxygen in kg/mole
+    double molarMassOxygen;
+
+    //! Molar mass of Atomic Nitrogen in kg/mole
+    double molarMassAtomicNitrogen;
+
+    //! Molar mass of Atomic Oxygen in kg/mole
+    double molarMassAtomicOxygen;
+};
 
 //! Atmosphere model class.
 /*!
@@ -63,6 +133,14 @@ public:
     * Default destructor.
     */
     virtual ~AtmosphereModel( ) { }
+
+    //! Set gas component properties.
+    /*!
+    * Sets the gas component properties, which contains the molar mass and collision diameter of the molecules.
+    * \param GasComponentProperties .
+    * \return void.
+    */
+    virtual void setGasComponentProperties( GasComponentProperties GasComponentProperties ){}
 
     //! Get local density.
     /*!
@@ -99,6 +177,104 @@ public:
     */
     virtual double getTemperature( const double altitude, const double longitude,
                                    const double latitude, const double time ) = 0;
+
+    //! Get Speed of Sound
+    /*!
+    * This function returns the speed of sound.
+    * The function is not implemented by default and returns NaN if the atmosphere model doesn't implement this function.
+    * \param altitude Altitude.
+    * \param longitude Longitude.
+    * \param latitude Latitude.
+    * \param time Time.
+    * \return double SpeedOfSound
+    */
+    virtual double getSpeedOfSound(const double altitude, const double longitude,
+                                   const double latitude, const double time){
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    //! Get mean free path.
+    /*!
+    * This function returns the mean free path, which can be calculated using the number density and the collision diameter.
+    * The function is not implemented by default and returns NaN if the atmosphere model doesn't implement this function.
+    * \param altitude Altitude.
+    * \param longitude Longitude.
+    * \param latitude Latitude.
+    * \param time Time.
+    * \return double mean free path.
+    */
+    virtual double getMeanFreePath(const double altitude, const double longitude,
+                                   const double latitude, const double time){
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    //! Get number densities.
+    /*!
+    * This function returns a vector with number densities for all the components of the gas(air).
+    * The function is not implemented by default and returns null vector if the atmosphere model doesn't implement this function.
+    * \param altitude Altitude.
+    * \param longitude Longitude.
+    * \param latitude Latitude.
+    * \param time Time.
+    * \return std::vector<double> number densities.
+    */
+    virtual std::vector<double> getNumberDensities(const double altitude, const double longitude,
+                                                   const double latitude, const double time){
+        std::vector<double> null(0);
+        return null;
+    }
+
+    //! Get mean molar mass.
+    /*!
+    * This function returns the mean molar mass at the current location and time.
+    * The function is not implemented by default and returns nan if the atmosphere model doesn't implement this function.
+    * \param altitude Altitude.
+    * \param longitude Longitude.
+    * \param latitude Latitude.
+    * \param time Time.
+    * \return double meanMolarMass.
+    */
+    virtual double getMeanMolarMass(const double altitude, const double longitude,
+                                    const double latitude, const double time){
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    //! Get average number density
+    /*!
+    * This function returns the (unweighted) average number density at the current location and time.
+    * The function is not implemented by default and returns nan if the atmosphere model doesn't implement this function.
+    * \param altitude Altitude.
+    * \param longitude Longitude.
+    * \param latitude Latitude.
+    * \param time Time.
+    * \return double average number density.
+    */
+    virtual double getAverageNumberDensity(const double altitude, const double longitude,
+                                           const double latitude, const double time){
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    //! Get weighted average collision diameter
+    /*!
+    * This function returns the weighted average collision diameter of the gas components at the current location and time.
+    * The function is not implemented by default and returns nan if the atmosphere model doesn't implement this function.
+    * \param altitude Altitude.
+    * \param longitude Longitude.
+    * \param latitude Latitude.
+    * \param time Time.
+    * \return double weighted average collision diameter.
+    */
+    virtual double getWeightedAverageCollisionDiameter(const double altitude, const double longitude,
+                                                       const double latitude, const double time){
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    //! Reset Hash key
+    /*!
+    * This function resets the hashKey, which is used to check if recalculation of the atmospheric properties is required or not.
+    * \return void
+    */
+    virtual void resetHashKey(){}
 
     //! Get local speed of sound.
     /*!
