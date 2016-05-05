@@ -42,7 +42,7 @@
 #define TUDAT_ATMOSPHERE_MODEL_H
 
 #include <boost/shared_ptr.hpp>
-#include <limits>
+#include "tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -202,7 +202,7 @@ public:
     */
     virtual double getMeanFreePath(const double altitude, const double longitude,
                                    const double latitude, const double time){
-        return std::numeric_limits<double>::quiet_NaN();
+        return TUDAT_NAN;
     }
 
     //! Get number densities.
@@ -233,7 +233,7 @@ public:
     */
     virtual double getMeanMolarMass(const double altitude, const double longitude,
                                     const double latitude, const double time){
-        return std::numeric_limits<double>::quiet_NaN();
+        return TUDAT_NAN;
     }
 
     //! Get average number density
@@ -248,7 +248,7 @@ public:
     */
     virtual double getAverageNumberDensity(const double altitude, const double longitude,
                                            const double latitude, const double time){
-        return std::numeric_limits<double>::quiet_NaN();
+        return TUDAT_NAN;
     }
 
     //! Get weighted average collision diameter
@@ -263,7 +263,7 @@ public:
     */
     virtual double getWeightedAverageCollisionDiameter(const double altitude, const double longitude,
                                                        const double latitude, const double time){
-        return std::numeric_limits<double>::quiet_NaN();
+        return TUDAT_NAN;
     }
 
     //! Reset Hash key

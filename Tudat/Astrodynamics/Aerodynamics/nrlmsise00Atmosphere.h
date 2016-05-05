@@ -138,7 +138,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * \param useIdealGasLaw Variable denoting whether to use the ideal gas law for computation of pressure.
      */
     NRLMSISE00Atmosphere(const NRLMSISE00InputFunction nrlmsise00InputFunction,
-                         bool useIdealGasLaw = false)
+                         const bool useIdealGasLaw = true)
         : nrlmsise00InputFunction_(nrlmsise00InputFunction)
     {
         resetHashKey();
@@ -158,9 +158,9 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      *  the molecule collision diameters and the molar mass.
      */
     NRLMSISE00Atmosphere(const NRLMSISE00InputFunction nrlmsise00InputFunction,
-                         double specificHeatRatio,
-                         GasComponentProperties gasProperties,
-                         bool useIdealGasLaw = false)
+                         const double specificHeatRatio,
+                         const GasComponentProperties gasProperties,
+                         const bool useIdealGasLaw = true)
         : nrlmsise00InputFunction_(nrlmsise00InputFunction)
     {
         resetHashKey();
@@ -177,7 +177,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel {
      * \param GasComponentProperties .
      * \return void.
      */
-    void setGasComponentProperties(GasComponentProperties gasComponentProperties)
+    void setGasComponentProperties(const GasComponentProperties gasComponentProperties)
     {
         gasComponentProperties_ = gasComponentProperties;
     }

@@ -962,6 +962,95 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest17 )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testSpeedOfSound )
+{
+    // Construct model with default properties
+    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+
+    double altitude = 0.0 ;
+    double longitude = 0.0 ;
+    double latitude = 0.0 ;
+    double time = 0.0 ;
+
+    // Check speed of sound : (https://en.wikipedia.org/wiki/Speed_of_sound  (at 20 deg celcius) )
+    // 340.9 at sealevel (anderson, fundamentals of aerodynamics)
+    BOOST_CHECK_CLOSE_FRACTION( model.getSpeedOfSound(altitude,longitude,latitude,time) , 343.21 , 2E-2 ); // < 2%
+    BOOST_CHECK_CLOSE_FRACTION( model.getSpeedOfSound(altitude,longitude,latitude,time) , 340.9 , 1.8E-2 ); // < 1.8%
+
+    // US Standard Atmosphere Model 1976
+    std::string atmosphereTableFile = tudat::input_output::getTudatRootPath( ) + "/External/AtmosphereTables/" +
+            "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" ;
+    tudat::aerodynamics::TabulatedAtmosphere US76model(atmosphereTableFile);
+
+    // Test wist US76 table (NRLMSISE should provide approximately the same results)
+    BOOST_CHECK_CLOSE_FRACTION( model.getSpeedOfSound(altitude,longitude,latitude,time) , US76model.getSpeedOfSound(altitude) , 2E-2 ); // < 2%
+
+    altitude = 10.0E3 ;
+    BOOST_CHECK_CLOSE_FRACTION( model.getSpeedOfSound(altitude,longitude,latitude,time) , US76model.getSpeedOfSound(altitude) , 3.5E-2 ); // < 3.5%
+
+    altitude = 40.0E3 ;
+    BOOST_CHECK_CLOSE_FRACTION( model.getSpeedOfSound(altitude,longitude,latitude,time) , US76model.getSpeedOfSound(altitude) , 6.5E-2 ); // < 6.5%
+
+    altitude = 80.0E3 ;
+    BOOST_CHECK_CLOSE_FRACTION( model.getSpeedOfSound(altitude,longitude,latitude,time) , US76model.getSpeedOfSound(altitude) , 5E-2 ); // < 5%
+
+    // Verify calculation
+    double speedOfSound = std::sqrt( 1.4 * 8.3144598 * model.getTemperature(altitude,longitude,latitude,time) / model.getMeanMolarMass(altitude,longitude,latitude,time) ) ;
+    BOOST_CHECK_CLOSE_FRACTION( speedOfSound , model.getSpeedOfSound(altitude,longitude,latitude,time), 1E-15 );
+}
+
+BOOST_AUTO_TEST_CASE( testMolarMass )
+{
+    // Construct model with default properties
+    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+
+    double altitude = 0.0 ;
+    double longitude = 0.0 ;
+    double latitude = 0.0 ;
+    double time = 0.0 ;
+
+    // Check using textbook example: Dynamics of atmospheric re-entry, Regan , 1993
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanMolarMass(altitude,longitude,latitude,time), 28.96643E-3 , 3E-4 ); // < 0.03%
+
+    altitude = 50.0E3;
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanMolarMass(altitude,longitude,latitude,time), 28.96643E-3 , 3E-4 ); // < 0.03%
+
+    altitude = 200.0E3;
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanMolarMass(altitude,longitude,latitude,time), 21.0E-3 , 3E-2 ); // < 3%
+
+    altitude = 300.0E3;
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanMolarMass(altitude,longitude,latitude,time), 18.0E-3 , 3E-2 ); // < 3%
+}
+
+BOOST_AUTO_TEST_CASE( testMeanFreePath )
+{
+    // Construct model with default properties
+    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+
+    double altitude = 20.0E3 ;
+    double longitude = 0.5 ;
+    double latitude = 0.2 ;
+    double time = 1.0E5 ;
+
+    // Verify calculation
+    double meanFreePath = std::sqrt(2.0) * PI * std::pow( model.getWeightedAverageCollisionDiameter(altitude,longitude,latitude,time) , 2.0)
+            * model.getAverageNumberDensity(altitude,longitude,latitude,time) ;
+    meanFreePath = std::pow( meanFreePath , (-1.0) );
+
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , meanFreePath , 1.0E-15 );
+
+    // Verify using data - Logarithmic plot: physics of the Earth's space environment, Gerd W. Prolls (page 29)
+    // Test using approximate values obtained from figure
+    altitude = 0.0E3 ;
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E-7 , 4.0 );
+
+    altitude = 60.0E3 ;
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E-3 , 0.8 );
+
+    altitude = 300.0E3 ;
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E4 , 0.6 );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
