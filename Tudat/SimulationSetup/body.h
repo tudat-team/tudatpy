@@ -273,8 +273,10 @@ private:
     //! Current rotation from body-fixed to inertial frame.
     Eigen::Quaterniond currentRotationToGlobalFrame_;
 
-    //! Gravitational parameter of body
-    // Default set to zero, calculated from GravityFieldModel when it is set.
+    //! Gravitational Parameter of body
+    /*!
+     * Default set to zero, calculated from GravityFieldModel when it is set.
+     */
     double gravitationalParameter_;
 
     //! Ephemeris of body.
