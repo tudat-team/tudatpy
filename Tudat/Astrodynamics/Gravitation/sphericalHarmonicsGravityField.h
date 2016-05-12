@@ -79,6 +79,8 @@ namespace gravitation
  *  \param referenceRadius Reference radius of spherical harmonic field expansion.
  *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized).
  *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized).
+ *  \param sphericalHarmonicsCache Cache object containing current values of trigonometric funtions of latitude anf longitude,
+ *  as well as legendre polynomials at current state.
  *  \param minimumumDegree Maximum degree of spherical harmonic expansion.
  *  \param minimumumOrder Maximum order of spherical harmonic expansion.
 
@@ -365,6 +367,7 @@ protected:
      */
     std::string fixedReferenceFrame_;
 
+    //! Cache object for potential calculations.
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 };
 

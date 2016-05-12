@@ -70,54 +70,103 @@ namespace tudat
 namespace basic_mathematics
 {
 
-//! Class for creating and accessing a back-end cache of Legendre polynomials.
+//! Class for creating and accessing a cache of Legendre polynomials.
 class LegendreCache
 {
-private:
-
 
 public:
 
     //! Define Legendre polynomial function pointer.
     typedef boost::function< double ( int, int, LegendreCache& ) > LegendrePolynomialFunction;
 
-    //! Initialize LegendreCache instance.
+    //! Default constructor, initializes cache object with 0 maximum degree and order.
+    /*!
+     * Default constructor, initializes cache object with 0 mazimum degree and order.
+     * \param useGeodesyNormalization Parameter defining whether the cache is used for a normalized or unnormalized
+     * gravity field.
+     */
     LegendreCache( const bool useGeodesyNormalization = 1 );
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param maximumDegree Maximum degree to which to update cache
+     * \param maximumOrder Maximum order to which to update cache
+     * \param useGeodesyNormalization Parameter defining whether the cache is used for a normalized or unnormalized
+     * gravity field.
+     */
     LegendreCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 );
 
+    //! Update maximum degree and order of cache
+    /*!
+     * Update maximum degree and order of cache
+     * \param maximumDegree Maximum degree to which to update cache
+     * \param maximumOrder Maximum order to which to update cache
+     */
     void resetMaximumDegreeAndOrder( const int degree, const int order );
 
-
+    //! Update cache with new polynomial parameter (sine of latitude)
+    /*!
+     * Update cache with new polynomial parameter (sine of latitude).
+     * \param polynomialParameter Parameter used as input argument for Legendre polynomials, in astrodynamics
+     * applications, this is typically the sine of the body-fixed latitude.
+     */
     void update( const double polynomialParameter );
 
+    //! Function to return the current polynomial parameter (typically sine of latitude)
+    /*!
+     * \Function to return the current polynomial parameter (typically sine of latitude)
+     * \return Current polynomial parameter
+     */
     double getCurrentPolynomialParameter( )
     {
         return currentPolynomialParameter_;
     }
 
+    //! Function to return the complement to the current polynomial parameter (typically cosine of latitude)
+    /*!
+     * \Function to return the complement to the current polynomial parameter (typically cosine of latitude)
+     * \return Complement to the current polynomial parameter
+     */
     double getCurrentPolynomialParameterComplement( )
     {
         return currentPolynomialParameterComplement_;
     }
 
-
-    //! Get Legendre polynomial value from either cache or from computation.
+    //! Get Legendre polynomial value from the cache.
     /*!
+    * Get Legendre polynomial value from the cache, as computed by last call to update function.
     * \param degree Degree of requested Legendre polynomial.
     * \param order Order of requested Legendre polynomial.
-    * \param polynomialParameter Free variable  of requested Legendre polynomial.
-    * \param legendrePolynomialFunction Function which takes degree, order and
-    *          polynomialParameter as arguments. The function must return the corresponding
-    *          Legendre polynomial value.
     * \return Legendre polynomial value.
     */
     double getLegendrePolynomial( const int degree, const int order );
 
-    int getMaximumDegree( ){ return maximumDegree_; }
+    //! Function to get the maximum degree of cache.
+    /*!
+     * Function to get the maximum degree of cache
+     * \return Maximum degree of cache.
+     */
+    int getMaximumDegree( )
+    {
+        return maximumDegree_;
+    }
 
-    int getMaximumOrder( ){ return maximumOrder_; }
+    //! Function to get the maximum order of cache.
+    /*!
+     * Function to get the maximum order of cache.
+     * \return Maximum order of cache.
+     */
+    int getMaximumOrder( )
+    {
+        return maximumOrder_;
+    }
 
+    //! Function to get whether the Legendre polynomials are geodesy-normalized or unnormalized
+    /*!
+     * Function to get whether the Legendre polynomials are geodesy-normalized or unnormalized
+     * \return Boolean denoting to get whether the Legendre polynomials are geodesy-normalized or unnormalized
+     */
     bool getUseGeodesyNormalization( )
     {
         return useGeodesyNormalization_;
@@ -125,20 +174,30 @@ public:
 
 
 private:
+
+    //! Maximum degree of cache.
     int maximumDegree_;
 
+    //! Maximum order of cache.
     int maximumOrder_;
 
+    //! Current polynomial parameter (sine of latitude).
     double currentPolynomialParameter_;
 
+    //! Current 'complement' to polynomial parameter (cosine of latitude).
     double currentPolynomialParameterComplement_;
 
+    //! List of current values of Legendre polynomials at degree and order (n,m)
+    /*!
+     * List of current values of Legendre polynomials at degree and order (n,m). The corresponding polynomial is at entry
+     * n * ( maximumOrder_ + 1 ) + m.
+     */
     std::vector< double > legendreValues_;
 
-    double returnValue_ ;
-
+    //! Function from which to compute the Legendre polynomials.
     LegendrePolynomialFunction legendrePolynomialFunction_;
 
+    //! Boolean denoting whether the Legendre polynomials are geodesy-normalized or unnormalized
     bool useGeodesyNormalization_;
 
 };
@@ -175,9 +234,79 @@ double computeLegendrePolynomial( const int degree,
                                   const int order,
                                   LegendreCache& legendreCache );
 
+//! Compute unnormalized associated Legendre polynomial.
+/*!
+ * This function returns an unnormalized associated Legendre polynomial \f$ P _{ n, m }( u ) \f$
+ * with degree \f$ n \f$, order \f$ m \f$ and polynomial parameter \f$ u \f$.
+ * \f$ P _{ n, m }( u ) \f$ obeys the definition given by Vallado [2001]:
+ * \f[
+ *     P _{ n, m } ( u ) = ( 1 - u ^ 2 ) ^ { m / 2 } \frac{ d ^ m }{ du ^ m } \left[ P_n ( u )
+ *     \right] \textrm{ for }n \geq 0, 0 \leq m \leq n
+ * \f]
+ * in which \f$ P_{ n, m }( u ) \f$ is the ordinary Legendre polynomial with degree \f$ n \f$,
+ * order \f$ m \f$ and polynomial parameter \f$ u \f$.
+ *
+ * For \f$ n \geq 0, m \geq n \f$ the \f$ P _{ n, m }( u ) \f$ has been defined here as
+ * follows:
+ * \f[
+ *     P _{ n, m } ( u ) = 0 \textrm{ for }n \geq 0, m \geq n
+ * \f]
+ *
+ * This function has been optimized for repeated calls with varying 'degree' and 'order' arguments
+ * (but with identical 'polynomialParameter' argument). To this end the function maintains a
+ * back-end cache with intermediate results which is automatically carried over between calls.
+ * \param degree Degree of requested Legendre polynomial.
+ * \param order Order of requested Legendre polynomial.
+ * \param geodesyLegendreCache Legendre cache from which to retrieve Legendre polynomial.
+ * \return Unnormalized Legendre polynomial.
+*/
 double computeLegendrePolynomial( const int degree,
                                   const int order,
                                   const double legendreParameter );
+
+
+//! Compute geodesy-normalized associated Legendre polynomial.
+/*!
+ * This function returns a normalized associated Legendre polynomial
+ * \f$ \bar{ P }_{ n, m }( u ) \f$ with degree \f$ n \f$, order \f$ m \f$ and polynomial
+ * parameter \f$ u \f$. The normalization obeys the definition:
+ * \f[
+ *     \bar{ P }_{ n, m } ( u ) = \Pi_{ n, m } P_{ n, m } ( u )
+ * \f]
+ * in which \f$ \Pi_{ n, m } \f$ is the normalization factor which is commonly used in geodesy and
+ * is given by Heiskanen & Moritz [1967] as:
+ * \f[
+ *     \Pi_{ n, m } = \sqrt{ \frac{ ( 2 - \delta_{ 0, m } ) ( 2 n + 1 ) ( n - m )! }
+ *     { ( n + m )! } }
+ * \f]
+ * in which \f$ n \f$ is the degree, \f$ m \f$ is the order and \f$ \delta_{ 0, m } \f$ is the
+ * Kronecker delta.
+
+ * \f$ P _{ n, m }( u ) \f$ obeys the definition given by Vallado [2001]:
+ * \f[
+ *     P _{ n, m } ( u ) = ( 1 - u ^ 2 ) ^ { m / 2 } \frac{ d ^ m }{ du ^ m } \left[ P_n ( u )
+ *     \right]
+ * \f]
+ * in which \f$ P_{ n, m }( u ) \f$ is the ordinary Legendre polynomial with degree \f$ n \f$,
+ *  order \f$ m \f$ and polynomial parameter \f$ u \f$.
+ *
+ * For \f$ n \geq 0, m \geq n \f$ the \f$ P _{ n, m }( u ) \f$ has been defined here as
+ * follows:
+ * \f[
+ *     P _{ n, m } ( u ) = 0 \textrm{ for }n \geq 0, m \geq n
+ * \f]
+ *
+ * This function has been optimized for repeated calls with varying 'degree' and 'order' arguments
+ * (but with identical 'polynomialParameter' argument). To this end the function maintains a
+ * back-end cache with intermediate results which is automatically carried over between calls.
+ * \param degree Degree of requested Legendre polynomial.
+ * \param order Order of requested Legendre polynomial.
+ * \param geodesyLegendreCache Legendre cache from which to retrieve Legendre polynomial.
+ * \return Geodesy-normalized Legendre polynomial.
+*/
+double computeGeodesyLegendrePolynomial( const int degree,
+                                         const int order,
+                                         LegendreCache& geodesyLegendreCache );
 
 //! Compute geodesy-normalized associated Legendre polynomial.
 /*!
@@ -218,10 +347,6 @@ double computeLegendrePolynomial( const int degree,
  * \param polynomialParameter Free variable of requested Legendre polynomial.
  * \return Geodesy-normalized Legendre polynomial.
 */
-double computeGeodesyLegendrePolynomial( const int degree,
-                                         const int order,
-                                         LegendreCache& geodesyLegendreCache );
-
 double computeGeodesyLegendrePolynomial( const int degree,
                                          const int order,
                                          const double legendreParameter );
@@ -409,12 +534,15 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
                                                  const double twoDegreesPriorPolynomial );
 
 
-
+//! Predefine boost function for geodesy-normalized Legendre polynomial.
 static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction =
-        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache&  )>( &computeGeodesyLegendrePolynomial ), _1, _2, _3 );
+        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache&  )>(
+                         &computeGeodesyLegendrePolynomial ), _1, _2, _3 );
 
-static const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction =
-        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache& )>( &computeLegendrePolynomial ), _1, _2, _3 );
+//! Predefine boost function for unnormalized Legendre polynomial.
+const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction =
+        boost::bind( static_cast< double(&)( const int,  const int,  LegendreCache& )>(
+                         &computeLegendrePolynomial ), _1, _2, _3 );
 
 } // namespace basic_mathematics
 } // namespace tudat
