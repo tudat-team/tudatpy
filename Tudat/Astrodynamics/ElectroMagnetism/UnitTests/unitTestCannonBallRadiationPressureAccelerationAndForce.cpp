@@ -449,7 +449,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationModelClassConstructor )
 {
     // Declare and initialize cannon-ball radiation pressure acceleration model.
     electro_magnetism::CannonBallRadiationPressurePointer radiationPressureModel
-        = boost::make_shared< electro_magnetism::CannonBallRadiationPressure >( 
+        = boost::make_shared< electro_magnetism::CannonBallRadiationPressureAcceleration >(
             &getSourcePosition, &getAcceleratedBodyPosition, &getRadiationPressure,
             &getRadiationPressureCoefficient, &getAreaSubjectToRadiationPressure, 
             &getMassOfAcceleratedBody );
@@ -473,7 +473,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationModelClassUpdateMembers )
 {
     // Declare and initialize cannon-ball radiation pressure acceleration model.
     electro_magnetism::CannonBallRadiationPressurePointer radiationPressureModel
-        = boost::make_shared< electro_magnetism::CannonBallRadiationPressure >( 
+        = boost::make_shared< electro_magnetism::CannonBallRadiationPressureAcceleration >(
             &getSourcePosition, &getAcceleratedBodyPosition, &getRadiationPressure,
             &getRadiationPressureCoefficient, &getAreaSubjectToRadiationPressure, 
             &getMassOfAcceleratedBody );

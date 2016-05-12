@@ -34,12 +34,12 @@
 
 #include <iostream>
 
-#include "Tudat/SimulationSetup/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
 namespace tudat
 {
 
-namespace simulation_setup
+namespace basic_astrodynamics
 {
 
 //! Function to identify the derived class type of an acceleration model.
@@ -60,7 +60,7 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = central_gravity;
     }
-    else if( boost::dynamic_pointer_cast< CannonBallRadiationPressure >(
+    else if( boost::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >(
                  accelerationModel ) != NULL )
     {
         accelerationType = cannon_ball_radiation_pressure;

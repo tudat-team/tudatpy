@@ -88,7 +88,7 @@ Eigen::Vector3d computeCannonBallRadiationPressureAcceleration(
  * Class that can be used to compute the radiation pressure using a cannon-ball model, i.e.,
  * assuming force to be in opposite direction of the vector to the source.
  */
-class CannonBallRadiationPressure : public basic_astrodynamics::AccelerationModel3d
+class CannonBallRadiationPressureAcceleration: public basic_astrodynamics::AccelerationModel3d
 {
 private:
 
@@ -115,7 +115,7 @@ public:
      * \param areaFunction Function returning current area assumed to undergo radiation pressure.
      * \param massFunction Function returning current mass of body undergoing acceleration.
      */
-    CannonBallRadiationPressure(
+    CannonBallRadiationPressureAcceleration(
             Vector3dReturningFunction sourcePositionFunction,
             Vector3dReturningFunction acceleratedBodyPositionFunction,
             DoubleReturningFunction radiationPressureFunction,
@@ -144,7 +144,7 @@ public:
      * \param area Constant area assumed to undergo radiation pressure.
      * \param mass Constant mass of body undergoing acceleration.
      */
-    CannonBallRadiationPressure(
+    CannonBallRadiationPressureAcceleration(
             Vector3dReturningFunction sourcePositionFunction,
             Vector3dReturningFunction acceleratedBodyPositionFunction,
             DoubleReturningFunction radiationPressureFunction,
@@ -179,8 +179,9 @@ public:
      * Updates member variables used by the acceleration model. This function evaluates all
      * dependent variables to the 'current' values of these parameters. Only these current values,
      * not the function-pointers are then used by the getAcceleration( ) function.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( );
+    void updateMembers( const double currentTime = TUDAT_NAN );
 
 private:
 
@@ -251,8 +252,8 @@ private:
     double currentMass_;
 };
 
-//! Typedef for shared-pointer to CannonBallRadiationPressure.
-typedef boost::shared_ptr< CannonBallRadiationPressure > CannonBallRadiationPressurePointer;
+//! Typedef for shared-pointer to CannonBallRadiationPressureAcceleration.
+typedef boost::shared_ptr< CannonBallRadiationPressureAcceleration > CannonBallRadiationPressurePointer;
 
 } // namespace electro_magnetism
 } // namespace tudat

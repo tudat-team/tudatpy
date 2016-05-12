@@ -10,12 +10,16 @@
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/lexical_cast.hpp>
+
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #endif
+
+#include "Tudat/Astrodynamics/Ephemerides/keplerEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
+#include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 #include "Tudat/SimulationSetup/createEphemeris.h"
 
@@ -57,7 +61,7 @@ boost::shared_ptr< Ephemeris > createTabulatedEphemerisFromSpice(
                 lagrange_cubic_spline_boundary_interpolation );
 
     // Create ephemeris and return.
-    return boost::make_shared< TabulatedCartesianEphemeris >(
+    return boost::make_shared< TabulatedCartesianEphemeris< > >(
                 interpolator, observerName, referenceFrameName );
 }
 #endif
@@ -119,7 +123,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                     bodyName == "Uranus" || bodyName == "Neptune" )
             {
                 inputName += " Barycenter";
-                std::cerr<<"Warning, position of "<<bodyName<<" taken as baycenter of that body's "
+                std::cerr<<"Warning, position of "<<bodyName<<" taken as barycenter of that body's "
                         <<"planetary system."<<std::endl;
             }
 
@@ -148,7 +152,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         else
         {
             // Create corresponding ephemeris object.
-            ephemeris = boost::make_shared< TabulatedCartesianEphemeris >(
+            ephemeris = boost::make_shared< TabulatedCartesianEphemeris< > >(
                         boost::make_shared<
                         interpolators::LagrangeInterpolator< double, basic_mathematics::Vector6d > >
                         ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
@@ -156,6 +160,48 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                           interpolators::lagrange_cubic_spline_boundary_interpolation ),
                         tabulatedEphemerisSettings->getFrameOrigin( ),
                         tabulatedEphemerisSettings->getFrameOrientation( ) );
+        }
+        break;
+    }
+    case constant_ephemeris:
+    {
+        // Check consistency of type and class.
+        boost::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
+                boost::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
+        if( constantEphemerisSettings == NULL )
+        {
+            throw std::runtime_error( "Error, expected constant ephemeris settings for " + bodyName );
+        }
+        else
+        {
+            // Create ephemeris
+            ephemeris = boost::make_shared< ConstantEphemeris >(
+                        boost::lambda::constant( constantEphemerisSettings->getConstantState( ) ),
+                        constantEphemerisSettings->getFrameOrigin( ),
+                        constantEphemerisSettings->getFrameOrientation( ) );
+        }
+        break;
+    }
+    case kepler_ephemeris:
+    {
+        // Check consistency of type and class.
+        boost::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
+                boost::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
+        if( keplerEphemerisSettings == NULL )
+        {
+            throw std::runtime_error( "Error, expected Kepler ephemeris settings for " + bodyName );
+        }
+        else
+        {
+            // Create ephemeris
+            ephemeris = boost::make_shared< KeplerEphemeris >(
+                        keplerEphemerisSettings->getInitialStateInKeplerianElements( ),
+                        keplerEphemerisSettings->getEpochOfInitialState( ),
+                        keplerEphemerisSettings->getCentralBodyGravitationalParameter( ),
+                        keplerEphemerisSettings->getFrameOrigin( ),
+                        keplerEphemerisSettings->getFrameOrientation( ),
+                        keplerEphemerisSettings->getRootFinderAbsoluteTolerance( ),
+                        keplerEphemerisSettings->getRootFinderMaximumNumberOfIterations( ) );
         }
         break;
     }
