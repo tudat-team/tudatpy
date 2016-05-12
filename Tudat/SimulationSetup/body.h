@@ -61,15 +61,14 @@ public:
      */
     Body( const basic_mathematics::Vector6d& state =
             basic_mathematics::Vector6d::Zero( ),
-          const double time = 0.0, const double gravitationalParameter = 0.0,
+          const double time = 0.0,
           const Eigen::Quaterniond currentRotationToGlobalFrame =
             Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) )
         : currentState( state ),
           currentPosition( state.segment( 0, 3 ) ),
           currentVelocity( state.segment( 3, 3 ) ),
           currentTime( time ),
-          currentRotationToGlobalFrame_( currentRotationToGlobalFrame ),
-          gravitationalParameter_( gravitationalParameter )
+          currentRotationToGlobalFrame_( currentRotationToGlobalFrame )
     { }
 
     //! Set current time and state.
@@ -161,7 +160,6 @@ public:
             const boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
     {
         gravityFieldModel_ = gravityFieldModel;
-        gravitationalParameter_ = gravityFieldModel_->getGravitationalParameter( );
     }
 
     //! Function to set the atmosphere model of the body.
@@ -272,12 +270,6 @@ private:
 
     //! Current rotation from body-fixed to inertial frame.
     Eigen::Quaterniond currentRotationToGlobalFrame_;
-
-    //! Gravitational Parameter of body
-    /*!
-     * Default set to zero, calculated from GravityFieldModel when it is set.
-     */
-    double gravitationalParameter_;
 
     //! Ephemeris of body.
     boost::shared_ptr< ephemerides::Ephemeris > bodyEphemeris_;
