@@ -43,7 +43,6 @@ namespace unit_tests
 
 using namespace simulation_setup;
 using namespace basic_astrodynamics;
-using namespace spice_interface;
 using namespace input_output;
 using namespace reference_frames;
 
@@ -185,6 +184,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
 }
 #endif
 
+#if USE_CSPICE
 //! Test set up of spherical harmonic gravitational accelerations.
 BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 {
@@ -292,7 +292,9 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
+#endif
 
+#if USE_CSPICE
 //! Test radiation pressure acceleration
 BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 {
@@ -372,8 +374,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
 
 }
+#endif
 
-
+#if USE_CSPICE
 //! Test setup of aerodynamic accelerations (constant coefficients)
 BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 {
@@ -562,7 +565,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
                     expectedAerodynamicForce, computedAerodynamicForce, ( 5.0 *  std::numeric_limits< double >::epsilon( ) ) );
     }
 }
+#endif
 
+#if USE_CSPICE
 //! Test setup of aerodynamic accelerations (non-constant coefficients)
 BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndependentVariables )
 {
@@ -682,8 +687,8 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
                     automaticCoefficients, manualCoefficients, ( 5.0 *  std::numeric_limits< double >::epsilon( ) ) );
 
     }
-
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 

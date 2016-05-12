@@ -62,7 +62,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         break;
     }
-    #if C_SPICE
+    #if USE_CSPICE
     case central_spice:
     {
         if( gravityFieldVariationSettings.size( ) != 0 )
