@@ -43,8 +43,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 namespace tudat
 {
@@ -85,7 +85,8 @@ public:
      * \return State from ephemeris.
      */
     virtual basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch, const double julianDayAtEpoch ) = 0;
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
     //! Get reference frame origin.
     /*!

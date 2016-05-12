@@ -110,6 +110,8 @@ set(BASICSDIR "/Basics")
 set(EXTERNALDIR "/External")
 set(INPUTOUTPUTDIR "/InputOutput")
 set(MATHEMATICSDIR "/Mathematics")
+set(SIMULATIONSETUPDIR "/SimulationSetup")
+
 
 # Include the top-level directories.
 include_directories(AFTER
@@ -218,7 +220,7 @@ else()
 endif()
 
 # Set sub-directories.
-set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR})
+set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR} ${SIMULATIONSETUPDIR})
 
 # Add sub-directories to CMake process.
 foreach(CURRENT_SUBDIR ${SUBDIRS})
