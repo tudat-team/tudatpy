@@ -116,8 +116,8 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
         const double initialTime,
         const double finalTime );
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_DEFAULTBODIES_H

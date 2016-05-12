@@ -109,6 +109,6 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
     return settingsMap;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

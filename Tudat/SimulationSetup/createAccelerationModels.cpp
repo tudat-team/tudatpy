@@ -403,6 +403,6 @@ AccelerationMap createAccelerationModelsMap(
     return accelerationModelMap;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

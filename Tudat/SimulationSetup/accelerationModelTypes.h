@@ -126,8 +126,8 @@ typedef std::map< std::string, SingleBodyAccelerationMap > AccelerationMap;
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr<
 AccelerationSettings > > > > SelectedAccelerationMap;
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ACCELERATIONMODELTYPES_H

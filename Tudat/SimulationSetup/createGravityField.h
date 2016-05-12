@@ -204,7 +204,7 @@ private:
 boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const boost::shared_ptr< GravityFieldSettings > gravityFieldSettings,
         const std::string& body);
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 #endif // TUDAT_CREATEGRAVITYFIELD_H

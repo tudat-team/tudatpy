@@ -98,6 +98,6 @@ NamedBodyMap createBodies(
 
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

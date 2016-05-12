@@ -154,7 +154,7 @@ AccelerationMap createAccelerationModelsMap(
         const SelectedAccelerationMap& selectedAccelerationPerBody,
         const std::map< std::string, std::string >& centralBodies );
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 #endif // TUDAT_CREATEACCELERATIONMODELS_H

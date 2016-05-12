@@ -80,6 +80,6 @@ boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
     return rotationalEphemeris;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
