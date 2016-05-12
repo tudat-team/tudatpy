@@ -13,6 +13,9 @@
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #endif
+
+#include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
+
 #include "Tudat/SimulationSetup/createGravityField.h"
 
 namespace tudat
@@ -24,7 +27,9 @@ namespace simulation_setup
 //! Function to create a gravity field model.
 boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const boost::shared_ptr< GravityFieldSettings > gravityFieldSettings,
-        const std::string& body )
+        const std::string& body,
+        const NamedBodyMap& bodyMap,
+        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
 {
     using namespace tudat::gravitation;
 
@@ -42,8 +47,12 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         if( centralFieldSettings == NULL )
         {
             throw std::runtime_error(
-                "Error, expected central field settings when making gravity field model for body " +
-                 body);
+                        "Error, expected central field settings when making gravity field model for body " +
+                        body);
+        }
+        else if( gravityFieldVariationSettings.size( ) != 0 )
+        {
+            std::cerr<<"Error, requested central gravity field, but field variations settings are not empty."<<std::endl;
         }
         else
         {
@@ -56,9 +65,16 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
     #if C_SPICE
     case central_spice:
     {
-        // Create and initialize point mass gravity field model from Spice.
-        gravityFieldModel = boost::make_shared< GravityFieldModel >(
-                    spice_interface::getBodyGravitationalParameter( body ) );
+        if( gravityFieldVariationSettings.size( ) != 0 )
+        {
+            std::cerr<<"Error, requested central gravity field, but field variations settings are not empty."<<std::endl;
+        }
+        else
+        {
+            // Create and initialize point mass gravity field model from Spice.
+            gravityFieldModel = boost::make_shared< GravityFieldModel >(
+                        spice_interface::getBodyGravitationalParameter( body ) );
+        }
 
         break;
     }
@@ -74,7 +90,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         if( sphericalHarmonicFieldSettings == NULL )
         {
             throw std::runtime_error(
-             "Error, expected spherical harmonic field settings when making gravity field model of "
+                        "Error, expected spherical harmonic field settings when making gravity field model of "
                         + body );
         }
         else
@@ -91,22 +107,44 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             }
             else
             {
-                // Create and initialize spherical harmonic gravity field model.
-                gravityFieldModel = boost::make_shared< SphericalHarmonicsGravityField >(
-                            sphericalHarmonicFieldSettings->getGravitationalParameter( ),
-                            sphericalHarmonicFieldSettings->getReferenceRadius( ),
-                            sphericalHarmonicFieldSettings->getCosineCoefficients( ),
-                            sphericalHarmonicFieldSettings->getSineCoefficients( ) );
+
+                if( gravityFieldVariationSettings.size( ) == 0 &&
+                        sphericalHarmonicFieldSettings->getCreateTimeDependentField( ) == 0 )
+                {
+                    // Create and initialize spherical harmonic gravity field model.
+                    gravityFieldModel = boost::make_shared< SphericalHarmonicsGravityField >(
+                                sphericalHarmonicFieldSettings->getGravitationalParameter( ),
+                                sphericalHarmonicFieldSettings->getReferenceRadius( ),
+                                sphericalHarmonicFieldSettings->getCosineCoefficients( ),
+                                sphericalHarmonicFieldSettings->getSineCoefficients( ),
+                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ) );
+                }
+                else
+                {
+                    if( bodyMap.at( body )->getGravityFieldModel( ) != NULL )
+                    {
+                        std::cerr<<"Warning when making time-dependent gravity field model for body "<<body<<" existing gravity field "
+                                <<" is not empty but overwritten in Body! "<<std::endl;
+                    }
+
+                    // Create preliminary TimeDependentSphericalHarmonicsGravityField, without actual variation settings.
+                    gravityFieldModel = boost::make_shared< TimeDependentSphericalHarmonicsGravityField >(
+                                sphericalHarmonicFieldSettings->getGravitationalParameter( ),
+                                sphericalHarmonicFieldSettings->getReferenceRadius( ),
+                                sphericalHarmonicFieldSettings->getCosineCoefficients( ),
+                                sphericalHarmonicFieldSettings->getSineCoefficients( ),
+                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ) );
+                }
+
+
             }
-
-
         }
         break;
     }
     default:
         throw std::runtime_error(
-                 "Error, did not recognize gravity field model settings type " +
-                  boost::lexical_cast< std::string >(
+                    "Error, did not recognize gravity field model settings type " +
+                    boost::lexical_cast< std::string >(
                         gravityFieldSettings->getGravityFieldType( ) ) );
     }
 

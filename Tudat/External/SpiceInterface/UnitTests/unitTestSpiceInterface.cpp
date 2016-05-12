@@ -270,6 +270,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
             BOOST_CHECK_SMALL( inverseStateTransitionMatrix[ i + 3 ][ j ] -
                                inverseRotationMatrixDerivativeFromObject( i, j ),
                                2.0E-4 * std::numeric_limits< double >::epsilon( ) );
+
         }
     }
 

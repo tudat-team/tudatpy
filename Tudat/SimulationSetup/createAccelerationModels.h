@@ -18,7 +18,7 @@
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
-#include "Tudat/SimulationSetup/accelerationModelTypes.h"
+#include "Tudat/SimulationSetup/accelerationSettings.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 
@@ -27,15 +27,6 @@ namespace tudat
 
 namespace simulation_setup
 {
-
-//! Function to determine if a given frame is an inertial frame.
-/*!
- *  Function to determine if a given frame is an inertial frame. Currently a frame identified as
- *  "SSB" (solar system barycenter), "inertial" or "" (empty) is recognized as inertial.
- *  \param frame Name of frame for which it is to be determined whether it is inertial.
- *  \return True if inertial, false if not.
- */
-bool isFrameInertial( const std::string& frame );
 
 //! Function to create central gravity acceleration model.
 /*!
@@ -115,6 +106,42 @@ createThirdBodyCentralGravityAccelerationModel(
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody );
 
+//! Function to create an aerodynamic acceleration model.
+/*!
+ *  Function to create an aerodynamic acceleration model, automatically creates all required
+ *  links to environment models, vehicle properies and frame conversions
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration,
+ *  i.e. body with the atmosphere through which the accelerated body is flying.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
+ *  \return Pointer to object for calculating aerodynamic acceleration.
+ */
+boost::shared_ptr< aerodynamics::AerodynamicAcceleration >
+createAerodynamicAcceleratioModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration );
+
+//! Function to create a cannonball radiation pressure acceleration model.
+/*!
+ *  Function to create a cannonball radiation pressure automatically creates all required
+ *  links to environment models, vehicle properies and frame conversions
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration,
+ *  i.e. body emitting the radiation.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
+ *  \return Pointer to object for calculating cannonball radiation pressures acceleration.
+ */
+boost::shared_ptr< electro_magnetism::CannonBallRadiationPressureAcceleration >
+createCannonballRadiationPressureAcceleratioModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration );
+
 //! Function to create acceleration model object.
 /*!
  *  Function to create acceleration model object.
@@ -151,7 +178,7 @@ createAccelerationModel(
  *  \param centralBodies Map of central bodies for each body undergoing acceleration.
  *  \return List of acceleration model objects, in form of AccelerationMap.
  */
-AccelerationMap createAccelerationModelsMap(
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
         const NamedBodyMap& bodyMap,
         const SelectedAccelerationMap& selectedAccelerationPerBody,
         const std::map< std::string, std::string >& centralBodies );

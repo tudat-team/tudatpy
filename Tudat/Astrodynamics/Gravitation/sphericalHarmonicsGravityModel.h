@@ -51,6 +51,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModelBase.h"
@@ -202,6 +203,8 @@ public:
      * \param aSineHarmonicCoefficientMatrix A (constant) sine harmonic coefficient matrix.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration (default = (0,0,0)).
+     * \param rotationFromBodyFixedToIntegrationFrameFunction Function providing the rotation from
+     * body-fixes from to the frame in which the numerical integration is performed.
      */
     SphericalHarmonicsGravitationalAccelerationModel(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
@@ -210,14 +213,19 @@ public:
             const CoefficientMatrixType aCosineHarmonicCoefficientMatrix,
             const CoefficientMatrixType aSineHarmonicCoefficientMatrix,
             const StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
+            const boost::function< Eigen::Quaterniond( ) >
+            rotationFromBodyFixedToIntegrationFrameFunction =
+            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction ),
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients(
               boost::lambda::constant(aCosineHarmonicCoefficientMatrix ) ),
-          getSineHarmonicsCoefficients( boost::lambda::constant(aSineHarmonicCoefficientMatrix ) )
+          getSineHarmonicsCoefficients( boost::lambda::constant(aSineHarmonicCoefficientMatrix ) ),
+          rotationFromBodyFixedToIntegrationFrameFunction_(
+              rotationFromBodyFixedToIntegrationFrameFunction )
     {
         this->updateMembers( );
     }
@@ -241,6 +249,8 @@ public:
                 sine-coefficients of spherical harmonics expansion.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration (default = (0,0,0)).
+     * \param rotationFromBodyFixedToIntegrationFrameFunction Function providing the rotation from
+     * body-fixes from to the frame in which the numerical integration is performed.
      */
     SphericalHarmonicsGravitationalAccelerationModel(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
@@ -249,13 +259,17 @@ public:
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
+            const boost::function< Eigen::Quaterniond( ) >
+            rotationFromBodyFixedToIntegrationFrameFunction =
+            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
                 positionOfBodyExertingAccelerationFunction ),
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
-          getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction )
+          getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
+          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction )
     {
         this->updateMembers( );
     }
@@ -273,12 +287,17 @@ public:
     /*!
      * Updates all the base class members to their current values and also updates the class
      * members of this class.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( )
+    void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
-        sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
-        this->updateBaseMembers( );
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
+            sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
+            rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
+            this->updateBaseMembers( );
+        }
     }
 
 protected:
@@ -316,6 +335,13 @@ private:
      * spherical harmonics expansion.
      */
     const CoefficientMatrixReturningFunction getSineHarmonicsCoefficients;
+
+    //! Function returning the current rotation from body-fixed frame to integration frame.
+    boost::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction_;
+
+    //! Current rotation from body-fixed frame to integration frame.
+    Eigen::Quaterniond rotationToIntegrationFrame_;
+
 };
 
 //! Typedef for SphericalHarmonicsGravitationalAccelerationModelXd.
@@ -335,13 +361,10 @@ template< typename CoefficientMatrixType >
 Eigen::Vector3d SphericalHarmonicsGravitationalAccelerationModel< CoefficientMatrixType >
 ::getAcceleration( )
 {
-    return computeGeodesyNormalizedGravitationalAccelerationSum(
-                this->positionOfBodySubjectToAcceleration
-                - this->positionOfBodyExertingAcceleration,
-                gravitationalParameter,
-                equatorialRadius,
-                cosineHarmonicCoefficients,
-                sineHarmonicCoefficients );
+    return rotationToIntegrationFrame_ * computeGeodesyNormalizedGravitationalAccelerationSum(
+                rotationToIntegrationFrame_.inverse( ) *
+                ( this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration ),
+                gravitationalParameter, equatorialRadius, cosineHarmonicCoefficients, sineHarmonicCoefficients );
 }
 
 } // namespace gravitation

@@ -11,25 +11,33 @@
 
 # Add source files.
 set(SIMULATION_SETUP_SOURCES
-  "${SRCROOT}${SIMULATIONSETUPDIR}/accelerationModelTypes.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationModels.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAtmosphereModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createEphemeris.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createFlightConditions.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createGravityFieldVariations.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createGravityField.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRotationModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodies.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyShapeModel.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/body.cpp"
 )
 
 # Add header files.
 set(SIMULATION_SETUP_HEADERS 
-  "${SRCROOT}${SIMULATIONSETUPDIR}/accelerationModelTypes.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/accelerationSettings.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationModels.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAtmosphereModel.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createEphemeris.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createFlightConditions.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createGravityFieldVariations.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createGravityField.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRotationModel.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodies.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyShapeModel.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.h"
 )

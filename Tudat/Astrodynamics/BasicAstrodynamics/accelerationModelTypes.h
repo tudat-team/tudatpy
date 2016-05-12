@@ -1,3 +1,6 @@
+#ifndef TUDAT_ACCELERATIONMODELTYPES_H
+#define TUDAT_ACCELERATIONMODELTYPES_H
+
 /*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
@@ -24,13 +27,58 @@
  *
  *    Changelog
  *      YYMMDD    Author            Comment
- *      120823    K. Kumar          File created.
+ *      150501    D. Dirkx          Ported from personal code
  *
  *    References
  *
  *    Notes
- *      This file is necessary to ensure that the StateDerivativeModels directory appears in the Qt
- *      Creator project tree. It can be removed once a source file (.cpp) is added to the
- *      directory.
  *
  */
+
+#include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
+#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
+
+
+namespace tudat
+{
+
+namespace basic_astrodynamics
+{
+
+
+//! List of accelerations available in simulations
+/*!
+ *  List of accelerations available in simulations. Acceleration models not defined by this
+ *  given enum cannot be used for automatic acceleration model setup.
+ */
+enum AvailableAcceleration
+{
+    undefined_acceleration,
+    central_gravity,
+    aerodynamic,
+    cannon_ball_radiation_pressure,
+    spherical_harmonic_gravity,
+    third_body_central_gravity,
+    third_body_spherical_harmonic_gravity
+};
+
+//! Function to identify the derived class type of an acceleration model.
+/*!
+ *  Function to identify the derived class type of an acceleration model. The type must be defined
+ *  in the AvailableAcceleration enum to be recognized by this function.
+ *  \param accelerationModel Acceleration model of which the type is to be identified.
+ *  \return Type of the accelerationModel, as identified by AvailableAcceleration enum.
+ */
+AvailableAcceleration getAccelerationModelType(
+        const boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+        accelerationModel );
+
+
+}
+
+}
+
+#endif // TUDAT_ACCELERATIONMODELTYPES_H

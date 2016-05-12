@@ -59,7 +59,7 @@ namespace aerodynamics
  *  Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
  *  Note that for a custom coefficient interface with other variables, you may use the
  *  undefined_independent_variable variable type, but at the expense of being able to use the
- *  FlightConditions class to automatically update the aerodynamic coefficients during propagation.
+ *  FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
  */
 enum AerodynamicCoefficientsIndependentVariables
 {
@@ -241,7 +241,27 @@ public:
         return numberOfIndependentVariables_;
     }
 
+    //! Function that returns whether the coefficients are given in aerodynamic frame.
+    /*!
+     * Function that returns whether the coefficients are given in aerodynamic frame (given in body)
+     * frame if false.
+     * \return Boolean whether coefficients are in aerodynamic frame
+     */
+    bool getAreCoefficientsInAerodynamicFrame( )
+    {
+        return areCoefficientsInAerodynamicFrame_;
+    }
 
+    //! Function that returns whether the coefficients are positive in positive axes directions.
+    /*!
+     * Function that returns whether the coefficients are positive in positive axes directions, i.e.
+     * if positive force (in given frame) gives positive coefficients.
+     * \return Boolean whether coefficients are in positive direction.
+     */
+    bool getAreCoefficientsInNegativeAxisDirection( )
+    {
+        return areCoefficientsInNegativeAxisDirection_;
+    }
 
 protected:
 

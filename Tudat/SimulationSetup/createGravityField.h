@@ -27,8 +27,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/createGravityFieldVariations.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
+#include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 
 namespace tudat
 {
@@ -129,13 +131,14 @@ public:
                                             const double referenceRadius,
                                             const Eigen::MatrixXd cosineCoefficients,
                                             const Eigen::MatrixXd sineCoefficients,
-                                            const std::string associatedReferenceFrame ):
+                                            const std::string& associatedReferenceFrame ):
         GravityFieldSettings( spherical_harmonic ),
         gravitationalParameter_( gravitationalParameter ),
         referenceRadius_( referenceRadius ),
         cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ),
-        associatedReferenceFrame_( associatedReferenceFrame )
+        associatedReferenceFrame_( associatedReferenceFrame ),
+        createTimeDependentField_( 0 )
     {  }
 
     //! Function to return gravitational parameter for gravity field.
@@ -174,6 +177,13 @@ public:
      */
     std::string getAssociatedReferenceFrame( ){ return associatedReferenceFrame_; }
 
+    bool getCreateTimeDependentField( ){ return createTimeDependentField_; }
+
+    void setCreateTimeDependentField( const bool createTimeDependentField )
+    {
+        createTimeDependentField_ = createTimeDependentField;
+    }
+
 private:
 
 
@@ -191,6 +201,9 @@ private:
 
     //! Identifier for body-fixed reference frame to which the coefficients are referred.
     std::string associatedReferenceFrame_;
+
+    bool createTimeDependentField_;
+
 };
 
 //! Function to create a gravity field model.
@@ -199,11 +212,18 @@ private:
  *  \param gravityFieldSettings Settings for the gravity field model that is to be created, defined
  *  a pointer to an object of class (derived from) GravityFieldSettings.
  *  \param body Name of the body for which the gravity field model is to be created.
+ *  \param bodyMap List of body objects, as currently created (used when setting gravityFieldVariationSettings)
+ *  \param gravityFieldVariationSettings List of settings for the variations of the gravity field that are to be used
+ *  (but not immediately set!) by current body under consideration.
  *  \return Gravity field model created according to settings in gravityFieldSettings.
  */
 boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         const boost::shared_ptr< GravityFieldSettings > gravityFieldSettings,
-        const std::string& body);
+        const std::string& body,
+        const NamedBodyMap& bodyMap = NamedBodyMap( ),
+        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
+        std::vector< boost::shared_ptr< GravityFieldVariationSettings > >( ) );
+
 } // namespace simulation_setup
 
 } // namespace tudat
