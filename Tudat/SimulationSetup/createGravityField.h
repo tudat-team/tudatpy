@@ -180,7 +180,7 @@ private:
     //! Gravitational parameter for gravity field that is to be created.
     double gravitationalParameter_;
 
-    //! Reference radius of spherical harmonic field expansion
+    //! Reference radius of spherical harmonic field expansion.
     double referenceRadius_;
 
     //! Cosine spherical harmonic coefficients (geodesy normalized).

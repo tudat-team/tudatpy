@@ -127,7 +127,7 @@ public:
      *  Function to return rotation from base to target frame at initialTime.
      *  \return Rotation from base to target frame at initialTime.
      */
-    Eigen::Quaterniond getInitialOrientation( ){ return initialOrientation_; }    
+    Eigen::Quaterniond getInitialOrientation( ){ return initialOrientation_; }
 
     //! Function to return time at which initialOrientation represents the instantaneous rotation.
     /*!
