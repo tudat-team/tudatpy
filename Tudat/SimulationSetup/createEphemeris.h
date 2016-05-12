@@ -56,8 +56,10 @@ public:
      *  Settings for ephemeris models requiring additional information should be defined in a
      *  derived class.
      *  \param ephemerisType Type of ephemeris model that is to be created.
-     *  \param frameOrigin Origin of frame in which ephemeris data is defined.
-     *  \param frameOrientation Orientation of frame in which ephemeris data is defined.
+     *  \param frameOrigin Origin of frame in which ephemeris data is defined
+     *         (optional "SSB" by default).
+     *  \param frameOrientation Orientation of frame in which ephemeris data is defined
+     *         (optional "ECLIPJ2000" by default).
      */
     EphemerisSettings( const EphemerisType ephemerisType,
                        const std::string& frameOrigin = "SSB",
@@ -109,25 +111,26 @@ public:
 
     //! Constructor.
     /*! Constructor, sets the properties from which the Spice ephemeris is to be retrieved.
-     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated.
+     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated
+     *        (optional "SSB" by default).
      * \param correctForStellarAbberation Boolean whether to correct for stellar Abberation in
-     *          retrieved values of (observed state).
+     *          retrieved values of (observed state) (optional "ECLIPJ2000" by defalut).
      * \param correctForLightTimeAbberation Boolean whether to correct for light time in
-     *          retrieved values of (observed state).
+     *          retrieved values of (observed state) (optional false by default).
      * \param convergeLighTimeAbberation Boolean whether to use single iteration or max. 3
-     *          iterations for calculating light time.
+     *          iterations for calculating light time (optional false by default).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
-     *          calculated.
+     *          calculated (optional false by default).
      * \param ephemerisType Type of ephemeris that is to be created, always set to
      *          direct_spice_ephemeris when using this class directly. The derived class
      *          InterpolatedSpiceEphemerisSettings sets this parameter to a different value. Not
-     *          to be changed by used.
+     *          to be changed by used (optional direct_spice_ephemeris by default).
      */
     DirectSpiceEphemerisSettings( const std::string frameOrigin = "SSB",
                                   const std::string frameOrientation = "ECLIPJ2000",
-                                  const bool correctForStellarAbberation = 0,
-                                  const bool correctForLightTimeAbberation = 0,
-                                  const bool convergeLighTimeAbberation = 0,
+                                  const bool correctForStellarAbberation = false,
+                                  const bool correctForLightTimeAbberation = false,
+                                  const bool convergeLighTimeAbberation = false,
                                   const EphemerisType ephemerisType = direct_spice_ephemeris ):
         EphemerisSettings( ephemerisType, frameOrigin, frameOrientation ),
         correctForStellarAbberation_( correctForStellarAbberation ),
@@ -193,9 +196,10 @@ public:
      * \param initialTime Initial time from which interpolated data from Spice should be created.
      * \param finalTime Final time from which interpolated data from Spice should be created.
      * \param timeStep Time step with which interpolated data from Spice should be created.
-     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated.
+     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated
+     *        (optional "SSB" by defauld).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
-     *          calculated.
+     *          calculated (optional "ECLIPJ2000" by default).
      */
     InterpolatedSpiceEphemerisSettings( double initialTime,
                                         double finalTime,
@@ -319,9 +323,10 @@ public:
      *  Constructor.
      *  \param bodyStateHistory Data map (time as key, Cartesian state as values) defining data
      *  from which an interpolated ephemeris is to be created.
-     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated.
+     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated
+     *        (optional "SSB" by default).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
-     *          calculated.
+     *          calculated (optional, "ECLIPJ2000" by default).
      */
     TabulatedEphemerisSettings(
             const std::map< double, basic_mathematics::Vector6d >& bodyStateHistory,
@@ -363,6 +368,7 @@ private:
  * \param observerName Name of body relative to which the ephemeris is to be calculated.
  * \param referenceFrameName Orientatioan of the reference frame in which the epehemeris is to be
  *          calculated.
+ * \return Tabulated ephemeris using data from Spice.
  */
 boost::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
         const std::string& body,

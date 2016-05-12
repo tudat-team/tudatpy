@@ -144,7 +144,7 @@ public:
      *  Constructor.
      *  \param atmosphereFile File containing atmospheric properties, file should contain
      *  four columns of atmospheric data with altitude, density, pressure and temperature,
-     *  respecrively.
+     *  respectively.
      */
     TabulatedAtmosphereSettings( const std::string& atmosphereFile ):
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereFile ){ }
@@ -152,7 +152,7 @@ public:
     //! Function to return file containing atmospheric properties.
     /*!
      *  Function to return file containing atmospheric properties.
-     *  \return File containing atmospheric properties.
+     *  \return Filename containing atmospheric properties.
      */
     std::string getAtmosphereFile( ){ return atmosphereFile_; }
 

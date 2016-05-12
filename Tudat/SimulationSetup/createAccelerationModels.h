@@ -52,6 +52,7 @@ bool isFrameInertial( const std::string& frame );
  *  Should be set to true in case the body undergoing acceleration is a celestial body
  *  (with gravity field) and integration is performed in the frame centered at the body exerting
  *  acceleration.
+ *  \return Central gravity acceleration model pointer.
  */
 boost::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
 createCentralGravityAcceleratioModel(
@@ -78,6 +79,7 @@ createCentralGravityAcceleratioModel(
  *  Should be set to true in case the body undergoing acceleration is a celestial body
  *  (with gravity field) and integration is performed in the frame centered at the body exerting
  *  acceleration.
+ *  \return Spherical harmonic gravity acceleration model pointer.
  */
 boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModelXd >
 createSphericalHarmonicsGravityAcceleration(
@@ -123,9 +125,9 @@ createThirdBodyCentralGravityAccelerationModel(
  *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
  *  \param centralBody Pointer to central body in frame centered at which acceleration is to be
- *  calculated (only relevant for third body accelerations).
+ *  calculated (optional, only relevant for third body accelerations).
  *  \param nameOfCentralBody Name of central body in frame cenetered at which acceleration is to
- *  be calculated (only relevant for third body accelerations).
+ *  be calculated (optional, only relevant for third body accelerations).
  *  \return Acceleration model pointer.
  */
 boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
