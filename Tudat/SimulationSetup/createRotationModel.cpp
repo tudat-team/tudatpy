@@ -14,7 +14,9 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#endif
 #include "Tudat/SimulationSetup/createRotationModel.h"
 
 namespace tudat
@@ -59,6 +61,7 @@ boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         }
         break;
     }
+    #if USE_CSPICE
     case spice_rotation_model:
     {
         // Create rotational ephemeris directly from Spice.
@@ -67,6 +70,7 @@ boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                     rotationModelSettings->getTargetFrame( ) );
         break;
     }
+    #endif
     default:
         throw std::runtime_error(
                  "Error, did not recognize rotation model settings type " +
