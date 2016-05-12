@@ -178,9 +178,9 @@ private:
 boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         const boost::shared_ptr< AtmosphereSettings > atmosphereSettings,
         const std::string& body );
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 
 #endif // TUDAT_CREATEATMOSPHEREMODEL_H

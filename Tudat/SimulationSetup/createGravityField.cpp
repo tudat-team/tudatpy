@@ -113,6 +113,6 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
     return gravityFieldModel;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

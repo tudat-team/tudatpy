@@ -294,8 +294,8 @@ private:
 
 typedef std::map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_BODY_H

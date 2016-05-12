@@ -92,6 +92,6 @@ AvailableAcceleration getAccelerationModelType(
 }
 
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

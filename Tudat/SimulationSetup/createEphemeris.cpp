@@ -197,6 +197,6 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
 
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

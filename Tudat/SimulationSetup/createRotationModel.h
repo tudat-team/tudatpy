@@ -166,8 +166,8 @@ private:
 boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const boost::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body );
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEROTATIONMODEL_H

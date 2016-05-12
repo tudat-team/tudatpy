@@ -84,6 +84,6 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
 }
 
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

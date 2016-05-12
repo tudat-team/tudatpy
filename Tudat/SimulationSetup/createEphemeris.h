@@ -385,8 +385,8 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const std::string& bodyName );
 
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEEPHEMERIS_H
