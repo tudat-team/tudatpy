@@ -57,6 +57,7 @@ void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int degree, cons
 }
 
 
+//! Compute the gradient of a single term of a spherical harmonics potential field.
 Eigen::Vector3d computePotentialGradient(
         const double distance,
         const double radiusPowerTerm,
@@ -88,7 +89,7 @@ Eigen::Vector3d computePotentialGradient(
                  - cosineHarmonicCoefficient * sineOfOrderLongitude ) ).finished( );
 }
 
-// Compute the gradient of a single term of a spherical harmonics potential field.
+//! Compute the gradient of a single term of a spherical harmonics potential field.
 Eigen::Vector3d computePotentialGradient(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
@@ -110,6 +111,7 @@ Eigen::Vector3d computePotentialGradient(
                 cosineHarmonicCoefficient, sineHarmonicCoefficient, legendrePolynomial,legendrePolynomialDerivative );
 }
 
+//! Compute the gradient of a single term of a spherical harmonics potential field.
 Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPosition,
                                           const double preMultiplier,
                                           const int degree,
@@ -124,7 +126,8 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                 sphericalPosition( radiusIndex ),
                 sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
                 sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                sphericalHarmonicsCache->getSineOfMultipleLongitude( order ), sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
+                sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
                 preMultiplier, degree, order,
                 cosineHarmonicCoefficient, sineHarmonicCoefficient, legendrePolynomial,legendrePolynomialDerivative );
 }

@@ -47,7 +47,7 @@ namespace basic_mathematics
 {
 
 
-//! Initialize LegendreCache instance.
+//! Default constructor, initializes cache object with 0 maximum degree and order.
 LegendreCache::LegendreCache( const bool useGeodesyNormalization )
 {
     useGeodesyNormalization_  = useGeodesyNormalization;
@@ -62,9 +62,9 @@ LegendreCache::LegendreCache( const bool useGeodesyNormalization )
     }
 
     resetMaximumDegreeAndOrder( 0, 0 );
-    returnValue_ = TUDAT_NAN;
 }
 
+//! Constructor
 LegendreCache::LegendreCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization  )
 {
     useGeodesyNormalization_  = useGeodesyNormalization;
@@ -79,7 +79,6 @@ LegendreCache::LegendreCache( const int maximumDegree, const int maximumOrder, c
     }
 
     resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
-    returnValue_ = TUDAT_NAN;
 }
 
 //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
@@ -98,6 +97,7 @@ void LegendreCache::update( const double polynomialParameter  )
     }
 }
 
+//! Update maximum degree and order of cache
 void LegendreCache::resetMaximumDegreeAndOrder( const int degree, const int order )
 {
     maximumDegree_ = degree;
@@ -108,7 +108,7 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int degree, const int orde
     currentPolynomialParameterComplement_ = TUDAT_NAN;
 }
 
-//! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
+//! Get Legendre polynomial value from the cache.
 double LegendreCache::getLegendrePolynomial(
         const int degree, const int order )
 {
@@ -116,18 +116,16 @@ double LegendreCache::getLegendrePolynomial(
     {
         std::cerr<<"Error when requesting legendre cache, maximum degree or order exceeded "<<
                    degree<<" "<<maximumDegree_<<" "<<order<<" "<<maximumOrder_<<std::endl;
+        return TUDAT_NAN;
     }
     else if( order > degree )
     {
-        returnValue_ = 0.0;
+        return 0.0;
     }
     else
     {
-        returnValue_ = legendreValues_[ degree * ( maximumOrder_ + 1  ) + order ];
-    }
-
-    return returnValue_;
-
+        return legendreValues_[ degree * ( maximumOrder_ + 1  ) + order ];
+    };
 }
 
 //! Compute unnormalized associated Legendre polynomial.
