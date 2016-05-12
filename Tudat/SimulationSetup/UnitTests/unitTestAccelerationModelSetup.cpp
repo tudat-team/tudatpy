@@ -174,13 +174,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
 }
 #endif
 
-#if USE_CSPICE
 //! Test set up of spherical harmonic gravitational accelerations.
 BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 {
-    // Load Spice kernel with gravitational parameters.
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
 
     // Create body map
     NamedBodyMap bodyMap;
@@ -281,7 +277,6 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 
