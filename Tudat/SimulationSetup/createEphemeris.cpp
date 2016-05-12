@@ -10,8 +10,9 @@
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/lexical_cast.hpp>
-
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#endif
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
@@ -26,6 +27,7 @@ namespace simulation_setup
 
 using namespace ephemerides;
 
+#if USE_CSPICE
 //! Function to create a tabulated ephemeris using data from Spice.
 boost::shared_ptr< Ephemeris > createTabulatedEphemerisFromSpice(
         const std::string& body,
@@ -58,6 +60,8 @@ boost::shared_ptr< Ephemeris > createTabulatedEphemerisFromSpice(
     return boost::make_shared< TabulatedCartesianEphemeris >(
                 interpolator, observerName, referenceFrameName );
 }
+#endif
+
 //! Function to create a ephemeris model.
 boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
@@ -69,6 +73,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
     // Check which type of ephemeris model is to be created.
     switch( ephemerisSettings->getEphemerisType( ) )
     {
+    #if USE_CSPICE
     case direct_spice_ephemeris:
     {
         // Check consistency of type and class.
@@ -129,6 +134,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         }
         break;
     }
+    #endif
     case tabulated_ephemeris:
     {
         // Check consistency of type and class.

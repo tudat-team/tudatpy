@@ -10,7 +10,9 @@
 
 #include <boost/make_shared.hpp>
 
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#endif
 #include "Tudat/SimulationSetup/createGravityField.h"
 
 namespace tudat
@@ -51,6 +53,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         break;
     }
+    #if C_SPICE
     case central_spice:
     {
         // Create and initialize point mass gravity field model from Spice.
@@ -59,6 +62,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 
         break;
     }
+    #endif
     case spherical_harmonic:
     {
         // Check whether settings for spherical harmonic gravity field model are consistent with

@@ -22,7 +22,9 @@
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Basics/testMacros.h"
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#endif
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
@@ -37,6 +39,7 @@ using namespace simulation_setup;
 
 BOOST_AUTO_TEST_SUITE( test_acceleration_model_setup )
 
+#if USE_CSPICE
 //! Test set up of point mass gravitational accelerations, both direct and third-body.
 BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
 {
@@ -169,7 +172,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
                 ( basic_astrodynamics::updateAndGetAcceleration( manualJupiterAcceleration ) ),
                 std::numeric_limits< double >::epsilon( ) );
 }
+#endif
 
+#if USE_CSPICE
 //! Test set up of spherical harmonic gravitational accelerations.
 BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 {
@@ -276,6 +281,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 

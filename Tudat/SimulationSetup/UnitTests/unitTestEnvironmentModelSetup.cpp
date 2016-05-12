@@ -26,7 +26,9 @@
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Basics/testMacros.h"
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#endif
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
@@ -95,6 +97,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 
 }
 
+#if USE_CSPICE
 //! Test set up of ephemeris environment models.
 BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 {
@@ -194,7 +197,9 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
 
 }
+#endif
 
+#if USE_CSPICE
 //! Test set up of gravity field model environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 {
@@ -285,6 +290,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
+#endif
 
 //! Test set up of rotation model environment models.
 BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
