@@ -55,11 +55,13 @@ endif()
 add_executable(test_EnvironmentSetup "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestEnvironmentModelSetup.cpp")
 setup_custom_test_program(test_EnvironmentSetup "${SRCROOT}${SIMULATIONSETUPDIR}/")
 target_link_libraries(test_EnvironmentSetup tudat_simulation_setup tudat_gravitation tudat_ephemerides
-                      tudat_reference_frames tudat_aerodynamics tudat_input_output tudat_basic_astrodynamics
+                      tudat_reference_frames tudat_electro_magnetism tudat_aerodynamics tudat_geometric_shapes
+                      tudat_input_output tudat_basic_astrodynamics
                       tudat_basic_mathematics ${TUDAT_CSPICE_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_AccelerationModelSetup "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestAccelerationModelSetup.cpp")
 setup_custom_test_program(test_AccelerationModelSetup "${SRCROOT}${SIMULATIONSETUPDIR}/")
 target_link_libraries(test_AccelerationModelSetup tudat_simulation_setup tudat_gravitation tudat_ephemerides
-                      tudat_reference_frames tudat_aerodynamics tudat_input_output tudat_basic_astrodynamics
+                      tudat_reference_frames tudat_electro_magnetism tudat_aerodynamics tudat_geometric_shapes
+                      tudat_input_output tudat_basic_astrodynamics
                       tudat_basic_mathematics ${TUDAT_CSPICE_LIBRARIES} ${Boost_LIBRARIES})

@@ -29,9 +29,11 @@
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Basics/testMacros.h"
+
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #endif
+
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
@@ -48,7 +50,6 @@ namespace unit_tests
 {
 
 using namespace simulation_setup;
-using namespace spice_interface;
 using namespace input_output;
 using namespace reference_frames;
 using namespace basic_astrodynamics;
@@ -103,7 +104,6 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
                        exponentialAtmosphere->getPressure( 32.0, 0.0, 0.0, 0.0 ) );
     BOOST_CHECK_EQUAL( manualExponentialAtmosphere.getTemperature( 32.0, 0.0, 0.0, 0.0 ),
                        exponentialAtmosphere->getTemperature( 32.0, 0.0, 0.0, 0.0 ) );
-
 }
 
 #if USE_CSPICE
@@ -301,15 +301,16 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 }
 #endif
 
+#if USE_CSPICE
 //! Test set up of gravity field model variations environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 {
     // Load Spice kernel with gravitational parameters.
     const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
 
 
     // Settings for spherical harmonic acceleration.
@@ -494,12 +495,12 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     // Calculate corrections manually and compare against created results.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directMoonTide =
             gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                fullLoveNumberVector, getBodyGravitationalParameter( "Moon" ) / gravitationalParameter,
+                fullLoveNumberVector, spice_interface::getBodyGravitationalParameter( "Moon" ) / gravitationalParameter,
                 referenceRadius,  spice_interface::getBodyCartesianPositionAtEpoch(
                     "Moon", "Earth", "IAU_Earth", "None", testTime ), 3, 2 );
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directSunTide =
             gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                fullLoveNumberVector, getBodyGravitationalParameter( "Sun" ) / gravitationalParameter,
+                fullLoveNumberVector, spice_interface::getBodyGravitationalParameter( "Sun" ) / gravitationalParameter,
                 referenceRadius,  spice_interface::getBodyCartesianPositionAtEpoch(
                     "Sun", "Earth", "IAU_Earth", "None", testTime ), 3, 2 );
 
@@ -512,7 +513,9 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         }
     }
 }
+#endif
 
+#if USE_CSPICE
 //! Test set up of rotation models.
 BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 {
@@ -555,15 +558,17 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
+#endif
 
+#if USE_CSPICE
 //! Test set up of radiation pressure interfacel environment models.
 BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 {
     // Load Spice kernels
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
 
     // Define body settings.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -611,7 +616,9 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
                                 std::numeric_limits< double >::epsilon( ) );
 
 }
+#endif
 
+#if USE_CSPICE
 //! Test set up of body shape environment models (see testShapeModels).
 BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
 {
@@ -652,16 +659,17 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
     }
 
 }
+#endif
 
-
+#if USE_CSPICE
 //! Test set up of flight conditions object.
 BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 {
     // Load Spice kernels
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
 
     // Define body settings/
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -745,6 +753,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
 
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 
