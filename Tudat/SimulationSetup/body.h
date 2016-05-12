@@ -55,13 +55,13 @@ public:
      * (3, 3).
      * \param state Current state of body at initialization (default = zeroes).
      * \param time Current time of body at initialization (default = zeroes).
-     * \param bodyMass Current mass of body at initialization (default = zeroes).
+     * \param gravitationalParameter Gravitational parameter of body at initialization (default = zeroes).
      * \param currentRotationToGlobalFrame Current rotation of from body-fixed to inertial frames
      *  at initialization (default = identity)
      */
     Body( const basic_mathematics::Vector6d& state =
             basic_mathematics::Vector6d::Zero( ),
-          const double time = 0.0, const double bodyMass = 0.0,
+          const double time = 0.0, const double gravitationalParameter = 0.0,
           const Eigen::Quaterniond currentRotationToGlobalFrame =
             Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) )
         : currentState( state ),
@@ -69,7 +69,7 @@ public:
           currentVelocity( state.segment( 3, 3 ) ),
           currentTime( time ),
           currentRotationToGlobalFrame_( currentRotationToGlobalFrame ),
-          bodyMass_( bodyMass )
+          gravitationalParameter_( gravitationalParameter )
     { }
 
     //! Set current time and state.
@@ -161,7 +161,7 @@ public:
             const boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
     {
         gravityFieldModel_ = gravityFieldModel;
-        bodyMass_ = gravityFieldModel_->getGravitationalParameter( );
+        gravitationalParameter_ = gravityFieldModel_->getGravitationalParameter( );
     }
 
     //! Function to set the atmosphere model of the body.
@@ -273,8 +273,9 @@ private:
     //! Current rotation from body-fixed to inertial frame.
     Eigen::Quaterniond currentRotationToGlobalFrame_;
 
-    //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
-    double bodyMass_;
+    //! Gravitational parameter of body
+    // Default set to zero, calculated from GravityFieldModel when it is set.
+    double gravitationalParameter_;
 
     //! Ephemeris of body.
     boost::shared_ptr< ephemerides::Ephemeris > bodyEphemeris_;
@@ -297,4 +298,4 @@ typedef std::map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
 
 }
 
-#endif // SATELLITE_PROPAGATOR_EXAMPLES_BODY_H
+#endif // TUDAT_BODY_H
