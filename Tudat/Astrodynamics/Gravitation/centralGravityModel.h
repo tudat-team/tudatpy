@@ -197,7 +197,35 @@ public:
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
             = boost::lambda::constant( StateMatrix::Zero( ) ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
-                aGravitationalParameter,
+                boost::lambda::constant( aGravitationalParameter ),
+                positionOfBodyExertingAccelerationFunction )
+    {
+        this->updateMembers( );
+    }
+
+    //! Constructor taking position-functions for bodies, and constant gravitational parameter.
+    /*!
+     * Constructor taking a pointer to a function returning the position of the body subject to
+     * gravitational acceleration, a constant gravitational parameter, and a pointer to a function
+     * returning the position of the body exerting the gravitational acceleration (typically the
+     * central body). This constructor uses the Boost::lambda library to create a function
+     * on-the-fly that returns the constant gravitational parameter provided. The constructor also
+     * updates all the internal members. The position of the body exerting the gravitational
+     * acceleration is an optional parameter; the default position is the origin.
+     * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
+     *          body subject to gravitational acceleration.
+     * \param aGravitationalParameterFunction Functioning returning a (constant) gravitational
+     *          parameter [m^2 s^-3].
+     * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
+     *          body exerting gravitational acceleration (default = (0,0,0)).
+     */
+    CentralGravitationalAccelerationModel(
+            const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
+            const boost::function< double( ) > aGravitationalParameterFunction,
+            const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
+            = boost::lambda::constant( StateMatrix::Zero( ) ) )
+        : Base( positionOfBodySubjectToAccelerationFunction,
+                aGravitationalParameterFunction,
                 positionOfBodyExertingAccelerationFunction )
     {
         this->updateMembers( );

@@ -89,8 +89,8 @@ public:
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-            basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
     //! Get rotation quaternion to target frame from base frame.
     /*!
@@ -102,8 +102,8 @@ public:
      * \return Rotation quaternion computed.
      */
     virtual Eigen::Quaterniond getRotationToTargetFrame(
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-            basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 ) = 0;
 
     //! Function to calculate the derivative of the rotation matrix from target frame to original
     //! frame.
