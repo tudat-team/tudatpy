@@ -44,12 +44,13 @@ namespace tudat
 namespace basic_mathematics
 {
 
-void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int degree, const int order )
+//! Update maximum degree and order of cache
+void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int maximumDegree, const int maximumOrder )
 {
-    maximumDegree_ = degree;
-    maximumOrder_ = order;
+    maximumDegree_ = maximumDegree;
+    maximumOrder_ = maximumOrder;
 
-    legendreCache_->resetMaximumDegreeAndOrder( degree, order );
+    legendreCache_->resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ );
 
     sinesOfLongitude_.resize( maximumOrder_ + 1 );
     cosinesOfLongitude_.resize( maximumOrder_ + 1 );

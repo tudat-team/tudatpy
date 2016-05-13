@@ -103,7 +103,7 @@ public:
      * \param maximumDegree Maximum degree to which to update cache
      * \param maximumOrder Maximum order to which to update cache
      */
-    void resetMaximumDegreeAndOrder( const int degree, const int order );
+    void resetMaximumDegreeAndOrder( const int maximumDegree, const int maximumOrder );
 
     //! Update cache with new polynomial parameter (sine of latitude)
     /*!
@@ -115,7 +115,7 @@ public:
 
     //! Function to return the current polynomial parameter (typically sine of latitude)
     /*!
-     * \Function to return the current polynomial parameter (typically sine of latitude)
+     * Function to return the current polynomial parameter (typically sine of latitude)
      * \return Current polynomial parameter
      */
     double getCurrentPolynomialParameter( )
@@ -125,7 +125,7 @@ public:
 
     //! Function to return the complement to the current polynomial parameter (typically cosine of latitude)
     /*!
-     * \Function to return the complement to the current polynomial parameter (typically cosine of latitude)
+     *  Function to return the complement to the current polynomial parameter (typically cosine of latitude)
      * \return Complement to the current polynomial parameter
      */
     double getCurrentPolynomialParameterComplement( )
@@ -227,7 +227,7 @@ private:
  * back-end cache with intermediate results which is automatically carried over between calls.
  * \param degree Degree of requested Legendre polynomial.
  * \param order Order of requested Legendre polynomial.
- * \param polynomialParameter Free variable  of requested Legendre polynomial.
+ * \param legendreCache Legendre cache from which to retrieve Legendre polynomial.
  * \return Unnormalized Legendre polynomial.
 */
 double computeLegendrePolynomial( const int degree,
@@ -257,7 +257,7 @@ double computeLegendrePolynomial( const int degree,
  * back-end cache with intermediate results which is automatically carried over between calls.
  * \param degree Degree of requested Legendre polynomial.
  * \param order Order of requested Legendre polynomial.
- * \param geodesyLegendreCache Legendre cache from which to retrieve Legendre polynomial.
+ * \param legendreParameter Free variable  of requested Legendre polynomial.
  * \return Unnormalized Legendre polynomial.
 */
 double computeLegendrePolynomial( const int degree,
@@ -344,7 +344,7 @@ double computeGeodesyLegendrePolynomial( const int degree,
  * back-end cache with intermediate results which is automatically carried over between calls.
  * \param degree Degree of requested Legendre polynomial.
  * \param order Order of requested Legendre polynomial.
- * \param polynomialParameter Free variable of requested Legendre polynomial.
+ * \param legendreParameter Free variable of requested Legendre polynomial.
  * \return Geodesy-normalized Legendre polynomial.
 */
 double computeGeodesyLegendrePolynomial( const int degree,

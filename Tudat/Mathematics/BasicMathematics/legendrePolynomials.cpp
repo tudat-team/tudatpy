@@ -98,10 +98,10 @@ void LegendreCache::update( const double polynomialParameter  )
 }
 
 //! Update maximum degree and order of cache
-void LegendreCache::resetMaximumDegreeAndOrder( const int degree, const int order )
+void LegendreCache::resetMaximumDegreeAndOrder( const int maximumDegree, const int maximumOrder )
 {
-    maximumDegree_ = degree;
-    maximumOrder_ = order;
+    maximumDegree_ = maximumDegree;
+    maximumOrder_ = maximumOrder;
     legendreValues_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
 
     currentPolynomialParameter_ = TUDAT_NAN;
