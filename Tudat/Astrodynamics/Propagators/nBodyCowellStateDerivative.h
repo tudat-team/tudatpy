@@ -33,36 +33,42 @@ public:
 
     //! Calculates the state derivative of the translational motion of the system.
     /*!
-     * Calculates the state derivative (velocity+acceleration of each body) of the translational motion of the system
-     * at the given time and position/velocity of bodies.
-     *  \param time Time (TDB seconds since J2000) at which the system is to be updated.
-     *  \param stateOfSystemToBeIntegrated List of 6 * bodiesToBeIntegratedNumerically_.size( ), containing Caartesian
-     *  position/velocity of the bodies being integrated. The order of the values is defined by the order of bodies in
-     *  bodiesToBeIntegratedNumerically_
-     *  \return Current state derivative (velocity+acceleration) of system of bodies integrated numerically.
+     * Calculates the state derivative (velocity+acceleration of each body) of the translational
+     * motion of the system at the given time and position/velocity of bodies.
+     * \param time Time (TDB seconds since J2000) at which the system is to be updated.
+     * \param stateOfSystemToBeIntegrated List of 6 * bodiesToBeIntegratedNumerically_.size( ),
+     * containing Caartesian position/velocity of the bodies being integrated. The order of the
+     * values is defined by the order of bodies in bodiesToBeIntegratedNumerically_
+     * \return Current state derivative (velocity+acceleration) of system of bodies integrated numerically.
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > calculateSystemStateDerivative(
-            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated )
+            const TimeType time,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated )
     {
-        return ( this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), time ) ).
-                template cast< StateScalarType >( );
+        return ( this->sumStateDerivativeContributions(
+            stateOfSystemToBeIntegrated.template cast< double >( ),
+            time ) ).template cast< StateScalarType >( );
     }
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution, const TimeType& time )
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
+        convertFromOutputSolution(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic,
+            Eigen::Dynamic >& cartesianSolution, const TimeType& time )
     {
         return cartesianSolution;
     }
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time )
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
+        convertToOutputSolution(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic,
+            Eigen::Dynamic >& internalSolution, const TimeType& time )
     {
         return internalSolution;
     }
 };
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_NBODYCOWELLSTATEDERIVATIVE_H

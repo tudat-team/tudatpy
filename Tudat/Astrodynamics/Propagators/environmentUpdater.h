@@ -81,17 +81,18 @@ public:
 
     //! Function to update the environment to the current state and time.
     /*!
-     * Function to update the environment to the current state and time. This function calls the dependent variable
-     * functions set by the setUpdateFunctions function. By default, the numerically integrated states are set in the
-     * environment first. This may be overridden by using the setIntegratedStatesFromEnvironment variable, which forces
-     * the function to ignore specific integrated states and update them from the existing environment models instead.
+     * Function to update the environment to the current state and time. This function calls the
+     * dependent variable functions set by the setUpdateFunctions function. By default, the
+     * numerically integrated states are set in the environment first. This may be overridden by
+     * using the setIntegratedStatesFromEnvironment variable, which forces the function to ignore
+     * specific integrated states and update them from the existing environment models instead.
      * \param currentTime Current time.
-     * \param integratedStatesToSet Current list of integrated states, with specific integrated states defined by
-     * integratedStates_ member variable. Note that these states must have been converted to the global state before
-     * input to this function, as is done by the convertCurrentStateToGlobalRepresentationPerType function of the
-     * DynamicsStateDerivativeModel.
-     * \param setIntegratedStatesFromEnvironment Integrated state types which are not to be used for updating the
-     * environment, but which are to be set from existing environment models instead.
+     * \param integratedStatesToSet Current list of integrated states, with specific integrated
+     * states defined by integratedStates_ member variable. Note that these states must have been
+     * converted to the global state before input to this function, as is done by the
+     * convertCurrentStateToGlobalRepresentationPerType function of the DynamicsStateDerivativeModel.
+     * \param setIntegratedStatesFromEnvironment Integrated state types which are not to be used for
+     * updating the environment, but which are to be set from existing environment models instead.
      */
     void updateEnvironment(
             const TimeType currentTime,
@@ -129,7 +130,8 @@ public:
         }
 
         // Evaluate update functions (dependent variables of state and time) determined by setUpdateFunctions
-        for( updateFunctionIterator = updateFunctionList_.begin( ); updateFunctionIterator != updateFunctionList_.end( );
+        for( updateFunctionIterator = updateFunctionList_.begin( );
+             updateFunctionIterator != updateFunctionList_.end( );
              updateFunctionIterator++ )
         {
             for( unsigned int i = 0; i < updateFunctionIterator->second.size( ); i++ )
@@ -138,8 +140,10 @@ public:
             }
         }
 
-        // Evaluate time-dependent update functions (dependent variables of state and time) determined by setUpdateFunctions
-        for( updateTimeIterator = updateTimeFunctionList_.begin( ); updateTimeIterator != updateTimeFunctionList_.end( );
+        // Evaluate time-dependent update functions (dependent variables of state and time)
+        // determined by setUpdateFunctions
+        for( updateTimeIterator = updateTimeFunctionList_.begin( );
+             updateTimeIterator != updateTimeFunctionList_.end( );
              updateTimeIterator++ )
         {
             for( unsigned int i = 0; i < updateTimeIterator->second.size( ); i++ )
@@ -153,18 +157,19 @@ private:
 
     //! Function to set numerically integrated states in environment.
     /*!
-     * Function to set numerically integrated states in environment.
-     * \param integratedStatesToSet Integrated states which are to be set in environment.
-     * Note that these states must have been converted to the global state before
-     * input to this function, as is done by the convertCurrentStateToGlobalRepresentationPerType function of the
+     * Function to set numerically integrated states in environment.  Note that these states must
+     * have been converted to the global state before input to this function, as is done by the
+     * convertCurrentStateToGlobalRepresentationPerType function of the
      * DynamicsStateDerivativeModel.
+     * \param integratedStatesToSet Integrated states which are to be set in environment.
      */
     void setIntegratedStatesInEnvironment(
             const std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
             integratedStatesToSet )
     {
         // Iterate over state types and set states in environment
-        for( typename std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
+        for( typename std::map< IntegratedStateType,
+                                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
              integratedStateIterator = integratedStatesToSet.begin( );
              integratedStateIterator != integratedStatesToSet.end( );
              integratedStateIterator++ )
@@ -179,7 +184,8 @@ private:
                         integratedStates_.at( transational_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->template setTemplatedState< StateScalarType >(
+                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]
+                            ->template setTemplatedState< StateScalarType >(
                                 integratedStateIterator->second.segment( i * 6, 6 ) );
                 }
                 break;
@@ -192,10 +198,10 @@ private:
     }
     //! Function to explicitly use existing environment models to update current states of integrated bodies
     /*!
-     * Function to explicitly use existing environment models to update current states of integrated bodies, overriding
-     * the numerically integrated states .
-     * \param statesToSet Integrated state types which are not to be used for updating the environment, but
-     * which are to be set from existing environment models instead.
+     * Function to explicitly use existing environment models to update current states of integrated
+     * bodies, overriding the numerically integrated states.
+     * \param statesToSet Integrated state types which are not to be used for updating the environment,
+     * but which are to be set from existing environment models instead.
      * \param currentTime Time to which environment is to be updated.
      */
     void setStatesFromEnvironment(
@@ -232,10 +238,12 @@ private:
      * Function to set the update functions for the environment from the required update settings.
      * \param updateSettings Settings for the environment updates.
      */
-    void setUpdateFunctions( const std::map< EnvironmentModelsToUpdate, std::vector< std::string > >& updateSettings )
+    void setUpdateFunctions( const std::map< EnvironmentModelsToUpdate,
+                             std::vector< std::string > >& updateSettings )
     {
         // Iterate over all required updates and set associated update function in lists
-        for( std::map< EnvironmentModelsToUpdate, std::vector< std::string > >::const_iterator updateIterator =
+        for( std::map< EnvironmentModelsToUpdate,
+                       std::vector< std::string > >::const_iterator updateIterator =
              updateSettings.begin( ); updateIterator != updateSettings.end( ); updateIterator++ )
         {
             // Get list of bodies for which current environment type is to be updated.
@@ -265,10 +273,12 @@ private:
                         if( integratedStates_.count( transational_state ) > 0 )
                         {
                             // Check if current body is propagated
-                            std::pair< std::string, std::string > bodyToCheck = std::make_pair( currentBodies.at( i ), "" );
-                            std::vector< std::pair< std::string, std::string > > integratedTranslationalStates =
-                                    integratedStates_.at( transational_state );
-                            if( std::find( integratedTranslationalStates.begin( ), integratedTranslationalStates.end( ),
+                            std::pair< std::string, std::string > bodyToCheck
+                                    = std::make_pair( currentBodies.at( i ), "" );
+                            std::vector< std::pair< std::string, std::string > > integratedTranslationalStates
+                                    = integratedStates_.at( transational_state );
+                            if( std::find( integratedTranslationalStates.begin( ),
+                                           integratedTranslationalStates.end( ),
                                            bodyToCheck ) != integratedTranslationalStates.end( ) )
                             {
                                 addUpdate = 0;
@@ -280,7 +290,8 @@ private:
                         {
                             boost::function< void( const TimeType ) > stateSetFunction =
                                     boost::bind(
-                                        &simulation_setup::Body::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
+                                        &simulation_setup::Body
+                                            ::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
                                         bodyList_.at( currentBodies.at( i ) ), _1 );
 
                             currentStateFromEnvironmentList_[ body_transational_state_update ].insert(
@@ -297,7 +308,8 @@ private:
                         if( rotationalEphemeris != NULL )
                         {
                             boost::function< void( const TimeType ) > rotationalStateSetFunction =
-                                    boost::bind( &simulation_setup::Body::setCurrentRotationalStateToLocalFrameFromEphemeris,
+                                    boost::bind( &simulation_setup::Body
+                                                     ::setCurrentRotationalStateToLocalFrameFromEphemeris,
                                                  bodyList_.at( currentBodies.at( i ) ), _1 );
                             currentStateFromEnvironmentList_[ body_rotational_state_update ].insert(
                                         std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
@@ -313,26 +325,29 @@ private:
 
                     }
                     case body_mass_update:
-                    {
-                        updateTimeFunctionList_[ body_mass_update ].push_back(
-                                    std::make_pair( currentBodies.at( i ),
-                                                    boost::bind( &simulation_setup::Body::updateMass,
-                                                                 bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
+                        {
+                            updateTimeFunctionList_[ body_mass_update ].push_back(
+                                std::make_pair( currentBodies.at( i ),
+                                                boost::bind( &simulation_setup::Body::updateMass,
+                                                             bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
                         break;
                     }
                     case spherical_harmonic_gravity_field_update:
                     {
 
                         // Check if body has time-dependent sh field
-                        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > gravityField =
-                                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >
-                                (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) );
+                        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField >
+                                gravityField = boost::dynamic_pointer_cast
+                                         < gravitation::TimeDependentSphericalHarmonicsGravityField >
+                                      (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) );
                         if( gravityField != NULL )
                         {
                             updateTimeFunctionList_[ spherical_harmonic_gravity_field_update ].push_back(
                                         std::make_pair(
                                             currentBodies.at( i ),
-                                            boost::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::update,
+                                            boost::bind( &gravitation
+                                                              ::TimeDependentSphericalHarmonicsGravityField
+                                                                   ::update,
                                                          gravityField, _1 ) ) );
                         }
                         // If no sh field at all, throw eeror.
@@ -350,12 +365,14 @@ private:
                         // Check if current body has flight conditions set.
                         if( bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ) != NULL )
                         {
-                            // If vehicle has flight conditions, add flight conditions update function to update list.
+                            // If vehicle has flight conditions, add flight conditions update
+                            // function to update list.
                             updateTimeFunctionList_[ vehicle_flight_conditions_update ].push_back(
                                         std::make_pair(
                                             currentBodies.at( i ), boost::bind(
                                                 &aerodynamics::FlightConditions::updateConditions,
-                                                bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ), _1 ) ) );
+                                                bodyList_.at( currentBodies.at( i ) )
+                                                    ->getFlightConditions( ), _1 ) ) );
                         }
                         else
                         {
@@ -369,7 +386,8 @@ private:
                     case radiation_pressure_interface_update:
                     {
                         // Get body radiation pressure interface(s) (one per source)
-                        std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+                        std::map< std::string, boost::shared_ptr< electro_magnetism
+                                                                      ::RadiationPressureInterface > >
                                 radiationPressureInterfaces =
                                 bodyList_.at( currentBodies.at( i ) )->getRadiationPressureInterfaces( );
 
@@ -386,14 +404,17 @@ private:
                         }
 
                         // Add each interface update function to update list.
-                        for( std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+                        for( std::map< std::string,
+                                       boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
                              ::iterator iterator = radiationPressureInterfaces.begin( );
                              iterator != radiationPressureInterfaces.end( ); iterator++ )
                         {
                             updateTimeFunctionList_[ radiation_pressure_interface_update ].push_back(
                                         std::make_pair( currentBodies.at( i ),
                                                         boost::bind(
-                                                            &electro_magnetism::RadiationPressureInterface::updateInterface,
+                                                            &electro_magnetism
+                                                               ::RadiationPressureInterface
+                                                                   ::updateInterface,
                                                             iterator->second, _1 ) ) );
                         }
                         break;
@@ -419,39 +440,46 @@ private:
     std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
     integratedStates_;
 
-    //! List of function to call for updating the state (i.e. translational, rotational, etc.) from the environment.
-    std::map< EnvironmentModelsToUpdate, std::multimap< std::string, boost::function< void( const TimeType ) > > >
+    //! List of function to call for updating the state (i.e. translational, rotational, etc.) from
+    //! the environment.
+    std::map< EnvironmentModelsToUpdate,
+              std::multimap< std::string, boost::function< void( const TimeType ) > > >
     currentStateFromEnvironmentList_;
 
     //! Predefined iterator for computational efficiency.
-    typename std::map< EnvironmentModelsToUpdate, std::multimap< std::string, boost::function< void( const TimeType ) > > >
-    ::iterator outerCurrentStateFromEnvironmentIterator_;
+    typename std::map< EnvironmentModelsToUpdate,
+                       std::multimap< std::string, boost::function< void( const TimeType ) > > >::iterator
+            outerCurrentStateFromEnvironmentIterator_;
 
     //! Predefined iterator for computational efficiency.
-    typename std::multimap< std::string, boost::function< void( const TimeType ) > >
-    ::iterator currentStateFromEnvironmentIterator_;
+    typename std::multimap< std::string,
+                            boost::function< void( const TimeType ) > >::iterator
+            currentStateFromEnvironmentIterator_;
 
     //! List of time-independent functions to call to update the environment.
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( ) > > > >
-    updateFunctionList_;
+    std::map< EnvironmentModelsToUpdate,
+              std::vector< std::pair< std::string, boost::function< void( ) > > > > updateFunctionList_;
 
     //! Predefined iterator for computational efficiency.
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( ) > > > >
-    ::iterator updateFunctionIterator;
+    std::map< EnvironmentModelsToUpdate,
+              std::vector< std::pair< std::string, boost::function< void( ) > > > >::iterator
+            updateFunctionIterator;
 
     //! List of time-dependent functions to call to update the environment.
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
-    updateTimeFunctionList_;
+    std::map< EnvironmentModelsToUpdate,
+              std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
+            updateTimeFunctionList_;
 
     //! Predefined iterator for computational efficiency.
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
-    ::iterator updateTimeIterator;
+    std::map< EnvironmentModelsToUpdate,
+              std::vector< std::pair< std::string, boost::function< void( const double ) > > > >::iterator
+            updateTimeIterator;
 
 
 };
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ENVIRONMENTUPDATER_H

@@ -1,6 +1,15 @@
-#include <iostream>
-
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#endif
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/oblateSpheroidBodyShapeModel.h"
 #include "Tudat/SimulationSetup/createBodyShapeModel.h"
@@ -35,7 +44,8 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
         else
         {
             // Creat spherical shape model
-            shapeModel = boost::make_shared< SphericalBodyShapeModel >( sphericalShapeSettings->getRadius( ) );
+            shapeModel = boost::make_shared< SphericalBodyShapeModel >(
+                sphericalShapeSettings->getRadius( ) );
         }
         break;
     }
@@ -57,6 +67,7 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
         }
         break;
     }
+#if USE_CSPICE
     case spherical_spice:
     {
         // Retrieve radius from Spice and create spherical shape model.
@@ -64,6 +75,7 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
                     spice_interface::getAverageRadius( body ) );
         break;
     }
+#endif
     default:
        throw std::runtime_error( "Error, did not recognize body shape settings for " + body );
 
@@ -71,6 +83,6 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
     return shapeModel;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

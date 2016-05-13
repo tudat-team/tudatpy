@@ -24,8 +24,8 @@ BOOST_AUTO_TEST_SUITE( test_aerodynamic_angle_calculator )
 
 //! Function to test the aerodynamic angle calculator.
 /*!
- * Function to test the aerodynamic angle calculator from a current body-fixed Cartesian state, the current orientation
- *  angles, and the expected spherical 6-dimensional state.
+ * Function to test the aerodynamic angle calculator from a current body-fixed Cartesian state, the
+ *  current orientation angles, and the expected spherical 6-dimensional state.
  * \param testState Body-fixed cartesian state.
  * \param testHeadingAngle Heading angle corresponding to testState
  * \param testFlightPathAngle Flight path angle corresponding to testState
@@ -116,7 +116,8 @@ void testAerodynamicAngleCalculation(
 
     }
 
-    // Test rotation matrix obtained directly and from combination of two rotation matrices from AerodynamicAngleCalculator
+    // Test rotation matrix obtained directly and from combination of two rotation matrices from
+    // AerodynamicAngleCalculator
     for( unsigned int i = 0; i < 5; i++ )
     {
         for( unsigned int j = 0; j < 5; j++ )
@@ -143,7 +144,8 @@ void testAerodynamicAngleCalculation(
                 {
                     for( unsigned int m = 0; m < 3; m++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( directRotationMatrix( l, m ) - indirectRotationMatrix( l, m ) ), 2.0E-15 );
+                        BOOST_CHECK_SMALL( std::fabs( directRotationMatrix( l, m )
+                                                      - indirectRotationMatrix( l, m ) ), 2.0E-15 );
                     }
 
                 }
@@ -153,8 +155,8 @@ void testAerodynamicAngleCalculation(
 
 }
 
-//! Test inertial to rotating planetocentric frame transformations, using Matlab script of Erwin Mooij to generate reference
-//! data.
+//! Test inertial to rotating planetocentric frame transformations, using Matlab script of Erwin
+//! Mooij to generate reference data.
 BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
 {
     // Test case 1: arbitrary rotation
@@ -172,8 +174,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
         double angleOfSideslip = -0.00322;
         double bankAngle = 2.323432;\
 
-        testAerodynamicAngleCalculation( testState, testHeadingAngle, testFlightPathAngle, testLatitude,
-                                         testLongitude, angleOfAttack, angleOfSideslip, bankAngle );
+        testAerodynamicAngleCalculation( testState, testHeadingAngle, testFlightPathAngle,
+                                         testLatitude, testLongitude,
+                                         angleOfAttack, angleOfSideslip, bankAngle );
     }
 
     // Test case 2: rotation with zero and half pi angles.
@@ -190,8 +193,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
         double angleOfSideslip = -0.00322;
         double bankAngle = 2.323432;
 
-        testAerodynamicAngleCalculation( testState, testHeadingAngle, testFlightPathAngle, testLatitude,
-                                         testLongitude, angleOfAttack, angleOfSideslip, bankAngle );
+        testAerodynamicAngleCalculation( testState, testHeadingAngle, testFlightPathAngle,
+                                         testLatitude, testLongitude,
+                                         angleOfAttack, angleOfSideslip, bankAngle );
     }
 
     // Test case 3: rotation with zero and half pi angles.
@@ -208,8 +212,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
         double angleOfSideslip = -0.00322;
         double bankAngle = 2.323432;
 
-        testAerodynamicAngleCalculation( testState, testHeadingAngle, testFlightPathAngle, testLatitude,
-                                         testLongitude, angleOfAttack, angleOfSideslip, bankAngle );
+        testAerodynamicAngleCalculation( testState, testHeadingAngle, testFlightPathAngle,
+                                         testLatitude, testLongitude,
+                                         angleOfAttack, angleOfSideslip, bankAngle );
     }
 
 
