@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
@@ -12,8 +10,6 @@ namespace tudat
 namespace aerodynamics
 {
 
-//! Constructor, sets objects and functions from which relevant environment and state variables
-//! are retrieved.
 FlightConditions::FlightConditions(
         const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
         const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
@@ -130,6 +126,6 @@ void FlightConditions::updateConditions( const double currentTime )
 }
 
 
-}
+} // namespace aerodynamics
 
-}
+} // namespace tudat
