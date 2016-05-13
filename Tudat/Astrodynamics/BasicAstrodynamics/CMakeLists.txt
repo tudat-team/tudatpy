@@ -46,6 +46,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/modifiedEquinoctialElementConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/timeConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/astrodynamicsFunctions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/physicalConstants.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/bodyShapeModel.cpp"
 )
 
