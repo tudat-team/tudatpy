@@ -132,7 +132,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
     Eigen::MatrixXd testPotentialGradient( 10, 3 );
     for ( int index = 0; index < degree.size( ); index++ )
     {
-        Eigen::Vector3d placeholder = basic_mathematics::computePotentialGradient(
+        // Transpose test values matrix.
+        testPotentialGradient.block( index, 0, 1, 3 ) = basic_mathematics::computePotentialGradient(
                     sphericalPosition,
                     referenceRadius,
                     preMultiplier,
@@ -141,10 +142,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                     cosineHarmonicCoefficient( index ),
                     sineHarmonicCoefficient( index ),
                     legendrePolynomial( index ),
-                    legendrePolynomialDerivative( index ) );
-
-        // Transpose test values matrix.
-        testPotentialGradient.row( index ) = placeholder.transpose( );
+                    legendrePolynomialDerivative( index ) ).transpose( );
     }
 
     // Define expected radius gradient values.

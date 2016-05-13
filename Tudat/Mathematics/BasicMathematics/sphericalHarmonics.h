@@ -97,7 +97,7 @@ public:
      * \param maximumDegree Maximum degree to which to update cache
      * \param maximumOrder Maximum order to which to update cache
      */
-    void resetMaximumDegreeAndOrder( const int degree, const int order );
+    void resetMaximumDegreeAndOrder( const int maximumDegree, const int maximumOrder );
 
 
     //! Update cached variables to current state.
@@ -142,12 +142,12 @@ public:
     /*!
      * Function to get an integer power of the distance divided by the reference radius.
      * \param degreePlusOne Power to which the ratio of distance and reference radius is to be computed (typically
-     * degree + 1.
+     * degree + 1).
      * \return Ratio of distance and reference radius to power of input argument.
      */
     double getReferenceRadiusRatioPowers( const int degreePlusOne )
     {
-        return referenceRadiusRatioPowers_[ i ];
+        return referenceRadiusRatioPowers_[ degreePlusOne ];
     }
 
     //! Function to get the maximum degree of cache.
@@ -195,7 +195,7 @@ private:
     //! Update cached values of sines and cosines of longitude/
     /*!
      * Update cached values of sines and cosines of longitude/
-     * \param Current longitude.
+     * \param longitude Current longitude.
      */
     void updateSines( const double longitude )
     {
@@ -388,7 +388,6 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
  *          sphericalPosition( 0 ) = radial coordinate,
  *          sphericalPosition( 1 ) = latitude coordinate,
  *          sphericalPosition( 2 ) = longitude coordinate.
- * \param referenceRadius Radius of harmonics reference sphere.
  * \param preMultiplier Generic multiplication factor.
  * \param degree Degree of the harmonic for which the gradient is to be computed.
  * \param order Order of the harmonic for which the gradient is to be computed.
