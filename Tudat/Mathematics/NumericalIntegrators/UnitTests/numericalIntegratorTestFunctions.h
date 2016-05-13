@@ -37,7 +37,6 @@
 #define TUDAT_NUMERICAL_INTEGRATOR_TEST_FUNCTIONS_H
 
 #include <cmath>
-#include <math.h>
 
 #include <Eigen/Core>
 
@@ -119,15 +118,16 @@ static inline Eigen::VectorXd computeVanDerPolStateDerivative( const double time
  *      \frac{ dx }{ dt }( 0 ) &=&  2 * t * x( 1 ) * log( x(0) ) \\
  * \f}
  *
- * Reference:   Fehlberg, E. (1968). Classical Fifth-, Sixth-, Seventh- and Eigth-Order Runge-Kutta Formalas with Stepsize Control
- *              page 30
+ * Reference:   Fehlberg, E. (1968). Classical Fifth-, Sixth-, Seventh- and Eigth-Order Runge-Kutta
+ *              Formulas with Stepsize Control (page 30)
  *
  * \param time Time at which the state derivative needs to be evaluated.
  * \param state State at which the state derivative needs to be evaluated.
  * \return Computed state derivative.
  */
-static inline Eigen::VectorXd computeFehlbergLogirithmicTestODEStateDerivative( const double time,
-                                                                                const Eigen::VectorXd& state){
+static inline Eigen::VectorXd
+    computeFehlbergLogirithmicTestODEStateDerivative( const double time,
+                                                      const Eigen::VectorXd& state){
     // Declare state derivative vector
     Eigen::VectorXd stateDerivative( state.rows() );
 
@@ -153,8 +153,8 @@ static inline Eigen::VectorXd computeFehlbergLogirithmicTestODEStateDerivative( 
  *      x_{0}(1) = 1
  * \f}
  *
- * Reference:   Fehlberg, E. (1968). Classical Fifth-, Sixth-, Seventh- and Eigth-Order Runge-Kutta Formalas with Stepsize Control
- *              page 30
+ * Reference: Fehlberg, E. (1968). Classical Fifth-, Sixth-, Seventh- and Eigth-Order Runge-Kutta
+ *            Formulas with Stepsize Control (page 30)
  *
  * \param time Time at which the state derivative needs to be evaluated.
  * \param initialState State at which the state derivative needs to be evaluated.
