@@ -76,6 +76,6 @@ long double getLbTimeRateTerm< long double >( )
     return LB_TIME_RATE_TERM_LONG;
 }
 
-}
+} // namespace physical_constants
 
-}
+} // namespace tudat
