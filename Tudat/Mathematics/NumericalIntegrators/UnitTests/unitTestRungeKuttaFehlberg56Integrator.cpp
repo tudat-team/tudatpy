@@ -26,7 +26,7 @@
  *      YYMMDD    Author            Comment
  *      120203    B. Tong Minh      Copied RungeKutta4Stepsize unit test.
  *      120207    K. Kumar          Adapted to use modified benchmark functions in Tudat Core.
- *      120213    K. Kumar          Modified getCurrentInterval() to getIndependentVariable();
+ *      120213    K. Kumar          Modified getCurrentInterval( ) to getIndependentVariable( );
  *                                  transferred to Boost unit test framework.
  *      120321    K. Kumar          Updated (Burden and Faires, 2011) benchmark function call.
  *      120323    K. Kumar          Rewrote unit tests to use benchmark data from
@@ -64,11 +64,10 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
 #include <limits>
 #include <string>
 
-#include <math.h>
+#include <cmath>
 
 #include <Eigen/Core>
 
@@ -86,20 +85,21 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_runge_kutta_fehlberg_56_integrator )
 
 using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
-using numerical_integrator_test_functions::computeVanDerPolStateDerivative ;
-using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative ;
-using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE ;
+using numerical_integrator_test_functions::computeVanDerPolStateDerivative;
+using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative;
+using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE;
+
+using namespace numerical_integrators;
 
 //! Compare with analytical solution of Fehlberg
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Fehlberg_Benchmark )
 {
-    tudat::numerical_integrators::RungeKuttaCoefficients coeff56 =
-            tudat::numerical_integrators::RungeKuttaCoefficients::get(
-                tudat::numerical_integrators::RungeKuttaCoefficients::rungeKuttaFehlberg56) ;
+    RungeKuttaCoefficients coeff56 =
+        RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg56);
 
     // Integrator settings
-    double minimumStepSize   = std::numeric_limits<double>::epsilon() ;
-    double maximumStepSize   = std::numeric_limits<double>::infinity() ;
+    double minimumStepSize   = std::numeric_limits< double >::epsilon( );
+    double maximumStepSize   = std::numeric_limits< double >::infinity( );
     double initialStepSize   = 1E-6; // Don't make this too small
     double relativeTolerance = 1E-16;
     double absoluteTolerance = 1E-16;
@@ -107,39 +107,42 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Fehlberg_Benchmark )
     // Initial conditions
     double initialTime = 0.0;
     double finalTime   = 5.0;
-    Eigen::Vector2d initialState(exp(1.0), 1.0);
+    Eigen::Vector2d initialState( exp( 1.0 ), 1.0);
 
     // Setup integrator
-    tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator56(
-                coeff56, computeFehlbergLogirithmicTestODEStateDerivative ,
-                initialTime , initialState, minimumStepSize,
+    RungeKuttaVariableStepSizeIntegratorXd integrator56(
+                coeff56, computeFehlbergLogirithmicTestODEStateDerivative,
+                initialTime, initialState, minimumStepSize,
                 maximumStepSize, relativeTolerance, absoluteTolerance );
 
 
     // Obtain numerical solution
-    Eigen::Vector2d numericalSolution = integrator56.integrateTo(finalTime, initialStepSize);
+    Eigen::Vector2d numericalSolution = integrator56.integrateTo( finalTime, initialStepSize );
 
     // Analytical solution
-    // (page 30, Fehlberg, E. (1968). Classical Fifth-, Sixth-, Seventh- and Eigth-Order Runge-Kutta Formalas with Stepsize Control)
-    Eigen::Vector2d analyticalSolution = computeAnalyticalStateFehlbergODE(finalTime, initialState) ;
+    // (page 30, Fehlberg, E. (1968). Classical Fifth-, Sixth-, Seventh- and Eigth-Order Runge-Kutta
+    // Formulas with Stepsize Control)
+    Eigen::Vector2d analyticalSolution =
+        computeAnalyticalStateFehlbergODE( finalTime, initialState );
 
     Eigen::Vector2d computedError = numericalSolution - analyticalSolution;
-    BOOST_CHECK_SMALL( std::fabs(computedError(0)) , 1E-12 ) ;
-    BOOST_CHECK_SMALL( std::fabs(computedError(1)) , 1E-12 ) ;
+    BOOST_CHECK_SMALL( std::fabs( computedError( 0 ) ), 1E-12 );
+    BOOST_CHECK_SMALL( std::fabs( computedError( 1 ) ), 1E-12 );
 
     // Error calculated by -> Fehlberg, E. (1968) page 30
     // Initial stepsize unknown..
-    Eigen::VectorXd fehlbergError(2) ;
-    fehlbergError << 0.1072E-12 , -0.2190E-12 ;
+    Eigen::VectorXd fehlbergError( 2 );
+    fehlbergError << 0.1072E-12, -0.2190E-12;
 
-    // sign check
-    // Not always same sign -> initial step size = 1 or 1E-2, failure: computedError(1) , fehlbergError(1) not same sign
-    BOOST_CHECK_GE(computedError(0)/fehlbergError(0) ,0.0);
-    BOOST_CHECK_GE(computedError(1)/fehlbergError(1) ,0.0);
+    // Sign check
+    // Not always same sign -> initial step size = 1 or 1E-2, failure: computedError( 1 ),
+    // fehlbergError( 1 ) not same sign
+    BOOST_CHECK_GE( computedError( 0 ) / fehlbergError( 0 ), 0.0 );
+    BOOST_CHECK_GE( computedError( 1 ) / fehlbergError( 1 ), 0.0 );
 
-    // Check error is similar
-    BOOST_CHECK_SMALL(std::fabs(computedError(0)/fehlbergError(0)), 3.0);
-    BOOST_CHECK_SMALL(std::fabs(computedError(1)/fehlbergError(1)), 1.0);
+    // Check error is similar in magnitude
+    BOOST_CHECK_SMALL( std::fabs( computedError( 0 ) / fehlbergError( 0 ) ), 3.0);
+    BOOST_CHECK_SMALL( std::fabs( computedError( 1 ) / fehlbergError( 1 ) ), 1.0);
 }
 
 
@@ -147,127 +150,123 @@ BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Fehlberg_Benchmark )
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Compare78 )
 {
     // Setup integrator
-    tudat::numerical_integrators::RungeKuttaCoefficients coeff56 =
-            tudat::numerical_integrators::RungeKuttaCoefficients::get(
-                tudat::numerical_integrators::RungeKuttaCoefficients::rungeKuttaFehlberg56) ;
+    RungeKuttaCoefficients coeff56 =
+            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg56);
 
-    tudat::numerical_integrators::RungeKuttaCoefficients coeff78 =
-            tudat::numerical_integrators::RungeKuttaCoefficients::get(
-                tudat::numerical_integrators::RungeKuttaCoefficients::rungeKuttaFehlberg78) ;
+    RungeKuttaCoefficients coeff78 =
+            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78);
 
     // Integrator settings
-    double minimumStepSize = std::numeric_limits<double>::epsilon() ;
-    double maximumStepSize = std::numeric_limits<double>::infinity() ;
+    double minimumStepSize = std::numeric_limits< double >::epsilon( );
+    double maximumStepSize = std::numeric_limits< double >::infinity( );
     double initialStepSize = 1E-4; // Don't make this too small
-    double relativeTolerance = 1E-15 ;
-    double absoluteTolerance = 1E-15 ;
+    double relativeTolerance = 1E-15;
+    double absoluteTolerance = 1E-15;
 
     // Initial conditions
-    double initialTime = 0.5 ;
-    Eigen::VectorXd InitialState(1) ;
-    InitialState << 0.5  ; // 1 large error
+    double initialTime = 0.5;
+    Eigen::VectorXd InitialState( 1 );
+    InitialState << 0.5; // 1 large error
 
     // Setup integrator
-    tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator56(
-                coeff56, computeNonAutonomousModelStateDerivative, initialTime , InitialState, minimumStepSize,
-                maximumStepSize, relativeTolerance, absoluteTolerance );
+    RungeKuttaVariableStepSizeIntegratorXd integrator56(
+                coeff56, computeNonAutonomousModelStateDerivative, initialTime, InitialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
 
-    tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator78(
-                coeff78, computeNonAutonomousModelStateDerivative, initialTime , InitialState, minimumStepSize,
-                maximumStepSize, relativeTolerance, absoluteTolerance );
+    RungeKuttaVariableStepSizeIntegratorXd integrator78(
+                coeff78, computeNonAutonomousModelStateDerivative, initialTime, InitialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
 
-    double endTime = 1.5 ;
-    Eigen::VectorXd solution56 = integrator56.integrateTo(endTime,initialStepSize) ;
-    Eigen::VectorXd solution78 = integrator78.integrateTo(endTime,initialStepSize) ;
+    double endTime = 1.5;
+    Eigen::VectorXd solution56 = integrator56.integrateTo( endTime, initialStepSize );
+    Eigen::VectorXd solution78 = integrator78.integrateTo( endTime, initialStepSize );
 
-    Eigen::VectorXd difference = solution78 - solution56 ;
+    Eigen::VectorXd difference = solution78 - solution56;
 
-    BOOST_CHECK_SMALL( std::fabs(difference(0)) , 1E-13 ) ;
+    BOOST_CHECK_SMALL( std::fabs( difference( 0 ) ), 1E-13 );
 }
 
 //! Test Compare with Runge Kutta 78
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Compare78_v2 )
 {
     // Setup integrator
-    tudat::numerical_integrators::RungeKuttaCoefficients coeff56 =
-            tudat::numerical_integrators::RungeKuttaCoefficients::get(
-                tudat::numerical_integrators::RungeKuttaCoefficients::rungeKuttaFehlberg56) ;
+    RungeKuttaCoefficients coeff56 =
+            RungeKuttaCoefficients::get(
+                RungeKuttaCoefficients::rungeKuttaFehlberg56 );
 
-    tudat::numerical_integrators::RungeKuttaCoefficients coeff78 =
-            tudat::numerical_integrators::RungeKuttaCoefficients::get(
-                tudat::numerical_integrators::RungeKuttaCoefficients::rungeKuttaFehlberg78) ;
+    RungeKuttaCoefficients coeff78 =
+            RungeKuttaCoefficients::get(
+                RungeKuttaCoefficients::rungeKuttaFehlberg78 );
 
     // Integrator settings
-    double minimumStepSize = std::numeric_limits<double>::epsilon() ;
-    double maximumStepSize = std::numeric_limits<double>::infinity() ;
-    double initialStepSize = 1.0 ; // Don't make this too small
-    double relativeTolerance = 1E-10 ;
-    double absoluteTolerance = 1E-10 ;
+    double minimumStepSize = std::numeric_limits< double >::epsilon( );
+    double maximumStepSize = std::numeric_limits< double >::infinity( );
+    double initialStepSize = 1.0; // Don't make this too small
+    double relativeTolerance = 1E-10;
+    double absoluteTolerance = 1E-10;
 
     // Initial conditions
-    double initialTime = 0.2 ;
-    Eigen::VectorXd InitialState(1) ;
-    InitialState << -1.0  ;
+    double initialTime = 0.2;
+    Eigen::VectorXd InitialState( 1 );
+    InitialState << -1.0;
 
     // Setup integrator
-    tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator56(
-                coeff56, computeNonAutonomousModelStateDerivative, initialTime , InitialState, minimumStepSize,
-                maximumStepSize, relativeTolerance, absoluteTolerance );
+    RungeKuttaVariableStepSizeIntegratorXd integrator56(
+                coeff56, computeNonAutonomousModelStateDerivative, initialTime, InitialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
 
-    tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator78(
-                coeff78, computeNonAutonomousModelStateDerivative, initialTime , InitialState, minimumStepSize,
-                maximumStepSize, relativeTolerance, absoluteTolerance );
+    RungeKuttaVariableStepSizeIntegratorXd integrator78(
+                coeff78, computeNonAutonomousModelStateDerivative, initialTime, InitialState,
+                minimumStepSize, maximumStepSize, relativeTolerance, absoluteTolerance );
 
-    double endTime = 2.0 ;
-    Eigen::VectorXd solution56 = integrator56.integrateTo(endTime,initialStepSize) ;
-    Eigen::VectorXd solution78 = integrator78.integrateTo(endTime,initialStepSize) ;
+    double endTime = 2.0;
+    Eigen::VectorXd solution56 = integrator56.integrateTo( endTime, initialStepSize );
+    Eigen::VectorXd solution78 = integrator78.integrateTo( endTime, initialStepSize );
 
-    Eigen::VectorXd difference = solution78 - solution56 ;
+    Eigen::VectorXd difference = solution78 - solution56;
 
-    BOOST_CHECK_SMALL( std::fabs(difference(0)) , 1E-8 ) ;
+    BOOST_CHECK_SMALL( std::fabs( difference( 0 ) ), 1E-8 );
 }
 
 //! Test Compare with Runge Kutta 78
 BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg56_Integrator_Compare78_VanDerPol )
 {
     // Setup integrator
-    tudat::numerical_integrators::RungeKuttaCoefficients coeff56 =
-            tudat::numerical_integrators::RungeKuttaCoefficients::get(
-                tudat::numerical_integrators::RungeKuttaCoefficients::rungeKuttaFehlberg56) ;
+    RungeKuttaCoefficients coeff56 =
+            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg56 );
 
-    tudat::numerical_integrators::RungeKuttaCoefficients coeff78 =
-            tudat::numerical_integrators::RungeKuttaCoefficients::get(
-                tudat::numerical_integrators::RungeKuttaCoefficients::rungeKuttaFehlberg78) ;
+    RungeKuttaCoefficients coeff78 =
+            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 );
 
     // Integrator settings
-    double minimumStepSize = std::numeric_limits<double>::epsilon() ;
-    double maximumStepSize = std::numeric_limits<double>::infinity() ;
+    double minimumStepSize = std::numeric_limits< double >::epsilon( );
+    double maximumStepSize = std::numeric_limits< double >::infinity( );
     double initialStepSize = 1; // Don't make this too small
-    double relativeTolerance = 1E-15 ;
-    double absoluteTolerance = 1E-15 ;
+    double relativeTolerance = 1E-15;
+    double absoluteTolerance = 1E-15;
 
     // Initial conditions
-    double initialTime = 0.2 ;
-    Eigen::VectorXd InitialState(2) ;
-    InitialState << -1.0 , 1.0  ;
+    double initialTime = 0.2;
+    Eigen::VectorXd InitialState( 2 );
+    InitialState << -1.0, 1.0;
 
     // Setup integrator
-    tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator56(
-                coeff56, computeVanDerPolStateDerivative, initialTime , InitialState, minimumStepSize,
+    RungeKuttaVariableStepSizeIntegratorXd integrator56(
+                coeff56, computeVanDerPolStateDerivative, initialTime, InitialState, minimumStepSize,
                 maximumStepSize, relativeTolerance, absoluteTolerance );
 
-    tudat::numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator78(
-                coeff78, computeVanDerPolStateDerivative, initialTime , InitialState, minimumStepSize,
+    RungeKuttaVariableStepSizeIntegratorXd integrator78(
+                coeff78, computeVanDerPolStateDerivative, initialTime, InitialState, minimumStepSize,
                 maximumStepSize, relativeTolerance, absoluteTolerance );
 
-    double endTime = 1.4 ;
-    Eigen::VectorXd solution56 = integrator56.integrateTo(endTime,initialStepSize) ;
-    Eigen::VectorXd solution78 = integrator78.integrateTo(endTime,initialStepSize) ;
+    double endTime = 1.4;
+    Eigen::VectorXd solution56 = integrator56.integrateTo(endTime,initialStepSize);
+    Eigen::VectorXd solution78 = integrator78.integrateTo(endTime,initialStepSize);
 
-    Eigen::VectorXd difference = solution78 - solution56 ;
+    Eigen::VectorXd difference = solution78 - solution56;
 
-    BOOST_CHECK_SMALL( std::fabs(difference(0)) , 1E-13 ) ;
-    BOOST_CHECK_SMALL( std::fabs(difference(1)) , 1E-13 ) ;
+    BOOST_CHECK_SMALL( std::fabs( difference( 0 ) ), 1E-13 );
+    BOOST_CHECK_SMALL( std::fabs( difference( 1 ) ), 1E-13 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
