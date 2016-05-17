@@ -130,7 +130,7 @@ basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
     }
 
     // If inclination is zero and the right ascension of ascending node is non-zero
-    if ( ( keplerianElements( inclinationIndex ) == 0.0 ) && ( keplerianElements( longitudeOfAscendingNodeIndex ) != 0.0 ) )
+    if ( ( std::fabs( keplerianElements( inclinationIndex ) ) < singularityTolerance ) && ( std::fabs( keplerianElements( longitudeOfAscendingNodeIndex ) ) > singularityTolerance ) )
     {
         // Define the error message.
         std::stringstream errorMessage;
@@ -142,7 +142,7 @@ basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
     }
 
     // If eccentricity is zero and the argument of pericenter is non-zero
-    if ( ( keplerianElements( eccentricityIndex ) == 0.0 ) && ( keplerianElements( argumentOfPeriapsisIndex ) != 0.0 ) )
+    if ( ( std::fabs( keplerianElements( eccentricityIndex ) ) < singularityTolerance ) && ( std::fabs( keplerianElements( argumentOfPeriapsisIndex ) ) > singularityTolerance ) )
     {
         // Define the error message.
         std::stringstream errorMessage;
@@ -257,7 +257,22 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
     double lambdaFromSineAndCosine = 0.0;
 
     // Check whether the Unified State Model elements are within expected limits
-    // NEEDS TO BE FINISHED
+    // If inclination is zero and the right ascension of ascending node is non-zero
+    const double normOfQuaternionElements = std::sqrt( std::pow( unifiedStateModelElements( epsilon1QuaternionIndex ), 2 ) +
+                                                       std::pow( unifiedStateModelElements( epsilon2QuaternionIndex ), 2 ) +
+                                                       std::pow( unifiedStateModelElements( epsilon3QuaternionIndex ), 2 ) +
+                                                       std::pow( unifiedStateModelElements( etaQuaternionIndex ), 2 ) );
+    if ( std::fabs( normOfQuaternionElements - 1.0 ) > singularityTolerance )
+    {
+        // Define the error message.
+        std::stringstream errorMessage;
+        errorMessage << "The norm of the quaternion elements should be equal to one.\n"
+                     << "Norm of the specified quaternion elements is: " << keplerianElements( longitudeOfAscendingNodeIndex ) << " ." << std::endl;
+
+        // Throw exception.
+        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+    }
+    //Else, nothing wrong and continue
 
     // Compute auxiliary parameters cosineLambda, sineLambda and Lambda
     if ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
