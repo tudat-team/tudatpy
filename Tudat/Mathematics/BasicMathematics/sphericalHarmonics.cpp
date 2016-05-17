@@ -62,7 +62,8 @@ void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int maximumDegre
 Eigen::Vector3d computePotentialGradient(
         const double distance,
         const double radiusPowerTerm,
-        const double cosineOfOrderLongitude, const double sineOfOrderLongitude,
+        const double cosineOfOrderLongitude,
+        const double sineOfOrderLongitude,
         const double cosineOfLatitude,
         const double preMultiplier,
         const int degree,
@@ -121,7 +122,7 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double sineHarmonicCoefficient,
                                           const double legendrePolynomial,
                                           const double legendrePolynomialDerivative,
-                                          boost::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache )
+                                          const boost::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     return computePotentialGradient(
                 sphericalPosition( radiusIndex ),
