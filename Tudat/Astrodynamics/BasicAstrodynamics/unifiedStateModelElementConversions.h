@@ -56,7 +56,7 @@ namespace orbital_element_conversions
  *         keplerianElements( 4 ) = longitude of ascending node,                              [rad]
  *         keplerianElements( 5 ) = true anomaly.                                             [rad]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
- * \return Converted state in Unified State Model elements. The order of elements is fixed!
+ * \return convertedUnifiedStateModelElements Converted state in Unified State Model elements. The order of elements is fixed!
  *         convertedUnifiedStateModelElements( 0 ) = C hodograph element,                     [m/s]
  *         convertedUnifiedStateModelElements( 1 ) = Rf1 hodograph element,                   [m/s]
  *         convertedUnifiedStateModelElements( 2 ) = Rf1 hodograph element,                   [m/s]
@@ -72,17 +72,16 @@ basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
 //! Convert Unified State Model elements to Keplerian elements.
 /*!
  * Converts Unified State Model elements to Keplerian elements.
-                                          [rad]
- * \param Converted state in Unified State Model elements. The order of elements is fixed!
+ * \param unifiedStateModelElements Vector containing Unified State Model elements. Order of elements is important!
  *         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
  *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
  *         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                            [m/s]
- *         unifiedStateModelElements( 3 ) = epsilon1 quaternion,                                [-]
- *         unifiedStateModelElements( 4 ) = epsilon2 quaternion,                                [-]
- *         unifiedStateModelElements( 5 ) = epsilon3 quaternion,                                [-]
- *         unifiedStateModelElements( 6 ) = eta quaternion.
+ *         unifiedStateModelElements( 3 ) = epsilon1 quaternion element,                        [-]
+ *         unifiedStateModelElements( 4 ) = epsilon2 quaternion element,                        [-]
+ *         unifiedStateModelElements( 5 ) = epsilon3 quaternion element,                        [-]
+ *         unifiedStateModelElements( 6 ) = eta quaternion element.                             [-]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
- * \return convertedKeplerianElements Vector containing Keplerian elements. Order of elements is important!
+ * \return convertedKeplerianElements Converted state in Keplerian elements. The order of elements is fixed!
  *         convertedKeplerianElements( 0 ) = semi-major axis,                                   [m]
  *         convertedKeplerianElements( 1 ) = eccentricity,                                      [-]
  *         convertedKeplerianElements( 2 ) = inclination (in range [0,PI]),                   [rad]
