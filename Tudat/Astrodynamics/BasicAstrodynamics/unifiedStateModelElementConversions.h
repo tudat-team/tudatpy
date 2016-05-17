@@ -60,10 +60,10 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 0 ) = C hodograph element,                     [m/s]
  *         convertedUnifiedStateModelElements( 1 ) = Rf1 hodograph element,                   [m/s]
  *         convertedUnifiedStateModelElements( 2 ) = Rf1 hodograph element,                   [m/s]
- *         convertedUnifiedStateModelElements( 3 ) = epsilon1 quaternion,                       [-]
- *         convertedUnifiedStateModelElements( 4 ) = epsilon2 quaternion,                       [-]
- *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion,                       [-]
- *         convertedUnifiedStateModelElements( 6 ) = eta quaternion.                            [-]
+ *         convertedUnifiedStateModelElements( 3 ) = epsilon1 quaternion element,               [-]
+ *         convertedUnifiedStateModelElements( 4 ) = epsilon2 quaternion element,               [-]
+ *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion element,               [-]
+ *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
 basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
         const basic_mathematics::Vector6d& keplerianElements,
