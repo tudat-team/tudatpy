@@ -234,7 +234,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
             basic_mathematics::computeGeodesyLegendrePolynomial(
                 degree, order + 1,  legendreCacheReference );
 
-    // Compute geodesy-normalized Legendre polynomial derivative.
+    // Compute geodesy-normalized Legendre polynomial derivative.x
     const double legendrePolynomialDerivative =
             basic_mathematics::computeGeodesyLegendrePolynomialDerivative(
                 degree, order,
