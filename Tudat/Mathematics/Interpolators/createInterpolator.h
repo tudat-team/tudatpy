@@ -99,13 +99,16 @@ public:
      * \param useLongDoubleTimeStep Boolean denoting whether time step is to be a long double,
      * time step is a double if false.
      * \param selectedLookupScheme Selected type of lookup scheme for independent variables.
+     * \param boundaryHandling Variable denoting the method by which the boundary interpolation is handled.
      */
     LagrangeInterpolatorSettings(
             const int interpolatorOrder,
             const bool useLongDoubleTimeStep = 0,
-            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm ):
+            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+            const LagrangeInterpolatorBoundaryHandling boundaryHandling = lagrange_cubic_spline_boundary_interpolation ):
         InterpolatorSettings( lagrange_interpolator, selectedLookupScheme ),
-        interpolatorOrder_( interpolatorOrder ), useLongDoubleTimeStep_( useLongDoubleTimeStep )
+        interpolatorOrder_( interpolatorOrder ), useLongDoubleTimeStep_( useLongDoubleTimeStep ),
+        boundaryHandling_( boundaryHandling )
     { }
 
     //! Destructor
@@ -131,6 +134,12 @@ public:
         return useLongDoubleTimeStep_;
     }
 
+    LagrangeInterpolatorBoundaryHandling getBoundaryHandling( )
+    {
+        return boundaryHandling_;
+    }
+
+
 protected:
 
     //! Order of the Lagrange interpolator that is to be created.
@@ -138,6 +147,8 @@ protected:
 
     //!  Boolean denoting whether time step is to be a long double.
     bool useLongDoubleTimeStep_;
+
+    LagrangeInterpolatorBoundaryHandling boundaryHandling_;
 
 };
 
@@ -185,14 +196,16 @@ createOneDimensionalInterpolator(
                 createdInterpolator = boost::make_shared< LagrangeInterpolator
                         < IndependentVariableType, DependentVariableType, double > >(
                             dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
-                            interpolatorSettings->getSelectedLookupScheme( ) );
+                            interpolatorSettings->getSelectedLookupScheme( ),
+                            lagrangeInterpolatorSettings->getBoundaryHandling( ) );
             }
             else
             {
                 createdInterpolator = boost::make_shared< LagrangeInterpolator
                         < IndependentVariableType, DependentVariableType, long double > >(
                             dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
-                            interpolatorSettings->getSelectedLookupScheme( ) );
+                            interpolatorSettings->getSelectedLookupScheme( ),
+                            lagrangeInterpolatorSettings->getBoundaryHandling( ) );
             }
         }
         else

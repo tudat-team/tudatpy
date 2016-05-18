@@ -41,11 +41,12 @@ public:
      *  bodiesToBeIntegratedNumerically_
      *  \return Current state derivative (velocity+acceleration) of system of bodies integrated numerically.
      */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > calculateSystemStateDerivative(
-            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated )
+    void calculateSystemStateDerivative(
+            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
-        return ( this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), time ) ).
-                template cast< StateScalarType >( );
+        stateDerivative.setZero( );
+        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), stateDerivative );
     }
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
@@ -54,10 +55,11 @@ public:
         return cartesianSolution;
     }
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time )
+    void convertToOutputSolution(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
-        return internalSolution;
+        currentCartesianLocalSoluton = internalSolution;
     }
 };
 

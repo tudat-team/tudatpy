@@ -716,7 +716,7 @@ private:
     radiationPressureIterator_;
 };
 
-typedef std::map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
+typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
 
 } // namespace simulation_setup
 

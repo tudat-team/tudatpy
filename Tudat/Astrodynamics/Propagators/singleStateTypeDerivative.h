@@ -55,9 +55,10 @@ public:
      * \return Derivative of the state of the system, in the form that the equations are propagated (i.e. to be piped
      * directly to numerical integrator)
      */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > calculateSystemStateDerivative(
+    virtual void calculateSystemStateDerivative(
             const TimeType time,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated ) =  0;
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative ) = 0;
 
     //! Function to update the state derivative model to the current time.
     /*!
@@ -80,8 +81,9 @@ public:
      * \return State (internalSolution), converted to the 'conventional form' in inertial coordinates,
      * that can for instance be set directly  in the body object.
      */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertCurrentStateToGlobalRepresentation(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time ) = 0;
+    virtual void convertCurrentStateToGlobalRepresentation(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
 
     //! Function to convert the state in the conventional form to the propagator-specific form.
@@ -107,8 +109,9 @@ public:
      * \param time Current time at which the state is valid.
      * \return State (internalSolution), converted to the 'conventional form'
      */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time ) = 0;
+    virtual void convertToOutputSolution(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
     //! Function to return the size of the state handled by the object
     /*!

@@ -75,14 +75,20 @@ public:
      * \param aGravitationalParameter Gravitational parameter of body exerting gravitational acceleration.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration.
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      */
     SphericalHarmonicsGravitationalAccelerationModelBase(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
-            const StateFunction positionOfBodyExertingAccelerationFunction )
+            const StateFunction positionOfBodyExertingAccelerationFunction,
+            const bool isMutualAttractionUsed )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
           gravitationalParameterFunction( boost::lambda::constant( aGravitationalParameter ) ),
-          sourcePositionFunction( positionOfBodyExertingAccelerationFunction )
+          sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
+          isMutualAttractionUsed_( isMutualAttractionUsed )
     { }
 
     //! Default constructor taking position of body subject to acceleration, variable
@@ -99,14 +105,20 @@ public:
      *          of body exerting gravitational acceleration.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration.
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      */
     SphericalHarmonicsGravitationalAccelerationModelBase(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const boost::function< double( ) > aGravitationalParameterFunction,
-            const StateFunction positionOfBodyExertingAccelerationFunction )
+            const StateFunction positionOfBodyExertingAccelerationFunction,
+            const bool isMutualAttractionUsed )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
           gravitationalParameterFunction( aGravitationalParameterFunction ),
-          sourcePositionFunction( positionOfBodyExertingAccelerationFunction )
+          sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
+          isMutualAttractionUsed_( isMutualAttractionUsed )
     { }
 
     //! Virtual destructor.
@@ -123,12 +135,25 @@ public:
      * \return True; this should be modified to return a flag indicating if the update was
      *          successful.
      */
-    bool updateBaseMembers( )
+    void updateBaseMembers( )
     {
         this->gravitationalParameter = this->gravitationalParameterFunction( );
         this->positionOfBodySubjectToAcceleration = this->subjectPositionFunction( );
         this->positionOfBodyExertingAcceleration  = this->sourcePositionFunction( );
-        return true;
+    }
+
+    boost::function< double( ) > getGravitationalParameterFunction( )
+    { return gravitationalParameterFunction; }
+
+    boost::function< StateMatrix( ) > getStateFunctionOfBodyExertingAcceleration( )
+    { return sourcePositionFunction; }
+
+    boost::function< StateMatrix( ) > getStateFunctionOfBodyUndergoingAcceleration( )
+    { return subjectPositionFunction; }
+
+    bool getIsMutualAttractionUsed( )
+    {
+        return isMutualAttractionUsed_;
     }
 
 protected:
@@ -170,6 +195,16 @@ protected:
      * gravitational acceleration.
      */
     const StateFunction sourcePositionFunction;
+
+    //! Variable denoting whether mutual acceleration between bodies is included.
+    /*!
+     * Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
+     */
+    bool isMutualAttractionUsed_;
+
 
 private:
 };
