@@ -150,7 +150,6 @@ public:
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
      *  ephemerides.
      */
-
     DynamicsSimulator(
             const  simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
@@ -162,8 +161,13 @@ public:
         setIntegratedResult_( setIntegratedResult )
     {
         frameManager_ = boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap );
-        integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
-                    propagatorSettings_, bodyMap_, frameManager_ );
+
+        if( setIntegratedResult )
+        {
+            integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
+                        propagatorSettings_, bodyMap_, frameManager_ );
+        }
+
         environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >(
                     propagatorSettings_, bodyMap_ );
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
