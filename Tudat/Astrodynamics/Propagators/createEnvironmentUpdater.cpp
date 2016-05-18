@@ -180,10 +180,12 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         getAccelerationModelType( accelerationModelIterator->second.at( i ) );
 
                 // Add translational state of both bodies to update list for current acceleration model.
-                singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
-                            accelerationModelIterator->first );
-                singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
-                            acceleratedBodyIterator->first );
+                if( translationalAccelerationModels.count( accelerationModelIterator->first ) == 0 )
+                {
+                    singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                }
+
 
                 // Check acceleration model type and change environment update list accordingly.
                 switch( currentAccelerationModelType )
@@ -195,7 +197,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     boost::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
                             boost::dynamic_pointer_cast< gravitation::ThirdBodyCentralGravityAcceleration >(
                                 accelerationModelIterator->second.at( i ) );
-                    if( thirdBodyAcceleration != NULL )
+                    if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
+                                thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
                     {
                         singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
@@ -239,7 +242,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                             thirdBodyAcceleration = boost::dynamic_pointer_cast<
                             gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
                                 accelerationModelIterator->second.at( i ) );;
-                    if( thirdBodyAcceleration != NULL )
+                    if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
+                                thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
                     {
                         singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
