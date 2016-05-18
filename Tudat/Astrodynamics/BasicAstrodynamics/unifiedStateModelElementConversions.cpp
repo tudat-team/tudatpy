@@ -55,15 +55,14 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to Unified State Model elements.
-basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
+Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
         const basic_mathematics::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    basic_mathematics::Vector6d convertedUnifiedStateModelElements = basic_mathematics::
-            Vector6d::Zero( 7 );
+    Eigen::VectorXd convertedUnifiedStateModelElements = Eigen::VectorXd::Zero( 7 );
 
     // Define the tolerance of a singularity
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
@@ -238,7 +237,7 @@ basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
 
 //! Convert Unified State Model elements to Keplerian elements.
 basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
-        const basic_mathematics::Vector6d& unifiedStateModelElements,
+        const Eigen::VectorXd& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
@@ -262,12 +261,13 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
                                                        std::pow( unifiedStateModelElements( epsilon2QuaternionIndex ), 2 ) +
                                                        std::pow( unifiedStateModelElements( epsilon3QuaternionIndex ), 2 ) +
                                                        std::pow( unifiedStateModelElements( etaQuaternionIndex ), 2 ) );
+
     if ( std::fabs( normOfQuaternionElements - 1.0 ) > singularityTolerance )
     {
         // Define the error message.
         std::stringstream errorMessage;
-        errorMessage << "The norm of the quaternion elements should be equal to one.\n"
-                     << "Norm of the specified quaternion elements is: " << keplerianElements( longitudeOfAscendingNodeIndex ) << " ." << std::endl;
+        errorMessage << "The norm of the quaternion should be equal to one.\n"
+                     << "Norm of the specified quaternion is: " << normOfQuaternionElements << " ." << std::endl;
 
         // Throw exception.
         boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
