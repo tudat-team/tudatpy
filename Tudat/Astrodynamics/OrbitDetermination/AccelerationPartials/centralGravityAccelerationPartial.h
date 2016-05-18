@@ -82,9 +82,14 @@ public:
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
-     *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.
+     *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration
+     *  and adding it to the existing partial block
      *  Update( ) function must have been called during current time step before calling this function.
-     *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  undergoing acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -102,9 +107,14 @@ public:
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
     /*!
-     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration.
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration and
+     *  adding it to the existing partial block.
      *  The update( ) function must have been called during current time step before calling this function.
-     *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  exerting acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
@@ -147,7 +157,7 @@ public:
     /*!
      *  Function for updating partial to current state. For the central gravitational acceleration, position partial is
      *  computed and set.
-     *  \param currentTime Time at which partials are to be calcu
+     *  \param currentTime Time at which partials are to be calculated
      */
     void update( const double currentTime = TUDAT_NAN )
     {
@@ -194,11 +204,13 @@ protected:
     //! Boolean denoting whether the gravitational attraction of the central body on the accelerated body is included.
     bool accelerationUsesMutualAttraction_;
 
-
+    //! Current state of the body undergoing the acceleration (as set by update function).
     Eigen::Vector3d currentAcceleratedBodyState_;
 
+    //! Current state of the body exerting the acceleration (as set by update function).
     Eigen::Vector3d currentCentralBodyState_;
-    \
+
+    //! Current gravitational parameetr of the body exerting the acceleration (as set by update function).
     double currentGravitationalParameter_;
 
     //! Current partial of central gravity acceleration w.r.t. position of body undergoing acceleration

@@ -138,8 +138,13 @@ public:
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the accelerated body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the accelerated body.
-     *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
+     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the accelerated body and
+     *  adding it to the existing partial block.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  undergoing acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     virtual void wrtPositionOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -147,8 +152,13 @@ public:
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body.
-     *  \return Partial derivative of acceleration w.r.t. velocity of body undergoing acceleration.
+     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body and
+     *  adding it to the existing partial block.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  undergoing acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     virtual void wrtVelocityOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -158,8 +168,9 @@ public:
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body undergoing acceleration.
     /*!
      *  Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body
-     *  undergoing acceleration.
-     *  \return Partial derivative of acceleration w.r.t. state of body exerting acceleration.
+     *  undergoing acceleration  and adding it to the existing partial block.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian state of body
+     *  undergoing acceleration where current partial is to be added.
      */
     void wrtStateOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
@@ -170,8 +181,12 @@ public:
     //! Function for calculating the partial of the acceleration w.r.t. the position of the body exerting acceleration.
     /*!
      *  Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the body exerting
-     *  acceleration.
-     *  \return Partial derivative of acceleration w.r.t. position of body exerting acceleration.
+     *  acceleration and adding it to the existing partial block.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
+     *  exerting acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     virtual void wrtPositionOfAcceleratingBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -181,7 +196,11 @@ public:
     /*!
      *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the body exerting a
      *  acceleration.
-     *  \return Partial derivative of acceleration w.r.t. velocity of body exerting acceleration.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  exerting acceleration where current partial is to be added.
      */
     virtual void wrtVelocityOfAcceleratingBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -190,8 +209,9 @@ public:
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body exerting acceleration.
     /*!
      *  Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body exerting
-     *  acceleration.
-     *  \return Partial derivative of acceleration w.r.t. state of body exerting acceleration.
+     *  acceleration and adding it to the existing partial block.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian state of body
+     *  exerting acceleration where current partial is to be added.
      */
     void wrtStateOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
@@ -201,9 +221,14 @@ public:
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the third body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the third body.
+     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the third body
+     *  and adding it to the existing partial block.
      *  \param bodyName Name of third body.
-     *  \return Partial derivative of acceleration w.r.t. position of third body.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of third body where
+     *  current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     virtual void wrtPositionOfAdditionalBody(
             const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -211,9 +236,14 @@ public:
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the third body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the third body.
+     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the third body
+     *  and adding it to the existing partial block.
      *  \param bodyName Name of third body.
-     *  \return Partial derivative of acceleration w.r.t. velocity of third body.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of third body where
+     *  current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
      */
     virtual void wrtVelocityOfAdditionalBody(
             const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -221,9 +251,11 @@ public:
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body.
+     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body
+     *  and adding it to the existing partial block.
      *  \param bodyName Name of third body.
-     *  \return Partial derivative of acceleration w.r.t. Cartesian state of third body.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian state of third body where
+     *  current partial is to be added.
      */
     void wrtStateOfAdditionalBody( Eigen::Block< Eigen::MatrixXd > partialMatrix, const std::string& bodyName )
     {

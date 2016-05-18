@@ -26,6 +26,13 @@ namespace orbit_determination
 namespace partial_derivatives
 {
 
+//! Function to get the third body acceleration type from the direct acceleration partial object.
+/*!
+ *  Function to get the third body acceleration type from the direct acceleration partial object.
+ *  \param directGravityPartial Partial derivative of direct acceleration.
+ *  \return Type of acceleration for third body acceleration for which direct acceleration partial is given by
+ *  directGravityPartial (i.e. third_body_central_gravity if input is of type CentralGravitationPartial).
+ */
 template< typename DirectGravityPartial >
 basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity(
         const boost::shared_ptr< DirectGravityPartial > directGravityPartial )
@@ -33,6 +40,7 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     using namespace basic_astrodynamics;
     AvailableAcceleration accelerationType;
 
+    // Check type of direct partial derivative.
     if( boost::dynamic_pointer_cast< CentralGravitationPartial >( directGravityPartial ) != NULL )
     {
         accelerationType = third_body_central_gravity;
@@ -44,19 +52,45 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
     return accelerationType;
 }
 
+//! Class to calculate the partials of a third-body gravitational acceleration w.r.t. parameters and states.
+/*!
+ *  Class to calculate the partials of a third-body gravitational acceleration w.r.t. parameters and states. This class may
+ *  be used for any direct gravitational acceleration (central, spherical harmonic, mutual spherical harmonic, etc.),
+ *  providin a generic third-body partial interface. The template parameter is the derived class of AccelerationPartial
+ *  for the associated direct acceleration partial.
+ */
 template< typename DirectGravityPartial >
 class ThirdBodyGravityPartial: public AccelerationPartial
 {
 public:
-    ThirdBodyGravityPartial( const boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnBodyUndergoingAcceleration,
-                             const boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnCentralBody,
-                             const std::string& acceleratedBody, const std::string& acceleratingBody,
-                             const std::string& centralBodyName ):
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param partialOfDirectGravityOnBodyUndergoingAcceleration Partial derivative of direct acceleration from
+     * acceleratingBody on acceleratedBody.
+     * \param partialOfDirectGravityOnCentralBody Partial derivative of direct acceleration from
+     * centralBodyName on acceleratedBody.
+     * \param acceleratedBody Name of body undergoing acceleration
+     * \param acceleratingBody Name of body exerting acceleration (third-body)
+     * \param centralBodyName Name of central body w.r.t. which the acceleration is computed.
+     */
+    ThirdBodyGravityPartial(
+            const boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnBodyUndergoingAcceleration,
+            const boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnCentralBody,
+            const std::string& acceleratedBody, const std::string& acceleratingBody,
+            const std::string& centralBodyName ):
         AccelerationPartial( acceleratedBody, acceleratingBody, getAccelerationTypeOfThirdBodyGravity(
                                  partialOfDirectGravityOnBodyUndergoingAcceleration ) ),
         partialOfDirectGravityOnBodyUndergoingAcceleration_( partialOfDirectGravityOnBodyUndergoingAcceleration ),
         partialOfDirectGravityOnCentralBody_( partialOfDirectGravityOnCentralBody ), centralBodyName_( centralBodyName ){ }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration.
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \return Partial derivative of acceleration w.r.t. position of body undergoing acceleration.
+     */
     void wrtPositionOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     {
@@ -70,6 +104,12 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration.
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \return Partial derivative of acceleration w.r.t. velocity of body undergoing acceleration.
+     */
     void wrtVelocityOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                        const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     {
@@ -83,6 +123,12 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration..
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration.
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \return Partial derivative of acceleration w.r.t. position of body exerting acceleration.
+     */
     void wrtPositionOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
 
@@ -94,6 +140,13 @@ public:
 
     }
 
+
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration..
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration.
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \return Partial derivative of acceleration w.r.t. velocity of body exerting acceleration.
+     */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     {

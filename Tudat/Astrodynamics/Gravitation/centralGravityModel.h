@@ -192,6 +192,10 @@ public:
      * \param aGravitationalParameter A (constant) gravitational parameter [m^2 s^-3].
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration (default = (0,0,0)).
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      */
     CentralGravitationalAccelerationModel(
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
@@ -222,6 +226,10 @@ public:
      *          parameter [m^2 s^-3].
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration (default = (0,0,0)).
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      */
     CentralGravitationalAccelerationModel(
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,

@@ -135,6 +135,8 @@ boost::shared_ptr< AccelerationPartial > createAnalyticalAccelerationPartial(
  *  which derivatives are needed. The return type is an AccelerationPartialsMap, a standardized type for communicating such lists
  *  of these objects.
  *  \param accelerationMap Map of maps containing list of acceleration models, identifying which acceleration acts on which body.
+ *  \param bodyMap List of body objects constituting environment for calculations.
+ *  \param parametersToEstimate List of parameters which are to be estimated.
  *  \return List of acceleration-partial-calculating objects in AccelerationPartialsMap type.
  */
 template< typename InitialStateParameterType >

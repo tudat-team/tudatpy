@@ -89,6 +89,7 @@ public:
      * \param useLongDoubleTimeStep Boolean denoting whether time step is to be a long double,
      * time step is a double if false.
      * \param selectedLookupScheme Selected type of lookup scheme for independent variables.
+     * \param boundaryHandling Variable denoting the method by which the boundary interpolation is handled.
      */
     LagrangeInterpolatorSettings(
             const int interpolatorOrder,
