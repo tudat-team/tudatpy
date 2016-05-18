@@ -65,7 +65,7 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion element,               [-]
  *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
-basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
+Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
         const basic_mathematics::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter );
 
@@ -89,8 +89,7 @@ basic_mathematics::Vector6d convertKeplerianToUnifiedStateModelElements(
  *         convertedKeplerianElements( 4 ) = longitude of ascending node,                     [rad]
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
-basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
-        const basic_mathematics::Vector6d& unifiedStateModelElements,
+basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(const Eigen::VectorXd &unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
 } // close namespace orbital_element_conversion
