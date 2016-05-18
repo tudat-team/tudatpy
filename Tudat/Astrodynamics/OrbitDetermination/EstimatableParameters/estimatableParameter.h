@@ -54,7 +54,8 @@ public:
      *  Constructor taking parameter name and associated body. All parameters are identified by a these two variables.
      *  Any additional information that may be required for uniquely defining a parameter is to be defined in the derived class.
      *  \param parameterName Enum value defining the type of the parameter.
-     *  \param associatedBody Reference point on body associated with parameter (empty by default).
+     *  \param associatedBody Name of body associated with patameters
+     *  \param pointOnBodyId Reference point on body associated with parameter (empty by default).
      */
     EstimatableParameter( const EstimatebleParametersEnum parameterName,
                           const std::string associatedBody,
@@ -122,8 +123,8 @@ public:
     //! Constructor of parameter set.
     /*!
      *  Constructor of parameter set.
-     *  \param doubleParameters List of double parameters that are estimated.
-     *  \param vectorParameters List of vector parameters that are estimated.
+     *  \param estimatedDoubleParameters List of double parameters that are estimated.
+     *  \param estimatedVectorParameters List of vector parameters that are estimated.
      *  \param estimateInitialStateParameters List of initial dynamical states that are to be estimated.
      */
     EstimatableParameterSet(
@@ -409,6 +410,7 @@ public:
      *  Constructor, takes parameter type and body of which it is a property.
      *  \param associatedBody Body of which parameter is a property.
      *  \param parameterType Type of parameter.
+     *  \param pointOnBodyId Reference point on body associated with parameter (empty by default).
      */
     EstimatableParameterSettings( const std::string associatedBody ,
                                   const EstimatebleParametersEnum parameterType,

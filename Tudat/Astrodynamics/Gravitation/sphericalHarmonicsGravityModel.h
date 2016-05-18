@@ -213,6 +213,10 @@ public:
      *          body exerting gravitational acceleration (default = (0,0,0)).
      * \param rotationFromBodyFixedToIntegrationFrameFunction Function providing the rotation from
      * body-fixes from to the frame in which the numerical integration is performed.
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      * \param sphericalHarmonicsCache Cache object for computing/retrieving repeated terms in spherical harmonics potential
      *          gradient calculation.
      */
@@ -269,6 +273,10 @@ public:
      *          body exerting gravitational acceleration (default = (0,0,0)).
      * \param rotationFromBodyFixedToIntegrationFrameFunction Function providing the rotation from
      * body-fixes from to the frame in which the numerical integration is performed.
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      * \param sphericalHarmonicsCache Cache object for computing/retrieving repeated terms in spherical harmonics potential
      *          gradient calculation.
      */

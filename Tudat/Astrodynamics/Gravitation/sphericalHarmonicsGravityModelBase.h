@@ -75,6 +75,10 @@ public:
      * \param aGravitationalParameter Gravitational parameter of body exerting gravitational acceleration.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration.
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      */
     SphericalHarmonicsGravitationalAccelerationModelBase(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
@@ -101,6 +105,10 @@ public:
      *          of body exerting gravitational acceleration.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration.
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      */
     SphericalHarmonicsGravitationalAccelerationModelBase(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
@@ -188,6 +196,13 @@ protected:
      */
     const StateFunction sourcePositionFunction;
 
+    //! Variable denoting whether mutual acceleration between bodies is included.
+    /*!
+     * Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
+     */
     bool isMutualAttractionUsed_;
 
 

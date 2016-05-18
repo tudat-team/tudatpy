@@ -22,6 +22,7 @@ namespace orbit_determination
 namespace partial_derivatives
 {
 
+//! Calculates partial derivative of cannon ball radiation pressure acceleration wrt radiation pressure coefficient.
 Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
         const double radiationPressure,
         const double area,
@@ -31,15 +32,19 @@ Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiat
     return -radiationPressure * area / bodyMass * vectorToSource;
 }
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
 std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     boost::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
+
+    // Check if parameter dependency exists.
     if( parameter->getParameterName( ).second.first == acceleratedBody_ )
     {
         switch( parameter->getParameterName( ).first )
         {
+        // Set function returning partial w.r.t. radiation pressure coefficient.
         case estimatable_parameters::radiation_pressure_coefficient:
 
             partialFunction = boost::bind( &CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient,
@@ -55,11 +60,14 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiatio
 }
 
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
 std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     boost::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
+
+    // Check if parameter dependency exists.
     if( parameter->getParameterName( ).second.first == acceleratedBody_ )
     {
         switch( parameter->getParameterName( ).first )
@@ -70,7 +78,6 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiatio
         }
     }
     return std::make_pair( partialFunction, numberOfRows );
-
 }
 
 
