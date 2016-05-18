@@ -160,10 +160,10 @@ public:
         propagatorSettings_( propagatorSettings ), clearNumericalSolutions_( clearNumericalSolutions ),
         setIntegratedResult_( setIntegratedResult )
     {
-        frameManager_ = boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap );
 
-        if( setIntegratedResult )
+        if( setIntegratedResult_ )
         {
+            frameManager_ = boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap );
             integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
                         propagatorSettings_, bodyMap_, frameManager_ );
         }
@@ -175,6 +175,9 @@ public:
                         propagatorSettings_, bodyMap_ ), environmentUpdater_ );
         stateDerivativeFunction_ =
                 boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
+                             dynamicsStateDerivative_, _1, _2 );
+        doubleStateDerivativeFunction_ =
+                boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDoubleDerivative,
                              dynamicsStateDerivative_, _1, _2 );
     }
 
@@ -213,6 +216,12 @@ public:
     getStateDerivativeFunction( )
     {
         return stateDerivativeFunction_;
+    }
+
+    boost::function< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >
+    ( const double, const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& ) > getDoubleStateDerivativeFunction( )
+    {
+        return doubleStateDerivativeFunction_;
     }
 
     //! Function to get the settings for the propagator.
@@ -289,6 +298,9 @@ protected:
     boost::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
     ( const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > stateDerivativeFunction_;
 
+
+    boost::function< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >
+    ( const double, const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& ) > doubleStateDerivativeFunction_;
 
     //!  Map of bodies (with names) of all bodies in integration.
     simulation_setup::NamedBodyMap bodyMap_;
@@ -384,7 +396,7 @@ public:
 
         equationsOfMotionNumericalSolution_.clear( );
 
-        dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1 );
+        dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
 
         // Integrate equations of motion numerically.
         equationsOfMotionNumericalSolution_ =
@@ -445,7 +457,7 @@ protected:
             equationsOfMotionNumericalSolution_.clear( );
         }
 
-        for( std::map< std::string, boost::shared_ptr< simulation_setup::Body > >::const_iterator
+        for( simulation_setup::NamedBodyMap::const_iterator
              bodyIterator = bodyMap_.begin( );
              bodyIterator != bodyMap_.end( ); bodyIterator++ )
         {

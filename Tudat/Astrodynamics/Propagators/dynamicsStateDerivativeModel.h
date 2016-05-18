@@ -25,6 +25,7 @@
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 
 namespace tudat
 {
@@ -100,6 +101,11 @@ public:
             // Set current model in member map.
             stateDerivativeModels_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back(
                         stateDerivativeModels.at( i ) );
+
+
+            currentStatesPerTypeInConventionalRepresentation_[ stateDerivativeModels.at( i )->getIntegratedStateType( )  ] =
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                        stateTypeSize_.at( stateDerivativeModels.at( i )->getIntegratedStateType( )  ), 1 );
         }
     }
 
@@ -117,21 +123,22 @@ public:
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
         // Initialize state derivative
-        StateType stateDerivative = StateType::Zero( state.rows( ), state.cols( ) );
+        if( stateDerivative_.rows( ) != state.rows( ) || stateDerivative_.cols( ) != state.cols( )  )
+        {
+            stateDerivative_.resize( state.rows( ), state.cols( ) );
+        }
 
         // If dynamical equations are integrated, update the environment with the current state.
         if( evaluateDynamicsEquations_ )
         {
-            std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
-                    statesPerTypeInConventionalRepresentation =
-                    convertCurrentStateToGlobalRepresentationPerType( state, time );
-            environmentUpdater_->updateEnvironment( time, statesPerTypeInConventionalRepresentation,
+            convertCurrentStateToGlobalRepresentationPerType( state, time, evaluateVariationalEquations_ );
+            environmentUpdater_->updateEnvironment( time, currentStatesPerTypeInConventionalRepresentation_,
                                                     integratedStatesFromEnvironment_ );
         }
         else
         {
             environmentUpdater_->updateEnvironment(
-                        time, std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
+                        time, std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
                                                     integratedStatesFromEnvironment_ );
         }
 
@@ -154,18 +161,20 @@ public:
                     currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
                     stateDerivativeModelsIterator_->second.at( i )->calculateSystemStateDerivative(
-                        time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
-
-                    stateDerivative.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) =
-                            stateDerivativeModelsIterator_->second.at( i )->calculateSystemStateDerivative(
-                                time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
+                                time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ),
+                                stateDerivative_.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
                 }
             }
         }
 
-        return stateDerivative;
+        return stateDerivative_;
     }
 
+    Eigen::MatrixXd computeStateDoubleDerivative(
+            const double time, const Eigen::MatrixXd& state )
+    {
+        return computeStateDerivative( static_cast< TimeType >( time ), state.template cast< StateScalarType >( ) ).template cast< double >( );
+    }
 
     //! Function to convert the state in the conventional form to the propagator-specific form.
     /*!
@@ -226,10 +235,10 @@ public:
                         stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
-                outputState.segment( currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ) =
-                        stateDerivativeModelsIterator_->second.at( i )->convertToOutputSolution(
+                stateDerivativeModelsIterator_->second.at( i )->convertToOutputSolution(
                             internalSolution.segment(
-                                currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ), time );
+                                currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ), time,
+                            outputState.block( currentStateIndices.at( i ).first, 0, currentStateIndices.at( i ).second, 1 ) );
             }
         }
         return outputState;
@@ -271,11 +280,21 @@ public:
      */
     void setPropagationSettings(
             const std::vector< IntegratedStateType >& stateTypesToNotIntegrate,
-            const bool evaluateDynamicsEquations )
+            const bool evaluateDynamicsEquations,
+            const bool evaluateVariationalEquations )
     {
         integratedStatesFromEnvironment_ = stateTypesToNotIntegrate;
         evaluateDynamicsEquations_ = evaluateDynamicsEquations;
-        dynamicsStartColumn_ = 0;
+        evaluateVariationalEquations_ = evaluateVariationalEquations;
+
+        if( evaluateVariationalEquations_ )
+        {
+           std::cerr<<"Error, variational equations not yet implemented"<<std::endl;
+        }
+        else
+        {
+            dynamicsStartColumn_ = 0;
+        }
     }
 
     //! Function to get complete list of state derivative models, sorted per state type.
@@ -283,7 +302,7 @@ public:
      * Function to get complete list of state derivative models, sorted per state type.
      * \return Complete list of state derivative models, sorted per state type.
      */
-    std::map< IntegratedStateType, std::vector< boost::shared_ptr
+    std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeModels( )
     {
         return stateDerivativeModels_;
@@ -298,6 +317,39 @@ public:
     {
         return stateTypeStartIndex_;
     }
+
+    void updateStateDerivativeModelSettings(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
+            const int currentStateArcIndex )
+    {
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( ); stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            switch( stateDerivativeModelsIterator_->first )
+            {
+            case transational_state:
+            {
+                for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+                {
+                    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
+                            boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                                stateDerivativeModelsIterator_->second.at( i ) );
+                    switch( currentTranslationalStateDerivative->getPropagatorType( ) )
+                    {
+                    case cowell:
+                        break;
+                    default:
+                        throw std::runtime_error( "Error when updating state derivative model settings, did not recognize propagator type" );
+                        break;
+                    }
+                }
+            }
+            default:
+                break;
+            }
+        }
+    }
+
 
 private:
 
@@ -315,12 +367,18 @@ private:
      * \return State (state), converted to the 'conventional form' in inertial coordinates,
      * that can for instance be set directly  in the body object.
      */
-    std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
-    convertCurrentStateToGlobalRepresentationPerType( const StateType& state, const TimeType& time )
+    void convertCurrentStateToGlobalRepresentationPerType(
+            const StateType& state, const TimeType& time, const bool stateIncludesVariationalState )
     {
         int startColumn = 0;
-
-        std::map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > splitConventionalStates;
+        if( stateIncludesVariationalState )
+        {
+            std::cerr<<"Error, variational equations not yet implemented"<<std::endl;
+        }
+        else
+        {
+            startColumn = 0;
+        }
 
         std::pair< int, int > currentIndices;
 
@@ -328,10 +386,7 @@ private:
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
-        {            
-            splitConventionalStates[ stateDerivativeModelsIterator_->first ] =
-                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
-                        stateTypeSize_.at( stateDerivativeModelsIterator_->first ), 1 );
+        {
             int currentStateTypeSize = 0;
 
             // Iterate over all state derivative models of current type
@@ -341,14 +396,13 @@ private:
                 currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
                 // Set current block in split state (in global form)
-                splitConventionalStates[ stateDerivativeModelsIterator_->first ].block(
-                            currentStateTypeSize, 0, currentIndices.second, 1 ) =
-                        stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
-                            state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time );
+                stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
+                            state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time,
+                            currentStatesPerTypeInConventionalRepresentation_.at( stateDerivativeModelsIterator_->first ).block(
+                                        currentStateTypeSize, 0, currentIndices.second, 1 ) );
                 currentStateTypeSize += currentIndices.second;
             }
         }
-        return splitConventionalStates;
     }
 
     //! Object used to update the environment to the current state and time.
@@ -365,11 +419,11 @@ private:
     std::map< IntegratedStateType, int > stateTypeStartIndex_;
 
     //! Complete list of state derivative models, sorted per state type.
-    std::map< IntegratedStateType,
+    std::unordered_map< IntegratedStateType,
     std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels_;
 
     //! Predefined iterator for computational efficiency.
-    typename std::map< IntegratedStateType, std::vector< boost::shared_ptr
+    typename std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > >::iterator stateDerivativeModelsIterator_;
 
     //! Total length of state vector.
@@ -382,12 +436,36 @@ private:
     //! Boolean denoting whether the equations of motion are to be propagated or not.
     bool evaluateDynamicsEquations_;
 
+    bool evaluateVariationalEquations_;
+
     //! Start index in propagated matrix of the equations of motion (=0 if variational equations are not propagated).
     int dynamicsStartColumn_;
 
 
+    StateType stateDerivative_;
+
+    std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
+            currentStatesPerTypeInConventionalRepresentation_;
 };
 
+template< typename TimeType = double, typename StateScalarType = double,
+          typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
+std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
+        boost::shared_ptr< ConversionClassType > converterClass )
+{
+    // Initialize converted solution.
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
+
+    // Iterate over all times.
+    for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
+         rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
+    {
+        // Convert solution at this time to output (typically ephemeris frame of given body) solution
+        convertedSolution[ stateIterator->first ] = converterClass->convertToOutputSolution( stateIterator->second, stateIterator->first );
+    }
+    return convertedSolution;
+}
 
 } // namespace state_derivative_models
 } // namespace tudat

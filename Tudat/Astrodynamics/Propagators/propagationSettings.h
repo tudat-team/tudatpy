@@ -15,6 +15,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <unordered_map>
 
 #include <boost/lexical_cast.hpp>
 
@@ -36,11 +37,16 @@ enum IntegratedStateType
     transational_state
 };
 
+
 //! Enum listing propagator types for translational dynamics that can be used.
 enum TranslationalPropagatorType
 {
     cowell = 0
 };
+
+int getSingleIntegrationSize( const IntegratedStateType stateType );
+
+int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType );
 
 //! Base class for defining setting of a propagator
 /*!
@@ -60,7 +66,7 @@ public:
      */
     PropagatorSettings( const IntegratedStateType stateType,
                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates ):
-        stateType_( stateType ), initialStates_( initialBodyStates ){ }
+        stateType_( stateType ), initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ){ }
 
     //! Virtual destructor.
     virtual ~PropagatorSettings( ){ }
@@ -86,12 +92,21 @@ public:
     virtual void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
     {
         initialStates_ = initialBodyStates;
+        stateSize_ = initialStates_.rows( );
+    }
+
+
+    int getStateSize( )
+    {
+        return stateSize_;
     }
 
 protected:
 
     //!  Initial state used as input for numerical integration
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates_;
+
+    int stateSize_;
 
 };
 
@@ -201,6 +216,24 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 }
 
 }
+
+}
+
+namespace std
+{
+
+template<>
+struct hash< tudat::propagators::IntegratedStateType >
+{
+   typedef tudat::propagators::IntegratedStateType argument_type;
+   typedef size_t result_type;
+
+   result_type operator () (const argument_type& x) const
+   {
+      using type = typename std::underlying_type<argument_type>::type;
+      return std::hash<type>()(static_cast<type>(x));
+   }
+};
 
 }
 

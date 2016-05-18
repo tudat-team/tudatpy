@@ -174,6 +174,12 @@ public:
         return radiationPressureCoefficient_;
     }
 
+
+    void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
+    {
+        radiationPressureCoefficient_ = radiationPressureCoefficient;
+    }
+
     //! Function to return the function returning the current total power (in W) emitted by the
     //! source body.
     /*!

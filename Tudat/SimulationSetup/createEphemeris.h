@@ -19,6 +19,7 @@
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 
 namespace tudat
 {
@@ -210,10 +211,13 @@ public:
                                         double finalTime,
                                         double timeStep,
                                         std::string frameOrigin = "SSB",
-                                        std::string frameOrientation = "ECLIPJ2000" ):
+                                        std::string frameOrientation = "ECLIPJ2000",
+                                        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
         DirectSpiceEphemerisSettings( frameOrigin, frameOrientation, 0, 0, 0,
                                       interpolated_spice ),
-        initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ){ }
+        initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
+        interpolatorSettings_( interpolatorSettings ){ }
 
     //! Function to returns initial time from which interpolated data from Spice should be created.
     /*!
@@ -236,6 +240,11 @@ public:
      */
     double getTimeStep( ){ return timeStep_; }
 
+    boost::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
+    {
+        return interpolatorSettings_;
+    }
+
 private:
 
     //! Initial time from which interpolated data from Spice should be created.
@@ -246,6 +255,8 @@ private:
 
     //! Time step with which interpolated data from Spice should be created.
     double timeStep_;
+
+    boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
 };
 
