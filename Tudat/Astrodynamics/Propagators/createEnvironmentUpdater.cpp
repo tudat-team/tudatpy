@@ -203,7 +203,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
                     }
-                    else
+                    else if( thirdBodyAcceleration == NULL )
                     {
                         throw std::runtime_error(
                                     std::string( "Error, incompatible input (ThirdBodyCentralGravityAcceleration) to" )
@@ -248,7 +248,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
                     }
-                    else
+                    else if( thirdBodyAcceleration == NULL )
                     {
                         throw std::runtime_error(
                                     std::string( "Error, incompatible input (ThirdBodySphericalHarmonicsGravitational" ) +
