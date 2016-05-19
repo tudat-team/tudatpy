@@ -72,6 +72,7 @@ public:
         propagatorType_( propagatorType ),
         bodiesToBeIntegratedNumerically_( bodiesToIntegrate )
     {
+        // Add empty acceleration map if body is to be propagated with no accelerations.
         for( unsigned int i = 0; i < bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             if( accelerationModelsPerBody_.count( bodiesToBeIntegratedNumerically_.at( i ) ) == 0 )
@@ -81,6 +82,7 @@ public:
             }
         }
 
+        // Correct order of propagated bodies.
         for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
              outerAccelerationIterator != accelerationModelsPerBody_.end( );
              outerAccelerationIterator++ )
@@ -145,7 +147,8 @@ public:
      * simulation settings.
      * \param internalSolution State in propagator-specific form (i.e. form that is used in numerical integration).
      * \param time Current time at which the state is valid.
-     * \return State (internalSolution), converted to the Cartesian state in inertial coordinates.
+     * \param currentCartesianLocalSoluton State (internalSolution), converted to the Cartesian state in inertial coordinates
+     * (returned by reference).
      */
     void convertCurrentStateToGlobalRepresentation(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
@@ -219,7 +222,7 @@ protected:
      * Function to get the state derivative of the system in Cartesian coordinates. The environment and acceleration models
      * must have been updated to the current state before calling this function.
      * \param stateOfSystemToBeIntegrated Current Cartesian state of the system.
-     * \return State derivative of the system in Cartesian coordinates.
+     * \param stateDerivative State derivative of the system in Cartesian coordinates (returned by reference).
      */
     void sumStateDerivativeContributions(
             const Eigen::VectorXd& stateOfSystemToBeIntegrated,
@@ -279,12 +282,14 @@ protected:
     std::vector< int > bodyOrder_;
 
     //! Predefined iterator to save (de-)allocation time.
-    std::unordered_map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::
-    iterator innerAccelerationIterator;
+    std::unordered_map< std::string, std::vector<
+    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator innerAccelerationIterator;
 
-    std::unordered_map< std::string, std::unordered_map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::
-    iterator outerAccelerationIterator;
+    //! Predefined iterator to save (de-)allocation time.
+    std::unordered_map< std::string, std::unordered_map< std::string, std::vector<
+    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator outerAccelerationIterator;
 
+    //! List of states of teh central bodies of the propagated bodies.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyInertialStates_;
 
 };

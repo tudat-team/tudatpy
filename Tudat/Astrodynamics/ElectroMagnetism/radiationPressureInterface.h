@@ -174,7 +174,11 @@ public:
         return radiationPressureCoefficient_;
     }
 
-
+    //! Function to reset the radiation pressure coefficient of the target body.
+    /*!
+     *  Function to reset the radiation pressure coefficient of the target body.
+     *  \param radiationPressureCoefficient The new radiation pressure coefficient of the target body.
+     */
     void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
     {
         radiationPressureCoefficient_ = radiationPressureCoefficient;

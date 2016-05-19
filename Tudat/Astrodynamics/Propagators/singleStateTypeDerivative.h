@@ -52,8 +52,8 @@ public:
      * \param time Time at which the state derivative is to be calculated.
      * \param stateOfSystemToBeIntegrated Current state of the system, in the form that the equations are propagated (i.e.
      * directly from numerical integrator)
-     * \return Derivative of the state of the system, in the form that the equations are propagated (i.e. to be piped
-     * directly to numerical integrator)
+     * \param stateDerivative Derivative of the state of the system, in the form that the equations are propagated
+     * (i.e. to be piped directly to numerical integrator), returned by reference.
      */
     virtual void calculateSystemStateDerivative(
             const TimeType time,
@@ -78,8 +78,8 @@ public:
      * simulation settings
      * \param internalSolution State in propagator-specific form (i.e. form that is used in numerical integration).
      * \param time Current time at which the state is valid.
-     * \return State (internalSolution), converted to the 'conventional form' in inertial coordinates,
-     * that can for instance be set directly  in the body object.
+     * \param currentCartesianLocalSoluton State (internalSolution), converted to the 'conventional form' in inertial
+     * coordinates, that can for instance be set directly  in the body object (returned by reference).
      */
     virtual void convertCurrentStateToGlobalRepresentation(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
@@ -107,7 +107,8 @@ public:
      * state in the inertial frame, but instead provides it in the frame in which it is propagated.
      * \param internalSolution State in propagator-specific form (i.e. form that is used in numerical integration).
      * \param time Current time at which the state is valid.
-     * \return State (internalSolution), converted to the 'conventional form'
+     * \param currentCartesianLocalSoluton State (internalSolution), converted to the 'conventional form' (returned by
+     * reference).
      */
     virtual void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,

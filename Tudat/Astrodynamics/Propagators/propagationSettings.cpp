@@ -6,6 +6,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Get size of state for single propagated state of given type.
 int getSingleIntegrationSize( const IntegratedStateType stateType )
 {
     int singleStateSize = 0;
@@ -20,6 +21,7 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     return singleStateSize;
 }
 
+//! Get order of differential equation for governing equations of dynamics of given type.
 int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType )
 {
     int singleStateSize = 0;

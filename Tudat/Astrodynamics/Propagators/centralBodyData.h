@@ -168,9 +168,10 @@ public:
      *  \param internalState States of bodies that are numerically integrated, size should be 6 * size of bodiesToIntegrate,
      *  with entries in the order of the bodies in the bodiesToIntegrate vector.
      *  \param time Current time (used for retrieving states from ephemerides)
+     *  \param referenceFrameOriginStates Vector of states of the reference frame origins for each body
+     *  (returned by reference).
      *  \param areInputStateLocal True if the internalState vector is given in the local frames of the integrated bodies, or
      *  the global frame.
-     *  \return Vector of states of the reference frame origins for each body.
      */
     void getReferenceFrameOriginInertialStates(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalState, const TimeType time,
@@ -240,6 +241,7 @@ private:
     //! Map defining frame origin body index, for bodies having one of the other propagated bodies as propagation origin
     std::map< int, int > centralBodiesFromIntegration_;
 
+    //! State of propagated bodies, with the origins translated to the global origin
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > localInternalState_;
 
     //! Function to get the global origin of the propagation center of a single body.
@@ -252,7 +254,7 @@ private:
      *  \sa updateOrder
      *  \param time Current time.
      *  \param bodyIndex Index of the body for which the global origin state is to be retrieved
-     *  \return Global origin state of the requested body.
+     *  \param originState Global origin state of the requested body (returned by reference).
      */
     void getSingleReferenceFrameOriginInertialState(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
