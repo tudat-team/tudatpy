@@ -439,10 +439,11 @@ private:
     std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
     updateTimeFunctionList_;
 
-    //! Predefined iterator for computational efficiency.
+    //! Predefined environment model iterator for computational efficiency.
     std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
     ::iterator updateTimeIterator;
 
+    //! Predefined state history iterator for computational efficiency.
     typename std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
     integratedStateIterator_;
 

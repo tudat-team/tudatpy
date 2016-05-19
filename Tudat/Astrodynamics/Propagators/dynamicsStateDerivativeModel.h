@@ -170,6 +170,14 @@ public:
         return stateDerivative_;
     }
 
+    //! Function to calculate the system state derivative with double precision, regardless of template arguments
+    /*!
+     *   Function to calculate the system state derivative with double precision, regardless of template arguments
+     *  \sa computeStateDerivative
+     *  \param time Current time.
+     *  \param state Current complete state.
+     *  \return Calculated state derivative.
+     */
     Eigen::MatrixXd computeStateDoubleDerivative(
             const double time, const Eigen::MatrixXd& state )
     {
@@ -277,6 +285,7 @@ public:
      * equations, and which types of the dynamics to propagate.
      * \param stateTypesToNotIntegrate Types of dynamics to propagate
      * \param evaluateDynamicsEquations Boolean to denote whether the dynamical equations are to be propagated or not
+     * \param evaluateVariationalEquations Boolean to denote whether the variational equations are to be propagated or not
      */
     void setPropagationSettings(
             const std::vector< IntegratedStateType >& stateTypesToNotIntegrate,
@@ -318,54 +327,22 @@ public:
         return stateTypeStartIndex_;
     }
 
-    void updateStateDerivativeModelSettings(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
-            const int currentStateArcIndex )
-    {
-        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( ); stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
-             stateDerivativeModelsIterator_++ )
-        {
-            switch( stateDerivativeModelsIterator_->first )
-            {
-            case transational_state:
-            {
-                for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
-                {
-                    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
-                            boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
-                                stateDerivativeModelsIterator_->second.at( i ) );
-                    switch( currentTranslationalStateDerivative->getPropagatorType( ) )
-                    {
-                    case cowell:
-                        break;
-                    default:
-                        throw std::runtime_error( "Error when updating state derivative model settings, did not recognize propagator type" );
-                        break;
-                    }
-                }
-            }
-            default:
-                break;
-            }
-        }
-    }
-
-
 private:
 
     //! Function to convert the propagator-specific form of the state to the conventional form in the global frame,
     //! split per dynamics type.
     /*!
      * Function to convert the propagator-specific form of the state to the conventional form in the global frame, split
-     * by dynamics type
+     * by dynamics type. This function updates the currentStatesPerTypeInConventionalRepresentation_ to the current state
+     * and time.
      * The conventional form is one that is typically used to represent the current state in the environment
      * (e.g. Body class). For translational dynamics this is the Cartesian position and velocity).
      * The inertial frame is typically the barycenter with J2000/ECLIPJ2000 orientation, but may differ depending on
      * simulation settings
      * \param state State in propagator-specific form (i.e. form that is used in numerical integration).
      * \param time Current time at which the state is valid.
-     * \return State (state), converted to the 'conventional form' in inertial coordinates,
-     * that can for instance be set directly  in the body object.
+     * \param stateIncludesVariationalState Boolean defining whether the stae includes the state transition/sensitivity
+     * matrices
      */
     void convertCurrentStateToGlobalRepresentationPerType(
             const StateType& state, const TimeType& time, const bool stateIncludesVariationalState )
@@ -436,36 +413,21 @@ private:
     //! Boolean denoting whether the equations of motion are to be propagated or not.
     bool evaluateDynamicsEquations_;
 
+    //! Boolean denoting whether the variational equations are to be propagated or not.
     bool evaluateVariationalEquations_;
 
     //! Start index in propagated matrix of the equations of motion (=0 if variational equations are not propagated).
     int dynamicsStartColumn_;
 
-
+    //! Current state derivative, as computed by computeStateDerivative.
     StateType stateDerivative_;
 
+    //! Current state in 'conventional' representation, computed from current propagated state by
+    //! convertCurrentStateToGlobalRepresentationPerType
     std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
             currentStatesPerTypeInConventionalRepresentation_;
 };
 
-template< typename TimeType = double, typename StateScalarType = double,
-          typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
-std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
-        boost::shared_ptr< ConversionClassType > converterClass )
-{
-    // Initialize converted solution.
-    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
-
-    // Iterate over all times.
-    for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
-         rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
-    {
-        // Convert solution at this time to output (typically ephemeris frame of given body) solution
-        convertedSolution[ stateIterator->first ] = converterClass->convertToOutputSolution( stateIterator->second, stateIterator->first );
-    }
-    return convertedSolution;
-}
 
 } // namespace state_derivative_models
 } // namespace tudat

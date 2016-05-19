@@ -206,6 +206,7 @@ public:
      *        (optional "SSB" by default).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
      *          calculated (optional "ECLIPJ2000" by default).
+     * \param interpolatorSettings Settings to be used for the state interpolation.
      */
     InterpolatedSpiceEphemerisSettings( double initialTime,
                                         double finalTime,
@@ -219,26 +220,32 @@ public:
         initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
         interpolatorSettings_( interpolatorSettings ){ }
 
-    //! Function to returns initial time from which interpolated data from Spice should be created.
+    //! Function to return initial time from which interpolated data from Spice should be created.
     /*!
-     *  Function to returns initial time from which interpolated data from Spice should be created.
+     *  Function to return initial time from which interpolated data from Spice should be created.
      *  \return Initial time from which interpolated data from Spice should be created.
      */
     double getInitialTime( ){ return initialTime_; }
 
-    //! Function to returns final time from which interpolated data from Spice should be created.
+    //! Function to return final time from which interpolated data from Spice should be created.
     /*!
-     *  Function to returns final time from which interpolated data from Spice should be created.
+     *  Function to return final time from which interpolated data from Spice should be created.
      *  \return Final time from which interpolated data from Spice should be created.
      */
     double getFinalTime( ){ return finalTime_; }
 
-    //! Function to returns time step with which interpolated data from Spice should be created.
+    //! Function to return time step with which interpolated data from Spice should be created.
     /*!
-     *  Function to returns time step with which interpolated data from Spice should be created.
+     *  Function to return time step with which interpolated data from Spice should be created.
      *  \return Time step with which interpolated data from Spice should be created.
      */
     double getTimeStep( ){ return timeStep_; }
+
+    //! Function to return settings to be used for the state interpolation.
+    /*!
+     *  Function to return settings to be used for the state interpolation.
+     *  \return Settings to be used for the state interpolation.
+     */
 
     boost::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
     {
@@ -256,6 +263,7 @@ private:
     //! Time step with which interpolated data from Spice should be created.
     double timeStep_;
 
+    //! Settings to be used for the state interpolation.
     boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
 };

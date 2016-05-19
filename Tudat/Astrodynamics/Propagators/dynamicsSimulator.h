@@ -218,6 +218,12 @@ public:
         return stateDerivativeFunction_;
     }
 
+    //! Function to get the function that performs a single state derivative function evaluation with double precision.
+    /*!
+     * Function to get the function that performs a single state derivative function evaluation with double precision,
+     * regardless of template arguments.
+     * \return Function that performs a single state derivative function evaluation with double precision.
+     */
     boost::function< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >
     ( const double, const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& ) > getDoubleStateDerivativeFunction( )
     {
@@ -298,7 +304,11 @@ protected:
     boost::function< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
     ( const TimeType, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > stateDerivativeFunction_;
 
-
+    //! Function that performs a single state derivative function evaluation with double precision.
+    /*!
+     *  Function that performs a single state derivative function evaluation with double precision
+     *  \sa stateDerivativeFunction_
+     */
     boost::function< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >
     ( const double, const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& ) > doubleStateDerivativeFunction_;
 

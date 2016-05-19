@@ -142,15 +142,35 @@ public:
         this->positionOfBodyExertingAcceleration  = this->sourcePositionFunction( );
     }
 
+    //! Function to return the function returning the relevant gravitational parameter.
+    /*!
+     * Function to return the function returning the relevant gravitational parameter.
+     * \return Function returning the gravitational parameter used in the computations.
+     */
     boost::function< double( ) > getGravitationalParameterFunction( )
     { return gravitationalParameterFunction; }
 
+    //! Function to return the function returning position of body exerting acceleration.
+    /*!
+     * Function to return the function returning position of body exerting acceleration.
+     * \return Function returning position of body exerting acceleration.
+     */
     boost::function< StateMatrix( ) > getStateFunctionOfBodyExertingAcceleration( )
     { return sourcePositionFunction; }
 
+    //! Function to return the function returning position of body subject to acceleration.
+    /*!
+     * Function to return the function returning position of body subject to acceleration.
+     * \return Function returning position of body subject to acceleration.
+     */
     boost::function< StateMatrix( ) > getStateFunctionOfBodyUndergoingAcceleration( )
     { return subjectPositionFunction; }
 
+    //! Function to return whether the mutual attraction is used.
+    /*!
+     *  Function to return whether the mutual attraction is used.
+     * \return Boolean defining whether the mutual attraction is used.
+     */
     bool getIsMutualAttractionUsed( )
     {
         return isMutualAttractionUsed_;
