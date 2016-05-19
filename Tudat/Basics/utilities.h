@@ -64,6 +64,12 @@ std::vector< KeyType > createVectorFromMapKeys( const std::map< KeyType, VectorA
     return outputVector;
 }
 
+template< typename S >
+S sumFunctionReturn( const boost::function< S( ) > function1, const boost::function< S( ) > function2 )
+{
+    return function1( ) + function2( );
+}
+
 template< typename S, typename T >
 void createVectorBlockMatrixHistory(
         const std::map< S, Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > >& matrixHistory,

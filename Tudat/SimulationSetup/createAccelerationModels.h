@@ -28,6 +28,34 @@ namespace tudat
 namespace simulation_setup
 {
 
+boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createDirectGravitationalAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::string& nameOfCentralBody = "",
+        const bool isCentralBody = 0 );
+
+
+boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createThirdBodyGravitationalAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+
+boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createGravitationalAccelerationModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfCentralBody );
+
 //! Function to create central gravity acceleration model.
 /*!
  *  Function to create central gravity acceleration model from bodies exerting and undergoing
@@ -81,6 +109,15 @@ createSphericalHarmonicsGravityAcceleration(
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
         const bool useCentralBodyFixedFrame );
 
+boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModelXd > createMutualSphericalHarmonicsGravityAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const bool useCentralBodyFixedFrame,
+        const bool acceleratedBodyIsCentralBody );
+
 //! Function to create a third body central gravity acceleration model.
 /*!
  *  Function to create a third body central gravity acceleration model from bodies exerting and
@@ -105,6 +142,24 @@ createThirdBodyCentralGravityAccelerationModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody );
+
+boost::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel > createThirdBodySphericalHarmonicGravityAccelerationModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+
+boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel > createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create an aerodynamic acceleration model.
 /*!

@@ -292,7 +292,8 @@ public:
             rotationFromBodyFixedToIntegrationFrameFunction =
             boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
             const bool isMutualAttractionUsed = 0,
-            boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
+            boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache
+            = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
                 positionOfBodyExertingAccelerationFunction,
@@ -411,7 +412,6 @@ template< typename CoefficientMatrixType >
 Eigen::Vector3d SphericalHarmonicsGravitationalAccelerationModel< CoefficientMatrixType >
 ::getAcceleration( )
 {
-
     return rotationToIntegrationFrame_ *
             computeGeodesyNormalizedGravitationalAccelerationSum(
                 rotationToIntegrationFrame_.inverse( ) * (

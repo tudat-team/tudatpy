@@ -83,6 +83,38 @@ public:
     int maximumOrder_;
 };
 
+//! Class for providing acceleration settings for mutual spherical harmonics acceleration model.
+/*!
+ *  Class for providing accelerationsettings for mutual spherical harmonics acceleration model, specifically the maximum degree and order up to which
+ *  the fields of the two bodies are be expanded. Please not that the minimum degrees and orders are currently always set to zero.
+ */
+class MutualSphericalHarmonicAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    MutualSphericalHarmonicAccelerationSettings( const int maximumDegreeOfBodyExertingAcceleration,
+                                                 const int maximumOrderOfBodyExertingAcceleration,
+                                                 const int maximumDegreeOfBodyUndergoingAcceleration,
+                                                 const int maximumOrderOfBodyUndergoingAcceleration,
+                                                 const int maximumDegreeOfCentralBody = 0,
+                                                 const int maximumOrderOfCentralBody = 0 ):
+        AccelerationSettings( basic_astrodynamics::mutual_spherical_harmonic_gravity ),
+        maximumDegreeOfBodyExertingAcceleration_( maximumDegreeOfBodyExertingAcceleration ),
+        maximumOrderOfBodyExertingAcceleration_( maximumOrderOfBodyExertingAcceleration ),
+        maximumDegreeOfBodyUndergoingAcceleration_( maximumDegreeOfBodyUndergoingAcceleration ),
+        maximumOrderOfBodyUndergoingAcceleration_( maximumOrderOfBodyUndergoingAcceleration ),
+        maximumDegreeOfCentralBody_( maximumDegreeOfCentralBody ), maximumOrderOfCentralBody_( maximumOrderOfCentralBody ){ }
+
+    int maximumDegreeOfBodyExertingAcceleration_;
+    int maximumOrderOfBodyExertingAcceleration_;
+    int maximumDegreeOfBodyUndergoingAcceleration_;
+    int maximumOrderOfBodyUndergoingAcceleration_;
+
+    int maximumDegreeOfCentralBody_;
+    int maximumOrderOfCentralBody_;
+};
+
+
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr<
