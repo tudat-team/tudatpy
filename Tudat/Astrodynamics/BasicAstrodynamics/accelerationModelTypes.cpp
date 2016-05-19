@@ -75,6 +75,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = spherical_harmonic_gravity;
     }
+    else if( boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModelXd >( accelerationModel ) != NULL )
+    {
+        accelerationType = mutual_spherical_harmonic_gravity;
+    }
     else if( boost::dynamic_pointer_cast< AerodynamicAcceleration >(
                  accelerationModel ) != NULL )
     {
