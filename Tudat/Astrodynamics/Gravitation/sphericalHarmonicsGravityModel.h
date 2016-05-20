@@ -411,7 +411,6 @@ template< typename CoefficientMatrixType >
 Eigen::Vector3d SphericalHarmonicsGravitationalAccelerationModel< CoefficientMatrixType >
 ::getAcceleration( )
 {
-
     return rotationToIntegrationFrame_ *
             computeGeodesyNormalizedGravitationalAccelerationSum(
                 rotationToIntegrationFrame_.inverse( ) * (
