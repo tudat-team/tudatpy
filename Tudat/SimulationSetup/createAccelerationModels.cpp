@@ -36,6 +36,7 @@ using namespace electro_magnetism;
 using namespace ephemerides;
 
 
+//! Function to create a direct (i.e. not third-body) gravitational acceleration (of any type)
 boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createDirectGravitationalAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
@@ -45,6 +46,7 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
         const std::string& nameOfCentralBody,
         const bool isCentralBody )
 {
+    // Check if sum of gravitational parameters (i.e. inertial force w.r.t. central body) should be used.
     bool sumGravitationalParameters = 0;
     if( ( nameOfCentralBody == nameOfBodyExertingAcceleration ) && bodyUndergoingAcceleration != NULL )
     {
@@ -52,42 +54,45 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
     }
 
 
+    // Check type of acceleration model and create.
     boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel;
-       switch( accelerationSettings->accelerationType_ )
-        {
-        case central_gravity:
-            accelerationModel = createCentralGravityAcceleratioModel(
-                        bodyUndergoingAcceleration,
-                        bodyExertingAcceleration,
-                        nameOfBodyUndergoingAcceleration,
-                        nameOfBodyExertingAcceleration,
-                        sumGravitationalParameters );
-            break;
-        case spherical_harmonic_gravity:
-            accelerationModel = createSphericalHarmonicsGravityAcceleration(
-                        bodyUndergoingAcceleration,
-                        bodyExertingAcceleration,
-                        nameOfBodyUndergoingAcceleration,
-                        nameOfBodyExertingAcceleration,
-                        accelerationSettings,
-                        sumGravitationalParameters );
-            break;
-        case mutual_spherical_harmonic_gravity:
-            accelerationModel = createMutualSphericalHarmonicsGravityAcceleration(
-                        bodyUndergoingAcceleration,
-                        bodyExertingAcceleration,
-                        nameOfBodyUndergoingAcceleration,
-                        nameOfBodyExertingAcceleration,
-                        accelerationSettings,
-                        sumGravitationalParameters,
-                        isCentralBody );
-            break;
-        default:
-            std::cerr<<"Error when making gravitional acceleration model, cannot parse type "<<accelerationSettings->accelerationType_<<std::endl;
-        }
+    switch( accelerationSettings->accelerationType_ )
+    {
+    case central_gravity:
+        accelerationModel = createCentralGravityAcceleratioModel(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    sumGravitationalParameters );
+        break;
+    case spherical_harmonic_gravity:
+        accelerationModel = createSphericalHarmonicsGravityAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings,
+                    sumGravitationalParameters );
+        break;
+    case mutual_spherical_harmonic_gravity:
+        accelerationModel = createMutualSphericalHarmonicsGravityAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings,
+                    sumGravitationalParameters,
+                    isCentralBody );
+        break;
+    default:
+        std::cerr<<"Error when making gravitional acceleration model, cannot parse type "<<
+                   accelerationSettings->accelerationType_<<std::endl;
+    }
     return accelerationModel;
 }
 
+//! Function to create a third-body gravitational acceleration (of any type)
 boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createThirdBodyGravitationalAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
@@ -97,25 +102,29 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
         const std::string& nameOfCentralBody,
         const boost::shared_ptr< AccelerationSettings > accelerationSettings )
 {
+    // Check type of acceleration model and create.
     boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel;
     switch( accelerationSettings->accelerationType_ )
     {
     case central_gravity:
-        accelerationModel = boost::make_shared< ThirdBodyAcceleration< CentralGravitationalAccelerationModel3d > >(
+        accelerationModel = boost::make_shared< ThirdBodyCentralGravityAcceleration >(
                     boost::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
                         createDirectGravitationalAcceleration(
-                            bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+                            bodyUndergoingAcceleration, bodyExertingAcceleration,
+                            nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 0 ) ),
                     boost::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
                         createDirectGravitationalAcceleration(
-                            centralBody, bodyExertingAcceleration, nameOfCentralBody, nameOfBodyExertingAcceleration,
+                            centralBody, bodyExertingAcceleration,
+                            nameOfCentralBody, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 1 ) ), nameOfCentralBody );
         break;
     case spherical_harmonic_gravity:
-        accelerationModel = boost::make_shared< ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModelXd > >(
+        accelerationModel = boost::make_shared< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
                     boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModelXd >(
                         createDirectGravitationalAcceleration(
-                            bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+                            bodyUndergoingAcceleration, bodyExertingAcceleration,
+                            nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 0 ) ),
                     boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModelXd >(
                         createDirectGravitationalAcceleration(
@@ -123,10 +132,11 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
                             accelerationSettings, "", 1 ) ), nameOfCentralBody );
         break;
     case mutual_spherical_harmonic_gravity:
-        accelerationModel = boost::make_shared< ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModelXd > >(
+        accelerationModel = boost::make_shared< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
                     boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModelXd >(
                         createDirectGravitationalAcceleration(
-                            bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
+                            bodyUndergoingAcceleration, bodyExertingAcceleration,
+                            nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 0 ) ),
                     boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModelXd >(
                         createDirectGravitationalAcceleration(
@@ -134,12 +144,13 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
                             accelerationSettings, "", 1 ) ), nameOfCentralBody );
         break;
     default:
-        std::cerr<<"Error when making third body gravitional acceleration model, cannot parse type "<<accelerationSettings->accelerationType_<<std::endl;
+        std::cerr<<"Error when making third body gravitional acceleration model, cannot parse type "<<
+                   accelerationSettings->accelerationType_<<std::endl;
     }
     return accelerationModel;
 }
 
-
+//! Function to create gravitational acceleration (of any type)
 boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createGravitationalAccelerationModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
@@ -149,7 +160,6 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createGravitationalAcc
         const boost::shared_ptr< Body > centralBody,
         const std::string& nameOfCentralBody )
 {
-    //std::cout<<std::endl<<"Creating acceleration "<<nameOfBodyUndergoingAcceleration<<" "<<nameOfBodyExertingAcceleration<<" "<<nameOfCentralBody<<"========================================="<<std::endl;
 
     boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModelPointer;
     if( accelerationSettings->accelerationType_ != central_gravity &&
@@ -348,7 +358,9 @@ createSphericalHarmonicsGravityAcceleration(
     return accelerationModel;
 }
 
-boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModelXd > createMutualSphericalHarmonicsGravityAcceleration(
+//! Function to create mutual spherical harmonic gravity acceleration model.
+boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModelXd >
+createMutualSphericalHarmonicsGravityAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -487,8 +499,9 @@ createThirdBodyCentralGravityAccelerationModel(
     return accelerationModelPointer;
 }
 
-
-boost::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel > createThirdBodySphericalHarmonicGravityAccelerationModel(
+//! Function to create a third body spheric harmonic gravity acceleration model.
+boost::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
+createThirdBodySphericalHarmonicGravityAccelerationModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
         const boost::shared_ptr< Body > centralBody,
@@ -537,7 +550,9 @@ boost::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelera
     return accelerationModel;
 }
 
-boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel > createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
+//! Function to create a third body mutual spheric harmonic gravity acceleration model.
+boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
+createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
         const boost::shared_ptr< Body > centralBody,

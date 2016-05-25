@@ -62,9 +62,10 @@ enum AvailableAcceleration
     aerodynamic,
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
+    mutual_spherical_harmonic_gravity,
     third_body_central_gravity,
     third_body_spherical_harmonic_gravity,
-    mutual_spherical_harmonic_gravity
+    third_body_mutual_spherical_harmonic_gravity
 };
 
 //! Function to identify the derived class type of an acceleration model.
