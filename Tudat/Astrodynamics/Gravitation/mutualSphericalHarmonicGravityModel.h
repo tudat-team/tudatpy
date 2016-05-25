@@ -14,7 +14,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModelBase.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
-#include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
@@ -125,18 +124,6 @@ public:
                     useCentralBodyFixedFrame, sphericalHarmonicsCacheOfBodyUndergoingAcceleration );
     }
 
-    MutualSphericalHarmonicsGravitationalAccelerationModel(
-            const boost::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > originalAccelerationModel ):
-        accelerationModelFromShExpansionOfBodyExertingAcceleration_(
-            originalAccelerationModel->getAccelerationModelFromShExpansionOfBodyExertingAcceleration( ) ),
-        accelerationModelFromShExpansionOfBodyundergoingAcceleration_(
-            originalAccelerationModel->getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( ) ),
-        useCentralBodyFixedFrame_( originalAccelerationModel->getUseCentralBodyFixedFrame( ) ),
-        gravitationalParameterFunction_( originalAccelerationModel->getGravitationalParameterFunction( ) )
-    {
-
-    }
-
     //! Update member variables used by the acceleration model.
     /*!
      *  Update member variables used by the two constituent sh acceleration models.
@@ -234,9 +221,6 @@ protected:
 
 typedef MutualSphericalHarmonicsGravitationalAccelerationModel< Eigen::MatrixXd > MutualSphericalHarmonicsGravitationalAccelerationModelXd;
 
-//! Typedef for third body mutual spherical harmonic gravity acceleration.
-typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModelXd >
-ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
 }
 
 }
