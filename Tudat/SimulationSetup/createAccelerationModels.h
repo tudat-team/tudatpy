@@ -145,7 +145,7 @@ createCentralGravityAcceleratioModel(
  *  acceleration.
  *  \return Spherical harmonic gravity acceleration model pointer.
  */
-boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModelXd >
+boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
 createSphericalHarmonicsGravityAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
@@ -175,7 +175,7 @@ createSphericalHarmonicsGravityAcceleration(
  *  for a third-body acceleration, of which the return object of this funciton is one of the sub-parts.
  *  \return Mutual spherical harmonic gravity acceleration model pointer.
  */
-boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModelXd >
+boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel >
 createMutualSphericalHarmonicsGravityAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,

@@ -150,6 +150,17 @@ public:
         }
     }
 
+    //! Function to reset the current time
+    /*!
+     * Function to reset the current time of the acceleration model.
+     * \param currentTime Current time (default NaN).
+     */
+    void resetTime( const double currentTime = TUDAT_NAN )
+    {
+        accelerationModelForBodyUndergoingAcceleration_->resetTime( currentTime );
+        accelerationModelForCentralBody_->resetTime( currentTime );
+    }
+
     //! Function to return the direct acceleration model on body undergoing acceleration.
     /*!
      *  Function to return the direct acceleration model on body undergoing acceleration.
@@ -208,11 +219,11 @@ typedef ThirdBodyAcceleration< CentralGravitationalAccelerationModel3d >
 ThirdBodyCentralGravityAcceleration;
 
 //! Typedef for third body spherical harmonic gravity acceleration.
-typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModelXd >
+typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModel >
 ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
 
 //! Typedef for third body mutual spherical harmonic gravity acceleration.
-typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModelXd >
+typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModel >
 ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
 
 

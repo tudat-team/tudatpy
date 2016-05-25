@@ -121,24 +121,24 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
         break;
     case spherical_harmonic_gravity:
         accelerationModel = boost::make_shared< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
-                    boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModelXd >(
+                    boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                         createDirectGravitationalAcceleration(
                             bodyUndergoingAcceleration, bodyExertingAcceleration,
                             nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 0 ) ),
-                    boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModelXd >(
+                    boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                         createDirectGravitationalAcceleration(
                             centralBody, bodyExertingAcceleration, nameOfCentralBody, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 1 ) ), nameOfCentralBody );
         break;
     case mutual_spherical_harmonic_gravity:
         accelerationModel = boost::make_shared< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
-                    boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModelXd >(
+                    boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                         createDirectGravitationalAcceleration(
                             bodyUndergoingAcceleration, bodyExertingAcceleration,
                             nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 0 ) ),
-                    boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModelXd >(
+                    boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                         createDirectGravitationalAcceleration(
                             centralBody, bodyExertingAcceleration, nameOfCentralBody, nameOfBodyExertingAcceleration,
                             accelerationSettings, "", 1 ) ), nameOfCentralBody );
@@ -252,7 +252,7 @@ boost::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravit
 }
 
 //! Function to create spherical harmonic gravity acceleration model.
-boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModelXd >
+boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
 createSphericalHarmonicsGravityAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
@@ -262,7 +262,7 @@ createSphericalHarmonicsGravityAcceleration(
         const bool useCentralBodyFixedFrame )
 {
     // Declare pointer to return object
-    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModelXd > accelerationModel;
+    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > accelerationModel;
 
     // Dynamic cast acceleration settings to required type and check consistency.
     boost::shared_ptr< SphericalHarmonicAccelerationSettings > sphericalHarmonicsSettings =
@@ -338,7 +338,7 @@ createSphericalHarmonicsGravityAcceleration(
 
             // Create acceleration object.
             accelerationModel =
-                    boost::make_shared< SphericalHarmonicsGravitationalAccelerationModelXd >
+                    boost::make_shared< SphericalHarmonicsGravitationalAccelerationModel >
                     ( boost::bind( &Body::getPosition, bodyUndergoingAcceleration ),
                       gravitationalParameterFunction,
                       sphericalHarmonicsGravityField->getReferenceRadius( ),
@@ -359,7 +359,7 @@ createSphericalHarmonicsGravityAcceleration(
 }
 
 //! Function to create mutual spherical harmonic gravity acceleration model.
-boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModelXd >
+boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel >
 createMutualSphericalHarmonicsGravityAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
@@ -372,7 +372,7 @@ createMutualSphericalHarmonicsGravityAcceleration(
     using namespace basic_astrodynamics;
 
     // Declare pointer to return object
-    boost::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModelXd > accelerationModel;
+    boost::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > accelerationModel;
 
     // Dynamic cast acceleration settings to required type and check consistency.
     boost::shared_ptr< MutualSphericalHarmonicAccelerationSettings > mutualSphericalHarmonicsSettings =
@@ -444,7 +444,7 @@ createMutualSphericalHarmonicsGravityAcceleration(
                 maximumOrderOfUndergoingBody = mutualSphericalHarmonicsSettings->maximumOrderOfCentralBody_;
             }
 
-            accelerationModel = boost::make_shared< MutualSphericalHarmonicsGravitationalAccelerationModelXd >(
+            accelerationModel = boost::make_shared< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                         boost::bind( &Body::getPosition, bodyUndergoingAcceleration ),
                         boost::bind( &Body::getPosition, bodyExertingAcceleration ),
                         gravitationalParameterFunction,
@@ -545,11 +545,11 @@ createThirdBodySphericalHarmonicGravityAccelerationModel(
         {
 
             accelerationModel =  boost::make_shared< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
-                        boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModelXd >(
+                        boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                             createSphericalHarmonicsGravityAcceleration(
                                 bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration,
                                 nameOfBodyExertingAcceleration, sphericalHarmonicsSettings, 0 ) ),
-                        boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModelXd >(
+                        boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                             createSphericalHarmonicsGravityAcceleration(
                                 centralBody, bodyExertingAcceleration, nameOfCentralBody,
                                 nameOfBodyExertingAcceleration, sphericalHarmonicsSettings, 0 ) ), nameOfCentralBody );
@@ -620,11 +620,11 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
                         mutualSphericalHarmonicsSettings->maximumDegreeOfCentralBody_,
                         mutualSphericalHarmonicsSettings->maximumOrderOfCentralBody_ );
             accelerationModel =  boost::make_shared< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
-                        boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModelXd >(
+                        boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                             createMutualSphericalHarmonicsGravityAcceleration(
                                 bodyUndergoingAcceleration, bodyExertingAcceleration, nameOfBodyUndergoingAcceleration,
                                 nameOfBodyExertingAcceleration, mutualSphericalHarmonicsSettings, 0, 0 ) ),
-                        boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModelXd >(
+                        boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                             createMutualSphericalHarmonicsGravityAcceleration(
                                 centralBody, bodyExertingAcceleration, nameOfCentralBody,
                                 nameOfBodyExertingAcceleration, accelerationSettingsForCentralBodyAcceleration, 0, 1 ) ),

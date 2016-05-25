@@ -77,6 +77,8 @@ public:
      *  coefficients of  the body exerting the acceleration.
      *  \param cosineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration Function returning the spherical harmonic
      *  cosine coefficients of the body undergoing the acceleration.
+     *  \param sineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration Function returning the spherical harmonic
+     *  sine coefficients of the body undergoing the acceleration.
      *  \param toLocalFrameOfBodyExertingAccelerationTransformation Function returning the quaternion to rotate from the
      *  body-fixed frame of  the body exerting the acceleration, in  which the spherical harmonic coefficients are defined,
      *  to the inertially oriented frame, in which the acceleration is expressed.
@@ -86,7 +88,11 @@ public:
      *  \param useCentralBodyFixedFrame Boolean denoting whether the acceleration is expressed in a frame centered on the
      *  body exerting the acceleration, in which case the gravitational parameter that is used is the some of the
      *  gravitational parameters of both bodies, to take into  account the inertial acceleration of the reference frame in
-     * which the acceleration is performed.
+     *  which the acceleration is performed.
+     *  \param sphericalHarmonicsCacheOfBodyExertingAcceleration Caching object for computation of spherical harmonic
+     *  potential (gradient) of body exerting acceleration.
+     *  *  \param sphericalHarmonicsCacheOfBodyUndergoingAcceleration Caching object for computation of spherical harmonic
+     *  potential (gradient) of body undergoing acceleration.
      */
     MutualSphericalHarmonicsGravitationalAccelerationModel(
             const StateFunction& positionOfBodySubjectToAccelerationFunction,
@@ -113,7 +119,7 @@ public:
 
         // Create spherical harmonic acceleration due to expansion of body exerting acceleration
         accelerationModelFromShExpansionOfBodyExertingAcceleration_ = boost::make_shared<
-                SphericalHarmonicsGravitationalAccelerationModel< Eigen::MatrixXd > >(
+                SphericalHarmonicsGravitationalAccelerationModel >(
                     positionOfBodySubjectToAccelerationFunction, gravitationalParameterFunction,
                     equatorialRadiusOfBodyExertingAcceleration,
                     cosineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
@@ -127,7 +133,7 @@ public:
         // switched wrt the regular input, to ensure that the acceleration vector points in the right direction
         // (i.e. from body undergoing to body exerting acceleration).
         accelerationModelFromShExpansionOfBodyundergoingAcceleration_ = boost::make_shared<
-                SphericalHarmonicsGravitationalAccelerationModel< Eigen::MatrixXd > >(
+                SphericalHarmonicsGravitationalAccelerationModel >(
                     positionOfBodyExertingAccelerationFunction, gravitationalParameterFunction,
                     equatorialRadiusOfBodyUndergoingAcceleration,
                     boost::bind( &setDegreeAndOrderCoefficientToZero,
@@ -195,7 +201,7 @@ public:
     /*!
      *  Function returning the object calculating spherical harmonic acceleration due to the body exerting acceleration
      */
-    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel< Eigen::MatrixXd > >
+    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
     getAccelerationModelFromShExpansionOfBodyExertingAcceleration( )
     {
         return accelerationModelFromShExpansionOfBodyExertingAcceleration_;
@@ -205,7 +211,7 @@ public:
     /*!
      *  Function returning the object calculating spherical harmonic acceleration due to the body undergoing acceleration
      */
-    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel< Eigen::MatrixXd > >
+    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
     getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( )
     {
         return accelerationModelFromShExpansionOfBodyundergoingAcceleration_;
@@ -228,7 +234,7 @@ protected:
     /*!
      *  Object calculating spherical harmonic acceleration due to the body exerting acceleration
      */
-    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel< Eigen::MatrixXd > >
+    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
     accelerationModelFromShExpansionOfBodyExertingAcceleration_;
 
     //! Object calculating spherical harmonic acceleration due to the body undergoing acceleration
@@ -238,7 +244,7 @@ protected:
      *  exerting the acceleration. Note that this acceleration has no central-central term (i.e. C(0,0) is set to zero),
      *  as this term is only calculated by accelerationModelFromShExpansionOfBodyExertingAcceleration_.
      */
-    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel< Eigen::MatrixXd > >
+    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
     accelerationModelFromShExpansionOfBodyundergoingAcceleration_;
 
 
