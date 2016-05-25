@@ -133,6 +133,18 @@ public:
         aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
     }
 
+    //! Function to set custom dependency of aerodynamic coefficients
+    /*!
+     * Function to set custom dependency of aerodynamic coefficients. If needed, the
+     * AerodynamicCoefficientsIndependentVariables enum may be expanded to include e.g. control surface deflections, the
+     * values of which will then be retrieved from the function set here
+     * \param independentVariable Identifier of independent variable
+     * \param coefficientDependency Function returning the current value of the independent variable.
+     */
+    void setAerodynamicCoefficientsIndependentVariableFunction(
+            const AerodynamicCoefficientsIndependentVariables independentVariable,
+            const boost::function< double( ) > coefficientDependency );
+
     //! Function to return current central body-fixed state of vehicle.
     /*!
      *  Function to return central body-fixed state of vehicle.
@@ -180,6 +192,9 @@ private:
 
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
+
+    //! List of custom functions for aerodynamic coefficient dependencies.
+    std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
 
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
