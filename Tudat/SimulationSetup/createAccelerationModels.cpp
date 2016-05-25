@@ -386,19 +386,23 @@ createMutualSphericalHarmonicsGravityAcceleration(
     {
         // Get pointer to gravity field of central body and cast to required type.
         boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityFieldOfBodyExertingAcceleration =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( bodyExertingAcceleration->getGravityFieldModel( ) );
+                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                    bodyExertingAcceleration->getGravityFieldModel( ) );
         boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( bodyUndergoingAcceleration->getGravityFieldModel( ) );
+                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                    bodyUndergoingAcceleration->getGravityFieldModel( ) );
 
         if( sphericalHarmonicsGravityFieldOfBodyExertingAcceleration == NULL )
         {
             std::cerr<<"Error "<<nameOfBodyExertingAcceleration<<" does not have a spherical harmonics gravity field "<<
-                       "when making mutual spherical harmonics gravity acceleration on"<<nameOfBodyUndergoingAcceleration<<std::endl;
+                       "when making mutual spherical harmonics gravity acceleration on "<<
+                       nameOfBodyUndergoingAcceleration<<std::endl;
         }
         else if( sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration == NULL )
         {
             std::cerr<<"Error "<<nameOfBodyUndergoingAcceleration<<" does not have a spherical harmonics gravity field "<<
-                       "when making mutual spherical harmonics gravity acceleration on"<<nameOfBodyUndergoingAcceleration<<std::endl;
+                       "when making mutual spherical harmonics gravity acceleration on "<<
+                       nameOfBodyUndergoingAcceleration<<std::endl;
         }
         else
         {
@@ -408,7 +412,8 @@ createMutualSphericalHarmonicsGravityAcceleration(
             if( useCentralBodyFixedFrame == false )
             {
                 gravitationalParameterFunction =
-                        boost::bind( &SphericalHarmonicsGravityField::getGravitationalParameter, sphericalHarmonicsGravityFieldOfBodyExertingAcceleration );
+                        boost::bind( &SphericalHarmonicsGravityField::getGravitationalParameter,
+                                     sphericalHarmonicsGravityFieldOfBodyExertingAcceleration );
             }
             else
             {
@@ -421,7 +426,8 @@ createMutualSphericalHarmonicsGravityAcceleration(
                                      sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration );
                 gravitationalParameterFunction =
                         boost::bind( &utilities::sumFunctionReturn< double >,
-                                     gravitationalParameterOfBodyExertingAcceleration, gravitationalParameterOfBodyUndergoingAcceleration );
+                                     gravitationalParameterOfBodyExertingAcceleration,
+                                     gravitationalParameterOfBodyUndergoingAcceleration );
             }
 
             // Create acceleration object.
@@ -527,11 +533,13 @@ createThirdBodySphericalHarmonicGravityAccelerationModel(
     {
         // Get pointer to gravity field of central body and cast to required type.
         boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( bodyExertingAcceleration->getGravityFieldModel( ) );
+                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                    bodyExertingAcceleration->getGravityFieldModel( ) );
         if( sphericalHarmonicsGravityField == NULL )
         {
             std::cerr<<"Error "<<nameOfBodyExertingAcceleration<<" does not have a spherical harmonics gravity field "<<
-                       "when making third body spherical harmonics gravity acceleration on"<<nameOfBodyUndergoingAcceleration<<std::endl;
+                       "when making third body spherical harmonics gravity acceleration on "<<
+                       nameOfBodyUndergoingAcceleration<<std::endl;
         }
         else
         {
@@ -576,26 +584,32 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
     {
         // Get pointer to gravity field of central body and cast to required type.
         boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityFieldOfBodyExertingAcceleration =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( bodyExertingAcceleration->getGravityFieldModel( ) );
+                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                    bodyExertingAcceleration->getGravityFieldModel( ) );
         boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( bodyUndergoingAcceleration->getGravityFieldModel( ) );
+                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                    bodyUndergoingAcceleration->getGravityFieldModel( ) );
         boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityFieldOfCentralBody =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( centralBody->getGravityFieldModel( ) );
+                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                    centralBody->getGravityFieldModel( ) );
 
         if( sphericalHarmonicsGravityFieldOfBodyExertingAcceleration == NULL )
         {
             std::cerr<<"Error "<<nameOfBodyExertingAcceleration<<" does not have a spherical harmonics gravity field "<<
-                       "when making mutual spherical harmonics gravity acceleration on"<<nameOfBodyUndergoingAcceleration<<std::endl;
+                       "when making mutual spherical harmonics gravity acceleration on "<<
+                       nameOfBodyUndergoingAcceleration<<std::endl;
         }
         else if( sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration == NULL )
         {
             std::cerr<<"Error "<<nameOfBodyUndergoingAcceleration<<" does not have a spherical harmonics gravity field "<<
-                       "when making mutual spherical harmonics gravity acceleration on"<<nameOfBodyUndergoingAcceleration<<std::endl;
+                       "when making mutual spherical harmonics gravity acceleration on "<<
+                       nameOfBodyUndergoingAcceleration<<std::endl;
         }
         else if( sphericalHarmonicsGravityFieldOfCentralBody == NULL )
         {
             std::cerr<<"Error "<<nameOfCentralBody<<" does not have a spherical harmonics gravity field "<<
-                       "when making mutual spherical harmonics gravity acceleration on"<<nameOfBodyUndergoingAcceleration<<std::endl;
+                       "when making mutual spherical harmonics gravity acceleration on "<<
+                       nameOfBodyUndergoingAcceleration<<std::endl;
         }
         else
         {
