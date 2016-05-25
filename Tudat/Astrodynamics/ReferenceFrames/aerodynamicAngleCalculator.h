@@ -121,7 +121,6 @@ public:
         angleOfAttackFunction_ = angleOfAttackFunction;
         angleOfSideslipFunction_ = angleOfSideslipFunction;
         bankAngleFunction_ = bankAngleFunction;
-
     }
 
 private:
