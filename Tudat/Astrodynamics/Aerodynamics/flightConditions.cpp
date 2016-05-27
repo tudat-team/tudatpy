@@ -149,7 +149,7 @@ void FlightConditions::updateConditions( const double currentTime )
             {
                 aerodynamicCoefficientIndependentVariables.push_back(
                             customCoefficientDependencies_.at(
-                                aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
+                                aerodynamicCoefficientInterface_->getIndependentVariableName( i ) )( ) );
             }
         }
     }
