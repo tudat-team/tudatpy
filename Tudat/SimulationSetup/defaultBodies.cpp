@@ -55,8 +55,31 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
         const double initialTime,
         const double finalTime )
 {
-    // Create settings for a point mass gravity with data from Spice
-    return boost::make_shared< GravityFieldSettings >( central_spice );
+    if( bodyName == "Earth" )
+    {
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+        std::string earthGravityFieldFile =
+                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/egm96_coefficients.dat";
+        readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients );
+
+        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    0.3986004418E15, 6378137.0, coefficients.first, coefficients.second, "IAU_Earth" );
+    }
+    else if( bodyName == "Moon" )
+    {
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+        std::string earthGravityFieldFile =
+                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab";
+        std::pair< double, double > referenceData =
+                readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients, 1, 0 );
+        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    referenceData.first, referenceData.second, coefficients.first, coefficients.second, "IAU_Moon" );
+
+    }
+    else
+    {
+        return boost::make_shared< GravityFieldSettings >( central_spice );
+    }
 }
 
 //! Function to create default settings from which to create a single body object.

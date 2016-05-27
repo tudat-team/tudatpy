@@ -206,6 +206,31 @@ private:
 
 };
 
+//! Function to read a spherical harmonic gravity field file
+/*!
+ *  Function to read a spherical harmonic gravity field file, returns (by reference) cosine and sine
+ *  spherical harmomic coefficients.
+ *  The file structure should be as follows: The first line may be a file header with metadata. If this is the case,
+ *  the gravitationalParameterIndex and referenceRadiusIndex should be used as input, to communicate which entries in
+ *  the list of metadata represents these quantities. If both these variables are NaN, the file is assumed to have no
+ *  header. The following lines of the file must have the following structure:
+ *  Degree, Order, Cosine Coefficient, Sine Coefficients
+ *  Subsequent columns may be present in the file, but are ignored when parsing.
+ *  All coefficients not defined in the file are set to zero (except C(0,0) which is always 1.0)
+ *  \param fileName Name of PDS gravity field file to be loaded.
+ *  \param maximumDegree Maximum degree of gravity field to be loaded.
+ *  \param maximumOrder Maximum order of gravity field to be loaded.
+ *  \param gravitationalParameterIndex
+ *  \param referenceRadiusIndex
+ *  \param coefficients Spherical harmonics coefficients (first is cosine, second is sine).
+ *  \return Pair of gravitational parameter and reference radius, values are non-NaN if
+ *  gravitationalParameterIndex and referenceRadiusIndex are non-NaN.
+ */
+std::pair< double, double > readGravityFieldFile(
+        const std::string& fileName, const int maximumDegree, const int maximumOrder,
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients,
+        const unsigned int gravitationalParameterIndex = TUDAT_NAN, const unsigned int referenceRadiusIndex = TUDAT_NAN );
+
 //! Function to create a gravity field model.
 /*!
  *  Function to create a gravity field model based on model-specific settings for the gravity field.
