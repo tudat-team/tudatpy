@@ -24,7 +24,7 @@
 #include "Tudat/SimulationSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/createBodies.h"
 #include "Tudat/SimulationSetup/createAccelerationModels.h"
-
+#include "Tudat/SimulationSetup/createEstimatableParameters.h"
 #include "Tudat/Astrodynamics/Propagators/variationalEquationsSolver.h"
 
 namespace tudat
@@ -39,6 +39,7 @@ using namespace tudat::numerical_integrators;
 using namespace tudat::spice_interface;
 using namespace tudat::simulation_setup;
 using namespace tudat::basic_astrodynamics;
+using namespace tudat::estimatable_parameters;
 using namespace tudat::orbital_element_conversions;
 using namespace tudat::ephemerides;
 using namespace tudat::propagators;
@@ -77,16 +78,12 @@ integrateEquations( const bool performIntegrationsSequentially )
 
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
-            getDefaultBodySettings< double, double >( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, simple );
-    bodySettings[ "Earth" ]->gravityFieldSettings = getDefaultGravityFieldSettings(
-                "Earth", initialEphemerisTime - buffer, finalEphemerisTime + buffer, full );
-    boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
-                bodySettings[ "Earth" ]->gravityFieldSettings )->resetAssociatedFrame( "IAU_Earth_SIMPLIFIED" );
+            getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap =
-            createCelestialBodies( bodySettings );
+    NamedBodyMap bodyMap =
+            createBodies( bodySettings );
 
-    boost::shared_ptr< Body > lageos = boost::make_shared< Vehicle >( );
+    boost::shared_ptr< Body > lageos = boost::make_shared< Body >( );
 
     bodyMap[ "LAGEOS" ] = lageos;
 
