@@ -209,7 +209,7 @@ private:
         for( typename std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > >::const_iterator
              parameterIterator = parameterList.begin( ); parameterIterator != parameterList.end( ); parameterIterator++ )
         {
-            // Get current acceleratioon w.r.t. current partial.
+            // Add current parameter to list of partials to be computed for current acceleration (if dependency exists)
             int functionToEvaluate =
                     partialObject->setParameterPartialUpdateFunction( parameterIterator->second );
             

@@ -29,14 +29,25 @@ enum EstimatebleParametersEnum
 
 };
 
+//! Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.
+/*!
+ * Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is an initial dynamical state.
+ */
 bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum parameterType );
 
-std::string getParameterType( EstimatebleParametersEnum parameter );
+//! Function to determine whether the given (non-dynamical) parameter is a double or vector parameter.
+/*!
+ * Function to determine whether the given (non-dynamical) parameter is a double or vector parameter.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is a double parameter.
+ */
+bool isDoubleParameter( const EstimatebleParametersEnum parameterType );
 
-
+//! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
 
-typedef std::vector< std::pair< std::string, EstimatebleParametersEnum > > SelectedParametersToEstimate;
 
 
 //! Base class for a parameter that is to be estimated.
@@ -58,8 +69,8 @@ public:
      *  \param pointOnBodyId Reference point on body associated with parameter (empty by default).
      */
     EstimatableParameter( const EstimatebleParametersEnum parameterName,
-                          const std::string associatedBody,
-                          const std::string pointOnBodyId = ""  ):
+                          const std::string& associatedBody,
+                          const std::string& pointOnBodyId = ""  ):
         parameterName_( std::make_pair( parameterName, std::make_pair( associatedBody, pointOnBodyId ) ) ){ }
 
     //! Virtual destructor.
@@ -151,7 +162,7 @@ public:
             initialDynamicalStateParameterSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
         }
 
-        // Iterate over all double parameters and add to parameter size.
+        // Iterate over all double parameters and add to parameter size and set indices in parameterIndices_
         for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
         {
             doubleParameters_[ estimatedParameterSetSize_ ] = estimatedDoubleParameters_[ i ];
@@ -159,7 +170,7 @@ public:
             estimatedParameterSetSize_++;
         }
 
-        // Iterate over all vector parameter, add to total number of parameters and set indices in vectorParameterIndices_
+        // Iterate over all vector parameter, add to total number of parameters and set indices in parameterIndices_
         for( unsigned int i = 0; i < estimatedVectorParameters_.size( ); i++ )
         {
             vectorParameters_[ estimatedParameterSetSize_ ] = estimatedVectorParameters_[ i ];
@@ -168,10 +179,7 @@ public:
             estimatedParameterSetSize_ += estimatedVectorParameters_[ i ]->getParameterSize( );
         }
 
-        // Initialize consider parameter set size to 0.
-        considerParameterSetSize_ = 0;
-
-        totalParameterSetSize_ = considerParameterSetSize_ + estimatedParameterSetSize_;
+        totalParameterSetSize_ = estimatedParameterSetSize_;
     }
 
     //! Function to return the total number of parameter values (including consider parameters)
@@ -192,6 +200,16 @@ public:
     int getEstimatedParameterSetSize( )
     {
         return estimatedParameterSetSize_;
+    }
+
+    //! Function to return the total number of initial state values that are estimated.
+    /*!
+     *  Function to return the total number of initial state values that are estimated.
+     *  \return Function to return the total number of initial state values that are estimated.
+     */
+    int getInitialDynamicalStateParameterSize( )
+    {
+        return initialDynamicalStateParameterSize_;
     }
 
     //! Function that returns a vector containing all current parameter values
@@ -304,102 +322,75 @@ public:
         return vectorParameters_;
     }
 
-    std::vector< boost::shared_ptr< EstimatableParameter< double > > > getEstimatedDoubleParameters( )
-    {
-        return estimatedDoubleParameters_;
-    }
-
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getEstimatedVectorParameters( )
-    {
-        return estimatedVectorParameters_;
-    }
-
+    //! Function to get list of initial dynamical states that are to be estimated.
+    //!
+    /*!
+     *  Function to get list of initial dynamical states that are to be estimated.
+     *  \return List of initial dynamical states that are to be estimated.
+     */
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     getEstimatedInitialStateParameters( )
     {
         return estimateInitialStateParameters_;
     }
 
-    std::vector< boost::shared_ptr< EstimatableParameter< double > > > getConsiderDoubleParameters( )
-    {
-        return considerDoubleParameters_;
-    }
-
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getConsiderVectorParameters( )
-    {
-        return considerVectorParameters_;
-    }
-
+    //! Function to retrieve list of start indices and sizes (map keys) of estimated parameters.
+    /*!
+     *  Function to retrieve list of start indices and sizes (map keys) of estimated parameters.
+     *  \return List of start indices and sizes (map keys) of estimated parameters.
+     */
     std::vector< std::pair< int, int > > getParametersIndices( )
     {
         return parameterIndices_;
     }
 
-    int getInitialDynamicalStateParameterSize( )
-    {
-        return initialDynamicalStateParameterSize_;
-    }
 
 protected:
 
-    //! Total number of parameter values.
-    /*!
-     *  Total number of parameter values.
-     */
+    //! Total size of all initial dynamical states that is to be estimated.
+    int initialDynamicalStateParameterSize_;
+
+    //! Total number of parameter values (including currently non yet implemented consider parameters).
     int totalParameterSetSize_;
 
-    std::vector< std::pair< int, int > > parameterIndices_;
-
+    //! Total number of estimated parameter values (excluding currently non yet implemented consider parameters).
     int estimatedParameterSetSize_;
 
-    int considerParameterSetSize_;
-
-    //! Vector of double parameters.
+    //! List of start indices and sizes (map keys) of estimated parameters.
     /*!
-     *  Vector of double parameters.
+     * List of start indices and sizes (map keys) of estimated parameters, in order of vector
+     * estimateInitialStateParameters_, followed by estimatedDoubleParameters_, followed by estimatedVectorParameters_.
      */
-    std::map< int, boost::shared_ptr< EstimatableParameter< double > > > doubleParameters_;
+    std::vector< std::pair< int, int > > parameterIndices_;
 
-    //! Vector of vector parameters.
-    /*!
-     *  Vector of vector parameters.
-     */
-    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters_;
-
-    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-    initialStateParameters_;
-
-
+    //! List of double parameters that are to be estimated.
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > estimatedDoubleParameters_;
 
+    //! List of vector parameters that are to be estimated.
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatedVectorParameters_;
 
+    //! List of initial dynamical states that are to be estimated.
     std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     estimateInitialStateParameters_;
 
+    //! Map of double parameters that are to be estimated, with start index in total parameter vector as key.
+    std::map< int, boost::shared_ptr< EstimatableParameter< double > > > doubleParameters_;
 
+    //! Map of vector parameters that are to be estimated, with start index in total parameter vector as key.
+    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters_;
 
-    std::vector< boost::shared_ptr< EstimatableParameter< double > > > considerDoubleParameters_;
+    //! Map of initial dynamical states that are to be estimated, with start index in total parameter vector as key.
+    std::map< int, boost::shared_ptr<
+    EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters_;
 
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > considerVectorParameters_;
-
-    //! List of indices denoting positions of complete vector of parameter values.
-    /*!
-     *  List of indices denoting positions of complete vector of parameter values, as returned by getFullParameterValues or set
-     *  by resetParameterValues. Entries coincide with same index of entry in vectorParameters_. First index in each pair is the
-     *  start index, the second its size.
-     */
-    //std::vector< std::pair< int, int > > vectorParameterIndices_; // start index; size
-
-    int initialDynamicalStateParameterSize_;
 };
 
 //! Class for providing settings for parameters to estimate
 /*!
  *  Class for providing settings for parameters to estimate. This class is a functional base class for parameters that
  *  require no information in addition to their type.
- *  This class can be used for the easy setup of parameter objects (see createEstimatableParameters.h), but users may also chose to do so manually.
- *  (Derived) Class members are all public, for ease of access and modification.
+ *  This class can be used for the easy setup of parameter objects (see createEstimatableParameters.h), but users may also
+ *  chose to do so manually. (Derived) Class members are all public, for ease of access and modification.
  */
 class EstimatableParameterSettings
 {
@@ -432,39 +423,71 @@ public:
 
 };
 
+//! Class to define settings for estimating an initial translational state.
 template< typename InitialStateParameterType >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
+
+    //! Constructor, sets initial value of translational state.
+    /*!
+     * Constructor, sets initial value of translational state.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialStateValue Current value of initial state (w.r.t. centralBody)
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
     InitialTranslationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const Eigen::Matrix< InitialStateParameterType, 6, 1 > initialStateValue,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
-        EstimatableParameterSettings( associatedBody, initial_body_state ), initialStateValue_( initialStateValue ),
-        centralBody_( centralBody ), frameOrientation_( frameOrientation ), isStateSet_( 1 ){ }
+        EstimatableParameterSettings( associatedBody, initial_body_state ), initialTime_( TUDAT_NAN ),
+        initialStateValue_( initialStateValue ),
+        centralBody_( centralBody ), frameOrientation_( frameOrientation ){ }
 
+    //! Constructor, without initial value of translational state.
+    /*!
+     * Constructor, without initial value of translational state. Current initial state is retrieved from environment
+     * (ephemeris objects) during creation of parameter object.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialTime Time at which initial state is defined.
+     * \param centralBody Body w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
     InitialTranslationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const double initialTime,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
-        EstimatableParameterSettings( associatedBody, initial_body_state ), initialTime_( initialTime ), centralBody_( centralBody ),
-        frameOrientation_( frameOrientation ), isStateSet_( 0 ){ }
+        EstimatableParameterSettings( associatedBody, initial_body_state ), initialTime_( initialTime ),
+        centralBody_( centralBody ), frameOrientation_( frameOrientation ){ }
 
+    //! Time at which initial state is defined (NaN for user-defined initial state value).
     double initialTime_;
+
+    //! Current value of initial state (w.r.t. centralBody), set manually by used.
     Eigen::Matrix< InitialStateParameterType, 6, 1 > initialStateValue_;
 
+    //! Body w.r.t. which the initial state is to be estimated.
     std::string centralBody_;
+
+    //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
-    bool isStateSet_;
 
 };
 
+//! Function to get the list of names of bodies for which initial translational dynamical state is estimated.
+/*!
+ *  Function to get the list of names of bodies for which initial translational dynamical state is estimated.
+ *  \param estimatableParameters Object containing all parameters that are to be estimated.
+ *  \return List of names of bodies for which initial state is estimated.
+ */
 template< typename InitialStateParameterType >
-std::vector< std::string > getListOfBodiesToEstimate(
+std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
         const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     std::vector< std::string > bodiesToEstimate;
 
+    // Retrieve initial dynamical parameters.
     std::vector< boost::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
@@ -481,12 +504,19 @@ std::vector< std::string > getListOfBodiesToEstimate(
     return bodiesToEstimate;
 }
 
+//! Function to get the complete list of initial dynamical states that are to be estimated, sorted by dynamics type.
+/*!
+ *  Function to get the complete list of initial dynamical states that are to be estimated, sorted by dynamics type.
+ *  \param estimatableParameters Object containing all parameters that are to be estimated.
+ *  \return Map containing dynamics type (key) and vector of pairs: list of bodies (first in pair) with reference point
+ *  identifier (second in pair; empty if not relevant) for which given dynamics type is estimated.
+ */
 template< typename InitialStateParameterType >
 std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
 getListOfInitialDynamicalStateParametersEstimate(
         const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-
+    // Retrieve initial dynamical parameters.
     std::vector< boost::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
@@ -505,16 +535,23 @@ getListOfInitialDynamicalStateParametersEstimate(
     return initialDynamicalStateParametersEstimate;
 }
 
-
+//! Function to get initial state vector of estimated dynamical states.
+/*!
+ *  Function to get initial state vector of estimated dynamical states (i.e. presently estimated state at propagation
+ *  start time.
+ *  \param estimatableParameters Object containing all parameters that are to be estimated.
+ *  \return State vector of estimated dynamics at propagation start time.
+ */
 template< typename InitialStateParameterType = double >
 Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getInitialStateVectorOfBodiesToEstimate(
         const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
+    // Retrieve initial dynamical parameters.
     std::vector< boost::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
 
-
+    // Initialize state vector.
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateVector =
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero(
                 estimatableParameters->getInitialDynamicalStateParameterSize( ), 1 );

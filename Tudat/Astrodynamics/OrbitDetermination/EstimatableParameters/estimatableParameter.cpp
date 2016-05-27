@@ -6,6 +6,7 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+//! Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.
 bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum parameterType )
 {
     bool flag;
@@ -21,27 +22,29 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
     return flag;
 }
 
-
-std::string getParameterType( EstimatebleParametersEnum parameter )
+//! Function to determine whether the given (non-dynamical) parameter is a double or vector parameter.
+bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
 {
-    std::string parameterType;
+    bool isDoubleParameter;
     switch( parameter )
     {
     case gravitational_parameter:
-        parameterType = "double";
+        isDoubleParameter = true;
         break;
     case constant_drag_coefficient:
-        parameterType = "double";
+        isDoubleParameter = true;
         break;
     case radiation_pressure_coefficient:
-        parameterType = "double";
+        isDoubleParameter = true;
         break;
     default:
         throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameter ) +
                                   " not found when getting parameter type" );
     }
-    return parameterType;
+    return isDoubleParameter;
 }
+
+
 
 
 }

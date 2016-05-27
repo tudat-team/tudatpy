@@ -12,28 +12,61 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+//! Interface class for the estimation of a gravitational parameter
 class GravitationalParameter: public EstimatableParameter< double >
 {
 
 public:
-    GravitationalParameter( boost::shared_ptr< gravitation::GravityFieldModel >
-                            gravityFieldModel, std::string associatedBody ):
-        EstimatableParameter< double >( gravitational_parameter, associatedBody )
-    { gravityFieldModel_ = gravityFieldModel ; }
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param gravityFieldModel Gravity field object containing the gravitational parameter to be estimated.
+     * \param associatedBody Name of body containing the gravityFieldModel ob ject
+     */
+    GravitationalParameter(
+            const boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel, const std::string& associatedBody ):
+        EstimatableParameter< double >( gravitational_parameter, associatedBody ),
+        gravityFieldModel_( gravityFieldModel ){ }
+
+    //! Destructor
     ~GravitationalParameter( ) { }
 
+    //! Function to get the current value of the gravitational parameter that is to be estimated.
+    /*!
+     * Function to get the current value of the gravitational parameter that is to be estimated.
+     * \return Current value of the gravitational parameter that is to be estimated.
+     */
     double getParameterValue( )
-    { return gravityFieldModel_->getGravitationalParameter( ); }
+    {
+        return gravityFieldModel_->getGravitationalParameter( );
+    }
 
+    //! Function to reset the value of the gravitational parameter that is to be estimated.
+    /*!
+     * Function to reset the value of the gravitational parameter that is to be estimated.
+     * \param parameterValue New value of the gravitational parameter that is to be estimated.
+     */
     void setParameterValue( double parameterValue )
-    { gravityFieldModel_->resetGravitationalParameter( parameterValue ); }
+    {
+        gravityFieldModel_->resetGravitationalParameter( parameterValue );
+    }
 
-    int getParameterSize( ){ return 1; }
+    //! Function to retrieve the size of the parameter (always 1).
+    /*!
+     *  Function to retrieve the size of the parameter (always 1).
+     *  \return Size of parameter value (always 1).
+     */
+    int getParameterSize( )
+    {
+        return 1;
+    }
 
 protected:
 
 private:
+
+    //! Gravity field object containing the gravitational parameter to be estimated.
     boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
 
 };

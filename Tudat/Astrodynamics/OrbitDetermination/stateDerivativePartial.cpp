@@ -9,7 +9,7 @@ namespace orbit_determination
 namespace partial_derivatives
 {
 
-
+//! Function to evaluate the negative value of a parameter partial.
 void evaluateNegativeParameterPartialFunction( const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunction,
                                                Eigen::MatrixXd& partial )
 {
@@ -17,6 +17,7 @@ void evaluateNegativeParameterPartialFunction( const boost::function< void( Eige
     partial *= -1.0;
 }
 
+//! Function to evaluate the subtraction of two parameter partials.
 void evaluateSubtractedParameterPartialFunction( const boost::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
                                                  const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToSubtract,
                                                  Eigen::MatrixXd& partial )
@@ -29,6 +30,7 @@ void evaluateSubtractedParameterPartialFunction( const boost::function< void( Ei
     partial -= subtractedPartial;
 }
 
+//! Function to evaluate the addition of two parameter partials.
 void evaluateAddedParameterPartialFunction( const boost::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
                                             const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToAdd,
                                             Eigen::MatrixXd& partial )

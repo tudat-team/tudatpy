@@ -34,6 +34,11 @@ public:
         radiationPressureInterface_->resetRadiationPressureCoefficient( parameterValue );
     }
 
+    //! Function to retrieve the size of the parameter (always 1).
+    /*!
+     *  Function to retrieve the size of the parameter (always 1).
+     *  \return Size of parameter value (always 1).
+     */
     int getParameterSize( ){ return 1; }
 
 protected:

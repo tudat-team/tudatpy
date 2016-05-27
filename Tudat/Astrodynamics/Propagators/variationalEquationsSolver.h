@@ -273,7 +273,7 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationalPropagatorSettings =
                 boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
         std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
-        std::vector< std::string > estimatedBodies = estimatable_parameters::getListOfBodiesToEstimate(
+        std::vector< std::string > estimatedBodies = estimatable_parameters::getListOfBodiesWithTranslationalStateToEstimate(
                     parametersToEstimate );
         if( propagatedBodies.size( ) != estimatedBodies.size( ) )
         {

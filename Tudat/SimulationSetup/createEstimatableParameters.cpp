@@ -20,7 +20,7 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
 {
     boost::shared_ptr< EstimatableParameter< double > > doubleParameterToEstimate;
 
-    if( getParameterType( doubleParameterName->parameterType_.first ) != "double" )
+    if( isDoubleParameter( doubleParameterName->parameterType_.first ) != true )
     {
         std::cerr<<"Error when requesting to make double parameter "<<doubleParameterName->parameterType_.first<<" of "<<
                    doubleParameterName->parameterType_.second.first<<", parameter is not a double parameter "<<std::endl;
@@ -91,7 +91,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
 {
     boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > vectorParameterToEstimate;
 
-    if( getParameterType( vectorParameterName->parameterType_.first ) != "vector" )
+    if( isDoubleParameter( vectorParameterName->parameterType_.first ) != false )
     {
         std::cerr<<"Error when requesting to make vector parameter "<<vectorParameterName->parameterType_.first<<" of "<<
                    vectorParameterName->parameterType_.second.first<<", parameter is not a vector parameter "<<std::endl;

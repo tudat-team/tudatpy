@@ -265,7 +265,7 @@ public:
                         partialOfDirectGravityOnBodyUndergoingAcceleration_,
                         partialOfDirectGravityOnCentralBody_,
                         parameter, partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second, 1 );
-            doesCurrentDoubleParameterPartialExist_[ parameter ] = 0;
+            isCurrentDoubleParameterPartialSet_[ parameter ] = 0;
             currentDoubleParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, 1 );
         }
         return std::max( partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second );
@@ -296,7 +296,7 @@ public:
                         partialOfDirectGravityOnBodyUndergoingAcceleration_,
                         partialOfDirectGravityOnCentralBody_,
                         parameter, partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second, 1 );
-            doesCurrentVectorParameterPartialExist_[ parameter ] = 0;
+            isCurrentVectorParameterPartialSet_[ parameter ] = 0;
             currentVectorParameterPartials_[ parameter ] = Eigen::MatrixXd( accelerationSize_, parameter->getParameterSize( ) );
 
         }

@@ -46,7 +46,7 @@ createInitialDynamicalStateParameterToEstimate(
                         boost::dynamic_pointer_cast< InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                             parameterSettings );
 
-                if( initialStateSettings->isStateSet_ )
+                if( ! ( initialStateSettings->initialTime_ == initialStateSettings->initialTime_  ) )
                 {
                     initialStateParameterToEstimate = boost::make_shared< InitialTranslationalStateParameter< InitialStateParameterType > >(
                                 initialStateSettings->parameterType_.second.first, initialStateSettings->initialStateValue_,
@@ -103,12 +103,12 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialState
             initialDynamicalParametersToEstimate.push_back( createInitialDynamicalStateParameterToEstimate< InitialStateParameterType >(
                                                                 bodyMap, parameterNames.at( i ) ) );
         }
-        else if( getParameterType( parameterNames[ i ]->parameterType_.first ) == "double" )
+        else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == true )
         {
             doubleParametersToEstimate.push_back( createDoubleParameterToEstimate(
                                                       parameterNames[ i ], bodyMap, accelerationModelMap ) );
         }
-        else if( getParameterType( parameterNames[ i ]->parameterType_.first ) == "vector" )
+        else if( isDoubleParameter( parameterNames[ i ]->parameterType_.first ) == false )
         {
             vectorParametersToEstimate.push_back( createVectorParameterToEstimate(
                                                       parameterNames[ i ], bodyMap, accelerationModelMap ) );
