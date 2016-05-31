@@ -86,7 +86,7 @@ void FlightConditions::updateConditions( const double currentTime )
     // Update aerodynamic/geometric angles.
     if( aerodynamicAngleCalculator_!= NULL )
     {
-        aerodynamicAngleCalculator_->update( );
+        aerodynamicAngleCalculator_->update( currentTime );
     }
 
     // Update latitude and longitude (if required)

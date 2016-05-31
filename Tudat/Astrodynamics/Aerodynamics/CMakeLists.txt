@@ -44,6 +44,7 @@ set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/tabulatedAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/entryGuidance.cpp"
 )
 
 # Set the header files.
@@ -64,6 +65,8 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/customAerodynamicCoefficientInterface.h"
   "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.h"
   "${SRCROOT}${AERODYNAMICSDIR}//UnitTests/testApolloCapsuleCoefficients.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/flightConditions.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/entryGuidance.h"
 )
 
 if(USE_NRLMSISE00)
