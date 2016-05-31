@@ -11,6 +11,7 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -67,18 +68,21 @@ public:
      */
     AerodynamicAngleCalculator(
             const boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction,
+            const bool calculateVerticalToAerodynamicFrame = 0,
             const boost::function< double( ) > angleOfAttackFunction =
             boost::lambda::constant ( 0.0 ),
             const boost::function< double( ) > angleOfSideslipFunction =
             boost::lambda::constant ( 0.0 ),
             const boost::function< double( ) > bankAngleFunction =
             boost::lambda::constant ( 0.0 ),
-            const bool calculateVerticalToAerodynamicFrame = 0 ):
+            const boost::function< void( const double ) > angleUpdateFunction =
+            boost::function< void( const double ) >( ) ):
         bodyFixedStateFunction_( bodyFixedStateFunction ),
+        calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
         angleOfAttackFunction_( angleOfAttackFunction ),
         angleOfSideslipFunction_( angleOfSideslipFunction ),
         bankAngleFunction_( bankAngleFunction ),
-        calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ){ }
+        angleUpdateFunction_( angleUpdateFunction ){ }
 
     //! Function to update the orientation angles to the current state.
     /*!
@@ -86,7 +90,7 @@ public:
      *  The current state is retrieved from the bodyFixedStateFunction_ member variable
      *  function pointer.
      */
-    void update( );
+    void update( const double currentTime = TUDAT_NAN );
 
     //! Function to get the rotation quaternion between two frames
     /*!
@@ -116,11 +120,14 @@ public:
             const boost::function< double( ) > angleOfSideslipFunction =
             boost::lambda::constant ( 0.0 ),
             const boost::function< double( ) > bankAngleFunction =
-            boost::lambda::constant ( 0.0 ) )
+            boost::lambda::constant ( 0.0 ),
+            const boost::function< void( const double ) > angleUpdateFunction =
+            boost::function< void( const double ) >( ) )
     {
         angleOfAttackFunction_ = angleOfAttackFunction;
         angleOfSideslipFunction_ = angleOfSideslipFunction;
         bankAngleFunction_ = bankAngleFunction;
+        angleUpdateFunction_ = angleUpdateFunction;
     }
 
 private:
@@ -143,6 +150,10 @@ private:
      */
     boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction_;
 
+    //! Boolean to determine whether to determine vertical <-> aerodynamic frame conversion
+    //! when calling update function.
+    bool calculateVerticalToAerodynamicFrame_;
+
     //! Function to determine the angle of attack of the vehicle.
     boost::function< double( ) > angleOfAttackFunction_;
 
@@ -152,9 +163,9 @@ private:
     //! Function to determine the bank angle of the vehicle.
     boost::function< double( ) > bankAngleFunction_;
 
-    //! Boolean to determine whether to determine vertical <-> aerodynamic frame conversion
-    //! when calling update function.
-    bool calculateVerticalToAerodynamicFrame_;
+    boost::function< void( const double ) > angleUpdateFunction_;
+
+
 
 };
 

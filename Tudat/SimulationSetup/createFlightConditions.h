@@ -600,7 +600,9 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::function< double( ) > angleOfSideslipFunction =
         boost::lambda::constant ( 0.0 ),
         const boost::function< double( ) > bankAngleFunction =
-        boost::lambda::constant ( 0.0 ) );
+        boost::lambda::constant ( 0.0 ),
+        const boost::function< void( const double ) > angleUpdateFunction =
+        boost::function< void( const double ) >( ) );
 
 
 }
