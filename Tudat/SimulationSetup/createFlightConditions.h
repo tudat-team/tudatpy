@@ -612,13 +612,8 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
         const boost::function< double( ) > bankAngleFunction =
         boost::lambda::constant ( 0.0 ) );
 
-
 } // namespace simulation_setup
 
-<<<<<<< HEAD
-}
-
-=======
 } // namespace tudat
->>>>>>> master
+
 #endif // TUDAT_CREATEACCELERATIONMODELS_H

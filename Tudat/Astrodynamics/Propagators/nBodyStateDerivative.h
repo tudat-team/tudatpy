@@ -131,8 +131,8 @@ public:
              outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
         {
             // Iterate over all accelerations acting on body
-            for( innerAccelerationIterator  = accelerationMapIterator->second.begin( );
-                 innerAccelerationIterator != accelerationMapIterator->second.end( );
+            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
+                 innerAccelerationIterator != outerAccelerationIterator->second.end( );
                  innerAccelerationIterator++ )
             {
                 // Update accelerations
@@ -303,10 +303,7 @@ protected:
 
 } // namespace propagators
 
-<<<<<<< HEAD
-}
 
-=======
 } // namespace tudat
->>>>>>> master
+
 #endif // TUDAT_NBODYSTATEDERIVATIVE_H
