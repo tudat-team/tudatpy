@@ -1,8 +1,6 @@
 #ifndef CREATENUMERICALINTEGRATOR_H
 #define CREATENUMERICALINTEGRATOR_H
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
@@ -31,9 +29,10 @@ enum AvailableIntegrators
 
 //! Class to define settings of numerical integrator
 /*!
- *  Class to define settings of numerical integrator, for instance for use in numerical integration of equations of motion/
- *  variational equations. This class can be used for simple integrators such as fixed step RK and Euler. Integrators that
- *  require more settings to define have their own derived class (see below).
+ *  Class to define settings of numerical integrator, for instance for use in numerical integration
+ *  of equations of motion/ variational equations. This class can be used for simple integrators
+ *  such as fixed step RK and Euler. Integrators that require more settings to define have their own
+ *  derived class (see below).
  */
 template< typename TimeType = double >
 class IntegratorSettings
@@ -46,10 +45,10 @@ public:
      *  \param integratorType Type of numerical integrator
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param endTime Stop time (independent variable) of numerical integration.
-     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration
-     *  for variable step size integrators.
-     *  \param printFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = printFrequency).
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical
+     *  integration. Adapted during integration for variable step size integrators.
+     *  \param printFrequency Frequency at which to save the numerical integrated states (in units
+     *  of i.e. per n integration time steps, with n = printFrequency).
      */
     IntegratorSettings( const AvailableIntegrators integratorType, const TimeType initialTime,
                         const TimeType endTime, const TimeType initialTimeStep,
@@ -83,23 +82,23 @@ public:
 
     //! Initial time step used in numerical integration
     /*!
-     *  Initial time (independent variable) step used in numerical integration. Adapted during integration
-     *  for variable step size integrators.
+     *  Initial time (independent variable) step used in numerical integration. Adapted during
+     *  integration for variable step size integrators.
      */
     TimeType initialTimeStep_;
 
     //! Frequency which with to save numerical integration result.
     /*!
-     *  Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = printFrequency).
+     *  Frequency at which to save the numerical integrated states (in units of i.e. per n
+     *  integration time steps, with n = printFrequency).
      */
     int printFrequency_;
 };
 
 //! Class to define settings of variable step RK numerical integrator
 /*!
- *  Class to define settings of variable step RK  numerical integrator, for instance for use in numerical integration of equations of motion/
- *  variational equations.
+ *  Class to define settings of variable step RK numerical integrator, for instance for use in
+ *  numerical integration of equations of motion/ variational equations.
  */
 template< typename TimeType = double >
 class RungeKuttaVariableStepSizeSettings: public IntegratorSettings< TimeType >
@@ -115,16 +114,18 @@ public:
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
      *  Adapted during integration
      *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
-     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
-     *  comes below this value.
+     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception
+     *  thrown) if time step comes below this value.
      *  \param maximumStepSize Maximum step size for integration.
      *  \param relativeErrorTolerance Relative error tolerance for step size control
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control
-     *  \param printFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = printFrequency).
+     *  \param printFrequency Frequency at which to save the numerical integrated states (in units
+     *  of i.e. per n integration time steps, with n = printFrequency).
      *  \param safetyFactorForNextStepSize Safety factor for step size control
-     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
-     *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
+     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in
+     *  subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in
+     *  subsequent iterations.
 
      */
     RungeKuttaVariableStepSizeSettings(
@@ -158,7 +159,8 @@ public:
 
     //! Minimum step size for integration.
     /*!
-     *  Minimum step size for integration. Integration stops (exception thrown) if time step comes below this value.
+     *  Minimum step size for integration. Integration stops (exception thrown) if time step comes
+     *  below this value.
      */
     const TimeType minimumStepSize_;
 
@@ -183,15 +185,17 @@ public:
 
 //! Function to create a numerical integrator.
 /*!
- *  Function to create a numerical integrator from given integrator settings, state derivative function and initial state.
- *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
+ *  Function to create a numerical integrator from given integrator settings, state derivative
+ *  function and initial state.
+ *  \param stateDerivativeFunction Function returning the state derivative from current time and
+ *  state.
  *  \param initialState Initial state for numerical integration
  *  \param integratorSettings Settings for numerical integrator.
  *  \return Numerical integrator object
  */
 template< typename IndependentVariableType, typename DependentVariableType >
-boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
-DependentVariableType > > createIntegrator(
+boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType,
+        DependentVariableType, DependentVariableType > > createIntegrator(
         boost::function< DependentVariableType(
             const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
         const DependentVariableType initialState,
@@ -220,9 +224,9 @@ DependentVariableType > > createIntegrator(
     case rungeKuttaVariableStepSize:
     {
         // Check input consistency
-        boost::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > > variableStepIntegratorSettings =
-                boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >(
-                    integratorSettings );
+        boost::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >
+                variableStepIntegratorSettings = boost::dynamic_pointer_cast
+                < RungeKuttaVariableStepSizeSettings< IndependentVariableType > >( integratorSettings );
         if( variableStepIntegratorSettings == NULL )
         {
            std::runtime_error( "Error, type of integrator settings not compatible with selected integrator" );

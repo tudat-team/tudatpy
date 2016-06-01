@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
@@ -17,7 +27,8 @@ namespace simulation_setup
 boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
         const std::string& body,
         const NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
+        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >&
+            gravityFieldVariationSettings )
 {
 
     using namespace tudat::gravitation;
@@ -46,11 +57,16 @@ boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMo
         // Check if current variation is interpolated, and set settings if necessary.
         if( gravityFieldVariationSettings.at( i )->getInterpolatorSettings( ) != NULL )
         {
-            createInterpolators[ i ] =
-                    gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->interpolatorSettings_;
-            initialTimes[ i ] = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->initialTime_;
-            finalTimes[ i ] = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->finalTime_;
-            timeSteps[ i ] = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->timeStep_;
+            createInterpolators[ i ]
+                    = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )
+                          ->interpolatorSettings_;
+            initialTimes[ i ]
+                    = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )
+                          ->initialTime_;
+            finalTimes[ i ]
+                    = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->finalTime_;
+            timeSteps[ i ]
+                    = gravityFieldVariationSettings.at( i )->getInterpolatorSettings( )->timeStep_;
         }
     }
 
@@ -68,7 +84,8 @@ boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMo
     }
 
     boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodyMap.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, 1 );
+                bodyMap.at( body )->getGravityFieldModel( ) )
+            ->setFieldVariationSettings( fieldVariationsSet, 1 );
 
 
     return fieldVariationsSet;
@@ -90,8 +107,10 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
     case basic_solid_body:
     {
         // Check consistency
-        boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > basicSolidBodyGravityVariationSettings =
-                boost::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >( gravityFieldVariationSettings );
+        boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings >
+                basicSolidBodyGravityVariationSettings =
+                boost::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >(
+                    gravityFieldVariationSettings );
         if( basicSolidBodyGravityVariationSettings == NULL )
         {
             throw std::runtime_error( "Error, expected basic solid body gravity field settings for " + body );
@@ -99,10 +118,12 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
         else
         {
             // Define list of required input.
-            std::vector< std::string > deformingBodies = basicSolidBodyGravityVariationSettings->getDeformingBodies( );
+            std::vector< std::string > deformingBodies
+                    = basicSolidBodyGravityVariationSettings->getDeformingBodies( );
             boost::function< basic_mathematics::Vector6d( const double ) > deformedBodyStateFunction;
             boost::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction;
-            std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > deformingBodyStateFunctions;
+            std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >
+                    deformingBodyStateFunctions;
             std::vector< boost::function< double( ) > > gravitionalParametersOfDeformingBodies;
 
             // Iterate over all bodies causing tidal perturbation.
@@ -115,13 +136,14 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
                                                deformingBodies[ i ] + " deforming body not found." );
                 }
                 
-                // Create body state functions (depending on whether the variation is calulcated directly during propagation,
-                // or a priori by an interpolator
+                // Create body state functions (depending on whether the variation is calculated
+                // directly during propagation, or a priori by an interpolator
                 if( gravityFieldVariationSettings->getInterpolatorSettings( ) != NULL )
                 {
                     deformingBodyStateFunctions.push_back(
                                 boost::bind(
-                                    &Body::getStateInBaseFrameFromEphemeris, bodyMap.at( deformingBodies[ i ] ), _1 ) );
+                                    &Body::getStateInBaseFrameFromEphemeris,
+                                    bodyMap.at( deformingBodies[ i ] ), _1 ) );
                 }
                 else
                 {
@@ -140,22 +162,26 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
                 {
                     gravitionalParametersOfDeformingBodies.push_back(
                                 boost::bind( &GravityFieldModel::getGravitationalParameter,
-                                             bodyMap.at( deformingBodies[ i ] )->getGravityFieldModel( ) ) );
+                                             bodyMap.at( deformingBodies[ i ] )
+                                             ->getGravityFieldModel( ) ) );
                 }
             }
 
             // Set state and orientation functions of perturbed body.
             if( gravityFieldVariationSettings->getInterpolatorSettings( ) != NULL )
             {
-                deformedBodyStateFunction = boost::bind( &Body::getStateInBaseFrameFromEphemeris, bodyMap.at( body ), _1 );
+                deformedBodyStateFunction = boost::bind( &Body::getStateInBaseFrameFromEphemeris,
+                                                         bodyMap.at( body ), _1 );
                 deformedBodyOrientationFunction = boost::bind(
                             &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                            bodyMap.at( body )->getRotationalEphemeris( ), _1, basic_astrodynamics::JULIAN_DAY_ON_J2000  );
+                            bodyMap.at( body )->getRotationalEphemeris( ), _1,
+                            basic_astrodynamics::JULIAN_DAY_ON_J2000  );
             }
             else
             {
                 deformedBodyStateFunction = boost::bind( &Body::getState, bodyMap.at( body ) );
-                deformedBodyOrientationFunction = boost::bind( &Body::getCurrentRotationToLocalFrame, bodyMap.at( body ) );
+                deformedBodyOrientationFunction = boost::bind( &Body::getCurrentRotationToLocalFrame,
+                                                               bodyMap.at( body ) );
 
                 
             }
@@ -165,7 +191,8 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
                                  bodyMap.at( body )->getGravityFieldModel( ) );
             
             // Create basic tidal variation object.
-            gravityFieldVariationModel = boost::make_shared< BasicSolidBodyTideGravityFieldVariations >(
+            gravityFieldVariationModel
+                    = boost::make_shared< BasicSolidBodyTideGravityFieldVariations >(
                         deformedBodyStateFunction,
                         deformedBodyOrientationFunction,
                         deformingBodyStateFunctions,
@@ -180,8 +207,9 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
     case tabulated_variation:
     {
         // Check input consistency
-        boost::shared_ptr< TabulatedGravityFieldVariationSettings > tabulatedGravityFieldVariationSettings =
-                boost::dynamic_pointer_cast< TabulatedGravityFieldVariationSettings >( gravityFieldVariationSettings );
+        boost::shared_ptr< TabulatedGravityFieldVariationSettings > tabulatedGravityFieldVariationSettings
+                = boost::dynamic_pointer_cast< TabulatedGravityFieldVariationSettings >(
+                    gravityFieldVariationSettings );
         if( tabulatedGravityFieldVariationSettings == NULL )
         {
             throw std::runtime_error( "Error, expected tabulated gravity field variation settings for " + body );
@@ -216,6 +244,6 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
     
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

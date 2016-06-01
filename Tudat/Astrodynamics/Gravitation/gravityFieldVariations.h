@@ -146,7 +146,8 @@ public:
     GravityFieldVariations( const int minimumDegree, const int minimumOrder,
                             const int maximumDegree, const int maximumOrder ):
         minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ),
-        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
+
+                maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
     {
         numberOfDegrees_ = maximumDegree_ - minimumDegree_ + 1;
         numberOfOrders_ = maximumOrder_ - minimumOrder_ + 1;
@@ -436,8 +437,8 @@ private:
 
 };
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat
 
 #endif // TUDAT_GRAVITYFIELDVARIATIONS_H

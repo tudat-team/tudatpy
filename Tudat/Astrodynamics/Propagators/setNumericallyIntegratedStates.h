@@ -25,8 +25,8 @@ namespace propagators
 
 //! Function to reset the tabulated ephemeris of a body
 /*!
- * Function to reset the tabulated ephemeris of a body, this requires the requested body to possess an ephemeris
- * of type  TabulatedCartesianEphemeris< StateScalarType, TimeType >
+ * Function to reset the tabulated ephemeris of a body, this requires the requested body to possess
+ * an ephemeris of type TabulatedCartesianEphemeris< StateScalarType, TimeType > 
  * \param bodyMap List of bodies used in simulations.
  * \param ephemerisInterpolator Interpolator providing the new state of the body as a function of time.
  * \param bodyToIntegrate Name of body for which the ephemeris is to be reset.
@@ -67,29 +67,31 @@ void resetIntegratedEphemerisOfBody(
     }
 }
 
-//! Function to convert output of translational motion from the numerical integrator to the required input for the ephemeris.
+//! Function to convert output of translational motion to input for the ephemeris.
 /*!
-* Function to convert output of translational motion from the numerical integrator to the required input for the ephemeris.
-* It extracts the state history of a single body from the full list of integrated states
-* Additionally, it changes the origin of the reference frame in which the states are given, by using the
-* integrationToEphemerisFrameFunction input variable.
-* \param bodyIndex Index of integrated body for which the state is to be retrieved
-* \param equationsOfMotionNumericalSolution Full numerical solution of numerical integrator, already converted to Cartesian
-* states (w.r.t. the integration origin of the body of bodyIndex)
-* \param integrationToEphemerisFrameFunction Function to provide the state of the ephemeris origin of the current body
-* w.r.t. its integration origin.
-* \return State history of body bodyIndex w.r.t. the origin with which its ephemeris is defined.
+ * Function to convert output of translational motion from the numerical integrator to the required
+ * input for the ephemeris.  It extracts the state history of a single body from the full list of
+ * integrated states Additionally, it changes the origin of the reference frame in which the states
+ * are given, by using the integrationToEphemerisFrameFunction input variable.
+ * \param bodyIndex Index of integrated body for which the state is to be retrieved
+ * \param equationsOfMotionNumericalSolution Full numerical solution of numerical integrator,
+ * already converted to Cartesian states (w.r.t. the integration origin of the body of bodyIndex)
+ * \param integrationToEphemerisFrameFunction Function to provide the state of the ephemeris origin
+ * of the current body w.r.t. its integration origin.
+ * \return State history of body bodyIndex w.r.t. the origin with which its ephemeris is defined.
 */
 template< typename TimeType, typename StateScalarType >
 std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > convertNumericalSolutionToEphemerisInput(
         const int bodyIndex,
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
+            equationsOfMotionNumericalSolution,
         const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
         integrationToEphemerisFrameFunction = NULL )
 {
     std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > ephemerisTable;
 
-    // If no integrationToEphemerisFrameFunction is provided, origin is already correct; only extract required indices.
+    // If no integrationToEphemerisFrameFunction is provided, origin is already correct; only
+    // extract required indices.
     if( integrationToEphemerisFrameFunction == 0 )
     {
         for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
@@ -125,27 +127,31 @@ boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::M
 createStateInterpolator(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap );
 
-//! Creates and resets the interpolator for the ephemerides of the integrated bodies from the numerical integration results.
+//! Create and reset ephemerides interpolator
 /*!
- * Creates and resets the interpolator for the ephemerides of the integrated bodies from the numerical integration results.
+ * Creates and resets the interpolator for the ephemerides of the integrated bodies from the
+ * numerical integration results.
  * \param bodyMap List of bodies used in simulations.
- * \param bodiesToIntegrate List of names of bodies which are numericall integrated (in the order in which they are
- * in the equationsOfMotionNumericalSolution map.
- * \param ephemerisUpdateOrder Order in which to update the ephemeris objects.
- * \param equationsOfMotionNumericalSolution Numerical solution of translational equations of motion, in Cartesian elements
- * w.r.t. integratation origins.
- * \param integrationToEphemerisFrameFunctions Function to provide the states of the ephemeris origins of each body
- * w.r.t. their respective integration origins.
+ * \param bodiesToIntegrate List of names of bodies which are numericall integrated (in the order in
+ * which they are in the equationsOfMotionNumericalSolution map. 
+ * \param ephemerisUpdateOrder Order in which to update the ephemeris objects. 
+ * \param equationsOfMotionNumericalSolution Numerical solution of translational equations of
+ * motion, in Cartesian elements w.r.t. integratation origins. 
+ * \param integrationToEphemerisFrameFunctions Function to provide the states of the ephemeris
+ * origins of each body w.r.t. their respective integration origins.
  */
 template< typename TimeType, typename StateScalarType >
 void createAndSetInterpolatorsForEphemerides(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< std::string >& bodiesToIntegrate,
         const std::vector< std::string >& ephemerisUpdateOrder,
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
-        const std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
-        integrationToEphemerisFrameFunctions =
-        std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
+            equationsOfMotionNumericalSolution,
+        const std::map< std::string,
+                        boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
+            integrationToEphemerisFrameFunctions =
+            std::map< std::string,
+                      boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
 {
     using namespace tudat::interpolators;
 
@@ -177,32 +183,35 @@ void createAndSetInterpolatorsForEphemerides(
                 createStateInterpolator( convertNumericalSolutionToEphemerisInput(
                                              bodyIndex, equationsOfMotionNumericalSolution,
                                              integrationToEphemerisFrameFunction ) );
-        resetIntegratedEphemerisOfBody( bodyMap, ephemerisInterpolator, bodiesToIntegrate.at( bodyIndex ) );
+        resetIntegratedEphemerisOfBody( bodyMap, ephemerisInterpolator,
+                                        bodiesToIntegrate.at( bodyIndex ) );
     }
 }
 
 //! Resets the ephemerides of the integrated bodies from the numerical integration results.
 /*!
- * Resets the ephemerides of the integrated bodies from the numerical integration results, and performs associated
- * computation for ephemeris-dependent environment variables.
- * \param bodyMap List of bodies used in simulations.
- * \param bodiesToIntegrate List of names of bodies which are numericall integrated (in the order in which they are
- * in the equationsOfMotionNumericalSolution map.
- * \param ephemerisUpdateOrder Order in which to update the ephemeris objects (empty if arbitrary).
- * \param equationsOfMotionNumericalSolution Numerical solution of translational equations of motion, in Cartesian elements
- * w.r.t. integratation origins.
- * \param integrationToEphemerisFrameFunctions Function to provide the states of the ephemeris origins of each body
- * w.r.t. their respective integration origins.
+ * Resets the ephemerides of the integrated bodies from the numerical integration results, and
+ * performs associated computation for ephemeris-dependent environment variables. 
+ * \param bodyMap List of bodies used in simulations. 
+ * \param bodiesToIntegrate List of names of bodies which are numerically integrated (in the order in
+ * which they are in the equationsOfMotionNumericalSolution map. 
+ * \param ephemerisUpdateOrder Order in which to update the ephemeris objects (empty if arbitrary). 
+ * \param equationsOfMotionNumericalSolution Numerical solution of translational equations of
+ * motion, in Cartesian elements w.r.t. integratation origins. 
+ * \param integrationToEphemerisFrameFunctions Function to provide the states of the ephemeris
+ * origins of each body w.r.t. their respective integration origins.
  */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedEphemerides(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
+            equationsOfMotionNumericalSolution,
         const std::vector< std::string >& bodiesToIntegrate,
         std::vector< std::string > ephemerisUpdateOrder = std::vector< std::string >( ),
-        const std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
-        integrationToEphemerisFrameFunctions = std::map< std::string,
-        boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
+        const std::map< std::string,
+            boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
+            integrationToEphemerisFrameFunctions = std::map< std::string,
+                boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
 {
     // Set update order arbitrarily if no order is provided.
     if( ephemerisUpdateOrder.size( ) == 0 )
@@ -223,8 +232,8 @@ void resetIntegratedEphemerides(
 
 //! Function to determine in which order the ephemerides are to be updated
 /*!
- * Function to determine in which order the ephemerides are to be updated. The order depends on the dependencies between
- * the ephemeris/integration origins.
+ * Function to determine in which order the ephemerides are to be updated. The order depends on the
+ * dependencies between the ephemeris/integration origins. 
  * \param integratedBodies List of bodies that are numerically integrated.
  * \param centralBodies List of origins w.r.t. the integratedBodies' translational dynamics is propagated.
  * \param ephemerisOrigins Origin of the Ephemeris objects of the integratedBodies.
@@ -234,10 +243,11 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
                                                           std::vector< std::string > centralBodies,
                                                           std::vector< std::string > ephemerisOrigins );
 
-//! Base class for defining settings on how numerically integrated states are to be processed in the environment
+//! Base class for settings how numerically integrated states are processed
 /*!
- *  Base class for defining settings on how numerically integrated states are to be processed in the environment.
- *  This class is pure virtual, and a derived class must be provided for each state type.
+ *  Base class for defining settings on how numerically integrated states are to be processed in the
+ *  environment. This class is pure virtual, and a derived class must be provided for each state
+ *  type.
  */
 template< typename TimeType, typename StateScalarType >
 class IntegratedStateProcessor
@@ -247,11 +257,12 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param stateType Type of state that is to be set in environment.
-     * \param startIndexAndSize Start index of current state type in integrated state vector, and its size in the vector
-     * (first and second entry of pair).
+     * \param stateType Type of state that is to be set in environment.     
+     * \param startIndexAndSize Start index of current state type in integrated state vector, and
+     * its size in the vector (first and second entry of pair).
      */
-    IntegratedStateProcessor( const IntegratedStateType stateType, const std::pair< int, int > startIndexAndSize ):
+    IntegratedStateProcessor( const IntegratedStateType stateType,
+                              const std::pair< int, int > startIndexAndSize ):
         stateType_( stateType ), startIndexAndSize_( startIndexAndSize ){ }
 
     //! Virtual destructor.
@@ -264,7 +275,8 @@ public:
      * convertToOutputSolution function in associated SingleStateTypeDerivative derived class.
      */
     virtual void processIntegratedStates(
-            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution ) = 0;
+            const std::map< TimeType, Eigen::Matrix< StateScalarType,
+            Eigen::Dynamic, 1 > >& numericalSolution ) = 0;
 
     //! Type of state that is to be set in environment.
     IntegratedStateType stateType_;
@@ -279,8 +291,8 @@ public:
 
 //! Class used for processing numerically integrated translational states
 /*!
- *  Class used for processing numerically integrated translational states, updates ephemeris object of each integrated
- *  body, performing frame translations if needed.
+ *  Class used for processing numerically integrated translational states, updates ephemeris object
+ *  of each integrated body, performing frame translations if needed.
  */
 template< typename TimeType, typename StateScalarType >
 class TranslationalStateIntegratedStateProcessor: public IntegratedStateProcessor< TimeType, StateScalarType >
@@ -290,11 +302,11 @@ public:
     /*!
      * Constructor.
      * \param startIndex Index in the state vector where the translational state starts.
-     * \param bodyMap List of bodies used in simulations.
-     * \param bodiesToIntegrate List of bodies for which the translational state is numerically integrated. Order in this
-     * vector is the same as the order in state vector.
-     * \param centralBodies List of origing w.r.t. which the translational states are integrated (with the same order
-     * as bodiesToIntegrate).
+     * \param bodyMap List of bodies used in simulations.     
+     * \param bodiesToIntegrate List of bodies for which the translational state is numerically
+     * integrated. Order in this vector is the same as the order in state vector.     
+     * \param centralBodies List of origing w.r.t. which the translational states are integrated
+     * (with the same order as bodiesToIntegrate).     
      * \param frameManager Object to get state of one body w.r.t. another body.
      */
     TranslationalStateIntegratedStateProcessor(
@@ -309,23 +321,27 @@ public:
     {
         // Get update orders.
         ephemerisUpdateOrder_ = determineEphemerisUpdateorder(
-                    bodiesToIntegrate_, centralBodies, frameManager->getEphemerisOrigins( bodiesToIntegrate ) );
+                    bodiesToIntegrate_, centralBodies,
+                    frameManager->getEphemerisOrigins( bodiesToIntegrate ) );
 
         // Get required frame origin translations.
-        integrationToEphemerisFrameFunctions_ =
-                ephemerides::getTranslationFunctionsFromIntegrationFrameToEphemerisFrame< StateScalarType, TimeType >(
-                    centralBodies, bodiesToIntegrate_, frameManager );
+        integrationToEphemerisFrameFunctions_
+              = ephemerides::getTranslationFunctionsFromIntegrationFrameToEphemerisFrame
+                < StateScalarType, TimeType >( centralBodies,
+                                               bodiesToIntegrate_, frameManager );
     }
 
-    //! Function that processes the entries of the translational state in the full numericalSolution
+    //! Function processing translational state in the full numericalSolution
     /*!
-     * Function that processes the entries of the translational state in the full numericalSolution, extracts and converts
-     * the states to the required frames, and updates the associated ephemerides.
+     * Function that processes the entries of the translational state in the full numericalSolution,
+     * extracts and converts the states to the required frames, and updates the associated
+     * ephemerides.     
      * \param numericalSolution Full numerical solution, in global representation (see
      * convertToOutputSolution function in NBodyStateDerivative class.
      */
     void processIntegratedStates(
-            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
+            const std::map< TimeType,
+                            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {
         resetIntegratedEphemerides< TimeType, StateScalarType >(
                     bodyMap_, numericalSolution, bodiesToIntegrate_, ephemerisUpdateOrder_,
@@ -339,24 +355,25 @@ private:
 
     //! List of bodies for which the translational state is numerically integrated.
     /*!
-     * List of bodies for which the translational state is numerically integrated. Order in this vector is the same
-     * as the order in state vector.
+     * List of bodies for which the translational state is numerically integrated. Order in this
+     * vector is the same as the order in state vector.
      */
     std::vector< std::string > bodiesToIntegrate_;
 
     //! Order in which to update the ephemeris objects
     std::vector< std::string > ephemerisUpdateOrder_;
 
-    //! Function to provide the states of the ephemeris origins of each body w.r.t. their respective integration origins.
+    //! Function to provide the states of the ephemeris origins of each body w.r.t. their respective
+    //! integration origins.
     std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
     integrationToEphemerisFrameFunctions_;
 };
 
-//! Function to check the feasibility of resetting the translational dynamics of a set of bodies.
+//! Function checking feasibility of resetting the translational dynamics
 /*!
- * Function to check the feasibility of resetting the translational dynamics of a set of bodies. Function throws error if
- * not feasible.
- * \param bodiesToIntegrate List of bodies to integrate.
+ * Function to check the feasibility of resetting the translational dynamics of a set of
+ * bodies. Function throws error if not feasible.
+  * \param bodiesToIntegrate List of bodies to integrate.
  * \param bodyMap List of bodies used in simulations.
  */
 template< typename TimeType, typename StateScalarType >
@@ -371,9 +388,10 @@ void checkTranslationalStatesFeasibility(
         if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), bodyIterator->first ) ==
                 bodiesToIntegrate.end( ) )
         {
-            std::string ephemerisOrigin = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
-            if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin ) !=
-                    bodiesToIntegrate.end( ) )
+            std::string ephemerisOrigin
+                    = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
+            if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin )
+                != bodiesToIntegrate.end( ) )
             {
                 throw std::runtime_error(
                             "Warning, found non-integrated body with an integrated body as ephemeris origin" +
@@ -406,7 +424,8 @@ void checkTranslationalStatesFeasibility(
             }
 
             // If current ephemeris is not already a tabulated ephemeris, give error message.
-            else if( boost::dynamic_pointer_cast< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+            else if( boost::dynamic_pointer_cast<
+                     ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                          bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) == NULL )
             {
                 throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
@@ -423,15 +442,18 @@ void checkTranslationalStatesFeasibility(
 template< typename TimeType, typename StateScalarType >
 //! Function to create list objects for processing numerically integrated results.
 /*!
- * Function to create list objects for processing numerically integrated results, so that all results are set in the
- * environment models (i.e. resetting tabulated ephemeris for translational dynamics).
+ * Function to create list objects for processing numerically integrated results, so that all
+ * results are set in the environment models (i.e. resetting tabulated ephemeris for translational
+ * dynamics). 
  * \param propagatorSettings Settings for the propagation that is used
  * \param bodyMap List of body objects that represents the environemnt
  * \param frameManager Object for providinf conversion functions between different ephemeris origins.
- * \param startIndex Index in the state vector where the state entries handled with propagatorSettings starts.
- * \return
+ * \param startIndex Index of state vector where the state entries handled with propagatorSettings
+ *        starts.
+ * \return List objects for processing numerically integrated results.
  */
-std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
+std::map< IntegratedStateType,
+        std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
 createIntegratedStateProcessors(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -448,8 +470,9 @@ createIntegratedStateProcessors(
     {
 
         // Check input feasibility
-        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationalPropagatorSettings =
-                boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+                translationalPropagatorSettings = boost::dynamic_pointer_cast
+                     < TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
         if( translationalPropagatorSettings == NULL )
         {
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
@@ -471,20 +494,24 @@ createIntegratedStateProcessors(
     return integratedStateProcessors;
 }
 
-//! Function to reset the dynamical properties of the environment from the numerically integrated dynamics solution
+//! Function resetting dynamical properties of environment from numerical dynamics solution
 /*!
- * Function to reset the dynamical properties of the environment from the numerically integrated dynamics solution
- * \param equationsOfMotionNumericalSolution Solution produced by the numerical integration, in the 'conventional form'
+ * Function to reset the dynamical properties of the environment from the numerically integrated
+ * dynamics solution
+ * \param equationsOfMotionNumericalSolution Solution produced by the numerical integration, in the
+ * 'conventional form'
  * \sa SingleStateTypeDerivative::convertToOutputSolution
- * \param integratedStateProcessors List of objects (per dynamics type) used to process integrated results into
- * environment
+ * \param integratedStateProcessors List of objects (per dynamics type) used to process integrated
+ * results into environment
  */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedStates(
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
-        const std::map< IntegratedStateType, std::vector< boost::shared_ptr
-        < IntegratedStateProcessor< TimeType, StateScalarType > > > >
-        integratedStateProcessors )
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
+             equationsOfMotionNumericalSolution,
+        const std::map< IntegratedStateType, 
+                        std::vector< boost::shared_ptr
+                            < IntegratedStateProcessor< TimeType, StateScalarType > > > >
+             integratedStateProcessors )
 {
     for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr
          < IntegratedStateProcessor< TimeType, StateScalarType > > > >::
@@ -493,14 +520,15 @@ void resetIntegratedStates(
     {
         for( unsigned int i = 0; i < updateIterator->second.size( ); i++ )
         {
-            updateIterator->second.at( i )->processIntegratedStates( equationsOfMotionNumericalSolution );
+            updateIterator->second.at( i )->processIntegratedStates(
+                equationsOfMotionNumericalSolution );
         }
     }
 }
 
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_SETNUMERICALLYINTEGRATEDSTATES_H
