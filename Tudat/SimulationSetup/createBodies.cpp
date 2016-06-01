@@ -32,9 +32,11 @@ std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > deter
 {
     std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > outputVector;
 
-    std::map< std::string, std::vector< boost::shared_ptr< GravityFieldVariationSettings > > > gravityFieldVariationSettingsList;
+    std::map< std::string, std::vector< boost::shared_ptr< GravityFieldVariationSettings > > >
+            gravityFieldVariationSettingsList;
 
-    for( std::map< std::string, boost::shared_ptr< BodySettings > >::const_iterator bodyIterator = bodySettings.begin( );
+    for( std::map< std::string, boost::shared_ptr< BodySettings > >::const_iterator bodyIterator
+                 = bodySettings.begin( );
          bodyIterator != bodySettings.end( ); bodyIterator ++ )
     {
         if( bodyIterator->second->gravityFieldVariationSettings.size( ) != 0 )
@@ -47,15 +49,18 @@ std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > deter
 
     if( gravityFieldVariationSettingsList.size( ) != 0 )
     {
-        for( std::map< std::string, std::vector< boost::shared_ptr< GravityFieldVariationSettings > > >::iterator variationIterator =
-             gravityFieldVariationSettingsList.begin( ); variationIterator != gravityFieldVariationSettingsList.end( ); variationIterator++ )
+        for( std::map< std::string,
+                     std::vector< boost::shared_ptr< GravityFieldVariationSettings > > >::iterator
+                     variationIterator = gravityFieldVariationSettingsList.begin( );
+             variationIterator != gravityFieldVariationSettingsList.end( ); variationIterator++ )
         {
             unsigned int currentBodyIndex = -1;
 
             for( unsigned int k = 0; k < variationIterator->second.size( ); k++ )
             {
-                boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > variationSettings1 =
-                        boost::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >( variationIterator->second[ k ] );
+                boost::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > variationSettings1
+                        = boost::dynamic_pointer_cast<
+                    BasicSolidBodyGravityFieldVariationSettings >( variationIterator->second[ k ] );
 
                 if( variationSettings1 != NULL )
                 {
@@ -68,19 +73,19 @@ std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > deter
                         }
                     }
 
-                    std::vector< std::string > deformingBodies = variationSettings1->getDeformingBodies( );
+                    std::vector< std::string > deformingBodies
+                            = variationSettings1->getDeformingBodies( );
                     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
                     {
                         for( unsigned int j = 0; j < outputVector.size( ); j++ )
                         {
-                            if( deformingBodies[ i ] == outputVector[ j ].first )
+                            if( deformingBodies[ i ] == outputVector[ j ].first
+                                && j > currentBodyIndex )
                             {
-                                if( j > currentBodyIndex )
-                                {
-                                    std::pair< std::string, boost::shared_ptr< BodySettings > > entryToMove = outputVector[ j ];
-                                    outputVector.erase( outputVector.begin( ) + j );
-                                    outputVector.insert( outputVector.begin( ) + i, entryToMove );
-                                }
+                                std::pair< std::string, boost::shared_ptr< BodySettings > >
+                                        entryToMove = outputVector[ j ];
+                                outputVector.erase( outputVector.begin( ) + j );
+                                outputVector.insert( outputVector.begin( ) + i, entryToMove );
                             }
                         }
                     }
@@ -96,8 +101,8 @@ std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > deter
 NamedBodyMap createBodies(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings )
 {
-    std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > orderedBodySettings =
-            determineBodyCreationOrder( bodySettings );
+    std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > orderedBodySettings
+           = determineBodyCreationOrder( bodySettings );
 
     // Declare map of bodies that is to be returned.
     NamedBodyMap bodyMap;
@@ -191,8 +196,9 @@ NamedBodyMap createBodies(
     // Create radiation pressure coefficient objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )         
     {
-        std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings =
-                orderedBodySettings.at( i ).second->radiationPressureSettings;
+        std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > >
+                radiationPressureSettings
+                = orderedBodySettings.at( i ).second->radiationPressureSettings;
         for( std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > >::iterator
              radiationPressureSettingsIterator = radiationPressureSettings.begin( );
              radiationPressureSettingsIterator != radiationPressureSettings.end( );
@@ -201,7 +207,8 @@ NamedBodyMap createBodies(
             bodyMap[ orderedBodySettings.at( i ).first ]->setRadiationPressureInterface(
                         radiationPressureSettingsIterator->first,
                         createRadiationPressureInterface(
-                            radiationPressureSettingsIterator->second, orderedBodySettings.at( i ).first, bodyMap ) );
+                            radiationPressureSettingsIterator->second,
+                            orderedBodySettings.at( i ).first, bodyMap ) );
         }
 
     }
@@ -209,7 +216,8 @@ NamedBodyMap createBodies(
 
 }
 
-//! Function to define the global origin and orientation of the reference frame that is to be used in the simulations.
+//! Function to define the global origin and orientation of the reference frame that is to be used
+//! in the simulations.
 void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
                                     const std::string& globalFrameOrigin,
                                     const std::string& globalFrameOrientation )
@@ -220,7 +228,8 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
     std::string rotationModelFrame;
 
     // Iterate over all bodies
-    for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
+    for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
+         bodyIterator != bodyMap.end( ); bodyIterator++ )
     {
         // Check id body contains an ephemeris
         if( bodyIterator->second->getEphemeris( ) != NULL )
@@ -242,12 +251,14 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
                 else
                 {
                     // Retrieve and set frame correction functions.
-                    boost::function< basic_mathematics::Vector6d( const double& ) > correctionFunction =
-                            boost::bind( &Body::getStateInBaseFrameFromEphemeris, bodyMap.at( ephemerisFrameOrigin ), _1 );
+                    boost::function< basic_mathematics::Vector6d( const double& ) > correctionFunction
+                            = boost::bind( &Body::getStateInBaseFrameFromEphemeris,
+                                           bodyMap.at( ephemerisFrameOrigin ), _1 );
                     bodyIterator->second->setBaseFrameFunction( correctionFunction );
 
-                    boost::function< Eigen::Matrix< long double, 6, 1 >( const double& ) > longCorrectionFunction =
-                            boost::bind( &Body::getLongStateInBaseFrameFromEphemeris, bodyMap.at( ephemerisFrameOrigin ), _1 );
+                    boost::function< Eigen::Matrix< long double, 6, 1 >( const double& ) > longCorrectionFunction
+                            = boost::bind( &Body::getLongStateInBaseFrameFromEphemeris,
+                                           bodyMap.at( ephemerisFrameOrigin ), _1 );
                     bodyIterator->second->setBaseFrameLongFunction( longCorrectionFunction );
                 }
             }
@@ -259,9 +270,9 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
             if( ephemerisFrameOrientation != globalFrameOrientation )
             {
                 throw std::runtime_error(
-                            "Error, ephemeris orientation of body " + bodyIterator->first +
-                            " is not the same as global orientation " + ephemerisFrameOrientation + ", " +
-                            globalFrameOrientation );
+                            "Error, ephemeris orientation of body " + bodyIterator->first
+                            + " is not the same as global orientation " + ephemerisFrameOrientation
+                            + ", " + globalFrameOrientation );
             }
 
 
@@ -270,8 +281,10 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
         // Check if body has rotational ephemeris.
         if( bodyIterator->second->getRotationalEphemeris( ) != NULL )
         {
-            // Check if rotational ephemeris base frame orienatation is equal to to global orientation.
-            rotationModelFrame = bodyIterator->second->getRotationalEphemeris( )->getBaseFrameOrientation( );
+            // Check if rotational ephemeris base frame orienatation is equal to to global
+            // orientation.
+            rotationModelFrame = bodyIterator->second->getRotationalEphemeris( )
+                                 ->getBaseFrameOrientation( );
 
             // Throw error if two frames are not equal.
             if( rotationModelFrame != globalFrameOrientation )

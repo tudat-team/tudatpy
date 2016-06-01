@@ -69,7 +69,7 @@ const static double GOLDEN_RATIO = 0.5 * ( 1.0 + std::sqrt( 5.0 ) );
 
 //! Independent root of -1, typically denoted i.
 /*!
- *  Independent root of -1, typically denoted i
+ *  Independent root of -1, typically denoted i.
  */
 const static std::complex< double > COMPLEX_I = std::complex< double >( 0.0, 1.0 );
 
