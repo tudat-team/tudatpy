@@ -1,7 +1,15 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_CREATERADIATIONPRESSUREINTERFACE_H
 #define TUDAT_CREATERADIATIONPRESSUREINTERFACE_H
-
-#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
@@ -28,8 +36,8 @@ enum RadiationPressureType
 
 //! Base class for radiation pressure interface settings.
 /*!
- *  Base class for providing settings for automatic radiation pressure properties creation.
- *  This is a non-functional base class, specific implementations must be defined in derived classes.
+ *  Base class for providing settings for automatic radiation pressure properties creation.  This is
+ *  a non-functional base class, specific implementations must be defined in derived classes.
  */
 class RadiationPressureInterfaceSettings
 {
@@ -156,8 +164,8 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
 
 
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATERADIATIONPRESSUREINTERFACE_H

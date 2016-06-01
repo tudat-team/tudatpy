@@ -138,8 +138,8 @@ private:
     variationInterpolator_;
 };
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat
 
 #endif // TUDAT_TABULATEDGRAVITYFIELDVARIATIONS_H

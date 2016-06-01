@@ -11,9 +11,10 @@
 #ifndef TUDAT_INTEGRATEEQUATIONS_H
 #define TUDAT_INTEGRATEEQUATIONS_H
 
-#include <Eigen/Core>
-
+#include <iostream>
 #include <map>
+
+#include <Eigen/Core>
 
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 
@@ -31,14 +32,14 @@ namespace propagators
 
 //! Function to numerically integrate a given first order differential equation
 /*!
- *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
- *  a single independent variable and the current state
+ *  Function to numerically integrate a given first order differential equation, with the state
+ *  derivative a function of a single independent variable and the current state
  *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
  *  \param initialState Initial state
  *  \param integratorSettings Settings for numerical integrator.
  *  \param printInterval Frequency with which to print progress to console (nan = never).
- *  \return History of numerical states (first of pair) and derivatives of states (second of pair) given as maps with time
- *  as key.
+ *  \return History of numerical states (first of pair) and derivatives of states (second of pair)
+ *  given as maps with time as key.
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
 std::map< TimeType, StateType > integrateEquations(
@@ -51,8 +52,9 @@ std::map< TimeType, StateType > integrateEquations(
 
 
     // Create numerical integrator.
-    boost::shared_ptr< NumericalIntegrator< TimeType, StateType, StateType > > integrator =
-            createIntegrator< TimeType, StateType >( stateDerivativeFunction, initialState, integratorSettings );
+    boost::shared_ptr< NumericalIntegrator< TimeType, StateType, StateType > > integrator
+          = createIntegrator< TimeType, StateType >( stateDerivativeFunction,
+                                                     initialState, integratorSettings );
 
     // Get Initial state and time.
     TimeType currentTime = integratorSettings->initialTime_;
@@ -86,7 +88,8 @@ std::map< TimeType, StateType > integrateEquations(
     int printFrequency = integratorSettings->printFrequency_;
 
     // Perform numerical integration steps until end time reached.
-    while( timeStepSign * static_cast< TimeType >( currentTime ) < timeStepSign * static_cast< TimeType >( endTime ) )
+    while( timeStepSign * static_cast< TimeType >( currentTime )
+           < timeStepSign * static_cast< TimeType >( endTime ) )
     {
         previousTime = currentTime;
 
@@ -111,8 +114,8 @@ std::map< TimeType, StateType > integrateEquations(
                     ( static_cast< int >( std::fabs( previousTime - integratorSettings->initialTime_ ) ) %
                       static_cast<int>( printInterval ) )  )
             {
-                std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
-                           timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
+                std::cout << "Current time and state in integration: " << std::setprecision( 10 ) <<
+                           timeStep << " " << currentTime << " " << newState.transpose( ) << std::endl;
             }
         }
     }
@@ -120,7 +123,7 @@ std::map< TimeType, StateType > integrateEquations(
     return solutionHistory;
 }
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 #endif // TUDAT_INTEGRATEEQUATIONS_H
