@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "Tudat/SimulationSetup/body.h"
 
 namespace tudat
@@ -20,7 +30,8 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
     setLongState( state );
 }
 
-//! Templated function to get the current state of the body from its ephemeris and global-to-ephemeris-frame function.
+//! Templated function to get the current state of the body from its ephemeris and
+//! global-to-ephemeris-frame function.
 template<  >
 Eigen::Matrix< double, 6, 1 > Body::getTemplatedStateInBaseFrameFromEphemeris( const double& time )
 {
@@ -28,21 +39,25 @@ Eigen::Matrix< double, 6, 1 > Body::getTemplatedStateInBaseFrameFromEphemeris( c
 }
 
 
-//! Templated function to get the current state of the body from its ephemeris and global-to-ephemeris-frame function.
+//! Templated function to get the current state of the body from its ephemeris and
+//! global-to-ephemeris-frame function.
 template<  >
-Eigen::Matrix< long double, 6, 1 > Body::getTemplatedStateInBaseFrameFromEphemeris( const double& time )
+Eigen::Matrix< long double, 6, 1 >
+    Body::getTemplatedStateInBaseFrameFromEphemeris( const double& time )
 {
     return getLongStateInBaseFrameFromEphemeris( time );
 }
 
-//! Templated function to set the current state of the body from its ephemeris and global-to-ephemeris-frame function.
+//! Templated function to set the current state of the body from its ephemeris and
+//! global-to-ephemeris-frame function.
 template< >
 void Body::setTemplatedStateFromEphemeris< double, double >( const double& time )
 {
     currentState_ = getTemplatedStateInBaseFrameFromEphemeris< double, double >( time );
 }
 
-//! Templated function to set the current state of the body from its ephemeris and global-to-ephemeris-frame function.
+//! Templated function to set the current state of the body from its ephemeris and
+//! global-to-ephemeris-frame function.
 template< >
 void Body::setTemplatedStateFromEphemeris< long double, double >( const double& time )
 {
@@ -50,7 +65,7 @@ void Body::setTemplatedStateFromEphemeris< long double, double >( const double& 
     currentState_ = currentLongState_.cast< double >( );
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 

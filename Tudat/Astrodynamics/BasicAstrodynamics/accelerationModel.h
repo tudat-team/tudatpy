@@ -46,6 +46,7 @@
 #define TUDAT_ACCELERATION_MODEL_H
 
 #include <map>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
