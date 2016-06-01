@@ -26,7 +26,7 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
 bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
 {
     bool isDoubleParameter;
-    switch( parameter )
+    switch( parameterType )
     {
     case gravitational_parameter:
         isDoubleParameter = true;
