@@ -53,6 +53,7 @@
 #define TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
 
 #include <cmath>
+#include <vector>
 
 #include <boost/function.hpp>
 

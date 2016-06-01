@@ -51,10 +51,7 @@
  *
  */
 
-#include <iostream>
-
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat

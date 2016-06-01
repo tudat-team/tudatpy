@@ -92,6 +92,6 @@ basic_mathematics::Vector6d CompositeEphemeris< double, long double >::getCartes
     return getCartesianLongStateFromEphemeris( secondsSinceEpoch, julianDayAtEpoch ).cast< double >( );
 }
 
-}
+} // namespace ephemerides
 
-}
+} // namespace tudat

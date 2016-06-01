@@ -23,7 +23,8 @@ template< >
 boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > >
 createStateInterpolator( const std::map< double, Eigen::Matrix< double, 6, 1 > >& stateMap )
 {
-    return boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( stateMap, 6 );
+    return boost::make_shared<
+        interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( stateMap, 6 );
 }
 
 //! Function to create an interpolator for the new translational state of a body.
@@ -31,8 +32,9 @@ template< >
 boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >
 createStateInterpolator( const std::map< double, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
-    return boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >(
-                stateMap, 6 );
+    return boost::make_shared<
+        interpolators::LagrangeInterpolator< double,
+                                             Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
 }
 
 //! Function to determine in which order the ephemerides are to be updated
@@ -55,12 +57,16 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
     {
         // Check if current central body or ephemeris origin is integratedBodies
         centralBodyIterator = std::find(
-                    integratedBodies.begin( ), integratedBodies.end( ), centralBodies.at( currentIndex ) );
+                    integratedBodies.begin( ), integratedBodies.end( ),
+                    centralBodies.at( currentIndex ) );
         ephemerisOriginIterator = std::find(
-                    integratedBodies.begin( ), integratedBodies.end( ), ephemerisOrigins.at( currentIndex ) );
+                    integratedBodies.begin( ), integratedBodies.end( ),
+                    ephemerisOrigins.at( currentIndex ) );
 
-        // If neither is in list, there is no dependency, and current body can be added to update list.
-        if( centralBodyIterator == integratedBodies.end( ) && ephemerisOriginIterator == integratedBodies.end( ) )
+        // If neither is in list, there is no dependency, and current body can be added to update
+        // list.
+        if( centralBodyIterator == integratedBodies.end( )
+            && ephemerisOriginIterator == integratedBodies.end( ) )
         {
             // Add to list.
             updateOrder.push_back( integratedBodies.at( currentIndex ) );
@@ -82,31 +88,36 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
         else
         {
             // If both are found in list, start next iteration at whichever is first in list.
-            if( centralBodyIterator != integratedBodies.end( ) && ephemerisOriginIterator != integratedBodies.end( ) )
+            if( centralBodyIterator != integratedBodies.end( )
+                && ephemerisOriginIterator != integratedBodies.end( ) )
             {
 
                 currentIndex = std::min(
                             std::distance(
-                                integratedBodies.begin( ), std::find( integratedBodies.begin( ), integratedBodies.end( ),
-                                                                      centralBodies.at( currentIndex ) ) ),
+                                integratedBodies.begin( ),
+                                std::find( integratedBodies.begin( ), integratedBodies.end( ),
+                                           centralBodies.at( currentIndex ) ) ),
                             std::distance(
-                                integratedBodies.begin( ), std::find( integratedBodies.begin( ), integratedBodies.end( ),
-                                                                      ephemerisOrigins.at( currentIndex ) ) ));
+                                integratedBodies.begin( ),
+                                std::find( integratedBodies.begin( ), integratedBodies.end( ),
+                                           ephemerisOrigins.at( currentIndex ) ) ));
 
             }
             // If only central body is found, start with this central body in next iteration
             else if( centralBodyIterator != integratedBodies.end( ) )
             {
                 currentIndex = std::distance(
-                            integratedBodies.begin( ), std::find( integratedBodies.begin( ), integratedBodies.end( ),
-                                                                  centralBodies.at( currentIndex ) ) );
+                            integratedBodies.begin( ),
+                            std::find( integratedBodies.begin( ), integratedBodies.end( ),
+                                       centralBodies.at( currentIndex ) ) );
             }
             // If only ephemeris origin is found, start with this ephemeris origin in next iteration
             else if( ephemerisOriginIterator != integratedBodies.end( ) )
             {
                 currentIndex = std::distance(
-                            integratedBodies.begin( ), std::find( integratedBodies.begin( ), integratedBodies.end( ),
-                                                                  ephemerisOrigins.at( currentIndex ) ) );
+                            integratedBodies.begin( ),
+                            std::find( integratedBodies.begin( ), integratedBodies.end( ),
+                                       ephemerisOrigins.at( currentIndex ) ) );
             }
         }
 
@@ -122,6 +133,6 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
     return updateOrder;
 }
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat

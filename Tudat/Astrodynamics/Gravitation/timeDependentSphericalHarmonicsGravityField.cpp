@@ -56,6 +56,6 @@ void TimeDependentSphericalHarmonicsGravityField::update( const double time )
     }
 }
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat

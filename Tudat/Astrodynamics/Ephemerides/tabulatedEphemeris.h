@@ -115,7 +115,8 @@ public:
      * \return State in Cartesian elements from ephemeris.
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     //! Get cartesian state from ephemeris (in long double precision).
     /*!
@@ -127,7 +128,8 @@ public:
      * \return State in Cartesian elements from ephemeris.
      */
     Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
-            const double secondsSinceEpoch, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
 
     //! Function to return the interpolator
@@ -161,7 +163,7 @@ private:
 
 };
 
-}
+} // namespace ephemerides
 
-}
+} // namespace tudat
 #endif // TUDAT_TABULATEDEPHEMERIS_H

@@ -78,6 +78,6 @@ void SpiceRotationalEphemeris::getFullRotationalQuantitiesToTargetFrame(
 }
 
 
-}
+} // namespace ephemerides
 
-}
+} // namespace tudat
