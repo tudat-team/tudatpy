@@ -111,6 +111,7 @@ public:
     /*!
      *  Function to update the current value of the radiation pressure, based on functions returning
      *  the positions of the bodies involved and the source power.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
     void updateInterface( const double currentTime = TUDAT_NAN );
 

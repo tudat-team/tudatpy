@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_CREATEBODYSHAPEMODEL_H
 #define TUDAT_CREATEBODYSHAPEMODEL_H
 
@@ -23,9 +33,10 @@ enum BodyShapeTypes
 
 //! Class for providing settings for body shape model.
 /*!
- *  Class for providing settings for automatic body shape model creation. This class is a
- *  functional (base) class for settings of body shapels models that require no information in
- *  addition to their type. Types requiring additional information must be created using an object derived from this class.
+ *  Class for providing settings for automatic body shape model creation. This class is a functional
+ *  (base) class for settings of body shapels models that require no information in addition to
+ *  their type. Types requiring additional information must be created using an object derived from
+ *  this class.
  */
 class BodyShapeSettings
 {
@@ -64,7 +75,8 @@ public:
      * Constructor
      * \param radius Radius of spherical shape model.
      */
-    SphericalBodyShapeSettings( const double radius ):BodyShapeSettings( spherical ), radius_( radius ){ }
+    SphericalBodyShapeSettings( const double radius ) :
+         BodyShapeSettings( spherical ), radius_( radius ){ }
 
     //! Function to return the radius of spherical shape model.
     /*!
@@ -79,7 +91,8 @@ private:
     double radius_;
 };
 
-//! EphemerisSettings derived class for defining settings of an oblate spheroid (flattened sphere) shape model
+//! EphemerisSettings derived class for defining settings of an oblate spheroid (flattened sphere)
+//! shape model
 class OblateSphericalBodyShapeSettings: public BodyShapeSettings
 {
 public:
@@ -92,7 +105,8 @@ public:
      */
     OblateSphericalBodyShapeSettings( const double equatorialRadius,
                                       const double flattening ):
-        BodyShapeSettings( oblate_spheroid ), equatorialRadius_( equatorialRadius ), flattening_( flattening ){ }
+        BodyShapeSettings( oblate_spheroid ), equatorialRadius_( equatorialRadius ),
+        flattening_( flattening ){ }
 
 
     //! Function to return the equatorial radius of spheroid shape model.
@@ -131,8 +145,8 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
         const std::string& body );
 
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEBODYSHAPEMODEL_H

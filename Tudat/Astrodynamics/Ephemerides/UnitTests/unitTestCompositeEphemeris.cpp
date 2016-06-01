@@ -11,7 +11,6 @@
 #include "Tudat/Astrodynamics/Ephemerides/compositeEphemeris.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
-
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 #include "Tudat/SimulationSetup/body.h"

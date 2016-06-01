@@ -20,7 +20,7 @@ public:
 
     using Ephemeris::getCartesianStateFromEphemeris;
 
-    //! Constructor
+    //! Constructor of a constant Ephemeris object
     /*!
      *  Constructor.
      *  \param constantStateFunction Function returning the constant state.
@@ -30,9 +30,10 @@ public:
     ConstantEphemeris( const boost::function< basic_mathematics::Vector6d( ) > constantStateFunction,
                        const std::string& referenceFrameOrigin = "SSB",
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
-        Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), constantStateFunction_( constantStateFunction ) { }
+        Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
+                constantStateFunction_( constantStateFunction ) { }
 
-    //! Constructor
+    //! Constructor of a constant Ephemeris object
     /*!
      *  Constructor
      *  \param constantState Constant state value.
@@ -48,12 +49,14 @@ public:
     //! Get state from ephemeris.
     /*!
      * Returns state from ephemeris at given time.
-     * \param seconsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated (not used in this derived class)
+     * \param seconsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated
+              (not used in this derived class)
      * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return Constant state given by constantStateFunction_
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double seconsSinceEpoch = 0.0, const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000)
+            const double seconsSinceEpoch = 0.0,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000)
     {
         return constantStateFunction_( );
     }
@@ -67,6 +70,7 @@ public:
     {
         constantStateFunction_ = boost::lambda::constant( newState );
     }
+
 private:
 
     //! Time-independent state function.
@@ -77,8 +81,8 @@ private:
 
 };
 
-}
+} // namespace ephemerides
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CONSTANTEPHEMERIS_H

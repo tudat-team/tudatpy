@@ -331,14 +331,15 @@ private:
 };
 
 
-//! EphemerisSettings derived class for defining settings of an ephemeris producing a constant (time-independent) state/
+//! EphemerisSettings derived class for defining settings of an ephemeris producing a constant
+//! (time-independent) state
 class ConstantEphemerisSettings: public EphemerisSettings
 {
 public:
 
-    //! Constructor
+    //! Constructor of settings for an ephemeris producing a constant (time-independent) state.
     /*!
-     * Constructor
+     * Constructor of settings for an ephemeris producing a constant (time-independent) state.
      * \param constantState Constant state that will be provided as output of the ephemeris at all times.
      * \param frameOrigin Origin of frame in which ephemeris data is defined.
      * \param frameOrientation Orientation of frame in which ephemeris data is defined.
@@ -350,9 +351,10 @@ public:
                            frameOrigin,
                            frameOrientation ), constantState_( constantState ){ }
 
-    //! Function to return the constant state that will be provided as output of the ephemeris at all times.
+    //! Function to return the constant state for output of the ephemeris at all times.
     /*!
-     *  Function to return the constant state that will be provided as output of the ephemeris at all times.
+     *  Function to return the constant state that will be provided as output of the ephemeris at
+     *  all times.
      *  \return Boolean defining whether a circular, coplanar orbit of the body is to be assumed.
      */
     basic_mathematics::Vector6d getConstantState( ){ return constantState_; }
@@ -363,7 +365,8 @@ private:
     basic_mathematics::Vector6d constantState_;
 };
 
-//! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal Kepler orbit.
+//! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
+//! Kepler orbit.
 class KeplerEphemerisSettings: public EphemerisSettings
 {
 public:
@@ -418,9 +421,11 @@ public:
         return epochOfInitialState_;
     }
 
-    //! Function to return the gravitational parameter of central body about which the Kepler orbit is defined.
+    //! Function to return the gravitational parameter of central body about which the Kepler orbit
+    //! is defined.
     /*!
-     *  Function to return the gravitational parameter of central body about which the Kepler orbit is defined..
+     *  Function to return the gravitational parameter of central body about which the Kepler orbit
+     *  is defined.
      *  \return Gravitational parameter of central body about which the Kepler orbit is defined.
      */
     double getCentralBodyGravitationalParameter( )
@@ -428,9 +433,11 @@ public:
         return centralBodyGravitationalParameter_;
     }
 
-    //! Function to return the convergence tolerance for root finder used to convert mean to eccentric anomaly
+    //! Function to return the convergence tolerance for root finder used to convert mean to
+    //! eccentric anomaly
     /*!
-     *  Function to return the convergence tolerance for root finder used to convert mean to eccentric anomaly
+     *  Function to return the convergence tolerance for root finder used to convert mean to
+     *  eccentric anomaly
      *  \return Convergence tolerance for root finder used to convert mean to eccentric anomaly
      */
     double getRootFinderAbsoluteTolerance( )
@@ -438,9 +445,11 @@ public:
         return rootFinderAbsoluteTolerance_;
     }
 
-    //! Function to return the maximum iteration for root finder used to convert mean to eccentric anomaly
+    //! Function to return the maximum iteration for root finder used to convert mean to eccentric
+    //! anomaly
     /*!
-     *  Function to return the maximum iteration for root finder used to convert mean to eccentric anomaly
+     *  Function to return the maximum iteration for root finder used to convert mean to eccentric
+     *  anomaly
      *  \return Maximum iteration for root finder used to convert mean to eccentric anomaly
      */
     double getRootFinderMaximumNumberOfIterations( )

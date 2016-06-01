@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     const std::string kernelsPath = input_output::getSpiceKernelPath( );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
 
-    // Create settings for spice central gravity field model.
+        // Create settings for spice central gravity field model.
     boost::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings =
             boost::make_shared< GravityFieldSettings >( central_spice );
 
@@ -298,6 +298,48 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
                 ( manualShGravityField.getGradientOfPotential( testPosition ) ),
                 ( shGravityField->getGradientOfPotential( testPosition ) ),
                 std::numeric_limits< double >::epsilon( ) );
+
+    boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultEarthField =
+            boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                createGravityFieldModel( getDefaultGravityFieldSettings(
+                                         "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
+    BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getGravitationalParameter( ) ), ( 0.3986004418E15 ) );
+    BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getReferenceRadius( ) ), ( 6378137.0 ) );
+    BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getCosineCoefficients( ).rows( ) ), 51 );
+    BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getCosineCoefficients( ).cols( ) ), 51 );
+    BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getSineCoefficients( ).rows( ) ), 51 );
+    BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getSineCoefficients( ).cols( ) ), 51 );
+    BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getCosineCoefficients( )( 5, 3 ) ), -0.451955406071E-06 );
+    BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getSineCoefficients( )( 7, 1 ) ), 0.954336911867E-07 );
+
+    boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultMoonField =
+            boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                createGravityFieldModel( getDefaultGravityFieldSettings(
+                                         "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
+    BOOST_CHECK_EQUAL(
+                ( defaultMoonField->getGravitationalParameter( ) ), ( 0.4902800238000000E+13 ) );
+    BOOST_CHECK_EQUAL(
+                ( defaultMoonField->getReferenceRadius( ) ), ( 0.17380E+07 ) );
+    BOOST_CHECK_EQUAL(
+                ( defaultMoonField->getCosineCoefficients( ).rows( ) ), 51 );
+    BOOST_CHECK_EQUAL(
+                ( defaultMoonField->getCosineCoefficients( ).cols( ) ), 51 );
+    BOOST_CHECK_EQUAL(
+                ( defaultMoonField->getSineCoefficients( ).rows( ) ), 51 );
+    BOOST_CHECK_EQUAL(
+                ( defaultMoonField->getSineCoefficients( ).cols( ) ), 51 );
+    BOOST_CHECK_EQUAL(
+                ( defaultMoonField->getCosineCoefficients( )( 5, 3 ) ), 0.5493176535439800E-06 );
+    BOOST_CHECK_EQUAL(
+                ( defaultMoonField->getSineCoefficients( )( 7, 1 ) ), -0.1744763377093700E-06 );
 
 }
 #endif
@@ -463,10 +505,10 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     }
 
     // Mutually compare results of three methods.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ),  cosineCorrections2.block( 2, 0, 2, 3 ), 1.0E-11 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ),  cosineCorrections3.block( 2, 0, 2, 3 ), 1.0E-11 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ),  sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-11 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ),  sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-11 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ),  cosineCorrections2.block( 2, 0, 2, 3 ), 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ),  cosineCorrections3.block( 2, 0, 2, 3 ), 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ),  sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ),  sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-10 );
 
     // Check whether 0 coefficients are actually 0.
     for( unsigned int i = 0; i < 6; i++ )
@@ -496,7 +538,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     // Calculate corrections manually and compare against created results.
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directMoonTide =
             gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                fullLoveNumberVector, spice_interface::getBodyGravitationalParameter( "Moon" ) / gravitationalParameter,
+                fullLoveNumberVector, 0.4902800238000000E+13 / gravitationalParameter,
                 referenceRadius,  spice_interface::getBodyCartesianPositionAtEpoch(
                     "Moon", "Earth", "IAU_Earth", "None", testTime ), 3, 2 );
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directSunTide =
@@ -726,27 +768,34 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
     // Check whether calulcate angles and body-fixed state correspond to expected results
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( latitude_angle )
-                           - testLatitude), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( latitude_angle ) - testLatitude),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( longitude_angle )
-                           - testLongitude), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( longitude_angle ) - testLongitude),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( heading_angle )
-                           - testHeadingAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( heading_angle ) - testHeadingAngle),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( flight_path_angle)
-                           - testFlightPathAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( flight_path_angle) - testFlightPathAngle),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
 
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_attack )
-                           - angleOfAttack ), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( angle_of_attack ) - angleOfAttack ),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_sideslip)
-                           - angleOfSideslip), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( angle_of_sideslip) - angleOfSideslip),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( bank_angle )
-                           - bankAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( bank_angle ) - bankAngle),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 vehicleFlightConditions->getCurrentBodyCenteredBodyFixedState( ),vehicleBodyFixedState,

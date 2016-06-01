@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef CREATEINTERPOLATOR_H
-#define CREATEINTERPOLATOR_H
+#ifndef TUDAT_CREATEINTERPOLATOR_H
+#define TUDAT_CREATEINTERPOLATOR_H
 
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
@@ -221,10 +221,11 @@ createOneDimensionalInterpolator(
                     boost::lexical_cast< std::string >(
                         interpolatorSettings->getInterpolatorType( ) ) );
     }
-    return createdInterpolator;}
-
+    return createdInterpolator;
 }
 
-}
+} // namespace interpolators
 
-#endif // CREATEINTERPOLATOR_H
+} // namespace tudat
+
+#endif // TUDAT_CREATEINTERPOLATOR_H
