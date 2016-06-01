@@ -82,6 +82,21 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const double initialTime,
         const double finalTime );
 
+//! Function to create default settings for a body's shape model.
+/*!
+ *  Function to create default settings for a body's shape model. Currently set to
+ *  a spherical model, with the radius taken from Spice
+ *  \param body Name of body for which default shape model settings are to be retrieved.
+ *  \param initialTime Start time at which environment models in body are to be created
+ *  (not currently used by this function, but included for consistency).
+ *  \param finalTime End time up to which environment models in body are to be created
+ *  (not currently used by this function, but included for consistency).
+ */
+boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
+        const std::string& body,
+        const double initialTime, const double finalTime );
+
+
 //! Function to create default settings from which to create a single body object.
 /*!
  *  Function to create default settings from which to create a single body object using
@@ -99,6 +114,25 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
  */
 boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
+        const double initialTime,
+        const double finalTime );
+
+//! Function to create default settings for a single for body.
+/*!
+ *  Function to create default settings for a single body from which to create a object using
+ *  the code in createBodies.h/.cpp. This function is included to streamline and simplify the
+ *  creation of typical celestial bodies. The default settings for the various
+ *  environment models of the body are defined in the various functions defined in this file.
+ *  \param body Name of body for which default settings are to be retrieved.
+ *  \param initialTime Start time at which environment models in body are to be created
+ *  (included as some environment models require e.g., interpolators to be created over
+ *  a certain time period).
+ *  \param finalTime End time up to which environment models in body are to be created
+ *  (included as some environment models require e.g., interpolators to be created over
+ *  a certain time period).
+ */
+boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
+        const std::string& body,
         const double initialTime,
         const double finalTime );
 

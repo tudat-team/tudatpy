@@ -191,6 +191,27 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::strin
             finished( );
 }
 
+std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
+        const std::string& originalFrame, const std::string& newFrame, const double ephemerisTime )
+{
+    double stateTransition[ 6 ][ 6 ];
+
+    sxform_c( originalFrame.c_str( ), newFrame.c_str( ), ephemerisTime, stateTransition );
+
+    Eigen::Matrix3d matrixDerivative;
+    Eigen::Matrix3d rotationMatrix;
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            rotationMatrix( i, j ) = stateTransition[ i ][ j ];
+            matrixDerivative( i, j ) = stateTransition[ i + 3 ][ j ];
+        }
+    }
+    return std::make_pair( Eigen::Quaterniond( rotationMatrix ), matrixDerivative );
+}
+
 //! Get property of a body from Spice.
 std::vector< double > getBodyProperties( const std::string& body, const std::string& property,
                                          const int maximumNumberOfValues )

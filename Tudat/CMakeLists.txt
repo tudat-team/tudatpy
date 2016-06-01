@@ -182,8 +182,10 @@ endif()
 option(USE_CSPICE "build Tudat with CSPICE enabled" ON) # OFF is the default
 if(NOT USE_CSPICE)
   message(STATUS "SPICE disabled!")
+  add_definitions(-DUSE_CSPICE=0)
 else()
   message(STATUS "SPICE enabled!")
+add_definitions(-DUSE_CSPICE=1)
 
   # Find CSPICE library on local system.
   find_package(Spice)

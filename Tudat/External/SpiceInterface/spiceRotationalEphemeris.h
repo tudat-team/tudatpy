@@ -111,9 +111,29 @@ public:
                 transpose( );
     }
 
+    //! Function to calculate the full rotational state at given time
+    /*!
+     * Function to calculate the full rotational state at given time (rotation matrix, derivative of
+     * rotation matrix and angular velocity vector).
+     * \param currentRotationToLocalFrame Current rotation to local frame (returned by reference)
+     * \param currentRotationToLocalFrameDerivative Current derivative of rotation matrix to local
+     * frame (returned by reference)
+     * \param currentAngularVelocityVectorInGlobalFrame Current angular velocity vector, expressed
+     * in global frame (returned by reference)
+     * \param secondsSinceEpoch Seconds since Julian day epoch specified by 2nd argument
+     * \param julianDayAtEpoch Reference epoch in Julian days from which number of seconds are
+     * counted (default J2000).
+     */
+    void getFullRotationalQuantitiesToTargetFrame(
+            Eigen::Quaterniond& currentRotationToLocalFrame,
+            Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+            Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+            const double secondsSinceEpoch, const double julianDayAtEpoch =
+            basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
 };
 
-}
+} // namespace ephemerides
 
-}
+} // namespace tudat
 #endif // TUDAT_SPICEROTATIONALEPHEMERIS_H

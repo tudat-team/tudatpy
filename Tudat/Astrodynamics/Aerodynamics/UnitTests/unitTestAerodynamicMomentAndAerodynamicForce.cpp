@@ -66,6 +66,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicRotationalAcceleration.h"
+#include "Tudat/SimulationSetup/createFlightConditions.h"
 
 namespace tudat
 {
@@ -76,6 +77,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_aerodynamic_acceleration_force_moment_models )
 
 using namespace aerodynamics;
+using namespace simulation_setup;
 
 //! Test implementation of aerodynamic force and acceleration models.
 BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )

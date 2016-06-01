@@ -40,6 +40,8 @@
 #ifndef TUDAT_AERODYNAMIC_ACCELERATION_H
 #define TUDAT_AERODYNAMIC_ACCELERATION_H
 
+#include <iostream>
+
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_ptr.hpp>
@@ -190,14 +192,18 @@ public:
      * Function pointers to retrieve the current values of quantities from which the
      * acceleration is to be calculated are set by constructor. This function calls
      * them to update the associated variables to their current state.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( )
+    void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        currentForceCoefficients_ = coefficientMultiplier_ * this->coefficientFunction_( );
-        currentDensity_ = this->densityFunction_( );
-        currentMass_ = this->massFunction_( );
-        currentAirspeed_ = this->airSpeedFunction_( );
-        currentReferenceArea_ = this->referenceAreaFunction_( );
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            currentForceCoefficients_ = coefficientMultiplier_ * this->coefficientFunction_( );
+            currentDensity_ = this->densityFunction_( );
+            currentMass_ = this->massFunction_( );
+            currentAirspeed_ = this->airSpeedFunction_( );
+            currentReferenceArea_ = this->referenceAreaFunction_( );
+        }
     }
 
 private:

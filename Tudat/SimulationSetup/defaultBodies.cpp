@@ -8,6 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#if USE_CSPICE
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#endif
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/defaultBodies.h"
 
@@ -43,9 +46,13 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const double initialTime,
         const double finalTime )
 {
+#if USE_CSPICE
     // Create settings for an interpolated Spice ephemeris.
     return boost::make_shared< InterpolatedSpiceEphemerisSettings >(
                 initialTime, finalTime, 300.0, "SSB", "ECLIPJ2000" );
+#else
+    throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
+#endif
 }
 
 //! Function to create default settings for a body's gravity field model.
@@ -54,9 +61,38 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
         const double initialTime,
         const double finalTime )
 {
-    // Create settings for a point mass gravity with data from Spice
-    return boost::make_shared< GravityFieldSettings >( central_spice );
+    if( bodyName == "Earth" )
+    {
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+        std::string earthGravityFieldFile =
+                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/egm96_coefficients.dat";
+        readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients );
+
+        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    0.3986004418E15, 6378137.0, coefficients.first, coefficients.second, "IAU_Earth" );
+    }
+    else if( bodyName == "Moon" )
+    {
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+        std::string earthGravityFieldFile =
+                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab";
+        std::pair< double, double > referenceData =
+                readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients, 1, 0 );
+        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    referenceData.first, referenceData.second, coefficients.first, coefficients.second, "IAU_Moon" );
+
+    }
+    else
+    {
+#if USE_CSPICE
+        // Create settings for a point mass gravity with data from Spice
+        return boost::make_shared< GravityFieldSettings >( central_spice );
+#else
+        throw std::runtime_error( "Default gravity field settings can only be used together with the SPICE library" );
+#endif
+    }
 }
+
 
 //! Function to create default settings from which to create a single body object.
 boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
@@ -64,9 +100,26 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const double initialTime,
         const double finalTime )
 {
+#if USE_CSPICE
     // Create settings for a rotation model taken directly from Spice.
     return boost::make_shared< RotationModelSettings >(
                 spice_rotation_model, "ECLIPJ2000", "IAU_" + bodyName );
+#else
+    throw std::runtime_error( "Default rotational model settings can only be used together with the SPICE library" );
+#endif
+}
+
+//! Function to create default settings for a body's shape model.
+boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
+        const std::string& body,
+        const double initialTime, const double finalTime )
+{
+#if USE_CSPICE
+    return boost::make_shared< SphericalBodyShapeSettings >(
+                spice_interface::getAverageRadius( body ) );
+#else
+    throw std::runtime_error( "Default body settings can only be used together with the SPICE library" );
+#endif
 }
 
 //! Function to create default settings for a body's rotation model.
@@ -85,6 +138,8 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
                 body, initialTime, finalTime );
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
+                body, initialTime, finalTime );
+    singleBodySettings->shapeModelSettings = getDefaultBodyShapeSettings(
                 body, initialTime, finalTime );
 
     return singleBodySettings;
