@@ -41,6 +41,7 @@
 #ifndef TUDAT_MATHEMATICAL_CONSTANTS_H
 #define TUDAT_MATHEMATICAL_CONSTANTS_H
 
+#include <complex>
 #include <cmath>
 #include <limits>
 
@@ -65,6 +66,12 @@ const static double E = std::exp( 1.0 );
  * \sa Wolfram MathWorld, Constant: http://mathworld.wolfram.com/GoldenRatio.html.
  */
 const static double GOLDEN_RATIO = 0.5 * ( 1.0 + std::sqrt( 5.0 ) );
+
+//! Independent root of -1, typically denoted i.
+/*!
+ *  Independent root of -1, typically denoted i.
+ */
+const static std::complex< double > COMPLEX_I = std::complex< double >( 0.0, 1.0 );
 
 //! The constant PI \f$\approx\f$ 3.14159.
 /*!

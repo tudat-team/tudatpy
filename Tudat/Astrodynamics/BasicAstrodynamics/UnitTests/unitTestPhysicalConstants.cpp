@@ -71,6 +71,16 @@ BOOST_AUTO_TEST_CASE( testRelationsBetweenPhysicalConstant )
     // Test for the number of seconds in a year.
     BOOST_CHECK_CLOSE_FRACTION( SIDEREAL_YEAR, JULIAN_DAY * SIDEREAL_YEAR_IN_DAYS,
                                 std::numeric_limits< double >::epsilon( ) );
+
+    // Test pre-computed powers of speed of light.
+    BOOST_CHECK_CLOSE_FRACTION( std::pow( SPEED_OF_LIGHT, -2.0 ), INVERSE_SQUARE_SPEED_OF_LIGHT,
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( std::pow( SPEED_OF_LIGHT, -3.0 ), INVERSE_CUBIC_SPEED_OF_LIGHT,
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( std::pow( SPEED_OF_LIGHT, -4.0 ), INVERSE_QUARTIC_SPEED_OF_LIGHT,
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( std::pow( SPEED_OF_LIGHT, -5.0 ), INVERSE_QUINTIC_SPEED_OF_LIGHT,
+                                std::numeric_limits< double >::epsilon( ) );
 }
 
 //! Test if physical constants have the expected value.
@@ -82,9 +92,11 @@ BOOST_AUTO_TEST_CASE( testOtherConstants )
     BOOST_CHECK_CLOSE_FRACTION( GRAVITATIONAL_CONSTANT, 6.67259e-11,
                                 std::numeric_limits< double >::epsilon( ) );
 
-    // Test for astronomical unit.
+    // Test for speed of light.
     BOOST_CHECK_CLOSE_FRACTION( SPEED_OF_LIGHT, 299792458.0,
                                 std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( SPEED_OF_LIGHT_LONG, 299792458.0L,
+                                std::numeric_limits< long double >::epsilon( ) );
 
     // Test for astronomical unit.
     BOOST_CHECK_CLOSE_FRACTION( ASTRONOMICAL_UNIT, 1.49597870691e11,
@@ -98,16 +110,31 @@ BOOST_AUTO_TEST_CASE( testOtherConstants )
     BOOST_CHECK_CLOSE_FRACTION( BOLTZMANN_CONSTANT, 1.3806488E-23,
                                 std::numeric_limits< double >::epsilon( ) );
 
-    // Test for Stefan-Boltzmann constant relation (derived from Planck and Boltzmann constants).
-    BOOST_CHECK_CLOSE_FRACTION( STEFAN_BOLTZMANN_CONSTANT, 2.0 * std::pow(
-                                    mathematical_constants::PI, 5.0 ) *
-                                std::pow( BOLTZMANN_CONSTANT, 4.0 ) /
-                                ( 15 * SPEED_OF_LIGHT * SPEED_OF_LIGHT *
-                                  PLANCK_CONSTANT * PLANCK_CONSTANT * PLANCK_CONSTANT ),
+    // Test permittivity/permeability fo vacuum
+    BOOST_CHECK_CLOSE_FRACTION( VACUUM_PERMEABILITY, 4.0 * mathematical_constants::PI * 1.0E-7,
                                 std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( VACUUM_PERMITTIVITY, 1.0 /
+                                ( 4.0 * mathematical_constants::PI * 1.0E-7 * std::pow( SPEED_OF_LIGHT, 2.0 ) ),
+                                  std::numeric_limits< double >::epsilon( ) );
+
+            // Test for Stefan-Boltzmann constant relation (derived from Planck and Boltzmann constants).
+            BOOST_CHECK_CLOSE_FRACTION( STEFAN_BOLTZMANN_CONSTANT, 2.0 * std::pow(
+                                            mathematical_constants::PI, 5.0 ) *
+                                        std::pow( BOLTZMANN_CONSTANT, 4.0 ) /
+                                        ( 15.0 * SPEED_OF_LIGHT * SPEED_OF_LIGHT *
+                                          PLANCK_CONSTANT * PLANCK_CONSTANT * PLANCK_CONSTANT ),
+                                        std::numeric_limits< double >::epsilon( ) );
 
     // Test for Stefan-boltzmann constant value (NIST, 2013)
     BOOST_CHECK_CLOSE_FRACTION( STEFAN_BOLTZMANN_CONSTANT, 5.670373E-8, 1.0E-7 );
+
+    // Test time scale rate difference factors
+    BOOST_CHECK_CLOSE_FRACTION( LG_TIME_RATE_TERM, 6.969290134E-10, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( LB_TIME_RATE_TERM, 1.550519768E-8, std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( LG_TIME_RATE_TERM_LONG, 6.969290134E-10L, std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( LB_TIME_RATE_TERM_LONG, 1.550519768E-8L, std::numeric_limits< long  double >::epsilon( ) );
+
+
 }
 
 //! Check if the time constants have the expected values.
@@ -118,6 +145,8 @@ BOOST_AUTO_TEST_CASE( testTimeConstants )
     // Test for the number of Julian days in a year.
     BOOST_CHECK_CLOSE_FRACTION( JULIAN_YEAR_IN_DAYS, 365.25,
                                 std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( JULIAN_YEAR_IN_DAYS_LONG, 365.25L,
+                                std::numeric_limits< long double >::epsilon( ) );
 
     // Test for the number of sidereal days in a year.
     BOOST_CHECK_CLOSE_FRACTION( SIDEREAL_YEAR_IN_DAYS, 365.25636,
@@ -130,6 +159,44 @@ BOOST_AUTO_TEST_CASE( testTimeConstants )
     // Test for the sidereal day length.
     BOOST_CHECK_CLOSE_FRACTION( JULIAN_DAY, 86400.0,
                                 std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( JULIAN_DAY_LONG, 86400.0L,
+                                std::numeric_limits< long double >::epsilon( ) );
+}
+
+//! Test templated get physical constant functions
+BOOST_AUTO_TEST_CASE( testTemplatedConstantFunctions )
+{
+    using namespace physical_constants;
+
+    // Test for the number of Julian days in a year.
+    BOOST_CHECK_CLOSE_FRACTION( JULIAN_YEAR_IN_DAYS, getJulianYearInDays< double >( ),
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( JULIAN_YEAR_IN_DAYS_LONG, getJulianYearInDays< long double >( ),
+                                std::numeric_limits< long double >::epsilon( ) );
+
+    // Test for the sidereal day length.
+    BOOST_CHECK_CLOSE_FRACTION( JULIAN_DAY, getJulianDay< double >( ),
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( JULIAN_DAY_LONG, getJulianDay< long double >( ),
+                                std::numeric_limits< long double >::epsilon( ) );
+
+    // Test for speed of light.
+    BOOST_CHECK_CLOSE_FRACTION( SPEED_OF_LIGHT, getSpeedOfLight< double >( ),
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( SPEED_OF_LIGHT_LONG, getSpeedOfLight< long double >( ),
+                                std::numeric_limits< long double >::epsilon( ) );
+
+    // Test time scale rate difference factors
+    BOOST_CHECK_CLOSE_FRACTION( LG_TIME_RATE_TERM, getLgTimeRateTerm< double >( ),
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( LB_TIME_RATE_TERM, getLbTimeRateTerm< double >( ),
+                                std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( LG_TIME_RATE_TERM_LONG, getLgTimeRateTerm< long double >( ),
+                                std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( LB_TIME_RATE_TERM_LONG, getLbTimeRateTerm< long double >( ),
+                                std::numeric_limits< long  double >::epsilon( ) );
+
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
