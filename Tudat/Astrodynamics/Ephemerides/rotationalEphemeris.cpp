@@ -63,33 +63,6 @@ Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
             rotationToTargetFrame;
 }
 
-//! Transform a state (Cartesian position and velocity) from one frame to another.
-basic_mathematics::Vector6d transformStateToFrame(
-        const basic_mathematics::Vector6d& stateInBaseFrame,
-        const Eigen::Quaterniond& rotationToFrame,
-        const Eigen::Matrix3d& rotationMatrixToFrameDerivative )
-{
-    basic_mathematics::Vector6d stateInTargetFrame;
-    stateInTargetFrame.segment( 0, 3 ) =
-            rotationToFrame * stateInBaseFrame.segment( 0, 3 );
-    stateInTargetFrame.segment( 3, 3 ) =
-            rotationMatrixToFrameDerivative * stateInBaseFrame.segment( 0, 3 ) +
-            rotationToFrame * stateInBaseFrame.segment( 3, 3 );
-    return stateInTargetFrame;
-
-}
-
-//! Transform a state (Cartesian position and velocity) from one frame to another.
-basic_mathematics::Vector6d transformStateToFrame(
-        const basic_mathematics::Vector6d& stateInTargetFrame,
-        const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
-        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
-{
-    return transformStateToFrame(
-                stateInTargetFrame, rotationToFrameFunction( ),
-                rotationMatrixToFrameDerivativeFunction( ) );
-}
-
 } // namespace tudat
 } // namespace ephemerides
 

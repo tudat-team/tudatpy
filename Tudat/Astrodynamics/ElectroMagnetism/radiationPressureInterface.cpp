@@ -52,8 +52,11 @@ double calculateRadiationPressure( const double sourcePower, const double distan
 }
 
 //! Function to update the current value of the radiation pressure
-void RadiationPressureInterface::updateInterface( )
+void RadiationPressureInterface::updateInterface(
+        const double currentTime )
 {
+    currentTime_ = currentTime;
+
     // Calculate current radiation pressure
     currentSolarVector_ = sourcePositionFunction_( ) - targetPositionFunction_( );
     double distanceFromSource = currentSolarVector_.norm( );

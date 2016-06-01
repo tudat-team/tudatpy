@@ -56,13 +56,16 @@ namespace ephemerides
  *  This class may for instance be used for setting the numerically integrated state of a body
  *  as its 'new' ephemeris
  */
+template< typename StateScalarType = double, typename TimeType = double >
 class TabulatedCartesianEphemeris : public Ephemeris
 {
 public:
 
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+
     //! Typedef for state interpolator
     typedef boost::shared_ptr< interpolators::OneDimensionalInterpolator
-    < double, basic_mathematics::Vector6d  > > StateInterpolatorPointer;
+    < TimeType, StateType  > > StateInterpolatorPointer;
 
     //! Constructor, sets data interpolator and frame data.
     /*!
@@ -106,23 +109,28 @@ public:
 
     //! Get cartesian state from ephemeris.
     /*!
-     * Returns cartesian state from ephemeris.
+     * Returns cartesian state from ephemeris, as calculated from interpolator_.
      * \param secondsSinceEpoch Seconds since epoch.
      * \param julianDayAtEpoch Reference epoch in Julian day.
      * \return State in Cartesian elements from ephemeris.
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch, const double julianDayAtEpoch =
-                basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-    {
-        if( julianDayAtEpoch != julianDayAtEpoch_ )
-        {
-            throw std::runtime_error(
-                        "Error in Tabulated Ephemeris, reference epochs are inconsistent" );
-        }
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
-        return interpolator_->interpolate( secondsSinceEpoch );
-    }
+    //! Get cartesian state from ephemeris (in long double precision).
+    /*!
+     * Returns cartesian state from ephemeris  (in long double precision), as calculated from interpolator_. For
+     * double StateScalarType class template argument, this function returns the double precision interpolated values,
+     * cast to long double. Only for long double StateScalarType argument is this function used to its fullest.
+     * \param secondsSinceEpoch Seconds since epoch.
+     * \param julianDayAtEpoch Reference epoch in Julian day.
+     * \return State in Cartesian elements from ephemeris.
+     */
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromEphemeris(
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
 
     //! Function to return the interpolator
     /*!
@@ -155,7 +163,7 @@ private:
 
 };
 
-}
+} // namespace ephemerides
 
-}
+} // namespace tudat
 #endif // TUDAT_TABULATEDEPHEMERIS_H

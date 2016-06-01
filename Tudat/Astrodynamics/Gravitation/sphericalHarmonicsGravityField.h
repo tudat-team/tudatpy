@@ -106,22 +106,18 @@ public:
      *  \param referenceRadius Reference radius of spherical harmonic field expansion
      *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
      *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
-     *  \param rotationWrapper Function from which rotation between frame fixed to massive body
-     *  and inertial frame is retrieved (identity matrix by default).
-     *  \param fixedReferenceFrame Identified for body-fixed reference frame (optional).
+     *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
      */
     SphericalHarmonicsGravityField( const double gravitationalParameter,
                                     const double referenceRadius,
                                     const Eigen::MatrixXd& cosineCoefficients =
             Eigen::MatrixXd::Identity( 1, 1 ),
                                     const Eigen::MatrixXd& sineCoefficients =
-            Eigen::MatrixXd::Zero( 1, 1 ) ,
-                                    const boost::function< Eigen::Quaterniond( ) > rotationWrapper=
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+            Eigen::MatrixXd::Zero( 1, 1 ),
                                     const std::string& fixedReferenceFrame = "" )
         : GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ),
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
-          rotationWrapper_( rotationWrapper ), fixedReferenceFrame_( fixedReferenceFrame )
+          fixedReferenceFrame_( fixedReferenceFrame )
     { }
 
     //! Virtual destructor.
@@ -228,19 +224,6 @@ public:
         return cosineCoefficients_.cols( ) + 1;
     }
 
-    //! Function to return the function from which rotation between frame fixed
-    //! to massive body and inertial frame is retrieved.
-    /*!
-     *  Function to return the function from which rotation between frame fixed
-     *  to massive body and inertial frame is retrieved.
-     *  \return Object from which rotation between frame fixed to massive body and
-     *  inertial frame is retrieved
-     */
-    boost::function< Eigen::Quaterniond( ) > getRotationToLocalFrameWrapper( )
-    {
-        return rotationWrapper_;
-    }
-
     //! Function to calculate the gravitational potential at a given point
     /*!
      *  Function to calculate the gravitational potential due to this body at a given point.
@@ -344,14 +327,6 @@ protected:
      *  Sine spherical harmonic coefficients (geodesy normalized)
      */
     Eigen::MatrixXd sineCoefficients_;
-
-    //! Function from which rotation between frame fixed to massive body and inertial frame.
-    //! is retrieved.
-    /*!
-     *  Function from which rotation between frame fixed to massive body and inertial frame.
-     *  is retrieved.
-     */
-    boost::function< Eigen::Quaterniond( ) > rotationWrapper_;
 
     //! Identifier for body-fixed reference frame
     /*!

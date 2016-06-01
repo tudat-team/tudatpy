@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfThirdBodyPerturbation )
         boost::shared_ptr<
                 gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
                     boost::make_shared< gravitation::ThirdBodyCentralGravityAcceleration >(
-                        directAccelerationModel, centralBodyAccelerationModel );
+                        directAccelerationModel, centralBodyAccelerationModel, "centralBody" );
         thirdBodyAcceleration->updateMembers( );
 
         // Compute perturbational acceleration for parameters given.
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
     boost::shared_ptr<
             gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
                 boost::make_shared< gravitation::ThirdBodyCentralGravityAcceleration >(
-                    directAccelerationModel, centralBodyAccelerationModel );
+                    directAccelerationModel, centralBodyAccelerationModel, "centralBody" );
     thirdBodyAcceleration->updateMembers( );
 
     realisticComputedAcceleration = thirdBodyAcceleration->getAcceleration( );

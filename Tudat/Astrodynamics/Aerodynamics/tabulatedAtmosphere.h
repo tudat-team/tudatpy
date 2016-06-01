@@ -49,7 +49,7 @@
 
 #include "Tudat/Basics/utilityMacros.h"
 
-#include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
@@ -66,7 +66,7 @@ namespace aerodynamics
  * NOTE: for the moment it only works for tables with 4 columns: altitude, density, pressure and
  * temperature.
  */
-class TabulatedAtmosphere : public AtmosphereModel
+class TabulatedAtmosphere : public StandardAtmosphere
 {
 public:
 

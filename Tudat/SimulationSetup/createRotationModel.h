@@ -87,6 +87,12 @@ public:
      */
     std::string getTargetFrame( ){ return targetFrame_; }
 
+
+    void resetOriginalFrame( const std::string& originalFrame )
+    {
+        originalFrame_ = originalFrame;
+    }
+
 protected:
 
     //! Type of rotation model that is to be created.

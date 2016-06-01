@@ -52,12 +52,13 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
+
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 
 namespace tudat
 {
@@ -274,20 +275,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
     }
 }
 
-//! Apollo capsule test case.
-BOOST_AUTO_TEST_CASE( testApolloCapsule )
+boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterface( )
 {
-    // Set units of coefficients.
-    const double expectedValueOfAerodynamicCoefficients0 = -1.51;
-    const double expectedValueOfAerodynamicCoefficients4 = -0.052;
-
-    // Tolerance in absolute units.
-    const double toleranceAerodynamicCoefficients0 = 0.1;
-    const double toleranceAerodynamicCoefficients1 = std::numeric_limits< double >::epsilon( );
-    const double toleranceAerodynamicCoefficients2 = std::numeric_limits< double >::epsilon( );
-    const double toleranceAerodynamicCoefficients3 = std::numeric_limits< double >::epsilon( );
-    const double toleranceAerodynamicCoefficients4 = 0.05;
-    const double toleranceAerodynamicCoefficients5 = std::numeric_limits< double >::epsilon( );
 
     // Create test capsule.
     boost::shared_ptr< geometric_shapes::Capsule > capsule
@@ -341,11 +330,28 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     selectedMethods[ 1 ][ 3 ] = 3;
 
     // Create analysis object and capsule database.
-    boost::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientInterface =
-            boost::make_shared< HypersonicLocalInclinationAnalysis >(
+    return boost::make_shared< HypersonicLocalInclinationAnalysis >(
                 independentVariableDataPoints, capsule, numberOfLines, numberOfPoints,
                 invertOrders, selectedMethods, PI * pow( capsule->getMiddleRadius( ), 2.0 ),
                 3.9116, momentReference );
+}
+//! Apollo capsule test case.
+BOOST_AUTO_TEST_CASE( testApolloCapsule )
+{
+    // Set units of coefficients.
+    const double expectedValueOfAerodynamicCoefficients0 = -1.51;
+    const double expectedValueOfAerodynamicCoefficients4 = -0.052;
+
+    // Tolerance in absolute units.
+    const double toleranceAerodynamicCoefficients0 = 0.1;
+    const double toleranceAerodynamicCoefficients1 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients2 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients3 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients4 = 0.05;
+    const double toleranceAerodynamicCoefficients5 = std::numeric_limits< double >::epsilon( );
+
+    // Create aerodynamic coefficients.
+    boost::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientInterface = getApolloCoefficientInterface( );
 
     // Retrieve coefficients at zero angle of attack for comparison.
     boost::array< int, 3 > independentVariables;
