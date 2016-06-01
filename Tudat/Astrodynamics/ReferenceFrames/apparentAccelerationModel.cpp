@@ -87,18 +87,21 @@ Eigen::Vector3d computeEulerAcceleration(
 }
 
 //! Update member variables used by apparent acceleration model.
-void ApparentAccelerationModel::updateMembers( )
+void ApparentAccelerationModel::updateMembers( const double currentTime )
 {
-    currentAccelerationOfNonInertialReferenceFrame_ =
-            accelerationOfNonInertialReferenceFrameFunction_( );
-    currentAngularVelocityOfNonInertialReferenceFrame_ =
-            angularVelocityOfNonInertialReferenceFrameFunction_( );
-    currentAngularAccelerationOfNonInertialReferenceFrame_ =
-            angularAccelerationOfNonInertialReferenceFrameFunction_( );
-    currentPositionOfBodyInNonInertialReferenceFrame_ =
-            positionOfBodyInNonInertialReferenceFrameFunction_( );
-    currentVelocityOfBodyInNonInertialReferenceFrame_ =
-            velocityOfBodyInNonInertialReferenceFrameFunction_( );
+    if( !( this->currentTime_ == currentTime ) )
+    {
+        currentAccelerationOfNonInertialReferenceFrame_ =
+                accelerationOfNonInertialReferenceFrameFunction_( );
+        currentAngularVelocityOfNonInertialReferenceFrame_ =
+                angularVelocityOfNonInertialReferenceFrameFunction_( );
+        currentAngularAccelerationOfNonInertialReferenceFrame_ =
+                angularAccelerationOfNonInertialReferenceFrameFunction_( );
+        currentPositionOfBodyInNonInertialReferenceFrame_ =
+                positionOfBodyInNonInertialReferenceFrameFunction_( );
+        currentVelocityOfBodyInNonInertialReferenceFrame_ =
+                velocityOfBodyInNonInertialReferenceFrameFunction_( );
+    }
 }
 
 } // namespace reference_frames

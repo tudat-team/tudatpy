@@ -94,7 +94,8 @@ public:
      * \return State in Cartesian elements from ephemeris.
      */
     basic_mathematics::Vector6d getCartesianStateFromEphemeris(
-            const double secondsSinceEpoch, const double julianDayAtEpoch );
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch = basic_astrodynamics::JULIAN_DAY_ON_J2000  );
 
     //! Get keplerian state from ephemeris.
     /*!
@@ -104,7 +105,8 @@ public:
      * \return State in Keplerian elements from ephemeris.
      */
     basic_mathematics::Vector6d getKeplerianStateFromEphemeris(
-            const double secondsSinceEpoch, const double julianDayAtEpoch );
+            const double secondsSinceEpoch,
+            const double julianDayAtEpoch  = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
 protected:
 

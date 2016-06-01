@@ -119,6 +119,7 @@ struct RungeKuttaCoefficients
     enum CoefficientSets
     {
         rungeKuttaFehlberg45,
+        rungeKuttaFehlberg56,
         rungeKuttaFehlberg78,
         rungeKutta87DormandPrince
     };

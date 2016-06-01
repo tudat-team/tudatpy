@@ -199,6 +199,9 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::strin
                                                                 const std::string& newFrame,
                                                                 const double ephemerisTime );
 
+std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames(
+        const std::string& originalFrame, const std::string& newFrame, const double ephemerisTime );
+
 //! Get property of a body from Spice.
 /*!
  * Function to retrieve a property of a body from Spice, wraps the bodvrd_c Spice function.

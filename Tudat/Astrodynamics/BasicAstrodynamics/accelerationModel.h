@@ -45,9 +45,14 @@
 #ifndef TUDAT_ACCELERATION_MODEL_H
 #define TUDAT_ACCELERATION_MODEL_H
 
+#include <map>
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
+
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {  
@@ -94,8 +99,18 @@ public:
      * used by the getAcceleration() function.
      *
      * N.B.: This pure virtual function must be overridden by derived classes!
+     * \param currentTime Time at which acceleration model is to be updated.
      */
-    virtual void updateMembers( ) = 0;
+    virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
+
+    virtual void resetTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+    }
+
+protected:
+
+    double currentTime_;
 
 protected:
 
@@ -134,6 +149,17 @@ AccelerationDataType updateAndGetAcceleration(
     // Evaluate and return acceleration.
     return accelerationModel->getAcceleration( );
 }
+
+//! Typedef defining a list of accelerations acting on a single body, key is the name of each
+//! body exerting a acceletation, value is a list of accelerations exerted by that body.
+typedef std::map< std::string, std::vector<
+boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
+SingleBodyAccelerationMap;
+
+//! Typedef defining a list of accelerations acting on a set of bodies, key is the name of each
+//! body undergoing a acceletation, value is SingleBodyAccelerationMap, defining all accelerations
+//! acting on it.
+typedef std::map< std::string, SingleBodyAccelerationMap > AccelerationMap;
 
 } // namespace basic_astrodynamics
 } // namespace tudat
