@@ -50,8 +50,10 @@ public:
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), stateDerivative );
     }
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution, const TimeType& time )
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
+        convertFromOutputSolution(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic,
+            Eigen::Dynamic >& cartesianSolution, const TimeType& time )
     {
         return cartesianSolution;
     }
@@ -64,8 +66,8 @@ public:
     }
 };
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_NBODYCOWELLSTATEDERIVATIVE_H

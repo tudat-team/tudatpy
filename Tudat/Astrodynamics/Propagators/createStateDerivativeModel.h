@@ -26,7 +26,8 @@ namespace propagators
 /*!
  * Function to create object handling frame origin transformations during numerical integration
  * (needed by NBodyStateDerivative).
- * \param centralBodies Names of central bodies, belonging to the entries in the bodiesToIntegrate vector of same index.
+ * \param centralBodies Names of central bodies, belonging to the
+ * entries in the bodiesToIntegrate vector of same index.
  * \param bodiesToIntegrate Names of bodies that are to be integrated numerically.
  * \param bodyMap List of body objects used in simulation.
  * \return Object handling frame origin transformations during numerical integration
@@ -44,16 +45,17 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
         if( bodyMap.count( bodiesToIntegrate.at( i ) ) == 0 )
         {
             throw std::runtime_error(
-                        "Warning when creating CentralBodyData, body " + bodiesToIntegrate.at( i ) +
-                        " not present in provided body map." );
+                        "Warning when creating CentralBodyData, body " + bodiesToIntegrate.at( i )
+                        + " not present in provided body map." );
         }
     }
 
     std::vector< std::string > centralBodiesToUse;
-    // Generate central body data for requested settings; if no central bodies provided, get inertial SSB as central body
+    // Generate central body data for requested settings; if no
+    // central bodies provided, get inertial SSB as central body
     if( centralBodies.size( ) == 0 )
     {
-        for( int i = 0; i < bodiesToIntegrate.size( ); i++ )
+        for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
         {
             centralBodiesToUse.push_back( "SSB" );
         }
@@ -63,7 +65,8 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
         centralBodiesToUse = centralBodies;
     }
 
-    std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > > bodyStateFunctions;
+    std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >
+        ( const TimeType ) > > bodyStateFunctions;
 
     // Retrieve frame origin state functions
     for( unsigned int i = 0; i < centralBodiesToUse.size( ); i++ )
@@ -87,14 +90,17 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
 
 //! Function to create a translational state derivative model.
 /*!
- *  Function to create a translational state derivative model from propagation settings and environment.
+ *  Function to create a translational state derivative model from
+ *  propagation settings and environment.
  *  \param translationPropagatorSettings Settings for the translational dynamics model.
  *  \param bodyMap List of body objects in the environment
  *  \return Translational state derivative model (instance of derived class of NBodyStateDerivative)
  */
 template< typename StateScalarType = double, typename TimeType = double >
-boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createTranslationalStateDerivativeModel(
-        const boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationPropagatorSettings,
+boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
+                                     createTranslationalStateDerivativeModel(
+        const boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+            translationPropagatorSettings,
         const  simulation_setup::NamedBodyMap& bodyMap )
 {
 
@@ -112,15 +118,16 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
     {
     case cowell:
     {
-        stateDerivativeModel = boost::make_shared< NBodyCowellStateDerivative< StateScalarType, TimeType > >
+        stateDerivativeModel = boost::make_shared<
+                               NBodyCowellStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
         break;
     }
     default:
         throw std::runtime_error(
-                    "Error, did not recognize translational state propagation type: " +
-                    boost::lexical_cast< std::string >( translationPropagatorSettings->propagator_ ) );
+            "Error, did not recognize translational state propagation type: " +
+            boost::lexical_cast< std::string >( translationPropagatorSettings->propagator_ ) );
     }
     return stateDerivativeModel;
 }
@@ -133,24 +140,28 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
  *  \return State derivative model (instance of required derived class of SingleStateTypeDerivative)
  */
 template< typename StateScalarType = double, typename TimeType = double >
-boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > createStateDerivativeModel(
+boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
+                                     createStateDerivativeModel(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel;
 
-    // Check dynamics type and call associated function to create specific type of state derivative model.
+    // Check dynamics type and call associated function to create
+    // specific type of state derivative model.
     switch( propagatorSettings->stateType_ )
     {
     case transational_state:
     {
         // Check input consistency.
-        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationPropagatorSettings =
-                boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+            translationPropagatorSettings =
+                boost::dynamic_pointer_cast<
+            TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
         if( translationPropagatorSettings == NULL )
         {
             throw std::runtime_error(
-                        "Error, expected translational state propagation settings when making state derivative model" );
+                "Error, expected translational state propagation settings when making state derivative model" );
         }
         else
         {
@@ -161,26 +172,30 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
     }
     default:
         throw std::runtime_error(
-                    "Error, could not process state type " +
-                    boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) +
-                    " when making state derivative model" );
+                    "Error, could not process state type "
+                    + boost::lexical_cast< std::string >( propagatorSettings->stateType_ )
+                    + " when making state derivative model" );
     }
     return stateDerivativeModel;
 }
 
 //! Function to create a list of state derivative models.
 /*!
- *  Function to create a list of state derivative models from propagation settings and the environment.
+ *  Function to create a list of state derivative models from
+ *  propagation settings and the environment.
  *  \param propagatorSettings Settings for the dynamical model.
  *  \param bodyMap List of body objects in the environment
- *  \return List of state derivative models (instances of required derived class of SingleStateTypeDerivative)
+ *  \return List of state derivative models (instances of required
+ *  derived class of SingleStateTypeDerivative)
  */
 template< typename StateScalarType = double, typename TimeType = double >
-std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > createStateDerivativeModels(
+std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
+                                     createStateDerivativeModels(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
-    std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels;
+    std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
+    stateDerivativeModels;
 
     // Check type of state derivative model and call associated create function.
     switch( propagatorSettings->stateType_ )
@@ -193,8 +208,7 @@ std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, Time
     return stateDerivativeModels;
 }
 
-}
-
-}
+} // namespace propagators
+} // namespace tudat
 
 #endif // TUDAT_CREATESTATEDERIVATIVEMODEL_H

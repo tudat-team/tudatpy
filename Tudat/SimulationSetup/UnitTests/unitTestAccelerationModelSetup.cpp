@@ -24,10 +24,8 @@
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Basics/testMacros.h"
 
-#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
-#endif
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
@@ -48,7 +46,6 @@ using namespace reference_frames;
 
 BOOST_AUTO_TEST_SUITE( test_acceleration_model_setup )
 
-#if USE_CSPICE
 //! Test set up of point mass gravitational accelerations, both direct and third-body.
 BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
 {
@@ -182,9 +179,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
                 ( basic_astrodynamics::updateAndGetAcceleration( manualJupiterAcceleration ) ),
                 std::numeric_limits< double >::epsilon( ) );
 }
-#endif
 
-#if USE_CSPICE
 //! Test set up of spherical harmonic gravitational accelerations.
 BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 {
@@ -292,9 +287,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
 }
-#endif
 
-#if USE_CSPICE
 //! Test radiation pressure acceleration
 BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 {
@@ -374,9 +367,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
 
 }
-#endif
 
-#if USE_CSPICE
 //! Test setup of aerodynamic accelerations (constant coefficients)
 BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 {
@@ -565,9 +556,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
                     expectedAerodynamicForce, computedAerodynamicForce, ( 5.0 *  std::numeric_limits< double >::epsilon( ) ) );
     }
 }
-#endif
 
-#if USE_CSPICE
 //! Test setup of aerodynamic accelerations (non-constant coefficients)
 BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndependentVariables )
 {
@@ -688,7 +677,6 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
 
     }
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END( )
 

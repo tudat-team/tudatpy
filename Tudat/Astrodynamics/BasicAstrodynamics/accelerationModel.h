@@ -103,6 +103,11 @@ public:
      */
     virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
 
+    //! Function to reset the current time
+    /*!
+     * Function to reset the current time of the acceleration model.
+     * \param currentTime Current time (default NaN).
+     */
     virtual void resetTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;

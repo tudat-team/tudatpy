@@ -73,8 +73,8 @@ public:
      */
     SphericalHarmonicAccelerationSettings( const int maximumDegree,
                                            const int maximumOrder ):
-        AccelerationSettings( basic_astrodynamics::spherical_harmonic_gravity ), maximumDegree_( maximumDegree ),
-        maximumOrder_( maximumOrder ){ }
+        AccelerationSettings( basic_astrodynamics::spherical_harmonic_gravity ),
+        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
 
     //! Maximum degree that is to be used for spherical harmonic acceleration
     int maximumDegree_;
