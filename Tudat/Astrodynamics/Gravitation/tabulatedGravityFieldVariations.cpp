@@ -117,6 +117,6 @@ calculateSphericalHarmonicsCorrections(
                            cosineSinePair.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) );
 }
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat

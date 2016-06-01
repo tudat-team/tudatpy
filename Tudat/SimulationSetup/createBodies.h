@@ -54,7 +54,8 @@ struct BodySettings
     boost::shared_ptr< BodyShapeSettings > shapeModelSettings;
 
     //! Settings for the radiations pressure interfaces that the body is to contain (source body as key).
-    std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
+    std::map< std::string,
+              boost::shared_ptr< RadiationPressureInterfaceSettings > > radiationPressureSettings;
 
     //! Settings for the aerodynamic coefficients that the body is to contain.
     boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
@@ -78,14 +79,16 @@ NamedBodyMap createBodies(
         const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings );
 
 
-//! Function to define the global origin and orientation of the reference frame that is to be used in the simulations.
+//! Function to define the global origin and orientation of the reference frame
 /*!
- * Function to define the global origin and orientation of the reference frame that is to be used in the simulations.
- * This function checks the origin and orientation of the Ephemeris and RotationalEphemeris, and checks whether their
- * origin/orientation is the same as that globalFrameOrigin and globalFrameOrientation provided as input.
- * In particular, this function sets the ephemerisFrameToBaseFrameFunction_ anf ephemerisFrameToBaseFrameLongFunction_
- * variables of the Body objects, which provide a time-dependent translation of the global origin to the body's
- * ephemeris origin. In case of an inconsistency in the current and requried frames, this function throws an error.
+ * Function to define the global origin and orientation of the reference frame that is to be used in
+ * the simulations.  This function checks the origin and orientation of the Ephemeris and
+ * RotationalEphemeris, and checks whether their origin/orientation is the same as that
+ * globalFrameOrigin and globalFrameOrientation provided as input.  In particular, this function
+ * sets the ephemerisFrameToBaseFrameFunction_ anf ephemerisFrameToBaseFrameLongFunction_ variables
+ * of the Body objects, which provide a time-dependent translation of the global origin to the
+ * body's ephemeris origin. In case of an inconsistency in the current and requried frames, this
+ * function throws an error.
  * \param bodyMap List of body objects that constitute the environment.
  * \param globalFrameOrigin Global reference frame origin.
  * \param globalFrameOrientation Global referencef frame orientation.

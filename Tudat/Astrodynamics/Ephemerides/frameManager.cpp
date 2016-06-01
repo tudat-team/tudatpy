@@ -1,3 +1,12 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 
 namespace tudat
@@ -32,8 +41,8 @@ ReferenceFrameManager::ReferenceFrameManager( const simulation_setup::NamedBodyM
 {
     // Get ephemerides from bodies
     std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerides;
-    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( );
-         bodyIterator++ )
+    for( simulation_setup::NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( );
+         bodyIterator != bodyMap.end( ); bodyIterator++ )
     {
         if( bodyIterator->second->getEphemeris( ) != NULL )
         {
@@ -66,9 +75,11 @@ void ReferenceFrameManager::setEphemerides(
     // Set list of all frames for which frame level and base frame have not yet been determined.
     std::map< std::string, boost::shared_ptr< Ephemeris > > unhandledFrames_ = additionalEphemerides;
 
-    // Set list of available ephemerides and check whether it already exists (not possible incurrent implementation)
+    // Set list of available ephemerides and check whether it already exists (not possible incurrent
+    // implementation)
     for( std::map< std::string, boost::shared_ptr< Ephemeris > >::const_iterator ephemerisIterator =
-         additionalEphemerides.begin( ); ephemerisIterator != additionalEphemerides.end( ); ephemerisIterator++ )
+         additionalEphemerides.begin( ); ephemerisIterator != additionalEphemerides.end( );
+         ephemerisIterator++ )
     {
         if( availableEphemerides_.count( ephemerisIterator->first ) == 0 )
         {
@@ -93,7 +104,8 @@ void ReferenceFrameManager::setEphemerides(
         // If frame level is 0, base frame equals baseFrameName.
         if( currentLevel == 0 )
         {
-            for( std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator frameIterator = unhandledFrames_.begin( );
+            for( std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator
+                         frameIterator = unhandledFrames_.begin( );
                  frameIterator != unhandledFrames_.end( ); frameIterator++ )
             {
                 // If current frame is at level 0, add to list of levels.
@@ -107,20 +119,24 @@ void ReferenceFrameManager::setEphemerides(
         else
         {
             std::map< std::string, std::string >::iterator previousLevelIterator;
-            for( std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator frameIterator = unhandledFrames_.begin( );
+            for( std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator
+                         frameIterator = unhandledFrames_.begin( );
                  frameIterator != unhandledFrames_.end( ); frameIterator++ )
             {
-                // If base frame of current ephemeris is on previous level, add to list of current level.
+                // If base frame of current ephemeris is on previous level, add to list of current
+                // level.
                 previousLevelIterator = baseFrameList_[ currentLevel - 1 ].find(
                             frameIterator->second->getReferenceFrameOrigin( ) );
                 if( previousLevelIterator != baseFrameList_[ currentLevel - 1 ].end( ) )
                 {
-                    singleLevelList[ frameIterator->first ] = frameIterator->second->getReferenceFrameOrigin( );
+                    singleLevelList[ frameIterator->first ]
+                            = frameIterator->second->getReferenceFrameOrigin( );
                 }
             }
         }
 
-        // Go through all ephemerides set at current level, add to frame list and remove from unhandled frame list if present.
+        // Go through all ephemerides set at current level, add to frame list and remove from
+        // unhandled frame list if present.
         std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator frameIterator;
         for( std::map< std::string, std::string >::iterator singleListIterator = singleLevelList.begin( );
              singleListIterator != singleLevelList.end( ); singleListIterator++ )
@@ -178,7 +194,7 @@ std::vector< boost::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEp
     if( upperIndex < lowerIndex )
     {
         throw std::runtime_error(
-                    "Error when making direct ephemeris link in frame manager, upper index is smaller than lower index" );
+            "Error when making direct ephemeris link in frame manager, upper index is smaller than lower index" );
     }
     // If frames are not equal, make list of ephemeris
     else if( upperIndex != lowerIndex )
@@ -234,7 +250,8 @@ std::pair< int, bool > ReferenceFrameManager::getFrameLevel( const std::string& 
 //! Returns the nearest common frame between frames.
 std::pair< std::string, int > ReferenceFrameManager::getNearestCommonFrame( std::vector< std::string > frameList )
 {
-    // Make lists of current frames and frame levels that are currently being investigated for each frame in frameList.
+    // Make lists of current frames and frame levels that are currently being investigated for each
+    // frame in frameList.
     std::vector< int > currentFrameLevels;
     currentFrameLevels.resize( frameList.size( ) );
     std::vector< std::string > currentFrames;
@@ -341,7 +358,8 @@ std::string ReferenceFrameManager::getBaseFrameNameOfBody( const std::string& bo
 }
 
 //! Get ephemeris origins (base frame names) for a list of bodies.
-std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins( const std::vector< std::string >& bodyList )
+std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins(
+        const std::vector< std::string >& bodyList )
 {
     std::vector< std::string > ephemerisOrigins;
     for( unsigned int i = 0; i < bodyList.size( ); i++ )
@@ -351,8 +369,6 @@ std::vector< std::string > ReferenceFrameManager::getEphemerisOrigins( const std
     return ephemerisOrigins;
 }
 
+} // namespace ephemerides
 
-
-}
-
-}
+} // namespace tudat

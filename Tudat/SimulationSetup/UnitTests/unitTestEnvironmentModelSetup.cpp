@@ -767,27 +767,34 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
     // Check whether calulcate angles and body-fixed state correspond to expected results
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( latitude_angle )
-                           - testLatitude), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( latitude_angle ) - testLatitude),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( longitude_angle )
-                           - testLongitude), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( longitude_angle ) - testLongitude),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( heading_angle )
-                           - testHeadingAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( heading_angle ) - testHeadingAngle),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( flight_path_angle)
-                           - testFlightPathAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( flight_path_angle) - testFlightPathAngle),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
 
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_attack )
-                           - angleOfAttack ), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( angle_of_attack ) - angleOfAttack ),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( angle_of_sideslip)
-                           - angleOfSideslip), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( angle_of_sideslip) - angleOfSideslip),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_SMALL(
-                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )->getAerodynamicAngle( bank_angle )
-                           - bankAngle), 10.0 * std::numeric_limits< double >::epsilon( ) );
+                std::fabs( vehicleFlightConditions->getAerodynamicAngleCalculator( )
+                           ->getAerodynamicAngle( bank_angle ) - bankAngle),
+                10.0 * std::numeric_limits< double >::epsilon( ) );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 vehicleFlightConditions->getCurrentBodyCenteredBodyFixedState( ),vehicleBodyFixedState,
