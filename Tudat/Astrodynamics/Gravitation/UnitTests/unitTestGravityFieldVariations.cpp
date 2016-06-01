@@ -11,6 +11,7 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
+#include <iostream>
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -53,8 +54,8 @@ void getNominalJupiterGravityField(
     double jupiterc22 = -0.03E-6;
     double jupiters22 = -0.007E-6;
 
-    cosineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
-    sineCoefficients = Eigen::MatrixXd::Zero( 5, 5 );
+    cosineCoefficients.setZero( 5, 5 );
+    sineCoefficients.setZero( 5, 5 );
 
     // Normalize coefficients and set in matrices.
     cosineCoefficients( 0, 0 ) = 1.0;
@@ -164,11 +165,10 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
     }
 
     // Define Love numbers ( constant for degree 2 only)
-    std::vector< std::vector< std::complex< double > > > loveNumbers;
-    std::complex< double > constantLoveNumber = std::complex< double >( 0.5, 0.5E-3 );
-    std::vector< std::complex< double > > constantSingleDegreeLoveNumber =
-    { constantLoveNumber, constantLoveNumber, constantLoveNumber };
-    loveNumbers.push_back( constantSingleDegreeLoveNumber );
+    std::complex< double > constantLoveNumber( 0.5, 0.5E-3 );
+    std::vector< std::complex< double > > constantSingleDegreeLoveNumber( 3, constantLoveNumber );
+    std::vector< std::vector< std::complex< double > > >
+        loveNumbers( 1, constantSingleDegreeLoveNumber );
 
     // Set up gravity field variation of Jupiter due to Galilean moons.
     boost::shared_ptr< GravityFieldVariations > solidBodyGravityFieldVariations =
@@ -196,15 +196,12 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 {
+    const std::string kernelsPath = input_output::getSpiceKernelPath( );
     // Load spice kernels.
-    loadSpiceKernelInTudat(
-                input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat(
-                input_output::getSpiceKernelPath( ) + "gm_de431.tpc" );
-    loadSpiceKernelInTudat(
-                input_output::getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat(
-                "/home/dominicdirkx/Software/ILRCode/trunk/DataFiles/SpiceKernels/jup310.bsp" );
+    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
+    loadSpiceKernelInTudat( kernelsPath + "gm_de431.tpc" );
+    loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
+    loadSpiceKernelInTudat( kernelsPath + "jup310_small.bsp" );
 
     // Define properties of nominal field
     double gravitationalParameter = getBodyGravitationalParameter( "Jupiter" );
@@ -278,32 +275,35 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
         }
     }
 
-    // Test calculated tidal corrections against manual corrections directly from Cartesian states of perturbing bodies.
+    // Test calculated tidal corrections against manual corrections directly from Cartesian states
+    // of perturbing bodies.
     {
         // Define Love numbers
-        std::vector< std::vector< std::complex< double > > > loveNumbers;
-        std::complex< double > constantLoveNumber = std::complex< double >( 0.5, 0.5E-3 );
-        std::vector< std::complex< double > > constantSingleDegreeLoveNumber = { constantLoveNumber,
-                                                                                 constantLoveNumber,
-                                                                                 constantLoveNumber };
-        loveNumbers.push_back( constantSingleDegreeLoveNumber );
+        // Define Love numbers ( constant for degree 2 only)
+        std::complex< double > constantLoveNumber( 0.5, 0.5E-3 );
+        std::vector< std::complex< double > > constantSingleDegreeLoveNumber( 3, constantLoveNumber );
+        std::vector< std::vector< std::complex< double > > >
+            loveNumbers( 1, constantSingleDegreeLoveNumber );
 
         // Manually calculate tidal corrections directly.
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directIoTide =
                 calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                    loveNumbers, getBodyGravitationalParameter( "Io" ) / getBodyGravitationalParameter( "Jupiter" ),
+                    loveNumbers, getBodyGravitationalParameter( "Io" )
+                    / getBodyGravitationalParameter( "Jupiter" ),
                     getAverageRadius( "Jupiter" ),  spice_interface::getBodyCartesianPositionAtEpoch(
                         "Io", "Jupiter", "IAU_Jupiter", "None", testTime ), 2, 2 );
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > directEuropaTide =
                 calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                    loveNumbers, getBodyGravitationalParameter( "Europa" ) / getBodyGravitationalParameter( "Jupiter" ),
+                    loveNumbers, getBodyGravitationalParameter( "Europa" )
+                    / getBodyGravitationalParameter( "Jupiter" ),
                     getAverageRadius( "Jupiter" ),  spice_interface::getBodyCartesianPositionAtEpoch(
                         "Europa", "Jupiter", "IAU_Jupiter", "None", testTime ), 2, 2 );
 
         // Calculate tidal corrections from objects
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd > tidalCorrectionsFromObject =
-                ( ( timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
-                        basic_solid_body ) ).second->calculateSphericalHarmonicsCorrections( testTime ) );
+                ( ( timeDependentGravityField->getGravityFieldVariationsSet( )
+                    ->getGravityFieldVariation( basic_solid_body ) ).second
+                  ->calculateSphericalHarmonicsCorrections( testTime ) );
 
         // Compare results.
         Eigen::MatrixXd directCosineCorrections = directIoTide.first + directEuropaTide.first;
@@ -311,8 +311,10 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
 
         for( unsigned int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( directCosineCorrections( 2, i ) - tidalCorrectionsFromObject.first( 0, i ), 1.0E-20 );
-            BOOST_CHECK_SMALL( directSineCorrections( 2, i ) - tidalCorrectionsFromObject.second( 0, i ), 1.0E-20 );
+            BOOST_CHECK_SMALL( directCosineCorrections( 2, i )
+                               - tidalCorrectionsFromObject.first( 0, i ), 1.0E-20 );
+            BOOST_CHECK_SMALL( directSineCorrections( 2, i )
+                               - tidalCorrectionsFromObject.second( 0, i ), 1.0E-20 );
         }
     }
 }

@@ -742,8 +742,10 @@ createCannonballRadiationPressureAcceleratioModel(
     return boost::make_shared< CannonBallRadiationPressureAcceleration >(
                 boost::bind( &Body::getPosition, bodyExertingAcceleration ),
                 boost::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-                boost::bind( &RadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
-                boost::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
+                boost::bind( &RadiationPressureInterface::getCurrentRadiationPressure,
+                             radiationPressureInterface ),
+                boost::bind( &RadiationPressureInterface::getRadiationPressureCoefficient,
+                             radiationPressureInterface ),
                 boost::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
                 boost::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
 
@@ -906,6 +908,27 @@ AccelerationMap createAccelerationModelsMap(
     }
 
     return accelerationModelMap;
+}
+
+//! Function to create acceleration models from a map of bodies and acceleration model types.
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedAccelerationMap& selectedAccelerationPerBody,
+        const std::vector< std::string >& propagatedBodies,
+        const std::vector< std::string >& centralBodies )
+{
+    if( centralBodies.size( ) != propagatedBodies.size( ) )
+    {
+        throw std::runtime_error( "Error, number of propagated bodies must equal number of central bodies" );
+    }
+
+    std::map< std::string, std::string > centralBodyMap;
+    for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+    {
+        centralBodyMap[ propagatedBodies.at( i ) ] = centralBodies.at( i );
+    }
+
+    return createAccelerationModelsMap( bodyMap, selectedAccelerationPerBody, centralBodyMap );
 }
 
 } // namespace simulation_setup

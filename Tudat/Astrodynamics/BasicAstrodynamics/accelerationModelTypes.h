@@ -1,6 +1,3 @@
-#ifndef TUDAT_ACCELERATIONMODELTYPES_H
-#define TUDAT_ACCELERATIONMODELTYPES_H
-
 /*    Copyright (c) 2010-2015, Delft University of Technology
  *    All rights reserved.
  *
@@ -34,6 +31,9 @@
  *    Notes
  *
  */
+
+#ifndef TUDAT_ACCELERATIONMODELTYPES_H
+#define TUDAT_ACCELERATIONMODELTYPES_H
 
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
@@ -80,8 +80,8 @@ AvailableAcceleration getAccelerationModelType(
         accelerationModel );
 
 
-}
+} // namespace basic_astrodynamics
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ACCELERATIONMODELTYPES_H

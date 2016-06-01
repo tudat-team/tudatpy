@@ -1,4 +1,12 @@
-#include <iostream>
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
 #include <boost/shared_ptr.hpp>
 
@@ -12,8 +20,6 @@ namespace tudat
 namespace aerodynamics
 {
 
-//! Constructor, sets objects and functions from which relevant environment and state variables
-//! are retrieved.
 FlightConditions::FlightConditions(
         const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
         const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
@@ -46,6 +52,27 @@ FlightConditions::FlightConditions(
         throw std::runtime_error( "Error when making flight conditions, angles are to be updated, but no calculator is set" );
     }
 }
+
+//! Function to set custom dependency of aerodynamic coefficients
+void FlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
+        const AerodynamicCoefficientsIndependentVariables independentVariable,
+        const boost::function< double( ) > coefficientDependency )
+{
+    if( ( independentVariable == mach_number_dependent ) ||
+            ( independentVariable == angle_of_attack_dependent ) ||
+            ( independentVariable == angle_of_sideslip_dependent ) )
+    {
+        throw std::runtime_error(
+                    std::string( "Error when setting aerodynamic coefficient function dependency, value of parameter " ) +
+                    boost::lexical_cast< std::string >( independentVariable ) +
+                    std::string(", will not  be used." ) );
+    }
+    else
+    {
+        customCoefficientDependencies_[ independentVariable ] = coefficientDependency;
+    }
+}
+
 
 //! Function to update all flight conditions.
 void FlightConditions::updateConditions( const double currentTime )
@@ -115,10 +142,21 @@ void FlightConditions::updateConditions( const double currentTime )
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
                             reference_frames::angle_of_sideslip ) );
             break;
+        // Check if value is custom-defined.
         default:
-            throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
-                                      + boost::lexical_cast< std::string >(
-                            aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
+            if( customCoefficientDependencies_.count(
+                        aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
+                                          + boost::lexical_cast< std::string >(
+                                              aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
+            }
+            else
+            {
+                aerodynamicCoefficientIndependentVariables.push_back(
+                            customCoefficientDependencies_.at(
+                                aerodynamicCoefficientInterface_->getIndependentVariableName( i ) )( ) );
+            }
         }
     }
 
@@ -130,6 +168,6 @@ void FlightConditions::updateConditions( const double currentTime )
 }
 
 
-}
+} // namespace aerodynamics
 
-}
+} // namespace tudat

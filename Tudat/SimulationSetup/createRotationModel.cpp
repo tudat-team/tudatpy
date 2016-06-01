@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
 

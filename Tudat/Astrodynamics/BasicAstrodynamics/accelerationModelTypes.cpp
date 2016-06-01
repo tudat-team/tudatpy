@@ -32,8 +32,6 @@
  *
  */
 
-#include <iostream>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
 namespace tudat
@@ -96,6 +94,6 @@ AvailableAcceleration getAccelerationModelType(
 }
 
 
-} // namespace simulation_setup
+} // namespace basic_astrodynamics
 
 } // namespace tudat

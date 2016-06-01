@@ -99,9 +99,9 @@ GravityFieldVariationsSet::getGravityFieldVariation(
         // Provide warning if no matches are found
         if( isCorrectIdentifierFound == 0 )
         {
-            std::cerr<<"Error when retrieving gravity field variation of type "<<
-                       deformationType<<", none of "<<
-                       numberOfEntries<<" potential entries match identifier."<<std::endl;
+            std::cerr << "Error when retrieving gravity field variation of type " <<
+                       deformationType << ", none of " <<
+                       numberOfEntries << " potential entries match identifier." << std::endl;
         }
     }
 
@@ -184,11 +184,11 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
     // Check consistency of input data vector sizes.
     if( variationObjects_.size( ) != variationType_.size( ) )
     {
-        std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 1"<<std::endl;
+        std::cerr << "Error when making GravityFieldVariationsSet, inconsistent input, type 1" << std::endl;
     }
     if( variationObjects_.size( ) != variationIdentifier_.size( ) )
     {
-        std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 2"<<std::endl;
+        std::cerr << "Error when making GravityFieldVariationsSet, inconsistent input, type 2" << std::endl;
     }
 
     // Check if interpolation information is provided where required.
@@ -199,20 +199,20 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
     {
         if( initialTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
-            std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 4, "<<
-                       interpolatorSettingsIterator->first<<std::endl;
+            std::cerr << "Error when making GravityFieldVariationsSet, inconsistent input, type 4, " <<
+                       interpolatorSettingsIterator->first << std::endl;
         }
 
         if( finalTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
-            std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 5, "<<
-                       interpolatorSettingsIterator->first<<std::endl;
+            std::cerr << "Error when making GravityFieldVariationsSet, inconsistent input, type 5, " <<
+                       interpolatorSettingsIterator->first << std::endl;
         }
 
         if( timeSteps_.count( interpolatorSettingsIterator->first ) == 0 )
         {
-            std::cerr<<"Error when making GravityFieldVariationsSet, inconsistent input, type 6, "<<
-                       interpolatorSettingsIterator->first<<std::endl;
+            std::cerr << "Error when making GravityFieldVariationsSet, inconsistent input, type 6, " <<
+                       interpolatorSettingsIterator->first << std::endl;
         }
     }
 }
@@ -251,6 +251,6 @@ GravityFieldVariationsSet::getVariationFunctions( )
     return variationFunctions;
 }
 
-}
+} // namespace gravitation
 
-}
+} // namespace tudat
