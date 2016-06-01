@@ -34,9 +34,10 @@ namespace propagators
 
 //! Top-level class responsible for single complete function evaluation of dynamics state derivative.
 /*!
- *  Top-level class responsible for single complete function evaluation of dynamics state derivative. This class contains
- *  both the EnvironmentUpdater and list of SingleStateTypeDerivative derived classes that define the full state
- *  derivative function, which fully evaluated by calling the computeStateDerivative function.
+ *  Top-level class responsible for single complete function evaluation of dynamics state
+ *  derivative. This class contains both the EnvironmentUpdater and list of
+ *  SingleStateTypeDerivative derived classes that define the full state derivative function, which
+ *  fully evaluated by calling the computeStateDerivative function.
  */
 template< typename TimeType = double, typename StateScalarType = double >
 class DynamicsStateDerivativeModel
@@ -49,10 +50,12 @@ public:
 
     //! Derivative model constructor.
     /*!
-     *  Derivative model constructor. Takes state derivative model and environment updater. Constructor checks whether all
-     *  models use the same environment updater.
-     *  \param stateDerivativeModels Vector of state derivative models, with one entry for each type of dynamical equation.
-     *  \param environmentUpdater Object which is used to update time-dependent environment models to current time and state,
+     *  Derivative model constructor. Takes state derivative model and environment
+     *  updater. Constructor checks whether all models use the same environment updater.     
+     *  \param stateDerivativeModels Vector of state derivative models, with one entry for each type
+     *         of dynamical equation.
+     *  \param environmentUpdater Object which is used to update time-dependent environment models
+     *         to current time and state,
      *  must be consistent with member environment updaters of stateDerivativeModels entries.
      */
     DynamicsStateDerivativeModel(
@@ -64,16 +67,17 @@ public:
         std::vector< IntegratedStateType > stateTypeList;
         totalStateSize_ = 0;
 
-        // Iterate over vector of state derivative models, check validity, set member variable map stateDerivativeModels_
-        // and size indices.
+        // Iterate over vector of state derivative models, check validity, set member variable map
+        // stateDerivativeModels_ and size indices.
         for( unsigned int i = 0; i < stateDerivativeModels.size( ); i++ )
         {
             if( i > 0 )
             {
                 if( ( std::find( stateTypeList.begin( ), stateTypeList.end( ),
-                                 stateDerivativeModels.at( i )->getIntegratedStateType( ) ) != stateTypeList.end( ) ) &&
-                        ( stateDerivativeModels.at( i )->getIntegratedStateType( ) !=
-                          stateDerivativeModels.at( i - 1 )->getIntegratedStateType( ) ) )
+                                 stateDerivativeModels.at( i )->getIntegratedStateType( ) )
+                                    != stateTypeList.end( ) )
+                    && ( stateDerivativeModels.at( i )->getIntegratedStateType( )
+                         != stateDerivativeModels.at( i - 1 )->getIntegratedStateType( ) ) )
                 {
                     throw std::runtime_error( "Warning when making hybrid state derivative models, state type " +
                                boost::lexical_cast< std::string >( stateDerivativeModels.at( i )->getIntegratedStateType( ) )
@@ -86,7 +90,8 @@ public:
                            stateDerivativeModels.at( i )->getIntegratedStateType( ) ) == stateTypeList.end( ) )
             {
                 stateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] = 0;
-                stateTypeStartIndex_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] = totalStateSize_;
+                stateTypeStartIndex_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ]
+                        = totalStateSize_;
             }
             stateTypeList.push_back( stateDerivativeModels.at( i )->getIntegratedStateType( ) );
 
@@ -112,10 +117,11 @@ public:
 
     //! Function to calculate the system state derivative
     /*!
-     *  Function to calculate the system state derivative, with settings as by last call to setPropagationSettings function.
-     *  Dimensions of state must be consistent with these settings. Depending on the settings, this function may calculate
-     *  the dynamical equations and/or variational equations for a subset of the dynamical equation types that are set in
-     *  the stateDerivativeModels_ map.
+     *  Function to calculate the system state derivative, with settings as by last call to
+     *  setPropagationSettings function.  Dimensions of state must be consistent with these
+     *  settings. Depending on the settings, this function may calculate the dynamical equations
+     *  and/or variational equations for a subset of the dynamical equation types that are set in
+     *  the stateDerivativeModels_ map.     
      *  \param time Current time.
      *  \param state Current complete state.
      *  \return Calculated state derivative.
@@ -138,8 +144,10 @@ public:
         else
         {
             environmentUpdater_->updateEnvironment(
-                        time, std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
+                        time, std::unordered_map<
+                        IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
                                                     integratedStatesFromEnvironment_ );
+
         }
 
         // If dynamical equations are integrated, evaluate dynamics state derivatives.
@@ -163,6 +171,7 @@ public:
                     stateDerivativeModelsIterator_->second.at( i )->calculateSystemStateDerivative(
                                 time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ),
                                 stateDerivative_.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
+
                 }
             }
         }
@@ -186,15 +195,17 @@ public:
 
     //! Function to convert the state in the conventional form to the propagator-specific form.
     /*!
-     * Function to convert the state in the conventional form to the propagator-specific form.
-     * The conventional form is one that is typically used to represent the current state in the environment
-     * (e.g. Body class). For translational dynamics this is the Cartesian position and velocity).
+     * Function to convert the state in the conventional form to the propagator-specific form.  The
+     * conventional form is one that is typically used to represent the current state in the
+     * environment (e.g. Body class). For translational dynamics this is the Cartesian position and
+     * velocity).     
      * \param outputState State in 'conventional form'
      * \param time Current time at which the state is valid.
      * \return State (outputState), converted to the 'propagator-specific form'
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& outputState, const TimeType& time )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& outputState,
+            const TimeType& time )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( outputState.rows( ), 1 );
@@ -208,9 +219,11 @@ public:
                     stateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
-                internalState.segment( currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ) =
+                internalState.segment( currentStateIndices.at( i ).first,
+                                       currentStateIndices.at( i ).second ) =
                         stateDerivativeModelsIterator_->second.at( i )->convertFromOutputSolution(
-                            outputState.segment( currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ),
+                            outputState.segment( currentStateIndices.at( i ).first,
+                                                 currentStateIndices.at( i ).second ),
                             time );
             }
         }
@@ -219,17 +232,19 @@ public:
 
     //! Function to convert the propagator-specific form of the state to the conventional form.
     /*!
-     * Function to convert the propagator-specific form of the state to the conventional form .
-     * The conventional form is one that is typically used to represent the current state in the environment
-     * (e.g. Body class). For translational dynamics this is the Cartesian position and velocity).
-     * In contrast to the convertCurrentStateToGlobalRepresentation function, this function does not provide the
-     * state in the inertial frame, but instead provides it in the frame in which it is propagated.
-     * \param internalSolution State in propagator-specific form (i.e. form that is used in numerical integration).
+     * Function to convert the propagator-specific form of the state to the conventional form. The
+     * conventional form is one that is typically used to represent the current state in the
+     * environment (e.g. Body class). For translational dynamics this is the Cartesian position and
+     * velocity).  In contrast to the convertCurrentStateToGlobalRepresentation function, this
+     * function does not provide the state in the inertial frame, but instead provides it in the
+     * frame in which it is propagated.  \param internalSolution State in propagator-specific form
+     * (i.e. form that is used in numerical integration).     
      * \param time Current time at which the state is valid.
      * \return State (internalSolution), converted to the 'conventional form'
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
+            const TimeType& time )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > outputState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( internalSolution.rows( ), 1 );
@@ -246,7 +261,8 @@ public:
                 stateDerivativeModelsIterator_->second.at( i )->convertToOutputSolution(
                             internalSolution.segment(
                                 currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ), time,
-                            outputState.block( currentStateIndices.at( i ).first, 0, currentStateIndices.at( i ).second, 1 ) );
+                            outputState.block( currentStateIndices.at( i ).first, 0,
+                                               currentStateIndices.at( i ).second, 1 ) );
             }
         }
         return outputState;
@@ -254,10 +270,11 @@ public:
 
     //! Function to convert a state history from propagator-specific form to the conventional form.
     /*!
-     * Function to convert a state history from propagator-specific form to the conventional form (not necessarily in
-     * inertial frame).
+     * Function to convert a state history from propagator-specific form to the conventional form
+     * (not necessarily in inertial frame).     
      * \sa DynamicsStateDerivativeModel::convertToOutputSolution
-     * \param rawSolution State history in propagator-specific form (i.e. form that is used in numerical integration).
+     * \param rawSolution State history in propagator-specific form (i.e. form that is used in
+     *        numerical integration).
      * \return State history (rawSolution), converted to the 'conventional form'
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
@@ -268,11 +285,12 @@ public:
         std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
 
         // Iterate over all times.
-        for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
+        for( typename std::map< TimeType, Eigen::Matrix< StateScalarType,
+                                                         Eigen::Dynamic, 1 > >::const_iterator
              stateIterator = rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
         {
-            // Convert solution at this time to output (Cartesian with propagation origin frame for translational dynamics)
-            // solution
+            // Convert solution at this time to output (Cartesian with propagation origin frame for
+            // translational dynamics) solution
             convertedSolution[ stateIterator->first ] =
                     convertToOutputSolution( stateIterator->second, stateIterator->first );
         }
@@ -281,8 +299,8 @@ public:
 
     //! Function to set which segments of the full state to propagate
     /*!
-     * Function to set which segments of the full state to propagate, i.e. whether to propagate the variational/dynamical
-     * equations, and which types of the dynamics to propagate.
+     * Function to set which segments of the full state to propagate, i.e. whether to propagate the
+     * variational/dynamical equations, and which types of the dynamics to propagate.     
      * \param stateTypesToNotIntegrate Types of dynamics to propagate
      * \param evaluateDynamicsEquations Boolean to denote whether the dynamical equations are to be propagated or not
      * \param evaluateVariationalEquations Boolean to denote whether the variational equations are to be propagated or not
@@ -329,8 +347,7 @@ public:
 
 private:
 
-    //! Function to convert the propagator-specific form of the state to the conventional form in the global frame,
-    //! split per dynamics type.
+    //! Function to convert the to the conventional form in the global frame per dynamics type.
     /*!
      * Function to convert the propagator-specific form of the state to the conventional form in the global frame, split
      * by dynamics type. This function updates the currentStatesPerTypeInConventionalRepresentation_ to the current state
@@ -348,6 +365,7 @@ private:
             const StateType& state, const TimeType& time, const bool stateIncludesVariationalState )
     {
         int startColumn = 0;
+
         if( stateIncludesVariationalState )
         {
             std::cerr<<"Error, variational equations not yet implemented"<<std::endl;
@@ -375,8 +393,10 @@ private:
                 // Set current block in split state (in global form)
                 stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
                             state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time,
-                            currentStatesPerTypeInConventionalRepresentation_.at( stateDerivativeModelsIterator_->first ).block(
+                            currentStatesPerTypeInConventionalRepresentation_.at(
+                                stateDerivativeModelsIterator_->first ).block(
                                         currentStateTypeSize, 0, currentIndices.second, 1 ) );
+
                 currentStateTypeSize += currentIndices.second;
             }
         }
@@ -385,8 +405,8 @@ private:
     //! Object used to update the environment to the current state and time.
     boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater_;
 
-    //! Map that denotes for each state derivative model the start index and size of the associated state in the full state
-    //! vector.
+    //! Map that denotes for each state derivative model the start index and size of the associated
+    //! state in the full state vector.
     std::map< IntegratedStateType, std::vector< std::pair< int, int > > > stateIndices_;
 
     //! State size per state type in the complete state vector.
@@ -406,8 +426,8 @@ private:
     //! Total length of state vector.
     int totalStateSize_;
 
-    //! List of states that are not propagated in current numerical integration, i.e, for which current state is taken
-    //! from the environment.
+    //! List of states that are not propagated in current numerical integration, i.e, for which
+    //! current state is taken from the environment.
     std::vector< IntegratedStateType > integratedStatesFromEnvironment_;
 
     //! Boolean denoting whether the equations of motion are to be propagated or not.
@@ -416,7 +436,8 @@ private:
     //! Boolean denoting whether the variational equations are to be propagated or not.
     bool evaluateVariationalEquations_;
 
-    //! Start index in propagated matrix of the equations of motion (=0 if variational equations are not propagated).
+    //! Start index in propagated matrix of the equations of motion (=0 if variational equations are
+    //! not propagated).
     int dynamicsStartColumn_;
 
     //! Current state derivative, as computed by computeStateDerivative.
@@ -429,8 +450,7 @@ private:
 };
 
 
-} // namespace state_derivative_models
+} // namespace propagators
 } // namespace tudat
-
 
 #endif // TUDAT_DYNAMICSSTATEDERIVATIVEMODEL_H
