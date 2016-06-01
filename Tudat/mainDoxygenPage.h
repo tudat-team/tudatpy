@@ -6,7 +6,7 @@
  *
  * The Tudat Core library is necessary to be able to make use of most of the features in Tudat.
  * For information pertaining to the Tudat Core library, please refer to:
- * http://tudat.tudelft.nl/Doxygen/TudatCore/html/index.html.
+ * http://tudat.tudelft.nl/Doxygen/Tudat/docs/index.html
  *
  * The Tudat library is part of the Tudat project, and is maintained by staff and students in
  * the Astrodynamics & Space missions research group, at the Faculty of Aerospace Engineering,
