@@ -347,10 +347,8 @@ createCannonballRadiationPressureAcceleratioModel(
     return boost::make_shared< CannonBallRadiationPressureAcceleration >(
                 boost::bind( &Body::getPosition, bodyExertingAcceleration ),
                 boost::bind( &Body::getPosition, bodyUndergoingAcceleration ),
-                boost::bind( &RadiationPressureInterface::getCurrentRadiationPressure,
-                             radiationPressureInterface ),
-                boost::bind( &RadiationPressureInterface::getRadiationPressureCoefficient,
-                             radiationPressureInterface ),
+                boost::bind( &RadiationPressureInterface::getCurrentRadiationPressure, radiationPressureInterface ),
+                boost::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
                 boost::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
                 boost::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
 
@@ -576,6 +574,7 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
 
     return createAccelerationModelsMap( bodyMap, selectedAccelerationPerBody, centralBodyMap );
 }
+
 
 } // namespace simulation_setup
 

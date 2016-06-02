@@ -506,5 +506,10 @@ double computeSpeedOfSound( const double temperature, const double ratioOfSpecif
     return std::sqrt( temperature * ratioOfSpecificHeats * specificGasConstant );
 }
 
+double computeMachNumber( const double speed, const double speedOfSound )
+{
+    return speed / speedOfSound;
+}
+
 } // namespace aerodynamics
 } // namespace tudat

@@ -11,10 +11,9 @@
 #ifndef TUDAT_INTEGRATEEQUATIONS_H
 #define TUDAT_INTEGRATEEQUATIONS_H
 
-#include <iostream>
-#include <map>
-
 #include <Eigen/Core>
+
+#include <map>
 
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 
@@ -30,31 +29,132 @@ namespace tudat
 namespace propagators
 {
 
+template< typename OutputType, typename InputType >
+OutputType evaluateReferenceFunction(
+        const boost::function< OutputType( const InputType&, const InputType& ) > functionToEvaluate,
+        const boost::function< InputType( ) > firstInput,
+        const boost::function< InputType( ) > secondInput )
+{
+    return functionToEvaluate( firstInput( ), secondInput( ) );
+}
+
+template< typename OutputType, typename InputType >
+OutputType evaluateFunction(
+        const boost::function< OutputType( const InputType, const InputType ) > functionToEvaluate,
+        const boost::function< InputType( ) > firstInput,
+        const boost::function< InputType( ) > secondInput )
+{
+    return functionToEvaluate( firstInput( ), secondInput( ) );
+}
+
+boost::function< double( ) > getDependentVariableFunction(
+        const PropagationDependentVariables dependentVariable,
+        const std::string& bodyWithProperty,
+        const std::string& secondaryBody,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationModelList = basic_astrodynamics::AccelerationMap( ) );
+
+class PropagationStoppingCondition
+{
+public:
+    PropagationStoppingCondition( ){ }
+
+    virtual ~PropagationStoppingCondition( ){ }
+
+    virtual bool checkStopCondition( const double time ) = 0;
+};
+
+class FixedTimeStoppingCondition: public PropagationStoppingCondition
+{
+public:
+    FixedTimeStoppingCondition(
+            const double stopTime,
+            const bool propagationDirectionIsPositive ):
+        stopTime_( stopTime ),
+        propagationDirectionIsPositive_( propagationDirectionIsPositive ){ }
+
+
+    bool checkStopCondition( const double time );
+
+private:
+    double stopTime_;
+
+    bool propagationDirectionIsPositive_;
+};
+
+class SingleVariableLimitStoppingCondition: public PropagationStoppingCondition
+{
+public:
+    SingleVariableLimitStoppingCondition(
+            const std::pair< PropagationDependentVariables, std::string > variableType,
+            const boost::function< double( ) > variableRetrievalFuntion,
+            const double limitingValue,
+            const bool useAsLowerBound ):
+    variableType_( variableType ), variableRetrievalFuntion_( variableRetrievalFuntion ),
+    limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ){ }
+
+    virtual ~SingleVariableLimitStoppingCondition( ){ }
+
+    bool checkStopCondition( const double time );
+
+private:
+    std::pair< PropagationDependentVariables, std::string > variableType_;
+
+    boost::function< double( ) > variableRetrievalFuntion_;
+
+    double limitingValue_;
+
+    bool useAsLowerBound_;
+};
+
+class HybridStoppingCondition: public PropagationStoppingCondition
+{
+public:
+    HybridStoppingCondition(
+            const std::vector< boost::shared_ptr< PropagationStoppingCondition > > stoppingCondition,
+            const bool fulFillSingleCondition = 0 ):
+        stoppingCondition_( stoppingCondition ), fulFillSingleCondition_( fulFillSingleCondition ){ }
+
+    bool checkStopCondition( const double time );
+
+private:
+
+    std::vector< boost::shared_ptr< PropagationStoppingCondition > > stoppingCondition_;
+
+    bool fulFillSingleCondition_;
+};
+
+
+boost::shared_ptr< PropagationStoppingCondition > createPropagationStoppingConditions(
+        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double initialTimeStep );
+
 //! Function to numerically integrate a given first order differential equation
 /*!
- *  Function to numerically integrate a given first order differential equation, with the state
- *  derivative a function of a single independent variable and the current state
+ *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
+ *  a single independent variable and the current state
  *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
  *  \param initialState Initial state
  *  \param integratorSettings Settings for numerical integrator.
  *  \param printInterval Frequency with which to print progress to console (nan = never).
- *  \return History of numerical states (first of pair) and derivatives of states (second of pair)
- *  given as maps with time as key.
+ *  \return History of numerical states (first of pair) and derivatives of states (second of pair) given as maps with time
+ *  as key.
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
 std::map< TimeType, StateType > integrateEquations(
         boost::function< StateType( const TimeType, const StateType&) > stateDerivativeFunction,
         const StateType initialState,
-        boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const boost::function< bool( const double ) > stopPropagationFunction,
         const TimeType printInterval = TUDAT_NAN )
 {
     using namespace tudat::numerical_integrators;
 
 
     // Create numerical integrator.
-    boost::shared_ptr< NumericalIntegrator< TimeType, StateType, StateType > > integrator
-          = createIntegrator< TimeType, StateType >( stateDerivativeFunction,
-                                                     initialState, integratorSettings );
+    boost::shared_ptr< NumericalIntegrator< TimeType, StateType, StateType > > integrator =
+            createIntegrator< TimeType, StateType >( stateDerivativeFunction, initialState, integratorSettings );
 
     // Get Initial state and time.
     TimeType currentTime = integratorSettings->initialTime_;
@@ -73,7 +173,6 @@ std::map< TimeType, StateType > integrateEquations(
 
     // Set initial time step and total integration time.
     TimeType timeStep = integratorSettings->initialTimeStep_;
-    TimeType endTime = integratorSettings->endTime_;
     TimeType previousTime = currentTime;
 
     // Perform first integration step.
@@ -86,10 +185,8 @@ std::map< TimeType, StateType > integrateEquations(
 
     int printIndex = 0;
     int printFrequency = integratorSettings->printFrequency_;
-
     // Perform numerical integration steps until end time reached.
-    while( timeStepSign * static_cast< TimeType >( currentTime )
-           < timeStepSign * static_cast< TimeType >( endTime ) )
+    do
     {
         previousTime = currentTime;
 
@@ -114,16 +211,17 @@ std::map< TimeType, StateType > integrateEquations(
                     ( static_cast< int >( std::fabs( previousTime - integratorSettings->initialTime_ ) ) %
                       static_cast<int>( printInterval ) )  )
             {
-                std::cout << "Current time and state in integration: " << std::setprecision( 10 ) <<
-                           timeStep << " " << currentTime << " " << newState.transpose( ) << std::endl;
+                std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
+                           timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
             }
         }
     }
+    while( !stopPropagationFunction( static_cast< double >( currentTime ) ) );
 
     return solutionHistory;
 }
 
-} // namespace propagators
+}
 
-} // namespace tudat
+}
 #endif // TUDAT_INTEGRATEEQUATIONS_H

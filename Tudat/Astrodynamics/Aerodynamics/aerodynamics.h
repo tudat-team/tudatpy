@@ -345,6 +345,8 @@ double computeShockDeflectionAngle( double shockAngle, double machNumber,
 double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
                             const double specificGasConstant );
 
+double computeMachNumber( const double speed, const double speedOfSound );
+
 } // namespace aerodynamics
 } // namespace tudat
 

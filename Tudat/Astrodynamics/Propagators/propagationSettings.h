@@ -17,6 +17,7 @@
 #include <iostream>
 #include <unordered_map>
 
+#include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <Eigen/Core>
@@ -44,6 +45,90 @@ enum TranslationalPropagatorType
     cowell = 0
 };
 
+enum PropagationDependentVariables
+{
+    mach_number_dependent_variable,
+    altitude_dependent_variable,
+    airspeed_dependent_variable,
+    local_density_dependent_variable,
+    relative_speed_dependent_variable,
+    relative_distance_dependent_variable,
+    radiation_pressure_dependent_variable,    
+    total_acceleration_norm_dependent_variable
+};
+
+enum PropagationTerminationTypes
+{
+    time_stopping_condition,
+    dependent_variable_stopping_condition,
+    hybrid_stopping_condition
+};
+
+
+class PropagationTerminationSettings
+{
+public:
+    PropagationTerminationSettings( const PropagationTerminationTypes terminationType ):
+        terminationType_( terminationType ){ }
+
+    virtual ~PropagationTerminationSettings( ){ }
+
+    PropagationTerminationTypes terminationType_;
+};
+
+class PropagationTimeTerminationSettings: public PropagationTerminationSettings
+{
+public:
+    PropagationTimeTerminationSettings( const double terminationTime ):
+        PropagationTerminationSettings( time_stopping_condition ),
+        terminationTime_( terminationTime ){ }
+
+    ~PropagationTimeTerminationSettings( ){ }
+
+    double terminationTime_;
+};
+
+class PropagationDependentVariableTerminationSettings: public PropagationTerminationSettings
+{
+public:
+    PropagationDependentVariableTerminationSettings( const PropagationDependentVariables variableType,
+                                                     const std::string associatedBody,
+                                                     const double limitValue,
+                                                     const bool useAsLowerLimit,
+                                                     const std::string secondaryBody = "" ):
+        PropagationTerminationSettings( dependent_variable_stopping_condition ),
+        variableType_( variableType ), associatedBody_( associatedBody ),
+        limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ), secondaryBody_( secondaryBody ){ }
+
+    ~PropagationDependentVariableTerminationSettings( ){ }
+
+    PropagationDependentVariables variableType_;
+
+    std::string associatedBody_;
+
+    double limitValue_;
+
+    bool useAsLowerLimit_;
+
+    std::string secondaryBody_;
+};
+
+class PropagationHybridTerminationSettings: public PropagationTerminationSettings
+{
+public:
+    PropagationHybridTerminationSettings(
+            const std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettings,
+            const bool fulFillSingleCondition = 0 ):
+        PropagationTerminationSettings( hybrid_stopping_condition ),
+        terminationSettings_( terminationSettings ),
+        fulFillSingleCondition_( fulFillSingleCondition ){ }
+
+    std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettings_;
+
+    bool fulFillSingleCondition_;
+
+};
+
 //! Get size of state for single propagated state of given type.
 /*!
  * Get size of state for single propagated state of given type (i.e. 6 for translational state).
@@ -62,8 +147,8 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
 
 //! Base class for defining setting of a propagator
 /*!
- *  Base class for defining setting of a propagator. This class is non-functional, and each state
- *  type requires its own derived class (which may have multiple derived classes of its own).
+ *  Base class for defining setting of a propagator. This class is non-functional, and each state type requires its
+ *  own derived class (which may have multiple derived classes of its own).
  */
 template< typename StateScalarType >
 class PropagatorSettings
@@ -77,8 +162,10 @@ public:
      * \param initialBodyStates Initial state used as input for numerical integration
      */
     PropagatorSettings( const IntegratedStateType stateType,
-                        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates ):
-        stateType_( stateType ), initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ){ }
+                        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
+                        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings ):
+        stateType_( stateType ), initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ),
+    terminationSettings_( terminationSettings ){ }
 
     //! Virtual destructor.
     virtual ~PropagatorSettings( ){ }
@@ -101,8 +188,7 @@ public:
      * Function to reset the initial state used as input for numerical integration
      * \param initialBodyStates New initial state used as input for numerical integration
      */
-    virtual void resetInitialStates( const Eigen::Matrix< StateScalarType,
-                                     Eigen::Dynamic, 1 >& initialBodyStates )
+    virtual void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
     {
         initialStates_ = initialBodyStates;
         stateSize_ = initialStates_.rows( );
@@ -118,6 +204,11 @@ public:
         return stateSize_;
     }
 
+    boost::shared_ptr< PropagationTerminationSettings > getTerminationSettings( )
+    {
+        return terminationSettings_;
+    }
+
 protected:
 
     //!  Initial state used as input for numerical integration
@@ -126,29 +217,30 @@ protected:
     //! Total size of the propagated state.
     int stateSize_;
 
+    boost::shared_ptr< PropagationTerminationSettings > terminationSettings_;
+
 };
 
 //! Class for defining settings for propagating translational dynamics.
 /*!
- *  Class for defining settings for propagating translational dynamics. The propagator defines the
- *  form of the equations of motion (i.e. Cowell, Encke, Gauss etc.). This base class can be used
- *  for Cowell propagator.  Other propagators have dedicated derived class.
+ *  Class for defining settings for propagating translational dynamics. The propagator defines the form of the equations of
+ *  motion (i.e. Cowell, Encke, Gauss etc.). This base class can be used for Cowell propagator.
+ *  Other propagators have dedicated derived class.
  */
 template< typename StateScalarType = double >
 class TranslationalStatePropagatorSettings: public PropagatorSettings< StateScalarType >
 {
 public:
 
-    //! Constructor of translational state propagator settings
+    //! Constructor
     /*!
-     * Constructor creating translational state propagator settings object
-     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are
-     *  propagated.     
-     * \param accelerationsMap A map containing the list of accelerations acting on each body,
-     *  identifying the body being acted on and the body acted on by an acceleration. The map has as
-     *  key a string denoting the name of the body the list of accelerations, provided as the value
-     *  corresponding to a key, is acting on.  This map-value is again a map with string as key,
-     *  denoting the body exerting the acceleration, and as value a pointer to an acceleration model.     
+     * Constructor
+     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
+     * \param accelerationsMap A map containing the list of accelerations acting on each body, identifying
+     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+     *  a pointer to an acceleration model.
      * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
      * \param initialBodyStates Initial state used as input for numerical integration
      * \param propagator Type of translational state propagator to be used
@@ -156,12 +248,39 @@ public:
     TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
                                           const basic_astrodynamics::AccelerationMap& accelerationsMap,
                                           const std::vector< std::string >& bodiesToIntegrate,
-                                          const Eigen::Matrix< StateScalarType,
-                                                               Eigen::Dynamic, 1 >& initialBodyStates,
+                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+                                          const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                           const TranslationalPropagatorType propagator = cowell):
-        PropagatorSettings< StateScalarType >( transational_state, initialBodyStates ),
-        centralBodies_( centralBodies ), accelerationsMap_( accelerationsMap ),
-        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ){ }
+        PropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings ),
+        centralBodies_( centralBodies ),
+        accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ){ }
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
+     * \param accelerationsMap A map containing the list of accelerations acting on each body, identifying
+     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+     *  a pointer to an acceleration model.
+     * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
+     * \param initialBodyStates Initial state used as input for numerical integration
+     * \param propagator Type of translational state propagator to be used
+     */
+    TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
+                                          const basic_astrodynamics::AccelerationMap& accelerationsMap,
+                                          const std::vector< std::string >& bodiesToIntegrate,
+                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+                                          const double endTime,
+                                          const TranslationalPropagatorType propagator = cowell):
+        PropagatorSettings< StateScalarType >(
+            transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ) ),
+        centralBodies_( centralBodies ),
+        accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ){ }
+
 
     //! Virtual destructor
     /*!
@@ -174,11 +293,11 @@ public:
 
     //! A map containing the list of accelerations acting on each body
     /*!
-     *  A map containing the list of accelerations acting on each body, identifying the body being
-     *  acted on and the body acted on by an acceleration. The map has as key a string denoting the
-     *  name of the body the list of accelerations, provided as the value corresponding to a key, is
-     *  acting on.  This map-value is again a map with string as key, denoting the body exerting the
-     *  acceleration, and as value a pointer to an acceleration model.
+     *  A map containing the list of accelerations acting on each body, identifying
+     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+     *  a pointer to an acceleration model.
      */
     basic_astrodynamics::AccelerationMap accelerationsMap_;
 
@@ -193,13 +312,12 @@ public:
 template< typename StateScalarType >
 //! Function to retrieve the list of integrated state types and reference ids
 /*!
- * Function to retrieve the list of integrated state types and reference ids. For translational and
- * rotational dynamics, the id refers only to the body being propagated (and the second entry of the
- * pair is empty: ""). For proper time propagation, a body and a reference point may be provided,
- * resulting in non-empty first and second pair entries.
- * \param propagatorSettings Settings that are to be used for the propagation.
- * \return List of integrated state types and reference ids
- */
+* Function to retrieve the list of integrated state types and reference ids. For translational and rotational dynamics,
+* the id refers only to the body being propagated (and the second entry of the pair is empty: ""). For proper time
+* propagation, a body and a reference point may be provided, resulting in non-empty first and second pair entries.
+* \param propagatorSettings Settings that are to be used for the propagation.
+* \return List of integrated state types and reference ids
+*/
 std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings )
 {
@@ -211,9 +329,8 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     case transational_state:
     {
 
-        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-                translationalPropagatorSettings = boost::dynamic_pointer_cast<
-                     TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationalPropagatorSettings =
+                boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
         if( translationalPropagatorSettings == NULL )
         {
             throw std::runtime_error( "Error getting integrated state type list, translational state input inconsistent" );
@@ -223,8 +340,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         std::vector< std::pair< std::string, std::string > > integratedBodies;
         for( unsigned int i = 0; i < translationalPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
         {
-            integratedBodies.push_back( std::make_pair(
-                translationalPropagatorSettings->bodiesToIntegrate_.at( i ), "" ) );
+            integratedBodies.push_back( std::make_pair( translationalPropagatorSettings->bodiesToIntegrate_.at( i ), "" ) );
         }
         integratedStateList[ transational_state ] = integratedBodies;
 
@@ -238,9 +354,9 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     return integratedStateList;
 }
 
-} // namespace propagators
+}
 
-} // namespace tudat
+}
 
 namespace std
 {

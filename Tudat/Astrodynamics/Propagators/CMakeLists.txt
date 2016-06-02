@@ -38,10 +38,11 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.cpp"
 )
 
 # Add header files.
-set(PROPAGATORS_HEADERS
+set(PROPAGATORS_HEADERS 
   "${SRCROOT}${PROPAGATORSDIR}/createStateDerivativeModel.h"
   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.h"
   "${SRCROOT}${PROPAGATORSDIR}/centralBodyData.h"
@@ -61,28 +62,14 @@ add_library(tudat_propagators STATIC ${PROPAGATORS_SOURCES} ${PROPAGATORS_HEADER
 setup_tudat_library_target(tudat_propagators "${SRCROOT}${PROPAGATORSDIR}")
 
 # Add unit tests.
-add_executable(test_CentralBodyData
-    "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCentralBodyData.cpp")
+add_executable(test_CentralBodyData "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCentralBodyData.cpp")
 setup_custom_test_program(test_CentralBodyData "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_CentralBodyData tudat_propagators tudat_basic_mathematics
-    ${Boost_LIBRARIES})
+target_link_libraries(test_CentralBodyData tudat_propagators tudat_basic_mathematics ${Boost_LIBRARIES})
 
-if(USE_CSPICE)
-add_executable(test_CowellStateDerivative
-    "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCowellStateDerivative.cpp")
+add_executable(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCowellStateDerivative.cpp")
 setup_custom_test_program(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_CowellStateDerivative tudat_simulation_setup tudat_propagators
-    tudat_aerodynamics tudat_gravitation tudat_mission_segments tudat_electro_magnetism
-    tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics
-    tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface
-    cspice ${Boost_LIBRARIES})
+target_link_libraries(test_CowellStateDerivative tudat_simulation_setup tudat_propagators tudat_aerodynamics tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
 
-add_executable(test_EnvironmentModelUpdater
-    "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
+add_executable(test_EnvironmentModelUpdater "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
 setup_custom_test_program(test_EnvironmentModelUpdater "${SRCROOT}${PROPAGATORSDIR}")
-    target_link_libraries(test_EnvironmentModelUpdater tudat_simulation_setup tudat_propagators
-    tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments
-    tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames
-    tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators
-    tudat_spice_interface cspice ${Boost_LIBRARIES})
-endif()
+target_link_libraries(test_EnvironmentModelUpdater tudat_simulation_setup tudat_propagators tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
