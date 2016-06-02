@@ -1,15 +1,5 @@
-/*    Copyright (c) 2010-2016, Delft University of Technology
- *    All rigths reserved
- *
- *    This file is part of the Tudat. Redistribution and use in source and
- *    binary forms, with or without modification, are permitted exclusively
- *    under the terms of the Modified BSD license. You should have received
- *    a copy of the license with this file. If not, please or visit:
- *    http://tudat.tudelft.nl/LICENSE.
- */
-
-#ifndef TUDAT_FLIGHTCONDITIONS_H
-#define TUDAT_FLIGHTCONDITIONS_H
+#ifndef FLIGHTCONDITIONS_H
+#define FLIGHTCONDITIONS_H
 
 #include <vector>
 
@@ -47,6 +37,8 @@ public:
      *  \param atmosphereModel Atmosphere model of atmosphere through which vehicle is flying
      *  \param altitudeFunction Function returning the altitude of the vehicle as a function of
      *  its body-fixed position.
+     *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment)
+     *  coefficients are retrieved
      *  \param stateOfVehicle Function returning the current state of the vehicle
      *  (in the global frame)
      *  \param stateOfCentralBody Function returning the current state of the central body
@@ -93,7 +85,7 @@ public:
     /*!
      *  Function to return density that was set by previous call of updateConditions or
      *  updateDensity function.
-     *  \return Current density
+     *  \return Current altitude
      */
     double getCurrentDensity( ) const
     {
@@ -103,11 +95,17 @@ public:
     //! Function to return airspeed
     /*!
      *  Function to return airspeed that was set by previous call of updateConditions.
-     *  \return Current airspeed
+     *  \return Current altitude
      */
     double getCurrentAirspeed( ) const
     {
         return currentAirspeed_;
+    }
+
+    double getCurrentSpeedOfSound( )
+    {
+        return atmosphereModel_->getSpeedOfSound(
+                    currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ );
     }
 
     //! Function to return the current time of the FlightConditions
@@ -140,18 +138,6 @@ public:
     {
         aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
     }
-
-    //! Function to set custom dependency of aerodynamic coefficients
-    /*!
-     * Function to set custom dependency of aerodynamic coefficients. If needed, the
-     * AerodynamicCoefficientsIndependentVariables enum may be expanded to include e.g. control surface deflections, the
-     * values of which will then be retrieved from the function set here
-     * \param independentVariable Identifier of independent variable
-     * \param coefficientDependency Function returning the current value of the independent variable.
-     */
-    void setAerodynamicCoefficientsIndependentVariableFunction(
-            const AerodynamicCoefficientsIndependentVariables independentVariable,
-            const boost::function< double( ) > coefficientDependency );
 
     //! Function to return current central body-fixed state of vehicle.
     /*!
@@ -201,9 +187,6 @@ private:
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
 
-    //! List of custom functions for aerodynamic coefficient dependencies.
-    std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
-
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
@@ -235,7 +218,7 @@ private:
     bool updateLatitudeAndLongitude_;
 };
 
-} // namespace aerodynamics
+}
 
-} // namespace tudat
-#endif // TUDAT_FLIGHTCONDITIONS_H
+}
+#endif // FLIGHTCONDITIONS_H

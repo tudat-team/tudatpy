@@ -72,6 +72,8 @@ double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
 double computeAngleBetweenVectors( const Eigen::VectorXd& vector0,
                                    const Eigen::VectorXd& vector1 );
 
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
+                                   const Eigen::Vector3d& vector1 );
 //! Flip matrix rows.
 /*!
  * Flips all rows of an Eigen-matrix, i.e., order of rows is reversed.
@@ -94,6 +96,8 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
     }
 }
 
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
+                                      const Eigen::Vector3d& vector1 );
 } // namespace linear_algebra
 
 } // namespace tudat

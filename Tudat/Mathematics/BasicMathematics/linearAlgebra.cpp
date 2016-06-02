@@ -103,6 +103,12 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::
     return std::acos( dotProductOfNormalizedVectors );
 }
 
+double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
+                                      const Eigen::Vector3d& vector1 )
+{
+    return ( vector0 - vector1 ).norm( );
+}
+
 } // namespace linear_algebra
 
 } // namespace tudat
