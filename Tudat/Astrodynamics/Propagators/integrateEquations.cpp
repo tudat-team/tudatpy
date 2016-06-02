@@ -107,7 +107,7 @@ boost::function< double( ) > getDependentVariableFunction(
 }
 
 
-bool FixedTimeStoppingCondition::checkStopCondition( const double time  )
+bool FixedTimePropagationTerminationCondition::checkStopCondition( const double time  )
 {
     bool stopPropagation = 0;
 
@@ -123,7 +123,7 @@ bool FixedTimeStoppingCondition::checkStopCondition( const double time  )
 }
 
 
-bool SingleVariableLimitStoppingCondition::checkStopCondition( const double time  )
+bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time  )
 {
     bool stopPropagation = 0;
     double currentVariable = variableRetrievalFuntion_( );
@@ -139,14 +139,14 @@ bool SingleVariableLimitStoppingCondition::checkStopCondition( const double time
 }
 
 
-bool HybridStoppingCondition::checkStopCondition( const double time )
+bool HybridPropagationTerminationCondition::checkStopCondition( const double time )
 {
     if( fulFillSingleCondition_ )
     {
         bool stopPropagation = 0;
-        for( unsigned int i = 0; i < stoppingCondition_.size( ); i++ )
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
-            if( stoppingCondition_.at( i )->checkStopCondition( time ) )
+            if( propagationTerminationCondition_.at( i )->checkStopCondition( time ) )
             {
                 stopPropagation = 1;
                 break;
@@ -157,9 +157,9 @@ bool HybridStoppingCondition::checkStopCondition( const double time )
     else
     {
         bool stopPropagation = 1;
-        for( unsigned int i = 0; i < stoppingCondition_.size( ); i++ )
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
-            if( !stoppingCondition_.at( i )->checkStopCondition( time ) )
+            if( !propagationTerminationCondition_.at( i )->checkStopCondition( time ) )
             {
                 stopPropagation = 0;
                 break;
@@ -171,19 +171,19 @@ bool HybridStoppingCondition::checkStopCondition( const double time )
 
 
 
-boost::shared_ptr< PropagationStoppingCondition > createPropagationStoppingConditions(
+boost::shared_ptr< PropagationPropagationTerminationCondition > createPropagationPropagationTerminationConditions(
         const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const double initialTimeStep )
 {
-    boost::shared_ptr< PropagationStoppingCondition > stoppingCondition;
+    boost::shared_ptr< PropagationPropagationTerminationCondition > propagationTerminationCondition;
     switch( terminationSettings->terminationType_ )
     {
     case time_stopping_condition:
     {
         boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
-        stoppingCondition = boost::make_shared< FixedTimeStoppingCondition >(
+        propagationTerminationCondition = boost::make_shared< FixedTimePropagationTerminationCondition >(
                     timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ) ? true : false );
         break;
     }
@@ -191,12 +191,14 @@ boost::shared_ptr< PropagationStoppingCondition > createPropagationStoppingCondi
     {
         boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
+
         boost::function< double( ) > dependentVariableFunction =
                 getDependentVariableFunction( dependentVariableTerminationSettings->variableType_,
                                               dependentVariableTerminationSettings->associatedBody_,
                                               dependentVariableTerminationSettings->secondaryBody_,
                                               bodyMap );
-        stoppingCondition = boost::make_shared< SingleVariableLimitStoppingCondition >(
+
+        propagationTerminationCondition = boost::make_shared< SingleVariableLimitPropagationTerminationCondition >(
                     std::make_pair( dependentVariableTerminationSettings->variableType_,
                                     dependentVariableTerminationSettings->associatedBody_ ),
                     dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
@@ -208,23 +210,23 @@ boost::shared_ptr< PropagationStoppingCondition > createPropagationStoppingCondi
         boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
 
-        std::vector< boost::shared_ptr< PropagationStoppingCondition > > stoppingConditionList;
+        std::vector< boost::shared_ptr< PropagationPropagationTerminationCondition > > propagationTerminationConditionList;
         for( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); i++ )
         {
-            stoppingConditionList.push_back(
-                        createPropagationStoppingConditions(
+            propagationTerminationConditionList.push_back(
+                        createPropagationPropagationTerminationConditions(
                             hybridTerminationSettings->terminationSettings_.at( i ),
                             bodyMap, initialTimeStep ) );
         }
-        stoppingCondition = boost::make_shared< HybridStoppingCondition >(
-                    stoppingConditionList, hybridTerminationSettings->fulFillSingleCondition_ );
+        propagationTerminationCondition = boost::make_shared< HybridPropagationTerminationCondition >(
+                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_ );
         break;
     }
     default:
 
         break;
     }
-    return stoppingCondition;
+    return propagationTerminationCondition;
 }
 
 }
