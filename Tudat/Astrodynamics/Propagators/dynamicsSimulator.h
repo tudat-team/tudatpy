@@ -173,7 +173,7 @@ public:
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                     createStateDerivativeModels< StateScalarType, TimeType >(
                         propagatorSettings_, bodyMap_ ), environmentUpdater_ );
-        propagationStoppingCondition_ = createPropagationStoppingConditions(
+        propagationPropagationTerminationCondition_ = createPropagationPropagationTerminationConditions(
                     propagatorSettings->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
         stateDerivativeFunction_ =
                 boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
@@ -323,7 +323,7 @@ protected:
     //! Settings for propagator.
     boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings_;
 
-    boost::shared_ptr< PropagationStoppingCondition > propagationStoppingCondition_;
+    boost::shared_ptr< PropagationPropagationTerminationCondition > propagationPropagationTerminationCondition_;
 
     //! Object for retrieving ephemerides for transformation of reference frame (origins)
     boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
@@ -359,7 +359,7 @@ public:
     using DynamicsSimulator< StateScalarType, TimeType >::integratorSettings_;
     using DynamicsSimulator< StateScalarType, TimeType >::propagatorSettings_;
     using DynamicsSimulator< StateScalarType, TimeType >::integratedStateProcessors_;
-    using DynamicsSimulator< StateScalarType, TimeType >::propagationStoppingCondition_;
+    using DynamicsSimulator< StateScalarType, TimeType >::propagationPropagationTerminationCondition_;
 
     //! Constructor of simulator.
     /*!
@@ -417,7 +417,7 @@ public:
                 integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >(
                     stateDerivativeFunction_, dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, integratorSettings_->initialTime_ ), integratorSettings_,
-                    boost::bind( &PropagationStoppingCondition::checkStopCondition, propagationStoppingCondition_, _1 ) );
+                    boost::bind( &PropagationPropagationTerminationCondition::checkStopCondition, propagationPropagationTerminationCondition_, _1 ) );
         equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
                 convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
 

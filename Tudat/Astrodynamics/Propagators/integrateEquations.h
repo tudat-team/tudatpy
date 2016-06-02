@@ -54,20 +54,20 @@ boost::function< double( ) > getDependentVariableFunction(
         const simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationModelList = basic_astrodynamics::AccelerationMap( ) );
 
-class PropagationStoppingCondition
+class PropagationPropagationTerminationCondition
 {
 public:
-    PropagationStoppingCondition( ){ }
+    PropagationPropagationTerminationCondition( ){ }
 
-    virtual ~PropagationStoppingCondition( ){ }
+    virtual ~PropagationPropagationTerminationCondition( ){ }
 
     virtual bool checkStopCondition( const double time ) = 0;
 };
 
-class FixedTimeStoppingCondition: public PropagationStoppingCondition
+class FixedTimePropagationTerminationCondition: public PropagationPropagationTerminationCondition
 {
 public:
-    FixedTimeStoppingCondition(
+    FixedTimePropagationTerminationCondition(
             const double stopTime,
             const bool propagationDirectionIsPositive ):
         stopTime_( stopTime ),
@@ -82,10 +82,10 @@ private:
     bool propagationDirectionIsPositive_;
 };
 
-class SingleVariableLimitStoppingCondition: public PropagationStoppingCondition
+class SingleVariableLimitPropagationTerminationCondition: public PropagationPropagationTerminationCondition
 {
 public:
-    SingleVariableLimitStoppingCondition(
+    SingleVariableLimitPropagationTerminationCondition(
             const std::pair< PropagationDependentVariables, std::string > variableType,
             const boost::function< double( ) > variableRetrievalFuntion,
             const double limitingValue,
@@ -93,7 +93,7 @@ public:
     variableType_( variableType ), variableRetrievalFuntion_( variableRetrievalFuntion ),
     limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ){ }
 
-    virtual ~SingleVariableLimitStoppingCondition( ){ }
+    virtual ~SingleVariableLimitPropagationTerminationCondition( ){ }
 
     bool checkStopCondition( const double time );
 
@@ -107,25 +107,25 @@ private:
     bool useAsLowerBound_;
 };
 
-class HybridStoppingCondition: public PropagationStoppingCondition
+class HybridPropagationTerminationCondition: public PropagationPropagationTerminationCondition
 {
 public:
-    HybridStoppingCondition(
-            const std::vector< boost::shared_ptr< PropagationStoppingCondition > > stoppingCondition,
+    HybridPropagationTerminationCondition(
+            const std::vector< boost::shared_ptr< PropagationPropagationTerminationCondition > > propagationTerminationCondition,
             const bool fulFillSingleCondition = 0 ):
-        stoppingCondition_( stoppingCondition ), fulFillSingleCondition_( fulFillSingleCondition ){ }
+        propagationTerminationCondition_( propagationTerminationCondition ), fulFillSingleCondition_( fulFillSingleCondition ){ }
 
     bool checkStopCondition( const double time );
 
 private:
 
-    std::vector< boost::shared_ptr< PropagationStoppingCondition > > stoppingCondition_;
+    std::vector< boost::shared_ptr< PropagationPropagationTerminationCondition > > propagationTerminationCondition_;
 
     bool fulFillSingleCondition_;
 };
 
 
-boost::shared_ptr< PropagationStoppingCondition > createPropagationStoppingConditions(
+boost::shared_ptr< PropagationPropagationTerminationCondition > createPropagationPropagationTerminationConditions(
         const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const double initialTimeStep );
