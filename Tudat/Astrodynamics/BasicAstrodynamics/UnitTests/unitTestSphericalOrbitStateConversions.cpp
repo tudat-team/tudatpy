@@ -43,14 +43,36 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
                     cartesianState );
         basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitState );
-        std::cout<<( sphericalOrbitState.transpose( ) )<<std::endl;
 
-        std::cout<<( reconvertedCartesianState.transpose( ) )<<std::endl<<
-                   ( cartesianState ).transpose( )<<std::endl;
-        std::cout<<( reconvertedCartesianState.segment( 3, 3 ).norm( ) )<<std::endl<<
-                   ( cartesianState ).segment( 3, 3 ).norm( )<<std::endl;
-        sleep( 10000.0 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( radius - sphericalOrbitState( radiusIndex ) ),
+                    radius * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testLatitude - sphericalOrbitState( latitudeIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testLongitude - sphericalOrbitState( longitudeIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( speed - sphericalOrbitState( speedIndex ) ),
+                    speed * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testFlightPathAngle - sphericalOrbitState( flightPathIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testHeadingAngle - sphericalOrbitState( headingAngleIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
 
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( reconvertedCartesianState( i ) - cartesianState( i ) ),
+                        radius * 2.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( reconvertedCartesianState( i  + 3 ) - cartesianState( i + 3 ) ),
+                        speed * 2.0 * std::numeric_limits< double >::epsilon( ) );
+        }
     }
 
     // Test case 2: rotation with zero and half pi angles.
@@ -69,9 +91,36 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
                     cartesianState );
         basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitState );
-        std::cout<<( reconvertedCartesianState - cartesianState ).transpose( )<<std::endl;
+
+        BOOST_CHECK_SMALL(
+                    std::fabs( radius - sphericalOrbitState( radiusIndex ) ),
+                    radius * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testLatitude - sphericalOrbitState( latitudeIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testLongitude - sphericalOrbitState( longitudeIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( speed - sphericalOrbitState( speedIndex ) ),
+                    speed * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testFlightPathAngle - sphericalOrbitState( flightPathIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testHeadingAngle - sphericalOrbitState( headingAngleIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
 
 
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( reconvertedCartesianState( i ) - cartesianState( i ) ),
+                        radius * 2.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( reconvertedCartesianState( i  + 3 ) - cartesianState( i + 3 ) ),
+                        speed * 2.0 * std::numeric_limits< double >::epsilon( ) );
+        }
     }
 
     // Test case 3: rotation with zero and half pi angles.
@@ -90,8 +139,84 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
                     cartesianState );
         basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
                     sphericalOrbitState );
-        std::cout<<( reconvertedCartesianState - cartesianState ).transpose( )<<std::endl;
 
+        BOOST_CHECK_SMALL(
+                    std::fabs( radius - sphericalOrbitState( radiusIndex ) ),
+                    radius * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testLatitude - sphericalOrbitState( latitudeIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testLongitude - sphericalOrbitState( longitudeIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( speed - sphericalOrbitState( speedIndex ) ),
+                    speed * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testFlightPathAngle - sphericalOrbitState( flightPathIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testHeadingAngle - sphericalOrbitState( headingAngleIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( reconvertedCartesianState( i ) - cartesianState( i ) ),
+                        radius * 2.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( reconvertedCartesianState( i  + 3 ) - cartesianState( i + 3 ) ),
+                        speed * 2.0 * std::numeric_limits< double >::epsilon( ) );
+        }
+    }
+
+    // Test case 4: rotation with zero and half pi angles.
+    {
+        basic_mathematics::Vector6d cartesianState;
+        cartesianState<<0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, -7.438147520000000e3;
+
+        double testHeadingAngle = 0.0;
+        double testFlightPathAngle = -mathematical_constants::PI / 2.0;
+        double testLatitude = mathematical_constants::PI / 2.0;
+        double testLongitude = 0.0;
+        double radius = cartesianState.segment( 0, 3 ).norm( );
+        double speed = cartesianState.segment( 3, 3 ).norm( );
+
+        basic_mathematics::Vector6d sphericalOrbitState  = convertCartesianToSphericalOrbitalState(
+                    cartesianState );
+        basic_mathematics::Vector6d reconvertedCartesianState  = convertSphericalOrbitalToCartesianState(
+                    sphericalOrbitState );
+
+        BOOST_CHECK_SMALL(
+                    std::fabs( radius - sphericalOrbitState( radiusIndex ) ),
+                    radius * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testLatitude - sphericalOrbitState( latitudeIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testLongitude - sphericalOrbitState( longitudeIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( speed - sphericalOrbitState( speedIndex ) ),
+                    speed * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testFlightPathAngle - sphericalOrbitState( flightPathIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL(
+                    std::fabs( testHeadingAngle - sphericalOrbitState( headingAngleIndex ) ),
+                    2.0 * mathematical_constants::PI * std::numeric_limits< double >::epsilon( ) );
+
+
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( reconvertedCartesianState( i ) - cartesianState( i ) ),
+                        radius * 2.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( reconvertedCartesianState( i  + 3 ) - cartesianState( i + 3 ) ),
+                        speed * 2.0 * std::numeric_limits< double >::epsilon( ) );
+        }
     }
 
 
