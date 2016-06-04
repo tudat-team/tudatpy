@@ -39,9 +39,6 @@ basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
                 sphericalOrbitalState( longitudeIndex ), sphericalOrbitalState( latitudeIndex ) ) *
             bodyFixedCartesianState.segment( 3, 3 );
 
-    std::cout<<"Vert. frame: "<<verticalFrameVelocity.transpose( )<<std::endl;
-    std::cout<<"Fixed. frame: "<<bodyFixedCartesianState.transpose( )<<std::endl;
-
     sphericalOrbitalState( speedIndex ) = verticalFrameVelocity.norm( );
     sphericalOrbitalState( flightPathIndex ) = calculateFlightPathAngle( verticalFrameVelocity );
     sphericalOrbitalState( headingAngleIndex ) = calculateHeadingAngle( verticalFrameVelocity );

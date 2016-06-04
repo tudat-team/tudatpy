@@ -1,3 +1,6 @@
+#ifndef TUDAT_SPHERICALSTATECONVERSIONS_CPP
+#define TUDAT_SPHERICALSTATECONVERSIONS_CPP
+
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
@@ -35,4 +38,4 @@ basic_mathematics::Vector6d convertSphericalOrbitalToCartesianState(
 }
 
 }
-#endif // SPHERICALSTATECONVERSIONS_CPP
+#endif // TUDAT_SPHERICALSTATECONVERSIONS_CPP
