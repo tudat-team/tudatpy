@@ -75,6 +75,16 @@ enum ModifiedEquinoctialElementVectorIndices
     trueLongitudeIndex
 };
 
+enum SphericalStateElementIndices
+{
+    radiusIndex,
+    latitudeIndex,
+    longitudeIndex,
+    speedIndex,
+    flightPathIndex,
+    headingAngleIndex
+};
+
 //! Cartesian acceleration indices.
 enum CartesianAccelerationElementIndices
 {

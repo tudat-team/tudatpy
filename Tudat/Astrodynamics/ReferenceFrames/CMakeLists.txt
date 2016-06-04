@@ -62,4 +62,4 @@ target_link_libraries(test_ApparentAccelerationModel tudat_reference_frames ${Bo
 
 add_executable(test_AerodynamicAngleCalculator "${SRCROOT}${REFERENCEFRAMESDIR}/UnitTests/unitTestAerodynamicAngleCalculator.cpp")
 setup_custom_test_program(test_AerodynamicAngleCalculator "${SRCROOT}${REFERENCEFRAMESDIR}")
-target_link_libraries(test_AerodynamicAngleCalculator tudat_reference_frames tudat_basic_mathematics ${Boost_LIBRARIES})
+target_link_libraries(test_AerodynamicAngleCalculator tudat_reference_frames tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
