@@ -110,6 +110,8 @@ set(BASICSDIR "/Basics")
 set(EXTERNALDIR "/External")
 set(INPUTOUTPUTDIR "/InputOutput")
 set(MATHEMATICSDIR "/Mathematics")
+set(SIMULATIONSETUPDIR "/SimulationSetup")
+
 
 # Include the top-level directories.
 include_directories(AFTER
@@ -180,8 +182,10 @@ endif()
 option(USE_CSPICE "build Tudat with CSPICE enabled" ON) # OFF is the default
 if(NOT USE_CSPICE)
   message(STATUS "SPICE disabled!")
+  add_definitions(-DUSE_CSPICE=0)
 else()
   message(STATUS "SPICE enabled!")
+add_definitions(-DUSE_CSPICE=1)
 
   # Find CSPICE library on local system.
   find_package(Spice)
@@ -218,7 +222,7 @@ else()
 endif()
 
 # Set sub-directories.
-set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR})
+set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR} ${SIMULATIONSETUPDIR})
 
 # Add sub-directories to CMake process.
 foreach(CURRENT_SUBDIR ${SUBDIRS})
