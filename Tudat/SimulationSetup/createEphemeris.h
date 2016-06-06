@@ -104,7 +104,7 @@ public:
     //! Function to rese the orientation of the frame.
     /*!
      * Function to reset the orientation of the frame.
-     * \param frameOrigin New frame orientation
+     * \param frameOrientation New frame orientation
      */
     void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
 

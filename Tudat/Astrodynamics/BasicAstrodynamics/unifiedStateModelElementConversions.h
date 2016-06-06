@@ -56,7 +56,7 @@ namespace orbital_element_conversions
  *         keplerianElements( 4 ) = longitude of ascending node,                              [rad]
  *         keplerianElements( 5 ) = true anomaly.                                             [rad]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
- * \return convertedUnifiedStateModelElements Converted state in Unified State Model elements. The order of elements is fixed!
+ * \return convertedUnifiedStateModelElements Converted state in Unified State Model elements. The order of elements is fixed
  *         convertedUnifiedStateModelElements( 0 ) = C hodograph element,                     [m/s]
  *         convertedUnifiedStateModelElements( 1 ) = Rf1 hodograph element,                   [m/s]
  *         convertedUnifiedStateModelElements( 2 ) = Rf1 hodograph element,                   [m/s]
@@ -65,7 +65,7 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion element,               [-]
  *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
-Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
+Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
         const basic_mathematics::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter );
 
@@ -89,7 +89,8 @@ Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
  *         convertedKeplerianElements( 4 ) = longitude of ascending node,                     [rad]
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
-basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(const Eigen::VectorXd &unifiedStateModelElements,
+basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
+        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
 } // close namespace orbital_element_conversion

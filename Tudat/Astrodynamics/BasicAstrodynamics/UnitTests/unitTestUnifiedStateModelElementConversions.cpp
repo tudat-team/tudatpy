@@ -175,7 +175,8 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
     // Case 4: Circular prograde orbit with non-zero argument of pericenter, test for error.
     {
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        keplerianElements( eccentricityIndex ) = 0.0; // Eccentricity is zero, while argument of pericenter is non-zero -> should give error
+        keplerianElements( eccentricityIndex ) = 0.0;
+            // Eccentricity is zero, while argument of pericenter is non-zero -> should give error
         keplerianElements( inclinationIndex ) = convertDegreesToRadians( 50.0 );
 
         // Declare variable indicating whether an exception has been thrown.
@@ -462,8 +463,10 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
     // Case 7: 0 eccentricity and inclination orbit.
     {
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
-        expectedKeplerianElements( eccentricityIndex ) = 0.0; // argument of pericenter was set to 0 in case 4, so no error.
-        expectedKeplerianElements( inclinationIndex ) = 0.0; // longitude of ascending node was set to 0 in case 5, so no error.
+        expectedKeplerianElements( eccentricityIndex ) = 0.0;
+            // argument of pericenter was set to 0 in case 4, so no error.
+        expectedKeplerianElements( inclinationIndex ) = 0.0;
+            // longitude of ascending node was set to 0 in case 5, so no error.
 
         // Convert to Unified State Model elements and back
         computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(

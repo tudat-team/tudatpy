@@ -55,14 +55,14 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to Unified State Model elements.
-Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
+Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
         const basic_mathematics::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    Eigen::VectorXd convertedUnifiedStateModelElements = Eigen::VectorXd::Zero( 7 );
+    Eigen::Matrix< double, 7, 1 > convertedUnifiedStateModelElements = Eigen::Matrix< double, 7, 1 >::Zero( );
 
     // Define the tolerance of a singularity
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
@@ -92,36 +92,39 @@ Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
         boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
     }
 
-    // If argument of pericenter is outside range [0,2*PI[
-    if ( ( keplerianElements( argumentOfPeriapsisIndex ) < 0.0 ) || ( keplerianElements( argumentOfPeriapsisIndex ) > 2*PI ) )
+    // If argument of pericenter is outside range [0,2.0 * PI]
+    if ( ( keplerianElements( argumentOfPeriapsisIndex ) < 0.0 ) || ( keplerianElements( argumentOfPeriapsisIndex ) >
+                                                                      2.0 * PI ) )
     {
         // Define the error message.
         std::stringstream errorMessage;
-        errorMessage << "RAAN is expected in range [0," << 2*PI << "]\n"
+        errorMessage << "RAAN is expected in range [0," << 2.0 * PI << "]\n"
                      << "Specified inclination: " << keplerianElements( argumentOfPeriapsisIndex ) << " rad." << std::endl;
 
         // Throw exception.
         boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
     }
 
-    // If right ascension of ascending node is outside range [0,2*PI[
-    if ( ( keplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 ) || ( keplerianElements( longitudeOfAscendingNodeIndex ) > 2*PI ) )
+    // If right ascension of ascending node is outside range [0,2.0 * PI]
+    if ( ( keplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 ) ||
+         ( keplerianElements( longitudeOfAscendingNodeIndex ) > 2.0 * PI ) )
     {
         // Define the error message.
         std::stringstream errorMessage;
-        errorMessage << "RAAN is expected in range [0," << 2*PI << "]\n"
-                     << "Specified inclination: " << keplerianElements( longitudeOfAscendingNodeIndex ) << " rad." << std::endl;
+        errorMessage << "RAAN is expected in range [0," << 2.0 * PI << "]\n"
+                     << "Specified inclination: " << keplerianElements( longitudeOfAscendingNodeIndex ) << " rad."
+                     << std::endl;
 
         // Throw exception.
         boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
     }
 
-    // If true anomaly is outside range [0,2*PI[
-    if ( ( keplerianElements( trueAnomalyIndex ) < 0.0 ) || ( keplerianElements( trueAnomalyIndex ) > 2*PI ) )
+    // If true anomaly is outside range [0,2.0 * PI]
+    if ( ( keplerianElements( trueAnomalyIndex ) < 0.0 ) || ( keplerianElements( trueAnomalyIndex ) > 2.0 * PI ) )
     {
         // Define the error message.
         std::stringstream errorMessage;
-        errorMessage << "RAAN is expected in range [0," << 2*PI << "]\n"
+        errorMessage << "RAAN is expected in range [0," << 2.0 * PI << "]\n"
                      << "Specified inclination: " << keplerianElements( trueAnomalyIndex ) << " rad." << std::endl;
 
         // Throw exception.
@@ -129,24 +132,28 @@ Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
     }
 
     // If inclination is zero and the right ascension of ascending node is non-zero
-    if ( ( std::fabs( keplerianElements( inclinationIndex ) ) < singularityTolerance ) && ( std::fabs( keplerianElements( longitudeOfAscendingNodeIndex ) ) > singularityTolerance ) )
+    if ( ( std::fabs( keplerianElements( inclinationIndex ) ) < singularityTolerance ) &&
+         ( std::fabs( keplerianElements( longitudeOfAscendingNodeIndex ) ) > singularityTolerance ) )
     {
         // Define the error message.
         std::stringstream errorMessage;
         errorMessage << "When the inclination is zero, the right ascending node should be zero by definition\n"
-                     << "Specified right ascension of ascending node: " << keplerianElements( longitudeOfAscendingNodeIndex ) << " rad." << std::endl;
+                     << "Specified right ascension of ascending node: " <<
+                        keplerianElements( longitudeOfAscendingNodeIndex ) << " rad." << std::endl;
 
         // Throw exception.
         boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
     }
 
     // If eccentricity is zero and the argument of pericenter is non-zero
-    if ( ( std::fabs( keplerianElements( eccentricityIndex ) ) < singularityTolerance ) && ( std::fabs( keplerianElements( argumentOfPeriapsisIndex ) ) > singularityTolerance ) )
+    if ( ( std::fabs( keplerianElements( eccentricityIndex ) ) < singularityTolerance ) &&
+         ( std::fabs( keplerianElements( argumentOfPeriapsisIndex ) ) > singularityTolerance ) )
     {
         // Define the error message.
         std::stringstream errorMessage;
         errorMessage << "When the eccentricity is zero, the argument of pericenter should be zero by definition\n"
-                     << "Specified argument of pericenter: " << keplerianElements( argumentOfPeriapsisIndex ) << " rad." << std::endl;
+                     << "Specified argument of pericenter: " <<
+                        keplerianElements( argumentOfPeriapsisIndex ) << " rad." << std::endl;
 
         // Throw exception.
         boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
@@ -180,7 +187,8 @@ Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
     //Else, nothing wrong and continue
 
     // Compute the C hodograph element of the Unified State Model
-    if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance ) // parabolic orbit -> semi-major axis is not defined
+    if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
+            // parabolic orbit -> semi-major axis is not defined
     {
         convertedUnifiedStateModelElements( CHodographIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / keplerianElements( semiLatusRectumIndex ) );
@@ -194,7 +202,8 @@ Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
     }
 
     // Calculate the additional R hodograph parameter
-    double RHodographElement = keplerianElements( eccentricityIndex ) * convertedUnifiedStateModelElements( CHodographIndex );
+    double RHodographElement = keplerianElements( eccentricityIndex ) *
+            convertedUnifiedStateModelElements( CHodographIndex );
 
     // Compute the Rf1 hodograph element of the Unified State Model
     convertedUnifiedStateModelElements( Rf1HodographIndex ) =
@@ -237,7 +246,7 @@ Eigen::VectorXd convertKeplerianToUnifiedStateModelElements(
 
 //! Convert Unified State Model elements to Keplerian elements.
 basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
-        const Eigen::VectorXd& unifiedStateModelElements,
+        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
@@ -276,7 +285,8 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
 
     // Compute auxiliary parameters cosineLambda, sineLambda and Lambda
     if ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
-        && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) ) // pure-retrograde orbit -> inclination  = pi
+        && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) )
+            // pure-retrograde orbit -> inclination  = pi
     {
         //Define the error message
         std::stringstream errorMessage;
@@ -306,10 +316,10 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
         lambdaFromSineAndCosine = std::atan2( sineLambda, cosineLambda );
     }
 
-    // Compute auxiliary parameters ve1 and ve2
-    double ve1 = unifiedStateModelElements( Rf1HodographIndex ) * cosineLambda +
+    // Compute auxiliary parameters auxiliaryParameter1 and auxiliaryParameter2
+    double auxiliaryParameter1 = unifiedStateModelElements( Rf1HodographIndex ) * cosineLambda +
             unifiedStateModelElements( Rf2HodographIndex ) * sineLambda;
-    double ve2 = unifiedStateModelElements( CHodographIndex ) -
+    double auxiliaryParameter2 = unifiedStateModelElements( CHodographIndex ) -
             unifiedStateModelElements( Rf1HodographIndex ) * sineLambda +
             unifiedStateModelElements( Rf2HodographIndex ) * cosineLambda;
 
@@ -324,7 +334,8 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
             RHodographElement / unifiedStateModelElements( CHodographIndex );
 
     // Compute semi-major axis or, in case of a parabolic orbit, the semi-latus rectum.
-    if ( std::fabs( convertedKeplerianElements( eccentricityIndex ) - 1.0 ) < singularityTolerance ) // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
+    if ( std::fabs( convertedKeplerianElements( eccentricityIndex ) - 1.0 ) < singularityTolerance )
+            // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
     {
         convertedKeplerianElements( semiLatusRectumIndex ) = centralBodyGravitationalParameter /
                 ( unifiedStateModelElements( CHodographIndex ) * unifiedStateModelElements( CHodographIndex ) );
@@ -333,8 +344,8 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
     {
         convertedKeplerianElements( semiMajorAxisIndex ) =
                 centralBodyGravitationalParameter /
-                ( 2.0 * unifiedStateModelElements( CHodographIndex ) * ve2 -
-                    ( ve1 * ve1 + ve2 * ve2 ) );
+                ( 2.0 * unifiedStateModelElements( CHodographIndex ) * auxiliaryParameter2 -
+                    ( auxiliaryParameter1 * auxiliaryParameter1 + auxiliaryParameter2 * auxiliaryParameter2 ) );
     }
 
     // Compute inclination
@@ -342,13 +353,15 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
             std::acos( 1.0 - 2.0 * ( unifiedStateModelElements( epsilon1QuaternionIndex ) *
                                      unifiedStateModelElements( epsilon1QuaternionIndex ) +
                                      unifiedStateModelElements( epsilon2QuaternionIndex ) *
-                                     unifiedStateModelElements( epsilon2QuaternionIndex ) ) ); // This acos is always defined correctly because the inclination is always below pi rad.
+                                     unifiedStateModelElements( epsilon2QuaternionIndex ) ) );
+        // This acos is always defined correctly because the inclination is always below pi rad.
 
     // Compute longitude of ascending node
     if ( ( ( std::fabs( unifiedStateModelElements( epsilon1QuaternionIndex ) ) < singularityTolerance )
            && ( std::fabs( unifiedStateModelElements( epsilon2QuaternionIndex ) ) < singularityTolerance ) ) ||
          ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
-         && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) ) ) // pure-prograde or pure-retrograde orbit
+         && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) ) )
+            // pure-prograde or pure-retrograde orbit
     {
         convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
     }
@@ -386,7 +399,9 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
             convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
         }
         // Ensure the longitude of ascending node is positive
-        while ( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 ) // Because of the previous if loop, if the longitude of ascending node is smaller than 0, it will always be smaller than -singularityTolerance
+        while ( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 )
+                // Because of the previous if loop, if the longitude of ascending node is smaller than 0, it will
+                // always be smaller than -singularityTolerance
         {
             convertedKeplerianElements( longitudeOfAscendingNodeIndex ) =
                     convertedKeplerianElements( longitudeOfAscendingNodeIndex ) + 2.0 * PI;
@@ -397,7 +412,8 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
     if ( std::fabs( RHodographElement ) < singularityTolerance ) // circular orbit
     {
         convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // by definition
-        convertedKeplerianElements( trueAnomalyIndex ) = lambdaFromSineAndCosine - convertedKeplerianElements( longitudeOfAscendingNodeIndex );
+        convertedKeplerianElements( trueAnomalyIndex ) =
+                lambdaFromSineAndCosine - convertedKeplerianElements( longitudeOfAscendingNodeIndex );
 
         // Round off small theta to zero
         if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
@@ -406,7 +422,9 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
         }
 
         // Ensure the true anomaly is positive
-        while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 ) // Because of the previous if loop, if the true anomaly is smaller than zero, it will always be smaller than -singularityTolerance
+        while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
+                // Because of the previous if loop, if the true anomaly is smaller than zero, it will always be smaller than
+                // -singularityTolerance
         {
             convertedKeplerianElements( trueAnomalyIndex ) =
                     convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
@@ -415,7 +433,8 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
     else
     {
         convertedKeplerianElements( trueAnomalyIndex ) =
-                std::atan2( ( ve1 / RHodographElement ), ( ( ve2 - unifiedStateModelElements( CHodographIndex ) )
+                std::atan2( ( auxiliaryParameter1 / RHodographElement ),
+                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographIndex ) )
                            / RHodographElement ) );
 
         // Round off small theta to zero
@@ -425,7 +444,9 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
         }
 
         // Ensure the true anomaly is positive
-        while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 ) // Because of the previous if loop, if the true anomaly is smaller than zero, it will always be smaller than -singularityTolerance
+        while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
+            // Because of the previous if loop, if the true anomaly is smaller than zero, it will always
+            // be smaller than -singularityTolerance
         {
             convertedKeplerianElements( trueAnomalyIndex ) =
                     convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
@@ -443,7 +464,9 @@ basic_mathematics::Vector6d convertUnifiedStateModelToKeplerianElements(
         }
 
         // Ensure the argument of periapsis is positive
-        while ( convertedKeplerianElements( argumentOfPeriapsisIndex ) < 0.0 ) // Because of the previous if loop, if the argument of pericenter is smaller than zero, it will be smaller than -singularityTolerance
+        while ( convertedKeplerianElements( argumentOfPeriapsisIndex ) < 0.0 )
+            // Because of the previous if loop, if the argument of pericenter is smaller than zero,
+            // it will be smaller than -singularityTolerance
         {
             convertedKeplerianElements( argumentOfPeriapsisIndex ) =
                     convertedKeplerianElements( argumentOfPeriapsisIndex ) + 2.0 * PI;
