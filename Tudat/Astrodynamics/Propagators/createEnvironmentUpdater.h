@@ -62,6 +62,11 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
         const basic_astrodynamics::AccelerationMap& translationalAccelerationModels,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createMassPropagationEnvironmentUpdaterSettings(
+        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
 //! Get list of required environment model update settings from a list of propagation settings.
 /*!
 * Get list of required environment model update settings from a list of propagation settings.
@@ -82,6 +87,33 @@ std::map< propagators::EnvironmentModelsToUpdate,
     // Check dynamics type
     switch( propagatorSettings->stateType_ )
     {
+    case hybrid:
+    {
+        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > singleAccelerationUpdateNeeds;
+
+        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+             typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
+             typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
+        {
+            for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+            {
+                if( typeIterator->first != hybrid )
+                {
+                    singleAccelerationUpdateNeeds = createEnvironmentUpdaterSettings< StateScalarType >( typeIterator->second.at( i ), bodyMap );
+
+                    checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodyMap );
+                    addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
+                }
+                else
+                {
+                    std::cerr<<"Error when making environment updater type list, cannot handle hybrid propagator inside hybrid propagator"<<std::endl;
+                }
+            }
+        }
+    }
     case transational_state:
     {
         environmentModelsToUpdate = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
@@ -89,6 +121,14 @@ std::map< propagators::EnvironmentModelsToUpdate,
                     TranslationalStatePropagatorSettings< StateScalarType > >(
                         propagatorSettings )->accelerationsMap_,
                     bodyMap );
+        break;
+    }
+    case body_mass_state:
+    {
+        environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
+                    boost::dynamic_pointer_cast<
+                    MassPropagatorSettings< StateScalarType > >(
+                        propagatorSettings )->massRateModels_, bodyMap );
         break;
     }
     default:

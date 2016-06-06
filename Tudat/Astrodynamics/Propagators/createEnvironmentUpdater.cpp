@@ -281,6 +281,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     break;
                 }
                 default:
+                    throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
+                                              boost::lexical_cast< std::string >( currentAccelerationModelType ) );
                     break;
                 }
 
@@ -298,10 +300,50 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
     return environmentModelsToUpdate;
 }
 
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+createMassPropagationEnvironmentUpdaterSettings(
+        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+        const simulation_setup::NamedBodyMap& bodyMap )
+{
+    using namespace basic_astrodynamics;
+    using namespace propagators;
+
+    std::map< propagators::EnvironmentModelsToUpdate,
+              std::vector< std::string > > environmentModelsToUpdate;
+    std::map< propagators::EnvironmentModelsToUpdate,
+              std::vector< std::string > > singleRateModelUpdateNeeds;
+
+    for( std::map< std::string, boost::shared_ptr< MassRateModel > >::const_iterator massRateModelIterator =
+         massRateModels.begin( ); massRateModelIterator != massRateModels.end( ); massRateModelIterator++ )
+    {
+        singleRateModelUpdateNeeds.clear( );
+
+        AvailableMassRateModels currentAccelerationModelType =
+                getMassRateModelType( massRateModelIterator->second );
+        switch( currentAccelerationModelType )
+        {
+        case custom:
+            break;
+        default:
+            throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
+                                      boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+
+        }
+        // Check whether requested updates are possible.
+        checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
+
+        // Add requested updates of current acceleration model to
+        // full list of environment updates.
+        addEnvironmentUpdates( environmentModelsToUpdate, singleRateModelUpdateNeeds );
+    }
+
+    return environmentModelsToUpdate;
+
+}
 
 //! Function to create 'brute-force' update settings, in which each environment model is updated.
 std::map< propagators::EnvironmentModelsToUpdate,
-          std::vector< std::string > > createFullEnvironmentUpdaterSettings(
+std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace basic_astrodynamics;

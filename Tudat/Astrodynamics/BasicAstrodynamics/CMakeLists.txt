@@ -74,6 +74,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/bodyShapeModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/oblateSpheroidBodyShapeModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalBodyShapeModel.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/massRateModel.h"
 )
 
 # Add static libraries.

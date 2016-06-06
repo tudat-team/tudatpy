@@ -191,7 +191,7 @@ public:
         return accelerationModelsPerBody_;
     }
 
-    //! Function to get object providing the current integration origins
+    //! Function to get object providing the current integration origins 
     /*!
      * Function to get object responsible for providing the current integration origins from the
      * global origins.
@@ -233,7 +233,7 @@ protected:
      * \param stateDerivative State derivative of the system in Cartesian coordinates (returned by reference).
      */
     void sumStateDerivativeContributions(
-            const Eigen::VectorXd& stateOfSystemToBeIntegrated,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         using namespace basic_astrodynamics;
@@ -257,12 +257,14 @@ protected:
                 {
                     // Calculate acceleration and add to state derivative.
                     stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += (
-                                innerAccelerationIterator->second[ j ]->getAcceleration( ) );
+                                innerAccelerationIterator->second[ j ]->getAcceleration( ) ).
+                            template cast< StateScalarType >( );
                 }
             }
 
             // Add body velocity as derivative of its position.
-            stateDerivative.block( currentBodyIndex * 6, 0, 3, 1 ) = stateOfSystemToBeIntegrated.segment( currentBodyIndex * 6 + 3, 3 );
+            stateDerivative.block( currentBodyIndex * 6, 0, 3, 1 ) =
+                    ( stateOfSystemToBeIntegrated.segment( currentBodyIndex * 6 + 3, 3 ) );
             currentAccelerationIndex++;
         }
     }

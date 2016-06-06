@@ -40,6 +40,7 @@
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 
 
 namespace tudat
@@ -65,6 +66,12 @@ enum AvailableAcceleration
     third_body_spherical_harmonic_gravity
 };
 
+enum AvailableMassRateModels
+{
+    undefined_mass_rate_model,
+    custom
+};
+
 //! Function to identify the derived class type of an acceleration model.
 /*!
  *  Function to identify the derived class type of an acceleration model. The type must be defined
@@ -75,6 +82,9 @@ enum AvailableAcceleration
 AvailableAcceleration getAccelerationModelType(
         const boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
         accelerationModel );
+
+AvailableMassRateModels getMassRateModelType(
+        const boost::shared_ptr< MassRateModel > massRateModel );
 
 
 } // namespace basic_astrodynamics

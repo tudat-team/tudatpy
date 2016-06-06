@@ -36,6 +36,7 @@
 # Add source files.
 set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/createStateDerivativeModel.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
 )
@@ -54,6 +55,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
+  "${SRCROOT}${PROPAGATORSDIR}/bodyMassStateDerivative.h"
 )
 
 # Add static libraries.
