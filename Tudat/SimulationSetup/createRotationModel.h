@@ -90,7 +90,7 @@ public:
     //! Function to rese the orientation of the base frame.
     /*!
      * Function to reset the orientation of the base frame.
-     * \param frameOrientation New base frame orientation
+     * \param originalFrame New base frame orientation
      */
     void resetOriginalFrame( const std::string& originalFrame )
     {
