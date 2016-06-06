@@ -298,9 +298,8 @@ public:
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
           getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
-
-          sphericalHarmonicsCache_( sphericalHarmonicsCache ),
-          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction )
+          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
+          sphericalHarmonicsCache_( sphericalHarmonicsCache )
     {
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
                     std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), sphericalHarmonicsCache_->getMaximumDegree( ) ),
