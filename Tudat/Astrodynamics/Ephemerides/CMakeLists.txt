@@ -106,7 +106,7 @@ endif()
 if(USE_CSPICE)
 add_executable(test_CompositeEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestCompositeEphemeris.cpp")
 setup_custom_test_program(test_CompositeEphemeris "${SRCROOT}${EPHEMERIDESDIR}")
-target_link_libraries(test_CompositeEphemeris tudat_simulation_setup tudat_electro_magnetism tudat_gravitation tudat_ephemerides tudat_reference_frames tudat_aerodynamics tudat_reference_frames tudat_spice_interface tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics cspice ${TUDAT_CORE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_CompositeEphemeris tudat_simulation_setup tudat_electro_magnetism tudat_gravitation tudat_ephemerides tudat_reference_frames tudat_aerodynamics tudat_reference_frames tudat_spice_interface tudat_input_output tudat_basic_astrodynamics tudat_basic_mathematics cspice ${Boost_LIBRARIES})
 endif()
 
 add_executable(test_KeplerEphemeris "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestKeplerEphemeris.cpp")
