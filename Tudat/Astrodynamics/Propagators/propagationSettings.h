@@ -201,7 +201,8 @@ public:
             const std::vector< std::string > bodiesWithMassToPropagate,
             const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses ):
-        PropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses )
+        PropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses ),
+      bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
     { }
 
     std::vector< std::string > bodiesWithMassToPropagate_;
