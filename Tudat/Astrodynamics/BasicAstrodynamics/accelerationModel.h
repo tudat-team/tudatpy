@@ -115,6 +115,7 @@ public:
 
 protected:
 
+    //! Previous time to which acceleration model was updated.
     double currentTime_;
 
 protected:
