@@ -101,8 +101,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
             < double, basic_mathematics::Vector6d > >( marsStateHistoryMap );
 
     // Create tabulated epehemeris from interpolator
-    boost::shared_ptr< TabulatedCartesianEphemeris > tabulatedEphemeris =
-            boost::make_shared< TabulatedCartesianEphemeris >(
+    boost::shared_ptr< TabulatedCartesianEphemeris< > > tabulatedEphemeris =
+            boost::make_shared< TabulatedCartesianEphemeris< > >(
                 marsStateInterpolator, "SSB", "J2000", basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     // Compare interpolated and tabulated ephemeris state at dummy time.

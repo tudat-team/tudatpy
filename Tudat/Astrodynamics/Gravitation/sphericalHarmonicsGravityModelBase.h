@@ -72,8 +72,7 @@ public:
      * constructor also updates all the internal members.
      * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
      *          body subject to gravitational acceleration.
-     * \param aGravitationalParameter Pointer to function returning gravitational parameter
-     *          of body exerting gravitational acceleration.
+     * \param aGravitationalParameter Gravitational parameter of body exerting gravitational acceleration.
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration.
      */
@@ -82,7 +81,31 @@ public:
             const double aGravitationalParameter,
             const StateFunction positionOfBodyExertingAccelerationFunction )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
-          gravitationalParameter( aGravitationalParameter ),
+          gravitationalParameterFunction( boost::lambda::constant( aGravitationalParameter ) ),
+          sourcePositionFunction( positionOfBodyExertingAccelerationFunction )
+    { }
+
+    //! Default constructor taking position of body subject to acceleration, variable
+    //! gravitational parameter, and position of body exerting acceleration.
+    /*!
+     * Constructor taking a pointer to a function returning the position of the body subject to
+     * gravitational acceleration, a pointer to a function returning the gravitational parameter of
+     * the body exerting the acceleration, and a pointer to a function returning the position of
+     * the body exerting the  gravitational acceleration (typically the central body). The
+     * constructor also updates all the internal members.
+     * \param positionOfBodySubjectToAccelerationFunction Pointer to function returning position of
+     *          body subject to gravitational acceleration.
+     * \param aGravitationalParameterFunction Pointer to function returning gravitational parameter
+     *          of body exerting gravitational acceleration.
+     * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
+     *          body exerting gravitational acceleration.
+     */
+    SphericalHarmonicsGravitationalAccelerationModelBase(
+            const StateFunction positionOfBodySubjectToAccelerationFunction,
+            const boost::function< double( ) > aGravitationalParameterFunction,
+            const StateFunction positionOfBodyExertingAccelerationFunction )
+        : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
+          gravitationalParameterFunction( aGravitationalParameterFunction ),
           sourcePositionFunction( positionOfBodyExertingAccelerationFunction )
     { }
 
@@ -102,6 +125,7 @@ public:
      */
     bool updateBaseMembers( )
     {
+        this->gravitationalParameter = this->gravitationalParameterFunction( );
         this->positionOfBodySubjectToAcceleration = this->subjectPositionFunction( );
         this->positionOfBodyExertingAcceleration  = this->sourcePositionFunction( );
         return true;
@@ -122,11 +146,17 @@ protected:
      */
     const StateFunction subjectPositionFunction;
 
+    //! Function returning a gravitational parameter [m^3 s^-2].
+    /*!
+     * Function returning current gravitational parameter of body exerting acceleration [m^3 s^-2].
+     */
+    const boost::function< double( ) > gravitationalParameterFunction;
+
     //! Gravitational parameter [m^3 s^-2].
     /*!
      * Current gravitational parameter of body exerting acceleration [m^3 s^-2].
      */
-    const double gravitationalParameter;
+    double gravitationalParameter;
 
     //! Position of body exerting acceleration.
     /*!

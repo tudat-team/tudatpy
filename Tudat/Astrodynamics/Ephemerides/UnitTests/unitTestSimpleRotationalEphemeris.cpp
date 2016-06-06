@@ -52,6 +52,8 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+//#include "Tudat/External/SpiceInterface/spiceInterface.h"
+//#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat
@@ -140,11 +142,20 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
 
     // Test rotation to target frame at specified time.
     {
-        // The following code block can be used to retrieve the benchmark data from Spice.
         /*
-        Eigen::Quaterniond spiceInitialRotationToTargetFrame =
-               computeRotationQuaternionBetweenFrames( baseFrame, targetFrame, secondsSinceJ2000 );
+        spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00010.tpc" );
+        // The following code block can be used to retrieve the benchmark data from Spice.
+
+        Eigen::Quaterniond spiceRotationMatrix =
+               computeRotationQuaternionBetweenFrames( baseFrame, targetFrame, secondsSinceJ2000 );\
+        spice_interface::computeRotationMatrixDerivativeBetweenFrames( baseFrame, targetFrame, secondsSinceJ2000 );
+
         */
+        Eigen::Matrix3d spiceRotationMatrixDerivative;
+        spiceRotationMatrixDerivative << 1.690407961416589e-07, 2.288121921543265e-07, 9.283170431475241e-08,
+                -2.468632444964533e-07, 1.540516111965609e-07, 6.981529179974795e-08,
+                0.0,           0.0,          0.0;
+
 
         // Set rotation at given time, as calculated with Spice (see above commented lines)
         Eigen::Matrix3d spiceRotationMatrix;
@@ -152,21 +163,115 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemeris )
                 -0.5648910720519699, -0.7646317780963481, -0.3102197940834743,
                 0.01869081416890206, -0.3877088083617987, 0.9215923900425707;
 
-        // Calculate rotations to frame at certain time;
-        // Check Spice result with ephemerides results.
+        // Calculate rotation to frame, and its time derivative, at certain time;
         Eigen::Quaterniond ephemerisRotation =
                 venusRotationalEphemerisFromAngles.getRotationToTargetFrame(
                     secondsSinceJ2000, JULIAN_DAY_ON_J2000 );
+        Eigen::Matrix3d ephemerisRotationDerivative =
+                venusRotationalEphemerisFromAngles.getDerivativeOfRotationToTargetFrame(
+                    secondsSinceJ2000, JULIAN_DAY_ON_J2000 );;
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::Matrix3d( ephemerisRotation  ),
-                                           spiceRotationMatrix, 5.0E-15 );
+        // Check Spice result with ephemerides results.
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            Eigen::Matrix3d( ephemerisRotation )( i, j ) -
+                            spiceRotationMatrix( i, j ), 2.0E-15 );
+                BOOST_CHECK_SMALL(
+                            spiceRotationMatrixDerivative( i, j ) -
+                            ephemerisRotationDerivative( i, j ), 2.0E-22 );
+            }
 
-        ephemerisRotation =
-                venusRotationalEphemerisFromInitialState.getRotationToTargetFrame(
+        }
+
+        // Compare inverse rotation and its time derivative.
+        Eigen::Quaterniond inverseEphemerisRotation =
+                venusRotationalEphemerisFromInitialState.getRotationToBaseFrame(
+                    secondsSinceJ2000, JULIAN_DAY_ON_J2000 );
+        Eigen::Matrix3d inverseEphemerisRotationDerivative =
+                venusRotationalEphemerisFromAngles.getDerivativeOfRotationToBaseFrame(
                     secondsSinceJ2000, JULIAN_DAY_ON_J2000 );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( Eigen::Matrix3d( ephemerisRotation ),
-                                           spiceRotationMatrix, 5.0E-15 );
+        Eigen::Matrix3d inverseSpiceRotationMatrix = spiceRotationMatrix.inverse( );
+        Eigen::Matrix3d inverseSpiceRotationMatrixDerivative = spiceRotationMatrixDerivative.transpose( );
+
+        // Check Spice result with ephemerides results.
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            Eigen::Matrix3d( inverseEphemerisRotation )( i, j ) -
+                            inverseSpiceRotationMatrix( i, j ), 2.0E-15 );
+                BOOST_CHECK_SMALL(
+                            inverseEphemerisRotationDerivative( i, j ) -
+                            inverseSpiceRotationMatrixDerivative( i, j ), 2.0E-22 );
+            }
+
+        }
+    }
+
+    // Test rotation matrix derivative by means of finite differences
+    {
+        double timeStep = 10.0;
+
+        // Calculate rotations to frame at two times.
+        Eigen::Quaterniond ephemerisRotation1 =
+                venusRotationalEphemerisFromAngles.getRotationToTargetFrame(
+                    secondsSinceJ2000, JULIAN_DAY_ON_J2000 );
+        Eigen::Quaterniond ephemerisRotation2 =
+                venusRotationalEphemerisFromAngles.getRotationToTargetFrame(
+                    secondsSinceJ2000 + timeStep, JULIAN_DAY_ON_J2000 );
+
+        // Numerically calculate matrix derivative.
+        Eigen::Matrix3d numericalEphemerisRotationDerivative =
+                ( Eigen::Matrix3d( ephemerisRotation2 ) - Eigen::Matrix3d( ephemerisRotation1 ) ) /
+                timeStep;
+
+        // Calculate matrix derivative directly and compare.
+        Eigen::Matrix3d ephemerisRotationDerivative =
+                venusRotationalEphemerisFromAngles.getDerivativeOfRotationToTargetFrame(
+                    secondsSinceJ2000 + timeStep / 2.0, JULIAN_DAY_ON_J2000 );
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            numericalEphemerisRotationDerivative( i, j ) -
+                            ephemerisRotationDerivative( i, j ), 2.0E-16 );
+            }
+
+        }
+
+        // Calculate rotations from frame at two times;
+        ephemerisRotation1 =
+                venusRotationalEphemerisFromAngles.getRotationToBaseFrame(
+                    secondsSinceJ2000, JULIAN_DAY_ON_J2000 );
+        ephemerisRotation2 =
+                venusRotationalEphemerisFromAngles.getRotationToBaseFrame(
+                    secondsSinceJ2000 + timeStep, JULIAN_DAY_ON_J2000 );
+
+        // Numerically calculate matrix derivative.
+        ephemerisRotationDerivative =
+                venusRotationalEphemerisFromAngles.getDerivativeOfRotationToBaseFrame(
+                    secondsSinceJ2000 + timeStep / 2.0, JULIAN_DAY_ON_J2000 );
+
+        // Calculate matrix derivative directly and compare.
+        numericalEphemerisRotationDerivative =
+                ( Eigen::Matrix3d( ephemerisRotation2 ) - Eigen::Matrix3d( ephemerisRotation1 ) ) /
+                timeStep;
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            numericalEphemerisRotationDerivative( i, j ) -
+                            ephemerisRotationDerivative( i, j ), 2.0E-16 );
+            }
+
+        }
     }
 
     // Test rotation from target frame at specified time (is checked by checking if it is inverse
