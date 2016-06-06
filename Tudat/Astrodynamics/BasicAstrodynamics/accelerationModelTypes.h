@@ -66,6 +66,11 @@ enum AvailableAcceleration
     third_body_spherical_harmonic_gravity
 };
 
+//! List of model types for body mass rates.
+/*!
+*  List of model types for body mass rates available in simulations. Mass rate models not defined by this
+*  given enum cannot be used for automatic mass rate model setup.
+*/
 enum AvailableMassRateModels
 {
     undefined_mass_rate_model,
@@ -83,6 +88,13 @@ AvailableAcceleration getAccelerationModelType(
         const boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
         accelerationModel );
 
+//! Function to identify the type of a mass rate model.
+/*!
+ *  Function to identify the type of a mass rate model. The type must be defined
+ *  in the AvailableMassRateModels enum to be recognized by this function.
+ *  \param massRateModel Mass rate model of which the type is to be identified.
+ *  \return Type of the massRateModel, as identified by AvailableMassRateModels enum.
+ */
 AvailableMassRateModels getMassRateModelType(
         const boost::shared_ptr< MassRateModel > massRateModel );
 

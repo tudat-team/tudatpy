@@ -164,7 +164,8 @@ private:
      * \param integratedStatesToSet Integrated states which are to be set in environment.
      */
     void setIntegratedStatesInEnvironment(
-            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&  integratedStatesToSet )
+            const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
+            integratedStatesToSet )
     {
         // Iterate over state types and set states in environment
         for( integratedStateIterator_ = integratedStatesToSet.begin( );
@@ -187,7 +188,7 @@ private:
             };
             case body_mass_state:
             {
-                // Set translational states for bodies provided as input.
+                // Set mass for bodies provided as input.
                 std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedMass =
                         integratedStates_.at( body_mass_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
@@ -235,7 +236,7 @@ private:
             }
             case body_mass_state:
             {
-                // Iterate over all integrated translational states.
+                // Iterate over all integrated masses.
                 std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
                         integratedStates_.at( body_mass_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
@@ -289,7 +290,7 @@ private:
                     {
                         bool addUpdate = 1;
 
-                        // Check if translational state is propagated
+                        // Check if mass is propagated
                         if( integratedStates_.count( transational_state ) > 0 )
                         {
                             // Check if current body is propagated

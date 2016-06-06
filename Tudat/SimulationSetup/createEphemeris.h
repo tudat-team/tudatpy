@@ -560,6 +560,8 @@ private:
     bool useLongDoubleStates_;
 };
 
+#if USE_CSPICE
+
 //! Function to create a tabulated ephemeris using data from Spice.
 /*!
  *  Function to create a tabulated ephemeris using data from Spice.
@@ -577,7 +579,6 @@ private:
  *          calculated.
  * \return Tabulated ephemeris using data from Spice.
  */
-#if USE_CSPICE
 template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
         const std::string& body,
@@ -613,6 +614,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
                 interpolator, observerName, referenceFrameName );
 }
 #endif
+
 //! Function to create a ephemeris model.
 /*!
  *  Function to create a ephemeris model based on model-specific settings for the ephemeris.

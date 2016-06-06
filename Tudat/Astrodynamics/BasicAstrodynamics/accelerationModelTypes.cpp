@@ -89,13 +89,14 @@ AvailableAcceleration getAccelerationModelType(
 
 }
 
+//! Function to identify the type of a mass rate model.
 AvailableMassRateModels getMassRateModelType(
         const boost::shared_ptr< MassRateModel > massRateModel )
 {
     // Nominal type is undefined
     AvailableMassRateModels massRateType = undefined_mass_rate_model;
 
-    // Check for each accelerarion mdoel type implemented as AvailableMassRateModels.
+    // Check for each mass rate mdoel type implemented as AvailableMassRateModels.
     if( boost::dynamic_pointer_cast< basic_astrodynamics::CustomMassRateModel >(
                 massRateModel ) != NULL )
     {
@@ -104,7 +105,7 @@ AvailableMassRateModels getMassRateModelType(
     else
     {
         throw std::runtime_error(
-                    "Error, mass rate model not identified when getting acceleration type." );
+                    "Error, mass rate model not identified when getting mass rate model type." );
     }
     return massRateType;
 }

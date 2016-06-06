@@ -131,9 +131,9 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         }
         else
         {
+            // Create corresponding ephemeris object.
             if( !tabulatedEphemerisSettings->getUseLongDoubleStates( ) )
             {
-                // Create corresponding ephemeris object.
                 ephemeris = boost::make_shared< TabulatedCartesianEphemeris< > >(
                             boost::make_shared<
                             interpolators::LagrangeInterpolator< double, basic_mathematics::Vector6d > >
@@ -145,6 +145,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             else
             {
+                // Cast input history to required type.
                 std::map< double, basic_mathematics::Vector6d > originalStateHistory =
                         tabulatedEphemerisSettings->getBodyStateHistory( );
                 std::map< double, Eigen::Matrix< long double, 6, 1 > > longStateHistory;

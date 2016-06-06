@@ -300,6 +300,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
     return environmentModelsToUpdate;
 }
 
+//! Get list of required environment model update settings from mass rate models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createMassPropagationEnvironmentUpdaterSettings(
         const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
@@ -313,11 +314,13 @@ createMassPropagationEnvironmentUpdaterSettings(
     std::map< propagators::EnvironmentModelsToUpdate,
               std::vector< std::string > > singleRateModelUpdateNeeds;
 
+    // Iterate over all bodies with mass rate model.
     for( std::map< std::string, boost::shared_ptr< MassRateModel > >::const_iterator massRateModelIterator =
          massRateModels.begin( ); massRateModelIterator != massRateModels.end( ); massRateModelIterator++ )
     {
         singleRateModelUpdateNeeds.clear( );
 
+        // Identify mass rate type and set required environment update settings.
         AvailableMassRateModels currentAccelerationModelType =
                 getMassRateModelType( massRateModelIterator->second );
         switch( currentAccelerationModelType )
@@ -329,6 +332,7 @@ createMassPropagationEnvironmentUpdaterSettings(
                                       boost::lexical_cast< std::string >( currentAccelerationModelType ) );
 
         }
+
         // Check whether requested updates are possible.
         checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
 

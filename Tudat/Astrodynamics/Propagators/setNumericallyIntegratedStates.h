@@ -230,15 +230,26 @@ void resetIntegratedEphemerides(
                                              integrationToEphemerisFrameFunctions );
 }
 
+//! Resets the mass models of the integrated bodies from the numerical integration results.
+/*!
+ * Resets the mass models of the integrated bodies from the numerical integration results.
+ * \param bodyMap List of bodies used in simulations.
+ * \param equationsOfMotionNumericalSolution Numerical solution of the body masses.
+ * \param bodiesToIntegrate List of names of bodies for which mass is numerically integrated (in the order in
+ * which they are in the equationsOfMotionNumericalSolution map.
+ */
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedBodyMass(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
         const std::vector< std::string >& bodiesToIntegrate )
 {
+    // Iterate over all bodies for which mass is propagated.
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         std::map< double, double > currentBodyMassMap;
+
+        // Create mass map with double entries.
         for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
              stateIterator = equationsOfMotionNumericalSolution.begin( );
              stateIterator != equationsOfMotionNumericalSolution.end( ); stateIterator++ )
@@ -249,6 +260,7 @@ void resetIntegratedBodyMass(
 
         typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
 
+        // Create and set interpolator.
          bodyMap.at( bodiesToIntegrate.at( i ) )->setBodyMassFunction( boost::bind(
                     static_cast< double( LocalInterpolator::* )( const double ) >
                     ( &LocalInterpolator::interpolate ),
@@ -544,7 +556,7 @@ createIntegratedStateProcessors(
         checkTranslationalStatesFeasibility< TimeType, StateScalarType >(
                     translationalPropagatorSettings->bodiesToIntegrate_, bodyMap );
 
-        // Create state propagator settings
+        // Create state processors
         integratedStateProcessors[ transational_state ].push_back(
                     boost::make_shared< TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
                         startIndex, bodyMap, translationalPropagatorSettings->bodiesToIntegrate_,
@@ -563,7 +575,7 @@ createIntegratedStateProcessors(
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
         }
 
-        // Create state propagator settings
+        // Create mass processors.
         integratedStateProcessors[ body_mass_state ].push_back(
                     boost::make_shared< BodyMassIntegratedStateProcessor< TimeType, StateScalarType > >(
                         startIndex, bodyMap, massPropagatorSettings->bodiesWithMassToPropagate_ ) );
