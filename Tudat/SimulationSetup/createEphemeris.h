@@ -97,7 +97,19 @@ public:
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
 
+    //! Function to reset the origin of the frame.
+    /*!
+     * Function to reset the origin of the frame.
+     * \param frameOrigin New frame origin
+     */
     void resetFrameOrigin( const std::string& frameOrigin ){ frameOrigin_ = frameOrigin; }
+
+    //! Function to rese the orientation of the frame.
+    /*!
+     * Function to reset the orientation of the frame.
+     * \param frameOrientation New frame orientation
+     */
+    void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
 
 
 protected:
