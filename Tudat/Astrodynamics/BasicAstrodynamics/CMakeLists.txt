@@ -135,7 +135,7 @@ target_link_libraries(test_MissionGeometry tudat_basic_astrodynamics ${Boost_LIB
 
 add_executable(test_TimeConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestTimeConversions.cpp")
 setup_custom_test_program(test_TimeConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_TimeConversions tudat_basic_astrodynamics sofa ${Boost_LIBRARIES})
+target_link_libraries(test_TimeConversions tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_CelestialBodyConstants "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestCelestialBodyConstants.cpp")
 setup_custom_test_program(test_CelestialBodyConstants "${SRCROOT}${BASICASTRODYNAMICSDIR}")
