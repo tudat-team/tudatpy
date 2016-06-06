@@ -45,16 +45,19 @@ double getDummyMassRate2(
     return ( 3.0 * bodyMap.at( "Vehicle1" )->getBodyMass( ) + 2.0 * bodyMap.at( "Vehicle2" )->getBodyMass( ) ) / 1.0E4;
 }
 
+// Test mass rate of single body, linearly decreasing with time
 BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
 {
+    // Crate bodyMap
     NamedBodyMap bodyMap;
     bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
 
+    // Create mass rate model.
     std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = boost::make_shared< basic_astrodynamics::CustomMassRateModel >(
                 boost::lambda::constant( -0.01 ) );
 
-
+    // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
     boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
@@ -69,6 +72,7 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
                 bodyMap, integratorSettings, propagatorSettings, true, false, false );
 
+    // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
          stateIterator != integratedState.end( ); stateIterator++ )
@@ -77,12 +81,16 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
     }
 }
 
+// Test coupled mass rate of two bodies. Model ius unphysical, but has an analytical solution, and allows the internal
+// workings of the mass propagation to be more rigorously tested.
 BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
 {
+    // Crate bodyMap
     NamedBodyMap bodyMap;
     bodyMap[ "Vehicle1" ] = boost::make_shared< Body >( );
     bodyMap[ "Vehicle2" ] = boost::make_shared< Body >( );
 
+    // Create mass rate models.
     std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle1" ] = boost::make_shared< basic_astrodynamics::CustomMassRateModel >(
                 boost::bind( &getDummyMassRate1, bodyMap ) );
@@ -96,10 +104,10 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
     bodyMap[ "Vehicle2" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
                                           boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), "Earth" ) );
 
+    // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 2 );
     initialMass( 0 ) = 500.0;
     initialMass( 1 ) = 1000.0;
-
     boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             boost::make_shared< MassPropagatorSettings< double > >(
                 boost::assign::list_of( "Vehicle1" )( "Vehicle2" ), massRateModels, initialMass );
@@ -112,10 +120,12 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
                 bodyMap, integratorSettings, propagatorSettings, true, false, true );
 
+    // Test propagated solution.
     std::map< double, Eigen::VectorXd > integratedState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     for( std::map< double, Eigen::VectorXd >::const_iterator stateIterator = integratedState.begin( );
          stateIterator != integratedState.end( ); stateIterator++ )
     {
+        // Test directly
         BOOST_CHECK_CLOSE_FRACTION(
                     stateIterator->second( 0 ),
                     100.0 * ( -std::exp( -stateIterator->first / 1E4 ) +
@@ -125,6 +135,7 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
                     100.0 * ( std::exp( -stateIterator->first / 1E4 ) +
                               9.0 * std::exp( 4.0 * stateIterator->first / 1E4 ) ), 1.0E-13 );
 
+        // Test reset mass solution of vehicles.
         bodyMap[ "Vehicle1" ]->updateMass( stateIterator->first );
         bodyMap[ "Vehicle2" ]->updateMass( stateIterator->first );
 

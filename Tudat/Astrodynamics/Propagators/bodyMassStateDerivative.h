@@ -1,6 +1,3 @@
-#ifndef BODYMASSSTATEDERIVATIVE_H
-#define BODYMASSSTATEDERIVATIVE_H
-
 /*    Copyright (c) 2010-2016, Delft University of Technology
  *    All rigths reserved
  *
@@ -11,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#ifndef TUDAT_BODYMASSSTATEDERIVATIVE_H
+#define TUDAT_BODYMASSSTATEDERIVATIVE_H
 
 #include <vector>
 #include <map>
@@ -30,6 +29,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Class for computing the derivative of the mass of a set of bodies
 template< typename StateScalarType = double, typename TimeType = double >
 class BodyMassStateDerivative: public propagators::SingleStateTypeDerivative< StateScalarType, TimeType >
 {
@@ -125,4 +125,4 @@ private:
 
 } // namespace tudat
 
-#endif // BODYMASSSTATEDERIVATIVE_H
+#endif // TUDAT_BODYMASSSTATEDERIVATIVE_H

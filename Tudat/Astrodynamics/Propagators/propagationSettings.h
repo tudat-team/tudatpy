@@ -166,10 +166,7 @@ public:
         centralBodies_( centralBodies ), accelerationsMap_( accelerationsMap ),
         bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ){ }
 
-    //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
+    //! Destructor
     ~TranslationalStatePropagatorSettings( ){ }
 
     //! List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
@@ -193,10 +190,24 @@ public:
 
 };
 
+
+//! Class for defining settings for propagating the mass of a body
+/*!
+ *  Class for defining settings for propagating the mass of a body. The body masses are propagated in their natural
+ *  form (i.e. no choice of equations of motion as is the case for translational dynamics)l
+ */
 template< typename StateScalarType >
 class MassPropagatorSettings: public PropagatorSettings< StateScalarType >
 {
 public:
+
+    //! Constructor of mass state propagator settings
+    /*!
+     * Constructor  of mass state propagator settings
+     * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
+     * \param massRateModels List of mass rate models per propagated body.
+     * \param initialBodyMasses Initial masses used as input for numerical integration.
+     */
     MassPropagatorSettings(
             const std::vector< std::string > bodiesWithMassToPropagate,
             const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
@@ -205,24 +216,37 @@ public:
       bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
     { }
 
+    //! List of bodies for which the mass is to be propagated.
     std::vector< std::string > bodiesWithMassToPropagate_;
 
+    //! List of mass rate models per propagated body.
     std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels_;
 };
 
-
+//! Function to retrieve the initial state for a list of propagator settings.
+/*!
+ *  Function to retrieve the initial state for a list of propagator settings.
+ *  \param propagatorSettingsList List of propagator settings (sorted by type as key). Map value provides list
+ *  of propagator settings for given type.
+ *  \return Vector of initial states, sorted in order of IntegratedStateType, and then in the order of the
+ *  vector of PropagatorSettings of given type.
+ */
 template< typename StateScalarType >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
-        const std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >& propagatorSettingsList )
+        const std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >&
+        propagatorSettingsList )
 {
+    // Get total size of propagated state
     int totalSize = getMultiTypePropagatorSingleArcStateSize( propagatorSettingsList );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > combinedInitialState =
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalSize, 1 );
 
+    // Iterate over all propagation settings and add to total list
     int currentIndex = 0;
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState;
-    for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+    for( typename std::map< IntegratedStateType,
+         std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
          typeIterator = propagatorSettingsList.begin( ); typeIterator != propagatorSettingsList.end( ); typeIterator++ )
     {
         for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
@@ -235,35 +259,56 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
     return combinedInitialState;
 }
 
+//! Class for defining settings for propagating multiple types of dynamics concurrently.
 template< typename StateScalarType >
 class MultiTypePropagatorSettings: public PropagatorSettings< StateScalarType >
 {
 public:
+
+    //! Constructor.
+    /*!
+     * Constructor
+     * \param propagatorSettingsMap List of propagator settings to use (state type as key). List of propagator settigns
+     * per type given as vector in map value.
+     */
     MultiTypePropagatorSettings(
-            const std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > > propagatorSettingsMap ):
-        PropagatorSettings< StateScalarType >( hybrid, createCombinedInitialState< StateScalarType >( propagatorSettingsMap ) ),
+            const std::map< IntegratedStateType,
+            std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > > propagatorSettingsMap ):
+        PropagatorSettings< StateScalarType >(
+            hybrid, createCombinedInitialState< StateScalarType >( propagatorSettingsMap ) ),
         propagatorSettingsMap_( propagatorSettingsMap )
     { }
 
-
+    //! Destructor
     ~MultiTypePropagatorSettings( ){ }
 
-
+    //! Function to reset the initial state used as input for numerical integration
+    /*!
+     * Function to reset the initial state used as input for numerical integration
+     * \param initialBodyStates New initial state used as input for numerical integration, sorted in order of
+     * IntegratedStateType, and then in the order of the vector of PropagatorSettings of given type.
+     */
     void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
     {
+        // Iterate over all propagator settings.
         int currentStartIndex = 0;
-        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::iterator
+        for( typename std::map< IntegratedStateType,
+             std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::iterator
              propagatorIterator = propagatorSettingsMap_.begin( ); propagatorIterator != propagatorSettingsMap_.end( );
              propagatorIterator++ )
         {
             for( unsigned int i = 0; i < propagatorIterator->second.size( ); i++ )
             {
+                // Get current state size
                 int currentParameterSize = propagatorIterator->second.at( i )->getInitialStates( ).rows( );
 
+                // Check consistency
                 if( currentParameterSize + currentStartIndex > initialBodyStates.rows( ) )
                 {
-                    std::cerr<<"Error when resetting multi-arc state, sizes are incompatible "<<std::endl;
+                    std::cerr<<"Error when resetting multi-type state, sizes are incompatible "<<std::endl;
                 }
+
+                // Reset state for current settings
                 propagatorIterator->second.at( i )->resetInitialStates(
                             initialBodyStates.block( currentStartIndex, 0, currentParameterSize, 1 ) );
                 currentStartIndex += currentParameterSize;
@@ -271,6 +316,7 @@ public:
             }
         }
 
+        // Check consistency
         if( currentStartIndex != initialBodyStates.rows( ) )
         {
             std::cerr<<"Error when resetting multi-arc state, sizes are incompatible B "<<
@@ -278,7 +324,14 @@ public:
         }
     }
 
-    std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > > propagatorSettingsMap_;
+    //! List of propagator settings to use
+    /*!
+     * List of propagator settings to use (state type as key). List of propagator settigns
+     * per type given as vector in map value.
+     */
+
+    std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >
+    propagatorSettingsMap_;
 
 };
 
@@ -307,7 +360,8 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 
         std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > singleTypeIntegratedStateList;
 
-        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+        for( typename std::map< IntegratedStateType,
+             std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
              typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
              typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
         {
@@ -315,19 +369,23 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
             {
                 for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
                 {
-                    singleTypeIntegratedStateList = getIntegratedTypeAndBodyList< StateScalarType >( typeIterator->second.at( i ) );
+                    singleTypeIntegratedStateList = getIntegratedTypeAndBodyList< StateScalarType >(
+                                typeIterator->second.at( i ) );
 
-                    if( singleTypeIntegratedStateList.begin( )->first != typeIterator->first || singleTypeIntegratedStateList.size( ) != 1 )
+                    if( singleTypeIntegratedStateList.begin( )->first != typeIterator->first
+                            || singleTypeIntegratedStateList.size( ) != 1 )
                     {
                         std::cerr<<"Error when making integrated state list for hybrid propagator, inconsistency encountered "<<
                                    singleTypeIntegratedStateList.begin( )->first<<" "<<typeIterator->first<<" "<<
-                                   singleTypeIntegratedStateList.size( )<<" "<<singleTypeIntegratedStateList.begin( )->second.size( )<<std::endl;
+                                   singleTypeIntegratedStateList.size( )<<" "<<
+                                   singleTypeIntegratedStateList.begin( )->second.size( )<<std::endl;
                     }
                     else
                     {
                         for( unsigned int j = 0; j < singleTypeIntegratedStateList[ typeIterator->first ].size( ); j++ )
                         {
-                            integratedStateList[ typeIterator->first ].push_back( singleTypeIntegratedStateList.begin( )->second.at( j ) );
+                            integratedStateList[ typeIterator->first ].push_back(
+                                        singleTypeIntegratedStateList.begin( )->second.at( j ) );
                         }
 
                     }
