@@ -80,7 +80,7 @@ public:
              massRateModelIterator_ != massRateModels_.end( );
              massRateModelIterator_++ )
         {
-            massRateModelIterator_->second->resetTime( static_cast< double >( currentTime ) );
+            massRateModelIterator_->second->updateMembers( static_cast< double >( currentTime ) );
         }
     }
 

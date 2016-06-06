@@ -3,7 +3,7 @@
 
 #include <map>
 #include <vector>
-
+#include <iostream>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -50,21 +50,22 @@ class CustomMassRateModel: public MassRateModel
 public:
 
     CustomMassRateModel(
-            const boost::function< double( const double ) > massRateFunction ){ }
+            const boost::function< double( const double ) > massRateFunction ):
+    massRateFunction_( massRateFunction ){ }
 
     ~CustomMassRateModel( ){ }
 
-    virtual void updateMembers( const double currentTime = TUDAT_NAN )
+    void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        if( !( currentTime == currentTime ) )
+        if( !( currentTime_ == currentTime ) )
         {
-            currentMassRate_ = massRateFunction( currentTime );
+            currentMassRate_ = massRateFunction_( currentTime );
         }
     }
 
 protected:
 
-    boost::function< double( const double ) > massRateFunction ;
+    boost::function< double( const double ) > massRateFunction_;
 
 protected:
 
