@@ -526,7 +526,6 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
                 * twoDegreesPriorPolynomial );
 }
 
-
 //! Function to calculate the normalization factor for Legendre polynomials to geodesy-normalized.
 double calculateLegendreGeodesyNormalizationFactor( const int degree, const int order )
 {
@@ -543,7 +542,6 @@ double calculateLegendreGeodesyNormalizationFactor( const int degree, const int 
             * boost::math::factorial< double >( static_cast< double >( degree - order ) ) ) );
     return 1.0 / factor;
 }
-
 
 } // namespace basic_mathematics
 } // namespace tudat

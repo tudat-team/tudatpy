@@ -242,6 +242,7 @@ public:
           rotationFromBodyFixedToIntegrationFrameFunction_(
               rotationFromBodyFixedToIntegrationFrameFunction ),
           sphericalHarmonicsCache_( sphericalHarmonicsCache )
+
     {
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
                     std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), sphericalHarmonicsCache_->getMaximumDegree( ) ),
@@ -275,7 +276,6 @@ public:
      * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
      * if the variable is true.
      * \param sphericalHarmonicsCache Cache object for computing/retrieving repeated terms in spherical harmonics potential
-     *          gradient calculation.
      */
     SphericalHarmonicsGravitationalAccelerationModel(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
@@ -298,9 +298,9 @@ public:
           equatorialRadius( anEquatorialRadius ),
           getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
           getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
-          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
 
-          sphericalHarmonicsCache_( sphericalHarmonicsCache )
+          sphericalHarmonicsCache_( sphericalHarmonicsCache ),
+          rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction )
     {
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
                     std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), sphericalHarmonicsCache_->getMaximumDegree( ) ),
@@ -400,6 +400,7 @@ private:
 
     //!  Spherical harmonics cache for this acceleration
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+
 };
 
 
