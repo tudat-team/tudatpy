@@ -325,7 +325,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
 //! Test to ensure that a point-mass acceleration on a body produces a Kepler orbit (to within
 //! numerical error bounds).
-BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
+template< typename TimeType, typename StateScalarType >
+void testCowellPropagationOfKeplerOrbit( )
 {
     //Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -351,6 +352,12 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
             getDefaultBodySettings( bodyNames,
                                     initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
+    if( std::is_same< long double, StateScalarType >::value )
+    {
+        boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
+                    bodySettings[ "Moon" ]->ephemerisSettings )->setUseLongDoubleStates( 1 );
+    }
+
     // Change ephemeris settings of Moon and Earth to make test results analysis more transparent.
     boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >
         ( bodySettings[ "Moon" ]->ephemerisSettings )->resetFrameOrigin( "Earth" );
@@ -374,15 +381,15 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
     unsigned int numberOfNumericalBodies = bodiesToPropagate.size( );
 
     // Define settings for numerical integrator.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            boost::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, initialEphemerisTime, finalEphemerisTime, 120.0 );
 
     // Run test where Moon gravity is/is not taken into account.
     for( unsigned testCase = 0; testCase < 2; testCase++ )
     {
         // Get initial kepler elements
-        double effectiveGravitationalParameter;
+        StateScalarType effectiveGravitationalParameter;
         if( testCase == 0 )
         {
             effectiveGravitationalParameter
@@ -414,40 +421,43 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
         }
 
         // Create system initial state.
-        Eigen::VectorXd systemInitialState = Eigen::VectorXd( bodiesToPropagate.size( ) * 6 );
+        Eigen::Matrix< StateScalarType, 6, 1  > systemInitialState =
+                Eigen::Matrix< StateScalarType, 6, 1  >( bodiesToPropagate.size( ) * 6 );
         for( unsigned int i = 0; i < numberOfNumericalBodies ; i++ )
         {
             systemInitialState.segment( i * 6 , 6 ) =
                     spice_interface::getBodyCartesianStateAtEpoch(
-                      bodiesToPropagate[ i ], "Earth", "ECLIPJ2000", "NONE", initialEphemerisTime );
+                      bodiesToPropagate[ i ], "Earth", "ECLIPJ2000", "NONE", initialEphemerisTime ).
+                    template cast< StateScalarType >( );
         }
 
         // Create acceleration models and propagation settings.
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
+                boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState );
 
         // Create dynamics simulation object.
-        SingleArcDynamicsSimulator< > dynamicsSimulator(
+        SingleArcDynamicsSimulator< StateScalarType, TimeType > dynamicsSimulator(
                     bodyMap, integratorSettings, propagatorSettings, true, false );
 
-        basic_mathematics::Vector6d initialKeplerElements =
-            orbital_element_conversions::convertCartesianToKeplerianElements(
-                basic_mathematics::Vector6d( systemInitialState ), effectiveGravitationalParameter );
+        Eigen::Matrix< StateScalarType, 6, 1  > initialKeplerElements =
+            orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
+                Eigen::Matrix< StateScalarType, 6, 1  >( systemInitialState ), effectiveGravitationalParameter );
 
         // Compare numerical state and kepler orbit at each time step.
         boost::shared_ptr< Ephemeris > moonEphemeris = bodyMap.at( "Moon" )->getEphemeris( );
         double currentTime = initialEphemerisTime + buffer;
         while( currentTime < finalEphemerisTime - buffer )
         {
-            basic_mathematics::Vector6d stateDifference
-                = orbital_element_conversions::convertKeplerianToCartesianElements(
-                    propagateKeplerOrbit( initialKeplerElements, currentTime - initialEphemerisTime,
+            Eigen::VectorXd stateDifference
+                = ( orbital_element_conversions::convertKeplerianToCartesianElements(
+                    propagateKeplerOrbit< StateScalarType >( initialKeplerElements, currentTime - initialEphemerisTime,
                                           effectiveGravitationalParameter ),
                     effectiveGravitationalParameter )
-                - moonEphemeris->getCartesianStateFromEphemeris( currentTime );
+                - moonEphemeris->template getTemplatedStateFromEphemeris< StateScalarType >( currentTime ) ).
+                    template cast< double >( );
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( stateDifference( i ), 1E-3 );
@@ -457,6 +467,12 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
             currentTime += 10000.0;
         }
     }
+}
+BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
+{
+    testCowellPropagationOfKeplerOrbit< double, double >( );
+    testCowellPropagationOfKeplerOrbit< double, long double >( );
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

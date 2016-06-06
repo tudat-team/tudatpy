@@ -23,6 +23,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 
 namespace tudat
 {
@@ -34,7 +35,9 @@ namespace propagators
 //! Enum listing types of dynamics that can be numerically integrated
 enum IntegratedStateType
 {
-    transational_state
+    hybrid,
+    transational_state,
+    body_mass_state
 };
 
 
@@ -191,6 +194,94 @@ public:
 };
 
 template< typename StateScalarType >
+class MassPropagatorSettings: public PropagatorSettings< StateScalarType >
+{
+public:
+    MassPropagatorSettings(
+            const std::vector< std::string > bodiesWithMassToPropagate,
+            const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses ):
+        PropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses )
+    { }
+
+    std::vector< std::string > bodiesWithMassToPropagate_;
+
+    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels_;
+};
+
+
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
+        const std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >& propagatorSettingsList )
+{
+    int totalSize = getMultiTypePropagatorSingleArcStateSize( propagatorSettingsList );
+
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > combinedInitialState =
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalSize, 1 );
+
+    int currentIndex = 0;
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState;
+    for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+         typeIterator = propagatorSettingsList.begin( ); typeIterator != propagatorSettingsList.end( ); typeIterator++ )
+    {
+        for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+        {
+            currentInitialState = typeIterator->second.at( i )->getInitialStates( );
+            combinedInitialState.segment( currentIndex, currentInitialState.rows( ) ) = currentInitialState;
+            currentIndex += currentInitialState.rows( );
+        }
+    }
+    return combinedInitialState;
+}
+
+template< typename StateScalarType >
+class MultiTypePropagatorSettings: public PropagatorSettings< StateScalarType >
+{
+public:
+    MultiTypePropagatorSettings(
+            const std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > > propagatorSettingsMap ):
+        PropagatorSettings< StateScalarType >( hybrid, createCombinedInitialState< StateScalarType >( propagatorSettingsMap ) ),
+        propagatorSettingsMap_( propagatorSettingsMap )
+    { }
+
+
+    ~MultiTypePropagatorSettings( ){ }
+
+
+    void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
+    {
+        int currentStartIndex = 0;
+        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::iterator
+             propagatorIterator = propagatorSettingsMap_.begin( ); propagatorIterator != propagatorSettingsMap_.end( );
+             propagatorIterator++ )
+        {
+            for( unsigned int i = 0; i < propagatorIterator->second.size( ); i++ )
+            {
+                int currentParameterSize = propagatorIterator->second.at( i )->getInitialStates( ).rows( );
+
+                if( currentParameterSize + currentStartIndex > initialBodyStates.rows( ) )
+                {
+                    std::cerr<<"Error when resetting multi-arc state, sizes are incompatible "<<std::endl;
+                }
+                propagatorIterator->second.at( i )->resetInitialStates(
+                            initialBodyStates.block( currentStartIndex, 0, currentParameterSize, 1 ) );
+                currentStartIndex += currentParameterSize;
+
+            }
+        }
+
+        if( currentStartIndex != initialBodyStates.rows( ) )
+        {
+            std::cerr<<"Error when resetting multi-arc state, sizes are incompatible B "<<
+                       currentStartIndex<<" "<<initialBodyStates.rows( )<<std::endl;
+        }
+    }
+
+    std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > > propagatorSettingsMap_;
+
+};
+
+template< typename StateScalarType >
 //! Function to retrieve the list of integrated state types and reference ids
 /*!
  * Function to retrieve the list of integrated state types and reference ids. For translational and
@@ -208,9 +299,47 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     // Identify propagator type
     switch( propagatorSettings->stateType_ )
     {    
+    case hybrid:
+    {
+        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+
+        std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > singleTypeIntegratedStateList;
+
+        for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+             typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
+             typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
+        {
+            if( typeIterator->first != hybrid )
+            {
+                for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+                {
+                    singleTypeIntegratedStateList = getIntegratedTypeAndBodyList< StateScalarType >( typeIterator->second.at( i ) );
+
+                    if( singleTypeIntegratedStateList.begin( )->first != typeIterator->first || singleTypeIntegratedStateList.size( ) != 1 )
+                    {
+                        std::cerr<<"Error when making integrated state list for hybrid propagator, inconsistency encountered "<<
+                                   singleTypeIntegratedStateList.begin( )->first<<" "<<typeIterator->first<<" "<<
+                                   singleTypeIntegratedStateList.size( )<<" "<<singleTypeIntegratedStateList.begin( )->second.size( )<<std::endl;
+                    }
+                    else
+                    {
+                        for( unsigned int j = 0; j < singleTypeIntegratedStateList[ typeIterator->first ].size( ); j++ )
+                        {
+                            integratedStateList[ typeIterator->first ].push_back( singleTypeIntegratedStateList.begin( )->second.at( j ) );
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                std::cerr<<"Error when making integrated state list, cannot handle hybrid propagator inside hybrid propagator"<<std::endl;
+            }
+        }
+    }
     case transational_state:
     {
-
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
                 translationalPropagatorSettings = boost::dynamic_pointer_cast<
                      TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
@@ -227,6 +356,27 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
                 translationalPropagatorSettings->bodiesToIntegrate_.at( i ), "" ) );
         }
         integratedStateList[ transational_state ] = integratedBodies;
+
+        break;
+    }
+    case body_mass_state:
+    {
+        boost::shared_ptr< MassPropagatorSettings< StateScalarType > >
+                massPropagatorSettings = boost::dynamic_pointer_cast<
+                     MassPropagatorSettings< StateScalarType > >( propagatorSettings );
+        if( massPropagatorSettings == NULL )
+        {
+            throw std::runtime_error( "Error getting integrated state type list, mass state input inconsistent" );
+        }
+
+        // Retrieve list of integrated bodies in correct formatting.
+        std::vector< std::pair< std::string, std::string > > integratedBodies;
+        for( unsigned int i = 0; i < massPropagatorSettings->bodiesWithMassToPropagate_.size( ); i++ )
+        {
+            integratedBodies.push_back( std::make_pair(
+                massPropagatorSettings->bodiesWithMassToPropagate_.at( i ), "" ) );
+        }
+        integratedStateList[ body_mass_state ] = integratedBodies;
 
         break;
     }

@@ -89,6 +89,26 @@ AvailableAcceleration getAccelerationModelType(
 
 }
 
+AvailableMassRateModels getMassRateModelType(
+        const boost::shared_ptr< MassRateModel > massRateModel )
+{
+    // Nominal type is undefined
+    AvailableMassRateModels massRateType = undefined_mass_rate_model;
+
+    // Check for each accelerarion mdoel type implemented as AvailableMassRateModels.
+    if( boost::dynamic_pointer_cast< basic_astrodynamics::CustomMassRateModel >(
+                massRateModel ) != NULL )
+    {
+        massRateType = custom;
+    }
+    else
+    {
+        throw std::runtime_error(
+                    "Error, mass rate model not identified when getting acceleration type." );
+    }
+    return massRateType;
+}
+
 
 } // namespace basic_astrodynamics
 

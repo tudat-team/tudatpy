@@ -47,7 +47,7 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative.setZero( );
-        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), stateDerivative );
+        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative );
     }
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >

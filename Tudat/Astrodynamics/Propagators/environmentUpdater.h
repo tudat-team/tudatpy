@@ -185,6 +185,18 @@ private:
                 }
                 break;
             };
+            case body_mass_state:
+            {
+                // Set translational states for bodies provided as input.
+                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedMass =
+                        integratedStates_.at( body_mass_state );
+                for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
+                {
+                    bodyList_[ bodiesWithIntegratedMass[ i ].first ]
+                            ->setConstantBodyMass( integratedStateIterator_->second( i ) );
+                }
+                break;
+            };
             default:
                 throw std::runtime_error( "Error, could not find integrated state settings for " +
                                           boost::lexical_cast< std::string >( integratedStateIterator_->first ) );
@@ -217,6 +229,19 @@ private:
                 {
                     bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
                             template setTemplatedStateFromEphemeris< StateScalarType, TimeType >( currentTime );
+
+                }
+                break;
+            }
+            case body_mass_state:
+            {
+                // Iterate over all integrated translational states.
+                std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
+                        integratedStates_.at( body_mass_state );
+                for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
+                {
+                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
+                            updateMass( currentTime );
 
                 }
                 break;
@@ -320,11 +345,32 @@ private:
 
                     }
                     case body_mass_update:
+                    {
+                        bool addUpdate = 1;
+
+                        // Check if translational state is propagated
+                        if( integratedStates_.count( body_mass_state ) > 0 )
+                        {
+                            // Check if current body is propagated
+                            std::pair< std::string, std::string > bodyToCheck
+                                    = std::make_pair( currentBodies.at( i ), "" );
+                            std::vector< std::pair< std::string, std::string > > integratedBodyMasses
+                                    = integratedStates_.at( body_mass_state );
+                            if( std::find( integratedBodyMasses.begin( ),
+                                           integratedBodyMasses.end( ),
+                                           bodyToCheck ) != integratedBodyMasses.end( ) )
+                            {
+                                addUpdate = 0;
+                            }
+                        }
+
+                        if( addUpdate )
                         {
                             updateTimeFunctionList_[ body_mass_update ].push_back(
-                                std::make_pair( currentBodies.at( i ),
-                                                boost::bind( &simulation_setup::Body::updateMass,
-                                                             bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
+                                        std::make_pair( currentBodies.at( i ),
+                                                        boost::bind( &simulation_setup::Body::updateMass,
+                                                                     bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
+                        }
                         break;
                     }
                     case spherical_harmonic_gravity_field_update:
@@ -333,16 +379,16 @@ private:
                         // Check if body has time-dependent sh field
                         boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField >
                                 gravityField = boost::dynamic_pointer_cast
-                                         < gravitation::TimeDependentSphericalHarmonicsGravityField >
-                                      (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) );
+                                < gravitation::TimeDependentSphericalHarmonicsGravityField >
+                                (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) );
                         if( gravityField != NULL )
                         {
                             updateTimeFunctionList_[ spherical_harmonic_gravity_field_update ].push_back(
                                         std::make_pair(
                                             currentBodies.at( i ),
                                             boost::bind( &gravitation
-                                                              ::TimeDependentSphericalHarmonicsGravityField
-                                                                   ::update,
+                                                         ::TimeDependentSphericalHarmonicsGravityField
+                                                         ::update,
                                                          gravityField, _1 ) ) );
                         }
                         // If no sh field at all, throw eeror.
