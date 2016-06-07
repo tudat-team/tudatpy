@@ -29,7 +29,8 @@ namespace orbital_element_conversions
  * \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
  * \return Current heading angle.
  */
-double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
+double calculateHeadingAngle(
+        const Eigen::Vector3d& velocityInVerticalFrame );
 
 //! Calculate current flight path angle. Angle is defined positive upwards.
 /*!
@@ -38,14 +39,41 @@ double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
  *  \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
  *  \return Current flight path angle.
  */
-double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame );
+double calculateFlightPathAngle(
+        const Eigen::Vector3d& velocityInVerticalFrame );
 
+//! Function to convert a Cartesian to a spherical orbital state.
+/*!
+ * Function to convert a Cartesian to a spherical orbital state. We define the spherical orbital position by the
+ * radius, latitude and longitude. The spherical orbital velocity is defined by the speed, flight path angle (positive
+ * upwards) and the heading angle. Note that this is distinct from a 'mathematical' spherical state, where the velocity
+ * is denoted by the radius rate, latitude rate and longitude rate.
+ * The spherical orbital state is often used to define entry (initial) conditions. The order of the entries in the
+ * return vector are defined by the SphericalOrbitalStateElementIndices enum.
+ * \param bodyFixedCartesianState Vehicle state in a frame fixed to the body w.r.t. which the state is to be computed.
+ * \return Spherical orbital state representation of bodyFixedCartesianState
+ */
 basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
         const basic_mathematics::Vector6d& bodyFixedCartesianState );
 
+//! Function to convert a spherical orbital to a Cartesian state.
+/*!
+ * Function to convert a spherical orbital to a Cartesian state. We define the spherical orbital position by the
+ * radius, latitude and longitude. The spherical orbital velocity is defined by the speed, flight path angle (positive
+ * upwards) and the heading angle. Note that this is distinct from a 'mathematical' spherical state, where the velocity
+ * is denoted by the radius rate, latitude rate and longitude rate.
+ * The spherical orbital state is often used to define entry (initial) conditions. The order of the entries in the
+ * return vector are defined by the SphericalOrbitalStateElementIndices enum.
+ * \param sphericalOrbitalState Vehicle spherical orbital state in a frame fixed to the body w.r.t. which the state is to be
+ * computed.
+ * \return Cartesian state representation of sphericalOrbitalState (in same frame).
+ */
 basic_mathematics::Vector6d convertSphericalOrbitalToCartesianState(
         const basic_mathematics::Vector6d& sphericalOrbitalState );
-}
 
-}
+} // namespace tudat
+
+} // namespace orbital_element_conversions
+
+
 #endif // TUDAT_SPHERICALSTATECONVERSIONS_CPP
