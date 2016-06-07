@@ -374,8 +374,22 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
     // the unit vector to the ascending node.
     else
     {
-        computedKeplerianElements_( argumentOfPeriapsisIndex )
-                = std::acos( eccentricityVector_.normalized( ).dot( unitAscendingNodeVector_ ) );
+        ScalarType eccentricityAscendingNodeDotProduct = eccentricityVector_.normalized( ).dot( unitAscendingNodeVector_ );
+
+        // Check whether dot product is in bounds.
+        if( eccentricityAscendingNodeDotProduct < mathematical_constants::getFloatingInteger< ScalarType >( -1 ) )
+        {
+            computedKeplerianElements_( argumentOfPeriapsisIndex ) = mathematical_constants::getPi< ScalarType >( );
+        }
+        else if( eccentricityAscendingNodeDotProduct > mathematical_constants::getFloatingInteger< ScalarType >( 1 ) )
+        {
+            computedKeplerianElements_( argumentOfPeriapsisIndex ) =
+                    mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+        }
+        else
+        {
+             computedKeplerianElements_( argumentOfPeriapsisIndex ) = std::acos( eccentricityAscendingNodeDotProduct );
+        }
 
         // Check if the quadrant is correct.
         if ( argumentOfPeriapsisQuandrantCondition <
