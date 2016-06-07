@@ -41,7 +41,7 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Keplerian elements indices.
+//! Cartesian elements indices.
 enum CartesianElementIndices
 {
     xCartesianPositionIndex = 0,
@@ -75,7 +75,8 @@ enum ModifiedEquinoctialElementVectorIndices
     trueLongitudeIndex
 };
 
-enum SphericalStateElementIndices
+//! Spherical orbital state element indices
+enum SphericalOrbitalStateElementIndices
 {
     radiusIndex,
     latitudeIndex,
@@ -83,6 +84,18 @@ enum SphericalStateElementIndices
     speedIndex,
     flightPathIndex,
     headingAngleIndex
+};
+
+//! Unified State Model indices.
+enum UnifiedStateModelElementIndices
+{
+    CHodographIndex = 0,
+    Rf1HodographIndex = 1,
+    Rf2HodographIndex = 2,
+    epsilon1QuaternionIndex = 3,
+    epsilon2QuaternionIndex = 4,
+    epsilon3QuaternionIndex = 5,
+    etaQuaternionIndex = 6
 };
 
 //! Cartesian acceleration indices.
