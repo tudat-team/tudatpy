@@ -66,6 +66,7 @@
 #include <boost/exception/all.hpp>
 #include <boost/math/special_functions/atanh.hpp>
 
+#include <iostream>
 #include <cmath>
 #include <limits>
 
@@ -376,7 +377,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
     {
         ScalarType eccentricityAscendingNodeDotProduct = eccentricityVector_.normalized( ).dot( unitAscendingNodeVector_ );
 
-        // Check whether dot product is in bounds.
+        // Check whether dot product is in bounds (might be out of bounds due to numerical noise).
         if( eccentricityAscendingNodeDotProduct < mathematical_constants::getFloatingInteger< ScalarType >( -1 ) )
         {
             computedKeplerianElements_( argumentOfPeriapsisIndex ) = mathematical_constants::getPi< ScalarType >( );
