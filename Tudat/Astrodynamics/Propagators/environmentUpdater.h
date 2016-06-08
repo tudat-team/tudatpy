@@ -172,7 +172,6 @@ private:
              integratedStateIterator_ != integratedStatesToSet.end( );
              integratedStateIterator_++ )
         {
-
             switch( integratedStateIterator_->first )
             {
             case transational_state:
@@ -191,11 +190,12 @@ private:
                 // Set mass for bodies provided as input.
                 std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedMass =
                         integratedStates_.at( body_mass_state );
+
                 for( unsigned int i = 0; i < bodiesWithIntegratedMass.size( ); i++ )
                 {
                     bodyList_[ bodiesWithIntegratedMass[ i ].first ]
                             ->setConstantBodyMass( integratedStateIterator_->second( i ) );
-                }
+                }                
                 break;
             };
             default:

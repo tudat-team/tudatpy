@@ -82,8 +82,6 @@ protected:
     //! Current mass rate, as set by last call to updateMembers (implemented in derived class)
     double currentMassRate_;
 
-protected:
-
 private:
 };
 
@@ -123,14 +121,11 @@ public:
         }
     }
 
-protected:
+private:
 
     //! Function returning mass rate as a function of time.
     boost::function< double( const double ) > massRateFunction_;
 
-protected:
-
-private:
 };
 
 

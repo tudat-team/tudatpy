@@ -35,9 +35,9 @@ namespace propagators
 //! Enum listing types of dynamics that can be numerically integrated
 enum IntegratedStateType
 {
-    hybrid,
-    transational_state,
-    body_mass_state
+    hybrid = 0,
+    transational_state = 1,
+    body_mass_state = 2
 };
 
 
@@ -223,6 +223,34 @@ public:
     std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels_;
 };
 
+//! Function to retrieve the state size for a list of propagator settings.
+/*!
+ *  Function to retrieve the initial state for a list of propagator settings.
+ *  \param propagatorSettingsList List of propagator settings (sorted by type as key). Map value provides list
+ *  of propagator settings for given type.
+ *  \return Vector of initial states, sorted in order of IntegratedStateType, and then in the order of the
+ *  vector of PropagatorSettings of given type.
+ */
+template< typename StateScalarType >
+int getMultiTypePropagatorStateSize(
+        const std::map< IntegratedStateType, std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >&
+        propagatorSettingsList )
+{
+    int stateSize = 0;
+
+    // Iterate over all propagation settings and add size to list
+    for( typename std::map< IntegratedStateType,
+         std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > >::const_iterator
+         typeIterator = propagatorSettingsList.begin( ); typeIterator != propagatorSettingsList.end( ); typeIterator++ )
+    {
+        for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
+        {
+            stateSize += typeIterator->second.at( i )->getStateSize( );
+        }
+    }
+    return stateSize;
+}
+
 //! Function to retrieve the initial state for a list of propagator settings.
 /*!
  *  Function to retrieve the initial state for a list of propagator settings.
@@ -237,7 +265,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
         propagatorSettingsList )
 {
     // Get total size of propagated state
-    int totalSize = getMultiTypePropagatorSingleArcStateSize( propagatorSettingsList );
+    int totalSize = getMultiTypePropagatorStateSize( propagatorSettingsList );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > combinedInitialState =
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalSize, 1 );
@@ -256,6 +284,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
             currentIndex += currentInitialState.rows( );
         }
     }
+
     return combinedInitialState;
 }
 
@@ -278,6 +307,25 @@ public:
             hybrid, createCombinedInitialState< StateScalarType >( propagatorSettingsMap ) ),
         propagatorSettingsMap_( propagatorSettingsMap )
     { }
+
+    //! Constructor.
+    /*!
+     * Constructor
+     * \param propagatorSettingsVector Vector of propagator settings to use.
+     */
+    MultiTypePropagatorSettings(
+            const std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > propagatorSettingsVector ):
+        PropagatorSettings< StateScalarType >(
+            hybrid, Eigen::VectorXd::Zero( 0 ) )
+    {
+        for( unsigned int i = 0; i < propagatorSettingsVector.size( ); i++ )
+        {
+            propagatorSettingsMap_[ propagatorSettingsVector.at( i )->stateType_ ].push_back(
+                        propagatorSettingsVector.at( i ) );
+        }
+
+        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+    }
 
     //! Destructor
     ~MultiTypePropagatorSettings( ){ }
@@ -396,6 +444,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
                 std::cerr<<"Error when making integrated state list, cannot handle hybrid propagator inside hybrid propagator"<<std::endl;
             }
         }
+        break;
     }
     case transational_state:
     {
@@ -440,7 +489,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         break;
     }
     default:
-        throw std::runtime_error( "Error, could not process integrated state type " +
+        throw std::runtime_error( "Error, could not process integrated state type ingetIntegratedTypeAndBodyList " +
                                   boost::lexical_cast< std::string >( propagatorSettings->stateType_ ) );
     }
 
