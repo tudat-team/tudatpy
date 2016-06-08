@@ -126,6 +126,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
                 }
             }
         }
+        break;
     }
     // Retrieve environment model settings for translational dynamics
     case transational_state:

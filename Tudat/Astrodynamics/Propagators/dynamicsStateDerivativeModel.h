@@ -147,7 +147,6 @@ public:
                         time, std::unordered_map<
                         IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
                                                     integratedStatesFromEnvironment_ );
-
         }
 
         // If dynamical equations are integrated, evaluate dynamics state derivatives.
