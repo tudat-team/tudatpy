@@ -44,7 +44,8 @@ enum IntegratedStateType
 //! Enum listing propagator types for translational dynamics that can be used.
 enum TranslationalPropagatorType
 {
-    cowell = 0
+    cowell = 0,
+    encke = 1
 };
 
 //! Get size of state for single propagated state of given type.

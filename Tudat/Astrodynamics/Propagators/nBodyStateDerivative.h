@@ -118,7 +118,7 @@ public:
             for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
                  innerAccelerationIterator != outerAccelerationIterator->second.end( ); innerAccelerationIterator++ )
             {
-                // Update accelerations
+                // Update accelerationsj
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
                     innerAccelerationIterator->second[ j ]->resetTime( TUDAT_NAN );
@@ -191,7 +191,7 @@ public:
         return accelerationModelsPerBody_;
     }
 
-    //! Function to get object providing the current integration origins 
+    //! Function to get object providing the current integration origins
     /*!
      * Function to get object responsible for providing the current integration origins from the
      * global origins.
@@ -237,6 +237,8 @@ protected:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         using namespace basic_astrodynamics;
+
+        stateDerivative.setZero( );
 
         int currentBodyIndex = TUDAT_NAN;
         int currentAccelerationIndex = 0;

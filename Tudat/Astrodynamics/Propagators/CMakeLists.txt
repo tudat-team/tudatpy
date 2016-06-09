@@ -39,6 +39,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/createStateDerivativeModel.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.cpp"
 )
 
 # Add header files.
@@ -48,6 +49,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/centralBodyData.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyCowellStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.h"
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.h"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.h"
@@ -78,6 +80,16 @@ target_link_libraries(test_CowellStateDerivative tudat_simulation_setup tudat_pr
     tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics
     tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface
     cspice ${Boost_LIBRARIES})
+
+add_executable(test_EnckeStateDerivative
+    "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnckeStateDerivative.cpp")
+setup_custom_test_program(test_EnckeStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_EnckeStateDerivative tudat_simulation_setup tudat_propagators
+    tudat_aerodynamics tudat_gravitation tudat_mission_segments tudat_electro_magnetism
+    tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics
+    tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface
+    cspice ${Boost_LIBRARIES})
+
 
 add_executable(test_EnvironmentModelUpdater
     "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
