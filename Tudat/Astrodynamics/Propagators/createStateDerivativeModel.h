@@ -13,9 +13,11 @@
 
 #include <boost/bind.hpp>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/SimulationSetup/body.h"
 
@@ -101,10 +103,11 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
  */
 template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
-                                     createTranslationalStateDerivativeModel(
+createTranslationalStateDerivativeModel(
         const boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-            translationPropagatorSettings,
-        const  simulation_setup::NamedBodyMap& bodyMap )
+        translationPropagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const TimeType propagationStartTime )
 {
 
     // Create object for frame origin transformations.
@@ -125,6 +128,27 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
                                NBodyCowellStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
+        break;
+    }
+    case encke:
+    {
+        // Calculate initial Kepler elements for Encke propagator
+        std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > initialKeplerElements;
+        initialKeplerElements.resize( translationPropagatorSettings->bodiesToIntegrate_.size( ) );
+        std::vector< std::string > centralBodies = translationPropagatorSettings->centralBodies_;
+
+        for( unsigned int i = 0; i < translationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
+        {
+            initialKeplerElements[ i ] = orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
+                        translationPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ), static_cast< StateScalarType >(
+                            bodyMap.at( centralBodies[ i ] )->getGravityFieldModel( )->getGravitationalParameter( ) ) );
+        }
+
+        // Create Encke state derivative object.
+        stateDerivativeModel = boost::make_shared< NBodyEnckeStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->accelerationsMap_, centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
+                  initialKeplerElements, propagationStartTime );
+
         break;
     }
     default:
@@ -161,9 +185,10 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
  */
 template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
-                                     createStateDerivativeModel(
+createStateDerivativeModel(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const TimeType propagationStartTime )
 {
     boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel;
 
@@ -175,9 +200,9 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
     {
         // Check input consistency.
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-            translationPropagatorSettings =
+                translationPropagatorSettings =
                 boost::dynamic_pointer_cast<
-            TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+                TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
         if( translationPropagatorSettings == NULL )
         {
             throw std::runtime_error(
@@ -186,7 +211,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
         else
         {
             stateDerivativeModel = createTranslationalStateDerivativeModel< StateScalarType, TimeType >(
-                        translationPropagatorSettings, bodyMap );
+                        translationPropagatorSettings, bodyMap, propagationStartTime );
         }
         break;
     }
@@ -227,9 +252,10 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > >
  */
 template< typename StateScalarType = double, typename TimeType = double >
 std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
-                                     createStateDerivativeModels(
+createStateDerivativeModels(
         const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const TimeType propagationStartTime )
 {
     std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
     stateDerivativeModels;
@@ -255,7 +281,7 @@ std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, Time
                 if( propagatorIterator->first != hybrid )
                 {
                     stateDerivativeModels.push_back( createStateDerivativeModel< StateScalarType, TimeType >(
-                                                         propagatorIterator->second.at( i ), bodyMap ) );
+                                                         propagatorIterator->second.at( i ), bodyMap, propagationStartTime ) );
                 }
                 else
                 {
@@ -269,7 +295,7 @@ std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, Time
     // If not hybrid, call create function for single object directly.
     default:
         stateDerivativeModels.push_back( createStateDerivativeModel< StateScalarType, TimeType >(
-                                             propagatorSettings, bodyMap ) );
+                                             propagatorSettings, bodyMap, propagationStartTime ) );
     }
 
     return stateDerivativeModels;
