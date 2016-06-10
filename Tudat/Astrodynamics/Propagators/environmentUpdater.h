@@ -441,7 +441,7 @@ private:
                         }
                         else if( radiationPressureInterfaces.size( ) > 1 )
                         {
-                            std::cerr<<"Request radiation pressure update of "<<currentBodies.at( i )<<
+                            std::cerr<<"Warning, requested radiation pressure update of "<<currentBodies.at( i )<<
                                        ", but body has multiple radiation pressure interfaces: updating all."<<std::endl;
                         }
 
