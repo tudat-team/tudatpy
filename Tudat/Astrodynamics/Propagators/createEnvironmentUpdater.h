@@ -122,7 +122,8 @@ std::map< propagators::EnvironmentModelsToUpdate,
                 }
                 else
                 {
-                    std::cerr<<"Error when making environment updater type list, cannot handle hybrid propagator inside hybrid propagator"<<std::endl;
+                    throw std::runtime_error(
+                                "Error when making environment updater type list, cannot handle hybrid propagator inside hybrid propagator" );
                 }
             }
         }

@@ -285,8 +285,8 @@ createStateDerivativeModels(
                 }
                 else
                 {
-                    std::cerr<<
-                                "Error when making state derivative model, cannot process nested hybrid propagators"<<std::endl;
+                    throw std::runtime_error(
+                                "Error when making state derivative model, cannot process nested hybrid propagators" );
                 }
             }
         }

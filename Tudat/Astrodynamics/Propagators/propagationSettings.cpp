@@ -15,8 +15,13 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     case transational_state:
         singleStateSize = 6;
         break;
+    case body_mass_state:
+        singleStateSize = 1;
+        break;
     default:
-        std::cerr<<"Did not recognize state type when getting size"<<std::endl;
+        std::string errorMessage =
+                "Did not recognize state type " + boost::lexical_cast< std::string >( stateType ) + "when getting size";
+       throw std::runtime_error( errorMessage );
     }
     return singleStateSize;
 }
@@ -30,8 +35,14 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
     case transational_state:
         singleStateSize = 2;
         break;
+    case body_mass_state:
+        singleStateSize = 1;
+        break;
     default:
-        std::cerr<<"Did not recognize state type when getting order"<<std::endl;
+    default:
+        std::string errorMessage =
+                "Did not recognize state type " + boost::lexical_cast< std::string >( stateType ) + "when getting order";
+       throw std::runtime_error( errorMessage );
     }
     return singleStateSize;
 }
