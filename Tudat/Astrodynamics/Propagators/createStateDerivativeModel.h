@@ -99,6 +99,7 @@ boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralB
  *  propagation settings and environment.
  *  \param translationPropagatorSettings Settings for the translational dynamics model.
  *  \param bodyMap List of body objects in the environment
+ *  \param propagationStartTime Time from which numerical propagation starts.
  *  \return Translational state derivative model (instance of derived class of NBodyStateDerivative)
  */
 template< typename StateScalarType = double, typename TimeType = double >
@@ -181,6 +182,7 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
  *  Function to create a state derivative model from propagation settings and the environment.
  *  \param propagatorSettings Settings for the dynamical model.
  *  \param bodyMap List of body objects in the environment
+ *  \param propagationStartTime Time from which numerical propagation starts.
  *  \return State derivative model (instance of required derived class of SingleStateTypeDerivative)
  */
 template< typename StateScalarType = double, typename TimeType = double >
@@ -246,7 +248,8 @@ createStateDerivativeModel(
  *  Function to create a list of state derivative models from
  *  propagation settings and the environment.
  *  \param propagatorSettings Settings for the dynamical model.
- *  \param bodyMap List of body objects in the environment
+ *  \param bodyMap List of body objects in the environment.
+ *  \param propagationStartTime Time from which numerical propagation starts.
  *  \return List of state derivative models (instances of required
  *  derived class of SingleStateTypeDerivative)
  */

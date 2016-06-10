@@ -39,7 +39,6 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
         singleStateSize = 1;
         break;
     default:
-    default:
         std::string errorMessage =
                 "Did not recognize state type " + boost::lexical_cast< std::string >( stateType ) + "when getting order";
        throw std::runtime_error( errorMessage );

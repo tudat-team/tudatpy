@@ -101,14 +101,18 @@ public:
     //! Destructor
     virtual ~NBodyStateDerivative( ){ }
 
-    //! Function to update the state derivative model to the current time.
+    //! Function to clear any reference/cached values of state derivative model
     /*!
-     * Function to update the state derivative model (i.e. acceleration, torque, etc. models) to the
-     * current time. Note that this function only updates the state derivative model itself, the
-     * environment models must be updated before calling this function.
-     * \param currentTime Time at which state derivative is to be calculated
+     * Function to clear any reference/cached values of state derivative model, in addition to those performed in the
+     * clearTranslationalStateDerivativeModel function. Default implementation is empty.
      */
-    void updateStateDerivativeModel( const TimeType currentTime )
+    virtual void clearDerivedTranslationalStateDerivativeModel( ){ }
+
+    //! Function to clear reference/cached values of acceleration models
+    /*!
+     * Function to clear reference/cached values of acceleration models, to ensure that they are all recalculated.
+     */
+    void clearTranslationalStateDerivativeModel( )
     {
         // Reset all acceleration times (to allow multiple evaluations at same time, e.g. stage 2 and 3 in RK4 integrator)
         for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
@@ -126,6 +130,30 @@ public:
             }
         }
 
+    }
+
+    //! Function to clear reference/cached values of translational state derivative model
+    /*!
+     * Function to clear reference/cached values of translational state derivative model. For each derived class, this
+     * entails resetting the current time in the acceleration models to NaN (see clearTranslationalStateDerivativeModel).
+     * Every derived class requiring additional values to be cleared should implement the
+     * clearDerivedTranslationalStateDerivativeModel function.
+     */
+    void clearStateDerivativeModel(  )
+    {
+        clearTranslationalStateDerivativeModel( );
+        clearDerivedTranslationalStateDerivativeModel( );
+    }
+
+    //! Function to update the state derivative model to the current time.
+    /*!
+     * Function to update the state derivative model (i.e. acceleration, torque, etc. models) to the
+     * current time. Note that this function only updates the state derivative model itself, the
+     * environment models must be updated before calling this function.
+     * \param currentTime Time at which state derivative is to be calculated
+     */
+    void updateStateDerivativeModel( const TimeType currentTime )
+    {
         // Iterate over all accelerations and update their internal state.
         for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
              outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )

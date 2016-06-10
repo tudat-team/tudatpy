@@ -425,6 +425,7 @@ public:
         {
             std::cerr<<"Warning when settings gravity field model for body, mass function already found: resetting"<<std::endl;
         }
+
         currentMass_ = gravityFieldModel_->getGravitationalParameter( )
                        / physical_constants::GRAVITATIONAL_CONSTANT;
         bodyMassFunction_ = boost::lambda::constant( currentMass_ );
@@ -659,7 +660,6 @@ public:
         if( boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     gravityFieldModel_ ) != NULL )
         {
-            //std::cerr<<"Error, time. dep. update disabled due to circular dependency"<<std::endl;
             boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                         gravityFieldModel_ )->updateCorrectionFunctions( );
         }
