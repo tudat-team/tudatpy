@@ -63,6 +63,13 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative ) = 0;
 
+    //! Function to clear reference/cached values of state derivative model
+    /*!
+     * Function to clear reference/cached values of state derivative model, such as the current time and/or state.
+     * This function is to be implemented in each derived class
+     */
+    virtual void clearStateDerivativeModel( ) = 0;
+
     //! Function to update the state derivative model to the current time.
     /*!
      * Function to update the state derivative model (i.e. acceleration, torque, etc. models) to the
