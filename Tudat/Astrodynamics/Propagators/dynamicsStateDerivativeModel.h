@@ -315,7 +315,7 @@ public:
 
         if( evaluateVariationalEquations_ )
         {
-           std::cerr<<"Error, variational equations not yet implemented"<<std::endl;
+           throw std::runtime_error( "Error, variational equations not yet implemented" );
         }
         else
         {
@@ -367,7 +367,7 @@ private:
 
         if( stateIncludesVariationalState )
         {
-            std::cerr<<"Error, variational equations not yet implemented"<<std::endl;
+            throw std::runtime_error( "Error, variational equations not yet implemented" );
         }
         else
         {
