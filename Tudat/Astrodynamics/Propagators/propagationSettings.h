@@ -353,7 +353,8 @@ public:
                 // Check consistency
                 if( currentParameterSize + currentStartIndex > initialBodyStates.rows( ) )
                 {
-                    std::cerr<<"Error when resetting multi-type state, sizes are incompatible "<<std::endl;
+                    throw std::runtime_error(
+                                "Error when resetting multi-type state, sizes are incompatible " );
                 }
 
                 // Reset state for current settings
@@ -367,8 +368,10 @@ public:
         // Check consistency
         if( currentStartIndex != initialBodyStates.rows( ) )
         {
-            std::cerr<<"Error when resetting multi-arc state, sizes are incompatible B "<<
-                       currentStartIndex<<" "<<initialBodyStates.rows( )<<std::endl;
+            std::string errorMessage = "Error when resetting multi-type state, total size is incompatible "+
+                    boost::lexical_cast< std::string >( currentStartIndex ) +
+                    boost::lexical_cast< std::string >( initialBodyStates.rows( ) );
+            throw std::runtime_error( errorMessage );
         }
     }
 
