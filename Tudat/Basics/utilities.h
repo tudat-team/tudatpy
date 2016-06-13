@@ -64,6 +64,27 @@ std::vector< KeyType > createVectorFromMapKeys( const std::map< KeyType, VectorA
     return outputVector;
 }
 
+//! Function to sum the return values of two boost function with empty input argument list.
+/*!
+ * Function to sum the return values of two boost function with empty input argument list.
+ * \param function1 First function to be added.
+ * \param function2 Second function to be added.
+ * \return Sum of return values of function1 and function2
+ */
+template< typename S >
+S sumFunctionReturn( const boost::function< S( ) > function1, const boost::function< S( ) > function2 )
+{
+    return function1( ) + function2( );
+}
+
+//! Function to create a vector block history from full matrix history.
+/*!
+ *  Function to create a vector matrix block history from full matrix history.
+ *  \param matrixHistory Full matrix history
+ *  \param blockMatrixHistory Block vector history (return by reference).
+ *  \param startIndices Starting point (row,column) in matrix of return vector blocks.
+ *  \param segmentSize Number of rows in vector.
+ */
 template< typename S, typename T >
 void createVectorBlockMatrixHistory(
         const std::map< S, Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > >& matrixHistory,

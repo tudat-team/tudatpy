@@ -253,6 +253,16 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].
                         push_back( accelerationModelIterator->first );
                     break;
+                case mutual_spherical_harmonic_gravity:
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    break;
                 case third_body_spherical_harmonic_gravity:
                 {
                     singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
@@ -280,7 +290,43 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     }
                     break;
                 }
+                case third_body_mutual_spherical_harmonic_gravity:
+                {
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                accelerationModelIterator->first );
+                    singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                acceleratedBodyIterator->first );
+
+                    boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
+                            thirdBodyAcceleration = boost::dynamic_pointer_cast<
+                            gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
+                                accelerationModelIterator->second.at( i ) );;
+                    if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
+                                thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
+                    {
+                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                        singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                        singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                    }
+                    else if( thirdBodyAcceleration == NULL )
+                    {
+                        throw std::runtime_error(
+                                    std::string( "Error, incompatible input (ThirdBodyMutualSphericalHarmonicsGravitational" ) +
+                                    std::string( "AccelerationModel) to createTranslationalEquationsOfMotion ") +
+                                    std::string( "EnvironmentUpdaterSettings" ) );
+                    }
+                    break;
+                }
                 default:
+                    std::cerr<<"Error, did not recognize acceleration model "<<currentAccelerationModelType<<
+                               " when creating translational EoM update settings"<<std::endl;
                     break;
                 }
 

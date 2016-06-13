@@ -124,7 +124,7 @@ public:
     {
         sphericalHarmonicsCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
-                                                    cosineCoefficients_.cols( ) + 1 );
+                                                              cosineCoefficients_.cols( ) + 1 );
     }
 
     //! Virtual destructor.
