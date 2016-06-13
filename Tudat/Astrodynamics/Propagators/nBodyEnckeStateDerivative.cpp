@@ -113,8 +113,8 @@ std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
                 }
                 else
                 {
-                    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModelXd > originalAcceleration =
-                            boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModelXd >(
+                    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > originalAcceleration =
+                            boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                                 listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) = originalAcceleration->getGravitationalParameterFunction( );
 

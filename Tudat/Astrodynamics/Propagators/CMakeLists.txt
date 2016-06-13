@@ -40,6 +40,9 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/variationalEquationsSolver.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
 )
 
 # Add header files.
@@ -58,6 +61,9 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
   "${SRCROOT}${PROPAGATORSDIR}/bodyMassStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.h"
+  "${SRCROOT}${PROPAGATORSDIR}/variationalEquationsSolver.h"
+  "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
 )
 
 # Add static libraries.

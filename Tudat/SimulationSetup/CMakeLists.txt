@@ -12,6 +12,9 @@
 # Add source files.
 set(SIMULATION_SETUP_SOURCES
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationModels.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationPartials.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createStateDerivativePartials.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createEstimatableParameters.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAtmosphereModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createEphemeris.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createFlightConditions.cpp"
@@ -28,6 +31,9 @@ set(SIMULATION_SETUP_SOURCES
 # Add header files.
 set(SIMULATION_SETUP_HEADERS 
   "${SRCROOT}${SIMULATIONSETUPDIR}/accelerationSettings.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationPartials.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createStateDerivativePartials.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createEstimatableParameters.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAccelerationModels.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createAtmosphereModel.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createEphemeris.h"

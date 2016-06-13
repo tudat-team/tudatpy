@@ -26,6 +26,7 @@
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
 
 namespace tudat
 {
@@ -61,8 +62,10 @@ public:
     DynamicsStateDerivativeModel(
             const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
             stateDerivativeModels,
-            const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater ):
-        environmentUpdater_( environmentUpdater )
+            const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater,
+            const boost::shared_ptr< VariationalEquations > variationalEquations =
+                        boost::shared_ptr< VariationalEquations >( ) ):
+        environmentUpdater_( environmentUpdater ), variationalEquations_( variationalEquations )
     {
         std::vector< IntegratedStateType > stateTypeList;
         totalStateSize_ = 0;
@@ -187,6 +190,17 @@ public:
             }
         }
 
+
+        // If variational equations are to be integrated: evaluate and set.
+        if( evaluateVariationalEquations_ )
+        {
+            variationalEquations_->updatePartials( time );
+
+            variationalEquations_->evaluateVariationalEquations< StateScalarType >(
+                        time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
+                        stateDerivative_.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
+        }
+
         return stateDerivative_;
     }
 
@@ -308,6 +322,12 @@ public:
         return convertedSolution;
     }
 
+    void addVariationalEquations( boost::shared_ptr< VariationalEquations > variationalEquations )
+    {
+        variationalEquations_ = variationalEquations;
+    }
+
+
     //! Function to set which segments of the full state to propagate
     /*!
      * Function to set which segments of the full state to propagate, i.e. whether to propagate the
@@ -327,11 +347,43 @@ public:
 
         if( evaluateVariationalEquations_ )
         {
-           throw std::runtime_error( "Error, variational equations not yet implemented" );
+            dynamicsStartColumn_ = variationalEquations_->getNumberOfParameterValues( );
         }
         else
         {
             dynamicsStartColumn_ = 0;
+        }
+    }
+
+    void updateStateDerivativeModelSettings(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
+            const int currentStateArcIndex )
+    {
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( ); stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            switch( stateDerivativeModelsIterator_->first )
+            {
+            case transational_state:
+            {
+                for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+                {
+                    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
+                            boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                                stateDerivativeModelsIterator_->second.at( i ) );
+                    switch( currentTranslationalStateDerivative->getPropagatorType( ) )
+                    {
+                    case cowell:
+                        break;
+                    default:
+                        throw std::runtime_error( "Error when updating state derivative model settings, did not recognize propagator type" );
+                        break;
+                    }
+                }
+            }
+            default:
+                break;
+            }
         }
     }
 
@@ -376,10 +428,9 @@ private:
             const StateType& state, const TimeType& time, const bool stateIncludesVariationalState )
     {
         int startColumn = 0;
-
         if( stateIncludesVariationalState )
         {
-            throw std::runtime_error( "Error, variational equations not yet implemented" );
+            startColumn = variationalEquations_->getNumberOfParameterValues( );
         }
         else
         {
@@ -415,6 +466,8 @@ private:
 
     //! Object used to update the environment to the current state and time.
     boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater_;
+
+    boost::shared_ptr< VariationalEquations > variationalEquations_;
 
     //! Map that denotes for each state derivative model the start index and size of the associated
     //! state in the full state vector.
@@ -460,6 +513,24 @@ private:
             currentStatesPerTypeInConventionalRepresentation_;
 };
 
+template< typename TimeType = double, typename StateScalarType = double,
+          typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
+std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
+        boost::shared_ptr< ConversionClassType > converterClass )
+{
+    // Initialize converted solution.
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
+
+    // Iterate over all times.
+    for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
+         rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
+    {
+        // Convert solution at this time to output (typically ephemeris frame of given body) solution
+        convertedSolution[ stateIterator->first ] = converterClass->convertToOutputSolution( stateIterator->second, stateIterator->first );
+    }
+    return convertedSolution;
+}
 
 } // namespace propagators
 } // namespace tudat

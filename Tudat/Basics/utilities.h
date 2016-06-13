@@ -2,7 +2,7 @@
 #define UTILITIES_H
 
 #include <map>
-
+#include <boost/function.hpp>
 #include <Eigen/Core>
 
 namespace tudat
