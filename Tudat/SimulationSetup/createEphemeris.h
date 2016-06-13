@@ -18,8 +18,10 @@
 
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
 
 namespace tudat
 {
@@ -230,7 +232,7 @@ public:
         DirectSpiceEphemerisSettings( frameOrigin, frameOrientation, 0, 0, 0,
                                       interpolated_spice ),
         initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
-        interpolatorSettings_( interpolatorSettings ){ }
+        interpolatorSettings_( interpolatorSettings ), useLongDoubleStates_( 0 ){ }
 
     //! Function to return initial time from which interpolated data from Spice should be created.
     /*!
@@ -264,6 +266,16 @@ public:
         return interpolatorSettings_;
     }
 
+    bool getUseLongDoubleStates( )
+    {
+        return useLongDoubleStates_;
+    }
+
+    void setUseLongDoubleStates( const bool useLongDoubleStates )
+    {
+        useLongDoubleStates_ = useLongDoubleStates;
+    }
+
 private:
 
     //! Initial time from which interpolated data from Spice should be created.
@@ -278,6 +290,7 @@ private:
     //! Settings to be used for the state interpolation.
     boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
+    bool useLongDoubleStates_;
 };
 
 //! EphemerisSettings derived class for defining settings of an approximate ephemeris for major
@@ -514,7 +527,7 @@ public:
             std::string frameOrigin = "SSB",
             std::string frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( tabulated_ephemeris, frameOrigin, frameOrientation ),
-        bodyStateHistory_( bodyStateHistory ){ }
+        bodyStateHistory_( bodyStateHistory ), useLongDoubleStates_( ){ }
 
     //! Function returning data map defining discrete data from which an ephemeris is to be created.
     /*!
@@ -524,6 +537,17 @@ public:
     std::map< double, basic_mathematics::Vector6d > getBodyStateHistory( )
     { return bodyStateHistory_; }
 
+
+    bool getUseLongDoubleStates( )
+    {
+        return useLongDoubleStates_;
+    }
+
+    void setUseLongDoubleStates( const bool useLongDoubleStates )
+    {
+        useLongDoubleStates_ = useLongDoubleStates;
+    }
+
 private:
 
     //! Data map defining discrete data from which an ephemeris is to be created.
@@ -532,7 +556,11 @@ private:
      *  ephemeris is to be created.
      */
     std::map< double, basic_mathematics::Vector6d > bodyStateHistory_;
+
+    bool useLongDoubleStates_;
 };
+
+#if USE_CSPICE
 
 //! Function to create a tabulated ephemeris using data from Spice.
 /*!
@@ -551,13 +579,41 @@ private:
  *          calculated.
  * \return Tabulated ephemeris using data from Spice.
  */
+template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
         const std::string& body,
-        const double initialTime,
-        const double endTime,
-        const double timeStep,
+        const TimeType initialTime,
+        const TimeType endTime,
+        const TimeType timeStep,
         const std::string& observerName,
-        const std::string& referenceFrameName );
+        const std::string& referenceFrameName,
+        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+{
+    using namespace interpolators;
+
+    std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > timeHistoryOfState;
+
+    // Calculate state from spice at given time intervals and store in timeHistoryOfState.
+    TimeType currentTime = initialTime;
+    while( currentTime < endTime )
+    {
+        timeHistoryOfState[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
+                    body, observerName, referenceFrameName, "none", static_cast< double >( currentTime ) ).
+                template cast< StateScalarType >( );
+        currentTime += timeStep;
+    }
+
+    // Create interpolator.
+    boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > interpolator =
+            interpolators::createOneDimensionalInterpolator(
+                timeHistoryOfState, interpolatorSettings );
+
+    // Create ephemeris and return.
+    return boost::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                interpolator, observerName, referenceFrameName );
+}
+#endif
 
 //! Function to create a ephemeris model.
 /*!

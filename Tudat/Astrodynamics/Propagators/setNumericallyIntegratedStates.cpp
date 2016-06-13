@@ -17,7 +17,6 @@ namespace tudat
 namespace propagators
 {
 
-
 //! Function to create an interpolator for the new translational state of a body.
 template< >
 boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > >

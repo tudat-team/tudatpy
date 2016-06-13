@@ -31,42 +31,6 @@ namespace simulation_setup
 
 using namespace ephemerides;
 
-#if USE_CSPICE
-//! Function to create a tabulated ephemeris using data from Spice.
-boost::shared_ptr< Ephemeris > createTabulatedEphemerisFromSpice(
-        const std::string& body,
-        const double initialTime,
-        const double endTime,
-        const double timeStep,
-        const std::string& observerName,
-        const std::string& referenceFrameName,
-        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
-{
-    using namespace interpolators;
-
-    std::map< double, basic_mathematics::Vector6d > timeHistoryOfState;
-
-    // Calculate state from spice at given time intervals and store in timeHistoryOfState.
-    double currentTime = initialTime;
-    while( currentTime < endTime )
-    {
-        timeHistoryOfState[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
-                    body, observerName, referenceFrameName, "none", currentTime );
-        currentTime += timeStep;
-    }
-
-    // Create interpolator.
-    boost::shared_ptr< OneDimensionalInterpolator< double, basic_mathematics::Vector6d > > interpolator =
-            interpolators::createOneDimensionalInterpolator(
-                timeHistoryOfState, interpolatorSettings );
-
-    // Create ephemeris and return.
-    return boost::make_shared< TabulatedCartesianEphemeris< > >(
-                interpolator, observerName, referenceFrameName );
-}
-#endif
-
 //! Function to create a ephemeris model.
 boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
@@ -78,7 +42,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
     // Check which type of ephemeris model is to be created.
     switch( ephemerisSettings->getEphemerisType( ) )
     {
-    #if USE_CSPICE
+#if USE_CSPICE
     case direct_spice_ephemeris:
     {
         // Check consistency of type and class.
@@ -129,7 +93,9 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
 
             // Create corresponding ephemeris object.
-            ephemeris = createTabulatedEphemerisFromSpice(
+            if( !interpolatedEphemerisSettings->getUseLongDoubleStates( ) )
+            {
+                ephemeris = createTabulatedEphemerisFromSpice< double, double >(
                         inputName,
                         interpolatedEphemerisSettings->getInitialTime( ),
                         interpolatedEphemerisSettings->getFinalTime( ),
@@ -137,10 +103,22 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                         interpolatedEphemerisSettings->getFrameOrigin( ),
                         interpolatedEphemerisSettings->getFrameOrientation( ),
                         interpolatedEphemerisSettings->getInterpolatorSettings( ) );
+            }
+            else
+            {
+                ephemeris = createTabulatedEphemerisFromSpice< long double, double >(
+                        inputName,
+                        static_cast< long double >( interpolatedEphemerisSettings->getInitialTime( ) ),
+                        static_cast< long double >( interpolatedEphemerisSettings->getFinalTime( ) ),
+                        static_cast< long double >( interpolatedEphemerisSettings->getTimeStep( ) ),
+                        interpolatedEphemerisSettings->getFrameOrigin( ),
+                        interpolatedEphemerisSettings->getFrameOrientation( ),
+                        interpolatedEphemerisSettings->getInterpolatorSettings( ) );
+            }
         }
         break;
     }
-    #endif
+#endif
     case tabulated_ephemeris:
     {
         // Check consistency of type and class.
@@ -154,14 +132,39 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         else
         {
             // Create corresponding ephemeris object.
-            ephemeris = boost::make_shared< TabulatedCartesianEphemeris< > >(
-                        boost::make_shared<
-                        interpolators::LagrangeInterpolator< double, basic_mathematics::Vector6d > >
-                        ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
-                          interpolators::huntingAlgorithm,
-                          interpolators::lagrange_cubic_spline_boundary_interpolation ),
-                        tabulatedEphemerisSettings->getFrameOrigin( ),
-                        tabulatedEphemerisSettings->getFrameOrientation( ) );
+            if( !tabulatedEphemerisSettings->getUseLongDoubleStates( ) )
+            {
+                ephemeris = boost::make_shared< TabulatedCartesianEphemeris< > >(
+                            boost::make_shared<
+                            interpolators::LagrangeInterpolator< double, basic_mathematics::Vector6d > >
+                            ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
+                              interpolators::huntingAlgorithm,
+                              interpolators::lagrange_cubic_spline_boundary_interpolation ),
+                            tabulatedEphemerisSettings->getFrameOrigin( ),
+                            tabulatedEphemerisSettings->getFrameOrientation( ) );
+            }
+            else
+            {
+                // Cast input history to required type.
+                std::map< double, basic_mathematics::Vector6d > originalStateHistory =
+                        tabulatedEphemerisSettings->getBodyStateHistory( );
+                std::map< double, Eigen::Matrix< long double, 6, 1 > > longStateHistory;
+
+                for( std::map< double, basic_mathematics::Vector6d >::const_iterator stateIterator =
+                     originalStateHistory.begin( ); stateIterator != originalStateHistory.end( ); stateIterator++ )
+                {
+                    longStateHistory[ stateIterator->first ] = stateIterator->second.cast< long double >( );
+                    ephemeris =
+                            boost::make_shared< TabulatedCartesianEphemeris< long double, double > >(
+                                boost::make_shared< interpolators::LagrangeInterpolator<
+                                double, Eigen::Matrix< long double, 6, 1 > > >
+                                ( longStateHistory, 6,
+                                  interpolators::huntingAlgorithm,
+                                  interpolators::lagrange_cubic_spline_boundary_interpolation ),
+                                tabulatedEphemerisSettings->getFrameOrigin( ),
+                                tabulatedEphemerisSettings->getFrameOrientation( ) );
+                }
+            }
         }
         break;
     }
