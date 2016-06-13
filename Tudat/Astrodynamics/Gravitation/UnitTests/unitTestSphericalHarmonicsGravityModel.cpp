@@ -299,8 +299,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
     const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
 
     // Declare spherical harmonics gravitational acceleration class object.
-    SphericalHarmonicsGravitationalAccelerationModelXdPointer earthGravity
-            = boost::make_shared< SphericalHarmonicsGravitationalAccelerationModelXd >(
+    SphericalHarmonicsGravitationalAccelerationModelPointer earthGravity
+            = boost::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
                 boost::lambda::constant( position ), gravitationalParameter, planetaryRadius,
                 cosineCoefficients, sineCoefficients );
 

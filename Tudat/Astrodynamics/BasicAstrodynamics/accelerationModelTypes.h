@@ -38,6 +38,7 @@
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 
@@ -61,8 +62,10 @@ enum AvailableAcceleration
     aerodynamic,
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
+    mutual_spherical_harmonic_gravity,
     third_body_central_gravity,
-    third_body_spherical_harmonic_gravity
+    third_body_spherical_harmonic_gravity,
+    third_body_mutual_spherical_harmonic_gravity
 };
 
 //! Function to identify the derived class type of an acceleration model.
