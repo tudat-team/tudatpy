@@ -17,37 +17,7 @@ namespace propagators
 using orbit_determination::partial_derivatives::StateDerivativePartialsMap;
 using namespace tudat::estimatable_parameters;
 
-//std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap > makeStateDerivativePartialList(
-//        const orbit_determination::partial_derivatives::AccelerationPartialsMap& accelerationPartials )
-//{
-//    //std::vector< std::map< std::string, std::vector< boost::shared_ptr< partial_derivatives::AccelerationPartial > > > >
-//    orbit_determination::partial_derivatives::StateDerivativePartialsMap stateDerivativePartials;
-//    for( unsigned int i = 0; i < accelerationPartials.size( ); i++ )
-//    {
-//        std::map< std::string, std::vector< boost::shared_ptr< orbit_determination::partial_derivatives::StateDerivativePartial > > >
-//                currentStateDerivativePartialList;
-//        for( std::map< std::string, std::vector< boost::shared_ptr< orbit_determination::partial_derivatives::AccelerationPartial > > >::const_iterator
-//             partialIterator = accelerationPartials.at( i ).begin( ); partialIterator != accelerationPartials.at( i ).end( );
-//             partialIterator++ )
-//        {
-//            std::vector< boost::shared_ptr< orbit_determination::partial_derivatives::StateDerivativePartial > > currentStateDerivativePartials;
-//            for( unsigned int j = 0; j < partialIterator->second.size( ); j++ )
-//            {
-//                currentStateDerivativePartials.push_back( partialIterator->second.at( j ) );
-//            }
-//            currentStateDerivativePartialList[ partialIterator->first ] = currentStateDerivativePartials;
-//        }
-//        stateDerivativePartials.push_back( currentStateDerivativePartialList );
-//    }
-//    std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap > stateDerivativePartialList;
-//    stateDerivativePartialList[ transational_state ] = stateDerivativePartials;
-//    return stateDerivativePartialList;
-
-//}
-
-
-
-//! Calculates matrix containing partial derivatives of accelerarion w.r.t. body state.
+//! Calculates matrix containing partial derivatives of state derivatives w.r.t. body state.
 void VariationalEquations::setBodyStatePartialMatrix( )
 {
     using namespace orbit_determination::partial_derivatives;
@@ -88,15 +58,14 @@ void VariationalEquations::setBodyStatePartialMatrix( )
 
    for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
    {
-       //std::cout<<statePartialAdditionIndices_.at( i ).first<<" "<<statePartialAdditionIndices_.at( i ).second<<std::endl;
        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 3 ) +=
                variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).first, totalDynamicalStateSize_, 3 );
    }
 }
 
 
-//! This function updates the total state of each body, acceleration and acceleration partial in the simulation at the given time and state
-//! of bodies that are integrated numerically.
+//! This function updates all state derivative models to the current time and state.
+
 void VariationalEquations::updatePartials( const double currentTime )
 {
     for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );

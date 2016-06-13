@@ -165,20 +165,31 @@ public:
         return std::make_pair( partialFunction, 0 );
     }
 
-    //! Pure virtual for updating the partial object to current state and time.
+    //! Pure virtual for updating the common parts of the partial object to current state and time.
     /*!
-     *  Pure virtual for updating the partial object to current state and time. All required partials are computed
-     *  and set in the corresponding member variables.
+     *  Pure virtual for updating the common parts of the partial object to current state and time. Note that this
+     *  function is distinct from the updateParameterPartials, which only updates the specific required partial
+     *  derivatives w.r.t. required parameters. This function computes variables that are always required when
+     *  the derived class partial is used.
      *  \param currentTime Time to which partials are to be updated.
      */
     virtual void update( const double currentTime ) = 0;
 
-
+    //! Function to get the type of state for which partials are to be computed.
+    /*!
+     * Function to get the type of state for which partials are to be computed.
+     * \return Type of state for which partials are to be computed.
+     */
     propagators::IntegratedStateType getIntegratedStateType( )
     {
         return integratedStateType_;
     }
 
+    //! Function to get the identifier for body/reference point for which propagation is performed.
+    /*!
+     * Function to get the identifier for body/reference point for which propagation is performed.
+     * \return Identifier for body/reference point for which propagation is performed.
+     */
     std::pair< std::string, std::string > getIntegrationReferencePoint( )
     {
         return integrationReferencePoint_;
@@ -499,7 +510,14 @@ protected:
 
 };
 
-typedef std::vector< std::vector< boost::shared_ptr< partial_derivatives::StateDerivativePartial > > > StateDerivativePartialsMap;
+//! Typedef for double vector of StateDerivativePartial objects.
+/*!
+ *  Typedef for double vector of StateDerivativePartial objects. First (outer) vector is typically the
+ *  bodies undergoing 'acceleration (and being estimated), the second (inner) vector is the list of partials
+ *  being exerted on a single body.
+ */
+typedef std::vector< std::vector< boost::shared_ptr< partial_derivatives::StateDerivativePartial > > >
+StateDerivativePartialsMap;
 
 //! Function to evaluate the negative value of a parameter partial.
 /*!
@@ -541,10 +559,40 @@ void evaluateAddedParameterPartialFunction(
         const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToAdd,
         Eigen::MatrixXd& partial );
 
+//! Create a parameter partial function obtained from the subtraction of two such function results.
+/*!
+ * Create a parameter partial function, as returned by the StateDerivativePartial::getParameterPartialFunction function
+ * The partial created here is obtained from the subtraction of two such function results. The two input variables
+ * may be both empty, both define a function, or only one of them may define a function.
+ * \param partialFunctionOfAccelerationToAdd Function and associated parameter size (first and second of pair) that
+ * are to be added to the total partial.
+ * \param partialFunctionOfAccelerationToSubtract Function and associated parameter size (first and second of pair) that
+ * are to be subtracted from the total partial.
+ * \return Function and parameter size obtained from 'subtracting' partialFunctionOfAccelerationToSubtract from
+ * partialFunctionOfAccelerationToAdd
+ */
 std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > createMergedParameterPartialFunction(
         const std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToAdd,
         const std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToSubtract );
 
+
+//! Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial
+//! w.r.t. a double parameter from 2 state derivative partial models.
+/*!
+ * Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial
+ * w.r.t. a double parameter from 2 state derivative partial models. Note that this function creates a merged
+ * function from two getCurrentDoubleParameterPartial functions of the two input partial objects. The automatic
+ * computation when updating the partial (done by call to setParameterPartialUpdateFunction) is not handled by
+ * this function.
+ * \param firstPartial First object for computing partial derivatives.
+ * \param secondPartial Second object for computing partial derivatives.
+ * \param parameterObject Parameter w.r.t. which a partial is to be taken.
+ * \param firstPartialSize Size of partial from firstPartial object (only 0 and 1 are valid).
+ * \param secondPartialSize Size of partial from secondPartial object (only 0 and 1 are valid).
+ * \param subtractPartials Boolean denoting whether the second parameter is to be subtracted or added to the
+ * total partial.
+ * \return Function computing and returning (by reference) the combined partial according to the required settings.
+ */
 boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunction(
         const boost::shared_ptr< StateDerivativePartial > firstPartial,
         const boost::shared_ptr< StateDerivativePartial > secondPartial,
@@ -552,6 +600,23 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFun
         const int firstPartialSize, const int secondPartialSize,
         const bool subtractPartials = 0 );
 
+//! Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial
+//! w.r.t. a vector parameter from 2 state derivative partial models.
+/*!
+ * Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial
+ * w.r.t. a vector parameter from 2 state derivative partial models. Note that this function creates a merged
+ * function from two getCurrentVectorParameterPartial functions of the two input partial objects. The automatic
+ * computation when updating the partial (done by call to setParameterPartialUpdateFunction) is not handled by
+ * this function.
+ * \param firstPartial First object for computing partial derivatives.
+ * \param secondPartial Second object for computing partial derivatives.
+ * \param parameterObject Parameter w.r.t. which a partial is to be taken.
+ * \param firstPartialSize Size of partial from firstPartial object
+ * \param secondPartialSize Size of partial from secondPartial object
+ * \param subtractPartials Boolean denoting whether the second parameter is to be subtracted or added to the
+ * total partial.
+ * \return Function computing and returning (by reference) the combined partial according to the required settings.
+ */
 boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunction(
         const boost::shared_ptr< StateDerivativePartial > firstPartial,
         const boost::shared_ptr< StateDerivativePartial > secondPartial,
