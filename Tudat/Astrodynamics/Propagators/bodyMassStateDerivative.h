@@ -88,6 +88,22 @@ public:
         }
     }
 
+    //! Function to clear reference/cached values of body mass state derivative model
+    /*!
+     * Function to clear reference/cached values of body mass state derivative model. All mass rate models' current times
+     * are reset to ensure that they are all recalculated.
+     */
+    void clearStateDerivativeModel( )
+    {
+        // Reset all mass rate times (to allow multiple evaluations at same time, e.g. stage 2  and 3 in RK4 integrator)
+        for( massRateModelIterator_ = massRateModels_.begin( );
+             massRateModelIterator_ != massRateModels_.end( );
+             massRateModelIterator_++ )
+        {
+            massRateModelIterator_->second->resetTime( TUDAT_NAN );
+        }
+    }
+
     //! Function to update the mass state derivative model to the current time.
     /*!
      * Function to update the mass state derivative model to the urrent time.
@@ -97,13 +113,7 @@ public:
      */
     void updateStateDerivativeModel( const TimeType currentTime )
     {
-        // Reset all mass rate times (to allow multiple evaluations at same time, e.g. stage 2  and 3 in RK4 integrator)
-        for( massRateModelIterator_ = massRateModels_.begin( );
-             massRateModelIterator_ != massRateModels_.end( );
-             massRateModelIterator_++ )
-        {
-            massRateModelIterator_->second->resetTime( TUDAT_NAN );
-        }
+
 
         // Update local variables of mass rate model objects.
         for( massRateModelIterator_ = massRateModels_.begin( );

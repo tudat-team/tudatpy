@@ -137,6 +137,18 @@ public:
         // If dynamical equations are integrated, update the environment with the current state.
         if( evaluateDynamicsEquations_ )
         {
+            // Iterate over all types of equations.
+            for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+                 stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+                 stateDerivativeModelsIterator_++ )
+
+            {
+                for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+                {
+                    stateDerivativeModelsIterator_->second.at( i )->clearStateDerivativeModel( );
+                }
+            }
+
             convertCurrentStateToGlobalRepresentationPerType( state, time, evaluateVariationalEquations_ );
             environmentUpdater_->updateEnvironment( time, currentStatesPerTypeInConventionalRepresentation_,
                                                     integratedStatesFromEnvironment_ );
