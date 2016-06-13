@@ -147,7 +147,8 @@ Eigen::Matrix< ScalarType, 6, 1 > propagateKeplerOrbit(
         const ScalarType finalEccentricAnomaly =
                 convertMeanAnomalyToEccentricAnomaly< ScalarType >(
                     initialStateInKeplerianElements( eccentricityIndex ),
-                    initialMeanAnomaly + meanAnomalyChange );
+                    initialMeanAnomaly + meanAnomalyChange, true,
+                    TUDAT_NAN, aRootFinder );
 
         // Compute true anomaly for computed eccentric anomaly.
         finalStateInKeplerianElements( trueAnomalyIndex ) =

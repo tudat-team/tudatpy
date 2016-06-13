@@ -188,7 +188,7 @@ public:
                     propagatorSettings_, bodyMap_ );
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                     createStateDerivativeModels< StateScalarType, TimeType >(
-                        propagatorSettings_, bodyMap_ ), environmentUpdater_ );
+                        propagatorSettings_, bodyMap_, integratorSettings_->initialTime_ ), environmentUpdater_ );
         stateDerivativeFunction_ =
                 boost::bind( &DynamicsStateDerivativeModel
                              < TimeType, StateScalarType >::computeStateDerivative,
