@@ -43,12 +43,14 @@ void evaluateAddedParameterPartialFunction( const boost::function< void( Eigen::
     partial += addedPartial;
 }
 
+//! Create a parameter partial function obtained from the subtraction of two such function results.
 std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > createMergedParameterPartialFunction(
         const std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToAdd,
         const std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToSubtract )
 {
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  parameterPartialFunction;
 
+    // Check partial size and act accordingly.
     if( ( partialFunctionOfAccelerationToAdd.second == 0 ) &&
             ( partialFunctionOfAccelerationToSubtract.second == 0 ) )
     {
@@ -65,6 +67,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > createMergedParame
                                                        partialFunctionOfAccelerationToSubtract.first, _1 ),
                                                    partialFunctionOfAccelerationToSubtract.second );
     }
+    // Partial size must be equal if both non-zero
     else if( partialFunctionOfAccelerationToSubtract.second !=
              partialFunctionOfAccelerationToAdd.second )
     {
@@ -80,6 +83,8 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > createMergedParame
     return parameterPartialFunction;
 }
 
+//! Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial
+//! w.r.t. a double parameter from 2 state derivative partial models.
 boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunction(
         const boost::shared_ptr< StateDerivativePartial > firstPartial,
         const boost::shared_ptr< StateDerivativePartial > secondPartial,
@@ -89,15 +94,18 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFun
 {
     boost::function< void( Eigen::MatrixXd& ) > partialFunction;
 
+    // Get two partial functions.
     boost::function< void( Eigen::MatrixXd& ) > firstPartialFunction =
             boost::bind( &StateDerivativePartial::getCurrentDoubleParameterPartial, firstPartial, parameterObject, _1 );
     boost::function< void( Eigen::MatrixXd& ) > secondPartialFunction =
             boost::bind( &StateDerivativePartial::getCurrentDoubleParameterPartial, secondPartial, parameterObject, _1 );
 
+    // If both partial function sizes are zero, cannot create partial.
     if( firstPartialSize == 0 && secondPartialSize == 0 )
     {
         throw std::runtime_error( "Error when getting combined current partial size, both partials have size zero " );
     }
+    // Check other cases and combine partial functions accordingly
     else if( secondPartialSize == 0 )
     {
         partialFunction = firstPartialFunction;
@@ -131,13 +139,17 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFun
         }
 
     }
+    // Partial size must be equal if both non-zero
     else
     {
-        throw std::runtime_error( "Error when getting combined current partial size, both partials have different non-zero size." );
+        throw std::runtime_error(
+                    "Error when getting combined current partial size, both partials have different non-zero size." );
     }
     return partialFunction;
 }
 
+//! Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial
+//! w.r.t. a vector parameter from 2 state derivative partial models.
 boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunction(
         const boost::shared_ptr< StateDerivativePartial > firstPartial,
         const boost::shared_ptr< StateDerivativePartial > secondPartial,
@@ -147,16 +159,19 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFun
 {
     boost::function< void( Eigen::MatrixXd& ) > partialFunction;
 
+    // Get two partial functions.
     boost::function< void( Eigen::MatrixXd& ) > firstPartialFunction =
             boost::bind( &StateDerivativePartial::getCurrentVectorParameterPartial, firstPartial, parameterObject, _1 );
     boost::function< void( Eigen::MatrixXd& ) > secondPartialFunction =
             boost::bind( &StateDerivativePartial::getCurrentVectorParameterPartial, secondPartial, parameterObject, _1 );
 
 
+    // If both partial function sizes are zero, cannot create partial.
     if( firstPartialSize == 0 && secondPartialSize == 0 )
     {
         throw std::runtime_error( "Error when getting combined current partial size, both partials have size zero " );
     }
+    // Check other cases and combine partial functions accordingly
     else if( secondPartialSize == 0 )
     {
         partialFunction = firstPartialFunction;
@@ -190,6 +205,7 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFun
         }
 
     }
+    // Partial size must be equal if both non-zero
     else
     {
         throw std::runtime_error( "Error when getting combined current partial size, both partials have different non-zero size." );

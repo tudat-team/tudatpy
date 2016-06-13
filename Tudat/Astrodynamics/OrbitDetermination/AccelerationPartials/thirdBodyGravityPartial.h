@@ -97,6 +97,7 @@ public:
         partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAcceleratedBody(
                     partialMatrix, addContribution, startRow, startColumn );
 
+        // Check if acceleration on central body is dependent on acceleratedBody_
         if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( acceleratedBody_ ) == 1 )
         {
             partialOfDirectGravityOnCentralBody_->wrtPositionOfAdditionalBody(
@@ -116,6 +117,7 @@ public:
         partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAcceleratedBody(
                     partialMatrix, addContribution, startRow, startColumn  );
 
+        // Check if acceleration on central body is dependent on acceleratedBody_
         if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( acceleratedBody_ ) == 1 )
         {
             partialOfDirectGravityOnCentralBody_->wrtVelocityOfAdditionalBody(
@@ -133,6 +135,7 @@ public:
                                         const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
 
     {
+        // Add partials for both direct acceleration and acceleration on central body.
         partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAcceleratingBody(
                     partialMatrix, addContribution, startRow, startColumn  );
         partialOfDirectGravityOnCentralBody_->wrtPositionOfAcceleratingBody(
@@ -150,12 +153,27 @@ public:
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     {
+        // Add partials for both direct acceleration and acceleration on central body.
         partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAcceleratingBody(
                     partialMatrix, addContribution, startRow, startColumn );
         partialOfDirectGravityOnCentralBody_->wrtVelocityOfAcceleratingBody(
                     partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn );
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the position of an additiona body.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the position of an additional body (in addition
+     *  to the body undergoing and exerting the acceleration) and adding it to the existing partial block.
+     *  This function check if the requested additional body equals the central body name. Also, it checks whether either
+     *  the direct or indirect acceleration depend on this additional body. The partial computation is then updated
+     *  accordingly
+     *  \param bodyName Name of additional body.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of third body where
+     *  current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtPositionOfAdditionalBody( const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                       const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     {
@@ -178,6 +196,20 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of an additiona body.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of an additional body (in addition
+     *  to the body undergoing and exerting the acceleration) and adding it to the existing partial block.
+     *  This function check if the requested additional body equals the central body name. Also, it checks whether either
+     *  the direct or indirect acceleration depend on this additional body. The partial computation is then updated
+     *  accordingly
+     *  \param bodyName Name of additional body.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of third body where
+     *  current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtVelocityOfAdditionalBody( const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                       const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     {
@@ -200,6 +232,12 @@ public:
         }
     }
 
+    //! Function for checking whether the partial of the acceleration w.r.t. the state of an additional body is non-zero.
+    /*!
+     *  Function for checking whether the partial of the acceleration w.r.t. the state of an additional body is non-zero
+     *  \param bodyName Name of additional body.
+     *  \return True if dependency exists
+     */
     bool isAccelerationPartialWrtAdditionalBodyNonNull( const std::string& bodyName )
     {
         bool isAccelerationDependentOnBody = 0;
@@ -217,6 +255,13 @@ public:
         return isAccelerationDependentOnBody;
     }
 
+    //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
+    /*!
+     *  Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
+     *  Function returns empty function and zero size indicator for parameters with no dependency for current acceleration.
+     *  \param parameter Parameter w.r.t. which partial is to be taken.
+     *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
+     */
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
@@ -229,6 +274,13 @@ public:
                                                      partialFunctionFromCentralGravity );
     }
 
+    //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
+    /*!
+     *  Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
+     *  Function returns empty function and zero size indicator for parameters with no dependency for current acceleration.
+     *  \param parameter Parameter w.r.t. which partial is to be taken.
+     *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
+     */
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
@@ -241,9 +293,17 @@ public:
                                                      partialFunctionFromCentralGravity );
     }
 
+    //! Function to set a dependency of this partial object w.r.t. a given double parameter.
+    /*!
+     * Function to set a dependency of this partial object w.r.t. a given double parameter. If a dependency exists, the given
+     * partial is recomputed on every call of updateParameterPartials.
+     * \param parameter Partial w.r.t. which dependency is to be checked and set.
+     * \return Size (number of columns) of parameter partial. Zero if no dependency, 1 otherwise.
+     */
     int setParameterPartialUpdateFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
+        // Check parameter dependency of direct acceleration.
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
         if( partialFunctionFromDirectGravity.second > 0 )
@@ -251,6 +311,7 @@ public:
             partialOfDirectGravityOnBodyUndergoingAcceleration_->setParameterPartialUpdateFunction( parameter );
         }
 
+        // Check parameter dependency of indirect acceleration.
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
         if( partialFunctionFromCentralGravity.second > 0 )
@@ -258,6 +319,7 @@ public:
             partialOfDirectGravityOnCentralBody_->setParameterPartialUpdateFunction( parameter );
         }
 
+        // If either dependency exists, create combined partial.
         if( partialFunctionFromCentralGravity.second > 0 || partialFunctionFromDirectGravity.second > 0 )
         {
             parameterDoublePartialFunctions_[ parameter ] =
@@ -271,10 +333,17 @@ public:
         return std::max( partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second );
     }
 
-
+    //! Function to set a dependency of this partial object w.r.t. a given vector parameter.
+    /*!
+     * Function to set a dependency of this partial object w.r.t. a given vector parameter. If a dependency exists, the given
+     * partial is recomputed on every call of updateParameterPartials.
+     * \param parameter Partial w.r.t. which dependency is to be checked and set.
+     * \return Size (number of columns) of parameter partial. Zero if no dependency, size of parameter otherwise.
+     */
     int setParameterPartialUpdateFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
+        // Check parameter dependency of direct acceleration.
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
         if( partialFunctionFromDirectGravity.second > 0 )
@@ -282,6 +351,7 @@ public:
             partialOfDirectGravityOnBodyUndergoingAcceleration_->setParameterPartialUpdateFunction( parameter );
         }
 
+        // Check parameter dependency of indirect acceleration.
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
         if( partialFunctionFromCentralGravity.second > 0 )
@@ -289,6 +359,7 @@ public:
             partialOfDirectGravityOnCentralBody_->setParameterPartialUpdateFunction( parameter );
         }
 
+        // If either dependency exists, create combined partial.
         if( partialFunctionFromCentralGravity.second > 0 || partialFunctionFromDirectGravity.second > 0 )
         {
             parameterVectorPartialFunctions_[ parameter ] =
@@ -303,7 +374,12 @@ public:
         return std::max( partialFunctionFromDirectGravity.second, partialFunctionFromCentralGravity.second );
     }
 
-
+    //! Function for updating partials  w.r.t. the bodies' positions
+    /*!
+     *  Function for updating common blocks of partial to current state. For the third body gravitational acceleration,
+     *  the update functions of both constituent accelerations are updated.
+     *  \param currentTime Time at which partials are to be calculated
+     */
     void update( const double currentTime )
     {
         partialOfDirectGravityOnBodyUndergoingAcceleration_->update( currentTime );
@@ -312,16 +388,31 @@ public:
         currentTime_ = currentTime;
     }
 
+    //! Function to get partial derivative object of direct acceleration from centralBodyName on acceleratedBody.
+    /*!
+     * Function to get the partial derivative object of direct acceleration from centralBodyName on acceleratedBody.
+     * \return Partial derivative object of direct acceleration from centralBodyName on acceleratedBody.
+     */
     boost::shared_ptr< DirectGravityPartial > getPartialOfDirectGravityOnBodyUndergoingAcceleration( )
     {
         return partialOfDirectGravityOnBodyUndergoingAcceleration_;
     }
 
+    //! Function to get partial derivative object of direct acceleration from acceleratingBody on acceleratedBody.
+    /*!
+     * Function to get the partial derivative object of direct acceleration from acceleratingBody on acceleratedBody.
+     * \return Partial derivative object of direct acceleration from acceleratingBody on acceleratedBody.
+     */
     boost::shared_ptr< DirectGravityPartial > getPartialOfDirectGravityOnCentralBody( )
     {
         return partialOfDirectGravityOnCentralBody_;
     }
 
+    //! Function to get the name of central body w.r.t. which the acceleration is computed.
+    /*!
+     * Function to get the name of central body w.r.t. which the acceleration is computed.
+     * \return Name of central body w.r.t. which the acceleration is computed.
+     */
     std::string getCentralBodyName( )
     {
         return centralBodyName_;
@@ -330,13 +421,14 @@ public:
 
 protected:
 
-
+    //!! Function to reset the constituent DirectGravityPartial objects to the current time.
     void resetTimeOfMemberObjects( )
     {
         partialOfDirectGravityOnBodyUndergoingAcceleration_->resetTime( currentTime_ );
         partialOfDirectGravityOnCentralBody_->resetTime( currentTime_ );
     }
 
+    //!! Function to update the parameter partials of the constituent DirectGravityPartial objects.
     void updateParameterPartialsOfMemberObjects( )
     {
         partialOfDirectGravityOnBodyUndergoingAcceleration_->updateParameterPartials( );
@@ -344,10 +436,13 @@ protected:
     }
 
 private:
+    //! Partial derivative object of direct acceleration from acceleratingBody on acceleratedBody.
     boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnBodyUndergoingAcceleration_;
 
+    //! Partial derivative object of direct acceleration from centralBodyName on acceleratedBody.
     boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnCentralBody_;
 
+    //! Name of central body w.r.t. which the acceleration is computed.
     std::string centralBodyName_;
 
 };

@@ -153,10 +153,10 @@ public:
         return std::make_pair( partialFunction, 0 );
     }
 
-    //! Function for updating partial to current state.
+    //! Function for updating partial w.r.t. the bodies' positions
     /*!
-     *  Function for updating partial to current state. For the central gravitational acceleration, position partial is
-     *  computed and set.
+     *  Function for updating common blocks of partial to current state. For the central gravitational acceleration,
+     *  position partial is computed and set.
      *  \param currentTime Time at which partials are to be calculated
      */
     void update( const double currentTime = TUDAT_NAN )
