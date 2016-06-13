@@ -37,6 +37,7 @@
 set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
 )
 
 # Add header files.

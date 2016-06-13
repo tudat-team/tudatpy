@@ -162,6 +162,8 @@ public:
             updateOrder_[ currentUpdateIndex ] = numericalBodies_.at( i );
             currentUpdateIndex++;
         }
+
+        localInternalState_.resize( 6 * bodiesToIntegrate.size( ), 1 );
     }
 
 
@@ -174,33 +176,36 @@ public:
      *  size of bodiesToIntegrate, with entries in the order of the bodies in the bodiesToIntegrate
      *  vector.
      *  \param time Current time (used for retrieving states from ephemerides)
-     *  \param areInputStateLocal True if the internalState vector is given in the local frames of
-     *  the integrated bodies, or the global frame.
-     *  \return Vector of states of the reference frame origins for each body.
+     *  \param referenceFrameOriginStates Vector of states of the reference frame origins for each body
+     *  (returned by reference).
+     *  \param areInputStateLocal True if the internalState vector is given in the local frames of the integrated
+     *   bodies, or the global frame.
      */
-    std::vector<  Eigen::Matrix< StateScalarType, 6, 1 > > getReferenceFrameOriginInertialStates(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalState, const TimeType time,
+    void getReferenceFrameOriginInertialStates(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalState, const TimeType time,
+            std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& referenceFrameOriginStates,
             const bool areInputStateLocal = true )
     {
-        std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > referenceFrameOriginStates_;
-        referenceFrameOriginStates_.resize( updateOrder_.size( ) );
+        localInternalState_ =  internalState;
+        if( referenceFrameOriginStates.size( ) != updateOrder_.size( ) )\
+        {
+            referenceFrameOriginStates.resize( updateOrder_.size( ) );
+        }
 
         // Update state in correct order.
         for( unsigned int i = 0; i < updateOrder_.size( ); i++ )
         {
-            referenceFrameOriginStates_[ updateOrder_[ i ] ] =
-                    getSingleReferenceFrameOriginInertialState( internalState,
-                                                                time, updateOrder_[ i ] );
+            getSingleReferenceFrameOriginInertialState(
+                        localInternalState_, time, updateOrder_.at( i ),
+                        referenceFrameOriginStates.at( updateOrder_.at( i ) ));
 
             // Modify current input state to global frame if input is local (in propagation frame).
             if( areInputStateLocal )
             {
-                internalState.segment( 6 * updateOrder_[ i ], 6 )
-                    += referenceFrameOriginStates_[ updateOrder_[ i ] ];
+                localInternalState_.segment( 6 * updateOrder_.at( i ), 6 ) +=
+                        referenceFrameOriginStates.at( updateOrder_.at( i ) );
             }
         }
-
-        return referenceFrameOriginStates_;
     }
 
 
@@ -250,6 +255,9 @@ private:
     //! as propagation origin
     std::map< int, int > centralBodiesFromIntegration_;
 
+    //! State of propagated bodies, with the origins translated to the global origin
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > localInternalState_;
+
     //! Function to get the global origin of the propagation center of a single body.
     /*!
      *  Function to get the global origin of the propagation center of a single body, where the
@@ -261,20 +269,19 @@ private:
      *  \sa updateOrder
      *  \param time Current time.
      *  \param bodyIndex Index of the body for which the global origin state is to be retrieved
-     *  \return Global origin state of the requested body.
+     *  \param originState Global origin state of the requested body (returned by reference).
      */
-    Eigen::Matrix< StateScalarType, 6, 1 > getSingleReferenceFrameOriginInertialState(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalSolution,
+    void getSingleReferenceFrameOriginInertialState(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution,
             const TimeType time,
-            const int bodyIndex )
+            const int bodyIndex,
+            Eigen::Matrix< StateScalarType, 6, 1 >& originState )
     {
-        Eigen::Matrix< StateScalarType, 6, 1 > originState
-            = Eigen::Matrix< StateScalarType, 6, 1 >::Zero( );
-
         // Check origin type.
         switch( bodyOriginType_[ bodyIndex ] )
         {
         case inertial:
+            originState.setZero( );
             break;
         case from_ephemeris:
             originState
@@ -289,7 +296,6 @@ private:
                               boost::lexical_cast< std::string >( bodyOriginType_[ bodyIndex ] ) );
             break;
         }
-        return originState;
     }
 };
 

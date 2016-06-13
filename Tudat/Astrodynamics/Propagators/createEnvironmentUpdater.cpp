@@ -219,8 +219,11 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
                     {
-                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
-                                    thirdBodyAcceleration->getCentralBodyName( ) );
+                        if( translationalAccelerationModels.count( thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
+                        {
+                            singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                                        thirdBodyAcceleration->getCentralBodyName( ) );
+                        }
                     }
                     else if( thirdBodyAcceleration == NULL )
                     {

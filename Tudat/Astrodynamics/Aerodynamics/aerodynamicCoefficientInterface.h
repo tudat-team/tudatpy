@@ -41,6 +41,7 @@
 #ifndef TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 #define TUDAT_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 

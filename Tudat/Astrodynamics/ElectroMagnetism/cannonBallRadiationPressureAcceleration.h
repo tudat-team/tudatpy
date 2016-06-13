@@ -183,6 +183,16 @@ public:
      */
     void updateMembers( const double currentTime = TUDAT_NAN );
 
+    //! Function to retrieve the function pointer returning mass of accelerated body.
+    /*!
+     * Function to retrieve the function pointer returning mass of accelerated body.
+     * \return Function pointer returning mass of accelerated body.
+     */
+    boost::function< double( ) > getMassFunction( )
+    {
+        return massFunction_;
+    }
+
 private:
 
     //! Function pointer returning position of source.
