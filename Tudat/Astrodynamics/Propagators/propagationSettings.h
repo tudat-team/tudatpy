@@ -15,6 +15,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <unordered_map>
 
 #include <boost/lexical_cast.hpp>
 
@@ -36,11 +37,28 @@ enum IntegratedStateType
     transational_state
 };
 
+
 //! Enum listing propagator types for translational dynamics that can be used.
 enum TranslationalPropagatorType
 {
     cowell = 0
 };
+
+//! Get size of state for single propagated state of given type.
+/*!
+ * Get size of state for single propagated state of given type (i.e. 6 for translational state).
+ * \param stateType Type of state
+ * \return Size of single state.
+ */
+int getSingleIntegrationSize( const IntegratedStateType stateType );
+
+//! Get order of differential equation for governing equations of dynamics of given type.
+/*!
+ * Get order of differential equation for governing equations of dynamics of given type (i.e. 2 for translational state).
+ * \param stateType Type of state
+ * \return Order of differential equations.
+ */
+int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType );
 
 //! Base class for defining setting of a propagator
 /*!
@@ -60,7 +78,7 @@ public:
      */
     PropagatorSettings( const IntegratedStateType stateType,
                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates ):
-        stateType_( stateType ), initialStates_( initialBodyStates ){ }
+        stateType_( stateType ), initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ){ }
 
     //! Virtual destructor.
     virtual ~PropagatorSettings( ){ }
@@ -87,12 +105,26 @@ public:
                                      Eigen::Dynamic, 1 >& initialBodyStates )
     {
         initialStates_ = initialBodyStates;
+        stateSize_ = initialStates_.rows( );
+    }
+
+    //! Get total size of the propagated state.
+    /*!
+     * Get total size of the propagated state.
+     * \return Total size of the propagated state.
+     */
+    int getStateSize( )
+    {
+        return stateSize_;
     }
 
 protected:
 
     //!  Initial state used as input for numerical integration
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates_;
+
+    //! Total size of the propagated state.
+    int stateSize_;
 
 };
 
@@ -209,5 +241,24 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 } // namespace propagators
 
 } // namespace tudat
+
+namespace std
+{
+
+//! Hash for IntegratedStateType enum.
+template< >
+struct hash< tudat::propagators::IntegratedStateType >
+{
+   typedef tudat::propagators::IntegratedStateType argument_type;
+   typedef size_t result_type;
+
+   result_type operator () (const argument_type& x) const
+   {
+      using type = typename std::underlying_type<argument_type>::type;
+      return std::hash< type >( )( static_cast< type >( x ) );
+   }
+};
+
+}
 
 #endif // TUDAT_PROPAGATIONSETTINGS_H

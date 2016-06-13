@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies(
+    NamedBodyMap bodyMap = createBodies(
                 getDefaultBodySettings( bodyNames,initialEphemerisTime - buffer, finalEphemerisTime + buffer ) );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 

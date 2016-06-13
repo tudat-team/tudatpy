@@ -120,7 +120,7 @@ target_link_libraries(test_SphericalHarmonicsGravityModel tudat_gravitation tuda
 
 add_executable(test_ThirdBodyPerturbation "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestThirdBodyPerturbation.cpp")
 setup_custom_test_program(test_ThirdBodyPerturbation "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_ThirdBodyPerturbation tudat_gravitation ${Boost_LIBRARIES} )
+target_link_libraries(test_ThirdBodyPerturbation tudat_gravitation tudat_basic_mathematics ${Boost_LIBRARIES} )
 
 if(USE_CSPICE)
 add_executable(test_GravityFieldVariations "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravityFieldVariations.cpp")

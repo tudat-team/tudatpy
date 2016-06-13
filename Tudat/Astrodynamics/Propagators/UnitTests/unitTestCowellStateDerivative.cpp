@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
 
 
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies( bodySettings );
+    NamedBodyMap bodyMap = createBodies( bodySettings );
 
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorKeplerCompare )
     bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
                 basic_mathematics::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
-    std::map< std::string, boost::shared_ptr< Body > > bodyMap = createBodies( bodySettings );
+    NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account.

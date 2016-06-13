@@ -57,6 +57,7 @@
 #include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+#include "Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h"
 
 namespace tudat
 {
@@ -97,7 +98,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo1 )
                 degree,
                 order,
                 cosineCoefficient,
-                sineCoefficient );
+                sineCoefficient,
+                boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 1 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -140,7 +142,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo2 )
                 degree,
                 order,
                 cosineCoefficient,
-                sineCoefficient );
+                sineCoefficient,
+                boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 2 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -183,7 +186,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo3 )
                 degree,
                 order,
                 cosineCoefficient,
-                sineCoefficient );
+                sineCoefficient,
+                boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 3 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -240,7 +244,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo4 )
                 gravitationalParameter,
                 planetaryRadius,
                 cosineCoefficients,
-                sineCoefficients );
+                sineCoefficients,
+                boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].

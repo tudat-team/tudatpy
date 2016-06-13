@@ -19,6 +19,7 @@
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 
 namespace tudat
 {
@@ -217,36 +218,51 @@ public:
      *        (optional "SSB" by default).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
      *          calculated (optional "ECLIPJ2000" by default).
+     * \param interpolatorSettings Settings to be used for the state interpolation.
      */
     InterpolatedSpiceEphemerisSettings( double initialTime,
                                         double finalTime,
                                         double timeStep,
                                         std::string frameOrigin = "SSB",
-                                        std::string frameOrientation = "ECLIPJ2000" ):
+                                        std::string frameOrientation = "ECLIPJ2000",
+                                        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
         DirectSpiceEphemerisSettings( frameOrigin, frameOrientation, 0, 0, 0,
                                       interpolated_spice ),
-        initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ){ }
+        initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
+        interpolatorSettings_( interpolatorSettings ){ }
 
-    //! Function to returns initial time from which interpolated data from Spice should be created.
+    //! Function to return initial time from which interpolated data from Spice should be created.
     /*!
-     *  Function to returns initial time from which interpolated data from Spice should be created.
+     *  Function to return initial time from which interpolated data from Spice should be created.
      *  \return Initial time from which interpolated data from Spice should be created.
      */
     double getInitialTime( ){ return initialTime_; }
 
-    //! Function to returns final time from which interpolated data from Spice should be created.
+    //! Function to return final time from which interpolated data from Spice should be created.
     /*!
-     *  Function to returns final time from which interpolated data from Spice should be created.
+     *  Function to return final time from which interpolated data from Spice should be created.
      *  \return Final time from which interpolated data from Spice should be created.
      */
     double getFinalTime( ){ return finalTime_; }
 
-    //! Function to returns time step with which interpolated data from Spice should be created.
+    //! Function to return time step with which interpolated data from Spice should be created.
     /*!
-     *  Function to returns time step with which interpolated data from Spice should be created.
+     *  Function to return time step with which interpolated data from Spice should be created.
      *  \return Time step with which interpolated data from Spice should be created.
      */
     double getTimeStep( ){ return timeStep_; }
+
+    //! Function to return settings to be used for the state interpolation.
+    /*!
+     *  Function to return settings to be used for the state interpolation.
+     *  \return Settings to be used for the state interpolation.
+     */
+
+    boost::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
+    {
+        return interpolatorSettings_;
+    }
 
 private:
 
@@ -258,6 +274,9 @@ private:
 
     //! Time step with which interpolated data from Spice should be created.
     double timeStep_;
+
+    //! Settings to be used for the state interpolation.
+    boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
 };
 

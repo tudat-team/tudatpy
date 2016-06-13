@@ -128,11 +128,34 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                                      -2.717133139910520
                                                      ).finished( );
 
+    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+            boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 4, 4 );
+    sphericalHarmonicsCache->update(
+                sphericalPosition( 0 ), std::sin( sphericalPosition( 1 ) ), sphericalPosition( 2 ), referenceRadius );
+
     // Compute to be tested potential gradient.
     Eigen::MatrixXd testPotentialGradient( 10, 3 );
+    Eigen::MatrixXd testPotentialGradient2( 10, 3 );
+    Eigen::MatrixXd testPotentialGradient3( 10, 3 );
+
+    // Compute potential gradients (using each of the three functions).
     for ( int index = 0; index < degree.size( ); index++ )
     {
-        Eigen::Vector3d placeholder = basic_mathematics::computePotentialGradient(
+        testPotentialGradient.block( index, 0, 1, 3 ) = basic_mathematics::computePotentialGradient(
+                    sphericalPosition( 0 ),
+                    std::pow( referenceRadius / sphericalPosition( 0 ), degree( index ) + 1 ),
+                    std::cos( static_cast< double >( order( index ) ) * sphericalPosition( 2 ) ),
+                    std::sin( static_cast< double >( order( index ) ) * sphericalPosition( 2 ) ),
+                    std::cos( sphericalPosition( 1 ) ),
+                    preMultiplier,
+                    degree( index ),
+                    order( index ),
+                    cosineHarmonicCoefficient( index ),
+                    sineHarmonicCoefficient( index ),
+                    legendrePolynomial( index ),
+                    legendrePolynomialDerivative( index ) ).transpose( );
+
+        testPotentialGradient2.block( index, 0, 1, 3 ) = basic_mathematics::computePotentialGradient(
                     sphericalPosition,
                     referenceRadius,
                     preMultiplier,
@@ -141,10 +164,19 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                     cosineHarmonicCoefficient( index ),
                     sineHarmonicCoefficient( index ),
                     legendrePolynomial( index ),
-                    legendrePolynomialDerivative( index ) );
+                    legendrePolynomialDerivative( index ) ).transpose( );
 
-        // Transpose test values matrix.
-        testPotentialGradient.row( index ) = placeholder.transpose( );
+        testPotentialGradient3.block( index, 0, 1, 3 ) = basic_mathematics::computePotentialGradient(
+                    sphericalPosition,
+                    preMultiplier,
+                    degree( index ),
+                    order( index ),
+                    cosineHarmonicCoefficient( index ),
+                    sineHarmonicCoefficient( index ),
+                    legendrePolynomial( index ),
+                    legendrePolynomialDerivative( index ), sphericalHarmonicsCache ).transpose( );
+
+
     }
 
     // Define expected radius gradient values.
@@ -197,6 +229,9 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
 
     // Check if test values match expected values.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient, expectedValues, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient2, expectedValues, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPotentialGradient3, expectedValues, 1.0e-15 );
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
