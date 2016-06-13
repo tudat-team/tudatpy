@@ -36,6 +36,7 @@
 # Add source files.
 set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/createStateDerivativeModel.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
 )
@@ -54,6 +55,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
+  "${SRCROOT}${PROPAGATORSDIR}/bodyMassStateDerivative.h"
 )
 
 # Add static libraries.
@@ -86,3 +88,21 @@ setup_custom_test_program(test_EnvironmentModelUpdater "${SRCROOT}${PROPAGATORSD
     tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators
     tudat_spice_interface cspice ${Boost_LIBRARIES})
 endif()
+
+add_executable(test_BodyMassPropagation
+    "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestBodyMassPropagation.cpp")
+setup_custom_test_program(test_BodyMassPropagation "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_BodyMassPropagation tudat_simulation_setup tudat_propagators
+    tudat_aerodynamics tudat_gravitation tudat_mission_segments tudat_electro_magnetism
+    tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics
+    tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface
+    cspice ${Boost_LIBRARIES})
+
+add_executable(test_MultiTypeStatePropagation
+    "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestMultiTypeStatePropagation.cpp")
+setup_custom_test_program(test_MultiTypeStatePropagation "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_MultiTypeStatePropagation tudat_simulation_setup tudat_propagators
+    tudat_aerodynamics tudat_gravitation tudat_mission_segments tudat_electro_magnetism
+    tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics
+    tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface
+    cspice ${Boost_LIBRARIES})

@@ -147,7 +147,6 @@ public:
                         time, std::unordered_map<
                         IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
                                                     integratedStatesFromEnvironment_ );
-
         }
 
         // If dynamical equations are integrated, evaluate dynamics state derivatives.
@@ -316,7 +315,7 @@ public:
 
         if( evaluateVariationalEquations_ )
         {
-           std::cerr<<"Error, variational equations not yet implemented"<<std::endl;
+           throw std::runtime_error( "Error, variational equations not yet implemented" );
         }
         else
         {
@@ -368,7 +367,7 @@ private:
 
         if( stateIncludesVariationalState )
         {
-            std::cerr<<"Error, variational equations not yet implemented"<<std::endl;
+            throw std::runtime_error( "Error, variational equations not yet implemented" );
         }
         else
         {

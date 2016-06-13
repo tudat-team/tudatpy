@@ -57,27 +57,5 @@ Eigen::Vector3d computeCannonBallRadiationPressureAcceleration(
                 radiationPressure, vectorToSource, area, radiationPressureCoefficient ) / mass;
 }
 
-//! Get radiation pressure acceleration.
-Eigen::Vector3d CannonBallRadiationPressureAcceleration::getAcceleration( )
-{
-    return computeCannonBallRadiationPressureAcceleration(
-                currentRadiationPressure_, currentVectorToSource_, currentArea_,
-                currentRadiationPressureCoefficient_, currentMass_ );
-}
-
-//! Update member variables used by the radiation pressure acceleration model.
-void CannonBallRadiationPressureAcceleration::updateMembers( const double currentTime )
-{
-    if( !( this->currentTime_ == currentTime ) )
-    {
-        currentVectorToSource_ = ( sourcePositionFunction_( )
-                                   - acceleratedBodyPositionFunction_( ) ).normalized( );
-        currentRadiationPressure_ = radiationPressureFunction_( );
-        currentRadiationPressureCoefficient_ = radiationPressureCoefficientFunction_( );
-        currentArea_ = areaFunction_( );
-        currentMass_ = massFunction_( );
-    }
-}
-
 } // namespace electro_magnetism
 } // namespace tudat

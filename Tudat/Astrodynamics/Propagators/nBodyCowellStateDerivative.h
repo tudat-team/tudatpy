@@ -63,21 +63,20 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         stateDerivative.setZero( );
-        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), stateDerivative );
+        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative );
     }
 
     //! Function to convert the state in the conventional form to the propagator-specific form.
     /*!
      * Function to convert the state in the conventional form to the propagator-specific form. For the Cowell propagator,
      * the two are equivalent, and this function returns the input state.
-     * \param outputSolution State in 'conventional form'
+     * \param cartesianSolution State in 'conventional form'
      * \param time Current time at which the state is valid (not used in this class).
      * \return State (outputSolution), converted to the 'propagator-specific form' (which is equal to outputSolution).
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
         convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic,
-            Eigen::Dynamic >& cartesianSolution, const TimeType& time )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution, const TimeType& time )
     {
         return cartesianSolution;
     }

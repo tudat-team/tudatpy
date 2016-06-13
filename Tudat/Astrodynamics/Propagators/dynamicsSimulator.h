@@ -165,7 +165,7 @@ public:
      *  automatically use the integrated results to set ephemerides.
      */
     DynamicsSimulator(
-            const  simulation_setup::NamedBodyMap& bodyMap,
+            const simulation_setup::NamedBodyMap& bodyMap,
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >
                 integratorSettings,
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
