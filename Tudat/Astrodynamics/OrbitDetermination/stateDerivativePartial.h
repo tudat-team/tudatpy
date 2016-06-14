@@ -75,7 +75,7 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return True if dependency exists, false otherwise.
      */
-    virtual bool isStateDerivativeDependentOnIntegratedState(
+    virtual bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType ) = 0;
 

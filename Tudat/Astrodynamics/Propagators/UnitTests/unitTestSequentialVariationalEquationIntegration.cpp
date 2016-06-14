@@ -197,8 +197,8 @@ BOOST_AUTO_TEST_CASE( testSequentialVariationalEquationIntegration )
     std::pair< boost::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface >, boost::shared_ptr< Ephemeris > >
             sequentialResult = integrateEquations( 1 );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( concurrentResult.first->getCombinesStateTransitionAndSensitivityMatrix( 1.0E7 + 14.0 * 80000.0 ),
-                                       sequentialResult.first->getCombinesStateTransitionAndSensitivityMatrix( 1.0E7 + 14.0 * 80000.0 ), 2.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( concurrentResult.first->getCombinedStateTransitionAndSensitivityMatrix( 1.0E7 + 14.0 * 80000.0 ),
+                                       sequentialResult.first->getCombinedStateTransitionAndSensitivityMatrix( 1.0E7 + 14.0 * 80000.0 ), 2.0E-6 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( concurrentResult.second->getCartesianStateFromEphemeris( 1.0E7 + 14.0 * 80000.0 ),
                                        sequentialResult.second->getCartesianStateFromEphemeris( 1.0E7 + 14.0 * 80000.0 ),

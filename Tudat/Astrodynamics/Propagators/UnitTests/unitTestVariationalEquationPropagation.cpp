@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_SUITE( testVariationalEquationCalculation )
 template< typename TimeType = double , typename StateScalarType  = double >
         std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
 std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
-execute( const std::vector< std::string > centralBodies,
+executeEarthMoonSimulation( const std::vector< std::string > centralBodies,
          const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ) )
 {
 
@@ -171,13 +171,13 @@ execute( const std::vector< std::string > centralBodies,
         testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
         //testStates.block( 12, 0, 6, 1 ) = bodyMap[ "Sun" ]->getStateInBaseFrameFromEphemeris( testEpoch );
 
-        results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->getCombinesStateTransitionAndSensitivityMatrix( testEpoch ) );
+        results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
         results.second.push_back( testStates );
     }
     return results;
 }
 
-BOOST_AUTO_TEST_CASE( test_variational_equation_calculation )
+BOOST_AUTO_TEST_CASE( test_earth_moon_variational_equation_calculation )
 {
     std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
 
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE( test_variational_equation_calculation )
     {
         std::cout<<"test"<<std::endl;
 
-        currentOutput = execute< double, double >( centralBodiesSet[ i ] );
+        currentOutput = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ] );
         Eigen::MatrixXd stateTransitionMatrixAtEpoch = currentOutput.first.at( 0 );
         Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 12, 12 );
         if( i == 0 )
@@ -223,18 +223,15 @@ BOOST_AUTO_TEST_CASE( test_variational_equation_calculation )
             Eigen::VectorXd upPerturbedState, downPerturbedState;
             perturbedState.setZero( );
             perturbedState( j ) += statePerturbation( j );
-            upPerturbedState = execute< double, double >( centralBodiesSet[ i ], perturbedState ).second.at( 0 );
+            upPerturbedState = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ], perturbedState ).second.at( 0 );
 
             perturbedState.setZero( );
             perturbedState( j ) -= statePerturbation( j );
-            downPerturbedState = execute< double, double >( centralBodiesSet[ i ], perturbedState ).second.at( 0 );
+            downPerturbedState = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ], perturbedState ).second.at( 0 );
             manualPartial.block( 0, j, 12, 1 ) = ( upPerturbedState - downPerturbedState ) / ( 2.0 * statePerturbation( j ) );
         }
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateTransitionMatrixAtEpoch.block( 0, 0, 12, 12 ), manualPartial, 1.0E-3 );
-
-        std::cout<<(stateTransitionMatrixAtEpoch.block( 0, 0, 12, 12 ) - manualPartial ).cwiseQuotient( manualPartial )<<std::endl;
-
     }
 }
 

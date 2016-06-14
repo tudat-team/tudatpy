@@ -129,6 +129,23 @@ public:
         }
     }
 
+    void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType ){ }
+
+    bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
+                const std::pair< std::string, std::string >& stateReferencePoint,
+                const propagators::IntegratedStateType integratedStateType )
+    {
+        if( ( stateReferencePoint.first == acceleratingBody_ || stateReferencePoint.first == acceleratedBody_  )
+              && integratedStateType == propagators::body_mass_state )
+        {
+            std::cerr<<"Warning, dependency of central gravity on body masses not yet implemented"<<std::endl;
+        }
+        return 0;
+    }
+
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
      *  Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
