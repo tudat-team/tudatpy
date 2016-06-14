@@ -73,10 +73,11 @@ public:
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings=
             boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = 1 ):
+        parametersToEstimate_( parametersToEstimate ),
         bodyMap_( bodyMap ),
         propagatorSettings_( propagatorSettings ), integratorSettings_( integratorSettings ),
         variationalOnlyIntegratorSettings_( variationalOnlyIntegratorSettings ),
-        stateTransitionMatrixSize_( parametersToEstimate->getInitialDynamicalStateParameterSize( ) ),
+        stateTransitionMatrixSize_( parametersToEstimate_->getInitialDynamicalStateParameterSize( ) ),
         parameterVectorSize_( parametersToEstimate_->getParameterSetSize( ) ),
         clearNumericalSolution_( clearNumericalSolution )
     { }
@@ -427,23 +428,19 @@ public:
             bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
             variationalOnlyIntegratorSettings, clearNumericalSolution )
     {
-        std::cout<<"test 1"<<std::endl;
-
         // Check input consistency
-//        if( !checkPropagatorSettingsAndParameterEstimationConsistency< StateScalarType, TimeType, ParameterType >(
-//                    propagatorSettings, parametersToEstimate ) )
-//        {
-//            throw std::runtime_error(
-//                        "Error when making single arc variational equations solver, estimated and propagated bodies are inconsistent" );
-//        }
-//        else
+        if( !checkPropagatorSettingsAndParameterEstimationConsistency< StateScalarType, TimeType, ParameterType >(
+                    propagatorSettings, parametersToEstimate ) )
         {
-            std::cout<<"test 1"<<std::endl;
+            throw std::runtime_error(
+                        "Error when making single arc variational equations solver, estimated and propagated bodies are inconsistent" );
+        }
+        else
+        {
             // Create simulation object for dynamics only.
             dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodyMap, integratorSettings, propagatorSettings, false, clearNumericalSolution );
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
-            std::cout<<"test 1"<<std::endl;
 
             // Create state derivative partials
             std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >
@@ -451,18 +448,15 @@ public:
                     orbit_determination::partial_derivatives::createStateDerivativePartials
                     < StateScalarType, TimeType, ParameterType >(
                         dynamicsStateDerivative_->getStateDerivativeModels( ), bodyMap, parametersToEstimate );
-            std::cout<<"test 1"<<std::endl;
 
             // Create variational equations objects.
             variationalEquationsObject_ = boost::make_shared< VariationalEquations >(
                         stateDerivativePartials, parametersToEstimate_,
                         dynamicsStateDerivative_->getStateTypeStartIndices( ) );
             dynamicsStateDerivative_->addVariationalEquations( variationalEquationsObject_ );
-            std::cout<<"test 1"<<std::endl;
 
             // Resize solution of variational equations to 2 (state transition and sensitivity matrices)
             variationalEquationsSolution_.resize( 2 );
-            std::cout<<"test 1"<<std::endl;
 
             // Integrate variational equations from initial state estimate.
             if( integrateEquationsOnCreation )
@@ -476,8 +470,6 @@ public:
                     integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), 0 );
                 }
             }
-            std::cout<<"test 1"<<std::endl;
-
         }
     }
 
