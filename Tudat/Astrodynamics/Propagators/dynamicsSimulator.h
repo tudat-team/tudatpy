@@ -144,7 +144,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
  *  dynamical system. Governing equations are set once,
  *  but can be re-integrated for different initial conditions using the same instance of the class.
  *  Derived classes define the specific kind of integration that is performed
- *  (single-arc/multi-arc; dynamics/variational equations, etc.)
+ *  (single-arc/multi-arc/etc.)
  */
 template< typename StateScalarType = double, typename TimeType = double >
 class DynamicsSimulator
@@ -366,7 +366,7 @@ protected:
 
 };
 
-//! Class for performing full numerical integration of a dynamical system in a single arc..
+//! Class for performing full numerical integration of a dynamical system in a single arc.
 /*!
  *  Class for performing full numerical integration of a dynamical system in a single arc, i.e. the
  *  equations of motion have a single initial time, and are propagated once for the full prescribed

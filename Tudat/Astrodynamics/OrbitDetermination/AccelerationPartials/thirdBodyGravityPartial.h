@@ -255,6 +255,41 @@ public:
         return isAccelerationDependentOnBody;
     }
 
+
+    void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType )
+    {
+        partialOfDirectGravityOnCentralBody_->
+                        wrtNonTranslationalStateOfAdditionalBody(
+                            partialMatrix, stateReferencePoint, integratedStateType );
+        partialOfDirectGravityOnBodyUndergoingAcceleration_->
+                        wrtNonTranslationalStateOfAdditionalBody(
+                            partialMatrix, stateReferencePoint, integratedStateType );
+    }
+
+    bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType )
+    {
+        if( partialOfDirectGravityOnCentralBody_->
+                isStateDerivativeDependentOnIntegratedNonTranslationalState(
+                    stateReferencePoint, integratedStateType ) ||
+                partialOfDirectGravityOnBodyUndergoingAcceleration_->
+                isStateDerivativeDependentOnIntegratedNonTranslationalState(
+                    stateReferencePoint, integratedStateType ) )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
      *  Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.

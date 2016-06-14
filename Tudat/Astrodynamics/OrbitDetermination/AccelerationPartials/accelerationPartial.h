@@ -76,8 +76,10 @@ public:
         std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
                 partialFunction = std::make_pair( boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
 
-        // Check if state is translational.
-        if( integratedStateType == propagators::transational_state )
+        // Check if state dependency exists
+        switch( integratedStateType )
+        {
+        case propagators::transational_state:
         {
             // Check if reference id is consistent.
             if( stateReferencePoint.second != "" )
@@ -98,11 +100,36 @@ public:
                 partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
                                                                this, _1, stateReferencePoint.first ), 3 );
             }
+            break;
+        }
+        case propagators::body_mass_state:
+        {
+            // Check if reference id is consistent.
+            if( stateReferencePoint.second != "" )
+            {
+                throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for body mass" );
+            }
+            else if( isStateDerivativeDependentOnIntegratedNonTranslationalState( stateReferencePoint, integratedStateType ) )
+            {
+                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
+                                                               this, _1, stateReferencePoint, integratedStateType ), 1 );
+            }
+        }
+        default:
+            std::string errorMessage =
+                    "Error when getting state derivative partial acceleration model, dynamics type " +
+                    boost::lexical_cast< std::string >( integratedStateType ) + "not recognized" ;
+            throw std::runtime_error( errorMessage );
+            break;
         }
 
 
         return partialFunction;
     }
+
+    virtual bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType ) = 0;
 
     //! Function to check whether a partial w.r.t. some integrated state is non-zero.
     /*!
@@ -118,7 +145,9 @@ public:
         bool isDependent = 0;
 
         // Check if state is translational.
-        if( integratedStateType == propagators::transational_state )
+        switch( integratedStateType )
+        {
+        case propagators::transational_state:
         {
             // Check if reference id is consistent.
             if( stateReferencePoint.second != "" )
@@ -132,6 +161,11 @@ public:
             {
                 isDependent = 1;
             }
+            break;
+        }
+        default:
+            isDependent = isStateDerivativeDependentOnIntegratedNonTranslationalState( stateReferencePoint, integratedStateType );
+            break;
         }
         return isDependent;
     }
@@ -262,6 +296,11 @@ public:
         wrtPositionOfAdditionalBody( bodyName, partialMatrix, true, 0, 0 );
         wrtVelocityOfAdditionalBody( bodyName, partialMatrix, true, 0, 3 );
     }
+
+    virtual void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType ) = 0;
 
     //! Function to check whether the partial derivative w.r.t. the translational state of a third body is non-zero.
     /*!

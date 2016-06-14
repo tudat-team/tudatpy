@@ -53,11 +53,10 @@ public:
     /*!
      *  Derivative model constructor. Takes state derivative model and environment
      *  updater. Constructor checks whether all models use the same environment updater.     
-     *  \param stateDerivativeModels Vector of state derivative models, with one entry for each type
-     *         of dynamical equation.
-     *  \param environmentUpdater Object which is used to update time-dependent environment models
-     *         to current time and state,
+     *  \param stateDerivativeModels Vector of state derivative models, with one entry for each type of dynamical equation.
+     *  \param environmentUpdater Object which is used to update time-dependent environment models to current time and state,
      *  must be consistent with member environment updaters of stateDerivativeModels entries.
+     *  \param variationalEquations Object used for computing the state derivative in the variational equations
      */
     DynamicsStateDerivativeModel(
             const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
@@ -322,6 +321,11 @@ public:
         return convertedSolution;
     }
 
+    //! Function to add variational equations to the state derivative model
+    /*!
+     * Function to add variational equations to the state derivative model.
+     * \param variationalEquations Object used for computing the state derivative in the variational equations
+     */
     void addVariationalEquations( boost::shared_ptr< VariationalEquations > variationalEquations )
     {
         variationalEquations_ = variationalEquations;
@@ -355,10 +359,17 @@ public:
         }
     }
 
+    //! Function to update the settings of the state derivative models with new initial states
+    /*!
+     * Function to update the settings of the state derivative models with new initial states. This function is
+     * called when using, for instance and Encke propagator for the translational dynamics, and the reference orbits
+     * are modified.
+     * \param initialBodyStates New initial state for the full propagated dynamics.
+     */
     void updateStateDerivativeModelSettings(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
-            const int currentStateArcIndex )
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates )
     {
+        // Iterate over all dynamics types
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( ); stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {
@@ -376,12 +387,15 @@ public:
                     case cowell:
                         break;
                     default:
-                        throw std::runtime_error( "Error when updating state derivative model settings, did not recognize propagator type" );
+                        throw std::runtime_error( "Error when updating state derivative model settings, did not recognize translational propagator type" );
                         break;
                     }
                 }
             }
+            case body_mass_state:
+                break;
             default:
+                throw std::runtime_error( "Error when updating state derivative model settings, did not recognize dynamics type" );
                 break;
             }
         }
@@ -467,6 +481,7 @@ private:
     //! Object used to update the environment to the current state and time.
     boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater_;
 
+    //! Object used for computing the state derivative in the variational equations
     boost::shared_ptr< VariationalEquations > variationalEquations_;
 
     //! Map that denotes for each state derivative model the start index and size of the associated

@@ -24,6 +24,13 @@ namespace propagators
 {
 
 //! Class from which the variational equations can be evaluated.
+/*!
+ *  Class from which the variational equations can be evaluated. The time derivative of the state transition  and
+ *  sensitivity matrices are computed from a set of state derivative partials objects, at the current time and state.
+ *  This class performs all required bookkeeping to update, evaluate and combine these state derivative partials into
+ *  the variational equations. The VariationalEquationsSolver object is used to manage and execute the full numerical
+ *  integration of these variational equations and equations of motion.
+ */
 class VariationalEquations
 {
     
@@ -36,8 +43,8 @@ public:
      * \param stateDerivativePartialList List partials of state derivative models from which the variational equations
      * are set up. The key is the type of dynamics for which partials are taken, the values are StateDerivativePartialsMap
      * (see StateDerivativePartialsMap definition for details)
-     *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and
-     *  values.
+     * \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and
+     * values.
      * \param stateTypeStartIndices Start index (value) in vector of propagated state for each type of state (key)
      */
     template< typename ParameterType >
@@ -46,36 +53,40 @@ public:
             stateDerivativePartialList,
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices ):
-        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
-        estimatedUnintegratedBodies_( std::vector< std::string >( ) )
+        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
     {
-        dynamicalStatesToEstimate_ = estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >(
+        dynamicalStatesToEstimate_ =
+                estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >(
                     parametersToEstimate );
         
         // Get size of dynamical state to estimate
         numberOfParameterValues_ = estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
         totalDynamicalStateSize_ = 0;        
-        for( std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator partialTypeIterator =
-             stateDerivativePartialList_.begin( ); partialTypeIterator != stateDerivativePartialList_.end( ); partialTypeIterator++ )
+        for( std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
+             partialTypeIterator = stateDerivativePartialList_.begin( );
+             partialTypeIterator != stateDerivativePartialList_.end( ); partialTypeIterator++ )
         {
             
             if( dynamicalStatesToEstimate_.count( partialTypeIterator->first ) == 0 )
             {
-                std::cerr<<"Error when making variational equations object, found no state to estimate of type "<<partialTypeIterator->first <<std::endl;
+                std::cerr<<"Error when making variational equations object, found no state to estimate of type "<<
+                           partialTypeIterator->first <<std::endl;
             }
-            else if( dynamicalStatesToEstimate_.at( partialTypeIterator->first ).size( ) != partialTypeIterator->second.size( ) )
+            else if( dynamicalStatesToEstimate_.at( partialTypeIterator->first ).size( ) !=
+                     partialTypeIterator->second.size( ) )
             {
-                std::cerr<<"Error when making variational equations object, input partial list size is inconsistent"<<std::endl;
+                std::cerr<<"Error when making variational equations object, input partial list size is inconsistent"
+                        <<std::endl;
             }
             
-            totalDynamicalStateSize_ += getSingleIntegrationSize( partialTypeIterator->first ) * partialTypeIterator->second.size( );
+            totalDynamicalStateSize_ +=
+                    getSingleIntegrationSize( partialTypeIterator->first ) * partialTypeIterator->second.size( );
         }
         
         // Initialize matrices.
-        currentMatrixDerivative_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, numberOfParameterValues_ );
-        currentLongMatrixDerivative_ = Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >::Zero( totalDynamicalStateSize_, numberOfParameterValues_ );
         variationalMatrix_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, totalDynamicalStateSize_ );
-        variationalParameterMatrix_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, numberOfParameterValues_ - totalDynamicalStateSize_ );
+        variationalParameterMatrix_ =
+                Eigen::MatrixXd::Zero( totalDynamicalStateSize_, numberOfParameterValues_ - totalDynamicalStateSize_ );
 
         // Set parameter partial functions.
         setStatePartialFunctionList( );
@@ -133,25 +144,30 @@ public:
         {
             int startIndex = stateTypeStartIndices_.at( typeIterator->first );
             int currentStateSize = getSingleIntegrationSize( typeIterator->first );
-            int entriesToSkipPerEntry = currentStateSize - currentStateSize / getSingleIntegrationDifferentialEquationOrder( typeIterator->first );
+            int entriesToSkipPerEntry = currentStateSize -
+                    currentStateSize / getSingleIntegrationDifferentialEquationOrder( typeIterator->first );
 
             // Iterate over all bodies being estimated.
             for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
             {
                 // Iterate over all parameter partial functions determined by setParameterPartialFunctionList( )
-                for( functionIterator = typeIterator->second[ i ].begin( ); functionIterator != typeIterator->second[ i ].end( );
+                for( functionIterator = typeIterator->second[ i ].begin( );
+                     functionIterator != typeIterator->second[ i ].end( );
                      functionIterator++ )
                 {
                     functionIterator->second(
                                 variationalParameterMatrix_.block(
-                                startIndex + entriesToSkipPerEntry + currentStateSize * i, functionIterator->first.first - totalDynamicalStateSize_,
-                                currentStateSize - entriesToSkipPerEntry, functionIterator->first.second ) );
+                                    startIndex + entriesToSkipPerEntry + currentStateSize * i,
+                                    functionIterator->first.first - totalDynamicalStateSize_,
+                                    currentStateSize - entriesToSkipPerEntry,
+                                    functionIterator->first.second ) );
                 }
             }
 
         }
 
-        currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_, totalDynamicalStateSize_ - numberOfParameterValues_ ) +=
+        currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_,
+                                       totalDynamicalStateSize_ - numberOfParameterValues_ ) +=
                 variationalParameterMatrix_.template cast< StateScalarType >( );
     }
     
@@ -165,11 +181,12 @@ public:
      */
     template< typename StateScalarType >
     void evaluateVariationalEquations(
-            const double time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
+            const double time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >&
+            stateTransitionAndSensitivityMatrices,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
     {
         // Compute and add state partials.
-        getBodyInitialStatePartialMatrix< StateScalarType >( stateTransitionAndSensitivityMatrices, currentMatrixDerivative );
+        getBodyInitialStatePartialMatrix< StateScalarType >( stateTransitionAndSensitivityMatrices,currentMatrixDerivative );
 
         if( numberOfParameterValues_ > totalDynamicalStateSize_ )
         {
@@ -199,19 +216,40 @@ protected:
     
 private:
     
+    //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
+    /*!
+     * Function (called by constructor) to set up the functions to evaluate the partial derivatives of the state derivatives
+     * w.r.t. a current state (stored in the statePartialList_ member) from the state derivative partials.
+     */
     void setStatePartialFunctionList( );
         
+    //! Function to add parameter partial functions for single state derivative model, and set of parameter objects.
+    /*!
+     *  Function to add parameter partial functions for single state derivative model, and set of parameter objects.
+     *  Partial derivative functions that are not-empty are added to the functionListOfBody input (returned by reference).
+     *  A list of parameters of a single type (double or vector) are handled a single function call.
+     *  \param parameterList Map of parameters for which partial functions are to checked and created. Map keys are
+     *  start entry of parameter in total parameter vector.
+     *  \param partialObject State derivative partial object from which partial functions are to be retrieved.
+     *  \param functionListOfBody Multimap of partial derivative functions to which entries are to be added by this function.
+     *  Map key is start index and size of given parameter in sensitivity matrix. Map value is partial function.
+     *  \param totalParameterVectorIndicesToSubtract Number of entries by which to shift start index in sensitivity
+     *  matrix from entry in parameter vector (used for multi-arc estimation).
+     */
     template< typename CurrentParameterType >
     void addParameterPartialToList(
-            const std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > >& parameterList,
+            const std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > >&
+            parameterList,
             const boost::shared_ptr< orbit_determination::partial_derivatives::StateDerivativePartial > partialObject,
-            std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >& functionListOfBody,
+            std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >&
+            functionListOfBody,
             const int totalParameterVectorIndicesToSubtract = 0 )
     {
         using namespace orbit_determination::partial_derivatives;
 
         // Iterate over all parameters.
-        for( typename std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > >::const_iterator
+        for( typename std::map< int,
+             boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > >::const_iterator
              parameterIterator = parameterList.begin( ); parameterIterator != parameterList.end( ); parameterIterator++ )
         {
             // Add current parameter to list of partials to be computed for current acceleration (if dependency exists)
@@ -231,46 +269,58 @@ private:
                             std::pair< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
                             ( indexPair, boost::bind(
                                   static_cast< void ( StateDerivativePartial::* )
-                                  ( const boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > >,
+                                  ( const boost::shared_ptr<
+                                    estimatable_parameters::EstimatableParameter< CurrentParameterType > >,
                                     Eigen::Block< Eigen::MatrixXd > )>
-                                  ( &StateDerivativePartial::getCurrentParameterPartial ), partialObject, parameterIterator->second, _1  ) ) );
+                                  ( &StateDerivativePartial::getCurrentParameterPartial ),
+                                  partialObject, parameterIterator->second, _1  ) ) );
             }
         }
     }
     
     //! This function creates the list of partial derivatives of the state w.r.t. parameter values.
     /*!
-     *  This function creates the list of partial derivatives of the state w.r.t. parameter values. The function is called once by the constructor
-     *  and the resulting functions are set as memebr variables. This prevents having to check whether an acceleration model depends on every parameter
-     *  during every time step.
-     *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and values.
+     *  This function creates the list of partial derivatives of the state w.r.t. parameter values.
+     *  The function is called once by the constructor and the resulting functions are set as member variables.
+     *  This prevents having to check whether an acceleration model depends on every parameter during every time step.
+     *  \param parametersToEstimate Object containing all parameters that are to be estimated and their current settings and
+     *  values.
      */
     template< typename ParameterType >
     void setParameterPartialFunctionList(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > >
+            parametersToEstimate )
     {
         // Get double parameters.
-        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParametersToEstimate =
+        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >
+                doubleParametersToEstimate =
                 parametersToEstimate->getDoubleParameters( );
-        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParametersToEstimate =
+
+        // Get vector parameters.
+        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
+                vectorParametersToEstimate =
                 parametersToEstimate->getVectorParameters( );
         
         int totalParameterVectorIndicesToSubtract = parametersToEstimate->getInitialDynamicalStateParameterSize( ) -
                 estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate );
 
-        for( std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
-             stateDerivativeTypeIterator = stateDerivativePartialList_.begin( ); stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
+        for( std::map< propagators::IntegratedStateType,
+             orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
+             stateDerivativeTypeIterator = stateDerivativePartialList_.begin( );
+             stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
              stateDerivativeTypeIterator++ )
         {
             
             // Initialize vector of lists to correct size.
-            parameterPartialList_[ stateDerivativeTypeIterator->first ].resize( stateDerivativeTypeIterator->second.size( ) );
+            parameterPartialList_[ stateDerivativeTypeIterator->first ].resize(
+                        stateDerivativeTypeIterator->second.size( ) );
             
             // Iterate over all bodies of which initial position is being estimated.
             for( unsigned int i = 0; i < stateDerivativeTypeIterator->second.size( ); i++ )
             {
                 // Initialize list of parameter partial functions for single body.
-                std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > functionListOfBody;
+                std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
+                        functionListOfBody;
                 
                 // Iterate over all accelerations due to this body on current body.
                 for( unsigned int j = 0; j < stateDerivativeTypeIterator->second.at( i ).size( ); j++ )
@@ -290,9 +340,17 @@ private:
         }
     }
 
+    //! Function called by constructor to handle estimation of hierarchical translational dynamics
+    /*!
+     *  Function called by constructor to handle estimation of hierarchical translational dynamics, i.e. where
+     *  the state of body A is estimated w.r.t. body B, and body B is itself estimated w.r.t. to some third body (or inertial
+     *  point) C.
+     *  \param parametersToEstimate Total list of parameters to estimate.
+     */
     template< typename ParameterType >
     void setTranslationalStatePartialFrameScalingFunctions(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > >
+            parametersToEstimate )
     {
         std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
                 Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
@@ -301,32 +359,38 @@ private:
         std::vector< std::string > propagatedBodies;
         std::vector< std::string > centralBodies;
 
+        // Retrieve propagated bodies and central bodies of estimation.
         for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
         {
             if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state )
             {
                 propagatedBodies.push_back(
                             initialDynamicalParameters.at( i )->getParameterName( ).second.first );
-                centralBodies.push_back( boost::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
+                centralBodies.push_back( boost::dynamic_pointer_cast
+                                         < estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
                                              initialDynamicalParameters.at( i ) )->getCentralBody( ) );
             }
         }
 
+        // Get order in which ephemerides were to be updated.
         std::vector< std::string > updateOrder = determineEphemerisUpdateorder(
                     propagatedBodies, centralBodies, centralBodies );
 
+        // Iterate over central bodies and propagated bodies and check for dependencies
         for( int i = updateOrder.size( ) - 1; i >= 0 ; i-- )
         {
-            int currentBodyIndex = std::distance( propagatedBodies.begin( ),
-                                                  std::find( propagatedBodies.begin( ), propagatedBodies.end( ), updateOrder.at( i ) ) );
+            int currentBodyIndex = std::distance(
+                        propagatedBodies.begin( ),
+                        std::find( propagatedBodies.begin( ), propagatedBodies.end( ), updateOrder.at( i ) ) );
             for( unsigned int j = 0; j < propagatedBodies.size( ); j++ )
             {
                 if( centralBodies.at( currentBodyIndex ) == propagatedBodies.at( j ) )
                 {
 
-                    statePartialAdditionIndices_.push_back( std::make_pair( stateTypeStartIndices_[ propagators::transational_state ] +
-                                                            currentBodyIndex * propagators::getSingleIntegrationSize( propagators::transational_state ),
-                                                            stateTypeStartIndices_[ propagators::transational_state ] +
+                    statePartialAdditionIndices_.push_back(
+                                std::make_pair( stateTypeStartIndices_[ propagators::transational_state ] +
+                                currentBodyIndex * propagators::getSingleIntegrationSize( propagators::transational_state ),
+                                stateTypeStartIndices_[ propagators::transational_state ] +
                             j * propagators::getSingleIntegrationSize( propagators::transational_state ) ) );
                 }
             }
@@ -334,48 +398,66 @@ private:
     }
 
     
-    //! Map listing all (named) acceleration models exerted by the (named) bodies.
+    //! Map with list of StateDerivativePartialsMaps, with state type as key.
     /*!
-     *  Map listing all (named) acceleration models exerted by the (named) bodies.
+     *  List partials of state derivative models from which the variational equations
+     *  are set up. The key is the type of dynamics for which partials are taken, the values are StateDerivativePartialsMap
+     *  (see StateDerivativePartialsMap definition for details)
      */
-    std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap > stateDerivativePartialList_;
+    std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >
+    stateDerivativePartialList_;
     
+    //! Map of start entry in sensitivity matrix of each type of estimated dynamics.
     std::map< IntegratedStateType, int > stateTypeStartIndices_;
     
+    //! List of all functions returning current partial derivative w.r.t. a current dynamical state
+    /*!
+     *  List of all functions returning current partial derivative w.r.t. a current dynamical state (map key). The
+     *  vector entries correspond to the entries in the outer vector of StateDerivativePartialsMaps in
+     *  stateDerivativePartialList_. The multimaps inside the vector provide the functions (as values) adding the
+     *  partials to a given matrix block and the start column and number of columns in matrix partial (as keys).
+     */
+    std::map< IntegratedStateType,
+    std::vector< std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >
+    statePartialList_;
     
-    std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > > statePartialList_;
+    //! Pre-defined iterator for efficiency.
+    std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >::iterator
+    statePartialIterator_;
     
-    std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >::iterator statePartialIterator_;
-    
+    //! Vector of pair providing indices of column blocks of variational equations to add to other column blocks
+    /*!
+     * Vector of pair providing indices of column blocks of variational equations to add to other column blocks,
+     * which is needed by the hierarchical estimation fo dynamics. The second pair entry is the start of the column
+     * block (of size 3) to where it should be copied. The first entry denotes from where it should be copied.
+     * \sa setTranslationalStatePartialFrameScalingFunctions
+     */
     std::vector< std::pair< int, int > > statePartialAdditionIndices_;
 
     
-    //! Vector of multimaps of parameter partial function, with index information in variational equations as key
+    //! List of all functions returning current partial derivative w.r.t. a parameter
     /*!
-     *  Vector of multimaps of parameter partial function. Functions are set after checking dependencies of each accelration partial.
-     *  The vector indices coincide with the bodiesToEstimate indices. The key pair of the multimap indicates the start column on the sensitivity matrix
-     *  part of the variational equations and the number of columns that the return of the function occupies (number of rows = 3 from size of acceleration)
+     *  List of all functions returning current partial derivative w.r.t. a parameter.
+     *  Map key denotes associated dynamics type w.r.t which partial is taken. The
+     *  vector entries correspond to the entries in the outer vector of StateDerivativePartialsMaps in
+     *  stateDerivativePartialList_. The multimaps inside the vector provide the functions (as values) adding the
+     *  partials to a given matrix block and the start column and number of columns in matrix partial (as keys).
      */
     std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >,
     boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > > parameterPartialList_;
     
-    //! Pre-declared iterator over all parameter partial functions
-    /*!
-     *  Pre-declared iterator over all parameter partial functions. Declared to prevent large number of iterator crations and destructions (performance)
-     */
-    std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >::iterator functionIterator;
+    //! Pre-declared iterator over all parameter partial functions.
+    std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
+    ::iterator functionIterator;
 
-    std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator stateDerivativeTypeIterator_;
+    //! Pre-declared iterator over all state types
+    std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >
+    ::iterator stateDerivativeTypeIterator_;
     
-    
+    //! List of identifiers for points/bodies for which initial dynamical state is to be estimated.
+    std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
+    dynamicalStatesToEstimate_;
 
-    
-    std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > > dynamicalStatesToEstimate_;
-    
-    
-    
-    std::vector< std::string > estimatedUnintegratedBodies_;
-    
     
     //! Number of parameter values in estimation
     /*!
@@ -383,15 +465,13 @@ private:
      */
     int numberOfParameterValues_;
     
-    
+    //! Total size of (single-arc) state vector of dynamics that is to be estimated.
     int totalDynamicalStateSize_;
 
-    Eigen::MatrixXd currentMatrixDerivative_;
-
-    Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > currentLongMatrixDerivative_;
-
+    //! Total matrix of partial derivatives of state derivatives w.r.t. current states.
     Eigen::MatrixXd variationalMatrix_;
 
+    //! Total matrix of partial derivatives of state derivatives w.r.t. parameter vectors.
     Eigen::MatrixXd variationalParameterMatrix_;
 };
 
