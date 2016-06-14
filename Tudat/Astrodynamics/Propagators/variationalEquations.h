@@ -167,8 +167,9 @@ public:
         }
 
         currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_,
-                                       totalDynamicalStateSize_ - numberOfParameterValues_ ) +=
+                                       numberOfParameterValues_ - totalDynamicalStateSize_ ) +=
                 variationalParameterMatrix_.template cast< StateScalarType >( );
+
     }
     
     //! Evaluates the complete variational equations.
@@ -332,8 +333,7 @@ private:
                                 vectorParametersToEstimate, stateDerivativeTypeIterator->second.at( i ).at( j ),
                                 functionListOfBody, totalParameterVectorIndicesToSubtract );
                 }
-                
-                
+                                
                 // Add generated parameter partial list of current body.
                 parameterPartialList_[ stateDerivativeTypeIterator->first ][ i ] = functionListOfBody;
             }

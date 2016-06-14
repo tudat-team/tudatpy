@@ -47,7 +47,9 @@ template< typename TimeType = double , typename StateScalarType  = double >
         std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
 std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
 executeEarthMoonSimulation( const std::vector< std::string > centralBodies,
-         const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ) )
+                            const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ),
+                            const int propagationType = 0,
+                            const Eigen::Vector3d parameterPerturbation = Eigen::Vector3d::Zero( ) )
 {
 
     //Load spice kernels.
@@ -76,7 +78,6 @@ executeEarthMoonSimulation( const std::vector< std::string > centralBodies,
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
@@ -125,18 +126,26 @@ executeEarthMoonSimulation( const std::vector< std::string > centralBodies,
     boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings;
 
     {
+        TranslationalPropagatorType propagatorType;
+        if( propagationType == 0 )
+        {
+            propagatorType = cowell;
+        }
+        else if( propagationType == 1 )
+        {
+            propagatorType = encke;
+        }
+
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState;
         systemInitialState = getInitialStatesOfBodies< TimeType, StateScalarType >(
                     bodiesToIntegrate, centralBodies, bodyMap, initialIntegrationTime );
         systemInitialState += initialStateDifference;
 
         propagatorSettings =  boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
-                ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState );
+                ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, propagatorType );
     }
 
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
-                              ( "Sun", gravitational_parameter ) );
     {
         parameterNames.push_back( boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                                       "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
@@ -145,11 +154,19 @@ executeEarthMoonSimulation( const std::vector< std::string > centralBodies,
         parameterNames.push_back( boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                                       "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
                                           "Earth", centralBodies[ 1 ], bodyMap, TimeType( initialEphemerisTime ) ) + initialStateDifference.segment( 6, 6 ),
-                                      centralBodies[ 1 ] ) );
+                                  centralBodies[ 1 ] ) );
+        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
+        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
+        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
+
     }
 
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
+
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector = parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+    parameterVector.block( 12, 0, 3, 1 ) += parameterPerturbation;
+    parametersToEstimate->resetParameterValues( parameterVector );
 
     std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
             std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
@@ -169,7 +186,6 @@ executeEarthMoonSimulation( const std::vector< std::string > centralBodies,
         }
 
         testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-        //testStates.block( 12, 0, 6, 1 ) = bodyMap[ "Sun" ]->getStateInBaseFrameFromEphemeris( testEpoch );
 
         results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
         results.second.push_back( testStates );
@@ -195,19 +211,22 @@ BOOST_AUTO_TEST_CASE( test_earth_moon_variational_equation_calculation )
 
 
     Eigen::Matrix< double, 12, 1>  perturbedState;
+    Eigen::Vector3d perturbedParameter;
 
     Eigen::Matrix< double, 12, 1> statePerturbation;
+    Eigen::Vector3d parameterPerturbation;
 
 
     std::vector< Eigen::MatrixXd > manualMoonInitialStatePartials;
 
     for( unsigned int i = 0; i < centralBodiesSet.size( ); i++ )
     {
-        std::cout<<"test"<<std::endl;
-
         currentOutput = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ] );
-        Eigen::MatrixXd stateTransitionMatrixAtEpoch = currentOutput.first.at( 0 );
-        Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 12, 12 );
+        Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
+        Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 12, 15 );
+
+        parameterPerturbation  = ( Eigen::Vector3d( ) << 1.0E10, 1.0E10, 1.0E14 ).finished( );
+
         if( i == 0 )
         {
             statePerturbation = ( Eigen::Matrix< double, 12, 1>( )<< 100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1, 100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1 ).finished( );
@@ -218,20 +237,46 @@ BOOST_AUTO_TEST_CASE( test_earth_moon_variational_equation_calculation )
             statePerturbation = ( Eigen::Matrix< double, 12, 1>( )<< 100000.0, 100000.0, 100000.0, 0.1, 0.1, 0.1, 100000.0, 100000.0, 10000000.0, 0.1, 0.1, 10.0 ).finished( );
         }
 
-        for( unsigned int j = 0; j < 12; j++ )
-        {
-            Eigen::VectorXd upPerturbedState, downPerturbedState;
-            perturbedState.setZero( );
-            perturbedState( j ) += statePerturbation( j );
-            upPerturbedState = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ], perturbedState ).second.at( 0 );
+        unsigned int maximumPropagatorType = 1;
 
-            perturbedState.setZero( );
-            perturbedState( j ) -= statePerturbation( j );
-            downPerturbedState = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ], perturbedState ).second.at( 0 );
-            manualPartial.block( 0, j, 12, 1 ) = ( upPerturbedState - downPerturbedState ) / ( 2.0 * statePerturbation( j ) );
+        if( i == 1 )
+        {
+            maximumPropagatorType = 2;
         }
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateTransitionMatrixAtEpoch.block( 0, 0, 12, 12 ), manualPartial, 1.0E-3 );
+        for( unsigned int k = 0; k < maximumPropagatorType; k++ )
+        {
+            for( unsigned int j = 0; j < 12; j++ )
+            {
+                Eigen::VectorXd upPerturbedState, downPerturbedState;
+                perturbedState.setZero( );
+                perturbedState( j ) += statePerturbation( j );
+                upPerturbedState = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ], perturbedState, k ).second.at( 0 );
+
+                perturbedState.setZero( );
+                perturbedState( j ) -= statePerturbation( j );
+                downPerturbedState = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ], perturbedState, k ).second.at( 0 );
+                manualPartial.block( 0, j, 12, 1 ) = ( upPerturbedState - downPerturbedState ) / ( 2.0 * statePerturbation( j ) );
+            }
+
+            for( unsigned int j = 0; j < 3; j ++ )
+            {
+                Eigen::VectorXd upPerturbedState, downPerturbedState;
+                perturbedState.setZero( );
+                Eigen::Vector3d upPerturbedParameter, downPerturbedParameter;
+                perturbedParameter.setZero( );
+                perturbedParameter( j ) += parameterPerturbation( j );
+                upPerturbedState = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ], perturbedState, k, perturbedParameter ).second.at( 0 );
+
+                perturbedParameter.setZero( );
+                perturbedParameter( j ) -= parameterPerturbation( j );
+                downPerturbedState = executeEarthMoonSimulation< double, double >( centralBodiesSet[ i ], perturbedState, k, perturbedParameter).second.at( 0 );
+                manualPartial.block( 0, j + 12, 12, 1 ) = ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
+            }
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 12, 15 ), manualPartial, 1.0E-3 );
+        }
+
     }
 }
 

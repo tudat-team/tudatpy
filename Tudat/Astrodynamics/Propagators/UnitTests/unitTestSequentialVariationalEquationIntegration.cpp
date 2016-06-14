@@ -118,9 +118,6 @@ integrateEquations( const bool performIntegrationsSequentially )
     accelerationsOfLageos[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "LAGEOS" ] = accelerationsOfLageos;
 
-    std::cout<<"Create acc."<<std::endl;
-
-
     // Set bodies for which initial state is to be estimated and integrated.
     std::vector< std::string > bodiesToIntegrate;
     bodiesToIntegrate.push_back( "LAGEOS" );
@@ -144,10 +141,10 @@ integrateEquations( const bool performIntegrationsSequentially )
     parameterNames.push_back( boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
                                   "LAGEOS", propagators::getInitialStateOfBody< double, double >(
                                       "LAGEOS", "Earth", bodyMap, initialEphemerisTime - buffer ), "Earth" ) );
-    //    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
-//                              ( "Earth", gravitational_parameter ) );
-//    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
-//                              ( "Moon", gravitational_parameter ) );
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
+                              ( "Earth", gravitational_parameter ) );
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
+                              ( "Moon", gravitational_parameter ) );
 //    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >
 //                              ( 2, 0, 4, 4, "Earth", spherical_harmonics_cosine_coefficient_block ) );
 //    //parameterNames.push_back( boost::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >
@@ -183,7 +180,6 @@ integrateEquations( const bool performIntegrationsSequentially )
                     bodyMap, integratorSettings,
                     propagatorSettings, parametersToEstimate, 0,
                     integratorSettings );
-
     }
 
     return std::make_pair( variationalEquationSolver->getStateTransitionMatrixInterface( ),
