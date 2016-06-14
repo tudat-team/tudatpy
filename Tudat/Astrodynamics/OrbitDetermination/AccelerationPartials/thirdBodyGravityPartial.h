@@ -255,7 +255,14 @@ public:
         return isAccelerationDependentOnBody;
     }
 
-
+    //! Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
+     *  and adding it to the existing partial block.
+     *  \param partialMatrix Block of partial derivatives of where current partial is to be added.
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which partial is to be computed.
+     */
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
@@ -269,6 +276,13 @@ public:
                             partialMatrix, stateReferencePoint, integratedStateType );
     }
 
+    //! Function for determining if the acceleration is dependent on a non-translational integrated state.
+    /*!
+     *  Function for determining if the acceleration is dependent on a non-translational integrated state.
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which dependency is to be determined.
+     *  \return True if dependency exists (non-zero partial), false otherwise.
+     */
     bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )

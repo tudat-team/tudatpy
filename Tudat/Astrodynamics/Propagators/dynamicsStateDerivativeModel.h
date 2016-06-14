@@ -163,6 +163,11 @@ public:
                                                     integratedStatesFromEnvironment_ );
         }
 
+        if( evaluateVariationalEquations_ )
+        {
+            variationalEquations_->clearPartials( );
+        }
+
         // If dynamical equations are integrated, evaluate dynamics state derivatives.
         std::pair< int, int > currentIndices;
         if( evaluateDynamicsEquations_ )
@@ -177,7 +182,16 @@ public:
                 {
                     // Update state derivative models
                     stateDerivativeModelsIterator_->second.at( i )->updateStateDerivativeModel( time );
+                }
+            }
 
+            for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+                 stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+                 stateDerivativeModelsIterator_++ )
+
+            {
+                for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+                {
                     // Evaluate and set current dynamical state derivative
                     currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 

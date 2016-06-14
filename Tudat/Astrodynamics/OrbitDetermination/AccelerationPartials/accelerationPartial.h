@@ -68,7 +68,8 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return Pair with function, returning partial derivative, and number of columns in partial vector,
      */
-    std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >  getDerivativeFunctionWrtStateOfIntegratedBody(
+    std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
+    getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
@@ -127,9 +128,20 @@ public:
         return partialFunction;
     }
 
+    //! Function for determining if the acceleration is dependent on a non-translational integrated state (default none).
+    /*!
+     *  Function for determining if the acceleration is dependent on a non-translational integrated state.
+     *  No dependency is implemented is returned in this base class function, but may be overriden by derived class.
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which dependency is to be determined.
+     *  \return True if dependency exists (non-zero partial), false otherwise.
+     */
     virtual bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType ) = 0;
+            const propagators::IntegratedStateType integratedStateType )
+    {
+        return false;
+    }
 
     //! Function to check whether a partial w.r.t. some integrated state is non-zero.
     /*!
@@ -184,10 +196,10 @@ public:
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ) = 0;
 
-    //! Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body.
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body and
-     *  adding it to the existing partial block.
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of the accelerated body and
+     *  adding it to the existing partial block. Function may be overridden in derived class, default dependency is none.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
      *  undergoing acceleration where current partial is to be added.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
@@ -201,7 +213,7 @@ public:
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body undergoing acceleration.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body
+     *  Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body
      *  undergoing acceleration  and adding it to the existing partial block.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian state of body
      *  undergoing acceleration where current partial is to be added.
@@ -212,7 +224,7 @@ public:
         wrtVelocityOfAcceleratedBody( partialMatrix, true, 0, 3 );
     }
 
-    //! Function for calculating the partial of the acceleration w.r.t. the position of the body exerting acceleration.
+    //! Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the body exerting acceleration.
     /*!
      *  Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the body exerting
      *  acceleration and adding it to the existing partial block.
@@ -228,8 +240,8 @@ public:
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of the body exerting acceleration.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the body exerting a
-     *  acceleration.
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of the body exerting a
+     *  acceleration. . Function may be overridden in derived class, default dependency is none.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
@@ -242,7 +254,7 @@ public:
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body exerting acceleration.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body exerting
+     *  Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body exerting
      *  acceleration and adding it to the existing partial block.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian state of body
      *  exerting acceleration where current partial is to be added.
@@ -253,10 +265,10 @@ public:
         wrtVelocityOfAcceleratingBody( partialMatrix, true, 0, 3 );
     }
 
-    //! Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the third body.
+    //! Function for calculating the partial of the acceleration w.r.t. the position of the third body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the third body
-     *  and adding it to the existing partial block.
+     *  Function for calculating the partial of the acceleration w.r.t. the position of the third body
+     *  and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none.
      *  \param bodyName Name of third body.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of third body where
      *  current partial is to be added.
@@ -268,10 +280,11 @@ public:
             const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
 
-    //! Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the third body.
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of the third body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the velocity of the third body
-     *  and adding it to the existing partial block.
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of the third body
+     *  and adding it to the existing partial block. . Function may be overridden in derived class, default dependency is
+     *  none.
      *  \param bodyName Name of third body.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of third body where
      *  current partial is to be added.
@@ -283,9 +296,9 @@ public:
             const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 ){ }
 
-    //! Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body.
+    //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body.
     /*!
-     *  Pure virtual function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body
+     *  Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body
      *  and adding it to the existing partial block.
      *  \param bodyName Name of third body.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian state of third body where
@@ -297,10 +310,19 @@ public:
         wrtVelocityOfAdditionalBody( bodyName, partialMatrix, true, 0, 3 );
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
+     *  and adding it to the existing partial block. Function may be overridden in derived class, default dependency is
+     *  none.
+     *  \param partialMatrix Block of partial derivatives of where current partial is to be added.
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which partial is to be computed.
+     */
     virtual void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType ) = 0;
+            const propagators::IntegratedStateType integratedStateType ){ }
 
     //! Function to check whether the partial derivative w.r.t. the translational state of a third body is non-zero.
     /*!

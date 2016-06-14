@@ -66,6 +66,10 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
     boost::shared_ptr< Body > sun = boost::make_shared< Body >( );
 
+    NamedBodyMap bodyMap;
+    bodyMap[ "Earth" ] = earth;
+    bodyMap[ "Sun" ] = sun;
+
     // Load spice kernels.
     std::string kernelsPath = input_output::getSpiceKernelPath( );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
@@ -90,8 +94,9 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
             createCentralGravityAcceleratioModel( earth, sun, "Earth", "Sun", 1 );
 
     // Create central gravity partial.
-    boost::shared_ptr< CentralGravitationPartial > centralGravitationPartial =
-            boost::make_shared< CentralGravitationPartial >( gravitationalAcceleration, "Earth", "Sun" );
+    boost::shared_ptr< AccelerationPartial > centralGravitationPartial =
+            createAnalyticalAccelerationPartial( gravitationalAcceleration, std::make_pair( "Earth", earth ),
+                                                 std::make_pair( "Sun", sun ), bodyMap );
 
     // Create gravitational parameter object.
     boost::shared_ptr< EstimatableParameter< double > > sunGravitationalParameterParameter = boost::make_shared<
@@ -100,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
             GravitationalParameter >( earthGravityFieldModel, "Earth" );
 
     // Calculate analytical partials.
-    centralGravitationPartial->update( );
+    centralGravitationPartial->update( 0.0 );
     Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
     centralGravitationPartial->wrtPositionOfAcceleratedBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
     Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
@@ -217,10 +222,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
                 boost::bind( &Body::getBodyMass, vehicle ) );
 
     // Create partial-calculating object.
-    boost::shared_ptr< CannonBallRadiationPressurePartial > accelerationPartial =
-            boost::make_shared< CannonBallRadiationPressurePartial >
-            ( radiationPressureInterface, accelerationModel->getMassFunction( ),
-              "Vehicle", "Sun" );
+    boost::shared_ptr< AccelerationPartial > accelerationPartial =
+            createAnalyticalAccelerationPartial( accelerationModel, std::make_pair( "Vehicle", vehicle ),
+                                                 std::make_pair( "Sun", sun ), bodyMap );
 
     // Create parameter object
     std::string vehicleName = "Vehicle";
@@ -228,7 +232,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
             boost::make_shared< RadiationPressureCoefficient >( radiationPressureInterface, vehicleName );
 
     // Calculate analytical partials.
-    accelerationPartial->update( );
+    accelerationPartial->update( 0.0 );
     Eigen::MatrixXd partialWrtSunPosition = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtSunPosition.block( 0, 0, 3, 3 ) );
     Eigen::MatrixXd partialWrtSunVelocity = Eigen::Matrix3d::Zero( );
@@ -326,11 +330,9 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
                 moon, sun, earth, "Moon", "Sun", "Earth" );
 
     // Create central gravity partial.
-    boost::shared_ptr< ThirdBodyGravityPartial< CentralGravitationPartial > > thirdBodyGravitationPartial =
-            boost::dynamic_pointer_cast< ThirdBodyGravityPartial< CentralGravitationPartial > >(
-                createAnalyticalAccelerationPartial( gravitationalAcceleration, std::make_pair( "Moon", moon ),
-                                                     std::make_pair( "Sun", sun ), bodyMap ) );
-    //boost::make_shared< ThirdBodyCentralGravitationPartial >( gravitationalAcceleration, "Moon", "Sun" );
+    boost::shared_ptr< AccelerationPartial > thirdBodyGravitationPartial =
+            createAnalyticalAccelerationPartial( gravitationalAcceleration, std::make_pair( "Moon", moon ),
+                                                 std::make_pair( "Sun", sun ), bodyMap );
 
     // Create gravitational parameter object.
     boost::shared_ptr< EstimatableParameter< double > > gravitationalParameterParameter = boost::make_shared<

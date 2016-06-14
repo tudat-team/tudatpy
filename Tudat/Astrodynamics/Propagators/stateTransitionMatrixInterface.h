@@ -129,6 +129,7 @@ public:
                         stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
     }
 
+    //! Destructor.
     ~SingleArcCombinedStateTransitionAndSensitivityMatrixInterface( ){ }
 
     //! Function to reset the state transition and sensitivity matrix interpolators

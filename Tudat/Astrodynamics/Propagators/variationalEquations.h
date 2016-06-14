@@ -14,7 +14,6 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
-#include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/setNumericallyIntegratedStates.h"
 
 namespace tudat
@@ -195,6 +194,12 @@ public:
             getParameterPartialMatrix< StateScalarType >( currentMatrixDerivative );
         }
     }
+
+    //! Function to clear reference/cached values of state derivative partials.
+    /*!
+     * Function to clear reference/cached values of state derivative partials, to ensure that they are all recalculated.
+     */
+    void clearPartials( );
     
     //! This function updates all state derivative models to the current time and state.
     /*!
@@ -459,10 +464,7 @@ private:
     dynamicalStatesToEstimate_;
 
     
-    //! Number of parameter values in estimation
-    /*!
-     *  Number of parameter values in estimation (i.e. number of columns in sensitivity matrix)
-     */
+    //! Number of parameter values in estimation (i.e. number of columns in sensitivity matrix)
     int numberOfParameterValues_;
     
     //! Total size of (single-arc) state vector of dynamics that is to be estimated.
