@@ -129,17 +129,22 @@ public:
         }
     }
 
-    void wrtNonTranslationalStateOfAdditionalBody(
-            Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType ){ }
-
+    //! Function for determining if the acceleration is dependent on a non-translational integrated state.
+    /*!
+     *  Function for determining if the acceleration is dependent on a non-translational integrated state.
+     *  No dependency is implemented, but a warning is provided if partial w.r.t. mass of body exerting acceleration
+     *  (and undergoing acceleration if mutual attraction is used) is requested.
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which dependency is to be determined.
+     *  \return True if dependency exists (non-zero partial), false otherwise.
+     */
     bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
                 const std::pair< std::string, std::string >& stateReferencePoint,
                 const propagators::IntegratedStateType integratedStateType )
     {
-        if( ( stateReferencePoint.first == acceleratingBody_ || stateReferencePoint.first == acceleratedBody_  )
-              && integratedStateType == propagators::body_mass_state )
+        if( ( ( stateReferencePoint.first == acceleratingBody_ ||
+              ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
+              && integratedStateType == propagators::body_mass_state ) )
         {
             std::cerr<<"Warning, dependency of central gravity on body masses not yet implemented"<<std::endl;
         }
@@ -178,6 +183,8 @@ public:
      */
     void update( const double currentTime = TUDAT_NAN )
     {
+        accelerationUpdateFunction_( currentTime );
+
         if( !( currentTime_ == currentTime ) )
         {
             currentAcceleratedBodyState_ = acceleratedBodyState_( );
@@ -237,6 +244,9 @@ protected:
      *  calculated and set by update( ) function.
      */
     Eigen::Matrix3d currentPartialWrtPosition_;
+
+    //! Function to update the gravitational acceleration model.
+    boost::function< void( const double ) > accelerationUpdateFunction_;
 
 };
 

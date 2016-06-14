@@ -8,23 +8,12 @@
 
 #include "Tudat/Basics/utilities.h"
 
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-#include "Tudat/Mathematics/NumericalIntegrators/euler.h"
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
-#include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
 
-#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
-#include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
-#include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
-#include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
 #include "Tudat/Astrodynamics/Propagators/stateTransitionMatrixInterface.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/SimulationSetup/createStateDerivativePartials.h"
 
@@ -362,7 +351,8 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         break;
     }
     default:
-        std::cerr<<"Error, cannot yet check consistency of propagator settings for type: "<<propagatorSettings->stateType_<<std::endl;
+        std::cerr<<"Error, cannot yet check consistency of propagator settings for type: "<<
+                   propagatorSettings->stateType_<<std::endl;
     }
     return isInputConsistent;
 }

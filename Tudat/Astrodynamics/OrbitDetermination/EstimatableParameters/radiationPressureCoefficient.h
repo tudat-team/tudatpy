@@ -12,11 +12,17 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-
+//! Interface class for the estimation of a radiation pressure coefficient
 class RadiationPressureCoefficient: public EstimatableParameter< double >
 {
 
 public:
+    //! Constructor.
+    /*!
+     * Constructor
+     * \param radiationPressureInterface Object containing the radiation pressure coefficient to be estimated.
+     * \param associatedBody Name of body containing the radiationPressureInterface object
+     */
     RadiationPressureCoefficient(
             boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface,
             std::string& associatedBody ):
@@ -24,11 +30,24 @@ public:
         radiationPressureInterface_( radiationPressureInterface )
     { }
 
+    //! Destructor.
     ~RadiationPressureCoefficient( ) { }
 
+    //! Function to get the current value of the radiation pressure coefficient that is to be estimated.
+    /*!
+     * Function to get the current value of the radiation pressure coefficient that is to be estimated.
+     * \return Current value of the radiation pressure coefficient that is to be estimated.
+     */
     double getParameterValue( )
-    { return radiationPressureInterface_->getRadiationPressureCoefficient( ); }
+    {
+        return radiationPressureInterface_->getRadiationPressureCoefficient( );
+    }
 
+    //! Function to reset the value of the radiation pressure coefficient that is to be estimated.
+    /*!
+     * Function to reset the value of the radiation pressure coefficient that is to be estimated.
+     * \param parameterValue New value of the radiation pressure coefficient that is to be estimated.
+     */
     void setParameterValue( double parameterValue )
     {
         radiationPressureInterface_->resetRadiationPressureCoefficient( parameterValue );
@@ -44,6 +63,8 @@ public:
 protected:
 
 private:
+
+    //! Object containing the radiation pressure coefficient to be estimated.
     boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface_;
 };
 

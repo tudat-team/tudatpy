@@ -22,7 +22,7 @@ public:
     /*!
      * Constructor
      * \param gravityFieldModel Gravity field object containing the gravitational parameter to be estimated.
-     * \param associatedBody Name of body containing the gravityFieldModel ob ject
+     * \param associatedBody Name of body containing the gravityFieldModel object
      */
     GravitationalParameter(
             const boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel, const std::string& associatedBody ):

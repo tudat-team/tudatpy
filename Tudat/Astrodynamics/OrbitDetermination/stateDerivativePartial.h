@@ -146,7 +146,8 @@ public:
         }
         else
         {
-            partial = Eigen::MatrixXd::Zero( propagators::getSingleIntegrationSize( integratedStateType_ ), parameter->getParameterSize( ) );
+            partial = Eigen::MatrixXd::Zero( propagators::getSingleIntegrationSize( integratedStateType_ ),
+                                             parameter->getParameterSize( ) );
         }
         return partial;
     }

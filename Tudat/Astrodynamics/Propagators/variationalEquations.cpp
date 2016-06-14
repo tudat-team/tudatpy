@@ -56,6 +56,7 @@ void VariationalEquations::setBodyStatePartialMatrix( )
         }
     }
 
+    // Correct partials for hierarchical dynamics
    for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
    {
        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 3 ) +=
@@ -63,9 +64,8 @@ void VariationalEquations::setBodyStatePartialMatrix( )
    }
 }
 
-
-//! This function updates all state derivative models to the current time and state.
-void VariationalEquations::updatePartials( const double currentTime )
+//! Function to clear reference/cached values of state derivative partials.
+void VariationalEquations::clearPartials( )
 {
     for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );
          stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
@@ -80,7 +80,11 @@ void VariationalEquations::updatePartials( const double currentTime )
 
         }
     }
+}
 
+//! This function updates all state derivative models to the current time and state.
+void VariationalEquations::updatePartials( const double currentTime )
+{
     // Update all acceleration partials to current state and time. Information is passed indirectly from here, through
     // (function) pointers set in acceleration partial classes
     for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );

@@ -67,6 +67,9 @@ CentralGravitationPartial::CentralGravitationPartial(
         const std::string acceleratingBody ):
     AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::central_gravity )
 {
+    accelerationUpdateFunction_ =
+            boost::bind( &basic_astrodynamics::AccelerationModel< Eigen::Vector3d>::updateMembers, gravitationalAcceleration, _1 );
+
     gravitationalParameterFunction_ = gravitationalAcceleration->getGravitationalParameterFunction( );
     centralBodyState_ = gravitationalAcceleration->getStateFunctionOfBodyExertingAcceleration( );
     acceleratedBodyState_ = gravitationalAcceleration->getStateFunctionOfBodyUndergoingAcceleration( );
