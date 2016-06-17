@@ -315,6 +315,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getSineCoefficients( ).cols( ) ), 51 );
     BOOST_CHECK_EQUAL(
+                ( defaultEarthField->getCosineCoefficients( )( 2, 0 ) ), -0.484165371736E-03 );
+    BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getCosineCoefficients( )( 5, 3 ) ), -0.451955406071E-06 );
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getSineCoefficients( )( 7, 1 ) ), 0.954336911867E-07 );
