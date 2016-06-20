@@ -38,7 +38,8 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
-  "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationTerminationConditions.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.cpp"
 )
 
 # Add header files.
@@ -55,6 +56,8 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationTerminationConditions.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.h"
 )
 
 # Add static libraries.

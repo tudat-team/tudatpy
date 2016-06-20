@@ -173,7 +173,7 @@ public:
         dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                     createStateDerivativeModels< StateScalarType, TimeType >(
                         propagatorSettings_, bodyMap_ ), environmentUpdater_ );
-        propagationPropagationTerminationCondition_ = createPropagationPropagationTerminationConditions(
+        propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
         stateDerivativeFunction_ =
                 boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
@@ -323,7 +323,7 @@ protected:
     //! Settings for propagator.
     boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings_;
 
-    boost::shared_ptr< PropagationPropagationTerminationCondition > propagationPropagationTerminationCondition_;
+    boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition_;
 
     //! Object for retrieving ephemerides for transformation of reference frame (origins)
     boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager_;
@@ -359,7 +359,7 @@ public:
     using DynamicsSimulator< StateScalarType, TimeType >::integratorSettings_;
     using DynamicsSimulator< StateScalarType, TimeType >::propagatorSettings_;
     using DynamicsSimulator< StateScalarType, TimeType >::integratedStateProcessors_;
-    using DynamicsSimulator< StateScalarType, TimeType >::propagationPropagationTerminationCondition_;
+    using DynamicsSimulator< StateScalarType, TimeType >::propagationTerminationCondition_;
 
     //! Constructor of simulator.
     /*!
@@ -411,13 +411,22 @@ public:
         equationsOfMotionNumericalSolution_.clear( );
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
+        boost::function< Eigen::VectorXd( ) > dependentVariablesFunctions;
+        if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
+        {
+            dependentVariablesFunctions =
+                    createDependentVariableListFunction( propagatorSettings_->getDependentVariablesToSave( ), bodyMap_ );
+        }
 
         // Integrate equations of motion numerically.
-        equationsOfMotionNumericalSolution_ =
-                integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >(
-                    stateDerivativeFunction_, dynamicsStateDerivative_->convertFromOutputSolution(
+        integrateEquations< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >(
+                    stateDerivativeFunction_, equationsOfMotionNumericalSolution_,
+                    dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, integratorSettings_->initialTime_ ), integratorSettings_,
-                    boost::bind( &PropagationPropagationTerminationCondition::checkStopCondition, propagationPropagationTerminationCondition_, _1 ) );
+                    boost::bind( &PropagationTerminationCondition::checkStopCondition,
+                                 propagationTerminationCondition_, _1 ),
+                    dependentVariablesFunctions,
+                    propagatorSettings_->getPrintInterval( ) );
         equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
                 convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
 

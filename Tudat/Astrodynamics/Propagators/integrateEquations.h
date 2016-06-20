@@ -22,6 +22,7 @@
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
+#include "Tudat/Astrodynamics/Propagators/propagationTerminationConditions.h"
 
 namespace tudat
 {
@@ -29,106 +30,93 @@ namespace tudat
 namespace propagators
 {
 
-template< typename OutputType, typename InputType >
-OutputType evaluateReferenceFunction(
-        const boost::function< OutputType( const InputType&, const InputType& ) > functionToEvaluate,
-        const boost::function< InputType( ) > firstInput,
-        const boost::function< InputType( ) > secondInput )
+
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
+void integrateEquations(
+        const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType > > integrator,
+        const double initialTimeStep,
+        const boost::function< bool( const double ) > stopPropagationFunction,
+        std::map< TimeType, StateType >& solutionHistory,
+        std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
+        const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
+        boost::function< Eigen::VectorXd( ) >( ),
+        const int saveFrequency = TUDAT_NAN,
+        const TimeType printInterval = TUDAT_NAN )
 {
-    return functionToEvaluate( firstInput( ), secondInput( ) );
+
+    // Get Initial state and time.
+    TimeType currentTime = integrator->getCurrentIndependentVariable( );
+    TimeType initialTime = currentTime;
+    StateType newState = integrator->getCurrentState( );
+
+    // Initialization of numerical solutions for variational equations
+    solutionHistory.clear( );
+    solutionHistory[ currentTime ] = newState;
+    dependentVariableHistory.clear( );
+
+    // Check if numerical integration is forward or backwrd.
+    TimeType timeStepSign = 1.0L;
+//    if( initialTimeStep < 0.0 )
+//    {
+//        timeStepSign = -1.0L;
+//    }
+
+    // Set initial time step and total integration time.
+    TimeType timeStep = initialTimeStep;
+    TimeType previousTime = currentTime;
+
+    // Perform first integration step.
+    newState = integrator->performIntegrationStep( timeStep );
+
+    currentTime = integrator->getCurrentIndependentVariable( );
+
+    timeStep = timeStepSign * integrator->getNextStepSize( );
+    solutionHistory[ currentTime ] = newState;
+    if( !dependentVariableHistory.empty( ) )
+    {
+        dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+    }
+
+    int saveIndex = 0;
+
+    // Perform numerical integration steps until end time reached.
+    do
+    {
+        previousTime = currentTime;
+
+        // Perform integration step.
+        newState = integrator->performIntegrationStep( timeStep );
+        currentTime = integrator->getCurrentIndependentVariable( );
+        timeStep = timeStepSign * integrator->getNextStepSize( );
+
+        // Save integration result in map
+        saveIndex++;
+        saveIndex = saveIndex % saveFrequency;
+        if( saveIndex == 0 )
+        {
+            solutionHistory[ currentTime ] = newState;
+
+            if( !dependentVariableHistory.empty( ) )
+            {
+                dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+            }
+        }
+
+        // Print solutions
+        if( printInterval == printInterval )
+        {
+            if( ( static_cast<int>( std::fabs( currentTime - initialTime ) ) %
+                  static_cast< int >( printInterval ) ) <
+                    ( static_cast< int >( std::fabs( previousTime - initialTime ) ) %
+                      static_cast<int>( printInterval ) )  )
+            {
+                std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
+                           timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
+            }
+        }
+    }
+    while( !stopPropagationFunction( static_cast< double >( currentTime ) ) );
 }
-
-template< typename OutputType, typename InputType >
-OutputType evaluateFunction(
-        const boost::function< OutputType( const InputType, const InputType ) > functionToEvaluate,
-        const boost::function< InputType( ) > firstInput,
-        const boost::function< InputType( ) > secondInput )
-{
-    return functionToEvaluate( firstInput( ), secondInput( ) );
-}
-
-boost::function< double( ) > getDependentVariableFunction(
-        const PropagationDependentVariables dependentVariable,
-        const std::string& bodyWithProperty,
-        const std::string& secondaryBody,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationModelList = basic_astrodynamics::AccelerationMap( ) );
-
-class PropagationPropagationTerminationCondition
-{
-public:
-    PropagationPropagationTerminationCondition( ){ }
-
-    virtual ~PropagationPropagationTerminationCondition( ){ }
-
-    virtual bool checkStopCondition( const double time ) = 0;
-};
-
-class FixedTimePropagationTerminationCondition: public PropagationPropagationTerminationCondition
-{
-public:
-    FixedTimePropagationTerminationCondition(
-            const double stopTime,
-            const bool propagationDirectionIsPositive ):
-        stopTime_( stopTime ),
-        propagationDirectionIsPositive_( propagationDirectionIsPositive ){ }
-
-
-    bool checkStopCondition( const double time );
-
-private:
-    double stopTime_;
-
-    bool propagationDirectionIsPositive_;
-};
-
-class SingleVariableLimitPropagationTerminationCondition: public PropagationPropagationTerminationCondition
-{
-public:
-    SingleVariableLimitPropagationTerminationCondition(
-            const std::pair< PropagationDependentVariables, std::string > variableType,
-            const boost::function< double( ) > variableRetrievalFuntion,
-            const double limitingValue,
-            const bool useAsLowerBound ):
-    variableType_( variableType ), variableRetrievalFuntion_( variableRetrievalFuntion ),
-    limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ){ }
-
-    virtual ~SingleVariableLimitPropagationTerminationCondition( ){ }
-
-    bool checkStopCondition( const double time );
-
-private:
-    std::pair< PropagationDependentVariables, std::string > variableType_;
-
-    boost::function< double( ) > variableRetrievalFuntion_;
-
-    double limitingValue_;
-
-    bool useAsLowerBound_;
-};
-
-class HybridPropagationTerminationCondition: public PropagationPropagationTerminationCondition
-{
-public:
-    HybridPropagationTerminationCondition(
-            const std::vector< boost::shared_ptr< PropagationPropagationTerminationCondition > > propagationTerminationCondition,
-            const bool fulFillSingleCondition = 0 ):
-        propagationTerminationCondition_( propagationTerminationCondition ), fulFillSingleCondition_( fulFillSingleCondition ){ }
-
-    bool checkStopCondition( const double time );
-
-private:
-
-    std::vector< boost::shared_ptr< PropagationPropagationTerminationCondition > > propagationTerminationCondition_;
-
-    bool fulFillSingleCondition_;
-};
-
-
-boost::shared_ptr< PropagationPropagationTerminationCondition > createPropagationPropagationTerminationConditions(
-        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const double initialTimeStep );
 
 //! Function to numerically integrate a given first order differential equation
 /*!
@@ -142,83 +130,29 @@ boost::shared_ptr< PropagationPropagationTerminationCondition > createPropagatio
  *  as key.
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
-std::map< TimeType, StateType > integrateEquations(
-        boost::function< StateType( const TimeType, const StateType&) > stateDerivativeFunction,
+void integrateEquations(
+        boost::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
+        std::map< TimeType, StateType >& solutionHistory,
         const StateType initialState,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const boost::function< bool( const double ) > stopPropagationFunction,
+        const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
+        boost::function< Eigen::VectorXd( ) >( ),
         const TimeType printInterval = TUDAT_NAN )
 {
-    using namespace tudat::numerical_integrators;
-
+    std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
 
     // Create numerical integrator.
-    boost::shared_ptr< NumericalIntegrator< TimeType, StateType, StateType > > integrator =
-            createIntegrator< TimeType, StateType >( stateDerivativeFunction, initialState, integratorSettings );
+    boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType > > integrator =
+            numerical_integrators::createIntegrator< TimeType, StateType >(
+                stateDerivativeFunction, initialState, integratorSettings );
 
-    // Get Initial state and time.
-    TimeType currentTime = integratorSettings->initialTime_;
-    StateType newState = initialState;
+    integrateEquations< StateType, TimeType >(
+                integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
+                dependentVariableHistory,
+                dependentVariableFunction,
+                integratorSettings->saveFrequency_, printInterval );
 
-    // Initialization of numerical solutions for variational equations.
-    std::map< TimeType, StateType > solutionHistory;
-    solutionHistory[ currentTime ] = newState;
-
-    // Check if numerical integration is forward or backwrd.
-    TimeType timeStepSign = 1.0L;
-    if( integratorSettings->initialTimeStep_ < 0.0 )
-    {
-        timeStepSign = -1.0L;
-    }
-
-    // Set initial time step and total integration time.
-    TimeType timeStep = integratorSettings->initialTimeStep_;
-    TimeType previousTime = currentTime;
-
-    // Perform first integration step.
-    newState = integrator->performIntegrationStep( timeStep );
-
-    currentTime = integrator->getCurrentIndependentVariable( );
-
-    timeStep = timeStepSign * integrator->getNextStepSize( );
-    solutionHistory[ currentTime ] = newState;
-
-    int printIndex = 0;
-    int printFrequency = integratorSettings->printFrequency_;
-    // Perform numerical integration steps until end time reached.
-    do
-    {
-        previousTime = currentTime;
-
-        // Perform integration step.
-        newState = integrator->performIntegrationStep( timeStep );
-        currentTime = integrator->getCurrentIndependentVariable( );
-        timeStep = timeStepSign * integrator->getNextStepSize( );
-
-        // Save integration result in map
-        printIndex++;
-        printIndex = printIndex % printFrequency;
-        if( printIndex == 0 )
-        {
-            solutionHistory[ currentTime ] = newState;
-        }
-
-        // Print solutions
-        if( printInterval == printInterval )
-        {
-            if( ( static_cast<int>( std::fabs( currentTime - integratorSettings->initialTime_ ) ) %
-                  static_cast< int >( printInterval ) ) <
-                    ( static_cast< int >( std::fabs( previousTime - integratorSettings->initialTime_ ) ) %
-                      static_cast<int>( printInterval ) )  )
-            {
-                std::cout<<"Current time and state in integration: "<<std::setprecision( 10 )<<
-                           timeStep<<" "<<currentTime<<" "<<newState.transpose( )<<std::endl;
-            }
-        }
-    }
-    while( !stopPropagationFunction( static_cast< double >( currentTime ) ) );
-
-    return solutionHistory;
 }
 
 }

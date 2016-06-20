@@ -47,14 +47,14 @@ public:
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration
      *  for variable step size integrators.
-     *  \param printFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = printFrequency).
+     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *  time steps, with n = saveFrequency).
      */
     IntegratorSettings( const AvailableIntegrators integratorType, const TimeType initialTime,
                         const TimeType initialTimeStep,
-                        const int printFrequency = 1 ): integratorType_( integratorType ),
+                        const int saveFrequency = 1 ): integratorType_( integratorType ),
         initialTime_( initialTime ), initialTimeStep_( initialTimeStep ),
-        printFrequency_( printFrequency ){ }
+        saveFrequency_( saveFrequency ){ }
 
     //! Virtual destructor.
     /*!
@@ -84,9 +84,9 @@ public:
     //! Frequency which with to save numerical integration result.
     /*!
      *  Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = printFrequency).
+     *  time steps, with n = saveFrequency).
      */
-    int printFrequency_;
+    int saveFrequency_;
 };
 
 //! Class to define settings of variable step RK numerical integrator
@@ -112,8 +112,8 @@ public:
      *  \param maximumStepSize Maximum step size for integration.
      *  \param relativeErrorTolerance Relative error tolerance for step size control
      *  \param absoluteErrorTolerance Absolute error tolerance for step size control
-     *  \param printFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = printFrequency).
+     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *  time steps, with n = saveFrequency).
      *  \param safetyFactorForNextStepSize Safety factor for step size control
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
      *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
@@ -127,11 +127,11 @@ public:
             const TimeType minimumStepSize, const TimeType maximumStepSize,
             const TimeType relativeErrorTolerance = 1.0E-12,
             const TimeType absoluteErrorTolerance = 1.0E-12,
-            const int printFrequency = 1,
+            const int saveFrequency = 1,
             const TimeType safetyFactorForNextStepSize = 0.8,
             const TimeType maximumFactorIncreaseForNextStepSize = 4.0,
             const TimeType minimumFactorDecreaseForNextStepSize = 0.1 ):
-        IntegratorSettings< TimeType >( integratorType, initialTime, initialTimeStep, printFrequency ),
+        IntegratorSettings< TimeType >( integratorType, initialTime, initialTimeStep, saveFrequency ),
         coefficientSet_( coefficientSet ), minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
