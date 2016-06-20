@@ -22,6 +22,7 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
@@ -45,6 +46,7 @@ enum TranslationalPropagatorType
     cowell = 0
 };
 
+//! Enum listing the dependent variables that can be saved during the propagation
 enum PropagationDependentVariables
 {
     mach_number_dependent_variable,
@@ -57,6 +59,7 @@ enum PropagationDependentVariables
     total_acceleration_norm_dependent_variable
 };
 
+//! Enum listing the available types of propagation termination settings.
 enum PropagationTerminationTypes
 {
     time_stopping_condition,
@@ -64,7 +67,53 @@ enum PropagationTerminationTypes
     hybrid_stopping_condition
 };
 
+class SingleDependentVariableSaveSettings
+{
+public:
 
+protected:
+    PropagationDependentVariables variableType_;
+
+    std::string associatedBody_;
+
+    std::string secondaryBody_;
+
+};
+
+class SingleAccelerationDependentVariableSaveSettings
+{
+public:
+
+protected:
+    basic_astrodynamics::AvailableAcceleration accelerationModeType_;
+
+};
+
+class DependentVariableSaveSettings
+{
+public:
+    DependentVariableSaveSettings(
+            const std::map< PropagationDependentVariables, std::vector< std::pair< std::string, std::string > > > dependentVariables ):
+    dependentVariables_( dependentVariables ){ }
+
+    DependentVariableSaveSettings(
+            const std::map< PropagationDependentVariables, std::vector< std::string > > dependentVariables )
+    {
+        for( std::map< PropagationDependentVariables, std::vector< std::string > >::const_iterator variableIterator =
+           dependentVariables.begin( ); variableIterator != dependentVariables.end( ); variableIterator++ )
+        {
+             for( unsigned int i = 0; i < variableIterator->second.size( ); i++ )
+             {
+                 dependentVariables_[ variableIterator->first ].push_back(
+                             std::make_pair( variableIterator->second.at( i ), "" ) );
+             }
+        }
+    }
+
+    std::map< PropagationDependentVariables, std::vector< std::pair< std::string, std::string > > > dependentVariables_;
+};
+
+//! Based class for defining propagation termination settings
 class PropagationTerminationSettings
 {
 public:
@@ -129,6 +178,7 @@ public:
 
 };
 
+
 //! Get size of state for single propagated state of given type.
 /*!
  * Get size of state for single propagated state of given type (i.e. 6 for translational state).
@@ -163,9 +213,13 @@ public:
      */
     PropagatorSettings( const IntegratedStateType stateType,
                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
-                        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings ):
+                        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                        const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+                        const double printInterval = TUDAT_NAN ):
         stateType_( stateType ), initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ),
-    terminationSettings_( terminationSettings ){ }
+    terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
+    printInterval_( printInterval){ }
 
     //! Virtual destructor.
     virtual ~PropagatorSettings( ){ }
@@ -209,6 +263,17 @@ public:
         return terminationSettings_;
     }
 
+    boost::shared_ptr< DependentVariableSaveSettings > getDependentVariablesToSave( )
+    {
+        return dependentVariablesToSave_;
+    }
+
+    double getPrintInterval( )
+    {
+        return printInterval_;
+    }
+
+
 protected:
 
     //!  Initial state used as input for numerical integration
@@ -218,6 +283,10 @@ protected:
     int stateSize_;
 
     boost::shared_ptr< PropagationTerminationSettings > terminationSettings_;
+
+    boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave_;
+
+    double printInterval_;
 
 };
 
@@ -250,8 +319,12 @@ public:
                                           const std::vector< std::string >& bodiesToIntegrate,
                                           const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
                                           const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
-                                          const TranslationalPropagatorType propagator = cowell):
-        PropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings ),
+                                          const TranslationalPropagatorType propagator = cowell,
+                                          const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+                              boost::shared_ptr< DependentVariableSaveSettings >( ),
+                                          const double printInterval = TUDAT_NAN ):
+        PropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings,
+                                               dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
         accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ){ }
@@ -274,9 +347,13 @@ public:
                                           const std::vector< std::string >& bodiesToIntegrate,
                                           const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
                                           const double endTime,
-                                          const TranslationalPropagatorType propagator = cowell):
+                                          const TranslationalPropagatorType propagator = cowell,
+                                          const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+                              boost::shared_ptr< DependentVariableSaveSettings >( ),
+                                          const double printInterval = TUDAT_NAN ):
         PropagatorSettings< StateScalarType >(
-            transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ) ),
+            transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
+            dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
         accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ){ }

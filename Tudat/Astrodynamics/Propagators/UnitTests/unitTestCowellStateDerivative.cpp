@@ -131,6 +131,9 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
             ( rungeKutta4, initialEphemerisTime, 240.0 );
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings2 =
+            boost::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, finalEphemerisTime, -240.0 );
 
     // Define central bodies to use in propagation (all w.r.t SSB).
     std::vector< std::string > centralBodies;
@@ -145,6 +148,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Get initial state vector as input to integration.
     Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
                 bodiesToIntegrate, centralBodies, bodyMap, initialEphemerisTime );
+    Eigen::VectorXd systemFinalState = getInitialStatesOfBodies(
+                bodiesToIntegrate, centralBodies, bodyMap, finalEphemerisTime );
 
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -176,17 +181,25 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings2 =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
+    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings3 =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemFinalState, initialEphemerisTime );
+
 
     // Create new simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator2(
                 bodyMap, integratorSettings, propagatorSettings2, true, false );
+    //SingleArcDynamicsSimulator< > dynamicsSimulator3(
+    //            bodyMap, integratorSettings2, propagatorSettings3, true, false );
 
     // Retrieve dynamics solution for the two different central body settings and create interpolators.
     std::map< double, Eigen::VectorXd > solutionSet1 = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > solutionSet2 = dynamicsSimulator2.getEquationsOfMotionNumericalSolution( );
+    //std::map< double, Eigen::VectorXd > solutionSet3 = dynamicsSimulator3.getEquationsOfMotionNumericalSolution( );
 
     LagrangeInterpolator< double, Eigen::VectorXd > interpolator1( solutionSet1, 8 );
     LagrangeInterpolator< double, Eigen::VectorXd > interpolator2( solutionSet2, 8 );
+    //LagrangeInterpolator< double, Eigen::VectorXd > interpolator3( solutionSet3, 8 );
 
     // Define step size to be out of sync with integration step size.
     double stepSize = 2001.1 + mathematical_constants::PI;
@@ -206,21 +219,26 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Test numerical output against results with SSB as origin for ech body,
     boost::shared_ptr< ephemerides::Ephemeris > sunEphemeris = bodyMap[ "Sun" ]->getEphemeris( );
+    boost::shared_ptr< ephemerides::Ephemeris > earthEphemeris = bodyMap[ "Earth" ]->getEphemeris( );
+    boost::shared_ptr< ephemerides::Ephemeris > marsEphemeris = bodyMap[ "Mars" ]->getEphemeris( );
+    boost::shared_ptr< ephemerides::Ephemeris > moonEphemeris = bodyMap[ "Moon" ]->getEphemeris( );
+
     while( currentTime < finalEphemerisTime - stepSize )
     {
         // Retrieve data from interpolators; transform to inertial frames and compare.
         currentInertialSolution = interpolator1.interpolate( currentTime );
         currentNonInertialSolution = interpolator2.interpolate( currentTime );
         reconstructedInertialSolution.segment( 0, 6 ) = currentNonInertialSolution.segment( 0, 6 ) +
-                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+                currentNonInertialSolution.segment( 6, 6 );
         reconstructedInertialSolution.segment( 6, 6 ) = currentNonInertialSolution.segment( 6, 6 );
         reconstructedInertialSolution.segment( 12, 6 )= currentNonInertialSolution.segment( 12, 6 ) +
                 reconstructedInertialSolution.segment( 0, 6 );
         reconstructedInertialSolution.segment( 18, 6 ) = currentNonInertialSolution.segment( 18, 6 ) +
-                sunEphemeris->getCartesianStateFromEphemeris( currentTime );
+                reconstructedInertialSolution.segment( 6, 6 );
 
         // Compare states.
         stateDifference = reconstructedInertialSolution - currentInertialSolution;
+
         for( unsigned j = 0; j < 4; j++ )
         {
             if( j != 2 )
@@ -244,27 +262,24 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
                 BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 2.0E-7 );
             }
         }
-        currentTime += stepSize;
-    }
 
-    // Test whether ephemeris objects have been properly reset, i.e. whether all states have been properly transformed to the
-    // ephemeris frame.
-    boost::shared_ptr< ephemerides::Ephemeris > earthEphemeris = bodyMap[ "Earth" ]->getEphemeris( );
-    boost::shared_ptr< ephemerides::Ephemeris > marsEphemeris = bodyMap[ "Mars" ]->getEphemeris( );
-    boost::shared_ptr< ephemerides::Ephemeris > moonEphemeris = bodyMap[ "Moon" ]->getEphemeris( );
 
-    while( currentTime < finalEphemerisTime - stepSize )
-    {
+        // Test whether ephemeris objects have been properly reset, i.e. whether all states have been properly transformed to the
+        // ephemeris frame.
+
         // Retrieve data from interpolators; transform to inertial frames and compare.
         currentInertialSolution = interpolator1.interpolate( currentTime );
 
         reconstructedInertialSolution.segment( 0, 6 ) = earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
                 sunEphemeris->getCartesianStateFromEphemeris( currentTime );
         reconstructedInertialSolution.segment( 6, 6 ) = sunEphemeris->getCartesianStateFromEphemeris( currentTime );
-        reconstructedInertialSolution.segment( 12, 6 ) = moonEphemeris->getCartesianStateFromEphemeris( currentTime ) +
+        reconstructedInertialSolution.segment( 12, 6 ) =
+                moonEphemeris->getCartesianStateFromEphemeris( currentTime ) +
                 earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
                 sunEphemeris->getCartesianStateFromEphemeris( currentTime );
-        reconstructedInertialSolution.segment( 18, 6 ) = marsEphemeris->getCartesianStateFromEphemeris( currentTime ) +
+        reconstructedInertialSolution.segment( 18, 6 ) =
+                marsEphemeris->getCartesianStateFromEphemeris( currentTime ) +
+                earthEphemeris->getCartesianStateFromEphemeris( currentTime ) +
                 sunEphemeris->getCartesianStateFromEphemeris( currentTime );
 
         // Compare states.
@@ -277,9 +292,9 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
                 BOOST_CHECK_SMALL( std::fabs( stateDifference( 1 + 6 * j ) ), 1.0E-2 );
                 BOOST_CHECK_SMALL( std::fabs( stateDifference( 2 + 6 * j ) ), 1.0E-2 );
 
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 2.0E-9 );
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 2.0E-9 );
-                BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 2.0E-9 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 3 + 6 * j ) ), 5.0E-9 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 4 + 6 * j ) ), 5.0E-9 );
+                BOOST_CHECK_SMALL( std::fabs( stateDifference( 5 + 6 * j ) ), 5.0E-9 );
             }
             else
             {
