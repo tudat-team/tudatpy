@@ -28,7 +28,7 @@ namespace simulation_setup
 std::pair< double, double  > readGravityFieldFile(
         const std::string& fileName, const int maximumDegree, const int maximumOrder,
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients,
-        const unsigned int gravitationalParameterIndex, const unsigned int referenceRadiusIndex )
+        const int gravitationalParameterIndex, const int referenceRadiusIndex )
 {
     // Attempt to open gravity file.
     std::fstream stream( fileName.c_str( ), std::ios::in );
@@ -47,8 +47,8 @@ std::pair< double, double  > readGravityFieldFile(
     double gravitationalParameter = TUDAT_NAN;
     double referenceRadius = TUDAT_NAN;
 
-    if( ( gravitationalParameterIndex == gravitationalParameterIndex ) &&
-            ( referenceRadiusIndex == referenceRadiusIndex ) )
+    if( ( gravitationalParameterIndex >= 0 ) &&
+            ( referenceRadiusIndex >= 0 ) )
     {
         // Get first line of file.
         std::getline( stream, line );
@@ -59,8 +59,8 @@ std::pair< double, double  > readGravityFieldFile(
                                  line,
                                  boost::algorithm::is_any_of( "\t, " ),
                                  boost::algorithm::token_compress_on );
-        if( gravitationalParameterIndex >= vectorOfIndividualStrings.size( ) ||
-                referenceRadiusIndex >= vectorOfIndividualStrings.size( ) )
+        if( gravitationalParameterIndex >= static_cast< int >( vectorOfIndividualStrings.size( ) ) ||
+                referenceRadiusIndex >= static_cast< int >( vectorOfIndividualStrings.size( ) ) )
         {
             throw std::runtime_error( "Error when reading gravity field file, requested header index exceeds file contents" );
         }
@@ -68,10 +68,10 @@ std::pair< double, double  > readGravityFieldFile(
         gravitationalParameter = boost::lexical_cast< double >( vectorOfIndividualStrings[ gravitationalParameterIndex ] );
         referenceRadius = boost::lexical_cast< double >( vectorOfIndividualStrings[ referenceRadiusIndex ] );
     }
-    else if( ( !( gravitationalParameterIndex == gravitationalParameterIndex ) &&
-              ( referenceRadiusIndex == referenceRadiusIndex ) ) ||
-             ( ( gravitationalParameterIndex == gravitationalParameterIndex ) &&
-                           !( referenceRadiusIndex == referenceRadiusIndex ) ) )
+    else if( ( !( gravitationalParameterIndex >= 0 ) &&
+              ( referenceRadiusIndex >= 0 ) ) ||
+             ( ( gravitationalParameterIndex >= 0 ) &&
+                           !( referenceRadiusIndex >= 0 ) ) )
     {
         throw std::runtime_error( "Error when reading gravity field file, must retrieve either both or neither of Re and mu" );
     }
