@@ -15,19 +15,19 @@ namespace propagators
 //! Enum listing the dependent variables that can be saved during the propagation
 enum PropagationDependentVariables
 {
-    mach_number_dependent_variable,
-    altitude_dependent_variable,
-    airspeed_dependent_variable,
-    local_density_dependent_variable,
-    relative_speed_dependent_variable,
-    relative_position_dependent_variable,
-    relative_distance_dependent_variable,
-    relative_velocity_dependent_variable,
-    radiation_pressure_dependent_variable,
-    total_acceleration_norm_dependent_variable,
-    single_acceleration_norm_dependent_variable,
-    total_acceleration_dependent_variable,
-    single_acceleration_dependent_variable
+    mach_number_dependent_variable = 0,
+    altitude_dependent_variable = 1,
+    airspeed_dependent_variable = 2,
+    local_density_dependent_variable = 3,
+    relative_speed_dependent_variable = 4,
+    relative_position_dependent_variable = 5,
+    relative_distance_dependent_variable = 6,
+    relative_velocity_dependent_variable = 7,
+    radiation_pressure_dependent_variable = 8,
+    total_acceleration_norm_dependent_variable = 9,
+    single_acceleration_norm_dependent_variable = 10,
+    total_acceleration_dependent_variable = 11,
+    single_acceleration_dependent_variable = 12
 };
 
 

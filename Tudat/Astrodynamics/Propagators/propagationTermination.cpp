@@ -1,5 +1,5 @@
 
-#include "Tudat/Astrodynamics/Propagators/propagationTerminationConditions.h"
+#include "Tudat/Astrodynamics/Propagators/propagationTermination.h"
 
 namespace tudat
 {

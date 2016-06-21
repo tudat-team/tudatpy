@@ -180,7 +180,8 @@ public:
         {
             dependentVariablesFunctions_ =
                     createDependentVariableListFunction(
-                        propagatorSettings_->getDependentVariablesToSave( ), bodyMap_ );
+                        propagatorSettings_->getDependentVariablesToSave( ), bodyMap_,
+                        dynamicsStateDerivative_->getStateDerivativeModels( ) );
         }
 
         stateDerivativeFunction_ =
@@ -431,6 +432,7 @@ public:
                         initialStates, integratorSettings_->initialTime_ ), integratorSettings_,
                     boost::bind( &PropagationTerminationCondition::checkStopCondition,
                                  propagationTerminationCondition_, _1 ),
+                    dependentVariableHistory_,
                     dependentVariablesFunctions_,
                     propagatorSettings_->getPrintInterval( ) );
         equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
@@ -451,6 +453,12 @@ public:
     {
         return equationsOfMotionNumericalSolution_;
     }
+
+    std::map< TimeType, Eigen::VectorXd > getDependentVariableHistory( )
+    {
+        return dependentVariableHistory_;
+    }
+
 
     //! Function to reset the environment from an externally generated state history.
     /*!
@@ -503,6 +511,9 @@ protected:
      *  NOTEL this map is empty if clearNumericalSolutions_ is set to true.
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution_;
+
+    std::map< TimeType, Eigen::VectorXd > dependentVariableHistory_;
+
 };
 
 }

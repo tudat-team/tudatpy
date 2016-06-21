@@ -38,7 +38,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/createEnvironmentUpdater.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/setNumericallyIntegratedStates.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationSettings.cpp"
-  "${SRCROOT}${PROPAGATORSDIR}/propagationTerminationConditions.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationTermination.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.cpp"
 )
 
@@ -56,7 +56,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsSimulator.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdater.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
-  "${SRCROOT}${PROPAGATORSDIR}/propagationTerminationConditions.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationTermination.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationOutputSettings.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationTerminationSettings.h"
@@ -74,6 +74,10 @@ target_link_libraries(test_CentralBodyData tudat_propagators tudat_basic_mathema
 add_executable(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCowellStateDerivative.cpp")
 setup_custom_test_program(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_CowellStateDerivative tudat_simulation_setup tudat_propagators tudat_aerodynamics tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
+
+add_executable(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestDependentVariableOutput.cpp")
+setup_custom_test_program(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_DependentVariableOutput tudat_simulation_setup tudat_propagators tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
 
 add_executable(test_StoppingConditions "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestStoppingConditions.cpp")
 setup_custom_test_program(test_StoppingConditions "${SRCROOT}${PROPAGATORSDIR}")

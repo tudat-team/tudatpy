@@ -13,6 +13,15 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to evaluate a function with two input variables (by reference) from function pointers
+/*!
+ *  Function to evaluate a function with two input variables (by reference) from function pointers that return these
+ *  two input variables.
+ *  \param functionToEvaluate Function that is to be evaluated with input from function pointers.
+ *  \param firstInput Function returning first input to functionToEvaluate.
+ *  \param firstInput Function returning second input to functionToEvaluate.
+ *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
+ */
 template< typename OutputType, typename InputType >
 OutputType evaluateReferenceFunction(
         const boost::function< OutputType( const InputType&, const InputType& ) > functionToEvaluate,
@@ -22,6 +31,15 @@ OutputType evaluateReferenceFunction(
     return functionToEvaluate( firstInput( ), secondInput( ) );
 }
 
+//! Function to evaluate a function with two input variables from function pointers
+/*!
+ *  Function to evaluate a function with two input variables from function pointers that return these
+ *  two input variables.
+ *  \param functionToEvaluate Function that is to be evaluated with input from function pointers.
+ *  \param firstInput Function returning first input to functionToEvaluate.
+ *  \param firstInput Function returning second input to functionToEvaluate.
+ *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
+ */
 template< typename OutputType, typename InputType >
 OutputType evaluateFunction(
         const boost::function< OutputType( const InputType, const InputType ) > functionToEvaluate,
@@ -31,9 +49,26 @@ OutputType evaluateFunction(
     return functionToEvaluate( firstInput( ), secondInput( ) );
 }
 
+//! Funtion to get the size of a dependent variable
+/*!
+ * Funtion to get the size (i.e. number of values in variable: one for altitude, three for position, etc.)
+ * of a dependent variable
+ * \param dependentVariableSettings Dependent variable type for which size is to be determined.
+ * \return Size of requested dependent variable.
+ */
 int getDependentVariableSize(
         const PropagationDependentVariables dependentVariableSettings );
 
+//! Function to create a function returning a requested dependent variable value (of type double).
+/*!
+ *  Function to create a function returning a requested dependent variable value (of type double), retrieved from
+ *  environment and/or state derivative models.
+ *  \param dependentVariableSettings Settings for dependent variable that is to be returned by function created here.
+ *  \param bodyMap List of bodies to use in simulations (containing full environment).
+ *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key)
+ *  \return Function returning requested dependent variable. NOTE: The environment and state derivative models need to
+ *  be updated to current state and independent variable before computation is performed.
+ */
 template< typename TimeType = double, typename StateScalarType = double >
 boost::function< double( ) > getDoubleDependentVariableFunction(
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
@@ -44,10 +79,13 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
 {
     boost::function< double( ) > variableFunction;
+
+    // Retrieve base information on dependent variable
     PropagationDependentVariables dependentVariable = dependentVariableSettings->variableType_;
     const std::string& bodyWithProperty = dependentVariableSettings->associatedBody_;
     const std::string& secondaryBody = dependentVariableSettings->secondaryBody_;
 
+    // Check dependent variable type and create function accordingly.
     switch( dependentVariable )
     {
     case mach_number_dependent_variable:
@@ -59,6 +97,8 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
 
         boost::function< double( const double, const double ) > functionToEvaluate =
                 boost::bind( &aerodynamics::computeMachNumber, _1, _2 );
+
+        // Retrieve functions for airspeed and speed of sound.
         boost::function< double( ) > firstInput =
                 boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeed,
                              bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
@@ -105,7 +145,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         break;
     case relative_distance_dependent_variable:
     {
-
+        // Retrieve functions for positions of two bodies.
         boost::function< double( const Eigen::Vector3d&, const Eigen::Vector3d& ) > functionToEvaluate =
                 boost::bind( &linear_algebra::computeNormOfVectorDifference, _1, _2 );
         boost::function< Eigen::Vector3d( ) > firstInput =
@@ -119,6 +159,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     }
     case relative_speed_dependent_variable:
     {
+        // Retrieve functions for velicoty of two bodies.
         boost::function< double( const Eigen::Vector3d&, const Eigen::Vector3d& ) > functionToEvaluate =
                 boost::bind( &linear_algebra::computeNormOfVectorDifference, _1, _2 );
         boost::function< Eigen::Vector3d( ) > firstInput =
@@ -133,6 +174,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     }
     case single_acceleration_norm_dependent_variable:
     {
+        // Check input consistency
         boost::shared_ptr< SingleAccelerationNormDependentVariableSaveSettings > accelerationDependentVariableSettings =
                 boost::dynamic_pointer_cast< SingleAccelerationNormDependentVariableSaveSettings >(
                     dependentVariableSettings );
@@ -143,6 +185,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         }
         else
         {
+            // Retrieve list of suitable acceleration models (size should be one to avoid ambiguities)
             std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
                     listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
                         accelerationDependentVariableSettings->associatedBody_,
@@ -165,6 +208,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     }
     case total_acceleration_norm_dependent_variable:
     {
+        // Retrieve model responsible for computing accelerations of requested bodies.
         boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                 getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
         boost::function< Eigen::Vector3d( ) > vectorFunction =
@@ -183,6 +227,16 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     return variableFunction;
 }
 
+//! Function to create a function returning a requested dependent variable value (of type VectorXd).
+/*!
+ *  Function to create a function returning a requested dependent variable value (of type VectorXd), retrieved from
+ *  environment and/or state derivative models.
+ *  \param dependentVariableSettings Settings for dependent variable that is to be returned by function created here.
+ *  \param bodyMap List of bodies to use in simulations (containing full environment).
+ *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key)
+ *  \return Function returning requested dependent variable. NOTE: The environment and state derivative models need to
+ *  be updated to current state and independent variable before computation is performed.
+ */
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariableFunction(
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
@@ -194,14 +248,18 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
 {
     boost::function< Eigen::VectorXd( ) > variableFunction;
     int parameterSize;
+
+    // Retrieve base information on dependent variable
     PropagationDependentVariables dependentVariable = dependentVariableSettings->variableType_;
     const std::string& bodyWithProperty = dependentVariableSettings->associatedBody_;
     const std::string& secondaryBody = dependentVariableSettings->secondaryBody_;
 
+    // Check dependent variable type and create function accordingly.
     switch( dependentVariable )
     {
     case relative_position_dependent_variable:
     {
+        // Retrieve functions for positions of two bodies.
         boost::function< Eigen::Vector3d( const Eigen::Vector3d&, const Eigen::Vector3d& ) > functionToEvaluate =
                 boost::bind( &linear_algebra::computeVectorDifference, _1, _2 );
         boost::function< Eigen::Vector3d( ) > firstInput =
@@ -212,10 +270,12 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         variableFunction = boost::bind(
                     &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
                     functionToEvaluate, firstInput, secondInput );
+        parameterSize = 3;
         break;
     }
     case relative_velocity_dependent_variable:
     {
+        // Retrieve functions for velocities of two bodies.
         boost::function< Eigen::Vector3d( const Eigen::Vector3d&, const Eigen::Vector3d& ) > functionToEvaluate =
                 boost::bind( &linear_algebra::computeVectorDifference, _1, _2 );
         boost::function< Eigen::Vector3d( ) > firstInput =
@@ -226,21 +286,27 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         variableFunction = boost::bind(
                     &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
                     functionToEvaluate, firstInput, secondInput );
+        parameterSize = 3;
+
 
         break;
     }
     case total_acceleration_dependent_variable:
     {
+        // Retrieve model responsible for computing accelerations of requested bodies.
         boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                 getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
         variableFunction =
                 boost::bind( &NBodyStateDerivative< StateScalarType, TimeType >::getTotalAccelerationForBody, nBodyModel,
                              bodyWithProperty );
+        parameterSize = 3;
+
 
         break;
     }
     case single_acceleration_dependent_variable:
     {
+        // Check input consistency.
         boost::shared_ptr< SingleAccelerationDependentVariableSaveSettings > accelerationDependentVariableSettings =
                 boost::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings );
         if( accelerationDependentVariableSettings == NULL )
@@ -250,6 +316,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         }
         else
         {
+            // Retrieve list of suitable acceleration models (size should be one to avoid ambiguities)
             std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
                     listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
                         accelerationDependentVariableSettings->associatedBody_,
@@ -259,14 +326,13 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
             {
                 std::string errorMessage;
                 throw std::runtime_error( errorMessage );
-            }\
+            }
             else
             {
                 //boost::function< Eigen::Vector3d( ) > vectorFunction =
                 variableFunction = boost::bind( &basic_astrodynamics::AccelerationModel3d::getAcceleration,
                                                 listOfSuitableAccelerationModels.at( 0 ) );
-                //variableFunction = boost::bind(
-                //            &linear_algebra::getVectorNorm, vectorFunction );
+                parameterSize = 3;
             }
         }
         break;
@@ -280,41 +346,70 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     return std::make_pair( variableFunction, parameterSize );
 }
 
+//! Function to evaluate a set of double and vector-returning functions and concatenate the results.
+/*!
+ * Function to evaluate a set of double and vector-returning functions and concatenate the results. Results of double
+ * function list are put in return vector first, followed by those in vector function list.
+ * \param doubleFunctionList List of functions returning double variables
+ * \param vectorFunctionList List of functions returning vector variables (pairs denote function and return vector size)
+ * \param totalSize Total size of concatenated vector (used as input for efficiency.
+ * \return Concatenated results from input functions.
+ */
 Eigen::VectorXd evaluateListOfFunctions(
         const std::vector< boost::function< double( ) > >& doubleFunctionList,
         const std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList,
         const int totalSize );
 
+//! Function to create a function that evaluates a list of dependent variables and concatenates the results.
+/*!
+ *  Function to create a function that evaluates a list of dependent variables and concatenates the results.
+ *  Dependent variables functions are created inside this function from a list of settings on their required
+ *  types/properties.
+ *  \param saveSettings Object containing types and other properties of dependent variables.
+ *  \param bodyMap List of bodies to use in simulations (containing full environment).
+ *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key)
+ *  \return Function returning requested dependent variable values.
+ *  NOTE: The environment and state derivative models need to
+ *  be updated to current state and independent variable before computation is performed.
+ */
 template< typename TimeType = double, typename StateScalarType = double >
 boost::function< Eigen::VectorXd( ) > createDependentVariableListFunction(
         const boost::shared_ptr< DependentVariableSaveSettings > saveSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
+        std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
 {
+    // Retrieve list of save settings
     std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables =
             saveSettings->dependentVariables_;
 
+    // create list of double and vector parameters
     std::vector< boost::function< double( ) > > doubleFunctionList;
     std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList;
-
     int totalVariableSize = 0;
     for( unsigned int i = 0; i < dependentVariables.size( ); i++ )
     {
+        // Create double parameter
         if( getDependentVariableSize( dependentVariables.at( i )->variableType_ ) == 1 )
         {
             doubleFunctionList.push_back( getDoubleDependentVariableFunction(
                                               dependentVariables.at( i ),
-                                              bodyMap ) );
+                                              bodyMap, stateDerivativeModels ) );
             totalVariableSize++;
         }
+        // Create vector parameter
         else
         {
             vectorFunctionList.push_back( getVectorDependentVariableFunction(
                                               dependentVariables.at( i ),
-                                              bodyMap ) );
+                                              bodyMap, stateDerivativeModels ) );
             totalVariableSize += vectorFunctionList.at( vectorFunctionList.size( ) - 1 ).second;
         }
     }
 
+    // Create function conatenating function results.
     return boost::bind( &evaluateListOfFunctions, doubleFunctionList, vectorFunctionList, totalVariableSize );
 }
 
