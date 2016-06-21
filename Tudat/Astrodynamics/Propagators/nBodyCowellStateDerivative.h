@@ -19,16 +19,32 @@ namespace tudat
 namespace propagators
 {
 
+//! Class for computing the state derivative of translational motion of N bodies, using a Cowell propagator.
 template< typename StateScalarType = double, typename TimeType = double >
 class NBodyCowellStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     *  \param accelerationModelsPerBody A map containing the list of accelerations acting on each
+     *  body, identifying the body being acted on and the body acted on by an acceleration. The map
+     *  has as key a string denoting the name of the body the list of accelerations, provided as the
+     *  value corresponding to a key, is acting on.  This map-value is again a map with string as
+     *  key, denoting the body exerting the acceleration, and as value a pointer to an acceleration
+     *  model.
+     *  \param centralBodyData Object responsible for providing the current integration origins from
+     *  the global origins.
+     *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
+     */
     NBodyCowellStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
                                 const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                 const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >(
             accelerationModelsPerBody, centralBodyData, cowell, bodiesToIntegrate ){ }
 
+    //! Destructor
     ~NBodyCowellStateDerivative( ){ }
 
     //! Calculates the state derivative of the translational motion of the system.
@@ -50,6 +66,14 @@ public:
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated.template cast< double >( ), stateDerivative );
     }
 
+    //! Function to convert the state in the conventional form to the propagator-specific form.
+    /*!
+     * Function to convert the state in the conventional form to the propagator-specific form. For the Cowell propagator,
+     * the two are equivalent, and this function returns the input state.
+     * \param outputSolution State in 'conventional form'
+     * \param time Current time at which the state is valid (not used in this class).
+     * \return State (outputSolution), converted to the 'propagator-specific form' (which is equal to outputSolution).
+     */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >
         convertFromOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic,
@@ -58,6 +82,19 @@ public:
         return cartesianSolution;
     }
 
+    //! Function to convert the propagator-specific form of the state to the conventional form.
+    /*!
+     * Function to convert the propagator-specific form of the state to the conventional form. For the Cowell propagator,
+     * the two are equivalent, and this function returns the input state.
+     * In contrast to the convertCurrentStateToGlobalRepresentation function, this
+     * function does not provide the state in the inertial frame, but instead provides it in the
+     * frame in which it is propagated.
+     * \param internalSolution State in propagator-specific form (i.e. form that is used in
+     * numerical integration, equal to conventional form for this class).
+     * \param time Current time at which the state is valid (not used in this class).
+     * \param currentCartesianLocalSoluton State (internalSolution), converted to the 'conventional form',
+     *  which is equal to outputSolution for this class (returned by reference).
+     */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
