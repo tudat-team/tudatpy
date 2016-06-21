@@ -44,19 +44,19 @@ class SingleVariableLimitPropagationTerminationCondition: public PropagationTerm
 {
 public:
     SingleVariableLimitPropagationTerminationCondition(
-            const std::pair< PropagationDependentVariables, std::string > variableType,
+            const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
             const boost::function< double( ) > variableRetrievalFuntion,
             const double limitingValue,
             const bool useAsLowerBound ):
-    variableType_( variableType ), variableRetrievalFuntion_( variableRetrievalFuntion ),
-    limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ){ }
+        dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFuntion_( variableRetrievalFuntion ),
+        limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ){ }
 
     virtual ~SingleVariableLimitPropagationTerminationCondition( ){ }
 
     bool checkStopCondition( const double time );
 
 private:
-    std::pair< PropagationDependentVariables, std::string > variableType_;
+    boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
 
     boost::function< double( ) > variableRetrievalFuntion_;
 

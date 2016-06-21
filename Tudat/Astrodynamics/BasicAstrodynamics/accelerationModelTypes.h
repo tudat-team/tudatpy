@@ -76,6 +76,9 @@ AvailableAcceleration getAccelerationModelType(
         const boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
         accelerationModel );
 
+std::vector< boost::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfType(
+        const std::vector< boost::shared_ptr< AccelerationModel3d > >& fullList,
+        const AvailableAcceleration modelType );
 
 } // namespace basic_astrodynamics
 

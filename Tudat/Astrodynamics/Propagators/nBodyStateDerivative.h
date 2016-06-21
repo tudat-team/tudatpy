@@ -222,6 +222,40 @@ public:
         return 6 * bodiesToBeIntegratedNumerically_.size( );
     }
 
+    Eigen::Vector3d getTotalAccelerationForBody(
+            const std::string& bodyName )
+    {
+        Eigen::Vector3d totalAcceleration = Eigen::Vector3d::Zero( );
+        if( std::find( bodiesToBeIntegratedNumerically_.begin( ),
+                       bodiesToBeIntegratedNumerically_.end( ),
+                       bodyName ) == bodiesToBeIntegratedNumerically_.end( ) )
+        {
+            std::string errorMessage;
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( accelerationModelsPerBody_.count( bodyName ) != 0 )
+            {
+                basic_astrodynamics::SingleBodyAccelerationMap accelerationsOnBody =
+                        accelerationModelsPerBody_.at( bodyName );
+
+                // Iterate over all accelerations acting on body
+                for( innerAccelerationIterator  = accelerationsOnBody.begin( );
+                     innerAccelerationIterator != accelerationsOnBody.end( );
+                     innerAccelerationIterator++ )
+                {
+                    for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
+                    {
+                        // Calculate acceleration and add to state derivative.
+                        totalAcceleration += innerAccelerationIterator->second[ j ]->getAcceleration( );
+                    }
+                }
+            }
+        }
+        return totalAcceleration;
+    }
+
 protected:
 
     //! Function to get the state derivative of the system in Cartesian coordinates.

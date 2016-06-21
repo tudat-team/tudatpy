@@ -449,6 +449,92 @@ private:
             currentStatesPerTypeInConventionalRepresentation_;
 };
 
+template< typename TimeType = double, typename StateScalarType = double >
+std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationBetweenBodies(
+        const std::string bodyUndergoingAcceleration,
+        const std::string bodyExertingAcceleration,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
+        const basic_astrodynamics::AvailableAcceleration accelerationModeType )
+
+{
+
+    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+            listOfSuitableAccelerationModels;
+    if( stateDerivativeModels.count( propagators::transational_state ) == 1 )
+    {
+        basic_astrodynamics::AccelerationMap accelerationModelList =
+                boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                    stateDerivativeModels.at( propagators::transational_state ).at( 0 ) )->getAccelerationsMap( );
+        if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
+        {
+
+            std::string errorMessage;
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            if( accelerationModelList.at( bodyUndergoingAcceleration ).count( bodyExertingAcceleration ) == 0 )
+            {
+                std::string errorMessage;
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                listOfSuitableAccelerationModels = basic_astrodynamics::getAccelerationModelsOfType(
+                            accelerationModelList.at( bodyUndergoingAcceleration ).at( bodyExertingAcceleration ), accelerationModeType );
+            }
+        }
+    }
+    else
+    {
+        std::string errorMessage;
+        throw std::runtime_error( errorMessage );
+    }
+    return listOfSuitableAccelerationModels;
+}
+
+template< typename TimeType = double, typename StateScalarType = double >
+boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTranslationalStateDerivativeModelForBody(
+        const std::string bodyUndergoingAcceleration,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
+
+{
+    bool modelFound = 0;
+    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > modelForBody;
+    if( stateDerivativeModels.count( propagators::transational_state ) > 0 )
+    {
+        for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::transational_state ).size( ); i++ )
+        {
+            boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                    boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                        stateDerivativeModels.at( propagators::transational_state ).at( i ) );
+            std::vector< std::string > propagatedBodies = nBodyModel->getBodiesToBeIntegratedNumerically( );
+
+            if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyUndergoingAcceleration )
+                    != propagatedBodies.end( ) )
+            {
+                if( modelFound == true )
+                {
+                    std::string errorMessage;
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    modelForBody = nBodyModel;
+                    modelFound = true;
+                }
+            }
+        }
+    }
+    else
+    {
+        std::string errorMessage;
+        throw std::runtime_error( errorMessage );
+    }
+    return modelForBody;
+}
 
 } // namespace propagators
 } // namespace tudat

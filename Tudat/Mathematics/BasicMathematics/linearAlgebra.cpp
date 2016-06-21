@@ -103,11 +103,30 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::
     return std::acos( dotProductOfNormalizedVectors );
 }
 
+Eigen::Vector3d computeVectorDifference( const Eigen::Vector3d& vector0,
+                                         const Eigen::Vector3d& vector1 )
+{
+    return ( vector0 - vector1 );
+}
+
+
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                       const Eigen::Vector3d& vector1 )
 {
     return ( vector0 - vector1 ).norm( );
 }
+
+double getVectorNorm( const Eigen::Vector3d& vector )
+{
+    return vector.norm( );
+}
+
+double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction )
+{
+    return getVectorNorm( vectorFunction( ) );
+}
+
+
 
 } // namespace linear_algebra
 
