@@ -22,7 +22,7 @@
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
-#include "Tudat/Astrodynamics/Propagators/propagationTerminationConditions.h"
+#include "Tudat/Astrodynamics/Propagators/propagationTermination.h"
 
 namespace tudat
 {
@@ -54,28 +54,16 @@ void integrateEquations(
     solutionHistory[ currentTime ] = newState;
     dependentVariableHistory.clear( );
 
-    // Check if numerical integration is forward or backwrd.
-    TimeType timeStepSign = 1.0L;
-//    if( initialTimeStep < 0.0 )
-//    {
-//        timeStepSign = -1.0L;
-//    }
+
+    if( !dependentVariableFunction.empty( ) )
+    {
+        integrator->getStateDerivativeFunction( )( currentTime, newState );
+        dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+    }
 
     // Set initial time step and total integration time.
     TimeType timeStep = initialTimeStep;
     TimeType previousTime = currentTime;
-
-    // Perform first integration step.
-    newState = integrator->performIntegrationStep( timeStep );
-
-    currentTime = integrator->getCurrentIndependentVariable( );
-
-    timeStep = timeStepSign * integrator->getNextStepSize( );
-    solutionHistory[ currentTime ] = newState;
-    if( !dependentVariableHistory.empty( ) )
-    {
-        dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
-    }
 
     int saveIndex = 0;
 
@@ -87,7 +75,7 @@ void integrateEquations(
         // Perform integration step.
         newState = integrator->performIntegrationStep( timeStep );
         currentTime = integrator->getCurrentIndependentVariable( );
-        timeStep = timeStepSign * integrator->getNextStepSize( );
+        timeStep = integrator->getNextStepSize( );
 
         // Save integration result in map
         saveIndex++;
@@ -96,8 +84,9 @@ void integrateEquations(
         {
             solutionHistory[ currentTime ] = newState;
 
-            if( !dependentVariableHistory.empty( ) )
+            if( !dependentVariableFunction.empty( ) )
             {
+                integrator->getStateDerivativeFunction( )( currentTime, newState );
                 dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
             }
         }
@@ -136,12 +125,11 @@ void integrateEquations(
         const StateType initialState,
         const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
         const boost::function< bool( const double ) > stopPropagationFunction,
+        std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
         boost::function< Eigen::VectorXd( ) >( ),
         const TimeType printInterval = TUDAT_NAN )
 {
-    std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
-
     // Create numerical integrator.
     boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType > > integrator =
             numerical_integrators::createIntegrator< TimeType, StateType >(

@@ -7,6 +7,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to evaluate a set of double and vector-returning functions and concatenate the results.
 Eigen::VectorXd evaluateListOfFunctions(
         const std::vector< boost::function< double( ) > >& doubleFunctionList,
         const std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList,
@@ -14,6 +15,7 @@ Eigen::VectorXd evaluateListOfFunctions(
 {
     Eigen::VectorXd variableList = Eigen::VectorXd::Zero( totalSize );
     int currentIndex = 0;
+
     for( unsigned int i = 0; i < doubleFunctionList.size( ); i++ )
     {
         variableList( i ) = doubleFunctionList.at( i )( );
@@ -27,10 +29,17 @@ Eigen::VectorXd evaluateListOfFunctions(
         currentIndex += vectorFunctionList.at( i ).second;
     }
 
+    // Check consistency with input
+    if( currentIndex != totalSize )
+    {
+        std::string errorMessage;
+        throw std::runtime_error( errorMessage );
+    }
+
     return variableList;
 }
 
-
+//! Funtion to get the size of a dependent variable
 int getDependentVariableSize(
         const PropagationDependentVariables dependentVariableSettings )
 {
@@ -59,7 +68,7 @@ int getDependentVariableSize(
         variableSize = 1;
         break;
     case relative_velocity_dependent_variable:
-        variableSize = 1;
+        variableSize = 3;
         break;
     case radiation_pressure_dependent_variable:
         variableSize = 1;

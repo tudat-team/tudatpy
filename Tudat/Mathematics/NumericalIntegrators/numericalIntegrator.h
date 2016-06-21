@@ -153,6 +153,11 @@ public:
      */
     virtual StateType performIntegrationStep( const IndependentVariableType stepSize ) = 0;
 
+    StateDerivativeFunction getStateDerivativeFunction( )
+    {
+        return stateDerivativeFunction_;
+    }
+
 protected:
 
     //! Function that returns the state derivative.
