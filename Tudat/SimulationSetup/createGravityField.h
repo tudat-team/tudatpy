@@ -233,7 +233,7 @@ std::pair< double, double > readGravityFieldFile(
 /*!
  *  Function to create a gravity field model based on model-specific settings for the gravity field.
  *  \param gravityFieldSettings Settings for the gravity field model that is to be created, defined
- *  a pointer to an object of class (derived from) GravityFieldSettings.
+ *  a pointer to an object of class (deriv  ed from) GravityFieldSettings.
  *  \param body Name of the body for which the gravity field model is to be created.
  *  \param bodyMap List of body objects, as currently created (used when setting
  *  gravityFieldVariationSettings)

@@ -19,7 +19,7 @@ namespace propagators
  *  two input variables.
  *  \param functionToEvaluate Function that is to be evaluated with input from function pointers.
  *  \param firstInput Function returning first input to functionToEvaluate.
- *  \param firstInput Function returning second input to functionToEvaluate.
+ *  \param secondInput Function returning second input to functionToEvaluate.
  *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
  */
 template< typename OutputType, typename InputType >
@@ -37,7 +37,7 @@ OutputType evaluateReferenceFunction(
  *  two input variables.
  *  \param functionToEvaluate Function that is to be evaluated with input from function pointers.
  *  \param firstInput Function returning first input to functionToEvaluate.
- *  \param firstInput Function returning second input to functionToEvaluate.
+ *  \param secondInput Function returning second input to functionToEvaluate.
  *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
  */
 template< typename OutputType, typename InputType >
@@ -175,8 +175,8 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     case single_acceleration_norm_dependent_variable:
     {
         // Check input consistency
-        boost::shared_ptr< SingleAccelerationNormDependentVariableSaveSettings > accelerationDependentVariableSettings =
-                boost::dynamic_pointer_cast< SingleAccelerationNormDependentVariableSaveSettings >(
+        boost::shared_ptr< SingleAccelerationDependentVariableSaveSettings > accelerationDependentVariableSettings =
+                boost::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >(
                     dependentVariableSettings );
         if( accelerationDependentVariableSettings == NULL )
         {

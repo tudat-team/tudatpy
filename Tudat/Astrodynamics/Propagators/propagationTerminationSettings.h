@@ -11,6 +11,8 @@ namespace tudat
 namespace propagators
 {
 
+class SingleDependentVariableSaveSettings;
+
 //! Enum listing the available types of propagation termination settings.
 enum PropagationTerminationTypes
 {

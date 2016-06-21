@@ -30,65 +30,89 @@ enum PropagationDependentVariables
     single_acceleration_dependent_variable = 12
 };
 
-
+//! Functional base class for defining settings for dependent variables that are to be saved during propagation
+/*!
+ *  Functional base class for defining settings for dependent variables that are to be saved during propagation.
+ *  Any dependent variable that requires additional information in addition to what can be provided here, should be
+ *  defined by a dedicated derived class.
+ */
 class SingleDependentVariableSaveSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param variableType Type of dependent variable that is to be saved.
+     * \param associatedBody Body associated with dependent variable
+     * \param secondaryBody Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative
+     * position, velocity etc. is defined of associatedBody w.r.t. secondaryBody).
+     */
     SingleDependentVariableSaveSettings(
             const PropagationDependentVariables variableType,
             const std::string& associatedBody,
             const std::string& secondaryBody = "" ):
         variableType_( variableType ), associatedBody_( associatedBody ), secondaryBody_( secondaryBody ){ }
 
+    //! Destructor.
     virtual ~SingleDependentVariableSaveSettings( ){ }
 
+    //! Type of dependent variable that is to be saved.
     PropagationDependentVariables variableType_;
 
+    //! Body associated with dependent variable
     std::string associatedBody_;
 
+    //! Secondary body (not necessarilly required) w.r.t. which parameter is defined (e.g. relative  position,
+    //! velocity etc. is defined of associatedBody w.r.t. secondaryBody).
     std::string secondaryBody_;
 
 };
 
-class SingleAccelerationNormDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
-{
-public:
-
-    SingleAccelerationNormDependentVariableSaveSettings(
-            const basic_astrodynamics::AvailableAcceleration accelerationModeType,
-            const std::string& bodyUndergoingAcceleration,
-            const std::string& bodyExertingAcceleration ):
-        SingleDependentVariableSaveSettings(
-            single_acceleration_norm_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration ),
-        accelerationModeType_( accelerationModeType ){ }
-
-    basic_astrodynamics::AvailableAcceleration accelerationModeType_;
-
-};
-
+//! Class to define settings for saving a single acceleration (norm or vector) during propagation
 class SingleAccelerationDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param accelerationModeType Type of acceleration that is to be saved.
+     * \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
+     * \param bodyExertingAcceleration Name of body exerting the acceleration.
+     * \param useNorm Boolean denoting whether to use the norm (if true) or the vector (if false) of the acceleration.
+     */
     SingleAccelerationDependentVariableSaveSettings(
             const basic_astrodynamics::AvailableAcceleration accelerationModeType,
             const std::string& bodyUndergoingAcceleration,
-            const std::string& bodyExertingAcceleration ):
+            const std::string& bodyExertingAcceleration,
+            const bool useNorm = 0 ):
         SingleDependentVariableSaveSettings(
-            single_acceleration_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration ),
-        accelerationModeType_( accelerationModeType ){ }
+            ( useNorm == 1 ) ? ( single_acceleration_norm_dependent_variable ) : ( single_acceleration_dependent_variable ),
+            bodyUndergoingAcceleration, bodyExertingAcceleration ),
+        accelerationModeType_( accelerationModeType )
+    { }
 
+    //! Boolean denoting whether to use the norm (if true) or the vector (if false) of the acceleration.
     basic_astrodynamics::AvailableAcceleration accelerationModeType_;
 
 };
 
+//! Container class for settings of all dependent variables that are to be saved.
 class DependentVariableSaveSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param dependentVariables List of settings for parameters that are to be saved.
+     */
     DependentVariableSaveSettings(
             const std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables ):
     dependentVariables_( dependentVariables ){ }
 
+    //! List of settings for parameters that are to be saved.
     std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
 };
 
