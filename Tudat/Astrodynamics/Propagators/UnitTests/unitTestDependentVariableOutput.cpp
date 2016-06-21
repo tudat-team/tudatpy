@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 boost::make_shared< SingleDependentVariableSaveSettings >( relative_speed_dependent_variable,
                                                                            "Apollo", "Earth" ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleAccelerationNormDependentVariableSaveSettings >(
-                    central_gravity, "Apollo", "Earth" ) );
+                boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    central_gravity, "Apollo", "Earth", 1 ) );
 
 
     dependentVariables.push_back(
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                                                                            "Apollo", "Earth" ) );
     dependentVariables.push_back(
                 boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
-                    central_gravity, "Apollo", "Earth" ) );
+                    central_gravity, "Apollo", "Earth", 0 ) );
     dependentVariables.push_back(
                 boost::make_shared< SingleDependentVariableSaveSettings >(
                     total_acceleration_dependent_variable, "Apollo" ) );

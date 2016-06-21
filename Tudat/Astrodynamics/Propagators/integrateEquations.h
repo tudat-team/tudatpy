@@ -30,7 +30,23 @@ namespace tudat
 namespace propagators
 {
 
-
+//! Function to numerically integrate a given first order differential equation
+/*!
+ *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
+ *  a single independent variable and the current state
+ *  \param integrator Numerical integrator used for propagation
+ *  \param initialTimeStep Time step to use for first step of numerical integration
+ *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+ *  \param solutionHistory History of dependent variables that are to be saved given as map
+ *  (time as key; returned by reference)
+ *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
+ *  (time as key; returned by reference)
+ *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
+ *  derivative model).
+ *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
+ *  steps, with n = saveFrequency).
+ *  \param printInterval Frequency with which to print progress to console (nan = never).
+ */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
 void integrateEquations(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType > > integrator,
@@ -112,11 +128,15 @@ void integrateEquations(
  *  Function to numerically integrate a given first order differential equation, with the state derivative a function of
  *  a single independent variable and the current state
  *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
+ *  \param solutionHistory History of numerical states given as map (time as key; returned by reference)
  *  \param initialState Initial state
  *  \param integratorSettings Settings for numerical integrator.
+ *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
+ *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
+ *  (time as key; returned by reference)
+ *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
+ *  derivative model).
  *  \param printInterval Frequency with which to print progress to console (nan = never).
- *  \return History of numerical states (first of pair) and derivatives of states (second of pair) given as maps with time
- *  as key.
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double >
 void integrateEquations(

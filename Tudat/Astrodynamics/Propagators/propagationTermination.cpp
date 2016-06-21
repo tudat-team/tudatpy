@@ -7,11 +7,12 @@ namespace tudat
 namespace propagators
 {
 
-
+//! Function to check whether the propagation is to be be stopped
 bool FixedTimePropagationTerminationCondition::checkStopCondition( const double time  )
 {
     bool stopPropagation = 0;
 
+    // Check whether stop time has been reached
     if( propagationDirectionIsPositive_ && ( time >= stopTime_ ) )
     {
         stopPropagation = 1;
@@ -23,7 +24,7 @@ bool FixedTimePropagationTerminationCondition::checkStopCondition( const double 
     return stopPropagation;
 }
 
-
+//! Function to check whether the propagation is to be be stopped
 bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time  )
 {
     bool stopPropagation = 0;
@@ -39,9 +40,10 @@ bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( con
     return stopPropagation;
 }
 
-
+//! Function to check whether the propagation is to be be stopped
 bool HybridPropagationTerminationCondition::checkStopCondition( const double time )
 {
+    // Check if single condition is fulfilled.
     if( fulFillSingleCondition_ )
     {
         bool stopPropagation = 0;
@@ -55,6 +57,7 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
         }
         return stopPropagation;
     }
+    // Check all conditions are fulfilled.
     else
     {
         bool stopPropagation = 1;
@@ -71,17 +74,20 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
 }
 
 
-
+//! Function to create propagation termination conditions from associated settings
 boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminationConditions(
         const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const double initialTimeStep )
 {
     boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition;
+
+    // Check termination type.
     switch( terminationSettings->terminationType_ )
     {
     case time_stopping_condition:
     {
+        // Create stopping time termination condition.
         boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         propagationTerminationCondition = boost::make_shared< FixedTimePropagationTerminationCondition >(
@@ -93,8 +99,8 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
 
+        // Get dependent variable function
         boost::function< double( ) > dependentVariableFunction;
-
         if( getDependentVariableSize(
                     dependentVariableTerminationSettings->dependentVariableSettings_->variableType_ ) == 1 )
         {
@@ -107,6 +113,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
             throw std::runtime_error( "Error, cannot make stopping condition from vector dependent variable" );
         }
 
+        // Create dependent variable termination condition.
         propagationTerminationCondition = boost::make_shared< SingleVariableLimitPropagationTerminationCondition >(
                     dependentVariableTerminationSettings->dependentVariableSettings_,
                     dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
@@ -118,6 +125,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
 
+        // Recursively create termination condition list.
         std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationConditionList;
         for( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); i++ )
         {
@@ -131,7 +139,8 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         break;
     }
     default:
-
+        std::string errorMessage;
+        throw std::runtime_error( errorMessage );
         break;
     }
     return propagationTerminationCondition;

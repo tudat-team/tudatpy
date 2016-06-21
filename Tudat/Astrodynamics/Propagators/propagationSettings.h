@@ -79,6 +79,11 @@ public:
      * Constructor
      * \param stateType Type of state being propagated
      * \param initialBodyStates Initial state used as input for numerical integration
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
      */
     PropagatorSettings( const IntegratedStateType stateType,
                         const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
@@ -87,8 +92,8 @@ public:
             boost::shared_ptr< DependentVariableSaveSettings >( ),
                         const double printInterval = TUDAT_NAN ):
         stateType_( stateType ), initialStates_( initialBodyStates ), stateSize_( initialBodyStates.rows( ) ),
-    terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
-    printInterval_( printInterval){ }
+        terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
+        printInterval_( printInterval){ }
 
     //! Virtual destructor.
     virtual ~PropagatorSettings( ){ }
@@ -127,16 +132,31 @@ public:
         return stateSize_;
     }
 
+    //! Function to retrieve settings for creating the object that checks whether the propagation is finished.
+    /*!
+     * Function to retrieve settings for creating the object that checks whether the propagation is finished.
+     * \return Settings for creating the object that checks whether the propagation is finished.
+     */
     boost::shared_ptr< PropagationTerminationSettings > getTerminationSettings( )
     {
         return terminationSettings_;
     }
 
+    //! Function to retrieve settings for the dependent variables that are to be saved during propagation (default none).
+    /*!
+     * Function to retrieve settings for the dependent variables that are to be saved during propagation (default none).
+     * \return Settings for the dependent variables that are to be saved during propagation (default none).
+     */
     boost::shared_ptr< DependentVariableSaveSettings > getDependentVariablesToSave( )
     {
         return dependentVariablesToSave_;
     }
 
+    //! Function to retrieve how often the current state and time are to be printed to console
+    /*!
+     * Function to retrieve how often the current state and time are to be printed to console
+     * \return Time intercal with which the current state and time are to be printed to console (default NaN, meaning never).
+     */
     double getPrintInterval( )
     {
         return printInterval_;
@@ -151,10 +171,14 @@ protected:
     //! Total size of the propagated state.
     int stateSize_;
 
+    //! Settings for creating the object that checks whether the propagation is finished.
     boost::shared_ptr< PropagationTerminationSettings > terminationSettings_;
 
+    //! Settings for the dependent variables that are to be saved during propagation (default none).
     boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave_;
 
+    //! Variable indicating how often (once per printInterval_ seconds or propagation independenty variable) the
+    //! current state and time are to be printed to console (default never).
     double printInterval_;
 
 };
@@ -170,9 +194,9 @@ class TranslationalStatePropagatorSettings: public PropagatorSettings< StateScal
 {
 public:
 
-    //! Constructor
+    //! Constructor for generic stopping conditions.
     /*!
-     * Constructor
+     * Constructor for generic stopping conditions.
      * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
      * \param accelerationsMap A map containing the list of accelerations acting on each body, identifying
      *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
@@ -181,7 +205,12 @@ public:
      *  a pointer to an acceleration model.
      * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
      * \param initialBodyStates Initial state used as input for numerical integration
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
      * \param propagator Type of translational state propagator to be used
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
      */
     TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
                                           const basic_astrodynamics::AccelerationMap& accelerationsMap,
@@ -190,7 +219,7 @@ public:
                                           const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
                                           const TranslationalPropagatorType propagator = cowell,
                                           const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-                              boost::shared_ptr< DependentVariableSaveSettings >( ),
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
                                           const double printInterval = TUDAT_NAN ):
         PropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings,
                                                dependentVariablesToSave, printInterval ),
@@ -198,9 +227,9 @@ public:
         accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ){ }
 
-    //! Constructor
+    //! Constructor for fixed propagation time stopping conditions.
     /*!
-     * Constructor
+     * Constructor for fixed propagation time stopping conditions.
      * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
      * \param accelerationsMap A map containing the list of accelerations acting on each body, identifying
      *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
@@ -209,7 +238,12 @@ public:
      *  a pointer to an acceleration model.
      * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
      * \param initialBodyStates Initial state used as input for numerical integration
+     * \param endTime Time at which to stop the numerical propagation
      * \param propagator Type of translational state propagator to be used
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
      */
     TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
                                           const basic_astrodynamics::AccelerationMap& accelerationsMap,
@@ -218,7 +252,7 @@ public:
                                           const double endTime,
                                           const TranslationalPropagatorType propagator = cowell,
                                           const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-                              boost::shared_ptr< DependentVariableSaveSettings >( ),
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
                                           const double printInterval = TUDAT_NAN ):
         PropagatorSettings< StateScalarType >(
             transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
@@ -228,10 +262,7 @@ public:
         propagator_( propagator ){ }
 
 
-    //! Virtual destructor
-    /*!
-     *  Virtual destructor
-     */
+    //! Destructor
     ~TranslationalStatePropagatorSettings( ){ }
 
     //! List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
@@ -271,7 +302,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 
     // Identify propagator type
     switch( propagatorSettings->stateType_ )
-    {    
+    {
     case transational_state:
     {
 
@@ -311,14 +342,14 @@ namespace std
 template< >
 struct hash< tudat::propagators::IntegratedStateType >
 {
-   typedef tudat::propagators::IntegratedStateType argument_type;
-   typedef size_t result_type;
+    typedef tudat::propagators::IntegratedStateType argument_type;
+    typedef size_t result_type;
 
-   result_type operator () (const argument_type& x) const
-   {
-      using type = typename std::underlying_type<argument_type>::type;
-      return std::hash< type >( )( static_cast< type >( x ) );
-   }
+    result_type operator () (const argument_type& x) const
+    {
+        using type = typename std::underlying_type<argument_type>::type;
+        return std::hash< type >( )( static_cast< type >( x ) );
+    }
 };
 
 }
