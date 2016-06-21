@@ -1,7 +1,5 @@
 
-#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Propagators/propagationTerminationConditions.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
 {
@@ -95,15 +93,22 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
 
-        boost::function< double( ) > dependentVariableFunction =
-                getDependentVariableFunction( dependentVariableTerminationSettings->variableType_,
-                                              dependentVariableTerminationSettings->associatedBody_,
-                                              dependentVariableTerminationSettings->secondaryBody_,
-                                              bodyMap );
+        boost::function< double( ) > dependentVariableFunction;
+
+        if( getDependentVariableSize(
+                    dependentVariableTerminationSettings->dependentVariableSettings_->variableType_ ) == 1 )
+        {
+            dependentVariableFunction =
+                    getDoubleDependentVariableFunction(
+                        dependentVariableTerminationSettings->dependentVariableSettings_, bodyMap );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, cannot make stopping condition from vector dependent variable" );
+        }
 
         propagationTerminationCondition = boost::make_shared< SingleVariableLimitPropagationTerminationCondition >(
-                    std::make_pair( dependentVariableTerminationSettings->variableType_,
-                                    dependentVariableTerminationSettings->associatedBody_ ),
+                    dependentVariableTerminationSettings->dependentVariableSettings_,
                     dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
                     dependentVariableTerminationSettings->useAsLowerLimit_ );
         break;

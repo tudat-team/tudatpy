@@ -58,6 +58,8 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationTerminationConditions.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationOutputSettings.h"
+  "${SRCROOT}${PROPAGATORSDIR}/propagationTerminationSettings.h"
 )
 
 # Add static libraries.

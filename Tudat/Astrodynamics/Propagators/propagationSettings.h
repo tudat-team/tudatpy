@@ -25,6 +25,8 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
+#include "Tudat/Astrodynamics/Propagators/propagationOutputSettings.h"
+#include "Tudat/Astrodynamics/Propagators/propagationTerminationSettings.h"
 
 namespace tudat
 {
@@ -45,139 +47,6 @@ enum TranslationalPropagatorType
 {
     cowell = 0
 };
-
-//! Enum listing the dependent variables that can be saved during the propagation
-enum PropagationDependentVariables
-{
-    mach_number_dependent_variable,
-    altitude_dependent_variable,
-    airspeed_dependent_variable,
-    local_density_dependent_variable,
-    relative_speed_dependent_variable,
-    relative_distance_dependent_variable,
-    radiation_pressure_dependent_variable,    
-    total_acceleration_norm_dependent_variable
-};
-
-//! Enum listing the available types of propagation termination settings.
-enum PropagationTerminationTypes
-{
-    time_stopping_condition,
-    dependent_variable_stopping_condition,
-    hybrid_stopping_condition
-};
-
-class SingleDependentVariableSaveSettings
-{
-public:
-
-protected:
-    PropagationDependentVariables variableType_;
-
-    std::string associatedBody_;
-
-    std::string secondaryBody_;
-
-};
-
-class SingleAccelerationDependentVariableSaveSettings
-{
-public:
-
-protected:
-    basic_astrodynamics::AvailableAcceleration accelerationModeType_;
-
-};
-
-class DependentVariableSaveSettings
-{
-public:
-    DependentVariableSaveSettings(
-            const std::map< PropagationDependentVariables, std::vector< std::pair< std::string, std::string > > > dependentVariables ):
-    dependentVariables_( dependentVariables ){ }
-
-    DependentVariableSaveSettings(
-            const std::map< PropagationDependentVariables, std::vector< std::string > > dependentVariables )
-    {
-        for( std::map< PropagationDependentVariables, std::vector< std::string > >::const_iterator variableIterator =
-           dependentVariables.begin( ); variableIterator != dependentVariables.end( ); variableIterator++ )
-        {
-             for( unsigned int i = 0; i < variableIterator->second.size( ); i++ )
-             {
-                 dependentVariables_[ variableIterator->first ].push_back(
-                             std::make_pair( variableIterator->second.at( i ), "" ) );
-             }
-        }
-    }
-
-    std::map< PropagationDependentVariables, std::vector< std::pair< std::string, std::string > > > dependentVariables_;
-};
-
-//! Based class for defining propagation termination settings
-class PropagationTerminationSettings
-{
-public:
-    PropagationTerminationSettings( const PropagationTerminationTypes terminationType ):
-        terminationType_( terminationType ){ }
-
-    virtual ~PropagationTerminationSettings( ){ }
-
-    PropagationTerminationTypes terminationType_;
-};
-
-class PropagationTimeTerminationSettings: public PropagationTerminationSettings
-{
-public:
-    PropagationTimeTerminationSettings( const double terminationTime ):
-        PropagationTerminationSettings( time_stopping_condition ),
-        terminationTime_( terminationTime ){ }
-
-    ~PropagationTimeTerminationSettings( ){ }
-
-    double terminationTime_;
-};
-
-class PropagationDependentVariableTerminationSettings: public PropagationTerminationSettings
-{
-public:
-    PropagationDependentVariableTerminationSettings( const PropagationDependentVariables variableType,
-                                                     const std::string associatedBody,
-                                                     const double limitValue,
-                                                     const bool useAsLowerLimit,
-                                                     const std::string secondaryBody = "" ):
-        PropagationTerminationSettings( dependent_variable_stopping_condition ),
-        variableType_( variableType ), associatedBody_( associatedBody ),
-        limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ), secondaryBody_( secondaryBody ){ }
-
-    ~PropagationDependentVariableTerminationSettings( ){ }
-
-    PropagationDependentVariables variableType_;
-
-    std::string associatedBody_;
-
-    double limitValue_;
-
-    bool useAsLowerLimit_;
-
-    std::string secondaryBody_;
-};
-
-class PropagationHybridTerminationSettings: public PropagationTerminationSettings
-{
-public:
-    PropagationHybridTerminationSettings(
-            const std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettings,
-            const bool fulFillSingleCondition = 0 ):
-        PropagationTerminationSettings( hybrid_stopping_condition ),
-        terminationSettings_( terminationSettings ),
-        fulFillSingleCondition_( fulFillSingleCondition ){ }
-
-    std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettings_;
-
-    bool fulFillSingleCondition_;
-
-};
-
 
 //! Get size of state for single propagated state of given type.
 /*!

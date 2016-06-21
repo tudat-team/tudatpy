@@ -50,15 +50,18 @@ boost::shared_ptr< propagators::PropagationTerminationSettings > getTerminationS
         break;
     case 1:
         terminationSettings = boost::make_shared< propagators::PropagationDependentVariableTerminationSettings >(
-                    propagators::mach_number_dependent_variable, "Apollo", 3.0, 1 );
+                    boost::make_shared< propagators::SingleDependentVariableSaveSettings >(
+                        propagators::mach_number_dependent_variable, "Apollo" ), 3.0, 1 );
         break;
     case 2:
         terminationSettings = boost::make_shared< propagators::PropagationDependentVariableTerminationSettings >(
-                    propagators::altitude_dependent_variable, "Apollo", 10.0E3, 1 );
+                    boost::make_shared< propagators::SingleDependentVariableSaveSettings >(
+                        propagators::altitude_dependent_variable, "Apollo" ), 10.0E3, 1 );
         break;
     case 3:
         terminationSettings = boost::make_shared< propagators::PropagationDependentVariableTerminationSettings >(
-                    propagators::local_density_dependent_variable, "Apollo", 1.1, 0);
+                    boost::make_shared< propagators::SingleDependentVariableSaveSettings >(
+                        propagators::local_density_dependent_variable, "Apollo" ), 1.1, 0);
         break;
 
     case 4:

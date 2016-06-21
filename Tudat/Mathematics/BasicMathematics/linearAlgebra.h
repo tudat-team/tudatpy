@@ -35,6 +35,8 @@
 #ifndef TUDAT_LINEAR_ALGEBRA_H
 #define TUDAT_LINEAR_ALGEBRA_H
 
+#include <boost/function.hpp>
+
 #include <Eigen/Core>
 
 namespace tudat
@@ -72,8 +74,16 @@ double computeCosineOfAngleBetweenVectors( const Eigen::VectorXd& vector0,
 double computeAngleBetweenVectors( const Eigen::VectorXd& vector0,
                                    const Eigen::VectorXd& vector1 );
 
+Eigen::Vector3d computeVectorDifference( const Eigen::Vector3d& vector0,
+                                         const Eigen::Vector3d& vector1 );
+
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,
                                    const Eigen::Vector3d& vector1 );
+
+double getVectorNorm( const Eigen::Vector3d& vector );
+
+double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction );
+
 //! Flip matrix rows.
 /*!
  * Flips all rows of an Eigen-matrix, i.e., order of rows is reversed.
