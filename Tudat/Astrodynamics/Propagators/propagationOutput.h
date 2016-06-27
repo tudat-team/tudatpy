@@ -190,7 +190,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                     dependentVariableSettings );
         if( accelerationDependentVariableSettings == NULL )
         {
-            std::string errorMessage;
+            std::string errorMessage = "Error, inconsistent inout when creating dependent variable function of type single_acceleration_norm_dependent_variable";
             throw std::runtime_error( errorMessage );
         }
         else
@@ -203,7 +203,12 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                         stateDerivativeModels, accelerationDependentVariableSettings->accelerationModeType_ );
             if( listOfSuitableAccelerationModels.size( ) != 1 )
             {
-                std::string errorMessage;
+                std::string errorMessage = "Error when getting acceleration between bodies " +
+                        accelerationDependentVariableSettings->associatedBody_ + " and " +
+                        accelerationDependentVariableSettings->secondaryBody_ + " of type " +
+                        boost::lexical_cast< std::string >(
+                                            accelerationDependentVariableSettings->accelerationModeType ) +
+                        ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
             else
@@ -321,7 +326,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                 boost::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings );
         if( accelerationDependentVariableSettings == NULL )
         {
-            std::string errorMessage;
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_acceleration_dependent_variable";
             throw std::runtime_error( errorMessage );
         }
         else
@@ -334,7 +339,12 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                         stateDerivativeModels, accelerationDependentVariableSettings->accelerationModeType_ );
             if( listOfSuitableAccelerationModels.size( ) != 1 )
             {
-                std::string errorMessage;
+                std::string errorMessage = "Error when getting acceleration between bodies " +
+                        accelerationDependentVariableSettings->associatedBody_ + " and " +
+                        accelerationDependentVariableSettings->secondaryBody_ + " of type " +
+                        boost::lexical_cast< std::string >(
+                                            accelerationDependentVariableSettings->accelerationModeType ) +
+                        ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
             else

@@ -42,7 +42,9 @@ Eigen::VectorXd evaluateListOfFunctions(
     // Check consistency with input
     if( currentIndex != totalSize )
     {
-        std::string errorMessage;
+        std::string errorMessage = "Error when evaluating lists of functions, sizes are inconsistent: " +
+                boost::lexical_cast< std::string >( currentIndex ) + " and " +
+                boost::lexical_cast< std::string >( totalSize );
         throw std::runtime_error( errorMessage );
     }
 

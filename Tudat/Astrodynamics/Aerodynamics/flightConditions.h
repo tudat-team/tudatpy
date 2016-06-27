@@ -252,4 +252,4 @@ private:
 
 } // namespace tudat
 
-#endif // TUDAT_FLIGHTCONDITIONS_
+#endif // TUDAT_FLIGHTCONDITIONS_H

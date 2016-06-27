@@ -222,15 +222,26 @@ public:
         return 6 * bodiesToBeIntegratedNumerically_.size( );
     }
 
+    //! Function to retrieve the total acceleration acting on a given body.
+    /*!
+     * Function to retrieve the total acceleration acting on a given body. The environment
+     * and acceleration models must have been updated to the current state before calling this
+     * function. NOTE: This function is typically used to retrieve the acceleration for output purposes, not to compute the
+     * translational state derivative.
+     * \param bodyName Name of body for which accelerations are to be retrieved.
+     * \return
+     */
     Eigen::Vector3d getTotalAccelerationForBody(
             const std::string& bodyName )
     {
+        // Check if body is propagated.
         Eigen::Vector3d totalAcceleration = Eigen::Vector3d::Zero( );
         if( std::find( bodiesToBeIntegratedNumerically_.begin( ),
                        bodiesToBeIntegratedNumerically_.end( ),
                        bodyName ) == bodiesToBeIntegratedNumerically_.end( ) )
         {
-            std::string errorMessage;
+            std::string errorMessage = "Error when getting total acceleration for body " + bodyName +
+                    ", no such acceleration is found";
             throw std::runtime_error( errorMessage );
         }
         else
