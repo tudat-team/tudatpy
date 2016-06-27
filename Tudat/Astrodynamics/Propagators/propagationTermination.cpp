@@ -148,13 +148,15 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         break;
     }
     default:
-        std::string errorMessage;
+        std::string errorMessage = "Error, stopping condition type " + boost::lexical_cast< std::string >(
+                    terminationSettings->terminationType_ ) + "not recognized when making stopping conditions object";
         throw std::runtime_error( errorMessage );
         break;
     }
     return propagationTerminationCondition;
-}
 
-}
+} // namespace propagators
+
+} // namespace tudat
 
 }

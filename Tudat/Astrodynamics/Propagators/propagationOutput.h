@@ -433,7 +433,9 @@ boost::function< Eigen::VectorXd( ) > createDependentVariableListFunction(
     return boost::bind( &evaluateListOfFunctions, doubleFunctionList, vectorFunctionList, totalVariableSize );
 }
 
-}
 
-}
+} // namespace propagators
+
+} // namespace tudat
+
 #endif // TUDAT_PROPAGATIONOUTPUT_H
