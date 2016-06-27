@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_SPHERICALSTATECONVERSIONS_CPP
-#define TUDAT_SPHERICALSTATECONVERSIONS_CPP
+#ifndef TUDAT_SPHERICALSTATECONVERSIONS_H
+#define TUDAT_SPHERICALSTATECONVERSIONS_H
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
@@ -26,6 +26,8 @@ namespace orbital_element_conversions
 //! Calculate current heading angle.
 /*!
  * Calculate heading angle from velocity in vertical (LVLH) frame.
+ * NOTE: This function can be used for both ground- and airspeed-based variables, with both the input and output
+ * always w.r.t. the same velocity vector.
  * \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
  * \return Current heading angle.
  */
@@ -36,6 +38,8 @@ double calculateHeadingAngle(
 /*!
  *  Calculate flight path angle from velocity in vertical (LVLH) frame.
  *  Angle is defined positive upwards.
+ * NOTE: This function can be used for both ground- and airspeed-based variables, with both the input and output
+ * always w.r.t. the same velocity vector.
  *  \param velocityInVerticalFrame Current Cartesian velocity in vertical frame.
  *  \return Current flight path angle.
  */
@@ -50,6 +54,8 @@ double calculateFlightPathAngle(
  * is denoted by the radius rate, latitude rate and longitude rate.
  * The spherical orbital state is often used to define entry (initial) conditions. The order of the entries in the
  * return vector are defined by the SphericalOrbitalStateElementIndices enum.
+ * NOTE: This function can be used for both ground- and airspeed-based variables, with both the input and output
+ * always w.r.t. the same velocity vector.
  * \param bodyFixedCartesianState Vehicle state in a frame fixed to the body w.r.t. which the state is to be computed.
  * \return Spherical orbital state representation of bodyFixedCartesianState
  */
@@ -66,6 +72,8 @@ basic_mathematics::Vector6d convertCartesianToSphericalOrbitalState(
  * return vector are defined by the SphericalOrbitalStateElementIndices enum.
  * \param sphericalOrbitalState Vehicle spherical orbital state in a frame fixed to the body w.r.t. which the state is to be
  * computed.
+ * NOTE: This function can be used for both ground- and airspeed-based variables, with both the input and output
+ * always w.r.t. the same velocity vector.
  * \return Cartesian state representation of sphericalOrbitalState (in same frame).
  */
 basic_mathematics::Vector6d convertSphericalOrbitalToCartesianState(
@@ -76,4 +84,4 @@ basic_mathematics::Vector6d convertSphericalOrbitalToCartesianState(
 } // namespace orbital_element_conversions
 
 
-#endif // TUDAT_SPHERICALSTATECONVERSIONS_CPP
+#endif // TUDAT_SPHERICALSTATECONVERSIONS_H
