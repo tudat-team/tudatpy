@@ -207,7 +207,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
                         boost::lexical_cast< std::string >(
-                                            accelerationDependentVariableSettings->accelerationModeType ) +
+                                            accelerationDependentVariableSettings->accelerationModeType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
@@ -343,7 +343,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
                         boost::lexical_cast< std::string >(
-                                            accelerationDependentVariableSettings->accelerationModeType ) +
+                                            accelerationDependentVariableSettings->accelerationModeType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
