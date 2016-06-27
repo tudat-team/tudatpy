@@ -232,9 +232,6 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     boost::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > currentInterpolator;
 
-    input_output::writeDataMapToTextFile( solutionSet2, "solution2.dat" );
-    input_output::writeDataMapToTextFile( solutionSet3, "solution3.dat" );
-
     while( currentTime < finalEphemerisTime - stepSize )
     {
         // Retrieve data from interpolators; transform to inertial frames and compare.
