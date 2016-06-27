@@ -163,7 +163,8 @@ void integrateEquations(
 
 }
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
+
 #endif // TUDAT_INTEGRATEEQUATIONS_H

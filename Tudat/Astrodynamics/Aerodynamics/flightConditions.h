@@ -1,5 +1,15 @@
-#ifndef FLIGHTCONDITIONS_H
-#define FLIGHTCONDITIONS_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_FLIGHTCONDITIONS_H
+#define TUDAT_FLIGHTCONDITIONS_H
 
 #include <vector>
 
@@ -85,7 +95,7 @@ public:
     /*!
      *  Function to return density that was set by previous call of updateConditions or
      *  updateDensity function.
-     *  \return Current altitude
+     *  \return Current density
      */
     double getCurrentDensity( ) const
     {
@@ -95,13 +105,18 @@ public:
     //! Function to return airspeed
     /*!
      *  Function to return airspeed that was set by previous call of updateConditions.
-     *  \return Current altitude
+     *  \return Current airspeed
      */
     double getCurrentAirspeed( ) const
     {
         return currentAirspeed_;
     }
 
+    //! Function to return speed of sound
+    /*!
+     *  Function to return speed of from quantities computed by previous call of updateConditions.
+     *  \return Current speed of sound.
+     */
     double getCurrentSpeedOfSound( )
     {
         return atmosphereModel_->getSpeedOfSound(
@@ -138,6 +153,18 @@ public:
     {
         aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
     }
+
+    //! Function to set custom dependency of aerodynamic coefficients
+    /*!
+     * Function to set custom dependency of aerodynamic coefficients. If needed, the
+     * AerodynamicCoefficientsIndependentVariables enum may be expanded to include e.g. control surface deflections, the
+     * values of which will then be retrieved from the function set here
+     * \param independentVariable Identifier of independent variable
+     * \param coefficientDependency Function returning the current value of the independent variable.
+     */
+    void setAerodynamicCoefficientsIndependentVariableFunction(
+            const AerodynamicCoefficientsIndependentVariables independentVariable,
+            const boost::function< double( ) > coefficientDependency );
 
     //! Function to return current central body-fixed state of vehicle.
     /*!
@@ -214,11 +241,15 @@ private:
     //! Current time of propagation.
     double currentTime_;
 
+    //! List of custom functions for aerodynamic coefficient dependencies.
+    std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
+
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitude_;
 };
 
-}
+} // namespace aerodynamics
 
-}
-#endif // FLIGHTCONDITIONS_H
+} // namespace tudat
+
+#endif // TUDAT_FLIGHTCONDITIONS_

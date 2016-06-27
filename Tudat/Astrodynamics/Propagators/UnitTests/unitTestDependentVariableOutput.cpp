@@ -40,6 +40,8 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_dependent_variable_output )
 
+//! Propagate entry of Apollo capsule, and save a list of dependent variables during entry. The saved dependent variables
+//! are compred against theoretical/manual values in this test.
 BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 {
     using namespace ephemerides;
@@ -59,8 +61,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
-
-    ///////////////////////////////////////////////////////////////////////////
 
     // Set simulation start epoch.
     const double simulationStartEpoch = 0.0;
@@ -83,15 +83,10 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    // --------------------------------------------------------------------------------------------
-    // CONVERT INITIAL STATE FROM KEPLERIAN TO CARTESIAN ELEMENTS
-    // --------------------------------------------------------------------------------------------
-
     // Convert apollo state from Keplerian elements to Cartesian elements.
     const Vector6d apolloInitialState = convertKeplerianToCartesianElements(
                 apolloInitialStateInKeplerianElements,
                 getBodyGravitationalParameter( "Earth" ) );
-
 
     // Define simulation body settings.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
@@ -102,12 +97,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
     // Create Earth object
     simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
-
-    // Define propagator settings variables.
-    SelectedAccelerationMap accelerationMap;
-    std::vector< std::string > bodiesToPropagate;
-    std::vector< std::string > centralBodies;
-    Eigen::VectorXd systemInitialState = Eigen::VectorXd( 6 );
 
     // Create vehicle objects.
     bodyMap[ "Apollo" ] = boost::make_shared< simulation_setup::Body >( );
@@ -129,15 +118,20 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-
     accelerationMap[  "Apollo" ] = accelerationsOfApollo;
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
 
     bodiesToPropagate.push_back( "Apollo" );
     centralBodies.push_back( "Earth" );
 
     // Set initial state
-    systemInitialState.segment( 0, 6 ) = apolloInitialState;
+    basic_mathematics::Vector6d systemInitialState = apolloInitialState;
 
+    // Define list of dependent variables to save.
     std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
                 boost::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "Apollo" ) );
@@ -184,26 +178,31 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     SingleArcDynamicsSimulator< > dynamicsSimulator(
                 bodyMap, integratorSettings, propagatorSettings, true, false, false );
 
+    // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
             dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > dependentVariableSoution =
             dynamicsSimulator.getDependentVariableHistory( );
 
+    // Iterate over results for dependent variables, and check against manually retrieved values.
     basic_mathematics::Vector6d currentStateDerivative;
     Eigen::Vector3d manualCentralGravity;
-
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSoution.begin( );
          variableIterator != dependentVariableSoution.end( ); variableIterator++ )
     {
         currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                     variableIterator->first, numericalSolution.at( variableIterator->first ) );
 
+        // Manually compute central gravity.
         manualCentralGravity =
                 -bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( ) *
                 variableIterator->second.segment( 5, 3 ) /
                 std::pow( variableIterator->second.segment( 5, 3 ).norm( ), 3 );
 
+        // Check output time consistency
         BOOST_CHECK_EQUAL( numericalSolution.count( variableIterator->first ), 1 );
+
+        // Check relative position and velocity against state
         for( unsigned int i = 0; i < 3; i++ )
         {
             BOOST_CHECK_SMALL(
@@ -214,13 +213,17 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                                    variableIterator->second( 8 + i ) ), 5.0E-11 );
         }
 
+        // Check central gravity acceleration
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     manualCentralGravity.segment( 0, 3 ),
                     variableIterator->second.segment( 11, 3 ), ( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+        // Check total acceleration
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( currentStateDerivative.segment( 3, 3 ) ),
                     (  variableIterator->second.segment( 14, 3 ) ), std::numeric_limits< double >::epsilon( ) );
 
+        // Check relative position and velocity norm.
         BOOST_CHECK_SMALL(
                     std::fabs( ( numericalSolution.at( variableIterator->first ).segment( 0, 3 ) ).norm( ) -
                                variableIterator->second( 2 ) ), 2.0E-5 );
@@ -228,14 +231,18 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     std::fabs( ( numericalSolution.at( variableIterator->first ).segment( 3, 3 ) ).norm( ) -
                                variableIterator->second( 3 ) ), 2.0E-11 );
 
+        // Check central gravity acceleration norm
         BOOST_CHECK_CLOSE_FRACTION(
                     manualCentralGravity.norm( ),
                     variableIterator->second( 4 ), 5.0 * std::numeric_limits< double >::epsilon( ) );
 
+        // Check Mach number
         BOOST_CHECK_CLOSE_FRACTION(
                     bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentAirspeed( ) /
                     bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentSpeedOfSound( ),
                     variableIterator->second( 0 ), std::numeric_limits< double >::epsilon( ) );
+
+        // Check altitude.
         BOOST_CHECK_CLOSE_FRACTION(
                     bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentAltitude( ),
                     variableIterator->second( 1 ), std::numeric_limits< double >::epsilon( ) );

@@ -516,9 +516,9 @@ protected:
 
 };
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 
 #endif // TUDAT_DYNAMICSSIMULATOR_H
