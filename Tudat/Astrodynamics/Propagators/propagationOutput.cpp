@@ -105,6 +105,7 @@ int getDependentVariableSize(
     return variableSize;
 }
 
-}
 
-}
+} // namespace propagators
+
+} // namespace tudat

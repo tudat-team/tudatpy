@@ -183,8 +183,9 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         const simulation_setup::NamedBodyMap& bodyMap,
         const double initialTimeStep );
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
+
 
 #endif // TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H

@@ -331,9 +331,10 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     return integratedStateList;
 }
 
-}
 
-}
+} // namespace propagators
+
+} // namespace tudat
 
 namespace std
 {
@@ -352,6 +353,6 @@ struct hash< tudat::propagators::IntegratedStateType >
     }
 };
 
-}
+} // namespace std
 
 #endif // TUDAT_PROPAGATIONSETTINGS_H
