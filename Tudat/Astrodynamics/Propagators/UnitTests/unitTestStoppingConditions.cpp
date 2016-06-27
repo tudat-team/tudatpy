@@ -42,28 +42,34 @@ BOOST_AUTO_TEST_SUITE( test_propagation_stopping_conditions )
 
 boost::shared_ptr< propagators::PropagationTerminationSettings > getTerminationSettings( const int testType )
 {
+
+    // Define stopping conditions, depending on test case.
     boost::shared_ptr< propagators::PropagationTerminationSettings > terminationSettings;
     switch( testType )
     {
+    // Stop at given time.
     case 0:
         terminationSettings = boost::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 );
         break;
+    // Stop at given Mach number
     case 1:
         terminationSettings = boost::make_shared< propagators::PropagationDependentVariableTerminationSettings >(
                     boost::make_shared< propagators::SingleDependentVariableSaveSettings >(
                         propagators::mach_number_dependent_variable, "Apollo" ), 3.0, 1 );
         break;
+    // Stop at given altitude
     case 2:
         terminationSettings = boost::make_shared< propagators::PropagationDependentVariableTerminationSettings >(
                     boost::make_shared< propagators::SingleDependentVariableSaveSettings >(
                         propagators::altitude_dependent_variable, "Apollo" ), 10.0E3, 1 );
         break;
+    // Stop at given density
     case 3:
         terminationSettings = boost::make_shared< propagators::PropagationDependentVariableTerminationSettings >(
                     boost::make_shared< propagators::SingleDependentVariableSaveSettings >(
                         propagators::local_density_dependent_variable, "Apollo" ), 1.1, 0);
         break;
-
+    // Stop when a single of the conditions 0-3 is fulfilled.
     case 4:
     {
         std::vector< boost::shared_ptr< propagators::PropagationTerminationSettings > > constituentSettings;
@@ -76,6 +82,7 @@ boost::shared_ptr< propagators::PropagationTerminationSettings > getTerminationS
                     constituentSettings, 1 );
         break;
     }
+    // Stop when all of the conditions 0-3 is fulfilled.
     case 5:
     {
         std::vector< boost::shared_ptr< propagators::PropagationTerminationSettings > > constituentSettings;
@@ -112,8 +119,6 @@ void performSimulation( const int testType )
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
 
-    ///////////////////////////////////////////////////////////////////////////
-
     // Set simulation start epoch.
     const double simulationStartEpoch = 0.0;
 
@@ -135,15 +140,10 @@ void performSimulation( const int testType )
             = unit_conversions::convertDegreesToRadians( 23.4 );
     apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
 
-    // --------------------------------------------------------------------------------------------
-    // CONVERT INITIAL STATE FROM KEPLERIAN TO CARTESIAN ELEMENTS
-    // --------------------------------------------------------------------------------------------
-
     // Convert apollo state from Keplerian elements to Cartesian elements.
     const Vector6d apolloInitialState = convertKeplerianToCartesianElements(
                 apolloInitialStateInKeplerianElements,
                 getBodyGravitationalParameter( "Earth" ) );
-
 
 
     // Define simulation body settings.
@@ -155,7 +155,6 @@ void performSimulation( const int testType )
     bodySettings[ "Earth" ]->gravityFieldSettings =
             boost::make_shared< simulation_setup::GravityFieldSettings >(
                 central_spice );
-
     bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
@@ -165,7 +164,6 @@ void performSimulation( const int testType )
     SelectedAccelerationMap accelerationMap;
     std::vector< std::string > bodiesToPropagate;
     std::vector< std::string > centralBodies;
-    Eigen::VectorXd systemInitialState = Eigen::VectorXd( 6 );
 
     // Create vehicle objects.
     bodyMap[ "Apollo" ] = boost::make_shared< simulation_setup::Body >( );
@@ -188,9 +186,9 @@ void performSimulation( const int testType )
     centralBodies.push_back( "Earth" );
 
     // Set initial state
-    systemInitialState.segment( 0, 6 ) = apolloInitialState;
+    basic_mathematics::Vector6d systemInitialState = apolloInitialState;
 
-    // Create acceleration models and propagation settings.
+    // Create acceleration models and propagation settings, using current test case to retrieve stop settings..
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -207,16 +205,21 @@ void performSimulation( const int testType )
 
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
             dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+    // Check whether propagation has stopped at given conditions
     switch( testType )
     {
+    // Check whether propagation stopped when passing t=3200.0
     case 0:
     {
 
-        BOOST_CHECK_EQUAL( ( (--( numericalSolution.end( ) ) )->first >= 3200.0 ) && ( (--(--( numericalSolution.end( ) ) ) )->first < 3200.0 ), true );
+        BOOST_CHECK_EQUAL( ( (--( numericalSolution.end( ) ) )->first >= 3200.0 ) &&
+                           ( (--(--( numericalSolution.end( ) ) ) )->first < 3200.0 ), true );
         break;
     }
     case 1:
     {
+        // Compute Mach number for last two time steps, and check whether last step was first to pass below Mach=3
         boost::shared_ptr< DynamicsStateDerivativeModel< double, double > > stateDerivativeModel =
                 dynamicsSimulator.getDynamicsStateDerivative( );
         stateDerivativeModel->computeStateDerivative(
@@ -233,6 +236,7 @@ void performSimulation( const int testType )
     }
     case 2:
     {
+        // Compute altitude for last two time steps, and check whether last step was first to pass below altitude = 10 km
         boost::shared_ptr< DynamicsStateDerivativeModel< double, double > > stateDerivativeModel =
                 dynamicsSimulator.getDynamicsStateDerivative( );
         stateDerivativeModel->computeStateDerivative(
@@ -249,6 +253,7 @@ void performSimulation( const int testType )
     }
     case 3:
     {
+        // Compute density for last two time steps, and check whether last step was first to pass below density = 1.1 kg/m3
         boost::shared_ptr< DynamicsStateDerivativeModel< double, double > > stateDerivativeModel =
                 dynamicsSimulator.getDynamicsStateDerivative( );
         stateDerivativeModel->computeStateDerivative(
@@ -263,6 +268,7 @@ void performSimulation( const int testType )
 
         break;
     }
+    // Check whether at least a single of the conditions for case 0-3 was first reached at last time step.
     case 4:
     {
         boost::shared_ptr< DynamicsStateDerivativeModel< double, double > > stateDerivativeModel =
@@ -289,6 +295,7 @@ void performSimulation( const int testType )
 
         break;
     }
+        // Check whether all conditions for case 0-3 was first reached at last time step.
     case 5:
     {
         boost::shared_ptr< DynamicsStateDerivativeModel< double, double > > stateDerivativeModel =
@@ -324,7 +331,8 @@ void performSimulation( const int testType )
     }
 }
 
-
+//! Test to perform propagation of Apollo capsule for various stopping conditions, and checking whether the final state
+//! corresponds to condition that was given.
 BOOST_AUTO_TEST_CASE( testPropagationStoppingConditions )
 {
     for( unsigned int i = 0; i < 6; i++ )
