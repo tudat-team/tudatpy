@@ -113,17 +113,17 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
     // Define acceleration model settings.
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[  "Apollo" ] = accelerationsOfApollo;
-
-    // Define propagator settings variables.
-    SelectedAccelerationMap accelerationMap;
-    std::vector< std::string > bodiesToPropagate;
-    std::vector< std::string > centralBodies;
 
     bodiesToPropagate.push_back( "Apollo" );
     centralBodies.push_back( "Earth" );

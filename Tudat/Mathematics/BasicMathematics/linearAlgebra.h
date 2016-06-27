@@ -106,7 +106,7 @@ double getVectorNorm( const Eigen::Vector3d& vector );
 //! Computes the norm of a 3d vector from a vector-returning function.
 /*!
  * Computes the norm of a 3d vector from a vector-returning function.
- * \param vector Function returning the vector for which the norm is to be computed
+ * \param vectorFunction Function returning the vector for which the norm is to be computed
  * \return Vector norm
  */
 double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction );
