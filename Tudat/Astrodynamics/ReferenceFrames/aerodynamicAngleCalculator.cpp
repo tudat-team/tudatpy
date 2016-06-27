@@ -12,6 +12,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
@@ -48,9 +49,10 @@ void AerodynamicAngleCalculator::update( )
                     currentAerodynamicAngles_.at( latitude_angle ) ) *
                 currentBodyFixedState_.segment( 3, 3 );
 
-        currentAerodynamicAngles_[ heading_angle ] = calculateHeadingAngle( verticalFrameVelocity );
+        currentAerodynamicAngles_[ heading_angle ] =
+                orbital_element_conversions::calculateHeadingAngle( verticalFrameVelocity );
         currentAerodynamicAngles_[ flight_path_angle ] =
-                calculateFlightPathAngle( verticalFrameVelocity );
+                orbital_element_conversions::calculateFlightPathAngle( verticalFrameVelocity );
 
         currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
         currentAerodynamicAngles_[ angle_of_sideslip ] = angleOfSideslipFunction_( );

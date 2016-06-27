@@ -358,18 +358,6 @@ Eigen::Quaterniond getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternio
             angleOfAttack, angleOfSideslip ).inverse( );
 }
 
-//! Calculate current heading angle.
-double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame )
-{
-    return std::atan2( velocityInVerticalFrame( 1 ), velocityInVerticalFrame( 0 ) );
-}
-
-//! Calculatre current flight path angle.
-double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame )
-{
-    return -std::asin( velocityInVerticalFrame( 2 ) / velocityInVerticalFrame.norm( ) );
-}
-
 
 } // namespace reference_frames
 } // namespace tudat

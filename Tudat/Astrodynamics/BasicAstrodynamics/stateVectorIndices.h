@@ -75,6 +75,17 @@ enum ModifiedEquinoctialElementVectorIndices
     trueLongitudeIndex
 };
 
+//! Spherical orbital state element indices
+enum SphericalOrbitalStateElementIndices
+{
+    radiusIndex,
+    latitudeIndex,
+    longitudeIndex,
+    speedIndex,
+    flightPathIndex,
+    headingAngleIndex
+};
+
 //! Unified State Model indices.
 enum UnifiedStateModelElementIndices
 {
