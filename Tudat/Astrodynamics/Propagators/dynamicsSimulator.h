@@ -106,10 +106,10 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
                                      boost::make_shared< ephemerides::ReferenceFrameManager >( bodyMap ) );
 }
 
-//! Function to get the states of single, w.r.t. some set of central body, at the requested time.
+//! Function to get the states of single body, w.r.t. some central body, at the requested time.
 /*!
-* Function to get the states of single, w.r.t. some set of central body, at the requested time., creates
-* frameManager from input data.
+* Function to get the states of  single body, w.r.t. some central body, at the requested time. This function creates
+* frameManager from input data to perform all required conversions.
 * \param bodyToIntegrate Bodies for which to retrieve state
 * \param centralBody Origins w.r.t. which to retrieve state of bodyToIntegrate.
 * \param bodyMap List of bodies to use in simulations.
@@ -146,9 +146,9 @@ public:
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
-     *  after propagation and resetting ephemerides.
+     *  after propagation and resetting ephemerides (default true).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
-     *  ephemerides.
+     *  ephemerides (default true).
      */
     DynamicsSimulator(
             const  simulation_setup::NamedBodyMap& bodyMap,
@@ -251,17 +251,17 @@ public:
         return propagatorSettings_;
     }
 
-    //! Function to get the object resposible for updating the environment based on the current state and time.
+    //! Function to get the object that updates the environment.
     /*!
-     * Function to get the object resposible for updating the environment based on the current state and time.
-     * \return Object resposible for updating the environment based on the current state and time.
+     * Function to get the object responsible for updating the environment based on the current state and time.
+     * \return Object responsible for updating the environment based on the current state and time.
      */
     boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > getEnvironmentUpdater( )
     {
         return environmentUpdater_;
     }
 
-    //! Function to get the object that updates current environment and returns state derivative from single function call.
+    //! Function to get the object that updates and returns state derivative
     /*!
      * Function to get the object that updates current environment and returns state derivative from single function call
      * \return Object that updates current environment and returns state derivative from single function call
@@ -295,9 +295,9 @@ protected:
     std::map< IntegratedStateType, std::vector< boost::shared_ptr<
     IntegratedStateProcessor< TimeType, StateScalarType > > > > integratedStateProcessors_;
 
-    //! Object resposible for updating the environment based on the current state and time.
+    //! Object responsible for updating the environment based on the current state and time.
     /*!
-     *  Object resposible for updating the environment based on the current state and time. Calling the updateEnvironment
+     *  Object responsible for updating the environment based on the current state and time. Calling the updateEnvironment
      * function automatically updates all dependent variables that are needed to calulate the state derivative.
      */
     boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater_;
@@ -381,11 +381,11 @@ public:
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
      *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated
-     *  immediately at the end of the contructor or not.
+     *  immediately at the end of the contructor or not (default true).
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
-     *  after propagation and resetting ephemerides.
+     *  after propagation and resetting ephemerides (default true).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
-     *  ephemerides.
+     *  ephemerides (default true).
      */
     SingleArcDynamicsSimulator(
             const  simulation_setup::NamedBodyMap& bodyMap,
@@ -454,6 +454,11 @@ public:
         return equationsOfMotionNumericalSolution_;
     }
 
+    //! Function to return the map of dependent variable history that was saved during numerical propagation.
+    /*!
+     * Function to return the map of dependent variable history that was saved during numerical propagation.
+     * \return Map of dependent variable history that was saved during numerical propagation.
+     */
     std::map< TimeType, Eigen::VectorXd > getDependentVariableHistory( )
     {
         return dependentVariableHistory_;
@@ -508,10 +513,11 @@ protected:
      *  Map of state history of numerically integrated bodies, i.e. the result of the numerical integration, transformed
      *  into the 'conventional form' (\sa SingleStateTypeDerivative::convertToOutputSolution). Key of map denotes time,
      *  values are concatenated vectors of integrated body states (order defined by propagatorSettings_).
-     *  NOTEL this map is empty if clearNumericalSolutions_ is set to true.
+     *  NOTE: this map is empty if clearNumericalSolutions_ is set to true.
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution_;
 
+    //! Map of dependent variable history that was saved during numerical propagation.
     std::map< TimeType, Eigen::VectorXd > dependentVariableHistory_;
 
 };

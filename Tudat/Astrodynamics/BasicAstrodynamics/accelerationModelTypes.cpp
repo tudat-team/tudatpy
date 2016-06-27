@@ -89,6 +89,7 @@ AvailableAcceleration getAccelerationModelType(
 
 }
 
+//! Function to get all acceleration models of a given type from a list of models
 std::vector< boost::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfType(
         const std::vector< boost::shared_ptr< AccelerationModel3d > >& fullList,
         const AvailableAcceleration modelType )
