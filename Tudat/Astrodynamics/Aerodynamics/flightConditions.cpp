@@ -8,8 +8,11 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <iostream>
+
 #include <boost/shared_ptr.hpp>
 
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -20,6 +23,8 @@ namespace tudat
 namespace aerodynamics
 {
 
+//! Constructor, sets objects and functions from which relevant environment and state variables
+//! are retrieved.
 FlightConditions::FlightConditions(
         const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
         const boost::function< double( const Eigen::Vector3d ) > altitudeFunction,
@@ -73,7 +78,6 @@ void FlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
     }
 }
 
-
 //! Function to update all flight conditions.
 void FlightConditions::updateConditions( const double currentTime )
 {
@@ -118,8 +122,9 @@ void FlightConditions::updateConditions( const double currentTime )
         //Calculate Mach number if needed.
         case mach_number_dependent:
             aerodynamicCoefficientIndependentVariables.push_back(
-                        currentAirspeed_ / atmosphereModel_->getSpeedOfSound(
-                            currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) );
+                        aerodynamics::computeMachNumber(
+                        currentAirspeed_, atmosphereModel_->getSpeedOfSound(
+                            currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) ) );
             break;
         //Get angle of attack if needed.
         case angle_of_attack_dependent:
@@ -142,7 +147,6 @@ void FlightConditions::updateConditions( const double currentTime )
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
                             reference_frames::angle_of_sideslip ) );
             break;
-        // Check if value is custom-defined.
         default:
             if( customCoefficientDependencies_.count(
                         aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) == 0 )
@@ -168,6 +172,6 @@ void FlightConditions::updateConditions( const double currentTime )
 }
 
 
-} // namespace aerodynamics
+}
 
-} // namespace tudat
+}

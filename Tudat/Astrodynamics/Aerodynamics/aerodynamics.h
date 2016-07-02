@@ -342,8 +342,25 @@ double computeShockTotalPressureRatio( double normalMachNumber,
 double computeShockDeflectionAngle( double shockAngle, double machNumber,
                                     double ratioOfSpecificHeats );
 
+//! Function to compute the speed of sounds in a gas
+/*!
+ * Function to compute the speed of sounds in a gas
+ * \param temperature Temperature of atmosphere
+ * \param ratioOfSpecificHeats Ratio of specific heats of gas
+ * \param specificGasConstant Specific gas constant of gas
+ * \return Speed of sound in gas.
+ */
 double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
                             const double specificGasConstant );
+
+//! Compute Mach number
+/*!
+ * Compute Mach number
+ * \param speed Airspeed of object for which Mach number is to be computed.
+ * \param speedOfSound Speed of sound for atmosphere position at which Mach number is to be computed.
+ * \return Mach number
+ */
+double computeMachNumber( const double speed, const double speedOfSound );
 
 } // namespace aerodynamics
 } // namespace tudat

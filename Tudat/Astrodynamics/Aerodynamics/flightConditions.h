@@ -47,6 +47,8 @@ public:
      *  \param atmosphereModel Atmosphere model of atmosphere through which vehicle is flying
      *  \param altitudeFunction Function returning the altitude of the vehicle as a function of
      *  its body-fixed position.
+     *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment)
+     *  coefficients are retrieved
      *  \param stateOfVehicle Function returning the current state of the vehicle
      *  (in the global frame)
      *  \param stateOfCentralBody Function returning the current state of the central body
@@ -108,6 +110,17 @@ public:
     double getCurrentAirspeed( ) const
     {
         return currentAirspeed_;
+    }
+
+    //! Function to return speed of sound
+    /*!
+     *  Function to return speed of from quantities computed by previous call of updateConditions.
+     *  \return Current speed of sound.
+     */
+    double getCurrentSpeedOfSound( )
+    {
+        return atmosphereModel_->getSpeedOfSound(
+                    currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ );
     }
 
     //! Function to return the current time of the FlightConditions
@@ -201,9 +214,6 @@ private:
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
 
-    //! List of custom functions for aerodynamic coefficient dependencies.
-    std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
-
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
@@ -231,6 +241,9 @@ private:
     //! Current time of propagation.
     double currentTime_;
 
+    //! List of custom functions for aerodynamic coefficient dependencies.
+    std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
+
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitude_;
 };
@@ -238,4 +251,5 @@ private:
 } // namespace aerodynamics
 
 } // namespace tudat
+
 #endif // TUDAT_FLIGHTCONDITIONS_H

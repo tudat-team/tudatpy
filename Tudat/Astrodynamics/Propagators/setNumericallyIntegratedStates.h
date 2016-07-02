@@ -441,7 +441,7 @@ public:
             const simulation_setup::NamedBodyMap& bodyMap,
             const std::vector< std::string >& bodiesToIntegrate ):
         IntegratedStateProcessor<  TimeType, StateScalarType >(
-            transational_state, std::make_pair( startIndex, bodiesToIntegrate.size( ) ) ),
+            body_mass_state, std::make_pair( startIndex, bodiesToIntegrate.size( ) ) ),
         bodyMap_( bodyMap ), bodiesToIntegrate_( bodiesToIntegrate )
     { }
 

@@ -201,7 +201,6 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
         const std::vector< std::string >& propagatedBodies,
         const std::vector< std::string >& centralBodies );
 
-
 } // namespace simulation_setup
 
 } // namespace tudat
