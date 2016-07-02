@@ -108,7 +108,6 @@ add_executable(test_MultiRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGME
 setup_custom_test_program(test_MultiRevolutionLambertTargeterIzzo "${SRCROOT}${MISSIONSEGMENTSDIR}")
 target_link_libraries(test_MultiRevolutionLambertTargeterIzzo tudat_mission_segments tudat_root_finders tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
-add_executable(test_MathematicalShapeFunctions
-"${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestMathematicalShapeFunctions.cpp")
+add_executable(test_MathematicalShapeFunctions "${SRCROOT}${MISSIONSEGMENTSDIR}/UnitTests/unitTestMathematicalShapeFunctions.cpp")
 setup_custom_test_program(test_MathematicalShapeFunctions "${SRCROOT}${MISSIONSEGMENTSDIR}")
 target_link_libraries(test_MathematicalShapeFunctions tudat_mission_segments tudat_basic_mathematics ${Boost_LIBRARIES})

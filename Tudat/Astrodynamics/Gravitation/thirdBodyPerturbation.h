@@ -144,8 +144,8 @@ public:
         if( !( this->currentTime_ == currentTime ) )
         {
             // Update two constituent acceleration models.
-            accelerationModelForBodyUndergoingAcceleration_->updateMembers( );
-            accelerationModelForCentralBody_->updateMembers( );
+            accelerationModelForBodyUndergoingAcceleration_->updateMembers( currentTime );
+            accelerationModelForCentralBody_->updateMembers( currentTime );
         }
     }
 

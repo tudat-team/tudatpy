@@ -149,12 +149,12 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
         boost::shared_ptr< IntegratorSettings< > > integratorSettings =
                 boost::make_shared< IntegratorSettings< > >
                 ( rungeKutta4,
-                  initialEphemerisTime, finalEphemerisTime, 250.0 );
+                  initialEphemerisTime, 250.0 );
 
         // Create propagation settings (Cowell)
         boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForPointMassCentralBodies )
 
         // Create propagation settings (Encke)
         propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, encke );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, encke );
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -362,13 +362,13 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         // Define propagator settings (Cowell)
         boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch );
 
         // Define integrator settings.
         const double fixedStepSize = 5.0;
         boost::shared_ptr< IntegratorSettings< > > integratorSettings =
                 boost::make_shared< IntegratorSettings< > >
-                ( rungeKutta4, 0.0, simulationEndEpoch, fixedStepSize );
+                ( rungeKutta4, 0.0, fixedStepSize );
 
         // Propagate orbit with Cowell method
         SingleArcDynamicsSimulator< double > dynamicsSimulator2(
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
 
         // Create propagation settings (Encke)
         propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, encke );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch, encke );
 
         // Propagate orbit with Encke method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
         {
             for( int j= 0; j< 3; j++ )
             {
-                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second )( j ), 0.01 );
+                BOOST_CHECK_SMALL( ( enckeIterator->second - cowellIterator->second )( j ), 0.02 );
             }
 
             for( int j = 3; j < 6; j++ )

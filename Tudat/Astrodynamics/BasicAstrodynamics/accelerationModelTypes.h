@@ -98,6 +98,16 @@ AvailableAcceleration getAccelerationModelType(
 AvailableMassRateModels getMassRateModelType(
         const boost::shared_ptr< MassRateModel > massRateModel );
 
+//! Function to get all acceleration models of a given type from a list of models
+/*!
+ * Function to get all acceleration models of a given type from a list of models
+ * \param fullList List of acceleration models
+ * \param modelType Type for which all models are to be retrieved
+ * \return Subset of fullList for which the acceleration model type is modelType
+ */
+std::vector< boost::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfType(
+        const std::vector< boost::shared_ptr< AccelerationModel3d > >& fullList,
+        const AvailableAcceleration modelType );
 
 } // namespace basic_astrodynamics
 

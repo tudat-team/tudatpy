@@ -222,12 +222,12 @@ private:
  *  \param referenceRadiusIndex
  *  \param coefficients Spherical harmonics coefficients (first is cosine, second is sine).
  *  \return Pair of gravitational parameter and reference radius, values are non-NaN if
- *  gravitationalParameterIndex and referenceRadiusIndex are non-NaN.
+ *  gravitationalParameterIndex and referenceRadiusIndex are >=0.
  */
 std::pair< double, double > readGravityFieldFile(
         const std::string& fileName, const int maximumDegree, const int maximumOrder,
         std::pair< Eigen::MatrixXd, Eigen::MatrixXd >& coefficients,
-        const unsigned int gravitationalParameterIndex = TUDAT_NAN, const unsigned int referenceRadiusIndex = TUDAT_NAN );
+        const int gravitationalParameterIndex = -1, const int referenceRadiusIndex = -1 );
 
 //! Function to create a gravity field model.
 /*!

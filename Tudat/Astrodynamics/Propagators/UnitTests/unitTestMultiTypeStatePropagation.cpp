@@ -116,7 +116,8 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
 
     boost::shared_ptr< PropagatorSettings< double > > translationalPropagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState );
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+              boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create mass rate model and mass propagation settings
     std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
@@ -126,7 +127,8 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     initialMass( 0 ) = 500.0;
     boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
             boost::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Asterix" ), massRateModels, initialMass );
+                boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
+                boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create total propagator settings, depending on current case.
     boost::shared_ptr< PropagatorSettings< double > > propagatorSettings;
@@ -145,14 +147,15 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
         propagatorSettingsList.push_back( massPropagatorSettings );
 
         propagatorSettings = boost::make_shared< MultiTypePropagatorSettings< double > >(
-                    propagatorSettingsList );
+                    propagatorSettingsList,
+                    boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
     }
 
 
 
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, 0.0, simulationEndEpoch, fixedStepSize );
+            ( rungeKutta4, 0.0, fixedStepSize );
 
     // Create simulation object and propagate dynamics.
     SingleArcDynamicsSimulator< > dynamicsSimulator(

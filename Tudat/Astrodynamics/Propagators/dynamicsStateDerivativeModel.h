@@ -460,6 +460,119 @@ private:
             currentStatesPerTypeInConventionalRepresentation_;
 };
 
+//! Function to retrieve a single given acceleration model from a list of models
+/*!
+ *  Function to retrieve a single given acceleration model, determined by
+ *  the body exerting and undergoing the acceleration, as well as the acceleration type, from a list of
+ *  state derivative models.
+ *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
+ *  \param bodyExertingAcceleration Name of body exerting the acceleration.
+ *  \param stateDerivativeModels Complete list of state derivativ models
+ *  \param accelerationModeType Type of acceleration model that is to be retrieved.
+ */
+template< typename TimeType = double, typename StateScalarType = double >
+std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationBetweenBodies(
+        const std::string bodyUndergoingAcceleration,
+        const std::string bodyExertingAcceleration,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
+        const basic_astrodynamics::AvailableAcceleration accelerationModeType )
+
+{
+    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+            listOfSuitableAccelerationModels;
+
+    // Retrieve acceleration models
+    if( stateDerivativeModels.count( propagators::transational_state ) == 1 )
+    {
+        basic_astrodynamics::AccelerationMap accelerationModelList =
+                boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                    stateDerivativeModels.at( propagators::transational_state ).at( 0 ) )->getAccelerationsMap( );
+        if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
+        {
+
+            std::string errorMessage = "Error when getting acceleration between bodies, no translational dynamics models acting on " +
+                    bodyUndergoingAcceleration + " are found";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            // Retrieve accelerations acting on bodyUndergoingAcceleration
+            if( accelerationModelList.at( bodyUndergoingAcceleration ).count( bodyExertingAcceleration ) == 0 )
+            {
+                std::string errorMessage = "Error when getting acceleration between bodies, no translational dynamics models by " +
+                        bodyExertingAcceleration + " acting on " + bodyUndergoingAcceleration + " are found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                // Retrieve required acceleration.
+                listOfSuitableAccelerationModels = basic_astrodynamics::getAccelerationModelsOfType(
+                            accelerationModelList.at( bodyUndergoingAcceleration ).at( bodyExertingAcceleration ), accelerationModeType );
+            }
+        }
+    }
+    else
+    {
+        std::string errorMessage = "Error when getting acceleration between bodies, no translational dynamics models found";
+        throw std::runtime_error( errorMessage );
+    }
+    return listOfSuitableAccelerationModels;
+}
+
+//! Function to retrieve the state derivative models for translational dynamics of given body.
+/*!
+ * Function to retrieve the state derivative models for translational dynamics (object of derived class from
+ * NBodyStateDerivative) of given body from full list of state derivative models
+ *  \param bodyUndergoingAcceleration Name of body for which state derivative model is to be retrieved
+ *  \param stateDerivativeModels Complete list of state derivativ models
+ */
+template< typename TimeType = double, typename StateScalarType = double >
+boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTranslationalStateDerivativeModelForBody(
+        const std::string bodyUndergoingAcceleration,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
+
+{
+    bool modelFound = 0;
+    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > modelForBody;
+
+    // Check if translational state derivative models exists
+    if( stateDerivativeModels.count( propagators::transational_state ) > 0 )
+    {
+        for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::transational_state ).size( ); i++ )
+        {
+            boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                    boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                        stateDerivativeModels.at( propagators::transational_state ).at( i ) );
+            std::vector< std::string > propagatedBodies = nBodyModel->getBodiesToBeIntegratedNumerically( );
+
+            // Check if bodyUndergoingAcceleration is propagated by bodyUndergoingAcceleration
+            if( std::find( propagatedBodies.begin( ), propagatedBodies.end( ), bodyUndergoingAcceleration )
+                    != propagatedBodies.end( ) )
+            {
+                if( modelFound == true )
+                {
+                    std::string errorMessage = "Error when getting translational dynamics model for " +
+                            bodyUndergoingAcceleration + ", multiple models found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    modelForBody = nBodyModel;
+                    modelFound = true;
+                }
+            }
+        }
+    }
+    else
+    {
+        std::string errorMessage = "Error when getting translational dynamics model for " +
+                bodyUndergoingAcceleration + " no translational dynamics models found";
+        throw std::runtime_error( errorMessage );
+    }
+    return modelForBody;
+}
 
 } // namespace propagators
 } // namespace tudat

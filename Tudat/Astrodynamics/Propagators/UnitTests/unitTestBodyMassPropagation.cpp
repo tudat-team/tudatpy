@@ -62,11 +62,12 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
     initialMass( 0 ) = 500.0;
     boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             boost::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Vehicle" ), massRateModels, initialMass );
+                boost::assign::list_of( "Vehicle" ), massRateModels, initialMass,
+                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1000.0, 1.0 );
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
@@ -110,11 +111,12 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
     initialMass( 1 ) = 1000.0;
     boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             boost::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Vehicle1" )( "Vehicle2" ), massRateModels, initialMass );
+                boost::assign::list_of( "Vehicle1" )( "Vehicle2" ), massRateModels, initialMass,
+                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1000.0, 1.0 );
+            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
