@@ -271,27 +271,17 @@ getAerodynamicForceTransformationFunction(
                 boost::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
                              aerodynamicAngleCalculator, accelerationFrame, corotating_frame );
         rotationsList.push_back(
-                    boost::bind(
-                        static_cast< Eigen::Vector3d(&)(
-                            const Eigen::Vector3d&,
-                            const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ),
-                        _1, firstRotation ) );
+                    boost::bind( &transformVectorFromQuaternionFunction,
+                                 _1, firstRotation ) );
 
         // Add corotating to inertial frame.
         rotationsList.push_back(
-                    boost::bind(
-                        static_cast< Eigen::Vector3d(&)(
-                            const Eigen::Vector3d&,
-                            const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ),
-                        _1, bodyFixedToInertialFrameFunction ) );
+                    boost::bind( &transformVectorFromQuaternionFunction,
+                                 _1, bodyFixedToInertialFrameFunction ) );
 
         // Create transformation function.
-        transformationFunction = boost::bind(
-                    static_cast< Eigen::Vector3d(&)(
-                        const Eigen::Vector3d&,
-                        const std::vector< boost::function<
-                        Eigen::Vector3d( const Eigen::Vector3d& ) > >& ) >( &transformVector ),
-                    _1, rotationsList );
+        transformationFunction = boost::bind( &transformVectorFromVectorFunctions,
+                                              _1, rotationsList );
     }
     else
     {
@@ -301,11 +291,8 @@ getAerodynamicForceTransformationFunction(
                              aerodynamicAngleCalculator, accelerationFrame, propagationFrame );
 
         // Create transformation function.
-        transformationFunction = boost::bind(
-                    static_cast< Eigen::Vector3d(&)(
-                        const Eigen::Vector3d&,
-                        const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ), _1,
-                    rotationFunction );
+        transformationFunction = boost::bind( &transformVectorFromQuaternionFunction, _1,
+                                              rotationFunction );
     }
 
     return transformationFunction;

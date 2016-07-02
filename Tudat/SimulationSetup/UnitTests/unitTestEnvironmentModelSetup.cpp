@@ -756,7 +756,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     // Set states in environment.
     double testTime = 0.5E7;
     basic_mathematics::Vector6d vehicleInertialState =
-            ephemerides::transformStateToFrame(
+            ephemerides::transformStateToFrameFromRotations(
                 vehicleBodyFixedState,
                 bodyMap[ "Earth" ]->getRotationalEphemeris( )->getRotationToBaseFrame( testTime ),
             bodyMap[ "Earth" ]->getRotationalEphemeris( )->getDerivativeOfRotationToBaseFrame( testTime ) );
