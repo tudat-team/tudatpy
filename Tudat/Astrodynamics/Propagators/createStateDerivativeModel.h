@@ -140,6 +140,10 @@ createTranslationalStateDerivativeModel(
 
         for( unsigned int i = 0; i < translationPropagatorSettings->bodiesToIntegrate_.size( ); i++ )
         {
+            if( bodyMap.count( centralBodies[ i ] ) == 0 )
+            {
+                std::cerr<<"Error when creating Encke propagator, did not find central body "<<centralBodies[ i ]<<std::endl;
+            }
             initialKeplerElements[ i ] = orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
                         translationPropagatorSettings->getInitialStates( ).segment( i * 6, 6 ), static_cast< StateScalarType >(
                             bodyMap.at( centralBodies[ i ] )->getGravityFieldModel( )->getGravitationalParameter( ) ) );

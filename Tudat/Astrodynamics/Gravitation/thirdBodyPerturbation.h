@@ -42,6 +42,7 @@
 
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+#include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
 
 namespace tudat
 {
@@ -218,8 +219,13 @@ typedef ThirdBodyAcceleration< CentralGravitationalAccelerationModel3d >
 ThirdBodyCentralGravityAcceleration;
 
 //! Typedef for third body spherical harmonic gravity acceleration.
-typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModelXd >
+typedef ThirdBodyAcceleration< SphericalHarmonicsGravitationalAccelerationModel >
 ThirdBodySphericalHarmonicsGravitationalAccelerationModel;
+
+//! Typedef for third body mutual spherical harmonic gravity acceleration.
+typedef ThirdBodyAcceleration< MutualSphericalHarmonicsGravitationalAccelerationModel >
+ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel;
+
 
 } // namespace gravitation
 

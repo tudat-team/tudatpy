@@ -214,7 +214,7 @@ public:
      * Function to get map containing the list of accelerations acting on each body,
      * \return A map containing the list of accelerations acting on each body,
      */
-    basic_astrodynamics::AccelerationMap getAccelerationsMap( )
+    virtual basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
     {
         return accelerationModelsPerBody_;
     }
@@ -293,6 +293,12 @@ public:
             }
         }
         return totalAcceleration;
+    }
+
+    basic_astrodynamics::AccelerationMap getAccelerationsMap( )
+    {
+        return accelerationModelsPerBody_;
+
     }
 
 protected:

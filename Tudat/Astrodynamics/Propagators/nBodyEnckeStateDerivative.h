@@ -101,6 +101,9 @@ public:
     {
         currentKeplerianOrbitCartesianState_.resize( bodiesToIntegrate.size( ) );
 
+
+        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
+
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
         centralBodyGravitationalParameters_ =
                 removeCentralGravityAccelerations(
@@ -242,6 +245,11 @@ public:
         }
     }
 
+    basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
+    {
+        return originalAccelerationModelsPerBody_;
+    }
+
 private:
 
     //! Function to calculate and set the reference Kepler orbit in Cartesian coordinates for given body.
@@ -307,6 +315,9 @@ private:
     //! Time at which the currentKeplerianOrbitCartesianState_ provide the Cartesian representation of the
     //! referfence Kepler state.
     TimeType currentKeplerOrbitTime_;
+
+    basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
+
 
 };
 
