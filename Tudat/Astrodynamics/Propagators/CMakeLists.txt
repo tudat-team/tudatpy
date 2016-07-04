@@ -42,6 +42,9 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationTermination.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/variationalEquationsSolver.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
 )
 
 # Add header files.
@@ -64,6 +67,9 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/propagationOutput.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationOutputSettings.h"
   "${SRCROOT}${PROPAGATORSDIR}/propagationTerminationSettings.h"
+  "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.h"
+  "${SRCROOT}${PROPAGATORSDIR}/variationalEquationsSolver.h"
+  "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
 )
 
 # Add static libraries.
@@ -88,6 +94,14 @@ target_link_libraries(test_EnckeStateDerivative tudat_simulation_setup tudat_pro
     tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface
     cspice ${Boost_LIBRARIES})
 
+
+add_executable(test_SequentialVariationEquationIntegration "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestSequentialVariationalEquationIntegration.cpp")
+setup_custom_test_program(test_SequentialVariationEquationIntegration "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_SequentialVariationEquationIntegration tudat_simulation_setup tudat_propagators tudat_acceleration_partials tudat_estimatable_parameters tudat_orbit_determination tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
+
+add_executable(test_VariationalEquations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestVariationalEquationPropagation.cpp")
+setup_custom_test_program(test_VariationalEquations "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_VariationalEquations tudat_simulation_setup tudat_propagators tudat_acceleration_partials tudat_estimatable_parameters tudat_orbit_determination tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
 
 add_executable(test_EnvironmentModelUpdater
     "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")

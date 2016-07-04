@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Test update settings
             BOOST_CHECK_EQUAL( environmentModelsToUpdate.size( ), 1 );
             BOOST_CHECK_EQUAL( environmentModelsToUpdate.count( body_transational_state_update ), 1 );
-            BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_transational_state_update ).size( ), 3     );
+            BOOST_CHECK_EQUAL( environmentModelsToUpdate.at( body_transational_state_update ).size( ), 3 );
 
             // Create and call updater.
             boost::shared_ptr< propagators::EnvironmentUpdater< double, double > > updater =

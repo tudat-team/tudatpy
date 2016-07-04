@@ -83,6 +83,59 @@ public:
     int maximumOrder_;
 };
 
+//! Class for providing acceleration settings for mutual spherical harmonics acceleration model.
+/*!
+ *  Class for providing accelerationsettings for mutual spherical harmonics acceleration model,
+ *  specifically the maximum degree and order up to which the fields of the bodies are be expanded.
+ *  Please note that the minimum degrees and orders are currently always set to zero.
+ */
+class MutualSphericalHarmonicAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    //! Constructor to set maximum degrees and orders that are to be taken into account.
+    /*!
+     * Constructor to set maximum degrees and orders that are to be taken into account.
+     * \param maximumDegreeOfBodyExertingAcceleration Maximum degree of body exerting acceleration.
+     * \param maximumOrderOfBodyExertingAcceleration Maximum order of body exerting acceleration.
+     * \param maximumDegreeOfBodyUndergoingAcceleration Maximum degree of body undergoing acceleration.
+     * \param maximumOrderOfBodyUndergoingAcceleration Maximum order of body undergoing acceleration.
+     * \param maximumDegreeOfCentralBody Maximum degree of central body (only releveant for 3rd body acceleration).
+     * \param maximumOrderOfCentralBody Maximum order of central body (only releveant for 3rd body acceleration).
+     */
+    MutualSphericalHarmonicAccelerationSettings( const int maximumDegreeOfBodyExertingAcceleration,
+                                                 const int maximumOrderOfBodyExertingAcceleration,
+                                                 const int maximumDegreeOfBodyUndergoingAcceleration,
+                                                 const int maximumOrderOfBodyUndergoingAcceleration,
+                                                 const int maximumDegreeOfCentralBody = 0,
+                                                 const int maximumOrderOfCentralBody = 0 ):
+        AccelerationSettings( basic_astrodynamics::mutual_spherical_harmonic_gravity ),
+        maximumDegreeOfBodyExertingAcceleration_( maximumDegreeOfBodyExertingAcceleration ),
+        maximumOrderOfBodyExertingAcceleration_( maximumOrderOfBodyExertingAcceleration ),
+        maximumDegreeOfBodyUndergoingAcceleration_( maximumDegreeOfBodyUndergoingAcceleration ),
+        maximumOrderOfBodyUndergoingAcceleration_( maximumOrderOfBodyUndergoingAcceleration ),
+        maximumDegreeOfCentralBody_( maximumDegreeOfCentralBody ), maximumOrderOfCentralBody_( maximumOrderOfCentralBody ){ }
+
+    //! Maximum degree of body exerting acceleration.
+    int maximumDegreeOfBodyExertingAcceleration_;
+
+    //! Maximum order of body exerting acceleration.
+    int maximumOrderOfBodyExertingAcceleration_;
+
+    //! Maximum degree of body undergoing acceleration.
+    int maximumDegreeOfBodyUndergoingAcceleration_;
+
+    //! Maximum order of body undergoing acceleration.
+    int maximumOrderOfBodyUndergoingAcceleration_;
+
+    //! Maximum degree of central body (only releveant for 3rd body acceleration).
+    int maximumDegreeOfCentralBody_;
+
+    //! Maximum order of central body (only releveant for 3rd body acceleration).
+    int maximumOrderOfCentralBody_;
+};
+
+
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr<

@@ -217,6 +217,7 @@ private:
 class ConstantAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
 {
 public:
+
     //! Constructor.
     /*!
      *  Constructor.

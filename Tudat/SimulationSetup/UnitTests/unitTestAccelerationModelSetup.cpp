@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     // Manually create acceleration model.
     boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
             manualAcceleration =
-            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel< > >(
+            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
                 boost::bind( &Body::getPosition, bodyMap[ "Vehicle" ] ),
             gravitationalParameter,
             planetaryRadius, cosineCoefficients, sineCoefficients,
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Manually create acceleration.
     manualAcceleration =
-            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel< > >(
+            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
                 boost::bind( &Body::getPosition, bodyMap[ "Vehicle" ] ),
             gravitationalParameter * 1.1,
             planetaryRadius, cosineCoefficients, sineCoefficients,

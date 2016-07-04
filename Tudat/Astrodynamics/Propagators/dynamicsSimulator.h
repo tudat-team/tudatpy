@@ -132,7 +132,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
  *  Base class for performing full numerical integration of a dynamical system. Governing equations are set once,
  *  but can be re-integrated for different initial conditions using the same instance of the class.
  *  Derived classes define the specific kind of integration that is performed
- *  (single-arc/multi-arc; dynamics/variational equations, etc.)
+ *  (single-arc/multi-arc/etc.)
  */
 template< typename StateScalarType = double, typename TimeType = double >
 class DynamicsSimulator
@@ -281,6 +281,11 @@ public:
         return bodyMap_;
     }
 
+    boost::shared_ptr< PropagationTerminationCondition > getPropagationTerminationCondition( )
+    {
+        return propagationTerminationCondition_;
+    }
+
 protected:
 
     //! This function updates the environment with the numerical solution of the propagation.
@@ -349,7 +354,7 @@ protected:
 
 };
 
-//! Class for performing full numerical integration of a dynamical system in a single arc..
+//! Class for performing full numerical integration of a dynamical system in a single arc.
 /*!
  *  Class for performing full numerical integration of a dynamical system in a single arc, i.e. the equations of motion
  *  have a single initial time, and are propagated once for the full prescribed time interval. This is in contrast to

@@ -306,6 +306,11 @@ public:
      * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
      * \param massRateModels List of mass rate models per propagated body.
      * \param initialBodyMasses Initial masses used as input for numerical integration.
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
      */
     MassPropagatorSettings(
             const std::vector< std::string > bodiesWithMassToPropagate,
@@ -403,6 +408,11 @@ public:
      * Constructor
      * \param propagatorSettingsMap List of propagator settings to use (state type as key). List of propagator settigns
      * per type given as vector in map value.
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
      */
     MultiTypePropagatorSettings(
             const std::map< IntegratedStateType,
@@ -423,6 +433,11 @@ public:
     /*!
      * Constructor
      * \param propagatorSettingsVector Vector of propagator settings to use.
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
      */
     MultiTypePropagatorSettings(
             const std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > propagatorSettingsVector,

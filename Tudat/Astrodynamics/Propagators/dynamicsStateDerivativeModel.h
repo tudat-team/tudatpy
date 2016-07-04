@@ -26,6 +26,7 @@
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdater.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
 
 namespace tudat
 {
@@ -52,17 +53,18 @@ public:
     /*!
      *  Derivative model constructor. Takes state derivative model and environment
      *  updater. Constructor checks whether all models use the same environment updater.     
-     *  \param stateDerivativeModels Vector of state derivative models, with one entry for each type
-     *         of dynamical equation.
-     *  \param environmentUpdater Object which is used to update time-dependent environment models
-     *         to current time and state,
+     *  \param stateDerivativeModels Vector of state derivative models, with one entry for each type of dynamical equation.
+     *  \param environmentUpdater Object which is used to update time-dependent environment models to current time and state,
      *  must be consistent with member environment updaters of stateDerivativeModels entries.
+     *  \param variationalEquations Object used for computing the state derivative in the variational equations
      */
     DynamicsStateDerivativeModel(
             const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
             stateDerivativeModels,
-            const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater ):
-        environmentUpdater_( environmentUpdater )
+            const boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater,
+            const boost::shared_ptr< VariationalEquations > variationalEquations =
+                        boost::shared_ptr< VariationalEquations >( ) ):
+        environmentUpdater_( environmentUpdater ), variationalEquations_( variationalEquations )
     {
         std::vector< IntegratedStateType > stateTypeList;
         totalStateSize_ = 0;
@@ -161,6 +163,11 @@ public:
                                                     integratedStatesFromEnvironment_ );
         }
 
+        if( evaluateVariationalEquations_ )
+        {
+            variationalEquations_->clearPartials( );
+        }
+
         // If dynamical equations are integrated, evaluate dynamics state derivatives.
         std::pair< int, int > currentIndices;
         if( evaluateDynamicsEquations_ )
@@ -175,7 +182,16 @@ public:
                 {
                     // Update state derivative models
                     stateDerivativeModelsIterator_->second.at( i )->updateStateDerivativeModel( time );
+                }
+            }
 
+            for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+                 stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+                 stateDerivativeModelsIterator_++ )
+
+            {
+                for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+                {
                     // Evaluate and set current dynamical state derivative
                     currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
@@ -185,6 +201,17 @@ public:
 
                 }
             }
+        }
+
+
+        // If variational equations are to be integrated: evaluate and set.
+        if( evaluateVariationalEquations_ )
+        {
+            variationalEquations_->updatePartials( time );
+
+            variationalEquations_->evaluateVariationalEquations< StateScalarType >(
+                        time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
+                        stateDerivative_.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
         }
 
         return stateDerivative_;
@@ -308,6 +335,17 @@ public:
         return convertedSolution;
     }
 
+    //! Function to add variational equations to the state derivative model
+    /*!
+     * Function to add variational equations to the state derivative model.
+     * \param variationalEquations Object used for computing the state derivative in the variational equations
+     */
+    void addVariationalEquations( boost::shared_ptr< VariationalEquations > variationalEquations )
+    {
+        variationalEquations_ = variationalEquations;
+    }
+
+
     //! Function to set which segments of the full state to propagate
     /*!
      * Function to set which segments of the full state to propagate, i.e. whether to propagate the
@@ -327,11 +365,53 @@ public:
 
         if( evaluateVariationalEquations_ )
         {
-           throw std::runtime_error( "Error, variational equations not yet implemented" );
+            dynamicsStartColumn_ = variationalEquations_->getNumberOfParameterValues( );
         }
         else
         {
             dynamicsStartColumn_ = 0;
+        }
+    }
+
+    //! Function to update the settings of the state derivative models with new initial states
+    /*!
+     * Function to update the settings of the state derivative models with new initial states. This function is
+     * called when using, for instance and Encke propagator for the translational dynamics, and the reference orbits
+     * are modified.
+     * \param initialBodyStates New initial state for the full propagated dynamics.
+     */
+    void updateStateDerivativeModelSettings(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates )
+    {
+        // Iterate over all dynamics types
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( ); stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            switch( stateDerivativeModelsIterator_->first )
+            {
+            case transational_state:
+            {
+                for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+                {
+                    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
+                            boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                                stateDerivativeModelsIterator_->second.at( i ) );
+                    switch( currentTranslationalStateDerivative->getPropagatorType( ) )
+                    {
+                    case cowell:
+                        break;
+                    default:
+                        throw std::runtime_error( "Error when updating state derivative model settings, did not recognize translational propagator type" );
+                        break;
+                    }
+                }
+            }
+            case body_mass_state:
+                break;
+            default:
+                throw std::runtime_error( "Error when updating state derivative model settings, did not recognize dynamics type" );
+                break;
+            }
         }
     }
 
@@ -376,10 +456,9 @@ private:
             const StateType& state, const TimeType& time, const bool stateIncludesVariationalState )
     {
         int startColumn = 0;
-
         if( stateIncludesVariationalState )
         {
-            throw std::runtime_error( "Error, variational equations not yet implemented" );
+            startColumn = variationalEquations_->getNumberOfParameterValues( );
         }
         else
         {
@@ -415,6 +494,9 @@ private:
 
     //! Object used to update the environment to the current state and time.
     boost::shared_ptr< EnvironmentUpdater< StateScalarType, TimeType > > environmentUpdater_;
+
+    //! Object used for computing the state derivative in the variational equations
+    boost::shared_ptr< VariationalEquations > variationalEquations_;
 
     //! Map that denotes for each state derivative model the start index and size of the associated
     //! state in the full state vector.
@@ -572,6 +654,25 @@ boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTransl
         throw std::runtime_error( errorMessage );
     }
     return modelForBody;
+}
+
+template< typename TimeType = double, typename StateScalarType = double,
+          typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
+std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertNumericalStateSolutionsToOutputSolutions(
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
+        boost::shared_ptr< ConversionClassType > converterClass )
+{
+    // Initialize converted solution.
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > convertedSolution;
+
+    // Iterate over all times.
+    for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
+         rawSolution.begin( ); stateIterator != rawSolution.end( ); stateIterator++ )
+    {
+        // Convert solution at this time to output (typically ephemeris frame of given body) solution
+        convertedSolution[ stateIterator->first ] = converterClass->convertToOutputSolution( stateIterator->second, stateIterator->first );
+    }
+    return convertedSolution;
 }
 
 } // namespace propagators
