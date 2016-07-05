@@ -37,7 +37,10 @@ enum PropagationDependentVariables
     total_acceleration_norm_dependent_variable = 9,
     single_acceleration_norm_dependent_variable = 10,
     total_acceleration_dependent_variable = 11,
-    single_acceleration_dependent_variable = 12
+    single_acceleration_dependent_variable = 12,
+    aerodynamic_force_coefficients_dependent_variable = 13,
+    aerodynamic_moment_coefficients_dependent_variable = 14
+
 };
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation

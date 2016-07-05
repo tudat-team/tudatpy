@@ -24,39 +24,61 @@ namespace reference_frames
 {
 
 //! Function to update the orientation angles to the current state.
-void AerodynamicAngleCalculator::update( )
+void AerodynamicAngleCalculator::update( const bool updateBodyOrientation  )
 {
     // Clear all current rotation matrices.
     currentRotationMatrices_.clear( );
 
     // Get current body-fixed state.
-    currentBodyFixedState_ = bodyFixedStateFunction_( );
-    Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical(
-                currentBodyFixedState_.segment( 0, 3 ) );
-
-    // Calculate latitude and longitude.
-    currentAerodynamicAngles_[ latitude_angle ] =
-            mathematical_constants::PI / 2.0 - sphericalCoordinates( 1 );
-    currentAerodynamicAngles_[ longitude_angle ] = sphericalCoordinates( 2 );
-
-    // Calculate vertical <-> aerodynamic <-> body-fixed angles if neede.
-    if( calculateVerticalToAerodynamicFrame_ )
+    if( currentBodyFixedState_ != bodyFixedStateFunction_( ) )
     {
-        Eigen::Vector3d verticalFrameVelocity =
-                getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-                    currentAerodynamicAngles_.at( longitude_angle ),
-                    currentAerodynamicAngles_.at( latitude_angle ) ) *
-                currentBodyFixedState_.segment( 3, 3 );
+        currentBodyFixedState_ = bodyFixedStateFunction_( );
+        Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical(
+                    currentBodyFixedState_.segment( 0, 3 ) );
 
-        currentAerodynamicAngles_[ heading_angle ] = calculateHeadingAngle( verticalFrameVelocity );
-        currentAerodynamicAngles_[ flight_path_angle ] =
-                calculateFlightPathAngle( verticalFrameVelocity );
+        // Calculate latitude and longitude.
+        currentAerodynamicAngles_[ latitude_angle ] =
+                mathematical_constants::PI / 2.0 - sphericalCoordinates( 1 );
+        currentAerodynamicAngles_[ longitude_angle ] = sphericalCoordinates( 2 );
 
+        // Calculate vertical <-> aerodynamic <-> body-fixed angles if neede.
+        if( calculateVerticalToAerodynamicFrame_ )
+        {
+            Eigen::Vector3d verticalFrameVelocity =
+                    getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                        currentAerodynamicAngles_.at( longitude_angle ),
+                        currentAerodynamicAngles_.at( latitude_angle ) ) *
+                    currentBodyFixedState_.segment( 3, 3 );
+
+            currentAerodynamicAngles_[ heading_angle ] = calculateHeadingAngle( verticalFrameVelocity );
+            currentAerodynamicAngles_[ flight_path_angle ] =
+                    calculateFlightPathAngle( verticalFrameVelocity );
+        }
+    }
+
+    if( updateBodyOrientation )
+    {
         currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
         currentAerodynamicAngles_[ angle_of_sideslip ] = angleOfSideslipFunction_( );
         currentAerodynamicAngles_[ bank_angle ] = bankAngleFunction_( );
     }
+    else
+    {
+        if( currentAerodynamicAngles_.count( angle_of_attack ) == 0 )
+        {
+            currentAerodynamicAngles_[ angle_of_attack ] = 0.0;
+        }
+        if( currentAerodynamicAngles_.count( angle_of_sideslip ) == 0 )
+        {
+            currentAerodynamicAngles_[ angle_of_sideslip ] = 0.0;
+        }
+        if( currentAerodynamicAngles_.count( bank_angle ) == 0 )
+        {
+            currentAerodynamicAngles_[ bank_angle ] = 0.0;
+        }
+    }
 }
+
 
 //! Function to get the rotation quaternion between two frames
 Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames(

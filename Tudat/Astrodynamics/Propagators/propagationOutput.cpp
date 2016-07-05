@@ -97,6 +97,12 @@ int getDependentVariableSize(
     case single_acceleration_dependent_variable:
         variableSize = 3;
         break;
+    case aerodynamic_force_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
+    case aerodynamic_moment_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 boost::lexical_cast< std::string >( dependentVariableSettings );
