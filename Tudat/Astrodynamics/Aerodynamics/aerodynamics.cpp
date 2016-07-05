@@ -500,10 +500,17 @@ double computeShockDeflectionAngle( double shockAngle, double machNumber,
     return atan( tangentOfDeflectionAngle_ );
 }
 
+//! Function to compute the speed of sounds in a gas
 double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
                             const double specificGasConstant )
 {
     return std::sqrt( temperature * ratioOfSpecificHeats * specificGasConstant );
+}
+
+//! Compute Mach number
+double computeMachNumber( const double speed, const double speedOfSound )
+{
+    return speed / speedOfSound;
 }
 
 } // namespace aerodynamics

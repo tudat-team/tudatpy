@@ -41,22 +41,25 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-//! Function to calculate the altitude of a point over a central body from positions of both the point and the body (in any frame)
+//! Function to calculate the altitude of a point over a central body
+//! from positions of both the point and the body (in any frame)
 double getAltitudeFromNonBodyFixedPosition(
-        const boost::shared_ptr< BodyShapeModel > bodyShapeModel, const Eigen::Vector3d& position, const Eigen::Vector3d& bodyPosition,
-        const Eigen::Quaterniond& toBodyFixedFrame )
-{    
+        const boost::shared_ptr< BodyShapeModel > bodyShapeModel, const Eigen::Vector3d& position,
+        const Eigen::Vector3d& bodyPosition, const Eigen::Quaterniond& toBodyFixedFrame )
+{
     return bodyShapeModel->getAltitude( toBodyFixedFrame * ( position - bodyPosition ) );
 }
 
-//! Function to calculate the altitude of a point over a central body from positions of both the point and the body (in any frame)
+//! Function to calculate the altitude of a point over a central body
+//! from positions of both the point and the body (in any frame)
 double getAltitudeFromNonBodyFixedPositionFunctions(
         const boost::shared_ptr< BodyShapeModel > bodyShapeModel, const Eigen::Vector3d& position,
-        const boost::function< Eigen::Vector3d( ) > bodyPositionFunction, const boost::function< Eigen::Quaterniond( ) > toBodyFixedFrameFunction )
+        const boost::function< Eigen::Vector3d( ) > bodyPositionFunction,
+        const boost::function< Eigen::Quaterniond( ) > toBodyFixedFrameFunction )
 {
-    return getAltitudeFromNonBodyFixedPosition( bodyShapeModel, position,  bodyPositionFunction( ), toBodyFixedFrameFunction( ) );
+    return getAltitudeFromNonBodyFixedPosition( bodyShapeModel, position,  bodyPositionFunction( ),
+                                                toBodyFixedFrameFunction( ) );
 }
 
-}
-
-}
+} // namespace basic_astrodynamics
+} // namespace tudat

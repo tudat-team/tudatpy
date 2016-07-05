@@ -137,7 +137,7 @@ public:
             = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
-                positionOfBodyExertingAccelerationFunction ),
+                positionOfBodyExertingAccelerationFunction, 0 ),
           equatorialRadius( anEquatorialRadius ),
           j2GravityCoefficient( aJ2GravityCoefficient )
     {
@@ -158,8 +158,15 @@ public:
      * Updates class members relevant for computing the central gravitational acceleration. In this
      * case the function simply updates the members in the base class.
      * \sa SphericalHarmonicsGravitationalAccelerationModelBase.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( ) { this->updateBaseMembers( ); }
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            this->updateBaseMembers( );
+        }
+    }
 
 protected:
 

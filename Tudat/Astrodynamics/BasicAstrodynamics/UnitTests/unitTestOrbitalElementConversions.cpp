@@ -97,6 +97,7 @@
 
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -106,6 +107,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
 namespace tudat
 {
@@ -671,7 +673,7 @@ void convertNonCircularEquatorialOrbitBackAndForth(
     Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
     keplerianElements( semiMajorAxisIndex ) = static_cast< ScalarType >( 8000.0 );
     keplerianElements( eccentricityIndex ) = static_cast< ScalarType >( 0.2 );
-            keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 0 );
+    keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >( 0 );
     keplerianElements( argumentOfPeriapsisIndex ) = static_cast< ScalarType >( 243.0 / 180.0 * PI );
     keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >(
                 -79.6 / 180.0 * PI );
@@ -737,8 +739,8 @@ void convertNonCircularNonEquatorialOrbitBackAndForth(
     Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
     keplerianElements( semiMajorAxisIndex ) = static_cast< ScalarType >( 8000.0 );
     keplerianElements( eccentricityIndex ) = static_cast< ScalarType >( 0.2 );
-            keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >(
-                        176.11 / 180.0 * PI );
+    keplerianElements( inclinationIndex ) = getFloatingInteger< ScalarType >(
+                176.11 / 180.0 * PI );
     keplerianElements( argumentOfPeriapsisIndex ) = static_cast< ScalarType >( 243.0 / 180.0 * PI );
     keplerianElements( longitudeOfAscendingNodeIndex ) = static_cast< ScalarType >(
                 -79.6 / 180.0 * PI );
@@ -755,7 +757,7 @@ void convertNonCircularNonEquatorialOrbitBackAndForth(
 
     recomputedKeplerianElements( longitudeOfAscendingNodeIndex ) =
             recomputedKeplerianElements( longitudeOfAscendingNodeIndex ) -
-                       getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( );
+            getFloatingInteger< ScalarType >( 2 ) * getPi< ScalarType >( );
 
     // Check that recomputed Keplerian elements match the input values. (In this limit case,
     // the longitude of the ascending node is set to zero, and the argument of periapsis and
@@ -1619,7 +1621,40 @@ BOOST_AUTO_TEST_CASE( testSemiMajorAxisToMeanMotionConversion )
         BOOST_CHECK_CLOSE_FRACTION( expectedEllipticalMeanMotion,
                                     computedEllipticalMeanMotion, 1.0e-4 );
     }
+
 }
+
+//! Test bug-fix to orbital element conversions for arguments of periapsis close to zero, pi or two pi.
+//! Thanks to Andreas Kleinschneider for finding the bug.
+BOOST_AUTO_TEST_CASE( test_ArgumentOfPeriapsisBugfix )
+{
+
+    // Define previously offending states and gravitational parameters.
+    basic_mathematics::Vector6d centralBodyCartesianState;
+    centralBodyCartesianState<<-521142852074.35858154296875, 595141535550.8497314453125, 8056093690.3882598876953125,
+            3904.21508802941389149054884911, -18262.3110776023386279121041298, 103.914916159730324807242141105;
+
+    basic_mathematics::Vector6d orbitingBodyCartesianState;
+    orbitingBodyCartesianState<<-520894562964.4881591796875, 595481881288.00537109375, 8071968111.222164154052734375,
+            -10065.8995464500585512723773718, -7984.05278915743656398262828588, 261.213167975313467650266829878;
+
+    basic_mathematics::Vector6d relativeCartesianState = orbitingBodyCartesianState - centralBodyCartesianState;
+
+    double gravitationalParameterOfCentralBody = 126686534921800800;
+    double gravitationalParameterOfOrbitingBody = 5959916033410.404296875;
+
+    // Convert to Keplerian state
+    basic_mathematics::Vector6d keplerianState =
+            orbital_element_conversions::convertCartesianToKeplerianElements(
+                relativeCartesianState, gravitationalParameterOfCentralBody + gravitationalParameterOfOrbitingBody );
+
+    // Check whether argument of periapsis is defined.
+    BOOST_CHECK_EQUAL( ( keplerianState( orbital_element_conversions::argumentOfPeriapsisIndex ) ==
+                         keplerianState( orbital_element_conversions::argumentOfPeriapsisIndex ) ), true );
+
+}
+
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

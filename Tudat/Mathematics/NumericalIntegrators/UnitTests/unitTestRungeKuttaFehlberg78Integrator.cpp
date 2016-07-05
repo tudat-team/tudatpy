@@ -84,6 +84,45 @@ using numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd;
 using numerical_integrators::RungeKuttaCoefficients;
 
 using numerical_integrator_test_functions::computeNonAutonomousModelStateDerivative;
+using numerical_integrator_test_functions::computeFehlbergLogirithmicTestODEStateDerivative ;
+using numerical_integrator_test_functions::computeAnalyticalStateFehlbergODE ;
+
+//! Test Runge-Kutta-Fehlberg 78 integrator using benchmark ODE of Fehlberg (1968)
+BOOST_AUTO_TEST_CASE( test_RungeKuttaFehlberg78_Integrator_Fehlberg_Benchmark )
+{
+    using namespace numerical_integrators;
+    RungeKuttaCoefficients coeff78 =
+            RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 );
+
+    // Integrator settings
+    double minimumStepSize   = std::numeric_limits<double>::epsilon( );
+    double maximumStepSize   = std::numeric_limits<double>::infinity( );
+    double initialStepSize   = 1E-6; // Error: 0.0521 for initialStepSize = 1 ?
+    double relativeTolerance = 1E-16;
+    double absoluteTolerance = 1E-16;
+
+    // Initial conditions
+    double initialTime = 0.0;
+    double finalTime   = 5.0;
+    Eigen::Vector2d initialState( exp( 1.0 ), 1.0);
+
+    // Setup integrator
+    numerical_integrators::RungeKuttaVariableStepSizeIntegratorXd integrator78(
+                coeff78, computeFehlbergLogirithmicTestODEStateDerivative,
+                initialTime, initialState, minimumStepSize,
+                maximumStepSize, relativeTolerance, absoluteTolerance );
+
+
+    // Obtain numerical solution
+    Eigen::Vector2d numericalSolution = integrator78.integrateTo( finalTime, initialStepSize );
+
+    // Analytical solution
+    Eigen::Vector2d analyticalSolution = computeAnalyticalStateFehlbergODE( finalTime, initialState );
+
+    Eigen::Vector2d computedError = numericalSolution - analyticalSolution;
+    BOOST_CHECK_SMALL( std::fabs(computedError( 0 )), 1E-13 );
+    BOOST_CHECK_SMALL( std::fabs(computedError( 1 )), 1E-13 );
+}
 
 //! Test Runge-Kutta-Fehlberg 78 integrator using benchmark data from (The MathWorks, 2012).
 BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )

@@ -1,35 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      150501    D. Dirkx          Ported from personal code
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
 #ifndef TUDAT_CREATEACCELERATIONMODELS_H
@@ -42,7 +18,7 @@
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
-#include "Tudat/SimulationSetup/accelerationModelTypes.h"
+#include "Tudat/SimulationSetup/accelerationSettings.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 
@@ -52,14 +28,78 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Function to determine if a given frame is an inertial frame.
+//! Function to create a direct (i.e. not third-body) gravitational acceleration (of any type)
 /*!
- *  Function to determine if a given frame is an inertial frame. Currently a frame identified as
- *  "SSB" (solar system barycenter), "inertial" or "" (empty) is recognized as inertial.
- *  \param frame Name of frame for which it is to be determined whether it is inertial.
- *  \return True if inertial, false if not.
+ * Function to create a direct (i.e. not third-body) gravitational acceleration of any type (i.e. point mass,
+ * spherical harmonic, mutual spherical harmonic).
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the gravitational acceleration.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting the gravitational acceleration.
+ *  \param accelerationSettings Settings object for the gravitational acceleration.
+ *  \param nameOfCentralBody Name of central body in frame centered at which acceleration is to
+ *  be calculated.
+ *  \param isCentralBody Boolean defining whether the body undergoing the acceleration is the central body for a
+ *  third-body acceleration, of which the return object of this funciton is one of the sub-parts. Boolean is
+ *  only used when creating mutual spherical harmonic acceleration, to ensure teh correct usage of the acceleration
+ *  settings.
+ *  \return Direct gravitational acceleration model of requested settings.
  */
-bool isFrameInertial( const std::string& frame );
+boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createDirectGravitationalAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::string& nameOfCentralBody = "",
+        const bool isCentralBody = 0 );
+
+//! Function to create a third-body gravitational acceleration (of any type)
+/*!
+ * Function to create a direct third-body gravitational acceleration of any type (i.e. point mass,
+ * spherical harmonic, mutual spherical harmonic).
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the gravitational acceleration.
+ *  \param centralBody Pointer to central body in frame centered at which acceleration is to be calculated.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting the gravitational acceleration.
+ *  \param nameOfCentralBody Name of central body in frame centered at which acceleration is to
+ *  be calculated.
+ *  \param accelerationSettings Settings object for the gravitational acceleration.
+ *  \return Third-body gravitational acceleration model of requested settings.
+ */
+boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createThirdBodyGravitationalAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+
+//! Function to create gravitational acceleration (of any type)
+/*!
+ * Function to create a third-body or direct gravitational acceleration of any type (i.e. point mass,
+ * spherical harmonic, mutual spherical harmonic).
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the gravitational acceleration.
+ *  \param accelerationSettings Settings object for the gravitational acceleration.
+ *  \param centralBody Pointer to central body in frame centered at which acceleration is to be calculated.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting the gravitational acceleration.
+ *  \param nameOfCentralBody Name of central body in frame centered at which acceleration is to
+ *  be calculated.
+ *  \param accelerationSettings Settings object for the gravitational acceleration.
+ *  \return Gravitational acceleration model of requested settings.
+ */
+boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createGravitationalAccelerationModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfCentralBody );
 
 //! Function to create central gravity acceleration model.
 /*!
@@ -76,6 +116,7 @@ bool isFrameInertial( const std::string& frame );
  *  Should be set to true in case the body undergoing acceleration is a celestial body
  *  (with gravity field) and integration is performed in the frame centered at the body exerting
  *  acceleration.
+ *  \return Central gravity acceleration model pointer.
  */
 boost::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
 createCentralGravityAcceleratioModel(
@@ -102,8 +143,9 @@ createCentralGravityAcceleratioModel(
  *  Should be set to true in case the body undergoing acceleration is a celestial body
  *  (with gravity field) and integration is performed in the frame centered at the body exerting
  *  acceleration.
+ *  \return Spherical harmonic gravity acceleration model pointer.
  */
-boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModelXd >
+boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
 createSphericalHarmonicsGravityAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
@@ -111,6 +153,37 @@ createSphericalHarmonicsGravityAcceleration(
         const std::string& nameOfBodyExertingAcceleration,
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
         const bool useCentralBodyFixedFrame );
+
+//! Function to create mutual spherical harmonic gravity acceleration model.
+/*!
+ *  Function to create mutual spherical harmonic gravity acceleration model from bodies exerting and
+ *  undergoing acceleration.
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the mutual spherical
+ *  harmonic gravity acceleration.
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting the mutual spherical harmonic
+ *  gravity acceleration.
+ *  \param accelerationSettings Settings for acceleration model that is to be created (should
+ *  be of derived type associated with mutual spherical harmonic acceleration).
+ *  \param useCentralBodyFixedFrame Boolean setting whether the central attraction of body
+ *  undergoing acceleration on body exerting acceleration is to be included in acceleration model.
+ *  Should be set to true in case the body undergoing acceleration is a celestial body
+ *  (with gravity field) and integration is performed in the frame centered at the body exerting
+ *  acceleration.
+ *  \param acceleratedBodyIsCentralBody Boolean defining whether the body undergoing the acceleration is the central body
+ *  for a third-body acceleration, of which the return object of this funciton is one of the sub-parts.
+ *  \return Mutual spherical harmonic gravity acceleration model pointer.
+ */
+boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel >
+createMutualSphericalHarmonicsGravityAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const bool useCentralBodyFixedFrame,
+        const bool acceleratedBodyIsCentralBody );
 
 //! Function to create a third body central gravity acceleration model.
 /*!
@@ -136,6 +209,62 @@ createThirdBodyCentralGravityAccelerationModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody );
+
+//! Function to create a third body spheric harmonic gravity acceleration model.
+/*!
+ *  Function to create a third body spheric harmonic gravity acceleration model from bodies exerting and
+ *  undergoing acceleration, as well as the central body, w.r.t. which the integration is to be
+ *  performed.
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration.
+ *  \param centralBody Pointer to central body in frame centered at which acceleration is to be
+ *  calculated.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the central
+ *  gravity acceleration.
+ *  \param nameOfCentralBody Name of central body in frame cenetered at which acceleration is to
+ *  be calculated.
+ *  \param accelerationSettings Settings for acceleration model that is to be created (should
+ *  be of derived type associated with spherical harmonic acceleration).
+ *  \return Pointer to object for calculating third-body spheric harmonic gravity acceleration between bodies.
+ */
+boost::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
+createThirdBodySphericalHarmonicGravityAccelerationModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+
+//! Function to create a third body mutual spheric harmonic gravity acceleration model.
+/*!
+ *  Function to create a third body mutual spheric harmonic gravity acceleration model from bodies exerting and
+ *  undergoing acceleration, as well as the central body, w.r.t. which the integration is to be
+ *  performed.
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the acceleration.
+ *  \param centralBody Pointer to central body in frame centered at which acceleration is to be
+ *  calculated.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the central
+ *  gravity acceleration.
+ *  \param nameOfCentralBody Name of central body in frame cenetered at which acceleration is to
+ *  be calculated.
+ *  \param accelerationSettings Settings for acceleration model that is to be created (should
+ *  be of derived type associated with mutual spherical harmonic acceleration).
+ *  \return Pointer to object for calculating third-body mutual spheric harmonic gravity acceleration between bodies.
+ */
+boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
+createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::string& nameOfCentralBody,
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create an aerodynamic acceleration model.
 /*!
@@ -183,9 +312,9 @@ createCannonballRadiationPressureAcceleratioModel(
  *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
  *  \param centralBody Pointer to central body in frame centered at which acceleration is to be
- *  calculated (only relevant for third body accelerations).
+ *  calculated (optional, only relevant for third body accelerations).
  *  \param nameOfCentralBody Name of central body in frame cenetered at which acceleration is to
- *  be calculated (only relevant for third body accelerations).
+ *  be calculated (optional, only relevant for third body accelerations).
  *  \return Acceleration model pointer.
  */
 boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
@@ -209,12 +338,30 @@ createAccelerationModel(
  *  \param centralBodies Map of central bodies for each body undergoing acceleration.
  *  \return List of acceleration model objects, in form of AccelerationMap.
  */
-AccelerationMap createAccelerationModelsMap(
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
         const NamedBodyMap& bodyMap,
         const SelectedAccelerationMap& selectedAccelerationPerBody,
         const std::map< std::string, std::string >& centralBodies );
 
-}
+//! Function to create acceleration models from a map of bodies and acceleration model types.
+/*!
+ *  Function to create acceleration models from a map of bodies and acceleration model types.
+ *  The return type can be used to identify both the body undergoing and exerting acceleration.
+ *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  objects.
+ *  \param selectedAccelerationPerBody List identifying which bodies exert which type of
+ *  acceleration(s) on which bodies.
+ *  \param propagatedBodies List of bodies that are to be propagated
+ *  \param centralBodies List of central bodies for each body undergoing acceleration (in same order as propagatedBodies).
+ *  \return List of acceleration model objects, in form of AccelerationMap.
+ */
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedAccelerationMap& selectedAccelerationPerBody,
+        const std::vector< std::string >& propagatedBodies,
+        const std::vector< std::string >& centralBodies );
 
-}
+} // namespace simulation_setup
+
+} // namespace tudat
 #endif // TUDAT_CREATEACCELERATIONMODELS_H

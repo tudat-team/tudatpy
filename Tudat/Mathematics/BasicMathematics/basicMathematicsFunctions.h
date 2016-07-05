@@ -102,6 +102,51 @@ ScalarType computeModulo( const ScalarType dividend, const ScalarType divisor )
     return dividend - divisor * std::floor( dividend / divisor );
 }
 
+//! Raise floating point variable to integer power.
+template< typename ScalarType >
+ScalarType raiseToIntegerPower( const ScalarType baseValue,
+                            const int integerPower )
+{
+    // Declare local variable.
+    // Declare result of raising base to integer power.
+    // Initialise with value.
+    ScalarType resultOfRaisingBaseToIntegerPower = 1;
+    // Declare absolute value of integerPower.
+    int absoluteValueOfIntegerPower
+            = std::abs( integerPower );
+    // Declare copy of base value.
+    ScalarType copyOfBaseValue = baseValue;
+
+    // Compute the result here using exponentiation by squares.
+    // Stop loop when absolute value of integer power is equal to zero.
+    while ( absoluteValueOfIntegerPower )
+    {
+        // Check that absolute value of integer power.
+        if ( absoluteValueOfIntegerPower & 1 )
+        {
+            // Compute intermediate result.
+            resultOfRaisingBaseToIntegerPower *= copyOfBaseValue;
+        }
+
+        // Divide integer power by two.
+        absoluteValueOfIntegerPower >>= 1;
+
+        // Square base value.
+        copyOfBaseValue *= copyOfBaseValue;
+    }
+
+    // Check if sign of integerPower is negative.
+    if ( integerPower < 0 )
+    {
+        // Switch sign of result.
+        resultOfRaisingBaseToIntegerPower
+                = 1.0 / resultOfRaisingBaseToIntegerPower;
+    }
+
+    // Return result of raising base to integer power.
+    return resultOfRaisingBaseToIntegerPower;
+}
+
 } // namespace basic_mathematics
 } // namespace tudat
 

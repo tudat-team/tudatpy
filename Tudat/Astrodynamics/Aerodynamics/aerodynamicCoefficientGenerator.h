@@ -94,11 +94,11 @@ public:
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
      *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
-     *  frame (typically denoted as Cx, Cy, Cz).
+     *  frame (typically denoted as Cx, Cy, Cz) (default true).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
      *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
-     *  coefficients are typically defined in negative direction.
+     *  coefficients are typically defined in negative direction (default true).
      */
     AerodynamicCoefficientGenerator(
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
@@ -107,8 +107,8 @@ public:
             const double lateralReferenceLength,
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-            const bool areCoefficientsInAerodynamicFrame = 1,
-            const bool areCoefficientsInNegativeAxisDirection = 1  ):
+            const bool areCoefficientsInAerodynamicFrame = true,
+            const bool areCoefficientsInNegativeAxisDirection = true  ):
         AerodynamicCoefficientInterface(
             referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
             independentVariableNames, areCoefficientsInAerodynamicFrame,
@@ -129,9 +129,6 @@ public:
     }
 
     //! Default destructor.
-    /*!
-     * Default destructor.
-     */
     virtual ~AerodynamicCoefficientGenerator( ) { }
 
     //! Get the number of points for an independent variable.
@@ -181,7 +178,7 @@ public:
     {
         return aerodynamicCoefficients_;
     }
-\
+
     //! Get the data points of the independent variables at which the coefficients are calculated.
     /*!
      *  Get the data points of the independent variables at which the coefficients are calculated.
@@ -209,9 +206,11 @@ public:
         // Check if the correct number of aerodynamic coefficients is provided.
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
         {
-            throw std::runtime_error(
-                        "Error in AerodynamicCoefficientGenerator, number of "
-                        "input variables is inconsistent " );
+            std::string errorMessage =
+                    "Error in AerodynamicCoefficientGenerator, number of input variables is inconsistent " +
+                    boost::lexical_cast< std::string >( independentVariables.size( ) ) + ", " +
+                    boost::lexical_cast< std::string >( numberOfIndependentVariables_ );
+            throw std::runtime_error( errorMessage );
         }
 
         // Update current coefficients.

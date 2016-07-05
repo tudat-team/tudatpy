@@ -39,6 +39,8 @@
 
 # Set the source files.
 set(GRAVITATION_SOURCES
+  "${SRCROOT}${GRAVITATIONDIR}/basicSolidBodyTideGravityFieldVariations.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/gravityFieldVariations.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2GravityModel.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3GravityModel.cpp"
@@ -50,13 +52,18 @@ set(GRAVITATION_SOURCES
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityField.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/thirdBodyPerturbation.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/timeDependentSphericalHarmonicsGravityField.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/UnitTests/planetTestData.cpp"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/tabulatedGravityFieldVariations.cpp"
+  "${SRCROOT}${GRAVITATIONDIR}/mutualSphericalHarmonicGravityModel.cpp"
 )
 
 # Set the header files.
 set(GRAVITATION_HEADERS
+  "${SRCROOT}${GRAVITATIONDIR}/basicSolidBodyTideGravityFieldVariations.h"
+  "${SRCROOT}${GRAVITATIONDIR}/gravityFieldVariations.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralGravityModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2GravityModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/centralJ2J3GravityModel.h"
@@ -69,8 +76,11 @@ set(GRAVITATION_HEADERS
   "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicsGravityField.h"
   "${SRCROOT}${GRAVITATIONDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
   "${SRCROOT}${GRAVITATIONDIR}/thirdBodyPerturbation.h"
+  "${SRCROOT}${GRAVITATIONDIR}/timeDependentSphericalHarmonicsGravityField.h"
   "${SRCROOT}${GRAVITATIONDIR}/unitConversionsCircularRestrictedThreeBodyProblem.h"
   "${SRCROOT}${GRAVITATIONDIR}/UnitTests/planetTestData.h"
+  "${SRCROOT}${GRAVITATIONDIR}/tabulatedGravityFieldVariations.h"
+  "${SRCROOT}${GRAVITATIONDIR}/mutualSphericalHarmonicGravityModel.h"
 )
 
 # Add static libraries.
@@ -112,4 +122,15 @@ target_link_libraries(test_SphericalHarmonicsGravityModel tudat_gravitation tuda
 
 add_executable(test_ThirdBodyPerturbation "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestThirdBodyPerturbation.cpp")
 setup_custom_test_program(test_ThirdBodyPerturbation "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_ThirdBodyPerturbation tudat_gravitation ${Boost_LIBRARIES} )
+target_link_libraries(test_ThirdBodyPerturbation tudat_gravitation tudat_basic_mathematics ${Boost_LIBRARIES} )
+
+if(USE_CSPICE)
+add_executable(test_GravityFieldVariations "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravityFieldVariations.cpp")
+setup_custom_test_program(test_GravityFieldVariations "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_GravityFieldVariations tudat_gravitation tudat_basic_mathematics tudat_spice_interface ${SPICE_LIBRARIES} ${Boost_LIBRARIES} )
+
+add_executable(test_MutualSphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestMutualSphericalHarmonicAcceleration.cpp")
+setup_custom_test_program(test_MutualSphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_MutualSphericalHarmonicsGravityModel tudat_simulation_setup tudat_electro_magnetism tudat_aerodynamics tudat_ephemerides tudat_reference_frames tudat_basic_astrodynamics tudat_gravitation tudat_spice_interface tudat_spice_interface tudat_input_output tudat_basic_mathematics ${SPICE_LIBRARIES} ${Boost_LIBRARIES} )
+
+endif()
