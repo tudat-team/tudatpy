@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include <boost/bind.hpp>
 
 #include "Tudat/SimulationSetup/createRadiationPressureInterface.h"
@@ -62,13 +72,13 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
         }
 
         // Retrieve source body and check consistency.
+        if( bodyMap.count( radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
+        {
+            throw std::runtime_error( "Error when making cannon ball radiation interface, source not found.");
+        }
+
         boost::shared_ptr< Body > sourceBody =
                 bodyMap.at( radiationPressureInterfaceSettings->getSourceBody( ) );
-        if( sourceBody == NULL )
-        {
-            std::cerr<<"Error when making cannon ball radiation interface, source "<<
-                       radiationPressureInterfaceSettings->getSourceBody( )<<" is not a celestial body"<<std::endl;
-        }
 
         // Get reqruied data for occulting bodies.
         std::vector< std::string > occultingBodies = cannonBallSettings->getOccultingBodies( );
@@ -124,6 +134,7 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
                     cannonBallSettings->getRadiationPressureCoefficient( ),
                     cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
                     sourceRadius );
+        break;
 
     }
     default:
@@ -136,6 +147,6 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
     return radiationPressureInterface;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

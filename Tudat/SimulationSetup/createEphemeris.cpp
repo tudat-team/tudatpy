@@ -1,44 +1,25 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      150501    D. Dirkx          Ported from personal code
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/lexical_cast.hpp>
 
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#endif
+
+#include "Tudat/Astrodynamics/Ephemerides/keplerEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
+#include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 #include "Tudat/SimulationSetup/createEphemeris.h"
 
@@ -50,38 +31,6 @@ namespace simulation_setup
 
 using namespace ephemerides;
 
-//! Function to create a tabulated ephemeris using data from Spice.
-boost::shared_ptr< Ephemeris > createTabulatedEphemerisFromSpice(
-        const std::string& body,
-        const double initialTime,
-        const double endTime,
-        const double timeStep,
-        const std::string& observerName,
-        const std::string& referenceFrameName )
-{
-    using namespace interpolators;
-
-    std::map< double, basic_mathematics::Vector6d > timeHistoryOfState;
-
-    // Calculate state from spice at given time intervals and store in timeHistoryOfState.
-    double currentTime = initialTime;
-    while( currentTime < endTime )
-    {
-        timeHistoryOfState[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
-                    body, observerName, referenceFrameName, "none", currentTime );
-        currentTime += timeStep;
-    }
-
-    // Create interpolator.
-    boost::shared_ptr< LagrangeInterpolator< double, basic_mathematics::Vector6d > > interpolator =
-            boost::make_shared< LagrangeInterpolator< double, basic_mathematics::Vector6d > >(
-                timeHistoryOfState, 6, huntingAlgorithm,
-                lagrange_cubic_spline_boundary_interpolation );
-
-    // Create ephemeris and return.
-    return boost::make_shared< TabulatedCartesianEphemeris >(
-                interpolator, observerName, referenceFrameName );
-}
 //! Function to create a ephemeris model.
 boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
@@ -93,6 +42,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
     // Check which type of ephemeris model is to be created.
     switch( ephemerisSettings->getEphemerisType( ) )
     {
+#if USE_CSPICE
     case direct_spice_ephemeris:
     {
         // Check consistency of type and class.
@@ -133,26 +83,42 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             // ephemerides, append 'Barycenter' to body name.
             std::string inputName;
             inputName = bodyName;
-            if( bodyName == "Mercury" || bodyName == "Venus" || bodyName == "Mars" ||
+            if( bodyName == "Mars" ||
                     bodyName == "Jupiter"  || bodyName == "Saturn" ||
                     bodyName == "Uranus" || bodyName == "Neptune" )
             {
                 inputName += " Barycenter";
-                std::cerr<<"Warning, position of "<<bodyName<<" taken as baycenter of that body's "
+                std::cerr<<"Warning, position of "<<bodyName<<" taken as barycenter of that body's "
                         <<"planetary system."<<std::endl;
             }
 
             // Create corresponding ephemeris object.
-            ephemeris = createTabulatedEphemerisFromSpice(
+            if( !interpolatedEphemerisSettings->getUseLongDoubleStates( ) )
+            {
+                ephemeris = createTabulatedEphemerisFromSpice< double, double >(
                         inputName,
                         interpolatedEphemerisSettings->getInitialTime( ),
                         interpolatedEphemerisSettings->getFinalTime( ),
                         interpolatedEphemerisSettings->getTimeStep( ),
                         interpolatedEphemerisSettings->getFrameOrigin( ),
-                        interpolatedEphemerisSettings->getFrameOrientation( ) );
+                        interpolatedEphemerisSettings->getFrameOrientation( ),
+                        interpolatedEphemerisSettings->getInterpolatorSettings( ) );
+            }
+            else
+            {
+                ephemeris = createTabulatedEphemerisFromSpice< long double, double >(
+                        inputName,
+                        static_cast< long double >( interpolatedEphemerisSettings->getInitialTime( ) ),
+                        static_cast< long double >( interpolatedEphemerisSettings->getFinalTime( ) ),
+                        static_cast< long double >( interpolatedEphemerisSettings->getTimeStep( ) ),
+                        interpolatedEphemerisSettings->getFrameOrigin( ),
+                        interpolatedEphemerisSettings->getFrameOrientation( ),
+                        interpolatedEphemerisSettings->getInterpolatorSettings( ) );
+            }
         }
         break;
     }
+#endif
     case tabulated_ephemeris:
     {
         // Check consistency of type and class.
@@ -166,14 +132,81 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         else
         {
             // Create corresponding ephemeris object.
-            ephemeris = boost::make_shared< TabulatedCartesianEphemeris >(
-                        boost::make_shared<
-                        interpolators::LagrangeInterpolator< double, basic_mathematics::Vector6d > >
-                        ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
-                          interpolators::huntingAlgorithm,
-                          interpolators::lagrange_cubic_spline_boundary_interpolation ),
-                        tabulatedEphemerisSettings->getFrameOrigin( ),
-                        tabulatedEphemerisSettings->getFrameOrientation( ) );
+            if( !tabulatedEphemerisSettings->getUseLongDoubleStates( ) )
+            {
+                ephemeris = boost::make_shared< TabulatedCartesianEphemeris< > >(
+                            boost::make_shared<
+                            interpolators::LagrangeInterpolator< double, basic_mathematics::Vector6d > >
+                            ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
+                              interpolators::huntingAlgorithm,
+                              interpolators::lagrange_cubic_spline_boundary_interpolation ),
+                            tabulatedEphemerisSettings->getFrameOrigin( ),
+                            tabulatedEphemerisSettings->getFrameOrientation( ) );
+            }
+            else
+            {
+                // Cast input history to required type.
+                std::map< double, basic_mathematics::Vector6d > originalStateHistory =
+                        tabulatedEphemerisSettings->getBodyStateHistory( );
+                std::map< double, Eigen::Matrix< long double, 6, 1 > > longStateHistory;
+
+                for( std::map< double, basic_mathematics::Vector6d >::const_iterator stateIterator =
+                     originalStateHistory.begin( ); stateIterator != originalStateHistory.end( ); stateIterator++ )
+                {
+                    longStateHistory[ stateIterator->first ] = stateIterator->second.cast< long double >( );
+                    ephemeris =
+                            boost::make_shared< TabulatedCartesianEphemeris< long double, double > >(
+                                boost::make_shared< interpolators::LagrangeInterpolator<
+                                double, Eigen::Matrix< long double, 6, 1 > > >
+                                ( longStateHistory, 6,
+                                  interpolators::huntingAlgorithm,
+                                  interpolators::lagrange_cubic_spline_boundary_interpolation ),
+                                tabulatedEphemerisSettings->getFrameOrigin( ),
+                                tabulatedEphemerisSettings->getFrameOrientation( ) );
+                }
+            }
+        }
+        break;
+    }
+    case constant_ephemeris:
+    {
+        // Check consistency of type and class.
+        boost::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
+                boost::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
+        if( constantEphemerisSettings == NULL )
+        {
+            throw std::runtime_error( "Error, expected constant ephemeris settings for " + bodyName );
+        }
+        else
+        {
+            // Create ephemeris
+            ephemeris = boost::make_shared< ConstantEphemeris >(
+                        boost::lambda::constant( constantEphemerisSettings->getConstantState( ) ),
+                        constantEphemerisSettings->getFrameOrigin( ),
+                        constantEphemerisSettings->getFrameOrientation( ) );
+        }
+        break;
+    }
+    case kepler_ephemeris:
+    {
+        // Check consistency of type and class.
+        boost::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
+                boost::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
+        if( keplerEphemerisSettings == NULL )
+        {
+            throw std::runtime_error( "Error, expected Kepler ephemeris settings for " + bodyName );
+        }
+        else
+        {
+            // Create ephemeris
+            ephemeris = boost::make_shared< KeplerEphemeris >(
+                        keplerEphemerisSettings->getInitialStateInKeplerianElements( ),
+                        keplerEphemerisSettings->getEpochOfInitialState( ),
+                        keplerEphemerisSettings->getCentralBodyGravitationalParameter( ),
+                        keplerEphemerisSettings->getFrameOrigin( ),
+                        keplerEphemerisSettings->getFrameOrientation( ),
+                        keplerEphemerisSettings->getRootFinderAbsoluteTolerance( ),
+                        keplerEphemerisSettings->getRootFinderMaximumNumberOfIterations( ) );
         }
         break;
     }
@@ -215,6 +248,6 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
 
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

@@ -53,6 +53,7 @@
 #define TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
 
 #include <cmath>
+#include <vector>
 
 #include <boost/function.hpp>
 
@@ -64,10 +65,36 @@ namespace tudat
 namespace reference_frames
 {
 
+//! Wrapper function to transform a vector to a different frame from a single rotation function.
+/*!
+ * Wrapper function to transform a vector to a different frame from a single rotation function.
+ * \param originalVector Vector that is to be rotated to a new frame
+ * \param rotation Function returning the current rotation to the new frame
+ * \return Vector originalVector, transformed to new frame.
+ */
 Eigen::Vector3d transformVector(
         const Eigen::Vector3d& originalVector,
         const boost::function< Eigen::Quaterniond( ) > rotation );
 
+//! Wrapper function to transform a vector to a different frame from a single transformation function.
+/*!
+ * Wrapper function to transform a vector to a different frame from a single transformation function.
+ * \param originalVector Vector that is to be transformed to a new frame
+ * \param transformationFunction Function transforming a vector to a new frame
+ * \return Vector originalVector, transformed to new frame.
+ */
+Eigen::Vector3d transformVector(
+        const boost::function< Eigen::Vector3d( ) > originalVector,
+        const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction );
+
+//! Wrapper function to transform a vector to a different frame from a list of transformation function.
+/*!
+ * Wrapper function to transform a vector to a different frame from a list of transformation function.
+ * \param originalVector Vector that is to be transformed to a new frame
+ * \param rotationsList List of transformation function, each of which transforms a vector to a new frame. The functions
+ * in this list are called in descending order.
+ * \return Vector originalVector, transformed to new frame.
+ */
 Eigen::Vector3d transformVector(
         const Eigen::Vector3d& originalVector,
         const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );

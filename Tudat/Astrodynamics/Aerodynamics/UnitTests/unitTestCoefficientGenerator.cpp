@@ -52,12 +52,13 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Astrodynamics/Aerodynamics/customAerodynamicCoefficientInterface.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 #include "Tudat/Mathematics/GeometricShapes/capsule.h"
 #include "Tudat/Mathematics/GeometricShapes/sphereSegment.h"
+
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 
 namespace tudat
 {
@@ -91,15 +92,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
             = boost::make_shared< geometric_shapes::SphereSegment >( 1.0 );
 
     // Set vehicle in analysis with 10,000 panels.
-    vector< int > numberOfLines;
-    vector< int > numberOfPoints;
-    vector< bool > invertOrder;
-    numberOfLines.resize( 1 );
-    numberOfPoints.resize( 1 );
-    invertOrder.resize( 1 );
-    numberOfLines[ 0 ] = 31;
-    numberOfPoints[ 0 ] = 31;
-    invertOrder[ 0 ] = 0;
+    vector< int > numberOfLines( 1, 31 );
+    vector< int > numberOfPoints( 1, 31 );
+    vector< bool > invertOrder( 1, false );
 
     // Create analysis object.
     std::vector< std::vector< double > > independentVariableDataPoints;
@@ -114,11 +109,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
 
 
     // Set methods to use for aerodynamic analysis.
-    std::vector< std::vector< int > > analysisMethod;
-    analysisMethod.resize( 2 );
-    analysisMethod[ 0 ].resize( 1 );
-    analysisMethod[ 1 ].resize( 1 );
-    analysisMethod[ 0 ][ 0 ] = 0;
+    std::vector< std::vector< int > > analysisMethod( 2, std::vector< int >( 1, 0 ));
     analysisMethod[ 1 ][ 0 ] = 1;
 
     // Generate sphere database of aerodynamic coefficients.
@@ -156,10 +147,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
     independentVariables[ 0 ] = 0;
     independentVariables[ 1 ] = 0;
     independentVariables[ 2 ] = 0;
-    std::vector< double > independentVariablesVector;
-    independentVariablesVector.resize( 3 );
-    std::vector< double > interpolatingIndependentVariablesVector;
-    interpolatingIndependentVariablesVector.resize( 3 );
+    std::vector< double > independentVariablesVector( 3 );
+    std::vector< double > interpolatingIndependentVariablesVector( 3 );
 
     // Declare local test variables.
     Vector6d aerodynamicCoefficients_ = Vector6d::Zero( );
@@ -286,32 +275,17 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
     }
 }
 
-//! Apollo capsule test case.
-BOOST_AUTO_TEST_CASE( testApolloCapsule )
+boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterface( )
 {
-    // Set units of coefficients.
-    const double expectedValueOfAerodynamicCoefficients0 = -1.51;
-    const double expectedValueOfAerodynamicCoefficients4 = -0.052;
-
-    // Tolerance in absolute units.
-    const double toleranceAerodynamicCoefficients0 = 0.1;
-    const double toleranceAerodynamicCoefficients1 = std::numeric_limits< double >::epsilon( );
-    const double toleranceAerodynamicCoefficients2 = std::numeric_limits< double >::epsilon( );
-    const double toleranceAerodynamicCoefficients3 = std::numeric_limits< double >::epsilon( );
-    const double toleranceAerodynamicCoefficients4 = 0.05;
-    const double toleranceAerodynamicCoefficients5 = std::numeric_limits< double >::epsilon( );
 
     // Create test capsule.
     boost::shared_ptr< geometric_shapes::Capsule > capsule
             = boost::make_shared< geometric_shapes::Capsule >(
                 4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
-    vector< int > numberOfLines;
-    vector< int > numberOfPoints;
-    vector< bool > invertOrders;
-    numberOfLines.resize( 4 );
-    numberOfPoints.resize( 4 );
-    invertOrders.resize( 4 );
+    vector< int > numberOfLines( 4 );
+    vector< int > numberOfPoints( 4 );
+    vector< bool > invertOrders( 4 );
 
     // Set number of analysis points.
     numberOfLines[ 0 ] = 31;
@@ -332,11 +306,9 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     momentReference( 1 ) = 0.0;
     momentReference( 2 ) = -0.1369;
 
-    std::vector< std::vector< double > > independentVariableDataPoints;
-    independentVariableDataPoints.resize( 3 );
+    std::vector< std::vector< double > > independentVariableDataPoints( 3 );
     independentVariableDataPoints[ 0 ] = getDefaultHypersonicLocalInclinationMachPoints( "Full" );
-    std::vector< double > angleOfAttackPoints;
-    angleOfAttackPoints.resize( 7 );
+    std::vector< double > angleOfAttackPoints( 7 );
 
     for ( int i = 0; i < 7; i++ )
     {
@@ -346,10 +318,7 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     independentVariableDataPoints[ 1 ] = angleOfAttackPoints;
     independentVariableDataPoints[ 2 ] =
             getDefaultHypersonicLocalInclinationAngleOfSideslipPoints( );
-    std::vector< std::vector< int > > selectedMethods;
-    selectedMethods.resize( 2 );
-    selectedMethods[ 0 ].resize( 4 );
-    selectedMethods[ 1 ].resize( 4 );
+    std::vector< std::vector< int > > selectedMethods( 2, std::vector< int >( 4 ));
 
     selectedMethods[ 0 ][ 0 ] = 1;
     selectedMethods[ 0 ][ 1 ] = 5;
@@ -361,11 +330,28 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
     selectedMethods[ 1 ][ 3 ] = 3;
 
     // Create analysis object and capsule database.
-    boost::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientInterface =
-            boost::make_shared< HypersonicLocalInclinationAnalysis >(
+    return boost::make_shared< HypersonicLocalInclinationAnalysis >(
                 independentVariableDataPoints, capsule, numberOfLines, numberOfPoints,
                 invertOrders, selectedMethods, PI * pow( capsule->getMiddleRadius( ), 2.0 ),
                 3.9116, momentReference );
+}
+//! Apollo capsule test case.
+BOOST_AUTO_TEST_CASE( testApolloCapsule )
+{
+    // Set units of coefficients.
+    const double expectedValueOfAerodynamicCoefficients0 = -1.51;
+    const double expectedValueOfAerodynamicCoefficients4 = -0.052;
+
+    // Tolerance in absolute units.
+    const double toleranceAerodynamicCoefficients0 = 0.1;
+    const double toleranceAerodynamicCoefficients1 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients2 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients3 = std::numeric_limits< double >::epsilon( );
+    const double toleranceAerodynamicCoefficients4 = 0.05;
+    const double toleranceAerodynamicCoefficients5 = std::numeric_limits< double >::epsilon( );
+
+    // Create aerodynamic coefficients.
+    boost::shared_ptr< HypersonicLocalInclinationAnalysis > coefficientInterface = getApolloCoefficientInterface( );
 
     // Retrieve coefficients at zero angle of attack for comparison.
     boost::array< int, 3 > independentVariables;
@@ -402,8 +388,7 @@ BOOST_AUTO_TEST_CASE( testApolloCapsule )
                        toleranceAerodynamicCoefficients5 );
 
 
-    std::vector< double > independentVariablesVector;
-    independentVariablesVector.resize( 3 );
+    std::vector< double > independentVariablesVector( 3 );
     independentVariablesVector[ 0 ] = coefficientInterface->getIndependentVariablePoint(
                 0, coefficientInterface->getNumberOfValuesOfIndependentVariable( 0 ) - 1 );
     independentVariablesVector[ 1 ] = coefficientInterface->getIndependentVariablePoint(

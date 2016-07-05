@@ -1,38 +1,16 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      150501    D. Dirkx          Ported from personal code
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#endif
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/defaultBodies.h"
 
@@ -68,9 +46,13 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const double initialTime,
         const double finalTime )
 {
+#if USE_CSPICE
     // Create settings for an interpolated Spice ephemeris.
     return boost::make_shared< InterpolatedSpiceEphemerisSettings >(
                 initialTime, finalTime, 300.0, "SSB", "ECLIPJ2000" );
+#else
+    throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
+#endif
 }
 
 //! Function to create default settings for a body's gravity field model.
@@ -79,9 +61,38 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
         const double initialTime,
         const double finalTime )
 {
-    // Create settings for a point mass gravity with data from Spice
-    return boost::make_shared< GravityFieldSettings >( central_spice );
+    if( bodyName == "Earth" )
+    {
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+        std::string earthGravityFieldFile =
+                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/egm96_coefficients.dat";
+        readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients );
+
+        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    0.3986004418E15, 6378137.0, coefficients.first, coefficients.second, "IAU_Earth" );
+    }
+    else if( bodyName == "Moon" )
+    {
+        std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
+        std::string earthGravityFieldFile =
+                input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab";
+        std::pair< double, double > referenceData =
+                readGravityFieldFile( earthGravityFieldFile, 50, 50, coefficients, 1, 0 );
+        return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    referenceData.first, referenceData.second, coefficients.first, coefficients.second, "IAU_Moon" );
+
+    }
+    else
+    {
+#if USE_CSPICE
+        // Create settings for a point mass gravity with data from Spice
+        return boost::make_shared< GravityFieldSettings >( central_spice );
+#else
+        throw std::runtime_error( "Default gravity field settings can only be used together with the SPICE library" );
+#endif
+    }
 }
+
 
 //! Function to create default settings from which to create a single body object.
 boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
@@ -89,17 +100,26 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const double initialTime,
         const double finalTime )
 {
+#if USE_CSPICE
     // Create settings for a rotation model taken directly from Spice.
     return boost::make_shared< RotationModelSettings >(
                 spice_rotation_model, "ECLIPJ2000", "IAU_" + bodyName );
+#else
+    throw std::runtime_error( "Default rotational model settings can only be used together with the SPICE library" );
+#endif
 }
 
+//! Function to create default settings for a body's shape model.
 boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
         const std::string& body,
         const double initialTime, const double finalTime )
 {
+#if USE_CSPICE
     return boost::make_shared< SphericalBodyShapeSettings >(
                 spice_interface::getAverageRadius( body ) );
+#else
+    throw std::runtime_error( "Default body settings can only be used together with the SPICE library" );
+#endif
 }
 
 //! Function to create default settings for a body's rotation model.
@@ -144,6 +164,6 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
     return settingsMap;
 }
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat

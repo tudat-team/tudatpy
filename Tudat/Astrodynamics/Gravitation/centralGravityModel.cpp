@@ -60,10 +60,10 @@ Eigen::Vector3d computeGravitationalAcceleration(
         const double gravitationalParameterOfBodyExertingAcceleration,
         const Eigen::Vector3d& positionOfBodyExertingAcceleration )
 {
+    double distance = ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration ).norm( );
     return -gravitationalParameterOfBodyExertingAcceleration
             * ( positionOfBodySubjectToAcceleration - positionOfBodyExertingAcceleration )
-            / std::pow( ( positionOfBodySubjectToAcceleration
-                          - positionOfBodyExertingAcceleration ).norm( ), 3.0 );
+            / ( distance * distance * distance );
 }
 
 //! Compute gravitational force.

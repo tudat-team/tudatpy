@@ -66,6 +66,7 @@
 #include <boost/exception/all.hpp>
 #include <boost/math/special_functions/atanh.hpp>
 
+#include <iostream>
 #include <cmath>
 #include <limits>
 
@@ -374,8 +375,22 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
     // the unit vector to the ascending node.
     else
     {
-        computedKeplerianElements_( argumentOfPeriapsisIndex )
-                = std::acos( eccentricityVector_.normalized( ).dot( unitAscendingNodeVector_ ) );
+        ScalarType eccentricityAscendingNodeDotProduct = eccentricityVector_.normalized( ).dot( unitAscendingNodeVector_ );
+
+        // Check whether dot product is in bounds (might be out of bounds due to numerical noise).
+        if( eccentricityAscendingNodeDotProduct < mathematical_constants::getFloatingInteger< ScalarType >( -1 ) )
+        {
+            computedKeplerianElements_( argumentOfPeriapsisIndex ) = mathematical_constants::getPi< ScalarType >( );
+        }
+        else if( eccentricityAscendingNodeDotProduct > mathematical_constants::getFloatingInteger< ScalarType >( 1 ) )
+        {
+            computedKeplerianElements_( argumentOfPeriapsisIndex ) =
+                    mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+        }
+        else
+        {
+             computedKeplerianElements_( argumentOfPeriapsisIndex ) = std::acos( eccentricityAscendingNodeDotProduct );
+        }
 
         // Check if the quadrant is correct.
         if ( argumentOfPeriapsisQuandrantCondition <
@@ -392,13 +407,20 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
     ScalarType dotProductPositionAndEccentricityVectors
             = position_.normalized( ).dot( eccentricityVector_.normalized( ) );
 
-    // Check if the dot-product is one of the limiting cases: 0.0 or 1.0
+    // Check if the dot-product is one of the limiting cases: 0.0, -1.0 or 1.0
     // (within prescribed tolerance).
     if ( std::fabs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) -
                     dotProductPositionAndEccentricityVectors ) < tolerance )
     {
         dotProductPositionAndEccentricityVectors =
                 mathematical_constants::getFloatingInteger< ScalarType >( 1 );
+    }
+    
+    if ( std::fabs( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) +
+                    dotProductPositionAndEccentricityVectors ) < tolerance )
+    {
+        dotProductPositionAndEccentricityVectors =
+                -mathematical_constants::getFloatingInteger< ScalarType >( 1 );
     }
 
     if ( std::fabs( dotProductPositionAndEccentricityVectors ) < tolerance )

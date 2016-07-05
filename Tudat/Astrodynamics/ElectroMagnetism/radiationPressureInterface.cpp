@@ -52,8 +52,11 @@ double calculateRadiationPressure( const double sourcePower, const double distan
 }
 
 //! Function to update the current value of the radiation pressure
-void RadiationPressureInterface::updateInterface( )
+void RadiationPressureInterface::updateInterface(
+        const double currentTime )
 {
+    currentTime_ = currentTime;
+
     // Calculate current radiation pressure
     currentSolarVector_ = sourcePositionFunction_( ) - targetPositionFunction_( );
     double distanceFromSource = currentSolarVector_.norm( );
@@ -72,8 +75,7 @@ void RadiationPressureInterface::updateInterface( )
 
         if( currentShadowFunction != 1.0 && shadowFunction != 1.0 )
         {
-            std::cerr<<"Warning, multiple occultation occured in radiation pressure interface, "
-                    <<"results may be slightly in error"<<std::endl;
+            std::cerr << "Warning, multiple occultation occured in radiation pressure interface, results may be slightly in error" << std::endl;
         }
 
         shadowFunction *= currentShadowFunction;
@@ -82,6 +84,5 @@ void RadiationPressureInterface::updateInterface( )
     currentRadiationPressure_ *= shadowFunction;
 }
 
-}
-
-}
+} // namespace electro_magnetism
+} // namespace tudat

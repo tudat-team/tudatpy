@@ -41,8 +41,8 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
-#include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -79,10 +79,10 @@ public:
      *  \param radiationPressureCoefficient Reflectivity coefficient of the target body.
      *  \param area Reflecting area of the target body.
      *  \param occultingBodyPositions List of functions returning the positions of the bodies
-     *  causing occultations (default none) NOTE: Multplie concurrent occultations may currently
+     *  causing occultations (default none) NOTE: Multiple concurrent occultations may currently
      *  result in slighlty underestimted radiation pressure.
      *  \param occultingBodyRadii List of radii of the bodies causing occultations (default none).
-     *  \param sourceRadius Radius of the source body (used for occultation calculations)
+     *  \param sourceRadius Radius of the source body (used for occultation calculations) (default 0).
      */
     RadiationPressureInterface(
             const boost::function< double( ) > sourcePower,
@@ -100,17 +100,20 @@ public:
         occultingBodyPositions_( occultingBodyPositions ),
         occultingBodyRadii_( occultingBodyRadii ),
         sourceRadius_( sourceRadius ),
-        currentRadiationPressure_( 0.0 ){ }
+        currentRadiationPressure_( TUDAT_NAN ),
+        currentSolarVector_( Eigen::Vector3d::Zero( ) ),
+        currentTime_( TUDAT_NAN ){ }
 
     //! Destructor
-    ~RadiationPressureInterface( ){ }
+    virtual ~RadiationPressureInterface( ){ }
 
     //! Function to update the current value of the radiation pressure
     /*!
      *  Function to update the current value of the radiation pressure, based on functions returning
      *  the positions of the bodies involved and the source power.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateInterface( );
+    void updateInterface( const double currentTime = TUDAT_NAN );
 
     //! Function to return the current radiation pressure due to source at target (in N/m^2).
     /*!
@@ -139,7 +142,7 @@ public:
      */
     boost::function< Eigen::Vector3d( ) > getSourcePositionFunction( ) const
     {
-        return sourcePositionFunction_ ;
+        return sourcePositionFunction_;
     }
 
     //! Function to return the function returning the current position of the target body.
@@ -149,7 +152,7 @@ public:
      */
     boost::function< Eigen::Vector3d( ) > getTargetPositionFunction( ) const
     {
-        return targetPositionFunction_ ;
+        return targetPositionFunction_;
     }
 
     //! Function to return the reflecting area of the target body.
@@ -172,6 +175,16 @@ public:
         return radiationPressureCoefficient_;
     }
 
+    //! Function to reset the radiation pressure coefficient of the target body.
+    /*!
+     *  Function to reset the radiation pressure coefficient of the target body.
+     *  \param radiationPressureCoefficient The new radiation pressure coefficient of the target body.
+     */
+    void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
+    {
+        radiationPressureCoefficient_ = radiationPressureCoefficient;
+    }
+
     //! Function to return the function returning the current total power (in W) emitted by the
     //! source body.
     /*!
@@ -182,6 +195,16 @@ public:
     boost::function< double( ) > getSourcePowerFunction( ) const
     {
         return sourcePower_;
+    }
+
+    //! Function to return the current time of interface (i.e. time of last updateInterface call).
+    /*!
+     *  Function to return the current time of interface (i.e. time of last updateInterface call).
+     *  \return Current time of interface (i.e. time of last updateInterface call).
+     */
+    double getCurrentTime( )
+    {
+        return currentTime_;
     }
 
     //! Function to return the list of functions returning the positions of the bodies causing
@@ -249,10 +272,12 @@ protected:
 
     //! Current vector from the target to the source.
     Eigen::Vector3d currentSolarVector_;
+
+    //! Current time of interface (i.e. time of last updateInterface call).
+    double currentTime_;
 };
 
-}
+} // namespace electro_magnetism
+} // namespace tudat
 
-}
-
-#endif // RADIATIONPRESSUREINTERFACE_H
+#endif // TUDAT_RADIATIONPRESSUREINTERFACE_H

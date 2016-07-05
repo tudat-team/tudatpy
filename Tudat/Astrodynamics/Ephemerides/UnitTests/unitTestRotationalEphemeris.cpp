@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_SUITE( test_rotational_ephemeris )
 // Test functions to calculate rotation matrix derivative from angular velocity vector and vice
 // versa.
 BOOST_AUTO_TEST_CASE( testRotationalEphemeris )
-{    
+{
     // Define names of frames.
     const std::string baseFrame = "J2000";
     const std::string targetFrame = "IAU_VENUS";

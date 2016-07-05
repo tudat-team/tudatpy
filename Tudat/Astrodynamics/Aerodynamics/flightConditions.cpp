@@ -1,8 +1,23 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
+#include <iostream>
+
+#include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
+#include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -20,7 +35,6 @@ FlightConditions::FlightConditions(
         const boost::function< basic_mathematics::Vector6d( ) > stateOfCentralBody,
         const boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
         transformationToCentralBodyFrame,
-        const boost::function< double( ) > currentTimeFunction,
         const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
         const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
         aerodynamicAngleCalculator ):
@@ -29,9 +43,9 @@ FlightConditions::FlightConditions(
     stateOfVehicle_( stateOfVehicle ),
     stateOfCentralBody_( stateOfCentralBody ),
     transformationToCentralBodyFrame_( transformationToCentralBodyFrame ),
-    currentTimeFunction_( currentTimeFunction ),
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
-    aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
+    aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),currentAltitude_( TUDAT_NAN ),
+    currentLatitude_( TUDAT_NAN ), currentLongitude_( TUDAT_NAN ), currentTime_( TUDAT_NAN )
 {
     updateLatitudeAndLongitude_ = 0;
 
@@ -47,10 +61,30 @@ FlightConditions::FlightConditions(
     }
 }
 
-//! Function to update all flight conditions.
-void FlightConditions::updateConditions(  )
+//! Function to set custom dependency of aerodynamic coefficients
+void FlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
+        const AerodynamicCoefficientsIndependentVariables independentVariable,
+        const boost::function< double( ) > coefficientDependency )
 {
-    currentTime_ = currentTimeFunction_( );
+    if( ( independentVariable == mach_number_dependent ) ||
+            ( independentVariable == angle_of_attack_dependent ) ||
+            ( independentVariable == angle_of_sideslip_dependent ) )
+    {
+        throw std::runtime_error(
+                    std::string( "Error when setting aerodynamic coefficient function dependency, value of parameter " ) +
+                    boost::lexical_cast< std::string >( independentVariable ) +
+                    std::string(", will not  be used." ) );
+    }
+    else
+    {
+        customCoefficientDependencies_[ independentVariable ] = coefficientDependency;
+    }
+}
+
+//! Function to update all flight conditions.
+void FlightConditions::updateConditions( const double currentTime )
+{
+    currentTime_ = currentTime;
 
     // Calculate state of vehicle in global frame and corotating frame.
     currentBodyCenteredState_ = stateOfVehicle_( ) - stateOfCentralBody_( );
@@ -62,10 +96,10 @@ void FlightConditions::updateConditions(  )
             altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
     currentAirspeed_ = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
 
-    // Update aerodynamic/geometric angles.
+    // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
     if( aerodynamicAngleCalculator_!= NULL )
     {
-        aerodynamicAngleCalculator_->update( );
+        aerodynamicAngleCalculator_->update( false );
     }
 
     // Update latitude and longitude (if required)
@@ -81,8 +115,25 @@ void FlightConditions::updateConditions(  )
     currentDensity_ = atmosphereModel_->getDensity( currentAltitude_, currentLongitude_,
                                                     currentLatitude_, currentTime_ );
 
+    updateAerodynamicCoefficientInput( );
+
+    // Update angles from aerodynamic to body-fixed frame (if relevant).
+    if( aerodynamicAngleCalculator_!= NULL )
+    {
+        aerodynamicAngleCalculator_->update( true );
+        updateAerodynamicCoefficientInput( );
+    }
+
+    // Update aerodynamic coefficients.
+    aerodynamicCoefficientInterface_->updateCurrentCoefficients(
+                aerodynamicCoefficientIndependentVariables_ );
+}
+
+void FlightConditions::updateAerodynamicCoefficientInput( )
+{
+    aerodynamicCoefficientIndependentVariables_.clear( );
+
     // Calculate independent variables for aerodynamic coefficients.
-    std::vector< double > aerodynamicCoefficientIndependentVariables;
     for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->
          getNumberOfIndependentVariables( ); i++ )
     {
@@ -90,9 +141,10 @@ void FlightConditions::updateConditions(  )
         {
         //Calculate Mach number if needed.
         case mach_number_dependent:
-            aerodynamicCoefficientIndependentVariables.push_back(
-                        currentAirspeed_ / atmosphereModel_->getSpeedOfSound(
-                            currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) );
+            aerodynamicCoefficientIndependentVariables_.push_back(
+                        aerodynamics::computeMachNumber(
+                        currentAirspeed_, atmosphereModel_->getSpeedOfSound(
+                            currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) ) );
             break;
         //Get angle of attack if needed.
         case angle_of_attack_dependent:
@@ -101,7 +153,7 @@ void FlightConditions::updateConditions(  )
             {
                 throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of attack" );
             }
-            aerodynamicCoefficientIndependentVariables.push_back(
+            aerodynamicCoefficientIndependentVariables_.push_back(
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
                             reference_frames::angle_of_attack ) );
             break;
@@ -111,23 +163,45 @@ void FlightConditions::updateConditions(  )
             {
                 throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
             }
-            aerodynamicCoefficientIndependentVariables.push_back(
+            aerodynamicCoefficientIndependentVariables_.push_back(
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
                             reference_frames::angle_of_sideslip ) );
+            break;
         default:
-            throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
-                                      + boost::lexical_cast< std::string >(
-                            aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
+            if( customCoefficientDependencies_.count(
+                        aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error, did not recognize aerodynamic coefficient dependency "
+                                          + boost::lexical_cast< std::string >(
+                                              aerodynamicCoefficientInterface_->getIndependentVariableName( i ) ) );
+            }
+            else
+            {
+                aerodynamicCoefficientIndependentVariables_.push_back(
+                            customCoefficientDependencies_.at(
+                                aerodynamicCoefficientInterface_->getIndependentVariableName( i ) )( ) );
+            }
         }
     }
-
-    // Update aerodynamic coefficients.
-    aerodynamicCoefficientInterface_->updateCurrentCoefficients(
-                aerodynamicCoefficientIndependentVariables );
-
-
 }
 
+//! Function to set the angle of attack to trimmed conditions.
+void setTrimmedConditions(
+        const boost::shared_ptr< FlightConditions > flightConditions )
+{
+    // Create trim object.
+    boost::shared_ptr< TrimOrientationCalculator > trimOrientation =
+            boost::make_shared< TrimOrientationCalculator >(
+                flightConditions->getAerodynamicCoefficientInterface( ) );
+
+    // Create angle-of-attack function from trim object.
+    boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
+            boost::bind( &FlightConditions::getAerodynamicCoefficientIndependentVariables,
+                         flightConditions );
+    flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+                boost::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
+                             untrimmedIndependentVariablesFunction ) );
+}
 
 }
 

@@ -1,35 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      150501    D. Dirkx          Ported from personal code
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
 #ifndef TUDAT_CREATEEPHEMERIS_H
@@ -42,7 +18,10 @@
 
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
 
 namespace tudat
 {
@@ -60,7 +39,9 @@ enum EphemerisType
     approximate_planet_positions,
     direct_spice_ephemeris,
     tabulated_ephemeris,
-    interpolated_spice
+    interpolated_spice,
+    constant_ephemeris,
+    kepler_ephemeris
 };
 
 //! Class for providing settings for ephemeris model.
@@ -80,8 +61,10 @@ public:
      *  Settings for ephemeris models requiring additional information should be defined in a
      *  derived class.
      *  \param ephemerisType Type of ephemeris model that is to be created.
-     *  \param frameOrigin Origin of frame in which ephemeris data is defined.
-     *  \param frameOrientation Orientation of frame in which ephemeris data is defined.
+     *  \param frameOrigin Origin of frame in which ephemeris data is defined
+     *         (optional "SSB" by default).
+     *  \param frameOrientation Orientation of frame in which ephemeris data is defined
+     *         (optional "ECLIPJ2000" by default).
      */
     EphemerisSettings( const EphemerisType ephemerisType,
                        const std::string& frameOrigin = "SSB",
@@ -114,6 +97,21 @@ public:
      */
     std::string getFrameOrientation( ){ return frameOrientation_;}
 
+    //! Function to reset the origin of the frame.
+    /*!
+     * Function to reset the origin of the frame.
+     * \param frameOrigin New frame origin
+     */
+    void resetFrameOrigin( const std::string& frameOrigin ){ frameOrigin_ = frameOrigin; }
+
+    //! Function to rese the orientation of the frame.
+    /*!
+     * Function to reset the orientation of the frame.
+     * \param frameOrientation New frame orientation
+     */
+    void resetFrameOrientation( const std::string& frameOrientation ){ frameOrientation_ = frameOrientation; }
+
+
 protected:
 
     //! Type of ephemeris model that is to be created.
@@ -133,25 +131,26 @@ public:
 
     //! Constructor.
     /*! Constructor, sets the properties from which the Spice ephemeris is to be retrieved.
-     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated.
+     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated
+     *        (optional "SSB" by default).
      * \param correctForStellarAbberation Boolean whether to correct for stellar Abberation in
-     *          retrieved values of (observed state).
+     *          retrieved values of (observed state) (optional "ECLIPJ2000" by defalut).
      * \param correctForLightTimeAbberation Boolean whether to correct for light time in
-     *          retrieved values of (observed state).
+     *          retrieved values of (observed state) (optional false by default).
      * \param convergeLighTimeAbberation Boolean whether to use single iteration or max. 3
-     *          iterations for calculating light time.
+     *          iterations for calculating light time (optional false by default).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
-     *          calculated.
+     *          calculated (optional false by default).
      * \param ephemerisType Type of ephemeris that is to be created, always set to
      *          direct_spice_ephemeris when using this class directly. The derived class
      *          InterpolatedSpiceEphemerisSettings sets this parameter to a different value. Not
-     *          to be changed by used.
+     *          to be changed by used (optional direct_spice_ephemeris by default).
      */
     DirectSpiceEphemerisSettings( const std::string frameOrigin = "SSB",
                                   const std::string frameOrientation = "ECLIPJ2000",
-                                  const bool correctForStellarAbberation = 0,
-                                  const bool correctForLightTimeAbberation = 0,
-                                  const bool convergeLighTimeAbberation = 0,
+                                  const bool correctForStellarAbberation = false,
+                                  const bool correctForLightTimeAbberation = false,
+                                  const bool convergeLighTimeAbberation = false,
                                   const EphemerisType ephemerisType = direct_spice_ephemeris ):
         EphemerisSettings( ephemerisType, frameOrigin, frameOrientation ),
         correctForStellarAbberation_( correctForStellarAbberation ),
@@ -217,39 +216,65 @@ public:
      * \param initialTime Initial time from which interpolated data from Spice should be created.
      * \param finalTime Final time from which interpolated data from Spice should be created.
      * \param timeStep Time step with which interpolated data from Spice should be created.
-     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated.
+     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated
+     *        (optional "SSB" by default).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
-     *          calculated.
+     *          calculated (optional "ECLIPJ2000" by default).
+     * \param interpolatorSettings Settings to be used for the state interpolation.
      */
     InterpolatedSpiceEphemerisSettings( double initialTime,
                                         double finalTime,
                                         double timeStep,
                                         std::string frameOrigin = "SSB",
-                                        std::string frameOrientation = "ECLIPJ2000" ):
+                                        std::string frameOrientation = "ECLIPJ2000",
+                                        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
         DirectSpiceEphemerisSettings( frameOrigin, frameOrientation, 0, 0, 0,
                                       interpolated_spice ),
-        initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ){ }
+        initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
+        interpolatorSettings_( interpolatorSettings ), useLongDoubleStates_( 0 ){ }
 
-    //! Function to returns initial time from which interpolated data from Spice should be created.
+    //! Function to return initial time from which interpolated data from Spice should be created.
     /*!
-     *  Function to returns initial time from which interpolated data from Spice should be created.
+     *  Function to return initial time from which interpolated data from Spice should be created.
      *  \return Initial time from which interpolated data from Spice should be created.
      */
     double getInitialTime( ){ return initialTime_; }
 
-    //! Function to returns final time from which interpolated data from Spice should be created.
+    //! Function to return final time from which interpolated data from Spice should be created.
     /*!
-     *  Function to returns final time from which interpolated data from Spice should be created.
+     *  Function to return final time from which interpolated data from Spice should be created.
      *  \return Final time from which interpolated data from Spice should be created.
      */
     double getFinalTime( ){ return finalTime_; }
 
-    //! Function to returns time step with which interpolated data from Spice should be created.
+    //! Function to return time step with which interpolated data from Spice should be created.
     /*!
-     *  Function to returns time step with which interpolated data from Spice should be created.
+     *  Function to return time step with which interpolated data from Spice should be created.
      *  \return Time step with which interpolated data from Spice should be created.
      */
     double getTimeStep( ){ return timeStep_; }
+
+    //! Function to return settings to be used for the state interpolation.
+    /*!
+     *  Function to return settings to be used for the state interpolation.
+     *  \return Settings to be used for the state interpolation.
+     */
+
+    boost::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
+    {
+        return interpolatorSettings_;
+    }
+
+    bool getUseLongDoubleStates( )
+    {
+        return useLongDoubleStates_;
+    }
+
+    void setUseLongDoubleStates( const bool useLongDoubleStates )
+    {
+        useLongDoubleStates_ = useLongDoubleStates;
+    }
 
 private:
 
@@ -262,6 +287,10 @@ private:
     //! Time step with which interpolated data from Spice should be created.
     double timeStep_;
 
+    //! Settings to be used for the state interpolation.
+    boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+
+    bool useLongDoubleStates_;
 };
 
 //! EphemerisSettings derived class for defining settings of an approximate ephemeris for major
@@ -326,6 +355,151 @@ private:
      bool useCircularCoplanarApproximation_;
 };
 
+
+//! EphemerisSettings derived class for defining settings of an ephemeris producing a constant
+//! (time-independent) state
+class ConstantEphemerisSettings: public EphemerisSettings
+{
+public:
+
+    //! Constructor of settings for an ephemeris producing a constant (time-independent) state.
+    /*!
+     * Constructor of settings for an ephemeris producing a constant (time-independent) state.
+     * \param constantState Constant state that will be provided as output of the ephemeris at all times.
+     * \param frameOrigin Origin of frame in which ephemeris data is defined.
+     * \param frameOrientation Orientation of frame in which ephemeris data is defined.
+     */
+    ConstantEphemerisSettings( const basic_mathematics::Vector6d& constantState,
+                               const std::string& frameOrigin = "SSB",
+                               const std::string& frameOrientation = "ECLIPJ2000" ):
+        EphemerisSettings( constant_ephemeris,
+                           frameOrigin,
+                           frameOrientation ), constantState_( constantState ){ }
+
+    //! Function to return the constant state for output of the ephemeris at all times.
+    /*!
+     *  Function to return the constant state that will be provided as output of the ephemeris at
+     *  all times.
+     *  \return Boolean defining whether a circular, coplanar orbit of the body is to be assumed.
+     */
+    basic_mathematics::Vector6d getConstantState( ){ return constantState_; }
+
+private:
+
+    //! Constant state that will be provided as output of the ephemeris at all times.
+    basic_mathematics::Vector6d constantState_;
+};
+
+//! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
+//! Kepler orbit.
+class KeplerEphemerisSettings: public EphemerisSettings
+{
+public:
+    //! Constructor
+    /*!
+    *  Constructor
+    *  \param initialStateInKeplerianElements Kepler elements at time epochOfInitialState.
+    *  \param epochOfInitialState Time at which initialStateInKeplerianElements represents
+    *  the Keplerian state.
+    *  \param centralBodyGravitationalParameter Gravitational parameter of the central body
+    *  that is used in the computations.
+    *  \param referenceFrameOrigin Origin of reference frame (string identifier).
+    *  \param referenceFrameOrientation Orientation of reference frame (string identifier)
+    *  \param rootFinderAbsoluteTolerance Convergence tolerance for root finder used to
+    *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris.
+    *  \param rootFinderMaximumNumberOfIterations Maximum iteration for root finder used to
+    *  convert mean to eccentric anomaly on each call to getCartesianStateFromEphemeris.
+    */
+    KeplerEphemerisSettings( const basic_mathematics::Vector6d& initialStateInKeplerianElements,
+                             const double epochOfInitialState,
+                             const double centralBodyGravitationalParameter,
+                             const std::string& referenceFrameOrigin = "SSB",
+                             const std::string& referenceFrameOrientation = "ECLIPJ2000",
+                             const double rootFinderAbsoluteTolerance =
+            200.0 * std::numeric_limits< double >::epsilon( ),
+                             const double rootFinderMaximumNumberOfIterations = 1000.0 ):
+        EphemerisSettings( kepler_ephemeris, referenceFrameOrigin, referenceFrameOrientation ),
+        initialStateInKeplerianElements_( initialStateInKeplerianElements ),
+        epochOfInitialState_( epochOfInitialState ),
+        centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
+        rootFinderAbsoluteTolerance_( rootFinderAbsoluteTolerance ),
+        rootFinderMaximumNumberOfIterations_( rootFinderMaximumNumberOfIterations ){ }
+
+
+    //! Function to return the kepler elements at time epochOfInitialState.
+    /*!
+     *  Function to return the kepler elements at time epochOfInitialState.
+     *  \return Kepler elements at time epochOfInitialState.
+     */
+    basic_mathematics::Vector6d getInitialStateInKeplerianElements( )
+    {
+        return initialStateInKeplerianElements_;
+    }
+
+    //! Function to return the initial epoch from which propagation of Kepler orbit is performed.
+    /*!
+     *  Function to return the initial epoch from which propagation of Kepler orbit is performed.
+     *  \return  Initial epoch from which propagation of Kepler orbit is performed.
+     */
+    double getEpochOfInitialState( )
+    {
+        return epochOfInitialState_;
+    }
+
+    //! Function to return the gravitational parameter of central body about which the Kepler orbit
+    //! is defined.
+    /*!
+     *  Function to return the gravitational parameter of central body about which the Kepler orbit
+     *  is defined.
+     *  \return Gravitational parameter of central body about which the Kepler orbit is defined.
+     */
+    double getCentralBodyGravitationalParameter( )
+    {
+        return centralBodyGravitationalParameter_;
+    }
+
+    //! Function to return the convergence tolerance for root finder used to convert mean to
+    //! eccentric anomaly
+    /*!
+     *  Function to return the convergence tolerance for root finder used to convert mean to
+     *  eccentric anomaly
+     *  \return Convergence tolerance for root finder used to convert mean to eccentric anomaly
+     */
+    double getRootFinderAbsoluteTolerance( )
+    {
+        return rootFinderAbsoluteTolerance_;
+    }
+
+    //! Function to return the maximum iteration for root finder used to convert mean to eccentric
+    //! anomaly
+    /*!
+     *  Function to return the maximum iteration for root finder used to convert mean to eccentric
+     *  anomaly
+     *  \return Maximum iteration for root finder used to convert mean to eccentric anomaly
+     */
+    double getRootFinderMaximumNumberOfIterations( )
+    {
+        return rootFinderMaximumNumberOfIterations_;
+    }
+
+private:
+
+    //! Kepler elements at time epochOfInitialState.
+    basic_mathematics::Vector6d initialStateInKeplerianElements_;
+
+    //! Initial epoch from which propagation of Kepler orbit is performed.
+    double epochOfInitialState_;
+
+    //! Gravitational parameter of central body about which the Kepler orbit is defined.
+    double centralBodyGravitationalParameter_;
+
+    //! Convergence tolerance for root finder used to convert mean to eccentric anomaly.
+    double rootFinderAbsoluteTolerance_;
+
+    //! Maximum iteration for root finder used to convert mean to eccentric anomaly
+    double rootFinderMaximumNumberOfIterations_;
+};
+
 //! EphemerisSettings derived class for defining settings of an ephemeris created from tabulated
 //! data.
 /*!
@@ -343,16 +517,17 @@ public:
      *  Constructor.
      *  \param bodyStateHistory Data map (time as key, Cartesian state as values) defining data
      *  from which an interpolated ephemeris is to be created.
-     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated.
+     * \param frameOrigin Name of body relative to which the ephemeris is to be calculated
+     *        (optional "SSB" by default).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
-     *          calculated.
+     *          calculated (optional, "ECLIPJ2000" by default).
      */
     TabulatedEphemerisSettings(
             const std::map< double, basic_mathematics::Vector6d >& bodyStateHistory,
             std::string frameOrigin = "SSB",
             std::string frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( tabulated_ephemeris, frameOrigin, frameOrientation ),
-        bodyStateHistory_( bodyStateHistory ){ }
+        bodyStateHistory_( bodyStateHistory ), useLongDoubleStates_( ){ }
 
     //! Function returning data map defining discrete data from which an ephemeris is to be created.
     /*!
@@ -362,6 +537,17 @@ public:
     std::map< double, basic_mathematics::Vector6d > getBodyStateHistory( )
     { return bodyStateHistory_; }
 
+
+    bool getUseLongDoubleStates( )
+    {
+        return useLongDoubleStates_;
+    }
+
+    void setUseLongDoubleStates( const bool useLongDoubleStates )
+    {
+        useLongDoubleStates_ = useLongDoubleStates;
+    }
+
 private:
 
     //! Data map defining discrete data from which an ephemeris is to be created.
@@ -370,7 +556,11 @@ private:
      *  ephemeris is to be created.
      */
     std::map< double, basic_mathematics::Vector6d > bodyStateHistory_;
+
+    bool useLongDoubleStates_;
 };
+
+#if USE_CSPICE
 
 //! Function to create a tabulated ephemeris using data from Spice.
 /*!
@@ -387,14 +577,43 @@ private:
  * \param observerName Name of body relative to which the ephemeris is to be calculated.
  * \param referenceFrameName Orientatioan of the reference frame in which the epehemeris is to be
  *          calculated.
+ * \return Tabulated ephemeris using data from Spice.
  */
+template< typename StateScalarType = double, typename TimeType = double >
 boost::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
         const std::string& body,
-        const double initialTime,
-        const double endTime,
-        const double timeStep,
+        const TimeType initialTime,
+        const TimeType endTime,
+        const TimeType timeStep,
         const std::string& observerName,
-        const std::string& referenceFrameName );
+        const std::string& referenceFrameName,
+        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+{
+    using namespace interpolators;
+
+    std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > timeHistoryOfState;
+
+    // Calculate state from spice at given time intervals and store in timeHistoryOfState.
+    TimeType currentTime = initialTime;
+    while( currentTime < endTime )
+    {
+        timeHistoryOfState[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
+                    body, observerName, referenceFrameName, "none", static_cast< double >( currentTime ) ).
+                template cast< StateScalarType >( );
+        currentTime += timeStep;
+    }
+
+    // Create interpolator.
+    boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > interpolator =
+            interpolators::createOneDimensionalInterpolator(
+                timeHistoryOfState, interpolatorSettings );
+
+    // Create ephemeris and return.
+    return boost::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                interpolator, observerName, referenceFrameName );
+}
+#endif
 
 //! Function to create a ephemeris model.
 /*!
@@ -409,8 +628,8 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         const std::string& bodyName );
 
 
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 #endif // TUDAT_CREATEEPHEMERIS_H

@@ -44,6 +44,7 @@
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
 
@@ -74,6 +75,7 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
 {
     // Declare test values vector.
     Vector12d computedTestValues;
+    Vector12d computedTestValuesDirect;
 
     // Define degree and order vectors.
     const Vector12i degree
@@ -81,14 +83,21 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
     const Vector12i order
             = ( Eigen::VectorXi( 12 ) << 0, 0, 1, 0, 1, 2, 0, 1, 2, 3, 0, 150 ).finished( );
 
+    basic_mathematics::LegendreCache legendreCache = basic_mathematics::LegendreCache( 150, 150, 0 );
+
     // Define polynomial parameter.
     const double polynomialParameter = 0.5;
+    legendreCache.update( polynomialParameter );
 
     // Loop through degrees and orders.
     for ( int index = 0; index < degree.size( ); index++ )
     {
         // Compute test value of Legendre polynomial.
         computedTestValues( index ) = basic_mathematics::computeLegendrePolynomial(
+                    degree( index ),
+                    order( index ),
+                    legendreCache );
+        computedTestValuesDirect( index ) = basic_mathematics::computeLegendrePolynomial(
                     degree( index ),
                     order( index ),
                     polynomialParameter );
@@ -118,12 +127,16 @@ BOOST_AUTO_TEST_CASE( test_LegendrePolynomial )
 
     // Check if test values match expected values.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedValues, computedTestValues, 1.0e-14 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedValues, computedTestValuesDirect, 1.0e-14 );
 }
 
 BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
 {
     // Declare test values vector.
     Vector10d computedTestValues;
+    Vector10d computedTestValuesDirect;
+
+    basic_mathematics::LegendreCache legendreCache = basic_mathematics::LegendreCache( 4, 4, 1 );
 
     // Define degree and order vectors.
     const Vector10i degree = ( Eigen::VectorXi( 10 ) << 0, 1, 1, 2, 2, 2, 3, 3, 3, 3 ).finished( );
@@ -132,14 +145,17 @@ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
     // Define polynomial parameter.
     const double polynomialParameter = 0.5;
 
+    legendreCache.update( polynomialParameter );
     // Loop through degrees and orders.
     for ( int index = 0; index < degree.size( ); index++ )
     {
         // Compute test value of Legendre polynomial.
         computedTestValues( index ) = basic_mathematics::computeGeodesyLegendrePolynomial(
                     degree( index ),
-                    order( index ),
-                    polynomialParameter );
+                    order( index ), legendreCache );
+        computedTestValuesDirect( index )  = basic_mathematics::computeGeodesyLegendrePolynomial(
+                    degree( index ),
+                    order( index ), polynomialParameter );
     }
 
     // Set expected values. These values have been obtained from the MATLAB subfunction
@@ -160,6 +176,8 @@ BOOST_AUTO_TEST_CASE( test_GeodesyLegendrePolynomial )
 
     // Check if test values match expected values.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedValues, computedTestValues, 1.0e-15 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedValues, computedTestValuesDirect, 1.0e-15 );
+
 }
 
 BOOST_AUTO_TEST_CASE( test_LegendrePolynomialDerivative )

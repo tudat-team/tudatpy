@@ -43,6 +43,8 @@
 #ifndef TUDAT_CENTRAL_GRAVITY_MODEL_H
 #define TUDAT_CENTRAL_GRAVITY_MODEL_H
 
+#include <iostream>
+
 #include <boost/lambda/lambda.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -190,15 +192,21 @@ public:
      * \param aGravitationalParameter A (constant) gravitational parameter [m^2 s^-3].
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration (default = (0,0,0)).
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      */
     CentralGravitationalAccelerationModel(
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( StateMatrix::Zero( ) ) )
+            = boost::lambda::constant( StateMatrix::Zero( ) ),
+            const bool isMutualAttractionUsed = 0 )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 boost::lambda::constant( aGravitationalParameter ),
-                positionOfBodyExertingAccelerationFunction )
+                positionOfBodyExertingAccelerationFunction,
+                isMutualAttractionUsed )
     {
         this->updateMembers( );
     }
@@ -218,15 +226,21 @@ public:
      *          parameter [m^2 s^-3].
      * \param positionOfBodyExertingAccelerationFunction Pointer to function returning position of
      *          body exerting gravitational acceleration (default = (0,0,0)).
+     * \param isMutualAttractionUsed Variable denoting whether attraction from body undergoing acceleration on
+     * body exerting acceleration is included (i.e. whether aGravitationalParameter refers to the property
+     * of the body exerting the acceleration, if variable is false, or the sum of the gravitational parameters,
+     * if the variable is true.
      */
     CentralGravitationalAccelerationModel(
             const typename Base::StateFunction positionOfBodySubjectToAccelerationFunction,
             const boost::function< double( ) > aGravitationalParameterFunction,
             const typename Base::StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( StateMatrix::Zero( ) ) )
+            = boost::lambda::constant( StateMatrix::Zero( ) ),
+            const bool isMutualAttractionUsed = 0 )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
-                positionOfBodyExertingAccelerationFunction )
+                positionOfBodyExertingAccelerationFunction,
+                isMutualAttractionUsed )
     {
         this->updateMembers( );
     }
@@ -251,8 +265,16 @@ public:
      * Updates class members relevant for computing the central gravitational acceleration. In this
      * case the function simply updates the members in the base class.
      * \sa SphericalHarmonicsGravitationalAccelerationModelBase.
+     * \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateMembers( ) { this->updateBaseMembers( ); }
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        if( !( this->currentTime_ == currentTime ) )
+        {
+            this->updateBaseMembers( );
+        }
+    }
+
 
 protected:
 private:

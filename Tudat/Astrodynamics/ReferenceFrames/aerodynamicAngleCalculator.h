@@ -1,3 +1,12 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 #ifndef TUDAT_AERODYNAMICANGLECALCULATOR_H
 #define TUDAT_AERODYNAMICANGLECALCULATOR_H
 
@@ -18,8 +27,8 @@ namespace tudat
 namespace reference_frames
 {
 
-//! Enum to define ids for various reference frames for calculating between inertial and
-//! body-fixed frame, using transformation chain via aerodynamic frame.
+//! Enum to define ids for various reference frames for calculating between inertial and body-fixed
+//! frame, using transformation chain via aerodynamic frame.
 enum AerodynamicsReferenceFrames
 {
     inertial_frame = -1,
@@ -30,17 +39,17 @@ enum AerodynamicsReferenceFrames
     body_frame = 4
 };
 
-//! Enum to define ids for various angles needed for converting between inertial and
-//! body-fixed frame, using transformation chain via aerodynamic frame.
+//! Enum to define ids for various angles needed for converting between inertial and body-fixed
+//! frame, using transformation chain via aerodynamic frame.
 enum AerodynamicsReferenceFrameAngles
 {
     latitude_angle = 0,
-    longitude_angle,
-    heading_angle,
-    flight_path_angle,
-    angle_of_attack,
-    angle_of_sideslip,
-    bank_angle
+    longitude_angle = 1,
+    heading_angle = 2,
+    flight_path_angle = 3,
+    angle_of_attack = 4,
+    angle_of_sideslip = 5,
+    bank_angle = 6
 };
 
 //! Object to calculate aerodynamic orientation angles from current vehicle state.
@@ -54,14 +63,11 @@ public:
     //! Constructor
     /*!
      *  Constructor.
-     *  \param bodyFixedStateFunction Vehicle state in a frame fixed w.r.t. the central body.
-     *  Note that this state is w.r.t. the body itself, not w.r.t. the local atmosphere
-     *  \param angleOfAttackFunction Function to determine the angle of attack of the
-     *  vehicle.
-     *  \param angleOfSideslipFunction Function to determine the angle of sideslip of the
-     *  vehicle.
-     *  \param bankAngleFunction Function to determine the bank angle of the
-     *  vehicle.
+     *  \param bodyFixedStateFunction Vehicle state in a frame fixed w.r.t. the central body.  Note
+     *  that this state is w.r.t. the body itself, not w.r.t. the local atmosphere
+     *  \param angleOfAttackFunction Function to determine the angle of attack of the vehicle.
+     *  \param angleOfSideslipFunction Function to determine the angle of sideslip of the vehicle.
+     *  \param bankAngleFunction Function to determine the bank angle of the vehicle.
      *  \param calculateVerticalToAerodynamicFrame Boolean to determine whether to determine
      *  vertical <-> aerodynamic frame conversion when calling update function.
      */
@@ -86,7 +92,7 @@ public:
      *  The current state is retrieved from the bodyFixedStateFunction_ member variable
      *  function pointer.
      */
-    void update( );
+    void update( const bool updateBodyOrientation );
 
     //! Function to get the rotation quaternion between two frames
     /*!
@@ -109,6 +115,27 @@ public:
      * \return Value of requested angle.
      */
     double getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId );
+
+    void setOrientationAngleFunctions(
+            const boost::function< double( ) > angleOfAttackFunction = boost::function< double( ) >( ),
+            const boost::function< double( ) > angleOfSideslipFunction = boost::function< double( ) >( ),
+            const boost::function< double( ) > bankAngleFunction =  boost::function< double( ) >( ) )
+    {
+        if( !angleOfAttackFunction.empty( ) )
+        {
+            angleOfAttackFunction_ = angleOfAttackFunction;
+        }
+
+        if( !angleOfSideslipFunction.empty( ) )
+        {
+            angleOfSideslipFunction_ = angleOfSideslipFunction;
+        }
+
+        if( !bankAngleFunction.empty( ) )
+        {
+            bankAngleFunction_ = bankAngleFunction;
+        }
+    }
 
 private:
 
@@ -153,8 +180,8 @@ private:
  *  \param aerodynamicAngleCalculator Object to calculate aerodynamic angles and rotation
  *  quaternions.
  *  \param accelerationFrame Id of frame in which aerodynamic force is calculated
- *  \param bodyFixedToInertialFrameFunction Function to get the central-body corotating frame
- *  to inertial frame quaternion.
+ *  \param bodyFixedToInertialFrameFunction Function to get the central-body corotating frame to
+ *  inertial frame quaternion.
  *  \param propagationFrame Id of frame in which orbit propagation is done.
  *  \return Aerodynamic force conversion function.
  */
@@ -165,7 +192,7 @@ getAerodynamicForceTransformationFunction(
         const boost::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
         boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame);
-}
+} // namespace reference_frames
 
-}
+} // namespace tudat
 #endif // TUDAT_AERODYNAMICANGLECALCULATOR_H

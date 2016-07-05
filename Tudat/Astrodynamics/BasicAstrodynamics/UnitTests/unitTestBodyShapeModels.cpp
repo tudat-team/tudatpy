@@ -38,9 +38,8 @@
 #include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <Tudat/Basics/testMacros.h>
-
+#include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/oblateSpheroidBodyShapeModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
 
@@ -71,14 +70,12 @@ BOOST_AUTO_TEST_CASE( testShapeModels )
     const double flattening = 1.0 / 298.257223563;
     const double equatorialRadius = 6378137.0;
 
-    // Test spherealtitude
+    // Test sphere altitude
     {
-        SphericalBodyShapeModel shapeModel = SphericalBodyShapeModel(
-                    equatorialRadius );
+        SphericalBodyShapeModel shapeModel = SphericalBodyShapeModel( equatorialRadius );
 
         // Calculate altitude from shape object.
-        const double altitudeFromObject = shapeModel.getAltitude(
-                    testCartesianPosition );
+        const double altitudeFromObject = shapeModel.getAltitude( testCartesianPosition );
 
         // Calculate object directly.
         const double directAltitude = testCartesianPosition.norm( ) - equatorialRadius;
@@ -93,8 +90,7 @@ BOOST_AUTO_TEST_CASE( testShapeModels )
                     equatorialRadius, flattening );
 
         // Calculate altitude from shape object.
-        const double altitudeFromObject = shapeModel.getAltitude(
-                    testCartesianPosition );
+        const double altitudeFromObject = shapeModel.getAltitude( testCartesianPosition );
 
         // Calculate object from free function.
         const double directAltitude = calculateAltitudeOverOblateSpheroid(
@@ -121,7 +117,7 @@ BOOST_AUTO_TEST_CASE( testShapeModels )
                 ( Eigen::Vector3d( )<<
                   ASTRONOMICAL_UNIT / sqrt( 2.0 ),
                   ASTRONOMICAL_UNIT / sqrt( 2.0 ),
-                  ASTRONOMICAL_UNIT  * 0.01 ).finished( );
+                  ASTRONOMICAL_UNIT * 0.01 ).finished( );
         Eigen::Vector3d inertialTestCartesianPosition = testCartesianPosition + bodyPosition;
 
         double calculatedAltitute = getAltitudeFromNonBodyFixedPosition(

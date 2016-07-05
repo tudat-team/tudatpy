@@ -1,35 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      150501    D. Dirkx          Ported from personal code
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
 #ifndef TUDAT_CREATEATMOSPHEREMODEL_H
@@ -168,7 +144,7 @@ public:
      *  Constructor.
      *  \param atmosphereFile File containing atmospheric properties, file should contain
      *  four columns of atmospheric data with altitude, density, pressure and temperature,
-     *  respecrively.
+     *  respectively.
      */
     TabulatedAtmosphereSettings( const std::string& atmosphereFile ):
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereFile ){ }
@@ -176,7 +152,7 @@ public:
     //! Function to return file containing atmospheric properties.
     /*!
      *  Function to return file containing atmospheric properties.
-     *  \return File containing atmospheric properties.
+     *  \return Filename containing atmospheric properties.
      */
     std::string getAtmosphereFile( ){ return atmosphereFile_; }
 
@@ -202,9 +178,9 @@ private:
 boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         const boost::shared_ptr< AtmosphereSettings > atmosphereSettings,
         const std::string& body );
-}
+} // namespace simulation_setup
 
-}
+} // namespace tudat
 
 
 #endif // TUDAT_CREATEATMOSPHEREMODEL_H
