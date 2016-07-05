@@ -53,7 +53,7 @@ void testAerodynamicAngleCalculation(
                 boost::lambda::constant( bankAngle ), 1 );
 
     // Update angle calculator.
-    aerodynamicAngleCalculator.update( );
+    aerodynamicAngleCalculator.update( true );
 
     // Compare expected against computed angles.
     BOOST_CHECK_SMALL(

@@ -92,7 +92,7 @@ public:
      *  The current state is retrieved from the bodyFixedStateFunction_ member variable
      *  function pointer.
      */
-    void update( );
+    void update( const bool updateBodyOrientation );
 
     //! Function to get the rotation quaternion between two frames
     /*!
@@ -117,16 +117,24 @@ public:
     double getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId );
 
     void setOrientationAngleFunctions(
-            const boost::function< double( ) > angleOfAttackFunction =
-            boost::lambda::constant ( 0.0 ),
-            const boost::function< double( ) > angleOfSideslipFunction =
-            boost::lambda::constant ( 0.0 ),
-            const boost::function< double( ) > bankAngleFunction =
-            boost::lambda::constant ( 0.0 ) )
+            const boost::function< double( ) > angleOfAttackFunction = boost::function< double( ) >( ),
+            const boost::function< double( ) > angleOfSideslipFunction = boost::function< double( ) >( ),
+            const boost::function< double( ) > bankAngleFunction =  boost::function< double( ) >( ) )
     {
-        angleOfAttackFunction_ = angleOfAttackFunction;
-        angleOfSideslipFunction_ = angleOfSideslipFunction;
-        bankAngleFunction_ = bankAngleFunction;
+        if( !angleOfAttackFunction.empty( ) )
+        {
+            angleOfAttackFunction_ = angleOfAttackFunction;
+        }
+
+        if( !angleOfSideslipFunction.empty( ) )
+        {
+            angleOfSideslipFunction_ = angleOfSideslipFunction;
+        }
+
+        if( !bankAngleFunction.empty( ) )
+        {
+            bankAngleFunction_ = bankAngleFunction;
+        }
     }
 
 private:

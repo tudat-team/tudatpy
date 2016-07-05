@@ -47,7 +47,7 @@ boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInte
     Eigen::Vector3d momentReference;
     momentReference( 0 ) = -0.6624;
     momentReference( 1 ) = 0.0;
-    momentReference( 2 ) = -0.1369;
+    momentReference( 2 ) = 0.1369;
 
     std::vector< std::vector< double > > independentVariableDataPoints;
     independentVariableDataPoints.resize( 3 );
