@@ -174,7 +174,6 @@ public:
     basic_mathematics::Vector6d getCurrentBodyCenteredBodyFixedState( )
     {
         return currentBodyCenteredPseudoBodyFixedState_;
-
     }
 
     //! Function to return aerodynamic angle calculator object
@@ -188,8 +187,30 @@ public:
         return aerodynamicAngleCalculator_;
     }
 
+    //! Function to return object from which the aerodynamic coefficients are obtained.
+    /*!
+     *  Function to return object from which the aerodynamic coefficients are obtained.
+     *  \return Object from which the aerodynamic coefficients are obtained.
+     */
+    boost::shared_ptr< AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( )
+    {
+        return aerodynamicCoefficientInterface_;
+    }
+
+    //! Function to return list of independent variables of the aerodynamic coefficient interface
+    /*!
+     *  Function to return list of independent variables of the aerodynamic coefficient interface
+     *  \return List of independent variables of the aerodynamic coefficient interface
+     */
+    std::vector< double > getAerodynamicCoefficientIndependentVariables( )
+    {
+        return aerodynamicCoefficientIndependentVariables_;
+    }
 
 private:
+
+    //! Function to update the independent variables of the aerodynamic coefficient interface
+    void updateAerodynamicCoefficientInput( );
 
     //! Name of central body (i.e. body with the atmosphere)
     std::string centralBody_;
@@ -246,7 +267,20 @@ private:
 
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitude_;
+
+    //! Current list of independent variables of the aerodynamic coefficient interface
+    std::vector< double > aerodynamicCoefficientIndependentVariables_;
+
 };
+
+//! Function to set the angle of attack to trimmed conditions.
+/*!
+ * Function to set the angle of attack to trimmed conditions. Using this function requires teh aerodynamic coefficient
+ * interface to be dependent on the angle of attack.
+ * \param flightConditions Flight conditions for body that is to have trimmed conditions.
+ */
+void setTrimmedConditions(
+        const boost::shared_ptr< FlightConditions > flightConditions );
 
 } // namespace aerodynamics
 
