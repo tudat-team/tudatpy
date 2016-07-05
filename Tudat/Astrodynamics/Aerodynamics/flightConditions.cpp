@@ -10,11 +10,14 @@
 
 #include <iostream>
 
+#include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
+#include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -93,10 +96,10 @@ void FlightConditions::updateConditions( const double currentTime )
             altitudeFunction_( currentBodyCenteredPseudoBodyFixedState_.segment( 0, 3 ) );
     currentAirspeed_ = currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 ).norm( );
 
-    // Update aerodynamic/geometric angles.
+    // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
     if( aerodynamicAngleCalculator_!= NULL )
     {
-        aerodynamicAngleCalculator_->update( );
+        aerodynamicAngleCalculator_->update( false );
     }
 
     // Update latitude and longitude (if required)
@@ -112,8 +115,25 @@ void FlightConditions::updateConditions( const double currentTime )
     currentDensity_ = atmosphereModel_->getDensity( currentAltitude_, currentLongitude_,
                                                     currentLatitude_, currentTime_ );
 
+    updateAerodynamicCoefficientInput( );
+
+    // Update angles from aerodynamic to body-fixed frame (if relevant).
+    if( aerodynamicAngleCalculator_!= NULL )
+    {
+        aerodynamicAngleCalculator_->update( true );
+        updateAerodynamicCoefficientInput( );
+    }
+
+    // Update aerodynamic coefficients.
+    aerodynamicCoefficientInterface_->updateCurrentCoefficients(
+                aerodynamicCoefficientIndependentVariables_ );
+}
+
+void FlightConditions::updateAerodynamicCoefficientInput( )
+{
+    aerodynamicCoefficientIndependentVariables_.clear( );
+
     // Calculate independent variables for aerodynamic coefficients.
-    std::vector< double > aerodynamicCoefficientIndependentVariables;
     for( unsigned int i = 0; i < aerodynamicCoefficientInterface_->
          getNumberOfIndependentVariables( ); i++ )
     {
@@ -121,7 +141,7 @@ void FlightConditions::updateConditions( const double currentTime )
         {
         //Calculate Mach number if needed.
         case mach_number_dependent:
-            aerodynamicCoefficientIndependentVariables.push_back(
+            aerodynamicCoefficientIndependentVariables_.push_back(
                         aerodynamics::computeMachNumber(
                         currentAirspeed_, atmosphereModel_->getSpeedOfSound(
                             currentAltitude_, currentLongitude_, currentLatitude_, currentTime_ ) ) );
@@ -133,7 +153,7 @@ void FlightConditions::updateConditions( const double currentTime )
             {
                 throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of attack" );
             }
-            aerodynamicCoefficientIndependentVariables.push_back(
+            aerodynamicCoefficientIndependentVariables_.push_back(
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
                             reference_frames::angle_of_attack ) );
             break;
@@ -143,7 +163,7 @@ void FlightConditions::updateConditions( const double currentTime )
             {
                 throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
             }
-            aerodynamicCoefficientIndependentVariables.push_back(
+            aerodynamicCoefficientIndependentVariables_.push_back(
                         aerodynamicAngleCalculator_->getAerodynamicAngle(
                             reference_frames::angle_of_sideslip ) );
             break;
@@ -157,20 +177,31 @@ void FlightConditions::updateConditions( const double currentTime )
             }
             else
             {
-                aerodynamicCoefficientIndependentVariables.push_back(
+                aerodynamicCoefficientIndependentVariables_.push_back(
                             customCoefficientDependencies_.at(
                                 aerodynamicCoefficientInterface_->getIndependentVariableName( i ) )( ) );
             }
         }
     }
-
-    // Update aerodynamic coefficients.
-    aerodynamicCoefficientInterface_->updateCurrentCoefficients(
-                aerodynamicCoefficientIndependentVariables );
-
-
 }
 
+//! Function to set the angle of attack to trimmed conditions.
+void setTrimmedConditions(
+        const boost::shared_ptr< FlightConditions > flightConditions )
+{
+    // Create trim object.
+    boost::shared_ptr< TrimOrientationCalculator > trimOrientation =
+            boost::make_shared< TrimOrientationCalculator >(
+                flightConditions->getAerodynamicCoefficientInterface( ) );
+
+    // Create angle-of-attack function from trim object.
+    boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
+            boost::bind( &FlightConditions::getAerodynamicCoefficientIndependentVariables,
+                         flightConditions );
+    flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
+                boost::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
+                             untrimmedIndependentVariablesFunction ) );
+}
 
 }
 

@@ -357,6 +357,32 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         }
         break;
     }
+    case aerodynamic_force_coefficients_dependent_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+
+        }
+        variableFunction = boost::bind(
+                    &aerodynamics::AerodynamicCoefficientInterface::getCurrentForceCoefficients,
+                    bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicCoefficientInterface( ) );
+        parameterSize = 3;
+
+        break;
+    }
+    case aerodynamic_moment_coefficients_dependent_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+
+        }
+        variableFunction = boost::bind(
+                    &aerodynamics::AerodynamicCoefficientInterface::getCurrentMomentCoefficients,
+                    bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicCoefficientInterface( ) );
+        parameterSize = 3;
+
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +

@@ -161,10 +161,16 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     dependentVariables.push_back(
                 boost::make_shared< SingleDependentVariableSaveSettings >(
                     total_acceleration_dependent_variable, "Apollo" ) );
+    dependentVariables.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    aerodynamic_moment_coefficients_dependent_variable, "Apollo" ) );
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+    setTrimmedConditions( bodyMap.at( "Apollo" )->getFlightConditions( ) );
+
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
@@ -218,10 +224,13 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     manualCentralGravity.segment( 0, 3 ),
                     variableIterator->second.segment( 11, 3 ), ( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-        // Check total acceleration
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    ( currentStateDerivative.segment( 3, 3 ) ),
-                    (  variableIterator->second.segment( 14, 3 ) ), std::numeric_limits< double >::epsilon( ) );
+        // Check total acceleration (tolerance is not epsilon due to numerical root finding for trim)
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( currentStateDerivative( 3 + i ) -
+                                   variableIterator->second( 14 + i ) ), 1.0E-13 );
+        }
 
         // Check relative position and velocity norm.
         BOOST_CHECK_SMALL(
@@ -246,6 +255,15 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         BOOST_CHECK_CLOSE_FRACTION(
                     bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentAltitude( ),
                     variableIterator->second( 1 ), std::numeric_limits< double >::epsilon( ) );
+
+        // Check trimmed condition (y-term)/symmetric vehicle shape (x- and z-term).
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 17 ) ), 1.0E-14 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 18 ) ), 1.0E-10 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 19 ) ), 1.0E-14 );
+
 
     }
 
