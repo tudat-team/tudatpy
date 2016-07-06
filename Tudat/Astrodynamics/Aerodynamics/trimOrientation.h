@@ -41,7 +41,7 @@ public:
      * Constructor
      * \param coefficientInterface Object containing used to retrieve aerodynamic coefficients as function of independent
      * variables.
-     * \param rootFinder Object to iteratively find the root of the equations C_m(\alpha)=0, i.e. to determine the
+     * \param rootFinder Object to iteratively find the root of the equations C_m(alpha)=0, i.e. to determine the
      * angle of attack for which the pitch moment is zero.
      */
     TrimOrientationCalculator(
@@ -67,8 +67,8 @@ public:
      * changes the angle of attack in the untrimmedIndependentVariables vector (keeping any other variables the same) and
      * returns the value of the trimmed angle of attack. Note that this function will typically have some small numerical
      * error in the result, as a result of the error tolerances in the root finder.
-     * \param untrimmedIndependentVariables Function returning untrimmed list of independent variables (in order required as
-     * input for coefficientInterface_
+     * \param untrimmedIndependentVariablesFunction Function returning untrimmed list of independent variables
+     * (in order required as input for coefficientInterface_
      * \return Trimmed angle of attack.
      */
     double findTrimAngleOfAttackFromFunction(
@@ -95,7 +95,7 @@ private:
     //! Object containing used to retrieve aerodynamic coefficients as function of independent variables.
     boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface_;
 
-    //! Object to iteratively find the root of the equations C_m(\alpha)=0, i.e. to determine the
+    //! Object to iteratively find the root of the equations C_m(alpha)=0, i.e. to determine the
     //!  angle of attack for which the pitch moment is zero.
     boost::shared_ptr< root_finders::RootFinderCore< double > > rootFinder_;
 
