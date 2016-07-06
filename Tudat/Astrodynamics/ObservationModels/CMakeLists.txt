@@ -14,11 +14,17 @@
  #      130226    D. Dirkx          File created.
  #
 
+
+set(OBSERVABLECORRECTIONSDIR "${OBSERVATIONMODELSDIR}/ObservableCorrections")
+
+
 # Set the source files.
 set(OBSERVATION_MODELS_SOURCES
   "${SRCROOT}${OBSERVATIONMODELSDIR}/lightTimeSolution.cpp"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/linkTypeDefs.cpp"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.cpp"
+  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/createLightTimeCorrection.cpp"
+  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.cpp"
 )
 
 # Set the header files.
@@ -28,9 +34,15 @@ set(OBSERVATION_MODELS_HEADERS
   "${SRCROOT}${OBSERVATIONMODELSDIR}/linkTypeDefs.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationBias.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/oneWayRangeObservationModel.h"
-  "${SRCROOT}${OBSERVATIONMODELSDIR}/nWayRangeObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/positionObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/createObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/createLightTimeCalculator.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/testLightTimeCorrections.h"
+  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/createLightTimeCorrection.h"
+  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/lightTimeCorrection.h"
+  "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.h"
 )
 
 
@@ -42,14 +54,18 @@ if(USE_CSPICE)
 
     add_executable(test_LightTime "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestLightTimeSolution.cpp")
     setup_custom_test_program(test_LightTime "${SRCROOT}${OBSERVATIONMODELSDIR}")
-    target_link_libraries(test_LightTime tudat_observation_models tudat_ephemerides tudat_spice_interface ${SPICE_LIBRARIES} ${Boost_LIBRARIES})
+    target_link_libraries(test_LightTime tudat_observation_models tudat_ephemerides tudat_basic_astrodynamics tudat_spice_interface ${SPICE_LIBRARIES} ${Boost_LIBRARIES})
 
 endif( )
 
     add_executable(test_AngularPositionModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestAngularPositionModel.cpp")
     setup_custom_test_program(test_AngularPositionModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
-    target_link_libraries(test_AngularPositionModel tudat_observation_models tudat_ephemerides tudat_spice_interface ${SPICE_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_AngularPositionModel tudat_simulation_setup tudat_observation_models tudat_relativity tudat_propagators tudat_acceleration_partials tudat_estimatable_parameters tudat_orbit_determination tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
 
-    add_executable(test_NWayRangePositionModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestNWayObservationModels.cpp")
-    setup_custom_test_program(test_NWayRangePositionModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
-    target_link_libraries(test_NWayRangePositionModel tudat_observation_models tudat_ephemerides tudat_spice_interface ${SPICE_LIBRARIES} ${Boost_LIBRARIES})
+    add_executable(test_OneWayRangeModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestOneWayRangeObservationModel.cpp")
+    setup_custom_test_program(test_OneWayRangeModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+target_link_libraries(test_OneWayRangeModel tudat_simulation_setup tudat_observation_models tudat_relativity tudat_propagators tudat_acceleration_partials tudat_estimatable_parameters tudat_orbit_determination tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
+
+    add_executable(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestPositionObservationModel.cpp")
+    setup_custom_test_program(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+target_link_libraries(test_PositionObservationModel tudat_simulation_setup tudat_observation_models tudat_relativity tudat_propagators tudat_acceleration_partials tudat_estimatable_parameters tudat_orbit_determination tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})

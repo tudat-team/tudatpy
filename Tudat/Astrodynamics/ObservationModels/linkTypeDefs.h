@@ -1,11 +1,24 @@
-#ifndef LINKTYPEDEFS_H
-#define LINKTYPEDEFS_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_LINKTYPEDEFS_H
+#define TUDAT_LINKTYPEDEFS_H
 
 #include <map>
 #include <string>
 #include <vector>
 
 namespace tudat
+{
+
+namespace observation_models
 {
 
 //! Enum defining different link end types.
@@ -25,42 +38,8 @@ typedef std::pair< std::string, std::string > LinkEndId;
 
 typedef std::map< LinkEndType, LinkEndId > LinkEnds;
 
-////! Function to split a list of link ends into names of vehicles and names of ground stations per celestial body.
-///*!
-// *  Function to split a list of link ends into names of vehicles and names of ground stations per celestial body.
-// *  \param linkEndList List of all link ends ().
-// *  \return Pair with First: Map with as key bodies on which ground stations are located and as values list of ground stations on said body. Second:
-// *  Vector of names of bodies without ground stations (typically Vehicles) in link end list.
-// */
-//std::pair< std::map< std::string, std::vector< std::string > >, std::vector< std::string > > getBodiesWithAndWithoutGroundStations(
-//        const std::vector< LinkEndId >& linkEndList );
-
-//std::string getLinkEndNames( const LinkEnds linkEndsToPrint );
-
-//void printLinkEnds( const LinkEnds linkEndsToPrint );
-
-//std::string getLinkEndTypeName( const LinkEndType linkEndType );
-
-//LinkEndType getLinkEndType( const std::string linkEndTypeName );
-
-//void printLinkEndType( const LinkEndType linkEndType );
-
-//int convertReceiverEnumToIndex( const LinkEndType linkEndType );
-
-//std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
-
-//std::vector< int > getNWayLinkEndIndicesFromLinkEndId( const std::vector< LinkEndType >& linkEndTypes, const LinkEnds& linkEnds );
-
-//std::vector< LinkEndType > getNWayLinkIndicesFromLinkEndId( const LinkEndId& linkEndid, const LinkEnds& linkEnds );
-
-//int getNWayLinkIndexFromLinkEndType( const LinkEndType linkEndType, const int numberOfLinkEnds );
-
-//LinkEndType getNWayLinkEnumFromIndex( const int linkEndIndex, const int numberOfLinkEnds );
-
-//std::pair< LinkEndType, int > getVaryingLinkEndBaseTypeAndIndex( const LinkEndType varyingLinkEndType );
-
-//LinkEndType getVaryingLinkTypeFromBaseTypeAndIndex( const LinkEndType baseLinkEndType, const int varyingLinkEndIndex );
-
+}
 
 }
-#endif // LINKTYPEDEFS_H
+
+#endif // TUDAT_LINKTYPEDEFS_H

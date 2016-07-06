@@ -1,9 +1,19 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include <iostream>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
-#include "Astrodynamics/Relativity/relativisticLightTimeCorrection.h"
-#include "Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticLightTimeCorrection.h"
+#include "Tudat/Astrodynamics/Relativity/relativisticLightTimeCorrection.h"
+#include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticLightTimeCorrection.h"
 
 
 namespace tudat
@@ -38,35 +48,6 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrection(
     }
 
     return currentTotalLightTimeCorrection_;
-}
-
-double FirstOrderLightTimeCorrectionDerivativeCalculator::calculateLightTimeDerivativeCorrection(
-        const basic_mathematics::Vector6d& transmitterState,
-        const basic_mathematics::Vector6d& receiverState,
-        const double transmissionTime,
-        const double receptionTime,
-        const bool fixTransmissionTime )
-{
-    // Retrieve ppn parameter gamma.
-    double ppnParameterGamma = ppnParameterGammaFunction_( );
-
-    // Initialize correction to zero.
-    currentTotalLightTimeDerivativeCorrection_ = 0.0;
-
-    // Iterate over all gravitating bodies.
-    for( unsigned int i = 0; i < perturbingBodyStateFunctions_.size( ); i++ )
-    {
-        // Calculate correction due to current body and add to total.
-        currentLighTimeCorrectionDerivativeComponents_[ i ] = relativity::calculateFirstOrderLightTimeCorrectionDerivativeFromCentralBody(
-                    perturbingBodyGravitationalParameterFunctions_[ i ]( ),
-                    transmitterState, receiverState,
-                    perturbingBodyStateFunctions_[ i ]( ( transmissionTime + receptionTime ) / 2.0 ),
-                    ppnParameterGamma,
-                    fixTransmissionTime );
-        currentTotalLightTimeDerivativeCorrection_ += currentLighTimeCorrectionDerivativeComponents_[ i ];
-    }
-
-    return currentTotalLightTimeDerivativeCorrection_;
 }
 
 }

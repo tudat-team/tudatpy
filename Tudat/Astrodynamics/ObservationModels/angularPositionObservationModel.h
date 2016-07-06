@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef ANGULARPOSITIONOBSERVATIONMODEL_H
 #define ANGULARPOSITIONOBSERVATIONMODEL_H
 
@@ -6,10 +16,10 @@
 
 #include <Eigen/Core>
 
-#include "Astrodynamics/Bodies/body.h"
-#include "Astrodynamics/Ephemerides/createLinkEndEphemeris.h"
-#include "Astrodynamics/ObservationModels/lightTimeSolution.h"
-#include "Astrodynamics/ObservationModels/observationModel.h"
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
+#include "Tudat/Astrodynamics/ObservationModels/createLightTimeCalculator.h"
+#include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
+#include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
 
 namespace tudat
 {
@@ -21,52 +31,23 @@ template< typename ObservationScalarType = double, typename TimeType = double, t
 class AngularPositionObservationModel: public ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType >
 {
 public:
-    AngularPositionObservationModel( const boost::shared_ptr< observation_models::LightTimeCalculator< > > lightTimeCalculator ):
-        ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType >( ),
+
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > PositionType;
+
+
+    AngularPositionObservationModel(
+            const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > lightTimeCalculator,
+            const boost::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = NULL ):
+        ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType >( angular_position, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ) { }
 
-    AngularPositionObservationModel( const std::pair< std::string, std::string >& observationReferencePoint,
-                                     const std::pair< std::string, std::string >& transmittingSystem,
-                                     const std::map< std::string, boost::shared_ptr< bodies::Body > >& bodyMap,
-                                     const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
-                                     std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( )  ):
-        ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType >( angular_position )
-    {
-        using namespace tudat::observation_models;
-        using namespace tudat::ephemerides;
-        using namespace tudat::bodies;
 
-        typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
-
-
-        // Declare functions to retrieve states of transmitter and receiever.
-        boost::function< StateType( const TimeType ) > transmitterCompleteEphemeris =
-                ephemerides::getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( transmittingSystem, bodyMap );
-        boost::function< StateType( const TimeType ) > observationReferencePointCompleteEphemeris =
-                ephemerides::getLinkEndCompleteEphemerisFunction< TimeType, StateScalarType >( observationReferencePoint, bodyMap );
-
-        lightTimeCalculator_ = createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
-                            transmitterCompleteEphemeris, observationReferencePointCompleteEphemeris, bodyMap, lightTimeCorrections,
-                    transmittingSystem, observationReferencePoint );
-    }
-
-    Eigen::Matrix< ObservationScalarType, 2, 1 > computeObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime ) const
-    {
-        std::vector< double > linkEndTimes;
-        std::vector< basic_mathematics::Vector6d > linkEndStates;
-
-        return this->computeObservationsAndLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
-    }
-
-
-
-    Eigen::Matrix< ObservationScalarType, 2, 1 > computeObservationsAndFullPrecisionLinkEndData(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime,
-            std::vector< TimeType >& linkEndTimes,
-            std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) const
+    Eigen::Matrix< ObservationScalarType, 2, 1 > computeUnbiasedObservationsWithLinkEndData(
+                    const TimeType time,
+                    const LinkEndType linkEndAssociatedWithTime,
+                    std::vector< TimeType >& linkEndTimes,
+                    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) const
 
     {
         bool isTimeAtReception;
@@ -80,6 +61,7 @@ public:
         }
         else
         {
+            isTimeAtReception = -1;
             std::cerr<<"Error when calculating angular position observation, link end is not transmitter or receiver"<<std::endl;
         }
 
@@ -91,7 +73,7 @@ public:
 
         Eigen::Matrix< StateScalarType, 3, 1 > vectorToTransmitter = transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
         Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
-                coordinate_conversions::convertCartesianToSphericalTemplate< StateScalarType >( vectorToTransmitter ).
+                coordinate_conversions::convertCartesianToSpherical< StateScalarType >( vectorToTransmitter ).
                 template cast< ObservationScalarType >( );
 
         linkEndTimes.clear( );
