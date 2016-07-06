@@ -18,6 +18,7 @@ namespace tudat
 namespace observation_models
 {
 
+//! Function to create object that computes a single (type of) correction to the light-time
 boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const boost::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -30,13 +31,15 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
 
     boost::shared_ptr< LightTimeCorrection > lightTimeCorrection;
 
+    // Identify type of light time correction to be created.
     switch( correctionSettings->getCorrectionType( ) )
     {
-
     case first_order_relativistic:
     {
+        // Check input consistency
         if( boost::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings ) != NULL )
         {
+            // Retrieve list of bodies causing light time perturbation
             std::vector< std::string > perturbingBodies =
                     boost::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings )->
                     getPerturbingBodies( );
@@ -44,37 +47,50 @@ boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
             std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > perturbingBodyStateFunctions;
             std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
 
+            // Retrieve mass and state functions for each perturbing body.
             for( unsigned int i = 0; i < perturbingBodies.size( ); i++ )
             {
                 if( bodyMap.count( perturbingBodies[ i ] ) == 0 )
                 {
-                    std::cerr<<"Error when making 1st order relativistic light time correction, could not find body "<<perturbingBodies[ i ]<<std::endl;
+                    throw std::runtime_error(
+                                "Error when making 1st order relativistic light time correction, could not find body " +
+                                perturbingBodies.at( i ) );
                 }
                 else
                 {
-                    perturbingBodyStateFunctions.push_back( boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris,
+                    // Set state function.
+                    perturbingBodyStateFunctions.push_back(
+                                boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris,
                                                                          bodyMap.at( perturbingBodies[ i ] ), _1 ) );
-                        perturbingBodyGravitationalParameterFunctions.push_back(
-                                    boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                                 bodyMap.at( perturbingBodies[ i ] )->
-                                                 getGravityFieldModel( ) ) );
+
+                    // Set gravitational parameter function.
+                    perturbingBodyGravitationalParameterFunctions.push_back(
+                                boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                             bodyMap.at( perturbingBodies[ i ] )->
+                                             getGravityFieldModel( ) ) );
                 }
             }
 
+            // Create light-time correction function
             lightTimeCorrection = boost::make_shared< FirstOrderLightTimeCorrectionCalculator >(
-                        perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions, perturbingBodies );
+                        perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions, perturbingBodies,
+                        transmitter.first, receiver.first );
 
         }
         else
         {
-            std::cerr<<"Error, correction settings type (1st order relativistic) does not coincide with data type."<<std::endl;
+            throw std::runtime_error(
+                        "Error, correction settings type (1st order relativistic) does not coincide with data type." );
         }
 
         break;
     }
     default:
     {
-        std::cerr<<"Error, light time correction type not recognized."<<std::endl;
+        std::string errorMessage = "Error, light time correction type " +
+                boost::lexical_cast< std::string >( correctionSettings->getCorrectionType( ) ) + " not recognized.";
+        throw std::runtime_error( errorMessage );
+
         break;
     }
 

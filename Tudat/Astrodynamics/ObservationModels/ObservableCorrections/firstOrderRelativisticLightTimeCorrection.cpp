@@ -35,14 +35,16 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrection(
     // Initialize correction to zero.
     currentTotalLightTimeCorrection_ = 0.0;
 
+    double evaluationTime = TUDAT_NAN;
     // Iterate over all gravitating bodies.
     for( unsigned int i = 0; i < perturbingBodyStateFunctions_.size( ); i++ )
     {
+        evaluationTime = transmissionTime + lightTimeEvaluationContribution_.at( i ) * ( receptionTime - transmissionTime );
         // Calculate correction due to current body and add to total.
         currentLighTimeCorrectionComponents_[ i ] = relativity::calculateFirstOrderLightTimeCorrectionFromCentralBody(
                     perturbingBodyGravitationalParameterFunctions_[ i ]( ),
                     transmitterState.segment( 0, 3 ), receiverState.segment( 0, 3 ),
-                    perturbingBodyStateFunctions_[ i ]( ( transmissionTime + receptionTime ) / 2.0 ).segment( 0, 3 ),
+                    perturbingBodyStateFunctions_[ i ]( evaluationTime ).segment( 0, 3 ),
                     ppnParameterGamma );
         currentTotalLightTimeCorrection_ += currentLighTimeCorrectionComponents_[ i ];
     }

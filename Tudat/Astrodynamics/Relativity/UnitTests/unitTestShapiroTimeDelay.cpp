@@ -48,7 +48,8 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     perturbingBodyGravitationalParameterFunctions.push_back( boost::lambda::constant( earthGravitationalParameter ) );
 
     FirstOrderLightTimeCorrectionCalculator correctionCalculator(
-                perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions, boost::assign::list_of( "Earth" ) );
+                perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions,
+                boost::assign::list_of( "Earth" ), "Satellite", "Earth" );
 
     double classInterfaceCalculation = correctionCalculator.calculateLightTimeCorrection(
                 groundStationState, satelliteState, 0.0, 0.0 );
