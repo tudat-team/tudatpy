@@ -33,7 +33,7 @@ void AerodynamicAngleCalculator::update( const bool updateBodyOrientation  )
     if( currentBodyFixedState_ != bodyFixedStateFunction_( ) )
     {
         currentBodyFixedState_ = bodyFixedStateFunction_( );
-        Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical(
+        Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical< double >(
                     currentBodyFixedState_.segment( 0, 3 ) );
 
         // Calculate latitude and longitude.

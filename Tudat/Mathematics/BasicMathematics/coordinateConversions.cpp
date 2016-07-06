@@ -101,33 +101,6 @@ Eigen::Vector3d convertSphericalToCartesian( const Eigen::Vector3d& sphericalCoo
     return convertedCartesianCoordinates_;
 }
 
-//! Convert Cartesian (x,y,z) to spherical (radius, zenith, azimuth) coordinates.
-Eigen::Vector3d convertCartesianToSpherical( const Eigen::Vector3d& cartesianCoordinates )
-{
-    // Create output Vector3d.
-    Eigen::Vector3d convertedSphericalCoordinates_ = Eigen::Vector3d::Zero( 3 );
-
-    // Compute transformation of Cartesian coordinates to spherical coordinates.
-    convertedSphericalCoordinates_( 0 ) = cartesianCoordinates.norm( );
-
-    // Check if coordinates are at origin.
-    if ( convertedSphericalCoordinates_( 0 ) < std::numeric_limits< double >::epsilon( ) )
-    {
-        convertedSphericalCoordinates_( 1 ) = 0.0;
-        convertedSphericalCoordinates_( 2 ) = 0.0;
-    }
-    // Else compute coordinates using trigonometric relationships.
-    else
-    {
-        convertedSphericalCoordinates_( 1 ) = std::acos( cartesianCoordinates( 2 )
-                                                         / convertedSphericalCoordinates_( 0 ) );
-        convertedSphericalCoordinates_( 2 ) = std::atan2( cartesianCoordinates( 1 ),
-                                                          cartesianCoordinates( 0 ) );
-    }
-
-    return convertedSphericalCoordinates_;
-}
-
 
 //! Convert cylindrical to Cartesian coordinates.
 Eigen::Vector3d convertCylindricalToCartesian( const double radius,

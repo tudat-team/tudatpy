@@ -1,14 +1,24 @@
-#ifndef LIGHTTIMECORRECTIONFUNCTION_H
-#define LIGHTTIMECORRECTIONFUNCTION_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_CREATELIGHTTIMECORRECTION_H
+#define TUDAT_CREATELIGHTTIMECORRECTION_H
 
 #include <Eigen/Core>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 
-#include "Astrodynamics/Bodies/body.h"
-#include "Astrodynamics/ObservationModels/linkTypeDefs.h"
-#include "Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
+#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
+#include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
 
 namespace tudat
 {
@@ -16,9 +26,10 @@ namespace tudat
 namespace observation_models
 {
 
-//! Typedef for function calculating light time correction in light time calculation loop.
-typedef boost::function< double( const basic_mathematics::Vector6d, const basic_mathematics::Vector6d,
-                                 const double, const double ) > LightTimeCorrectionFunction;
+//! Typedef for function calculating light-time correction in light-time calculation loop.
+typedef boost::function< double(
+        const basic_mathematics::Vector6d&, const basic_mathematics::Vector6d&,
+        const double, const double ) > LightTimeCorrectionFunction;
 
 //! Base class for light-time correction settings.
 /*!
@@ -60,34 +71,6 @@ protected:
 
 typedef std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > LightTimeCorrectionSettingsMap;
 
-class TroposphericCorrectionSettings: public LightTimeCorrectionSettings
-{
-public:
-    TroposphericCorrectionSettings( const LightTimeCorrectionType correctionType,
-                                    const std::string& bodyWithAtmosphere  ):
-        LightTimeCorrectionSettings( correctionType ), bodyWithAtmosphere_( bodyWithAtmosphere ){ }
-
-    std::string getBodyWithAtmosphere( ){ return bodyWithAtmosphere_; }
-
-private:
-    std::string bodyWithAtmosphere_;
-
-};
-
-class IonosphericCorrectionSettings: public LightTimeCorrectionSettings
-{
-public:
-    IonosphericCorrectionSettings( const LightTimeCorrectionType correctionType,
-                                    const std::string& bodyWithAtmosphere ):
-        LightTimeCorrectionSettings( correctionType ), bodyWithAtmosphere_( bodyWithAtmosphere ){ }
-
-    std::string getBodyWithAtmosphere( ){ return bodyWithAtmosphere_; }
-
-private:
-    std::string bodyWithAtmosphere_;
-
-};
-
 
 class FirstOrderRelativisticLightTimeCorrectionSettings: public LightTimeCorrectionSettings
 {
@@ -95,19 +78,7 @@ public:
     FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies ):
         LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ){ }
 
-    std::vector< std::string > getPerturbingBodies( ){ return perturbingBodies_; }
-
-private:
-    std::vector< std::string > perturbingBodies_;
-
-};
-
-
-class SecondOrderRelativisticLightTimeCorrectionSettings: public LightTimeCorrectionSettings
-{
-public:
-    SecondOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies ):
-        LightTimeCorrectionSettings( second_order_relativistic ), perturbingBodies_( perturbingBodies ){ }
+    ~FirstOrderRelativisticLightTimeCorrectionSettings( ){ }
 
     std::vector< std::string > getPerturbingBodies( ){ return perturbingBodies_; }
 
@@ -116,33 +87,16 @@ private:
 
 };
 
-class J2RelativisticLightTimeCorrectionSettings: public LightTimeCorrectionSettings
-{
-public:
-    J2RelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies ):
-        LightTimeCorrectionSettings( j2_relativistic ), perturbingBodies_( perturbingBodies ){ }
-
-    std::vector< std::string > getPerturbingBodies( ){ return perturbingBodies_; }
-
-private:
-    std::vector< std::string > perturbingBodies_;
-
-};
 
 boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
-        const boost::shared_ptr< LightTimeCorrectionSettings >& correctionSettings,
-        const NamedBodyMap& bodyMap,
-        const std::pair< std::string, std::string >& transmitter,
-        const std::pair< std::string, std::string >& receiver );
-
-boost::shared_ptr< LightTimeDerivativeCorrection > createLightTimeDerivativeCorrections(
         const boost::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
-        const NamedBodyMap& bodyMap,
+        const simulation_setup::NamedBodyMap& bodyMap,
         const std::pair< std::string, std::string >& transmitter,
         const std::pair< std::string, std::string >& receiver );
-}
 
 }
 
+}
 
-#endif // LIGHTTIMECORRECTIONFUNCTION_H
+
+#endif // TUDAT_CREATELIGHTTIMECORRECTION_H

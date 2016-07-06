@@ -1,7 +1,16 @@
-#ifndef FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H
-#define FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#ifndef TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H
+#define TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H
+
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -12,8 +21,8 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
-
-#include "Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/lightTimeCorrection.h"
 
 namespace tudat
 {
@@ -124,79 +133,7 @@ private:
     double currentTotalLightTimeCorrection_;
 };
 
-class FirstOrderLightTimeCorrectionDerivativeCalculator: public LightTimeDerivativeCorrection
-{
-public:
-
-
-    FirstOrderLightTimeCorrectionDerivativeCalculator(
-            const std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >& perturbingBodyStateFunctions,
-            const std::vector< boost::function< double( ) > >& perturbingBodyGravitationalParameterFunctions,
-            const std::vector< std::string > perturbingBodyNames,
-            const boost::function< double( ) >& ppnParameterGammaFunction = boost::lambda::constant( 1.0 ) ):
-        LightTimeDerivativeCorrection( first_order_relativistic ),
-        perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
-        perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
-        perturbingBodyNames_( perturbingBodyNames ),
-        ppnParameterGammaFunction_( ppnParameterGammaFunction )
-    {
-        currentTotalLightTimeDerivativeCorrection_ = 0.0;
-        currentLighTimeCorrectionDerivativeComponents_.resize( perturbingBodyNames_.size( ) );
-    }
-
-    ~FirstOrderLightTimeCorrectionDerivativeCalculator( ){ }
-
-
-    double calculateLightTimeDerivativeCorrection( const basic_mathematics::Vector6d& transmitterState,
-                                                   const basic_mathematics::Vector6d& receiverState,
-                                                   const double transmissionTime,
-                                                   const double receptionTime,
-                                                   const bool fixTransmissionTime );
-
-    std::vector< std::string > getPerturbingBodyNames( )
-    {
-        return perturbingBodyNames_;
-    }
-
-    std::vector< boost::function< double( ) > > getPerturbingBodyGravitationalParameterFunctions( )
-    {
-        return perturbingBodyGravitationalParameterFunctions_;
-    }
-
-    double getCurrentTotalLightTimeCorrection( )
-    {
-        return currentTotalLightTimeDerivativeCorrection_;
-    }
-
-    double getCurrentLightTimeCorrectionComponent( const int bodyIndex )
-    {
-        return currentLighTimeCorrectionDerivativeComponents_.at( bodyIndex );
-    }
-
-    boost::function< double( ) > getPpnParameterGammaFunction_( )
-    {
-        return ppnParameterGammaFunction_;
-    }
-
-private:
-
-    std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > perturbingBodyStateFunctions_;
-
-
-    std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions_;
-
-
-    boost::function< double( ) > ppnParameterGammaFunction_;
-
-    std::vector< std::string > perturbingBodyNames_;
-
-    std::vector< double > currentLighTimeCorrectionDerivativeComponents_;
-
-    double currentTotalLightTimeDerivativeCorrection_;
-};
-
-
 }
 
 }
-#endif // FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H
+#endif // TUDAT_FIRSTORDERRELATIVISTICLIGHTTIMECORRECTION_H

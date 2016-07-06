@@ -1,5 +1,5 @@
-#ifndef OBSERVATIONBIAS_H
-#define OBSERVATIONBIAS_H
+#ifndef TUDAT_OBSERVATIONBIAS_H
+#define TUDAT_OBSERVATIONBIAS_H
 
 #include <iostream>
 #include <vector>
@@ -14,9 +14,8 @@
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
 
-#include "Astrodynamics/Bodies/body.h"
-#include "Astrodynamics/ObservationModels/linkTypeDefs.h"
-#include "Astrodynamics/ObservationModels/observableTypes.h"
+#include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
+#include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 
 namespace tudat
 {
@@ -24,102 +23,60 @@ namespace tudat
 namespace observation_models
 {
 
-
-struct ObservationBiasInterface
+template< int ObservationSize = 1 >
+class ObservationBias
 {
 public:
-    ObservationBiasInterface( const int observationSize ): observationSize_( observationSize )
+    ObservationBias( ){ }
+
+    virtual ~ObservationBias( ){ }
+
+    virtual Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
+            const std::vector< double >& observationTimes ) = 0;
+
+    int getObservationSize( )
     {
-        if( observationSize_ > 0 )
-        {
-            observationBias_ = Eigen::VectorXd::Constant( observationSize_, 0.0 );
-        }
+        return ObservationSize;
     }
+};
 
-    ObservationBiasInterface( const Eigen::VectorXd observationBias ):
-        observationBias_( observationBias ), observationSize_( observationBias.rows( ) ){ }
+template< int ObservationSize = 1 >
+class ConstantObservationBias: public ObservationBias< ObservationSize >
+{
+public:
 
-    virtual ~ObservationBiasInterface( ){ }
+    ConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > observationBias ):
+        observationBias_( observationBias ){ }
 
-    virtual Eigen::VectorXd getObservationBias( const std::vector< double >& observationTimes )
+    ~ConstantObservationBias( ){ }
+
+    Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
+            const std::vector< double >& observationTimes =  std::vector< double >( ) )
     {
         return observationBias_;
     }
 
-    Eigen::VectorXd getConstantObservationBias( )
+    Eigen::Matrix< double, ObservationSize, 1 > getConstantObservationBias( )
     {
         return observationBias_;
     }
 
     void setConstantObservationBias( const Eigen::VectorXd& observationBias )
     {
-        if( observationBias.rows( ) != observationSize_ )
+        if( observationBias.rows( ) != ObservationSize )
         {
             std::cerr<<"Error when resetting observation bias, sizes are incompatible"<<std::endl;
         }
         observationBias_ = observationBias;
     }
 
-    int getObservationSize( )
-    {
-        return observationSize_;
-    }
-
-protected:
-
-    Eigen::VectorXd observationBias_;
-
-    int observationSize_;
-};
-
-struct RangeObservationBiasInterface: public ObservationBiasInterface
-{
-public:
-    RangeObservationBiasInterface(
-            const std::map< int, boost::shared_ptr< hardware_models::TimingSystem > > timingSystems, // Boolean denotes whether to add or subtract from range
-            const std::vector< bool > addContributions,
-            const bool useStochasticError,
-            const Eigen::VectorXd observationBias ):ObservationBiasInterface( observationBias ),
-        timingSystems_( timingSystems ), addContributions_( addContributions ), useStochasticError_( useStochasticError ){ }
-
-    ~RangeObservationBiasInterface( ){ }
-
-    Eigen::VectorXd getObservationBias( const std::vector< double >& observationTimes );
-
-    void resetUseStochasticError( const bool useStochasticError )
-    {
-        useStochasticError_ = useStochasticError;
-    }
 
 private:
-    std::map< int, boost::shared_ptr< hardware_models::TimingSystem > > timingSystems_;
 
-    std::map< int, boost::shared_ptr< hardware_models::TimingSystem > >::iterator timingSystemIterator_;
-
-    std::vector< bool > addContributions_;
-
-    bool useStochasticError_;
+    Eigen::Matrix< double, ObservationSize, 1 > observationBias_;
 };
 
-extern std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationBiasInterface > > > observationBiasInterfaceList;
-
-void setObservationBiases( const std::map< ObservableType, std::map< LinkEnds, double > >& biasesForDoubleObservables );
-
-void setObservationBiases( const std::map< ObservableType, std::vector< LinkEnds > >& linkEndList,
-                           const std::map< ObservableType, double >& biasPerObservables );
-
-void setObservationBiases( const std::map< ObservableType, std::vector< LinkEnds > >& linkEndList,
-                           const double biasForAllObservations );
-
-std::vector< bool > getClockErrorAdditions( const ObservableType observableType, const LinkEnds& linkEnds );
-
-void setObservationBiasesWithTimingErrors( const std::map< ObservableType, std::vector< LinkEnds > >& linkEndList,
-                                           const NamedBodyMap& bodyMap,
-                                           const bool includeStochasticNoise = 0,
-                                           const std::map< ObservableType, std::map< LinkEnds, double > >& biasesForDoubleObservables =
-        std::map< ObservableType, std::map< LinkEnds, double > >( ) );
-
 }
 
 }
-#endif // OBSERVATIONMODEL_H
+#endif // TUDAT_OBSERVATIONMODEL_H

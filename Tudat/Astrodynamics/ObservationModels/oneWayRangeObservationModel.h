@@ -1,5 +1,15 @@
-#ifndef SIMPLERANGEOBSERVATIONMODEL_H
-#define SIMPLERANGEOBSERVATIONMODEL_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_ONEWAYRANGEOBSERVATIONMODEL_H
+#define TUDAT_ONEWAYRANGEOBSERVATIONMODEL_H
 
 #include <map>
 
@@ -10,6 +20,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
+#include "Tudat/Astrodynamics/ObservationModels/createLightTimeCalculator.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
@@ -47,16 +58,10 @@ public:
      * observable, i.e. deviations from the physically true observable (default none).
      */
     OneWayRangeObservationModel(
-            const boost::function< StateType( const TimeType ) > transmitterCompleteEphemeris,
-            const boost::function< StateType( const TimeType ) > receiverCompleteEphemeris,
-            const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections =
-            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
-            const boost::shared_ptr< ObservationBiasInterface > observationBiasCalculator = NULL ):
-        ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType >( oneWayRange, observationBiasCalculator )
-    {
-        lightTimeCalculator_ = createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
-                    transmitterCompleteEphemeris, receiverCompleteEphemeris, bodyMap, lightTimeCorrections, transmitter, receiver );
-    }
+            const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > lightTimeCalculator,
+            const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
+        ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType >( oneWayRange, observationBiasCalculator ),
+      lightTimeCalculator_( lightTimeCalculator ){ }
 
     //! Destructor
     ~OneWayRangeObservationModel( ){ }
@@ -70,12 +75,13 @@ public:
      *  link end for observable.
      *  \return Calculated observed one-way range value.
      */
-    ObservationScalarType computeObservation( const TimeType time,
-                                              const LinkEndType linkEndAssociatedWithTime ) const
+    Eigen::Matrix< ObservationScalarType, 1, 1 > computeUnbiasedObservations(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime ) const
 
     {
         // Check link end associated with input time.
-        bool isTimeAtReception;
+        bool isTimeAtReception = -1;
         if( linkEndAssociatedWithTime == receiver )
         {
             isTimeAtReception = 1;
@@ -90,50 +96,51 @@ public:
         }
 
         // Calculate light-time and multiply by speed of light in vacuum.
-        return computeLightTime( time, isTimeAtReception ) *
-                physical_constants::getSpeedOfLight< ObservationScalarType >( );
+        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) <<
+                 lightTimeCalculator_->calculateLightTime( time, isTimeAtReception ) *
+                 physical_constants::getSpeedOfLight< ObservationScalarType >( ) ).finished( );
     }
 
-    ObservationScalarType computeObservationAndFullPrecisionLinkEndData(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime,
-            std::vector< TimeType >& linkEndTimes,
-            std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) const
+    Eigen::Matrix< ObservationScalarType, 1, 1 > computeUnbiasedObservationsWithLinkEndData(
+                    const TimeType time,
+                    const LinkEndType linkEndAssociatedWithTime,
+                    std::vector< TimeType >& linkEndTimes,
+                    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) const
     {
-        ObservationScalarType observation;
+        ObservationScalarType observation = TUDAT_NAN;
         StateType receiverState, transmitterState;
         TimeType transmissionTime, receptionTime;
         switch( linkEndAssociatedWithTime )
         {
         case receiver:
-            observation = computeLightTimeFromReceptionWithLinkEndsStates(
-                        time, receiverState, transmitterState );
+            observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+                        receiverState, transmitterState, time, 1 );
             transmissionTime = time - observation;
             receptionTime = time;
             break;
 
         case transmitter:
-            observation = computeLightTimeFromTransmissionWithLinkEndsStates(
-                        time, receiverState, transmitterState );
+            observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
+                        receiverState, transmitterState, time, 0 );
             transmissionTime = time;
             receptionTime = time + observation;
             break;
+        default:
+            std::string errorMessage = "Error, cannot have link end type: " +
+                    boost::lexical_cast< std::string >( linkEndAssociatedWithTime ) + "for one-way range";
+            throw std::runtime_error( errorMessage );
         }
-
-
 
         observation *= physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
-        linkEndTimes.clear( );
-        linkEndStates.clear( );
 
         linkEndTimes.push_back( transmissionTime );
         linkEndTimes.push_back( receptionTime );
 
-        linkEndStates.push_back( transmitterState );
+        linkEndStates.push_back( transmitterState);
         linkEndStates.push_back( receiverState );
 
-        return observation;
+        return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( ) << observation ).finished( );
     }
 
     boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > getLightTimeCalculator( )
@@ -155,4 +162,4 @@ private:
 
 }
 
-#endif // SIMPLERANGEOBSERVATIONMODEL_H
+#endif // TUDAT_ONEWAYRANGEOBSERVATIONMODEL_H

@@ -69,6 +69,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -107,7 +108,33 @@ Eigen::Vector3d convertSphericalToCartesian( const Eigen::Vector3d& sphericalCoo
  * \return Vector containing sphericalCoordinates radius, zenith and azimuth (in that
  *          order), as calculated from sphericalCoordinates.
 */
-Eigen::Vector3d convertCartesianToSpherical( const Eigen::Vector3d& cartesianCoordinates );
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 3, 1 > convertCartesianToSpherical( const Eigen::Matrix< ScalarType, 3, 1 > & cartesianCoordinates )
+
+{
+    // Create output Vector3d.
+    Eigen::Matrix< ScalarType, 3, 1 > convertedSphericalCoordinates_ = Eigen::Matrix< ScalarType, 3, 1 >::Zero( );
+
+    // Compute transformation of Cartesian coordinates to spherical coordinates.
+    convertedSphericalCoordinates_( 0 ) = cartesianCoordinates.norm( );
+
+    // Check if coordinates are at origin.
+    if ( convertedSphericalCoordinates_( 0 ) < std::numeric_limits< ScalarType >::epsilon( ) )
+    {
+        convertedSphericalCoordinates_( 1 ) = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+        convertedSphericalCoordinates_( 2 ) = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
+    }
+    // Else compute coordinates using trigonometric relationships.
+    else
+    {
+        convertedSphericalCoordinates_( 1 ) = std::acos( cartesianCoordinates( 2 )
+                                                         / convertedSphericalCoordinates_( 0 ) );
+        convertedSphericalCoordinates_( 2 ) = std::atan2( cartesianCoordinates( 1 ),
+                                                          cartesianCoordinates( 0 ) );
+    }
+
+    return convertedSphericalCoordinates_;
+}
 
 //! Spherical coordinate indices.
 /*!

@@ -1,5 +1,15 @@
-#ifndef OBSERVABLETYPES_H
-#define OBSERVABLETYPES_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_OBSERVABLETYPES_H
+#define TUDAT_OBSERVABLETYPES_H
 
 #include <string>
 
@@ -8,22 +18,14 @@
 namespace tudat
 {
 
+namespace observation_models
+{
+
 enum ObservableType
 {
     oneWayRange = 0,
-    twoWayRange = 1,
-    threeWayRange = 2,
-    oneWayDiffencedRangeRate = 3,
-    angular_position = 4,
-    stateObservable = 5,
-    multiBaselineRangeRate = 6,
-    twoWayDifferencedRangeRate = 7,
-    nWayRange = 8,
-    nWayRangeRate = 9,
-    oneWayTimeTransfer = 10,
-    differencedBaselineObservation = 11,
-    positionObservable = 12,
-    oneWayDoppler = 13
+    angular_position = 1,
+    position_observable = 2
 
 };
 
@@ -31,16 +33,10 @@ std::string getObservableName( const ObservableType observableType );
 
 ObservableType getObservableType( const std::string& observableName );
 
-//int getNumberOfLinkEndTimesForBaseObservable( const ObservableType observableType, const int numberOfLinkEnds = -1 );
-
-//std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
-//        const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds = -1 );
-
-//std::vector< LinkEndId > getActiveLinkEnds(
-//        const std::map< ObservableType, std::vector< LinkEnds > >& linkEndMap );
-
 int getObservableSize( const ObservableType observableType );
 
 }
 
-#endif // OBSERVABLETYPES_H
+}
+
+#endif // TUDAT_OBSERVABLETYPES_H
