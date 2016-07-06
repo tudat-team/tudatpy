@@ -34,60 +34,80 @@ typedef boost::function< double(
 //! Base class for light-time correction settings.
 /*!
  *  Base class for light-time correction settings. This class is not used for calculations of corrections,
- *  but is used for input purposes. The createLightTimeCorrections function produces the functions
- *  that calculate teh actual corrections.
+ *  but is used for the purpose of defining the light time correction properties.
+ *  The createLightTimeCorrections function produces the classes that calculate the actual corrections, based on settings
+ *  in instances of derived LightTimeCorrectionSettings classes.
  */
 class LightTimeCorrectionSettings
 {
 public:
 
-    //!  Constructor, takes light-time correction type.
+    //! Constructor, takes light-time correction type.
     /*!
-     *   Constructor, takes light-time correction type.
+     *  \param correctionType Type of light-time correction that is to be created
      */
     LightTimeCorrectionSettings( const LightTimeCorrectionType correctionType ):
         correctionType_( correctionType ){ }
 
     //! Default destructor.
-    /*!
-     *  Default destructor.
-     */
     virtual ~LightTimeCorrectionSettings( ){ }
 
-    //! Function returning the correction type.
+    //! Function returning the type of light-time correction that is to be created
     /*!
-     *  Function returning the correction type.
+     *  Function returning the type of light-time correction that is to be created
+     *  \return Type of light-time correction that is to be created
      */
-    LightTimeCorrectionType getCorrectionType( ){ return correctionType_; }
+    LightTimeCorrectionType getCorrectionType( )
+    {
+        return correctionType_;
+    }
 
 protected:
 
-    //! Correction type.
-    /*!
-     *  Correction type.
-     */
+    //! Type of light-time correction that is to be created
     LightTimeCorrectionType correctionType_;
 };
 
-typedef std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > LightTimeCorrectionSettingsMap;
-
-
+//! Class to defining settings for first-order relativistic light time correction (Shapiro time delay)  due to a
+//! set of point masses
 class FirstOrderRelativisticLightTimeCorrectionSettings: public LightTimeCorrectionSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param perturbingBodies List of bodies for which the point masses are used to compute the light-time correction.
+     */
     FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies ):
         LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ){ }
 
+    //! Destructor
     ~FirstOrderRelativisticLightTimeCorrectionSettings( ){ }
 
+    //! Function returning the list of bodies for which the point masses are used to compute the light-time correction.
+    /*!
+     *  Function returning the list of bodies for which the point masses are used to compute the light-time correction.
+     *  \return List of bodies for which the point masses are used to compute the light-time correction.
+     */
     std::vector< std::string > getPerturbingBodies( ){ return perturbingBodies_; }
 
 private:
+
+    //! List of bodies for which the point masses are used to compute the light-time correction.
     std::vector< std::string > perturbingBodies_;
 
 };
 
-
+//! Function to create object that computes a single (type of) correction to the light-time
+/*!
+ * Function to create object that computes a single (type of) correction to the light-time
+ * \param correctionSettings User-defined settings for the light-time correction that is to be created
+ * \param bodyMap List of body objects that constitutes the environment
+ * \param transmitter Id of transmitting body/reference point (first/second)
+ * \param receiver Id of receiving body/reference point (first/second)
+ * \return Object for computing required light-time correction
+ */
 boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
         const boost::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
         const simulation_setup::NamedBodyMap& bodyMap,

@@ -30,11 +30,14 @@ namespace tudat
 namespace observation_models
 {
 
-//! Class to calculate first order relativistic light time correction due to a set of gravitating point masses.
+//! Class to calculate first order relativistic light time correction (Shapiro time delay) due to a set of point masses.
 /*!
- *  Class to calculate first order relativistic light time correction due to a gravitating point mass. Has the properties (mass and position)
- *  of the gravitating bodies as member variables; receives the states and times of receiver and transmitter as input to
- *  calculateCumulativeFirstOrderCorrections function each time a light time is to be calculated.
+ *  Class to calculate first order relativistic light time correction (Shapiro time delay) due to a set of point masses.
+ *  This class has the properties (mass and position) of the gravitating bodies as member variables. It receives the states
+ *  and times of  receiver and transmitter as input each time a light time is to be calculated.
+ *  NOTE: If the perturbing body is equal to the transmitting or receiving body, the transmission or reception time,
+ *  respectively, are used to evaluate this perturbing body's state when computing the correction. For all other bodies,
+ *  the mid-way point of the light time is used.
  */
 class FirstOrderLightTimeCorrectionCalculator: public LightTimeCorrection
 {
@@ -43,15 +46,22 @@ public:
     //! Constructor, takes and sets gravitating body properties.
     /*!
      *  Constructor, takes and sets gravitating body properties.
-     *  \param perturbingBodyStateFunctions Set of function returning the state of the gravitating bodies as a function of time.
-     *  \param perturbingBodyGravitationalParameterFunctions Set of functions returning the gravitational parameters of the gravitating bodies.
-     *  \param perturbingBodyStateFunctions Function returning the parametric post-Newtonian parameter gamma, a measure for the
-     *  space-time curvature due to a unit rest mass (1.0 in GR)
+     *  \param perturbingBodyStateFunctions Set of function returning the state of the gravitating bodies as a function
+     *  of time.
+     *  \param perturbingBodyGravitationalParameterFunctions Set of functions returning the gravitational parameters of
+     *  the gravitating bodies.
+     *  \param perturbingBodyNames Names of bodies causing light-time correction.
+     *  \param transmittingBody Name of transmitting body
+     *  \param receivingBody Name of receiving body
+     *  \param ppnParameterGammaFunction Function returning the parametric post-Newtonian parameter gamma, a measure
+     *  for the space-time curvature due to a unit rest mass (default 1.0; value from GR)
      */
     FirstOrderLightTimeCorrectionCalculator(
             const std::vector< boost::function< basic_mathematics::Vector6d( const double ) > >& perturbingBodyStateFunctions,
             const std::vector< boost::function< double( ) > >& perturbingBodyGravitationalParameterFunctions,
             const std::vector< std::string > perturbingBodyNames,
+            const std::string transmittingBody,
+            const std::string receivingBody,
             const boost::function< double( ) >& ppnParameterGammaFunction = boost::lambda::constant( 1.0 ) ):
         LightTimeCorrection( first_order_relativistic ),
         perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
@@ -61,15 +71,33 @@ public:
     {
         currentTotalLightTimeCorrection_ = 0.0;
         currentLighTimeCorrectionComponents_.resize( perturbingBodyNames_.size( ) );
+
+        // Check if perturbing body is transmitting/receiving body, and set evaluation time settings accordingly
+        for( unsigned int i = 0; i < perturbingBodyNames.size( ); i++ )
+        {
+            if( perturbingBodyNames.at( i ) == transmittingBody )
+            {
+                lightTimeEvaluationContribution_.push_back( 0.0 );
+            }
+            else if( perturbingBodyNames.at( i ) == receivingBody )
+            {
+                lightTimeEvaluationContribution_.push_back( 1.0 );
+            }
+            else
+            {
+                lightTimeEvaluationContribution_.push_back( 0.5 );
+            }
+        }
     }
 
+    //! Destructor
     ~FirstOrderLightTimeCorrectionCalculator( ){ }
 
-    //! Function to calculate first order relativistic light time correction due to set of gravitating point masses.
+    //! Function to calculate first-order relativistic light time correction due to set of gravitating point masses.
     /*!
      *  Function to calculate first order relativistic light time correction due to set of gravitating point masses,
-     *  according to Eq. (11.17) of 2010 IERS conventions. Calculation are performed by calling calculateFirstOrderLightTimeCorrectionFromCentralBody
-     *  function for each gravitating body.
+     *  according to Eq. (11.17) of 2010 IERS conventions. Calculation are performed by calling ca
+     *  calculateFirstOrderLightTimeCorrectionFromCentralBody function for each gravitating body.
      *  \param transmitterState State of transmitter at transmission time.
      *  \param receiverState State of receiver at reception time
      *  \param transmissionTime Time of signal transmission
@@ -82,54 +110,86 @@ public:
                                          const double transmissionTime,
                                          const double receptionTime );
 
+    //! Function to get the names of bodies causing light-time correction.
+    /*!
+     * Function to get the names of bodies causing light-time correction.
+     * \return Names of bodies causing light-time correction.
+     */
     std::vector< std::string > getPerturbingBodyNames( )
     {
         return perturbingBodyNames_;
     }
 
+    //! Function to get the set of functions returning the gravitational parameters of the gravitating bodies.
+    /*!
+     * Function to get the set of functions returning the gravitational parameters of the gravitating bodies.
+     * \return Set of functions returning the gravitational parameters of the gravitating bodies.
+     */
     std::vector< boost::function< double( ) > > getPerturbingBodyGravitationalParameterFunctions( )
     {
         return perturbingBodyGravitationalParameterFunctions_;
     }
 
+    //! Function to get the total light-time correction, as computed by last call to calculateLightTimeCorrection.
+    /*!
+     * Function to get the total light-time correction, as computed by last call to calculateLightTimeCorrection.
+     * \return Total light-time correction, as computed by last call to calculateLightTimeCorrection.
+     */
     double getCurrentTotalLightTimeCorrection( )
     {
         return currentTotalLightTimeCorrection_;
     }
 
+    //! Function to get the light-time correction of given perturbing body, as computed by last call to
+    //! calculateLightTimeCorrection.
+    /*!
+     * Function to get the light-time correction of given perturbing body, as computed by last call to
+     * calculateLightTimeCorrection.
+     * \param bodyIndex Index in list of bodies for which the correction is to be returbed
+     * \return Light-time correction of given perturbing body, as computed by last call to
+     * calculateLightTimeCorrection.
+     */
     double getCurrentLightTimeCorrectionComponent( const int bodyIndex )
     {
         return currentLighTimeCorrectionComponents_.at( bodyIndex );
     }
 
+    //! Function to get the function returning the parametric post-Newtonian parameter gamma
+    /*!
+     * Function to get the function returning the parametric post-Newtonian parameter gamma
+     * \return Function returning the parametric post-Newtonian parameter gamma
+     */
     boost::function< double( ) > getPpnParameterGammaFunction_( )
     {
         return ppnParameterGammaFunction_;
     }
 
 private:
+
     //! Set of function returning the state of the gravitating bodies as a function of time.
-    /*!
-     *  Set of function returning the state of the gravitating bodies as a function of time.
-     */
     std::vector< boost::function< basic_mathematics::Vector6d( const double ) > > perturbingBodyStateFunctions_;
 
     //! Set of functions returning the gravitational parameters of the gravitating bodies.
-    /*!
-     *  Set of functions returning the gravitational parameters of the gravitating bodies.
-     */
     std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions_;
+
+    //! Names of bodies causing light-time correction.
+    std::vector< std::string > perturbingBodyNames_;
 
     //! Function returning the parametric post-Newtonian parameter gamma
     /*!
-     *  Function returning the parametric post-Newtonian parameter gamma, a measure for the space-time curvature due to a unit rest mass (1.0 in GR)
+     *  Function returning the parametric post-Newtonian parameter gamma, a measure for the space-time curvature due to a
+     *  unit rest mass (1.0 in GR)
      */
     boost::function< double( ) > ppnParameterGammaFunction_;
 
-    std::vector< std::string > perturbingBodyNames_;
+    //! List of values (between 0 and 1) of how far into the light-time the state of each perturbing body is to be evaluated.
+    std::vector< double > lightTimeEvaluationContribution_;
 
+    //! List of light-time correction due to each separate perturbing body, as computed by last call to
+    //! calculateLightTimeCorrection.
     std::vector< double > currentLighTimeCorrectionComponents_;
 
+    //! Total light-time correction, as computed by last call to calculateLightTimeCorrection.
     double currentTotalLightTimeCorrection_;
 };
 
