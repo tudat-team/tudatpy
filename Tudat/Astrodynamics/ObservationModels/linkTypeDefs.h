@@ -23,8 +23,7 @@ namespace observation_models
 
 //! Enum defining different link end types.
 /*!
- *  Enum defining different link end types. Enum is used for book-keeping purposes when setting link characteristics
- *  so that one does not need to remember the numerical order of types of link ends in input vector.
+ *  Enum defining different roles that a given link end can play in an observation model.
  */
 enum LinkEndType
 {
@@ -34,8 +33,10 @@ enum LinkEndType
     observed_body = 3
 };
 
+//! Typedef for the identifier of a given link-end (body and reference points)
 typedef std::pair< std::string, std::string > LinkEndId;
 
+//! Typedef for list of link ends, with associated role, used for a single observation (model).
 typedef std::map< LinkEndType, LinkEndId > LinkEnds;
 
 }

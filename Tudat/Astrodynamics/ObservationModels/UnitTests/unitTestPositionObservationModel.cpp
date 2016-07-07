@@ -38,10 +38,10 @@ using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
 
 
-BOOST_AUTO_TEST_SUITE( test_angular_position_model )
+BOOST_AUTO_TEST_SUITE( test_position_obsevable_model )
 
 
-BOOST_AUTO_TEST_CASE( testAngularPositionModel )
+BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
 {
     std::string kernelsPath = input_output::getSpiceKernelPath( );
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
@@ -101,15 +101,16 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                 linkEndStates[ 0 ], std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 0, 3 ) +
-                observationBias->getObservationBias( std::vector< double >( ) ) ),
+                observationBias->getObservationBias(
+                      std::vector< double >( ), std::vector< basic_mathematics::Vector6d>( ) ) ),
                 observation, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 observation, observation2, std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
 
-    observation = observationModel->computeUnbiasedObservations(
+    observation = observationModel->computeIdealObservations(
                 observationTime, observed_body );
-    observation2 = observationModel->computeUnbiasedObservationsWithLinkEndData(
+    observation2 = observationModel->computeIdealObservationsWithLinkEndData(
                 observationTime, observed_body, linkEndTimes, linkEndStates );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ),

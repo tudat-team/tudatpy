@@ -21,6 +21,8 @@ namespace tudat
 namespace observation_models
 {
 
+
+//! Enum for types of observations
 enum ObservableType
 {
     oneWayRange = 0,
@@ -29,11 +31,21 @@ enum ObservableType
 
 };
 
+//! Function to get the name (string) associated with a given observable type.
+/*!
+ * Function to get the name (string) associated with a given observable type.
+ * \param observableType Type of observable.
+ * \return Name of observable
+ */
 std::string getObservableName( const ObservableType observableType );
 
+//! Function to get the observable type.ssociated with the name (string) of observable.
+/*!
+ * Function to get the observable type.ssociated with the name (string) of observable.
+ * \param observableName of observable
+ * \return observableType Type of observable.
+ */
 ObservableType getObservableType( const std::string& observableName );
-
-int getObservableSize( const ObservableType observableType );
 
 }
 

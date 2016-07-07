@@ -34,58 +34,80 @@ namespace observation_models
 {
 
 
+//! Base class (non-functional) for describing observation biases
+/*!
+ * Base class (non-functional) for describing observation biases. In this context, an observation bias denotes any deviation
+ * from the ideal observable between two reference points.
+ */
 template< int ObservationSize = 1 >
 class ObservationBias
 {
 public:
 
+    //! Constructor
     ObservationBias( ){ }
 
+    //! Destructor
     virtual ~ObservationBias( ){ }
 
+    //! Pure virtual function to retrieve the observation bias.
+    /*!
+     * Pure virtual function to retrieve the observation bias as a function of the observation times and states (which are
+     * typically computed by the ObservationModel)
+     * \param linkEndTimes List of times at each link end during observation.
+     * \param linkEndStates List of states at each link end during observation.
+     * \return Observation bias at given times and states.
+     */
     virtual Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
-            const std::vector< double >& observationTimes ) = 0;
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates ) = 0;
 
+    //! Function to return the size of the associated observation
+    /*!
+     * Function to return the size of the associated observation
+     * \return Size of the associated observation
+     */
     int getObservationSize( )
     {
         return ObservationSize;
     }
 };
 
+//! Class for a constant observation bias of a given size
 template< int ObservationSize = 1 >
 class ConstantObservationBias: public ObservationBias< ObservationSize >
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param observationBias Constant (entry-wise) observation bias.
+     */
     ConstantObservationBias( const Eigen::Matrix< double, ObservationSize, 1 > observationBias ):
         observationBias_( observationBias ){ }
 
+    //! Destructor
     ~ConstantObservationBias( ){ }
 
+    //! Function to retrieve the constant observation bias.
+    /*!
+     * Function to retrieve the constant observation bias.
+     * \param linkEndTimes List of times at each link end during observation (unused).
+     * \param linkEndStates List of states at each link end during observation (unused).
+     * \return Constant observation bias.
+     */
     Eigen::Matrix< double, ObservationSize, 1 > getObservationBias(
-            const std::vector< double >& observationTimes =  std::vector< double >( ) )
+            const std::vector< double >& linkEndTimes,
+            const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         return observationBias_;
-    }
-
-    Eigen::Matrix< double, ObservationSize, 1 > getConstantObservationBias( )
-    {
-        return observationBias_;
-    }
-
-    void setConstantObservationBias( const Eigen::VectorXd& observationBias )
-    {
-        if( observationBias.rows( ) != ObservationSize )
-        {
-            std::cerr<<"Error when resetting observation bias, sizes are incompatible"<<std::endl;
-        }
-
-        observationBias_ = observationBias;
     }
 
 
 private:
 
+    //! Constant (entry-wise) observation bias.
     Eigen::Matrix< double, ObservationSize, 1 > observationBias_;
 
 };

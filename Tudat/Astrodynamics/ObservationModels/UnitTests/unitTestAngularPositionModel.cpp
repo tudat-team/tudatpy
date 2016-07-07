@@ -135,12 +135,13 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
                 positionDifference );
     BOOST_CHECK_CLOSE_FRACTION(
                 sphericalRelativeCoordinates.z( ) + observationBias->getObservationBias(
-                    std::vector< double >( ) ).x( ),
+                    std::vector< double >( ), std::vector< basic_mathematics::Vector6d >( ) ).x( ),
                 observationFromReceptionTime( 0 ),
                 std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION(
                 mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) +
-                observationBias->getObservationBias( std::vector< double >( ) ).y( ),
+                observationBias->getObservationBias(
+                    std::vector< double >( ), std::vector< basic_mathematics::Vector6d>( ) ).y( ),
                 observationFromReceptionTime( 1 ),
                 std::numeric_limits< double >::epsilon( ) );
 

@@ -33,12 +33,14 @@ namespace observation_models
 //! Base class for models of observables (i.e. range, range-rate, etc.).
 /*!
  *  Base class for models of observables to be used in (for instance) orbit determination.
- *  Each type of observables (1-way range, 2-way range, Doppler, VLBI, etc.) is to have its own
- *  derived class capable of simulating observables of the given type using given link ends
+ *  Each type of observables (1-way range, 2-way range, Doppler, VLBI, etc.) has its own
+ *  derived class capable of simulating observables of the given type using given link ends.
+ *  The functions to be used for computing the observables can be called with/without deviations from ideal observable
+ *  (see base class member functions). Corrections are computed from an observationBiasCalculator member object, which is
+ *  empty by default. Also, the observable may be a with/without returning (by reference) the times and states
+ *  at each of the link ends. Returning these times/states prevents recomputations of these quantities in later calculations.
  */
-template< int ObservationSize = Eigen::Dynamic,
-          typename ObservationScalarType = double,
-          typename TimeType = double,
+template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double,
           typename StateScalarType = ObservationScalarType >
 class ObservationModel
 {
@@ -46,11 +48,11 @@ public:
 
     //! Constructor
     /*!
-     * Base class constructor. Implementation to be done in derived class.
+     * Base class constructor.
      * \param observableType Type of observable, used for derived class type identification without
      * explicit casts.
      * \param observationBiasCalculator Object for calculating system-dependent errors in the
-     * observable, i.e. deviations from the physically true observable (default none).
+     * observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     ObservationModel(
             const ObservableType observableType ,
@@ -58,6 +60,7 @@ public:
         observableType_( observableType ),
         observationBiasCalculator_( observationBiasCalculator )
     {
+        // Check if bias is empty
         if( observationBiasCalculator_ != NULL )
         {
             isBiasNull_ = 0;
@@ -85,87 +88,113 @@ public:
         return observableType_;
     }
 
-    virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeUnbiasedObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime ) const
-    {
-
-        std::vector< TimeType > linkEndTimes;
-        std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > linkEndStates;
-
-        return this->computeUnbiasedObservationsWithLinkEndData( time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
-
-    }
-
-    //! Function to compute observation at given time.
+    //! Function to compute the observable without any corrections
     /*!
-     *  This function computes the observation at a given time and should be implemented in a
-     *  derived class. The time argument can given at any of the link ends.
+     * Function to compute the observable without any corrections, i.e. the ideal physical observable as computed
+     *  from the defined link ends (in the derived class). Note that this observable does include e.g. light-time
+     *  corrections, which represent physically true corrections. It does not include e.g. system-dependent measurement
+     *  errors, such as biases or clock errors.
+     *  The times and states of the link ends are also returned in full precision (determined by class template
+     *  arguments). These states and times are returned by reference.
+     *  \param time Time at which observable is to be evaluated.
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     *  is kept constant (to input value)
+     *  \param linkEndTimes List of times at each link end during observation (returned by reference).
+     *  \param linkEndStates List of states at each link end during observation (returned by reference).
+     *  \return Ideal observable.
+     */
+    virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservationsWithLinkEndData(
+                const TimeType time,
+                const LinkEndType linkEndAssociatedWithTime,
+                std::vector< TimeType >& linkEndTimes,
+                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) = 0;
+
+    //! Function to compute full observation at given time.
+    /*!
+     *  Function to compute observation at given time (include any defined non-ideal corrections). The
+     *  times and states of the link ends are given in full precision (determined by class template
+     *  arguments). These states and times are returned by reference.
      *  \param time Time at which observation is to be simulated
      *  \param linkEndAssociatedWithTime Link end at which current time is measured, i.e. reference
      *  link end for observable.
+     *  \param linkEndTimes List of times at each link end during observation (returned by reference).
+     *  \param linkEndStates List of states at each link end during observation (returned by reference).
      *  \return Calculated observable value.
+     */
+    Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
+                const TimeType time,
+                const LinkEndType linkEndAssociatedWithTime,
+                std::vector< TimeType >& linkEndTimes ,
+                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
+    {
+        // Check if any non-ideal models are set.
+        if( isBiasNull_ )
+        {
+            return computeIdealObservationsWithLinkEndData(
+                        time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
+        }
+        else
+        {
+            // Compute ideal observable
+            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
+                    computeIdealObservationsWithLinkEndData(
+                                            time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
+
+            // Add correction
+            return currentObservation +
+                    this->observationBiasCalculator_->getObservationBias( linkEndTimes, linkEndStates ).
+                    template cast< ObservationScalarType >( );
+        }
+    }
+
+    //! Function to compute the observable without any corrections.
+    /*!
+     * Function to compute the observable without any corrections, i.e. the ideal physical observable as computed
+     * from the defined link ends (in the derived class). Note that this observable does include e.g. light-time
+     * corrections, which represent physically true corrections. It does not include e.g. system-dependent measurement
+     * errors, such as biases or clock errors. This function may be redefined in derived class for improved efficiency.
+     * \param time Time at which observable is to be evaluated.
+     * \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     * is kept constant (to input value)
+     * \return Ideal observable.
+     */
+    virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeIdealObservations(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime )
+    {
+        // Compute ideal observable from derived class.
+        return this->computeIdealObservationsWithLinkEndData(
+                    time, linkEndAssociatedWithTime, this->linkEndTimes_, this->linkEndStates_ );
+    }
+
+    //! Function to compute full observation at given time.
+    /*!
+     *  Function to compute observation at given time (include any defined non-ideal corrections).
+     * \param time Time at which observable is to be evaluated.
+     * \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     * is kept constant (to input value)
+     *  \return Calculated (non-ideal) observable value.
      */
     Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservations(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime )
     {
+        // Check if any non-ideal models are set.
         if( isBiasNull_ )
         {
             return computeObservations( time, linkEndAssociatedWithTime );
         }
         else
         {
-            std::vector< TimeType > linkEndTimes;
-            std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > linkEndStates;
-
+            // Compute ideal observable
             Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
-                    computeUnbiasedObservationsWithLinkEndData(
-                                            time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
+                    computeIdealObservationsWithLinkEndData(
+                                            time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
+
+            // Add correction
             return currentObservation +
-                    this->observationBiasCalculator_->getObservationBias( linkEndTimes ).template cast< ObservationScalarType >( );
-        }
-    }
-
-
-    virtual Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeUnbiasedObservationsWithLinkEndData(
-                const TimeType time,
-                const LinkEndType linkEndAssociatedWithTime,
-                std::vector< TimeType >& linkEndTimes,
-                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) const = 0;
-
-    //! Function to compute observation, as well as the state and time at each link end.
-    /*!
-     *  Function to compute observation, as well as the state and time at each link end. The
-     *  times and states of the link ends are given in full precision (determined by class template
-     *  arguments). These states and times are returned by reference. This function is to be
-     *  implemented for each derived class.
-     *  \param time Time at which observation is to be simulated
-     *  \param linkEndAssociatedWithTime Link end at which current time is measured, i.e. reference
-     *  link end for observable.
-     *  \param linkEndTimes List of times at each link end during observation.
-     *  \param linkEndStates List of states at each link end during observation.
-     *  \return Calculated observable value.
-     */
-    Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > computeObservationsWithLinkEndData(
-                const TimeType time,
-                const LinkEndType linkEndAssociatedWithTime,
-                std::vector< TimeType >& linkEndTimes,
-                std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
-    {
-
-        if( isBiasNull_ )
-        {
-            return computeUnbiasedObservationsWithLinkEndData(
-                        time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
-        }
-        else
-        {
-            Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation =
-                    computeUnbiasedObservationsWithLinkEndData(
-                                            time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
-            return currentObservation +
-                    this->observationBiasCalculator_->getObservationBias( linkEndTimes ).template cast< ObservationScalarType >( );
+                    this->observationBiasCalculator_->getObservationBias( linkEndTimes_, linkEndStates_ ).
+                    template cast< ObservationScalarType >( );
         }
     }
 
@@ -191,7 +220,15 @@ protected:
      */
     boost::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator_;
 
+    //! Boolean set by constructor to denote whether observationBiasCalculator_ is NULL.
     bool isBiasNull_;
+
+
+    //! Pre-define list of times used when calling function returning link-end states/times from interface function.
+    std::vector< TimeType > linkEndTimes_;
+
+    //! Pre-define list of states used when calling function returning link-end states/times from interface function.
+    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > linkEndStates_;
 
 };
 
