@@ -289,9 +289,6 @@ protected:
     bool iterateCorrections_;
 
     //! Current light-time correction.
-    /*!
-     *  Current light-time correction.
-     */
     double currentCorrection_;
 
     //! Function to calculate a new light-time estimate from the link-ends states.
