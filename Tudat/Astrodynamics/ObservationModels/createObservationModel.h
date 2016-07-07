@@ -32,10 +32,29 @@ namespace tudat
 namespace observation_models
 {
 
-template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
+//! Interface class for creating observation models
+/*!
+ *  Interface class for creating observation models. This class is used instead of a single templated free function to
+ *  allow ObservationModel deroved classed with different ObservationSize template arguments to be created using the same
+ *  interface. This class has template specializations for each value of ObservationSize, and contains a single
+ *  createObservationModel function that performs the required operation.
+ */
+template< int ObservationSize = 1, typename ObservationScalarType = double,
+          typename TimeType = double, typename StateScalarType = ObservationScalarType >
 class ObservationModelCreator
 {
 public:
+
+    //! Function to create an observation model.
+    /*!
+     * Function to create an observation model.
+     * \param observableType Type of observation model that is to be created.
+     * \param linkEnds Link ends for observation model that is to be created
+     * \param bodyMap List of body objects that comprises the environment
+     * \param singleObservableCorrections List of light time corrections that are used when computing the observable.
+     * \param observationBiasCalculator
+     * \return Observation model of required settings.
+     */
     static boost::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
@@ -45,10 +64,22 @@ public:
             const boost::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = NULL );
 };
 
+//! Interface class for creating observation models of size 1.
 template< typename ObservationScalarType, typename TimeType, typename StateScalarType >
 class ObservationModelCreator< 1, ObservationScalarType, TimeType, StateScalarType >
 {
 public:
+
+    //! Function to create an observation model of size 1.
+    /*!
+     * Function to create an observation model of size 1.
+     * \param observableType Type of observation model that is to be created.
+     * \param linkEnds Link ends for observation model that is to be created
+     * \param bodyMap List of body objects that comprises the environment
+     * \param singleObservableCorrections List of light time corrections that are used when computing the observable.
+     * \param observationBiasCalculator
+     * \return Observation model of required settings.
+     */
     static boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
@@ -61,22 +92,29 @@ public:
 
         boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType > > observationModel;
 
+        // Check type of observation model.
         switch( observableType )
         {
         case oneWayRange:
         {
+            // Check consistency input.
             if( linkEnds.size( ) != 2 )
             {
-                std::cerr<<"Error when making 1 way range model, "<< linkEnds.size( ) <<" link ends found"<<std::endl;
+                std::string errorMessage =
+                        "Error when making 1 way range model, " +
+                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
             {
-                std::cerr<<"Error when making 1 way range model, no receiver found"<<std::endl;
+                throw std::runtime_error( "Error when making 1 way range model, no receiver found" );
             }
             if( linkEnds.count( transmitter ) == 0 )
             {
-                std::cerr<<"Error when making 1 way range model, no transmitter found"<<std::endl;
+                throw std::runtime_error( "Error when making 1 way range model, no transmitter found" );
             }
+
+            // Create observation model
             observationModel = boost::make_shared< OneWayRangeObservationModel<
                     ObservationScalarType, TimeType, StateScalarType > >(
                         createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
@@ -86,17 +124,30 @@ public:
             break;
         }
         default:
-            std::cerr<<"Error, observable "<<observableType<<" not recognized when making size 1 observation model."<<std::endl;
-            break;
+            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >( observableType ) +
+                    "  not recognized when making size 1 observation model.";
+            throw std::runtime_error( errorMessage );
         }
         return observationModel;
     }
 };
 
+//! Interface class for creating observation models of size 2.
 template< typename ObservationScalarType, typename TimeType, typename StateScalarType >
 class ObservationModelCreator< 2, ObservationScalarType, TimeType, StateScalarType >
 {
 public:
+
+    //! Function to create an observation model of size 2.
+    /*!
+     * Function to create an observation model of size 2.
+     * \param observableType Type of observation model that is to be created.
+     * \param linkEnds Link ends for observation model that is to be created
+     * \param bodyMap List of body objects that comprises the environment
+     * \param singleObservableCorrections List of light time corrections that are used when computing the observable.
+     * \param observationBiasCalculator
+     * \return Observation model of required settings.
+     */
     static boost::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
@@ -108,32 +159,41 @@ public:
         using namespace observation_models;
         boost::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType > > observationModel;
 
+        // Check type of observation model.
         switch( observableType )
         {
         case angular_position:
         {
+            // Check consistency input.
             if( linkEnds.size( ) != 2 )
             {
-                std::cerr<<"Error when making angular position model, "<< linkEnds.size( ) <<" link ends found"<<std::endl;
+                std::string errorMessage =
+                        "Error when making angular position model, " +
+                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
             {
-                std::cerr<<"Error when making angular position model, no receiver found"<<std::endl;
+                throw std::runtime_error( "Error when making angular position model, no receiver found" );
             }
             if( linkEnds.count( transmitter ) == 0 )
             {
-                std::cerr<<"Error when making angular position model, no transmitter found"<<std::endl;
+                throw std::runtime_error( "Error when making angular position model, no transmitter found" );
             }
+
+            // Create observation model
             observationModel = boost::make_shared< AngularPositionObservationModel<
                     ObservationScalarType, TimeType, StateScalarType > >(
                         createLightTimeCalculator< ObservationScalarType, TimeType, StateScalarType >(
-                        linkEnds.at( transmitter ), linkEnds.at( receiver ),
-                        bodyMap, singleObservableCorrections ), observationBiasCalculator );
+                            linkEnds.at( transmitter ), linkEnds.at( receiver ),
+                            bodyMap, singleObservableCorrections ), observationBiasCalculator );
 
             break;
         }
         default:
-            std::cerr<<"Error, observable "<<observableType<<" not recognized when making size 2 observation model."<<std::endl;
+            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >( observableType ) +
+                    "  not recognized when making size 2 observation model.";
+            throw std::runtime_error( errorMessage );
             break;
         }
 
@@ -141,10 +201,22 @@ public:
     }
 };
 
+//! Interface class for creating observation models of size 3.
 template< typename ObservationScalarType, typename TimeType, typename StateScalarType >
 class ObservationModelCreator< 3, ObservationScalarType, TimeType, StateScalarType >
 {
 public:
+
+    //! Function to create an observation model of size 3.
+    /*!
+     * Function to create an observation model of size 3.
+     * \param observableType Type of observation model that is to be created.
+     * \param linkEnds Link ends for observation model that is to be created
+     * \param bodyMap List of body objects that comprises the environment
+     * \param singleObservableCorrections List of light time corrections that are used when computing the observable.
+     * \param observationBiasCalculator
+     * \return Observation model of required settings.
+     */
     static boost::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
@@ -155,29 +227,36 @@ public:
     {
         using namespace observation_models;
         boost::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType, StateScalarType > > observationModel;
+
+        // Check type of observation model.
         switch( observableType )
         {
         case position_observable:
         {
+            // Check consistency input.
             if( linkEnds.size( ) != 1 )
             {
-                std::cerr<<"Error position observable model, "<< linkEnds.size( ) <<" link ends found"<<std::endl;
+                std::string errorMessage =
+                        "Error when making position observable model, " +
+                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
             }
 
             if( linkEnds.count( observed_body ) == 0 )
             {
-                std::cerr<<"Error when making position observable model, no observed_body found"<<std::endl;
+                throw std::runtime_error( "Error when making position observable model, no observed_body found" );
             }
 
             if( singleObservableCorrections.size( ) > 0 )
             {
-                std::cerr<<"Error when making position observable model, found light time corrections"<<std::endl;
+                throw std::runtime_error( "Error when making position observable model, found light time corrections" );
             }
-
             if( linkEnds.at( observed_body ).second != "" )
             {
-                std::cerr<<"Error, cannot yet create position function for reference point"<<std::endl;
+                throw std::runtime_error( "Error, cannot yet create position function for reference point" );
             }
+
+            // Create observation model
             observationModel = boost::make_shared< PositionObservationModel<
                     ObservationScalarType, TimeType, StateScalarType > >(
                         boost::bind( &simulation_setup::Body::getTemplatedStateInBaseFrameFromEphemeris<
@@ -187,7 +266,9 @@ public:
             break;
         }
         default:
-            std::cerr<<"Error, observable "<<observableType<<" not recognized when making size 3 observation model."<<std::endl;
+            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >( observableType ) +
+                    "  not recognized when making size 3 observation model.";
+            throw std::runtime_error( errorMessage );
             break;
         }
         return observationModel;

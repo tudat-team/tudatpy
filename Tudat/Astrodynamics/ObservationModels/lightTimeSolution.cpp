@@ -21,28 +21,32 @@ namespace observation_models
 {
 
 
+//! Function to retrieve the default tolerance for the light-time equation solution.
 template< >
 double getDefaultLightTimeTolerance< double, double >( )
 {
     return 1.0E-12;
 }
 
+//! Function to retrieve the default tolerance for the light-time equation solution.
 template< >
 long double getDefaultLightTimeTolerance< long double, long double >( )
 {
-    return 1.0E-14L;
+    return 1.0E-15L;
 }
 
+//! Function to retrieve the default tolerance for the light-time equation solution.
 template< >
 double getDefaultLightTimeTolerance< double, long double >( )
 {
     return 1.0E-12;
 }
 
+//! Function to retrieve the default tolerance for the light-time equation solution.
 template< >
 long double getDefaultLightTimeTolerance< long double, double >( )
 {
-    return 1.0E-12;
+    return 1.0E-12L;
 }
 
 } // namespace observation_models

@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     BOOST_CHECK_CLOSE_FRACTION(
                 positionDifference.norm( ) + lightTimeCorrection * physical_constants::SPEED_OF_LIGHT +
                 observationBias->getObservationBias(
-                    std::vector< double >( ) )( 0 ),
+                    std::vector< double >( ), std::vector< basic_mathematics::Vector6d >( ) )( 0 ),
                 observationFromReceptionTime,
                 std::numeric_limits< double >::epsilon( ) );
 

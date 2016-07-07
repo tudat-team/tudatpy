@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#include <boost/lexical_cast.hpp>
+
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 
 namespace tudat
@@ -18,6 +20,7 @@ namespace tudat
 namespace observation_models
 {
 
+//! Function to get the name (string) associated with a given observable type.
 std::string getObservableName( const ObservableType observableType )
 {
     std::string observableName;
@@ -33,11 +36,15 @@ std::string getObservableName( const ObservableType observableType )
         observableName = "CartesianPosition";
         break;
     default:
-        std::cerr<<"Error, could not find observable type "<<observableType<<" when getting name of type"<<std::endl;
+        std::string errorMessage =
+                "Error, could not find observable type "+ boost::lexical_cast< std::string >( observableType ) +
+                " when getting name from type";
+        throw std::runtime_error( errorMessage );
     }
     return observableName;
 }
 
+//! Function to get the observable type.ssociated with the name (string) of observable.
 ObservableType getObservableType( const std::string& observableName )
 {
     ObservableType observableType;
@@ -56,7 +63,10 @@ ObservableType getObservableType( const std::string& observableName )
     }
     else
     {
-        std::cerr<<"Error, could not find observable name "<<observableName<<" when getting type of name"<<std::endl;
+        std::string errorMessage =
+                "Error, could not find observable name "+ observableName +
+                " when getting type from name";
+        throw std::runtime_error( errorMessage );
     }
 
     return observableType;

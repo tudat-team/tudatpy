@@ -27,6 +27,12 @@ namespace tudat
 namespace observation_models
 {
 
+//! Function to retrieve the default tolerance for the light-time equation solution.
+/*!
+ *  Function to retrieve the default tolerance for the light-time equation solution. This tolerance denotes the
+ *  difference between two subsequent light time solutions (in s) that is deemed acceptable for convergence/
+ *  \return Default light-time tolerance for given template arguments.
+ */
 template< typename ObservationScalarType = double, typename StateScalarType = ObservationScalarType >
 ObservationScalarType getDefaultLightTimeTolerance( );
 
@@ -43,7 +49,9 @@ typedef boost::function< double(
  *  relatvistic corrections) can be applied. The motion of the ends of the link during the
  *  light time is taken into account in the calculations.
  */
-template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename StateScalarType = ObservationScalarType >
 class LightTimeCalculator
 {
 public:
@@ -299,8 +307,9 @@ protected:
             const StateType& receiverState,
             const StateType& transmitterState ) const
     {
-        return ( ( ( receiverState - transmitterState ).segment( 0, 3 ) ).template cast< ObservationScalarType >( ) ).norm( ) /
-                physical_constants::getSpeedOfLight< ObservationScalarType >( ) + currentCorrection_;// - 0.285 / physical_constants::SPEED_OF_LIGHT;
+        return ( ( ( receiverState - transmitterState ).segment( 0, 3 ) ).
+                 template cast< ObservationScalarType >( ) ).norm( ) /
+                physical_constants::getSpeedOfLight< ObservationScalarType >( ) + currentCorrection_;
     }
 
     //! Function to reset the currentCorrection_ variable during current iteration.

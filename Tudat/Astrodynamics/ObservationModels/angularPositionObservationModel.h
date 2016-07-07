@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef ANGULARPOSITIONOBSERVATIONMODEL_H
-#define ANGULARPOSITIONOBSERVATIONMODEL_H
+#ifndef TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H
+#define TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H
 
 #include <map>
 #include <string>
@@ -27,6 +27,12 @@ namespace tudat
 namespace observation_models
 {
 
+//! Class for simulating angular position (right ascension/declination) observables.
+/*!
+ *  Class for simulating angular position (right ascension/declination), using light-time (with light-time corrections)
+ *  to determine the states of the link ends (source and receiver).
+ *  The user may add observation biases to model system-dependent deviations between measured and true observation.
+ */
 template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType >
 class AngularPositionObservationModel: public ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType >
 {
@@ -35,21 +41,44 @@ public:
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
     typedef Eigen::Matrix< StateScalarType, 6, 1 > PositionType;
 
-
+    //! Constructor.
+    /*!
+     *  Constructor,
+     *  \param lightTimeCalculator Object to compute the light-time (including any corrections w.r.t. Euclidean case)
+     *  between source and receiver
+     *  \param observationBiasCalculator Object for calculating system-dependent errors in the
+     *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
+     */
     AngularPositionObservationModel(
             const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > lightTimeCalculator,
             const boost::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = NULL ):
         ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType >( angular_position, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ) { }
 
+    //! Destructor
+    ~AngularPositionObservationModel( ){ }
 
-    Eigen::Matrix< ObservationScalarType, 2, 1 > computeUnbiasedObservationsWithLinkEndData(
+    //! Function to compute ideal angular position observation at given time.
+    /*!
+     *  This function compute ideal angular position observation at a given time. The time argument can be either the
+     *  reception or transmission time (defined by linkEndAssociatedWithTime input).
+     *  Note that this observable does include e.g. light-time corrections, which represent physically true corrections.
+     *  It does not include e.g. system-dependent measurement.
+     *  The times and states of the link ends are also returned in full precision (determined by class template
+     *  arguments). These states and times are returned by reference.
+     *  \param time Time at which observation is to be simulated
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
+     *  is kept constant (to input value)
+     *  \return Calculated angular position observable values.
+     */
+    Eigen::Matrix< ObservationScalarType, 2, 1 > computeIdealObservationsWithLinkEndData(
                     const TimeType time,
                     const LinkEndType linkEndAssociatedWithTime,
                     std::vector< TimeType >& linkEndTimes,
-                    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates ) const
+                    std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& linkEndStates )
 
     {
+        // Check link end associated with input time and compute observable
         bool isTimeAtReception;
         if( linkEndAssociatedWithTime == receiver )
         {
@@ -68,14 +97,17 @@ public:
         Eigen::Matrix< StateScalarType, 6, 1 > receiverState;
         Eigen::Matrix< StateScalarType, 6, 1 > transmitterState;
 
+        // Compute light-time and receiver/transmitter states.
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                     receiverState, transmitterState, time, isTimeAtReception );
 
-        Eigen::Matrix< StateScalarType, 3, 1 > vectorToTransmitter = transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
+        // Compute spherical relative position
         Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
-                coordinate_conversions::convertCartesianToSpherical< StateScalarType >( vectorToTransmitter ).
+                coordinate_conversions::convertCartesianToSpherical< StateScalarType >(
+                    transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 ) ).
                 template cast< ObservationScalarType >( );
 
+        // Set link end times and states.
         linkEndTimes.clear( );
         linkEndStates.clear( );
         linkEndStates.push_back( transmitterState );
@@ -92,11 +124,16 @@ public:
             linkEndTimes.push_back( time + lightTime );
         }
 
+        // Return observable
         return ( Eigen::Matrix< ObservationScalarType, 2, 1 >( ) << sphericalRelativeCoordinates.z( ),
                  mathematical_constants::PI / 2.0 - sphericalRelativeCoordinates.y( ) ).finished( );
     }
 
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > getLightTimeCalculator( )
+    //! Function to get the object to calculate light time.
+    /*!
+     * Function to get the object to calculate light time.
+     * \return Object to calculate light time.
+     */    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType, StateScalarType > > getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
     }
@@ -114,4 +151,4 @@ private:
 
 }
 
-#endif // ANGULARPOSITIONOBSERVATIONMODEL_H
+#endif // TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H
