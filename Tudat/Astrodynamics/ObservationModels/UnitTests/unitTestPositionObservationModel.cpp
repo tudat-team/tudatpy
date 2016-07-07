@@ -93,12 +93,17 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     Eigen::Vector3d observation2 = observationModel->computeObservationsWithLinkEndData(
                 observationTime, observed_body, linkEndTimes, linkEndStates );
 
+    // Check size of link end state/time.
     BOOST_CHECK_EQUAL( linkEndTimes.size( ), 1 );
     BOOST_CHECK_EQUAL( linkEndStates.size( ), 1 );
 
+    // Check link end state/time.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ),
                 linkEndStates[ 0 ], std::numeric_limits< double >::epsilon( ) );
+    BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
+
+    // Check biased observable
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 0, 3 ) +
                 observationBias->getObservationBias(
@@ -106,8 +111,8 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
                 observation, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 observation, observation2, std::numeric_limits< double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
 
+    // Check ideal observable
     observation = observationModel->computeIdealObservations(
                 observationTime, observed_body );
     observation2 = observationModel->computeIdealObservationsWithLinkEndData(

@@ -55,7 +55,8 @@ public:
      * \param observationBiasCalculator
      * \return Observation model of required settings.
      */
-    static boost::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
+    static boost::shared_ptr< observation_models::ObservationModel<
+    ObservationSize, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             const simulation_setup::NamedBodyMap &bodyMap,
@@ -80,7 +81,8 @@ public:
      * \param observationBiasCalculator
      * \return Observation model of required settings.
      */
-    static boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
+    static boost::shared_ptr< observation_models::ObservationModel<
+    1, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             const simulation_setup::NamedBodyMap &bodyMap,
@@ -90,7 +92,8 @@ public:
     {
         using namespace observation_models;
 
-        boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType, StateScalarType > > observationModel;
+        boost::shared_ptr< observation_models::ObservationModel<
+                1, ObservationScalarType, TimeType, StateScalarType > > observationModel;
 
         // Check type of observation model.
         switch( observableType )
@@ -148,7 +151,8 @@ public:
      * \param observationBiasCalculator
      * \return Observation model of required settings.
      */
-    static boost::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
+    static boost::shared_ptr< observation_models::ObservationModel<
+    2, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             const simulation_setup::NamedBodyMap &bodyMap,
@@ -157,7 +161,8 @@ public:
             const boost::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = NULL )
     {
         using namespace observation_models;
-        boost::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType, StateScalarType > > observationModel;
+        boost::shared_ptr< observation_models::ObservationModel<
+                2, ObservationScalarType, TimeType, StateScalarType > > observationModel;
 
         // Check type of observation model.
         switch( observableType )
@@ -217,7 +222,8 @@ public:
      * \param observationBiasCalculator
      * \return Observation model of required settings.
      */
-    static boost::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
+    static boost::shared_ptr< observation_models::ObservationModel<
+    3, ObservationScalarType, TimeType, StateScalarType > > createObservationModel(
             const ObservableType observableType,
             const LinkEnds& linkEnds,
             const simulation_setup::NamedBodyMap &bodyMap,
@@ -226,7 +232,8 @@ public:
            const boost::shared_ptr< ObservationBias < 3 > > observationBiasCalculator = NULL )
     {
         using namespace observation_models;
-        boost::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType, StateScalarType > > observationModel;
+        boost::shared_ptr< observation_models::ObservationModel<
+                3, ObservationScalarType, TimeType, StateScalarType > > observationModel;
 
         // Check type of observation model.
         switch( observableType )

@@ -21,6 +21,8 @@ namespace observation_models
  *  \param bodyMap List of body objects that comprises the environment
  *  \param lightTimeCorrections List of light time corrections (w.r.t. Euclidean distance) that are applied when computing
  *  light time.
+ *  \param transmittingLinkEnd Identifier for transmitting link end.
+ *  \param receivingLinkEnd Identifier for receiving link end.
  */
 template< typename ObservationScalarType = double, typename TimeType = double,
           typename StateScalarType = ObservationScalarType >
