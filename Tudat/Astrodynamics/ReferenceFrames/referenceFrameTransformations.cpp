@@ -370,6 +370,30 @@ double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame 
     return -std::asin( velocityInVerticalFrame( 2 ) / velocityInVerticalFrame.norm( ) );
 }
 
+Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion(
+    double longitude, double latitude )
+{
+    return getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+                longitude, latitude ).inverse( );
+}
+
+// http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates
+Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+    double longitude, double latitude )
+{
+    // Compute transformation quaternion.
+    // Note the sign change (-1.0), because how angleAxisd is defined.
+    Eigen::AngleAxisd RotationAroundZaxis = Eigen::AngleAxisd(
+                longitude + mathematical_constants::PI / 2.0, Eigen::Vector3d::UnitZ( ) );
+    Eigen::AngleAxisd RotationAroundXaxis =
+            Eigen::AngleAxisd( ( mathematical_constants::PI / 2.0 - latitude ),
+                               Eigen::Vector3d::UnitX( ) );
+    Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
+                ( RotationAroundZaxis * RotationAroundXaxis ) );
+
+    // Return transformation quaternion.
+    return frameTransformationQuaternion;
+}
 
 } // namespace reference_frames
 } // namespace tudat

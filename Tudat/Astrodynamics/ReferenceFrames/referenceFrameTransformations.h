@@ -415,6 +415,15 @@ double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
  */
 double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame );
 
+
+
+Eigen::Quaterniond getRotatingPlanetocentricToEnuLocalVerticalFrameTransformationQuaternion(
+    const double longitude, const double latitude );
+
+// http://www.navipedia.net/index.php/Transformations_between_ECEF_and_ENU_coordinates
+Eigen::Quaterniond getEnuLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+    const double longitude, const double latitude );
+
 } // namespace reference_frames
 } // namespace tudat
 
