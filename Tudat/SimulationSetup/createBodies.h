@@ -32,7 +32,7 @@ namespace simulation_setup
 
 //! Struct holding settings for a body to be created.
 /*!
- *  Struct holding settings for a body to be created. From the settings, a CelestialBody object is
+ *  Struct holding settings for a body to be created. From the settings, a Body object is
  *  created by the createBodies function. Default values can be generated from the function in
  *  defaultBodies.h.
  */
