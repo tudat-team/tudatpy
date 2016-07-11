@@ -28,6 +28,12 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
     return getCartesianLongStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 }
 
+basic_mathematics::Vector6d getRelativePosition(
+        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
+        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody )
+{
+    return stateFunctionOfBody( ) - stateFunctionOfCentralBody( );
+}
 
 } // namespace ephemerides
 
