@@ -150,6 +150,10 @@ protected:
 //! Typedef for shared-pointer to Ephemeris object.
 typedef boost::shared_ptr< Ephemeris > EphemerisPointer;
 
+basic_mathematics::Vector6d getRelativePosition(
+        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
+        const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody );
+
 } // namespace ephemerides
 } // namespace tudat
 
