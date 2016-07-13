@@ -20,7 +20,6 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/thrustAccelerationModel.h"
 
 namespace tudat
 {
@@ -129,56 +128,6 @@ private:
 
 };
 
-class FromThrustMassRateModel: public MassRateModel
-{
-public:
-
-    //! Constructor.
-    /*!
-     * Constructor
-     */
-    FromThrustMassRateModel(
-            const boost::shared_ptr< ThrustAcceleration > thrustAcceleration )
-    {
-        thrustAccelerations_.push_back( thrustAcceleration );
-    }
-
-    //! Constructor.
-    /*!
-     * Constructor
-     */
-    FromThrustMassRateModel(
-            const std::vector< boost::shared_ptr< ThrustAcceleration > > thrustAccelerations ):
-        thrustAccelerations_( thrustAccelerations ){ }
-
-    //! Destructor.
-    ~FromThrustMassRateModel( ){ }
-
-    //! Update member variables used by the mass rate model and compute the mass rate
-    /*!
-     * Update member variables used by the mass rate model and compute the mass rate
-     * \param currentTime Time at which acceleration model is to be updated.
-     */
-    void updateMembers( const double currentTime = TUDAT_NAN )
-    {
-        for( unsigned int i = 0; i < thrustAccelerations_.size( ); i++ )
-        {
-            thrustAccelerations_.at( i )->updateMembers( currentTime );
-        }
-
-        currentMassRate_ = 0.0;
-        for( unsigned int i = 0; i < thrustAccelerations_.size( ); i++ )
-        {
-            currentMassRate_ += thrustAccelerations_.at( i )->getCurrentMassRate( );
-        }
-
-    }
-
-private:
-
-    //! Function returning mass rate as a function of time.
-    std::vector< boost::shared_ptr< ThrustAcceleration > > thrustAccelerations_;
-};
 
 } // namespace basic_astrodynamics
 

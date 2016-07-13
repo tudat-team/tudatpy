@@ -2,7 +2,7 @@
 #define CREATETHRUSTMODELGUIDANCE_H
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/thrustGuidance.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/SimulationSetup/createFlightConditions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
@@ -68,7 +68,7 @@ public:
    boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction_;
 };
 
-boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > createThrustGuidanceModel(
+boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance );
@@ -186,7 +186,7 @@ public:
 
     double getCurrentMassRate( )
     {
-        return computePropellantMassRateFromSpecificImpulse(
+        return propulsion::computePropellantMassRateFromSpecificImpulse(
                     currentThrustMagnitude_, currentSpecificImpulse_ );
     }
 
@@ -241,7 +241,7 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
 
 void updateThrustMagnitudeAndDirection(
         const boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
         const double currentTime );
 
 

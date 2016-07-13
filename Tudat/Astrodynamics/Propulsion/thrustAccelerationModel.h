@@ -11,7 +11,7 @@
 namespace tudat
 {
 
-namespace basic_astrodynamics
+namespace propulsion
 {
 
 class ThrustAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >

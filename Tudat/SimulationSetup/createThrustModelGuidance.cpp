@@ -7,12 +7,12 @@ namespace simulation_setup
 {
 
 
-boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > createThrustGuidanceModel(
+boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance )
 {
-   boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > thrustGuidance;
+   boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustGuidance;
 
    switch( thrustDirectionGuidanceSettings->thrustDirectionType_ )
    {
@@ -40,17 +40,17 @@ boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > createThrustGu
             if( thrustDirectionFromStateGuidanceSettings->isColinearWithVelocity_ )
             {
                 thrustDirectionFunction =
-                        boost::bind( &basic_astrodynamics::getThrustDirectionColinearWithVelocity, _1, _2,
+                        boost::bind( &propulsion::getThrustDirectionColinearWithVelocity, _1, _2,
                                      thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
             }
             else
             {
                 thrustDirectionFunction =
-                        boost::bind( &basic_astrodynamics::getThrustDirectionColinearWithPosition, _1, _2,
+                        boost::bind( &propulsion::getThrustDirectionColinearWithPosition, _1, _2,
                                      thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
             }
 
-            thrustGuidance =  boost::make_shared< basic_astrodynamics::StateBasedThrustGuidance >(
+            thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
                         thrustDirectionFunction, stateFunction );
         }
         break;
@@ -89,7 +89,7 @@ boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > createThrustGu
             throw std::runtime_error( "Error, requested thrust orientation from existing model, but no such model found" );
        }
 
-       thrustGuidance =  boost::make_shared< basic_astrodynamics::DirectOrientationBasedThrustGuidance >(
+       thrustGuidance =  boost::make_shared< propulsion::DirectOrientationBasedThrustGuidance >(
                    rotationFunction );
        break;
    }
@@ -105,11 +105,11 @@ boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > createThrustGu
        else
        {
                boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction =
-                       boost::bind( &basic_astrodynamics::getThrustDirectionFromTimeOnlyFunction,
+                       boost::bind( &propulsion::getThrustDirectionFromTimeOnlyFunction,
                                          _1, _2, customThrustGuidanceSettings->thrustDirectionFunction_ );
 
 
-               thrustGuidance =  boost::make_shared< basic_astrodynamics::StateBasedThrustGuidance >(
+               thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
                            thrustDirectionFunction, boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) );
        }
        break;
@@ -186,7 +186,7 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
 
 void updateThrustMagnitudeAndDirection(
         const boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
         const double currentTime )
 {
     thrustMagnitudeWrapper->update( currentTime );

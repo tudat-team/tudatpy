@@ -42,7 +42,8 @@
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/thrustAccelerationModel.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustAccelerationModel.h"
+#include "Tudat/Astrodynamics/Propulsion/massRateFromThrust.h"
 
 
 namespace tudat

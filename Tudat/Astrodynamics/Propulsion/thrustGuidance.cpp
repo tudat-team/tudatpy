@@ -1,9 +1,9 @@
-#include "Tudat/Astrodynamics/BasicAstrodynamics/thrustGuidance.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 
 namespace tudat
 {
 
-namespace basic_astrodynamics
+namespace propulsion
 {
 
 Eigen::Vector3d getThrustDirectionColinearWithVelocity(

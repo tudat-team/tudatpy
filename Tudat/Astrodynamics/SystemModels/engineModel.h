@@ -3,18 +3,10 @@
 
 #include <boost/function.hpp>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustFunctions.h"
 
 namespace tudat
 {
-
-
-double computeThrustFromSpecificImpulse(
-         const double propellantMassRate, const double specificImpulse );
-
-double computePropellantMassRateFromSpecificImpulse(
-         const double thrustMagnitude, const double specificImpulse );
-
 namespace system_models
 {
 
@@ -52,7 +44,7 @@ public:
 
     void updateEngineModel( const double currentTime )
     {
-        currentThrust_ = computeThrustFromSpecificImpulse( massFlowFunction_( ), specificImpulse_ );
+        currentThrust_ = propulsion::computeThrustFromSpecificImpulse( massFlowFunction_( ), specificImpulse_ );
     }
 
     double getCurrentMassRate( )
