@@ -324,6 +324,10 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     }
                     break;
                 }
+                case thrust_acceleration:
+                {
+                    break;
+                }
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
                                               boost::lexical_cast< std::string >( currentAccelerationModelType ) );

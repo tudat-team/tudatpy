@@ -425,9 +425,24 @@ public:
 
     virtual ~DependentOrientationCalculator( ){ }
 
-    virtual Eigen::Quaterniond getDependentRotationToLocalFrame( const double currentTime ) = 0;
+    virtual Eigen::Quaterniond getRotationToLocalFrame( ) = 0;
+
+    virtual Eigen::Quaterniond getRotationToGlobalFrame( ) = 0;
 
     virtual void updateCalculator( const double currentTime ) = 0;
+
+    Eigen::Quaterniond getRotationToLocalFrame( const double currentTime )
+    {
+        updateCalculator( currentTime );
+        return getRotationToLocalFrame( );
+    }
+
+    Eigen::Quaterniond getRotationToGlobalFrame( const double currentTime )
+    {
+        updateCalculator( currentTime );
+        return getRotationToGlobalFrame( );
+    }
+
 
 protected:
 

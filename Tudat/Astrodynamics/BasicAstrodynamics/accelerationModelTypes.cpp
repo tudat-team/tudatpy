@@ -111,7 +111,7 @@ AvailableMassRateModels getMassRateModelType(
     {
         massRateType = custom_mass_rate_model;
     }
-    else if( boost::dynamic_pointer_cast< basic_astrodynamics::ThrustBasedMassRateModel >(
+    else if( boost::dynamic_pointer_cast< basic_astrodynamics::FromThrustMassRateModel >(
                 massRateModel ) != NULL )
     {
         massRateType = from_thrust_mass_rate_model;

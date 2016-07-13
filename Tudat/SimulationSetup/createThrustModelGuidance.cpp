@@ -93,6 +93,27 @@ boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > createThrustGu
                    rotationFunction );
        break;
    }
+   case custom_thrust_direction:
+   {
+
+       boost::shared_ptr< CustomThrustDirectionSettings > customThrustGuidanceSettings =
+               boost::dynamic_pointer_cast< CustomThrustDirectionSettings >( thrustDirectionGuidanceSettings );
+       if( customThrustGuidanceSettings == NULL )
+       {
+           throw std::runtime_error( "Error when getting thrust guidance, input is inconsistent" );
+       }
+       else
+       {
+               boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction =
+                       boost::bind( &basic_astrodynamics::getThrustDirectionFromTimeOnlyFunction,
+                                         _1, _2, customThrustGuidanceSettings->thrustDirectionFunction_ );
+
+
+               thrustGuidance =  boost::make_shared< basic_astrodynamics::StateBasedThrustGuidance >(
+                           thrustDirectionFunction, boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) );
+       }
+       break;
+   }
    default:
        throw std::runtime_error( "Error, could not find thrust guidance type when creating thrust guidance." );
    }
@@ -118,6 +139,7 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         thrustMagnitudeWrapper = boost::make_shared< CustomThrustMagnitudeWrapper >(
                     boost::lambda::constant( constantThrustMagnitudeSettings->thrustMagnitude_ ),
                     boost::lambda::constant( constantThrustMagnitudeSettings->specificImpulse_ ) );
+        break;
 
     }
     case from_engine_properties_thrust_magnitude:
@@ -137,6 +159,8 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         thrustMagnitudeWrapper = boost::make_shared< ThrustMagnitudeFromEngineWrapper >(
                     bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).at(
                         thrustMagnitudeSettings->thrustOriginId_ ) );
+        break;
+
     }
     case thrust_magnitude_from_time_function:
     {
@@ -150,6 +174,8 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
                     fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
                     fromFunctionThrustMagnitudeSettings->specificImpulseFunction_,
                     fromFunctionThrustMagnitudeSettings->isEngineOnFunction_ );
+        break;
+
     }
     default:
         throw std::runtime_error( "Error when creating thrust magnitude wrapper, type not identified" );
@@ -164,7 +190,7 @@ void updateThrustMagnitudeAndDirection(
         const double currentTime )
 {
     thrustMagnitudeWrapper->update( currentTime );
-    thrustDirectionGuidance->updateThrustDirection( currentTime );
+    thrustDirectionGuidance->updateCalculator( currentTime );
 }
 
 

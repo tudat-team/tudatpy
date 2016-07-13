@@ -24,6 +24,8 @@ public:
             const basic_astrodynamics::AvailableMassRateModels massRateType ):
         massRateType_( massRateType ){ }
 
+    virtual ~MassRateModelSettings( ){ }
+
     basic_astrodynamics::AvailableMassRateModels massRateType_;
 
 };
@@ -32,10 +34,12 @@ class CustomMassRateModelSettings: public MassRateModelSettings
 {
 public:
 
-    CusromMassRateModelSettings(
+    CustomMassRateModelSettings(
             const boost::function< double( const double ) > massRateFunction ):
         MassRateModelSettings( basic_astrodynamics::custom_mass_rate_model ),
     massRateFunction_( massRateFunction ){ }
+
+    ~CustomMassRateModelSettings( ){ }
 
     boost::function< double( const double ) > massRateFunction_;
 
@@ -50,6 +54,8 @@ public:
             const std::string& associatedThroustSource = "" ):
         MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ),
     associatedThroustSource_( associatedThroustSource ), useAllThrustModels_( useAllThrustModels ){ }
+
+    ~FromThrustMassModelSettings( ){ }
 
     std::string associatedThroustSource_;
 
@@ -69,7 +75,7 @@ createMassRateModel(
 std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > createMassRateModelsMap(
         const NamedBodyMap& bodyMap,
         const std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > >& massRateModelSettings,
-        const basic_astrodynamics::AccelerationMap& accelerationModels = AccelerationMap( ) );
+        const basic_astrodynamics::AccelerationMap& accelerationModels = basic_astrodynamics::AccelerationMap( ) );
 
 } // namespace simulation_setup
 

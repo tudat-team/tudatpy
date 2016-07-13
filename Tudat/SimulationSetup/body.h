@@ -252,7 +252,7 @@ public:
         }
         else if( dependentOrientationCalculator_ != NULL )
         {
-            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getDependentRotationToLocalFrame( time );
+            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getRotationToLocalFrame( time );
         }
         else
         {
@@ -326,7 +326,7 @@ public:
         }
         else if( dependentOrientationCalculator_ != NULL )
         {
-            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getDependentRotationToLocalFrame( time );
+            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getRotationToLocalFrame( time );
             currentRotationToLocalFrameDerivative_.setZero( );
             currentAngularVelocityVectorInGlobalFrame_.setZero( );
         }
@@ -474,6 +474,12 @@ public:
             std::cerr<<"Warning when setting rotational ephemeris, dependentOrientationCalculator_ already found, NOT setting closure"<<std::endl;
         }
         rotationalEphemeris_ = rotationalEphemeris;
+    }
+
+    void setDependentOrientationCalculator(
+            const boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator )
+    {
+        dependentOrientationCalculator_ = dependentOrientationCalculator;
     }
 
     //! Function to set the shape model of the body.

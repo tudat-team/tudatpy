@@ -21,22 +21,13 @@ public:
 
     virtual ~ThrustDirectionGuidance( ){ }
 
-    virtual void updateThrustDirection( const double time ) = 0;
-
     virtual Eigen::Vector3d getCurrentThrustDirectionInPropagationFrame( ) = 0;
 
-    virtual Eigen::Quaterniond getCurrentThrustFrameToPropagationFrameRotation( ) = 0;
-
-    void updateCalculator( const double currentTime )
+    Eigen::Quaterniond getRotationToLocalFrame( )
     {
-        updateThrustDirection( currentTime );
+       return getRotationToGlobalFrame( ).inverse( );
     }
 
-    Eigen::Quaterniond getDependentRotationToLocalFrame( const double time )
-    {
-        updateThrustDirection( time );
-        return getCurrentThrustFrameToPropagationFrameRotation( );
-    }
 
 protected:
 
@@ -48,6 +39,11 @@ Eigen::Vector3d getThrustDirectionColinearWithVelocity(
 Eigen::Vector3d getThrustDirectionColinearWithPosition(
         const basic_mathematics::Vector6d& currentState, const double currentTime, const bool putThrustInOppositeDirection );
 
+
+Eigen::Vector3d getThrustDirectionFromTimeOnlyFunction(
+        const basic_mathematics::Vector6d& currentState, const double currentTime,
+        const boost::function< Eigen::Vector3d( const double ) > timeOnlyFunction );
+
 class StateBasedThrustGuidance: public ThrustDirectionGuidance
 {
 public:
@@ -56,7 +52,7 @@ public:
             boost::function< basic_mathematics::Vector6d( ) > bodyStateFunction ):
         ThrustDirectionGuidance( ), thrustDirectionFunction_( thrustDirectionFunction ), bodyStateFunction_( bodyStateFunction ){ }
 
-    void updateThrustDirection( const double time )
+    void updateCalculator( const double time )
     {
         currentThrustDirection_ = thrustDirectionFunction_( bodyStateFunction_( ), time );
     }
@@ -66,7 +62,7 @@ public:
         return currentThrustDirection_;
     }
 
-    Eigen::Quaterniond getCurrentThrustFrameToPropagationFrameRotation( )
+    Eigen::Quaterniond getRotationToGlobalFrame( )
     {
         throw std::runtime_error( "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" );
     }
@@ -93,17 +89,17 @@ public:
 
     Eigen::Vector3d getCurrentThrustDirectionInPropagationFrame( )
     {
-        return getCurrentThrustFrameToPropagationFrameRotation( ) * thrustFrameThrustDirection_;
+        return getRotationToGlobalFrame( ) * thrustFrameThrustDirection_;
     }
 
-    Eigen::Quaterniond getCurrentThrustFrameToPropagationFrameRotation( )
+    Eigen::Quaterniond getRotationToGlobalFrame( )
     {
         return currentBaseFrameToPropagationFrame_ * currentThrustFrameToBaseFrameRotation_;
     }
 
     virtual void updateThrustAngles( const double time ) = 0;
 
-    void updateThrustDirection( const double time )
+    void updateCalculator( const double time )
     {
         currentBaseFrameToPropagationFrame_ = guidanceBaseFrameToPropagationFrameFunction_( );
 
