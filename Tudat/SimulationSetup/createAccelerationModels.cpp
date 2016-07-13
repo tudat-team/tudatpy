@@ -749,7 +749,7 @@ createCannonballRadiationPressureAcceleratioModel(\
 
 }
 
-boost::shared_ptr< basic_astrodynamics::ThrustAcceleration >
+boost::shared_ptr< propulsion::ThrustAcceleration >
 createThrustAcceleratioModel(
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
         const NamedBodyMap& bodyMap,
@@ -762,7 +762,7 @@ createThrustAcceleratioModel(
         throw std::runtime_error( "Error when creating thrust acceleration, input is inconsistent" );
     }
 
-    boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > thrustDirectionGuidance = createThrustGuidanceModel(
+    boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance = createThrustGuidanceModel(
                 thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust );
     boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
                 thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap, nameOfBodyUndergoingThrust );
@@ -772,9 +772,9 @@ createThrustAcceleratioModel(
     boost::function< void( const double ) > updateFunction =
             boost::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, _1 );
 
-    return boost::make_shared< basic_astrodynamics::ThrustAcceleration >(
+    return boost::make_shared< propulsion::ThrustAcceleration >(
                 boost::bind( &ThrustMagnitudeWrapper::getCurrentThrust, thrustMagnitude ),
-                boost::bind( &basic_astrodynamics::ThrustDirectionGuidance::getCurrentThrustDirectionInPropagationFrame, thrustDirectionGuidance ),
+                boost::bind( &propulsion::ThrustDirectionGuidance::getCurrentThrustDirectionInPropagationFrame, thrustDirectionGuidance ),
                 boost::bind( &Body::getBodyMass, bodyMap.at( nameOfBodyUndergoingThrust ) ),
                 boost::bind( &ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
                 thrustAccelerationSettings->thrustMagnitudeSettings_->thrustOriginId_,

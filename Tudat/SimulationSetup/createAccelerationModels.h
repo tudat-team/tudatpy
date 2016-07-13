@@ -302,7 +302,7 @@ createCannonballRadiationPressureAcceleratioModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
-boost::shared_ptr< basic_astrodynamics::ThrustAcceleration >
+boost::shared_ptr< propulsion::ThrustAcceleration >
 createThrustAcceleratioModel(
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
         const NamedBodyMap& bodyMap,

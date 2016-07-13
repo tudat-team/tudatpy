@@ -65,15 +65,15 @@ createMassRateModel(
 
             }
 
-            std::vector< boost::shared_ptr< basic_astrodynamics::ThrustAcceleration > >
+            std::vector< boost::shared_ptr< propulsion::ThrustAcceleration > >
                     explicitThrustAccelerations;
             for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
             {
-                explicitThrustAccelerations.push_back( boost::dynamic_pointer_cast< basic_astrodynamics::ThrustAcceleration >(
+                explicitThrustAccelerations.push_back( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
                                                  thrustAccelerations.at( i ) ) );
             }
 
-            massRateModel = boost::make_shared< basic_astrodynamics::FromThrustMassRateModel >(
+            massRateModel = boost::make_shared< propulsion::FromThrustMassRateModel >(
                         explicitThrustAccelerations );
         }
         break;

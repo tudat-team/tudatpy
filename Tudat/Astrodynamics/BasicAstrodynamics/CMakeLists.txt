@@ -51,7 +51,6 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/physicalConstants.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/bodyShapeModel.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.cpp"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/thrustGuidance.cpp"
 )
 
 # Set the header files.
@@ -79,8 +78,6 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalBodyShapeModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/massRateModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.h"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/thrustAccelerationModel.h"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/thrustGuidance.h"
 )
 
 # Add static libraries.
@@ -114,7 +111,7 @@ setup_custom_test_program(test_UnitConversions "${SRCROOT}${BASICASTRODYNAMICSDI
 target_link_libraries(test_UnitConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_MeanToEccentricAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToEccentricAnomaly.cpp")
-setup_custom_test_program(test_MeanToEccentricAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+setup_custom_test_program(test_MeanToEccentricAnomalyConversion "${SRCRthrustFunctionsOOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_MeanToEccentricAnomalyConversion tudat_basic_astrodynamics tudat_basic_mathematics tudat_root_finders ${Boost_LIBRARIES})
 
 add_executable(test_MeanToHyperbolicEccentricAnomalyConversion "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestConvertMeanAnomalyToHyperbolicEccentricAnomaly.cpp")
@@ -160,7 +157,3 @@ target_link_libraries(test_BodyShapeModels tudat_basic_astrodynamics tudat_basic
 add_executable(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelElementConversions.cpp")
 setup_custom_test_program(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_UnifiedStateModelElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
-
-add_executable(test_ThrustAcceleration "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestThrustAcceleration.cpp")
-setup_custom_test_program(test_ThrustAcceleration "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_ThrustAcceleration tudat_simulation_setup tudat_propagators tudat_acceleration_partials tudat_estimatable_parameters tudat_orbit_determination tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})

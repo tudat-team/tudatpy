@@ -10,7 +10,7 @@
 namespace tudat
 {
 
-namespace basic_astrodynamics
+namespace propulsion
 {
 
 class ThrustDirectionGuidance: public reference_frames::DependentOrientationCalculator
