@@ -322,11 +322,9 @@ private:
                     }
                     case body_rotational_state_update:
                     {
-                        boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
-                                bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( );
-
                         // Check if rotational ephemeris exists
-                        if( rotationalEphemeris != NULL )
+                        if(  ( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) != NULL ) ||
+                             ( bodyList_.at( currentBodies.at( i ) )->getDependentOrientationCalculator( ) != NULL ) )
                         {
                             boost::function< void( const TimeType ) > rotationalStateSetFunction =
                                     boost::bind( &simulation_setup::Body

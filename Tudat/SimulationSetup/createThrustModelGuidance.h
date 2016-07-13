@@ -1,9 +1,10 @@
 #ifndef CREATETHRUSTMODELGUIDANCE_H
 #define CREATETHRUSTMODELGUIDANCE_H
 
-
+#include "Tudat/Astrodynamics/SystemModels/engineModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/thrustGuidance.h"
 #include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/createFlightConditions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 
 namespace tudat
@@ -14,8 +15,9 @@ namespace simulation_setup
 
 enum ThrustDirectionGuidanceTypes
 {
-    colinear_with_state_segment_thrust,
-    thrust_direction_from_body_orientation
+    colinear_with_state_segment_thrust_direction,
+    thrust_direction_from_existing_body_orientation,
+    custom_3_1_3_euler_angles_thrust_direction
 };
 
 class ThrustDirectionGuidanceSettings
@@ -25,6 +27,8 @@ public:
            const ThrustDirectionGuidanceTypes thrustDirectionType,
            const std::string relativeBody ):
    thrustDirectionType_( thrustDirectionType ), relativeBody_( relativeBody ){ }
+
+   virtual ~ThrustDirectionGuidanceSettings( ){ }
 
    ThrustDirectionGuidanceTypes thrustDirectionType_;
 
@@ -38,9 +42,11 @@ public:
            const std::string& centralBody,
            const bool isColinearWithVelocity,
            const bool directionIsOppositeToVector ):
-       ThrustDirectionGuidanceSettings( colinear_with_state_segment_thrust, centralBody ),
+       ThrustDirectionGuidanceSettings( thrust_direction_from_existing_body_orientation, centralBody ),
    isColinearWithVelocity_( isColinearWithVelocity ),
    directionIsOppositeToVector_( directionIsOppositeToVector ){ }
+
+   ~ThrustDirectionFromStateGuidanceSettings( ){ }
 
    bool isColinearWithVelocity_;
 
@@ -48,87 +54,181 @@ public:
 
 };
 
-boost::shared_ptr< basic_astrodynamics::ThrustGuidance > createThrustGuidanceModel(
+boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
-        const std::string& bodyWithGuidance )
+        const std::string& nameOfBodyWithGuidance );
+
+enum ThrustMagnitudeTypes
 {
-   boost::shared_ptr< basic_astrodynamics::ThrustGuidance > thrustGuidance;
+    constant_thrust_magnitude,
+    from_engine_properties_thrust_magnitude,
+    thrust_magnitude_from_time_function
+};
 
-   switch( thrustDirectionGuidanceSettings->thrustDirectionType_ )
-   {
-   case colinear_with_state_segment_thrust:
-   {
-        boost::shared_ptr< ThrustDirectionFromStateGuidanceSettings > thrustDirectionFromStateGuidanceSettings =
-                boost::dynamic_pointer_cast< ThrustDirectionFromStateGuidanceSettings >( thrustDirectionGuidanceSettings );
-        if( thrustDirectionFromStateGuidanceSettings == NULL )
+class ThrustMagnitudeSettings
+{
+public:
+   ThrustMagnitudeSettings(
+           const ThrustMagnitudeTypes thrustMagnitudeGuidanceType,
+           const std::string& thrustOriginId ):
+   thrustMagnitudeGuidanceType_( thrustMagnitudeGuidanceType ),
+   thrustOriginId_( thrustOriginId ){ }
+
+   virtual ~ThrustMagnitudeSettings( ){ }
+
+   ThrustMagnitudeTypes thrustMagnitudeGuidanceType_;
+
+   std::string thrustOriginId_;
+};
+
+class ConstantThrustMagnitudeSettings: public ThrustMagnitudeSettings
+{
+public:
+   ConstantThrustMagnitudeSettings(
+           const double thrustMagnitude,
+           const double specificImpulse ):
+       ThrustMagnitudeSettings( constant_thrust_magnitude, "" ),
+   thrustMagnitude_( thrustMagnitude ),specificImpulse_( specificImpulse ){ }
+
+   ~ConstantThrustMagnitudeSettings( ){ }
+
+   double thrustMagnitude_;
+
+   double specificImpulse_;
+};
+
+class FromFunctionThrustMagnitudeSettings: public ThrustMagnitudeSettings
+{
+public:
+   FromFunctionThrustMagnitudeSettings(
+           const boost::function< double( const double ) > thrustMagnitudeFunction,
+           const boost::function< double( const double ) > specificImpulseFunction,
+           const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ):
+       ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ),
+   thrustMagnitudeFunction_( thrustMagnitudeFunction ),
+   specificImpulseFunction_( specificImpulseFunction ),
+   isEngineOnFunction_( isEngineOnFunction ){ }
+
+   ~FromFunctionThrustMagnitudeSettings( ){ }
+
+
+   boost::function< double( const double) > thrustMagnitudeFunction_;
+
+   boost::function< double( const double) > specificImpulseFunction_;
+
+   boost::function< bool( const double ) > isEngineOnFunction_;
+};
+
+class ThrustMagnitudeWrapper
+{
+public:
+
+    ThrustMagnitudeWrapper( ){ }
+
+    virtual ~ThrustMagnitudeWrapper( ){ }
+
+    virtual void update( const double time ) = 0;
+
+    virtual double getCurrentThrust( ) = 0;
+
+    virtual double getCurrentMassRate( ) = 0;
+
+};
+
+
+class CustomThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
+{
+public:
+
+    CustomThrustMagnitudeWrapper(
+            const boost::function< double( const double ) > thrustMagnitudeFunction,
+            const boost::function< double( const double ) > specificImpulseFunction,
+            const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ):
+    thrustMagnitudeFunction_( thrustMagnitudeFunction ),
+    specificImpulseFunction_( specificImpulseFunction ),
+    isEngineOnFunction_( isEngineOnFunction ),
+    currentThrustMagnitude_( TUDAT_NAN ),
+    currentSpecificImpulse_( TUDAT_NAN ){ }
+
+    void update( const double time )
+    {
+        if( isEngineOnFunction_( time ) )
         {
-
+            currentThrustMagnitude_ = thrustMagnitudeFunction_( time );
+            currentSpecificImpulse_ = specificImpulseFunction_( time );
         }
         else
         {
-            boost::function< basic_mathematics::Vector6d( ) > bodyStateFunction =
-                    boost::bind( &Body::getStateInBaseFrameFromEphemeris, bodyMap.at( bodyWithGuidance ) );
-            boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction =
-                    boost::bind( &Body::getStateInBaseFrameFromEphemeris, bodyMap.at(
-                                     thrustDirectionFromStateGuidanceSettings->relativeBody_ ) );
-
-            boost::function< basic_mathematics::Vector6d( ) > stateFunction =
-                    boost::bind(
-                        &ephemerides::getRelativePosition, bodyStateFunction, centralBodyStateFunction );
-            boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction;
-
-            if( thrustDirectionFromStateGuidanceSettings->isColinearWithVelocity_ )
-            {
-                thrustDirectionFunction =
-                        boost::bind( &basic_astrodynamics::getThrustDirectionColinearWithVelocity, _1, _2,
-                                     thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
-            }
-            else
-            {
-                thrustDirectionFunction =
-                        boost::bind( &basic_astrodynamics::getThrustDirectionColinearWithPosition, _1, _2,
-                                     thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
-            }
-
-            thrustGuidance =  boost::make_shared< basic_astrodynamics::StateBasedThrustGuidance >(
-                        thrustDirectionFunction, stateFunction );
+            currentThrustMagnitude_ = 0.0;
+            currentSpecificImpulse_ = TUDAT_NAN;
         }
-        break;
-   }
-   case thrust_direction_from_body_orientation:
-   {
-       boost::shared_ptr< Body > bodyWithGuidance = bodyMap.at( bodyWithGuidance );
-       boost::shared_ptr< Body > relativeBody = bodyMap.at( thrustDirectionGuidanceSettings->relativeBody_ );
+    }
+
+    double getCurrentThrust( )
+    {
+        return currentThrustMagnitude_;
+    }
+
+    double getCurrentMassRate( )
+    {
+        return currentThrustMagnitude_ / currentSpecificImpulse_;
+    }
+
+private:
+    boost::function< double( const double ) > thrustMagnitudeFunction_;
+
+    boost::function< double( const double ) > specificImpulseFunction_;
+
+    boost::function< bool( const double ) > isEngineOnFunction_;
+
+    double currentThrustMagnitude_;
+
+    double currentSpecificImpulse_;
+
+};
+
+class ThrustMagnitudeFromEngineWrapper: public ThrustMagnitudeWrapper
+{
+public:
+
+    ThrustMagnitudeFromEngineWrapper(
+            const boost::shared_ptr< system_models::EngineModel > engineModel ):
+    engineModel_( engineModel ){ }
+
+    ~ThrustMagnitudeFromEngineWrapper( ){ }
+
+    void update( const double time )
+    {
+        engineModel_->updateEngineModel( time );
+    }
+
+    double getCurrentThrust( )
+    {
+        return engineModel_->getCurrentThrust( );
+    }
+
+    double getCurrentMassRate( )
+    {
+        return engineModel_->getCurrentThrust( );
+    }
+
+protected:
+    boost::shared_ptr< system_models::EngineModel > engineModel_;
+
+};
 
 
-       // Retrieve flight conditions; create object if not yet extant.
-       boost::shared_ptr< aerodynamics::FlightConditions > bodyFlightConditions =
-               bodyWithGuidance->getFlightConditions( );
-       if( bodyFlightConditions == NULL )
-       {
-           bodyWithGuidance->setFlightConditions(
-                       createFlightConditions( bodyWit,hGuidance,
-                                               relativeBody,
-                                               bodyWithGuidance,
-                                               relativeBody ) );
-           bodyFlightConditions = bodyWithGuidance->getFlightConditions( );
-       }
+boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
+        const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
+        const NamedBodyMap& bodyMap,
+        const std::string& nameOfBodyWithGuidance );
 
-       boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-              bodyFlightConditions->getAerodynamicAngleCalculator( );
-       boost::function< Eigen::Quaterniond( ) > rotationFunction =
-               boost::bind( &reference_frames::AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
-                            angleCalculator, reference_frames::body_frame, reference_frames::inertial_frame );
-       thrustGuidance =  boost::make_shared< basic_astrodynamics::DirectOrientationBasedThrustGuidance >(
-                   rotationFunction );
-       break;
-   }
-   default:
-       throw std::runtime_error( "Error, could not find thrust guidance type when creating thrust guidance." );
-   }
-   return thrustGuidance;
-}
+void updateThrustMagnitudeAndDirection(
+        const boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+        const boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const double currentTime );
+
 
 }
 

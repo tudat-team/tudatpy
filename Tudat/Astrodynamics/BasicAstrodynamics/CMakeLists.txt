@@ -51,6 +51,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/physicalConstants.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/bodyShapeModel.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/thrustGuidance.cpp"
 )
 
 # Set the header files.
@@ -78,6 +79,8 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalBodyShapeModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/massRateModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelElementConversions.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/thrustAccelerationModel.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/thrustGuidance.h"
 )
 
 # Add static libraries.

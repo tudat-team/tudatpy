@@ -32,6 +32,7 @@
 #include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
+#include <Tudat/Astrodynamics/SystemModels/vehicleSystems.h>
 
 namespace tudat
 {
@@ -249,10 +250,14 @@ public:
         {
             currentRotationToLocalFrame_ = rotationalEphemeris_->getRotationToTargetFrame( time );
         }
+        else if( dependentOrientationCalculator_ != NULL )
+        {
+            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getDependentRotationToLocalFrame( time );
+        }
         else
         {
             throw std::runtime_error(
-                        "Error, no rotationalEphemeris_ found in Body::setCurrentRotationToLocalFrameFromEphemeris" );
+                        "Error, no rotation model found in Body::setCurrentRotationToLocalFrameFromEphemeris" );
         }
     }
 
@@ -268,6 +273,10 @@ public:
         {
             currentRotationToLocalFrameDerivative_
                     = rotationalEphemeris_->getDerivativeOfRotationToTargetFrame( time );
+        }
+        else if( dependentOrientationCalculator_ != NULL )
+        {
+            currentRotationToLocalFrameDerivative_.setZero( );
         }
         else
         {
@@ -288,6 +297,10 @@ public:
         {
             currentAngularVelocityVectorInGlobalFrame_
                     = rotationalEphemeris_->getRotationalVelocityVectorInBaseFrame( time );
+        }
+        else if( dependentOrientationCalculator_ != NULL )
+        {
+            currentAngularVelocityVectorInGlobalFrame_.setZero( );
         }
         else
         {
@@ -310,6 +323,12 @@ public:
             rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrame(
                         currentRotationToLocalFrame_, currentRotationToLocalFrameDerivative_,
                         currentAngularVelocityVectorInGlobalFrame_, time );
+        }
+        else if( dependentOrientationCalculator_ != NULL )
+        {
+            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getDependentRotationToLocalFrame( time );
+            currentRotationToLocalFrameDerivative_.setZero( );
+            currentAngularVelocityVectorInGlobalFrame_.setZero( );
         }
         else
         {
@@ -450,6 +469,10 @@ public:
     void setRotationalEphemeris(
             const boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris )
     {
+        if( dependentOrientationCalculator_ != NULL )
+        {
+            std::cerr<<"Warning when setting rotational ephemeris, dependentOrientationCalculator_ already found, NOT setting closure"<<std::endl;
+        }
         rotationalEphemeris_ = rotationalEphemeris;
     }
 
@@ -485,6 +508,24 @@ public:
             const boost::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions )
     {
         aerodynamicFlightConditions_ = aerodynamicFlightConditions;
+
+        if( dependentOrientationCalculator_ != NULL )
+        {
+            std::cerr<<"Warning, found extant dependentOrientationCalculator_ when setting fligh conditions; keeping existing object, but creating closure."<<std::endl;
+
+            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+                        dependentOrientationCalculator_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator( ) );
+        }
+        else
+        {
+            dependentOrientationCalculator_ = aerodynamicFlightConditions->getAerodynamicAngleCalculator( );
+        }
+
+        if( rotationalEphemeris_ != NULL )
+        {
+            reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+                        rotationalEphemeris_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator( )  );
+        }
     }
 
     //! Function to set the radiation pressure interface of the body, for a single radiation source.
@@ -548,6 +589,11 @@ public:
         return rotationalEphemeris_;
     }
 
+    boost::shared_ptr< reference_frames::DependentOrientationCalculator > getDependentOrientationCalculator( )
+    {
+        return dependentOrientationCalculator_;
+    }
+
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > getShapeModel( )
     {
         return shapeModel_;
@@ -594,7 +640,15 @@ public:
         return gravityFieldVariationSet_;
     }
 
+    boost::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
+    {
+        return vehicleSystems_;
+    }
 
+    void setVehicleSystems( const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
+    {
+        vehicleSystems_ = vehicleSystems;
+    }
 
     //! Function to set the function returning body mass as a function of time
     /*!
@@ -734,6 +788,8 @@ private:
     //! Rotation model of body.
     boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris_;
 
+    boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator_;
+
     //! List of radiation pressure models for the body, with the sources bodies as key
     std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
             radiationPressureInterfaces_;
@@ -742,6 +798,8 @@ private:
     std::map< std::string,
               boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator
     radiationPressureIterator_;
+
+    boost::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
 };
 
 typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;

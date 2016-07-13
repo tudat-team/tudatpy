@@ -15,6 +15,7 @@
 
 #include <boost/function.hpp>
 
+#include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
@@ -279,7 +280,7 @@ private:
  * interface to be dependent on the angle of attack.
  * \param flightConditions Flight conditions for body that is to have trimmed conditions.
  */
-void setTrimmedConditions(
+boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
         const boost::shared_ptr< FlightConditions > flightConditions );
 
 } // namespace aerodynamics

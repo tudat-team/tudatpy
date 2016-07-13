@@ -47,13 +47,13 @@ void testAerodynamicAngleCalculation(
 {
     // Create angle calculator
     AerodynamicAngleCalculator aerodynamicAngleCalculator(
-                boost::lambda::constant( testState ),
+                boost::lambda::constant( testState ), 1,
                 boost::lambda::constant( angleOfAttack ),
                 boost::lambda::constant( angleOfSideslip),
-                boost::lambda::constant( bankAngle ), 1 );
+                boost::lambda::constant( bankAngle ) );
 
     // Update angle calculator.
-    aerodynamicAngleCalculator.update( true );
+    aerodynamicAngleCalculator.update( TUDAT_NAN, true );
 
     // Compare expected against computed angles.
     BOOST_CHECK_SMALL(

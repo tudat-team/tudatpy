@@ -1,6 +1,8 @@
 #ifndef VEHICLESYSTEMS_H
 #define VEHICLESYSTEMS_H
 
+#include <map>
+
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
@@ -13,20 +15,13 @@ namespace system_models
 
 class VehicleSystems
 {
-
-    virtual double getCurrentMass( ) = 0;
-
-};
-
-class SingleStageVehicleSystems
-{
 public:
 
-    double updateMass( const double mass )
+    void updateMass( const double mass )
     {
         if( dryMass_ > mass )
         {
-
+            throw std::runtime_error( "Error when setting vehicle mass, dry mass is larger than actual mass" );
         }
         else
         {
@@ -39,9 +34,25 @@ public:
         return propellantMass_ + dryMass_;
     }
 
+    std::map< std::string, boost::shared_ptr< EngineModel > > getEngineModels( )
+    {
+        return engineModels_;
+    }
+
+    void setEngineModel(
+            const boost::shared_ptr< EngineModel > engineModel, const std::string engineName = "" )
+    {
+        if( engineModels_.count( engineName ) )
+        {
+            std::cerr<<"Warning, engine model of name "<<engineModel<<" already exists, overriding old model"<<std::endl;
+        }
+
+        engineModels_[ engineName ] = engineModel;
+    }
+
 private:
 
-    boost::shared_ptr< EngineModel > engineModel_;
+    std::map< std::string, boost::shared_ptr< EngineModel > > engineModels_;
 
     double propellantMass_;
 
@@ -49,20 +60,20 @@ private:
 
 };
 
-class MutltiStageVehicleSystems
-{
-public:
-    double getCurrentMass( )
-    {
+//class MutltiStageVehicleSystems
+//{
+//public:
+//    double getCurrentMass( )
+//    {
 
-    }
+//    }
 
-private:
+//private:
 
-    std::vector< boost::shared_ptr< SingleStageVehicleSystems > > singleStageModels_;
+//    std::vector< boost::shared_ptr< SingleStageVehicleSystems > > singleStageModels_;
 
-    int activeStage_;
-};
+//    int activeStage_;
+//};
 
 }
 

@@ -719,7 +719,7 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
 
 //! Function to create a cannonball radiation pressure acceleration model.
 boost::shared_ptr< CannonBallRadiationPressureAcceleration >
-createCannonballRadiationPressureAcceleratioModel(
+createCannonballRadiationPressureAcceleratioModel(\
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -749,6 +749,36 @@ createCannonballRadiationPressureAcceleratioModel(
 
 }
 
+boost::shared_ptr< basic_astrodynamics::ThrustAcceleration >
+createThrustAcceleratioModel(
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const NamedBodyMap& bodyMap,
+        const std::string& nameOfBodyUndergoingThrust )
+{
+    boost::shared_ptr< ThrustAccelerationSettings > thrustAccelerationSettings =
+            boost::dynamic_pointer_cast< ThrustAccelerationSettings >( accelerationSettings );
+    if( thrustAccelerationSettings == NULL )
+    {
+        throw std::runtime_error( "Error when creating thrust acceleration, input is inconsistent" );
+    }
+
+    boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > thrustDirectionGuidance = createThrustGuidanceModel(
+                thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust );
+    boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
+                thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap, nameOfBodyUndergoingThrust );
+
+    boost::function< void( const double ) > updateFunction =
+            boost::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, _1 );
+
+    return boost::make_shared< basic_astrodynamics::ThrustAcceleration >(
+                boost::bind( &ThrustMagnitudeWrapper::getCurrentThrust, thrustMagnitude ),
+                boost::bind( &basic_astrodynamics::ThrustDirectionGuidance::getCurrentThrustDirectionInPropagationFrame, thrustDirectionGuidance ),
+                boost::bind( &Body::getBodyMass, bodyMap.at( nameOfBodyUndergoingThrust ) ),
+                boost::bind( &ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
+                thrustAccelerationSettings->thrustMagnitudeSettings_->thrustOriginId_,
+                updateFunction );
+}
+
 
 //! Function to create acceleration model object.
 boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
@@ -758,7 +788,8 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const boost::shared_ptr< Body > centralBody,
-        const std::string& nameOfCentralBody )
+        const std::string& nameOfCentralBody,
+        const NamedBodyMap& bodyMap )
 {
     // Declare pointer to return object.
     boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModelPointer;
@@ -797,6 +828,11 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,
                     nameOfBodyExertingAcceleration );
+        break;
+    case thrust_acceleration:
+        accelerationModelPointer = createThrustAcceleratioModel(
+                    accelerationSettings, bodyMap,
+                    nameOfBodyUndergoingAcceleration );
         break;
     default:
         throw std::runtime_error(
@@ -897,7 +933,8 @@ AccelerationMap createAccelerationModelsMap(
                                                      bodyUndergoingAcceleration,
                                                      bodyExertingAcceleration,
                                                      currentCentralBody,
-                                                     currentCentralBodyName ) );
+                                                     currentCentralBodyName,
+                                                     bodyMap ) );
             }
         }
 

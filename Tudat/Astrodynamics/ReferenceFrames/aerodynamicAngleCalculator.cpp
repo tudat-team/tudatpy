@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <iostream>
+
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
@@ -24,14 +26,16 @@ namespace reference_frames
 {
 
 //! Function to update the orientation angles to the current state.
-void AerodynamicAngleCalculator::update( const bool updateBodyOrientation  )
+void AerodynamicAngleCalculator::update( const double currentTime, const bool updateBodyOrientation )
 {
     // Clear all current rotation matrices.
     currentRotationMatrices_.clear( );
 
     // Get current body-fixed state.
-    if( currentBodyFixedState_ != bodyFixedStateFunction_( ) )
+//    if( !( currentBodyFixedState_ == bodyFixedStateFunction_( ) ) ||
+//            !( currentTime == currentTime_ ) )
     {
+
         currentBodyFixedState_ = bodyFixedStateFunction_( );
         Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical< double >(
                     currentBodyFixedState_.segment( 0, 3 ) );
@@ -58,25 +62,34 @@ void AerodynamicAngleCalculator::update( const bool updateBodyOrientation  )
 
     if( updateBodyOrientation )
     {
-        currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
-        currentAerodynamicAngles_[ angle_of_sideslip ] = angleOfSideslipFunction_( );
-        currentAerodynamicAngles_[ bank_angle ] = bankAngleFunction_( );
+        if( !angleUpdateFunction_.empty( ) )
+        {
+            angleUpdateFunction_( currentTime );
+        }
+
+        if( !angleOfAttackFunction_.empty( ) )
+        {
+            currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
+        }
+
+        if( !angleOfSideslipFunction_.empty( ) )
+        {
+            currentAerodynamicAngles_[ angle_of_sideslip ] = angleOfSideslipFunction_( );
+        }
+
+        if( !bankAngleFunction_.empty( ) )
+        {
+            currentAerodynamicAngles_[ bank_angle ] = bankAngleFunction_( );
+        }
     }
     else
     {
-        if( currentAerodynamicAngles_.count( angle_of_attack ) == 0 )
-        {
-            currentAerodynamicAngles_[ angle_of_attack ] = 0.0;
-        }
-        if( currentAerodynamicAngles_.count( angle_of_sideslip ) == 0 )
-        {
-            currentAerodynamicAngles_[ angle_of_sideslip ] = 0.0;
-        }
-        if( currentAerodynamicAngles_.count( bank_angle ) == 0 )
-        {
-            currentAerodynamicAngles_[ bank_angle ] = 0.0;
-        }
+        currentAerodynamicAngles_[ angle_of_attack ] = 0.0;
+        currentAerodynamicAngles_[ angle_of_sideslip ] = 0.0;
+        currentAerodynamicAngles_[ bank_angle ] = 0.0;
     }
+
+    currentTime_ = currentTime;
 }
 
 
@@ -329,6 +342,20 @@ getAerodynamicForceTransformationFunction(
     }
 
     return transformationFunction;
+}
+
+void setAerodynamicDependentOrientationCalculatorClosure(
+        boost::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
+        boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
+{
+    throw std::runtime_error( "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" );
+}
+
+void setAerodynamicDependentOrientationCalculatorClosure(
+        boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
+        boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
+{
+    throw std::runtime_error( "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" );
 }
 
 } // namespace reference_frames

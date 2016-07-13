@@ -82,6 +82,11 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = aerodynamic;
     }
+    else if( boost::dynamic_pointer_cast< ThrustAcceleration >(
+                 accelerationModel ) != NULL )
+    {
+        accelerationType = thrust_acceleration;
+    }
     else
     {
         throw std::runtime_error(
@@ -104,7 +109,12 @@ AvailableMassRateModels getMassRateModelType(
     if( boost::dynamic_pointer_cast< basic_astrodynamics::CustomMassRateModel >(
                 massRateModel ) != NULL )
     {
-        massRateType = custom;
+        massRateType = custom_mass_rate_model;
+    }
+    else if( boost::dynamic_pointer_cast< basic_astrodynamics::ThrustBasedMassRateModel >(
+                massRateModel ) != NULL )
+    {
+        massRateType = from_thrust_mass_rate_model;
     }
     else
     {

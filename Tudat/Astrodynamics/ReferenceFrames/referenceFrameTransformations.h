@@ -60,6 +60,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 namespace tudat
 {
 namespace reference_frames
@@ -415,6 +417,22 @@ double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
  */
 double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame );
 
+class DependentOrientationCalculator
+{
+public:
+
+    DependentOrientationCalculator( ): currentTime_( TUDAT_NAN ){ }
+
+    virtual ~DependentOrientationCalculator( ){ }
+
+    virtual Eigen::Quaterniond getDependentRotationToLocalFrame( const double currentTime ) = 0;
+
+    virtual void updateCalculator( const double currentTime ) = 0;
+
+protected:
+
+    double currentTime_;
+};
 } // namespace reference_frames
 } // namespace tudat
 

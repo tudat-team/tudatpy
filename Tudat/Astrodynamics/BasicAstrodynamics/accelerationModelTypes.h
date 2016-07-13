@@ -42,6 +42,7 @@
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/thrustAccelerationModel.h"
 
 
 namespace tudat
@@ -66,7 +67,8 @@ enum AvailableAcceleration
     mutual_spherical_harmonic_gravity,
     third_body_central_gravity,
     third_body_spherical_harmonic_gravity,
-    third_body_mutual_spherical_harmonic_gravity
+    third_body_mutual_spherical_harmonic_gravity,
+    thrust_acceleration
 };
 
 //! List of model types for body mass rates.
@@ -77,7 +79,8 @@ enum AvailableAcceleration
 enum AvailableMassRateModels
 {
     undefined_mass_rate_model,
-    custom
+    custom_mass_rate_model,
+    from_thrust_mass_rate_model
 };
 
 //! Function to identify the derived class type of an acceleration model.

@@ -8,9 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_MAIN
 
-#include <boost/test/unit_test.hpp>
+//#include <boost/test/unit_test.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
@@ -32,18 +32,20 @@
 
 #include <Eigen/Core>
 
-namespace tudat
-{
+//namespace tudat
+//{
 
-namespace unit_tests
-{
+//namespace unit_tests
+//{
 
-BOOST_AUTO_TEST_SUITE( test_dependent_variable_output )
+//BOOST_AUTO_TEST_SUITE( test_dependent_variable_output )
 
-//! Propagate entry of Apollo capsule, and save a list of dependent variables during entry. The saved dependent variables
-//! are compred against theoretical/manual values in this test.
-BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
+////! Propagate entry of Apollo capsule, and save a list of dependent variables during entry. The saved dependent variables
+////! are compred against theoretical/manual values in this test.
+//BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
+int main( )
 {
+    using namespace tudat;
     using namespace ephemerides;
     using namespace interpolators;
     using namespace numerical_integrators;
@@ -206,74 +208,74 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 std::pow( variableIterator->second.segment( 5, 3 ).norm( ), 3 );
 
         // Check output time consistency
-        BOOST_CHECK_EQUAL( numericalSolution.count( variableIterator->first ), 1 );
+//        BOOST_CHECK_EQUAL( numericalSolution.count( variableIterator->first ), 1 );
 
-        // Check relative position and velocity against state
-        for( unsigned int i = 0; i < 3; i++ )
-        {
-            BOOST_CHECK_SMALL(
-                        std::fabs( numericalSolution.at( variableIterator->first )( i ) -
-                                   variableIterator->second( 5 + i ) ), 2.0E-5 );
-            BOOST_CHECK_SMALL(
-                        std::fabs( numericalSolution.at( variableIterator->first )( 3 + i ) -
-                                   variableIterator->second( 8 + i ) ), 5.0E-11 );
-        }
+//        // Check relative position and velocity against state
+//        for( unsigned int i = 0; i < 3; i++ )
+//        {
+//            BOOST_CHECK_SMALL(
+//                        std::fabs( numericalSolution.at( variableIterator->first )( i ) -
+//                                   variableIterator->second( 5 + i ) ), 2.0E-5 );
+//            BOOST_CHECK_SMALL(
+//                        std::fabs( numericalSolution.at( variableIterator->first )( 3 + i ) -
+//                                   variableIterator->second( 8 + i ) ), 5.0E-11 );
+//        }
 
-        // Check central gravity acceleration
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    manualCentralGravity.segment( 0, 3 ),
-                    variableIterator->second.segment( 11, 3 ), ( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
+//        // Check central gravity acceleration
+//        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+//                    manualCentralGravity.segment( 0, 3 ),
+//                    variableIterator->second.segment( 11, 3 ), ( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-        // Check total acceleration (tolerance is not epsilon due to numerical root finding for trim)
-        for( unsigned int i = 0; i < 3; i++ )
-        {
-            BOOST_CHECK_SMALL(
-                        std::fabs( currentStateDerivative( 3 + i ) -
-                                   variableIterator->second( 14 + i ) ), 1.0E-13 );
-        }
+//        // Check total acceleration (tolerance is not epsilon due to numerical root finding for trim)
+//        for( unsigned int i = 0; i < 3; i++ )
+//        {
+//            BOOST_CHECK_SMALL(
+//                        std::fabs( currentStateDerivative( 3 + i ) -
+//                                   variableIterator->second( 14 + i ) ), 1.0E-13 );
+//        }
 
-        // Check relative position and velocity norm.
-        BOOST_CHECK_SMALL(
-                    std::fabs( ( numericalSolution.at( variableIterator->first ).segment( 0, 3 ) ).norm( ) -
-                               variableIterator->second( 2 ) ), 2.0E-5 );
-        BOOST_CHECK_SMALL(
-                    std::fabs( ( numericalSolution.at( variableIterator->first ).segment( 3, 3 ) ).norm( ) -
-                               variableIterator->second( 3 ) ), 2.0E-11 );
+//        // Check relative position and velocity norm.
+//        BOOST_CHECK_SMALL(
+//                    std::fabs( ( numericalSolution.at( variableIterator->first ).segment( 0, 3 ) ).norm( ) -
+//                               variableIterator->second( 2 ) ), 2.0E-5 );
+//        BOOST_CHECK_SMALL(
+//                    std::fabs( ( numericalSolution.at( variableIterator->first ).segment( 3, 3 ) ).norm( ) -
+//                               variableIterator->second( 3 ) ), 2.0E-11 );
 
-        // Check central gravity acceleration norm
-        BOOST_CHECK_CLOSE_FRACTION(
-                    manualCentralGravity.norm( ),
-                    variableIterator->second( 4 ), 5.0 * std::numeric_limits< double >::epsilon( ) );
+//        // Check central gravity acceleration norm
+//        BOOST_CHECK_CLOSE_FRACTION(
+//                    manualCentralGravity.norm( ),
+//                    variableIterator->second( 4 ), 5.0 * std::numeric_limits< double >::epsilon( ) );
 
-        // Check Mach number
-        BOOST_CHECK_CLOSE_FRACTION(
-                    bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentAirspeed( ) /
-                    bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentSpeedOfSound( ),
-                    variableIterator->second( 0 ), std::numeric_limits< double >::epsilon( ) );
+//        // Check Mach number
+//        BOOST_CHECK_CLOSE_FRACTION(
+//                    bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentAirspeed( ) /
+//                    bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentSpeedOfSound( ),
+//                    variableIterator->second( 0 ), std::numeric_limits< double >::epsilon( ) );
 
-        // Check altitude.
-        BOOST_CHECK_CLOSE_FRACTION(
-                    bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentAltitude( ),
-                    variableIterator->second( 1 ), std::numeric_limits< double >::epsilon( ) );
+//        // Check altitude.
+//        BOOST_CHECK_CLOSE_FRACTION(
+//                    bodyMap.at( "Apollo" )->getFlightConditions( )->getCurrentAltitude( ),
+//                    variableIterator->second( 1 ), std::numeric_limits< double >::epsilon( ) );
 
-        // Check trimmed condition (y-term)/symmetric vehicle shape (x- and z-term).
-        BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 17 ) ), 1.0E-14 );
-        BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 18 ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL(
-                    std::fabs( variableIterator->second( 19 ) ), 1.0E-14 );
+//        // Check trimmed condition (y-term)/symmetric vehicle shape (x- and z-term).
+//        BOOST_CHECK_SMALL(
+//                    std::fabs( variableIterator->second( 17 ) ), 1.0E-14 );
+//        BOOST_CHECK_SMALL(
+//                    std::fabs( variableIterator->second( 18 ) ), 1.0E-10 );
+//        BOOST_CHECK_SMALL(
+//                    std::fabs( variableIterator->second( 19 ) ), 1.0E-14 );
 
 
     }
 
 }
 
-BOOST_AUTO_TEST_SUITE_END( )
+//BOOST_AUTO_TEST_SUITE_END( )
 
 
-}
+//}
 
-}
+//}
 
 
