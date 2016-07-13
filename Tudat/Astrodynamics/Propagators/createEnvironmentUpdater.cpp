@@ -369,7 +369,9 @@ createMassPropagationEnvironmentUpdaterSettings(
                 getMassRateModelType( massRateModelIterator->second );
         switch( currentAccelerationModelType )
         {
-        case custom:
+        case custom_mass_rate_model:
+            break;
+        case from_thrust_mass_rate_model:
             break;
         default:
             throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
@@ -426,18 +428,17 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
                = bodyIterator->second->getRadiationPressureInterfaces( );
 
         // Add each interface update function to update list.
-        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterface > > ::iterator
-                 iterator = radiationPressureInterfaces.begin( );
+        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterface > >::iterator
+             iterator = radiationPressureInterfaces.begin( );
              iterator != radiationPressureInterfaces.end( ); iterator++ )
         {
             singleAccelerationUpdateNeeds[ radiation_pressure_interface_update ].
-                push_back( bodyIterator->first );
+                    push_back( bodyIterator->first );
         }
 
-        // If body has rotation model, update rotational state in each time step.
-        boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
-                bodyIterator->second->getRotationalEphemeris( );
-        if( rotationalEphemeris != NULL )
+        // If body has rotation model, update rotational state in each time step.;
+        if( ( bodyIterator->second->getRotationalEphemeris( ) != NULL ) ||
+                ( bodyIterator->second->getDependentOrientationCalculator( ) != NULL ) )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].
                 push_back( bodyIterator->first );

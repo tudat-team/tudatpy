@@ -24,6 +24,7 @@ set(SIMULATION_SETUP_SOURCES
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodies.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyShapeModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createThrustModelGuidance.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.cpp"
 )
@@ -44,6 +45,8 @@ set(SIMULATION_SETUP_HEADERS
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodies.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyShapeModel.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createThrustModelGuidance.h"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createMassRateModels.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.h"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.h"
 )

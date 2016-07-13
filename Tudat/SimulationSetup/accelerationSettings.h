@@ -17,6 +17,7 @@
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/SimulationSetup/createThrustModelGuidance.h"
 
 
 
@@ -135,6 +136,28 @@ public:
     int maximumOrderOfCentralBody_;
 };
 
+class ThrustAccelerationSettings: public AccelerationSettings
+{
+public:
+    //! Constructor, sets type of acceleration.
+    /*!
+     *  Constructor, sets type of acceleration.
+     *  \param accelerationType Type of acceleration from AvailableAcceleration enum.
+     */
+    ThrustAccelerationSettings(
+            const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
+            const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings):
+        AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
+        thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
+        thrustMagnitudeSettings_( thrustMagnitudeSettings ){ }
+
+    //! Destructor.
+    ~ThrustAccelerationSettings( ){ }
+
+    boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;
+
+    boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings_;
+};
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.

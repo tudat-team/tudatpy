@@ -302,6 +302,12 @@ createCannonballRadiationPressureAcceleratioModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
+boost::shared_ptr< basic_astrodynamics::ThrustAcceleration >
+createThrustAcceleratioModel(
+        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const NamedBodyMap& bodyMap,
+        const std::string& nameOfBodyUndergoingThrust );
+
 //! Function to create acceleration model object.
 /*!
  *  Function to create acceleration model object.
@@ -325,7 +331,8 @@ createAccelerationModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const boost::shared_ptr< Body > centralBody = boost::shared_ptr< Body >( ),
-        const std::string& nameOfCentralBody = "" );
+        const std::string& nameOfCentralBody = "",
+        const NamedBodyMap& bodyMap = NamedBodyMap( ) );
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 /*!
@@ -364,4 +371,5 @@ basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
 } // namespace simulation_setup
 
 } // namespace tudat
+
 #endif // TUDAT_CREATEACCELERATIONMODELS_H

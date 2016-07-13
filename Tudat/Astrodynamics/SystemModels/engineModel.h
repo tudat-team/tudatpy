@@ -18,7 +18,11 @@ public:
         return currentThrust_;
     }
 
-    void updateEngineModel( const double currentTime ) = 0;
+    virtual ~EngineModel( ){ }
+
+    virtual void updateEngineModel( const double currentTime ) = 0;
+
+    virtual double getCurrentMassRate( ) = 0;
 
 protected:
 
@@ -31,21 +35,26 @@ class DirectEngineModel: public EngineModel
 public:
 
     DirectEngineModel(
-            const boost::function< double( ) > specificImpulseFunction,
+            const double specificImpulse,
             const boost::function< double( ) > massFlowFunction ):
-        specificImpulseFunction_( specificImpulseFunction ),
+        specificImpulse_( specificImpulse ),
         massFlowFunction_( massFlowFunction )
-    {
+    { }
 
+    void updateEngineModel( const double currentTime )
+    {
+        currentThrust_ = specificImpulse_ * massFlowFunction_( );
     }
-\    void updateEngineModel( const double currentTime )
-     {
-         currentThrust_ = specificImpulseFunction_( ) * massFlowFunction_( );
-     }
+
+    double getCurrentMassRate( )
+    {
+        return massFlowFunction_( );
+    }
+
 
 protected:
 
-    boost::function< double( ) > specificImpulseFunction_;
+    double specificImpulse_;
 
     boost::function< double( ) > massFlowFunction_;
 };

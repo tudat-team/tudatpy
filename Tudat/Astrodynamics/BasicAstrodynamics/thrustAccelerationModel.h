@@ -6,7 +6,7 @@
 #include <boost/function.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
-
+#include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 
 namespace tudat
 {
@@ -21,12 +21,16 @@ public:
             const boost::function< double( ) > thrustMagnitudeFunction,
             const boost::function< Eigen::Vector3d( ) > thrustDirectionFunction,
             const boost::function< double( ) > bodyMassFunction,
+            const boost::function< double( ) > massRateFunction,
+            const std::string associatedThroustSource,
             const boost::function< void( const double ) > thrustUpdateFunction ):
         AccelerationModel< Eigen::Vector3d >( ),
-    thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-    thrustDirectionFunction_( thrustDirectionFunction ),
-    bodyMassFunction_( bodyMassFunction ),
-    thrustUpdateFunction_( thrustUpdateFunction ){ }
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
+        thrustDirectionFunction_( thrustDirectionFunction ),
+        bodyMassFunction_( bodyMassFunction ),
+        massRateFunction_( massRateFunction ),
+        associatedThroustSource_( associatedThroustSource ),
+        thrustUpdateFunction_( thrustUpdateFunction ){ }
 
     ~ThrustAcceleration( ){ }
 
@@ -37,16 +41,34 @@ public:
 
     void updateMembers( const double currentTime = TUDAT_NAN )
     {
-        thrustUpdateFunction_( currentTime );
-
-        currentAccelerationDirection_ = thrustDirectionFunction_( );
-
-        if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) > 5.0 * std::numeric_limits< double >::epsilon( ) )
+        if( !( currentTime_ == currentTime ) )
         {
-            throw std::runtime_error( "Error in thrust acceleration, direction is not a unit vector"  );
+            thrustUpdateFunction_( currentTime );
+
+            currentAccelerationDirection_ = thrustDirectionFunction_( );
+
+            if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) > 5.0 * std::numeric_limits< double >::epsilon( ) )
+            {
+                throw std::runtime_error( "Error in thrust acceleration, direction is not a unit vector"  );
+            }
+
+            currentThrustMagnitude_ = thrustMagnitudeFunction_( );
+            currentMassRate_ = massRateFunction_( );
+
+            currentAcceleration_ = currentAccelerationDirection_ * currentThrustMagnitude_ / bodyMassFunction_( );
+            currentTime_ = currentTime;
         }
 
-        currentAcceleration_ = currentAccelerationDirection_ * thrustMagnitudeFunction_( ) / bodyMassFunction_( );
+    }
+
+    double getCurrentMassRate( )
+    {
+        return currentMassRate_;
+    }
+
+    std::string getAssociatedThroustSource( )
+    {
+        return associatedThroustSource_;
     }
 
 private:
@@ -57,11 +79,53 @@ private:
 
     boost::function< double( ) > bodyMassFunction_;
 
+    boost::function< double( ) > massRateFunction_;
+
+    std::string associatedThroustSource_;
+
     boost::function< void( const double ) > thrustUpdateFunction_;
 
     Eigen::Vector3d currentAcceleration_;
 
     Eigen::Vector3d currentAccelerationDirection_;
+
+    double currentThrustMagnitude_;
+
+    double currentMassRate_;
+};
+
+class ThrustBasedMassRateModel: public MassRateModel
+{
+public:
+
+
+    ThrustBasedMassRateModel(
+            const boost::shared_ptr< ThrustAcceleration > thrustAccelerationModel ):
+    thrustAccelerationModel_( thrustAccelerationModel ){ }
+
+    //! Destructor.
+    ~ThrustBasedMassRateModel( ){ }
+
+    //! Update member variables used by the mass rate model and compute the mass rate
+    /*!
+     * Update member variables used by the mass rate model and compute the mass rate
+     * \param currentTime Time at which acceleration model is to be updated.
+     */
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        // Check if update is needed.
+        if( !( currentTime_ == currentTime ) )
+        {
+            thrustAccelerationModel_->updateMembers( currentTime );
+            currentMassRate_ = thrustAccelerationModel_->getCurrentMassRate( );
+
+            currentTime_ = currentTime;
+        }
+    }
+
+private:
+
+    boost::shared_ptr< ThrustAcceleration > thrustAccelerationModel_;
 };
 
 }

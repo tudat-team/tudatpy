@@ -17,7 +17,6 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
-#include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -99,7 +98,7 @@ void FlightConditions::updateConditions( const double currentTime )
     // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
     if( aerodynamicAngleCalculator_!= NULL )
     {
-        aerodynamicAngleCalculator_->update( false );
+        aerodynamicAngleCalculator_->update( currentTime, false );
     }
 
     // Update latitude and longitude (if required)
@@ -120,7 +119,7 @@ void FlightConditions::updateConditions( const double currentTime )
     // Update angles from aerodynamic to body-fixed frame (if relevant).
     if( aerodynamicAngleCalculator_!= NULL )
     {
-        aerodynamicAngleCalculator_->update( true );
+        aerodynamicAngleCalculator_->update( currentTime, true );
         updateAerodynamicCoefficientInput( );
     }
 
@@ -186,7 +185,7 @@ void FlightConditions::updateAerodynamicCoefficientInput( )
 }
 
 //! Function to set the angle of attack to trimmed conditions.
-void setTrimmedConditions(
+boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
         const boost::shared_ptr< FlightConditions > flightConditions )
 {
     // Create trim object.
@@ -201,6 +200,8 @@ void setTrimmedConditions(
     flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 boost::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
                              untrimmedIndependentVariablesFunction ) );
+
+    return trimOrientation;
 }
 
 }
