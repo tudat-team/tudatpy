@@ -68,6 +68,9 @@ namespace tudat
 namespace physical_constants
 {
 
+const static double SEA_LEVEL_GRAVITATIONAL_ACCELERATION = 9.80665;
+
+
 //! Julian day in seconds (NASA, 2012).
 const static double JULIAN_DAY = 86400.0;
 

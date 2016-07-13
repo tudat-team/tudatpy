@@ -25,6 +25,7 @@ set(SIMULATION_SETUP_SOURCES
   "${SRCROOT}${SIMULATIONSETUPDIR}/createBodyShapeModel.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createRadiationPressureInterface.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/createThrustModelGuidance.cpp"
+  "${SRCROOT}${SIMULATIONSETUPDIR}/createMassRateModels.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/defaultBodies.cpp"
   "${SRCROOT}${SIMULATIONSETUPDIR}/body.cpp"
 )

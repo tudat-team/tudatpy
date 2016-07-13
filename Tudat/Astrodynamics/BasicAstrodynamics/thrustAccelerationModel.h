@@ -53,7 +53,7 @@ public:
             }
 
             currentThrustMagnitude_ = thrustMagnitudeFunction_( );
-            currentMassRate_ = massRateFunction_( );
+            currentMassRate_ = -massRateFunction_( );
 
             currentAcceleration_ = currentAccelerationDirection_ * currentThrustMagnitude_ / bodyMassFunction_( );
             currentTime_ = currentTime;
@@ -92,40 +92,6 @@ private:
     double currentThrustMagnitude_;
 
     double currentMassRate_;
-};
-
-class ThrustBasedMassRateModel: public MassRateModel
-{
-public:
-
-
-    ThrustBasedMassRateModel(
-            const boost::shared_ptr< ThrustAcceleration > thrustAccelerationModel ):
-    thrustAccelerationModel_( thrustAccelerationModel ){ }
-
-    //! Destructor.
-    ~ThrustBasedMassRateModel( ){ }
-
-    //! Update member variables used by the mass rate model and compute the mass rate
-    /*!
-     * Update member variables used by the mass rate model and compute the mass rate
-     * \param currentTime Time at which acceleration model is to be updated.
-     */
-    void updateMembers( const double currentTime = TUDAT_NAN )
-    {
-        // Check if update is needed.
-        if( !( currentTime_ == currentTime ) )
-        {
-            thrustAccelerationModel_->updateMembers( currentTime );
-            currentMassRate_ = thrustAccelerationModel_->getCurrentMassRate( );
-
-            currentTime_ = currentTime;
-        }
-    }
-
-private:
-
-    boost::shared_ptr< ThrustAcceleration > thrustAccelerationModel_;
 };
 
 }

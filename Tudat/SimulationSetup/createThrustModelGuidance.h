@@ -6,6 +6,7 @@
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/SimulationSetup/createFlightConditions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
+#include "Tudat/Astrodynamics/SystemModels/engineModel.h"
 
 namespace tudat
 {
@@ -17,7 +18,7 @@ enum ThrustDirectionGuidanceTypes
 {
     colinear_with_state_segment_thrust_direction,
     thrust_direction_from_existing_body_orientation,
-    custom_3_1_3_euler_angles_thrust_direction
+    custom_thrust_direction
 };
 
 class ThrustDirectionGuidanceSettings
@@ -52,6 +53,19 @@ public:
 
    bool directionIsOppositeToVector_;
 
+};
+
+class CustomThrustDirectionSettings: public ThrustDirectionGuidanceSettings
+{
+public:
+   CustomThrustDirectionSettings(
+           const boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction ):
+       ThrustDirectionGuidanceSettings( custom_thrust_direction, "" ),
+     thrustDirectionFunction_( thrustDirectionFunction ){ }
+
+   ~CustomThrustDirectionSettings( ){ }
+
+   boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction_;
 };
 
 boost::shared_ptr< basic_astrodynamics::ThrustDirectionGuidance > createThrustGuidanceModel(
@@ -89,7 +103,7 @@ public:
            const double thrustMagnitude,
            const double specificImpulse ):
        ThrustMagnitudeSettings( constant_thrust_magnitude, "" ),
-   thrustMagnitude_( thrustMagnitude ),specificImpulse_( specificImpulse ){ }
+   thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse ){ }
 
    ~ConstantThrustMagnitudeSettings( ){ }
 
@@ -172,7 +186,8 @@ public:
 
     double getCurrentMassRate( )
     {
-        return currentThrustMagnitude_ / currentSpecificImpulse_;
+        return computePropellantMassRateFromSpecificImpulse(
+                    currentThrustMagnitude_, currentSpecificImpulse_ );
     }
 
 private:
@@ -210,7 +225,7 @@ public:
 
     double getCurrentMassRate( )
     {
-        return engineModel_->getCurrentThrust( );
+        return engineModel_->getCurrentMassRate( );
     }
 
 protected:

@@ -94,13 +94,16 @@ public:
         bankAngleFunction_( bankAngleFunction ),
         angleUpdateFunction_( angleUpdateFunction ){ }
 
-    Eigen::Quaterniond getDependentRotationToLocalFrame(
-                 const double currentTime )
+    Eigen::Quaterniond getRotationToLocalFrame( )
     {
-        update( currentTime, 1 );
-
         return getRotationQuaternionBetweenFrames(
                     inertial_frame, body_frame );
+    }
+
+    Eigen::Quaterniond getRotationToGlobalFrame( )
+    {
+        return getRotationQuaternionBetweenFrames(
+                    body_frame, inertial_frame );
     }
 
     void updateCalculator(
