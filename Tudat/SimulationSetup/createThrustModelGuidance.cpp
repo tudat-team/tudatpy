@@ -1,4 +1,5 @@
 #include "Tudat/SimulationSetup/createThrustModelGuidance.h"
+#include "Tudat/Basics/utilities.h"
 
 namespace tudat
 {
@@ -120,12 +121,12 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
    return thrustGuidance;
 }
 
-boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
+boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance )
 {
-    boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper;
+    boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper;
     switch( thrustMagnitudeSettings->thrustMagnitudeGuidanceType_ )
     {
     case constant_thrust_magnitude:
@@ -136,7 +137,7 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         {
             throw std::runtime_error( "Error when creating constant thrust magnitude wrapper, input is inconsistent" );
         }
-        thrustMagnitudeWrapper = boost::make_shared< CustomThrustMagnitudeWrapper >(
+        thrustMagnitudeWrapper = boost::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
                     boost::lambda::constant( constantThrustMagnitudeSettings->thrustMagnitude_ ),
                     boost::lambda::constant( constantThrustMagnitudeSettings->specificImpulse_ ) );
         break;
@@ -144,21 +145,45 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
     }
     case from_engine_properties_thrust_magnitude:
     {
+        boost::shared_ptr< FromEngineThrustMagnitudeSettings > fromEngineThrustMagnitudeSettings =
+                boost::dynamic_pointer_cast< FromEngineThrustMagnitudeSettings >( thrustMagnitudeSettings );
+
+        if( fromEngineThrustMagnitudeSettings == NULL )
+        {
+            throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, input is inconsistent" );
+        }
+
         if( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( ) == NULL )
         {
             throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no vehicle systems found" );
 
         }
 
-        if( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).count(
-                    thrustMagnitudeSettings->thrustOriginId_ ) == 0 )
-        {
-            throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no engine of right ID found" );
-        }
 
-        thrustMagnitudeWrapper = boost::make_shared< ThrustMagnitudeFromEngineWrapper >(
-                    bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).at(
-                        thrustMagnitudeSettings->thrustOriginId_ ) );
+        if( fromEngineThrustMagnitudeSettings->useAllEngines_ == false  )
+        {
+            if( ( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).count(
+                      thrustMagnitudeSettings->thrustOriginId_ ) == 0 ) )
+            {
+                throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, no engine of right ID found" );
+            }
+            else
+            {
+                thrustMagnitudeWrapper = boost::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
+                            bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).at(
+                                thrustMagnitudeSettings->thrustOriginId_ ) );
+            }
+        }
+        else
+        {
+            if( ( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
+            {
+                std::cerr<<"Error when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust"<<std::endl;
+            }
+            thrustMagnitudeWrapper = boost::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
+                        utilities::createVectorFromMapValues< boost::shared_ptr< system_models::EngineModel >, std::string >(
+                                    bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ) ));
+        }
         break;
 
     }
@@ -170,7 +195,7 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         {
             throw std::runtime_error( "Error when creating from-function thrust magnitude wrapper, input is inconsistent" );
         }
-        thrustMagnitudeWrapper = boost::make_shared< CustomThrustMagnitudeWrapper >(
+        thrustMagnitudeWrapper = boost::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
                     fromFunctionThrustMagnitudeSettings->thrustMagnitudeFunction_,
                     fromFunctionThrustMagnitudeSettings->specificImpulseFunction_,
                     fromFunctionThrustMagnitudeSettings->isEngineOnFunction_ );
@@ -185,7 +210,7 @@ boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
 }
 
 void updateThrustMagnitudeAndDirection(
-        const boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+        const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
         const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
         const double currentTime )
 {

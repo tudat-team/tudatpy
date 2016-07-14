@@ -17,6 +17,9 @@ class VehicleSystems
 {
 public:
 
+    VehicleSystems( const double dryMass = TUDAT_NAN ):
+        dryMass_( dryMass ){ }
+
     void updateMass( const double mass )
     {
         if( dryMass_ > mass )

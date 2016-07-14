@@ -25,6 +25,7 @@ Eigen::Vector3d getThrustDirectionFromTimeOnlyFunction(
     return timeOnlyFunction( currentTime ).normalized( );
 }
 
-}
+} // namespace propulsion
 
-}
+} // namespace tudat
+

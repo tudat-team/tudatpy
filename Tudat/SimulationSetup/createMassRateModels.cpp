@@ -59,18 +59,33 @@ createMassRateModel(
                 std::cerr<<"Warning when making from-thrust mass-rate model, no thrust model is found"<<std::endl;
             }
 
-            if( fromThrustMassModelSettings->useAllThrustModels_ != 1 )
-            {
-                std::cerr<<"Warning when making from-thrust mass-rate model, single engine thrust not yet implemented"<<std::endl;
-
-            }
-
             std::vector< boost::shared_ptr< propulsion::ThrustAcceleration > >
                     explicitThrustAccelerations;
-            for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
+            if( fromThrustMassModelSettings->useAllThrustModels_ == 0 )
             {
-                explicitThrustAccelerations.push_back( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                                 thrustAccelerations.at( i ) ) );
+                for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
+                {
+                    if( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+                                thrustAccelerations.at( i ) )->getAssociatedThroustSource( ) ==
+                            fromThrustMassModelSettings->associatedThroustSource_ )
+                    {
+                        explicitThrustAccelerations.push_back( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+                                                                   thrustAccelerations.at( i ) ) );
+                    }
+                }
+
+                if( explicitThrustAccelerations.size( ) != 1 )
+                {
+                    std::cerr<<"Warning when making from-thrust mass-rate model, did not find exactly 1 thrust model with correct identifier"<<std::endl;
+                }
+            }
+            else
+            {
+                for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
+                {
+                    explicitThrustAccelerations.push_back( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+                                                               thrustAccelerations.at( i ) ) );
+                }
             }
 
             massRateModel = boost::make_shared< propulsion::FromThrustMassRateModel >(

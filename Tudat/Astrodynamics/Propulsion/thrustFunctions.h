@@ -15,8 +15,9 @@ double computePropellantMassRateFromSpecificImpulse(
          const double thrustMagnitude, const double specificImpulse );
 
 
-}
+} // namespace propulsion
 
-}
+} // namespace tudat
+
 
 #endif // THRUSTFUNCTIONS_H

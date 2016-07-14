@@ -3,6 +3,7 @@
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/SimulationSetup/createFlightConditions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
@@ -112,16 +113,29 @@ public:
    double specificImpulse_;
 };
 
+
+class FromEngineThrustMagnitudeSettings: public ThrustMagnitudeSettings
+{
+public:
+    FromEngineThrustMagnitudeSettings(
+            const bool useAllEngines = 1,
+            const std::string& thrustOrigin = "" ):
+        ThrustMagnitudeSettings( from_engine_properties_thrust_magnitude, thrustOrigin ),
+        useAllEngines_( useAllEngines ){ }
+
+    bool useAllEngines_;
+};
+
 class FromFunctionThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
-   FromFunctionThrustMagnitudeSettings(
-           const boost::function< double( const double ) > thrustMagnitudeFunction,
-           const boost::function< double( const double ) > specificImpulseFunction,
-           const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ):
-       ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ),
-   thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-   specificImpulseFunction_( specificImpulseFunction ),
+    FromFunctionThrustMagnitudeSettings(
+            const boost::function< double( const double ) > thrustMagnitudeFunction,
+            const boost::function< double( const double ) > specificImpulseFunction,
+            const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ):
+        ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ),
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
+        specificImpulseFunction_( specificImpulseFunction ),
    isEngineOnFunction_( isEngineOnFunction ){ }
 
    ~FromFunctionThrustMagnitudeSettings( ){ }
@@ -134,113 +148,14 @@ public:
    boost::function< bool( const double ) > isEngineOnFunction_;
 };
 
-class ThrustMagnitudeWrapper
-{
-public:
 
-    ThrustMagnitudeWrapper( ){ }
-
-    virtual ~ThrustMagnitudeWrapper( ){ }
-
-    virtual void update( const double time ) = 0;
-
-    virtual double getCurrentThrust( ) = 0;
-
-    virtual double getCurrentMassRate( ) = 0;
-
-};
-
-
-class CustomThrustMagnitudeWrapper: public ThrustMagnitudeWrapper
-{
-public:
-
-    CustomThrustMagnitudeWrapper(
-            const boost::function< double( const double ) > thrustMagnitudeFunction,
-            const boost::function< double( const double ) > specificImpulseFunction,
-            const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ):
-    thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-    specificImpulseFunction_( specificImpulseFunction ),
-    isEngineOnFunction_( isEngineOnFunction ),
-    currentThrustMagnitude_( TUDAT_NAN ),
-    currentSpecificImpulse_( TUDAT_NAN ){ }
-
-    void update( const double time )
-    {
-        if( isEngineOnFunction_( time ) )
-        {
-            currentThrustMagnitude_ = thrustMagnitudeFunction_( time );
-            currentSpecificImpulse_ = specificImpulseFunction_( time );
-        }
-        else
-        {
-            currentThrustMagnitude_ = 0.0;
-            currentSpecificImpulse_ = TUDAT_NAN;
-        }
-    }
-
-    double getCurrentThrust( )
-    {
-        return currentThrustMagnitude_;
-    }
-
-    double getCurrentMassRate( )
-    {
-        return propulsion::computePropellantMassRateFromSpecificImpulse(
-                    currentThrustMagnitude_, currentSpecificImpulse_ );
-    }
-
-private:
-    boost::function< double( const double ) > thrustMagnitudeFunction_;
-
-    boost::function< double( const double ) > specificImpulseFunction_;
-
-    boost::function< bool( const double ) > isEngineOnFunction_;
-
-    double currentThrustMagnitude_;
-
-    double currentSpecificImpulse_;
-
-};
-
-class ThrustMagnitudeFromEngineWrapper: public ThrustMagnitudeWrapper
-{
-public:
-
-    ThrustMagnitudeFromEngineWrapper(
-            const boost::shared_ptr< system_models::EngineModel > engineModel ):
-    engineModel_( engineModel ){ }
-
-    ~ThrustMagnitudeFromEngineWrapper( ){ }
-
-    void update( const double time )
-    {
-        engineModel_->updateEngineModel( time );
-    }
-
-    double getCurrentThrust( )
-    {
-        return engineModel_->getCurrentThrust( );
-    }
-
-    double getCurrentMassRate( )
-    {
-        return engineModel_->getCurrentMassRate( );
-    }
-
-protected:
-    boost::shared_ptr< system_models::EngineModel > engineModel_;
-
-};
-
-
-boost::shared_ptr< ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
+boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance );
 
 void updateThrustMagnitudeAndDirection(
-        const boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+        const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
         const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
         const double currentTime );
 

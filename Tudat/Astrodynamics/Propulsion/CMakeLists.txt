@@ -50,6 +50,7 @@ set(PROPULSION_HEADERS
   "${SRCROOT}${PROPULSIONDIR}/thrustAccelerationModel.h"
   "${SRCROOT}${PROPULSIONDIR}/thrustGuidance.h"
   "${SRCROOT}${PROPULSIONDIR}/thrustFunctions.h"
+  "${SRCROOT}${PROPULSIONDIR}/thrustMagnitudeWrapper.h"
   "${SRCROOT}${PROPULSIONDIR}/massRateFromThrust.h"
 )
 
