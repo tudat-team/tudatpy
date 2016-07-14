@@ -7,6 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
+#include <iostream>
+
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 
 namespace tudat

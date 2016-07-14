@@ -21,6 +21,7 @@
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
+#include "Tudat/Astrodynamics/Propagators/environmentUpdateTypes.h"
 
 namespace tudat
 {
@@ -28,16 +29,6 @@ namespace tudat
 namespace propagators
 {
 
-//! Enum defining types of environment model updates that can be done.
-enum EnvironmentModelsToUpdate
-{
-    body_transational_state_update = 0,
-    body_rotational_state_update = 1,
-    body_mass_update = 2,
-    spherical_harmonic_gravity_field_update = 3,
-    vehicle_flight_conditions_update = 4,
-    radiation_pressure_interface_update = 5
-};
 
 //! Class used to update the environment during numerical integration.
 /*!

@@ -3,6 +3,7 @@
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
+#include "Tudat/Astrodynamics/Propagators/environmentUpdateTypes.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/SimulationSetup/createFlightConditions.h"
@@ -44,7 +45,7 @@ public:
            const std::string& centralBody,
            const bool isColinearWithVelocity,
            const bool directionIsOppositeToVector ):
-       ThrustDirectionGuidanceSettings( thrust_direction_from_existing_body_orientation, centralBody ),
+       ThrustDirectionGuidanceSettings( colinear_with_state_segment_thrust_direction, centralBody ),
    isColinearWithVelocity_( isColinearWithVelocity ),
    directionIsOppositeToVector_( directionIsOppositeToVector ){ }
 
@@ -72,7 +73,8 @@ public:
 boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
-        const std::string& nameOfBodyWithGuidance );
+        const std::string& nameOfBodyWithGuidance,
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 
 enum ThrustMagnitudeTypes
 {
@@ -152,7 +154,8 @@ public:
 boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
-        const std::string& nameOfBodyWithGuidance );
+        const std::string& nameOfBodyWithGuidance,
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 
 void updateThrustMagnitudeAndDirection(
         const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,

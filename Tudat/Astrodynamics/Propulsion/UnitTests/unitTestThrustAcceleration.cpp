@@ -1,4 +1,3 @@
-
 /*    Copyright (c) 2010-2016, Delft University of Technology
  *    All rigths reserved
  *
@@ -18,6 +17,8 @@
 
 #include <Tudat/Basics/testMacros.h>
 #include <Tudat/Astrodynamics/Propagators/dynamicsSimulator.h>
+#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
+#include <Tudat/InputOutput/basicInputOutput.h>
 #include <Tudat/SimulationSetup/body.h>
 #include <Tudat/SimulationSetup/createAccelerationModels.h>
 #include <Tudat/SimulationSetup/createMassRateModels.h>
@@ -187,6 +188,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
     double dryVehicleMass = 2.0E3;
 
     bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
     bodyMap[ "Vehicle" ]->setEphemeris(
                 boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
@@ -373,6 +375,174 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( outputIterator->second.segment( 3, 3 ) ), currentVelocity, 1.0E-11 );
 
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
+{
+    using namespace tudat;
+    using namespace numerical_integrators;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace propagators;
+    using namespace basic_mathematics;
+    using namespace basic_astrodynamics;
+
+    //Load spice kernels.
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+
+    double thrustMagnitude = 1.0E3;
+    double specificImpulse = 250.0;
+
+    for( unsigned int i = 0; i < 2; i++ )
+    {
+        // Create Earth object
+        simulation_setup::NamedBodyMap bodyMap;
+
+        // Create vehicle objects.
+        double vehicleMass = 5.0E3;
+        bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+        bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+        bodyMap[ "Vehicle" ]->setEphemeris(
+                    boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        "Earth" ) );
+        bodyMap[ "Earth" ] = boost::make_shared< Body >( );
+
+        bodyMap[ "Earth" ]->setEphemeris(
+                    boost::make_shared< ephemerides::SpiceEphemeris >( "Sun", "SSB", false, false ) );
+        bodyMap[ "Earth" ]->setGravityFieldModel( boost::make_shared< gravitation::GravityFieldModel >(
+                                                      spice_interface::getBodyGravitationalParameter( "Earth" ) ) );
+
+        // Finalize body creation.
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        bool isThurstInVelocityDirection;
+
+        if( i == 0 )
+        {
+            isThurstInVelocityDirection = 0;
+        }
+        else
+        {
+            isThurstInVelocityDirection = 1;
+        }
+
+        // Define acceleration model settings.
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+        accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
+                                                           boost::make_shared< ThrustDirectionFromStateGuidanceSettings >(
+                                                               "Earth", isThurstInVelocityDirection, 1  ),
+                                                           boost::make_shared< ConstantThrustMagnitudeSettings >(
+                                                               thrustMagnitude, specificImpulse ) ) );
+        if( i == 1 )
+        {
+            accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        }
+
+        accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+        bodiesToPropagate.push_back( "Vehicle" );
+        centralBodies.push_back( "Earth" );
+
+        // Set initial state
+        double radius = 1.0E3;
+        double circularVelocity = std::sqrt( radius * thrustMagnitude / vehicleMass );
+        basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+
+        if( i == 0 )
+        {
+            systemInitialState( 0 ) = radius;
+            systemInitialState( 4 ) = circularVelocity;
+        }
+        else
+        {
+            systemInitialState( 0 ) = 8.0E6;
+            systemInitialState( 4 ) = 7.5E3;
+
+        }
+
+        // Create acceleration models and propagation settings.
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+        boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
+        if( i == 1 )
+        {
+            std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+            dependentVariables.push_back(
+                        boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
+            dependentVariableSaveSettings = boost::make_shared< DependentVariableSaveSettings >( dependentVariables );
+
+        }
+        boost::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
+                boost::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
+                  cowell, dependentVariableSaveSettings );
+        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                boost::make_shared< IntegratorSettings< > >
+                ( rungeKutta4, 0.0, 0.1 );
+
+        // Create simulation object and propagate dynamics.
+        SingleArcDynamicsSimulator< > dynamicsSimulator(
+                    bodyMap, integratorSettings, translationalPropagatorSettings, true, false, false );
+
+        // Retrieve numerical solutions for state and dependent variables
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
+                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
+                dynamicsSimulator.getDependentVariableHistory( );
+
+        if( i == 0 )
+        {
+            double angularVelocity = circularVelocity / radius;
+
+            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
+                 numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+            {
+                double currentAngle = angularVelocity * outputIterator->first;
+
+                BOOST_CHECK_CLOSE_FRACTION(
+                            ( outputIterator->second.segment( 0, 3 ).norm( ) ), radius, 1.0E-10 * radius );
+                BOOST_CHECK_CLOSE_FRACTION(
+                            ( outputIterator->second.segment( 3, 3 ).norm( ) ), circularVelocity, 1.0E-10 * circularVelocity );
+                BOOST_CHECK_SMALL(
+                            std::fabs( outputIterator->second( 0 ) - radius * std::cos( currentAngle ) ), 1.0E-10 * radius );
+                BOOST_CHECK_SMALL(
+                            std::fabs( outputIterator->second( 1 ) - radius * std::sin( currentAngle ) ), 1.0E-10 * radius  );
+                BOOST_CHECK_SMALL(
+                            std::fabs( outputIterator->second( 2 ) ), 1.0E-15 );
+                BOOST_CHECK_SMALL(
+                            std::fabs( outputIterator->second( 3 ) + circularVelocity * std::sin( currentAngle ) ), 1.0E-10 * circularVelocity  );
+                BOOST_CHECK_SMALL(
+                            std::fabs( outputIterator->second( 4 ) - circularVelocity * std::cos( currentAngle ) ), 1.0E-10 * circularVelocity  );
+                BOOST_CHECK_SMALL(
+                            std::fabs( outputIterator->second( 5 ) ), 1.0E-15 );
+            }
+        }
+        else if( i == 1 )
+        {
+            for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
+                 numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
+                                                   ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-14 );
+
+            }
         }
     }
 }

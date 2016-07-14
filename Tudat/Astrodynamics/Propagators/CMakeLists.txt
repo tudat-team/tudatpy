@@ -45,6 +45,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquationsSolver.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
 )
 
 # Add header files.
@@ -70,6 +71,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.h"
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquationsSolver.h"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
+  "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
 )
 
 # Add static libraries.

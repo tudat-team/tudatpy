@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+
 #ifndef THRUSTGUIDANCE_H
 #define THRUSTGUIDANCE_H
 
@@ -48,9 +59,13 @@ class StateBasedThrustGuidance: public ThrustDirectionGuidance
 {
 public:
     StateBasedThrustGuidance(
-            boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction,
-            boost::function< basic_mathematics::Vector6d( ) > bodyStateFunction ):
-        ThrustDirectionGuidance( ), thrustDirectionFunction_( thrustDirectionFunction ), bodyStateFunction_( bodyStateFunction ){ }
+            const boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction,
+            const boost::function< basic_mathematics::Vector6d( ) > bodyStateFunction,
+            const std::string& centralBody ):
+        ThrustDirectionGuidance( ),
+        thrustDirectionFunction_( thrustDirectionFunction ),
+        bodyStateFunction_( bodyStateFunction ),
+        centralBody_( centralBody ){ }
 
     void updateCalculator( const double time )
     {
@@ -66,7 +81,10 @@ public:
     {
         throw std::runtime_error( "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" );
     }
-
+     std::string getCentralBody( )
+     {
+         return centralBody_;
+     }
 
 protected:
 
@@ -75,6 +93,8 @@ protected:
     boost::function< basic_mathematics::Vector6d( ) > bodyStateFunction_;
 
     Eigen::Vector3d currentThrustDirection_;
+
+    std::string centralBody_;
 };
 
 class OrientationBasedThrustGuidance: public ThrustDirectionGuidance

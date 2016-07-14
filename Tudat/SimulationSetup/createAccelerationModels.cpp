@@ -763,10 +763,19 @@ createThrustAcceleratioModel(
         throw std::runtime_error( "Error when creating thrust acceleration, input is inconsistent" );
     }
 
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > directionUpdateSettings;
+
     boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance = createThrustGuidanceModel(
-                thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust );
+                thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust,
+                magnitudeUpdateSettings );
     boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
-                thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap, nameOfBodyUndergoingThrust );
+                thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap, nameOfBodyUndergoingThrust,
+                directionUpdateSettings );
+
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > totalUpdateSettings;
+    propagators::addEnvironmentUpdates( totalUpdateSettings, magnitudeUpdateSettings );
+    propagators::addEnvironmentUpdates( totalUpdateSettings, directionUpdateSettings );
 
     bodyMap.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
 
@@ -779,7 +788,7 @@ createThrustAcceleratioModel(
                 boost::bind( &Body::getBodyMass, bodyMap.at( nameOfBodyUndergoingThrust ) ),
                 boost::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
                 thrustAccelerationSettings->thrustMagnitudeSettings_->thrustOriginId_,
-                updateFunction );
+                updateFunction, totalUpdateSettings );
 }
 
 
