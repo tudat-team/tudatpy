@@ -70,7 +70,6 @@ public:
         {
             currentMassRate_ += thrustAccelerations_.at( i )->getCurrentMassRate( );
         }
-
     }
 
 private:

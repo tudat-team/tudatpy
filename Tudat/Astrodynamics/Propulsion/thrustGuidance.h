@@ -143,9 +143,9 @@ private:
 };
 
 
-}
+} // namespace propulsion
 
-}
+} // namespace tudat
 
 
 #endif // THRUSTGUIDANCE_H

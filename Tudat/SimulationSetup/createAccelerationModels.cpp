@@ -16,6 +16,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Basics/utilities.h"
@@ -764,7 +765,7 @@ createThrustAcceleratioModel(
 
     boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance = createThrustGuidanceModel(
                 thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust );
-    boost::shared_ptr< ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
+    boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
                 thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap, nameOfBodyUndergoingThrust );
 
     bodyMap.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
@@ -773,10 +774,10 @@ createThrustAcceleratioModel(
             boost::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, _1 );
 
     return boost::make_shared< propulsion::ThrustAcceleration >(
-                boost::bind( &ThrustMagnitudeWrapper::getCurrentThrust, thrustMagnitude ),
+                boost::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrust, thrustMagnitude ),
                 boost::bind( &propulsion::ThrustDirectionGuidance::getCurrentThrustDirectionInPropagationFrame, thrustDirectionGuidance ),
                 boost::bind( &Body::getBodyMass, bodyMap.at( nameOfBodyUndergoingThrust ) ),
-                boost::bind( &ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
+                boost::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
                 thrustAccelerationSettings->thrustMagnitudeSettings_->thrustOriginId_,
                 updateFunction );
 }

@@ -77,10 +77,10 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     // Define acceleration model settings.
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                    boost::make_shared< CustomThrustDirectionSettings >(
-                                                        boost::lambda::constant( thrustDirection ) ),
-                                                boost::make_shared< ConstantThrustMagnitudeSettings >(
-                                                    thrustMagnitude, specificImpulse ) ) );
+                                                       boost::make_shared< CustomThrustDirectionSettings >(
+                                                           boost::lambda::constant( thrustDirection ) ),
+                                                       boost::make_shared< ConstantThrustMagnitudeSettings >(
+                                                           thrustMagnitude, specificImpulse ) ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     bodiesToPropagate.push_back( "Vehicle" );
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
             std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
             massRateModels[ "Vehicle" ] = (
                         createMassRateModel( "Vehicle", boost::make_shared< FromThrustMassModelSettings >( 1 ),
-                                                            bodyMap, accelerationModelMap ) );
+                                             bodyMap, accelerationModelMap ) );
 
             boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
                     boost::make_shared< MassPropagatorSettings< double > >(
@@ -167,7 +167,214 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
             }
         }
     }
+}
 
+BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
+{
+    using namespace tudat;
+    using namespace numerical_integrators;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace propagators;
+    using namespace basic_mathematics;
+    using namespace basic_astrodynamics;
+
+    // Create Earth object
+    simulation_setup::NamedBodyMap bodyMap;
+
+    // Create vehicle objects.
+    double vehicleMass = 5.0E3;
+    double dryVehicleMass = 2.0E3;
+
+    bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Vehicle" ]->setEphemeris(
+                boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                    "SSB" ) );
+
+
+    double thrustMagnitude1 = 1.0E3;
+    double specificImpulse1 = 250.0;
+    double massFlow1 = propulsion::computePropellantMassRateFromSpecificImpulse(
+                thrustMagnitude1, specificImpulse1 );
+
+
+    double thrustMagnitude2 = 2.0E3;
+    double specificImpulse2 = 300.0;
+    double massFlow2 = propulsion::computePropellantMassRateFromSpecificImpulse(
+                thrustMagnitude2, specificImpulse2 );
+
+    boost::shared_ptr< system_models::VehicleSystems > vehicleSystems = boost::make_shared<
+            system_models::VehicleSystems >( dryVehicleMass );
+    boost::shared_ptr< system_models::EngineModel > vehicleEngineModel1 =
+            boost::make_shared< system_models::DirectEngineModel >( specificImpulse1, boost::lambda::constant( massFlow1 ) );
+    boost::shared_ptr< system_models::EngineModel > vehicleEngineModel2 =
+            boost::make_shared< system_models::DirectEngineModel >( specificImpulse2, boost::lambda::constant( massFlow2 ) );
+    vehicleSystems->setEngineModel( vehicleEngineModel1, "Engine1" );
+    vehicleSystems->setEngineModel( vehicleEngineModel2, "Engine2" );
+    bodyMap.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
+
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    for( unsigned int i = 0; i < 4; i++ )
+    {
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        Eigen::Vector3d thrustDirection;
+        thrustDirection << -1.4, 2.4, 5,6;
+
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+        // Define acceleration model settings.
+        switch( i )
+        {
+        case 0:
+        {
+            accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
+                                                               boost::make_shared< CustomThrustDirectionSettings >(
+                                                                   boost::lambda::constant( thrustDirection ) ),
+                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                                   1, "" ) ) );
+            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+            break;
+        }
+        case 1:
+        {
+            accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
+                                                               boost::make_shared< CustomThrustDirectionSettings >(
+                                                                   boost::lambda::constant( thrustDirection ) ),
+                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                                   0, "Engine1" ) ) );
+            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+            break;
+        }
+        case 2:
+        {
+            accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
+                                                               boost::make_shared< CustomThrustDirectionSettings >(
+                                                                   boost::lambda::constant( thrustDirection ) ),
+                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                                   0, "Engine2" ) ) );
+            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+            break;
+        }
+        case 3:
+        {
+            accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
+                                                               boost::make_shared< CustomThrustDirectionSettings >(
+                                                                   boost::lambda::constant( thrustDirection ) ),
+                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                                   0, "Engine1" ) ) );
+            accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
+                                                               boost::make_shared< CustomThrustDirectionSettings >(
+                                                                   boost::lambda::constant( thrustDirection ) ),
+                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                                   0, "Engine2" ) ) );
+            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+            break;
+        }
+        }
+
+        bodiesToPropagate.push_back( "Vehicle" );
+        centralBodies.push_back( "SSB" );
+
+        // Set initial state
+        basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
+
+        // Create acceleration models and propagation settings.
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+        boost::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
+                boost::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings );
+        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                boost::make_shared< IntegratorSettings< > >
+                ( rungeKutta4, 0.0, 0.1 );
+
+        std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+
+        double totalMassRate, totalThrust;
+        switch( i )
+        {
+        case 0:
+        {
+            massRateModels[ "Vehicle" ] = (
+                        createMassRateModel( "Vehicle", boost::make_shared< FromThrustMassModelSettings >( 1 ),
+                                             bodyMap, accelerationModelMap ) );
+            totalMassRate = massFlow1 + massFlow2;
+            totalThrust = thrustMagnitude1 + thrustMagnitude2;
+            break;
+        }
+        case 1:
+        {
+            massRateModels[ "Vehicle" ] = (
+                        createMassRateModel( "Vehicle", boost::make_shared< FromThrustMassModelSettings >( 0, "Engine1" ),
+                                             bodyMap, accelerationModelMap ) );
+            totalMassRate = massFlow1;
+            totalThrust = thrustMagnitude1;
+            break;
+        }
+        case 2:
+        {
+            massRateModels[ "Vehicle" ] = (
+                        createMassRateModel( "Vehicle", boost::make_shared< FromThrustMassModelSettings >( 0, "Engine2" ),
+                                             bodyMap, accelerationModelMap ) );
+            totalMassRate = massFlow2;
+            totalThrust = thrustMagnitude2;
+            break;
+        }
+        case 3:
+        {
+            massRateModels[ "Vehicle" ] = (
+                        createMassRateModel( "Vehicle", boost::make_shared< FromThrustMassModelSettings >( 0, "Engine1" ),
+                                             bodyMap, accelerationModelMap ) );
+            totalMassRate = massFlow1;
+            totalThrust = thrustMagnitude1 + thrustMagnitude2;
+            break;
+        }
+        }
+
+        double totalSpecificImpulse = totalThrust / ( physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * totalMassRate );
+
+        boost::shared_ptr< PropagatorSettings< double > > massPropagatorSettings =
+                boost::make_shared< MassPropagatorSettings< double > >(
+                    boost::assign::list_of( "Vehicle" ), massRateModels,
+                    ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
+
+        std::vector< boost::shared_ptr< PropagatorSettings< double > > > propagatorSettingsVector;
+        propagatorSettingsVector.push_back( translationalPropagatorSettings );
+        propagatorSettingsVector.push_back( massPropagatorSettings );
+
+        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+                boost::make_shared< MultiTypePropagatorSettings< double > >( propagatorSettingsVector, terminationSettings );
+
+        // Create simulation object and propagate dynamics.
+        SingleArcDynamicsSimulator< > dynamicsSimulator(
+                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+        std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
+                dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+        for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
+             numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
+        {
+            double currentMass = vehicleMass - outputIterator->first * totalMassRate;
+
+            Eigen::Vector3d currentVelocity = thrustDirection.normalized( ) *
+                    totalSpecificImpulse * physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION *
+                    std::log( vehicleMass / currentMass );
+            BOOST_CHECK_CLOSE_FRACTION( outputIterator->second( 6 ), currentMass, 1.0E-12 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        ( outputIterator->second.segment( 3, 3 ) ), currentVelocity, 1.0E-11 );
+
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

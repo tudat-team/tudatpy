@@ -94,7 +94,8 @@ private:
     double currentMassRate_;
 };
 
-}
+} // namespace propulsion
 
-}
+} // namespace tudat
+
 #endif // THRUSTACCELERATIONMODEL_H

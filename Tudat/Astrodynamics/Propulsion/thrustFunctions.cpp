@@ -23,6 +23,7 @@ double computePropellantMassRateFromSpecificImpulse(
 }
 
 
-}
+} // namespace propulsion
+
 
 }
