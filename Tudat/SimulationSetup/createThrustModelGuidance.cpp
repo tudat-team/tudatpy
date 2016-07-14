@@ -11,14 +11,15 @@ namespace simulation_setup
 boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
-        const std::string& nameOfBodyWithGuidance )
+        const std::string& nameOfBodyWithGuidance,
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
 {
-   boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustGuidance;
+    boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustGuidance;
 
-   switch( thrustDirectionGuidanceSettings->thrustDirectionType_ )
-   {
-   case colinear_with_state_segment_thrust_direction:
-   {
+    switch( thrustDirectionGuidanceSettings->thrustDirectionType_ )
+    {
+    case colinear_with_state_segment_thrust_direction:
+    {
         boost::shared_ptr< ThrustDirectionFromStateGuidanceSettings > thrustDirectionFromStateGuidanceSettings =
                 boost::dynamic_pointer_cast< ThrustDirectionFromStateGuidanceSettings >( thrustDirectionGuidanceSettings );
         if( thrustDirectionFromStateGuidanceSettings == NULL )
@@ -29,9 +30,20 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
         {
             boost::function< basic_mathematics::Vector6d( ) > bodyStateFunction =
                     boost::bind( &Body::getState, bodyMap.at( nameOfBodyWithGuidance ) );
-            boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction =
-                    boost::bind( &Body::getState, bodyMap.at(
-                                     thrustDirectionFromStateGuidanceSettings->relativeBody_ ) );
+            boost::function< basic_mathematics::Vector6d( ) > centralBodyStateFunction;
+
+            if( thrustDirectionFromStateGuidanceSettings->relativeBody_ != "SSB" &&
+                    thrustDirectionFromStateGuidanceSettings->relativeBody_ != "" )
+            {
+                centralBodyStateFunction = boost::bind( &Body::getState, bodyMap.at(
+                                                            thrustDirectionFromStateGuidanceSettings->relativeBody_ ) );
+                magnitudeUpdateSettings[ propagators::body_transational_state_update ].push_back(
+                        thrustDirectionFromStateGuidanceSettings->relativeBody_ );
+            }
+            else
+            {
+                centralBodyStateFunction = boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
+            }
 
             boost::function< basic_mathematics::Vector6d( ) > stateFunction =
                     boost::bind(
@@ -52,7 +64,7 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
             }
 
             thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
-                        thrustDirectionFunction, stateFunction );
+                        thrustDirectionFunction, stateFunction, thrustDirectionFromStateGuidanceSettings->relativeBody_ );
         }
         break;
    }
@@ -78,12 +90,20 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
            rotationFunction =
                    boost::bind( &reference_frames::AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
                                 angleCalculator, reference_frames::body_frame, reference_frames::inertial_frame );
+
+           magnitudeUpdateSettings[ propagators::vehicle_flight_conditions_update ].push_back( nameOfBodyWithGuidance );
+           magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back(
+                       thrustDirectionGuidanceSettings->relativeBody_ );
+           magnitudeUpdateSettings[ propagators::body_transational_state_update ].push_back(
+                       thrustDirectionGuidanceSettings->relativeBody_);
        }
        else if( bodyWithGuidance->getRotationalEphemeris( ) != NULL )
        {
            rotationFunction = boost::bind(
-                       &ephemerides::RotationalEphemeris::getRotationToBaseFrame,
-                       bodyWithGuidance->getRotationalEphemeris( ), _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                       &simulation_setup::Body::getCurrentRotationToGlobalFrame,
+                       bodyWithGuidance );
+           magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
+
        }
        else
        {
@@ -93,38 +113,39 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
        thrustGuidance =  boost::make_shared< propulsion::DirectOrientationBasedThrustGuidance >(
                    rotationFunction );
        break;
-   }
-   case custom_thrust_direction:
-   {
+    }
+    case custom_thrust_direction:
+    {
 
-       boost::shared_ptr< CustomThrustDirectionSettings > customThrustGuidanceSettings =
-               boost::dynamic_pointer_cast< CustomThrustDirectionSettings >( thrustDirectionGuidanceSettings );
-       if( customThrustGuidanceSettings == NULL )
-       {
-           throw std::runtime_error( "Error when getting thrust guidance, input is inconsistent" );
-       }
-       else
-       {
-               boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction =
-                       boost::bind( &propulsion::getThrustDirectionFromTimeOnlyFunction,
-                                         _1, _2, customThrustGuidanceSettings->thrustDirectionFunction_ );
+        boost::shared_ptr< CustomThrustDirectionSettings > customThrustGuidanceSettings =
+                boost::dynamic_pointer_cast< CustomThrustDirectionSettings >( thrustDirectionGuidanceSettings );
+        if( customThrustGuidanceSettings == NULL )
+        {
+            throw std::runtime_error( "Error when getting thrust guidance, input is inconsistent" );
+        }
+        else
+        {
+            boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction =
+                    boost::bind( &propulsion::getThrustDirectionFromTimeOnlyFunction,
+                                 _1, _2, customThrustGuidanceSettings->thrustDirectionFunction_ );
 
 
-               thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
-                           thrustDirectionFunction, boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ) );
-       }
-       break;
-   }
-   default:
-       throw std::runtime_error( "Error, could not find thrust guidance type when creating thrust guidance." );
-   }
-   return thrustGuidance;
+            thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
+                        thrustDirectionFunction, boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), "" );
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error, could not find thrust guidance type when creating thrust guidance." );
+    }
+    return thrustGuidance;
 }
 
 boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
-        const std::string& nameOfBodyWithGuidance )
+        const std::string& nameOfBodyWithGuidance,
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
 {
     boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper;
     switch( thrustMagnitudeSettings->thrustMagnitudeGuidanceType_ )

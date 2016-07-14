@@ -123,49 +123,6 @@ void checkValidityOfRequiredEnvironmentUpdates(
     }
 }
 
-//! Function to extend existing list of required environment update types
-void addEnvironmentUpdates( std::map< propagators::EnvironmentModelsToUpdate,
-                            std::vector< std::string > >& environmentUpdateList,
-                            const std::map< propagators::EnvironmentModelsToUpdate,
-                            std::vector< std::string > > updatesToAdd )
-{
-    // Iterate over all environment update types.
-    for( std::map< propagators::EnvironmentModelsToUpdate,
-             std::vector< std::string > >::const_iterator
-         environmentUpdateIterator = updatesToAdd.begin( );
-         environmentUpdateIterator != updatesToAdd.end( ); environmentUpdateIterator++ )
-    {
-        bool addCurrentUpdate = 0;
-
-        // Iterate over all updated bodies.
-        for( unsigned int i = 0; i < environmentUpdateIterator->second.size( ); i++ )
-        {
-            addCurrentUpdate = 0;
-
-            // Check if current update type exists.
-            if( environmentUpdateList.count( environmentUpdateIterator->first ) == 0 )
-            {
-                addCurrentUpdate = 1;
-            }
-            // Check if current body exists for update type.
-            else if( std::find( environmentUpdateList.at( environmentUpdateIterator->first ).begin( ),
-                                environmentUpdateList.at( environmentUpdateIterator->first ).end( ),
-                                environmentUpdateIterator->second.at( i ) ) ==
-                     environmentUpdateList.at( environmentUpdateIterator->first ).end( ) )
-            {
-                addCurrentUpdate = 1;
-            }
-
-            // Add update type if required.
-            if( addCurrentUpdate )
-            {
-                environmentUpdateList[ environmentUpdateIterator->first ].push_back(
-                            environmentUpdateIterator->second.at( i ) );
-            }
-        }
-    }
-}
-
 //! Get list of required environment model update settings from translational acceleration models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
@@ -304,7 +261,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
                             thirdBodyAcceleration = boost::dynamic_pointer_cast<
                             gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
-                                accelerationModelIterator->second.at( i ) );;
+                                accelerationModelIterator->second.at( i ) );
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
                     {
@@ -326,6 +283,14 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 }
                 case thrust_acceleration:
                 {
+                    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > thrustModelUpdates =
+                            boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+                                accelerationModelIterator->second.at( i ) )->getRequiredModelUpdates( );
+                    addEnvironmentUpdates( singleAccelerationUpdateNeeds, thrustModelUpdates );
+
+                    singleAccelerationUpdateNeeds[ body_mass_update ].push_back(
+                                acceleratedBodyIterator->first );
+
                     break;
                 }
                 default:
