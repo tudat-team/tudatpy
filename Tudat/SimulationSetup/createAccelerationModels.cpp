@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <algorithm>
 
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
@@ -803,6 +804,8 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
         const std::string& nameOfCentralBody,
         const NamedBodyMap& bodyMap )
 {
+    std::cout<<"Creating: "<<nameOfBodyUndergoingAcceleration<<" "<<nameOfBodyExertingAcceleration<<" "<<
+               accelerationSettings->accelerationType_ <<std::endl;
     // Declare pointer to return object.
     boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModelPointer;
 
@@ -858,6 +861,79 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
     return accelerationModelPointer;
 }
 
+SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationsPerBody )
+{
+    // Declare map of acceleration models acting on current body.
+    SelectedAccelerationMap orderedAccelerationsPerBody;
+
+    // Iterate over all bodies which are undergoing acceleration
+    for( SelectedAccelerationMap::const_iterator bodyIterator =
+         selectedAccelerationsPerBody.begin( ); bodyIterator != selectedAccelerationsPerBody.end( );
+         bodyIterator++ )
+    {
+        // Retrieve name of body undergoing acceleration.
+        std::string bodyUndergoingAcceleration = bodyIterator->first;
+
+        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
+        // current body.
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >
+                accelerationsForBody = bodyIterator->second;
+
+        // Iterate over all bodies exerting an acceleration
+        for( std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > >::
+             iterator body2Iterator = accelerationsForBody.begin( );
+             body2Iterator != accelerationsForBody.end( ); body2Iterator++ )
+        {
+            // Retrieve name of body exerting acceleration.
+            std::string bodyExertingAcceleration = body2Iterator->first;
+
+            // Retrieve list of accelerations due to current body.
+            std::vector< boost::shared_ptr< AccelerationSettings > > accelerationList =
+                    body2Iterator->second;
+
+            std::vector< int > aerodynamicAccelerationIndex;
+            std::vector< int > thrustAccelerationIndices;
+
+            for( unsigned int i = 0; i < accelerationList.size( ); i++ )
+            {
+                if( accelerationList.at( i )->accelerationType_ == basic_astrodynamics::thrust_acceleration )
+                {
+                    thrustAccelerationIndices.push_back( i );
+                }
+                else if( accelerationList.at( i )->accelerationType_ == basic_astrodynamics::aerodynamic )
+                {
+                    aerodynamicAccelerationIndex.push_back( i );
+                }
+            }
+
+            std::vector< boost::shared_ptr< AccelerationSettings > > orderedAccelerationList = accelerationList;
+
+            if( ( thrustAccelerationIndices.size( ) > 0 ) && ( aerodynamicAccelerationIndex.size( ) > 0 ) )
+            {
+                if( aerodynamicAccelerationIndex.at( aerodynamicAccelerationIndex.size( ) - 1 ) >
+                        thrustAccelerationIndices.at( 0 ) )
+                {
+                    if( ( aerodynamicAccelerationIndex.size( ) == 1 ) )
+                    {
+                        std::iter_swap( orderedAccelerationList.begin( ) + aerodynamicAccelerationIndex.at( 0 ),
+                                        orderedAccelerationList.begin( ) + thrustAccelerationIndices.at(
+                                            thrustAccelerationIndices.size( ) - 1 ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                    "Error when ordering accelerations, cannot yet handle multple aerodynamic and thrust accelerations" );
+                    }
+                }
+            }
+
+            orderedAccelerationsPerBody[ bodyUndergoingAcceleration ][ bodyExertingAcceleration ] = orderedAccelerationList;
+        }
+    }
+
+    return orderedAccelerationsPerBody;
+}
+
 //! Function to create a set of acceleration models from a map of bodies and acceleration model
 //! types.
 AccelerationMap createAccelerationModelsMap(
@@ -868,9 +944,12 @@ AccelerationMap createAccelerationModelsMap(
     // Declare return map.
     AccelerationMap accelerationModelMap;
 
+    SelectedAccelerationMap orderedAccelerationPerBody =
+            orderSelectedAccelerationMap( selectedAccelerationPerBody );
+
     // Iterate over all bodies which are undergoing acceleration
     for( SelectedAccelerationMap::const_iterator bodyIterator =
-         selectedAccelerationPerBody.begin( ); bodyIterator != selectedAccelerationPerBody.end( );
+         orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
          bodyIterator++ )
     {
         boost::shared_ptr< Body > currentCentralBody;
