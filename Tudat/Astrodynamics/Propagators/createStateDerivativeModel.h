@@ -309,6 +309,7 @@ createStateDerivativeModels(
 }
 
 } // namespace propagators
+
 } // namespace tudat
 
 #endif // TUDAT_CREATESTATEDERIVATIVEMODEL_H

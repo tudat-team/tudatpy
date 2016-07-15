@@ -170,6 +170,18 @@ public:
 
     }
 
+    void setRotationFromCorotatingToInertialFrame(
+            const boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame )
+    {
+        rotationFromCorotatingToInertialFrame_ = rotationFromCorotatingToInertialFrame;
+    }
+
+    boost::function< Eigen::Quaterniond( ) >  getRotationFromCorotatingToInertialFrame(  )
+    {
+        return rotationFromCorotatingToInertialFrame_;
+    }
+
+
 private:
 
     //! Map of current angles, as calculated by previous call to update( ) function.
@@ -179,6 +191,8 @@ private:
     //! function.
     std::map< std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames >,
     Eigen::Quaterniond > currentRotationMatrices_;
+
+    boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame_;
 
     //! Current body-fixed state of vehicle, as set by previous call to update( ).
     basic_mathematics::Vector6d currentBodyFixedState_;

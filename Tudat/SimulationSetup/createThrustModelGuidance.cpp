@@ -79,12 +79,6 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
        {
            boost::shared_ptr< aerodynamics::FlightConditions > bodyFlightConditions =
                    bodyWithGuidance->getFlightConditions( );
-           bodyWithGuidance->setFlightConditions(
-                       createFlightConditions( bodyWithGuidance,
-                                               relativeBody,
-                                               nameOfBodyWithGuidance,
-                                               thrustDirectionGuidanceSettings->relativeBody_ ) );
-           bodyFlightConditions = bodyWithGuidance->getFlightConditions( );
            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
                   bodyFlightConditions->getAerodynamicAngleCalculator( );
            rotationFunction =
