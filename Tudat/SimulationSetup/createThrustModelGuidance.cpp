@@ -115,7 +115,7 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
                 boost::dynamic_pointer_cast< CustomThrustDirectionSettings >( thrustDirectionGuidanceSettings );
         if( customThrustGuidanceSettings == NULL )
         {
-            throw std::runtime_error( "Error when getting thrust guidance, input is inconsistent" );
+            throw std::runtime_error( "Error when getting thrust guidance with custom_thrust_direction, input is inconsistent" );
         }
         else
         {
@@ -126,6 +126,25 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
 
             thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
                         thrustDirectionFunction, boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), "" );
+        }
+        break;
+    }
+    case custom_thrust_orientation:
+    {
+        boost::shared_ptr< CustomThrustOrientationSettings > customThrustOrientationSettings =
+                boost::dynamic_pointer_cast< CustomThrustOrientationSettings >( thrustDirectionGuidanceSettings );
+
+        if( customThrustOrientationSettings == NULL )
+        {
+            throw std::runtime_error( "Error when getting thrust guidance with custom_thrust_orientation, input is inconsistent" );
+        }
+        else
+        {
+            thrustGuidance =  boost::make_shared< propulsion::DirectOrientationBasedThrustGuidance >(
+                        customThrustOrientationSettings->thrustOrientationFunction_,
+                        boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+                        customThrustOrientationSettings->bodyFixedThrustDirection_ );
+
         }
         break;
     }

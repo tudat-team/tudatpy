@@ -67,6 +67,9 @@ namespace tudat
 namespace reference_frames
 {
 
+Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
+        const Eigen::Matrix3d& rotationMatrix );
+
 //! Wrapper function to transform a vector to a different frame from a single rotation function.
 /*!
  * Wrapper function to transform a vector to a different frame from a single rotation function.

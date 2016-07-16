@@ -69,6 +69,15 @@ OutputType evaluateFunction(
 int getDependentVariableSize(
         const PropagationDependentVariables dependentVariableSettings );
 
+Eigen::VectorXd getVectorRepresentationForRotation(
+        const boost::function< Eigen::Quaterniond( ) > rotationFunction );
+
+Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
+        const Eigen::VectorXd vectorRepresentation );
+
+Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
+        const Eigen::VectorXd vectorRepresentation );
+
 //! Function to create a function returning a requested dependent variable value (of type double).
 /*!
  *  Function to create a function returning a requested dependent variable value (of type double), retrieved from
@@ -233,6 +242,26 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
 
         break;
     }
+    case relative_body_aerodynamic_orientation_angle_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+
+        }
+
+        // Check input consistency.
+        boost::shared_ptr< BodyAerodynamicAngletVariableSaveSettings > bodyAerodynamicAngleVariableSaveSettings =
+                boost::dynamic_pointer_cast< BodyAerodynamicAngletVariableSaveSettings >( dependentVariableSettings );
+        if( bodyAerodynamicAngleVariableSaveSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type relative_body_aerodynamic_orientation_angle_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        variableFunction = boost::bind( &reference_frames::AerodynamicAngleCalculator::getAerodynamicAngle,
+                                 bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                                        bodyAerodynamicAngleVariableSaveSettings->angle_ );
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize double dependent variable type when making variable function: " +
@@ -381,6 +410,56 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                     bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicCoefficientInterface( ) );
         parameterSize = 3;
 
+        break;
+    }
+    case rotation_matrix_to_body_fixed_frame_variable:
+    {
+        boost::function< Eigen::Quaterniond( ) > rotationFunction =
+                boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( bodyWithProperty ) );
+        variableFunction = boost::bind( &getVectorRepresentationForRotation, rotationFunction );
+        parameterSize = 9;
+        break;
+    }
+    case intermediate_aerodynamic_rotation_matrix_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type intermediate_aerodynamic_rotation_matrix_variable";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Check input consistency.
+        boost::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings >
+                intermediateAerodynamicRotationVariableSaveSettings =
+                boost::dynamic_pointer_cast< IntermediateAerodynamicRotationVariableSaveSettings >(
+                    dependentVariableSettings );
+        if( intermediateAerodynamicRotationVariableSaveSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type intermediate_aerodynamic_rotation_matrix_variable";
+            throw std::runtime_error( errorMessage );
+        }
+
+        boost::function< Eigen::Quaterniond( ) > rotationFunction =
+                boost::bind( &reference_frames::AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
+                             bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                             intermediateAerodynamicRotationVariableSaveSettings->baseFrame_,
+                             intermediateAerodynamicRotationVariableSaveSettings->targetFrame_ );
+
+        variableFunction = boost::bind( &getVectorRepresentationForRotation, rotationFunction );
+        parameterSize = 9;
+        break;
+    }
+    case body_fixed_airspeed_based_velocity_variable:
+    {
+        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        {
+            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type current_airpeed_based_velocity_variable_variable";
+            throw std::runtime_error( errorMessage );
+        }
+
+        variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeedBasedVelocity,
+                                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+        parameterSize = 3;
         break;
     }
     default:

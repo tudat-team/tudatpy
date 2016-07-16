@@ -479,6 +479,39 @@ public:
     void setDependentOrientationCalculator(
             const boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator )
     {
+        if( dependentOrientationCalculator_ != NULL )
+        {
+            if( ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                      dependentOrientationCalculator ) != NULL ) &&
+                    ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                          dependentOrientationCalculator_ ) == NULL ) )
+            {
+                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+                            dependentOrientationCalculator_,
+                            boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                                dependentOrientationCalculator ) );
+                std::cout<<"Setting closure of existing dependentOrientationCalculator with new AerodynamicAngleCalculator "<<std::endl;
+            }
+            else if( ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                           dependentOrientationCalculator_ ) != NULL ) &&
+                     ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                           dependentOrientationCalculator ) == NULL ) )
+            {
+                reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
+                            dependentOrientationCalculator,
+                            boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                                dependentOrientationCalculator_ ) );
+                std::cout<<"Setting closure of new dependentOrientationCalculator with existing AerodynamicAngleCalculator "<<std::endl;
+            }
+            else
+            {
+                throw std::runtime_error( "Error, cannot reset dependentOrientationCalculator, incompatibel object already exists" );
+            }
+        }
+        else
+        {
+
+        }
         dependentOrientationCalculator_ = dependentOrientationCalculator;
     }
 

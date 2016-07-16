@@ -61,7 +61,7 @@ public:
 
             currentAccelerationDirection_ = thrustDirectionFunction_( );
 
-            if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) > 5.0 * std::numeric_limits< double >::epsilon( ) )
+            if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) > 10.0 * std::numeric_limits< double >::epsilon( ) )
             {
                 throw std::runtime_error( "Error in thrust acceleration, direction is not a unit vector"  );
             }

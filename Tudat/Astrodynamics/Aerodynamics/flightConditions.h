@@ -177,6 +177,12 @@ public:
         return currentBodyCenteredPseudoBodyFixedState_;
     }
 
+    Eigen::Vector3d getCurrentAirspeedBasedVelocity( )
+    {
+        return currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 );
+    }
+
+
     //! Function to return aerodynamic angle calculator object
     /*!
      *  Function to return aerodynamic angle calculator object

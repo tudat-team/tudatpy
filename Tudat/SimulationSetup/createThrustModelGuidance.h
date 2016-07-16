@@ -20,7 +20,9 @@ enum ThrustDirectionGuidanceTypes
 {
     colinear_with_state_segment_thrust_direction,
     thrust_direction_from_existing_body_orientation,
-    custom_thrust_direction
+    custom_thrust_direction,
+    custom_thrust_orientation
+
 };
 
 class ThrustDirectionGuidanceSettings
@@ -69,6 +71,24 @@ public:
 
    boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction_;
 };
+
+class CustomThrustOrientationSettings: public ThrustDirectionGuidanceSettings
+{
+public:
+    CustomThrustOrientationSettings(
+            const boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction,
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+        ThrustDirectionGuidanceSettings( custom_thrust_orientation, "" ),
+        thrustOrientationFunction_( thrustOrientationFunction ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
+
+    ~CustomThrustOrientationSettings( ){ }
+
+    boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction_ ;
+
+    Eigen::Vector3d bodyFixedThrustDirection_;
+};
+
 
 boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,

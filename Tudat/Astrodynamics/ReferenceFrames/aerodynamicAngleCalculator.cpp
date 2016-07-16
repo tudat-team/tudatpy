@@ -9,10 +9,12 @@
  */
 
 #include <iostream>
+#include <iomanip>
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -32,11 +34,13 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
     currentRotationMatrices_.clear( );
 
     // Get current body-fixed state.
-//    if( !( currentBodyFixedState_ == bodyFixedStateFunction_( ) ) ||
-//            !( currentTime == currentTime_ ) )
+    if( !( currentBodyFixedState_ == bodyFixedStateFunction_( ) ) ||
+            !( currentTime == currentTime_ ) )
     {
 
         currentBodyFixedState_ = bodyFixedStateFunction_( );
+        currentRotationFromCorotatingToInertialFrame_ = rotationFromCorotatingToInertialFrame_( );
+
         Eigen::Vector3d sphericalCoordinates = coordinate_conversions::convertCartesianToSpherical< double >(
                     currentBodyFixedState_.segment( 0, 3 ) );
 
@@ -58,6 +62,8 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
             currentAerodynamicAngles_[ flight_path_angle ] =
                     calculateFlightPathAngle( verticalFrameVelocity );
         }
+
+        currentTime_ = currentTime;
     }
 
     if( updateBodyOrientation )
@@ -88,8 +94,6 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         currentAerodynamicAngles_[ angle_of_sideslip ] = 0.0;
         currentAerodynamicAngles_[ bank_angle ] = 0.0;
     }
-
-    currentTime_ = currentTime;
 }
 
 
@@ -101,11 +105,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
     // Initialize rotation to identity matrix.
     Eigen::Quaterniond rotationToFrame = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
 
-    // Inertial frame is not specificied in current object.
-    if( originalFrame == inertial_frame || targetFrame == inertial_frame)
-    {
-        throw( "Error in AerodynamicAngleCalculator, cannot calculate to/from inertial frame" );
-    }
 
     // Check if update settings are consistent with requested frames.
     if( !calculateVerticalToAerodynamicFrame_ &&
@@ -150,6 +149,19 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
             {
                 switch( currentFrameIndex )
                 {
+                case static_cast< int >( inertial_frame ):
+
+                    if( isTargetFrameUp )
+                    {
+                        rotationToFrame = currentRotationFromCorotatingToInertialFrame_.inverse( ) *
+                                rotationToFrame;
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                    "Error, inertial_frame is end frame in AerodynamicAngleCalculator" );
+                    }
+                    break;
                 case static_cast< int >( corotating_frame ):
 
                     if( isTargetFrameUp )
@@ -162,8 +174,8 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                     }
                     else
                     {
-                        throw std::runtime_error(
-                                    "Error, corotating_frame is end frame in AerodynamicAngleCalculator" );
+                        rotationToFrame = currentRotationFromCorotatingToInertialFrame_ *
+                                rotationToFrame;
                     }
                     break;
                 case static_cast< int >( vertical_frame ):
@@ -289,73 +301,68 @@ boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
 getAerodynamicForceTransformationFunction(
         const boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
-        const boost::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction,
         const AerodynamicsReferenceFrames propagationFrame )
 {
     boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction;
 
-    // If propagation frame is the inertial frame, use bodyFixedToInertialFrameFunction.
-    if( propagationFrame == inertial_frame )
-    {
-        std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > > rotationsList;
+    // Get accelerationFrame to propagationFrame frame transformation directly.
+    boost::function< Eigen::Quaterniond( ) > rotationFunction =
+            boost::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
+                         aerodynamicAngleCalculator, accelerationFrame, propagationFrame );
 
-        // Get accelerationFrame to corotating frame transformation.
-        boost::function< Eigen::Quaterniond( ) > firstRotation =
-                boost::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
-                             aerodynamicAngleCalculator, accelerationFrame, corotating_frame );
-        rotationsList.push_back(
-                    boost::bind(
-                        static_cast< Eigen::Vector3d(&)(
-                            const Eigen::Vector3d&,
-                            const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ),
-                        _1, firstRotation ) );
-
-        // Add corotating to inertial frame.
-        rotationsList.push_back(
-                    boost::bind(
-                        static_cast< Eigen::Vector3d(&)(
-                            const Eigen::Vector3d&,
-                            const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ),
-                        _1, bodyFixedToInertialFrameFunction ) );
-
-        // Create transformation function.
-        transformationFunction = boost::bind(
-                    static_cast< Eigen::Vector3d(&)(
-                        const Eigen::Vector3d&,
-                        const std::vector< boost::function<
-                        Eigen::Vector3d( const Eigen::Vector3d& ) > >& ) >( &transformVector ),
-                    _1, rotationsList );
-    }
-    else
-    {
-        // Get accelerationFrame to propagationFrame frame transformation directly.
-        boost::function< Eigen::Quaterniond( ) > rotationFunction =
-                boost::bind( &AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
-                             aerodynamicAngleCalculator, accelerationFrame, propagationFrame );
-
-        // Create transformation function.
-        transformationFunction = boost::bind(
-                    static_cast< Eigen::Vector3d(&)(
-                        const Eigen::Vector3d&,
-                        const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ), _1,
-                    rotationFunction );
-    }
-
+    // Create transformation function.
+    transformationFunction = boost::bind(
+                static_cast< Eigen::Vector3d(&)(
+                    const Eigen::Vector3d&,
+                    const boost::function< Eigen::Quaterniond( ) > ) >( &transformVector ), _1,
+                rotationFunction );
     return transformationFunction;
+}
+
+void AerodynamicAnglesClosure::updateAngles( const double currentTime )
+{
+    currentRotationFromBodyToTrajectoryFrame_ =
+            ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ) *
+                aerodynamicAngleCalculator_->getRotationQuaternionBetweenFrames(
+                    trajectory_frame, inertial_frame ) ).toRotationMatrix( ) ).transpose( );
+    Eigen::Vector3d eulerAngles = reference_frames::get132EulerAnglesFromRotationMatrix(
+                currentRotationFromBodyToTrajectoryFrame_ );
+    currentBankAngle_ = eulerAngles.x( );
+    currentAngleOfSideslip_ = eulerAngles.y( );
+    currentAngleOfAttack_ = -eulerAngles.z( );
+}
+
+void setAerodynamicDependentOrientationCalculatorClosure(
+        const boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
+        boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
+{
+    boost::shared_ptr< AerodynamicAnglesClosure > aerodynamicAnglesClosure =
+            boost::make_shared< AerodynamicAnglesClosure >(
+                imposedRotationFromInertialToBodyFixedFrame, aerodynamicAngleCalculator );
+    aerodynamicAngleCalculator->setOrientationAngleFunctions(
+                boost::bind( &AerodynamicAnglesClosure::getCurrentAngleOfAttack, aerodynamicAnglesClosure ),
+                boost::bind( &AerodynamicAnglesClosure::getCurrentAngleOfSideslip, aerodynamicAnglesClosure ),
+                boost::bind( &AerodynamicAnglesClosure::getCurrentBankAngle, aerodynamicAnglesClosure ),
+                boost::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, _1 ) );
 }
 
 void setAerodynamicDependentOrientationCalculatorClosure(
         boost::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
 {
-    throw std::runtime_error( "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" );
+    setAerodynamicDependentOrientationCalculatorClosure(
+                boost::bind( &DependentOrientationCalculator::getRotationToLocalFrame, dependentOrientationCalculator, _1 ),
+                aerodynamicAngleCalculator );
 }
 
 void setAerodynamicDependentOrientationCalculatorClosure(
         boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
 {
-    throw std::runtime_error( "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" );
+    setAerodynamicDependentOrientationCalculatorClosure(
+                boost::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
+                             rotationalEphemeris, _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 ),
+                aerodynamicAngleCalculator );
 }
 
 } // namespace reference_frames

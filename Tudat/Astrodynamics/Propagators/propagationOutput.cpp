@@ -17,6 +17,42 @@ namespace tudat
 namespace propagators
 {
 
+Eigen::VectorXd getVectorRepresentationForRotation(
+        const boost::function< Eigen::Quaterniond( ) > rotationFunction )
+{
+    Eigen::Matrix3d currentRotationMatrix = rotationFunction( ).toRotationMatrix( );
+
+    Eigen::VectorXd vectorRepresentation = Eigen::VectorXd( 9 );
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            vectorRepresentation( i * 3 + j ) = currentRotationMatrix( i, j );
+        }
+    }
+    return vectorRepresentation;
+}
+
+Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
+        const Eigen::VectorXd vectorRepresentation )
+{
+    Eigen::Matrix3d currentRotationMatrix;
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            currentRotationMatrix( i, j ) = vectorRepresentation( i * 3 + j );
+        }
+    }
+    return currentRotationMatrix;
+}
+
+Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
+        const Eigen::VectorXd vectorRepresentation )
+{
+    return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
+}
+
 //! Function to evaluate a set of double and vector-returning functions and concatenate the results.
 Eigen::VectorXd evaluateListOfFunctions(
         const std::vector< boost::function< double( ) > >& doubleFunctionList,
@@ -101,6 +137,18 @@ int getDependentVariableSize(
         variableSize = 3;
         break;
     case aerodynamic_moment_coefficients_dependent_variable:
+        variableSize = 3;
+        break;
+    case rotation_matrix_to_body_fixed_frame_variable:
+        variableSize = 9;
+        break;
+    case intermediate_aerodynamic_rotation_matrix_variable:
+        variableSize = 9;
+        break;
+    case relative_body_aerodynamic_orientation_angle_variable:
+        variableSize = 1;
+        break;
+    case body_fixed_airspeed_based_velocity_variable:
         variableSize = 3;
         break;
     default:

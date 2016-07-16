@@ -213,7 +213,8 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
             boost::make_shared< reference_frames::AerodynamicAngleCalculator >(
                 boost::bind( &aerodynamics::FlightConditions::getCurrentBodyCenteredBodyFixedState,
-                             flightConditions ), 1,
+                             flightConditions ),
+                boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ), 1,
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
     flightConditions->setAerodynamicAngleCalculator( aerodynamicAngleCalculator );
 
