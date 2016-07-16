@@ -77,6 +77,7 @@ public:
      */
     AerodynamicAngleCalculator(
             const boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction,
+            const boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
             const bool calculateVerticalToAerodynamicFrame = 0,
             const boost::function< double( ) > angleOfAttackFunction =
             boost::lambda::constant ( 0.0 ),
@@ -88,6 +89,7 @@ public:
             boost::function< void( const double ) >( ) ):
         DependentOrientationCalculator( ),
         bodyFixedStateFunction_( bodyFixedStateFunction ),
+        rotationFromCorotatingToInertialFrame_( rotationFromCorotatingToInertialFrame ),
         calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
         angleOfAttackFunction_( angleOfAttackFunction ),
         angleOfSideslipFunction_( angleOfSideslipFunction ),
@@ -170,12 +172,6 @@ public:
 
     }
 
-    void setRotationFromCorotatingToInertialFrame(
-            const boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame )
-    {
-        rotationFromCorotatingToInertialFrame_ = rotationFromCorotatingToInertialFrame;
-    }
-
     boost::function< Eigen::Quaterniond( ) >  getRotationFromCorotatingToInertialFrame(  )
     {
         return rotationFromCorotatingToInertialFrame_;
@@ -192,10 +188,10 @@ private:
     std::map< std::pair< AerodynamicsReferenceFrames, AerodynamicsReferenceFrames >,
     Eigen::Quaterniond > currentRotationMatrices_;
 
-    boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame_;
-
     //! Current body-fixed state of vehicle, as set by previous call to update( ).
     basic_mathematics::Vector6d currentBodyFixedState_;
+
+    Eigen::Quaterniond currentRotationFromCorotatingToInertialFrame_;
 
     //! Vehicle state in a frame fixed w.r.t. the central body.
     /*!
@@ -203,6 +199,8 @@ private:
      *  Note that this state is w.r.t. the body itself, not w.r.t. the local atmosphere
      */
     boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction_;
+
+    boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame_;
 
     //! Boolean to determine whether to determine vertical <-> aerodynamic frame conversion
     //! when calling update function.
@@ -238,9 +236,54 @@ boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
 getAerodynamicForceTransformationFunction(
         const boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
-        const boost::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
-        boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
+
+
+class AerodynamicAnglesClosure
+{
+public:
+    AerodynamicAnglesClosure(
+            const boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
+            const boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator ):
+        imposedRotationFromInertialToBodyFixedFrame_( imposedRotationFromInertialToBodyFixedFrame ),
+        aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
+    { }
+
+    void updateAngles( const double currentTime );
+
+    double getCurrentAngleOfAttack( )
+    {
+        return currentAngleOfAttack_;
+    }
+
+    double getCurrentAngleOfSideslip( )
+    {
+        return currentAngleOfSideslip_;
+    }
+
+    double getCurrentBankAngle( )
+    {
+        return currentBankAngle_;
+    }
+
+private:
+    boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame_;
+
+    boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
+
+    double currentAngleOfAttack_;
+
+    double currentAngleOfSideslip_;
+
+    double currentBankAngle_;
+
+     Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_;
+};
+
+
+void setAerodynamicDependentOrientationCalculatorClosure(
+        const boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
+        boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
 void setAerodynamicDependentOrientationCalculatorClosure(
             boost::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,

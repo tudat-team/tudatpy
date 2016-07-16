@@ -14,6 +14,7 @@
 #include <string>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 
 namespace tudat
 {
@@ -39,7 +40,11 @@ enum PropagationDependentVariables
     total_acceleration_dependent_variable = 11,
     single_acceleration_dependent_variable = 12,
     aerodynamic_force_coefficients_dependent_variable = 13,
-    aerodynamic_moment_coefficients_dependent_variable = 14
+    aerodynamic_moment_coefficients_dependent_variable = 14,
+    rotation_matrix_to_body_fixed_frame_variable = 15,
+    intermediate_aerodynamic_rotation_matrix_variable = 16,
+    relative_body_aerodynamic_orientation_angle_variable = 17,
+    body_fixed_airspeed_based_velocity_variable = 18
 
 };
 
@@ -109,6 +114,36 @@ public:
     //! Boolean denoting whether to use the norm (if true) or the vector (if false) of the acceleration.
     basic_astrodynamics::AvailableAcceleration accelerationModeType_;
 
+};
+
+class IntermediateAerodynamicRotationVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    IntermediateAerodynamicRotationVariableSaveSettings(
+            const std::string& associatedBody,
+            const reference_frames::AerodynamicsReferenceFrames baseFrame,
+            const reference_frames::AerodynamicsReferenceFrames targetFrame ):
+        SingleDependentVariableSaveSettings( intermediate_aerodynamic_rotation_matrix_variable, associatedBody ),
+        baseFrame_( baseFrame ), targetFrame_( targetFrame ){ }
+
+    reference_frames::AerodynamicsReferenceFrames baseFrame_;
+
+    reference_frames::AerodynamicsReferenceFrames targetFrame_;
+
+};
+
+class BodyAerodynamicAngletVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    BodyAerodynamicAngletVariableSaveSettings(
+            const std::string& associatedBody,
+            const reference_frames::AerodynamicsReferenceFrameAngles angle ):
+        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody ),
+        angle_( angle ){ }
+
+    reference_frames::AerodynamicsReferenceFrameAngles angle_;
 };
 
 //addAllFlightConditionsDependentVariables

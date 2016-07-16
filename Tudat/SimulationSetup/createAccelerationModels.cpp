@@ -695,7 +695,6 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
             reference_frames::getAerodynamicForceTransformationFunction(
                 bodyFlightConditions->getAerodynamicAngleCalculator( ),
                 accelerationFrame,
-                boost::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
 
     boost::function< Eigen::Vector3d( ) > coefficientFunction =
@@ -778,8 +777,11 @@ createThrustAcceleratioModel(
     propagators::addEnvironmentUpdates( totalUpdateSettings, magnitudeUpdateSettings );
     propagators::addEnvironmentUpdates( totalUpdateSettings, directionUpdateSettings );
 
-    bodyMap.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
-
+    if( !( thrustAccelerationSettings->thrustDirectionGuidanceSettings_->thrustDirectionType_ ==
+            thrust_direction_from_existing_body_orientation ) )
+    {
+        bodyMap.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
+    }
     boost::function< void( const double ) > updateFunction =
             boost::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, _1 );
 
@@ -804,8 +806,6 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
         const std::string& nameOfCentralBody,
         const NamedBodyMap& bodyMap )
 {
-    std::cout<<"Creating: "<<nameOfBodyUndergoingAcceleration<<" "<<nameOfBodyExertingAcceleration<<" "<<
-               accelerationSettings->accelerationType_ <<std::endl;
     // Declare pointer to return object.
     boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModelPointer;
 

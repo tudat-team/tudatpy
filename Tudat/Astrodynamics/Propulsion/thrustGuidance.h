@@ -12,6 +12,8 @@
 #ifndef THRUSTGUIDANCE_H
 #define THRUSTGUIDANCE_H
 
+#include <iostream>
+
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 
@@ -39,7 +41,6 @@ public:
        return getRotationToGlobalFrame( ).inverse( );
     }
 
-
 protected:
 
 };
@@ -61,15 +62,20 @@ public:
     StateBasedThrustGuidance(
             const boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction,
             const boost::function< basic_mathematics::Vector6d( ) > bodyStateFunction,
-            const std::string& centralBody ):
+            const std::string& centralBody,
+            const boost::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection =
+            boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) ):
         ThrustDirectionGuidance( ),
         thrustDirectionFunction_( thrustDirectionFunction ),
         bodyStateFunction_( bodyStateFunction ),
-        centralBody_( centralBody ){ }
+        centralBody_( centralBody ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
     void updateCalculator( const double time )
     {
         currentThrustDirection_ = thrustDirectionFunction_( bodyStateFunction_( ), time );
+        currentBodyFixedThrustDirection_ = bodyFixedThrustDirection_( time );
+
     }
 
     Eigen::Vector3d getCurrentThrustDirectionInPropagationFrame( )
@@ -79,7 +85,7 @@ public:
 
     Eigen::Quaterniond getRotationToGlobalFrame( )
     {
-        throw std::runtime_error( "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" );
+        throw std::runtime_error( "Error, body-fixed frame to propagation frame not yet implemented for StateBasedThrustGuidance." );
     }
      std::string getCentralBody( )
      {
@@ -94,7 +100,12 @@ protected:
 
     Eigen::Vector3d currentThrustDirection_;
 
+    Eigen::Vector3d currentBodyFixedThrustDirection_;
+
+
     std::string centralBody_;
+
+    boost::function< Eigen::Vector3d( const double ) > bodyFixedThrustDirection_;
 };
 
 class OrientationBasedThrustGuidance: public ThrustDirectionGuidance
@@ -102,37 +113,37 @@ class OrientationBasedThrustGuidance: public ThrustDirectionGuidance
 public:
 
     OrientationBasedThrustGuidance(
-            const boost::function< Eigen::Quaterniond( ) > guidanceBaseFrameToPropagationFrameFunction,
-            const Eigen::Vector3d thrustFrameThrustDirection = -Eigen::Vector3d::UnitX( ) ):
-        ThrustDirectionGuidance( ), guidanceBaseFrameToPropagationFrameFunction_( guidanceBaseFrameToPropagationFrameFunction ),
+            const boost::function< Eigen::Quaterniond( const double ) > thrustFrameToBaseFrameFunction,
+            const Eigen::Vector3d thrustFrameThrustDirection = Eigen::Vector3d::UnitX( ) ):
+        ThrustDirectionGuidance( ), thrustFrameToBaseFrameFunction( thrustFrameToBaseFrameFunction ),
         thrustFrameThrustDirection_(  thrustFrameThrustDirection ){  }
 
     Eigen::Vector3d getCurrentThrustDirectionInPropagationFrame( )
     {
-        return getRotationToGlobalFrame( ) * thrustFrameThrustDirection_;
+       return ( getRotationToGlobalFrame( ) * thrustFrameThrustDirection_ ).normalized( );
     }
 
     Eigen::Quaterniond getRotationToGlobalFrame( )
     {
-        return currentBaseFrameToPropagationFrame_ * currentThrustFrameToBaseFrameRotation_;
+        return currentThrustFrameToBaseFrame_ * currentThrustFrameToBodyFixedFrame.inverse( );
     }
 
     virtual void updateThrustAngles( const double time ) = 0;
 
     void updateCalculator( const double time )
     {
-        currentBaseFrameToPropagationFrame_ = guidanceBaseFrameToPropagationFrameFunction_( );
+        currentThrustFrameToBaseFrame_ = thrustFrameToBaseFrameFunction( time );
 
         updateThrustAngles( time );
     }
 
 protected:
 
-    boost::function< Eigen::Quaterniond( ) > guidanceBaseFrameToPropagationFrameFunction_;
+    boost::function< Eigen::Quaterniond( const double ) > thrustFrameToBaseFrameFunction;
 
-    Eigen::Quaterniond currentThrustFrameToBaseFrameRotation_;
+    Eigen::Quaterniond currentThrustFrameToBodyFixedFrame;
 
-    Eigen::Quaterniond currentBaseFrameToPropagationFrame_;
+    Eigen::Quaterniond currentThrustFrameToBaseFrame_;
 
     Eigen::Vector3d thrustFrameThrustDirection_;
 
@@ -143,22 +154,21 @@ class DirectOrientationBasedThrustGuidance: public OrientationBasedThrustGuidanc
 public:
 
     DirectOrientationBasedThrustGuidance(
-            const boost::function< Eigen::Quaterniond( const double ) > guidanceThrustFrameToBaseFrameFunction,
-            const boost::function< Eigen::Quaterniond( ) > guidanceBaseFrameToPropagationFrameFunction =
+            const boost::function< Eigen::Quaterniond( const double ) > thrustFrameToBaseFrameFunction,
+            const boost::function< Eigen::Quaterniond( const double ) > thrustFrameToBodyFixedFrameFunction =
             boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-            const Eigen::Vector3d thrustFrameThrustDirection = -Eigen::Vector3d::UnitX( ) ):
-        OrientationBasedThrustGuidance( guidanceBaseFrameToPropagationFrameFunction, thrustFrameThrustDirection ),
-    guidanceThrustFrameToBaseFrameFunction_( guidanceThrustFrameToBaseFrameFunction ){  }
+            const Eigen::Vector3d thrustFrameThrustDirection = Eigen::Vector3d::UnitX( ) ):
+        OrientationBasedThrustGuidance( thrustFrameToBaseFrameFunction, thrustFrameThrustDirection ),
+    thrustFrameToBodyFixedFrameFunction_( thrustFrameToBodyFixedFrameFunction ){  }
 
     virtual void updateThrustAngles( const double time )
     {
-        currentThrustFrameToBaseFrameRotation_ = guidanceThrustFrameToBaseFrameFunction_( time );
+        currentThrustFrameToBodyFixedFrame = thrustFrameToBodyFixedFrameFunction_( time );
     }
 
 private:
 
-    boost::function< Eigen::Quaterniond(  const double ) > guidanceThrustFrameToBaseFrameFunction_;
-
+    boost::function< Eigen::Quaterniond( const double ) > thrustFrameToBodyFixedFrameFunction_;
 
 };
 
