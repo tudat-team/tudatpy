@@ -356,7 +356,7 @@ private:
 
                         if( addUpdate )
                         {
-                            updateTimeFunctionList_[ body_mass_update ].push_back(
+                            currentStateFromEnvironmentList_[ body_mass_update ].insert(
                                         std::make_pair( currentBodies.at( i ),
                                                         boost::bind( &simulation_setup::Body::updateMass,
                                                                      bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
@@ -487,23 +487,24 @@ private:
                             boost::function< void( const TimeType ) > >::iterator
             currentStateFromEnvironmentIterator_;
 
-    //! List of time-independent functions to call to update the environment.
-    std::map< EnvironmentModelsToUpdate,
-              std::vector< std::pair< std::string, boost::function< void( ) > > > > updateFunctionList_;
+   //! List of time-independent functions to call to update the environment.
+     std::map< EnvironmentModelsToUpdate,
+               std::vector< std::pair< std::string, boost::function< void( ) > > > > updateFunctionList_;
 
-    //! Predefined iterator for computational efficiency.
-    std::map< EnvironmentModelsToUpdate,
-              std::vector< std::pair< std::string, boost::function< void( ) > > > >::iterator
-            updateFunctionIterator;
+     //! Predefined iterator for computational efficiency.
+     std::map< EnvironmentModelsToUpdate,
+               std::vector< std::pair< std::string, boost::function< void( ) > > > >::iterator
+             updateFunctionIterator;
 
-    //! List of time-dependent functions to call to update the environment.
-    std::map< EnvironmentModelsToUpdate,
-              std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
-            updateTimeFunctionList_;
+     //! List of time-dependent functions to call to update the environment.
+     std::map< EnvironmentModelsToUpdate,
+               std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
+             updateTimeFunctionList_;
 
-    //! Predefined environment model iterator for computational efficiency.
-    std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
-    ::iterator updateTimeIterator;
+     //! Predefined environment model iterator for computational efficiency.
+     std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
+     ::iterator updateTimeIterator;
+
 
 
     //! Predefined state history iterator for computational efficiency.

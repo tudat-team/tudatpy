@@ -484,7 +484,6 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         // Set initial state
         basic_mathematics::Vector6d systemInitialState = basic_mathematics::Vector6d::Zero( );
 
-
         systemInitialState( 0 ) = 6.8E6;
         systemInitialState( 4 ) = 7.5E3;
 
@@ -648,7 +647,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                 {
                     BOOST_CHECK_SMALL(
                                 std::fabs( thrustForceInBodyFrame( j ) - bodyFixedThrustDirection( j ) *
-                                           thrustAcceleration ), 1.0E-15 );
+                                           thrustAcceleration ), 1.0E-14 );
                 }
             }
             else if( includeThrustForce && imposeThrustDirection )

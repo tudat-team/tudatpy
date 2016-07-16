@@ -181,47 +181,48 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
     using namespace basic_mathematics;
     using namespace basic_astrodynamics;
 
-    // Create Earth object
-    simulation_setup::NamedBodyMap bodyMap;
-
-    // Create vehicle objects.
-    double vehicleMass = 5.0E3;
-    double dryVehicleMass = 2.0E3;
-
-    bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
-    bodyMap[ "Vehicle" ]->setEphemeris(
-                boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
-                    "SSB" ) );
-
-
-    double thrustMagnitude1 = 1.0E3;
-    double specificImpulse1 = 250.0;
-    double massFlow1 = propulsion::computePropellantMassRateFromSpecificImpulse(
-                thrustMagnitude1, specificImpulse1 );
-
-
-    double thrustMagnitude2 = 2.0E3;
-    double specificImpulse2 = 300.0;
-    double massFlow2 = propulsion::computePropellantMassRateFromSpecificImpulse(
-                thrustMagnitude2, specificImpulse2 );
-
-    boost::shared_ptr< system_models::VehicleSystems > vehicleSystems = boost::make_shared<
-            system_models::VehicleSystems >( dryVehicleMass );
-    boost::shared_ptr< system_models::EngineModel > vehicleEngineModel1 =
-            boost::make_shared< system_models::DirectEngineModel >( specificImpulse1, boost::lambda::constant( massFlow1 ) );
-    boost::shared_ptr< system_models::EngineModel > vehicleEngineModel2 =
-            boost::make_shared< system_models::DirectEngineModel >( specificImpulse2, boost::lambda::constant( massFlow2 ) );
-    vehicleSystems->setEngineModel( vehicleEngineModel1, "Engine1" );
-    vehicleSystems->setEngineModel( vehicleEngineModel2, "Engine2" );
-    bodyMap.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
-
-    // Finalize body creation.
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     for( unsigned int i = 0; i < 4; i++ )
     {
+        // Create Earth object
+        simulation_setup::NamedBodyMap bodyMap;
+
+        // Create vehicle objects.
+        double vehicleMass = 5.0E3;
+        double dryVehicleMass = 2.0E3;
+
+        bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+        bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+        bodyMap[ "Vehicle" ]->setEphemeris(
+                    boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, basic_mathematics::Vector6d  > >( ),
+                        "SSB" ) );
+
+
+        double thrustMagnitude1 = 1.0E3;
+        double specificImpulse1 = 250.0;
+        double massFlow1 = propulsion::computePropellantMassRateFromSpecificImpulse(
+                    thrustMagnitude1, specificImpulse1 );
+
+
+        double thrustMagnitude2 = 2.0E3;
+        double specificImpulse2 = 300.0;
+        double massFlow2 = propulsion::computePropellantMassRateFromSpecificImpulse(
+                    thrustMagnitude2, specificImpulse2 );
+
+        boost::shared_ptr< system_models::VehicleSystems > vehicleSystems = boost::make_shared<
+                system_models::VehicleSystems >( dryVehicleMass );
+        boost::shared_ptr< system_models::EngineModel > vehicleEngineModel1 =
+                boost::make_shared< system_models::DirectEngineModel >( specificImpulse1, boost::lambda::constant( massFlow1 ) );
+        boost::shared_ptr< system_models::EngineModel > vehicleEngineModel2 =
+                boost::make_shared< system_models::DirectEngineModel >( specificImpulse2, boost::lambda::constant( massFlow2 ) );
+        vehicleSystems->setEngineModel( vehicleEngineModel1, "Engine1" );
+        vehicleSystems->setEngineModel( vehicleEngineModel2, "Engine2" );
+        bodyMap.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
+
+        // Finalize body creation.
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
         // Define propagator settings variables.
         SelectedAccelerationMap accelerationMap;
         std::vector< std::string > bodiesToPropagate;
