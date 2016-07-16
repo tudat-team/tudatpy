@@ -60,11 +60,12 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 }
                 case body_rotational_state_update:
                 {
-                    if( bodyMap.at( updateIterator->second.at( i ) )->
-                        getRotationalEphemeris( ) == NULL )
+                    if( ( bodyMap.at( updateIterator->second.at( i ) )->
+                        getRotationalEphemeris( ) == NULL ) &&
+                            ( bodyMap.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == NULL ) )
                     {
                         throw std::runtime_error(
-                            "Error when making environment model update settings, could not find rotational ephemeris of body "
+                            "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
                             + boost::lexical_cast< std::string>( updateIterator->second.at( i ) ) );
                     }
                     break;

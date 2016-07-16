@@ -505,7 +505,7 @@ public:
             }
             else
             {
-                throw std::runtime_error( "Error, cannot reset dependentOrientationCalculator, incompatibel object already exists" );
+                std::cerr<< "Error, cannot reset dependentOrientationCalculator, incompatibel object already exists" <<std::endl;
             }
         }
         else
