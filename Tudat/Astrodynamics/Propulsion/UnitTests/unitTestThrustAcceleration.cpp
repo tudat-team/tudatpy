@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                        boost::make_shared< CustomThrustDirectionSettings >(
                                                            boost::lambda::constant( thrustDirection ) ),
-                                                       boost::make_shared< ConstantThrustMagnitudeSettings >(
+                                                       boost::make_shared< ConstantThrustEngineSettings >(
                                                            thrustMagnitude, specificImpulse ) ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -169,6 +169,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
             }
         }
     }
+    std::cout<<"Finished test 1"<<std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
@@ -240,7 +241,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                                boost::make_shared< CustomThrustDirectionSettings >(
                                                                    boost::lambda::constant( thrustDirection ) ),
-                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                               boost::make_shared< FromBodyThrustEngineSettings >(
                                                                    1, "" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             break;
@@ -250,7 +251,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                                boost::make_shared< CustomThrustDirectionSettings >(
                                                                    boost::lambda::constant( thrustDirection ) ),
-                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                               boost::make_shared< FromBodyThrustEngineSettings >(
                                                                    0, "Engine1" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             break;
@@ -260,7 +261,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                                boost::make_shared< CustomThrustDirectionSettings >(
                                                                    boost::lambda::constant( thrustDirection ) ),
-                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                               boost::make_shared< FromBodyThrustEngineSettings >(
                                                                    0, "Engine2" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             break;
@@ -270,12 +271,12 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                                boost::make_shared< CustomThrustDirectionSettings >(
                                                                    boost::lambda::constant( thrustDirection ) ),
-                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                               boost::make_shared< FromBodyThrustEngineSettings >(
                                                                    0, "Engine1" ) ) );
             accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                                boost::make_shared< CustomThrustDirectionSettings >(
                                                                    boost::lambda::constant( thrustDirection ) ),
-                                                               boost::make_shared< FromEngineThrustMagnitudeSettings >(
+                                                               boost::make_shared< FromBodyThrustEngineSettings >(
                                                                    0, "Engine2" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             break;
@@ -379,6 +380,8 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         }
     }
+
+    std::cout<<"Finished test 2"<<std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
@@ -445,7 +448,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                            boost::make_shared< ThrustDirectionFromStateGuidanceSettings >(
                                                                "Earth", isThurstInVelocityDirection, 1  ),
-                                                           boost::make_shared< ConstantThrustMagnitudeSettings >(
+                                                           boost::make_shared< ConstantThrustEngineSettings >(
                                                                thrustMagnitude, specificImpulse ) ) );
         if( i == 1 )
         {
@@ -541,12 +544,15 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
             for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
                  numericalSolution.begin( ); outputIterator != numericalSolution.end( ); outputIterator++ )
             {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( -1.0 * thrustMagnitude / vehicleMass * outputIterator->second.segment( 3, 3 ).normalized( ) ),
                                                    ( dependentVariableSolution.at( outputIterator->first ) ), 1.0E-14 );
 
             }
         }
     }
+
+    std::cout<<"Finished test 3"<<std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
@@ -598,12 +604,14 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     std::vector< std::string > centralBodies;
 
     // Define acceleration model settings.
+    Eigen::Vector3d bodyFixedThrustDirection = ( Eigen::Vector3d( ) << 1.4, 3.1, -0.5 ).finished( ).normalized( );
+
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
                                                        boost::make_shared< ThrustDirectionGuidanceSettings >(
                                                            thrust_direction_from_existing_body_orientation, "Earth" ),
-                                                       boost::make_shared< ConstantThrustMagnitudeSettings >(
-                                                           thrustMagnitude, specificImpulse ) ) );
+                                                       boost::make_shared< ConstantThrustEngineSettings >(
+                                                           thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
     accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -650,7 +658,6 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
             dynamicsSimulator.getDependentVariableHistory( );
 
-    Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( );
     double thrustAcceleration = thrustMagnitude / vehicleMass;
     Eigen::Quaterniond rotationToInertialFrame;
     for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =
@@ -658,11 +665,16 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     {
         rotationToInertialFrame = bodyMap.at( "Vehicle" )->getRotationalEphemeris( )->getRotationToBaseFrame(
                     outputIterator->first );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    ( thrustAcceleration * ( rotationToInertialFrame * bodyFixedThrustDirection ) ),
-                    outputIterator->second, 1.0E-15 );
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION(
+                        ( thrustAcceleration * ( rotationToInertialFrame * bodyFixedThrustDirection )( i ) ),
+                        outputIterator->second( i ), 2.0E-15 );
+        }
 
     }
+    std::cout<<"Finished test 4"<<std::endl;
+
 }
 
 

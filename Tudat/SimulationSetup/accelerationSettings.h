@@ -146,7 +146,7 @@ public:
      */
     ThrustAccelerationSettings(
             const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
-            const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings):
+            const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
         thrustMagnitudeSettings_( thrustMagnitudeSettings ){ }
@@ -156,7 +156,7 @@ public:
 
     boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;
 
-    boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings_;
+    boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
 };
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the

@@ -12,6 +12,7 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
+        const boost::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
 {
     boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustGuidance;
@@ -64,7 +65,8 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
             }
 
             thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
-                        thrustDirectionFunction, stateFunction, thrustDirectionFromStateGuidanceSettings->relativeBody_ );
+                        thrustDirectionFunction, stateFunction, thrustDirectionFromStateGuidanceSettings->relativeBody_,
+                        bodyFixedThrustOrientation );
         }
         break;
    }
@@ -79,9 +81,9 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
            rotationFunction = boost::bind(
                        &simulation_setup::Body::getCurrentRotationToGlobalFrame,
                        bodyWithGuidance );
-           magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
 
            magnitudeUpdateSettings[ propagators::vehicle_flight_conditions_update ].push_back( nameOfBodyWithGuidance );
+           magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back(
                        thrustDirectionGuidanceSettings->relativeBody_ );
            magnitudeUpdateSettings[ propagators::body_transational_state_update ].push_back(
@@ -93,15 +95,15 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
                        &simulation_setup::Body::getCurrentRotationToGlobalFrame,
                        bodyWithGuidance );
            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
-
        }
        else
        {
             throw std::runtime_error( "Error, requested thrust orientation from existing model, but no such model found" );
        }
 
-       thrustGuidance =  boost::make_shared< propulsion::DirectOrientationBasedThrustGuidance >(
-                   rotationFunction );
+       thrustGuidance =  boost::make_shared< propulsion::OrientationBasedThrustGuidance >(
+                   rotationFunction, bodyFixedThrustOrientation );
+
        break;
     }
     case custom_thrust_direction:
@@ -121,8 +123,10 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
 
 
             thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
-                        thrustDirectionFunction, boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), "" );
+                        thrustDirectionFunction, boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), "",
+                        bodyFixedThrustOrientation );
         }
+
         break;
     }
     case custom_thrust_orientation:
@@ -136,11 +140,10 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
         }
         else
         {
-            thrustGuidance =  boost::make_shared< propulsion::DirectOrientationBasedThrustGuidance >(
+            thrustGuidance =  boost::make_shared< propulsion::OrientationBasedThrustGuidance >(
                         customThrustOrientationSettings->thrustOrientationFunction_,
-                        boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-                        customThrustOrientationSettings->bodyFixedThrustDirection_ );
-
+                        bodyFixedThrustOrientation );
+            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
         }
         break;
     }
@@ -150,8 +153,123 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
     return thrustGuidance;
 }
 
+Eigen::Vector3d getCombinedThrustDirection(
+        const std::vector< boost::function< Eigen::Vector3d( )> > thrustDirections )
+{
+    Eigen::Vector3d thrustDirection = thrustDirections.at( 0 )( );
+    for( unsigned int i = 1; i < thrustDirections.size( ); i++ )
+    {
+        if( thrustDirections.at( i )( ) != thrustDirection )
+        {
+            throw std::runtime_error( "Error, cannot have independently vectored engines in combined thurst model" );
+        }
+    }
+    return thrustDirection;
+}
+
+
+boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
+        const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
+        const NamedBodyMap& bodyMap,
+        const std::string bodyName )
+{
+    boost::function< Eigen::Vector3d( ) > thrustDirectionFunction;
+    switch( thrustMagnitudeSettings->thrustMagnitudeGuidanceType_ )
+    {
+    case constant_thrust_magnitude:
+    {
+        boost::shared_ptr< ConstantThrustEngineSettings > constantThrustMagnitudeSettings =
+                boost::dynamic_pointer_cast< ConstantThrustEngineSettings >( thrustMagnitudeSettings );
+        if( constantThrustMagnitudeSettings == NULL )
+        {
+            throw std::runtime_error( "Error when creating body-fixed thrust direction of type constant_thrust_magnitude, input is inconsistent" );
+        }
+        else
+        {
+            thrustDirectionFunction = boost::lambda::constant( constantThrustMagnitudeSettings->bodyFixedThrustDirection_ );
+        }
+        break;
+    }
+    case from_engine_properties_thrust_magnitude:
+    {
+        boost::shared_ptr< FromBodyThrustEngineSettings > fromEngineThrustMagnitudeSettings =
+                boost::dynamic_pointer_cast< FromBodyThrustEngineSettings >( thrustMagnitudeSettings );
+
+        if( fromEngineThrustMagnitudeSettings == NULL )
+        {
+            throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, input is inconsistent" );
+        }
+
+        if( bodyMap.at( bodyName )->getVehicleSystems( ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, no vehicle systems found" );
+
+        }
+
+
+        if( fromEngineThrustMagnitudeSettings->useAllEngines_ == false  )
+        {
+            if( ( bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( ).count(
+                      thrustMagnitudeSettings->thrustOriginId_ ) == 0 ) )
+            {
+                throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, no engine of right ID found" );
+            }
+            else
+            {
+                thrustDirectionFunction =
+                        boost::bind( &system_models::EngineModel::getBodyFixedThrustDirection,
+                                     bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( ).at(
+                                thrustMagnitudeSettings->thrustOriginId_ ) );
+            }
+
+        }
+        else
+        {
+            if( ( bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
+            {
+                std::cerr<<"Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude; no engines found: returning 0 thrust"<<std::endl;
+            }
+
+            std::vector< boost::function< Eigen::Vector3d( )> > thrustDirections;
+            std::map< std::string, boost::shared_ptr< system_models::EngineModel > > engineModels =
+                bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( );
+            for( std::map< std::string, boost::shared_ptr< system_models::EngineModel > >::const_iterator engineIterator =
+                 engineModels.begin( ); engineIterator != engineModels.end( ); engineIterator++ )
+            {
+                thrustDirections.push_back(
+                            boost::bind( &system_models::EngineModel::getBodyFixedThrustDirection, engineIterator->second ) );
+            }
+
+            thrustDirectionFunction = boost::bind(
+                        &getCombinedThrustDirection, thrustDirections );
+
+        }
+        break;
+
+    }
+    case thrust_magnitude_from_time_function:
+    {
+        boost::shared_ptr< FromFunctionThrustEngineSettings > fromFunctionThrustMagnitudeSettings =
+                boost::dynamic_pointer_cast< FromFunctionThrustEngineSettings >( thrustMagnitudeSettings );
+        if( fromFunctionThrustMagnitudeSettings == NULL )
+        {
+            throw std::runtime_error( "Error when creating body-fixed thrust direction of type thrust_magnitude_from_time_function, input is inconsistent" );
+        }
+        else
+        {
+            thrustDirectionFunction = boost::lambda::constant( fromFunctionThrustMagnitudeSettings->bodyFixedThrustDirection_ );
+        }
+        break;
+
+    }
+    default:
+        throw std::runtime_error( "Error when creating body-fixed thrust direction, type not identified" );
+    }
+    return thrustDirectionFunction;
+}
+
 boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
-        const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
+        const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
@@ -161,8 +279,8 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
     {
     case constant_thrust_magnitude:
     {
-        boost::shared_ptr< ConstantThrustMagnitudeSettings > constantThrustMagnitudeSettings =
-                boost::dynamic_pointer_cast< ConstantThrustMagnitudeSettings >( thrustMagnitudeSettings );
+        boost::shared_ptr< ConstantThrustEngineSettings > constantThrustMagnitudeSettings =
+                boost::dynamic_pointer_cast< ConstantThrustEngineSettings >( thrustMagnitudeSettings );
         if( constantThrustMagnitudeSettings == NULL )
         {
             throw std::runtime_error( "Error when creating constant thrust magnitude wrapper, input is inconsistent" );
@@ -175,8 +293,8 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
     }
     case from_engine_properties_thrust_magnitude:
     {
-        boost::shared_ptr< FromEngineThrustMagnitudeSettings > fromEngineThrustMagnitudeSettings =
-                boost::dynamic_pointer_cast< FromEngineThrustMagnitudeSettings >( thrustMagnitudeSettings );
+        boost::shared_ptr< FromBodyThrustEngineSettings > fromEngineThrustMagnitudeSettings =
+                boost::dynamic_pointer_cast< FromBodyThrustEngineSettings >( thrustMagnitudeSettings );
 
         if( fromEngineThrustMagnitudeSettings == NULL )
         {
@@ -219,8 +337,8 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
     }
     case thrust_magnitude_from_time_function:
     {
-        boost::shared_ptr< FromFunctionThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings =
-                boost::dynamic_pointer_cast< FromFunctionThrustMagnitudeSettings >( thrustMagnitudeSettings );
+        boost::shared_ptr< FromFunctionThrustEngineSettings > fromFunctionThrustMagnitudeSettings =
+                boost::dynamic_pointer_cast< FromFunctionThrustEngineSettings >( thrustMagnitudeSettings );
         if( fromFunctionThrustMagnitudeSettings == NULL )
         {
             throw std::runtime_error( "Error when creating from-function thrust magnitude wrapper, input is inconsistent" );

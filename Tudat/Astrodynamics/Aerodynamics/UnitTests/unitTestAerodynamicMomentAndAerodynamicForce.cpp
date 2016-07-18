@@ -450,6 +450,8 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
         }
 
+        Eigen::Vector3d bodyFixedThrustDirection = ( Eigen::Vector3d( ) << 1.4, 3.1, -0.5 ).finished( ).normalized( );
+
         if( includeThrustForce )
         {
             if( !imposeThrustDirection )
@@ -458,8 +460,8 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                             boost::make_shared< ThrustAccelerationSettings >(
                                 boost::make_shared< ThrustDirectionGuidanceSettings >(
                                     thrust_direction_from_existing_body_orientation, "Earth" ),
-                                boost::make_shared< ConstantThrustMagnitudeSettings >(
-                                    thrustMagnitude, specificImpulse ) ) );
+                                boost::make_shared< ConstantThrustEngineSettings >(
+                                    thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
             }
             else
             {
@@ -468,8 +470,8 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                                 boost::make_shared< CustomThrustOrientationSettings >(
                                     boost::bind( spice_interface::computeRotationQuaternionBetweenFrames,
                                                      "IAU_Mars", "IAU_Earth", _1 ) ),
-                                boost::make_shared< ConstantThrustMagnitudeSettings >(
-                                    thrustMagnitude, specificImpulse ) ) );
+                                boost::make_shared< ConstantThrustEngineSettings >(
+                                    thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
             }
         }
 
@@ -563,7 +565,6 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
                 bodyMap.at( "Vehicle" )->getRotationalEphemeris( );
 
-        Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( );
         double thrustAcceleration = thrustMagnitude / vehicleMass;
         Eigen::Matrix3d matrixDifference;
         for( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::const_iterator outputIterator =

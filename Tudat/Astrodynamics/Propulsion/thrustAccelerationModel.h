@@ -79,6 +79,7 @@ public:
             currentMassRate_ = -massRateFunction_( );
 
             currentAcceleration_ = currentAccelerationDirection_ * currentThrustMagnitude_ / bodyMassFunction_( );
+
             currentTime_ = currentTime;
         }
 

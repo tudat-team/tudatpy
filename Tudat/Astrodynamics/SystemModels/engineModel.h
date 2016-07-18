@@ -1,9 +1,12 @@
 #ifndef ENGINEMODEL_H
 #define ENGINEMODEL_H
 
+#include <Eigen/Core>
 #include <boost/function.hpp>
 
 #include "Tudat/Astrodynamics/Propulsion/thrustFunctions.h"
+
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -13,6 +16,11 @@ namespace system_models
 class EngineModel
 {
 public:
+
+    EngineModel(
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+       currentThrust_( TUDAT_NAN ),
+       bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
     double getCurrentThrust( )
     {
@@ -25,9 +33,16 @@ public:
 
     virtual double getCurrentMassRate( ) = 0;
 
+    Eigen::Vector3d getBodyFixedThrustDirection( )
+    {
+        return bodyFixedThrustDirection_;
+    }
+
 protected:
 
     double currentThrust_;
+
+    Eigen::Vector3d bodyFixedThrustDirection_;
 
 };
 
@@ -37,7 +52,9 @@ public:
 
     DirectEngineModel(
             const double specificImpulse,
-            const boost::function< double( ) > massFlowFunction ):
+            const boost::function< double( ) > massFlowFunction,
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+        EngineModel( bodyFixedThrustDirection ),
         specificImpulse_( specificImpulse ),
         massFlowFunction_( massFlowFunction )
     { }

@@ -106,6 +106,18 @@ std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::Mass
         const std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > >& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels )
 {
+    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels;
+    for( std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > >::const_iterator settingsIterator =
+         massRateModelSettings.begin( ); settingsIterator != massRateModelSettings.end( ); settingsIterator++)
+    {
+        for( unsigned int i = 0; i < settingsIterator->second.size( ); i++ )
+        {
+        massRateModels[ settingsIterator->first ].push_back(
+                    createMassRateModel( settingsIterator->first, settingsIterator->second.at( i ), bodyMap,
+                                         accelerationModels ) );
+        }
+    }
+    return massRateModels;
 
 }
 
