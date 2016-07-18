@@ -768,6 +768,8 @@ createThrustAcceleratioModel(
 
     boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance = createThrustGuidanceModel(
                 thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust,
+                getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap,
+                                             nameOfBodyUndergoingThrust ),
                 magnitudeUpdateSettings );
     boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
                 thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap, nameOfBodyUndergoingThrust,
@@ -782,6 +784,7 @@ createThrustAcceleratioModel(
     {
         bodyMap.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
     }
+
     boost::function< void( const double ) > updateFunction =
             boost::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, _1 );
     boost::function< void( const double ) > timeResetFunction =

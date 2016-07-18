@@ -62,31 +62,27 @@ public:
 class CustomThrustDirectionSettings: public ThrustDirectionGuidanceSettings
 {
 public:
-   CustomThrustDirectionSettings(
-           const boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction ):
-       ThrustDirectionGuidanceSettings( custom_thrust_direction, "" ),
-     thrustDirectionFunction_( thrustDirectionFunction ){ }
+    CustomThrustDirectionSettings(
+            const boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction ):
+        ThrustDirectionGuidanceSettings( custom_thrust_direction, "" ),
+        thrustDirectionFunction_( thrustDirectionFunction ){ }
 
-   ~CustomThrustDirectionSettings( ){ }
+    ~CustomThrustDirectionSettings( ){ }
 
-   boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction_;
+    boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction_;
 };
 
 class CustomThrustOrientationSettings: public ThrustDirectionGuidanceSettings
 {
 public:
     CustomThrustOrientationSettings(
-            const boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction,
-            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+            const boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction ):
         ThrustDirectionGuidanceSettings( custom_thrust_orientation, "" ),
-        thrustOrientationFunction_( thrustOrientationFunction ),
-        bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
+        thrustOrientationFunction_( thrustOrientationFunction ){ }
 
     ~CustomThrustOrientationSettings( ){ }
 
     boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction_ ;
-
-    Eigen::Vector3d bodyFixedThrustDirection_;
 };
 
 
@@ -94,6 +90,7 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
+        const boost::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 
 enum ThrustMagnitudeTypes
@@ -103,76 +100,88 @@ enum ThrustMagnitudeTypes
     thrust_magnitude_from_time_function
 };
 
-class ThrustMagnitudeSettings
+class ThrustEngineSettings
 {
 public:
-   ThrustMagnitudeSettings(
-           const ThrustMagnitudeTypes thrustMagnitudeGuidanceType,
+    ThrustEngineSettings(
+            const ThrustMagnitudeTypes thrustMagnitudeGuidanceType,
            const std::string& thrustOriginId ):
    thrustMagnitudeGuidanceType_( thrustMagnitudeGuidanceType ),
    thrustOriginId_( thrustOriginId ){ }
 
-   virtual ~ThrustMagnitudeSettings( ){ }
+   virtual ~ThrustEngineSettings( ){ }
 
    ThrustMagnitudeTypes thrustMagnitudeGuidanceType_;
 
    std::string thrustOriginId_;
 };
 
-class ConstantThrustMagnitudeSettings: public ThrustMagnitudeSettings
+class ConstantThrustEngineSettings: public ThrustEngineSettings
 {
 public:
-   ConstantThrustMagnitudeSettings(
+   ConstantThrustEngineSettings(
            const double thrustMagnitude,
-           const double specificImpulse ):
-       ThrustMagnitudeSettings( constant_thrust_magnitude, "" ),
-   thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse ){ }
+           const double specificImpulse,
+           const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+       ThrustEngineSettings( constant_thrust_magnitude, "" ),
+   thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse ),
+   bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
-   ~ConstantThrustMagnitudeSettings( ){ }
+   ~ConstantThrustEngineSettings( ){ }
 
    double thrustMagnitude_;
 
    double specificImpulse_;
+
+   Eigen::Vector3d bodyFixedThrustDirection_;
 };
 
 
-class FromEngineThrustMagnitudeSettings: public ThrustMagnitudeSettings
+class FromBodyThrustEngineSettings: public ThrustEngineSettings
 {
 public:
-    FromEngineThrustMagnitudeSettings(
+    FromBodyThrustEngineSettings(
             const bool useAllEngines = 1,
             const std::string& thrustOrigin = "" ):
-        ThrustMagnitudeSettings( from_engine_properties_thrust_magnitude, thrustOrigin ),
+        ThrustEngineSettings( from_engine_properties_thrust_magnitude, thrustOrigin ),
         useAllEngines_( useAllEngines ){ }
 
     bool useAllEngines_;
 };
 
-class FromFunctionThrustMagnitudeSettings: public ThrustMagnitudeSettings
+class FromFunctionThrustEngineSettings: public ThrustEngineSettings
 {
 public:
-    FromFunctionThrustMagnitudeSettings(
+    FromFunctionThrustEngineSettings(
             const boost::function< double( const double ) > thrustMagnitudeFunction,
             const boost::function< double( const double ) > specificImpulseFunction,
-            const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ):
-        ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ),
+            const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ),
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+        ThrustEngineSettings( thrust_magnitude_from_time_function, "" ),
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
-   isEngineOnFunction_( isEngineOnFunction ){ }
+        isEngineOnFunction_( isEngineOnFunction ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
-   ~FromFunctionThrustMagnitudeSettings( ){ }
+    ~FromFunctionThrustEngineSettings( ){ }
 
 
-   boost::function< double( const double) > thrustMagnitudeFunction_;
+    boost::function< double( const double) > thrustMagnitudeFunction_;
 
-   boost::function< double( const double) > specificImpulseFunction_;
+    boost::function< double( const double) > specificImpulseFunction_;
 
-   boost::function< bool( const double ) > isEngineOnFunction_;
+    boost::function< bool( const double ) > isEngineOnFunction_;
+
+    Eigen::Vector3d bodyFixedThrustDirection_;
 };
 
+boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
+        const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
+        const NamedBodyMap& bodyMap,
+        const std::string bodyName );
 
 boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
-        const boost::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
+        const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
