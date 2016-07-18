@@ -129,6 +129,20 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
                 rotationMatrixToFrameDerivativeFunction( ) );
 }
 
+template< typename StateScalarType >
+Eigen::Matrix< StateScalarType, 6, 1 > transformRelativeStateToFrame(
+        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > stateInBaseFrame,
+        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > centralBodyStateInBaseFrame,
+        const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
+        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
+{
+    return transformStateToFrame< StateScalarType >(
+                stateInBaseFrame( ) - centralBodyStateInBaseFrame( ), rotationToFrameFunction( ),
+                rotationMatrixToFrameDerivativeFunction( ) );
+}
+
+
+
 //! Transform a state (Cartesian position and velocity) from one frame to another.
 /*!
  *  Transform a state (Cartesian position and velocity) from one frame to another, taking into

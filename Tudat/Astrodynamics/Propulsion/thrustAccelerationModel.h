@@ -18,6 +18,8 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdateTypes.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
 
 namespace tudat
 {
@@ -35,6 +37,7 @@ public:
             const boost::function< double( ) > massRateFunction,
             const std::string associatedThroustSource,
             const boost::function< void( const double ) > thrustUpdateFunction,
+            const boost::function< void( const double ) > timeResetFunction,
             const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& requiredModelUpdates =
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
         AccelerationModel< Eigen::Vector3d >( ),
@@ -44,6 +47,7 @@ public:
         massRateFunction_( massRateFunction ),
         associatedThroustSource_( associatedThroustSource ),
         thrustUpdateFunction_( thrustUpdateFunction ),
+        timeResetFunction_( timeResetFunction ),
         requiredModelUpdates_( requiredModelUpdates ){ }
 
     ~ThrustAcceleration( ){ }
@@ -53,12 +57,17 @@ public:
         return currentAcceleration_;
     }
 
+    virtual void resetTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+        timeResetFunction_( currentTime_ );
+    }
+
     void updateMembers( const double currentTime = TUDAT_NAN )
     {
         if( !( currentTime_ == currentTime ) )
         {
             thrustUpdateFunction_( currentTime );
-
             currentAccelerationDirection_ = thrustDirectionFunction_( );
 
             if( ( std::fabs( currentAccelerationDirection_.norm( ) ) - 1.0 ) > 10.0 * std::numeric_limits< double >::epsilon( ) )
@@ -91,7 +100,7 @@ public:
     }
 
 
-private:
+protected:
 
     boost::function< double( ) > thrustMagnitudeFunction_;
 
@@ -112,6 +121,8 @@ private:
     double currentThrustMagnitude_;
 
     double currentMassRate_;
+
+    const boost::function< void( const double ) > timeResetFunction_;
 
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > requiredModelUpdates_;
 };

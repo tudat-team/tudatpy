@@ -192,8 +192,6 @@ public:
     template< typename StateScalarType, typename TimeType >
     Eigen::Matrix< StateScalarType, 6, 1 > getTemplatedStateInBaseFrameFromEphemeris( const TimeType& time );
 
-
-
     //! Get current state.
     /*!
      * Returns the internally stored current state vector.

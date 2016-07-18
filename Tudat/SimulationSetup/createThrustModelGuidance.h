@@ -182,6 +182,10 @@ void updateThrustMagnitudeAndDirection(
         const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
         const double currentTime );
 
+void resetThrustMagnitudeAndDirectionTime(
+        const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+        const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const double currentTime );
 
 }
 

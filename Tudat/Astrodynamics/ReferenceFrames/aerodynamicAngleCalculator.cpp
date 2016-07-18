@@ -34,10 +34,8 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
     currentRotationMatrices_.clear( );
 
     // Get current body-fixed state.
-    if( !( currentBodyFixedState_ == bodyFixedStateFunction_( ) ) ||
-            !( currentTime == currentTime_ ) )
+    if( !( currentTime == currentTime_ ) )
     {
-
         currentBodyFixedState_ = bodyFixedStateFunction_( );
         currentRotationFromCorotatingToInertialFrame_ = rotationFromCorotatingToInertialFrame_( );
 
@@ -66,7 +64,7 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         currentTime_ = currentTime;
     }
 
-    if( updateBodyOrientation )
+    if( updateBodyOrientation  && !( currentBodyAngleTime_ == currentTime ) )
     {
         if( !angleUpdateFunction_.empty( ) )
         {
@@ -87,8 +85,11 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         {
             currentAerodynamicAngles_[ bank_angle ] = bankAngleFunction_( );
         }
+
+        currentBodyAngleTime_ = currentTime;
+
     }
-    else
+    else if( !( currentBodyAngleTime_ == currentTime ) )
     {
         currentAerodynamicAngles_[ angle_of_attack ] = 0.0;
         currentAerodynamicAngles_[ angle_of_sideslip ] = 0.0;
@@ -276,6 +277,7 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
     {
         rotationToFrame = currentRotationMatrices_.at( currentRotationPair );
     }
+
     return rotationToFrame;
 }
 

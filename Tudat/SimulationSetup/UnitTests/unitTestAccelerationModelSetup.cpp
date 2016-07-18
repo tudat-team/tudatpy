@@ -657,6 +657,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
                     boost::lambda::constant( bankAngle ) );
 
         // Update flight conditions
+        vehicleFlightConditions->resetCurrentTime( TUDAT_NAN );
         vehicleFlightConditions->updateConditions( testTime );
 
         // Calculate Mach number

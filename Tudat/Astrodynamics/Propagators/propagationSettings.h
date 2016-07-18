@@ -322,6 +322,25 @@ public:
             const double printInterval = TUDAT_NAN ):
         PropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                dependentVariablesToSave, printInterval ),
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate )
+    {
+        for( std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator massRateIterator =
+             massRateModels.begin( ); massRateIterator != massRateModels.end( ); massRateIterator++ )
+        {
+            massRateModels_[ massRateIterator->first ].push_back( massRateIterator->second );
+        }
+    }
+
+    MassPropagatorSettings(
+            const std::vector< std::string > bodiesWithMassToPropagate,
+            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+            const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+            const double printInterval = TUDAT_NAN ):
+        PropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
+                                               dependentVariablesToSave, printInterval ),
         bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
     { }
 
@@ -329,7 +348,7 @@ public:
     std::vector< std::string > bodiesWithMassToPropagate_;
 
     //! List of mass rate models per propagated body.
-    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels_;
+    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
 };
 
 //! Function to retrieve the state size for a list of propagator settings.

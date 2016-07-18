@@ -446,6 +446,13 @@ public:
         return getRotationToGlobalFrame( );
     }
 
+    virtual void resetDerivedClassTime( const double currentTime = TUDAT_NAN ){ }
+
+    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+        resetDerivedClassTime( currentTime );
+    }
 
 protected:
 

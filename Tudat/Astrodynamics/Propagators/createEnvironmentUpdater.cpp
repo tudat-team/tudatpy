@@ -317,7 +317,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 //! Get list of required environment model update settings from mass rate models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createMassPropagationEnvironmentUpdaterSettings(
-        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+        const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace basic_astrodynamics;
@@ -329,32 +329,35 @@ createMassPropagationEnvironmentUpdaterSettings(
               std::vector< std::string > > singleRateModelUpdateNeeds;
 
     // Iterate over all bodies with mass rate model.
-    for( std::map< std::string, boost::shared_ptr< MassRateModel > >::const_iterator massRateModelIterator =
+    for( std::map< std::string, std::vector< boost::shared_ptr< MassRateModel > > >::const_iterator massRateModelIterator =
          massRateModels.begin( ); massRateModelIterator != massRateModels.end( ); massRateModelIterator++ )
     {
-        singleRateModelUpdateNeeds.clear( );
-
-        // Identify mass rate type and set required environment update settings.
-        AvailableMassRateModels currentAccelerationModelType =
-                getMassRateModelType( massRateModelIterator->second );
-        switch( currentAccelerationModelType )
+        for( unsigned int i = 0; i < massRateModelIterator->second.size( ); i++ )
         {
-        case custom_mass_rate_model:
-            break;
-        case from_thrust_mass_rate_model:
-            break;
-        default:
-            throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
-                                      boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+            singleRateModelUpdateNeeds.clear( );
 
+            // Identify mass rate type and set required environment update settings.
+            AvailableMassRateModels currentAccelerationModelType =
+                    getMassRateModelType( massRateModelIterator->second.at( i ) );
+            switch( currentAccelerationModelType )
+            {
+            case custom_mass_rate_model:
+                break;
+            case from_thrust_mass_rate_model:
+                break;
+            default:
+                throw std::runtime_error( std::string( "Error when setting mass rate model update needs, model type not recognized: " ) +
+                                          boost::lexical_cast< std::string >( currentAccelerationModelType ) );
+
+            }
+
+            // Check whether requested updates are possible.
+            checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
+
+            // Add requested updates of current acceleration model to
+            // full list of environment updates.
+            addEnvironmentUpdates( environmentModelsToUpdate, singleRateModelUpdateNeeds );
         }
-
-        // Check whether requested updates are possible.
-        checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
-
-        // Add requested updates of current acceleration model to
-        // full list of environment updates.
-        addEnvironmentUpdates( environmentModelsToUpdate, singleRateModelUpdateNeeds );
     }
 
     return environmentModelsToUpdate;

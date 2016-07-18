@@ -28,7 +28,8 @@ class ThrustMagnitudeWrapper
 {
 public:
 
-    ThrustMagnitudeWrapper( ){ }
+    ThrustMagnitudeWrapper( ):
+    currentTime_( TUDAT_NAN ){ }
 
     virtual ~ThrustMagnitudeWrapper( ){ }
 
@@ -38,6 +39,14 @@ public:
 
     virtual double getCurrentMassRate( ) = 0;
 
+    void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+    }
+
+protected:
+
+    double currentTime_;
 };
 
 
@@ -49,23 +58,26 @@ public:
             const boost::function< double( const double ) > thrustMagnitudeFunction,
             const boost::function< double( const double ) > specificImpulseFunction,
             const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ):
-    thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-    specificImpulseFunction_( specificImpulseFunction ),
-    isEngineOnFunction_( isEngineOnFunction ),
-    currentThrustMagnitude_( TUDAT_NAN ),
-    currentSpecificImpulse_( TUDAT_NAN ){ }
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ),
+        specificImpulseFunction_( specificImpulseFunction ),
+        isEngineOnFunction_( isEngineOnFunction ),
+        currentThrustMagnitude_( TUDAT_NAN ),
+        currentSpecificImpulse_( TUDAT_NAN ){ }
 
     void update( const double time )
     {
-        if( isEngineOnFunction_( time ) )
+        if( !( currentTime_ = time ) )
         {
-            currentThrustMagnitude_ = thrustMagnitudeFunction_( time );
-            currentSpecificImpulse_ = specificImpulseFunction_( time );
-        }
-        else
-        {
-            currentThrustMagnitude_ = 0.0;
-            currentSpecificImpulse_ = TUDAT_NAN;
+            if( isEngineOnFunction_( time ) )
+            {
+                currentThrustMagnitude_ = thrustMagnitudeFunction_( time );
+                currentSpecificImpulse_ = specificImpulseFunction_( time );
+            }
+            else
+            {
+                currentThrustMagnitude_ = 0.0;
+                currentSpecificImpulse_ = TUDAT_NAN;
+            }
         }
     }
 
@@ -113,19 +125,22 @@ public:
 
     void update( const double time )
     {
-        currentThrust_ = 0.0;
-        currentMassRate_ = 0.0;
-
-        for( unsigned int i = 0; i < engineModels_.size( ); i++ )
+        if( !( currentTime_ = time ) )
         {
-            engineModels_.at( i )->updateEngineModel( time );
-        }
+            currentThrust_ = 0.0;
+            currentMassRate_ = 0.0;
 
-        for( unsigned int i = 0; i < engineModels_.size( ); i++ )
-        {
-            currentThrust_ += engineModels_.at( i )->getCurrentThrust( );
-            currentMassRate_ += engineModels_.at( i )->getCurrentMassRate( );
+            for( unsigned int i = 0; i < engineModels_.size( ); i++ )
+            {
+                engineModels_.at( i )->updateEngineModel( time );
+            }
 
+            for( unsigned int i = 0; i < engineModels_.size( ); i++ )
+            {
+                currentThrust_ += engineModels_.at( i )->getCurrentThrust( );
+                currentMassRate_ += engineModels_.at( i )->getCurrentMassRate( );
+
+            }
         }
     }
 
