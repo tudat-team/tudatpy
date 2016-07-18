@@ -58,7 +58,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
  */
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createMassPropagationEnvironmentUpdaterSettings(
-        const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+        const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
         const simulation_setup::NamedBodyMap& bodyMap );
 
 //! Get list of required environment model update settings from a list of propagation settings.

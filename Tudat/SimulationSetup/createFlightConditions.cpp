@@ -189,34 +189,32 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
             boost::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
     boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
             boost::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
-    boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
-            transformationToCentralBodyFrame =
-            boost::bind(
-                static_cast< basic_mathematics::Vector6d(&)(
-                    const basic_mathematics::Vector6d&,
-                    const boost::function< Eigen::Quaterniond( ) >,
-                    const boost::function< Eigen::Matrix3d( ) > ) >(
-                    &ephemerides::transformStateToFrame ),
-                _1, rotationToFrameFunction,
-                rotationMatrixToFrameDerivativeFunction );
+
+    boost::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = boost::bind( &Body::getState, bodyWithFlightConditions );
+    boost::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = boost::bind( &Body::getState, centralBody );
+
+    boost::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
+            boost::bind( &ephemerides::transformRelativeStateToFrame< double >,
+                         bodyStateFunction, centralBodyStateFunction,
+                         rotationToFrameFunction,
+                         rotationMatrixToFrameDerivativeFunction );
+
+    // Create aerodynamic angles calculator and set in flight conditions.
+    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+            boost::make_shared< reference_frames::AerodynamicAngleCalculator >(
+                relativeBodyFixedStateFunction,
+                boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
+                nameOfBodyExertingAcceleration, 1,
+                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
 
     // Create flight conditions.
     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
             boost::make_shared< aerodynamics::FlightConditions >(
                 centralBody->getAtmosphereModel( ), altitudeFunction,
-                boost::bind( &Body::getState, bodyWithFlightConditions ),
-                boost::bind( &Body::getState, centralBody ),
-                transformationToCentralBodyFrame,
-                bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) );
+                bodyWithFlightConditions->getAerodynamicCoefficientInterface( ), aerodynamicAngleCalculator );
 
-    // Create aerodynamic angles calculator and set in flight conditions.
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
-            boost::make_shared< reference_frames::AerodynamicAngleCalculator >(
-                boost::bind( &aerodynamics::FlightConditions::getCurrentBodyCenteredBodyFixedState,
-                             flightConditions ),
-                boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ), 1,
-                angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
-    flightConditions->setAerodynamicAngleCalculator( aerodynamicAngleCalculator );
+
+
 
     return flightConditions;
 

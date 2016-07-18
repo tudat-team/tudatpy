@@ -78,6 +78,7 @@ public:
     AerodynamicAngleCalculator(
             const boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction,
             const boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
+            const std::string centralBodyName,
             const bool calculateVerticalToAerodynamicFrame = 0,
             const boost::function< double( ) > angleOfAttackFunction =
             boost::lambda::constant ( 0.0 ),
@@ -90,11 +91,13 @@ public:
         DependentOrientationCalculator( ),
         bodyFixedStateFunction_( bodyFixedStateFunction ),
         rotationFromCorotatingToInertialFrame_( rotationFromCorotatingToInertialFrame ),
+        centralBodyName_( centralBodyName ),
         calculateVerticalToAerodynamicFrame_( calculateVerticalToAerodynamicFrame ),
         angleOfAttackFunction_( angleOfAttackFunction ),
         angleOfSideslipFunction_( angleOfSideslipFunction ),
         bankAngleFunction_( bankAngleFunction ),
-        angleUpdateFunction_( angleUpdateFunction ){ }
+        angleUpdateFunction_( angleUpdateFunction ),
+        currentBodyAngleTime_( TUDAT_NAN ){ }
 
     Eigen::Quaterniond getRotationToLocalFrame( )
     {
@@ -178,6 +181,21 @@ public:
     }
 
 
+    std::string getCentralBodyName( )
+    {
+        return centralBodyName_;
+    }
+
+    basic_mathematics::Vector6d getCurrentBodyFixedState( )
+    {
+        return currentBodyFixedState_;
+    }
+
+    void resetDerivedClassTime( const double currentTime = TUDAT_NAN )
+    {
+        currentBodyAngleTime_ = currentTime;
+    }
+
 private:
 
     //! Map of current angles, as calculated by previous call to update( ) function.
@@ -202,6 +220,8 @@ private:
 
     boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame_;
 
+    std::string centralBodyName_;
+
     //! Boolean to determine whether to determine vertical <-> aerodynamic frame conversion
     //! when calling update function.
     bool calculateVerticalToAerodynamicFrame_;
@@ -216,6 +236,8 @@ private:
     boost::function< double( ) > bankAngleFunction_;
 
     boost::function< void( const double ) > angleUpdateFunction_;
+
+    double currentBodyAngleTime_;
 
 };
 

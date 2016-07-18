@@ -17,6 +17,9 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
+#include <boost/tuple/tuple_io.hpp>
 
 #include "Tudat/SimulationSetup/body.h"
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
@@ -101,46 +104,22 @@ public:
                                       " " + boost::lexical_cast< std::string >( integratedStates_.size( ) ) );
         }
 
+        for( unsigned int i = 0; i < resetFunctionVector_.size( ); i++ )
+        {
+            resetFunctionVector_.at( i ).get< 2 >( )( );
+        }
+
         // Set integrated state variables in environment.
         setIntegratedStatesInEnvironment( integratedStatesToSet );
 
         // Set current state from environment for override settings setIntegratedStatesFromEnvironment
         setStatesFromEnvironment( setIntegratedStatesFromEnvironment, currentTime );
 
-        // Set states of bodies which are not numerically integrated .
-        for( outerCurrentStateFromEnvironmentIterator_ = currentStateFromEnvironmentList_.begin( );
-             outerCurrentStateFromEnvironmentIterator_ != currentStateFromEnvironmentList_.end( );
-             outerCurrentStateFromEnvironmentIterator_++ )
-        {
-            for( currentStateFromEnvironmentIterator_ = outerCurrentStateFromEnvironmentIterator_->second.begin( );
-                 currentStateFromEnvironmentIterator_ != outerCurrentStateFromEnvironmentIterator_->second.end( );
-                 currentStateFromEnvironmentIterator_++ )
-            {
-                currentStateFromEnvironmentIterator_->second( currentTime );
-            }
-        }
-
-        // Evaluate update functions (dependent variables of state and time) determined by setUpdateFunctions
-        for( updateFunctionIterator = updateFunctionList_.begin( );
-             updateFunctionIterator != updateFunctionList_.end( );
-             updateFunctionIterator++ )
-        {
-            for( unsigned int i = 0; i < updateFunctionIterator->second.size( ); i++ )
-            {
-                updateFunctionIterator->second[ i ].second( );
-            }
-        }
-
         // Evaluate time-dependent update functions (dependent variables of state and time)
         // determined by setUpdateFunctions
-        for( updateTimeIterator = updateTimeFunctionList_.begin( );
-             updateTimeIterator != updateTimeFunctionList_.end( );
-             updateTimeIterator++ )
+        for( unsigned int i = 0; i < updateFunctionVector_.size( ); i++ )
         {
-            for( unsigned int i = 0; i < updateTimeIterator->second.size( ); i++ )
-            {
-                updateTimeIterator->second[ i ].second( static_cast< double >( currentTime ) );
-            }
+            updateFunctionVector_.at( i ).get< 2 >( )( currentTime );
         }
     }
 
@@ -245,6 +224,101 @@ private:
         }
     }
 
+    void setUpdateFunctionOrder( const int iterationNumber = 0 )
+    {
+        bool rerunUpdateOrder = 0;
+        for( unsigned int i = 0; i < updateFunctionVector_.size( ); i++ )
+        {
+            if( updateFunctionVector_.at( i ).get< 0 >( ) == body_rotational_state_update )
+            {
+                if( bodyList_.at( updateFunctionVector_.at( i ).get< 1 >( ) )->getRotationalEphemeris( ) == NULL )
+                {
+                    boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator =
+                            bodyList_.at( updateFunctionVector_.at( i ).get< 1 >( ) )->getDependentOrientationCalculator( );
+                    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+                            boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                                                    dependentOrientationCalculator );
+                    if( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                                dependentOrientationCalculator ) != NULL )
+                    {
+                        int translationalUpdateIndex = -1;
+                        int rotationalUpdateIndex = -1;
+
+                        for( unsigned int j = 0; j < updateFunctionVector_.size( ); j++ )
+                        {
+                            if( ( updateFunctionVector_.at( j ).get< 0 >( ) == body_transational_state_update ) &&
+                                   ( updateFunctionVector_.at( j ).get< 1 >( ) ==
+                                    aerodynamicAngleCalculator->getCentralBodyName( ) ) )
+                            {
+                                translationalUpdateIndex = j;
+                            }
+
+                            if( ( updateFunctionVector_.at( j ).get< 0 >( ) == body_rotational_state_update ) &&
+                                   ( updateFunctionVector_.at( j ).get< 1 >( ) ==
+                                    aerodynamicAngleCalculator->getCentralBodyName( ) ) )
+                            {
+                                rotationalUpdateIndex = j;
+                            }
+                        }
+
+                        if( ( translationalUpdateIndex == -1 ) || ( rotationalUpdateIndex == -1 )  )
+                        {
+                            throw std::runtime_error(
+                                        "Error when finding update order for AerodynamicAngleCalculator, did not find required updates for central body" );
+                        }
+
+                        if( ( i < rotationalUpdateIndex ) || ( i < translationalUpdateIndex ) )
+                        {
+                            if( i > rotationalUpdateIndex )
+                            {
+                                std::iter_swap( updateFunctionVector_.begin( ) + i,
+                                                updateFunctionVector_.begin( ) + translationalUpdateIndex );
+                                rerunUpdateOrder = 1;
+                                break;
+                            }
+                            else if( i > translationalUpdateIndex )
+                            {
+                                std::iter_swap( updateFunctionVector_.begin( ) + i,
+                                                updateFunctionVector_.begin( ) + rotationalUpdateIndex );
+                                rerunUpdateOrder = 1;
+                                break;
+                            }
+                            else if( translationalUpdateIndex < rotationalUpdateIndex )
+                            {
+                                std::iter_swap( updateFunctionVector_.begin( ) + i,
+                                                updateFunctionVector_.begin( ) + translationalUpdateIndex );
+                                std::iter_swap( updateFunctionVector_.begin( ) + translationalUpdateIndex,
+                                                updateFunctionVector_.begin( ) + rotationalUpdateIndex );
+                                rerunUpdateOrder = 1;
+                                break;
+                            }
+                            else
+                            {
+
+                                std::iter_swap( updateFunctionVector_.begin( ) + i,
+                                                updateFunctionVector_.begin( ) + rotationalUpdateIndex );
+                                std::iter_swap( updateFunctionVector_.begin( ) + rotationalUpdateIndex,
+                                                updateFunctionVector_.begin( ) + translationalUpdateIndex );
+                                rerunUpdateOrder = 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if( iterationNumber > 10000 )
+        {
+            throw std::runtime_error( "Error when finding update order; stuck in infinite loop" );
+        }
+
+        if( rerunUpdateOrder )
+        {
+            setUpdateFunctionOrder( iterationNumber + 1 );
+        }
+    }
+
     //! Function to set the update functions for the environment from the required update settings.
     /*!
      * Function to set the update functions for the environment from the required update settings.
@@ -306,7 +380,7 @@ private:
                                             ::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
                                         bodyList_.at( currentBodies.at( i ) ), _1 );
 
-                            currentStateFromEnvironmentList_[ body_transational_state_update ].insert(
+                            updateTimeFunctionList_[ body_transational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), stateSetFunction ) );
                         }
                         break;
@@ -321,8 +395,18 @@ private:
                                     boost::bind( &simulation_setup::Body
                                                      ::setCurrentRotationalStateToLocalFrameFromEphemeris,
                                                  bodyList_.at( currentBodies.at( i ) ), _1 );
-                            currentStateFromEnvironmentList_[ body_rotational_state_update ].insert(
+                            updateTimeFunctionList_[ body_rotational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
+
+                            if( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) == NULL )
+                            {
+                                resetFunctionVector_.push_back(
+                                            boost::make_tuple(
+                                                body_rotational_state_update, currentBodies.at( i ),
+                                                boost::bind( &reference_frames::DependentOrientationCalculator::
+                                                             resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
+                                                             getDependentOrientationCalculator( ), TUDAT_NAN ) ) );
+                            }
                         }
                         else
                         {
@@ -356,7 +440,7 @@ private:
 
                         if( addUpdate )
                         {
-                            currentStateFromEnvironmentList_[ body_mass_update ].insert(
+                            updateTimeFunctionList_[ body_mass_update ].push_back(
                                         std::make_pair( currentBodies.at( i ),
                                                         boost::bind( &simulation_setup::Body::updateMass,
                                                                      bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
@@ -404,6 +488,13 @@ private:
                                                 &aerodynamics::FlightConditions::updateConditions,
                                                 bodyList_.at( currentBodies.at( i ) )
                                                     ->getFlightConditions( ), _1 ) ) );
+
+                            resetFunctionVector_.push_back(
+                                        boost::make_tuple(
+                                            vehicle_flight_conditions_update, currentBodies.at( i ),
+                                            boost::bind( &aerodynamics::FlightConditions::
+                                                         resetCurrentTime, bodyList_.at( currentBodies.at( i ) )->
+                                                         getFlightConditions( ), TUDAT_NAN ) ) );
                         }
                         else
                         {
@@ -454,6 +545,21 @@ private:
                 }
             }
         }
+
+
+        for( std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string,
+            boost::function< void( const double ) > > > >::iterator updateTimeIterator  = updateTimeFunctionList_.begin( );
+            updateTimeIterator != updateTimeFunctionList_.end( ); updateTimeIterator++ )
+        {
+            for( unsigned int i = 0; i < updateTimeIterator->second.size( ); i++ )
+            {
+                updateFunctionVector_.push_back(
+                            boost::make_tuple( updateTimeIterator->first,  updateTimeIterator->second.at( i ).first,
+                                               updateTimeIterator->second.at( i ).second ) );
+            }
+        }
+
+        setUpdateFunctionOrder( );
     }
 
     //! List of body objects, this list encompasses all environment object in the simulation.
@@ -471,39 +577,15 @@ private:
     std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
     integratedStates_;
 
-    //! List of function to call for updating the state (i.e. translational, rotational, etc.) from
-    //! the environment.
-    std::map< EnvironmentModelsToUpdate,
-              std::multimap< std::string, boost::function< void( const TimeType ) > > >
-    currentStateFromEnvironmentList_;
-
-    //! Predefined iterator for computational efficiency.
-    typename std::map< EnvironmentModelsToUpdate,
-                       std::multimap< std::string, boost::function< void( const TimeType ) > > >::iterator
-            outerCurrentStateFromEnvironmentIterator_;
-
-    //! Predefined iterator for computational efficiency.
-    typename std::multimap< std::string,
-                            boost::function< void( const TimeType ) > >::iterator
-            currentStateFromEnvironmentIterator_;
-
-   //! List of time-independent functions to call to update the environment.
+     //! List of time-dependent functions to call to update the environment (sorted by type).
      std::map< EnvironmentModelsToUpdate,
-               std::vector< std::pair< std::string, boost::function< void( ) > > > > updateFunctionList_;
-
-     //! Predefined iterator for computational efficiency.
-     std::map< EnvironmentModelsToUpdate,
-               std::vector< std::pair< std::string, boost::function< void( ) > > > >::iterator
-             updateFunctionIterator;
+               std::vector< std::pair< std::string, boost::function< void( const double ) > > > > updateTimeFunctionList_;
 
      //! List of time-dependent functions to call to update the environment.
-     std::map< EnvironmentModelsToUpdate,
-               std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
-             updateTimeFunctionList_;
+     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( const double ) > > > updateFunctionVector_;
 
-     //! Predefined environment model iterator for computational efficiency.
-     std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string, boost::function< void( const double ) > > > >
-     ::iterator updateTimeIterator;
+     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( ) > > > resetFunctionVector_;
+
 
 
 

@@ -784,6 +784,8 @@ createThrustAcceleratioModel(
     }
     boost::function< void( const double ) > updateFunction =
             boost::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, _1 );
+    boost::function< void( const double ) > timeResetFunction =
+            boost::bind( &resetThrustMagnitudeAndDirectionTime, thrustMagnitude, thrustDirectionGuidance, _1 );
 
     return boost::make_shared< propulsion::ThrustAcceleration >(
                 boost::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrust, thrustMagnitude ),
@@ -791,7 +793,7 @@ createThrustAcceleratioModel(
                 boost::bind( &Body::getBodyMass, bodyMap.at( nameOfBodyUndergoingThrust ) ),
                 boost::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
                 thrustAccelerationSettings->thrustMagnitudeSettings_->thrustOriginId_,
-                updateFunction, totalUpdateSettings );
+                updateFunction, timeResetFunction, totalUpdateSettings );
 }
 
 

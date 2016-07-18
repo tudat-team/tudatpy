@@ -382,7 +382,11 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     {
         std::cout<<"Run: "<<i<<std::endl;
         // Create Earth object
-        NamedBodyMap bodyMap = createBodies( getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 ) );
+        std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
+                getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );
+        defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+                    basic_mathematics::Vector6d::Zero( ) );
+        NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;

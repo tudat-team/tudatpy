@@ -71,19 +71,15 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
    case thrust_direction_from_existing_body_orientation:
    {
        boost::shared_ptr< Body > bodyWithGuidance = bodyMap.at( nameOfBodyWithGuidance );
-       boost::shared_ptr< Body > relativeBody = bodyMap.at( thrustDirectionGuidanceSettings->relativeBody_ );
-
 
        boost::function< Eigen::Quaterniond( const double ) > rotationFunction;
        if( bodyWithGuidance->getFlightConditions( ) != NULL )
        {
-           boost::shared_ptr< aerodynamics::FlightConditions > bodyFlightConditions =
-                   bodyWithGuidance->getFlightConditions( );
-           boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-                  bodyFlightConditions->getAerodynamicAngleCalculator( );
-           rotationFunction =
-                   boost::bind( &reference_frames::AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames,
-                                angleCalculator, reference_frames::body_frame, reference_frames::inertial_frame );
+
+           rotationFunction = boost::bind(
+                       &simulation_setup::Body::getCurrentRotationToGlobalFrame,
+                       bodyWithGuidance );
+           magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
 
            magnitudeUpdateSettings[ propagators::vehicle_flight_conditions_update ].push_back( nameOfBodyWithGuidance );
            magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back(
@@ -250,6 +246,15 @@ void updateThrustMagnitudeAndDirection(
 {
     thrustMagnitudeWrapper->update( currentTime );
     thrustDirectionGuidance->updateCalculator( currentTime );
+}
+
+void resetThrustMagnitudeAndDirectionTime(
+        const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
+        const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const double currentTime )
+{
+    thrustMagnitudeWrapper->resetCurrentTime( currentTime );
+    thrustDirectionGuidance->resetCurrentTime( currentTime );
 }
 
 
