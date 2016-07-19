@@ -18,7 +18,7 @@ namespace tudat
 namespace propulsion
 {
 
-
+//! Function to compute engine thrust from propellant mass rate and specific impulse
 double computeThrustFromSpecificImpulse(
          const double propellantMassRate, const double specificImpulse )
 {
@@ -26,6 +26,7 @@ double computeThrustFromSpecificImpulse(
 
 }
 
+//! Function to compute propellant mass rate from engine thrust and specific impulse
 double computePropellantMassRateFromSpecificImpulse(
          const double thrustMagnitude, const double specificImpulse )
 {

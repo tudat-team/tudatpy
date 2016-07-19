@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef THRUSTFUNCTIONS_H
-#define THRUSTFUNCTIONS_H
+#ifndef TUDAT_THRUSTFUNCTIONS_H
+#define TUDAT_THRUSTFUNCTIONS_H
 
 namespace tudat
 {
@@ -17,10 +17,23 @@ namespace tudat
 namespace propulsion
 {
 
-
+//! Function to compute engine thrust from propellant mass rate and specific impulse
+/*!
+ * Function to compute engine thrust from propellant mass rate and specific impulse
+ * \param propellantMassRate Propellant mass rate
+ * \param specificImpulse Specific impulse (normalized with g0 from physical_constants namespace)
+ * \return Total engine thrust
+ */
 double computeThrustFromSpecificImpulse(
          const double propellantMassRate, const double specificImpulse );
 
+//! Function to compute propellant mass rate from engine thrust and specific impulse
+/*!
+ * Function to compute propellant mass rate from engine thrust and specific impulse
+ * \param propellantMassRate Total engine thrust
+ * \param specificImpulse Specific impulse (normalized with g0 from physical_constants namespace)
+ * \return Propellant mass rate
+ */
 double computePropellantMassRateFromSpecificImpulse(
          const double thrustMagnitude, const double specificImpulse );
 
