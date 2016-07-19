@@ -503,14 +503,13 @@ public:
             }
             else
             {
-                std::cerr<< "Error, cannot reset dependentOrientationCalculator, incompatibel object already exists" <<std::endl;
+                std::cerr<< "Error, cannot reset dependentOrientationCalculator, incompatible object already exists" <<std::endl;
             }
         }
         else
         {
-
+            dependentOrientationCalculator_ = dependentOrientationCalculator;
         }
-        dependentOrientationCalculator_ = dependentOrientationCalculator;
     }
 
     //! Function to set the shape model of the body.
