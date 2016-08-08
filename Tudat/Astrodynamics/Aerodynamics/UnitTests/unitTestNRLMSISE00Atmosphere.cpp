@@ -1050,13 +1050,13 @@ BOOST_AUTO_TEST_CASE( testMeanFreePath )
     // Verify using data - Logarithmic plot: physics of the Earth's space environment, Gerd W. Prolls (page 29)
     // Test using approximate values obtained from figure
     altitude = 0.0E3 ;
-    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E-7 , 4.0 );
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E-7 , 10.0 );
 
     altitude = 60.0E3 ;
-    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E-3 , 0.8 );
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E-3 , 1.2 );
 
     altitude = 300.0E3 ;
-    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E4 , 0.6 );
+    BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E4 , 0.9 );
 }
 
 
