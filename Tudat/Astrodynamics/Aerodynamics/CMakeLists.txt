@@ -65,9 +65,11 @@ set(AERODYNAMICS_HEADERS
 
 if(USE_NRLMSISE00)
   set(AERODYNAMICS_SOURCES "${AERODYNAMICS_SOURCES}"
-    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00Atmosphere.cpp")
+    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00Atmosphere.cpp"
+    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00InputFunctions.cpp")
   set(AERODYNAMICS_HEADERS "${AERODYNAMICS_HEADERS}"
-    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00Atmosphere.h")
+    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00Atmosphere.h"
+    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00InputFunctions.h")
 endif( )
 
 # Add static libraries.
