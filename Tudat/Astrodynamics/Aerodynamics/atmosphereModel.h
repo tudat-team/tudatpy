@@ -201,68 +201,8 @@ public:
     * \return double mean free path.
     */
     virtual double getMeanFreePath(const double altitude, const double longitude,
-                                   const double latitude, const double time){
-        return TUDAT_NAN;
-    }
-
-    //! Get number densities.
-    /*!
-    * This function returns a vector with number densities for all the components of the gas(air).
-    * The function is not implemented by default and returns null vector if the atmosphere model doesn't implement this function.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return std::vector<double> number densities.
-    */
-    virtual std::vector<double> getNumberDensities(const double altitude, const double longitude,
-                                                   const double latitude, const double time){
-        std::vector<double> null(0);
-        return null;
-    }
-
-    //! Get mean molar mass.
-    /*!
-    * This function returns the mean molar mass at the current location and time.
-    * The function is not implemented by default and returns nan if the atmosphere model doesn't implement this function.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return double meanMolarMass.
-    */
-    virtual double getMeanMolarMass(const double altitude, const double longitude,
-                                    const double latitude, const double time){
-        return TUDAT_NAN;
-    }
-
-    //! Get average number density
-    /*!
-    * This function returns the (unweighted) average number density at the current location and time.
-    * The function is not implemented by default and returns nan if the atmosphere model doesn't implement this function.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return double average number density.
-    */
-    virtual double getAverageNumberDensity(const double altitude, const double longitude,
-                                           const double latitude, const double time){
-        return TUDAT_NAN;
-    }
-
-    //! Get weighted average collision diameter
-    /*!
-    * This function returns the weighted average collision diameter of the gas components at the current location and time.
-    * The function is not implemented by default and returns nan if the atmosphere model doesn't implement this function.
-    * \param altitude Altitude.
-    * \param longitude Longitude.
-    * \param latitude Latitude.
-    * \param time Time.
-    * \return double weighted average collision diameter.
-    */
-    virtual double getWeightedAverageCollisionDiameter(const double altitude, const double longitude,
-                                                       const double latitude, const double time){
+                                   const double latitude, const double time)
+    {
         return TUDAT_NAN;
     }
 
