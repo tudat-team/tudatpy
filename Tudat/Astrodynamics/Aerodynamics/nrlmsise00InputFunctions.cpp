@@ -37,16 +37,31 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 
-//! Tudat library namespace.
+// Tudat library namespace.
 namespace tudat
 {
 namespace aerodynamics
 {
 
+//! Function to convert Eigen::VectorXd to std::vector<double>
+std::vector<double> EigenToStdVector(Eigen::VectorXd vector)
+{
+    std::vector<double> stdVector(vector.rows()) ;
+    for(int i = 0 ; i < vector.rows() ; i++)
+    {
+        stdVector[i] = vector(i) ;
+    }
+    return stdVector;
+}
+
 //! NRLMSISE00Input function
 NRLMSISE00Input nrlmsiseInputFunction(double altitude, double longitude,
                                       double latitude, double time,
-                                      tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap) {
+                                      tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap,
+                                      bool adjustSolarTime,
+                                      double localSolarTime) {
+    using namespace tudat::input_output::solar_activity;
+
     // Declare input data class member
     NRLMSISE00Input nrlmsiseInputData ;
 
@@ -57,6 +72,7 @@ NRLMSISE00Input nrlmsiseInputFunction(double altitude, double longitude,
     // Move not always find, only if day changes
     // Only use datamap with this day + some extra days..
     // Find solar activity data for current date
+
     SolarActivityDataPtr solarActivity = solarActivityMap[ julianDay ] ;
     if(!solarActivity){
         std::cerr << "Solar activity data could not be found for this date.." << std::endl;
@@ -85,9 +101,15 @@ NRLMSISE00Input nrlmsiseInputFunction(double altitude, double longitude,
 
     // Compute local solar time
     // Hrs since begin of the day at longitude 0 (GMT) + Hrs passed at current longitude
-//    nrlmsiseInputData.localSolarTime = 16 ; // use this for unit test
-    nrlmsiseInputData.localSolarTime = nrlmsiseInputData.secondOfTheDay/3600.0
-            + longitude/(tudat::mathematical_constants::PI/12.0);
+    if( adjustSolarTime )
+    {
+        nrlmsiseInputData.localSolarTime = localSolarTime;
+    }
+    else
+    {
+        nrlmsiseInputData.localSolarTime = nrlmsiseInputData.secondOfTheDay/3600.0
+                + longitude/(tudat::mathematical_constants::PI/12.0);
+    }
 
     return nrlmsiseInputData;
 }
