@@ -57,6 +57,8 @@
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
+#include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
+
 #include "tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 
@@ -962,6 +964,8 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest17 )
     }
 }
 
+//! Perform NRLMSISE-00 test 18
+// Check computation of speed of sound
 BOOST_AUTO_TEST_CASE( testSpeedOfSound )
 {
     // Construct model with default properties
@@ -999,6 +1003,8 @@ BOOST_AUTO_TEST_CASE( testSpeedOfSound )
     BOOST_CHECK_CLOSE_FRACTION( speedOfSound , model.getSpeedOfSound(altitude,longitude,latitude,time), 1E-15 );
 }
 
+//! Perform NRLMSISE-00 test 19
+// Check computation of molar mass
 BOOST_AUTO_TEST_CASE( testMolarMass )
 {
     // Construct model with default properties
@@ -1022,6 +1028,8 @@ BOOST_AUTO_TEST_CASE( testMolarMass )
     BOOST_CHECK_CLOSE_FRACTION( model.getMeanMolarMass(altitude,longitude,latitude,time), 18.0E-3 , 3E-2 ); // < 3%
 }
 
+//! Perform NRLMSISE-00 test 20
+// Check computation mean free path
 BOOST_AUTO_TEST_CASE( testMeanFreePath )
 {
     // Construct model with default properties
@@ -1049,6 +1057,97 @@ BOOST_AUTO_TEST_CASE( testMeanFreePath )
 
     altitude = 300.0E3 ;
     BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath(altitude,longitude,latitude,time) , 1.0E4 , 0.6 );
+}
+
+
+//! Perform NRLMSISE-00 test 21 - Test input function
+// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
+// No adjustment values in space weather file are used.
+BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
+{
+
+//    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
+    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
+    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(2030,6,21,8,3,20) ;
+    double time = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
+                    julianDate , tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000) ;
+
+    // std::vector< double > gen_input = boost::assign::list_of(400.0)(-70.0)(60.0)(0.0);
+    double altitude     = 400.0E3       ; // km
+    double longitude    = -70.0 * PI / 180.0  ;
+    double latitude     = 60.0 * PI / 180.0  ;
+
+    // find space weather file
+    std::string cppPath( __FILE__ );
+    std::string folder = cppPath.substr( 0, cppPath.find_last_of("/\\")+1);
+    std::string spaceWeatherFilePath = folder + "swAtmosTestNoAdjust.txt";
+
+    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
+            tudat::input_output::solar_activity::readSolarActivityData(spaceWeatherFilePath) ;
+
+    // Create atmosphere model using NRLMISE00 input function
+    // Local solar time is set to 16.0 to correspond with testing data!
+    boost::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
+            boost::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , true , 16.0 );
+
+    // Create Pointer to NRLMSISE model
+    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
+
+    // Verification data
+    std::vector<double> verificationData = boost::assign::list_of
+            (6.665176904952E+05)(1.138805559752E+08)(1.998210925573E+07)
+            (4.022763585713E+05)(3.557464994516E+03)(4.074713532757E-15)
+            (3.475312399717E+04)(4.095913268293E+06)(2.667273209336E+04)
+            (1.250539943561E+03)(1.241416130019E+03);
+
+    double computedDensity = atmosphereModel.getDensity( altitude , longitude, latitude , time ) ;
+
+    BOOST_CHECK_CLOSE_FRACTION(verificationData[5]*1000 , computedDensity , 1E-11);
+}
+
+//! Perform NRLMSISE-00 test 22 - Test input function
+// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
+// Adjustment values (flux qualifier is 1) in space weather file are used.
+BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
+{
+
+//    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
+    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
+    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay(2030,6,21,8,3,20) ;
+    double time = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
+                    julianDate , tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000) ;
+
+    // std::vector< double > gen_input = boost::assign::list_of(400.0)(-70.0)(60.0)(0.0);
+    double altitude     = 400.0E3       ; // km
+    double longitude    = -70.0 * PI / 180.0  ;
+    double latitude     = 60.0 * PI / 180.0  ;
+
+    // find space weather file
+    std::string cppPath( __FILE__ );
+    std::string folder = cppPath.substr( 0, cppPath.find_last_of("/\\")+1);
+    std::string spaceWeatherFilePath = folder + "swAtmosTestWithAdjust.txt";
+
+    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
+            tudat::input_output::solar_activity::readSolarActivityData(spaceWeatherFilePath) ;
+
+    // Create atmosphere model using NRLMISE00 input function
+    // Local solar time is set to 16.0 to correspond with testing data!
+    boost::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
+            boost::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , true , 16.0 );
+
+    // Create Pointer to NRLMSISE model
+    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
+
+    // Verification data
+    std::vector<double> verificationData = boost::assign::list_of
+            (6.665176904952E+05)(1.138805559752E+08)(1.998210925573E+07)
+            (4.022763585713E+05)(3.557464994516E+03)(4.074713532757E-15)
+            (3.475312399717E+04)(4.095913268293E+06)(2.667273209336E+04)
+            (1.250539943561E+03)(1.241416130019E+03);
+
+    double computedDensity = atmosphereModel.getDensity( altitude , longitude, latitude , time ) ;
+
+    BOOST_CHECK_CLOSE_FRACTION(verificationData[5]*1000 , computedDensity , 1E-11);
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

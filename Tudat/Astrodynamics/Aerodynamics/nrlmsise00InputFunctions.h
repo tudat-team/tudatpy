@@ -55,7 +55,8 @@ namespace aerodynamics
  */
 NRLMSISE00Input nrlmsiseInputFunction(double altitude, double longitude,
                                               double latitude, double time,
-                                              tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap);
+                                              tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap,
+                                      bool adjustSolarTime = false, double localSolarTime = 0.0);
 
 }  // namespace aerodynamics
 }  // namespace tudat
