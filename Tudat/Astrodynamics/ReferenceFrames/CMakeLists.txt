@@ -45,6 +45,7 @@ set(REFERENCEFRAMES_HEADERS
   "${SRCROOT}${REFERENCEFRAMESDIR}/referenceFrameTransformations.h"
   "${SRCROOT}${REFERENCEFRAMESDIR}/apparentAccelerationModel.h"
   "${SRCROOT}${REFERENCEFRAMESDIR}/aerodynamicAngleCalculator.h"
+  "${SRCROOT}${REFERENCEFRAMESDIR}/dependentOrientationCalculator.h"
 )
 
 # Add static libraries.

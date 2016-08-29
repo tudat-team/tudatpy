@@ -300,9 +300,9 @@ class MassPropagatorSettings: public PropagatorSettings< StateScalarType >
 {
 public:
 
-    //! Constructor of mass state propagator settings
+    //! Constructor of mass state propagator settings, with single mass rate model per body.
     /*!
-     * Constructor  of mass state propagator settings
+     * Constructor  of mass state propagator settings, with single mass rate model per body.
      * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
      * \param massRateModels List of mass rate models per propagated body.
      * \param initialBodyMasses Initial masses used as input for numerical integration.
@@ -324,16 +324,29 @@ public:
                                                dependentVariablesToSave, printInterval ),
         bodiesWithMassToPropagate_( bodiesWithMassToPropagate )
     {
-        for( std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator massRateIterator =
-             massRateModels.begin( ); massRateIterator != massRateModels.end( ); massRateIterator++ )
+        for( std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator
+             massRateIterator = massRateModels.begin( ); massRateIterator != massRateModels.end( ); massRateIterator++ )
         {
             massRateModels_[ massRateIterator->first ].push_back( massRateIterator->second );
         }
     }
 
+    //! Constructor of mass state propagator settings
+    /*!
+     * Constructor  of mass state propagator settings
+     * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
+     * \param massRateModels List of mass rate models per propagated body.
+     * \param initialBodyMasses Initial masses used as input for numerical integration.
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
     MassPropagatorSettings(
             const std::vector< std::string > bodiesWithMassToPropagate,
-            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
+            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >
+            massRateModels,
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
             const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =

@@ -224,26 +224,40 @@ private:
         }
     }
 
+    //! Function to set the order in which the updateFunctionVector_ is to be updated.
+    /*!
+     *  Function to set the order in which the updateFunctionVector_ is to be updated. Order is determined recursively in
+     *  this function,  the variable iterationNumber keeps track of the number of nested calls to the function.
+     *  \param iterationNumber Number of subsequent calls to this funtion
+     */
     void setUpdateFunctionOrder( const int iterationNumber = 0 )
     {
         bool rerunUpdateOrder = 0;
+
+        // Iterate over all update functions
         for( unsigned int i = 0; i < updateFunctionVector_.size( ); i++ )
         {
+            // Check if environment model is rotational state.
             if( updateFunctionVector_.at( i ).get< 0 >( ) == body_rotational_state_update )
             {
+                // Check id body has no rotational ephemeris (i.e. if rotation comes from iterationNumber ).
                 if( bodyList_.at( updateFunctionVector_.at( i ).get< 1 >( ) )->getRotationalEphemeris( ) == NULL )
                 {
+                    // Check if DependentOrientationCalculator is an AerodynamicAngleCalculator.
                     boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator =
                             bodyList_.at( updateFunctionVector_.at( i ).get< 1 >( ) )->getDependentOrientationCalculator( );
                     boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
                             boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                                     dependentOrientationCalculator );
+
+                    // Check if properties of AerodynamicAngleCalculator are such that a different update order is warranted.
                     if( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator ) != NULL )
                     {
                         int translationalUpdateIndex = -1;
                         int rotationalUpdateIndex = -1;
 
+                        // Check if the state or orientation of the central body of AerodynamicAngleCalculator is updated.
                         for( unsigned int j = 0; j < updateFunctionVector_.size( ); j++ )
                         {
                             if( ( updateFunctionVector_.at( j ).get< 0 >( ) == body_transational_state_update ) &&
@@ -261,12 +275,15 @@ private:
                             }
                         }
 
+                        // If required updates are not found, throw error.
                         if( ( translationalUpdateIndex == -1 ) || ( rotationalUpdateIndex == -1 )  )
                         {
                             throw std::runtime_error(
                                         "Error when finding update order for AerodynamicAngleCalculator, did not find required updates for central body" );
                         }
 
+                        // Check if rotational and translational state of central body are updated before
+                        // AerodynamicAngleCalculator.
                         if( ( i < rotationalUpdateIndex ) || ( i < translationalUpdateIndex ) )
                         {
                             if( i > rotationalUpdateIndex )
@@ -308,11 +325,13 @@ private:
             }
         }
 
+        // Define escape condition in case of infinite loop.
         if( iterationNumber > 10000 )
         {
             throw std::runtime_error( "Error when finding update order; stuck in infinite loop" );
         }
 
+        // Rerun function if needed.
         if( rerunUpdateOrder )
         {
             setUpdateFunctionOrder( iterationNumber + 1 );
@@ -327,6 +346,9 @@ private:
     void setUpdateFunctions( const std::map< EnvironmentModelsToUpdate,
                              std::vector< std::string > >& updateSettings )
     {
+        std::map< EnvironmentModelsToUpdate,
+                  std::vector< std::pair< std::string, boost::function< void( const double ) > > > > updateTimeFunctionList;
+
         // Iterate over all required updates and set associated update function in lists
         for( std::map< EnvironmentModelsToUpdate,
                        std::vector< std::string > >::const_iterator updateIterator =
@@ -380,7 +402,7 @@ private:
                                             ::setTemplatedStateFromEphemeris< StateScalarType, TimeType >,
                                         bodyList_.at( currentBodies.at( i ) ), _1 );
 
-                            updateTimeFunctionList_[ body_transational_state_update ].push_back(
+                            updateTimeFunctionList[ body_transational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), stateSetFunction ) );
                         }
                         break;
@@ -395,7 +417,7 @@ private:
                                     boost::bind( &simulation_setup::Body
                                                      ::setCurrentRotationalStateToLocalFrameFromEphemeris,
                                                  bodyList_.at( currentBodies.at( i ) ), _1 );
-                            updateTimeFunctionList_[ body_rotational_state_update ].push_back(
+                            updateTimeFunctionList[ body_rotational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
 
                             if( bodyList_.at( currentBodies.at( i ) )->getRotationalEphemeris( ) == NULL )
@@ -440,7 +462,7 @@ private:
 
                         if( addUpdate )
                         {
-                            updateTimeFunctionList_[ body_mass_update ].push_back(
+                            updateTimeFunctionList[ body_mass_update ].push_back(
                                         std::make_pair( currentBodies.at( i ),
                                                         boost::bind( &simulation_setup::Body::updateMass,
                                                                      bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
@@ -457,7 +479,7 @@ private:
                                 (  bodyList_.at( currentBodies.at( i ) )->getGravityFieldModel( ) );
                         if( gravityField != NULL )
                         {
-                            updateTimeFunctionList_[ spherical_harmonic_gravity_field_update ].push_back(
+                            updateTimeFunctionList[ spherical_harmonic_gravity_field_update ].push_back(
                                         std::make_pair(
                                             currentBodies.at( i ),
                                             boost::bind( &gravitation
@@ -482,7 +504,7 @@ private:
                         {
                             // If vehicle has flight conditions, add flight conditions update
                             // function to update list.
-                            updateTimeFunctionList_[ vehicle_flight_conditions_update ].push_back(
+                            updateTimeFunctionList[ vehicle_flight_conditions_update ].push_back(
                                         std::make_pair(
                                             currentBodies.at( i ), boost::bind(
                                                 &aerodynamics::FlightConditions::updateConditions,
@@ -531,7 +553,7 @@ private:
                              ::iterator iterator = radiationPressureInterfaces.begin( );
                              iterator != radiationPressureInterfaces.end( ); iterator++ )
                         {
-                            updateTimeFunctionList_[ radiation_pressure_interface_update ].push_back(
+                            updateTimeFunctionList[ radiation_pressure_interface_update ].push_back(
                                         std::make_pair( currentBodies.at( i ),
                                                         boost::bind(
                                                             &electro_magnetism
@@ -546,10 +568,10 @@ private:
             }
         }
 
-
+        // Create list of update functions.
         for( std::map< EnvironmentModelsToUpdate, std::vector< std::pair< std::string,
-            boost::function< void( const double ) > > > >::iterator updateTimeIterator  = updateTimeFunctionList_.begin( );
-            updateTimeIterator != updateTimeFunctionList_.end( ); updateTimeIterator++ )
+            boost::function< void( const double ) > > > >::iterator updateTimeIterator  = updateTimeFunctionList.begin( );
+            updateTimeIterator != updateTimeFunctionList.end( ); updateTimeIterator++ )
         {
             for( unsigned int i = 0; i < updateTimeIterator->second.size( ); i++ )
             {
@@ -559,6 +581,7 @@ private:
             }
         }
 
+        // Set update order of functions.
         setUpdateFunctionOrder( );
     }
 
@@ -577,13 +600,12 @@ private:
     std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
     integratedStates_;
 
-     //! List of time-dependent functions to call to update the environment (sorted by type).
-     std::map< EnvironmentModelsToUpdate,
-               std::vector< std::pair< std::string, boost::function< void( const double ) > > > > updateTimeFunctionList_;
-
      //! List of time-dependent functions to call to update the environment.
-     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( const double ) > > > updateFunctionVector_;
+     std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( const double ) > > >
+     updateFunctionVector_;
 
+     //! List of time-dependent functions to call to reset the time of the environment (to NaN signal recomputation for next
+     //! time step).
      std::vector< boost::tuple< EnvironmentModelsToUpdate, std::string, boost::function< void( ) > > > resetFunctionVector_;
 
 

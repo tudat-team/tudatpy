@@ -150,7 +150,17 @@ protected:
 //! Typedef for shared-pointer to Ephemeris object.
 typedef boost::shared_ptr< Ephemeris > EphemerisPointer;
 
-basic_mathematics::Vector6d getRelativePosition(
+//! Function to compute the relative state from two state functions.
+/*!
+ *  Function to compute the relative state from two state functions.
+ *  \param relativeState Relative state returned by stateFunctionOfBody w.r.t. state returned by stateFunctionOfCentralBody
+ *  (returned by reference).
+ *  \param stateFunctionOfBody Function returning state of body for which relative state is to be computed.
+ *  \param stateFunctionOfCentralBody Function returning state of central body w.r.t. which the relative state is to be
+ *  computed.
+ */
+void getRelativeState(
+        basic_mathematics::Vector6d& relativeState,
         const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
         const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody );
 

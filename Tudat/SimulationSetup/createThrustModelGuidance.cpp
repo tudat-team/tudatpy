@@ -8,14 +8,14 @@ namespace simulation_setup
 {
 
 
-boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceModel(
+boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
         const boost::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
 {
-    boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustGuidance;
+    boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustGuidance;
 
     switch( thrustDirectionGuidanceSettings->thrustDirectionType_ )
     {
@@ -46,26 +46,26 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
                 centralBodyStateFunction = boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) );
             }
 
-            boost::function< basic_mathematics::Vector6d( ) > stateFunction =
+            boost::function< void( basic_mathematics::Vector6d& ) > stateFunction =
                     boost::bind(
-                        &ephemerides::getRelativePosition, bodyStateFunction, centralBodyStateFunction );
-            boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction;
+                        &ephemerides::getRelativeState, _1, bodyStateFunction, centralBodyStateFunction );
+            boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction;
 
             if( thrustDirectionFromStateGuidanceSettings->isColinearWithVelocity_ )
             {
                 thrustDirectionFunction =
-                        boost::bind( &propulsion::getThrustDirectionColinearWithVelocity, _1, _2,
+                        boost::bind( &propulsion::getForceDirectionColinearWithVelocity, stateFunction, _1,
                                      thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
             }
             else
             {
                 thrustDirectionFunction =
-                        boost::bind( &propulsion::getThrustDirectionColinearWithPosition, _1, _2,
+                        boost::bind( &propulsion::getForceDirectionColinearWithPosition, stateFunction, _1,
                                      thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
             }
 
-            thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
-                        thrustDirectionFunction, stateFunction, thrustDirectionFromStateGuidanceSettings->relativeBody_,
+            thrustGuidance =  boost::make_shared< propulsion::DirectionBasedForceGuidance >(
+                        thrustDirectionFunction, thrustDirectionFromStateGuidanceSettings->relativeBody_,
                         bodyFixedThrustOrientation );
         }
         break;
@@ -101,7 +101,7 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
             throw std::runtime_error( "Error, requested thrust orientation from existing model, but no such model found" );
        }
 
-       thrustGuidance =  boost::make_shared< propulsion::OrientationBasedThrustGuidance >(
+       thrustGuidance =  boost::make_shared< propulsion::OrientationBasedForceGuidance >(
                    rotationFunction, bodyFixedThrustOrientation );
 
        break;
@@ -117,14 +117,12 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
         }
         else
         {
-            boost::function< Eigen::Vector3d( const basic_mathematics::Vector6d&, const double ) > thrustDirectionFunction =
-                    boost::bind( &propulsion::getThrustDirectionFromTimeOnlyFunction,
-                                 _1, _2, customThrustGuidanceSettings->thrustDirectionFunction_ );
+            boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction =
+                    customThrustGuidanceSettings->thrustDirectionFunction_;
 
 
-            thrustGuidance =  boost::make_shared< propulsion::StateBasedThrustGuidance >(
-                        thrustDirectionFunction, boost::lambda::constant( basic_mathematics::Vector6d::Zero( ) ), "",
-                        bodyFixedThrustOrientation );
+            thrustGuidance =  boost::make_shared< propulsion::DirectionBasedForceGuidance >(
+                        thrustDirectionFunction, "", bodyFixedThrustOrientation );
         }
 
         break;
@@ -140,7 +138,7 @@ boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceMod
         }
         else
         {
-            thrustGuidance =  boost::make_shared< propulsion::OrientationBasedThrustGuidance >(
+            thrustGuidance =  boost::make_shared< propulsion::OrientationBasedForceGuidance >(
                         customThrustOrientationSettings->thrustOrientationFunction_,
                         bodyFixedThrustOrientation );
             magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
@@ -359,7 +357,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
 
 void updateThrustMagnitudeAndDirection(
         const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime )
 {
     thrustMagnitudeWrapper->update( currentTime );
@@ -368,7 +366,7 @@ void updateThrustMagnitudeAndDirection(
 
 void resetThrustMagnitudeAndDirectionTime(
         const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime )
 {
     thrustMagnitudeWrapper->resetCurrentTime( currentTime );

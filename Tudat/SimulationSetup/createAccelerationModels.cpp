@@ -750,12 +750,14 @@ createCannonballRadiationPressureAcceleratioModel(\
 
 }
 
+//! Function to create a thrust acceleration model.
 boost::shared_ptr< propulsion::ThrustAcceleration >
 createThrustAcceleratioModel(
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust )
 {
+    // Check input consistency
     boost::shared_ptr< ThrustAccelerationSettings > thrustAccelerationSettings =
             boost::dynamic_pointer_cast< ThrustAccelerationSettings >( accelerationSettings );
     if( thrustAccelerationSettings == NULL )
@@ -766,33 +768,37 @@ createThrustAcceleratioModel(
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > magnitudeUpdateSettings;
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > directionUpdateSettings;
 
-    boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance = createThrustGuidanceModel(
+    // Create thrust direction model.
+    boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance = createThrustGuidanceModel(
                 thrustAccelerationSettings->thrustDirectionGuidanceSettings_, bodyMap, nameOfBodyUndergoingThrust,
                 getBodyFixedThrustDirection( thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap,
-                                             nameOfBodyUndergoingThrust ),
-                magnitudeUpdateSettings );
+                                             nameOfBodyUndergoingThrust ), magnitudeUpdateSettings );
+
+    // Create thrust magnitude model
     boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitude = createThrustMagnitudeWrapper(
                 thrustAccelerationSettings->thrustMagnitudeSettings_, bodyMap, nameOfBodyUndergoingThrust,
                 directionUpdateSettings );
 
+    // Add required updates of environemt models.
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > totalUpdateSettings;
     propagators::addEnvironmentUpdates( totalUpdateSettings, magnitudeUpdateSettings );
     propagators::addEnvironmentUpdates( totalUpdateSettings, directionUpdateSettings );
 
+    // Set DependentOrientationCalculator for body if required.
     if( !( thrustAccelerationSettings->thrustDirectionGuidanceSettings_->thrustDirectionType_ ==
             thrust_direction_from_existing_body_orientation ) )
     {
         bodyMap.at( nameOfBodyUndergoingThrust )->setDependentOrientationCalculator( thrustDirectionGuidance );
     }
 
+    // Create and return thrust acceleration object.
     boost::function< void( const double ) > updateFunction =
             boost::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, _1 );
     boost::function< void( const double ) > timeResetFunction =
             boost::bind( &resetThrustMagnitudeAndDirectionTime, thrustMagnitude, thrustDirectionGuidance, _1 );
-
     return boost::make_shared< propulsion::ThrustAcceleration >(
-                boost::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrust, thrustMagnitude ),
-                boost::bind( &propulsion::ThrustDirectionGuidance::getCurrentThrustDirectionInPropagationFrame, thrustDirectionGuidance ),
+                boost::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrustMagnitude, thrustMagnitude ),
+                boost::bind( &propulsion::BodyFixedForceDirectionGuidance ::getCurrentForceDirectionInPropagationFrame, thrustDirectionGuidance ),
                 boost::bind( &Body::getBodyMass, bodyMap.at( nameOfBodyUndergoingThrust ) ),
                 boost::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentMassRate, thrustMagnitude ),
                 thrustAccelerationSettings->thrustMagnitudeSettings_->thrustOriginId_,
@@ -896,9 +902,9 @@ SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAcceleration
             std::vector< boost::shared_ptr< AccelerationSettings > > accelerationList =
                     body2Iterator->second;
 
+            // Retrieve indices of all acceleration anf thrust models.
             std::vector< int > aerodynamicAccelerationIndex;
             std::vector< int > thrustAccelerationIndices;
-
             for( unsigned int i = 0; i < accelerationList.size( ); i++ )
             {
                 if( accelerationList.at( i )->accelerationType_ == basic_astrodynamics::thrust_acceleration )
@@ -913,6 +919,7 @@ SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAcceleration
 
             std::vector< boost::shared_ptr< AccelerationSettings > > orderedAccelerationList = accelerationList;
 
+            // Put aerodynamic and thrust accelerations in correct order (ensure aerodynamic acceleration created first).
             if( ( thrustAccelerationIndices.size( ) > 0 ) && ( aerodynamicAccelerationIndex.size( ) > 0 ) )
             {
                 if( aerodynamicAccelerationIndex.at( aerodynamicAccelerationIndex.size( ) - 1 ) >
@@ -939,8 +946,7 @@ SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAcceleration
     return orderedAccelerationsPerBody;
 }
 
-//! Function to create a set of acceleration models from a map of bodies and acceleration model
-//! types.
+//! Function to create a set of acceleration models from a map of bodies and acceleration model types.
 AccelerationMap createAccelerationModelsMap(
         const NamedBodyMap& bodyMap,
         const SelectedAccelerationMap& selectedAccelerationPerBody,
@@ -949,6 +955,7 @@ AccelerationMap createAccelerationModelsMap(
     // Declare return map.
     AccelerationMap accelerationModelMap;
 
+    // Put selectedAccelerationPerBody in correct order
     SelectedAccelerationMap orderedAccelerationPerBody =
             orderSelectedAccelerationMap( selectedAccelerationPerBody );
 

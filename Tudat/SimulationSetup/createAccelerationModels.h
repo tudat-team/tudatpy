@@ -302,6 +302,16 @@ createCannonballRadiationPressureAcceleratioModel(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
+//! Function to create a thrust acceleration model.
+/*!
+ *  Function to create a thrust acceleration model. Creates all required
+ *  links to environment models, vehicle properies and frame conversions.
+ *  \param accelerationSettings Settings of thrust acceleration model.
+ *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  objects.
+ *  \param nameOfBodyUndergoingThrust Name of body that is undergoing the thrust acceleration
+ *  \return Pointer to object for calculating thrust acceleration.
+ */
 boost::shared_ptr< propulsion::ThrustAcceleration >
 createThrustAcceleratioModel(
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
@@ -321,6 +331,8 @@ createThrustAcceleratioModel(
  *  calculated (optional, only relevant for third body accelerations).
  *  \param nameOfCentralBody Name of central body in frame cenetered at which acceleration is to
  *  be calculated (optional, only relevant for third body accelerations).
+ *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  objects.
  *  \return Acceleration model pointer.
  */
 boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
@@ -334,6 +346,12 @@ createAccelerationModel(
         const std::string& nameOfCentralBody = "",
         const NamedBodyMap& bodyMap = NamedBodyMap( ) );
 
+//! Function to put SelectedAccelerationMap in correct order, to ensure correct model creation
+/*!
+ * Function to put SelectedAccelerationMap in correct order, to ensure correct model creation
+ * \param selectedAccelerationPerBody List of acceleration settings per body.
+ * \return selectedAccelerationPerBody, put in order to ensure correct model creation.
+ */
 SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.

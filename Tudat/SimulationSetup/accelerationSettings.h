@@ -139,11 +139,7 @@ public:
 class ThrustAccelerationSettings: public AccelerationSettings
 {
 public:
-    //! Constructor, sets type of acceleration.
-    /*!
-     *  Constructor, sets type of acceleration.
-     *  \param accelerationType Type of acceleration from AvailableAcceleration enum.
-     */
+
     ThrustAccelerationSettings(
             const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
             const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings):

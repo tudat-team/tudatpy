@@ -30,7 +30,7 @@ double computeThrustFromSpecificImpulse(
 //! Function to compute propellant mass rate from engine thrust and specific impulse
 /*!
  * Function to compute propellant mass rate from engine thrust and specific impulse
- * \param propellantMassRate Total engine thrust
+ * \param thrustMagnitude Total engine thrust
  * \param specificImpulse Specific impulse (normalized with g0 from physical_constants namespace)
  * \return Propellant mass rate
  */

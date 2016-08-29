@@ -31,11 +31,13 @@ Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( co
     return getCartesianLongStateFromEphemeris( time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 }
 
-basic_mathematics::Vector6d getRelativePosition(
+//! Function to compute the relative state from two state functions.
+void getRelativeState(
+        basic_mathematics::Vector6d& relativeState,
         const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfBody,
         const boost::function< basic_mathematics::Vector6d( ) > stateFunctionOfCentralBody )
 {
-    return stateFunctionOfBody( ) - stateFunctionOfCentralBody( );
+    relativeState = stateFunctionOfBody( ) - stateFunctionOfCentralBody( );
 }
 
 } // namespace ephemerides

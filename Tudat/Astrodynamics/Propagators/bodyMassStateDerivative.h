@@ -41,8 +41,8 @@ public:
 
     //! Constructor
     /*!
-     * Constructor, sets the mass rate models and the bodies that are to be propagated
-     * \param massRateModels Map of models per body that are to be used for the mass rate computation.
+     * Constructor, sets the mass rate models and the bodies that are to be propagated (single mass rate model per body).
+     * \param massRateModels Map of model per body that is to be used for the mass rate computation.
      * \param bodiesToIntegrate List of bodies for which the mass is to be propagated. Note that this vector have
      * more entries than the massRateModels map, as a body's mass can be 'propagated' with no rate model (i.e. constant
      * mass).
@@ -54,8 +54,17 @@ public:
             propagators::body_mass_state ),
         massRateModels_( massRateModels ), bodiesToIntegrate_( bodiesToIntegrate ){ }
 
+    //! Constructor
+    /*!
+     * Constructor, sets the mass rate models and the bodies that are to be propagated.
+     * \param massRateModels Map of models per body that are to be used for the mass rate computation.
+     * \param bodiesToIntegrate List of bodies for which the mass is to be propagated. Note that this vector have
+     * more entries than the massRateModels map, as a body's mass can be 'propagated' with no rate model (i.e. constant
+     * mass).
+     */
     BodyMassStateDerivative(
-            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >& massRateModels,
+            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >&
+            massRateModels,
             const std::vector< std::string >& bodiesToIntegrate ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::body_mass_state ),

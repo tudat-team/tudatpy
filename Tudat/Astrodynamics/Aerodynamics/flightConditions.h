@@ -51,14 +51,6 @@ public:
      *  its body-fixed position.
      *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment)
      *  coefficients are retrieved
-     *  \param stateOfVehicle Function returning the current state of the vehicle
-     *  (in the global frame)
-     *  \param stateOfCentralBody Function returning the current state of the central body
-     *  (in the global frame)
-     *  \param transformationToCentralBodyFrame Function transforming the inertial body-centered to
-     *  the body-centered, body-fixed (co-rotating) frame.
-     *  \param aerodynamicCoefficientInterface Object from which the aerodynamic coefficients
-     *  are obtained.
      *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
      *  of the vehicle are calculated.
      */
@@ -175,6 +167,11 @@ public:
         return currentBodyCenteredPseudoBodyFixedState_;
     }
 
+    //! Function to return current central body-fixed velocity of vehicle.
+    /*!
+     *  Function to return central body-fixed velocity of vehicle.
+     *  \return Current central body-fixed velocity of vehicle.
+     */
     Eigen::Vector3d getCurrentAirspeedBasedVelocity( )
     {
         return currentBodyCenteredPseudoBodyFixedState_.segment( 3, 3 );
@@ -212,6 +209,12 @@ public:
         return aerodynamicCoefficientIndependentVariables_;
     }
 
+    //! Function to reset the current time of the flight conditions.
+    /*!
+     *  Function to reset the current time of the flight conditions. This function is typically sused to set the current time
+     *  to NaN, indicating the need to recompute all quantities for the next time computation.
+     * \param currentTime
+     */
     void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
@@ -232,6 +235,7 @@ private:
     //! Function returning the altitude of the vehicle as a function of its body-fixed position.
     const boost::function< double( const Eigen::Vector3d ) > altitudeFunction_;
 
+    //! Function to return the current state of the vehicle in a body-fixed frame.
     boost::function< basic_mathematics::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
 
 
