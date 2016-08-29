@@ -30,6 +30,7 @@
 #include <Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h>
 #include <Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h>
 #include <Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h>
+#include <Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h>
 #include <Tudat/Mathematics/BasicMathematics/linearAlgebraTypes.h>
 #include <Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h>
 #include <Tudat/Astrodynamics/SystemModels/vehicleSystems.h>

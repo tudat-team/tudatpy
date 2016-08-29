@@ -1,5 +1,5 @@
-#ifndef ENGINEMODEL_H
-#define ENGINEMODEL_H
+#ifndef TUDAT_ENGINEMODEL_H
+#define TUDAT_ENGINEMODEL_H
 
 #include <Eigen/Core>
 #include <boost/function.hpp>
@@ -81,4 +81,4 @@ protected:
 
 }
 
-#endif // ENGINEMODEL_H
+#endif // TUDAT_ENGINEMODEL_H

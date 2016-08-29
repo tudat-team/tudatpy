@@ -1,5 +1,5 @@
-#ifndef VEHICLESYSTEMS_H
-#define VEHICLESYSTEMS_H
+#ifndef TUDAT_VEHICLESYSTEMS_H
+#define TUDAT_VEHICLESYSTEMS_H
 
 #include <map>
 
@@ -82,4 +82,4 @@ private:
 
 }
 
-#endif // VEHICLESYSTEMS_H
+#endif // TUDAT_VEHICLESYSTEMS_H

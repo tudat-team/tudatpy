@@ -16,21 +16,28 @@ namespace tudat
 namespace propulsion
 {
 
-Eigen::Vector3d getThrustDirectionColinearWithVelocity(
-        const basic_mathematics::Vector6d& currentState, const double currentTime, const bool putThrustInOppositeDirection )
+//! Function to get the unit vector colinear with velocity segment of a translational state.
+Eigen::Vector3d getForceDirectionColinearWithVelocity(
+        const boost::function< void( basic_mathematics::Vector6d& ) > currentStateFunction, const double currentTime, const bool putForceInOppositeDirection )
 {
-    return ( ( putThrustInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 3, 3 ) ).normalized( );
+    static basic_mathematics::Vector6d currentState;
+    currentStateFunction( currentState );
+    return ( ( putForceInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 3, 3 ) ).normalized( );
 }
 
-Eigen::Vector3d getThrustDirectionColinearWithPosition(
-        const basic_mathematics::Vector6d& currentState, const double currentTime, const bool putThrustInOppositeDirection )
+//! Function to get the unit vector colinear with position segment of a translational state.
+Eigen::Vector3d getForceDirectionColinearWithPosition(
+        const boost::function< void( basic_mathematics::Vector6d& ) > currentStateFunction, const double currentTime, const bool putForceInOppositeDirection )
 {
-    return ( ( putThrustInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 0, 3 ) ).normalized( );
+    static basic_mathematics::Vector6d currentState;
+    currentStateFunction( currentState );
+    return ( ( putForceInOppositeDirection == 1 ) ? -1.0 : 1.0 ) * ( currentState.segment( 0, 3 ) ).normalized( );
 }
 
-Eigen::Vector3d getThrustDirectionFromTimeOnlyFunction(
-        const basic_mathematics::Vector6d& currentState, const double currentTime,
-                 const boost::function< Eigen::Vector3d( const double ) > timeOnlyFunction )
+//! Function to get the force direction from a time-only function.
+Eigen::Vector3d getForceDirectionFromTimeOnlyFunction(
+        const double currentTime,
+        const boost::function< Eigen::Vector3d( const double ) > timeOnlyFunction )
 {
     return timeOnlyFunction( currentTime ).normalized( );
 }

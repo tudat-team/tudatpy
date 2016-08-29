@@ -23,7 +23,6 @@ double computeThrustFromSpecificImpulse(
          const double propellantMassRate, const double specificImpulse )
 {
     return  physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * specificImpulse * propellantMassRate;
-
 }
 
 //! Function to compute propellant mass rate from engine thrust and specific impulse
@@ -31,7 +30,6 @@ double computePropellantMassRateFromSpecificImpulse(
          const double thrustMagnitude, const double specificImpulse )
 {
     return  thrustMagnitude / ( physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * specificImpulse );
-
 }
 
 

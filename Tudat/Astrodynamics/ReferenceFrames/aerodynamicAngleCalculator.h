@@ -23,6 +23,8 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
+#include "Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h"
+
 
 namespace tudat
 {
@@ -68,12 +70,16 @@ public:
     /*!
      *  Constructor.
      *  \param bodyFixedStateFunction Vehicle state in a frame fixed w.r.t. the central body.  Note
-     *  that this state is w.r.t. the body itself, not w.r.t. the local atmosphere
+     *  that this state is w.r.t. the body itself, not w.r.t. the local atmosphere.
+     *  \param rotationFromCorotatingToInertialFrame Function returning the quaternion that rotates from the corotating to
+     *  the inertial frame.
+     *  \param centralBodyName Name of central body w.r.t. which the angles are computed.
+     *  \param calculateVerticalToAerodynamicFrame Boolean to determine whether to determine
+     *  vertical <-> aerodynamic frame conversion when calling update function.
      *  \param angleOfAttackFunction Function to determine the angle of attack of the vehicle.
      *  \param angleOfSideslipFunction Function to determine the angle of sideslip of the vehicle.
      *  \param bankAngleFunction Function to determine the bank angle of the vehicle.
-     *  \param calculateVerticalToAerodynamicFrame Boolean to determine whether to determine
-     *  vertical <-> aerodynamic frame conversion when calling update function.
+     * \param angleUpdateFunction Function to update the aerodynamic angles to the current time (default none).
      */
     AerodynamicAngleCalculator(
             const boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction,
@@ -99,18 +105,35 @@ public:
         angleUpdateFunction_( angleUpdateFunction ),
         currentBodyAngleTime_( TUDAT_NAN ){ }
 
+    //! Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
+    /*!
+     * Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
+     * Implementation of pure virtual base class function, calls getRotationQuaternionBetweenFrames function.
+     * \return Current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
+     */
     Eigen::Quaterniond getRotationToLocalFrame( )
     {
-        return getRotationQuaternionBetweenFrames(
-                    inertial_frame, body_frame );
+        return getRotationQuaternionBetweenFrames( inertial_frame, body_frame );
     }
 
+    //! Function to get the current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
+    /*!
+     * Function to get the current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
+     * Implementation of pure virtual base class function, calls getRotationQuaternionBetweenFrames function.
+     * \return Current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
+     */
     Eigen::Quaterniond getRotationToGlobalFrame( )
     {
-        return getRotationQuaternionBetweenFrames(
-                    body_frame, inertial_frame );
+        return getRotationQuaternionBetweenFrames( body_frame, inertial_frame );
     }
 
+    //! Function to update the orientation angles to the current state.
+    /*!
+     *  Function to update the orientation angles to the current state, implements base class pure virtual function;
+     *  calls update function. Note, when calling this function, the bank angle, angle of attack and sideslip angle are
+     *  NOT updated (due to possible cross-dependency with aerodynamic coefficients).
+     *  \sa AerodynamicAngleCalculator::update
+     */
     void updateCalculator(
                  const double currentTime )
     {
@@ -122,6 +145,8 @@ public:
      *  This function updates all requires orientation angles to the current state of the vehicle.
      *  The current state is retrieved from the bodyFixedStateFunction_ member variable
      *  function pointer.
+     *  \param currentTime Time to which angle calculator is to be updated.
+     *  \param updateBodyOrientation Boolean denoting whether the trajectory<->body-fixed angles are to be updated.
      */
     void update( const double currentTime, const bool updateBodyOrientation );
 
@@ -147,50 +172,56 @@ public:
      */
     double getAerodynamicAngle( const AerodynamicsReferenceFrameAngles angleId );
 
+    //! Function to set the trajectory<->body-fixed orientation angles.
+    /*!
+     * Function to set the trajectory<->body-fixed orientation angles.
+     * \param angleOfAttackFunction Function to return the angle of attack.
+     * \param angleOfSideslipFunction Function to return the angle of sideslip.
+     * \param bankAngleFunction Function to return the bank angle.
+     * \param angleUpdateFunction Function to update the angles to the current time.
+     */
     void setOrientationAngleFunctions(
             const boost::function< double( ) > angleOfAttackFunction = boost::function< double( ) >( ),
             const boost::function< double( ) > angleOfSideslipFunction = boost::function< double( ) >( ),
             const boost::function< double( ) > bankAngleFunction =  boost::function< double( ) >( ),
-            const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) )
-    {
-        if( !angleOfAttackFunction.empty( ) )
-        {
-            angleOfAttackFunction_ = angleOfAttackFunction;
-        }
+            const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) );
 
-        if( !angleOfSideslipFunction.empty( ) )
-        {
-            angleOfSideslipFunction_ = angleOfSideslipFunction;
-        }
-
-        if( !bankAngleFunction.empty( ) )
-        {
-            bankAngleFunction_ = bankAngleFunction;
-        }
-
-        if( !bankAngleFunction.empty( ) )
-        {
-            angleUpdateFunction_ = angleUpdateFunction;
-        }
-
-    }
-
+    //! Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
+    /*!
+     * Function to get the function returning the quaternion that rotates from the corotating to the inertial frame.
+     * \return Function returning the quaternion that rotates from the corotating to the inertial frame.
+     */
     boost::function< Eigen::Quaterniond( ) >  getRotationFromCorotatingToInertialFrame(  )
     {
         return rotationFromCorotatingToInertialFrame_;
     }
 
-
+    //! Function to get the name of central body w.r.t. which the angles are computed.
+    /*!
+     * Function to get the name of central body w.r.t. which the angles are computed.
+     * \return Name of central body w.r.t. which the angles are computed.
+     */
     std::string getCentralBodyName( )
     {
         return centralBodyName_;
     }
 
+    //! Function to get the current body-fixed state of vehicle, as set by previous call to update( ).
+    /*!
+     * Function to get the current body-fixed state of vehicle, as set by previous call to update( ).
+     * \return Current body-fixed state of vehicle, as set by previous call to update( ).
+     */
     basic_mathematics::Vector6d getCurrentBodyFixedState( )
     {
         return currentBodyFixedState_;
     }
 
+    //! Function to reset the value of the currentBodyAngleTime_ variable
+    /*!
+     * Function to reset the value of the currentBodyAngleTime_ variable. Typically used to reset the time to NaN,
+     * signalling the need to recompute all quantities upon the next relevant function call.
+     * \param currentTime New current time.
+     */
     void resetDerivedClassTime( const double currentTime = TUDAT_NAN )
     {
         currentBodyAngleTime_ = currentTime;
@@ -218,8 +249,10 @@ private:
      */
     boost::function< basic_mathematics::Vector6d( ) > bodyFixedStateFunction_;
 
+    //! Function returning the quaternion that rotates from the corotating to the inertial frame.
     boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame_;
 
+    //! Name of central body w.r.t. which the angles are computed.
     std::string centralBodyName_;
 
     //! Boolean to determine whether to determine vertical <-> aerodynamic frame conversion
@@ -235,8 +268,10 @@ private:
     //! Function to determine the bank angle of the vehicle.
     boost::function< double( ) > bankAngleFunction_;
 
+    //! Function to update the bank, attack and sideslip angles to current time.
     boost::function< void( const double ) > angleUpdateFunction_;
 
+    //! Current time to which the bank, attack and sideslip angles have been updated.
     double currentBodyAngleTime_;
 
 };
@@ -260,10 +295,24 @@ getAerodynamicForceTransformationFunction(
         const AerodynamicsReferenceFrames accelerationFrame,
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
-
+//! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
+/*!
+ * Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
+ * Based on a given rotation matrix function and AerodynamicAngleCalculator, this class computes the required values
+ * for the ank, sideslip and attack angles so that the output from AerodynamicAngleCalculator is consistent with the
+ * given rotation matrix.
+ */
 class AerodynamicAnglesClosure
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
+     * aerodynamicAngleCalculator object is to be made consistent
+     * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+     */
     AerodynamicAnglesClosure(
             const boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
             const boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator ):
@@ -271,42 +320,83 @@ public:
         aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
     { }
 
+    //! Function to update the aerodynamic angles to current time.
+    /*!
+     * Function to update the aerodynamic angles to current time, using closure between
+     * imposedRotationFromInertialToBodyFixedFrame_ and aerodynamicAngleCalculator_.
+     * \param currentTime Time to which angles are to be updated.
+     */
     void updateAngles( const double currentTime );
 
+    //! Function returning the current angle of attack, as computed by last call to updateAngles function.
+    /*!
+     *  Function returning the current angle of attack, as computed by last call to updateAngles function.
+     * \return Current angle of attack, as computed by last call to updateAngles function.
+     */
     double getCurrentAngleOfAttack( )
     {
         return currentAngleOfAttack_;
     }
 
+    //! Function returning the current angle of sideslip, as computed by last call to updateAngles function.
+    /*!
+     *  Function returning the current angle of sideslip, as computed by last call to updateAngles function.
+     * \return Current angle of sideslip, as computed by last call to updateAngles function.
+     */
     double getCurrentAngleOfSideslip( )
     {
         return currentAngleOfSideslip_;
     }
 
+    //! Function returning the current bank angle, as computed by last call to updateAngles function.
+    /*!
+     *  Function returning the current bank angle, as computed by last call to updateAngles function.
+     * \return Current bank angle, as computed by last call to updateAngles function.
+     */
     double getCurrentBankAngle( )
     {
         return currentBankAngle_;
     }
 
 private:
+
+    //! Inertial to body-fixed frame rotation to which the aerodynamicAngleCalculator_ object is to be made consistent.
     boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame_;
 
+    //! Object from which the aerodynamic angles are computed.
     boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
+    //! Current angle of attack, as computed by last call to updateAngles function.
     double currentAngleOfAttack_;
 
+    //! Current angle of sideslip, as computed by last call to updateAngles function.
     double currentAngleOfSideslip_;
 
+    //! Current bank angle, as computed by last call to updateAngles function.
     double currentBankAngle_;
 
+    //! Current rotation matrix from body-fixed to trajectory, as computed by last call to updateAngles function.
      Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_;
 };
 
-
+//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
+/*!
+ * Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
+ * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
+ * aerodynamicAngleCalculator object is to be made consistent
+ * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+ */
 void setAerodynamicDependentOrientationCalculatorClosure(
         const boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
+//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
+/*!
+ * Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
+ * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
+ * aerodynamicAngleCalculator object is to be made consistent
+ * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+ */
 void setAerodynamicDependentOrientationCalculatorClosure(
             boost::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
             boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );

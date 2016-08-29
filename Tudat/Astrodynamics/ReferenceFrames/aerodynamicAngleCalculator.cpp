@@ -298,6 +298,34 @@ double AerodynamicAngleCalculator::getAerodynamicAngle(
     return angleValue;
 }
 
+void AerodynamicAngleCalculator::setOrientationAngleFunctions(
+        const boost::function< double( ) > angleOfAttackFunction,
+        const boost::function< double( ) > angleOfSideslipFunction,
+        const boost::function< double( ) > bankAngleFunction,
+        const boost::function< void( const double ) > angleUpdateFunction )
+{
+    if( !angleOfAttackFunction.empty( ) )
+    {
+        angleOfAttackFunction_ = angleOfAttackFunction;
+    }
+
+    if( !angleOfSideslipFunction.empty( ) )
+    {
+        angleOfSideslipFunction_ = angleOfSideslipFunction;
+    }
+
+    if( !bankAngleFunction.empty( ) )
+    {
+        bankAngleFunction_ = bankAngleFunction;
+    }
+
+    if( !bankAngleFunction.empty( ) )
+    {
+        angleUpdateFunction_ = angleUpdateFunction;
+    }
+
+}
+
 //! Get a function to transform aerodynamic force from local to propagation frame.
 boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
 getAerodynamicForceTransformationFunction(
@@ -321,12 +349,16 @@ getAerodynamicForceTransformationFunction(
     return transformationFunction;
 }
 
+//! Function to update the aerodynamic angles to current time.
 void AerodynamicAnglesClosure::updateAngles( const double currentTime )
 {
+    // Retrieve rotation matrix that is to be converted to orientation angles.
     currentRotationFromBodyToTrajectoryFrame_ =
             ( ( imposedRotationFromInertialToBodyFixedFrame_( currentTime ) *
                 aerodynamicAngleCalculator_->getRotationQuaternionBetweenFrames(
                     trajectory_frame, inertial_frame ) ).toRotationMatrix( ) ).transpose( );
+
+    // Compute associated Euler angles and set as orientation angles.
     Eigen::Vector3d eulerAngles = reference_frames::get132EulerAnglesFromRotationMatrix(
                 currentRotationFromBodyToTrajectoryFrame_ );
     currentBankAngle_ = eulerAngles.x( );
@@ -334,6 +366,7 @@ void AerodynamicAnglesClosure::updateAngles( const double currentTime )
     currentAngleOfAttack_ = -eulerAngles.z( );
 }
 
+//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
 void setAerodynamicDependentOrientationCalculatorClosure(
         const boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
@@ -348,6 +381,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
                 boost::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, _1 ) );
 }
 
+//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
 void setAerodynamicDependentOrientationCalculatorClosure(
         boost::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
@@ -357,6 +391,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
                 aerodynamicAngleCalculator );
 }
 
+//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
 void setAerodynamicDependentOrientationCalculatorClosure(
         boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )

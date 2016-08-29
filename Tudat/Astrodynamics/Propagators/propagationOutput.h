@@ -69,12 +69,36 @@ OutputType evaluateFunction(
 int getDependentVariableSize(
         const PropagationDependentVariables dependentVariableSettings );
 
+//! Get the vector representation of a quaternion.
+/*!
+ *  Get the vector representation of a quaternion. Quaternion is converted to a rotation matrix, which is then put into
+ *  a vector representation.
+ *  \param rotationFunction Function returning the quaternion that is to be put inot vector rerpesentation
+ *  \return Column vector consisting of transpose of concatenated rows of matrix representation of rotationFunction output.
+ */
 Eigen::VectorXd getVectorRepresentationForRotation(
         const boost::function< Eigen::Quaterniond( ) > rotationFunction );
 
+//! Get the 3x3 matrix representation from a vector with 9 entries
+/*!
+ *  Get the matrix representation from a vector with 9 entries. The vector is the transpose of the concatenated rows of
+ *  the associated matrix.
+ *  \param vectorRepresentation Vector representation of 3x3 matrix (transpose of the concatenated rows of
+ *  the associated matrix)
+ *  \return Matrix from 3x3 vector representation.
+ */
 Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
         const Eigen::VectorXd vectorRepresentation );
 
+//! Get the quaternion formulation of an orthonormal matrix, from input of a vector with 9 entries corresponding to matrix
+//! entries.
+/*!
+ *  et the quaternion formulation of an orthonormal matrix, from input of a vector with 9 entries corresponding to matrix
+ *  entries. The input vector is the transpose of the concatenated rows of the associated (orthonormal) matrix.
+ *  \param vectorRepresentation Vector representation of 3x3 matrix (transpose of the concatenated rows of
+ *  the associated matrix)
+ *  \return Quaternion representation of orthonormal matrix obtained from 3x3 vector representation.
+ */
 Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
         const Eigen::VectorXd vectorRepresentation );
 
@@ -246,17 +270,20 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error when flight conditions for relative_body_aerodynamic_orientation_angle_variable output " +
+                    bodyWithProperty + " has no flight conditions";
+            throw std::runtime_error( errorMessage );
         }
 
         // Check input consistency.
-        boost::shared_ptr< BodyAerodynamicAngletVariableSaveSettings > bodyAerodynamicAngleVariableSaveSettings =
-                boost::dynamic_pointer_cast< BodyAerodynamicAngletVariableSaveSettings >( dependentVariableSettings );
+        boost::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > bodyAerodynamicAngleVariableSaveSettings =
+                boost::dynamic_pointer_cast< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings );
         if( bodyAerodynamicAngleVariableSaveSettings == NULL )
         {
             std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type relative_body_aerodynamic_orientation_angle_variable";
             throw std::runtime_error( errorMessage );
         }
+
         variableFunction = boost::bind( &reference_frames::AerodynamicAngleCalculator::getAerodynamicAngle,
                                  bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
                                         bodyAerodynamicAngleVariableSaveSettings->angle_ );
@@ -390,8 +417,11 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error when flight conditions for aerodynamic_force_coefficients_dependent_variable output " +
+                    bodyWithProperty + " has no flight conditions";
+            throw std::runtime_error( errorMessage );
         }
+
         variableFunction = boost::bind(
                     &aerodynamics::AerodynamicCoefficientInterface::getCurrentForceCoefficients,
                     bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicCoefficientInterface( ) );
@@ -403,8 +433,11 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error when flight conditions for aerodynamic_moment_coefficients_dependent_variable output " +
+                    bodyWithProperty + " has no flight conditions";
+            throw std::runtime_error( errorMessage );
         }
+
         variableFunction = boost::bind(
                     &aerodynamics::AerodynamicCoefficientInterface::getCurrentMomentCoefficients,
                     bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicCoefficientInterface( ) );

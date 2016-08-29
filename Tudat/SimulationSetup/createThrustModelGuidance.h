@@ -86,7 +86,7 @@ public:
 };
 
 
-boost::shared_ptr< propulsion::ThrustDirectionGuidance > createThrustGuidanceModel(
+boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
@@ -188,12 +188,12 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
 
 void updateThrustMagnitudeAndDirection(
         const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime );
 
 void resetThrustMagnitudeAndDirectionTime(
         const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
-        const boost::shared_ptr< propulsion::ThrustDirectionGuidance > thrustDirectionGuidance,
+        const boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime );
 
 }

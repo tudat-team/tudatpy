@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef THRUSTACCELERATIONMODEL_H
-#define THRUSTACCELERATIONMODEL_H
+#ifndef TUDAT_THRUSTACCELERATIONMODEL_H
+#define TUDAT_THRUSTACCELERATIONMODEL_H
 
 #include <limits>
 
@@ -226,4 +226,4 @@ protected:
 
 } // namespace tudat
 
-#endif // THRUSTACCELERATIONMODEL_H
+#endif // TUDAT_THRUSTACCELERATIONMODEL_H

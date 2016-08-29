@@ -599,6 +599,7 @@ createAerodynamicCoefficientInterface(
  * \param angleOfAttackFunction Function returning the current angle of attack (default 0).
  * \param angleOfSideslipFunction Function returning the current angle of sideslip (default 0).
  * \param bankAngleFunction Function returning the current bank angle (default 0).
+ * \param angleUpdateFunction Function to update the aerodynamic angles to the current time (default none).
  * \return Flight conditions object for given bodies and settings.
  */
 boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(

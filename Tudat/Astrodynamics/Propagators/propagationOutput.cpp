@@ -17,6 +17,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Get the vector representation of a quaternion.
 Eigen::VectorXd getVectorRepresentationForRotation(
         const boost::function< Eigen::Quaterniond( ) > rotationFunction )
 {
@@ -33,9 +34,14 @@ Eigen::VectorXd getVectorRepresentationForRotation(
     return vectorRepresentation;
 }
 
+//! Get the 3x3 matrix representation from a vector with 9 entries
 Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
         const Eigen::VectorXd vectorRepresentation )
 {
+    if( vectorRepresentation.rows( ) != 9 )
+    {
+        throw std::runtime_error( "Error when putting vector in matrix representation, size is incompatible" );
+    }
     Eigen::Matrix3d currentRotationMatrix;
     for( unsigned int i = 0; i < 3; i++ )
     {
@@ -47,6 +53,8 @@ Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
     return currentRotationMatrix;
 }
 
+//! Get the quaternion formulation of an orthonormal matrix, from input of a vector with 9 entries corresponding to matrix
+//! entries.
 Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
         const Eigen::VectorXd vectorRepresentation )
 {
