@@ -48,9 +48,6 @@
 #include "tudat/InputOutput/basicInputOutput.h"
 #include "tudat/Mathematics/Statistics/kernelDensityDistribution.h"
 
-//#include <SIP/Statistical_Methods/RandomSampling.h>
-//#include <SIP/Statistical_Methods/RandomInitialStateSampling.h>
-
 // Pseudo random sampler
 #include <boost/random.hpp> // Random generator
 
