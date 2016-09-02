@@ -109,7 +109,7 @@ typedef boost::shared_ptr< ProbabilityDistribution<Eigen::VectorXd> > Probabilit
 //! One-dimensional Gaussian distribution class.
 /*!
  * One-dimensional Gaussian distribution class.
- * Source: ??
+ * Source: Dekking, F.; Kraaikamp, C.; Lopuhaa, H. & Meester, L. A Modern Introduction to Probability and Statistics Springer, 2005
  */
 class GaussianDistributiond: public ProbabilityDistribution<double>
 {
@@ -149,7 +149,7 @@ private:
 //! One-dimensional Uniform distribution class.
 /*!
  * One-dimensional Uniform distribution class.
- * Source:
+ * Source: Dekking, F.; Kraaikamp, C.; Lopuhaa, H. & Meester, L. A Modern Introduction to Probability and Statistics Springer, 2005
  */
 class UniformDistributiond: public ProbabilityDistribution<double>
 {
@@ -200,7 +200,7 @@ private:
 //! One-dimensional Lognormal distribution class.
 /*!
  * One-dimensional Lognormal distribution class.
- * Source: ??
+ * Source: Montgomery, D. C. & Runger, G. C. Applied Statistics and Probability for engineers Wiley, 2014
  */
 class LogNormalDistributiond: public ProbabilityDistribution<double>
 {
@@ -253,7 +253,7 @@ private:
 //! Multi-dimensional Gaussian Distribution class.
 /*!
  * Multi-dimensional Gaussian Distribution class.
- * Source: ??
+ * Source: Tong, Y. The Multivariate Normal Distribution Springer-Verslag, 1990
  */
 class GaussianDistributionXd: public ProbabilityDistribution<Eigen::VectorXd>
 {
@@ -299,7 +299,7 @@ private:
 //! Gaussian Copula Distribution class.
 /*!
  * A Gaussian copula can be used to link several marginal distributions to form a joint distribution.
- * Source: ??
+ * Source: Song, P. X.-K. Multivariate Dispersion Models Generated from Gaussian Copula Scandinavian Journal of Statistics, 2000, 27, 305-320
  */
 class GaussianCopulaDistributionXd: public ProbabilityDistribution< Eigen::VectorXd >
 {
