@@ -64,7 +64,35 @@ namespace tudat
 namespace unit_tests
 {
 
+double gaussianCopulaProbabilityDensity( const Eigen::VectorXd& x , int dimension_ , Eigen::MatrixXd correlationMatrix_ )
+{
+    Eigen::MatrixXd inverseCorrelationMatrix_ = correlationMatrix_.inverse() ;
+    double determinant_ = correlationMatrix_.determinant() ;
+
+    double probabilityDensity = 0.0 ;
+    Eigen::VectorXd y( dimension_ ) ;
+    boost::math::normal distribution( 0.0 , 1.0 );
+
+    for(int i = 0 ; i < dimension_ ; i++){
+        y(i) = boost::math::quantile( distribution , x(i) ); // Inverse cdf
+    }
+
+    // Calculate probability density
+    Eigen::MatrixXd location = - 0.5 * ( y.transpose() *
+                   (inverseCorrelationMatrix_ - Eigen::MatrixXd::Identity( dimension_ , dimension_ ) ) * y ) ;
+
+    probabilityDensity = ( ( 1.0/( std::sqrt( determinant_ ) ) )*std::exp( location(0,0) ) ) ;
+    return probabilityDensity;
+}
+
 BOOST_AUTO_TEST_SUITE( test_probability_distributions )
+
+// Tests
+// 1. uniform distribution double
+// 2. gaussian distribution double
+// 3. multi0D gaussian distribution
+// 4. gaussian copula
+// 5. log-normal distribution
 
 //! Test if 1D uniform distribution class works correctly.
 BOOST_AUTO_TEST_CASE( testUniformDistributionDouble )
@@ -92,7 +120,13 @@ BOOST_AUTO_TEST_CASE( testUniformDistributionDouble )
     BOOST_CHECK_SMALL( std::fabs( uniformDistribution.getMean() - 1.0 ) ,
                        std::numeric_limits<double>::epsilon() ) ;
 
-    // CHECK STANDARD DEVIATION AND VARIANCE
+    // Check mean
+    BOOST_CHECK_SMALL( std::fabs( uniformDistribution.getMean() - 1.0  ) ,
+                       std::numeric_limits<double>::epsilon() );
+
+    // Check standard deviation
+    BOOST_CHECK_SMALL( std::fabs( uniformDistribution.getStandardDeviation() - ( 2.0 / std::sqrt(12.0) )  ) ,
+                       std::numeric_limits<double>::epsilon() );
 }
 
 //! Test if 1D Gaussian distribution class works correctly.
@@ -119,6 +153,8 @@ BOOST_AUTO_TEST_CASE( testGaussianDistributionDouble )
                            std::numeric_limits<double>::epsilon() ) ;
         BOOST_CHECK_SMALL( std::fabs( distribution.getCumulativeProbability(x) - solutionMatlabMass ) ,
                            std::numeric_limits<double>::epsilon() ) ;
+        BOOST_CHECK_SMALL( std::fabs( distribution.getQuantile(0.5) - 0.0 ) ,
+                           std::numeric_limits<double>::epsilon() ) ;
     }
 
     // Case 2
@@ -135,6 +171,8 @@ BOOST_AUTO_TEST_CASE( testGaussianDistributionDouble )
                            std::numeric_limits<double>::epsilon() ) ;
         BOOST_CHECK_SMALL( std::fabs( distribution.getCumulativeProbability(x) - solutionMatlabMass ) ,
                            std::numeric_limits<double>::epsilon() ) ;
+        BOOST_CHECK_SMALL( std::fabs( distribution.getQuantile(0.5) - 1.0 ) ,
+                           std::numeric_limits<double>::epsilon() ) ;
     }
 
     // Case 3
@@ -150,6 +188,8 @@ BOOST_AUTO_TEST_CASE( testGaussianDistributionDouble )
         BOOST_CHECK_SMALL( std::fabs( distribution.getProbabilityDensity(x) - solutionMatlab ) ,
                            std::numeric_limits<double>::epsilon() ) ;
         BOOST_CHECK_SMALL( std::fabs( distribution.getCumulativeProbability(x) - solutionMatlabMass ) ,
+                           std::numeric_limits<double>::epsilon() ) ;
+        BOOST_CHECK_SMALL( std::fabs( distribution.getQuantile(0.5) - 3.0 ) ,
                            std::numeric_limits<double>::epsilon() ) ;
     }
 
@@ -235,7 +275,8 @@ BOOST_AUTO_TEST_CASE( testGaussianCopula )
     Eigen::VectorXd x(2);
     x << 0.5 , 0.3 ;
 
-//    std::cout << distribution.getProbabilityDensity( x ) << std::endl;
+    BOOST_CHECK_SMALL( std::fabs( gaussianCopulaProbabilityDensity( x , dimension , correlationMatrix )
+                                  - distribution.getProbabilityDensity( x ) ), 1E-15 );
 
     // Test out of bounds
     x << 1.1 , 0.5 ;
@@ -249,8 +290,6 @@ BOOST_AUTO_TEST_CASE( testGaussianCopula )
 
     x << 0.1 , 1.5 ;
     BOOST_CHECK_SMALL( std::fabs( distribution.getProbabilityDensity( x ) - 0.0 ) , 1E-15 );
-
-    // ADD MORE TESTS!!!!!!!!!!!
 
 }
 
