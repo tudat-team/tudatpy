@@ -38,6 +38,7 @@ set(STATISTICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/basicStatistics.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/simpleLinearRegression.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/probabilityDistributions.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/kernelDensityDistribution.cpp"
 )
 
 # Add header files.
@@ -45,6 +46,7 @@ set(STATISTICS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/basicStatistics.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/simpleLinearRegression.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/probabilityDistributions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/kernelDensityDistribution.h"
 )
 
 # Add static libraries.
@@ -63,3 +65,7 @@ target_link_libraries(test_BasicStatistics tudat_statistics ${Boost_LIBRARIES})
 add_executable(test_ProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestProbabilityDistributions.cpp")
 setup_custom_test_program(test_ProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 target_link_libraries(test_ProbabilityDistributions tudat_statistics ${Boost_LIBRARIES})
+
+add_executable(test_KernelDensityDistribution "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestKernelDensityDistribution.cpp")
+setup_custom_test_program(test_KernelDensityDistribution "${SRCROOT}${MATHEMATICSDIR}/Statistics")
+target_link_libraries(test_KernelDensityDistribution tudat_statistics ${Boost_LIBRARIES})
