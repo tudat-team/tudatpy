@@ -43,6 +43,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 namespace tudat
 {
 namespace aerodynamics
