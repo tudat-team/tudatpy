@@ -506,5 +506,11 @@ double computeSpeedOfSound( const double temperature, const double ratioOfSpecif
     return std::sqrt( temperature * ratioOfSpecificHeats * specificGasConstant );
 }
 
+double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity )
+{
+    return 1.0 / ( std::sqrt( 2.0 ) * tudat::mathematical_constants::PI * weightedAverageCollisionDiameter *
+                   weightedAverageCollisionDiameter * averageNumberDensity );
+}
+
 } // namespace aerodynamics
 } // namespace tudat
