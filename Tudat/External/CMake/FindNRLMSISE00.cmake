@@ -43,6 +43,8 @@ if(NOT NRLMSISE00_BASE_PATH)
 	    ${PROJECT_SOURCE_DIR}/../..
 	    ${PROJECT_SOURCE_DIR}/../../..
 	    ${PROJECT_SOURCE_DIR}/../../../..
+	    ${PROJECT_SOURCE_DIR}/../../../../..
+	    ${PROJECT_SOURCE_DIR}/../../../../../..
         PATH_SUFFIXES nrlmsise-00
 )
 endif(NOT NRLMSISE00_BASE_PATH)
