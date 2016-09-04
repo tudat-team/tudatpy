@@ -31,7 +31,8 @@ namespace simulation_setup
 enum AtmosphereTypes
 {
     exponential_atmosphere,
-    tabulated_atmosphere
+    tabulated_atmosphere,
+    nrlmsise00
 };
 
 //! Class for providing settings for atmosphere model.

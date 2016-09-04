@@ -70,18 +70,10 @@ if(USE_CSPICE)
 add_executable(test_CowellStateDerivative
     "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCowellStateDerivative.cpp")
 setup_custom_test_program(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_CowellStateDerivative tudat_simulation_setup tudat_propagators
-    tudat_aerodynamics tudat_gravitation tudat_mission_segments tudat_electro_magnetism
-    tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics
-    tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface
-    cspice ${Boost_LIBRARIES})
+target_link_libraries(test_CowellStateDerivative ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_EnvironmentModelUpdater
     "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
 setup_custom_test_program(test_EnvironmentModelUpdater "${SRCROOT}${PROPAGATORSDIR}")
-    target_link_libraries(test_EnvironmentModelUpdater tudat_simulation_setup tudat_propagators
-    tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments
-    tudat_electro_magnetism tudat_ephemerides tudat_numerical_integrators tudat_reference_frames
-    tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators
-    tudat_spice_interface cspice ${Boost_LIBRARIES})
+    target_link_libraries(test_EnvironmentModelUpdater ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 endif()

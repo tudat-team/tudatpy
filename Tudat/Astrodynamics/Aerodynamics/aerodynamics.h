@@ -345,6 +345,10 @@ double computeShockDeflectionAngle( double shockAngle, double machNumber,
 double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
                             const double specificGasConstant );
 
+// (Chapman, S. & Cowling, T. The mathematical theory of nonuniform gases Cambridge University Press, 1970)
+double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity );
+
+
 } // namespace aerodynamics
 } // namespace tudat
 
