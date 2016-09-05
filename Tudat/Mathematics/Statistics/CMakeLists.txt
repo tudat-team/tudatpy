@@ -37,14 +37,18 @@
 set(STATISTICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/basicStatistics.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/simpleLinearRegression.cpp"
-  "${SRCROOT}${MATHEMATICSDIR}/Statistics/probabilityDistributions.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/multiVariateGaussianProbabilityDistributions.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/continuousProbabilityDistributions.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.cpp"
 )
 
 # Add header files.
 set(STATISTICS_HEADERS 
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/basicStatistics.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/simpleLinearRegression.h"
-  "${SRCROOT}${MATHEMATICSDIR}/Statistics/probabilityDistributions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/multiVariateGaussianProbabilityDistributions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/continuousProbabilityDistributions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.h"
 )
 
 # Add static libraries.
@@ -60,6 +64,10 @@ add_executable(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics/Unit
 setup_custom_test_program(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 target_link_libraries(test_BasicStatistics tudat_statistics ${Boost_LIBRARIES})
 
-add_executable(test_ProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestProbabilityDistributions.cpp")
+add_executable(test_ProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestMultiVariateGaussianProbabilityDistributions.cpp")
 setup_custom_test_program(test_ProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 target_link_libraries(test_ProbabilityDistributions tudat_statistics ${Boost_LIBRARIES})
+
+add_executable(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestBoostRandomVariables.cpp")
+setup_custom_test_program(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
+target_link_libraries(test_BoostDistributions tudat_statistics ${Boost_LIBRARIES})
