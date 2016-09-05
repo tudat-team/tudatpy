@@ -53,7 +53,7 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Tudat/Mathematics/NumericalQuadrature/trapezoidIntegrator.h"
+#include "Tudat/Mathematics/NumericalQuadrature/trapezoidQuadrature.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -95,8 +95,8 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
         dependentVariables.push_back( std::sin( independentVariables[i] ) );
     }
 
-    tudat::numerical_quadrature::TrapezoidNumericalIntegrator< double > integrator(
-                                                                            independentVariables , dependentVariables );
+    tudat::numerical_quadrature::TrapezoidNumericalQuadrature< double, double > integrator(
+                independentVariables , dependentVariables );
 
     double expectedIntegral = 2.0;
     double computedIntegral = integrator.integrate();
@@ -122,8 +122,8 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction2 )
         dependentVariables.push_back( std::sin( independentVariables[i] ) );
     }
 
-    tudat::numerical_quadrature::TrapezoidNumericalIntegrator< double > integrator(
-                                                                            independentVariables , dependentVariables );
+    tudat::numerical_quadrature::TrapezoidNumericalQuadrature< double, double > integrator(
+                independentVariables , dependentVariables );
 
     double expectedIntegral = 2.0;
     double computedIntegral = integrator.integrate();
@@ -149,8 +149,8 @@ BOOST_AUTO_TEST_CASE( testIntegralExpFunction )
         dependentVariables.push_back( std::exp( independentVariables[i] ) );
     }
 
-    tudat::numerical_quadrature::TrapezoidNumericalIntegrator< double > integrator(
-                                                                            independentVariables , dependentVariables );
+    tudat::numerical_quadrature::TrapezoidNumericalQuadrature< double, double > integrator(
+                independentVariables , dependentVariables );
 
     double expectedIntegral = std::exp(2.0) - std::exp(0.0);
     double computedIntegral = integrator.integrate();

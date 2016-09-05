@@ -36,8 +36,11 @@
 #define TUDAT_TRAPEZOIDAL_INTEGRATOR_H
 
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
+
 #include <Eigen/Core>
+
 #include <Tudat/Mathematics/NumericalQuadrature/numericalQuadrature.h>
 
 namespace tudat
@@ -45,26 +48,48 @@ namespace tudat
 namespace numerical_quadrature
 {
 
+
+//! Integrate.
+/*!
+ * This function performs the integration.
+ * Source: Burden & Faires
+ * \return Integral of the data.
+ */
+template< typename IndependentVariableType, typename DependentVariableType >
+DependentVariableType performTrapezoidalQuadrature(
+        const std::vector< IndependentVariableType >& independentVariables,
+                                           const std::vector< DependentVariableType >& dependentVariables )
+{
+    DependentVariableType integral = dependentVariables.at( 0 ) - dependentVariables.at( 0 );
+    DependentVariableType h;
+    for( unsigned int i = 0 ; i < independentVariables.size() - 1 ; i++ )
+    {
+        h = independentVariables[i+1] - independentVariables[i];
+        integral += h * ( dependentVariables[i+1] + dependentVariables[ i ] ) / ( 2.0 ) ;
+    }
+    return integral;
+}
+
 //! Trapezoid numerical integrator.
 /*!
  * Numerical integrator that uses the trapezoid method to compute definite integrals of a dataset.
  * \tparam VariableType Type of independent and dependent variable(s).
  */
-template< typename VariableType >
-class TrapezoidNumericalIntegrator : public NumericalQuadrature< VariableType , VariableType >
+template< typename IndependentVariableType, typename DependentVariableType >
+class TrapezoidNumericalQuadrature : public NumericalQuadrature< IndependentVariableType , DependentVariableType >
 {
 public:
 
     //! Constructor
-    TrapezoidNumericalIntegrator( const std::vector< VariableType >& independentVariables,
-                                  const std::vector< VariableType >& dependentVariables)
+    TrapezoidNumericalQuadrature( const std::vector< IndependentVariableType >& independentVariables,
+                                  const std::vector< DependentVariableType >& dependentVariables)
     {
         independentVariables_ = independentVariables;
         dependentVariables_ = dependentVariables;
     }
 
     //! Constructor
-    TrapezoidNumericalIntegrator( ){ }
+    TrapezoidNumericalQuadrature( ){ }
 
     //! Integrate.
     /*!
@@ -72,50 +97,18 @@ public:
      * Source: Burden & Faires
      * \return Integral of the data.
      */
-    VariableType integrate(  )
+    DependentVariableType integrate( )
     {
-        return integrate( independentVariables_ , dependentVariables_ );
-    }
-
-    //! Integrate.
-    /*!
-     * This function performs the integration.
-     * Source: Burden & Faires
-     * \return Integral of the data.
-     */
-    VariableType integrate( const std::vector< VariableType >& independentVariables,
-                            const std::vector< VariableType >& dependentVariables )
-    {
-        VariableType integral = 0;
-        VariableType h;
-        for( unsigned int i = 0 ; i < independentVariables.size() - 1 ; i++ )
-        {
-            h = independentVariables[i+1] - independentVariables[i];
-            integral += h * ( dependentVariables[i+1] + dependentVariables[i] ) / ( 2.0 ) ;
-        }
-        return integral;
-    }
-
-    void resetData( const std::vector< VariableType >& independentVariables,
-                const std::vector< VariableType >& dependentVariables)
-    {
-        independentVariables_ = independentVariables;
-        dependentVariables_ = dependentVariables;
+        return performTrapezoidalQuadrature( independentVariables_ , dependentVariables_ );
     }
 
 protected:
 
 private:
 
-    //! Independent variables.
-    std::vector< VariableType > independentVariables_;
-
-    //! Dependent variables.
-    std::vector< VariableType > dependentVariables_;
-
 };
 
-typedef boost::shared_ptr< TrapezoidNumericalIntegrator<double> > TrapezoidNumericalIntegratorPointerd;
+typedef boost::shared_ptr< TrapezoidNumericalQuadrature< double, double > > TrapezoidNumericalIntegratorPointerd;
 
 } // namespace numerical_quadrature
 } // namespace tudat

@@ -70,7 +70,22 @@ public:
      */
     virtual DependentVariableType integrate(  ) = 0;
 
+
+    void resetData( const std::vector< IndependentVariableType >& independentVariables,
+                    const std::vector< DependentVariableType >& dependentVariables)
+    {
+        independentVariables_ = independentVariables;
+        dependentVariables_ = dependentVariables;
+    }
+
 protected:
+
+
+    //! Independent variables.
+    std::vector< IndependentVariableType > independentVariables_;
+
+    //! Dependent variables.
+    std::vector< DependentVariableType > dependentVariables_;
 
 private:
 
