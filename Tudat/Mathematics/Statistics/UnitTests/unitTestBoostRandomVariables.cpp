@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #define BOOST_TEST_MAIN
 
 #include <limits>
@@ -15,26 +25,27 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_boost_distributions )
 
+//! Test wrappers for continuous probability distributions from boost.
 BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
 {
 
+    // Set independent variables.
     std::vector< double > testVector;
     std::vector< double > positiveTestVector;
-
-    std::vector< double > probabilityVector;
-
     for( unsigned int i = 0; i < 1001; i++ )
     {
         testVector.push_back( -5.0 + static_cast< double >( i ) * 0.01 );
         positiveTestVector.push_back( static_cast< double >( i ) * 0.01 );
     }
 
+    // Set probability vector (used for quantile computation).
+    std::vector< double > probabilityVector;
     for( unsigned int i = 1; i < 100; i++ )
     {
         probabilityVector.push_back( static_cast< double >( i ) * 0.01 );
     }
 
-    // uniform_distribution
+    // Test uniform_distribution
     {
         std::vector< double > parameters;
         parameters.push_back( -1.0 );
@@ -45,6 +56,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                     statistics::uniform_boost_distribution, parameters );
         boost::math::uniform_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
 
+        // Test pdf and cdf.
         for( unsigned int i = 0; i < testVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -63,7 +75,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         }
     }
 
-    // normal_boost_distribution
+    // Test normal_boost_distribution
     {
         std::vector< double > parameters;
         parameters.push_back( -1.0 );
@@ -74,6 +86,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                     statistics::normal_boost_distribution, parameters );
         boost::math::normal_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
 
+        // Test pdf and cdf.
         for( unsigned int i = 0; i < testVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -84,6 +97,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                         boost::math::cdf< double >( manualDistribution, testVector.at( i ) ) );
         }
 
+        // Test inverse cdf (quantile).
         for( unsigned int i = 0; i < probabilityVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -93,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
 
     }
 
-    // exponential_distribution
+    // Test exponential_distribution
     {
         std::vector< double > parameters;
         parameters.push_back( 2.5 );
@@ -103,6 +117,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                     statistics::exponential_boost_distribution, parameters );
         boost::math::exponential_distribution< > manualDistribution( parameters.at( 0 ) );
 
+        // Test pdf and cdf.
         for( unsigned int i = 0; i < testVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -113,6 +128,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                         boost::math::cdf< double >( manualDistribution, positiveTestVector.at( i ) ) );
         }
 
+        // Test inverse cdf (quantile).
         for( unsigned int i = 0; i < probabilityVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -122,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
 
     }
 
-    // gamma_distribution
+    // Test gamma_distribution
     {
         std::vector< double > parameters;
         parameters.push_back( 1.0 );
@@ -133,6 +149,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                     statistics::gamma_boost_distribution, parameters );
         boost::math::gamma_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
 
+        // Test pdf and cdf.
         for( unsigned int i = 0; i < testVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -143,6 +160,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                         boost::math::cdf< double >( manualDistribution, positiveTestVector.at( i ) ) );
         }
 
+        // Test inverse cdf (quantile).
         for( unsigned int i = 0; i < probabilityVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -151,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         }
     }
 
-    // lognormal_distribution
+    // Test lognormal_distribution
     {
         std::vector< double > parameters;
         parameters.push_back( -1.0 );
@@ -162,6 +180,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                     statistics::lognormal_boost_distribution, parameters );
         boost::math::lognormal_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
 
+        // Test pdf and cdf.
         for( unsigned int i = 0; i < testVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -172,6 +191,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                         boost::math::cdf< double >( manualDistribution, positiveTestVector.at( i ) ) );
         }
 
+        // Test inverse cdf (quantile).
         for( unsigned int i = 0; i < probabilityVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -180,7 +200,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         }
     }
 
-    // beta_boost_distribution
+    // Test beta_boost_distribution
     {
         std::vector< double > parameters;
         parameters.push_back( 1.0 );
@@ -191,6 +211,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                     statistics::beta_boost_distribution, parameters );
         boost::math::beta_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
 
+        // Test pdf and cdf.
         for( unsigned int i = 0; i < probabilityVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
@@ -201,6 +222,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
                         boost::math::cdf< double >( manualDistribution, probabilityVector.at( i ) ) );
         }
 
+        // Test inverse cdf (quantile).
         for( unsigned int i = 0; i < probabilityVector.size( ); i++ )
         {
             BOOST_CHECK_EQUAL(
