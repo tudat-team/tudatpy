@@ -72,7 +72,7 @@ namespace reference_frames
  * \param rotation Function returning the current rotation to the new frame
  * \return Vector originalVector, transformed to new frame.
  */
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFromQuaternionFunction(
         const Eigen::Vector3d& originalVector,
         const boost::function< Eigen::Quaterniond( ) > rotation );
 
@@ -83,7 +83,7 @@ Eigen::Vector3d transformVector(
  * \param transformationFunction Function transforming a vector to a new frame
  * \return Vector originalVector, transformed to new frame.
  */
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
         const boost::function< Eigen::Vector3d( ) > originalVector,
         const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction );
 
@@ -95,7 +95,7 @@ Eigen::Vector3d transformVector(
  * in this list are called in descending order.
  * \return Vector originalVector, transformed to new frame.
  */
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFromVectorFunctions(
         const Eigen::Vector3d& originalVector,
         const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );
 
@@ -414,6 +414,7 @@ double calculateHeadingAngle( const Eigen::Vector3d& velocityInVerticalFrame );
  *  \return Current flight path angle.
  */
 double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame );
+
 
 } // namespace reference_frames
 } // namespace tudat

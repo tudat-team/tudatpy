@@ -696,14 +696,12 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
                 boost::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
 
+
     boost::function< Eigen::Vector3d( ) > coefficientFunction =
             boost::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
                          aerodynamicCoefficients );
     boost::function< Eigen::Vector3d( ) > coefficientInPropagationFrameFunction =
-            boost::bind( static_cast< Eigen::Vector3d(&)(
-                             const boost::function< Eigen::Vector3d( ) >,
-                             const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > ) >(
-                             &reference_frames::transformVector ),
+            boost::bind( &reference_frames::transformVectorFunctionFromVectorFunctions,
                          coefficientFunction, toPropagationFrameTransformation );
 
     // Create acceleration model.

@@ -513,5 +513,11 @@ double computeMachNumber( const double speed, const double speedOfSound )
     return speed / speedOfSound;
 }
 
+double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity )
+{
+    return 1.0 / ( std::sqrt( 2.0 ) * tudat::mathematical_constants::PI * weightedAverageCollisionDiameter *
+                   weightedAverageCollisionDiameter * averageNumberDensity );
+}
+
 } // namespace aerodynamics
 } // namespace tudat

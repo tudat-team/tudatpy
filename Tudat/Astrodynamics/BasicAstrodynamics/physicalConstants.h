@@ -131,7 +131,17 @@ const static double ASTRONOMICAL_UNIT = 1.49597870691e11;
 //! The specific gas constant of air in J per kg Kelvin (J/(kg K)) (Anderson, 2006).
 const static double SPECIFIC_GAS_CONSTANT_AIR = 2.87e2;
 
-//! Planck's constant in m^{2} kg/s, (NIST, 2013).
+
+//! Molar gas constant.
+/*!
+ * The molar gas constant in J per mole Kelvin (J/(mol K)) (NIST: http://physics.nist.gov/cgi-bin/cuu/Value?r, 2016).
+ */
+const static double MOLAR_GAS_CONSTANT = 8.3144598;
+
+//! Planck constant.
+/*!
+ * Planck's constant in m^{2} kg/s, (NIST, 2013).
+ */
 const static double PLANCK_CONSTANT = 6.62606957E-34;
 
 //! The Boltzmann constant (gas constant per particle) in  m^{2} kg / ( s^{2} K ), (NIST, 2013).

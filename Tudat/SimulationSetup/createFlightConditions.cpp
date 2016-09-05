@@ -190,14 +190,8 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
             boost::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
     boost::function< basic_mathematics::Vector6d( const basic_mathematics::Vector6d& ) >
             transformationToCentralBodyFrame =
-            boost::bind(
-                static_cast< basic_mathematics::Vector6d(&)(
-                    const basic_mathematics::Vector6d&,
-                    const boost::function< Eigen::Quaterniond( ) >,
-                    const boost::function< Eigen::Matrix3d( ) > ) >(
-                    &ephemerides::transformStateToFrame ),
-                _1, rotationToFrameFunction,
-                rotationMatrixToFrameDerivativeFunction );
+            boost::bind( &ephemerides::transformStateToFrameFromRotationFunctions< double >,
+                _1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
 
     // Create flight conditions.
     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =

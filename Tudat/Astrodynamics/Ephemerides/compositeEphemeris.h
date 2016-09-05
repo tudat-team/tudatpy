@@ -286,7 +286,7 @@ boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
 
     std::map< int, boost::function< StateType( const double, const StateType& ) > > referencePointRotationVector;
     referencePointRotationVector[ 1 ] = boost::bind(
-        transformStateToFrameFromStateFunctions< StateScalarType >,
+        transformStateToFrameFromRotationTimeFunctions< StateScalarType >,
                 _2, _1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
 
     boost::shared_ptr< Ephemeris > ephemeris
