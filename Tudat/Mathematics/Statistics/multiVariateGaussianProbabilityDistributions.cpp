@@ -41,103 +41,21 @@
 #include <cmath>
 #include <numeric>
 
-#include <Tudat/Mathematics/Statistics/probabilityDistributions.h>
 #include <boost/math/special_functions/erf.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/lognormal.hpp>
+
+#include <Tudat/Mathematics/Statistics/multiVariateGaussianProbabilityDistributions.h>
+
 
 namespace tudat
 {
 namespace statistics
 {
 
-using tudat::mathematical_constants::PI;
-
-//! Constructor.
-GaussianDistributiond::GaussianDistributiond(double Mean, double StandardDeviation){ // constructor
-    mean_ = Mean ;
-    standardDeviation_ = StandardDeviation ;
-    variance_ = std::pow( standardDeviation_ , 2.0 );
-}
-
-//! Get probability density of 1D Gaussian distribution
-double GaussianDistributiond::getProbabilityDensity(const double& x){
-    return (std::exp( ( - std::pow( x - mean_ , 2.0 ) ) / ( 2.0 * variance_ ) )
-            /( std::sqrt( 2.0 * PI ) * standardDeviation_ ) ) ;
-}
-
-//! Get cumulative probability of 1D Gaussian distribution
-double GaussianDistributiond::getCumulativeProbability(const double &x){
-    boost::math::normal distribution(mean_, standardDeviation_);
-    return boost::math::cdf( distribution , x );
-}
-
-//! Get Quantile (Inverse CDF).
-double GaussianDistributiond::getQuantile(const double &x )
-{
-    boost::math::normal distribution(mean_, standardDeviation_);
-    return boost::math::quantile( distribution , x );
-}
-
-//! Constructor.
-UniformDistributiond::UniformDistributiond(double LowerBound, double UpperBound){ // constructor
-    lowerBound_ = LowerBound ;
-    upperBound_ = UpperBound ;
-    probabilityDensity_ = 1.0/( upperBound_ - lowerBound_ ) ;
-}
-
-
-//! Get probability density of 1D Uniform distribution
-double UniformDistributiond::getProbabilityDensity(const double& x){
-    if ( (x >= lowerBound_ && x <= upperBound_ ) ){
-        return probabilityDensity_ ;
-    }
-    else{
-        return 0.0 ;
-    }
-}
-
-//! Compute mean and standard deviation 1D Uniform distribution.
-void UniformDistributiond::computeMeanAndStandardDeviation(){
-    mean_ = (upperBound_ + lowerBound_)/2.0 ;
-    variance_ = std::pow(upperBound_ - lowerBound_,2.0) / 12.0;
-    standardDeviation_ = std::sqrt( variance_ );
-}
-
-//! Constructor of the lognormal distribution
-LogNormalDistributiond::LogNormalDistributiond( double Mean, double StandardDeviation )
-{
-    mean_ = Mean;
-    standardDeviation_ = StandardDeviation;
-    variance_ = std::pow( standardDeviation_ , 2.0 );
-
-    locationParameter_ = std::log( mean_ / ( std::sqrt( variance_ / std::pow( mean_ , 2.0 ) + 1.0 ) ) );
-    scaleParameter_ = std::sqrt( std::log( variance_ / std::pow( mean_ , 2.0 ) + 1.0 ) ) ;
-}
-
-//! Get probability density.
-double LogNormalDistributiond::getProbabilityDensity( const double& x )
-{
-    boost::math::lognormal distribution( locationParameter_ , scaleParameter_ );
-    return boost::math::pdf( distribution , x );
-}
-
-//! Get cumulative probability.
-double LogNormalDistributiond::getCumulativeProbability(const double &x )
-{
-    boost::math::lognormal distribution( locationParameter_ , scaleParameter_ );
-    return boost::math::cdf( distribution , x );
-}
-
-//! Get Quantile (Inverse CDF).
-double LogNormalDistributiond::getQuantile(const double &x )
-{
-    boost::math::lognormal distribution( locationParameter_ , scaleParameter_ );
-    return boost::math::quantile( distribution , x );
-}
 
 //! Get probability density of gaussian copula.
-double GaussianCopulaDistributionXd::getProbabilityDensity( const Eigen::VectorXd& x ){
+double GaussianCopulaDistributionXd::evaluatePdf( const Eigen::VectorXd& x ){
     double probabilityDensity = 0.0 ;
 
     // Check if vector x is inside [0,1]
