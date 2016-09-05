@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+
 #ifndef TUDAT_HERMITE_CUBIC_SPLINE_INTERPOLATOR_H
 #define TUDAT_HERMITE_CUBIC_SPLINE_INTERPOLATOR_H
 
@@ -113,7 +124,7 @@ public:
         int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour(
                     targetIndependentVariableValue );
 
-        // Compute Hermite spline: p(x) = a((x-x0)/(x1-x0))^3 + b((x-x0)/(x1-x0))^2 + c((x-x0)/(x1-x0)) + d
+        // Compute Hermite spline
         IndependentVariableType factor = ( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] )
                 /( independentValues_[ lowerEntry_ + 1 ] - independentValues_[ lowerEntry_ ] );
         DependentVariableType targetValue =
@@ -128,7 +139,7 @@ public:
 protected:
 
     //! Compute coefficients of the splines
-    void computeCoefficients()
+    void computeCoefficients( )
     {
         // Initialize vector
         std::vector< DependentVariableType > zeroVect( independentValues_.size( ) - 1 );
@@ -138,24 +149,25 @@ protected:
             coefficients_.push_back( zeroVect );
         }
 
-        // Compute coefficients for polynomials.
+        // Compute coefficients for polynomials a, b, c and d so that interpolant p is:
+        // p(x) = a((x-x0)/(x1-x0))^3 + b((x-x0)/(x1-x0))^2 + c((x-x0)/(x1-x0)) + d.
         for( unsigned int i = 0 ; i < ( independentValues_.size() - 1 ) ; i++ )
         {
-            // p(x) = a((x-x0)/(x1-x0))^3 + b((x-x0)/(x1-x0))^2 + c((x-x0)/(x1-x0)) + d
-            // a
+
+            // Compute coefficient a
             coefficients_[ 0 ][ i ] = 2.0 * dependentValues_[ i ] - 2.0 * dependentValues_[ i + 1 ] +
                     derivativeValues_[ i ]*(independentValues_[ i + 1 ]-independentValues_[ i ] ) +
                     derivativeValues_[ i + 1 ]*(independentValues_[ i + 1 ]-independentValues_[ i ] );
 
-            // b
+            // Compute coefficient b
             coefficients_[ 1 ][ i ] = -3.0 * dependentValues_[ i ] + 3.0 * dependentValues_[ i + 1 ] -
                     2.0 * derivativeValues_[ i ]*(independentValues_[ i + 1 ]-independentValues_[ i ] ) -
                     derivativeValues_[ i + 1 ]*(independentValues_[ i + 1 ]-independentValues_[ i ] );
 
-            // c
+            // Compute coefficient c
             coefficients_[ 2 ][ i ] = derivativeValues_[ i ] * ( independentValues_[ i + 1 ]-independentValues_[ i ] );
 
-            // d
+            // Compute coefficient d
             coefficients_[ 3 ][ i ] = dependentValues_[ i ]   ;
         }
     }
@@ -170,6 +182,7 @@ private:
     std::vector< std::vector< DependentVariableType > > coefficients_ ;
 };
 
+//! Typede for cubic hermite spline with double (in)dependent variables.
 typedef HermiteCubicSplineInterpolator< double, double > HermiteCubicSplineInterpolatorDouble;
 
 } //namespace tudat
