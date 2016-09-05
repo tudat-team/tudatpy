@@ -362,6 +362,10 @@ double computeSpeedOfSound( const double temperature, const double ratioOfSpecif
  */
 double computeMachNumber( const double speed, const double speedOfSound );
 
+// (Chapman, S. & Cowling, T. The mathematical theory of nonuniform gases Cambridge University Press, 1970)
+double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity );
+
+
 } // namespace aerodynamics
 } // namespace tudat
 

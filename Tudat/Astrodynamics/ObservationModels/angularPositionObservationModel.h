@@ -69,6 +69,8 @@ public:
      *  \param time Time at which observation is to be simulated
      *  \param linkEndAssociatedWithTime Link end at which given time is valid, i.e. link end for which associated time
      *  is kept constant (to input value)
+     *  \param linkEndTimes List of times at each link end during observation (returned by reference).
+     *  \param linkEndStates List of states at each link end during observation (returned by reference).
      *  \return Calculated angular position observable values.
      */
     Eigen::Matrix< ObservationScalarType, 2, 1 > computeIdealObservationsWithLinkEndData(
