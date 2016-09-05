@@ -71,11 +71,7 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude, const double longi
                 time, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
     double julianDay = std::floor( julianDate - 0.5 ) + 0.5;
 
-    // Move not always find, only if day changes
-    // Only use datamap with this day + some extra days..
-    // Find solar activity data for current date
-
-
+    // Check if solar activity is found for current day.
     if( solarActivityMap.count( julianDay ) == 0 )
     {
         std::cerr << "Solar activity data could not be found for this date.." << std::endl;
@@ -104,7 +100,7 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude, const double longi
         nrlmsiseInputData.f107a = solarActivity->centered81DaySolarRadioFlux107Observed;
     }
     nrlmsiseInputData.apDaily = solarActivity->planetaryEquivalentAmplitudeAverage;
-    nrlmsiseInputData.apVector = eigenToStlVector( solarActivity->planetaryEquivalentAmplitudeVector ); // std vector
+    nrlmsiseInputData.apVector = eigenToStlVector( solarActivity->planetaryEquivalentAmplitudeVector );
 
     // Compute local solar time
     // Hrs since begin of the day at longitude 0 (GMT) + Hrs passed at current longitude

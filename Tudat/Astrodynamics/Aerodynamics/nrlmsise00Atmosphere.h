@@ -68,7 +68,7 @@ struct GasComponentProperties
      * Data to be verified
      *
      */
-    GasComponentProperties():
+    GasComponentProperties( ):
     diameterArgon(340E-12), diameterAtomicHydrogen(260E-12), diameterHelium(256E-12),
       diameterNitrogen(370E-12), diameterOxygen(358E-12), diameterAtomicNitrogen(290E-12),
       diameterAtomicOxygen(280E-12), molarMassArgon(39.948E-3), molarMassAtomicHydrogen(1.008E-3),
@@ -213,12 +213,12 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
      * \param useIdealGasLaw Variable denoting whether to use the ideal gas law for computation of pressure.
      */
     NRLMSISE00Atmosphere( const NRLMSISE00InputFunction nrlmsise00InputFunction,
-                         const bool useIdealGasLaw = true)
-        : nrlmsise00InputFunction_(nrlmsise00InputFunction)
+                         const bool useIdealGasLaw = true )
+        :nrlmsise00InputFunction_(nrlmsise00InputFunction)
     {
-        resetHashKey();
+        resetHashKey( );
         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
-        specificHeatRatio_ = 1.4 ;
+        specificHeatRatio_ = 1.4;
         GasComponentProperties gasProperties;
         gasComponentProperties_ = gasProperties; // Default gas properties
         useIdealGasLaw_ = useIdealGasLaw;
@@ -239,11 +239,11 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
                          const bool useIdealGasLaw = true)
         : nrlmsise00InputFunction_(nrlmsise00InputFunction)
     {
-        resetHashKey();
+        resetHashKey( );
         molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
-        specificHeatRatio_ = specificHeatRatio ;
+        specificHeatRatio_ = specificHeatRatio;
         gasComponentProperties_ = gasProperties;
-        useIdealGasLaw_ = useIdealGasLaw ;
+        useIdealGasLaw_ = useIdealGasLaw;
     }
 
     //! Set gas component properties.
