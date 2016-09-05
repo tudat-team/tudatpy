@@ -1,5 +1,15 @@
-#ifndef CONTINUOUSRANDOMVARIABLE_H
-#define CONTINUOUSRANDOMVARIABLE_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_CONTINUOUSPROBABILITYDISTRIBUTIONS_H
+#define TUDAT_CONTINUOUSPROBABILITYDISTRIBUTIONS_H
 
 #include <Eigen/Core>
 
@@ -45,9 +55,10 @@ double calculateGaussianCdf( const double independentVariable, const double mean
 
 //! Base class for a continuous random variable
 /*!
- *  Base class for a continuous random variable, providing interfaces for evaluating probability, cumulative and inverse cumulative
- *  distribution functions. Specific functions are to be implemented by derived class. Derived class may be used for random number
- *  generation through ContinuousVariableClassRandomVariableGenerator class.
+ *  Base class for a continuous random variable, providing interfaces for evaluating probability and cumulative distribution
+ *  functions (inverse cdf is only available for derived class InvertibleContinuousProbabilityDistribution).
+ *  Specific functions are to be implemented by derived class. Derived class may be used for random number generation
+ *  through ContinuousVariableClassRandomVariableGenerator class.
  */
 template< typename IndependentVariableType >
 class ContinuousProbabilityDistribution
@@ -74,6 +85,7 @@ public:
     virtual double evaluateCdf( const IndependentVariableType& independentVariable ) = 0;
 };
 
+//! Derived class of ContinuousProbabilityDistribution that includes inverse cdf computation.
 template< typename IndependentVariableType >
 class InvertibleContinuousProbabilityDistribution: public ContinuousProbabilityDistribution< IndependentVariableType >
 {
@@ -87,8 +99,8 @@ public:
 
     //! Function to evaluate inverse cdf of distribution
     /*!
-     *  Function to evaluate inverse cumulative distribution function at given independentVariable value.
-     *  \param independentVariable Value of independent variable
+     *  Function to evaluate inverse cumulative distribution function at given probability value
+     *  \param independentVariable Value of probability at which inverse cdf is to be computed (must be in the domain [0,1]).
      *  \return Evaluated inverse cdf
      */
     virtual double evaluateInverseCdf( const IndependentVariableType independentVariable ) = 0;
@@ -98,4 +110,4 @@ public:
 
 }
 
-#endif // CONTINUOUSRANDOMVARIABLE_H
+#endif // CONTINUOUSPROBABILITYDISTRIBUTIONS_H

@@ -64,9 +64,9 @@ add_executable(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics/Unit
 setup_custom_test_program(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 target_link_libraries(test_BasicStatistics tudat_statistics ${Boost_LIBRARIES})
 
-add_executable(test_ProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestMultiVariateGaussianProbabilityDistributions.cpp")
-setup_custom_test_program(test_ProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
-target_link_libraries(test_ProbabilityDistributions tudat_statistics ${Boost_LIBRARIES})
+add_executable(test_MultiVariateProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestMultiVariateGaussianProbabilityDistributions.cpp")
+setup_custom_test_program(test_MultiVariateProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
+target_link_libraries(test_MultiVariateProbabilityDistributions tudat_statistics ${Boost_LIBRARIES})
 
 add_executable(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestBoostRandomVariables.cpp")
 setup_custom_test_program(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")

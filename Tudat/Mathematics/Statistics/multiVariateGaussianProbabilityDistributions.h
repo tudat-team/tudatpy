@@ -37,10 +37,6 @@
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
-#include <Eigen/LU>
-#include <Eigen/Householder>
-#include <Eigen/QR>
-#include <Eigen/Sparse>
 
 #include <boost/shared_ptr.hpp>
 
@@ -52,36 +48,62 @@ namespace tudat
 namespace statistics
 {
 
-//! Multi-dimensional Gaussian Distribution class.
+//! Implementation of multi-dimensional Gaussian Probability Distribution.
 /*!
- * Multi-dimensional Gaussian Distribution class.
- * Source: Tong, Y. The Multivariate Normal Distribution Springer-Verslag, 1990
+ *  Implementation of multi-dimensional Gaussian Probability Distribution. Only pdf is presently implemented,
+ *  a runtime error is thrown if the cdf function is called.
+ *  Model taken from Tong, Y. The Multivariate Normal Distribution Springer-Verslag, 1990
  */
 class GaussianDistributionXd: public ContinuousProbabilityDistribution< Eigen::VectorXd >
 {
 public:
 
     //! Constructor
-    GaussianDistributionXd(Eigen::VectorXd Mean , Eigen::MatrixXd CovarianceMatrix ){ // constructor
-        mean_ = Mean ;
-        covarianceMatrix_ = CovarianceMatrix ;
-        dimension_ = double(mean_.rows()) ;
-        determinant_ = CovarianceMatrix.determinant() ;
-        inverseCovarianceMatrix_ = covarianceMatrix_.inverse() ;
-    }
-
-    //! Get probability density
-    double evaluatePdf( const Eigen::VectorXd& x )
+    /*!
+     * Constructor
+     * \param mean Mean values of distribution
+     * \param covarianceMatrix Covariance matrix of distribution
+     */
+    GaussianDistributionXd(
+            const Eigen::VectorXd& mean , const Eigen::MatrixXd& covarianceMatrix ):
+        mean_( mean ), covarianceMatrix_( covarianceMatrix )
     {
-        using tudat::mathematical_constants::PI;
-        Eigen::VectorXd u = (x - mean_) ;
-        Eigen::MatrixXd location = -0.5*( u.transpose()*inverseCovarianceMatrix_*u ) ;
+        if( covarianceMatrix.rows( ) != covarianceMatrix.cols( ) )
+        {
+            throw std::runtime_error( "Error, covarianceMatrix input to GaussianDistributionXd is not square" );
+        }
 
-        double probability = std::exp( location(0,0) ) /( std::pow(2.0*PI,dimension_/2.0) * std::sqrt(determinant_) ) ;
-        return probability ;
+        dimension_ = static_cast< double >( mean_.rows( ) );
+        determinant_ = covarianceMatrix_.determinant( );
+        inverseCovarianceMatrix_ = covarianceMatrix_.inverse( );
     }
 
-    double evaluateCdf( const Eigen::VectorXd& independentVariable )
+    //! Function to evaluate pdf of multivariate Gaussian distribution
+    /*!
+     *  Function to evaluate probability distribution function of multivariate Gaussian distribution at given
+     *  list of independent variable values.
+     *  \param independentVariables List of independent variable values
+     *  \return Evaluated multivariate Gaussian pdf
+     */
+    double evaluatePdf( const Eigen::VectorXd& independentVariables )
+    {
+        Eigen::VectorXd distanceFromMean = ( independentVariables - mean_ ) ;
+        Eigen::MatrixXd location = -0.5 * (
+                    distanceFromMean.transpose( ) * inverseCovarianceMatrix_ * distanceFromMean ) ;
+
+        return std::exp( location( 0, 0 ) ) / ( std::pow( 2.0 * mathematical_constants::PI, dimension_ / 2.0 ) *
+                                                std::sqrt( determinant_ ) );
+    }
+
+    //! Function to evaluate cdf of multivariate Gaussian distribution (not yet implemented)
+    /*!
+     *  Function to evaluate cumulative distribution function of multivariate Gaussian distribution at given
+     *  list of independent variable values.
+     *  NOTE: function not yet implemented
+     *  \param independentVariables List of independent variable values
+     *  \return Evaluated multivariate Gaussian cdf.
+     */
+    double evaluateCdf( const Eigen::VectorXd& independentVariables )
     {
         throw std::runtime_error( "Cdf of GaussianDistributionXd not yet implemented" );
 
@@ -90,45 +112,71 @@ public:
 
 private:
     //! Dimension of the random variable X
-    double              dimension_           ;
+    double dimension_;
 
     //! Mean vector of random variable X
-    Eigen::VectorXd     mean_                  ;
+    Eigen::VectorXd mean_       ;
 
     //! Covariance matrix of random variable X
-    Eigen::MatrixXd     covarianceMatrix_    ;
+    Eigen::MatrixXd covarianceMatrix_    ;
 
     //! Determinant of covariance matrix
-    double              determinant_         ;
+    double determinant_;
 
     //! Inverse of the covariance matrix
-    Eigen::MatrixXd     inverseCovarianceMatrix_ ;
+    Eigen::MatrixXd inverseCovarianceMatrix_ ;
 };
 
 
-//! Gaussian Copula Distribution class.
+//! Implementation of Gaussian Copula Distribution.
 /*!
- * A Gaussian copula can be used to link several marginal distributions to form a joint distribution.
- * Source: Song, P. X.-K. Multivariate Dispersion Models Generated from Gaussian Copula Scandinavian Journal of Statistics, 2000, 27, 305-320
+ *  Implementation of Gaussian Copula Distribution. A Gaussian copula can be used to link several marginal distributions
+ *  to form a joint distribution. Only pdf is presently implemented,
+ *  a runtime error is thrown if the cdf function is called.
+ *  Source: Song, P. X.-K. Multivariate Dispersion Models Generated from Gaussian Copula Scandinavian Journal of
+ *  Statistics, 2000, 27, 305-320
  */
 class GaussianCopulaDistributionXd: public ContinuousProbabilityDistribution< Eigen::VectorXd >
 {
 public:
 
     //! Constructor
-    GaussianCopulaDistributionXd( int dimension , Eigen::MatrixXd correlationMatrix )
+    /*!
+     * Constructor
+     * \param correlationMatrix Correlation matrix of distribution
+     */
+    GaussianCopulaDistributionXd( const Eigen::MatrixXd& correlationMatrix ):
+        correlationMatrix_( correlationMatrix )
     {
-        dimension_ = dimension;
-        correlationMatrix_ = correlationMatrix;
+        if( correlationMatrix.rows( ) != correlationMatrix.cols( ) )
+        {
+            throw std::runtime_error( "Error, correlationMatrix input to GaussianCopulaDistributionXd is not square" );
+        }
 
-        inverseCorrelationMatrix_ = correlationMatrix_.inverse() ;
-        determinant_ = correlationMatrix_.determinant() ;
+        dimension_ = correlationMatrix.rows( );
+
+        inverseCorrelationMatrix_ = correlationMatrix_.inverse( ) ;
+        determinant_ = correlationMatrix_.determinant( ) ;
     }
 
-    //! Get probability density.
-    double evaluatePdf( const Eigen::VectorXd& x );
+    //! Function to evaluate pdf of Gaussian cupola distribution
+    /*!
+     *  Function to evaluate probability distribution function of Gaussian cupola distribution at given
+     *  list of independent variable values.
+     *  \param independentVariables List of independent variable values
+     *  \return Evaluated multivariate Gaussian pdf
+     */
+    double evaluatePdf( const Eigen::VectorXd& independentVariables );
 
-    double evaluateCdf( const Eigen::VectorXd& independentVariable )
+    //! Function to evaluate cdf of Gaussian cupola distribution (not yet implemented)
+    /*!
+     *  Function to evaluate cumulative distribution function of Gaussian cupola distribution at given
+     *  list of independent variable values.
+     *  NOTE: function not yet implemented
+     *  \param independentVariables List of independent variable values
+     *  \return Evaluated Gaussian cupola cdf.
+     */
+    double evaluateCdf( const Eigen::VectorXd& independentVariables )
     {
         throw std::runtime_error( "Cdf of GaussianCopulaDistributionXd not yet implemented" );
         return TUDAT_NAN;
@@ -152,6 +200,7 @@ private:
 };
 
 } // namespace statistics
+
 } // namespace tudat
 
 #endif // TUDAT_PROBABILITY_DISTRIBUTIONS_H

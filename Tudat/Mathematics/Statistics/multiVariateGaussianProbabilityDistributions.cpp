@@ -54,32 +54,40 @@ namespace statistics
 {
 
 
-//! Get probability density of gaussian copula.
-double GaussianCopulaDistributionXd::evaluatePdf( const Eigen::VectorXd& x ){
+//! Function to evaluate pdf of Gaussian cupola distribution
+double GaussianCopulaDistributionXd::evaluatePdf(
+        const Eigen::VectorXd& independentVariables )
+{
     double probabilityDensity = 0.0 ;
 
-    // Check if vector x is inside [0,1]
-    int InBound = 0 ;
-    for( int i = 0 ; i < dimension_ ; i++ ){ // check in bounds
-        if( x(i) > 0.0 && x(i) < 1.0 ){
-            InBound++ ;
+    // Check if vector independentVariables is inside [0,1]
+    int inBound = 0 ;
+    for( int i = 0 ; i < dimension_ ; i++ )
+    {
+        if( independentVariables(i) > 0.0 && independentVariables(i) < 1.0 )
+        {
+            inBound++;
         }
     }
 
-    if( InBound == dimension_ ){
+    // If data is in bounds
+    if( inBound == dimension_ )
+    {
         // Convert U[0,1] to N[0,1] using inverse CDF of standard normal distribution
-        Eigen::VectorXd y( dimension_ ) ;
+        Eigen::VectorXd gaussianQuantiles( dimension_ ) ;
         boost::math::normal distribution( 0.0 , 1.0 );
 
-        for(int i = 0 ; i < dimension_ ; i++){
-            y(i) = boost::math::quantile( distribution , x(i) ); // Inverse cdf
+        for( int i = 0 ; i < dimension_ ; i++ )
+        {
+            gaussianQuantiles( i ) = boost::math::quantile( distribution , independentVariables( i ) ); // Inverse cdf
         }
 
         // Calculate probability density
-        Eigen::MatrixXd location = - 0.5 * ( y.transpose() *
-                       (inverseCorrelationMatrix_ - Eigen::MatrixXd::Identity( dimension_ , dimension_ ) ) * y ) ;
+        Eigen::MatrixXd location = - 0.5 * ( gaussianQuantiles.transpose() *
+                       ( inverseCorrelationMatrix_ - Eigen::MatrixXd::Identity( dimension_ , dimension_ ) ) *
+                                             gaussianQuantiles );
 
-        probabilityDensity = ( ( 1.0/( std::sqrt( determinant_ ) ) )*std::exp( location(0,0) ) ) ;
+        probabilityDensity = ( ( 1.0 / ( std::sqrt( determinant_ ) ) ) * std::exp( location( 0, 0 ) ) ) ;
     }
 
     return probabilityDensity ;
