@@ -126,8 +126,84 @@ BOOST_AUTO_TEST_CASE( testHermiteCubicSplineInterpolator )
     }
 }
 
+// Test implementation of cubic Hermite spline class against Matlab (pchipd from Mathworks central).
+BOOST_AUTO_TEST_CASE( testHermiteCubicSplineInterpolatorWithMatlab )
+{
+    // Test 1: Compare with equispace solution for sin(2x)
+    {
+        // Declare and initialize independent variable values.
+        std::vector< double > independentVariables;
+        std::vector< double > dependentVariables;
+        std::vector< double > derivatives;
+
+        independentVariables.resize( 10 );
+        dependentVariables.resize( 10 );
+        derivatives.resize( 10 );
+
+        for( unsigned int i = 0; i < 10; i++ )
+        {
+            independentVariables[ i ] = static_cast< double >( i ) * 2.0 / 3.0;
+            dependentVariables[ i ] = std::sin( 2.0 * independentVariables[ i ] );
+            derivatives[ i ] = 2.0 * std::cos( 2.0 * independentVariables[ i ] );
+        }
+
+        // Declare cubic spline object and initialize with input data.
+        interpolators::HermiteCubicSplineInterpolatorDouble interpolator(
+                    independentVariables, dependentVariables , derivatives );
+
+        std::vector< double > matlabResults = { 0.0,	-0.500127989105607,	0.860566028073899, -0.995666072885886 };
+
+        for( unsigned int i = 0; i < 4; i++ )
+        {
+            double targetIndependentVariableValue =  static_cast< double >( i ) * 11.0 / 6.0;
+            // Declare interpolated dependent variable value and execute interpolation.
+            double interpolatedDependentVariableValue = interpolator.interpolate(
+                        targetIndependentVariableValue );
+
+            // Check if test result match analytical result.
+            BOOST_CHECK_SMALL( std::fabs( matlabResults.at( i ) - interpolatedDependentVariableValue ), 1.0e-15 );
+
+        }
+    }
+
+    // Test 2: Compare with non-equispaced solution for sin(2x)
+    {
+        // Declare and initialize independent variable values.
+        std::vector< double > independentVariables =
+        { 0.100,	0.250,	0.600,	0.620,	1.0,	1.40,	1.51,	2.0,	3.0};
+        std::vector< double > dependentVariables;
+        std::vector< double > derivatives;
+
+        for( unsigned int i = 0; i < independentVariables.size( ); i++ )
+        {
+            dependentVariables.push_back( std::sin( 2.0 * independentVariables[ i ] ) );
+            derivatives.push_back( 2.0 * std::cos( 2.0 * independentVariables[ i ] ) );
+        }
+
+        // Declare cubic spline object and initialize with input data.
+        interpolators::HermiteCubicSplineInterpolatorDouble interpolator(
+                    independentVariables, dependentVariables , derivatives );
+
+        std::vector< double > matlabResults =
+        { -0.000114788941438321,	0.956262264186293,	-0.557211110925702,	-0.616700531016027 };
+
+        for( unsigned int i = 0; i < 4; i++ )
+        {
+            double targetIndependentVariableValue =  static_cast< double >( i ) * 2.8 / 3.0;
+            // Declare interpolated dependent variable value and execute interpolation.
+            double interpolatedDependentVariableValue = interpolator.interpolate(
+                        targetIndependentVariableValue );
+
+            // Check if test result match analytical result.
+            BOOST_CHECK_SMALL( std::fabs( matlabResults.at( i ) - interpolatedDependentVariableValue ), 1.0e-15 );
+
+        }
+    }
+}
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
+
 } // namespace tudat

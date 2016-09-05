@@ -17,6 +17,7 @@
 
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/hermiteCubicSplineInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
 namespace tudat
@@ -30,7 +31,8 @@ enum OneDimensionalInterpolatorTypes
 {
     linear_interpolator = 1,
     cubic_spline_interpolator = 2,
-    lagrange_interpolator = 3
+    lagrange_interpolator = 3,
+    hermite_spline_interpolator = 4
 };
 
 //! Base class for providing settings for creating an interpolator.
@@ -141,6 +143,7 @@ protected:
 
 };
 
+
 //! Function to create an interpolator
 /*!
  *  Function to create an interpolator from the data that is to be interpolated, as well as the
@@ -148,13 +151,18 @@ protected:
  *  \param dataToInterpolate Map providing data that is to be interpolated (key = independent
  *  variables, value = dependent variables)
  *  \param interpolatorSettings Settings that are to be used to create interpolator
+ *  \param firstDerivativeOfDependentVariables First derivative of dependent variables w.r.t. independent variable at
+ *  independent variables values in values of dataToInterpolate. By default, this vector is empty, it only needs to
+ *  be supplied if the selected interpolator requires this data (e.g. Hermite spline).
  *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 boost::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >
 createOneDimensionalInterpolator(
         const std::map< IndependentVariableType, DependentVariableType > dataToInterpolate,
-        const boost::shared_ptr< InterpolatorSettings > interpolatorSettings )
+        const boost::shared_ptr< InterpolatorSettings > interpolatorSettings,
+        const std::vector< DependentVariableType > firstDerivativeOfDependentVariables =
+        std::vector< DependentVariableType >( ) )
 {
     boost::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >
             createdInterpolator;
@@ -202,6 +210,19 @@ createOneDimensionalInterpolator(
         }
         break;
     }
+    case hermite_spline_interpolator:
+    {
+        if( firstDerivativeOfDependentVariables.size( ) != dataToInterpolate.size( ) )
+        {
+            throw std::runtime_error( "Error when creating hermite spline interpolator, derivative size is inconsistent" );
+        }
+        createdInterpolator = boost::make_shared< HermiteCubicSplineInterpolator
+                < IndependentVariableType, DependentVariableType > >(
+                    dataToInterpolate, firstDerivativeOfDependentVariables,
+                    interpolatorSettings->getSelectedLookupScheme( ) );
+        break;
+    }
+
     default:
         throw std::runtime_error(
                     "Error when making interpolator, function cannot be used to create interplator of type " +
