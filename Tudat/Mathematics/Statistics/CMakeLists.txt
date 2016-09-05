@@ -40,6 +40,7 @@ set(STATISTICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/multiVariateGaussianProbabilityDistributions.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/continuousProbabilityDistributions.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/kernelDensityDistribution.cpp"
 )
 
 # Add header files.
@@ -49,6 +50,7 @@ set(STATISTICS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/multiVariateGaussianProbabilityDistributions.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/continuousProbabilityDistributions.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/kernelDensityDistribution.h"
 )
 
 # Add static libraries.
@@ -71,3 +73,7 @@ target_link_libraries(test_MultiVariateProbabilityDistributions tudat_statistics
 add_executable(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestBoostRandomVariables.cpp")
 setup_custom_test_program(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 target_link_libraries(test_BoostDistributions tudat_statistics ${Boost_LIBRARIES})
+
+add_executable(test_KernelDensityDistribution "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestKernelDensityDistribution.cpp")
+setup_custom_test_program(test_KernelDensityDistribution "${SRCROOT}${MATHEMATICSDIR}/Statistics")
+target_link_libraries(test_KernelDensityDistribution tudat_statistics ${Boost_LIBRARIES})

@@ -42,6 +42,7 @@
 #include <numeric>
 
 #include "Tudat/Mathematics/Statistics/basicStatistics.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 namespace tudat
 {
@@ -99,6 +100,34 @@ double computeSampleVariance( const std::vector< double >& sampleData )
 
     // Return sample variance.
     return 1.0 / ( static_cast< double >( sampleData.size( ) ) - 1.0 ) * sumOfResidualsSquared_;
+}
+
+//! Compute Sample median
+double computeSampleMedian( std::vector< double > sampleData )
+{
+    // Sort data
+    std::sort( sampleData.begin() , sampleData.end());
+
+    // Check if odd number of samples or even
+    double numberOfSamples = static_cast< double >( sampleData.size() );
+    int odd = tudat::basic_mathematics::computeModulo( numberOfSamples , 2.0 ) ;
+
+    // Calculate sample median
+    double sampleMedian;
+    if( odd == 0 ) // even
+    {
+        // 0 .. 99 (100) ->
+        int index = static_cast< int >( numberOfSamples / 2.0 - 0.5 ) ;
+        sampleMedian = (sampleData[index] + sampleData[index+1])/2.0 ;
+    }
+    else // odd
+    {
+        // 0 .. 100 (101) -> 50
+        int index = static_cast< int >( numberOfSamples / 2.0 - 0.5 ) ;
+        sampleMedian = sampleData[index] ;
+    }
+
+    return sampleMedian;
 }
 
 } // namespace statistics
