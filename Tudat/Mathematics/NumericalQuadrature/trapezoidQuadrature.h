@@ -1,35 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      120716    D. Dirkx          Creation of file.
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
 #ifndef TUDAT_TRAPEZOIDAL_INTEGRATOR_H
@@ -45,72 +21,112 @@
 
 namespace tudat
 {
+
 namespace numerical_quadrature
 {
 
 
-//! Integrate.
+//! Function to perform numerical quadrature using the trapezoidal method.
 /*!
- * This function performs the integration.
- * Source: Burden & Faires
- * \return Integral of the data.
+ * Function to perform numerical quadrature using the trapezoidal method.
+ * \param independentVariables Values of independent variables at which dependentVariables are given
+ * \param dependentVariables Values of function for which the numerical quadrature is to be computed, given at
+ * independentVariables.
+ * \return Numerical quadrature (integral) of the data provided as input
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 DependentVariableType performTrapezoidalQuadrature(
         const std::vector< IndependentVariableType >& independentVariables,
-                                           const std::vector< DependentVariableType >& dependentVariables )
+        const std::vector< DependentVariableType >& dependentVariables )
 {
     DependentVariableType integral = dependentVariables.at( 0 ) - dependentVariables.at( 0 );
-    DependentVariableType h;
-    for( unsigned int i = 0 ; i < independentVariables.size() - 1 ; i++ )
+    IndependentVariableType timeStep;
+    for( unsigned int i = 0 ; i < independentVariables.size( ) - 1 ; i++ )
     {
-        h = independentVariables[i+1] - independentVariables[i];
-        integral += h * ( dependentVariables[i+1] + dependentVariables[ i ] ) / ( 2.0 ) ;
+        timeStep = independentVariables[ i + 1 ] - independentVariables[ i ];
+        integral += timeStep * ( dependentVariables[ i + 1 ] + dependentVariables[ i ] ) / 2.0 ;
     }
     return integral;
 }
 
-//! Trapezoid numerical integrator.
+//! Trapezoid numerical quadrature wrapper class.
 /*!
- * Numerical integrator that uses the trapezoid method to compute definite integrals of a dataset.
- * \tparam VariableType Type of independent and dependent variable(s).
+ *  Numerical method that uses the trapezoid method to compute definite integrals of a dataset.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 class TrapezoidNumericalQuadrature : public NumericalQuadrature< IndependentVariableType , DependentVariableType >
 {
 public:
 
-    //! Constructor
+    //! Constructor.
+    /*!
+     * Constructor
+     * \param independentVariables Values of independent variables at which dependentVariables are given
+     * \param dependentVariables Values of function for which the numerical quadrature is to be computed, given at
+     * independentVariables.
+     */
     TrapezoidNumericalQuadrature( const std::vector< IndependentVariableType >& independentVariables,
                                   const std::vector< DependentVariableType >& dependentVariables)
     {
         independentVariables_ = independentVariables;
         dependentVariables_ = dependentVariables;
+        performQuadrature( );
     }
 
-    //! Constructor
-    TrapezoidNumericalQuadrature( ){ }
-
-    //! Integrate.
+    //! Function to reset the (in)dependent variable values.
     /*!
-     * This function performs the integration.
-     * Source: Burden & Faires
-     * \return Integral of the data.
+     * Function to reset the (in)dependent variable values.
+     * \param independentVariables Values of independent variables at which dependentVariables are given
+     * \param dependentVariables Values of function for which the numerical quadrature is to be computed, given at
+     * independentVariables.
      */
-    DependentVariableType integrate( )
+    void resetData( const std::vector< IndependentVariableType >& independentVariables,
+                    const std::vector< DependentVariableType >& dependentVariables)
     {
-        return performTrapezoidalQuadrature( independentVariables_ , dependentVariables_ );
+        independentVariables_ = independentVariables;
+        dependentVariables_ = dependentVariables;
+        performQuadrature( );
+    }
+
+    //! Function to return computed value of the quadrature.
+    /*!
+     *  Function to return computed value of the quadrature, as computed by last call to performQuadrature.
+     *  \return Function to return computed value of the quadrature, as computed by last call to performQuadrature.
+     */
+    DependentVariableType getQuadrature( )
+    {
+        return quadratureResult_;
     }
 
 protected:
 
+    //! Function that is called to perform the numerical quadrature
+    /*!
+     * Function that is called to perform the numerical quadrature. Sets the result in the quadratureResult_ local
+     * variable.
+     */
+    void performQuadrature( )
+    {
+        quadratureResult_ = performTrapezoidalQuadrature( independentVariables_ , dependentVariables_ );
+    }
+
 private:
+
+    //! Independent variables.
+    std::vector< IndependentVariableType > independentVariables_;
+
+    //! Dependent variables.
+    std::vector< DependentVariableType > dependentVariables_;
+
+    //! Computed value of the quadrature, as computed by last call to performQuadrature.
+    DependentVariableType quadratureResult_;
 
 };
 
 typedef boost::shared_ptr< TrapezoidNumericalQuadrature< double, double > > TrapezoidNumericalIntegratorPointerd;
 
 } // namespace numerical_quadrature
+
 } // namespace tudat
 
 #endif // TUDAT_TRAPEZOIDAL_INTEGRATOR_H
