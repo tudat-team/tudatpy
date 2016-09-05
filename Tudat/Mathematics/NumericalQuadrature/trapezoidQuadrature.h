@@ -123,6 +123,7 @@ private:
 
 };
 
+//! Typede for trapezoidal quadrature with double (in)dependent variables.
 typedef boost::shared_ptr< TrapezoidNumericalQuadrature< double, double > > TrapezoidNumericalIntegratorPointerd;
 
 } // namespace numerical_quadrature
