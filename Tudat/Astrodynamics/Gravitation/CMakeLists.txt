@@ -131,6 +131,6 @@ target_link_libraries(test_GravityFieldVariations tudat_gravitation tudat_basic_
 
 add_executable(test_MutualSphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestMutualSphericalHarmonicAcceleration.cpp")
 setup_custom_test_program(test_MutualSphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_MutualSphericalHarmonicsGravityModel tudat_simulation_setup tudat_electro_magnetism tudat_aerodynamics tudat_ephemerides tudat_reference_frames tudat_basic_astrodynamics tudat_gravitation tudat_spice_interface tudat_spice_interface tudat_input_output tudat_basic_mathematics ${SPICE_LIBRARIES} ${Boost_LIBRARIES} )
+target_link_libraries(test_MutualSphericalHarmonicsGravityModel ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 endif()
