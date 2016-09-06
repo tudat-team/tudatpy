@@ -1,36 +1,11 @@
-/*    Copyright (c) 2010-2015, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      160902    R. Hoogendoorn        File created.
-
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
 #define BOOST_TEST_MAIN
@@ -42,15 +17,13 @@
 #include <Eigen/Core>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/random.hpp>
 
 #include "Tudat/Basics/testMacros.h"
-
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Mathematics/Statistics/kernelDensityDistribution.h"
 
-// Pseudo random sampler
-#include <boost/random.hpp> // Random generator
 
 namespace tudat
 {
@@ -58,9 +31,9 @@ namespace unit_tests
 {
 
 //! Creates a std::vector of linear spaced values
-std::vector<double> linspace(double start, double end, int N){
+std::vector< double > linspace( double start, double end, int N){
 
-    std::vector <double> x(0) ;
+    std::vector < double > x( 0 ) ;
 
     if ( N > 1 )
     {
@@ -73,28 +46,29 @@ std::vector<double> linspace(double start, double end, int N){
 }
 
 //! Generator random vector using pseudo random generator
-std::vector<Eigen::VectorXd> generateRandomVectorUniform(int seed, int numberOfSamples,
-                                             Eigen::VectorXd lowerBound, Eigen::VectorXd upperBound)
+std::vector<Eigen::VectorXd> generateRandomVectorUniform(
+        int seed, int numberOfSamples,
+        Eigen::VectorXd lowerBound, Eigen::VectorXd upperBound)
 {
     // Compute properties
     Eigen::VectorXd width = upperBound - lowerBound;
-    Eigen::VectorXd average = (upperBound + lowerBound)/2.0 ;
+    Eigen::VectorXd average = (upperBound + lowerBound ) / 2.0 ;
 
     // Setup Random generator
     typedef boost::mt19937 RandomGeneratorType; // Mersenne Twister
     RandomGeneratorType randomGenerator(seed);              // Create random generator
 
-    boost::uniform_real<> uniformDistribution(0.0 , 1.0); //
-    boost::variate_generator< RandomGeneratorType, boost::uniform_real<> >
+    boost::uniform_real< > uniformDistribution( 0.0 , 1.0 ); //
+    boost::variate_generator< RandomGeneratorType, boost::uniform_real< > >
             Dice(randomGenerator, uniformDistribution); // define random generator
 
     std::vector< Eigen::VectorXd > randomSamples(numberOfSamples) ;
-    Eigen::VectorXd randomSample( lowerBound.rows() ) ;
+    Eigen::VectorXd randomSample( lowerBound.rows( ) ) ;
 
     // Sample
     for(int i = 0 ; i < numberOfSamples ; i++ ){ // Generate N samples
-        for(int j = 0 ; j < randomSample.rows() ; j++){ // Generate vector of samples
-            randomSample(j) = Dice() - 0.5 ;
+        for(int j = 0 ; j < randomSample.rows( ) ; j++){ // Generate vector of samples
+            randomSample(j) = Dice( ) - 0.5 ;
         }
         randomSamples[i] = randomSample.cwiseProduct(width) + average ;
     }
@@ -105,13 +79,13 @@ BOOST_AUTO_TEST_SUITE( test_Kernel_Density_Distribution )
 
 using tudat::mathematical_constants::PI;
 
-BOOST_AUTO_TEST_CASE( test_Optimal_Bandwidth )
+BOOST_AUTO_TEST_CASE( testOptimalKernelBandwidth )
 {
 
     using namespace tudat::statistics;
 
-    std::vector< Eigen::VectorXd > data(0);
-    Eigen::VectorXd sample(2);
+    std::vector< Eigen::VectorXd > data( 0 );
+    Eigen::VectorXd sample( 2 );
     sample << 2.2538 , 1.177 ;
     data.push_back( sample ) ;
     sample << 0.76529 , 0.356 ;
@@ -136,28 +110,26 @@ BOOST_AUTO_TEST_CASE( test_Optimal_Bandwidth )
     KernelDensityDistribution distribution( data );
 
     // Generated expected Bandwidth using MATLAB
-    Eigen::VectorXd expectedBandwidth(2);
+    Eigen::VectorXd expectedBandwidth( 2 );
     expectedBandwidth << 0.819018940571854 , 0.263389630191125 ;
 
-    Eigen::VectorXd computedOptimalBandwidth(2);
-    computedOptimalBandwidth = distribution.getOptimalBandWidth() ;
+    Eigen::VectorXd computedOptimalBandwidth( 2 );
+    computedOptimalBandwidth = distribution.getOptimalBandWidth( ) ;
 
-    BOOST_CHECK_CLOSE_FRACTION( expectedBandwidth(0) , computedOptimalBandwidth(0) , 2E-5 );
-    BOOST_CHECK_CLOSE_FRACTION( expectedBandwidth(1) , computedOptimalBandwidth(1) , 5E-6 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedBandwidth( 0 ) , computedOptimalBandwidth( 0 ) , 2E-5 );
+    BOOST_CHECK_CLOSE_FRACTION( expectedBandwidth( 1 ) , computedOptimalBandwidth( 1 ) , 2E-5 );
 
 }
 
-BOOST_AUTO_TEST_CASE( test_Epanechnikov_Kernel )
+BOOST_AUTO_TEST_CASE( testEpanechnikovKernel )
 {
-    tudat::statistics::EpanechnikovKernelDistribution distribution(1.0, 2.0);
+    tudat::statistics::EpanechnikovKernelDistribution distribution( 1.0, 2.0 );
 
     BOOST_CHECK_CLOSE_FRACTION( distribution.evaluateCdf( 5.0 ) , 1.0 , 1E-15 );
     BOOST_CHECK_CLOSE_FRACTION( distribution.evaluateCdf( 3.0 ) , 1.0 , 1E-15 );
     BOOST_CHECK_CLOSE_FRACTION( distribution.evaluateCdf( 1.0 ) , 0.5 , 1E-15 );
     BOOST_CHECK_SMALL( std::fabs( distribution.evaluateCdf( -1.0 ) - 0.0 ) , 1E-15 );
     BOOST_CHECK_SMALL( std::fabs( distribution.evaluateCdf( -2.0 ) - 0.0 ) , 1E-15 );
-    // Computed using MATLAB
-    BOOST_CHECK_SMALL( std::fabs( distribution.evaluateCdf( 0.0 ) - 0.15625 ) , 1E-15 );
 
     BOOST_CHECK_SMALL( std::fabs( distribution.evaluatePdf( -1.0 ) - 0.0 ) , 1E-15 );
     BOOST_CHECK_SMALL( std::fabs( distribution.evaluatePdf( 3.0 ) - 0.0 ) , 1E-15 );
@@ -166,27 +138,30 @@ BOOST_AUTO_TEST_CASE( test_Epanechnikov_Kernel )
 
     // Computed using MATLAB
     BOOST_CHECK_SMALL( std::fabs( distribution.evaluatePdf( 0.0 ) - 0.28125 ) , 1E-15 );
+
+    // Computed using MATLAB
+    BOOST_CHECK_SMALL( std::fabs( distribution.evaluateCdf( 0.0 ) - 0.15625 ) , 1E-15 );
 }
 
-BOOST_AUTO_TEST_CASE( test_Probability_Density_1D )
+BOOST_AUTO_TEST_CASE( testKernelProbabilityDensity1D )
 {
     using namespace tudat::statistics;
 
-    Eigen::VectorXd sample(1);
-    std::vector< Eigen::VectorXd > samples(0);
+    Eigen::VectorXd sample( 1 );
+    std::vector< Eigen::VectorXd > samples( 0 );
 
-    sample(0) = 3.0 ;
+    sample( 0 ) = 3.0 ;
     samples.push_back( sample );
-    sample(0) = 1.0 ;
+    sample( 0 ) = 1.0 ;
     samples.push_back( sample );
-    sample(0) = 4.0 ;
+    sample( 0 ) = 4.0 ;
     samples.push_back( sample );
-    sample(0) = 7.0 ;
+    sample( 0 ) = 7.0 ;
     samples.push_back( sample );
 
     KernelDensityDistribution distribution(samples , 1.0 , KernelType::Gaussian ) ;
 
-    Eigen::VectorXd location(1);
+    Eigen::VectorXd location( 1 );
     // Case 1
     {
         location << 5.396093156208099e-01 ;
@@ -197,11 +172,11 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_1D )
         double expectedDensity = 8.426926493705324e-02 ;
 
         // Check that the same bandwidths are used compared with MATLAB
-        Eigen::VectorXd expectedBandwidth(1);
+        Eigen::VectorXd expectedBandwidth( 1 );
         expectedBandwidth << 1.785192502061299 ;
-        Eigen::VectorXd computedBandwidth = distribution.getBandWidth() ;
+        Eigen::VectorXd computedBandwidth = distribution.getBandWidth( ) ;
         Eigen::VectorXd difference = expectedBandwidth - computedBandwidth ;
-        BOOST_CHECK_SMALL( std::fabs( difference(0) ) , 1E-15 );
+        BOOST_CHECK_SMALL( std::fabs( difference( 0 ) ) , 1E-15 );
 
         // Check correct density
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ) , 1E-15 );
@@ -209,7 +184,7 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_1D )
 
     // Case 2
     {
-        Eigen::VectorXd location(1);
+        Eigen::VectorXd location( 1 );
         location << 3.915600227210264 ;
 
         double computedDensity = distribution.evaluatePdf( location );
@@ -221,7 +196,7 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_1D )
 
     // Case 3
     {
-        Eigen::VectorXd location(1);
+        Eigen::VectorXd location( 1 );
         location << 8.135588866697081 ;
 
         double computedDensity = distribution.evaluatePdf( location );
@@ -232,12 +207,12 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_1D )
     }
 }
 
-BOOST_AUTO_TEST_CASE( test_Probability_Density_2D )
+BOOST_AUTO_TEST_CASE( testKernelProbabilityDensity2D )
 {
     using namespace tudat::statistics;
 
-    Eigen::VectorXd sample(2);
-    std::vector< Eigen::VectorXd > samples(0);
+    Eigen::VectorXd sample( 2 );
+    std::vector< Eigen::VectorXd > samples( 0 );
 
     sample << 3.0 , 2E-2 ;
     samples.push_back( sample );
@@ -252,19 +227,19 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_2D )
 
     // Case 1
     {
-        Eigen::VectorXd location(2);
+        Eigen::VectorXd location( 2 );
         location << 1.141869732328655 , 2.995235933344523e-02 ;
 
         double computedDensity = distribution.evaluatePdf( location );
         double expectedDensity = 1.136916246361795 ;
 
         // Check that the same bandwidths are used compared with MATLAB
-        Eigen::VectorXd expectedBandwidth(2);
+        Eigen::VectorXd expectedBandwidth( 2 );
         expectedBandwidth << 1.765086418052112 , 2.882974482818450e-02 ;
-        Eigen::VectorXd computedBandwidth = distribution.getBandWidth() ;
+        Eigen::VectorXd computedBandwidth = distribution.getBandWidth( ) ;
         Eigen::VectorXd difference = expectedBandwidth - computedBandwidth ;
-        BOOST_CHECK_SMALL( std::fabs( difference(0) ) , 1E-15 );
-        BOOST_CHECK_SMALL( std::fabs( difference(1) ) , 1E-15 );
+        BOOST_CHECK_SMALL( std::fabs( difference( 0 ) ) , 1E-15 );
+        BOOST_CHECK_SMALL( std::fabs( difference( 1 ) ) , 1E-15 );
 
         // Check correct density
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ) , 1E-15 );
@@ -272,7 +247,7 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_2D )
 
     // Case 2
     {
-        Eigen::VectorXd location(2);
+        Eigen::VectorXd location( 2 );
         location << -2.862738183470956 , 1.582207969089993e-01 ;
 
         double computedDensity = distribution.evaluatePdf( location );
@@ -284,7 +259,7 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_2D )
 
     // Case 3
     {
-        Eigen::VectorXd location(2);
+        Eigen::VectorXd location( 2 );
         location << 6.862738183470957 , 2.995235933344523e-02 ;
 
         double computedDensity = distribution.evaluatePdf( location );
@@ -298,41 +273,41 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_2D )
     {
         // Marginal CDF compare with MATLAB
         // Bandwidth slightly different in 1D
-        Eigen::VectorXd bandwidth(2);
+        Eigen::VectorXd bandwidth( 2 );
         bandwidth << 1.785192502061299 , 2.915814420033455e-02 ;
         distribution.setBandWidth( bandwidth );
 
         BOOST_CHECK_CLOSE_FRACTION(
-                    distribution.getCumulativeMarginalProbability(0 , 2.276047714155371E-1 ),
-                    2.446324562687310E-1 , 3E-3 ) ;
+                    distribution.getCumulativeMarginalProbability( 0 , 2.276047714155371E-1 ),
+                    2.446324562687310E-1 , 5E-3 ) ;
         BOOST_CHECK_CLOSE_FRACTION(
-                    distribution.getCumulativeMarginalProbability(1 , 6.083875672099921e-02 ),
-                    6.360523509878839e-01 , 2E-3 ) ;
+                    distribution.getCumulativeMarginalProbability( 1 , 6.083875672099921e-02 ),
+                    6.360523509878839e-01 , 5E-3 ) ;
         BOOST_CHECK_CLOSE_FRACTION(
-                    distribution.getCumulativeMarginalProbability(1 , 9.861136936766661e-02 ),
-                    7.371490745984073e-01 , 8E-4 ) ;
+                    distribution.getCumulativeMarginalProbability( 1 , 9.861136936766661e-02 ),
+                    7.371490745984073e-01 , 5E-3 ) ;
 
         BOOST_CHECK_SMALL( std::fabs(
-            distribution.getCumulativeMarginalProbability(1 , 300.0 )
+            distribution.getCumulativeMarginalProbability( 1 , 300.0 )
                                - 1.0 ) , 1E-15 );
         BOOST_CHECK_SMALL( std::fabs(
-            distribution.getCumulativeMarginalProbability(1 , -200.0 )
+            distribution.getCumulativeMarginalProbability( 1 , -200.0 )
                                - 0.0 ) , 1E-15 );
     }
 }
 
-BOOST_AUTO_TEST_CASE( test_standard_deviation_scaling )
+BOOST_AUTO_TEST_CASE( testStandardDeviationScaling )
 {
 
     using namespace tudat::statistics;
 
     // Generate random datapoints
-    Eigen::VectorXd mean(2);
+    Eigen::VectorXd mean( 2 );
     mean << 0.0 , 0.0 ;
-    Eigen::VectorXd standardDeviation(2);
+    Eigen::VectorXd standardDeviation( 2 );
     standardDeviation << 2.0 , 0.5 ;
-    Eigen::VectorXd lowerBound = mean - standardDeviation * std::sqrt(3.0) ;
-    Eigen::VectorXd upperBound = mean + standardDeviation * std::sqrt(3.0) ;
+    Eigen::VectorXd lowerBound = mean - standardDeviation * std::sqrt( 3.0 ) ;
+    Eigen::VectorXd upperBound = mean + standardDeviation * std::sqrt( 3.0 ) ;
 
     int numberOfSamples = 1E6;
     int seed = 100 ;
@@ -341,56 +316,56 @@ BOOST_AUTO_TEST_CASE( test_standard_deviation_scaling )
 
     KernelDensityDistribution distribution2( samples );
 
-    Eigen::VectorXd sampleMean = distribution2.getSampleMean() ;
-    Eigen::VectorXd sampleStandardDeviation = distribution2.getSampleStandardDeviation() ;
+    Eigen::VectorXd sampleMean = distribution2.getSampleMean( ) ;
+    Eigen::VectorXd sampleStandardDeviation = distribution2.getSampleStandardDeviation( ) ;
 
-    BOOST_CHECK_SMALL( std::fabs( sampleMean(0) - 0.0 ) , 2E-3 );
-    BOOST_CHECK_SMALL( std::fabs( sampleMean(1) - 0.0 ) , 3E-4 );
-    BOOST_CHECK_SMALL( std::fabs( sampleStandardDeviation(0) - 2.0 ) , 1E-3 );
-    BOOST_CHECK_SMALL( std::fabs( sampleStandardDeviation(1) - 0.5 ) , 1E-4 );
+    BOOST_CHECK_SMALL( std::fabs( sampleMean( 0 ) - 0.0 ) , 2E-3 );
+    BOOST_CHECK_SMALL( std::fabs( sampleMean( 1 ) - 0.0 ) , 3E-4 );
+    BOOST_CHECK_SMALL( std::fabs( sampleStandardDeviation( 0 ) - 2.0 ) , 1E-3 );
+    BOOST_CHECK_SMALL( std::fabs( sampleStandardDeviation( 1 ) - 0.5 ) , 1E-4 );
 
     // Check get probability density approx uniform
-    double probabilityDensity = 1.0 / ( ( upperBound(0) - lowerBound(0) )*( upperBound(1) - lowerBound(1) ) );
+    double probabilityDensity = 1.0 / ( ( upperBound( 0 ) - lowerBound( 0 ) ) * ( upperBound( 1 ) - lowerBound( 1 ) ) );
 
-    Eigen::VectorXd x(2);
+    Eigen::VectorXd x( 2 );
     x << 0.0 , 0.0 ;
 
     BOOST_CHECK_CLOSE_FRACTION( distribution2.evaluatePdf( x ) , probabilityDensity , 2E-2 );
-    BOOST_CHECK_SMALL( std::fabs( distribution2.evaluatePdf( x ) - probabilityDensity ) , 2E-3);
+    BOOST_CHECK_SMALL( std::fabs( distribution2.evaluatePdf( x ) - probabilityDensity ) , 2E-3 );
 
     x << -1.0 , 0.3 ;
     BOOST_CHECK_CLOSE_FRACTION( distribution2.evaluatePdf( x ) , probabilityDensity , 2E-4 );
 
-    Eigen::VectorXd standardDeviationAdjusted(2);
+    Eigen::VectorXd standardDeviationAdjusted( 2 );
     standardDeviationAdjusted << 0.5 , 3.0 ;
-    KernelDensityDistribution distribution( samples , 1.0 , KernelType::Gaussian , true , standardDeviationAdjusted );
+    KernelDensityDistribution distribution( samples , 1.0 , KernelType::Gaussian, standardDeviationAdjusted );
 
-    Eigen::VectorXd newSampleMean = distribution.getSampleMean() ;
-    Eigen::VectorXd newSampleStandardDeviation = distribution.getSampleStandardDeviation() ;
+    Eigen::VectorXd newSampleMean = distribution.getSampleMean( ) ;
+    Eigen::VectorXd newSampleStandardDeviation = distribution.getSampleStandardDeviation( ) ;
 
-    BOOST_CHECK_SMALL( std::fabs( newSampleMean(0) - 0.0 ) , 5E-3 );
-    BOOST_CHECK_SMALL( std::fabs( newSampleMean(1) - 0.0 ) , 2E-3 );
-    BOOST_CHECK_SMALL( std::fabs( newSampleStandardDeviation(0) - 0.5 ) , 1E-13 );
-    BOOST_CHECK_SMALL( std::fabs( newSampleStandardDeviation(1) - 3.0 ) , 1E-13 );
+    BOOST_CHECK_SMALL( std::fabs( newSampleMean( 0 ) - 0.0 ) , 5E-3 );
+    BOOST_CHECK_SMALL( std::fabs( newSampleMean( 1 ) - 0.0 ) , 5E-3 );
+    BOOST_CHECK_SMALL( std::fabs( newSampleStandardDeviation( 0 ) - 0.5 ) , 1E-13 );
+    BOOST_CHECK_SMALL( std::fabs( newSampleStandardDeviation( 1 ) - 3.0 ) , 1E-13 );
 
     // Check get probability density approx uniform
-    lowerBound = mean - standardDeviationAdjusted * std::sqrt(3.0) ;
-    upperBound = mean + standardDeviationAdjusted * std::sqrt(3.0) ;
-    probabilityDensity = 1.0 / ( ( upperBound(0) - lowerBound(0) )*( upperBound(1) - lowerBound(1) ) );
+    lowerBound = mean - standardDeviationAdjusted * std::sqrt( 3.0 ) ;
+    upperBound = mean + standardDeviationAdjusted * std::sqrt( 3.0 ) ;
+    probabilityDensity = 1.0 / ( ( upperBound( 0 ) - lowerBound( 0 ) ) * ( upperBound( 1 ) - lowerBound( 1 ) ) );
+
     x << 0.0 , 0.0 ;
-    BOOST_CHECK_CLOSE_FRACTION( distribution.evaluatePdf( x ) , probabilityDensity , 2E-2 );
-    BOOST_CHECK_SMALL( std::fabs( distribution.evaluatePdf( x ) - probabilityDensity ) , 8E-4);
+    BOOST_CHECK_SMALL( std::fabs( distribution.evaluatePdf( x ) - probabilityDensity ) , 1.0E-3 );
 
     x << -0.2 , 2.3 ;
     BOOST_CHECK_CLOSE_FRACTION( distribution.evaluatePdf( x ) , probabilityDensity , 5E-4 );
 }
 
-BOOST_AUTO_TEST_CASE( test_Probability_Density_etc_3D )
+BOOST_AUTO_TEST_CASE( testKernelProbabilityDensity3D )
 {
     using namespace tudat::statistics;
 
-    Eigen::VectorXd sample(3);
-    std::vector< Eigen::VectorXd > samples(0);
+    Eigen::VectorXd sample( 3 );
+    std::vector< Eigen::VectorXd > samples( 0 );
 
     sample << 3.0 , 2E-2 , 0.1 ;
     samples.push_back( sample );
@@ -405,7 +380,7 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_etc_3D )
 
     // Test probability density
     {
-        Eigen::VectorXd location(3);
+        Eigen::VectorXd location( 3 );
         location <<  1.5 , 1E-2 , 0.8;
 
         double computedDensity = distribution.evaluatePdf( location );
@@ -417,7 +392,7 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_etc_3D )
 
     // Test marginal cumulative probability
     {
-        Eigen::VectorXd location(3);
+        Eigen::VectorXd location( 3 );
         location <<  1.5 , 1E-2 , 0.8;
 
         int marginal = 0 ;
@@ -437,13 +412,13 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_etc_3D )
 
     // Test conditional marginal cumulative probability
     {
-        Eigen::VectorXd location(3);
+        Eigen::VectorXd location( 3 );
         location <<  1.5 , 1E-2 , 0.8;
 
         int marginal = 0 ;
-        std::vector<int> conditionDimensions(0);
+        std::vector<int> conditionDimensions( 0 );
         conditionDimensions.push_back( 1 );
-        std::vector<double> conditions(0);
+        std::vector< double > conditions( 0 );
         conditions.push_back( 0.1 );
 
         double computedDensity = distribution.getCumulativeConditionalMarginalProbability(
@@ -465,12 +440,12 @@ BOOST_AUTO_TEST_CASE( test_Probability_Density_etc_3D )
     }
 }
 
-BOOST_AUTO_TEST_CASE( test_Probability_Functions_uncorrelated_2D )
+BOOST_AUTO_TEST_CASE( testProbabilityFunctionsUncorrelated2D )
 {
     using namespace tudat::statistics;
 
-    Eigen::VectorXd sample(2);
-    std::vector< Eigen::VectorXd > samples(0);
+    Eigen::VectorXd sample( 2 );
+    std::vector< Eigen::VectorXd > samples( 0 );
 
     sample << 3.0 , 0.1  ;
     samples.push_back( sample );
@@ -480,33 +455,33 @@ BOOST_AUTO_TEST_CASE( test_Probability_Functions_uncorrelated_2D )
     samples.push_back( sample );
 
 
-    Eigen::VectorXd bandWidth(2);
+    Eigen::VectorXd bandWidth( 2 );
     bandWidth << 1.0 , 0.3 ;
 
-    KernelDensityDistribution distribution( samples , 1.0 , KernelType::Gaussian, false, Eigen::VectorXd::Zero(2,1), bandWidth );
+    KernelDensityDistribution distribution( samples , 1.0 , KernelType::Gaussian, Eigen::VectorXd::Zero( 0 ), bandWidth );
 
     boost::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution1 =
-            createBoostRandomVariable( normal_boost_distribution, { samples[0](0) , 1.0  } );
+            createBoostRandomVariable( normal_boost_distribution, { samples[0]( 0 ) , 1.0  } );
 
     boost::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution2 =
-            createBoostRandomVariable( normal_boost_distribution, { samples[1](0) , 1.0  } );
+            createBoostRandomVariable( normal_boost_distribution, { samples[1]( 0 ) , 1.0  } );
 
     boost::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution3 =
-            createBoostRandomVariable( normal_boost_distribution, { samples[2](0) , 1.0  } );
+            createBoostRandomVariable( normal_boost_distribution, { samples[2]( 0 ) , 1.0  } );
 
     boost::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution4 =
-            createBoostRandomVariable( normal_boost_distribution, { samples[0](1) , 0.3  } );
+            createBoostRandomVariable( normal_boost_distribution, { samples[0]( 1 ) , 0.3  } );
 
     // Test probability density
     {
-        Eigen::VectorXd location(2);
+        Eigen::VectorXd location( 2 );
         location <<  1.5 , 1E-2 ;
 
         double computedDensity = distribution.evaluatePdf( location );
-        double expectedDensity = (gaussianDistribution1->evaluatePdf( location(0) ) +
-                                  gaussianDistribution2->evaluatePdf( location(0) ) +
-                                  gaussianDistribution3->evaluatePdf( location(0) )) *
-                gaussianDistribution4->evaluatePdf( location(1) ) /3.0;
+        double expectedDensity = (gaussianDistribution1->evaluatePdf( location( 0 ) ) +
+                                  gaussianDistribution2->evaluatePdf( location( 0 ) ) +
+                                  gaussianDistribution3->evaluatePdf( location( 0 ) ) ) *
+                gaussianDistribution4->evaluatePdf( location( 1 ) ) /3.0;
 
         // Check correct density
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ) , 1E-15 );
@@ -514,14 +489,14 @@ BOOST_AUTO_TEST_CASE( test_Probability_Functions_uncorrelated_2D )
 
     // Test cumulative probability
     {
-        Eigen::VectorXd location(2);
+        Eigen::VectorXd location( 2 );
         location <<  2.5 , 1E-1 ;
 
         double computedDensity = distribution.evaluateCdf( location );
-        double expectedDensity = (gaussianDistribution1->evaluateCdf( location(0) ) +
-                                  gaussianDistribution2->evaluateCdf( location(0) ) +
-                                  gaussianDistribution3->evaluateCdf( location(0) )) *
-                gaussianDistribution4->evaluateCdf( location(1) ) /3.0;
+        double expectedDensity = (gaussianDistribution1->evaluateCdf( location( 0 ) ) +
+                                  gaussianDistribution2->evaluateCdf( location( 0 ) ) +
+                                  gaussianDistribution3->evaluateCdf( location( 0 ) ) ) *
+                gaussianDistribution4->evaluateCdf( location( 1 ) ) /3.0;
 
         // Check correct density
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ) , 1E-15 );
@@ -529,14 +504,14 @@ BOOST_AUTO_TEST_CASE( test_Probability_Functions_uncorrelated_2D )
 
     // Test marginal cumulative probability
     {
-        Eigen::VectorXd location(2);
+        Eigen::VectorXd location( 2 );
         location <<  2.5 , 1E-1 ;
         int marginal = 0 ;
 
         double computedDensity = distribution.getCumulativeMarginalProbability( marginal , location(marginal) );
-        double expectedDensity = (gaussianDistribution1->evaluateCdf( location(0) ) +
-                                  gaussianDistribution2->evaluateCdf( location(0) ) +
-                                  gaussianDistribution3->evaluateCdf( location(0) )) /3.0;
+        double expectedDensity = (gaussianDistribution1->evaluateCdf( location( 0 ) ) +
+                                  gaussianDistribution2->evaluateCdf( location( 0 ) ) +
+                                  gaussianDistribution3->evaluateCdf( location( 0 ) ) ) /3.0;
 
         // Check correct density
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ) , 1E-15 );
@@ -544,7 +519,7 @@ BOOST_AUTO_TEST_CASE( test_Probability_Functions_uncorrelated_2D )
         // Test 2 other marginal
         marginal = 1 ;
         computedDensity = distribution.getCumulativeMarginalProbability( marginal , location(marginal) );
-        expectedDensity = gaussianDistribution4->evaluateCdf( location(1) );
+        expectedDensity = gaussianDistribution4->evaluateCdf( location( 1 ) );
 
         // Check correct density
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ) , 1E-15 );
@@ -553,8 +528,8 @@ BOOST_AUTO_TEST_CASE( test_Probability_Functions_uncorrelated_2D )
     // Test conditional marginal cumulative probability
     {
         double location;
-        std::vector<int> conditionDimensions(0);
-        std::vector<double> conditions(0);
+        std::vector<int> conditionDimensions( 0 );
+        std::vector< double > conditions( 0 );
 
         location = 2.5 ;
         int marginal = 0 ;
@@ -565,7 +540,7 @@ BOOST_AUTO_TEST_CASE( test_Probability_Functions_uncorrelated_2D )
                     conditionDimensions, conditions , marginal , location );
         double expectedDensity = (gaussianDistribution1->evaluateCdf( location ) +
                                   gaussianDistribution2->evaluateCdf( location ) +
-                                  gaussianDistribution3->evaluateCdf( location )) /3.0;
+                                  gaussianDistribution3->evaluateCdf( location ) ) /3.0;
 
         // Check correct density
         BOOST_CHECK_SMALL( std::fabs( computedDensity - expectedDensity ) , 1E-15 );
