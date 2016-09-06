@@ -45,8 +45,7 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
     // Check consistency of map sizes.
     if( cosineCoefficientCorrections_.size( ) != sineCoefficientCorrections_.size( ) )
     {
-        std::cerr<<"Error when resetting tabulated gravity field corrections, sine and "<<
-                   "cosine data size incompatible"<<std::endl;
+        throw std::runtime_error( "Error when resetting tabulated gravity field corrections, sine and cosine data size incompatible" );
     }
 
     // Create iterators over maps.
@@ -69,19 +68,18 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
         // Check whether input times are consistent
         if( cosineIterator->first != sineIterator->first )
         {
-            std::cerr<<"Warning when resetting tabulated gravity field corrections, sine and "<<
-                       "cosine data time differ by "<<
-                       cosineIterator->first - sineIterator->first<<std::endl;
+            std::string errorMessage = "Error when resetting tabulated gravity field corrections, sine and cosine data time differ by" +
+                    boost::lexical_cast< std::string >(  cosineIterator->first - sineIterator->first );
+            throw std::runtime_error( errorMessage );
         }
-
         // Check whether matrix sizes are consistent.
         if( ( cosineIterator->second.rows( ) != numberOfDegrees_ ) ||
                 ( sineIterator->second.rows( ) != numberOfDegrees_ ) ||
                 ( cosineIterator->second.cols( ) != numberOfOrders_ ) ||
                 ( sineIterator->second.cols( ) != numberOfOrders_ ) )
         {
-            std::cerr<<"Error when resetting tabulated gravity field corrections, sine and "<<
-                       "cosine blocks of inconsistent size"<<std::endl;
+            std::string errorMessage = "Error when resetting tabulated gravity field corrections, sine and cosine blocks of inconsistent size";
+            throw std::runtime_error( errorMessage );
         }
 
         // Concatenate cosine and sine matrices

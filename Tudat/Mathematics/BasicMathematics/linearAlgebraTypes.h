@@ -29,7 +29,6 @@
  *    References
  *
  *    Notes
- *      Code in this file, if used often, should be migrated to Tudat Core.
  *
  */
 

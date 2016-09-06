@@ -281,9 +281,12 @@ public:
         {
             if( parameterVectorPartialFunctions_.count( parameter ) == 0 )
             {
-                std::cerr<<"Parameter of type "<<parameter->getParameterName( ).first<<", "<<
-                          parameter->getParameterName( ).second.first<<", "<<
-                          parameter->getParameterName( ).second.second<<" not found in list of existing partials"<<std::endl;
+                std::string errorMessage = "Parameter of type " +
+                        boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + ", " +
+                        boost::lexical_cast< std::string >( parameter->getParameterName( ).second.first ) + ", " +
+                        boost::lexical_cast< std::string >( parameter->getParameterName( ).second.second ) + ", " +
+                        " not found in list of existing partials";
+                throw std::runtime_error( errorMessage );
             }
             else
             {

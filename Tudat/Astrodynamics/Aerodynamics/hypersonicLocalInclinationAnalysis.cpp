@@ -663,8 +663,9 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double 
 
     else
     {
-        std::cerr << "Error, expansion local inclination method number "<< method <<
-                     " not recognized" << std::endl;
+        std::string errorMessage = "Error, expansion local inclination method number "
+                + boost::lexical_cast< std::string >( method ) + " not recognized";
+        throw std::runtime_error( errorMessage );
     }
 }
 

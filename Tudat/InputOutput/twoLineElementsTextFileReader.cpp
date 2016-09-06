@@ -88,7 +88,6 @@ using mathematical_constants::PI;
 using std::string;
 using std::stringstream;
 using std::endl;
-using std::cerr;
 using std::vector;
 using std::multimap;
 using std::pair;

@@ -93,7 +93,7 @@ public:
         else
         {
             isTimeAtReception = -1;
-            std::cerr<<"Error when calculating angular position observation, link end is not transmitter or receiver"<<std::endl;
+            throw std::runtime_error( "Error when calculating angular position observation, link end is not transmitter or receiver" );
         }
 
         Eigen::Matrix< StateScalarType, 6, 1 > receiverState;

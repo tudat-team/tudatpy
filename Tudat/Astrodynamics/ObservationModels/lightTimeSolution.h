@@ -238,7 +238,7 @@ public:
                             "; current light-time corrections are: "  +
                             boost::lexical_cast< std::string >( currentCorrection_ ) + " and input time was " +
                             boost::lexical_cast< std::string >( time );
-                    std::cerr<<errorMessage<<std::endl;
+                   throw std::runtime_error( errorMessage );
                 }
 
                 // Update light time for new iteration.
