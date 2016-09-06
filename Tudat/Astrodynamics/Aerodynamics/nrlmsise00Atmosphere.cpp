@@ -31,6 +31,7 @@
  */
 
 #include <iostream>
+
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
@@ -153,12 +154,12 @@ std::ostream& operator<<( std::ostream& stream,
     stream << "f107a             = " << nrlmsiseInput.f107a << std::endl;
     stream << "apDaily           = " << nrlmsiseInput.apDaily << std::endl;
 
-    for( unsigned int i = 0 ; i < nrlmsiseInput.apVector.size() ; i++ )
+    for( unsigned int i = 0 ; i < nrlmsiseInput.apVector.size( ) ; i++ )
     {
         stream << "apVector[ " << i << " ]     = " << nrlmsiseInput.apVector[i] << std::endl;
     }
 
-    for( unsigned int i = 0 ; i < nrlmsiseInput.switches.size() ; i++ )
+    for( unsigned int i = 0 ; i < nrlmsiseInput.switches.size( ) ; i++ )
     {
         stream << "switches[ " << i << " ]     = " << nrlmsiseInput.switches[i] << std::endl;
     }

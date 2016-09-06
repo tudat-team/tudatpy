@@ -37,12 +37,18 @@
 set(STATISTICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/basicStatistics.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/simpleLinearRegression.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/multiVariateGaussianProbabilityDistributions.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/continuousProbabilityDistributions.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.cpp"
 )
 
 # Add header files.
 set(STATISTICS_HEADERS 
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/basicStatistics.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/simpleLinearRegression.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/multiVariateGaussianProbabilityDistributions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/continuousProbabilityDistributions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.h"
 )
 
 # Add static libraries.
@@ -57,3 +63,11 @@ target_link_libraries(test_SimpleLinearRegression tudat_statistics ${Boost_LIBRA
 add_executable(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestBasicStatistics.cpp")
 setup_custom_test_program(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 target_link_libraries(test_BasicStatistics tudat_statistics ${Boost_LIBRARIES})
+
+add_executable(test_MultiVariateProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestMultiVariateGaussianProbabilityDistributions.cpp")
+setup_custom_test_program(test_MultiVariateProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
+target_link_libraries(test_MultiVariateProbabilityDistributions tudat_statistics ${Boost_LIBRARIES})
+
+add_executable(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestBoostRandomVariables.cpp")
+setup_custom_test_program(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
+target_link_libraries(test_BoostDistributions tudat_statistics ${Boost_LIBRARIES})

@@ -157,8 +157,8 @@ public:
      * \param selectedLookupScheme Look-up scheme that is to be used when finding interval
      * of requested independent variable value.
      */
-    CubicSplineInterpolator( std::vector< IndependentVariableType > independentVariables,
-                             std::vector< DependentVariableType > dependentVariables,
+    CubicSplineInterpolator( const std::vector< IndependentVariableType >& independentVariables,
+                             const std::vector< DependentVariableType >& dependentVariables,
                              AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
 
     {
