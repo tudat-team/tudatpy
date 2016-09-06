@@ -257,6 +257,13 @@ private:
     std::vector< bool > isCurrentEphemerisTranslational_;
 };
 
+//! Interface function used to change the state scalar type of the output of a state function
+/*!
+ *  Interface function used to change the state scalar type of the output of a state function
+ *  \param originalStateFunction State function with original scalar type
+ *  \param currentTime Time at which state function is to be evaluated.
+ *  \return State from originalStateFunction at currentTime, cast to NewStateScalarType.
+ */
 template< typename OldStateScalarType, typename NewStateScalarType, typename TimeType, int StateSize >
 Eigen::Matrix< NewStateScalarType, StateSize, 1 > convertStateFunctionStateScalarOutput(
         const boost::function< Eigen::Matrix< OldStateScalarType, StateSize, 1 >( const double& ) >
@@ -266,6 +273,17 @@ Eigen::Matrix< NewStateScalarType, StateSize, 1 > convertStateFunctionStateScala
     return originalStateFunction( currentTime ).template cast< NewStateScalarType >( );
 }
 
+//! Function to create the state function of a reference point.
+/*!
+ *  Function to create the state function of a reference point, for instance the state of a ground station in a
+ *  barycentric frame.
+ *  \param bodyEphemeris Global ephemeris of body on which reference point is located
+ *  \param bodyRotationModel Rotation model between global and body-fixed frame
+ *  \param referencePointRelativeStateFunction Function returning the body-fixed state of the reference point as
+ *  a function of time
+ *  \return Ephemeris describbing the state of the local reference point in the global frame (expressed global frame's
+ *  coordinates, i.e. same as bodyEphemeris).
+ */
 template< typename TimeType = double, typename StateScalarType = double >
 boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
         boost::shared_ptr< Ephemeris > bodyEphemeris,
@@ -274,6 +292,7 @@ boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
+    // Cast state fucntion of body (global) and reference point (local) into correct form.
     std::map< int, boost::function< StateType( const TimeType& ) > > referencePointEphemerisVector;
     referencePointEphemerisVector[ 2 ] = boost::bind(
                 &Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, bodyEphemeris, _1 );
@@ -282,6 +301,7 @@ boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
                                                referencePointRelativeStateFunction, _1 );
 
 
+    // Crate rotation functions from local to global frame.
     boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction =
             boost::bind( &RotationalEphemeris::getRotationToBaseFrame, bodyRotationModel, _1,
                          basic_astrodynamics::JULIAN_DAY_ON_J2000 );
@@ -289,16 +309,14 @@ boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
             boost::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrame, bodyRotationModel, _1,
                          basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
+    // Create ephemeris
     std::map< int, boost::function< StateType( const double, const StateType& ) > > referencePointRotationVector;
     referencePointRotationVector[ 1 ] = boost::bind(
         transformStateToFrameFromRotationTimeFunctions< StateScalarType >,
                 _2, _1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
 
-    boost::shared_ptr< Ephemeris > ephemeris
-        = boost::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
+    return boost::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
                 referencePointEphemerisVector, referencePointRotationVector, "SSB", "ECLIPJ2000" );
-
-    return ephemeris;
 }
 
 } // namespace ephemerides
