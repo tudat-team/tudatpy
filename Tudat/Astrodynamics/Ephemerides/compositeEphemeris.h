@@ -80,7 +80,8 @@ public:
         // Check whether chain starts with translation.
         if( translationIterator->first != 0 )
         {
-            std::cerr << "Error, composite ephemeris must start with translation" << std::endl;
+            std::string errorMessage = "Error, composite ephemeris must start with translation";
+            throw std::runtime_error( errorMessage );
         }
 
         // Run over all indices and set order.
@@ -109,7 +110,8 @@ public:
             // If index is not found, display error message.
             else
             {
-                std::cerr << "Error when  making composite ephemeris, input indices inconsistent" << std::endl;
+                std::string errorMessage = "Error when  making composite ephemeris, input indices inconsistentn";
+                throw std::runtime_error( errorMessage );
             }
             currentIndex++;
         }
@@ -148,7 +150,8 @@ public:
         // Check whether chain starts with translation.
         if( translationIterator->first != 0 )
         {
-            std::cerr << "Error, composite ephemeris must start with translation" << std::endl;
+            std::string errorMessage = "Error, composite ephemeris must start with translation";
+            throw std::runtime_error( errorMessage );
         }
 
         // Run over all indices and set order.
@@ -180,7 +183,8 @@ public:
             // If index is not found, display error message.
             else
             {
-                std::cerr << "Error when  making composite ephemeris, input indices inconsistent" << std::endl;
+                std::string errorMessage = "Error when  making composite ephemeris, input indices inconsistent";
+                throw std::runtime_error( errorMessage );
             }
             currentIndex++;
         }
@@ -223,7 +227,8 @@ public:
         //Check validity of input.
         if( add != 1 && add != -1 )
         {
-            std::cerr << "Error when adding to composite ephemeris" << std::endl;
+            std::string errorMessage = "Error when adding to composite ephemeris";
+            throw std::runtime_error( errorMessage );
         }
 
         // Add translational ephemeris to end of chain

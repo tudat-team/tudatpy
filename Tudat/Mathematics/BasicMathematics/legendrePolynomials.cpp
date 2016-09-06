@@ -119,8 +119,12 @@ double LegendreCache::getLegendrePolynomial(
 {
     if( degree > maximumDegree_ || order > maximumOrder_ )
     {
-        std::cerr<<"Error when requesting legendre cache, maximum degree or order exceeded "<<
-                   degree<<" "<<maximumDegree_<<" "<<order<<" "<<maximumOrder_<<std::endl;
+        std::string errorMessage = "Error when requesting legendre cache, maximum degree or order exceeded " +
+                boost::lexical_cast< std::string >( degree ) + " " +
+                boost::lexical_cast< std::string >( maximumDegree_ ) + " " +
+                boost::lexical_cast< std::string >( order ) + " " +
+                boost::lexical_cast< std::string >( maximumOrder_ );
+        throw std::runtime_error( errorMessage );
         return TUDAT_NAN;
     }
     else if( order > degree )
@@ -354,8 +358,12 @@ double computeLegendrePolynomialExplicit( const int degree,
         case 0:
             return 1.0;
         default:
-            std::cerr << "Error, explicit legendre polynomial not possible for "
-                      << degree << " " << order << std::endl;
+        {
+            std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
+                    boost::lexical_cast< std::string >( degree ) + ", " +
+                    boost::lexical_cast< std::string >( order );
+            throw std::runtime_error( errorMessage );
+        }
         }
         break;
     case 1:
@@ -366,8 +374,12 @@ double computeLegendrePolynomialExplicit( const int degree,
         case 1:
             return std::sqrt( 1 - polynomialParameter * polynomialParameter );
         default:
-            std::cerr << "Error, explicit legendre polynomial not possible for "
-                      << degree << " " << order << std::endl;
+        {
+            std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
+                    boost::lexical_cast< std::string >( degree ) + ", " +
+                    boost::lexical_cast< std::string >( order );
+            throw std::runtime_error( errorMessage );
+        }
         }
         break;
     case 2:
@@ -381,8 +393,12 @@ double computeLegendrePolynomialExplicit( const int degree,
         case 2:
             return 3.0 * ( 1.0 - polynomialParameter * polynomialParameter );
         default:
-            std::cerr << "Error, explicit legendre polynomial not possible for "
-                      << degree << " " << order << std::endl;
+        {
+            std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
+                    boost::lexical_cast< std::string >( degree ) + ", " +
+                    boost::lexical_cast< std::string >( order );
+            throw std::runtime_error( errorMessage );
+        }
         }
         break;
     case 3:
@@ -400,8 +416,12 @@ double computeLegendrePolynomialExplicit( const int degree,
             return 15.0 * ( 1.0 - polynomialParameter * polynomialParameter )
                     * std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
         default:
-            std::cerr << "Error, a explicit legendre polynomial not possible for "
-                      << degree << " " << order << std::endl;
+        {
+            std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
+                    boost::lexical_cast< std::string >( degree ) + ", " +
+                    boost::lexical_cast< std::string >( order );
+            throw std::runtime_error( errorMessage );
+        }
         }
         break;
     case 4:
@@ -426,13 +446,21 @@ double computeLegendrePolynomialExplicit( const int degree,
                     * ( 1.0 - polynomialParameter * polynomialParameter );
 
         default:
-            std::cerr << "Error, a explicit legendre polynomial not possible for "
-                      << degree << " " << order << std::endl;
+        {
+            std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
+                    boost::lexical_cast< std::string >( degree ) + ", " +
+                    boost::lexical_cast< std::string >( order );
+            throw std::runtime_error( errorMessage );
+        }
         }
         break;
     default:
-        std::cerr << "Error, explicit legendre polynomial not possible for "
-                  << degree << " " << order << std::endl;
+    {
+        std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
+                boost::lexical_cast< std::string >( degree ) + ", " +
+                boost::lexical_cast< std::string >( order );
+        throw std::runtime_error( errorMessage );
+    }
     }
     return TUDAT_NAN;
 }

@@ -556,10 +556,12 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
                     if( singleTypeIntegratedStateList.begin( )->first != typeIterator->first
                             || singleTypeIntegratedStateList.size( ) != 1 )
                     {
-                        std::cerr<<"Error when making integrated state list for hybrid propagator, inconsistency encountered "<<
-                                   singleTypeIntegratedStateList.begin( )->first<<" "<<typeIterator->first<<" "<<
-                                   singleTypeIntegratedStateList.size( )<<" "<<
-                                   singleTypeIntegratedStateList.begin( )->second.size( )<<std::endl;
+                        std::string errorMessage = "Error when making integrated state list for hybrid propagator, inconsistency encountered " +
+                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.begin( )->first ) + " " +
+                                boost::lexical_cast< std::string >( typeIterator->first ) + " " +
+                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.size( ) ) + " " +
+                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.begin( )->second.size( ) );
+                        throw std::runtime_error( errorMessage );
                     }
                     else
                     {
@@ -574,7 +576,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
             }
             else
             {
-                std::cerr<<"Error when making integrated state list, cannot handle hybrid propagator inside hybrid propagator"<<std::endl;
+                throw std::runtime_error( "Error when making integrated state list, cannot handle hybrid propagator inside hybrid propagator" );
             }
         }
         break;

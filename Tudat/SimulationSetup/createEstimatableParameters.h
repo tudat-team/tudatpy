@@ -27,8 +27,11 @@ createInitialDynamicalStateParameterToEstimate(
 
     if( !isParameterDynamicalPropertyInitialState( parameterSettings->parameterType_.first ) )
     {
-        std::cerr<<"Error when requesting to make initial state parameter "<<parameterSettings->parameterType_.first<<" of "<<
-                   parameterSettings->parameterType_.second.first<<", parameter is not an initial state parameter "<<std::endl;
+        std::string errorMessage = "Error when requesting to make initial state parameter " +
+                boost::lexical_cast< std::string >( parameterSettings->parameterType_.first ) + " of " +
+                boost::lexical_cast< std::string >( parameterSettings->parameterType_.second.first ) +
+                ", parameter is not an initial state parameter ";
+        throw std::runtime_error( errorMessage );
     }
     else
     {
@@ -38,7 +41,7 @@ createInitialDynamicalStateParameterToEstimate(
             if( boost::dynamic_pointer_cast< InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                         parameterSettings ) == NULL )
             {
-                std::cerr<<"Error when making body initial state parameter, settings type is incompatible"<<std::endl;
+                throw std::runtime_error( "Error when making body initial state parameter, settings type is incompatible" );
             }
             else
             {
@@ -65,8 +68,9 @@ createInitialDynamicalStateParameterToEstimate(
             }
             break;
         default:
-            std::cerr<<"Error, could not create parameter for initial state of type "<<parameterSettings->parameterType_.first<<std::endl;
-
+            std::string errorMessage = "Error, could not create parameter for initial state of type " +
+                    boost::lexical_cast< std::string >( parameterSettings->parameterType_.first );
+            throw std::runtime_error( errorMessage );
         }
     }
 
@@ -115,7 +119,12 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialState
         }
         else
         {
-            std::cerr<<"Error, parameter type of "<<parameterNames[ i ]->parameterType_.second.first<<" of "<<parameterNames[ i ]->parameterType_.first<<" not recognized when making estimatable parameter set."<<std::endl;
+            std::string errorMessage = "Error, parameter type of  " +
+                    boost::lexical_cast< std::string >( parameterNames[ i ]->parameterType_.second.first ) + "of " +
+                    boost::lexical_cast< std::string >( parameterNames[ i ]->parameterType_.first ) +
+                    "not recognized when making estimatable parameter set.";
+
+            throw std::runtime_error( errorMessage );
         }
     }
 

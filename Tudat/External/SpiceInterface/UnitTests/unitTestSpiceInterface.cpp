@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
 
     // Check if spice kernels exist.
     if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "de421.bsp" ) )
-    {
+    {        
         std::cerr << "SPICE kernel de421.bsp not found in "<<getSpiceKernelPath( )
                   << std::endl;
     }

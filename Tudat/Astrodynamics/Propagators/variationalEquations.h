@@ -68,14 +68,14 @@ public:
             
             if( dynamicalStatesToEstimate_.count( partialTypeIterator->first ) == 0 )
             {
-                std::cerr<<"Error when making variational equations object, found no state to estimate of type "<<
-                           partialTypeIterator->first <<std::endl;
+                std::string errorMessage = "Error when making variational equations object, found no state to estimate of type " +
+                        boost::lexical_cast< std::string >( partialTypeIterator->first );
+                throw std::runtime_error( errorMessage );
             }
             else if( dynamicalStatesToEstimate_.at( partialTypeIterator->first ).size( ) !=
                      partialTypeIterator->second.size( ) )
             {
-                std::cerr<<"Error when making variational equations object, input partial list size is inconsistent"
-                        <<std::endl;
+                throw std::runtime_error( "Error when making variational equations object, input partial list size is inconsistent" );
             }
             
             totalDynamicalStateSize_ +=
