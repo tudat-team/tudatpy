@@ -7,6 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
 #ifndef TUDAT_AERODYNAMICANGLECALCULATOR_H
 #define TUDAT_AERODYNAMICANGLECALCULATOR_H
 
