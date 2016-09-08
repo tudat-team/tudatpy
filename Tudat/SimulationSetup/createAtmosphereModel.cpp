@@ -10,9 +10,16 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
+#if USE_NRLMSISE00
+#include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
+#include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
+#endif
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/SimulationSetup/createAtmosphereModel.h"
 
 namespace tudat
@@ -75,6 +82,22 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         }
         break;
     }
+#if USE_NRLMSISE00
+    case nrlmsise00:
+    {
+        std::string folder = input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/";
+        std::string spaceWeatherFilePath = folder + "sw19571001.txt";
+
+        tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
+                tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath ) ;
+
+        // Create atmosphere model using NRLMISE00 input function
+        boost::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
+                boost::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , false , TUDAT_NAN );
+        atmosphereModel = boost::make_shared< aerodynamics::NRLMSISE00Atmosphere >( inputFunction );
+        break;
+    }
+#endif
     default:
         throw std::runtime_error(
                  "Error, did not recognize atmosphere model settings type " +

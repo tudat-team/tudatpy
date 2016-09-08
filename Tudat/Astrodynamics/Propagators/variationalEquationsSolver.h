@@ -331,8 +331,10 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
                     parametersToEstimate );
         if( propagatedBodies.size( ) != estimatedBodies.size( ) )
         {
-            std::cerr<<"Error, propagated and estimated body vector sizes are inconsistent"<<
-                       propagatedBodies.size( )<<" "<<estimatedBodies.size( )<<std::endl;
+            std::string errorMessage = "Error, propagated and estimated body vector sizes are inconsistent " +
+                    boost::lexical_cast< std::string >( propagatedBodies.size( ) ) + " " +
+                    boost::lexical_cast< std::string >( estimatedBodies.size( ) );
+            throw std::runtime_error( errorMessage );
             isInputConsistent = 0;
         }
         else
@@ -341,8 +343,10 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
             {
                 if( propagatedBodies.at( i ) != estimatedBodies.at( i ) )
                 {
-                    std::cerr<<"Error, propagated and estimated body vectors inconsistent at index "<<i<<": "<<
-                               propagatedBodies.at( i )<<" "<<estimatedBodies.at( i )<<std::endl;
+                    std::string errorMessage = "Error, propagated and estimated body vectors inconsistent at index" +
+                            boost::lexical_cast< std::string >( propagatedBodies.at( i ) ) + " " +
+                            boost::lexical_cast< std::string >( estimatedBodies.at( i ) );
+                    throw std::runtime_error( errorMessage );
                     isInputConsistent = 0;
                 }
             }
@@ -351,8 +355,9 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         break;
     }
     default:
-        std::cerr<<"Error, cannot yet check consistency of propagator settings for type: "<<
-                   propagatorSettings->stateType_<<std::endl;
+        std::string errorMessage = "Error, cannot yet check consistency of propagator settings for type " +
+                boost::lexical_cast< std::string >( propagatorSettings->stateType_ );
+        throw std::runtime_error( errorMessage );
     }
     return isInputConsistent;
 }

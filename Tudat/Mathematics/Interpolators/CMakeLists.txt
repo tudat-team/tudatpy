@@ -41,6 +41,7 @@ set(INTERPOLATORS_SOURCES
 # Add header files.
 set(INTERPOLATORS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/cubicSplineInterpolator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Interpolators/hermiteCubicSplineInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/linearInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/lagrangeInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/interpolator.h"
@@ -58,6 +59,10 @@ setup_tudat_library_target(tudat_interpolators "${SRCROOT}${MATHEMATICSDIR}/Inte
 add_executable(test_CubicSplineInterpolator "${SRCROOT}${MATHEMATICSDIR}/Interpolators/UnitTests/unitTestCubicSplineInterpolator.cpp")
 setup_custom_test_program(test_CubicSplineInterpolator "${SRCROOT}${MATHEMATICSDIR}")
 target_link_libraries(test_CubicSplineInterpolator tudat_input_output tudat_interpolators tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_HermiteCubicSplineInterpolator "${SRCROOT}${MATHEMATICSDIR}/Interpolators/UnitTests/unitTestHermiteCubicSplineInterpolator.cpp")
+setup_custom_test_program(test_HermiteCubicSplineInterpolator "${SRCROOT}${MATHEMATICSDIR}")
+target_link_libraries(test_HermiteCubicSplineInterpolator tudat_input_output tudat_interpolators tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_LinearInterpolator "${SRCROOT}${MATHEMATICSDIR}/Interpolators/UnitTests/unitTestLinearInterpolator.cpp")
 setup_custom_test_program(test_LinearInterpolator "${SRCROOT}${MATHEMATICSDIR}")

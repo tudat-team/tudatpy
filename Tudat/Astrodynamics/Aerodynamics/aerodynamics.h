@@ -342,13 +342,13 @@ double computeShockTotalPressureRatio( double normalMachNumber,
 double computeShockDeflectionAngle( double shockAngle, double machNumber,
                                     double ratioOfSpecificHeats );
 
-//! Function to compute the speed of sounds in a gas
+//! Function to compute the speed of sound in a gas
 /*!
- * Function to compute the speed of sounds in a gas
- * \param temperature Temperature of atmosphere
- * \param ratioOfSpecificHeats Ratio of specific heats of gas
- * \param specificGasConstant Specific gas constant of gas
- * \return Speed of sound in gas.
+ * Function to compute the speed of sound in a gas
+ * \param temperature Gas temperature
+ * \param ratioOfSpecificHeats Ratio of specific heats aat constant pressure and constant volume
+ * \param specificGasConstant Specific gas constant of the gas
+ * \return Speed of sound in the gas.
  */
 double computeSpeedOfSound( const double temperature, const double ratioOfSpecificHeats,
                             const double specificGasConstant );
@@ -361,6 +361,18 @@ double computeSpeedOfSound( const double temperature, const double ratioOfSpecif
  * \return Mach number
  */
 double computeMachNumber( const double speed, const double speedOfSound );
+
+//! Function to compute the mean free path of a particle.
+/*!
+ * Function to compute the mean free path of a particle from e.g. (Chapman, S. & Cowling, T. The mathematical theory of
+ * nonuniform gases Cambridge University Press, 1970)
+ * \param weightedAverageCollisionDiameter Weighted (using specie number density) average collision diameter of the
+ * particles in the gas.
+ * \param averageNumberDensity Average number density of the gas.
+ * \return Mean free path of a particle in the gas.
+ */
+double computeMeanFreePath( const double weightedAverageCollisionDiameter, const double averageNumberDensity );
+
 
 } // namespace aerodynamics
 } // namespace tudat

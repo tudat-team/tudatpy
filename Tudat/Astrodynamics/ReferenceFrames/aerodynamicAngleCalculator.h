@@ -7,6 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
 #ifndef TUDAT_AERODYNAMICANGLECALCULATOR_H
 #define TUDAT_AERODYNAMICANGLECALCULATOR_H
 
@@ -293,6 +294,8 @@ boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) >
 getAerodynamicForceTransformationFunction(
         const boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
+        const boost::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
+        boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
 //! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
@@ -390,13 +393,6 @@ void setAerodynamicDependentOrientationCalculatorClosure(
         const boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
-//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
-/*!
- * Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
- * \param imposedRotationFromInertialToBodyFixedFrame Inertial to body-fixed frame rotation to which the
- * aerodynamicAngleCalculator object is to be made consistent
- * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
- */
 void setAerodynamicDependentOrientationCalculatorClosure(
             boost::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
             boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );

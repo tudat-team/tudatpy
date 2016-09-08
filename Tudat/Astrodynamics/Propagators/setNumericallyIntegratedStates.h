@@ -431,11 +431,20 @@ private:
     integrationToEphemerisFrameFunctions_;
 };
 
+//! Class used for processing numerically integrated masses of bodies.
 template< typename TimeType, typename StateScalarType >
 class BodyMassIntegratedStateProcessor: public IntegratedStateProcessor< TimeType, StateScalarType >
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param startIndex Index in the state vector where the translational state starts.
+     * \param bodyMap List of bodies used in simulations.
+     * \param bodiesToIntegrate List of bodies for which the mass is numerically
+     * integrated. Order in this vector is the same as the order in state vector.
+     */
     BodyMassIntegratedStateProcessor(
             const int startIndex,
             const simulation_setup::NamedBodyMap& bodyMap,
@@ -445,8 +454,15 @@ public:
         bodyMap_( bodyMap ), bodiesToIntegrate_( bodiesToIntegrate )
     { }
 
+    //! Destructor
     ~BodyMassIntegratedStateProcessor( ){ }
 
+    //! Function processing mass state in the full numericalSolution
+    /*!
+     * Function that processes the entries of the propagated mass in the full numericalSolution.
+     * \param numericalSolution Full numerical solution of state, in global representation (representation is constant
+     * for mass).
+     */
     void processIntegratedStates(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& numericalSolution )
     {

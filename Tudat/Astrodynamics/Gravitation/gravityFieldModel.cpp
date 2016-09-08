@@ -33,7 +33,9 @@
  */
 
 #include <iostream>
+
 #include <boost/make_shared.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 
@@ -151,8 +153,10 @@ boost::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
 
     default:
 
-        // Print cerr statement.
-        std::cerr << "Desired predefined central gravity field does not exist." << std::endl;
+        std::string errorMessage = "Desired predefined central gravity field " +
+                boost::lexical_cast< std::string >( bodyWithPredefinedCentralGravityField ) +
+                " does not exist";
+        throw std::runtime_error( errorMessage );
     }
     return boost::make_shared< GravityFieldModel >( gravitationalParameter );
 }

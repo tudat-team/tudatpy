@@ -70,7 +70,7 @@ Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
 }
 
 //! Wrapper function to transform a vector to a different frame from a single rotation function.
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFromQuaternionFunction(
         const Eigen::Vector3d& originalVector,
         const boost::function< Eigen::Quaterniond( ) > rotation )
 {
@@ -78,7 +78,7 @@ Eigen::Vector3d transformVector(
 }
 
 //! Wrapper function to transform a vector to a different frame from a single transformation function.
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
         const boost::function< Eigen::Vector3d( ) > originalVector,
         const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction )
 {
@@ -86,7 +86,7 @@ Eigen::Vector3d transformVector(
 }
 
 //! Wrapper function to transform a vector to a different frame from a list of transformation function.
-Eigen::Vector3d transformVector(
+Eigen::Vector3d transformVectorFromVectorFunctions(
         const Eigen::Vector3d& originalVector,
         const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
 {
@@ -379,7 +379,6 @@ double calculateFlightPathAngle( const Eigen::Vector3d& velocityInVerticalFrame 
 {
     return -std::asin( velocityInVerticalFrame( 2 ) / velocityInVerticalFrame.norm( ) );
 }
-
 
 } // namespace reference_frames
 } // namespace tudat

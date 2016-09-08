@@ -41,6 +41,7 @@
  */
 
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
@@ -156,10 +157,11 @@ Eigen::VectorXd LawgsPartGeometry::getSurfaceDerivative( const double u, const d
                                                          const int uDerivative,
                                                          const int vDerivative )
 {
-    std::cerr << "Surface derivative function not implemented in "
-              << "LawgsPartGeometry class. Not able to return the "
-              << uDerivative << ", " << vDerivative << "th derivative at point,"
-              << u << ", " << v << ". Returning zero vector." << std::endl;
+    std::string errorMessage =  "Warning, surface derivative function not implemented in LawgsPartGeometry class. Not able to return the "
+            + boost::lexical_cast< std::string >( uDerivative ) + ", "
+            + boost::lexical_cast< std::string >( vDerivative ) + "the derivative at point,"
+            + boost::lexical_cast< std::string >( u ) + ", " + boost::lexical_cast< std::string >( v );
+    throw std::runtime_error( errorMessage );
 
     return Eigen::Vector3d( 0.0, 0.0, 0.0 );
 }
@@ -167,9 +169,9 @@ Eigen::VectorXd LawgsPartGeometry::getSurfaceDerivative( const double u, const d
 //! Get parameter.
 double LawgsPartGeometry::getParameter( const int parameterIndex )
 {
-    std::cerr << "Get parameter function not implemented in LawgsPartGeometry"
-              << "class, unable to retrieve parameter "<< parameterIndex
-              << ". Returning zero." << std::endl;
+    std::string errorMessage =  "WWarning, get parameter function not implemented in LawgsPartGeometry class, unable to retrieve parameter"
+            + boost::lexical_cast< std::string >( parameterIndex );
+    throw std::runtime_error( errorMessage );
 
     return 0.0;
 }
@@ -177,9 +179,9 @@ double LawgsPartGeometry::getParameter( const int parameterIndex )
 //! Set parameter.
 void LawgsPartGeometry::setParameter( const int parameterIndex, const double value )
 {
-    std::cerr << "Set parameter function not implemented in LawgsPartGeometry"
-              << "class. Unable to set value of " << value << " at parameter index "
-              << parameterIndex << std::endl;
+    std::string errorMessage =  "WWarning, set parameter function not implemented in LawgsPartGeometry class, unable to set parameter"
+            + boost::lexical_cast< std::string >( parameterIndex );
+    throw std::runtime_error( errorMessage );
 }
 
 //! Overload ostream to print class information.

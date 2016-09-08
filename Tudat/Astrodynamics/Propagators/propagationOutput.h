@@ -135,7 +135,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error, no flight conditions available when requesting Mach number output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
         }
 
         boost::function< double( const double, const double ) > functionToEvaluate =
@@ -165,7 +167,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     case airspeed_dependent_variable:
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error, no flight conditions available when requesting airspeed output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
         }
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeed,
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
@@ -173,7 +177,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     case local_density_dependent_variable:
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
+            std::string errorMessage = "Error, no flight conditions available when requesting density output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
         }
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentDensity,
                                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
@@ -181,7 +187,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
     case radiation_pressure_dependent_variable:
         if( bodyMap.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
         {
-
+            std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
+            throw std::runtime_error( errorMessage );
         }
         variableFunction = boost::bind( &electro_magnetism::RadiationPressureInterface::getCurrentRadiationPressure,
                                         bodyMap.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
@@ -417,8 +425,8 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-            std::string errorMessage = "Error when flight conditions for aerodynamic_force_coefficients_dependent_variable output " +
-                    bodyWithProperty + " has no flight conditions";
+            std::string errorMessage = "Error, no flight conditions available when requesting density output of aerodynamic force coefficients " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
             throw std::runtime_error( errorMessage );
         }
 
@@ -433,8 +441,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-            std::string errorMessage = "Error when flight conditions for aerodynamic_moment_coefficients_dependent_variable output " +
-                    bodyWithProperty + " has no flight conditions";
+
+            std::string errorMessage = "Error, no flight conditions available when requesting density output of aerodynamic moment coefficients " +
+                    bodyWithProperty + "w.r.t." + secondaryBody;
             throw std::runtime_error( errorMessage );
         }
 

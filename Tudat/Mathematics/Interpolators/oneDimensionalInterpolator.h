@@ -176,8 +176,7 @@ protected:
             break;
 
         default:
-            std::cerr << "Warning: lookup scheme not found when making scheme for 1-D interpolator"
-                      << std::endl;
+            throw std::runtime_error( "Warning: lookup scheme not found when making scheme for 1-D interpolator" );
         }
     }
 

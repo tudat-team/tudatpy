@@ -207,6 +207,7 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
                 nameOfBodyExertingAcceleration, 1,
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
 
+
     // Create flight conditions.
     boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
             boost::make_shared< aerodynamics::FlightConditions >(

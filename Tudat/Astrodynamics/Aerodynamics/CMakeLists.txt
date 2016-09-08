@@ -72,9 +72,11 @@ set(AERODYNAMICS_HEADERS
 
 if(USE_NRLMSISE00)
   set(AERODYNAMICS_SOURCES "${AERODYNAMICS_SOURCES}"
-    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00Atmosphere.cpp")
+    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00Atmosphere.cpp"
+    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00InputFunctions.cpp")
   set(AERODYNAMICS_HEADERS "${AERODYNAMICS_HEADERS}"
-    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00Atmosphere.h")
+    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00Atmosphere.h"
+    "${SRCROOT}${AERODYNAMICSDIR}/nrlmsise00InputFunctions.h")
 endif( )
 
 # Add static libraries.
@@ -84,7 +86,8 @@ setup_tudat_library_target(tudat_aerodynamics "${SRCROOT}{AERODYNAMICSDIR}")
 # Add unit tests.
 add_executable(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicMomentAndAerodynamicForce.cpp")
 setup_custom_test_program(test_AerodynamicMomentAndAerodynamicForce "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_AerodynamicMomentAndAerodynamicForce tudat_simulation_setup tudat_propagators tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments tudat_electro_magnetism tudat_propulsion tudat_ephemerides tudat_numerical_integrators tudat_reference_frames tudat_basic_astrodynamics tudat_input_output tudat_basic_mathematics tudat_propagators tudat_spice_interface cspice ${Boost_LIBRARIES})
+target_link_libraries(test_AerodynamicMomentAndAerodynamicForce ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 
 add_executable(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicsNamespace.cpp")
 setup_custom_test_program(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}")
@@ -105,5 +108,5 @@ target_link_libraries(test_TabulatedAtmosphere tudat_aerodynamics tudat_interpol
 if(USE_NRLMSISE00)
     add_executable(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestNRLMSISE00Atmosphere.cpp")
     setup_custom_test_program(test_NRLMSISE00Atmosphere "${SRCROOT}${AERODYNAMICSDIR}")
-    target_link_libraries(test_NRLMSISE00Atmosphere tudat_aerodynamics tudat_basic_mathematics nrlmsise00 ${Boost_LIBRARIES})
+    target_link_libraries(test_NRLMSISE00Atmosphere tudat_aerodynamics tudat_interpolators tudat_basic_mathematics nrlmsise00 tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
 endif( )
