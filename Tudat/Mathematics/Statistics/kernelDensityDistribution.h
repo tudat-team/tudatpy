@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_KERNEL_DENSITY_DISTRIBUTION_H
-#define TUDAT_KERNEL_DENSITY_DISTRIBUTION_H
+#ifndef TUDAT_KERNELDENSITYDISTRIBUTION_H
+#define TUDAT_KERNELDENSITYDISTRIBUTION_H
 
 #include <iostream>
 #include <map>
@@ -25,22 +25,34 @@ namespace tudat
 namespace statistics
 {
 
-//! Epanechnikov kernel distribution
-/*!
- * Class that uses random samples to generate a distribution using Kernel Density Estimation.
- */
+//! Class for Probability distribution using a single Epanechnikov kernel
 class EpanechnikovKernelDistribution: public tudat::statistics::ContinuousProbabilityDistribution< double >
 {
 public:
 
     //! Constructor
+    /*!
+     * Constructor
+     * \param mean Kernel mean
+     * \param bandWidth Kernel bandwidth
+     */
     EpanechnikovKernelDistribution( const double mean, const double bandWidth ):
         mean_( mean ), bandWidth_( bandWidth ){ }
 
-    //! Get probability density
+    //! Function to evaluate pdf of distribution
+    /*!
+     *  Function to evaluate probability distribution function at given independentVariable value.
+     *  \param independentVariable Value of independent variable
+     *  \return Evaluated pdf
+     */
     double evaluatePdf( const double& independentVariable );
 
-    //! Get cumulative probability
+    //! Function to evaluate cdf of distribution
+    /*!
+     *  Function to evaluate cumulative distribution function at given independentVariable value.
+     *  \param independentVariable Value of independent variable
+     *  \return Evaluated cdf
+     */
     double evaluateCdf( const double& independentVariable );
 
 protected:
@@ -57,13 +69,15 @@ private:
 //! Kernel type that is used in the Kernel Density Estimate
 enum KernelType
 {
-    Gaussian = 0,
-    Epanechnikov = 1
+    gaussian_kernel = 0,
+    epanechnikov_kernel = 1
 };
 
-//! Kernel Density Estimate Distribution.
+//! Class that uses random samples to generate a multivariate probability distribution using Kernel Density distribution.
 /*!
- * Class that uses random samples to generate a distribution using Kernel Density Estimation.
+ *  Class that uses random samples to generate a multivariate probability distribution using Kernel Density distribution.
+ *  The bandwidth of the kernels may be supplied by the user, or an optimal distrubution may be computed by this class
+ *  At present, the user has the choice of a Gaussian or Epanechnikov distribution for the kernels.
  */
 class KernelDensityDistribution: public tudat::statistics::ContinuousProbabilityDistribution< Eigen::VectorXd >
 {
@@ -72,88 +86,184 @@ class KernelDensityDistribution: public tudat::statistics::ContinuousProbability
 public:
 
     //! Constructor
+    /*!
+     * Constructor
+     * \param samples Data samples from which the empirical distribution is to be created.
+     * \param bandWidthFactor Factor by which to multiply the computed bandwidth values of the kernels.
+     * \param kernel_type Type of distribution to be used for the kernels in the distribution.
+     * \param manualStandardDeviation Standard deviations with which to scale the entries of each sample. By default this
+     * vector is empty and not used. If it is provided, it is used to scale the entry i of each sample by
+     * manualStandardDeviation( i ) / sampleStandardDeviation( i ), where sampleStandardDeviation is the standard
+     * deviation computed from the samples/
+     * \param manualBandwidth Vector of bandwidths for each dimension that is to be used in the kernels. By default this
+     * vector is empty and not used. Optimal bandwidths (scaled by bandWidthFactor) are used in this default case.
+     */
     KernelDensityDistribution(
             const std::vector< Eigen::VectorXd >& samples,
             const double bandWidthFactor = 1.0,
-            const KernelType kernel_type = KernelType::Gaussian,
+            const KernelType kernel_type = KernelType::gaussian_kernel,
             const Eigen::VectorXd& manualStandardDeviation = Eigen::VectorXd::Zero( 0 ),
             const Eigen::VectorXd& manualBandwidth = Eigen::VectorXd::Zero( 0 ) );
 
-    //! Get probability density
+    //! Function to evaluate pdf of distribution
+    /*!
+     *  Function to evaluate probability distribution function at given independentVariable value.
+     *  \param independentVariables Values of independent variable
+     *  \return Evaluated pdf
+     */
     double evaluatePdf( const Eigen::VectorXd& independentVariables );
 
-    //! Get cumulative probability ( F(x) = P(x<X) )
+    //! Function to evaluate cdf of distribution
+    /*!
+     *  Function to evaluate cumulative distribution function at given independentVariable value.
+     *  \param independentVariables Values of independent variable
+     *  \return Evaluated cdf
+     */
     double evaluateCdf( const Eigen::VectorXd& independentVariables );
 
-    //! Get probability density of marginal distribution
+    //! Function to evaluate probability density of joint marginal distribution.
+    /*!
+     * Function to evaluate probability density of joint marginal distribution,
+     * \param marginalDimensions Dimensions over which the average marginal probaility is to be computed
+     * \param independentVariables Values of independent variables (in marginalDimensions) at which marginal
+     * probability is to be computed
+     * \return Probability density of joint marginal distribution.
+     */
     double getMarginalProbabilityDensity(
-            const std::vector< int >& marginalDimensions, const Eigen::VectorXd& x );
+            const std::vector< int >& marginalDimensions, const Eigen::VectorXd& independentVariables );
 
-    //! Get probability density of marginal distribution
-    double getMarginalProbabilityDensityd( const int marginalDimension, const double independentVariable );
+    //! Function to evaluate marginal distribution density at single dimension.
+    /*!
+     * Function to evaluate marginal distribution density at single dimension.
+     *  \param marginalDimension Dimension in whihc the marginal distribution is to be computed
+     *  \param independentVariable Value of independent variable in dimension marginalDimension
+     *  \return Probability density of marginal distribution at given dimension and independent variable.
+     */
+    double getMarginalProbabilityDensity( const int marginalDimension, const double independentVariable );
 
-    //! Get cumulative probability of marginal distribution
+    //! Function to evaluate cumulative probability of marginal distribution at single dimension.
+    /*!
+     *  Function to evaluate cumulative probability of marginal distribution at single dimension.
+     *  \param marginalDimension Dimension in whihc the marginal distribution is to be computed
+     *  \param independentVariable Value of independent variable in dimension marginalDimension
+     *  \return cumulative probability of marginal distribution at given dimension and independent variable.
+     */
     double getCumulativeMarginalProbability( const int marginalDimension, const double independentVariable );
 
-    //! get cumulative probability of marginal distribution of conditional distribution
+    //! Function to evaluate cumulative conditional probability of marginal distribution at single dimension
+    /*!
+     * Function to evaluate cumulative probability of marginal distribution at single dimension,
+     * given conditions of cdf on other dimensions
+     * \param conditionDimensions List of dimensions in which cdf is given
+     * \param conditions Independent variables at which values of cdf, in dimensions listed in conditionDimensions,
+     * are to be computed.
+     * \param marginalDimension Dimension in which the marginal cdf is to be computed
+     * \param independentVariable Independent variable at which conditional marginal cdf is to be computed
+     * \return Cumulative conditional probability of marginal distribution at given settings.
+     */
     double getCumulativeConditionalMarginalProbability(
             const std::vector< int >& conditionDimensions,
             const std::vector< double >& conditions,
             const int marginalDimension, const double independentVariable );
 
-    //! get probability density of marginal distribution of conditional distribution
+    //! Function to evaluate conditional probability density of marginal distribution at single dimension
+    /*!
+     * Function to evaluate probability density of marginal distribution at single dimension,
+     * given conditions of cdf on other dimensions
+     * \param conditionDimensions List of dimensions in which pdf is given
+     * \param conditions Independent variables at which values of pdf, in dimensions listed in conditionDimensions,
+     * are to be computed.
+     * \param marginalDimension Dimension in which the marginal pdf is to be computed
+     * \param independentVariable Independent variable at which conditional marginal pdf is to be computed
+     * \return Conditional pdf of marginal distribution at given settings.
+     */
     double getConditionalMarginalProbabilityDensity(
             const std::vector< int >& conditionDimensions,
             const std::vector< double >& conditions,
             const int marginalDimension, const double independentVariable );
 
-    //! Compute optimal bandwidth
+    //! Compute optimal bandwidth using the provided samples and bandwidth scaling variable.
+    /*!
+     *  Compute optimal bandwidth using the provided samples and bandwidth scaling variable.
+     */
     void computeOptimalBandWidth( );
 
-    //! Get optimal bandWidth_
+    //! Function to retrieve the optimal bandwidth
+    /*!
+     * Function to retrieve the optimal bandwidth
+     * \return Optimal bandwidth
+     */
     Eigen::VectorXd getOptimalBandWidth( )
     {
         return optimalBandwidth_;
     }
 
-    //! Get bandWidth_
+    //! Function to retrieve the bandwidth
+    /*!
+     * Function to retrieve the bandwidth
+     * \return Bandwidth
+     */
     Eigen::VectorXd getBandWidth( )
     {
         return bandWidth_;
     }
 
-    //! Get samples
+    //! Function to retrieve the data samples used to generate kernel density distribution.
+    /*!
+     * Function to retrieve the data samples used to generate kernel density distribution.
+     * \return Data samples used to generate kernel density distribution.
+     */
     std::vector< Eigen::VectorXd > getSamples( )
     {
         return dataSamples_;
     }
 
-    //! Set bandWidth_
+    //! Function to manually reset the bandwidth
+    /*!
+     * Function to manually reset the bandwidth. Calling this function automatically recomputes the kernels.
+     * \param bandWidth New bandwidth to be used for each dimension.
+     */
     void setBandWidth( const Eigen::VectorXd& bandWidth )
     {
         bandWidth_ = bandWidth;
         generateKernelPointerMatrix( ); // Reset kernels
     }
 
-    //! Get sample mean.
+    //! Function to retrieve the sample mean.
+    /*!
+     * Function to retrieve the sample mean.
+     * \return Sample mean.
+     */
     Eigen::VectorXd getSampleMean( )
     {
         return sampleMean_;
     }
 
-    //! Get sample variance.
+    //! Function to retrieve the sample variance.
+    /*!
+     * Function to retrieve the sample variance.
+     * \return Sample variance.
+     */
     Eigen::VectorXd getSampleVariance( )
     {
         return sampleVariance_;
     }
 
-    //! Get sample standard deviation.
+    //! Function to retrieve the sample standard deviation.
+    /*!
+     * Function to retrieve the sample standard deviation.
+     * \return Sample standard deviation.
+     */
     Eigen::VectorXd getSampleStandardDeviation( ){
 
         return sampleStandardDeviation_;
     }
 
-    //! Get number of samples
+    //! Function to retrieve the number of samples.
+    /*!
+     * Function to retrieve the number of samples.
+     * \return Number of samples.
+     */
     int getNumberOfSamples( )
     {
         return numberOfSamples_;
@@ -163,59 +273,90 @@ protected:
 
 private:
 
-    //! Construct kernel
+    //! Function that constructs a single kernel.
+    /*!
+     * Function that constructs a single kernel, called iteratively to construct the full multivariate kernel density.
+     * \param mean Mean value of kernel that is to be created.
+     * \param bandWidth Bandwidth of kernel thatr is to be created.
+     * \return Probability distribution for single kernel.
+     */
     boost::shared_ptr< ContinuousProbabilityDistribution< double > > constructKernel(
-            const double mean, const double bandWidth)
+            const double mean, const double bandWidth )
     {
         boost::shared_ptr< ContinuousProbabilityDistribution< double > > kernelPointer;
 
-        if( kernelType_ == KernelType::Epanechnikov )
+        // Check kernel type and create selected kernel.
+        if( kernelType_ == KernelType::epanechnikov_kernel )
         {
             kernelPointer = boost::make_shared< EpanechnikovKernelDistribution >( mean, bandWidth );
         }
-        else
+        else if( kernelType_ == KernelType::gaussian_kernel )
         {
             kernelPointer = createBoostRandomVariable(
                         normal_boost_distribution, { mean, bandWidth } );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when constructing probability kernels, kernel type not recognized" );
         }
 
         return kernelPointer;
     }
 
-    //! Set kernel pointer matrix
+    //! Function that generates the kernel density distribution based on the samples and kernel type that is provided
+    /*!
+     *  Function that generates the kernel density distribution based on the samples and kernel type that is provided.
+     *  This function iteratively calls the constructKernel function to create a kernel for each entry in each sample.
+     */
     void generateKernelPointerMatrix( );
 
-    //! Compute sample mean
+    //! Function that computes and sets the sample mean.
+    /*!
+     *  Function that computes and sets the sample mean (sampleMean_ variable).
+     */
     void computeSampleMean( );
 
-    //! Compute sample mean
+    //! Function that computes and sets the sample variance and standard deviation.
+    /*!
+     *  Function that computes and sets the sample variance and standard deviation
+     *  (sampleVariance_ and sampleStandardDeviation_ variable).
+     */
     void computeSampleVariance( );
 
-    //! Scale the samples such to the required variance
+    //! Function to scale the samples to the required standard deviation
+    /*!
+     *  Function to scale the samples to the required standard deviation
+     *  \param standardDeviation New standard deviation that the data is to have.
+     */
     void scaleSamplesWithVariance( const Eigen::VectorXd& standardDeviation );
 
-    //! Get median from datasamples
-    Eigen::VectorXd getMedian( std::vector< Eigen::VectorXd > samples );
+    //! Function to retrieve the sample set median
+    /*!
+     * Function to retrieve the sample set median
+     * \param samples Set of samples from which the (per entry) median is to be computed.
+     * \return Sample set median
+     */
+    Eigen::VectorXd getMedian( const std::vector< Eigen::VectorXd >& samples );
 
     //! Datasamples
     std::vector< Eigen::VectorXd > dataSamples_;
 
-    //! sample mean
+    //! Sample mean (per entry)
     Eigen::VectorXd sampleMean_;
 
-    //! sample variance
+    //! Sample variance (per entry)
     Eigen::VectorXd sampleVariance_;
 
-    //! sample standard deviation
+    //! Sample standard deviation (per entry)
     Eigen::VectorXd sampleStandardDeviation_;
 
     //! Kernel type
     KernelType kernelType_;
 
-    //! BandWidth of Kernels
+    //! Bandwidth of Kernels
     Eigen::VectorXd bandWidth_;
 
-    //! Optimal bandWidth of Kernels.
+    //! Optimal bandwidth of Kernels.
     Eigen::VectorXd optimalBandwidth_;
 
     //! Number of dimensions of the samples and distribution.
@@ -224,7 +365,7 @@ private:
     //! Number of datasamples
     int numberOfSamples_;
 
-    //! Matrix of 1D kernel pointers
+    //! Matrix (vector of vectors) of 1D kernel pointers that define full kernel density distribution.
     std::vector< std::vector< boost::shared_ptr< ContinuousProbabilityDistribution< double > > > > kernelPointersMatrix_;
 
 };
@@ -233,8 +374,8 @@ private:
 typedef boost::shared_ptr< KernelDensityDistribution > KernelDensityDistributionPointer;
 
 
-} // Close Namespace statistics
+} // namespace statistics
 
-} // Close Namespace tudat
+} // namespace tudat
 
-#endif // TUDAT_KERNEL_DENSITY_DISTRIBUTION_H
+#endif // TUDAT_KERNELDENSITYDISTRIBUTION_H
