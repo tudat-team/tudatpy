@@ -20,8 +20,6 @@ namespace tudat
 namespace statistics
 {
 
-using tudat::mathematical_constants::PI;
-
 //! Get probability density
 double EpanechnikovKernelDistribution::evaluatePdf( const double& independentVariable )
 {
@@ -65,8 +63,38 @@ KernelDensityDistribution::KernelDensityDistribution(
 {
     // Load data
     dataSamples_ = samples;
-    dimensions_ = samples[ 0 ].rows( );
+    dimensions_ = dataSamples_.at( 0 ).rows( );
     numberOfSamples_ = static_cast< int >( samples.size( ) );
+
+    // Check input consistency
+    if( ( standardDeviation.rows( ) > 0 ) && ( standardDeviation.rows( ) != dimensions_  ) )
+    {
+        std::string errorMessage = "Error when creating KernelDensityDistribution, manual standard deviation size is inconsistent, should have size : " +
+                boost::lexical_cast< std::string >( dimensions_ ) + "but has size " +
+                boost::lexical_cast< std::string >( standardDeviation.rows( ) );
+        throw std::runtime_error( errorMessage );
+
+    }
+
+    if( ( manualBandwidth.rows( ) > 0 ) && ( manualBandwidth.rows( ) != dimensions_  ) )
+    {
+        std::string errorMessage = "Error when creating KernelDensityDistribution, manual bandwidth size is inconsistent, should have size : " +
+                boost::lexical_cast< std::string >( dimensions_ ) + "but has size " +
+                boost::lexical_cast< std::string >( manualBandwidth.rows( ) );
+        throw std::runtime_error( errorMessage );
+    }
+
+    for( unsigned int i = 0; i < samples.size( ); i++ )
+    {
+        if( dataSamples_.at( i ).rows( ) != dimensions_ )
+        {
+            std::string errorMessage = "Error when creating KernelDensityDistribution, samples size is inconsistent, should have size : " +
+                    boost::lexical_cast< std::string >( dimensions_ ) + "but entry " +
+                    boost::lexical_cast< std::string >( i ) + " has size " +
+                    boost::lexical_cast< std::string >( dataSamples_.at( i ).rows( ) );
+            throw std::runtime_error( errorMessage );
+        }
+    }
 
     // Compute datasample properties
     computeSampleMean( );
@@ -95,17 +123,16 @@ KernelDensityDistribution::KernelDensityDistribution(
     // Construct kernel matrix rows: samples, cols: dimensions_
     kernelType_ = kernelType;
 
-
-
     generateKernelPointerMatrix( );
 }
 
-//! Set kernel pointer matrix
+//! Function that generates the kernel density distribution based on the samples and kernel type that is provided
 void KernelDensityDistribution::generateKernelPointerMatrix( )
 {
-    std::vector< std::vector< boost::shared_ptr< ContinuousProbabilityDistribution< double > > > > matrix( 0 );
-    kernelPointersMatrix_ = matrix;
+    // Clear existing kernels.
+    kernelPointersMatrix_.clear( );
 
+    // Check for numerical problems with bandwidths.
     for( unsigned int i = 0; i < bandWidth_.rows( ); i++ )
     {
         if( bandWidth_( i ) < 10.0 * std::numeric_limits< double >::epsilon( ) )
@@ -116,8 +143,11 @@ void KernelDensityDistribution::generateKernelPointerMatrix( )
             throw std::runtime_error( errorMessage );
         }
     }
+
     // Fill kernel pointer matrix with distribution pointer objects
     std::vector< boost::shared_ptr< ContinuousProbabilityDistribution< double > > > vector( dataSamples_[ 0 ].rows( ) );
+
+    // Iterate over all samples; create kernel for each entry in each sample
     for( unsigned int i = 0; i < dataSamples_.size( ); i++ )
     {
         for( unsigned int j = 0; j < vector.size( ); j++ )
@@ -128,6 +158,7 @@ void KernelDensityDistribution::generateKernelPointerMatrix( )
     }
 }
 
+//! Function that computes and sets the sample mean.
 void KernelDensityDistribution::computeSampleMean( )
 {
     sampleMean_ = Eigen::VectorXd::Zero( dimensions_ );
@@ -138,6 +169,7 @@ void KernelDensityDistribution::computeSampleMean( )
     sampleMean_ = sampleMean_ / static_cast< double >( numberOfSamples_ );
 }
 
+//! Function that computes and sets the sample variance and standard deviation.
 void KernelDensityDistribution::computeSampleVariance( )
 {
     sampleVariance_ = Eigen::VectorXd::Zero( dimensions_ );
@@ -149,7 +181,7 @@ void KernelDensityDistribution::computeSampleVariance( )
     sampleStandardDeviation_ = sampleVariance_.cwiseSqrt( );
 }
 
-//! Scale the samples such to the required variance
+//! Function to scale the samples to the required standard deviation
 void KernelDensityDistribution::scaleSamplesWithVariance(
         const Eigen::VectorXd& standardDeviation )
 {
@@ -165,9 +197,7 @@ void KernelDensityDistribution::scaleSamplesWithVariance(
 //! Compute the optimal bandwidth
 void KernelDensityDistribution::computeOptimalBandWidth( )
 {
-    int dims = dimensions_;
-
-    optimalBandwidth_ = Eigen::VectorXd::Zero( dims, 1);
+    optimalBandwidth_ = Eigen::VectorXd::Zero( dimensions_, 1);
 
     // Calculate sigma (median absolute deviation estimator)
     Eigen::VectorXd medianOfSamples = getMedian( dataSamples_ );
@@ -178,34 +208,38 @@ void KernelDensityDistribution::computeOptimalBandWidth( )
         dataSamples2[ i ] = dataSamples_[ i ] - medianOfSamples;
         dataSamples2[ i ] = dataSamples2[ i ].cwiseAbs( );
     }
+
     Eigen::VectorXd medianOfSamples2 = getMedian( dataSamples2 );
     Eigen::VectorXd sigma = medianOfSamples2 / 0.6745;
 
     // Calculate optimal Bandwidth
     optimalBandwidth_ = std::pow( 4.0 / ( ( static_cast< double >( dimensions_ ) + 2.0 ) *
-                                         static_cast< double >( numberOfSamples_ ) ),
-                                 1.0 / ( static_cast< double >( dimensions_ )  + 4.0 ) ) * sigma;
+                                          static_cast< double >( numberOfSamples_ ) ),
+                                  1.0 / ( static_cast< double >( dimensions_ )  + 4.0 ) ) * sigma;
 }
 
-//! Get median from datasamples
-Eigen::VectorXd KernelDensityDistribution::getMedian( std::vector< Eigen::VectorXd > samples )
+//! Function to retrieve the sample set median
+Eigen::VectorXd KernelDensityDistribution::getMedian(
+        const std::vector< Eigen::VectorXd >& samples )
 {
-    int dims = samples[ 0 ].rows( );
-    std::vector< std::vector< double > > dataSamplesVectors( dims );
+    int sampleDimensions = samples[ 0 ].rows( );
+    std::vector< std::vector< double > > dataSamplesVectors( sampleDimensions );
 
+    // Create vector of j^th entry from each sample
     std::vector< double > data( 0 );
-    for( int i = 0; i < dims; i++ )
+    for( int i = 0; i < sampleDimensions; i++ )
     {
         for( unsigned int j = 0; j < samples.size( ); j++ )
         {
-            data.push_back( samples[ j ](i) );
+            data.push_back( samples[ j ]( i ) );
         }
         dataSamplesVectors[ i ] = data;
         data.clear( );
     }
 
-    Eigen::VectorXd medianOfSamples( dims );
-    for( int i = 0; i < dims; i++ )
+    // Compute sample median for each entry of samples.
+    Eigen::VectorXd medianOfSamples( sampleDimensions );
+    for( int i = 0; i < sampleDimensions; i++ )
     {
         medianOfSamples[ i ] = tudat::statistics::computeSampleMedian( dataSamplesVectors[ i ] );
     }
@@ -216,16 +250,23 @@ Eigen::VectorXd KernelDensityDistribution::getMedian( std::vector< Eigen::Vector
 double KernelDensityDistribution::evaluatePdf( const Eigen::VectorXd& independentVariables )
 {
     double propbabilityDensity = 0.0;
-    double value = 1.0;
+    double currentKernelPdf = 1.0;
+
+    // Iterative over all kernels
     for( int i = 0; i < numberOfSamples_; i++ )
-    {
-        for( int dim = 0; dim < dimensions_; dim++ )
+    {     
+        currentKernelPdf = 1.0;
+
+        // Compute pdf of current kernel
+        for( int currentDimension = 0; currentDimension < dimensions_; currentDimension++ )
         {
-            value = value * kernelPointersMatrix_[ i ][ dim ]->evaluatePdf( independentVariables( dim ) );
+            currentKernelPdf *= kernelPointersMatrix_[ i ][ currentDimension ]->evaluatePdf(
+                        independentVariables( currentDimension ) );
         }
-        propbabilityDensity += value;
-        value = 1.0;
+        propbabilityDensity += currentKernelPdf;
     }
+
+    // Average over all kernels
     return propbabilityDensity / static_cast< double >( numberOfSamples_ );
 }
 
@@ -233,54 +274,71 @@ double KernelDensityDistribution::evaluatePdf( const Eigen::VectorXd& independen
 double KernelDensityDistribution::evaluateCdf( const Eigen::VectorXd& independentVariables )
 {
     double cumulativeProbability = 0.0;
-    double value = 1.0;
+    double currentKernelCdf = 1.0;
+
+    // Iterative over all kernels
     for( int i = 0; i < numberOfSamples_; i++ )
     {
-        for( int dim = 0; dim < dimensions_; dim++ )
+        currentKernelCdf = 1.0;
+
+        // Compute cdf of current kernel
+        for( int currentDimension = 0; currentDimension < dimensions_; currentDimension++ )
         {
-            value = value * kernelPointersMatrix_[ i ][ dim ]->evaluateCdf( independentVariables( dim ) );
+            currentKernelCdf *= kernelPointersMatrix_[ i ][ currentDimension ]->evaluateCdf(
+                        independentVariables( currentDimension ) );
         }
-        cumulativeProbability += value;
-        value = 1.0;
+        cumulativeProbability += currentKernelCdf;
     }
+
+    // Average over all kernels
     return cumulativeProbability / static_cast< double >( numberOfSamples_ );
 }
 
 //! Get cumulative probability of marginal distribution
-double KernelDensityDistribution::getCumulativeMarginalProbability(int marginalDimension, double x )
+double KernelDensityDistribution::getCumulativeMarginalProbability(
+        const int marginalDimension, const double independentVariable )
 {
+    // Compute cdf at independentVariable in marginalDimension, averaged over all samples
     double cumulativeProbability = 0.0;
     for( int i = 0; i < numberOfSamples_; i++ )
     {
-        cumulativeProbability += kernelPointersMatrix_[ i ][ marginalDimension ]->evaluateCdf( x );
+        cumulativeProbability += kernelPointersMatrix_[ i ][ marginalDimension ]->evaluateCdf( independentVariable );
     }
     return cumulativeProbability / static_cast< double >( numberOfSamples_ );
 }
 
-//! Get probability density of marginal distribution
+//! Function to evaluate probability density of joint marginal distribution.
 double KernelDensityDistribution::getMarginalProbabilityDensity(
         const std::vector< int >& marginalDimensions, const Eigen::VectorXd& independentVariables )
 {
     double probabilityDensity = 0.0;
-    double value = 1.0;
+    double marginalPdfOfCurrentKernel = 1.0;
+
+    // Iterate over all kernels
     for( int i = 0; i < numberOfSamples_; i++ )
     {
+        marginalPdfOfCurrentKernel = 1.0;
+
+        // Compute marginal pdf for current kernel
         for( unsigned int j = 0; j < marginalDimensions.size( ); j++ )
         {
-            value = value * kernelPointersMatrix_[ i ][ marginalDimensions[ j ] ]->evaluatePdf( independentVariables( j ) );
+            marginalPdfOfCurrentKernel *= kernelPointersMatrix_[ i ][ marginalDimensions[ j ] ]->evaluatePdf( independentVariables( j ) );
         }
 
-        probabilityDensity += value;
-        value = 1.0;
+        probabilityDensity += marginalPdfOfCurrentKernel;
     }
+
+    // Average marginal pdf over all samples
     return probabilityDensity / static_cast< double >( numberOfSamples_ );
 }
 
-//! Get probability density of marginal distribution
-double KernelDensityDistribution::getMarginalProbabilityDensityd(
+//! Function to evaluate marginal distribution density at single dimension.
+double KernelDensityDistribution::getMarginalProbabilityDensity(
         const int marginalDimension, const double independentVariable )
 {
     double probabilityDensity = 0.0;
+
+    // Compute pdf at independentVariable in marginalDimension, averaged over all samples
     for( int i = 0; i < numberOfSamples_; i++ )
     {
         probabilityDensity += kernelPointersMatrix_[ i ][ marginalDimension ]->evaluatePdf( independentVariable );
@@ -288,64 +346,70 @@ double KernelDensityDistribution::getMarginalProbabilityDensityd(
     return probabilityDensity / static_cast< double >( numberOfSamples_ );
 }
 
-//! get cumulative probability of marginal distribution of conditional distribution
+//! Function to evaluate cumulative conditional probability of marginal distribution at single dimension
 double KernelDensityDistribution::getCumulativeConditionalMarginalProbability(
         const std::vector< int >& conditionDimensions,
         const std::vector< double >& conditions,
         const int marginalDimension, const double independentVariable )
 {
-    double value = 1.0;
+    double marginalConditionalCdfOfCurrentKernel = 1.0;
     double normalizationFactor = 0.0;
     double marginalValue = 0.0;
 
-    // multiply all conditions * marginal, divide marginals of conditions
+    // Iterate over all kernels
     for( int i = 0; i < numberOfSamples_; i++ )
     {
-        value = 1.0;
+        marginalConditionalCdfOfCurrentKernel = 1.0;
 
         for( unsigned int j = 0; j < conditionDimensions.size( ); j++ )
         {
-            value = value * kernelPointersMatrix_[ i ][ conditionDimensions[ j ] ]->evaluateCdf( conditions[ j ] );
+            marginalConditionalCdfOfCurrentKernel *= kernelPointersMatrix_[ i ][ conditionDimensions[ j ] ]->evaluateCdf( conditions[ j ] );
         }
-        normalizationFactor += value;
 
-        value = value * kernelPointersMatrix_[ i ][ marginalDimension ]->evaluateCdf( independentVariable );
-        marginalValue += value;
+        // Current value of marginalConditionalCdfOfCurrentKernel is the marginal cdf at the given conditional
+        normalizationFactor += marginalConditionalCdfOfCurrentKernel;
+
+        // Compute cdf for current kernel at marginal dimension
+        marginalConditionalCdfOfCurrentKernel *= kernelPointersMatrix_[ i ][ marginalDimension ]->evaluateCdf( independentVariable );
+        marginalValue += marginalConditionalCdfOfCurrentKernel;
     }
 
     return marginalValue / normalizationFactor;
 }
 
-//! get probability density of marginal distribution of conditional distribution
+//! Function to evaluate conditional probability density of marginal distribution at single dimension
 double KernelDensityDistribution::getConditionalMarginalProbabilityDensity(
         const std::vector< int >& conditionDimensions,
         const std::vector< double >& conditions,
         const int marginalDimension, const double independentVariable )
 {
-    double value = 1.0;
+    double marginalConditionalPdfOfCurrentKernel = 1.0;
     double normalizationFactor = 0.0;
     double marginalValue = 0.0;
 
-    // multiply all conditions * marginal, divide marginals of conditions
+    // Iterate over all kernels
     for( int i = 0; i < numberOfSamples_; i++ )
     {
-        value = 1.0;
-
+        marginalConditionalPdfOfCurrentKernel = 1.0;
         for( unsigned int j = 0; j < conditionDimensions.size( ); j++ )
         {
-            value = value * kernelPointersMatrix_[ i ][ conditionDimensions[ j ] ]->evaluatePdf( conditions[ j ] );
+            marginalConditionalPdfOfCurrentKernel *=
+                    kernelPointersMatrix_[ i ][ conditionDimensions[ j ] ]->evaluatePdf( conditions[ j ] );
         }
 
-        normalizationFactor += value;
+        // Current value of marginalConditionalPdfOfCurrentKernel is the marginal pdf at the given conditional
+        normalizationFactor += marginalConditionalPdfOfCurrentKernel;
 
-        value = value * kernelPointersMatrix_[ i ][ marginalDimension ]->evaluatePdf( independentVariable );
-        marginalValue += value;
+        // Compute pdf for current kernel at marginal dimension
+        marginalConditionalPdfOfCurrentKernel *=
+                kernelPointersMatrix_[ i ][ marginalDimension ]->evaluatePdf( independentVariable );
+        marginalValue += marginalConditionalPdfOfCurrentKernel;
     }
 
-    return marginalValue / ( normalizationFactor );
+    return marginalValue / normalizationFactor;
 }
 
-} // Close Namespace statistics
+} // namespace statistics
 
-} // Close Namespace tudat
+} // namespace tudat
 
