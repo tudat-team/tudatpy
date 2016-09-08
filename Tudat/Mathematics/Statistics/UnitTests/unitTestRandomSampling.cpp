@@ -1,52 +1,25 @@
 /*    Copyright (c) 2010-2016, Delft University of Technology
- *    All rights reserved.
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
- *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      160902    R. Hoogendoorn    File created.
- *
- *
- *    References
- *
- *    Notes
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
+
 
 #define BOOST_TEST_MAIN
 
-#include <iostream> // cout sometimes needs this
 #include <vector>
 #include <limits>
 
 #include <Eigen/Core>
 
-
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
-
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Basics/testMacros.h"
@@ -63,115 +36,136 @@ BOOST_AUTO_TEST_SUITE( test_Random_Sampler )
 
 BOOST_AUTO_TEST_CASE( test_randomVectorUniform )
 {
-    int dimension = 3 ;
-    int numberOfSamples = 1E6 ;
+    int dimension = 3;
+    int numberOfSamples = 1E6;
     int seed = 511;
 
-    Eigen::VectorXd lower(dimension);
-    Eigen::VectorXd upper(dimension);
-    lower << 0.0 , 1.0 , -2.0 ;
-    upper << 1.0 , 3.0 , 4.0 ;
+    Eigen::VectorXd lower( dimension );
+    Eigen::VectorXd upper( dimension );
+    lower << 0.0, 1.0, -2.0;
+    upper << 1.0, 3.0, 4.0;
 
-    Eigen::VectorXd width = upper - lower ;
-    Eigen::VectorXd average = (upper + lower) / 2.0 ;
+    Eigen::VectorXd width = upper - lower;
+    Eigen::VectorXd average = (upper + lower) / 2.0;
 
-    std::vector<Eigen::VectorXd> samples =
-            tudat::statistics::generateRandomVectorUniform( seed , numberOfSamples, lower, upper );
+    Eigen::VectorXd standardDeviation = std::sqrt( 1.0 / 12.0 ) * width;
+    {
+        std::vector< Eigen::VectorXd > samples =
+                tudat::statistics::generateUniformRandomSample( seed, numberOfSamples, lower, upper );
 
-    // Compute sample average
-    Eigen::VectorXd sampleAverage(dimension);
-    sampleAverage.setZero(dimension,1);
-    for( unsigned int i = 0 ; i < samples.size() ; i++){
-        sampleAverage += samples[i] ;
+        // Compute sample mean and standard deviation
+        Eigen::VectorXd sampleMean = statistics::computeSampleMean( samples );
+        Eigen::ArrayXd sampleStandardDeviations = statistics::computeSampleVariance( samples ).array( ).sqrt( );
+
+        BOOST_CHECK_SMALL( std::fabs( average( 0 ) - sampleMean( 0 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( average( 1 ) - sampleMean( 1 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( average( 2 ) - sampleMean( 2 ) ), 5.0E-3 );
+
+        BOOST_CHECK_SMALL( std::fabs( standardDeviation( 0 ) - sampleStandardDeviations( 0 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( standardDeviation( 1 ) - sampleStandardDeviations( 1 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( standardDeviation( 2 ) - sampleStandardDeviations( 2 ) ), 5.0E-3 );
     }
-    sampleAverage = sampleAverage / double(numberOfSamples) ;
 
-    BOOST_CHECK_SMALL( std::fabs( average(0) - sampleAverage(0) ) , 2.0E-3 );
-    BOOST_CHECK_SMALL( std::fabs( average(1) - sampleAverage(1) ) , 2.0E-3 );
-    BOOST_CHECK_SMALL( std::fabs( average(2) - sampleAverage(2) ) , 2.0E-3 );
+    {
+        std::vector< Eigen::VectorXd > samples = tudat::statistics::generateUniformRandomSample( seed, numberOfSamples, dimension );
 
-    samples = tudat::statistics::generateRandomVectorUniform( seed , numberOfSamples, dimension );
+        // Compute sample mean and standard deviation
+        Eigen::VectorXd sampleMean = statistics::computeSampleMean( samples );
+        Eigen::ArrayXd sampleStandardDeviations = statistics::computeSampleVariance( samples ).array( ).sqrt( );
 
-    // Compute sample average
-    sampleAverage.setZero(dimension,1);
-    for( unsigned int i = 0 ; i < samples.size() ; i++){
-        sampleAverage += samples[i] ;
+        BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleMean( 0 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleMean( 1 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleMean( 2 ) ), 5.0E-3 );
+
+        BOOST_CHECK_SMALL( std::fabs( std::sqrt( 1.0 / 12.0 ) - sampleStandardDeviations( 0 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( std::sqrt( 1.0 / 12.0 ) - sampleStandardDeviations( 1 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( std::sqrt( 1.0 / 12.0 ) - sampleStandardDeviations( 2 ) ), 5.0E-3 );
     }
-    sampleAverage = sampleAverage / double(numberOfSamples) ;
-
-    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleAverage(0) ) , 2.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleAverage(1) ) , 2.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleAverage(2) ) , 2.0E-4 );
 }
 
 BOOST_AUTO_TEST_CASE( test_randomVectorGaussian )
 {
-    int dimension = 3 ;
-    int numberOfSamples = 1E7 ;
+    int dimension = 3;
+    int numberOfSamples = 1E6;
     int seed = 511;
 
-    Eigen::VectorXd mean(dimension);
-    Eigen::VectorXd standardDev(dimension);
-    mean << 0.0 , 1.0 , -2.0 ;
-    standardDev << 1.0 , 3.0 , 4.0 ;
+    Eigen::VectorXd mean( dimension );
+    Eigen::VectorXd standardDeviation( dimension );
+    mean << 0.0, 1.0, -2.0;
+    standardDeviation << 1.0, 3.0, 4.0;
 
-    std::vector<Eigen::VectorXd> samples =
-            tudat::statistics::generateRandomVectorGaussian( seed , numberOfSamples, mean, standardDev );
+    {
+        std::vector< Eigen::VectorXd > samples =
+                tudat::statistics::generateGaussianRandomSample( seed, numberOfSamples, mean, standardDeviation );
 
-    // Compute sample average
-    Eigen::VectorXd sampleAverage(dimension);
-    sampleAverage.setZero(dimension,1);
-    for( unsigned int i = 0 ; i < samples.size() ; i++){
-        sampleAverage += samples[i] ;
+        // Compute sample mean and standard deviation
+        Eigen::VectorXd sampleMean = statistics::computeSampleMean( samples );
+        Eigen::ArrayXd sampleStandardDeviations = statistics::computeSampleVariance( samples ).array( ).sqrt( );
+
+        BOOST_CHECK_SMALL( std::fabs( mean( 0 ) - sampleMean( 0 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( mean( 1 ) - sampleMean( 1 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( mean( 2 ) - sampleMean( 2 ) ), 5.0E-3 );
+
+        BOOST_CHECK_SMALL( std::fabs( standardDeviation( 0 ) - sampleStandardDeviations( 0 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( standardDeviation( 1 ) - sampleStandardDeviations( 1 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( standardDeviation( 2 ) - sampleStandardDeviations( 2 ) ), 5.0E-3 );
     }
-    sampleAverage = sampleAverage / double(numberOfSamples) ;
 
-    BOOST_CHECK_SMALL( std::fabs( mean(0) - sampleAverage(0) ) , 2.0E-3 );
-    BOOST_CHECK_SMALL( std::fabs( mean(1) - sampleAverage(1) ) , 2.0E-3 );
-    BOOST_CHECK_SMALL( std::fabs( mean(2) - sampleAverage(2) ) , 2.0E-3 );
+    {
+        std::vector< Eigen::VectorXd > samples =
+                tudat::statistics::generateGaussianRandomSample( seed, numberOfSamples, 3 );
+
+        // Compute sample mean and standard deviation
+        Eigen::VectorXd sampleMean = statistics::computeSampleMean( samples );
+        Eigen::ArrayXd sampleStandardDeviations = statistics::computeSampleVariance( samples ).array( ).sqrt( );
+
+        BOOST_CHECK_SMALL( std::fabs( 0.0 - sampleMean( 0 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( 0.0 - sampleMean( 1 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( 0.0 - sampleMean( 2 ) ), 5.0E-3 );
+
+        BOOST_CHECK_SMALL( std::fabs( 1.0 - sampleStandardDeviations( 0 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( 1.0 - sampleStandardDeviations( 1 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( 1.0 - sampleStandardDeviations( 2 ) ), 5.0E-3 );
+    }
 }
 
 
 #if USE_GSL
+
+//! Test if Sobol sampler interface is working correctly. Note that this test is somewhat minimal, but the core of the
+//! Sobol sampling is tested in the GSL unit tests.
 BOOST_AUTO_TEST_CASE( test_Sobol_Sampler )
 {
-    int dimension = 3 ;
-    int numberOfSamples = 1E6 ;
+    // Define settings and generate samples.
+    int dimension = 3;
+    int numberOfSamples = 1E6;
 
-    Eigen::VectorXd lower(dimension);
-    Eigen::VectorXd upper(dimension);
-    lower << 0.0 , 1.0 , -2.0 ;
-    upper << 1.0 , 3.0 , 4.0 ;
+    Eigen::VectorXd lower( dimension );
+    Eigen::VectorXd upper( dimension );
+    lower << 0.0, 1.0, -2.0;
+    upper << 1.0, 3.0, 4.0;
 
-    Eigen::VectorXd width = upper - lower ;
-    Eigen::VectorXd average = (upper + lower) / 2.0 ;
+    Eigen::VectorXd width = upper - lower;
+    Eigen::VectorXd average = (upper + lower) / 2.0;
 
-    std::vector<Eigen::VectorXd> sobolSamples = tudat::statistics::sobolSamplerXd(dimension,numberOfSamples,lower,upper);
-
-    // Compute sample average
-    Eigen::VectorXd sampleAverage(dimension);
-    sampleAverage.setZero(dimension,1);
-    for( unsigned int i = 0 ; i < sobolSamples.size() ; i++){
-        sampleAverage += sobolSamples[i] ;
-    }
-    sampleAverage = sampleAverage / double(numberOfSamples) ;
-
-    BOOST_CHECK_SMALL( std::fabs( average(0) - sampleAverage(0) ) , 2.0E-6 );
-    BOOST_CHECK_SMALL( std::fabs( average(1) - sampleAverage(1) ) , 2.0E-6 );
-    BOOST_CHECK_SMALL( std::fabs( average(2) - sampleAverage(2) ) , 2.0E-6 );
-
-    sobolSamples = tudat::statistics::sobolSamplerXd(dimension,numberOfSamples);
+    std::vector< Eigen::VectorXd > sobolSamples = tudat::statistics::generateVectorSobolSample(
+                numberOfSamples, lower, upper );
 
     // Compute sample average
-    sampleAverage.setZero(dimension,1);
-    for( unsigned int i = 0 ; i < sobolSamples.size() ; i++){
-        sampleAverage += sobolSamples[i] ;
-    }
-    sampleAverage = sampleAverage / double(numberOfSamples) ;
+    Eigen::VectorXd sampleMean = statistics::computeSampleMean( sobolSamples );
 
-    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleAverage(0) ) , 2.0E-6 );
-    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleAverage(1) ) , 2.0E-6 );
-    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleAverage(2) ) , 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( average( 0 ) - sampleMean( 0 ) ), 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( average( 1 ) - sampleMean( 1 ) ), 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( average( 2 ) - sampleMean( 2 ) ), 2.0E-6 );
+
+    sobolSamples = tudat::statistics::generateVectorSobolSample( dimension, numberOfSamples );
+
+    // Compute sample average
+    sampleMean = statistics::computeSampleMean( sobolSamples );
+
+    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleMean( 0 ) ), 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleMean( 1 ) ), 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( 0.5 - sampleMean( 2 ) ), 2.0E-6 );
 }
 #endif
 

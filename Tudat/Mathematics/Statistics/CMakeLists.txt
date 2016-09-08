@@ -80,4 +80,4 @@ target_link_libraries(test_BoostDistributions tudat_statistics ${Boost_LIBRARIES
 
 add_executable(test_RandomSampling "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestRandomSampling.cpp")
 setup_custom_test_program(test_RandomSampling "${SRCROOT}${MATHEMATICSDIR}/Statistics")
-target_link_libraries(test_RandomSampling tudat_statistics ${Boost_LIBRARIES})
+target_link_libraries(test_RandomSampling tudat_statistics ${TUDAT_EXTERNAL_LIBRARIES} ${Boost_LIBRARIES})
