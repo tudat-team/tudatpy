@@ -307,21 +307,37 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
 {
     if( !angleOfAttackFunction.empty( ) )
     {
+        if( !angleOfAttackFunction_.empty( ) )
+        {
+            std::cerr<<"Warning, overriding existing angle of attack function in AerodynamicAngleCalculator"<<std::endl;
+        }
         angleOfAttackFunction_ = angleOfAttackFunction;
     }
 
     if( !angleOfSideslipFunction.empty( ) )
     {
+        if( !angleOfAttackFunction_.empty( ) )
+        {
+            std::cerr<<"Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator"<<std::endl;
+        }
         angleOfSideslipFunction_ = angleOfSideslipFunction;
     }
 
     if( !bankAngleFunction.empty( ) )
     {
+        if( !angleOfAttackFunction_.empty( ) )
+        {
+            std::cerr<<"Warning, overriding existing bank angle function in AerodynamicAngleCalculator"<<std::endl;
+        }
         bankAngleFunction_ = bankAngleFunction;
     }
 
-    if( !bankAngleFunction.empty( ) )
+    if( !angleUpdateFunction.empty( ) )
     {
+        if( !angleUpdateFunction_.empty( ) )
+        {
+            std::cerr<<"Warning, overriding existing aerodynamic angle update function in AerodynamicAngleCalculator"<<std::endl;
+        }
         angleUpdateFunction_ = angleUpdateFunction;
     }
 
@@ -406,7 +422,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
                 boost::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, _1 ) );
 }
 
-//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
+//! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
 void setAerodynamicDependentOrientationCalculatorClosure(
         boost::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
@@ -416,7 +432,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
                 aerodynamicAngleCalculator );
 }
 
-//! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
+//! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
 void setAerodynamicDependentOrientationCalculatorClosure(
         boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )

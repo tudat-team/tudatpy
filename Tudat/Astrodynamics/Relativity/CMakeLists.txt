@@ -1,21 +1,11 @@
- #    Copyright (c) 2010-2012 Delft University of Technology.
+ #    Copyright (c) 2010-2016, Delft University of Technology
+ #    All rigths reserved
  #
- #    This software is protected by national and international copyright.
- #    Any unauthorized use, reproduction or modification is unlawful and
- #    will be prosecuted. Commercial and non-private application of the
- #    software in any form is strictly prohibited unless otherwise granted
- #    by the authors.
- #
- #    The code is provided without any warranty; without even the implied
- #    warranty of merchantibility or fitness for a particular purpose.
- #
- #    Changelog
- #      YYMMDD    Author            Comment
- #      110820    S.M. Persson      File created.
- #      111025    K. Kumar          Adapted file to work with Revision 194.
- #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
- #      120321    K. Kumar          Added header, source and unit test files for state-derivative
- #                                  of CRTBP.
+ #    This file is part of the Tudat. Redistribution and use in source and
+ #    binary forms, with or without modification, are permitted exclusively
+ #    under the terms of the Modified BSD license. You should have received
+ #    a copy of the license with this file. If not, please or visit:
+ #    http://tudat.tudelft.nl/LICENSE.
  #
 
 # Set the source files.
