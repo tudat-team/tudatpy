@@ -222,6 +222,24 @@ else()
   endif( )
 endif()
 
+option(USE_GSL "build Tudat with GSL enabled" ON)
+if(NOT USE_GSL)
+  message(STATUS "GSL disabled!")
+  add_definitions(-DUSE_GSL=0)
+else()
+  message(STATUS "GSL enabled!")
+  add_definitions(-DUSE_GSL=1)
+  # Find USE_NRLMSISE00 library on local system.
+  find_package(GSL)
+
+  # Include NRLMSISE00 directories.
+  if(NOT APPLE)
+    include_directories(SYSTEM AFTER "${GSL_INCLUDE_DIR}")
+  else( )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${GSL_INCLUDE_DIR}\"")
+  endif( )
+endif()
+
 
 list(APPEND TUDAT_EXTERNAL_LIBRARIES "")
 if(USE_CSPICE)

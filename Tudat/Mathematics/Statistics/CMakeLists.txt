@@ -40,6 +40,9 @@ set(STATISTICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/multiVariateGaussianProbabilityDistributions.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/continuousProbabilityDistributions.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/randomSampling.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/randomVariableGenerator.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/kolmogorovSmirnov.cpp"
 )
 
 # Add header files.
@@ -49,6 +52,9 @@ set(STATISTICS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/multiVariateGaussianProbabilityDistributions.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/continuousProbabilityDistributions.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/randomSampling.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/randomVariableGenerator.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Statistics/kolmogorovSmirnov.h"
 )
 
 # Add static libraries.
@@ -71,3 +77,7 @@ target_link_libraries(test_MultiVariateProbabilityDistributions tudat_statistics
 add_executable(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestBoostRandomVariables.cpp")
 setup_custom_test_program(test_BoostDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")
 target_link_libraries(test_BoostDistributions tudat_statistics ${Boost_LIBRARIES})
+
+add_executable(test_RandomSampling "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestRandomSampling.cpp")
+setup_custom_test_program(test_RandomSampling "${SRCROOT}${MATHEMATICSDIR}/Statistics")
+target_link_libraries(test_RandomSampling tudat_statistics ${Boost_LIBRARIES})
