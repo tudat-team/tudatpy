@@ -40,8 +40,11 @@
  *
  */
 
+#include <boost/lexical_cast.hpp>
+
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/GeometricShapes/conicalFrustum.h"
+
 
 namespace tudat
 {
@@ -49,7 +52,6 @@ namespace geometric_shapes
 {
 
 using mathematical_constants::PI;
-using std::cerr;
 using std::endl;
 using std::sin;
 using std::cos;
@@ -108,8 +110,7 @@ Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
         derivative_( 1 ) = 0.0;
         derivative_( 2 ) = 0.0;
 
-        cerr << " No negative derivatives allowed when retrieving cone "
-             << "derivative, returning 0,0,0" << endl;
+        throw std::runtime_error( " No negative derivatives allowed when retrieving cone derivative " );
     }
 
     // When requesting the zeroth derivative with respect to the two
@@ -155,8 +156,7 @@ Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
         // Since this derivative is "cyclical", as it is only dependant on sines
         // and cosines, only the "modulo 4"th derivative need be determined.
         // Derivatives are determined from the form of the cylindrical coordinates,
-        // see basic_mathematics::coordinateConversions::convertSphericalToCartesian from
-        // Tudat Core.
+        // see basic_mathematics::coordinateConversions::convertSphericalToCartesian
         switch( powerOfAzimuthAngleDerivative % 4 )
         {
         case( 0 ):
@@ -189,8 +189,7 @@ Eigen::VectorXd ConicalFrustum::getSurfaceDerivative(
 
         default:
 
-            cerr << " Bad value for powerOfAzimuthAngleDerivative "
-                 << " ( mod 4 ) of value is not 0, 1, 2 or 3 " << endl;
+            throw std::runtime_error( " Bad value for powerOfAzimuthAngleDerivative ( mod 4 ) of value is not 0, 1, 2 or 3 ");
         }
 
         // Combine contributions to derivative.
@@ -228,10 +227,8 @@ double ConicalFrustum::getParameter( const int index )
        break;
 
    default:
-
-       cerr << "Parameter " << index << " does not exist in ConicalFrustum, returning 0" << endl;
-       parameter_ = 0;
-       break;
+       std::string errorMessage = "Parameter "+ boost::lexical_cast< std::string >( index ) + "does not exist in ConicalFrustum.";
+       throw std::runtime_error( errorMessage );
    }
 
    // Return parameter.

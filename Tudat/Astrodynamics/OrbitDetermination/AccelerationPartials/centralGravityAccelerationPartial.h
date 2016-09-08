@@ -146,7 +146,7 @@ public:
               ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
               && integratedStateType == propagators::body_mass_state ) )
         {
-            std::cerr<<"Warning, dependency of central gravity on body masses not yet implemented"<<std::endl;
+            throw std::runtime_error( "Warning, dependency of central gravity on body masses not yet implemented" );
         }
         return 0;
     }

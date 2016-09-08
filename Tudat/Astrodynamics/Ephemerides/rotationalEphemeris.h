@@ -92,7 +92,7 @@ Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
  *  \return State (Cartesian position and velocity) in target frame.
  */
 template< typename StateScalarType >
-Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotations(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const Eigen::Quaterniond& rotationToFrame,
         const Eigen::Matrix3d& rotationMatrixToFrameDerivative )
@@ -119,12 +119,12 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
  *  \return State (Cartesian position and velocity) in target frame.
  */
 template< typename StateScalarType >
-Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrame(
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationFunctions(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
         const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
 {
-    return transformStateToFrame(
+    return transformStateToFrameFromRotations< StateScalarType >(
                 stateInBaseFrame, rotationToFrameFunction( ),
                 rotationMatrixToFrameDerivativeFunction( ) );
 }
@@ -149,7 +149,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformRelativeStateToFrame(
         const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
         const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
 {
-    return transformStateToFrame< StateScalarType >(
+    return transformStateToFrameFromRotations< StateScalarType >(
                 stateInBaseFrame( ) - centralBodyStateInBaseFrame( ), rotationToFrameFunction( ),
                 rotationMatrixToFrameDerivativeFunction( ) );
 }
@@ -169,13 +169,13 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformRelativeStateToFrame(
  *  \return State (Cartesian position and velocity) in target frame.
  */
 template< typename StateScalarType >
-Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromStateFunctions(
+Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationTimeFunctions(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const double currentTime,
         const boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction,
         const boost::function< Eigen::Matrix3d( const double ) > rotationMatrixToFrameDerivativeFunction )
 {
-    return transformStateToFrame(
+    return transformStateToFrameFromRotations(
                 stateInBaseFrame, rotationToFrameFunction( currentTime ),
                 rotationMatrixToFrameDerivativeFunction( currentTime ) );
 }

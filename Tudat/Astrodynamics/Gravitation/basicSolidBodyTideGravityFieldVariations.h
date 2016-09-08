@@ -250,16 +250,19 @@ public:
                 loveNumbers_[ degree - 2 ] = loveNumbers;
             }
             else
-            {
-                std::cerr<<"Error, tried to set love numbers at degree "<<degree<<
-                           " in BasicSolidBodyTideGravityFieldVariations with "<<
-                        loveNumbers.size( )<<" orders."<<std::endl;
+            {                               
+                std::string errorMessage = "Error, tried to set love numbers at degree " +
+                        boost::lexical_cast< std::string >( degree ) + " in BasicSolidBodyTideGravityFieldVariations with" +
+                        boost::lexical_cast< std::string >( loveNumbers.size( ) ) + " orders";
+                throw std::runtime_error( errorMessage );
             }
         }
         else
         {
-            std::cerr<<"Error, tried to set love numbers at degree "<<degree<<
-                       " in BasicSolidBodyTideGravityFieldVariations: not available "<<std::endl;
+            std::string errorMessage = "Error, tried to set love numbers at degree " +
+                    boost::lexical_cast< std::string >( degree ) +
+                    " in BasicSolidBodyTideGravityFieldVariations: not available";
+            throw std::runtime_error( errorMessage );
         }
     }
 

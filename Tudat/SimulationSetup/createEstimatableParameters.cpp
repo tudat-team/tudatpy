@@ -22,8 +22,11 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
 
     if( isDoubleParameter( doubleParameterName->parameterType_.first ) != true )
     {
-        std::cerr<<"Error when requesting to make double parameter "<<doubleParameterName->parameterType_.first<<" of "<<
-                   doubleParameterName->parameterType_.second.first<<", parameter is not a double parameter "<<std::endl;
+        std::string errorMessage = "Error when requesting to make double parameter " +
+                boost::lexical_cast< std::string >( doubleParameterName->parameterType_.first ) + " of " +
+                boost::lexical_cast< std::string >( doubleParameterName->parameterType_.second.first ) +
+                ", parameter is not a double parameter ";
+        throw std::runtime_error( errorMessage );
     }
     else
     {
@@ -32,9 +35,11 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
 
         if( ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
         {
-            std::cerr<<"Warning when creating parameters to estimate, body "<<currentBodyName;
-            std::cerr<<" not in body map "<<doubleParameterName->parameterType_.first<<std::endl;
-            currentBody = boost::shared_ptr< Body >( );
+            std::string errorMessage = "Error when creating parameters to estimate, body " +
+                    boost::lexical_cast< std::string >( currentBodyName ) +
+                    "  not in body map " +
+                    boost::lexical_cast< std::string >( doubleParameterName->parameterType_.first );
+            throw std::runtime_error( errorMessage );
         }
         else if( currentBodyName != "" )
         {
@@ -47,8 +52,10 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
         {
             if( currentBody->getGravityFieldModel( )== NULL )
             {
-                std::cerr<<"Warning, body "<<currentBodyName<<" has no gravity field";
-                std::cerr<<", cannot estimate gravitational parameter."<<std::endl;
+                std::string errorMessage = "Error, body " +
+                        boost::lexical_cast< std::string >( currentBodyName ) +
+                        " has no gravity field, cannot estimate gravitational parameter.";
+                throw std::runtime_error( errorMessage );
             }
             else
             {
@@ -62,11 +69,17 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
         {
             if( currentBody->getRadiationPressureInterfaces( ).size( ) == 0 )
             {
-                std::cerr<<"Error, no radiation pressure interfaces found in body "<<currentBodyName<<" when making Cr parameter"<<std::endl;
+                std::string errorMessage = "Error, no radiation pressure interfaces found in body " +
+                        boost::lexical_cast< std::string >( currentBodyName) +
+                        " when making Cr parameter.";
+                throw std::runtime_error( errorMessage );
             }
             else if( currentBody->getRadiationPressureInterfaces( ).size( ) > 1 )
             {
-                std::cerr<<"Error, multiple radiation pressure interfaces found in body "<<currentBodyName<<" when making Cr parameter"<<std::endl;
+                std::string errorMessage = "Error, multiple radiation pressure interfaces found in body " +
+                        boost::lexical_cast< std::string >( currentBodyName) +
+                        " when making Cr parameter.";
+                throw std::runtime_error( errorMessage );
             }
             else
             {
@@ -77,7 +90,7 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
             break;
         }
         default:
-            std::cerr<<"Warning, this double parameter has not yet been implemented when making parameters"<<std::endl;
+            throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
         }
     }
@@ -93,8 +106,11 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
 
     if( isDoubleParameter( vectorParameterName->parameterType_.first ) != false )
     {
-        std::cerr<<"Error when requesting to make vector parameter "<<vectorParameterName->parameterType_.first<<" of "<<
-                   vectorParameterName->parameterType_.second.first<<", parameter is not a vector parameter "<<std::endl;
+        std::string errorMessage = "Error when requesting to make vector parameter " +
+                boost::lexical_cast< std::string >( vectorParameterName->parameterType_.first ) +
+                " of  " + boost::lexical_cast< std::string >( vectorParameterName->parameterType_.second.first ) +
+                ", parameter is not a vector parameter ";
+        throw std::runtime_error( errorMessage );
     }
     else
     {
@@ -103,8 +119,11 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
 
         if( ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
         {
-            std::cerr<<"Warning when creating parameters to estimate, body "<<currentBodyName;
-            std::cerr<<" not in body map "<<vectorParameterName->parameterType_.first<<std::endl;
+            std::string errorMessage = "Warning when creating parameters to estimate, body " +
+                    boost::lexical_cast< std::string >( currentBodyName ) +
+                    "not in body map " +
+                    boost::lexical_cast< std::string >( vectorParameterName->parameterType_.first );
+            throw std::runtime_error( errorMessage );
         }
         else if( ( currentBodyName != "" ) )
         {
@@ -114,7 +133,11 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
         switch( vectorParameterName->parameterType_.first )
         {
         default:
-            std::cerr<<"Warning, this vector parameter ("<<vectorParameterName->parameterType_.first<<") has not yet been implemented when making parameters"<<std::endl;
+            std::string errorMessage = "Warning, this vector parameter (" +
+                    boost::lexical_cast< std::string >( vectorParameterName->parameterType_.first ) +
+                    ") has not yet been implemented when making parameters";
+            throw std::runtime_error( errorMessage );
+
             break;
         }
     }
