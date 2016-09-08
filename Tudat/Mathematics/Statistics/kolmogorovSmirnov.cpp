@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 
@@ -36,16 +46,17 @@ boost::function< double( const double ) > createEmpiricalCdfFunction( const std:
                 ( &LocalInterpolator::interpolate ), cdfInterpolator, _1 );
 }
 
-bool performKolmogorovSmirnovTest( const tudat::statistics::ContinuousBoostStatisticalDistributions distributionType,
-                                   const std::vector< double >& distributionParameters,
-                                   const std::vector< double >& dataToTest,
-                                   const double toleranceCriterion )
+std::pair< bool, double > performKolmogorovSmirnovTest(
+        const tudat::statistics::ContinuousBoostStatisticalDistributions distributionType,
+        const std::vector< double >& distributionParameters,
+        const std::vector< double >& dataToTest,
+        const double toleranceCriterion )
 {
     return performKolmogorovSmirnovTest( createBoostRandomVariable( distributionType, distributionParameters ),
                                          dataToTest, toleranceCriterion );
 }
 
-bool performKolmogorovSmirnovTest(
+std::pair< bool, double > performKolmogorovSmirnovTest(
         const boost::shared_ptr< ContinuousProbabilityDistribution< double > > expectedDistribution,
         std::vector< double > dataToTest,
         const double toleranceCriterion )
@@ -82,7 +93,7 @@ bool performKolmogorovSmirnovTest(
         isFailed = 0;
     }
 
-    return isFailed;
+    return std::make_pair( isFailed, maximumDifference );
 }
 
 }

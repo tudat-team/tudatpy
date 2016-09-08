@@ -222,7 +222,7 @@ else()
   endif( )
 endif()
 
-option(USE_GSL "build Tudat with GSL enabled" ON)
+option(USE_GSL "build Tudat with GSL enabled" OFF)
 if(NOT USE_GSL)
   message(STATUS "GSL disabled!")
   add_definitions(-DUSE_GSL=0)
@@ -246,10 +246,14 @@ if(USE_CSPICE)
   list(APPEND TUDAT_EXTERNAL_LIBRARIES tudat_spice_interface cspice)
 endif()
 
-
 if(USE_NRLMSISE00)
   list(APPEND TUDAT_EXTERNAL_LIBRARIES nrlmsise00)
 endif()
+
+if(USE_GSL)
+  list(APPEND TUDAT_EXTERNAL_LIBRARIES gsl)
+endif()
+
 
 list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_simulation_setup tudat_propagators
     tudat_aerodynamics tudat_geometric_shapes tudat_gravitation tudat_mission_segments

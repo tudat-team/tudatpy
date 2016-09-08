@@ -1,5 +1,5 @@
-#ifndef PIECEWISECONSTANTINTERPOLATOR_H
-#define PIECEWISECONSTANTINTERPOLATOR_H
+#ifndef TUDAT_PIECEWISECONSTANTINTERPOLATOR_H
+#define TUDAT_PIECEWISECONSTANTINTERPOLATOR_H
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 
@@ -27,7 +27,7 @@ public:
 
         if( dependentValues_.size( ) != independentValues_.size( ) )
         {
-            std::cerr<<"Warning: independent and dependent variables not of same size in piecewise constant interpolator constrcutor"<<std::endl;
+            std::cerr<<"Warning: independent and dependent variables not of same size in piecewise constant interpolator constructor"<<std::endl;
         }
 
         this->makeLookupScheme( selectedLookupScheme );
