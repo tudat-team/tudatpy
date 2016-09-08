@@ -42,7 +42,6 @@ set(STATISTICS_SOURCES
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/randomSampling.cpp"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/randomVariableGenerator.cpp"
-  "${SRCROOT}${MATHEMATICSDIR}/Statistics/kolmogorovSmirnov.cpp"
 )
 
 # Add header files.
@@ -54,7 +53,6 @@ set(STATISTICS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/boostProbabilityDistributions.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/randomSampling.h"
   "${SRCROOT}${MATHEMATICSDIR}/Statistics/randomVariableGenerator.h"
-  "${SRCROOT}${MATHEMATICSDIR}/Statistics/kolmogorovSmirnov.h"
 )
 
 # Add static libraries.
