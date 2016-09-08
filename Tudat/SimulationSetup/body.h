@@ -475,11 +475,20 @@ public:
         rotationalEphemeris_ = rotationalEphemeris;
     }
 
+    //! Function to set a rotation model that is only valid during numerical propagation
+    /*!
+     *  Function to set a rotation model that is only valid during numerical propagation, as it depends on the full state
+     *  of the environment
+     *  \param dependentOrientationCalculator Object from which the orientation is computed.
+     */
     void setDependentOrientationCalculator(
             const boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator )
     {
+        // Check if object already exists
         if( dependentOrientationCalculator_ != NULL )
         {
+            // Try to create closure between new and existing objects (i.e ensure that they end up computing the same rotation
+            // in differen manenrs.
             if( ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                       dependentOrientationCalculator ) != NULL ) &&
                     ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
@@ -489,7 +498,6 @@ public:
                             dependentOrientationCalculator_,
                             boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator ) );
-                std::cout<<"Setting closure of existing dependentOrientationCalculator with new AerodynamicAngleCalculator "<<std::endl;
             }
             else if( ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                            dependentOrientationCalculator_ ) != NULL ) &&
@@ -500,11 +508,10 @@ public:
                             dependentOrientationCalculator,
                             boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator_ ) );
-                std::cout<<"Setting closure of new dependentOrientationCalculator with existing AerodynamicAngleCalculator "<<std::endl;
             }
             else
             {
-                std::cerr<< "Error, cannot reset dependentOrientationCalculator, incompatible object already exists" <<std::endl;
+                std::cerr<< "Warning, cannot reset dependentOrientationCalculator, incompatible object already exists" <<std::endl;
             }
         }
         else
@@ -546,10 +553,9 @@ public:
     {
         aerodynamicFlightConditions_ = aerodynamicFlightConditions;
 
+        // If dependentOrientationCalculator_ object already exists, provide a warning and create closure between the two
         if( dependentOrientationCalculator_ != NULL )
         {
-            std::cerr<<"Warning, found extant dependentOrientationCalculator_ when setting fligh conditions; keeping existing object, but creating closure."<<std::endl;
-
             reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                         dependentOrientationCalculator_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator( ) );
         }
@@ -558,6 +564,7 @@ public:
             dependentOrientationCalculator_ = aerodynamicFlightConditions->getAerodynamicAngleCalculator( );
         }
 
+        // Create closure between rotational ephemeris and aerodynamic angle calculator.
         if( rotationalEphemeris_ != NULL )
         {
             reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
@@ -579,6 +586,11 @@ public:
         radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
     }
 
+    //! Function to set object containing all variations in the gravity field of this body.
+    /*!
+     * Function to set object containing all variations in the gravity field of this body.
+     * \param gravityFieldVariationSet Object containing all variations in the gravity field of this body.
+     */
     void setGravityFieldVariationSet(
             const boost::shared_ptr< gravitation::GravityFieldVariationsSet >
                 gravityFieldVariationSet )
@@ -626,16 +638,32 @@ public:
         return rotationalEphemeris_;
     }
 
+    //! Function to retrieve the model to compute the rotation of the body based on the current state of the environment.
+    /*!
+     * Function to retrieve the model to compute the rotation of the body based on the current state of the environment
+     * (model is only valid during propagation).
+     * \return Model to compute the rotation of the body based on the current state of the environment
+     */
     boost::shared_ptr< reference_frames::DependentOrientationCalculator > getDependentOrientationCalculator( )
     {
         return dependentOrientationCalculator_;
     }
 
+    //! Function to retrieve the shape model of body.
+    /*!
+     * Function to retrieve the shape model of body.
+     * \return Shape model of body.
+     */
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > getShapeModel( )
     {
         return shapeModel_;
     }
 
+    //! Function to retrieve the aerodynamic coefficient model of body.
+    /*!
+     * Function to retrieve the body aerodynamic coefficient model of body.
+     * \return Aerodynamic coefficient model of body.
+     */
     boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
     getAerodynamicCoefficientInterface( )
     {
@@ -664,6 +692,14 @@ public:
         return radiationPressureInterfaces_;
     }
 
+    //! Function to retrieve a single object describing variation in the gravity field of this body.
+    /*!
+     *  Function to retrieve a single object describing variation in the gravity field of this body.
+     *  \param deformationType Type of gravity field variation.
+     *  \param identifier Identifier of gravity field variation that is to be retrieved (empty by default; only required
+     *  if multiple variations of same type are present)
+     *  \return Object describing requested variation in the gravity field of this body.
+     */
     std::pair< bool, boost::shared_ptr< gravitation::GravityFieldVariations > >
             getGravityFieldVariation(
                 const gravitation::BodyDeformationTypes& deformationType,
@@ -672,16 +708,31 @@ public:
         return gravityFieldVariationSet_->getGravityFieldVariation( deformationType, identifier );
     }
 
+    //! Function to retrieve object containing all variations in the gravity field of this body.
+    /*!
+     * Function to retrieve object containing all variations in the gravity field of this body.
+     * \return Object containing all variations in the gravity field of this body.
+     */
     boost::shared_ptr< gravitation::GravityFieldVariationsSet > getGravityFieldVariationSet( )
     {
         return gravityFieldVariationSet_;
     }
 
+    //! Function to retrieve container object with hardware systems present on/in body
+    /*!
+     * Function to retrieve container object with hardware systems present on/in body.
+     * \return Container object with hardware systems present on/in body
+     */
     boost::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
     {
         return vehicleSystems_;
     }
 
+    //! Function to set container object with hardware systems present on/in body
+    /*!
+     * Function to set container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
+     * \param vehicleSystems Container object with hardware systems present on/in body
+     */
     void setVehicleSystems( const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
     {
         vehicleSystems_ = vehicleSystems;
@@ -746,6 +797,12 @@ public:
     }
 
 
+    //! Function to recompute the internal variables of member variables that depend on the ephemerides bodies.
+    /*!
+     * Function to recompute the internal variables of member variables that depend on the ephemerides of this and other
+     * bodies. This function is typically called after equations of motion have been computed and set in environment to
+     * ensure full model consistency.
+     */
     void updateConstantEphemerisDependentMemberQuantities( )
     {
         if( boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
@@ -807,6 +864,7 @@ private:
     //! Gravity field model of body.
     boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
 
+    //! Object containing all variations in the gravity field of this body.
     boost::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet_;
 
     //! Atmosphere model of body.
@@ -816,8 +874,7 @@ private:
     boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Aerodynamic coefficient model of body.
-    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
-            aerodynamicCoefficientInterface_;
+    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
 
     //! Object used for calculating current aerodynamic angles, altitude, etc.
     boost::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions_;
@@ -825,6 +882,7 @@ private:
     //! Rotation model of body.
     boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris_;
 
+    //! Model to compute the rotation of the body based on the current state of the environment, only valid during propagation.
     boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator_;
 
     //! List of radiation pressure models for the body, with the sources bodies as key
@@ -836,7 +894,9 @@ private:
               boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator
     radiationPressureIterator_;
 
+    //! Container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
     boost::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
+
 };
 
 typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;

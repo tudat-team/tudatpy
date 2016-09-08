@@ -59,6 +59,7 @@ namespace tudat
 namespace reference_frames
 {
 
+//! Get classical 1-3-2 Euler angles set from rotation matrix
 Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
         const Eigen::Matrix3d& rotationMatrix )
 {

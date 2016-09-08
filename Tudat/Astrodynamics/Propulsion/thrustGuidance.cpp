@@ -18,7 +18,8 @@ namespace propulsion
 
 //! Function to get the unit vector colinear with velocity segment of a translational state.
 Eigen::Vector3d getForceDirectionColinearWithVelocity(
-        const boost::function< void( basic_mathematics::Vector6d& ) > currentStateFunction, const double currentTime, const bool putForceInOppositeDirection )
+        const boost::function< void( basic_mathematics::Vector6d& ) > currentStateFunction,
+        const double currentTime, const bool putForceInOppositeDirection )
 {
     static basic_mathematics::Vector6d currentState;
     currentStateFunction( currentState );
@@ -27,7 +28,8 @@ Eigen::Vector3d getForceDirectionColinearWithVelocity(
 
 //! Function to get the unit vector colinear with position segment of a translational state.
 Eigen::Vector3d getForceDirectionColinearWithPosition(
-        const boost::function< void( basic_mathematics::Vector6d& ) > currentStateFunction, const double currentTime, const bool putForceInOppositeDirection )
+        const boost::function< void( basic_mathematics::Vector6d& ) > currentStateFunction,
+        const double currentTime, const bool putForceInOppositeDirection )
 {
     static basic_mathematics::Vector6d currentState;
     currentStateFunction( currentState );

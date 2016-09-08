@@ -737,7 +737,7 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
 
 //! Function to create a cannonball radiation pressure acceleration model.
 boost::shared_ptr< CannonBallRadiationPressureAcceleration >
-createCannonballRadiationPressureAcceleratioModel(\
+createCannonballRadiationPressureAcceleratioModel(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
         const boost::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -889,6 +889,7 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
     return accelerationModelPointer;
 }
 
+//! Function to put SelectedAccelerationMap in correct order, to ensure correct model creation
 SelectedAccelerationMap orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationsPerBody )
 {
     // Declare map of acceleration models acting on current body.

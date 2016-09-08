@@ -135,8 +135,7 @@ public:
      *  NOT updated (due to possible cross-dependency with aerodynamic coefficients).
      *  \sa AerodynamicAngleCalculator::update
      */
-    void updateCalculator(
-                 const double currentTime )
+    void updateCalculator( const double currentTime )
     {
         update( currentTime, true );
     }
@@ -393,10 +392,24 @@ void setAerodynamicDependentOrientationCalculatorClosure(
         const boost::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame,
         boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
+//! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
+/*!
+ * Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
+ * \param dependentOrientationCalculator Object computing the current orientation based on teh current state of the
+ * environment. Aerodynamic angles are to be computed from output given by this class.
+ * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+ */
 void setAerodynamicDependentOrientationCalculatorClosure(
             boost::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
             boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );
 
+//! Function to make aerodynamic angle computation consistent with existing rotational ephemeris
+/*!
+ * Function to make aerodynamic angle computation consistent with existing  rotational ephemeris
+ * \param rotationalEphemeris Object computing the current orientation of the body. Aerodynamic angles are to be computed
+ * from output given by this class.
+ * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
+ */
 void setAerodynamicDependentOrientationCalculatorClosure(
             boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris,
             boost::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator );

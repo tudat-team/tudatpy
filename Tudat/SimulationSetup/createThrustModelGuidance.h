@@ -1,5 +1,15 @@
-#ifndef CREATETHRUSTMODELGUIDANCE_H
-#define CREATETHRUSTMODELGUIDANCE_H
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDAT_CREATETHRUSTMODELGUIDANCE_H
+#define TUDAT_CREATETHRUSTMODELGUIDANCE_H
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
@@ -16,6 +26,7 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! List of available types of thust direction guidance
 enum ThrustDirectionGuidanceTypes
 {
     colinear_with_state_segment_thrust_direction,
@@ -25,67 +36,131 @@ enum ThrustDirectionGuidanceTypes
 
 };
 
+//! Class defining settings for the thrust direction
+/*!
+ *  Class for providing settings the thrust direction of a single thrust model. This class is a functional (base) class for
+ *  settings of thrust direction that require no information in addition to their type.
+ *  Classes defining settings for thrust direction requiring additional information must be derived from this class.
+ */
 class ThrustDirectionGuidanceSettings
 {
 public:
-   ThrustDirectionGuidanceSettings(
-           const ThrustDirectionGuidanceTypes thrustDirectionType,
-           const std::string relativeBody ):
-   thrustDirectionType_( thrustDirectionType ), relativeBody_( relativeBody ){ }
 
-   virtual ~ThrustDirectionGuidanceSettings( ){ }
+    //! Constructor
+    /*!
+    * Constructor
+    * \param thrustDirectionType Type of thrust direction that is to be used.
+    * \param relativeBody Body relative to which thrust guidance algorithm is defined (empty if N/A).
+    */
+    ThrustDirectionGuidanceSettings(
+            const ThrustDirectionGuidanceTypes thrustDirectionType,
+            const std::string relativeBody ):
+        thrustDirectionType_( thrustDirectionType ), relativeBody_( relativeBody ){ }
 
-   ThrustDirectionGuidanceTypes thrustDirectionType_;
+    //! Destructor.
+    virtual ~ThrustDirectionGuidanceSettings( ){ }
 
-   std::string relativeBody_;
+    //! Type of thrust direction that is to be used.
+    ThrustDirectionGuidanceTypes thrustDirectionType_;
+
+    //! Body relative to which thrust guidance algorithm is defined.
+    std::string relativeBody_;
 };
 
+//! Thrust guidance settings for thrust that is colinear with position/velocity vector
 class ThrustDirectionFromStateGuidanceSettings: public ThrustDirectionGuidanceSettings
 {
 public:
-   ThrustDirectionFromStateGuidanceSettings(
-           const std::string& centralBody,
-           const bool isColinearWithVelocity,
-           const bool directionIsOppositeToVector ):
-       ThrustDirectionGuidanceSettings( colinear_with_state_segment_thrust_direction, centralBody ),
-   isColinearWithVelocity_( isColinearWithVelocity ),
-   directionIsOppositeToVector_( directionIsOppositeToVector ){ }
 
-   ~ThrustDirectionFromStateGuidanceSettings( ){ }
+    //! Constructor
+    /*!
+    * Constructor
+    * \param centralBody Body w.r.t. which the state of the body undergoing thust is computed. This state is then
+    * used to directly set the thrust direction.
+    * \param isColinearWithVelocity Boolean denoting whether thrust is colinear with velocity (if true) or position
+    * (if false)
+    * \param directionIsOppositeToVector Boolean denoting whether the thrust is in the direction of position/velocity
+    * of x_{thrusting body}-x_{central body}, or opposite this direction
+    */
+    ThrustDirectionFromStateGuidanceSettings(
+            const std::string& centralBody,
+            const bool isColinearWithVelocity,
+            const bool directionIsOppositeToVector ):
+        ThrustDirectionGuidanceSettings( colinear_with_state_segment_thrust_direction, centralBody ),
+        isColinearWithVelocity_( isColinearWithVelocity ),
+        directionIsOppositeToVector_( directionIsOppositeToVector ){ }
 
-   bool isColinearWithVelocity_;
+    //! Destructor
+    ~ThrustDirectionFromStateGuidanceSettings( ){ }
 
-   bool directionIsOppositeToVector_;
+    //! Boolean denoting whether thrust is colinear with velocity (if true) or position (if false)
+    bool isColinearWithVelocity_;
+
+    //! Boolean denoting whether the thrust is in the direction of position/velocity of x_{thrusting body}-x_{central body}/
+    bool directionIsOppositeToVector_;
 
 };
 
+//! Class for defining custom thrust direction (i.e. predefined thrust function of time)
 class CustomThrustDirectionSettings: public ThrustDirectionGuidanceSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param thrustDirectionFunction Function returning thrust direction unit vector as function fo time.
+     */
     CustomThrustDirectionSettings(
             const boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction ):
         ThrustDirectionGuidanceSettings( custom_thrust_direction, "" ),
         thrustDirectionFunction_( thrustDirectionFunction ){ }
 
+    //! Destructor.
     ~CustomThrustDirectionSettings( ){ }
 
+    //! Function returning thrust direction unit vector as function fo time.
     boost::function< Eigen::Vector3d( const double ) > thrustDirectionFunction_;
 };
 
+//! Class for defining custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time)
+/*!
+ *  Class for defining custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time).
+ *  Thrust is then computed from body-fixed direction of thrust (defined in ThrustEngineSettings).
+ */
 class CustomThrustOrientationSettings: public ThrustDirectionGuidanceSettings
 {
 public:
+
+    //! Constructor.
+    /*!
+     * Constructor
+     * \param thrustOrientationFunction Custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation
+     * as function of time)
+     */
     CustomThrustOrientationSettings(
             const boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction ):
         ThrustDirectionGuidanceSettings( custom_thrust_orientation, "" ),
         thrustOrientationFunction_( thrustOrientationFunction ){ }
 
+    //! Destructor.
     ~CustomThrustOrientationSettings( ){ }
 
+    //! Custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time.
     boost::function< Eigen::Quaterniond( const double ) > thrustOrientationFunction_ ;
 };
 
-
+//! Function to create the object determining the direction of the thrust acceleration.
+/*!
+ * Function to create the object determining the direction of the thrust acceleration.
+ * \param thrustDirectionGuidanceSettings Settings for thrust direction gudiance.
+ * \param bodyMap List of pointers to body objects defining the full simulation environment.
+ * \param nameOfBodyWithGuidance Name of body for which thrust guidane is to be created.
+ * \param bodyFixedThrustOrientation Thrust direction in body-fixed frame.
+ * \param magnitudeUpdateSettings Settings for the required updates to the environment during propagation. List is
+ * extended by this function as needed.
+ * \return Function determining the thrust direction in the propagation frame according to given requirements.
+ */
 boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuidanceModel(
         const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
         const NamedBodyMap& bodyMap,
@@ -93,6 +168,7 @@ boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGu
         const boost::function< Eigen::Vector3d( ) > bodyFixedThrustOrientation,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 
+//! List of available types of thust magnitude types
 enum ThrustMagnitudeTypes
 {
     constant_thrust_magnitude,
@@ -100,58 +176,108 @@ enum ThrustMagnitudeTypes
     thrust_magnitude_from_time_function
 };
 
+//! Class defining settings for the thrust magnitude
+/*!
+ *  Class for providing settings the thrust magnitude of a single thrust model. This class is a functional (base) class for
+ *  settings of thrust magnitude that require no information in addition to their type.
+ *  Classes defining settings for thrust magnitude requiring additional information must be derived from this class.
+ */
 class ThrustEngineSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param thrustMagnitudeGuidanceType Type of thrust magnitude guidance that is to be used
+     * \param thrustOriginId Reference id of thrust origin that is to be used (empty if N/A).
+     */
     ThrustEngineSettings(
             const ThrustMagnitudeTypes thrustMagnitudeGuidanceType,
-           const std::string& thrustOriginId ):
-   thrustMagnitudeGuidanceType_( thrustMagnitudeGuidanceType ),
-   thrustOriginId_( thrustOriginId ){ }
+            const std::string& thrustOriginId ):
+        thrustMagnitudeGuidanceType_( thrustMagnitudeGuidanceType ),
+        thrustOriginId_( thrustOriginId ){ }
 
-   virtual ~ThrustEngineSettings( ){ }
+    //! Destructor
+    virtual ~ThrustEngineSettings( ){ }
 
-   ThrustMagnitudeTypes thrustMagnitudeGuidanceType_;
+    //! Type of thrust magnitude guidance that is to be used
+    ThrustMagnitudeTypes thrustMagnitudeGuidanceType_;
 
-   std::string thrustOriginId_;
+    //! Reference id of thrust origin that is to be used (empty if N/A).
+    std::string thrustOriginId_;
 };
 
+//! Class to define settigns for constant thrust settings.
 class ConstantThrustEngineSettings: public ThrustEngineSettings
 {
 public:
-   ConstantThrustEngineSettings(
-           const double thrustMagnitude,
-           const double specificImpulse,
-           const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
-       ThrustEngineSettings( constant_thrust_magnitude, "" ),
-   thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse ),
-   bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
-   ~ConstantThrustEngineSettings( ){ }
+    //! Constructor
+    /*!
+     * Constructor
+     * \param thrustMagnitude Constant thrust magnitude that is to be used.
+     * \param specificImpulse Constant specific impulse that is to be used
+     * \param bodyFixedThrustDirection Direction of thrust force in body-fixed frame (along longitudinal axis by default).
+     */
+    ConstantThrustEngineSettings(
+            const double thrustMagnitude,
+            const double specificImpulse,
+            const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
+        ThrustEngineSettings( constant_thrust_magnitude, "" ),
+        thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse ),
+        bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
-   double thrustMagnitude_;
+    //! Destructor
+    ~ConstantThrustEngineSettings( ){ }
 
-   double specificImpulse_;
+    //! Constant thrust magnitude that is to be used.
+    double thrustMagnitude_;
 
-   Eigen::Vector3d bodyFixedThrustDirection_;
+    //! Constant specific impulse that is to be used
+    double specificImpulse_;
+
+    //! Direction of thrust force in body-fixed frame
+    Eigen::Vector3d bodyFixedThrustDirection_;
 };
 
-
+//! Class to define thrust magnitude  to be taken directly from an engine model
 class FromBodyThrustEngineSettings: public ThrustEngineSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param useAllEngines Boolean denoting whether all engines of the associated body are to be combined into a
+     * single thrust magnitude.
+     * \param thrustOrigin Name of engine model from which thrust is to be derived (must be empty if
+     * useAllThrustModels is set to true)
+     */
     FromBodyThrustEngineSettings(
             const bool useAllEngines = 1,
             const std::string& thrustOrigin = "" ):
         ThrustEngineSettings( from_engine_properties_thrust_magnitude, thrustOrigin ),
         useAllEngines_( useAllEngines ){ }
 
+    //! Boolean denoting whether all engines of the associated body are to be combined into a single thrust magnitude
     bool useAllEngines_;
 };
 
+//! Class to define custom settings for thrust magnitude/specific impulse.
 class FromFunctionThrustEngineSettings: public ThrustEngineSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param thrustMagnitudeFunction Function returning thrust magnitude as a function of time.
+     * \param specificImpulseFunction Function returning specific impulse as a function of time.
+     * \param isEngineOnFunction Function returning boolean denoting whether thrust is to be used (thrust and mass rate
+     * set to zero if false, regardless of output of thrustMagnitudeFunction).
+     * \param bodyFixedThrustDirection Direction of thrust force in body-fixed frame (along longitudinal axis by default).
+     */
     FromFunctionThrustEngineSettings(
             const boost::function< double( const double ) > thrustMagnitudeFunction,
             const boost::function< double( const double ) > specificImpulseFunction,
@@ -163,41 +289,90 @@ public:
         isEngineOnFunction_( isEngineOnFunction ),
         bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
+    //! Destructor.
     ~FromFunctionThrustEngineSettings( ){ }
 
-
+    //! Function returning thrust magnitude as a function of time.
     boost::function< double( const double) > thrustMagnitudeFunction_;
 
+    //! Function returning specific impulse as a function of time.
     boost::function< double( const double) > specificImpulseFunction_;
 
+    //! Function returning boolean denoting whether thrust is to be used.
     boost::function< bool( const double ) > isEngineOnFunction_;
 
+    //! Direction of thrust force in body-fixed frame
     Eigen::Vector3d bodyFixedThrustDirection_;
 };
 
+//! Function to retrieve the effective thrust direction from a set of thrust sources.
+/*!
+ * Function to retrieve the effective thrust direction from a set of thrust sources.
+ * \param thrustDirections List of functions returning thrust directions.
+ * \param thrustMagnitudes List of functions returning thrust magnitude.
+ * \return Effective thrust direction.
+ */
+Eigen::Vector3d getCombinedThrustDirection(
+        const std::vector< boost::function< Eigen::Vector3d( )> >& thrustDirections,
+        const std::vector< boost::function< double( )> >& thrustMagnitudes );
+
+//! Function to create a function that returns the thrust direction in the body-fixed frame.
+/*!
+ * Function to create a function that returns the thrust direction in the body-fixed frame.
+ * \param thrustMagnitudeSettings Settings for the thrust magnitude
+ * \param bodyMap List of body objects that comprises the environment
+ * \param bodyName Name of body for which thrust is to be created.
+ * \return Function that returns the thrust direction in the body-fixed frame.
+ */
 boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string bodyName );
 
+//! Function to create a wrapper object that computes the thrust magnitude
+/*!
+ * Function to create a wrapper object that computes the thrust magnitude
+ * \param thrustMagnitudeSettings Settings for the thrust magnitude
+ * \param bodyMap List of body objects that comprises the environment
+ * \param nameOfBodyWithGuidance Name of body for which thrust is to be created.
+ * \param magnitudeUpdateSettings Environment update settings that are required to compute the thrust direction (updated
+ * by function as needed).
+ * \return Object used during propagation to compute the thrust direction
+ */
 boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
         const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );
 
+//! Function to update the thrust magnitude and direction to current time.
+/*!
+ * Function to update the thrust magnitude and direction to current time.
+ * \param thrustMagnitudeWrapper Object used during propagation to compute the thrust magnitude
+ * \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
+ * \param currentTime Time to which objects are to be updated.
+ */
 void updateThrustMagnitudeAndDirection(
         const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
         const boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
         const double currentTime );
 
+//! Function to reset the current time variable of the thrust magnitude and direction wrappers
+/*!
+* Function to reset the current time variable of the thrust magnitude and direction wrappers. This function does not
+* update the actual thrust direction and guidance; it is typically used to reset the current time to NaN, thereby signalling
+* the need to recompute the magnitude/direction upon next call to update functions
+* \param thrustMagnitudeWrapper Object used during propagation to compute the thrust magnitude
+* \param thrustDirectionGuidance Object used during propagation to compute the body-fixed thrust direction
+* \param currentTime New current time variable that is to be set.
+*/
 void resetThrustMagnitudeAndDirectionTime(
         const boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > thrustMagnitudeWrapper,
         const boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > thrustDirectionGuidance,
-        const double currentTime );
+        const double currentTime = TUDAT_NAN );
 
 }
 
 }
 
-#endif // CREATETHRUSTMODELGUIDANCE_H
+#endif // TUDAT_CREATETHRUSTMODELGUIDANCE_H

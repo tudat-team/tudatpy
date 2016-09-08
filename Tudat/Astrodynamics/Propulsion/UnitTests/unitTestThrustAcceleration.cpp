@@ -214,9 +214,11 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         boost::shared_ptr< system_models::VehicleSystems > vehicleSystems = boost::make_shared<
                 system_models::VehicleSystems >( dryVehicleMass );
         boost::shared_ptr< system_models::EngineModel > vehicleEngineModel1 =
-                boost::make_shared< system_models::DirectEngineModel >( specificImpulse1, boost::lambda::constant( massFlow1 ) );
+                boost::make_shared< system_models::DirectEngineModel >(
+                    boost::lambda::constant( specificImpulse1 ), boost::lambda::constant( massFlow1 ) );
         boost::shared_ptr< system_models::EngineModel > vehicleEngineModel2 =
-                boost::make_shared< system_models::DirectEngineModel >( specificImpulse2, boost::lambda::constant( massFlow2 ) );
+                boost::make_shared< system_models::DirectEngineModel >(
+                    boost::lambda::constant( specificImpulse2 ), boost::lambda::constant( massFlow2 ) );
         vehicleSystems->setEngineModel( vehicleEngineModel1, "Engine1" );
         vehicleSystems->setEngineModel( vehicleEngineModel2, "Engine2" );
         bodyMap.at( "Vehicle" )->setVehicleSystems( vehicleSystems );
