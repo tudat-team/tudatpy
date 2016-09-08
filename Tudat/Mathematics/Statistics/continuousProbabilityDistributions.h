@@ -58,7 +58,7 @@ double calculateGaussianCdf( const double independentVariable, const double mean
  *  Base class for a continuous random variable, providing interfaces for evaluating probability and cumulative distribution
  *  functions (inverse cdf is only available for derived class InvertibleContinuousProbabilityDistribution).
  *  Specific functions are to be implemented by derived class. Derived class may be used for random number generation
- *  through ContinuousVariableClassRandomVariableGenerator class.
+ *  through ContinuousRandomVariableGenerator class.
  */
 template< typename IndependentVariableType >
 class ContinuousProbabilityDistribution
