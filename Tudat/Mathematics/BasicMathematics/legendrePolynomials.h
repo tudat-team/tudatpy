@@ -142,6 +142,12 @@ public:
     */
     double getLegendrePolynomial( const int degree, const int order );
 
+    double getLegendrePolynomialDerivative(
+            const int degree, const int order );
+
+    double getLegendrePolynomialSecondDerivative(
+            const int degree, const int order );
+
     //! Function to get the maximum degree of cache.
     /*!
      * Function to get the maximum degree of cache
@@ -172,6 +178,12 @@ public:
         return useGeodesyNormalization_;
     }
 
+    void setComputeSecondDerivatives( const bool computeSecondDerivatives )
+    {
+        computeSecondDerivatives_ = computeSecondDerivatives;
+    }
+
+
 
 private:
 
@@ -194,6 +206,10 @@ private:
      */
     std::vector< double > legendreValues_;
 
+    std::vector< double > legendreDerivatives_;
+
+    std::vector< double > legendreSecondDerivatives_;
+
     //! Function from which to compute the Legendre polynomials.
     LegendrePolynomialFunction legendrePolynomialFunction_;
 
@@ -201,6 +217,10 @@ private:
     bool useGeodesyNormalization_;
 
     std::vector< double > referenceRadiusRatioPowers_;
+
+    std::vector< double > derivativeNormalizations_;
+
+    bool computeSecondDerivatives_;
 
 
 };
@@ -379,6 +399,15 @@ double computeLegendrePolynomialDerivative( const int order,
                                             const double currentLegendrePolynomial,
                                             const double incrementedLegendrePolynomial );
 
+
+double computeGeodesyLegendrePolynomialDerivative( const int degree,
+                                                   const int order,
+                                                   const double polynomialParameter,
+                                                   const double currentLegendrePolynomial,
+                                                   const double incrementedLegendrePolynomial,
+                                                   const double normalizationCorrection );
+
+
 //! Compute derivative of geodesy-normalized Legendre polynomial.
 /*!
  * The derivative is computed as:
@@ -405,6 +434,15 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
                                                    const double polynomialParameter,
                                                    const double currentLegendrePolynomial,
                                                    const double incrementedLegendrePolynomial );
+
+double computeGeodesyLegendrePolynomialSecondDerivative( const int degree,
+                                                   const int order,
+                                                   const double polynomialParameter,
+                                                   const double currentLegendrePolynomial,
+                                                   const double incrementedLegendrePolynomial,
+                                                   const double currentLegendrePolynomialDerivative,
+                                                   const double incrementedLegendrePolynomialDerivative,
+                                                   const double normalizationCorrection );
 
 //! Compute low degree/order unnormalized Legendre polynomial explicitly.
 /*!

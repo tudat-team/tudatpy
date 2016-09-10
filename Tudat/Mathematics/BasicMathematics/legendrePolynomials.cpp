@@ -65,6 +65,7 @@ LegendreCache::LegendreCache( const bool useGeodesyNormalization )
     }
 
     resetMaximumDegreeAndOrder( 0, 0 );
+    computeSecondDerivatives_ = 0;
 
 }
 
@@ -83,6 +84,7 @@ LegendreCache::LegendreCache( const int maximumDegree, const int maximumOrder, c
     }
 
     resetMaximumDegreeAndOrder( maximumDegree, maximumOrder );
+    computeSecondDerivatives_ = 0;
 }
 
 //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
@@ -92,11 +94,108 @@ void LegendreCache::update( const double polynomialParameter  )
     currentPolynomialParameterComplement_ = std::sqrt( 1.0 - polynomialParameter * polynomialParameter ); // cosine of latitude is always positive!
 
     LegendreCache& thisReference = *this;
+
+    int jMax = -1;
     for( int i = 0; i <= maximumDegree_; i++ )
     {
-        for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder_ ) ) ; j++ )
+        jMax = std::min( i, maximumOrder_ );
+        for( int j = 0; j <= jMax ; j++ )
         {
             legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction_( i, j, thisReference );
+
+            if( j != 0 )
+            {
+                if( useGeodesyNormalization_ )
+                {
+                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                            computeGeodesyLegendrePolynomialDerivative(
+                                i, j - 1, currentPolynomialParameter_,
+                                legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
+                            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] );
+                }
+                else
+                {
+                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                            computeLegendrePolynomialDerivative(
+                                j - 1, currentPolynomialParameter_,
+                                legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] );
+                }
+
+            }
+        }
+
+        if( useGeodesyNormalization_ )
+        {
+            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
+                    computeGeodesyLegendrePolynomialDerivative(
+                        i, jMax, currentPolynomialParameter_,
+                        legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                    derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
+        }
+        else
+        {
+            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] =
+                    computeLegendrePolynomialDerivative(
+                        jMax, currentPolynomialParameter_,
+                        legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0 );
+        }
+    }
+
+    if( computeSecondDerivatives_ )
+    {
+        for( int i = 0; i <= maximumDegree_; i++ )
+        {
+            jMax = std::min( i, maximumOrder_ );
+            for( int j = 0; j <= jMax ; j++ )
+            {
+                if( j != 0 )
+                {
+                    if( useGeodesyNormalization_ )
+                    {
+                        legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                computeGeodesyLegendrePolynomialSecondDerivative(
+                                    i, j - 1, currentPolynomialParameter_,
+                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
+                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ],
+                                derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] );
+                    }
+                    else
+                    {
+                        legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                computeGeodesyLegendrePolynomialSecondDerivative(
+                                    i, j - 1, currentPolynomialParameter_,
+                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
+                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ], 1.0 );
+                    }
+
+                }
+            }
+
+            if( useGeodesyNormalization_ )
+            {
+                legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
+                        computeGeodesyLegendrePolynomialSecondDerivative(
+                            i, jMax, currentPolynomialParameter_,
+                            legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                        legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                        derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
+            }
+            else
+            {
+                legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
+                        computeGeodesyLegendrePolynomialSecondDerivative(
+                            i, jMax, currentPolynomialParameter_,
+                            legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                        legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                        1.0 );
+            }
+
         }
     }
 }
@@ -107,6 +206,27 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int maximumDegree, const i
     maximumDegree_ = maximumDegree;
     maximumOrder_ = maximumOrder;
     legendreValues_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
+    legendreDerivatives_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
+    legendreSecondDerivatives_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
+
+    derivativeNormalizations_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
+
+    for( int i = 0; i <= maximumDegree_; i++ )
+    {
+        for( int j = 0; ( ( j <= i ) && ( j <= maximumOrder_ ) ) ; j++ )
+        {
+            // Compute normalization correction factor.
+            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + j ] = std::sqrt(
+                        ( static_cast< double >( i + j + 1 ) )
+                        * ( static_cast< double >( i - j ) ) );
+
+            // If order is zero apply multiplication factor.
+            if ( j == 0 )
+            {
+                derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + j ] *= std::sqrt( 0.5 );
+            }
+        }
+    }
 
     currentPolynomialParameter_ = TUDAT_NAN;
     currentPolynomialParameterComplement_ = TUDAT_NAN;
@@ -134,6 +254,52 @@ double LegendreCache::getLegendrePolynomial(
     else
     {
         return legendreValues_[ degree * ( maximumOrder_ + 1  ) + order ];
+    };
+}
+
+double LegendreCache::getLegendrePolynomialDerivative(
+        const int degree, const int order )
+{
+    if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
+    {
+        std::string errorMessage = "Error when requesting legendre cache, maximum degree or order exceeded " +
+                boost::lexical_cast< std::string >( degree ) + " " +
+                boost::lexical_cast< std::string >( maximumDegree_ ) + " " +
+                boost::lexical_cast< std::string >( order ) + " " +
+                boost::lexical_cast< std::string >( maximumOrder_ );
+        throw std::runtime_error( errorMessage );
+        return TUDAT_NAN;
+    }
+    else if( order > degree )
+    {
+        return 0.0;
+    }
+    else
+    {
+        return legendreDerivatives_[ degree * ( maximumOrder_ + 1  ) + order ];
+    };
+}
+
+double LegendreCache::getLegendrePolynomialSecondDerivative(
+        const int degree, const int order )
+{
+    if( degree > ( maximumDegree_  ) || order > maximumOrder_ )
+    {
+        std::string errorMessage = "Error when requesting legendre cache, maximum degree or order exceeded " +
+                boost::lexical_cast< std::string >( degree ) + " " +
+                boost::lexical_cast< std::string >( maximumDegree_ ) + " " +
+                boost::lexical_cast< std::string >( order ) + " " +
+                boost::lexical_cast< std::string >( maximumOrder_ );
+        throw std::runtime_error( errorMessage );
+        return TUDAT_NAN;
+    }
+    else if( order > degree )
+    {
+        return 0.0;
+    }
+    else
+    {
+        return legendreSecondDerivatives_[ degree * ( maximumOrder_ + 1  ) + order ];
     };
 }
 
@@ -323,12 +489,28 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
                                                    const int order,
                                                    const double polynomialParameter,
                                                    const double currentLegendrePolynomial,
+                                                   const double incrementedLegendrePolynomial,
+                                                   const double normalizationCorrection )
+{
+    // Return polynomial derivative.
+    return normalizationCorrection * incrementedLegendrePolynomial
+            / std::sqrt( 1.0 - polynomialParameter * polynomialParameter )
+            - static_cast< double >( order ) * polynomialParameter
+            / ( 1.0 - polynomialParameter * polynomialParameter )
+            * currentLegendrePolynomial;
+}
+
+//! Compute derivative of geodesy-normalized Legendre polynomial.
+double computeGeodesyLegendrePolynomialDerivative( const int degree,
+                                                   const int order,
+                                                   const double polynomialParameter,
+                                                   const double currentLegendrePolynomial,
                                                    const double incrementedLegendrePolynomial )
 {
     // Compute normalization correction factor.
-    double normalizationCorrection = std::sqrt( ( static_cast< double >( degree )
-                                                  + static_cast< double >( order ) + 1.0 )
-                                                * ( static_cast< double >( degree - order ) ) );
+    double normalizationCorrection = std::sqrt(
+                ( static_cast< double >( degree + order + 1 ) )
+                * ( static_cast< double >( degree - order ) ) );
 
     // If order is zero apply multiplication factor.
     if ( order == 0 )
@@ -337,12 +519,32 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
     }
 
     // Return polynomial derivative.
-    return normalizationCorrection * incrementedLegendrePolynomial
-            / std::sqrt( 1.0 - polynomialParameter * polynomialParameter )
-            - static_cast< double >( order ) * polynomialParameter
-            / ( 1.0 - polynomialParameter * polynomialParameter )
-            * currentLegendrePolynomial;
+    return computeGeodesyLegendrePolynomialDerivative(
+                degree, order, polynomialParameter, currentLegendrePolynomial,
+                incrementedLegendrePolynomial, normalizationCorrection );
 }
+
+//! Compute derivative of geodesy-normalized Legendre polynomial.
+double computeGeodesyLegendrePolynomialSecondDerivative( const int degree,
+                                                   const int order,
+                                                   const double polynomialParameter,
+                                                   const double currentLegendrePolynomial,
+                                                   const double incrementedLegendrePolynomial,
+                                                   const double currentLegendrePolynomialDerivative,
+                                                   const double incrementedLegendrePolynomialDerivative,
+                                                   const double normalizationCorrection )
+{
+    double polynomialParameterSquare = polynomialParameter * polynomialParameter;
+
+    // Return polynomial derivative.
+    return normalizationCorrection * (
+                incrementedLegendrePolynomialDerivative / std::sqrt( 1.0 - polynomialParameterSquare ) +
+                polynomialParameter * std::pow( 1.0 - polynomialParameterSquare, -1.5 ) * incrementedLegendrePolynomial ) -
+            static_cast< double >( order ) *
+            ( polynomialParameter / ( 1.0 - polynomialParameter * polynomialParameter ) * currentLegendrePolynomialDerivative +
+              ( 1.0 + polynomialParameterSquare ) / ( ( 1.0 - polynomialParameterSquare ) * ( 1.0 - polynomialParameterSquare ) ) * currentLegendrePolynomial );
+}
+
 
 //! Compute low degree/order unnormalized Legendre polynomial explicitly.
 double computeLegendrePolynomialExplicit( const int degree,
@@ -494,7 +696,7 @@ double computeGeodesyLegendrePolynomialExplicit( const int degree,
         // Set error message.
         std::stringstream errorMessage;
         errorMessage  <<  "Error: computation of Legendre polynomial of = "  <<  degree
-                      <<  " and order = "  <<  order  <<  " is not supported."  <<  std::endl;
+                       <<  " and order = "  <<  order  <<  " is not supported."  <<  std::endl;
 
         // Throw a run-time error.
         boost::throw_exception( boost::enable_error_info( std::runtime_error(
@@ -565,9 +767,9 @@ double calculateLegendreGeodesyNormalizationFactor( const int degree, const int 
     }
 
     double factor = std::sqrt(
-        boost::math::factorial< double >( static_cast< double >( degree + order ) )
-        / ( ( 2.0 - deltaFunction ) * ( 2.0 * static_cast< double >( degree ) + 1.0 )
-            * boost::math::factorial< double >( static_cast< double >( degree - order ) ) ) );
+                boost::math::factorial< double >( static_cast< double >( degree + order ) )
+                / ( ( 2.0 - deltaFunction ) * ( 2.0 * static_cast< double >( degree ) + 1.0 )
+                    * boost::math::factorial< double >( static_cast< double >( degree - order ) ) ) );
     return 1.0 / factor;
 }
 
