@@ -1,7 +1,11 @@
 #ifndef SPHERICALHARMONICPARTIALFUNCTIONS_H
 #define SPHERICALHARMONICPARTIALFUNCTIONS_H
 
+#include <boost/shared_ptr.hpp>
 
+#include <Eigen/Core>
+
+#include "Tudat/Mathematics/BasicMathematics/sphericalHarmonics.h"
 
 namespace tudat
 {
@@ -49,8 +53,27 @@ void computePotentialSphericalHessian(
         const int order,
         const double cosineHarmonicCoefficient,
         const double sineHarmonicCoefficient,
-        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         Eigen::Matrix3d& sphericalHessian );
+
+Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
+        const Eigen::Vector3d& cartesianPosition,
+        const Eigen::Vector3d& sphericalPosition,
+        const double referenceRadius,
+        const double gravitionalParameter,
+        const Eigen::MatrixXd cosineHarmonicCoefficients,
+        const Eigen::MatrixXd sineHarmonicCoefficients,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
+        const Eigen::Vector3d& sphericalPotentialGradient,
+        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix );
+
+Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
+        const Eigen::Vector3d& cartesianPosition,
+        const double referenceRadius,
+        const double gravitionalParameter,
+        const Eigen::MatrixXd cosineHarmonicCoefficients,
+        const Eigen::MatrixXd sineHarmonicCoefficients,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache );
 
 }
 
