@@ -112,6 +112,7 @@ public:
     void update( const double radius, const double polynomialParameter,
                  const double longitude, const double referenceRadius )
     {
+        //std::cout<<"Updating: "<<radius<<" "<<polynomialParameter<<" "<<longitude<<" "<<referenceRadius<<std::endl;
         legendreCache_->update( polynomialParameter );
         updateSines( longitude );
         updateRadiusPowers( referenceRadius / radius );
@@ -219,6 +220,7 @@ private:
      */
     void updateRadiusPowers( const double referenceRadiusRatio )
     {
+        std::cout<<"Updating: "<<referenceRadiusRatio<<std::endl;
         //! Check if update is needed.
         if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
         {

@@ -275,6 +275,8 @@ Eigen::Vector3d convertCartesianToCylindrical( const Eigen::Vector3d& cartesianC
 basic_mathematics::Vector6d convertCartesianToCylindricalState(
         const basic_mathematics::Vector6d& cartesianState );
 
+Eigen::Matrix3d getSphericalToCartesianGradientMatrix( const Eigen::Vector3d& cartesianCoordinates );
+
 //! Convert spherical to Cartesian gradient.
 /*!
 * This function converts a gradient vector with respect to spherical coordinates to a gradient
@@ -316,6 +318,13 @@ basic_mathematics::Vector6d convertCartesianToCylindricalState(
 */
 Eigen::Vector3d convertSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
                                                      const Eigen::Vector3d& cartesianCoordinates );
+
+Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
+                                                             const Eigen::Vector3d& cartesianCoordinates,
+                                                             std::vector< Eigen::Matrix3d >& subMatrices );
+
+Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
+                                                             const Eigen::Vector3d& cartesianCoordinates );
 
 //! Convert spherical to Cartesian state.
 /*!
