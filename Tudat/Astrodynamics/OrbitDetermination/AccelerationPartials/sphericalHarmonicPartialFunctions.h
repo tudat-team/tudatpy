@@ -56,6 +56,14 @@ void computePotentialSphericalHessian(
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         Eigen::Matrix3d& sphericalHessian );
 
+Eigen::Matrix3d computeCumulativeSphericalHessian(
+        const Eigen::Vector3d& sphericalPosition,
+        const double referenceRadius,
+        const double gravitionalParameter,
+        const Eigen::MatrixXd cosineHarmonicCoefficients,
+        const Eigen::MatrixXd sineHarmonicCoefficients,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache );
+
 Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
         const Eigen::Vector3d& cartesianPosition,
         const Eigen::Vector3d& sphericalPosition,

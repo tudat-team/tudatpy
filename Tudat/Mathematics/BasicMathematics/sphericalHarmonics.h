@@ -220,7 +220,6 @@ private:
      */
     void updateRadiusPowers( const double referenceRadiusRatio )
     {
-        std::cout<<"Updating: "<<referenceRadiusRatio<<std::endl;
         //! Check if update is needed.
         if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
         {

@@ -205,6 +205,11 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int maximumDegree, const i
 {
     maximumDegree_ = maximumDegree;
     maximumOrder_ = maximumOrder;
+
+    if( maximumOrder_ > maximumDegree_ )
+    {
+        maximumOrder_ = maximumDegree_;
+    }
     legendreValues_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
     legendreDerivatives_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
     legendreSecondDerivatives_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
@@ -262,7 +267,7 @@ double LegendreCache::getLegendrePolynomialDerivative(
 {
     if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
     {
-        std::string errorMessage = "Error when requesting legendre cache, maximum degree or order exceeded " +
+        std::string errorMessage = "Error when requesting legendre cache first derivatives, maximum degree or order exceeded " +
                 boost::lexical_cast< std::string >( degree ) + " " +
                 boost::lexical_cast< std::string >( maximumDegree_ ) + " " +
                 boost::lexical_cast< std::string >( order ) + " " +
@@ -285,13 +290,17 @@ double LegendreCache::getLegendrePolynomialSecondDerivative(
 {
     if( degree > ( maximumDegree_  ) || order > maximumOrder_ )
     {
-        std::string errorMessage = "Error when requesting legendre cache, maximum degree or order exceeded " +
+        std::string errorMessage = "Error when requesting legendre cache second derivatives, maximum degree or order exceeded " +
                 boost::lexical_cast< std::string >( degree ) + " " +
                 boost::lexical_cast< std::string >( maximumDegree_ ) + " " +
                 boost::lexical_cast< std::string >( order ) + " " +
                 boost::lexical_cast< std::string >( maximumOrder_ );
         throw std::runtime_error( errorMessage );
         return TUDAT_NAN;
+    }
+    else if( computeSecondDerivatives_ == 0 )
+    {
+        throw std::runtime_error( "Error when requesting legendre cache second derivatives, no computations performed" );
     }
     else if( order > degree )
     {
