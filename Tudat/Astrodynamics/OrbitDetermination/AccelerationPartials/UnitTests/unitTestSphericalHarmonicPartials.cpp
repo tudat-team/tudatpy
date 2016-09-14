@@ -63,252 +63,362 @@ using namespace tudat::electro_magnetism;
 
 BOOST_AUTO_TEST_SUITE( test_spherical_harmonic_partials )
 
-//BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
-//{
-//    // Short-cuts.
-//    using namespace gravitation;
+BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
+{
+    // Short-cuts.
+    using namespace gravitation;
 
 
-//    const double gravitationalParameter = 3.986004418e14;
-//    const double planetaryRadius = 6378137.0;
+    const double gravitationalParameter = 3.986004418e14;
+    const double planetaryRadius = 6378137.0;
 
-//    const Eigen::MatrixXd cosineCoefficients =
-//            ( Eigen::MatrixXd( 6, 6 ) <<
-//              1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-//              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-//              -4.841651437908150e-4, -2.066155090741760e-10, 2.439383573283130e-6, 0.0, 0.0, 0.0,
-//              9.571612070934730e-7, 2.030462010478640e-6, 9.047878948095281e-7,
-//              7.213217571215680e-7, 0.0, 0.0, 5.399658666389910e-7, -5.361573893888670e-7,
-//              3.505016239626490e-7, 9.908567666723210e-7, -1.885196330230330e-7, 0.0,
-//              6.867029137366810e-8, -6.292119230425290e-8, 6.520780431761640e-7,
-//              -4.518471523288430e-7, -2.953287611756290e-7, 1.748117954960020e-7
-//              ).finished( );
-//    const Eigen::MatrixXd sineCoefficients =
-//            ( Eigen::MatrixXd( 6, 6 ) <<
-//              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-//              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-//              0.0, 1.384413891379790e-9, -1.400273703859340e-6, 0.0, 0.0, 0.0,
-//              0.0, 2.482004158568720e-7, -6.190054751776180e-7, 1.414349261929410e-6, 0.0, 0.0,
-//              0.0, -4.735673465180860e-7, 6.624800262758290e-7, -2.009567235674520e-7,
-//              3.088038821491940e-7, 0.0, 0.0, -9.436980733957690e-8, -3.233531925405220e-7,
-//              -2.149554083060460e-7, 4.980705501023510e-8, -6.693799351801650e-7
-//              ).finished( );
+    const Eigen::MatrixXd cosineCoefficients =
+            ( Eigen::MatrixXd( 6, 6 ) <<
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              -4.841651437908150e-4, -2.066155090741760e-10, 2.439383573283130e-6, 0.0, 0.0, 0.0,
+              9.571612070934730e-7, 2.030462010478640e-6, 9.047878948095281e-7,
+              7.213217571215680e-7, 0.0, 0.0, 5.399658666389910e-7, -5.361573893888670e-7,
+              3.505016239626490e-7, 9.908567666723210e-7, -1.885196330230330e-7, 0.0,
+              6.867029137366810e-8, -6.292119230425290e-8, 6.520780431761640e-7,
+              -4.518471523288430e-7, -2.953287611756290e-7, 1.748117954960020e-7
+              ).finished( );
+    const Eigen::MatrixXd sineCoefficients =
+            ( Eigen::MatrixXd( 6, 6 ) <<
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 1.384413891379790e-9, -1.400273703859340e-6, 0.0, 0.0, 0.0,
+              0.0, 2.482004158568720e-7, -6.190054751776180e-7, 1.414349261929410e-6, 0.0, 0.0,
+              0.0, -4.735673465180860e-7, 6.624800262758290e-7, -2.009567235674520e-7,
+              3.088038821491940e-7, 0.0, 0.0, -9.436980733957690e-8, -3.233531925405220e-7,
+              -2.149554083060460e-7, 4.980705501023510e-8, -6.693799351801650e-7
+              ).finished( );
 
-//    const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
+    const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
 
-//    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache
-//            = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 );
+    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache
+            = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 );
 
-//    const Eigen::Vector3d acceleration =
-//            computeGeodesyNormalizedGravitationalAccelerationSum(
-//                position, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
-//                sphericalHarmonicsCache );
+    boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache = sphericalHarmonicsCache->getLegendreCache( );
 
-//    const Eigen::Vector3d expectedAcceleration(
-//                -1.032215878106932, -1.179683946769393, -1.328040277155269 );
+    double currentLongitude = sphericalHarmonicsCache->getCurrentLongitude( );
+    double currentPolynomialArgument = legendreCache->getCurrentPolynomialParameter( );
 
-//    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedAcceleration, acceleration, 1.0e-15 );
+    Eigen::MatrixXd upPerturbedLegendrePolynomials = Eigen::MatrixXd( 6, 6 );
+    Eigen::MatrixXd downPerturbedLegendrePolynomials = Eigen::MatrixXd( 6, 6 );
 
-//    boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache = sphericalHarmonicsCache->getLegendreCache( );
+    Eigen::MatrixXd upPerturbedLegendrePolynomialPartials = Eigen::MatrixXd( 6, 6 );
+    Eigen::MatrixXd downPerturbedLegendrePolynomialPartials = Eigen::MatrixXd( 6, 6 );
 
-//    double currentLongitude = sphericalHarmonicsCache->getCurrentLongitude( );
-//    double currentPolynomialArgument = legendreCache->getCurrentPolynomialParameter( );
+    Eigen::MatrixXd analyticalLegendrePolynomialPartials = Eigen::MatrixXd( 6, 6 );
+    Eigen::MatrixXd analyticalLegendrePolynomialSecondPartials = Eigen::MatrixXd( 6, 6 );
 
-//    Eigen::MatrixXd upPerturbedLegendrePolynomials = Eigen::MatrixXd( 6, 6 );
-//    Eigen::MatrixXd downPerturbedLegendrePolynomials = Eigen::MatrixXd( 6, 6 );
+    legendreCache->setComputeSecondDerivatives( 1 );
+    legendreCache->update( currentPolynomialArgument + 0.1  );
 
-//    Eigen::MatrixXd upPerturbedLegendrePolynomialPartials = Eigen::MatrixXd( 6, 6 );
-//    Eigen::MatrixXd downPerturbedLegendrePolynomialPartials = Eigen::MatrixXd( 6, 6 );
+    legendreCache->update( currentPolynomialArgument );
 
-//    Eigen::MatrixXd analyticalLegendrePolynomialPartials = Eigen::MatrixXd( 6, 6 );
-//    Eigen::MatrixXd analyticalLegendrePolynomialSecondPartials = Eigen::MatrixXd( 6, 6 );
+    for( unsigned int i = 0; i < 6; i++ )
+    {
+        for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+        {
+            analyticalLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
+            analyticalLegendrePolynomialSecondPartials( i, j ) = legendreCache->getLegendrePolynomialSecondDerivative( i, j );
+        }
 
-//    legendreCache->setComputeSecondDerivatives( 1 );
-//    legendreCache->update( currentPolynomialArgument + 0.1  );
+    }
 
-//    legendreCache->update( currentPolynomialArgument );
+    double polynomialArgumentPerturbation = 1.0E-6;
+    {
+        legendreCache->update( currentPolynomialArgument + polynomialArgumentPerturbation );
+        for( unsigned int i = 0; i < 6; i++ )
+        {
+            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+            {
+                upPerturbedLegendrePolynomials( i, j ) = legendreCache->getLegendrePolynomial( i, j );
+                upPerturbedLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
+            }
+        }
 
-//    for( unsigned int i = 0; i < 6; i++ )
-//    {
-//        for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//        {
-//            analyticalLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
-//            analyticalLegendrePolynomialSecondPartials( i, j ) = legendreCache->getLegendrePolynomialSecondDerivative( i, j );
-//        }
+        legendreCache->update( currentPolynomialArgument - polynomialArgumentPerturbation );
+        for( unsigned int i = 0; i < 6; i++ )
+        {
+            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+            {
+                downPerturbedLegendrePolynomials( i, j ) = legendreCache->getLegendrePolynomial( i, j );
+                downPerturbedLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
+            }
+        }
+    }
 
-//    }
+    Eigen::MatrixXd numericalLegendrePolynomialPartials =
+            ( upPerturbedLegendrePolynomials - downPerturbedLegendrePolynomials ) /
+            ( 2.0 * polynomialArgumentPerturbation );
+    Eigen::MatrixXd numericalLegendrePolynomialSecondPartials =
+            ( upPerturbedLegendrePolynomialPartials - downPerturbedLegendrePolynomialPartials ) /
+            ( 2.0 * polynomialArgumentPerturbation );
 
-//    double polynomialArgumentPerturbation = 1.0E-6;
-//    {
-//        legendreCache->update( currentPolynomialArgument + polynomialArgumentPerturbation );
-//        for( unsigned int i = 0; i < 6; i++ )
-//        {
-//            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//            {
-//                upPerturbedLegendrePolynomials( i, j ) = legendreCache->getLegendrePolynomial( i, j );
-//                upPerturbedLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
-//            }
-//        }
+    for( unsigned int i = 0; i < 6; i++ )
+    {
+        for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( numericalLegendrePolynomialPartials( i, j ) - analyticalLegendrePolynomialPartials( i, j ) ), 1.0E-8 );
+            BOOST_CHECK_SMALL(
+                        std::fabs( numericalLegendrePolynomialSecondPartials( i, j ) - analyticalLegendrePolynomialSecondPartials( i, j ) ), 1.0E-8 );
+        }
+    }
 
-//        legendreCache->update( currentPolynomialArgument - polynomialArgumentPerturbation );
-//        for( unsigned int i = 0; i < 6; i++ )
-//        {
-//            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//            {
-//                downPerturbedLegendrePolynomials( i, j ) = legendreCache->getLegendrePolynomial( i, j );
-//                downPerturbedLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
-//            }
-//        }
-//    }
+    std::vector< std::vector< Eigen::Vector3d > > sphericalPotentialGradients;
 
-//    Eigen::MatrixXd numericalLegendrePolynomialPartials =
-//            ( upPerturbedLegendrePolynomials - downPerturbedLegendrePolynomials ) /
-//            ( 2.0 * polynomialArgumentPerturbation );
-//    Eigen::MatrixXd numericalLegendrePolynomialSecondPartials =
-//            ( upPerturbedLegendrePolynomialPartials - downPerturbedLegendrePolynomialPartials ) /
-//            ( 2.0 * polynomialArgumentPerturbation );
+    std::vector< std::vector< Eigen::Matrix3d > > upPerturbedSphericalPotentialGradients;
+    std::vector< std::vector< Eigen::Matrix3d > > downPerturbedSphericalPotentialGradients;
 
-//    for( unsigned int i = 0; i < 6; i++ )
-//    {
-//        for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//        {
-//            BOOST_CHECK_SMALL(
-//                        std::fabs( numericalLegendrePolynomialPartials( i, j ) - analyticalLegendrePolynomialPartials( i, j ) ), 1.0E-8 );
-//            BOOST_CHECK_SMALL(
-//                        std::fabs( numericalLegendrePolynomialSecondPartials( i, j ) - analyticalLegendrePolynomialSecondPartials( i, j ) ), 1.0E-8 );
-//        }
-//    }
+    std::vector< std::vector< Eigen::Matrix3d > > numericalSphericalPotentialHessian;
+    std::vector< std::vector< Eigen::Matrix3d > > analyticalSphericalPotentialHessian;
 
-//    std::vector< std::vector< Eigen::Vector3d > > sphericalPotentialGradients;
+    Eigen::Vector3d nominalSphericalPosition = coordinate_conversions::
+            convertCartesianToSpherical( position );
+    nominalSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 -
+            nominalSphericalPosition( 1 );
 
-//    std::vector< std::vector< Eigen::Matrix3d > > upPerturbedSphericalPotentialGradients;
-//    std::vector< std::vector< Eigen::Matrix3d > > downPerturbedSphericalPotentialGradients;
+    Eigen::Matrix3d normalization;
+    normalization <<  nominalSphericalPosition( 0 ) * nominalSphericalPosition( 0 ), nominalSphericalPosition( 0 ), nominalSphericalPosition( 0 ),
+            nominalSphericalPosition( 0 ), 1.0 , 1.0,
+            nominalSphericalPosition( 0 ), 1.0, 1.0;
+    for( unsigned int i = 0; i < 6; i++ )
+    {
+        std::vector< Eigen::Vector3d > singleTermPotentialGradients;
+        singleTermPotentialGradients.resize( 6 );
+        sphericalPotentialGradients.push_back( singleTermPotentialGradients );
 
-//    std::vector< std::vector< Eigen::Matrix3d > > numericalSphericalPotentialHessian;
-//    std::vector< std::vector< Eigen::Matrix3d > > analyticalSphericalPotentialHessian;
+        std::vector< Eigen::Matrix3d > singleTermPotentialPartials;
+        singleTermPotentialPartials.resize( 6 );
+        upPerturbedSphericalPotentialGradients.push_back( singleTermPotentialPartials );
+        downPerturbedSphericalPotentialGradients.push_back( singleTermPotentialPartials );
 
-//    Eigen::Vector3d nominalSphericalPosition = coordinate_conversions::
-//            convertCartesianToSpherical( position );
-//    nominalSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 -
-//            nominalSphericalPosition( 1 );
-
-//    Eigen::Matrix3d normalization;
-//    normalization <<  nominalSphericalPosition( 0 ) * nominalSphericalPosition( 0 ), nominalSphericalPosition( 0 ), nominalSphericalPosition( 0 ),
-//            nominalSphericalPosition( 0 ), 1.0 , 1.0,
-//            nominalSphericalPosition( 0 ), 1.0, 1.0;
-//    for( unsigned int i = 0; i < 6; i++ )
-//    {
-//        std::vector< Eigen::Vector3d > singleTermPotentialGradients;
-//        singleTermPotentialGradients.resize( 6 );
-//        sphericalPotentialGradients.push_back( singleTermPotentialGradients );
-
-//        std::vector< Eigen::Matrix3d > singleTermPotentialPartials;
-//        singleTermPotentialPartials.resize( 6 );
-//        upPerturbedSphericalPotentialGradients.push_back( singleTermPotentialPartials );
-//        downPerturbedSphericalPotentialGradients.push_back( singleTermPotentialPartials );
-
-//        numericalSphericalPotentialHessian.push_back( singleTermPotentialPartials );
-//        analyticalSphericalPotentialHessian.push_back( singleTermPotentialPartials );
+        numericalSphericalPotentialHessian.push_back( singleTermPotentialPartials );
+        analyticalSphericalPotentialHessian.push_back( singleTermPotentialPartials );
 
 
-//    }
+    }
 
-//    sphericalHarmonicsCache->update( position.norm( ), currentPolynomialArgument, currentLongitude, planetaryRadius );
+    sphericalHarmonicsCache->update( position.norm( ), currentPolynomialArgument, currentLongitude, planetaryRadius );
 
-//    for( unsigned int i = 0; i < 6; i++ )
-//    {
-//        for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//        {
-//            sphericalPotentialGradients[ i ][ j ] = basic_mathematics::computePotentialGradient(
-//                        nominalSphericalPosition, gravitationalParameter / planetaryRadius, i, j,
-//                        cosineCoefficients( i, j ), sineCoefficients( i, j ), legendreCache->getLegendrePolynomial( i, j ),
-//                        legendreCache->getLegendrePolynomialDerivative( i, j ), sphericalHarmonicsCache );
-//        }
-//    }
+    for( unsigned int i = 0; i < 6; i++ )
+    {
+        for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+        {
+            sphericalPotentialGradients[ i ][ j ] = basic_mathematics::computePotentialGradient(
+                        nominalSphericalPosition, gravitationalParameter / planetaryRadius, i, j,
+                        cosineCoefficients( i, j ), sineCoefficients( i, j ), legendreCache->getLegendrePolynomial( i, j ),
+                        legendreCache->getLegendrePolynomialDerivative( i, j ), sphericalHarmonicsCache );
+        }
+    }
 
 
-//    Eigen::Vector3d perturbedSphericalPosition;
-//    Eigen::Vector3d statePerturbation;
-//    statePerturbation<<10.0, 1.0E-7, 1.0E-8;
+    Eigen::Vector3d perturbedSphericalPosition;
+    Eigen::Vector3d sphericalStatePerturbation;
+    sphericalStatePerturbation<<10.0, 1.0E-7, 1.0E-8;
 
-//    for( unsigned parameter = 0; parameter < 3; parameter++ )
-//    {
-//        perturbedSphericalPosition = nominalSphericalPosition;
-//        perturbedSphericalPosition( parameter ) += statePerturbation( parameter );
+    for( unsigned parameter = 0; parameter < 3; parameter++ )
+    {
+        perturbedSphericalPosition = nominalSphericalPosition;
+        perturbedSphericalPosition( parameter ) += sphericalStatePerturbation( parameter );
 
-//        sphericalHarmonicsCache->update(
-//                    perturbedSphericalPosition( 0 ), std::sin( perturbedSphericalPosition( 1 ) ),
-//                    perturbedSphericalPosition( 2 ), planetaryRadius );
+        sphericalHarmonicsCache->update(
+                    perturbedSphericalPosition( 0 ), std::sin( perturbedSphericalPosition( 1 ) ),
+                    perturbedSphericalPosition( 2 ), planetaryRadius );
 
-//        for( unsigned int i = 0; i < 6; i++ )
-//        {
-//            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//            {
-//                upPerturbedSphericalPotentialGradients[ i ][ j ].block( 0, parameter, 3, 1 ) = basic_mathematics::computePotentialGradient(
-//                            perturbedSphericalPosition, gravitationalParameter / planetaryRadius, i, j,
-//                            cosineCoefficients( i, j ), sineCoefficients( i, j ), legendreCache->getLegendrePolynomial( i, j ),
-//                            legendreCache->getLegendrePolynomialDerivative( i, j ), sphericalHarmonicsCache );
-//            }
-//        }
+        for( unsigned int i = 0; i < 6; i++ )
+        {
+            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+            {
+                upPerturbedSphericalPotentialGradients[ i ][ j ].block( 0, parameter, 3, 1 ) = basic_mathematics::computePotentialGradient(
+                            perturbedSphericalPosition, gravitationalParameter / planetaryRadius, i, j,
+                            cosineCoefficients( i, j ), sineCoefficients( i, j ), legendreCache->getLegendrePolynomial( i, j ),
+                            legendreCache->getLegendrePolynomialDerivative( i, j ), sphericalHarmonicsCache );
+            }
+        }
 
-//        perturbedSphericalPosition = nominalSphericalPosition;
-//        perturbedSphericalPosition( parameter ) -= statePerturbation( parameter );
+        perturbedSphericalPosition = nominalSphericalPosition;
+        perturbedSphericalPosition( parameter ) -= sphericalStatePerturbation( parameter );
 
-//        sphericalHarmonicsCache->update(
-//                    perturbedSphericalPosition( 0 ), std::sin( perturbedSphericalPosition( 1 ) ),
-//                    perturbedSphericalPosition( 2 ), planetaryRadius );
+        sphericalHarmonicsCache->update(
+                    perturbedSphericalPosition( 0 ), std::sin( perturbedSphericalPosition( 1 ) ),
+                    perturbedSphericalPosition( 2 ), planetaryRadius );
 
-//        for( unsigned int i = 0; i < 6; i++ )
-//        {
-//            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//            {
-//                downPerturbedSphericalPotentialGradients[ i ][ j ].block( 0, parameter, 3, 1 ) = basic_mathematics::computePotentialGradient(
-//                            perturbedSphericalPosition, gravitationalParameter / planetaryRadius, i, j,
-//                            cosineCoefficients( i, j ), sineCoefficients( i, j ), legendreCache->getLegendrePolynomial( i, j ),
-//                            legendreCache->getLegendrePolynomialDerivative( i, j ), sphericalHarmonicsCache );
-//            }
-//        }
+        for( unsigned int i = 0; i < 6; i++ )
+        {
+            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+            {
+                downPerturbedSphericalPotentialGradients[ i ][ j ].block( 0, parameter, 3, 1 ) = basic_mathematics::computePotentialGradient(
+                            perturbedSphericalPosition, gravitationalParameter / planetaryRadius, i, j,
+                            cosineCoefficients( i, j ), sineCoefficients( i, j ), legendreCache->getLegendrePolynomial( i, j ),
+                            legendreCache->getLegendrePolynomialDerivative( i, j ), sphericalHarmonicsCache );
+            }
+        }
 
-//        for( unsigned int i = 0; i < 6; i++ )
-//        {
-//            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//            {
-//                numericalSphericalPotentialHessian[ i ][ j ].block( 0, parameter, 3, 1 ) =
-//                        ( ( upPerturbedSphericalPotentialGradients[ i ][ j ].block( 0, parameter, 3, 1 ) -
-//                            downPerturbedSphericalPotentialGradients[ i ][ j ].block( 0, parameter, 3, 1 ) ) /
-//                          ( 2.0 * statePerturbation( parameter ) ) );
+        for( unsigned int i = 0; i < 6; i++ )
+        {
+            for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+            {
+                numericalSphericalPotentialHessian[ i ][ j ].block( 0, parameter, 3, 1 ) =
+                        ( ( upPerturbedSphericalPotentialGradients[ i ][ j ].block( 0, parameter, 3, 1 ) -
+                            downPerturbedSphericalPotentialGradients[ i ][ j ].block( 0, parameter, 3, 1 ) ) /
+                          ( 2.0 * sphericalStatePerturbation( parameter ) ) );
 
-//            }
+            }
 
-//        }
-//    }
+        }
+    }
 
-//    for( unsigned int i = 1; i < 6; i++ )
-//    {
-//        for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
-//        {
-//            computePotentialSphericalHessian(
-//                        nominalSphericalPosition, gravitationalParameter / planetaryRadius, i, j,
-//                        cosineCoefficients( i, j ), sineCoefficients( i, j ), sphericalHarmonicsCache,
-//                        analyticalSphericalPotentialHessian[ i ][ j ] );
+    for( unsigned int i = 1; i < 6; i++ )
+    {
+        for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
+        {
+            computePotentialSphericalHessian(
+                        nominalSphericalPosition, gravitationalParameter / planetaryRadius, i, j,
+                        cosineCoefficients( i, j ), sineCoefficients( i, j ), sphericalHarmonicsCache,
+                        analyticalSphericalPotentialHessian[ i ][ j ] );
 
-//            analyticalSphericalPotentialHessian[ i ][ j ] = analyticalSphericalPotentialHessian[ i ][ j ].cwiseProduct(
-//                        normalization );
-//            numericalSphericalPotentialHessian[ i ][ j ] = numericalSphericalPotentialHessian[ i ][ j ].cwiseProduct(
-//                        normalization );
-//            for( unsigned int k = 0; k < 3; k++ )
-//            {
-//                for( unsigned int l = 0; l < 3; l++ )
-//                {
-//                    BOOST_CHECK_SMALL( analyticalSphericalPotentialHessian[ i ][ j ]( k, l ) -
-//                            numericalSphericalPotentialHessian[ i ][ j ]( k, l ), 1.0E-5 );
-//                }
+            analyticalSphericalPotentialHessian[ i ][ j ] = analyticalSphericalPotentialHessian[ i ][ j ].cwiseProduct(
+                        normalization );
+            numericalSphericalPotentialHessian[ i ][ j ] = numericalSphericalPotentialHessian[ i ][ j ].cwiseProduct(
+                        normalization );
+            for( unsigned int k = 0; k < 3; k++ )
+            {
+                for( unsigned int l = 0; l < 3; l++ )
+                {
+                    BOOST_CHECK_SMALL( analyticalSphericalPotentialHessian[ i ][ j ]( k, l ) -
+                            numericalSphericalPotentialHessian[ i ][ j ]( k, l ), 1.0E-5 );
+                }
 
-//            }
+            }
 
-//        }
-//    }
-//}
+        }
+    }
+
+    Eigen::Matrix3d cumulativeSphericalHessian =  computeCumulativeSphericalHessian(
+                nominalSphericalPosition, planetaryRadius, gravitationalParameter, cosineCoefficients, sineCoefficients,
+                sphericalHarmonicsCache );
+
+    Eigen::Matrix3d nominalGradientTransformationMatrix =
+            coordinate_conversions::getSphericalToCartesianGradientMatrix( position );
+
+    Eigen::Vector3d upPerturbedTotalGradient;
+    Eigen::Vector3d downPerturbedTotalGradient;
+    Eigen::Vector3d perturbedCartesianPosition;
+
+    Eigen::Matrix3d numericalTotalSphericalGradient;
+
+    sphericalStatePerturbation( 0 ) *= 10.0;
+    sphericalStatePerturbation( 1 ) *= 100.0;
+    sphericalStatePerturbation( 2 ) *= 1000.0;
+
+    for( unsigned parameter = 0; parameter < 3; parameter++ )
+    {
+        perturbedSphericalPosition = nominalSphericalPosition;
+        perturbedSphericalPosition( parameter ) += sphericalStatePerturbation( parameter );
+
+        perturbedSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - perturbedSphericalPosition( 1 );
+        perturbedCartesianPosition = coordinate_conversions::convertSphericalToCartesian(
+                    perturbedSphericalPosition );
+
+        upPerturbedTotalGradient =
+                coordinate_conversions::getSphericalToCartesianGradientMatrix( perturbedCartesianPosition ).inverse( ) *
+                computeGeodesyNormalizedGravitationalAccelerationSum(
+                    perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
+                    sphericalHarmonicsCache );
+
+        perturbedSphericalPosition = nominalSphericalPosition;
+        perturbedSphericalPosition( parameter ) -= sphericalStatePerturbation( parameter );
+
+        perturbedSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - perturbedSphericalPosition( 1 );
+        perturbedCartesianPosition = coordinate_conversions::convertSphericalToCartesian(
+                    perturbedSphericalPosition );
+
+        downPerturbedTotalGradient =
+                coordinate_conversions::getSphericalToCartesianGradientMatrix( perturbedCartesianPosition ).inverse( ) *
+                computeGeodesyNormalizedGravitationalAccelerationSum(
+                    perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
+                    sphericalHarmonicsCache );
+
+        numericalTotalSphericalGradient.block( 0, parameter, 3, 1 ) =
+                ( upPerturbedTotalGradient - downPerturbedTotalGradient ) / ( 2.0 * sphericalStatePerturbation( parameter ) );
+
+    }
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                cumulativeSphericalHessian, numericalTotalSphericalGradient, 1.0E-6 );
+
+    Eigen::Vector3d cartesianStatePerturbation;
+    cartesianStatePerturbation<<10.0, 10.0, 10.0;
+
+    for( unsigned parameter = 0; parameter < 3; parameter++ )
+    {
+        perturbedCartesianPosition = position;
+        perturbedCartesianPosition( parameter ) += cartesianStatePerturbation( parameter );
+
+        upPerturbedTotalGradient =
+                nominalGradientTransformationMatrix *
+                coordinate_conversions::getSphericalToCartesianGradientMatrix( perturbedCartesianPosition ).inverse( ) *
+                computeGeodesyNormalizedGravitationalAccelerationSum(
+                    perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
+                    sphericalHarmonicsCache );
+
+        perturbedCartesianPosition = position;
+        perturbedCartesianPosition( parameter ) -= cartesianStatePerturbation( parameter );
+
+        downPerturbedTotalGradient =
+                nominalGradientTransformationMatrix *
+                coordinate_conversions::getSphericalToCartesianGradientMatrix( perturbedCartesianPosition ).inverse( ) *
+                computeGeodesyNormalizedGravitationalAccelerationSum(
+                    perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
+                    sphericalHarmonicsCache );
+
+        numericalTotalSphericalGradient.block( 0, parameter, 3, 1 ) =
+                ( upPerturbedTotalGradient - downPerturbedTotalGradient ) / ( 2.0 * cartesianStatePerturbation( parameter ) );
+
+    }
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( nominalGradientTransformationMatrix * cumulativeSphericalHessian * nominalGradientTransformationMatrix.transpose( ) ),
+                numericalTotalSphericalGradient, 1.0E-6 );
+
+
+    for( unsigned parameter = 0; parameter < 3; parameter++ )
+    {
+        perturbedCartesianPosition = position;
+        perturbedCartesianPosition( parameter ) += cartesianStatePerturbation( parameter );
+
+        upPerturbedTotalGradient =
+                computeGeodesyNormalizedGravitationalAccelerationSum(
+                    perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
+                    sphericalHarmonicsCache );
+
+        perturbedCartesianPosition = position;
+        perturbedCartesianPosition( parameter ) -= cartesianStatePerturbation( parameter );
+
+        downPerturbedTotalGradient =
+                computeGeodesyNormalizedGravitationalAccelerationSum(
+                    perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
+                    sphericalHarmonicsCache );
+
+        numericalTotalSphericalGradient.block( 0, parameter, 3, 1 ) =
+                ( upPerturbedTotalGradient - downPerturbedTotalGradient ) / ( 2.0 * cartesianStatePerturbation( parameter ) );
+
+    }
+
+
+    Eigen::Matrix3d totalGradientCartesianPartial =
+            computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
+                position, planetaryRadius, gravitationalParameter, cosineCoefficients, sineCoefficients,
+                sphericalHarmonicsCache );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                totalGradientCartesianPartial, numericalTotalSphericalGradient, 1.0E-6 );
+}
 
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
 {
@@ -319,9 +429,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
     const double gravitationalParameter = 3.986004418e14;
     const double planetaryRadius = 6378137.0;
 
-    const Eigen::MatrixXd cosineCoefficients =
+    Eigen::MatrixXd cosineCoefficients =
             ( Eigen::MatrixXd( 6, 6 ) <<
-              1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
               0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
               -4.841651437908150e-4, -2.066155090741760e-10, 2.439383573283130e-6, 0.0, 0.0, 0.0,
               9.571612070934730e-7, 2.030462010478640e-6, 9.047878948095281e-7,
@@ -330,7 +440,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
               6.867029137366810e-8, -6.292119230425290e-8, 6.520780431761640e-7,
               -4.518471523288430e-7, -2.953287611756290e-7, 1.748117954960020e-7
               ).finished( );
-    const Eigen::MatrixXd sineCoefficients =
+
+
+    Eigen::MatrixXd sineCoefficients =
             ( Eigen::MatrixXd( 6, 6 ) <<
               0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
               0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -366,7 +478,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
 
     basic_mathematics::Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, gravitationalParameter );
-    earth->setState( asterixInitialState );
+
+
+    vehicle->setState( asterixInitialState );
 
 
 
@@ -380,11 +494,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
                 boost::lambda::constant( sineCoefficients ),
                 boost::bind( &Body::getPosition, earth ) );
 
-    std::cout<<"A"<<std::endl;
     gravitationalAcceleration->updateMembers( 0.0 );
-    std::cout<<"B"<<std::endl;
     gravitationalAcceleration->getAcceleration( );
-    std::cout<<"C"<<std::endl;
+
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
@@ -394,7 +506,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
-    positionPerturbation<< 10.0, 10.0, 10.0;
+    positionPerturbation<<10.0, 10.0, 10.0;
     Eigen::Vector3d velocityPerturbation;
     velocityPerturbation<< 1.0E-3, 1.0E-3, 1.0E-3;
 
@@ -408,15 +520,18 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
     boost::function< basic_mathematics::Vector6d ( ) > vehicleStateGetFunction =
             boost::bind( &Body::getState, vehicle );
 
-    std::cout<<"D"<<std::endl;
 
-    Eigen::Matrix3d analyticalPartial = computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
-            asterixInitialState.segment( 0, 3 ), planetaryRadius,
-            gravitationalParameter, cosineCoefficients, sineCoefficients,
-                gravitationalAcceleration->getSphericalHarmonicsCache( ) );
-    std::cout<<"E"<<std::endl;
+    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+            gravitationalAcceleration->getSphericalHarmonicsCache( );
+    sphericalHarmonicsCache->getLegendreCache( )->setComputeSecondDerivatives( 1 );
 
-    std::cout<<"Analytical: "<<analyticalPartial<<std::endl;
+    Eigen::Matrix3d analyticalPartial =
+            computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
+                asterixInitialState.segment( 0, 3 ), planetaryRadius, gravitationalParameter,
+                cosineCoefficients, sineCoefficients, sphericalHarmonicsCache );
+
+
+
     // Calculate numerical partials.
     testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
                 earthStateSetFunction, gravitationalAcceleration, earth->getState( ), positionPerturbation, 0 );
@@ -427,10 +542,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
     testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
                 vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), velocityPerturbation, 3 );
 
-    std::cout<<testPartialWrtEarthPosition<<std::endl<<std::endl;
-    std::cout<<testPartialWrtEarthVelocity<<std::endl<<std::endl;
-    std::cout<<testPartialWrtVehiclePosition<<std::endl<<std::endl;
-    std::cout<<testPartialWrtVehicleVelocity<<std::endl<<std::endl;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, analyticalPartial, 1.0E-6 );
 
 
 }

@@ -35,12 +35,6 @@ void computePotentialSphericalHessian(
         const double legendrePolynomialSecondDerivative,
         Eigen::Matrix3d& sphericalHessian )
 {
-//    std::cout<<"Input "<<degree<<" "<<order<<" "<<radiusPowerTerm<<" "<<preMultiplier<<" "<<
-//               cosineHarmonicCoefficient<<" "<<
-//                      sineHarmonicCoefficient<<" "<<
-//                      legendrePolynomial<<" "<<
-//                      legendrePolynomialDerivative<<" "<<
-//                      legendrePolynomialSecondDerivative<<" "<<std::endl;
     sphericalHessian.setZero( );
 
     sphericalHessian( 0, 0 ) += static_cast< double >( degree + 1 ) * static_cast< double >( degree + 2 ) /
@@ -67,8 +61,6 @@ void computePotentialSphericalHessian(
 
 
     sphericalHessian *= preMultiplier * radiusPowerTerm;
-
-//    std::cout<<"Output:  "<<std::endl<<sphericalHessian<<std::endl<<std::endl;
 }
 
 void computePotentialSphericalHessian(
@@ -105,7 +97,6 @@ void computePotentialSphericalHessian(
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
         Eigen::Matrix3d& sphericalHessian )
 {
-    std::cout<<"Deg: "<<degree + 1<<" "<<shCache->getReferenceRadiusRatioPowers( degree + 1 )<<std::endl;
     computePotentialSphericalHessian(
                 sphericalPosition( 0 )  , shCache->getReferenceRadiusRatioPowers( degree + 1 ),
                 shCache->getCosineOfMultipleLongitude( order ), shCache->getSineOfMultipleLongitude( order ),
@@ -119,16 +110,13 @@ void computePotentialSphericalHessian(
                 sphericalHessian );
 }
 
-Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
-        const Eigen::Vector3d& cartesianPosition,
+Eigen::Matrix3d computeCumulativeSphericalHessian(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
         const Eigen::MatrixXd cosineHarmonicCoefficients,
         const Eigen::MatrixXd sineHarmonicCoefficients,
-        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
-        const Eigen::Vector3d& sphericalPotentialGradient,
-        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix )
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache )
 {
     double preMultiplier = gravitionalParameter / referenceRadius;
 
@@ -145,23 +133,30 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
             sphericalHessian += sphericalHessianTerm;
         }
     }
+    return sphericalHessian;
+
+}
+
+Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
+        const Eigen::Vector3d& cartesianPosition,
+        const Eigen::Vector3d& sphericalPosition,
+        const double referenceRadius,
+        const double gravitionalParameter,
+        const Eigen::MatrixXd cosineHarmonicCoefficients,
+        const Eigen::MatrixXd sineHarmonicCoefficients,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
+        const Eigen::Vector3d& sphericalPotentialGradient,
+        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix )
+{
+    Eigen::Matrix3d sphericalHessian = computeCumulativeSphericalHessian(
+                sphericalPosition, referenceRadius, gravitionalParameter, cosineHarmonicCoefficients,
+                sineHarmonicCoefficients, shCache );
 
     Eigen::Matrix3d accelerationPartial =
-            sphericalToCartesianGradientMatrix * sphericalHessian * sphericalToCartesianGradientMatrix.inverse( );
+            sphericalToCartesianGradientMatrix * sphericalHessian * sphericalToCartesianGradientMatrix.transpose( );
 
     accelerationPartial += coordinate_conversions::getDerivativeOfSphericalToCartesianGradient(
-                cartesianPosition, sphericalPotentialGradient );
-
-    std::cout<<"Contributions: "<<std::endl<<
-               sphericalToCartesianGradientMatrix<<std::endl<<std::endl<<
-               sphericalToCartesianGradientMatrix.inverse( )<<std::endl<<std::endl<<
-               sphericalHessian<<std::endl<<std::endl<<
-               sphericalToCartesianGradientMatrix * sphericalHessian * sphericalToCartesianGradientMatrix.inverse( )<<std::endl<<std::endl<<
-               coordinate_conversions::getDerivativeOfSphericalToCartesianGradient(
-                               cartesianPosition, sphericalPotentialGradient )<<std::endl;
-
-
-
+                sphericalPotentialGradient, cartesianPosition );
     return accelerationPartial;
 }
 
@@ -181,14 +176,10 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
             coordinate_conversions::convertCartesianToSpherical( cartesianPosition );
     sphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - sphericalPosition( 1 );
 
-    Eigen::Vector3d sphericalPotentialGradient = gradientTransformationMatrix.transpose( ) *
+    Eigen::Vector3d sphericalPotentialGradient = gradientTransformationMatrix.inverse( ) *
             gravitation::computeGeodesyNormalizedGravitationalAccelerationSum(
                 cartesianPosition, gravitionalParameter, referenceRadius, cosineHarmonicCoefficients, sineHarmonicCoefficients,
                 shCache );
-
-    std::cout<<"Spherical: "<<sphericalPosition<<std::endl<<std::endl;
-    std::cout<<"Inverse: "<<std::endl<<
-               gradientTransformationMatrix.inverse( )<<std::endl<<"Transpose: "<<std::endl<<gradientTransformationMatrix.transpose( )<<std::endl;
 
     return computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
                 cartesianPosition, sphericalPosition, referenceRadius, gravitionalParameter, cosineHarmonicCoefficients,

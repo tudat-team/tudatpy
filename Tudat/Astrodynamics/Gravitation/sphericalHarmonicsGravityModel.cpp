@@ -119,6 +119,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         }
     }
 
+
     // Convert from spherical gradient to Cartesian gradient (which equals acceleration vector) and
     // return the resulting acceleration vector.
     return coordinate_conversions::convertSphericalToCartesianGradient(

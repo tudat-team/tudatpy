@@ -18,6 +18,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
+
 #if USE_NRLMSISE00
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
 #include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00InputFunctions.h"
