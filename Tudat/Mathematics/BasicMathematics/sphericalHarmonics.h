@@ -202,7 +202,7 @@ private:
     void updateSines( const double longitude )
     {
         //! Check if update is needed.
-        if( !( currentLongitude_ == longitude ) )
+        //if( !( currentLongitude_ == longitude ) )
         {
             currentLongitude_ = longitude;
             for( unsigned int i = 0; i < sinesOfLongitude_.size( ); i++ )
@@ -221,7 +221,7 @@ private:
     void updateRadiusPowers( const double referenceRadiusRatio )
     {
         //! Check if update is needed.
-        if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
+        //if( !( referenceRadiusRatio_ == referenceRadiusRatio ) )
         {
             referenceRadiusRatio_ = referenceRadiusRatio;
             double currentRatioPower = 1.0;

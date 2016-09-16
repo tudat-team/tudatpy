@@ -355,6 +355,39 @@ public:
         return sphericalHarmonicsCache_;
     }
 
+    double getReferenceRadius( )
+    {
+        return equatorialRadius;
+    }
+
+    //! Matrix of cosine coefficients.
+    /*!
+     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
+     */
+    CoefficientMatrixReturningFunction getCosineHarmonicCoefficientsFunction( )
+    {
+        return getCosineHarmonicsCoefficients;
+    }
+
+    //! Matrix of sine coefficients.
+    /*!
+     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
+     */
+    CoefficientMatrixReturningFunction getSineHarmonicCoefficientsFunction( )
+    {
+        return getSineHarmonicsCoefficients;
+    }
+
+    Eigen::Quaterniond getCurrentRotationToIntegrationFrame( )
+    {
+        return rotationToIntegrationFrame_;
+    }
+
+    Eigen::Matrix3d getCurrentRotationToIntegrationFrameMatrix( )
+    {
+        return rotationToIntegrationFrame_.toRotationMatrix( );
+    }
+
 protected:
 
 private:

@@ -52,6 +52,7 @@
  */
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 namespace tudat
@@ -68,6 +69,20 @@ Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
     eulerAngles( 1 ) = std::asin( rotationMatrix( 0, 1 ) );
     eulerAngles( 2 ) = std::atan2( -rotationMatrix( 0, 2 ), rotationMatrix( 0, 0 ) );
     return eulerAngles;
+}
+
+Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
+        const Eigen::Matrix3d& rotationMatrixFromInertialToPlanetFixedFrame )
+{
+    Eigen::Vector3d rotationAngles;
+    rotationAngles.x( ) = basic_mathematics::computeModulo(
+                std::atan2( rotationMatrixFromInertialToPlanetFixedFrame( 2, 0 ),
+                            -rotationMatrixFromInertialToPlanetFixedFrame( 2, 1 ) ) - mathematical_constants::PI / 2.0,
+                2.0 * mathematical_constants::PI );//right ascension
+    rotationAngles.y( ) = -std::acos( rotationMatrixFromInertialToPlanetFixedFrame( 2, 2 ) ) + mathematical_constants::PI / 2.0 ; //declination
+    rotationAngles.z( ) = std::atan2( rotationMatrixFromInertialToPlanetFixedFrame( 0, 2 ),
+                                      rotationMatrixFromInertialToPlanetFixedFrame( 1, 2 ) );//longitude of prime meridian
+    return rotationAngles;
 }
 
 //! Wrapper function to transform a vector to a different frame from a single rotation function.

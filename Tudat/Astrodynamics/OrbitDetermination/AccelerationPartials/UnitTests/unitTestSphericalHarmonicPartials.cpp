@@ -94,11 +94,17 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
               -2.149554083060460e-7, 4.980705501023510e-8, -6.693799351801650e-7
               ).finished( );
 
-    const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
+    Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
+    Eigen::Vector3d nominalSphericalPosition = coordinate_conversions::
+            convertCartesianToSpherical( position );
+    nominalSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 -
+            nominalSphericalPosition( 1 );
 
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache
             = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 );
-
+    sphericalHarmonicsCache->update(
+                nominalSphericalPosition( 0 ), std::sin( nominalSphericalPosition( 1 ) ), nominalSphericalPosition( 2 ),
+                planetaryRadius );
     boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache = sphericalHarmonicsCache->getLegendreCache( );
 
     double currentLongitude = sphericalHarmonicsCache->getCurrentLongitude( );
@@ -169,6 +175,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
         }
     }
 
+
     std::vector< std::vector< Eigen::Vector3d > > sphericalPotentialGradients;
 
     std::vector< std::vector< Eigen::Matrix3d > > upPerturbedSphericalPotentialGradients;
@@ -176,11 +183,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
 
     std::vector< std::vector< Eigen::Matrix3d > > numericalSphericalPotentialHessian;
     std::vector< std::vector< Eigen::Matrix3d > > analyticalSphericalPotentialHessian;
-
-    Eigen::Vector3d nominalSphericalPosition = coordinate_conversions::
-            convertCartesianToSpherical( position );
-    nominalSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 -
-            nominalSphericalPosition( 1 );
 
     Eigen::Matrix3d normalization;
     normalization <<  nominalSphericalPosition( 0 ) * nominalSphericalPosition( 0 ), nominalSphericalPosition( 0 ), nominalSphericalPosition( 0 ),
@@ -422,6 +424,13 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
 
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
 {
+    //Load spice kernels.
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
+    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+
     // Create empty bodies, earth and vehicle.
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
     boost::shared_ptr< Body > vehicle = boost::make_shared< Body >( );
@@ -457,10 +466,20 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
     bodyMap[ "Earth" ] = earth;
     bodyMap[ "Vehicle" ] = vehicle;
 
-    // Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > earthGravityField =
+            boost::make_shared< gravitation::SphericalHarmonicsGravityField  >(
+                gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients, "IAU_Earth" );
+
+    earth->setGravityFieldModel( earthGravityField );
+
+    boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
+            boost::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000" , "IAU_Earth", 0.0 ),
+                2.0 * mathematical_constants::PI / 86400.0,
+                1.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000,
+                "ECLIPJ2000" , "IAU_Earth" );
+
+    earth->setRotationalEphemeris( simpleRotationalEphemeris );
 
     // Set current state of vehicle and earth.
     earth->setState( basic_mathematics::Vector6d::Zero( ) );
@@ -485,18 +504,14 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
 
 
     // Create acceleration due to vehicle on earth.
+    boost::shared_ptr< SphericalHarmonicAccelerationSettings > accelerationSettings =
+            boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 );
     boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > gravitationalAcceleration =
-            boost::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
-                boost::bind( &Body::getPosition, vehicle ),
-                boost::lambda::constant( gravitationalParameter ),
-                planetaryRadius,
-                boost::lambda::constant( cosineCoefficients ),
-                boost::lambda::constant( sineCoefficients ),
-                boost::bind( &Body::getPosition, earth ) );
+            boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
+                createAccelerationModel( vehicle, earth, accelerationSettings, "Vehicle", "Earth" ) );
 
     gravitationalAcceleration->updateMembers( 0.0 );
-    gravitationalAcceleration->getAcceleration( );
-
+    Eigen::Vector3d nominalAcceleration = gravitationalAcceleration->getAcceleration( );
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
@@ -521,28 +536,131 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
             boost::bind( &Body::getState, vehicle );
 
 
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
-            gravitationalAcceleration->getSphericalHarmonicsCache( );
-    sphericalHarmonicsCache->getLegendreCache( )->setComputeSecondDerivatives( 1 );
 
-    Eigen::Matrix3d analyticalPartial =
-            computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
-                asterixInitialState.segment( 0, 3 ), planetaryRadius, gravitationalParameter,
-                cosineCoefficients, sineCoefficients, sphericalHarmonicsCache );
+    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter) );
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", constant_rotation_rate ) );
+    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", rotation_pole_position ) );
+
+    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                                  2, 0, 5, 4, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+    parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                                  2, 1, 5, 4, "Earth", spherical_harmonics_sine_coefficient_block ) );
+
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+            createParametersToEstimate( parameterNames, bodyMap );
+
+    // Create acceleration partial object.
+    boost::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartial =
+            boost::dynamic_pointer_cast< SphericalHarmonicsGravityPartial > (
+                createAnalyticalAccelerationPartial(
+                    gravitationalAcceleration, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Earth", earth ),
+                    bodyMap, parameterSet ) );
+
+    double testTime = 1.0E6;
+    earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+
+    accelerationPartial->update( testTime );
+
+    Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+
 
 
 
     // Calculate numerical partials.
-    testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
-                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), positionPerturbation, 0 );
-    testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
-                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), velocityPerturbation, 3 );
     testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
                 vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), positionPerturbation, 0 );
     testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
                 vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), velocityPerturbation, 3 );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, analyticalPartial, 1.0E-6 );
+    testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), positionPerturbation, 0 );
+    testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), velocityPerturbation, 3 );
+
+
+
+    // Calculate numerical partials.
+    std::map< int, boost::shared_ptr< EstimatableParameter< double > > > doubleParameters =
+            parameterSet->getDoubleParameters( );
+    std::map< int, boost::shared_ptr< EstimatableParameter< double > > >::iterator doubleParametersIterator =
+            doubleParameters.begin( );
+
+    Eigen::Vector3d testPartialWrtEarthGravitationalParameter = calculateAccelerationWrtParameterPartials(
+                doubleParametersIterator->second, gravitationalAcceleration, 1.0E12 );
+    Eigen::Vector3d partialWrtEarthGravitationalParameter = accelerationPartial->wrtParameter(
+                doubleParametersIterator->second );
+    doubleParametersIterator++;
+
+    Eigen::Vector3d partialWrtEarthRotationRate = accelerationPartial->wrtParameter(
+                doubleParametersIterator->second );
+    Eigen::Vector3d testPartialWrtEarthRotationRate = calculateAccelerationWrtParameterPartials(
+                doubleParametersIterator->second, gravitationalAcceleration, 1.0E-12, &emptyFunction, testTime, boost::bind(
+                    &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, _1 ) );
+
+
+
+
+    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+            parameterSet->getVectorParameters( );
+    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >::iterator vectorParametersIterator =
+            vectorParameters.begin( );
+    Eigen::MatrixXd partialWrtPolePosition = accelerationPartial->wrtParameter(
+                vectorParametersIterator->second );
+    Eigen::MatrixXd testPartialWrtPosition = calculateAccelerationWrtParameterPartials(
+                vectorParametersIterator->second, gravitationalAcceleration, Eigen::Vector2d::Constant( 1.0E-6 ),
+                &emptyFunction, testTime, boost::bind(
+                    &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, _1 ) );
+    vectorParametersIterator++;
+
+    Eigen::MatrixXd partialWrtCosineCoefficients = accelerationPartial->wrtParameter(
+                vectorParametersIterator->second );
+    Eigen::MatrixXd testPartialWrtCosineCoefficients = calculateAccelerationWrtParameterPartials(
+                vectorParametersIterator->second, gravitationalAcceleration, vectorParametersIterator->second->getParameterValue( ) * 1.0E-2 );
+    vectorParametersIterator++;
+
+    Eigen::MatrixXd partialWrtSineCoefficients = accelerationPartial->wrtParameter(
+                vectorParametersIterator->second );
+    Eigen::MatrixXd testPartialWrtSineCoefficients = calculateAccelerationWrtParameterPartials(
+                vectorParametersIterator->second, gravitationalAcceleration, vectorParametersIterator->second->getParameterValue( ) * 1.0E-2 );
+
+
+
+    //    Eigen::Vector3d testPartialWrtPolePosition = calculateAccelerationWrtParameterPartials(
+    //                earthPolePosition, accelerationModel, ( Eigen::VectorXd( 2 ) << 1.0E-4, 1.0E-4 ).finished( ), &emptyFunction, 1.0E6, boost::bind(
+    //                    &CelestialBody::setCurrentRotationToLocalFrameFromEphemeris, earth, _1 ) );
+    //    Eigen::MatrixXd testPartialWrtCosineCoefficients = calculateAccelerationWrtParameterPartials(
+    //                cosineCoefficients, accelerationModel, cosineCoefficients->getParameterValue( ) * 1.0E-2 );
+    //    Eigen::MatrixXd testPartialWrtSineCoefficients = calculateAccelerationWrtParameterPartials(
+    //                sineCoefficients, accelerationModel, sineCoefficients->getParameterValue( ) * 1.0E-2 );
+
+    //    Eigen::Vector3d partialWrtEarthPolePosition = accelerationPartial->wrtParameter(
+    //                earthPolePosition );
+    //    Eigen::MatrixXd partialWrtCosineCoefficients = accelerationPartial->wrtParameter(
+    //                cosineCoefficients );
+    //    Eigen::MatrixXd partialWrtSineCoefficients = accelerationPartial->wrtParameter(
+    //                sineCoefficients );
+
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-6 );
+
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter, partialWrtEarthGravitationalParameter, 1.0E-12 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthRotationRate, partialWrtEarthRotationRate, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPosition, partialWrtPolePosition, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtCosineCoefficients, partialWrtCosineCoefficients, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSineCoefficients, partialWrtSineCoefficients, 1.0E-6 );
 
 
 }

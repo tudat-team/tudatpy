@@ -77,6 +77,9 @@ namespace reference_frames
 Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
         const Eigen::Matrix3d& rotationMatrix );
 
+Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
+        const Eigen::Matrix3d& rotationMatrixFromInertialToPlanetFixedFrame );
+
 //! Wrapper function to transform a vector to a different frame from a single rotation function.
 /*!
  * Wrapper function to transform a vector to a different frame from a single rotation function.
