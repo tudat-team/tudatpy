@@ -81,6 +81,9 @@ public:
           inputReferenceJulianDay_( inputReferenceJulianDay )
     {
         auxiliaryMatrix_<< 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+
+        initialEulerAngles_ = reference_frames::calculateInertialToPlanetFixedRotationAnglesFromMatrix(
+                    Eigen::Matrix3d( initialRotationToTargetFrame_ ) );
     }
 
     //! Constructor from rotation state angles.
@@ -117,6 +120,11 @@ public:
           inputReferenceJulianDay_( inputReferenceJulianDay )
     {
         auxiliaryMatrix_<< 0.0, 1.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+
+        // Set vector of euler angles
+        initialEulerAngles_.x( ) = poleRightAscension;
+        initialEulerAngles_.y( ) = poleDeclination;
+        initialEulerAngles_.z( ) = primeMeridianOfDate;
     }
 
     //! Calculate rotation quaternion from target frame to base frame.
@@ -184,7 +192,7 @@ public:
      * Returns rotation from target to base frame at initial time.
      * \return Rotation quaternion at initial time.
      */
-    Eigen::Quaterniond getInitialRotationalState( ) { return initialRotationToTargetFrame_; }
+    Eigen::Quaterniond getInitialRotationToTargetFrame( ) { return initialRotationToTargetFrame_; }
 
     //! Get seconds since epoch at which initialRotationToTargetFrame_ is valid.
     /*!
@@ -207,31 +215,55 @@ public:
      */
     double getRotationRate( ) { return rotationRate_; }
 
+    void resetRotationRate( const double rotationRate ) { rotationRate_ = rotationRate; }
+
+    //! Function to get vector of euler angles at initialSecondsSinceEpoch_
+    /*!
+     *  Function to get vector of euler angles at initialSecondsSinceEpoch_, in order right ascension, declination, prime meridian.
+     *  \return Vector of euler angles at initialSecondsSinceEpoch_, in order right ascension, declination, prime meridian.
+     */
+    Eigen::Vector3d getInitialEulerAngles( )
+    {
+        return initialEulerAngles_;
+    }
+
+    //! Function to reset the right ascension and declination of body's north pole.
+    /*!
+     *  Function to reset the right ascension and declination of body's north pole, recalculates the initialRotationToOriginalFrame_ member.
+     *  \param rightAscension New right ascension of north pole.
+     *  \param rightAscension New declination of north pole.
+     */
+    void resetInitialPoleRightAscensionAndDeclination( const double rightAscension,
+                                                       const double declination );
+
+
 private:
 
     //! Rotation rate of body (about local z-axis).
     /*!
      * Rotation rate of body (about local z-axis).
      */
-     const double rotationRate_;
+     double rotationRate_;
 
     //! Rotation from target to base frame at initial time.
     /*!
      * Rotation from target to base frame at initial time.
      */
-    const Eigen::Quaterniond initialRotationToTargetFrame_;
+    Eigen::Quaterniond initialRotationToTargetFrame_;
 
     //! Seconds since epoch at which initialRotationToTargetFrame_ is valid.
     /*!
      * Seconds since epoch at which initialRotationToTargetFrame is valid.
      */
-    const double initialSecondsSinceEpoch_;
+    double initialSecondsSinceEpoch_;
 
     //! Julian day of reference epoch.
     /*!
      * Julian day of reference epoch.
      */
-   const  double inputReferenceJulianDay_;
+    double inputReferenceJulianDay_;
+
+   Eigen::Vector3d initialEulerAngles_;
 
    //! Auxiliary matrix used to calculate the time derivative of a rotation matrix.
    Eigen::Matrix3d auxiliaryMatrix_;

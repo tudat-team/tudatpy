@@ -83,6 +83,26 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::MatrixXd sineHarmonicCoefficients,
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache );
 
+void calculateSphericalHarmonicGravityWrtCCoefficients(
+        const Eigen::Vector3d& sphericalPosition,
+        const double referenceRadius,
+        const double gravitionalParameter,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
+        const std::map< int, std::pair< int, int > >& blockIndices,
+        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
+        const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
+        Eigen::MatrixXd& partialsMatrix );
+
+void calculateSphericalHarmonicGravityWrtSCoefficients(
+        const Eigen::Vector3d& sphericalPosition,
+        const double referenceRadius,
+        const double gravitionalParameter,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
+        const std::map< int, std::pair< int, int > >& blockIndices,
+        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
+        const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
+        Eigen::MatrixXd& partialsMatrix  );
+
 }
 
 }

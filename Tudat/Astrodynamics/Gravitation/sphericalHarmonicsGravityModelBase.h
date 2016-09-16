@@ -176,6 +176,17 @@ public:
         return isMutualAttractionUsed_;
     }
 
+    StateMatrix getCurrentPositionOfBodySubjectToAcceleration( )
+    {
+        return positionOfBodySubjectToAcceleration;
+    }
+
+    StateMatrix getCurrentPositionOfBodyExertingAcceleration( )
+    {
+        return positionOfBodyExertingAcceleration;
+    }
+
+
 protected:
 
     //! Position of body subject to acceleration.

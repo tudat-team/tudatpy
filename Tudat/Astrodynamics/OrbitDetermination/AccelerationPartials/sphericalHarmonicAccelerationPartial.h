@@ -47,9 +47,6 @@ public:
      *  \param gravityField Spherical harmonic gravity field of the body exerting the acceleration.
      *  \param rotationMatrixPartials Map of RotationMatrixPartial, one for each paramater representing a property of the rotation of the
      *  body exerting the acceleration wrt which an acceleration partial will be calculated.
-     *  \param tidalLoveNumberPartialInterfaces Map of TidalLoveNumberPartialInterface, one for each tidal GravityFieldVariations
-     *  model of the body exerting the acceleration containing a parameter wrt which an acceleration partial will be calculated
-     *  (a single object is needed for for calculating partials wrt multiple parameters of the same GravityFieldVariations model).
      */
     SphericalHarmonicsGravityPartial(
             const std::string& acceleratedBody,
@@ -155,7 +152,7 @@ public:
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
 
-    virtual std::pair< boost::function< Eigen::MatrixXd( ) >, int > getGravitationalParameterPartialFunction(
+    virtual std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getGravitationalParameterPartialFunction(
             const estimatable_parameters::EstimatebleParameterIdentifier& parameterId );
 
     //! Function for updating the partial object to current state and time.
@@ -175,11 +172,11 @@ public:
      *  to the partial wrt to the body undergoing the acceleration, which is zero otherwise.
      *  \return Partial wrt the gravitational parameter of the central body.
      */
-    virtual Eigen::Vector3d wrtGravitationalParameterOfCentralBody( )
+    void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix )
     {
         if( gravitationalParameterFunction_( ) != 0.0 )
         {
-            return accelerationFunction_( ) / gravitationalParameterFunction_( );
+            partialMatrix = accelerationFunction_( ) / gravitationalParameterFunction_( );
         }
         else
         {
@@ -221,7 +218,7 @@ public:
 
     boost::function< Eigen::Matrix3d( ) > getToBodyFixedFrameRotation( )
     {
-        return toBodyFixedFrameRotation_;
+        return fromBodyFixedToIntegrationFrameRotation_;
     }
 
     boost::function< void( const double ) > getUpdateFunction( )
@@ -286,8 +283,9 @@ protected:
      *  \return Matrix of acceleration partials, with each column containg the partial wrt a single coefficient, the order of the partials is first in
      *  order of increasing degree, followed by increasing order, for instance (2,1),(2,2),(3,1),(3,2),(4,1)....
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > wrtCosineCoefficientBlock(
-            const std::map< int, std::pair< int, int > >& blockIndices, const int numberOfParameters );
+    void wrtCosineCoefficientBlock(
+            const std::map< int, std::pair< int, int > >& blockIndices,
+            Eigen::MatrixXd& partialDerivatives );
 
     //! Function to calculate the partial of the acceleration wrt a set of sine coefficients.
     /*!
@@ -301,8 +299,9 @@ protected:
      *  \return Matrix of acceleration partials, with each column containg the partial wrt a single coefficient, the order of the partials is first in
      *  order of increasing degree, followed by increasing order, for instance (2,1),(2,2),(3,1),(3,2),(4,1)....
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > wrtSineCoefficientBlock(
-            const std::map< int, std::pair< int, int > >& blockIndices, const int numberOfParameters );
+    void wrtSineCoefficientBlock(
+            const std::map< int, std::pair< int, int > >& blockIndices,
+            Eigen::MatrixXd& partialDerivatives );
 
     //! Function to calculate an acceleration partial wrt a rotational parameter.
     /*!
@@ -311,7 +310,8 @@ protected:
      *  rotationMatrixPartials_ map.
      *  \return Partial of spherical harmonic acceleration wrt a rotational parameter.
      */
-    Eigen::Matrix< double, 3, Eigen::Dynamic > wrtRotationModelParameter(
+    void wrtRotationModelParameter(
+            Eigen::MatrixXd& accelerationPartial,
             const estimatable_parameters::EstimatebleParametersEnum parameterType,
             const std::string& secondaryIdentifier );
 
@@ -362,7 +362,7 @@ protected:
     /*!
      *  Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
      */
-    boost::function< Eigen::Matrix3d( ) > toBodyFixedFrameRotation_;
+    boost::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
 
     //! Function to update the acceleration to the current state and time.
     /*!
@@ -388,6 +388,9 @@ protected:
      *  Current sine coefficients of the spherical harmonic gravity field, set by update( time ) function.
      */
     Eigen::MatrixXd currentSineCoefficients_;
+
+    Eigen::Vector3d bodyFixedPosition_;
+
 
     //! Current spherical coordinate of body undergoing acceleration
     /*!

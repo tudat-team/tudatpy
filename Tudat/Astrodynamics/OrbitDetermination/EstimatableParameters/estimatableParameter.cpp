@@ -37,6 +37,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case radiation_pressure_coefficient:
         isDoubleParameter = true;
         break;
+    case spherical_harmonics_cosine_coefficient_block:
+        isDoubleParameter = false;
+        break;
+    case spherical_harmonics_sine_coefficient_block:
+        isDoubleParameter = false;
+        break;
+    case constant_rotation_rate:
+        isDoubleParameter = true;
+        break;
+    case rotation_pole_position:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
                                   " not found when getting parameter type" );
@@ -44,6 +56,23 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     return isDoubleParameter;
 }
 
+bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum parameterType )
+{
+    bool flag;
+    switch( parameterType )
+    {
+    case constant_rotation_rate:
+        flag = true;
+        break;
+    case rotation_pole_position:
+        flag = true;
+        break;
+    default:
+        flag = false;
+        break;
+    }
+    return flag;
+}
 
 
 

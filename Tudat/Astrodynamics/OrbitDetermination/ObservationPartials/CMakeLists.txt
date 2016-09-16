@@ -42,33 +42,22 @@
  #      111026    K. Kumar          Adapted file so all headers show in project tree in Qt Creator.
  #/
 
-set(ACCELERATIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/AccelerationPartials")
-set(ESTIMATABLEPARAMETERSDIR "${ORBITDETERMINATIONDIR}/EstimatableParameters")
-set(OBSERVATIONPARTIALSDIR "${ORBITDETERMINATIONDIR}/ObservationPartials")
-
-# Add subdirectories.
-add_subdirectory("${SRCROOT}${ACCELERATIONPARTIALSDIR}")
-add_subdirectory("${SRCROOT}${ESTIMATABLEPARAMETERSDIR}")
-add_subdirectory("${SRCROOT}${OBSERVATIONPARTIALSDIR}")
-
-# Get target properties for static libraries.
-get_target_property(ACCELERATIONPARTIALSSOURCES tudat_acceleration_partials SOURCES)
-get_target_property(ESTIMATABLEPARAMETERSOURCES tudat_estimatable_parameters SOURCES)
-get_target_property(OBSERVATIONPARTIALSSOURCES tudat_observation_partials SOURCES)
-
 # Set the source files.
-set(ORBIT_DETERMINATION_SOURCES
-  "${SRCROOT}${ORBITDETERMINATIONDIR}/stateDerivativePartial.cpp"
+set(OBSERVATION_PARTIALS_SOURCES
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.cpp"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createPositionPartials.cpp"
 )
 
 # Set the header files.
-set(ORBIT_DETERMINATION_HEADERS
-  "${SRCROOT}${ORBITDETERMINATIONDIR}/stateDerivativePartial.h"
+set(OBSERVATION_PARTIALS_HEADERS
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/rotationMatrixPartial.h"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/createPositionPartials.h"
 )
 
-
 # Add static libraries.
-add_library(tudat_orbit_determination STATIC ${ORBIT_DETERMINATION_SOURCES} ${ORBIT_DETERMINATION_HEADERS})
-setup_tudat_library_target(tudat_orbit_determination "${SRCROOT}{ORBITDETERMINATIONDIR}")
+add_library(tudat_observation_partials STATIC ${OBSERVATION_PARTIALS_SOURCES} ${OBSERVATION_PARTIALS_HEADERS})
+setup_tudat_library_target(tudat_observation_partials "${SRCROOT}{OBSERVATIONPARTIALSDIR}")
 
-
+add_executable(test_RotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestRotationMatrixPartials.cpp")
+setup_custom_test_program(test_RotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
+target_link_libraries(test_RotationMatrixPartials ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})

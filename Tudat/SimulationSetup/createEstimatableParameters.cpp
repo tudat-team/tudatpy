@@ -1,4 +1,8 @@
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationRate.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/constantRotationalOrientation.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
 #include "Tudat/SimulationSetup/createEstimatableParameters.h"
 
@@ -89,6 +93,22 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
             }
             break;
         }
+        case constant_rotation_rate:
+        {
+            if( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == NULL )
+            {
+                std::string errorMessage = "Warning, no simple rotational ephemeris present in body " + currentBodyName +
+                        " when making constant rotation rate parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                doubleParameterToEstimate = boost::make_shared< RotationRate >(
+                            boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >
+                            ( currentBody->getRotationalEphemeris( ) ), currentBodyName );
+            }
+            break;
+        }
         default:
             throw std::runtime_error( "Warning, this double parameter has not yet been implemented when making parameters" );
             break;
@@ -132,6 +152,131 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
 
         switch( vectorParameterName->parameterType_.first )
         {
+        case rotation_pole_position:
+            if( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == NULL )
+            {
+                std::string errorMessage = "Warning, no simple rotational ephemeris present in body " + currentBodyName +
+                        " when making constant rotation orientation parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ConstantRotationalOrientation >
+                        ( boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >
+                          ( currentBody->getRotationalEphemeris( ) ), currentBodyName );
+
+            }
+            break;
+        case spherical_harmonics_cosine_coefficient_block:
+        {
+            boost::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
+            boost::shared_ptr< SphericalHarmonicsGravityField > shGravityField =
+                    boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( gravityField );
+            if( shGravityField == NULL )
+            {
+                std::string errorMessage = "Error, requested spherical harmonic cosine coefficient block parameter of " +
+                        boost::lexical_cast< std::string >( vectorParameterName->parameterType_.second.first ) +
+                        ", but body does not have a spherical harmonic gravity field.";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentShField =
+                        boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( shGravityField );
+
+                boost::function< Eigen::MatrixXd( ) > getCosineCoefficientsFunction;
+                boost::function< void( Eigen::MatrixXd ) > setCosineCoefficientsFunction;
+
+                if( timeDependentShField == NULL )
+                {
+                    getCosineCoefficientsFunction = boost::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
+                                                                 shGravityField );
+                    setCosineCoefficientsFunction = boost::bind( &SphericalHarmonicsGravityField::setCosineCoefficients,
+                                                                 shGravityField, _1 );
+                }
+                else
+                {
+                    getCosineCoefficientsFunction = boost::bind( &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
+                                                                 timeDependentShField );
+                    setCosineCoefficientsFunction = boost::bind( &TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
+                                                                 timeDependentShField, _1 );
+                }
+                boost::shared_ptr< SphericalHarmonicEstimatableParameterSettings > blockParameterSettings =
+                        boost::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( vectorParameterName );
+                if( blockParameterSettings != NULL )
+                {
+                    vectorParameterToEstimate = boost::make_shared< SphericalHarmonicsCosineCoefficients >(
+                                getCosineCoefficientsFunction,
+                                setCosineCoefficientsFunction,
+                                blockParameterSettings->minimumDegree_,
+                                blockParameterSettings->minimumOrder_,
+                                blockParameterSettings->maximumDegree_,
+                                blockParameterSettings->maximumOrder_,
+                                vectorParameterName->parameterType_.second.first );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error, expected SphericalHarmonicEstimatableParameterSettings for cosine coefficients" );
+                }
+            }
+            break;
+        }
+        case spherical_harmonics_sine_coefficient_block:
+        {
+            boost::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
+            boost::shared_ptr< SphericalHarmonicsGravityField > shGravityField =
+                    boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( gravityField );
+            if( shGravityField == NULL )
+            {
+                std::string errorMessage = "Error, requested spherical harmonic sine coefficient block parameter of " +
+                        boost::lexical_cast< std::string >( vectorParameterName->parameterType_.second.first ) +
+                        ", but body does not have a spherical harmonic gravity field.";
+                throw std::runtime_error( errorMessage );
+
+            }
+            else
+            {
+                boost::shared_ptr< SphericalHarmonicEstimatableParameterSettings > blockParameterSettings =
+                        boost::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( vectorParameterName );
+
+                boost::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction;
+                boost::function< void( Eigen::MatrixXd ) > setSineCoefficientsFunction;
+                boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentShField =
+                        boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( shGravityField );
+
+                if( timeDependentShField == NULL )
+                {
+                    getSineCoefficientsFunction = boost::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
+                                                               shGravityField );
+                    setSineCoefficientsFunction = boost::bind( &SphericalHarmonicsGravityField::setSineCoefficients,
+                                                               shGravityField, _1 );
+                }
+                else
+                {
+                    getSineCoefficientsFunction = boost::bind( &TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients,
+                                                               timeDependentShField );
+                    setSineCoefficientsFunction = boost::bind( &TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
+                                                               timeDependentShField, _1 );
+                }
+                if( blockParameterSettings != NULL )
+                {
+                    vectorParameterToEstimate = boost::make_shared< SphericalHarmonicsSineCoefficients >(
+                                getSineCoefficientsFunction,
+                                setSineCoefficientsFunction,
+                                blockParameterSettings->minimumDegree_,
+                                blockParameterSettings->minimumOrder_,
+                                blockParameterSettings->maximumDegree_,
+                                blockParameterSettings->maximumOrder_,
+                                vectorParameterName->parameterType_.second.first );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error, expected SphericalHarmonicEstimatableParameterSettings for sine coefficients" );
+                }
+            }
+
+            break;
+        }
         default:
             std::string errorMessage = "Warning, this vector parameter (" +
                     boost::lexical_cast< std::string >( vectorParameterName->parameterType_.first ) +

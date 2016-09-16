@@ -25,8 +25,11 @@ enum EstimatebleParametersEnum
     initial_body_state,
     gravitational_parameter,
     constant_drag_coefficient,
-    radiation_pressure_coefficient
-
+    radiation_pressure_coefficient,
+    spherical_harmonics_cosine_coefficient_block,
+    spherical_harmonics_sine_coefficient_block,
+    constant_rotation_rate,
+    rotation_pole_position
 };
 
 //! Function to determine whether the given parameter represents an initial dynamical state, or a static parameter.
@@ -44,6 +47,9 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
  * \return True if parameter is a double parameter.
  */
 bool isDoubleParameter( const EstimatebleParametersEnum parameterType );
+
+bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum parameterType );
+
 
 //! Typedef for full parameter identifier.
 typedef std::pair< EstimatebleParametersEnum, std::pair< std::string, std::string > > EstimatebleParameterIdentifier;
@@ -421,6 +427,35 @@ public:
      */
     EstimatebleParameterIdentifier parameterType_;
 
+};
+
+//! Class for providing settings spherical harmonic coefficient(s) parameter
+class SphericalHarmonicEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+    SphericalHarmonicEstimatableParameterSettings( const int minimumDegree,
+                                                   const int minimumOrder,
+                                                   const int maximumDegree,
+                                                   const int maximumOrder,
+                                                   const std::string associatedBody,
+                                                   const EstimatebleParametersEnum parameterType ):
+        EstimatableParameterSettings( associatedBody, parameterType ), minimumDegree_( minimumDegree ),
+        minimumOrder_( minimumOrder ), maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
+    {
+        if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
+                ( parameterType != spherical_harmonics_sine_coefficient_block ) )
+        {
+            std::cerr<<"Error when making spherical harmonic parameter settings, input parameter type is inconsistent."<<std::endl;
+        }
+    }
+
+    int minimumDegree_;
+
+    int minimumOrder_;
+
+    int maximumDegree_;
+
+    int maximumOrder_;
 };
 
 //! Class to define settings for estimating an initial translational state.
