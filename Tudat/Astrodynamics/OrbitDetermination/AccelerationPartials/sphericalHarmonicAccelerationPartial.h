@@ -1,6 +1,15 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_SPHERICALHARMONICACCELERATIONPARTIAL_H
 #define TUDAT_SPHERICALHARMONICACCELERATIONPARTIAL_H
-
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 
@@ -18,10 +27,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 //! Class for calculating partial derivatives of a spherical harmonic gravitational acceleration.
@@ -195,32 +201,26 @@ protected:
     /*!
      *  Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
      *  The set of coefficients wrt which a partial is to be taken is provided as input.
-     *  \param blockIndices List of cosine coefficient indices wrt which the partials are to be taken.
-     *  The key of the map is the degree, the value is the start order and the number of order in the current degree wrt
-     *  which the partials are to be taken. For instance, an entry (4, (2, 3 ) ) means that partials a degree 4 and order
-     *  2,3 and 4 are to be calculated.
+     *  \param blockIndices List of cosine coefficient indices wrt which the partials are to be taken (first and second
+     *  are degree and order for each vector entry).
      *  \param partialDerivatives Matrix of acceleration partials that is set by this function (returned by reference),
-     *  with each column containg the partial wrt a single coefficient, the order of the partials is first in
-     *  order of increasing degree, followed by increasing order, for instance (2,1),(2,2),(3,1),(3,2),(4,1)....
+     *  with each column containg the partial wrt a single coefficient (in same order as blockIndices).
      */
     void wrtCosineCoefficientBlock(
-            const std::map< int, std::pair< int, int > >& blockIndices,
+            const std::vector< std::pair< int, int > >& blockIndices,
             Eigen::MatrixXd& partialDerivatives );
 
     //! Function to calculate the partial of the acceleration wrt a set of sine coefficients.
     /*!
      *  Function to calculate the partial of the acceleration wrt a set of sine coefficients.
      *  The set of coefficients wrt which a partial is to be taken is provided as input.
-     *  \param blockIndices List of sine coefficient indices wrt which the partials are to be taken.
-     *  The key of the map is the degree, the value is the start order and the number of order in the current degree wrt
-     *  which the partials are to be taken. For instance, an entry (4, (2, 3 ) ) means that partials a degree 4 and order
-     *  2,3 and 4 are to be calculated.
+     *  \param blockIndices List of sine coefficient indices wrt which the partials are to be taken (first and second
+     *  are degree and order for each vector entry).
      *  \param partialDerivatives Matrix of acceleration partials that is set by this function (returned by reference),
-     *  with each column containg the partial wrt a single coefficient, the order of the partials is first in
-     *  order of increasing degree, followed by increasing order, for instance (2,1),(2,2),(3,1),(3,2),(4,1)....
+     *  with each column containg the partial wrt a single coefficient (in same order as blockIndices).
      */
     void wrtSineCoefficientBlock(
-            const std::map< int, std::pair< int, int > >& blockIndices,
+            const std::vector< std::pair< int, int > >& blockIndices,
             Eigen::MatrixXd& partialDerivatives );
 
     //! Function to calculate an acceleration partial wrt a rotational parameter.
@@ -363,8 +363,6 @@ protected:
     bool accelerationUsesMutualAttraction_;
 
 };
-
-}
 
 }
 

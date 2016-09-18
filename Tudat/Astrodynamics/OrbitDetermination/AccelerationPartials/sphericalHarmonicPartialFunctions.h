@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H
 #define TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H
 
@@ -10,10 +20,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 //! Function to compute the spherical Hessian of a single term of a spherical harmonic potential
@@ -200,10 +207,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
  *  \param referenceRadius Reference radius of spherical harmonic potential.
  *  \param gravitionalParameter Gravitational parameter used for spherical harmonic expansion
  *  \param sphericalHarmonicsCache Cache object containing precomputed spherical harmonics terms.
- *  \param blockIndices List of cosine coefficient indices wrt which the partials are to be taken.
- *  The key of the map is the degree, the value is the start order and the number of order in the current degree wrt
- *  which the partials are to be taken. For instance, an entry (4, (2, 3 ) ) means that partials a degree 4 and order
- *  2,3 and 4 are to be calculated.
+ *  \param blockIndices List of cosine coefficient indices wrt which the partials are to be taken (first and second
+ *  are degree and order for each vector entry).
  *  \param sphericalToCartesianGradientMatrix Matrix to convert (by premultiplication) a spherical gradient to a Cartesian
  *  gradient
  *  \param bodyFixedToIntegrationFrame Matrix to rotate from body-fixed to integration frame.
@@ -215,7 +220,7 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         const double referenceRadius,
         const double gravitionalParameter,
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const std::map< int, std::pair< int, int > >& blockIndices,
+        const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
         Eigen::MatrixXd& partialsMatrix );
@@ -228,10 +233,8 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
  *  \param referenceRadius Reference radius of spherical harmonic potential.
  *  \param gravitionalParameter Gravitational parameter used for spherical harmonic expansion
  *  \param sphericalHarmonicsCache Cache object containing precomputed spherical harmonics terms.
- *  \param blockIndices List of sine coefficient indices wrt which the partials are to be taken.
- *  The key of the map is the degree, the value is the start order and the number of order in the current degree wrt
- *  which the partials are to be taken. For instance, an entry (4, (2, 3 ) ) means that partials a degree 4 and order
- *  2,3 and 4 are to be calculated.
+ *  \param blockIndices List of cosine coefficient indices wrt which the partials are to be taken (first and second
+ *  are degree and order for each vector entry).
  *  \param sphericalToCartesianGradientMatrix Matrix to convert (by premultiplication) a spherical gradient to a Cartesian
  *  gradient
  *  \param bodyFixedToIntegrationFrame Matrix to rotate from body-fixed to integration frame.
@@ -243,7 +246,7 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         const double referenceRadius,
         const double gravitionalParameter,
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const std::map< int, std::pair< int, int > >& blockIndices,
+        const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
         Eigen::MatrixXd& partialsMatrix  );
@@ -252,5 +255,4 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
 
 }
 
-}
 #endif // TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H

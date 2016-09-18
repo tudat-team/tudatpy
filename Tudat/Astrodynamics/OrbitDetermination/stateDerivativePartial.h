@@ -31,9 +31,6 @@ namespace tudat
 namespace orbit_determination
 {
 
-namespace partial_derivatives
-{
-
 //! Base class for computing the partial derivatives of a state derivative model
 /*!
  * Base class for computing the partial derivatives of a state derivative model (i.e. acceleration model for
@@ -530,7 +527,7 @@ protected:
  *  bodies undergoing 'acceleration (and being estimated), the second (inner) vector is the list of partials
  *  being exerted on a single body.
  */
-typedef std::vector< std::vector< boost::shared_ptr< partial_derivatives::StateDerivativePartial > > >
+typedef std::vector< std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > >
 StateDerivativePartialsMap;
 
 //! Function to evaluate the negative value of a parameter partial.
@@ -637,8 +634,6 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFun
         const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterObject,
         const int firstPartialSize, const int secondPartialSize,
         const bool subtractPartials = 0 );
-
-}
 
 }
 

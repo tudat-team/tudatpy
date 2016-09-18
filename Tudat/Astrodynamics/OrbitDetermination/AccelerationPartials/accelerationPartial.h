@@ -27,12 +27,8 @@
 namespace tudat
 {
 
-namespace orbit_determination
+namespace acceleration_partials
 {
-
-namespace partial_derivatives
-{
-
 
 //! Base class for objects calculating partial derivatives of accelerations w.r.t. states, model parameters.
 /*!
@@ -41,7 +37,7 @@ namespace partial_derivatives
  *  Derived classes implement derivative-calculating models for specific acceleration models, so that the calculation
  *  of all partials of a single type acceleration model is encompassed in a single derived class.
  */
-class AccelerationPartial: public StateDerivativePartial
+class AccelerationPartial: public orbit_determination::StateDerivativePartial
 {
 
 public:
@@ -376,5 +372,4 @@ protected:
 
 }
 
-}
 #endif // TUDAT_ACCELERATIONPARTIALS_H

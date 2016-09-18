@@ -14,10 +14,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 //! Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
@@ -141,8 +138,6 @@ void CentralGravitationPartial::wrtGravitationalParameterOfCentralBody( Eigen::M
 }
 
 
-
-}
 
 }
 

@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
@@ -10,10 +20,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 using namespace orbital_element_conversions;
@@ -208,7 +215,7 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         const double referenceRadius,
         const double gravitionalParameter,
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const std::map< int, std::pair< int, int > >& blockIndices,
+        const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
         Eigen::MatrixXd& partialsMatrix )
@@ -216,32 +223,24 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
     double preMultiplier = gravitionalParameter / referenceRadius;
     const boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache = sphericalHarmonicsCache->getLegendreCache( );
 
-    int currentIndex = 0;
-    int degree;
-    for( std::map< int, std::pair< int, int > >::const_iterator blockIterator = blockIndices.begin( );
-         blockIterator != blockIndices.end( ); blockIterator++ )
+    int degree, order;
+    for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
-        degree = blockIterator->first;
+        degree = blockIndices.at( i ).first;
+        order = blockIndices.at( i ).second;
 
-        // Iterate over all required orders in current degree.
-        for( int order = blockIterator->second.first; order <
-             blockIterator->second.second + blockIterator->second.first; order++ )
-        {
+        // Calculate and set partial of current degree and order.
+        partialsMatrix.block( 0, i, 3, 1 ) =
+                basic_mathematics::computePotentialGradient(
+                    sphericalPosition( radiusIndex ),
+                    sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
+                    sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
+                    sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
+                    sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                    preMultiplier, degree, order,
+                    1.0, 0.0, legendreCache->getLegendrePolynomial( degree, order ),
+                    legendreCache->getLegendrePolynomialDerivative( degree, order ) );
 
-            // Calculate and set partial of current degree and order.
-            partialsMatrix.block( 0, currentIndex, 3, 1 ) =
-                    basic_mathematics::computePotentialGradient(
-                        sphericalPosition( radiusIndex ),
-                        sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                        sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                        sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                        sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
-                        preMultiplier, degree, order,
-                        1.0, 0.0, legendreCache->getLegendrePolynomial( degree, order ),
-                        legendreCache->getLegendrePolynomialDerivative( degree, order ) );
-
-            currentIndex++;
-        }
     }
 
     // Transform partials to Cartesian position and integration frame.
@@ -254,7 +253,7 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         const double referenceRadius,
         const double gravitionalParameter,
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const std::map< int, std::pair< int, int > >& blockIndices,
+        const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
         Eigen::MatrixXd& partialsMatrix )
@@ -262,38 +261,28 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
     double preMultiplier = gravitionalParameter / referenceRadius;
     const boost::shared_ptr< basic_mathematics::LegendreCache > legendreCache = sphericalHarmonicsCache->getLegendreCache( );
 
-    int currentIndex = 0;
-    int degree;
-    for( std::map< int, std::pair< int, int > >::const_iterator blockIterator = blockIndices.begin( );
-         blockIterator != blockIndices.end( ); blockIterator++ )
+    int degree, order;
+    for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
-        degree = blockIterator->first;
+        degree = blockIndices.at( i ).first;
+        order = blockIndices.at( i ).second;
 
-        // Iterate over all required orders in current degree.
-        for( int order = blockIterator->second.first;
-             order < blockIterator->second.second + blockIterator->second.first; order++ )
-        {
+        // Calculate and set partial of current degree and order.
+        partialsMatrix.block( 0, i, 3, 1 ) =
+                basic_mathematics::computePotentialGradient(
+                    sphericalPosition( radiusIndex ),
+                    sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
+                    sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
+                    sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
+                    sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                    preMultiplier, degree, order,
+                    0.0, 1.0, legendreCache->getLegendrePolynomial( degree, order ),
+                    legendreCache->getLegendrePolynomialDerivative( degree, order ) );
 
-            // Calculate and set partial of current degree and order.
-            partialsMatrix.block( 0, currentIndex, 3, 1 ) =
-                    basic_mathematics::computePotentialGradient(
-                        sphericalPosition( radiusIndex ),
-                        sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                        sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                        sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                        sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
-                        preMultiplier, degree, order,
-                        0.0, 1.0, legendreCache->getLegendrePolynomial( degree, order ),
-                        legendreCache->getLegendrePolynomialDerivative( degree, order ) );
-
-            currentIndex++;
-        }
     }
 
     // Transform partials to Cartesian position and integration frame.
     partialsMatrix = bodyFixedToIntegrationFrame * sphericalToCartesianGradientMatrix * partialsMatrix;
-}
-
 }
 
 }

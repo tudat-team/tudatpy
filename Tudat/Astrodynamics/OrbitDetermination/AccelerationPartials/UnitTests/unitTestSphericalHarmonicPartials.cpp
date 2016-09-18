@@ -55,7 +55,8 @@ using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
 using namespace tudat::orbital_element_conversions;
 using namespace tudat::unit_conversions;
-using namespace tudat::orbit_determination::partial_derivatives;
+using namespace tudat::orbit_determination;
+using namespace tudat::acceleration_partials;
 using namespace tudat::spice_interface;
 using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
@@ -633,23 +634,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
                 vectorParametersIterator->second, gravitationalAcceleration, vectorParametersIterator->second->getParameterValue( ) * 1.0E-2 );
 
 
-
-    //    Eigen::Vector3d testPartialWrtPolePosition = calculateAccelerationWrtParameterPartials(
-    //                earthPolePosition, accelerationModel, ( Eigen::VectorXd( 2 ) << 1.0E-4, 1.0E-4 ).finished( ), &emptyFunction, 1.0E6, boost::bind(
-    //                    &CelestialBody::setCurrentRotationToLocalFrameFromEphemeris, earth, _1 ) );
-    //    Eigen::MatrixXd testPartialWrtCosineCoefficients = calculateAccelerationWrtParameterPartials(
-    //                cosineCoefficients, accelerationModel, cosineCoefficients->getParameterValue( ) * 1.0E-2 );
-    //    Eigen::MatrixXd testPartialWrtSineCoefficients = calculateAccelerationWrtParameterPartials(
-    //                sineCoefficients, accelerationModel, sineCoefficients->getParameterValue( ) * 1.0E-2 );
-
-    //    Eigen::Vector3d partialWrtEarthPolePosition = accelerationPartial->wrtParameter(
-    //                earthPolePosition );
-    //    Eigen::MatrixXd partialWrtCosineCoefficients = accelerationPartial->wrtParameter(
-    //                cosineCoefficients );
-    //    Eigen::MatrixXd partialWrtSineCoefficients = accelerationPartial->wrtParameter(
-    //                sineCoefficients );
-
-
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-6 );
@@ -662,6 +646,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtCosineCoefficients, partialWrtCosineCoefficients, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSineCoefficients, partialWrtSineCoefficients, 1.0E-6 );
 
+    BOOST_CHECK_EQUAL( testPartialWrtCosineCoefficients.cols( ), 17 );
+    BOOST_CHECK_EQUAL( testPartialWrtSineCoefficients.cols( ), 13 );
 
 }
 

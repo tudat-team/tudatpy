@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
 
@@ -7,62 +17,29 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-SphericalHarmonicsSineCoefficients::SphericalHarmonicsSineCoefficients(
-        const boost::function< Eigen::MatrixXd( ) > getSineCoefficients,
-        const boost::function< void( Eigen::MatrixXd ) > setSineCoefficients,
-        const int minimumDegree, const int minimumOrder,
-        const int maximumDegree, const int maximumOrder,
-        const std::string& associatedBody ):
-    EstimatableParameter< Eigen::VectorXd >( spherical_harmonics_sine_coefficient_block, associatedBody ),
-    getSineCoefficients_( getSineCoefficients ), setSineCoefficients_( setSineCoefficients ),
-    minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ),
-    maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
-{
-    if( maximumOrder_ > maximumDegree_ )
-    {
-        maximumOrder_ = maximumDegree_;
-    }
-    if( minimumOrder_ == 0 )
-    {
-        minimumOrder_ = 1;
-    }
-
-    blockIndices_ = convertShDegreeAndOrderLimitsToBlockIndices(
-                minimumDegree_, minimumOrder_, maximumDegree_, maximumOrder_, parameterSize_ );
-
-}
-
-
+//! Function to retrieve the current values of the sine coefficients that are to be estimated.
 Eigen::VectorXd SphericalHarmonicsSineCoefficients::getParameterValue( )
 {
     Eigen::VectorXd parameterVector = Eigen::VectorXd::Zero( parameterSize_ );
-    int currentIndex = 0;
 
     Eigen::MatrixXd coefficientBlock = getSineCoefficients_( );
 
-    for(  std::map< int, std::pair< int, int > >::iterator blockIterator = blockIndices_.begin( );
-          blockIterator != blockIndices_.end( ); blockIterator++ )
+    for(  unsigned int i = 0; i < blockIndices_.size( ); i++ )
     {
-        parameterVector.segment( currentIndex, blockIterator->second.second ) = coefficientBlock.block(
-                    blockIterator->first, blockIterator->second.first, 1, blockIterator->second.second ).transpose( );
-        currentIndex += blockIterator->second.second;
+        parameterVector( i ) = coefficientBlock( blockIndices_.at( i ).first, blockIndices_.at( i ).second );
     }
     return parameterVector;
 
 }
 
+//! Function to reset the sine coefficients that are to be estimated.
 void SphericalHarmonicsSineCoefficients::setParameterValue( const Eigen::VectorXd parameterValue )
 {
-    int currentIndex = 0;
-
     Eigen::MatrixXd coefficients = getSineCoefficients_( );
 
-    for(  std::map< int, std::pair< int, int > >::iterator blockIterator = blockIndices_.begin( );
-          blockIterator != blockIndices_.end( ); blockIterator++ )
+    for(  unsigned int i = 0; i < blockIndices_.size( ); i++ )
     {
-        coefficients.block( blockIterator->first, blockIterator->second.first, 1, blockIterator->second.second ) =
-                parameterValue.segment( currentIndex, blockIterator->second.second ).transpose( );
-        currentIndex += blockIterator->second.second;
+        coefficients( blockIndices_.at( i ).first, blockIndices_.at( i ).second ) = parameterValue( i );
     }
     setSineCoefficients_( coefficients );
 }

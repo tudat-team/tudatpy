@@ -16,9 +16,6 @@ namespace tudat
 namespace orbit_determination
 {
 
-namespace partial_derivatives
-{
-
 //! Function to evaluate the negative value of a parameter partial.
 void evaluateNegativeParameterPartialFunction(
         const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunction,
@@ -224,8 +221,6 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFun
         throw std::runtime_error( "Error when getting combined current partial size, both partials have different non-zero size." );
     }
     return partialFunction;
-}
-
 }
 
 }

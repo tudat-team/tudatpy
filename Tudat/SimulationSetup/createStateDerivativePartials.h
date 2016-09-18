@@ -10,10 +10,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace simulation_setup
 {
 
 //! Function to create a set of state derivative partial objects.
@@ -27,7 +24,7 @@ namespace partial_derivatives
  *  the values are StateDerivativePartialsMap (see StateDerivativePartialsMap definition for details).
  */
 template< typename StateScalarType, typename TimeType, typename InitialStateParameterType >
-std::map< propagators::IntegratedStateType, StateDerivativePartialsMap > createStateDerivativePartials(
+std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > createStateDerivativePartials(
         const std::unordered_map< propagators::IntegratedStateType,
         std::vector< boost::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > >
         stateDerivativeModels,
@@ -35,7 +32,7 @@ std::map< propagators::IntegratedStateType, StateDerivativePartialsMap > createS
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate )
 {
-    std::map< propagators::IntegratedStateType, StateDerivativePartialsMap > stateDerivativePartials;
+    std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials;
 
     // Iterate over all state types
     for( typename std::unordered_map< propagators::IntegratedStateType,
@@ -79,5 +76,4 @@ std::map< propagators::IntegratedStateType, StateDerivativePartialsMap > createS
 
 }
 
-}
 #endif // CREATESTATEDERIVATIVEPARTIALS_H

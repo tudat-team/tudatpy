@@ -20,6 +20,10 @@ namespace tudat
 namespace observation_partials
 {
 
+//! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
+typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+boost::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
+
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 /*!
  *  Function to create partial object(s) of rotation matrix from a body-fixed to inertial frame wrt a (double) parameter.
@@ -107,9 +111,6 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
 
     return rotationMatrixPartials;
 }
-
-typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-boost::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
 
 }
 

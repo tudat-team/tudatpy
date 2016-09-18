@@ -438,9 +438,9 @@ public:
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
 
             // Create state derivative partials
-            std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >
+            std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
                     stateDerivativePartials =
-                    orbit_determination::partial_derivatives::createStateDerivativePartials
+                    simulation_setup::createStateDerivativePartials
                     < StateScalarType, TimeType, ParameterType >(
                         dynamicsStateDerivative_->getStateDerivativeModels( ), bodyMap, parametersToEstimate );
 
