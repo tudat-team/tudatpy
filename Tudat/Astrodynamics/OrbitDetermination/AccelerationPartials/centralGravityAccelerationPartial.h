@@ -20,13 +20,8 @@
 namespace tudat
 {
 
-namespace orbit_determination
+namespace acceleration_partials
 {
-
-namespace partial_derivatives
-{
-
-using namespace gravitation;
 
 //! Calculates partial derivative of point mass gravitational acceleration wrt the position of body undergoing acceleration.
 /*!
@@ -254,5 +249,4 @@ protected:
 
 }
 
-}
 #endif // TUDAT_CENTRALGRAVITYACCELERATIONPARTIALS_H

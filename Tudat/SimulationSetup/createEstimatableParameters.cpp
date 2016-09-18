@@ -219,10 +219,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                     vectorParameterToEstimate = boost::make_shared< SphericalHarmonicsCosineCoefficients >(
                                 getCosineCoefficientsFunction,
                                 setCosineCoefficientsFunction,
-                                blockParameterSettings->minimumDegree_,
-                                blockParameterSettings->minimumOrder_,
-                                blockParameterSettings->maximumDegree_,
-                                blockParameterSettings->maximumOrder_,
+                                blockParameterSettings->blockIndices_,
                                 vectorParameterName->parameterType_.second.first );
                 }
                 else
@@ -280,10 +277,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                     vectorParameterToEstimate = boost::make_shared< SphericalHarmonicsSineCoefficients >(
                                 getSineCoefficientsFunction,
                                 setSineCoefficientsFunction,
-                                blockParameterSettings->minimumDegree_,
-                                blockParameterSettings->minimumOrder_,
-                                blockParameterSettings->maximumDegree_,
-                                blockParameterSettings->maximumOrder_,
+                                blockParameterSettings->blockIndices_,
                                 vectorParameterName->parameterType_.second.first );
                 }
                 else

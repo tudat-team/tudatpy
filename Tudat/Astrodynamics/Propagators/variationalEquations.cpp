@@ -17,8 +17,6 @@ namespace propagators
 //! Calculates matrix containing partial derivatives of state derivatives w.r.t. body state.
 void VariationalEquations::setBodyStatePartialMatrix( )
 {
-    using namespace orbit_determination::partial_derivatives;
-
     // Initialize partial matrix
     variationalMatrix_.setZero( );
 
@@ -119,13 +117,11 @@ void VariationalEquations::updatePartials( const double currentTime )
 //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
 void VariationalEquations::setStatePartialFunctionList( )
 {
-    using namespace orbit_determination::partial_derivatives;
-
     std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > currentDerivativeFunction;
 
     // Iterate over all state types
     for( std::map< propagators::IntegratedStateType,
-         orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
+         orbit_determination::StateDerivativePartialsMap >::iterator
          stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );
          stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
          stateDerivativeTypeIterator_++ )

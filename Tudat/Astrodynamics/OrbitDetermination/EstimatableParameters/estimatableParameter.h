@@ -449,14 +449,20 @@ public:
 class SphericalHarmonicEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
-    SphericalHarmonicEstimatableParameterSettings( const int minimumDegree,
-                                                   const int minimumOrder,
-                                                   const int maximumDegree,
-                                                   const int maximumOrder,
+
+    //! Constructor
+    /*!
+     * Constructor, used to set user-defined list of degrees and orders.
+     * \param blockIndices List of degrees and orders that are to estimated (first and second of each entry are
+     * degree and order).
+     * \param associatedBody Body for which coefficients are to be estimated.
+     * \param parameterType Type of parameter that is to be estimated (must be spherical_harmonics_cosine_coefficient_block
+     * of spherical_harmonics_sine_coefficient_block).
+     */
+    SphericalHarmonicEstimatableParameterSettings( const std::vector< std::pair< int, int > > blockIndices,
                                                    const std::string associatedBody,
                                                    const EstimatebleParametersEnum parameterType ):
-        EstimatableParameterSettings( associatedBody, parameterType ), minimumDegree_( minimumDegree ),
-        minimumOrder_( minimumOrder ), maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder )
+        EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices )
     {
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
@@ -465,13 +471,42 @@ public:
         }
     }
 
-    int minimumDegree_;
+    //! Constructor
+    /*!
+     * Constructor, used to set a full block of degrees and orders that are to be estimated
+     * \param minimumDegree Minimum degree of field that is to be estimated.
+     * \param minimumOrder Minimum order of field that is to be estimated.
+     * \param maximumDegree Maximum degree of field that is to be estimated.
+     * \param maximumOrder Maximum order of field that is to be estimated.
+     * \param associatedBody Body for which coefficients are to be estimated.
+     * \param parameterType Type of parameter that is to be estimated (must be spherical_harmonics_cosine_coefficient_block
+     * of spherical_harmonics_sine_coefficient_block).
+     */
+    SphericalHarmonicEstimatableParameterSettings( const int minimumDegree,
+                                                   const int minimumOrder,
+                                                   const int maximumDegree,
+                                                   const int maximumOrder,
+                                                   const std::string associatedBody,
+                                                   const EstimatebleParametersEnum parameterType ):
+        EstimatableParameterSettings( associatedBody, parameterType )
+    {
+        if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
+                ( parameterType != spherical_harmonics_sine_coefficient_block ) )
+        {
+            throw std::runtime_error( "Error when making spherical harmonic parameter settings, input parameter type is inconsistent." );
+        }
 
-    int minimumOrder_;
+        for( int i = minimumDegree; i <= maximumDegree; i++ )
+        {
+            for( int j = minimumOrder; ( ( j <= i ) && ( j <= maximumOrder ) ); j++ )
+            {
+                blockIndices_.push_back( std::make_pair( i, j ) );
+            }
+        }
+    }
 
-    int maximumDegree_;
-
-    int maximumOrder_;
+    //! List of degrees and orders that are to estimated (first and second of each entry are degree and order.
+    std::vector< std::pair< int, int > > blockIndices_;
 };
 
 //! Class to define settings for estimating an initial translational state.

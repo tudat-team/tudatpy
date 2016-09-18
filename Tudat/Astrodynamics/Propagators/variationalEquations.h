@@ -48,7 +48,7 @@ public:
      */
     template< typename ParameterType >
     VariationalEquations(
-            const std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >
+            const std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
             stateDerivativePartialList,
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices ):
@@ -61,7 +61,7 @@ public:
         // Get size of dynamical state to estimate
         numberOfParameterValues_ = estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
         totalDynamicalStateSize_ = 0;        
-        for( std::map< IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
+        for( std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >::iterator
              partialTypeIterator = stateDerivativePartialList_.begin( );
              partialTypeIterator != stateDerivativePartialList_.end( ); partialTypeIterator++ )
         {
@@ -246,12 +246,12 @@ private:
     void addParameterPartialToList(
             const std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< CurrentParameterType > > >&
             parameterList,
-            const boost::shared_ptr< orbit_determination::partial_derivatives::StateDerivativePartial > partialObject,
+            const boost::shared_ptr< orbit_determination::StateDerivativePartial > partialObject,
             std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >&
             functionListOfBody,
             const int totalParameterVectorIndicesToSubtract = 0 )
     {
-        using namespace orbit_determination::partial_derivatives;
+        using namespace acceleration_partials;
 
         // Iterate over all parameters.
         for( typename std::map< int,
@@ -274,11 +274,11 @@ private:
                 functionListOfBody.insert(
                             std::pair< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
                             ( indexPair, boost::bind(
-                                  static_cast< void ( StateDerivativePartial::* )
+                                  static_cast< void ( orbit_determination::StateDerivativePartial::* )
                                   ( const boost::shared_ptr<
                                     estimatable_parameters::EstimatableParameter< CurrentParameterType > >,
                                     Eigen::Block< Eigen::MatrixXd > )>
-                                  ( &StateDerivativePartial::getCurrentParameterPartial ),
+                                  ( &orbit_determination::StateDerivativePartial::getCurrentParameterPartial ),
                                   partialObject, parameterIterator->second, _1  ) ) );
             }
         }
@@ -311,7 +311,7 @@ private:
                 estimatable_parameters::getSingleArcInitialDynamicalStateParameterSetSize( parametersToEstimate );
 
         for( std::map< propagators::IntegratedStateType,
-             orbit_determination::partial_derivatives::StateDerivativePartialsMap >::iterator
+             orbit_determination::StateDerivativePartialsMap >::iterator
              stateDerivativeTypeIterator = stateDerivativePartialList_.begin( );
              stateDerivativeTypeIterator != stateDerivativePartialList_.end( );
              stateDerivativeTypeIterator++ )
@@ -409,7 +409,7 @@ private:
      *  are set up. The key is the type of dynamics for which partials are taken, the values are StateDerivativePartialsMap
      *  (see StateDerivativePartialsMap definition for details)
      */
-    std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >
+    std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
     stateDerivativePartialList_;
     
     //! Map of start entry in sensitivity matrix of each type of estimated dynamics.
@@ -456,7 +456,7 @@ private:
     ::iterator functionIterator;
 
     //! Pre-declared iterator over all state types
-    std::map< propagators::IntegratedStateType, orbit_determination::partial_derivatives::StateDerivativePartialsMap >
+    std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
     ::iterator stateDerivativeTypeIterator_;
     
     //! List of identifiers for points/bodies for which initial dynamical state is to be estimated.

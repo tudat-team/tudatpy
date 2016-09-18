@@ -1,3 +1,13 @@
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
 #ifndef TUDAT_SPHERICALHARMONICCOSINECOEFFICIENTS_H
 #define TUDAT_SPHERICALHARMONICCOSINECOEFFICIENTS_H
 
@@ -13,65 +23,93 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-
-std::map< int, std::pair< int, int > > convertShDegreeAndOrderLimitsToBlockIndices(
-        const int minimumDegree, const int minimumOrder, const int maximumDegree, const int maximumOrder,
-        int& totalSetSize );
-
-std::map< int, std::pair< int, int > > convertShDegreeAndOrderLimitsToBlockIndices(
-        const int minimumDegree, const int minimumOrder, const int maximumDegree, const int maximumOrder );
-
+//! Interface class for estimation of spherical harmonic gravity field cosine coefficients
+/*!
+ * Interface class for estimation of spherical harmonic gravity field cosine coefficients. Interfaces the estimation with the
+ * member coefficients of an instance of the SphericalHarmonicsGravityField (or nominal coefficients of
+ * TimeDependentSphericalHarmonicsGravityField).
+ */
 class SphericalHarmonicsCosineCoefficients: public EstimatableParameter< Eigen::VectorXd >
 {
 
 public:
-    SphericalHarmonicsCosineCoefficients(
-            boost::function< Eigen::MatrixXd( ) > getCosineCoefficients,
-            boost::function< void( Eigen::MatrixXd ) > setCosineCoefficients,
-            const int minimumDegree, const int minimumOrder,
-            const int maximumDegree, const int maximumOrder,
-            std::string& associatedBody );
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param getCosineCoefficients Function to retrieve the full set of sine coefficients, of which a subset is to be
+     * estimated.
+     * \param setCosineCoefficients Function to reset the full set of sine coefficients, of which a subset is to be
+     * estimated.
+     * \param blockIndices List of cosine coefficient indices which are to be estimated (first and second
+     * are degree and order for each vector entry).
+     * \param associatedBody Name of body for which cosine coefficients are to be estimated.
+     */
+    SphericalHarmonicsCosineCoefficients(
+            const boost::function< Eigen::MatrixXd( ) > getCosineCoefficients,
+            const boost::function< void( Eigen::MatrixXd ) > setCosineCoefficients,
+            const std::vector< std::pair< int, int > > blockIndices,
+            const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( spherical_harmonics_cosine_coefficient_block, associatedBody ),
+        getCosineCoefficients_( getCosineCoefficients ), setCosineCoefficients_( setCosineCoefficients ),
+        blockIndices_( blockIndices )
+    {
+        parameterSize_ = blockIndices_.size( );
+    }
+
+    //! Destructor
     ~SphericalHarmonicsCosineCoefficients( ) { }
 
+    //! Function to retrieve the current values of the cosine coefficients that are to be estimated.
+    /*!
+     * Function to retrieve the current values of the cosine coefficients that are to be estimated. The order of the entries
+     * in this vector is the same as in the blockIndices_ member vector.
+     * \return List of values for cosine coefficients that are to be estimated.
+     */
     Eigen::VectorXd getParameterValue( );
 
+    //! Function to reset the cosine coefficients that are to be estimated.
+    /*!
+     * Function to reset the cosine coefficients that are to be estimated. The order of the entries in this vector
+     * is the same as in the blockIndices_ member vector.
+     * \param parameterValue List of new values for cosine coefficients that are to be estimated.
+     */
     void setParameterValue( const Eigen::VectorXd parameterValue );
 
+    //! Function to retrieve the size of the parameter
+    /*!
+     *  Function to retrieve the size of the parameter, equal to the length of the blcokIndices_ member vector, i.e. the
+     *  number of coefficients that are to be estimated.
+     *  \return Size of parameter value.
+     */
     int getParameterSize( ) { return parameterSize_; }
 
-    std::map< int, std::pair< int, int > > getBlockIndices( ){ return blockIndices_; }
+    //! Function to retrieve the list of cosine coefficient indices which are to be estimated.
+    /*!
+     * Function to retrieve the list of cosine coefficient indices which are to be estimated (first and second are degree
+     *  and order for each vector entry).
+     * \return List of cosine coefficient indices which are to be estimated.
+     */
+    std::vector< std::pair< int, int > > getBlockIndices( ){ return blockIndices_; }
 
-    int getMnimumDegree( )
-    {
-        return minimumDegree_;
-    }
-
-    int getMinimumOrder( )
-    {
-        return minimumOrder_;
-    }
-    int getMaximumDegree( )
-    {
-        return maximumDegree_;
-    }
-    int getMaximumOrder( )
-    {
-        return maximumOrder_;
-    }
 
 protected:
 
 private:
+
+
+    //! Function to retrieve the full set of sine coefficients, of which a subset is to be estimated.
     boost::function< Eigen::MatrixXd( ) > getCosineCoefficients_;
+
+    //! Function to reset the full set of sine coefficients, of which a subset is to be estimated.
     boost::function< void( Eigen::MatrixXd ) > setCosineCoefficients_;
 
-    int minimumDegree_;
-    int minimumOrder_;
-    int maximumDegree_;
-    int maximumOrder_;
-
-    std::map< int, std::pair< int, int > > blockIndices_;// degree , (start order, number of entries)
+    //! List of cosine coefficient indices which are to be estimated
+    /*!
+      *  List of cosine coefficient indices which are to be estimated (first and second are degree and order for
+      *  each vector entry).
+      */
+    std::vector< std::pair< int, int > > blockIndices_;
 
     int parameterSize_;
 };

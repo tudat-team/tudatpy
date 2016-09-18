@@ -20,10 +20,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace acceleration_partials
 {
 
 //! Function to get the third body acceleration type from the direct acceleration partial object.
@@ -319,8 +316,8 @@ public:
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
 
-        return createMergedParameterPartialFunction( partialFunctionFromDirectGravity,
-                                                     partialFunctionFromCentralGravity );
+        return orbit_determination::createMergedParameterPartialFunction(
+                    partialFunctionFromDirectGravity, partialFunctionFromCentralGravity );
     }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
@@ -338,8 +335,8 @@ public:
         std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
 
-        return createMergedParameterPartialFunction( partialFunctionFromDirectGravity,
-                                                     partialFunctionFromCentralGravity );
+        return orbit_determination::createMergedParameterPartialFunction(
+                    partialFunctionFromDirectGravity, partialFunctionFromCentralGravity );
     }
 
     //! Function to set a dependency of this partial object w.r.t. a given double parameter.
@@ -500,6 +497,5 @@ private:
 
 }
 
-}
 
 #endif // TUDAT_THIRDBODYGRAVITYPARTIAL_H

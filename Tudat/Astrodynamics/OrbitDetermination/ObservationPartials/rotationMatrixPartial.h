@@ -21,13 +21,13 @@ namespace observation_partials
 /*!
  * Function to calculate a rotation matrix from a body-fixed to inertial frame, as computed by the SimpleRotationalEphemeris
  * class,  w.r.t. the constant rotation rate.
- * \param intertialBodyFixedToIntegrationFrame. Rotation matrix at reference epoch
+ * \param inertialBodyFixedToIntegrationFrame Rotation matrix at reference epoch
  * \param rotationRate Nominal rotation rate (about local z-axis)
  * \param timeSinceEpoch Elapsed time (in seconds) since reference epoch
  * \return Partial derivative of rotation matrix w.r.t. rotation rate.
  */
 Eigen::Matrix3d calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotationRate(
-        const Eigen::Quaterniond intertialBodyFixedToIntegrationFrame,
+        const Eigen::Quaterniond inertialBodyFixedToIntegrationFrame,
         const double rotationRate, const double timeSinceEpoch );
 
 //! Function to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. a constant pole right ascension

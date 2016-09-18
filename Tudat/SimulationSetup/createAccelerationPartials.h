@@ -29,10 +29,7 @@
 namespace tudat
 {
 
-namespace orbit_determination
-{
-
-namespace partial_derivatives
+namespace simulation_setup
 {
 
 //! Function to create a single acceleration partial derivative object.
@@ -47,7 +44,7 @@ namespace partial_derivatives
  *  \return Single acceleration partial derivative object.
  */
 template< typename InitialStateParameterType = double, typename ParameterScalarType = InitialStateParameterType >
-boost::shared_ptr< AccelerationPartial > createAnalyticalAccelerationPartial(
+boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial(
         boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratingBody,
@@ -56,12 +53,13 @@ boost::shared_ptr< AccelerationPartial > createAnalyticalAccelerationPartial(
         parametersToEstimate =
         boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > >( ) )
 {
-
+    using namespace gravitation;
     using namespace basic_astrodynamics;
     using namespace electro_magnetism;
     using namespace aerodynamics;
+    using namespace acceleration_partials;
 
-    boost::shared_ptr< AccelerationPartial > accelerationPartial;
+    boost::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial;
 
     // Identify current acceleration model type
     AvailableAcceleration accelerationType = getAccelerationModelType( accelerationModel );
@@ -227,15 +225,16 @@ boost::shared_ptr< AccelerationPartial > createAnalyticalAccelerationPartial(
  *  \return List of acceleration-partial-calculating objects in StateDerivativePartialsMap type.
  */
 template< typename InitialStateParameterType >
-StateDerivativePartialsMap createAccelerationPartialsMap(
+orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const simulation_setup::NamedBodyMap& bodyMap,
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate )
 {
     // Declare return map.
-    StateDerivativePartialsMap accelerationPartialsList;
-    std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< AccelerationPartial > > > >
+    orbit_determination::StateDerivativePartialsMap accelerationPartialsList;
+    std::map< std::string, std::map< std::string,
+            std::vector< boost::shared_ptr< acceleration_partials::AccelerationPartial > > > >
             accelerationPartialsMap;
 
     std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
@@ -263,7 +262,7 @@ StateDerivativePartialsMap createAccelerationPartialsMap(
                             accelerationMap.at( acceleratedBody );
 
                     // Declare list of acceleration partials of current body.
-                    std::vector< boost::shared_ptr< StateDerivativePartial > > accelerationPartialVector;
+                    std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > accelerationPartialVector;
 
                     // Iterate over all acceleration models and generate their partial-calculating objects.
                     for(  basic_astrodynamics::SingleBodyAccelerationMap::iterator
@@ -281,7 +280,7 @@ StateDerivativePartialsMap createAccelerationPartialsMap(
                         for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                         {
                             // Create single partial object
-                            boost::shared_ptr< AccelerationPartial > currentAccelerationPartial =
+                            boost::shared_ptr< acceleration_partials::AccelerationPartial > currentAccelerationPartial =
                                     createAnalyticalAccelerationPartial(
                                         innerAccelerationIterator->second[ j ],
                                         std::make_pair( acceleratedBody, acceleratedBodyObject ),
@@ -302,8 +301,6 @@ StateDerivativePartialsMap createAccelerationPartialsMap(
         }
     }
     return accelerationPartialsList;
-}
-
 }
 
 }
