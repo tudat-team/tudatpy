@@ -1,26 +1,11 @@
-/*!   Copyright (c) 2010-2012 Delft University of Technology.
+/*    Copyright (c) 2010-2016, Delft University of Technology
+ *    All rigths reserved
  *
- *    This software is protected by national and international copyright.
- *    Any unauthorized use, reproduction or modification is unlawful and
- *    will be prosecuted. Commercial and non-private application of the
- *    software in any form is strictly prohibited unless otherwise granted
- *    by the authors.
- *
- *    The code is provided without any warranty; without even the implied
- *    warranty of merchantibility or fitness for a particular purpose.
- *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      110224    F.M. Engelen      File created.
- *      110324    J. Melman         Added overloaded get functions.
- *      110427    F.M. Engelen      Changed input parameter to altitude, longitude and latitude.
- *      110629    F.M. Engelen      Added predefined function.
- *      110705    F.M. Engelen      Changed to passing by reference.
- *      110810    J. Leloux         Corrected doxygen documentation.
- *      151104    J. Geul           Complete rewrite
- *
- *    References
- *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  */
 
 #ifndef TUDAT_NRLMSISE00_ATMOSPHERE_H
