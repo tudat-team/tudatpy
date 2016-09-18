@@ -32,6 +32,8 @@ namespace partial_derivatives
  *  \param acceleratedBody Pair of name and object of body undergoing acceleration
  *  \param acceleratingBody Pair of name and object of body exerting acceleration
  *  \param bodyMap List of all body objects
+ *  \param parametersToEstimate List of parameters that are to be estimated. Empty by default, only required for selected
+ *  types of partials (e.g. spherical harmonic acceleration w.r.t. rotational parameters).
  *  \return Single acceleration partial derivative object.
  */
 template< typename InitialStateParameterType = double, typename ParameterScalarType = InitialStateParameterType >
@@ -40,7 +42,8 @@ boost::shared_ptr< AccelerationPartial > createAnalyticalAccelerationPartial(
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratingBody,
         const simulation_setup::NamedBodyMap bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > > parametersToEstimate =
+        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > >
+        parametersToEstimate =
         boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterScalarType > >( ) )
 {
 

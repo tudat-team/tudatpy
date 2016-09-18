@@ -51,7 +51,7 @@ Eigen::VectorXd SphericalHarmonicsSineCoefficients::getParameterValue( )
 
 }
 
-void SphericalHarmonicsSineCoefficients::setParameterValue( Eigen::VectorXd parameterValue )
+void SphericalHarmonicsSineCoefficients::setParameterValue( const Eigen::VectorXd parameterValue )
 {
     int currentIndex = 0;
 

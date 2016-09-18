@@ -18,12 +18,14 @@ using namespace ephemerides;
 using namespace gravitation;
 using namespace estimatable_parameters;
 
+//! Function to create an interface object for estimating a parameter defined by a single double value
 boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstimate(
         const boost::shared_ptr< EstimatableParameterSettings >& doubleParameterName,
         const NamedBodyMap& bodyMap, const basic_astrodynamics::AccelerationMap& accelerationModelMap )
 {
     boost::shared_ptr< EstimatableParameter< double > > doubleParameterToEstimate;
 
+    // Check input consistency.
     if( isDoubleParameter( doubleParameterName->parameterType_.first ) != true )
     {
         std::string errorMessage = "Error when requesting to make double parameter " +
@@ -34,9 +36,9 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
     }
     else
     {
+        // Check if body associated with parameter exists.
         std::string currentBodyName = doubleParameterName->parameterType_.second.first;
         boost::shared_ptr< Body > currentBody;
-
         if( ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
         {
             std::string errorMessage = "Error when creating parameters to estimate, body " +
@@ -50,6 +52,7 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
             currentBody = bodyMap.at( currentBodyName );
         }
 
+        // Identify parameter type.
         switch( doubleParameterName->parameterType_.first )
         {
         case gravitational_parameter:
@@ -124,6 +127,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
 {
     boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > vectorParameterToEstimate;
 
+    // Check input consistency.
     if( isDoubleParameter( vectorParameterName->parameterType_.first ) != false )
     {
         std::string errorMessage = "Error when requesting to make vector parameter " +
@@ -134,9 +138,9 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
     }
     else
     {
+        // Check if body associated with parameter exists.
         std::string currentBodyName = vectorParameterName->parameterType_.second.first;
         boost::shared_ptr< Body > currentBody;
-
         if( ( currentBodyName != "" ) && ( bodyMap.count( currentBodyName ) == 0 ) )
         {
             std::string errorMessage = "Warning when creating parameters to estimate, body " +
@@ -150,6 +154,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             currentBody = bodyMap.at( currentBodyName );
         }
 
+        // Identify parameter type.
         switch( vectorParameterName->parameterType_.first )
         {
         case rotation_pole_position:
@@ -181,6 +186,8 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             }
             else
             {
+                // Check if spherical harmonic gravity field is static or time-dependent; set associated
+                // functions accordingly
                 boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentShField =
                         boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( shGravityField );
 
@@ -196,11 +203,15 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 }
                 else
                 {
-                    getCosineCoefficientsFunction = boost::bind( &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
+                    getCosineCoefficientsFunction = boost::bind(
+                                &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
                                                                  timeDependentShField );
-                    setCosineCoefficientsFunction = boost::bind( &TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
+                    setCosineCoefficientsFunction = boost::bind(
+                                &TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
                                                                  timeDependentShField, _1 );
                 }
+
+                // Create cosine coefficients estimation object.
                 boost::shared_ptr< SphericalHarmonicEstimatableParameterSettings > blockParameterSettings =
                         boost::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( vectorParameterName );
                 if( blockParameterSettings != NULL )
@@ -239,6 +250,8 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 boost::shared_ptr< SphericalHarmonicEstimatableParameterSettings > blockParameterSettings =
                         boost::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( vectorParameterName );
 
+                // Check if spherical harmonic gravity field is static or time-dependent; set associated
+                // functions accordingly
                 boost::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction;
                 boost::function< void( Eigen::MatrixXd ) > setSineCoefficientsFunction;
                 boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentShField =
@@ -253,11 +266,15 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 }
                 else
                 {
-                    getSineCoefficientsFunction = boost::bind( &TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients,
+                    getSineCoefficientsFunction = boost::bind(
+                                &TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients,
                                                                timeDependentShField );
-                    setSineCoefficientsFunction = boost::bind( &TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
+                    setSineCoefficientsFunction = boost::bind(
+                                &TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
                                                                timeDependentShField, _1 );
                 }
+
+                // Create sine coefficients estimation object.
                 if( blockParameterSettings != NULL )
                 {
                     vectorParameterToEstimate = boost::make_shared< SphericalHarmonicsSineCoefficients >(

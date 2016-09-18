@@ -21,11 +21,11 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
         const boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
-        const std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-        boost::shared_ptr< observation_partials::RotationMatrixPartial > >& rotationMatrixPartials ):
+        const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials ):
     AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravity ),
     gravitationalParameterFunction_( accelerationModel->getGravitationalParameterFunction( ) ),
-    bodyReferenceRadius_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getReferenceRadius, accelerationModel ) ),
+    bodyReferenceRadius_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getReferenceRadius,
+                                       accelerationModel ) ),
     cosineCoefficients_( accelerationModel->getCosineHarmonicCoefficientsFunction( ) ),
     sineCoefficients_( accelerationModel->getSineHarmonicCoefficientsFunction( ) ),
     sphericalHarmonicCache_( accelerationModel->getSphericalHarmonicsCache( ) ),
@@ -35,8 +35,10 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
                                                       getCurrentPositionOfBodyExertingAcceleration, accelerationModel ) ),
     fromBodyFixedToIntegrationFrameRotation_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
                                                       getCurrentRotationToIntegrationFrameMatrix, accelerationModel ) ),
-    accelerationFunction_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAcceleration, accelerationModel ) ),
-    updateFunction_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::updateMembers, accelerationModel, _1 ) ),
+    accelerationFunction_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAcceleration,
+                                        accelerationModel ) ),
+    updateFunction_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::updateMembers,
+                                  accelerationModel, _1 ) ),
     rotationMatrixPartials_( rotationMatrixPartials ),
     accelerationUsesMutualAttraction_( accelerationModel->getIsMutualAttractionUsed( ) )
 {
@@ -47,7 +49,8 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
     maximumDegree_ = cosineCoefficients_( ).rows( ) - 1;
     maximumOrder_ = sineCoefficients_( ).cols( ) - 1;
 
-    if( sphericalHarmonicCache_->getMaximumDegree( ) < maximumDegree_ || sphericalHarmonicCache_->getMaximumOrder( ) < maximumOrder_ + 2 )
+    if( sphericalHarmonicCache_->getMaximumDegree( ) < maximumDegree_ ||
+            sphericalHarmonicCache_->getMaximumOrder( ) < maximumOrder_ + 2 )
     {
         sphericalHarmonicCache_->resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ + 2 );
     }
@@ -65,7 +68,8 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
     // Check properties of body exerting acceleration.
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
     {
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair = getGravitationalParameterPartialFunction( parameter->getParameterName( ) );
+        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair =
+                getGravitationalParameterPartialFunction( parameter->getParameterName( ) );
         partialFunction = partialFunctionPair.first;
         numberOfRows = partialFunctionPair.second;
     }
@@ -79,14 +83,17 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                                                                parameter->getSecondaryIdentifier( ) ) ) != 0 )
             {
                 // Get partial function.
-                partialFunction = boost::bind( &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
+                partialFunction = boost::bind(
+                            &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
                                                this, _1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
                 numberOfRows = 1;
             }
             else
             {
-                std::cerr<<"Warning, not taking partial of sh acceleration wrt "<<parameter->getParameterName( ).first<<" of "<<
-                           parameter->getParameterName( ).second.first<<" "<<std::endl;
+                std::string errorMessage = "Error, not taking partial of sh acceleration wrt rotational parameter" +
+                        boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + " of " +
+                        parameter->getParameterName( ).second.first;
+                throw std::runtime_error( errorMessage );
             }
 
         }
@@ -117,14 +124,17 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                                                                parameter->getSecondaryIdentifier( ) ) ) != 0 )
             {
                 // Get partial function.
-                partialFunction = boost::bind( &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
-                                               this,_1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
+                partialFunction = boost::bind(
+                            &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
+                            this,_1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
                 numberOfRows = parameter->getParameterSize( );
             }
             else
             {
-                std::cerr<<"Warning, not taking partial of sh acceleration wrt "<<parameter->getParameterName( ).first<<" of "<<
-                           parameter->getParameterName( ).second.first<<std::endl;
+                std::string errorMessage = "Error, not taking partial of sh acceleration wrt rotational parameter" +
+                        boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + " of " +
+                        parameter->getParameterName( ).second.first;
+                throw std::runtime_error( errorMessage );
             }
         }
         // Check non-rotational parameters.
@@ -167,6 +177,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
     return std::make_pair( partialFunction, numberOfRows );
 }
 
+//! Function to create a function returning the current partial w.r.t. a gravitational parameter.
 std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
 SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterId )
@@ -211,8 +222,8 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
 
         // Calculate Cartesian position in frame fixed to body exerting acceleration
         Eigen::Matrix3d currentRotationToBodyFixedFrame_ = fromBodyFixedToIntegrationFrameRotation_( ).inverse( );
-        bodyFixedPosition_ =
-                currentRotationToBodyFixedFrame_ * ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) );
+        bodyFixedPosition_ = currentRotationToBodyFixedFrame_ *
+                ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) );
 
         // Calculate spherical position in frame fixed to body exerting acceleration
         bodyFixedSphericalPosition_ = convertCartesianToSpherical( bodyFixedPosition_ );
@@ -235,7 +246,8 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
 
         currentPartialWrtVelocity_.setZero( );
         currentPartialWrtPosition_ =
-                currentRotationToBodyFixedFrame_.inverse( ) * currentBodyFixedPartialWrtPosition_ * currentRotationToBodyFixedFrame_;
+                currentRotationToBodyFixedFrame_.inverse( ) * currentBodyFixedPartialWrtPosition_ *
+                currentRotationToBodyFixedFrame_;
 
         currentTime_ = currentTime;
     }
@@ -247,7 +259,8 @@ void SphericalHarmonicsGravityPartial::wrtCosineCoefficientBlock(
         Eigen::MatrixXd& partialDerivatives )
 {
     calculateSphericalHarmonicGravityWrtCCoefficients(
-                bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ), sphericalHarmonicCache_,
+                bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
+                sphericalHarmonicCache_,
                 blockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
                     bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), partialDerivatives );
 }
@@ -258,7 +271,8 @@ void SphericalHarmonicsGravityPartial::wrtSineCoefficientBlock(
         Eigen::MatrixXd& partialDerivatives )
 {
     calculateSphericalHarmonicGravityWrtSCoefficients(
-                bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ), sphericalHarmonicCache_,
+                bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
+                sphericalHarmonicCache_,
                 blockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
                     bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), partialDerivatives );
 }
@@ -281,8 +295,10 @@ void SphericalHarmonicsGravityPartial::wrtRotationModelParameter(
     for( unsigned int i = 0; i < rotationMatrixPartials.size( ); i++ )
     {
         // Calculate acceleration partial for current parameter entry.
-        accelerationPartial.block( 0, i, 3, 1 ) = rotationMatrixPartials[ i ] * ( fromBodyFixedToIntegrationFrameRotation_( ).inverse( ) ) * accelerationFunction_( ) +
-                fromBodyFixedToIntegrationFrameRotation_( ) * currentBodyFixedPartialWrtPosition_* rotationMatrixPartials[ i ].transpose( ) * distanceVector;
+        accelerationPartial.block( 0, i, 3, 1 ) = rotationMatrixPartials[ i ] *
+                ( fromBodyFixedToIntegrationFrameRotation_( ).inverse( ) ) * accelerationFunction_( ) +
+                fromBodyFixedToIntegrationFrameRotation_( ) * currentBodyFixedPartialWrtPosition_*
+                rotationMatrixPartials[ i ].transpose( ) * distanceVector;
     }
 }
 

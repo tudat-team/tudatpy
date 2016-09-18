@@ -511,7 +511,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationpartial )
                 createAccelerationModel( vehicle, earth, accelerationSettings, "Vehicle", "Earth" ) );
 
     gravitationalAcceleration->updateMembers( 0.0 );
-    Eigen::Vector3d nominalAcceleration = gravitationalAcceleration->getAcceleration( );
+    gravitationalAcceleration->getAcceleration( );
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );

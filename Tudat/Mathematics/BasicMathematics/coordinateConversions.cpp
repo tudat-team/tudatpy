@@ -261,6 +261,7 @@ basic_mathematics::Vector6d convertCartesianToCylindricalState(
     return cylindricalState;
 }
 
+//! Compute matrix by which to precompute a spherical gradient vector to obtain the Cartesian gradient
 Eigen::Matrix3d getSphericalToCartesianGradientMatrix( const Eigen::Vector3d& cartesianCoordinates )
 {
     // Compute radius.
@@ -309,12 +310,14 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
 
     Eigen::Matrix3d currentPartialMatrix;
 
+    // Precomputed quantities
     double radius = cartesianCoordinates.norm( );
     const double xyDistanceSquared = cartesianCoordinates( 0 ) * cartesianCoordinates( 0 )
             + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 );
     const double xyDistance = std::sqrt( xyDistanceSquared );
     const double radiusSquaredXyDistance = xyDistance * radius * radius;
 
+    // Precompute partials
     Eigen::Vector3d oneOverRPartial = -cartesianCoordinates / ( radius * radius * radius );
     Eigen::Vector3d oneOverRSquaredPartial = -2.0 * cartesianCoordinates / ( radius * radius * radius * radius );
     Eigen::Vector3d oneOverXyDistancePartial =
@@ -330,6 +333,7 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
     Eigen::Vector3d xyDistancePartial =
             ( Eigen::Vector3d( ) << cartesianCoordinates( 0 ), cartesianCoordinates( 1 ), 0.0 ).finished( ) / xyDistance;
 
+    // Compute partials w.r.t x, y and z components.
     for( unsigned int i = 0; i < 3; i++ )
     {
         currentPartialMatrix.setZero( );
@@ -338,7 +342,8 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
         case 0:
         {
             currentPartialMatrix << 1.0 / radius + cartesianCoordinates( 0 ) * oneOverRPartial ( 0 ),
-                    - cartesianCoordinates( 2 ) / radiusSquaredXyDistance - cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 0 ),
+                    - cartesianCoordinates( 2 ) / radiusSquaredXyDistance -
+                    cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 0 ),
                     - cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 0 ),
                     cartesianCoordinates( 1 ) * oneOverRPartial( 0 ),
                      - cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 0 ),
@@ -354,7 +359,8 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
                     - cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 1 ),
                     -1.0 / ( xyDistanceSquared ) - cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 1 ),
                     1.0 / radius + cartesianCoordinates( 1 ) * oneOverRPartial ( 1 ),
-                    - cartesianCoordinates( 2 ) / radiusSquaredXyDistance - cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 1 ),
+                    - cartesianCoordinates( 2 ) / radiusSquaredXyDistance -
+                    cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 1 ),
                     cartesianCoordinates( 0 ) * oneOverXyDistanceSquaredPartial( 1 ),
                      cartesianCoordinates( 2 ) * oneOverRPartial( 1 ),
                     xyDistance * oneOverRSquaredPartial( 1 ) + 1.0 / ( radius * radius ) * xyDistancePartial( 1 ),
@@ -364,10 +370,12 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
         case 2:
         {
             currentPartialMatrix <<  cartesianCoordinates( 0 ) * oneOverRPartial ( 2 ),
-                    - cartesianCoordinates( 0 ) / radiusSquaredXyDistance - cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 2 ),
+                    - cartesianCoordinates( 0 ) / radiusSquaredXyDistance -
+                    cartesianCoordinates( 0 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 2 ),
                     - cartesianCoordinates( 1 ) * oneOverXyDistanceSquaredPartial( 2 ),
                     cartesianCoordinates( 1 ) * oneOverRPartial( 2 ),
-                    - cartesianCoordinates( 1 ) / radiusSquaredXyDistance - cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 2 ),
+                    - cartesianCoordinates( 1 ) / radiusSquaredXyDistance -
+                    cartesianCoordinates( 1 ) * cartesianCoordinates( 2 ) * oneOverRSquaredXyDistancePartial( 2 ),
                     cartesianCoordinates( 0 ) * oneOverXyDistanceSquaredPartial( 2 ),
                      1.0 / radius + cartesianCoordinates( 2 ) * oneOverRPartial( 2 ),
                     xyDistance * oneOverRSquaredPartial( 2 ) +  + 1.0 / ( radius * radius ) * xyDistancePartial( 2 ),
@@ -376,11 +384,13 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
         }
         }
 
+        // Save computed matrix
         if( subMatrices.size( ) == 3 )
         {
             subMatrices[ i ] = currentPartialMatrix;
         }
 
+        // Add current entry to results.
         totalPartialMatrix.block( 0, i, 3, 1 ) = currentPartialMatrix * sphericalGradient;
     }
 

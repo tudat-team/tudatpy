@@ -18,6 +18,7 @@ namespace partial_derivatives
 
 using namespace orbital_element_conversions;
 
+//! Function to compute the spherical Hessian of a single term of a spherical harmonic potential
 void computePotentialSphericalHessian(
         const double distance,
         const double radiusPowerTerm,
@@ -63,6 +64,7 @@ void computePotentialSphericalHessian(
     sphericalHessian *= preMultiplier * radiusPowerTerm;
 }
 
+//! Function to compute the spherical Hessian of a single term of a spherical harmonic potential
 void computePotentialSphericalHessian(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
@@ -87,6 +89,7 @@ void computePotentialSphericalHessian(
                 legendrePolynomial,legendrePolynomialDerivative, legendrePolynomialSecondDerivative, sphericalHessian );
 }
 
+//! Function to compute the spherical Hessian of a single term of a spherical harmonic potential
 void computePotentialSphericalHessian(
         const Eigen::Vector3d& sphericalPosition,
         const double preMultiplier,
@@ -99,7 +102,8 @@ void computePotentialSphericalHessian(
 {
     computePotentialSphericalHessian(
                 sphericalPosition( 0 )  , sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ), sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
+                sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
+                sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
                 sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
                 sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameter( ),
                 preMultiplier,
@@ -110,6 +114,7 @@ void computePotentialSphericalHessian(
                 sphericalHessian );
 }
 
+//! Function to compute the spherical Hessian of a full spherical harmonic potential
 Eigen::Matrix3d computeCumulativeSphericalHessian(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
@@ -137,6 +142,8 @@ Eigen::Matrix3d computeCumulativeSphericalHessian(
 
 }
 
+//! Calculate partial of spherical harmonic acceleration w.r.t. position of body undergoing acceleration
+//! (in the body-fixed frame)
 Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
         const Eigen::Vector3d& cartesianPosition,
         const Eigen::Vector3d& sphericalPosition,
@@ -148,18 +155,24 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::Vector3d& sphericalPotentialGradient,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix )
 {
+    // Compute Hessian in spherical coordinates.
     Eigen::Matrix3d sphericalHessian = computeCumulativeSphericalHessian(
                 sphericalPosition, referenceRadius, gravitionalParameter, cosineHarmonicCoefficients,
                 sineHarmonicCoefficients, sphericalHarmonicsCache );
 
+    // Convert to Cartesian Hessian
     Eigen::Matrix3d accelerationPartial =
             sphericalToCartesianGradientMatrix * sphericalHessian * sphericalToCartesianGradientMatrix.transpose( );
 
+    // Add effect of direct change in rotation matrix
     accelerationPartial += coordinate_conversions::getDerivativeOfSphericalToCartesianGradient(
                 sphericalPotentialGradient, cartesianPosition );
+
     return accelerationPartial;
 }
 
+//! Calculate partial of spherical harmonic acceleration w.r.t. position of body undergoing acceleration
+//! (in the body-fixed frame)
 Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
         const Eigen::Vector3d& cartesianPosition,
         const double referenceRadius,
@@ -168,24 +181,28 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::MatrixXd sineHarmonicCoefficients,
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
-
-    Eigen::Matrix3d gradientTransformationMatrix =
-            coordinate_conversions::getSphericalToCartesianGradientMatrix( cartesianPosition );
-
+    // Compute spherical position.
     Eigen::Vector3d sphericalPosition =
             coordinate_conversions::convertCartesianToSpherical( cartesianPosition );
     sphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - sphericalPosition( 1 );
 
+    // Compute spherical to Cartesian gradient transformation.
+    Eigen::Matrix3d gradientTransformationMatrix =
+            coordinate_conversions::getSphericalToCartesianGradientMatrix( cartesianPosition );
+
+    // Compute spherical gradient.
     Eigen::Vector3d sphericalPotentialGradient = gradientTransformationMatrix.inverse( ) *
             gravitation::computeGeodesyNormalizedGravitationalAccelerationSum(
-                cartesianPosition, gravitionalParameter, referenceRadius, cosineHarmonicCoefficients, sineHarmonicCoefficients,
-                sphericalHarmonicsCache );
+                cartesianPosition, gravitionalParameter, referenceRadius, cosineHarmonicCoefficients,
+                sineHarmonicCoefficients, sphericalHarmonicsCache );
 
     return computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
                 cartesianPosition, sphericalPosition, referenceRadius, gravitionalParameter, cosineHarmonicCoefficients,
-                sineHarmonicCoefficients, sphericalHarmonicsCache, sphericalPotentialGradient, gradientTransformationMatrix );
+                sineHarmonicCoefficients, sphericalHarmonicsCache, sphericalPotentialGradient,
+                gradientTransformationMatrix );
 }
 
+//! Calculate partial of spherical harmonic acceleration w.r.t. a set of cosine coefficients
 void calculateSphericalHarmonicGravityWrtCCoefficients(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
@@ -207,7 +224,8 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         degree = blockIterator->first;
 
         // Iterate over all required orders in current degree.
-        for( int order = blockIterator->second.first; order < blockIterator->second.second + blockIterator->second.first; order++ )
+        for( int order = blockIterator->second.first; order <
+             blockIterator->second.second + blockIterator->second.first; order++ )
         {
 
             // Calculate and set partial of current degree and order.
@@ -226,9 +244,11 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         }
     }
 
+    // Transform partials to Cartesian position and integration frame.
     partialsMatrix = bodyFixedToIntegrationFrame * sphericalToCartesianGradientMatrix * partialsMatrix;
 }
 
+//! Calculate partial of spherical harmonic acceleration w.r.t. a set of sine coefficients
 void calculateSphericalHarmonicGravityWrtSCoefficients(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
@@ -250,7 +270,8 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         degree = blockIterator->first;
 
         // Iterate over all required orders in current degree.
-        for( int order = blockIterator->second.first; order < blockIterator->second.second + blockIterator->second.first; order++ )
+        for( int order = blockIterator->second.first;
+             order < blockIterator->second.second + blockIterator->second.first; order++ )
         {
 
             // Calculate and set partial of current degree and order.
@@ -269,6 +290,7 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         }
     }
 
+    // Transform partials to Cartesian position and integration frame.
     partialsMatrix = bodyFixedToIntegrationFrame * sphericalToCartesianGradientMatrix * partialsMatrix;
 }
 

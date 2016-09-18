@@ -57,8 +57,7 @@ namespace tudat
 namespace gravitation
 {
 
-//! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
-//! geodesy-normalization.
+//! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using geodesy-normalization.
 Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
         const double gravitationalParameter,

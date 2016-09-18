@@ -85,7 +85,7 @@ Eigen::VectorXd SphericalHarmonicsCosineCoefficients::getParameterValue( )
 
 }
 
-void SphericalHarmonicsCosineCoefficients::setParameterValue( Eigen::VectorXd parameterValue )
+void SphericalHarmonicsCosineCoefficients::setParameterValue( const Eigen::VectorXd parameterValue )
 {
     Eigen::MatrixXd coefficients = getCosineCoefficients_( );
     int currentIndex = 0;

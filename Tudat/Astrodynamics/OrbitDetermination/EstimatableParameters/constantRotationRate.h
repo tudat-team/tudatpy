@@ -1,5 +1,5 @@
-#ifndef CONSTANTROTATIONRATE_H
-#define CONSTANTROTATIONRATE_H
+#ifndef TUDAT_CONSTANTROTATIONRATE_H
+#define TUDAT_CONSTANTROTATIONRATE_H
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
@@ -10,10 +10,10 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-//! Class for the body rotation rate parameter.
+//! Interface class for estimation of a body's constant rotation rate parameter.
 /*!
- *  Class for the body rotation rate parameter. Specific parameter is the z-component of the rotation rate vector in SimpleRotationalEphemeris,
- *  assuming no x- and y- component.
+ * Interface class for estimation of a body's constant rotation rate parameter. Interfaces the estimation with the rotation
+ * rate parameter of a SimpleRotationalEphemeris object
  */
 class RotationRate: public EstimatableParameter< double >
 {
@@ -23,22 +23,21 @@ public:
     //! Constructor
     /*!
      *  Constructor
-     *  \param rotationModel SimpleRotationalEphemeris object of which parameter is a property
-     *  \param associatedBody Body of which parameter is a property.
+     *  \param rotationModel SimpleRotationalEphemeris object of which rotation rate parameter is a property
+     *  \param associatedBody Name of body of which parameter is a property.
      */
-    RotationRate( boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel, const std::string& associatedBody ):
+    RotationRate( const boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
+                  const std::string& associatedBody ):
         EstimatableParameter< double >( constant_rotation_rate, associatedBody ),
         rotationModel_( rotationModel ){ }
 
     //! Destructor
-    /*!
-     *  Destructor
-     */
     ~RotationRate( ) { }
 
     //! Get value of rotation rate.
     /*!
      *  Get value of rotation rate.
+     *  \return Value of rotation rate
      */
     double getParameterValue( )
     {
@@ -48,6 +47,7 @@ public:
     //! Reset value of rotation rate.
     /*!
      *  Reset value of rotation rate.
+     *  \param parameterValue New value of rotation rate
      */
     void setParameterValue( double parameterValue )
     {
@@ -68,10 +68,7 @@ protected:
 
 private:
 
-    //! SimpleRotationalEphemeris object of which parameter is a property
-    /*!
-     *  SimpleRotationalEphemeris object of which parameter is a property
-     */
+    //! SimpleRotationalEphemeris object of which rotation rate parameter is a property
     boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
 };
 
@@ -79,4 +76,4 @@ private:
 
 }
 
-#endif // CONSTANTROTATIONRATE_H
+#endif // TUDAT_CONSTANTROTATIONRATE_H

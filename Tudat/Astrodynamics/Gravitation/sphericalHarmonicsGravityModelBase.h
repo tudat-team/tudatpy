@@ -176,11 +176,21 @@ public:
         return isMutualAttractionUsed_;
     }
 
+    //! Function to return current position vector of body exerting gravitational acceleration in inertial frame.
+    /*!
+     *  Function to return current position vector of body exerting gravitational acceleration in inertial frame.
+     * \return Current position vector of body exerting gravitational acceleration in inertial frame.
+     */
     StateMatrix getCurrentPositionOfBodySubjectToAcceleration( )
     {
         return positionOfBodySubjectToAcceleration;
     }
 
+    //! Function to return current position vector of body undergoing gravitational acceleration in inertial frame.
+    /*!
+     *  Function to return current position vector of body undergoing gravitational acceleration in inertial frame.
+     * \return Current position vector of body undergoing gravitational acceleration in inertial frame.
+     */
     StateMatrix getCurrentPositionOfBodyExertingAcceleration( )
     {
         return positionOfBodyExertingAcceleration;
