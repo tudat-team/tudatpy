@@ -1,5 +1,5 @@
-#ifndef SPHERICALHARMONICCOSINECOEFFICIENTS_H
-#define SPHERICALHARMONICCOSINECOEFFICIENTS_H
+#ifndef TUDAT_SPHERICALHARMONICCOSINECOEFFICIENTS_H
+#define TUDAT_SPHERICALHARMONICCOSINECOEFFICIENTS_H
 
 #include <map>
 
@@ -36,7 +36,7 @@ public:
 
     Eigen::VectorXd getParameterValue( );
 
-    void setParameterValue( Eigen::VectorXd parameterValue );
+    void setParameterValue( const Eigen::VectorXd parameterValue );
 
     int getParameterSize( ) { return parameterSize_; }
 

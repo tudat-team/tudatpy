@@ -90,112 +90,129 @@ LegendreCache::LegendreCache( const int maximumDegree, const int maximumOrder, c
 //! Get Legendre polynomial from cache when possible, and from direct computation otherwise.
 void LegendreCache::update( const double polynomialParameter  )
 {
-    currentPolynomialParameter_ = polynomialParameter;
-    currentPolynomialParameterComplement_ = std::sqrt( 1.0 - polynomialParameter * polynomialParameter ); // cosine of latitude is always positive!
-
-    LegendreCache& thisReference = *this;
-
-    int jMax = -1;
-    for( int i = 0; i <= maximumDegree_; i++ )
+    // Check if cache needs update
+    if( !( polynomialParameter == currentPolynomialParameter_ ) )
     {
-        jMax = std::min( i, maximumOrder_ );
-        for( int j = 0; j <= jMax ; j++ )
-        {
-            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction_( i, j, thisReference );
+        currentPolynomialParameter_ = polynomialParameter;
 
-            if( j != 0 )
-            {
-                if( useGeodesyNormalization_ )
-                {
-                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
-                            computeGeodesyLegendrePolynomialDerivative(
-                                i, j - 1, currentPolynomialParameter_,
-                                legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
-                            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] );
-                }
-                else
-                {
-                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
-                            computeLegendrePolynomialDerivative(
-                                j - 1, currentPolynomialParameter_,
-                                legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                            legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] );
-                }
+        // Set complement of argument (assuming it to be sine of latitude) cosine of latitude is always positive.
+        currentPolynomialParameterComplement_ = std::sqrt( 1.0 - polynomialParameter * polynomialParameter );
 
-            }
-        }
+        LegendreCache& thisReference = *this;
 
-        if( useGeodesyNormalization_ )
-        {
-            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
-                    computeGeodesyLegendrePolynomialDerivative(
-                        i, jMax, currentPolynomialParameter_,
-                        legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
-                    derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
-        }
-        else
-        {
-            legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] =
-                    computeLegendrePolynomialDerivative(
-                        jMax, currentPolynomialParameter_,
-                        legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0 );
-        }
-    }
-
-    if( computeSecondDerivatives_ )
-    {
+        int jMax = -1;
         for( int i = 0; i <= maximumDegree_; i++ )
         {
             jMax = std::min( i, maximumOrder_ );
             for( int j = 0; j <= jMax ; j++ )
             {
+                // Compute legendre polynomial
+                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] = legendrePolynomialFunction_( i, j, thisReference );
+
                 if( j != 0 )
                 {
+                    // Compute legendre polynomial derivative
                     if( useGeodesyNormalization_ )
                     {
-                        legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
-                                computeGeodesyLegendrePolynomialSecondDerivative(
+                        legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                computeGeodesyLegendrePolynomialDerivative(
                                     i, j - 1, currentPolynomialParameter_,
                                     legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
                                 legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
-                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ],
                                 derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] );
                     }
                     else
                     {
-                        legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
-                                computeGeodesyLegendrePolynomialSecondDerivative(
-                                    i, j - 1, currentPolynomialParameter_,
+                        legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                computeLegendrePolynomialDerivative(
+                                    j - 1, currentPolynomialParameter_,
                                     legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
-                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
-                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ], 1.0 );
+                                legendreValues_[ i * ( maximumOrder_ + 1 ) + j ] );
                     }
 
                 }
             }
 
-            if( useGeodesyNormalization_ )
+            // Compute legendre polynomial derivative for i = j  (if needed)
+            if( jMax == i )
             {
-                legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
-                        computeGeodesyLegendrePolynomialSecondDerivative(
-                            i, jMax, currentPolynomialParameter_,
-                            legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
-                        legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
-                        derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
+                if( useGeodesyNormalization_ )
+                {
+                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
+                            computeGeodesyLegendrePolynomialDerivative(
+                                i, jMax, currentPolynomialParameter_,
+                                legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
+                }
+                else
+                {
+                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ] =
+                            computeLegendrePolynomialDerivative(
+                                jMax, currentPolynomialParameter_,
+                                legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0 );
+                }
             }
-            else
-            {
-                legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
-                        computeGeodesyLegendrePolynomialSecondDerivative(
-                            i, jMax, currentPolynomialParameter_,
-                            legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
-                        legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
-                        1.0 );
-            }
+        }
 
+        // Compute second derivatives of Legendre polynomials if needed
+        if( computeSecondDerivatives_ )
+        {
+            for( int i = 0; i <= maximumDegree_; i++ )
+            {
+                jMax = std::min( i, maximumOrder_ );
+                for( int j = 0; j <= jMax ; j++ )
+                {
+                    if( j != 0 )
+                    {
+                        // Compute legendre polynomial second derivatives
+                        if( useGeodesyNormalization_ )
+                        {
+                            legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                    computeGeodesyLegendrePolynomialSecondDerivative(
+                                        i, j - 1, currentPolynomialParameter_,
+                                        legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
+                                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ],
+                                    derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] );
+                        }
+                        else
+                        {
+                            legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] =
+                                    computeGeodesyLegendrePolynomialSecondDerivative(
+                                        i, j - 1, currentPolynomialParameter_,
+                                        legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
+                                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                    legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + j ], 1.0 );
+                        }
+
+                    }
+                }
+                // Compute legendre polynomial second derivative for i = j  (if needed)
+                if( jMax == i )
+                {
+                    if( useGeodesyNormalization_ )
+                    {
+                        legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
+                                computeGeodesyLegendrePolynomialSecondDerivative(
+                                    i, jMax, currentPolynomialParameter_,
+                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                                derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
+                    }
+                    else
+                    {
+                        legendreSecondDerivatives_[ i * ( maximumOrder_ + 1 ) +  jMax ] =
+                                computeGeodesyLegendrePolynomialSecondDerivative(
+                                    i, jMax, currentPolynomialParameter_,
+                                    legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                                legendreDerivatives_[ i * ( maximumOrder_ + 1 ) + jMax ], 0.0,
+                                1.0 );
+                    }
+                }
+
+            }
         }
     }
 }
@@ -210,6 +227,7 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int maximumDegree, const i
     {
         maximumOrder_ = maximumDegree_;
     }
+
     legendreValues_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
     legendreDerivatives_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
     legendreSecondDerivatives_.resize( ( maximumDegree_ + 1 ) * ( maximumOrder_ + 1 ) );
@@ -262,6 +280,7 @@ double LegendreCache::getLegendrePolynomial(
     };
 }
 
+//! Get first derivative of Legendre polynomial value from the cache.
 double LegendreCache::getLegendrePolynomialDerivative(
         const int degree, const int order )
 {
@@ -285,6 +304,7 @@ double LegendreCache::getLegendrePolynomialDerivative(
     };
 }
 
+//! Get second derivative of Legendre polynomial value from the cache.
 double LegendreCache::getLegendrePolynomialSecondDerivative(
         const int degree, const int order )
 {
@@ -533,15 +553,15 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
                 incrementedLegendrePolynomial, normalizationCorrection );
 }
 
-//! Compute derivative of geodesy-normalized Legendre polynomial.
+//! Compute second derivative of geodesy-normalized associated Legendre polynomial.
 double computeGeodesyLegendrePolynomialSecondDerivative( const int degree,
-                                                   const int order,
-                                                   const double polynomialParameter,
-                                                   const double currentLegendrePolynomial,
-                                                   const double incrementedLegendrePolynomial,
-                                                   const double currentLegendrePolynomialDerivative,
-                                                   const double incrementedLegendrePolynomialDerivative,
-                                                   const double normalizationCorrection )
+                                                         const int order,
+                                                         const double polynomialParameter,
+                                                         const double currentLegendrePolynomial,
+                                                         const double incrementedLegendrePolynomial,
+                                                         const double currentLegendrePolynomialDerivative,
+                                                         const double incrementedLegendrePolynomialDerivative,
+                                                         const double normalizationCorrection )
 {
     double polynomialParameterSquare = polynomialParameter * polynomialParameter;
 

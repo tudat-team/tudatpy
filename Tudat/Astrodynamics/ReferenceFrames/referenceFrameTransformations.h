@@ -77,6 +77,12 @@ namespace reference_frames
 Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
         const Eigen::Matrix3d& rotationMatrix );
 
+//! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
+/*!
+ *  Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
+ * \param rotationMatrixFromInertialToPlanetFixedFrame Rotation matrix from which Euler angles are to be determined.
+ * \return Pole right ascension and declination, and prime meridian of date, from rotation matrix
+ */
 Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
         const Eigen::Matrix3d& rotationMatrixFromInertialToPlanetFixedFrame );
 

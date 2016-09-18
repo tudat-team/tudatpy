@@ -48,6 +48,12 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
  */
 bool isDoubleParameter( const EstimatebleParametersEnum parameterType );
 
+//! Function to determine whether the given (non-dynamical) parameter influences a body's orientation.
+/*!
+ * Function to determine whether the given (non-dynamical) parameter influences a body's orientation.
+ * \param parameterType Parameter identifier.
+ * \return True if parameter is a property of rotation model
+ */
 bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum parameterType );
 
 
@@ -94,7 +100,7 @@ public:
      *  Pure virtual function to (re)set the value of the parameter.
      *  \param parameterValue to which the parameter is to be set.
      */
-    virtual void setParameterValue( ParameterType parameterValue ) = 0;
+    virtual void setParameterValue( const ParameterType parameterValue ) = 0;
 
     //! Function to retrieve the type and associated body of the parameter.
     /*!

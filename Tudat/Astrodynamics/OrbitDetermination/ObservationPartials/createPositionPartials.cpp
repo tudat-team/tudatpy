@@ -8,18 +8,6 @@ namespace tudat
 namespace observation_partials
 {
 
-
-boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtState(
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyName,
-        const double positionPerturbation )
-{
-    boost::shared_ptr< RotationMatrixPartial > rotationMatrixPartial;
-
-    return rotationMatrixPartial;
-}
-
-
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -39,10 +27,10 @@ boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParame
     {
     case estimatable_parameters::constant_rotation_rate:
 
-        if( boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) == NULL )
+        if( boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >(
+                    currentBody->getRotationalEphemeris( ) ) == NULL )
         {
-            std::cerr<<"Warning, body's rotation model is not simple when making "
-                       "position w.r.t. constant rtoation rate partial"<<std::endl;
+            throw std::runtime_error( "Warning, body's rotation model is not simple when making position w.r.t. constant rtoation rate partial" ) ;
         }
 
         // Create rotation matrix partial object
@@ -50,7 +38,10 @@ boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParame
                     boost::dynamic_pointer_cast< SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) );
         break;
     default:
-        std::cerr<<"Warning, rotation matrix partial not implemented for parameter "<<parameterToEstimate->getParameterName( ).first<<std::endl;
+        std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
+                boost::lexical_cast< std::string >( parameterToEstimate->getParameterName( ).first );
+        throw std::runtime_error( errorMessage );
+
         break;
     }
 
@@ -80,10 +71,11 @@ boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParame
     case estimatable_parameters::rotation_pole_position:
 
 
-        if( boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) == NULL )
+        if( boost::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >(
+                    currentBody->getRotationalEphemeris( ) ) == NULL )
         {
-            std::cerr<<"Warning, body's rotation model is not simple when making "
-                       "position w.r.t. pole position partial"<<std::endl;
+            std::string errorMessage = "Warning, body's rotation model is not simple when making position w.r.t. pole position partial";
+            throw std::runtime_error( errorMessage );
         }
 
         // Create rotation matrix partial object
@@ -92,7 +84,9 @@ boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParame
         break;
 
     default:
-        std::cerr<<"Warning, rotation matrix partial not implemented for parameter "<<parameterToEstimate->getParameterName( ).first<<std::endl;
+        std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
+                boost::lexical_cast< std::string >( parameterToEstimate->getParameterName( ).first );
+        throw std::runtime_error( errorMessage );
         break;
     }
 

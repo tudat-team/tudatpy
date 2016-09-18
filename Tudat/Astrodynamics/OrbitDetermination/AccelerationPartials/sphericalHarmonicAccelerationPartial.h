@@ -1,5 +1,5 @@
-#ifndef SPHERICALHARMONICACCELERATIONPARTIAL_H
-#define SPHERICALHARMONICACCELERATIONPARTIAL_H
+#ifndef TUDAT_SPHERICALHARMONICACCELERATIONPARTIAL_H
+#define TUDAT_SPHERICALHARMONICACCELERATIONPARTIAL_H
 
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
@@ -11,6 +11,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/createPositionPartials.h"
 
 
 
@@ -34,30 +35,26 @@ public:
 
     //! Contructor.
     /*!
-     *  Constructor, requires input on the acceleration model as well as the gravity field from which the spherical harmonic coefficients
-     *  are calculated. Additionally, if any partials of paramaters of tidal models are to be calculated, interfaces for these partials
-     *  are to be pre-constructed and passed to this constructor, one TidalLoveNumberPartialInterface class per tide model identifier.
-     *  Similarly, if any partials of parameters of the rotation model of the body exerting acceleration are to be calculated,
-     *  RotationMatrixPartial objects must be pre-constructed and passed here as a map, with one object for each parameter wrt which a
-     *  partial is to be taken.
+     *  Constructor, requires input on the acceleration model as of which partials are to be computed.
+     *  If any partials of parameters of the rotation model of the body exerting acceleration are to be calculated,
+     *  RotationMatrixPartial objects must be pre-constructed and passed here as a map, with one object for each parameter
+     *  wrt which a partial is to be taken.
      *  \param acceleratedBody Name of body undergoing acceleration.
      *  \param acceleratingBody Name of body exerting acceleration.
-     *  \param accelerationModel Spherical harmonic gravity acceleration model from which acceleration is calculated wrt which the object
-     *  being constructed is to calculate partials.
-     *  \param gravityField Spherical harmonic gravity field of the body exerting the acceleration.
-     *  \param rotationMatrixPartials Map of RotationMatrixPartial, one for each paramater representing a property of the rotation of the
-     *  body exerting the acceleration wrt which an acceleration partial will be calculated.
+     *  \param accelerationModel Spherical harmonic gravity acceleration model from which acceleration is calculated wrt
+     *  which the object being constructed is to calculate partials.
+     *  \param rotationMatrixPartials Map of RotationMatrixPartial, one for each paramater representing a property of the
+     *  rotation of the body exerting the acceleration wrt which an acceleration partial will be calculated.
      */
     SphericalHarmonicsGravityPartial(
             const std::string& acceleratedBody,
             const std::string& acceleratingBody,
             const boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
-            const std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >, boost::shared_ptr< observation_partials::RotationMatrixPartial > >&
-            rotationMatrixPartials = ( std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-            boost::shared_ptr< observation_partials::RotationMatrixPartial > >( ) ));
+            const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
+            observation_partials::RotationMatrixPartialNamedList( ) );
 
-    SphericalHarmonicsGravityPartial(
-            const boost::shared_ptr< SphericalHarmonicsGravityPartial > originalAccelerationPartial );
+    //! Destructor
+    ~SphericalHarmonicsGravityPartial( ){ }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -84,9 +81,9 @@ public:
         }
     }
 
-    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
+    //! Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration.
     /*!
-     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration and
+     *  Function for calculating the partial of the acceleration w.r.t. the position of body exerting acceleration and
      *  adding it to the existing partial block.
      *  The update( ) function must have been called during current time step before calling this function.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
@@ -151,25 +148,33 @@ public:
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
-
-    virtual std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getGravitationalParameterPartialFunction(
+    //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
+    /*!
+     * Function to create a function returning the current partial w.r.t. a gravitational parameter.
+     * \param parameterId Identifier of parameter for which the partial is to be created.
+     * \return Pair with partial function and paramater partial size. The partial function is non-empty only
+     * if the parameterId input represents the gravitational parameter of acceleratingBody_ (or acceleratedBody_ if
+     * accelerationUsesMutualAttraction_ is true).
+     */
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getGravitationalParameterPartialFunction(
             const estimatable_parameters::EstimatebleParameterIdentifier& parameterId );
 
     //! Function for updating the partial object to current state and time.
     /*!
-     *  Function for updating the partial object to current state and time. Calculates the variables that are used for the calculation of multple
-     *  partials, to prevent multiple calculations of same function.
-     *  \param currentTime Time to which object is to be updated (note that most update functions are time-independent, since the 'current' state
-     *  of the bodies is typically updated globally by the NBodyStateDerivative class).
+     *  Function for updating the partial object to current state and time. Calculates the variables that are
+     *  used for the calculation of multple partials, to prevent multiple calculations of same function.
+     *  \param currentTime Time to which object is to be updated (note that most update functions are time-independent,
+     *  since the 'current' state of the bodies is typically updated globally by the NBodyStateDerivative class).
      */
     virtual void update( const double currentTime = TUDAT_NAN );
 
 
     //! Function to calculate the partial wrt the gravitational parameter.
     /*!
-     *  Function to calculate the partial wrt the gravitational parameter of the central body. Note that in the case of mutual attraction (see
-     *  SphericalHarmonicsGravitationalAccelerationModel), the partial wrt the gravitational parameter of the body exereting acceleration is equal
-     *  to the partial wrt to the body undergoing the acceleration, which is zero otherwise.
+     *  Function to calculate the partial wrt the gravitational parameter of the central body. Note that in the case of
+     *  mutual attraction (see SphericalHarmonicsGravitationalAccelerationModel), the partial wrt the gravitational
+     *  parameter of the body exerting acceleration is equal to the partial wrt to the body undergoing the acceleration,
+     *  which is zero otherwise.
      *  \return Partial wrt the gravitational parameter of the central body.
      */
     void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix )
@@ -184,103 +189,18 @@ public:
         }
     }
 
-
-    boost::function< double( ) > getGravitationalParameterFunction( )
-    {
-        return gravitationalParameterFunction_;
-    }
-\
-    boost::function< double( ) > getBodyReferenceRadiusFunction( )
-    {
-        return bodyReferenceRadius_;
-    }
-
-    boost::function< Eigen::MatrixXd( ) > gteCosineCoefficientsFunction( )
-    {
-        return cosineCoefficients_;
-    }
-
-    boost::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction( )
-    {
-        return sineCoefficients_;
-    }
-
-
-    boost::function< Eigen::Vector3d( ) > getPositionFunctionOfAcceleratedBody( )
-    {
-        return positionFunctionOfAcceleratedBody_;
-    }
-
-    boost::function< Eigen::Vector3d( ) > getPositionFunctionOfAcceleratingBody( )
-    {
-        return positionFunctionOfAcceleratingBody_;
-    }
-
-    boost::function< Eigen::Matrix3d( ) > getToBodyFixedFrameRotation( )
-    {
-        return fromBodyFixedToIntegrationFrameRotation_;
-    }
-
-    boost::function< void( const double ) > getUpdateFunction( )
-    {
-        return updateFunction_;
-    }
-
-    boost::function< Eigen::Matrix< double, 3, 1 >( ) > getAccelerationFunction( )
-    {
-        return accelerationFunction_;
-    }
-
-    bool getAccelerationUsesMutualAttraction( )
-    {
-        return accelerationUsesMutualAttraction_;
-    }
-
-    //! Map of RotationMatrixPartial, one for each relevant rotation parameter
-    /*!
-     *  Map of RotationMatrixPartial, one for each parameter representing a property of the rotation of the
-     *  body exerting the acceleration wrt which an acceleration partial will be calculated. Map is pre-created and set through the
-     *  constructor.
-     */
-    std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >, boost::shared_ptr< observation_partials::RotationMatrixPartial > >
-    getRotationMatrixPartials( )
-    {
-        return rotationMatrixPartials_;
-    }
-
-    Eigen::Matrix3d getCurrentPartialWrtPosition( )
-    {
-        return currentPartialWrtPosition_;
-    }
-
-    Eigen::Matrix3d getCurrentPartialWrtVelocity( )
-    {
-        return currentPartialWrtVelocity_;
-    }
-
 protected:
-
-
-    void resetTimeOfMemberObjects( )
-    {
-
-    }
-
-    virtual void updateParameterPartialsOfMemberObjects( )
-    {
-
-    }
 
     //! Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
     /*!
-     *  Function to calculate the partial of the acceleration wrt a set of cosine coefficients. The set of coefficients wrt which a partial is to
-     *  be taken is provided as input.
-     *  \param blockIndices List of cosine coefficient indices wrt which the partials are to be taken. The key of the map is the degree, the
-     *  the value is the start order and the number of order in the current degree wrt which the partials are to be taken. For instance,
-     *  an entry (4, (2, 3 ) ) means that partials a degree 4 and order 2,3 and 4 are to be calculated.
-     *  \param numberOfParameters Total number of parameter wrt which a partial is to be calculated, must be consistent with blockIndices content
-     *  (i.e. the sum of the second part of all values in the map). Included as input to prevent recomputation.
-     *  \return Matrix of acceleration partials, with each column containg the partial wrt a single coefficient, the order of the partials is first in
+     *  Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
+     *  The set of coefficients wrt which a partial is to be taken is provided as input.
+     *  \param blockIndices List of cosine coefficient indices wrt which the partials are to be taken.
+     *  The key of the map is the degree, the value is the start order and the number of order in the current degree wrt
+     *  which the partials are to be taken. For instance, an entry (4, (2, 3 ) ) means that partials a degree 4 and order
+     *  2,3 and 4 are to be calculated.
+     *  \param partialDerivatives Matrix of acceleration partials that is set by this function (returned by reference),
+     *  with each column containg the partial wrt a single coefficient, the order of the partials is first in
      *  order of increasing degree, followed by increasing order, for instance (2,1),(2,2),(3,1),(3,2),(4,1)....
      */
     void wrtCosineCoefficientBlock(
@@ -289,14 +209,14 @@ protected:
 
     //! Function to calculate the partial of the acceleration wrt a set of sine coefficients.
     /*!
-     *  Function to calculate the partial of the acceleration wrt a set of sine coefficients. The set of coefficients wrt which a partial is to
-     *  be taken is provided as input.
-     *  \param blockIndices List of sine coefficient indices wrt which the partials are to be taken. The key of the map is the degree, the
-     *  the value is the start order and the number of order in the current degree wrt which the partials are to be taken. For instance,
-     *  an entry (4, (2, 3 ) ) means that partials a degree 4 and order 2,3 and 4 are to be calculated.
-     *  \param numberOfParameters Total number of parameter wrt which a partial is to be calculated, must be consistent with blockIndices content
-     *  (i.e. the sum of the second part of all values in the map). Included as input to prevent recomputation.
-     *  \return Matrix of acceleration partials, with each column containg the partial wrt a single coefficient, the order of the partials is first in
+     *  Function to calculate the partial of the acceleration wrt a set of sine coefficients.
+     *  The set of coefficients wrt which a partial is to be taken is provided as input.
+     *  \param blockIndices List of sine coefficient indices wrt which the partials are to be taken.
+     *  The key of the map is the degree, the value is the start order and the number of order in the current degree wrt
+     *  which the partials are to be taken. For instance, an entry (4, (2, 3 ) ) means that partials a degree 4 and order
+     *  2,3 and 4 are to be calculated.
+     *  \param partialDerivatives Matrix of acceleration partials that is set by this function (returned by reference),
+     *  with each column containg the partial wrt a single coefficient, the order of the partials is first in
      *  order of increasing degree, followed by increasing order, for instance (2,1),(2,2),(3,1),(3,2),(4,1)....
      */
     void wrtSineCoefficientBlock(
@@ -305,10 +225,14 @@ protected:
 
     //! Function to calculate an acceleration partial wrt a rotational parameter.
     /*!
-     *  Function to calculate an acceleration partial wrt a rotational parameter of the rotation model of the body exerting the acceleration.
-     *  \param parameterType Type of parameter wrt which a partial is to be calculated. An entry of the requested type must be present in the
-     *  rotationMatrixPartials_ map.
-     *  \return Partial of spherical harmonic acceleration wrt a rotational parameter.
+     *  Function to calculate an acceleration partial wrt a rotational parameter of the rotation model of the body
+     *  exerting the acceleration.
+     *  \param accelerationPartial Matrix of partials of spherical harmonic acceleration wrt a rotational parameter
+     *  that is set by this function (returned by reference)
+     *  \param parameterType Type of parameter wrt which a partial is to be calculated.
+     *  An entry of the requested type must be present in the rotationMatrixPartials_ map.
+     *  \param secondaryIdentifier Identifier required to unambiguously define the parameter (in addition to information in
+     *  parameterType.
      */
     void wrtRotationModelParameter(
             Eigen::MatrixXd& accelerationPartial,
@@ -317,65 +241,41 @@ protected:
 
 
     //! Function to return the gravitational parameter used for calculating the acceleration.
-    /*!
-     *  Function to return the gravitational parameter used for calculating the acceleration.
-     */
     boost::function< double( ) > gravitationalParameterFunction_;
 
     //! Function to return the reference radius used for calculating the acceleration.
-    /*!
-     *  Function to return the reference radius used for calculating the acceleration.
-     */
     boost::function< double( ) > bodyReferenceRadius_;
 
     //! Function to return the current cosine coefficients of the spherical harmonic gravity field.
-    /*!
-     *  Function to return the current cosine coefficients of the spherical harmonic gravity field.
-     */
     boost::function< Eigen::MatrixXd( ) > cosineCoefficients_;
 
     //! Function to return the current sine coefficients of the spherical harmonic gravity field.
-    /*!
-     *  Function to return the current sine coefficients of the spherical harmonic gravity field.
-     */
     boost::function< Eigen::MatrixXd( ) > sineCoefficients_;
 
-    //! Cache object used for storing calculated values at current time and state for spherical harmonic gravity calculations.
-    /*!
-     *  Cache object used for storing calculated values at current time and state for spherical harmonic gravity calculations.
-     */
+    //! Cache object used for storing calculated values at current time and state for spherical harmonic gravity
+    //! calculations.
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicCache_;
 
     //! Function returning position of body undergoing acceleration.
-    /*!
-     *  Function returning position of body undergoing acceleration.
-     */
     boost::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratedBody_;
 
     //! Function returning position of body exerting acceleration.
-    /*!
-     *  Function returning position of body exerting acceleration.
-     */
     boost::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratingBody_;
 
     //! Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
-    /*!
-     *  Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
-     */
     boost::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
+
+
+    //! Function to retrieve the current spherical harmonic acceleration.
+    boost::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
 
     //! Function to update the acceleration to the current state and time.
     /*!
-     *  Function to update the acceleration to the current state and time. Called when updating an object of this class with the update( time ) function,
+     *  Function to update the acceleration to the current state and time.
+     *  Called when updating an object of this class with the update( time ) function,
      *  in case the partial is called before the acceleration model in the current iteration of the numerical integration.
      */
     boost::function< void( const double ) > updateFunction_;
-
-    //! Function to retrieve the current spherical harmonic acceleration.
-    /*!
-     *  Function to retrieve the current spherical harmonic acceleration.
-     */
-    boost::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
 
     //! Current cosine coefficients of the spherical harmonic gravity field.
     /*!
@@ -389,63 +289,78 @@ protected:
      */
     Eigen::MatrixXd currentSineCoefficients_;
 
+    //! Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration
+    /*!
+     *  Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration,
+     *  set by update( time ) function.
+     */
     Eigen::Vector3d bodyFixedPosition_;
 
 
     //! Current spherical coordinate of body undergoing acceleration
     /*!
      *  Current spherical coordinate of body undergoing acceleration, in reference frame fixed to body exerting acceleration.
-     *  Order of components is radial distance (from center of body), latitude, longitude. Note that the the second entry differs
-     *  from the direct output of the cartesian -> spherical coordinates, which produces a colatitude.
+     *  Order of components is radial distance (from center of body), latitude, longitude. Note that the the second entry
+     *  differs from the direct output of the cartesian -> spherical coordinates, which produces a colatitude.
      */
     Eigen::Vector3d bodyFixedSphericalPosition_;
 
     //! The current partial of the acceleration wrt the position of the body undergoing the acceleration.
     /*!
-     *  The current partial of the acceleration wrt the position of the body undergoing the acceleration. The partial wrt the body exerting the
-     *  acceleration is minust this value. Value is set by the update( time ) function.
+     *  The current partial of the acceleration wrt the position of the body undergoing the acceleration.
+     *  The partial wrt the position of the body exerting the acceleration is minus this value.
+     *  Value is set by the update( time ) function.
      */
     Eigen::Matrix3d currentPartialWrtPosition_;
 
+    //! The current partial of the acceleration wrt the position of the body undergoing the acceleration,
+    //! with both acceleration and position in body-fixed frame.
+    /*!
+     *  The current partial of the acceleration wrt the position of the body undergoing the acceleration.
+     *  with both acceleration and position in body-fixed frame. Value is set by the update( time ) function.
+     */
     Eigen::Matrix3d currentBodyFixedPartialWrtPosition_;
 
+    //! The current partial of the acceleration wrt the velocity of the body undergoing the acceleration.
+    /*!
+     *  The current partial of the acceleration wrt the velocity of the body undergoing the acceleration.
+     *  The partial wrt the velocity of the body exerting the acceleration is minus this value.
+     * Value is set by the update( time ) function.
+     */
     Eigen::Matrix3d currentPartialWrtVelocity_;
 
 
     //! Maximum degree of spherical harmonic expansion.
     /*!
-     *  Maximum degree of spherical harmonic expansion of body exerting acceleration used in the calculation of the acceleration.
+     *  Maximum degree of spherical harmonic expansion of body exerting acceleration used in the calculation
+     *  of the acceleration.
      */
     int maximumDegree_;
 
     //! Maximum order of spherical harmonic expansion.
     /*!
-     *  Maximum order of spherical harmonic expansion of body exerting acceleration used in the calculation of the acceleration.
+     *  Maximum order of spherical harmonic expansion of body exerting acceleration used in the calculation
+     *  of the acceleration.
      */
     int maximumOrder_;
-
-    std::vector< std::vector< std::map< int, double > > > partialConverterTermsToNormalized_;
 
 
     //! Map of RotationMatrixPartial, one for each relevant rotation parameter
     /*!
      *  Map of RotationMatrixPartial, one for each parameter representing a property of the rotation of the
-     *  body exerting the acceleration wrt which an acceleration partial will be calculated. Map is pre-created and set through the
-     *  constructor.
+     *  body exerting the acceleration wrt which an acceleration partial will be calculated.
+     *  Map is pre-created and set through the constructor.
      */
-    std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >, boost::shared_ptr< observation_partials::RotationMatrixPartial > > rotationMatrixPartials_;
+    observation_partials::RotationMatrixPartialNamedList rotationMatrixPartials_;
 
     //! Boolean denoting whether the mutual attraction between the bodies is taken into account
     /*!
-     *  Boolean denoting whether the mutual attraction between the bodies is taken into account, as is the case when integrting in a
-     *  (non-rotating) frame centered on the body exerting the acceleration, in which case the gravitatiinal acceleration of the
-     *  body undergoing the acceleration on that exerting the acceleration must be taken into account as an inertial effect.
+     *  Boolean denoting whether the mutual attraction between the bodies is taken into account, as is the case when
+     *  integrting in a (non-rotating) frame centered on the body exerting the acceleration, in which case the
+     *  gravitational acceleration of the body undergoing the acceleration on that exerting the acceleration must be taken
+     *  into account as an inertial effect.
      */
     bool accelerationUsesMutualAttraction_;
-
-    bool acceleratingBodyStateDependsOnRotation_;
-
-    boost::function< std::vector< Eigen::Matrix3d >( const double ) > partialOfRotationToBaseFrameWrtInertialRelativePositionFunction_;
 
 };
 
@@ -455,4 +370,4 @@ protected:
 
 }
 
-#endif // SPHERICALHARMONICACCELERATIONPARTIAL_H
+#endif // TUDAT_SPHERICALHARMONICACCELERATIONPARTIAL_H

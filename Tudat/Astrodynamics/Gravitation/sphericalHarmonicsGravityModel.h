@@ -241,7 +241,8 @@ public:
           getSineHarmonicsCoefficients( boost::lambda::constant(aSineHarmonicCoefficientMatrix ) ),
           rotationFromBodyFixedToIntegrationFrameFunction_(
               rotationFromBodyFixedToIntegrationFrameFunction ),
-          sphericalHarmonicsCache_( sphericalHarmonicsCache )
+          sphericalHarmonicsCache_( sphericalHarmonicsCache ),
+          currentAcceleration_( Eigen::Vector3d::Zero( ) )
 
     {
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
@@ -299,7 +300,8 @@ public:
           getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
           getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
           rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
-          sphericalHarmonicsCache_( sphericalHarmonicsCache )
+          sphericalHarmonicsCache_( sphericalHarmonicsCache ),
+          currentAcceleration_( Eigen::Vector3d::Zero( ) )
     {
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
                     std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ), sphericalHarmonicsCache_->getMaximumDegree( ) ),
@@ -318,14 +320,7 @@ public:
      */
     Eigen::Vector3d getAcceleration( )
     {
-        return rotationToIntegrationFrame_ *
-                computeGeodesyNormalizedGravitationalAccelerationSum(
-                    rotationToIntegrationFrame_.inverse( ) * (
-                        this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration ),
-                    gravitationalParameter,
-                    equatorialRadius,
-                    cosineHarmonicCoefficients,
-                    sineHarmonicCoefficients, sphericalHarmonicsCache_ );
+        return currentAcceleration_;
     }
 
     //! Update class members.
@@ -342,6 +337,14 @@ public:
             sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
             rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
             this->updateBaseMembers( );
+            currentAcceleration_ = rotationToIntegrationFrame_ *
+                    computeGeodesyNormalizedGravitationalAccelerationSum(
+                        rotationToIntegrationFrame_.inverse( ) * (
+                            this->positionOfBodySubjectToAcceleration - this->positionOfBodyExertingAcceleration ),
+                        gravitationalParameter,
+                        equatorialRadius,
+                        cosineHarmonicCoefficients,
+                        sineHarmonicCoefficients, sphericalHarmonicsCache_ );
         }
     }
 
@@ -355,6 +358,11 @@ public:
         return sphericalHarmonicsCache_;
     }
 
+    //! Function to retrieve the spherical harmonics reference radius.
+    /*!
+     *  Function to retrieve the spherical harmonics reference radius.
+     *  \return Spherical harmonics reference radius.
+     */
     double getReferenceRadius( )
     {
         return equatorialRadius;
@@ -378,11 +386,21 @@ public:
         return getSineHarmonicsCoefficients;
     }
 
+    //! Function to retrieve the current rotation from body-fixed frame to integration frame, in the form of a quaternion.
+    /*!
+     *  Function to retrieve the current rotation from body-fixed frame to integration frame, in the form of a quaternion.
+     *  \return current rotation from body-fixed frame to integration frame, in the form of a quaternion.
+     */
     Eigen::Quaterniond getCurrentRotationToIntegrationFrame( )
     {
         return rotationToIntegrationFrame_;
     }
 
+    //! Function to retrieve the current rotation from body-fixed frame to integration frame, as a rotation matrix.
+    /*!
+     *  Function to retrieve the current rotation from body-fixed frame to integration frame, as a rotation matrix.
+     *  \return current rotation from body-fixed frame to integration frame, as a rotation matrix.
+     */
     Eigen::Matrix3d getCurrentRotationToIntegrationFrameMatrix( )
     {
         return rotationToIntegrationFrame_.toRotationMatrix( );
@@ -432,6 +450,9 @@ private:
 
     //!  Spherical harmonics cache for this acceleration
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+
+    //! Current acceleration, as computed by last call to updateMembers function
+    Eigen::Vector3d currentAcceleration_;
 
 };
 

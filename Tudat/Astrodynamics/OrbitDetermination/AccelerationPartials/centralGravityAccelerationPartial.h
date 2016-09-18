@@ -205,7 +205,7 @@ protected:
     //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
     /*!
      * Function to create a function returning the current partial w.r.t. a gravitational parameter.
-     * \param parameterId Identified of parameter for which the partial is to be created.
+     * \param parameterId Identifier of parameter for which the partial is to be created.
      * \return Pair with partial function and paramater partial size. The partial function is non-empty only
      * if the parameterId input represents the gravitational parameter of acceleratingBody_ (or acceleratedBody_ if
      * accelerationUsesMutualAttraction_ is true).

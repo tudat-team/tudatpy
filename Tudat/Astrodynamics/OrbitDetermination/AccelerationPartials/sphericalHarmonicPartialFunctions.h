@@ -1,5 +1,5 @@
-#ifndef SPHERICALHARMONICPARTIALFUNCTIONS_H
-#define SPHERICALHARMONICPARTIALFUNCTIONS_H
+#ifndef TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H
+#define TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H
 
 #include <boost/shared_ptr.hpp>
 
@@ -16,6 +16,30 @@ namespace orbit_determination
 namespace partial_derivatives
 {
 
+//! Function to compute the spherical Hessian of a single term of a spherical harmonic potential
+/*!
+ *  Function to compute the spherical Hessian (i.e. matrix of second derivatives w.r.t. spherical components radius, latitude
+ *  and longitude) of a single term of a spherical harmonic potential.
+ *  \param distance Distance to center of body with gravity field at which the partials are to be calculated
+ *  \param radiusPowerTerm Distance divided by the reference radius of the gravity field, to the power (degree + 1)
+ *  \param cosineOfOrderLongitude Cosine of order times the longitude at which the potential is to be calculated
+ *  \param sineOfOrderLongitude Sine of order times the longitude at which the potential is to be calculated
+ *  \param cosineOfLatitude Cosine of the latitude at which the potential is to be calculated
+ *  \param sineOfLatitude Sine of the latitude at which the potential is to be calculated
+ *  \param preMultiplier Pre-multiplier of potential (gravitational parametere divided by reference radius in normal
+ *  representation)
+ *  \param degree Degree of the harmonic for which the gradient is to be computed.
+ *  \param order Order of the harmonic for which the gradient is to be computed.
+ *  \param cosineHarmonicCoefficient Coefficient which characterizes relative strengh of a harmonic term.
+ *  \param sineHarmonicCoefficient Coefficient which characterizes relative strengh of a harmonic term.
+ *  \param legendrePolynomial Value of associated Legendre polynomial with the same degree and order as the to be computed
+ *  harmonic, and with the sine of the latitude coordinate as polynomial parameter.
+ *  \param legendrePolynomialDerivative Value of the derivative of parameter 'legendrePolynomial' with respect to the sine
+ *  of the latitude angle.
+ *  \param legendrePolynomialSecondDerivative Value of second derivative of parameter 'legendrePolynomial' with respect to
+ *  the sine of the latitude angle.
+ *  \param sphericalHessian Hessian of potential term in spherical coordinates (returned by reference).
+ */
 void computePotentialSphericalHessian(
         const double distance,
         const double radiusPowerTerm,
@@ -33,6 +57,27 @@ void computePotentialSphericalHessian(
         const double legendrePolynomialSecondDerivative,
         Eigen::Matrix3d& sphericalHessian );
 
+//! Function to compute the spherical Hessian of a single term of a spherical harmonic potential
+/*!
+ *  Function to compute the spherical Hessian (i.e. matrix of second derivatives w.r.t. spherical components radius, latitude
+ *  and longitude) of a single term of a spherical harmonic potential.
+ *  \param sphericalPosition Spherical position (radius, ,latitude, longitude) at which potential partials are to be
+ *  evaluated
+ *  \param referenceRadius Reference radius of spherical harmonic potential.
+ *  \param preMultiplier Pre-multiplier of potential (gravitational parametere divided by reference radius in normal
+ *  representation)
+ *  \param degree Degree of the harmonic for which the gradient is to be computed.
+ *  \param order Order of the harmonic for which the gradient is to be computed.
+ *  \param cosineHarmonicCoefficient Coefficient which characterizes relative strengh of a harmonic term.
+ *  \param sineHarmonicCoefficient Coefficient which characterizes relative strengh of a harmonic term.
+ *  \param legendrePolynomial Value of associated Legendre polynomial with the same degree and order as the to be computed
+ *  harmonic, and with the sine of the latitude coordinate as polynomial parameter.
+ *  \param legendrePolynomialDerivative Value of the derivative of parameter 'legendrePolynomial' with respect to the sine
+ *  of the latitude angle.
+ *  \param legendrePolynomialSecondDerivative Value of second derivative of parameter 'legendrePolynomial' with respect to
+ *  the sine of the latitude angle.
+ *  \param sphericalHessian Hessian of potential term in spherical coordinates (returned by reference).
+ */
 void computePotentialSphericalHessian(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
@@ -46,6 +91,21 @@ void computePotentialSphericalHessian(
         const double legendrePolynomialSecondDerivative,
         Eigen::Matrix3d& sphericalHessian );
 
+//! Function to compute the spherical Hessian of a single term of a spherical harmonic potential
+/*!
+ *  Function to compute the spherical Hessian (i.e. matrix of second derivatives w.r.t. spherical components radius, latitude
+ *  and longitude) of a single term of a spherical harmonic potential.
+ *  \param sphericalPosition Spherical position (radius, ,latitude, longitude) at which potential partials are to be
+ *  evaluated
+ *  \param preMultiplier Pre-multiplier of potential (gravitational parametere divided by reference radius in normal
+ *  representation)
+ *  \param degree Degree of the harmonic for which the gradient is to be computed.
+ *  \param order Order of the harmonic for which the gradient is to be computed.
+ *  \param cosineHarmonicCoefficient Coefficient which characterizes relative strengh of a harmonic term.
+ *  \param sineHarmonicCoefficient Coefficient which characterizes relative strengh of a harmonic term.
+ *  \param sphericalHarmonicsCache Cache object containing precomputed spherical harmonics terms.
+ *  \param sphericalHessian Hessian of potential term in spherical coordinates (returned by reference).
+ */
 void computePotentialSphericalHessian(
         const Eigen::Vector3d& sphericalPosition,
         const double preMultiplier,
@@ -56,14 +116,48 @@ void computePotentialSphericalHessian(
         const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         Eigen::Matrix3d& sphericalHessian );
 
+//! Function to compute the spherical Hessian of a full spherical harmonic potential
+/*!
+ *  Function to compute the spherical Hessian (i.e. matrix of second derivatives w.r.t. spherical components radius, latitude
+ *  and longitude) of a full spherical harmonic potential.
+ *  \param sphericalPosition Spherical position (radius, ,latitude, longitude) at which potential partials are to be
+ *  evaluated
+ *  \param referenceRadius Reference radius of spherical harmonic potential.
+ *  \param gravitionalParameter Gravitational parameter used for spherical harmonic expansion
+ *  \param cosineHarmonicCoefficients Matrix of coefficient which characterize the relative strengh of cosine harmonic
+ *  terms.
+ *  \param sineHarmonicCoefficients Matrix of coefficient which characterize the relative strengh of sine harmonic terms.
+ *  \param sphericalHarmonicsCache Cache object containing precomputed spherical harmonics terms.
+ *  \return Hessian of potential in spherical coordinates (returned by reference).
+ */
 Eigen::Matrix3d computeCumulativeSphericalHessian(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
         const Eigen::MatrixXd cosineHarmonicCoefficients,
         const Eigen::MatrixXd sineHarmonicCoefficients,
-        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache );
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
+//! Calculate partial of spherical harmonic acceleration w.r.t. position of body undergoing acceleration
+//! (in the body-fixed frame)
+/*!
+ *  Calculate partial of spherical harmonic acceleration w.r.t. position of body undergoing acceleration
+ * (in the body-fixed frame)
+ * \param cartesianPosition Cartesian position  at which potential partials are to be evaluated
+ * \param sphericalPosition Spherical position (radius, ,latitude, longitude) at which potential partials are to be
+ * evaluated
+ * \param referenceRadius Reference radius of spherical harmonic potential.
+ * \param gravitionalParameter Gravitational parameter used for spherical harmonic expansion
+ * \param cosineHarmonicCoefficients Cosine spherical harmonic coefficients.
+ * \param sineHarmonicCoefficients Sine spherical harmonic coefficients
+ * \param sphericalHarmonicsCache Cache object containing precomputed spherical harmonics terms.
+ * \param sphericalPotentialGradient Potential gradient in spherical coordinates
+ * \param sphericalToCartesianGradientMatrix Matrix to convert (by premultiplication) a spherical gradient to a Cartesian
+ * gradient
+ * \return Partial of spherical harmonic acceleration w.r.t. position of body undergoinng acceleration (equals minus
+ * partial of spherical harmonic acceleration w.r.t. position of body exerting acceleration) with both acceleration and
+ * position in body-fixed frame.
+ */
 Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
         const Eigen::Vector3d& cartesianPosition,
         const Eigen::Vector3d& sphericalPosition,
@@ -71,33 +165,84 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const double gravitionalParameter,
         const Eigen::MatrixXd cosineHarmonicCoefficients,
         const Eigen::MatrixXd sineHarmonicCoefficients,
-        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const Eigen::Vector3d& sphericalPotentialGradient,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix );
 
+//! Calculate partial of spherical harmonic acceleration w.r.t. position of body undergoing acceleration
+//! (in the body-fixed frame)
+/*!
+ *  Calculate partial of spherical harmonic acceleration w.r.t. position of body undergoing acceleration
+ * (in the body-fixed frame)
+ * \param cartesianPosition Cartesian position  at which potential partials are to be evaluated
+ * \param referenceRadius Reference radius of spherical harmonic potential.
+ * \param gravitionalParameter Gravitational parameter used for spherical harmonic expansion
+ * \param cosineHarmonicCoefficients Cosine spherical harmonic coefficients.
+ * \param sineHarmonicCoefficients Sine spherical harmonic coefficients
+ * \param sphericalHarmonicsCache Cache object containing precomputed spherical harmonics terms.
+ * \return Partial of spherical harmonic acceleration w.r.t. position of body undergoinng acceleration (equals minus
+ * partial of spherical harmonic acceleration w.r.t. position of body exerting acceleration) with both acceleration and
+ * position in body-fixed frame.
+ */
 Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
         const Eigen::Vector3d& cartesianPosition,
         const double referenceRadius,
         const double gravitionalParameter,
         const Eigen::MatrixXd cosineHarmonicCoefficients,
         const Eigen::MatrixXd sineHarmonicCoefficients,
-        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache );
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
+//! Calculate partial of spherical harmonic acceleration w.r.t. a set of cosine coefficients
+/*!
+ *  Calculate partial of spherical harmonic acceleration w.r.t. a set of cosine coefficients
+ *  \param sphericalPosition Spherical coordinate of body undergoing acceleration in frame fixed to body exerting
+ *  acceleration, as radius, latitude, longitude.
+ *  \param referenceRadius Reference radius of spherical harmonic potential.
+ *  \param gravitionalParameter Gravitational parameter used for spherical harmonic expansion
+ *  \param sphericalHarmonicsCache Cache object containing precomputed spherical harmonics terms.
+ *  \param blockIndices List of cosine coefficient indices wrt which the partials are to be taken.
+ *  The key of the map is the degree, the value is the start order and the number of order in the current degree wrt
+ *  which the partials are to be taken. For instance, an entry (4, (2, 3 ) ) means that partials a degree 4 and order
+ *  2,3 and 4 are to be calculated.
+ *  \param sphericalToCartesianGradientMatrix Matrix to convert (by premultiplication) a spherical gradient to a Cartesian
+ *  gradient
+ *  \param bodyFixedToIntegrationFrame Matrix to rotate from body-fixed to integration frame.
+ *  \param partialsMatrix Partials of spherical harmonic acceleration w.r.t. to requested set of cosine coefficients
+ *  (returned by reference).
+ */
 void calculateSphericalHarmonicGravityWrtCCoefficients(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const std::map< int, std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
         Eigen::MatrixXd& partialsMatrix );
 
+//! Calculate partial of spherical harmonic acceleration w.r.t. a set of sine coefficients
+/*!
+ *  Calculate partial of spherical harmonic acceleration w.r.t. a set of sine coefficients
+ *  \param sphericalPosition Spherical coordinate of body undergoing acceleration in frame fixed to body exerting
+ *  acceleration, as radius, latitude, longitude.
+ *  \param referenceRadius Reference radius of spherical harmonic potential.
+ *  \param gravitionalParameter Gravitational parameter used for spherical harmonic expansion
+ *  \param sphericalHarmonicsCache Cache object containing precomputed spherical harmonics terms.
+ *  \param blockIndices List of sine coefficient indices wrt which the partials are to be taken.
+ *  The key of the map is the degree, the value is the start order and the number of order in the current degree wrt
+ *  which the partials are to be taken. For instance, an entry (4, (2, 3 ) ) means that partials a degree 4 and order
+ *  2,3 and 4 are to be calculated.
+ *  \param sphericalToCartesianGradientMatrix Matrix to convert (by premultiplication) a spherical gradient to a Cartesian
+ *  gradient
+ *  \param bodyFixedToIntegrationFrame Matrix to rotate from body-fixed to integration frame.
+ *  \param partialsMatrix Partials of spherical harmonic acceleration w.r.t. to requested set of sine coefficients
+ *  (returned by reference).
+ */
 void calculateSphericalHarmonicGravityWrtSCoefficients(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > shCache,
+        const boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const std::map< int, std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
@@ -108,4 +253,4 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
 }
 
 }
-#endif // SPHERICALHARMONICPARTIALFUNCTIONS_H
+#endif // TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H

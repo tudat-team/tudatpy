@@ -142,11 +142,23 @@ public:
     */
     double getLegendrePolynomial( const int degree, const int order );
 
-    double getLegendrePolynomialDerivative(
-            const int degree, const int order );
+    //! Get first derivative of Legendre polynomial value from the cache.
+    /*!
+    * Get first derivative of Legendre polynomial value from the cache, as computed by last call to update function.
+    * \param degree Degree of requested Legendre polynomial.
+    * \param order Order of requested Legendre polynomial.
+    * \return First derivative of Legendre polynomial value.
+    */
+    double getLegendrePolynomialDerivative( const int degree, const int order );
 
-    double getLegendrePolynomialSecondDerivative(
-            const int degree, const int order );
+    //! Get second derivative of Legendre polynomial value from the cache.
+    /*!
+    * Get second derivative of Legendre polynomial value from the cache, as computed by last call to update function.
+    * \param degree Degree of requested Legendre polynomial.
+    * \param order Order of requested Legendre polynomial.
+    * \return Second derivative of Legendre polynomial value.
+    */
+    double getLegendrePolynomialSecondDerivative( const int degree, const int order );
 
     //! Function to get the maximum degree of cache.
     /*!
@@ -178,9 +190,16 @@ public:
         return useGeodesyNormalization_;
     }
 
+    //! Function to reset whether the second derivatives are to be computed when calling update function
+    /*!
+     * Function to reset whether the second derivatives are to be computed when calling update function
+     * \param computeSecondDerivatives Boolean denoting whether the second derivatives of the Legendre polynomials are
+     * to be computed when calling update function.
+     */
     void setComputeSecondDerivatives( const bool computeSecondDerivatives )
     {
         computeSecondDerivatives_ = computeSecondDerivatives;
+        currentPolynomialParameter_ = TUDAT_NAN;
     }
 
 
@@ -206,8 +225,18 @@ private:
      */
     std::vector< double > legendreValues_;
 
+    //! List of current values of first derivatives of Legendre polynomials at degree and order (n,m)
+    /*!
+     * List of current values of first derivatives of Legendre polynomials at degree and order (n,m).
+     * The corresponding polynomial is at entry n * ( maximumOrder_ + 1 ) + m.
+     */
     std::vector< double > legendreDerivatives_;
 
+    //! List of current values of second derivatives of Legendre polynomials at degree and order (n,m)
+    /*!
+     * List of current values of second derivatives of Legendre polynomials at degree and order (n,m).
+     * The corresponding polynomial is at entry n * ( maximumOrder_ + 1 ) + m.
+     */
     std::vector< double > legendreSecondDerivatives_;
 
     //! Function from which to compute the Legendre polynomials.
@@ -216,10 +245,14 @@ private:
     //! Boolean denoting whether the Legendre polynomials are geodesy-normalized or unnormalized
     bool useGeodesyNormalization_;
 
+    //! Vector of ratio of reference radius over current radius to power i, with i the entry in the vector.
     std::vector< double > referenceRadiusRatioPowers_;
 
+    //! Prec-computed normalization factors that are to be used for computation fo Legendre polynomial derivative
     std::vector< double > derivativeNormalizations_;
 
+    //! Boolean denoting whether the second derivatives of the Legendre polynomials are to be computed when calling
+    //! update function.
     bool computeSecondDerivatives_;
 
 
@@ -399,7 +432,20 @@ double computeLegendrePolynomialDerivative( const int order,
                                             const double currentLegendrePolynomial,
                                             const double incrementedLegendrePolynomial );
 
-
+//! Compute derivative of geodesy-normalized associated Legendre polynomial.
+/*!
+ * Compute derivative of geodesy-normalized associated Legendre polynomial.
+ * \param degree Degree of requested Legendre polynomial derivative.
+ * \param order Order of requested Legendre polynomial derivative.
+ * \param polynomialParameter Free variable  of requested Legendre polynomial derivative.
+ * \param currentLegendrePolynomial Geodesy-normalized Legendre polynomial with the same degree, order
+ *          and polynomial parameter as the requested Legendre polynomial derivative.
+ * \param incrementedLegendrePolynomial Geodesy-normalized Legendre polynomial with the same degree and
+ *          polynomial parameter as the requested Legendre polynomial derivative, but with an order
+ *          of one more.
+ * \param normalizationCorrection Pre-computed scaling term used for part of computations.
+ * \return Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter.
+*/
 double computeGeodesyLegendrePolynomialDerivative( const int degree,
                                                    const int order,
                                                    const double polynomialParameter,
@@ -435,14 +481,33 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
                                                    const double currentLegendrePolynomial,
                                                    const double incrementedLegendrePolynomial );
 
+//! Compute second derivative of geodesy-normalized associated Legendre polynomial.
+/*!
+ * Compute second derivative of geodesy-normalized associated Legendre polynomial.
+ * \param degree Degree of requested Legendre polynomial derivative.
+ * \param order Order of requested Legendre polynomial derivative.
+ * \param polynomialParameter Free variable  of requested Legendre polynomial derivative.
+ * \param currentLegendrePolynomial Geodesy-normalized Legendre polynomial with the same degree, order
+ *          and polynomial parameter as the requested Legendre polynomial derivative.
+ * \param incrementedLegendrePolynomial Geodesy-normalized Legendre polynomial with the same degree and
+ *          polynomial parameter as the requested Legendre polynomial derivative, but with an order
+ *          of one more.
+ * \param currentLegendrePolynomialDerivative Geodesy-normalized derivative of Legendre polynomial with the same degree,
+ *          order and polynomial parameter as the requested Legendre polynomial derivative.
+ * \param incrementedLegendrePolynomialDerivative Geodesy-normalized derivative of Legendre polynomial with the same degree
+ *          and polynomial parameter as the requested Legendre polynomial derivative, but with an order
+ *          of one more.
+ * \param normalizationCorrection Pre-computed scaling term used for part of computations.
+ * \return Geodesy-normalized Legendre polynomial derivative with respect to the polynomial parameter.
+*/
 double computeGeodesyLegendrePolynomialSecondDerivative( const int degree,
-                                                   const int order,
-                                                   const double polynomialParameter,
-                                                   const double currentLegendrePolynomial,
-                                                   const double incrementedLegendrePolynomial,
-                                                   const double currentLegendrePolynomialDerivative,
-                                                   const double incrementedLegendrePolynomialDerivative,
-                                                   const double normalizationCorrection );
+                                                         const int order,
+                                                         const double polynomialParameter,
+                                                         const double currentLegendrePolynomial,
+                                                         const double incrementedLegendrePolynomial,
+                                                         const double currentLegendrePolynomialDerivative,
+                                                         const double incrementedLegendrePolynomialDerivative,
+                                                         const double normalizationCorrection );
 
 //! Compute low degree/order unnormalized Legendre polynomial explicitly.
 /*!

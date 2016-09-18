@@ -56,6 +56,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     return isDoubleParameter;
 }
 
+//! Function to determine whether the given (non-dynamical) parameter influences a body's orientation.
 bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum parameterType )
 {
     bool flag;

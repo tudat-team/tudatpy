@@ -1,5 +1,5 @@
-#ifndef SPHERICALHARMONICSINECOEFFICIENTS_H
-#define SPHERICALHARMONICSINECOEFFICIENTS_H
+#ifndef TUDAT_SPHERICALHARMONICSINECOEFFICIENTS_H
+#define TUDAT_SPHERICALHARMONICSINECOEFFICIENTS_H
 
 #include <map>
 
@@ -34,24 +34,15 @@ public:
 
     Eigen::VectorXd getParameterValue( );
 
-    void setParameterValue( Eigen::VectorXd parameterValue );
+    void setParameterValue( const Eigen::VectorXd parameterValue );
 
     int getParameterSize( ) { return parameterSize_; }
 
-    std::map< int, std::pair< int, int > > getBlockIndices( ){ return blockIndices_; }
+    std::map< int, std::pair< int, int > > getBlockIndices( )
+    {
+        return blockIndices_;
+    }
 
-    int getMinimumOrder( )
-    {
-        return minimumOrder_;
-    }
-    int getMaximumDegree( )
-    {
-        return maximumDegree_;
-    }
-    int getMaximumOrder( )
-    {
-        return maximumOrder_;
-    }
 
 protected:
 
@@ -64,8 +55,11 @@ private:
     boost::function< void( Eigen::MatrixXd ) > setSineCoefficients_;
 
     int minimumDegree_;
+
     int minimumOrder_;
+
     int maximumDegree_;
+
     int maximumOrder_;
 
     std::map< int, std::pair< int, int > > blockIndices_;// degree , (start order, number of entries)

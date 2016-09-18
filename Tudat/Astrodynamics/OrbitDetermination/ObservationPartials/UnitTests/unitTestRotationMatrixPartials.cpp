@@ -24,6 +24,7 @@ using namespace tudat::observation_partials;
 
 BOOST_AUTO_TEST_SUITE( test_rotation_matrix_partaisl )
 
+//! Test whether partial derivatives of rotation matrix computed by SimpleRotationalEphemeris works correctly
 BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
 {
     // Load spice kernels.
@@ -33,6 +34,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
     spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
 
+    // Create rotation model
     double nominalRotationRate = 2.0 * mathematical_constants::PI / 86400.0;
     boost::shared_ptr< SimpleRotationalEphemeris > rotationalEphemeris =
             boost::make_shared< SimpleRotationalEphemeris >(
@@ -40,14 +42,17 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
                 nominalRotationRate, 1.0E7, basic_astrodynamics::JULIAN_DAY_ON_J2000, "ECLIPJ2000", "IAU_Earth" );
 
     {
+        // Create partial object.
         boost::shared_ptr< RotationMatrixPartialWrtConstantRotationRate > rotationMatrixPartialObject =
                 boost::make_shared< RotationMatrixPartialWrtConstantRotationRate >( rotationalEphemeris );
 
+        // Compute partial analytically
         double testTime = 1.0E6;
-        Eigen::Matrix3d rotationMatrixPartial = rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter(
+        Eigen::Matrix3d rotationMatrixPartial =
+                rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter(
                     testTime ).at( 0 );
 
-
+        // Compute partial numerically.
         double perturbation = 1.0E-12;
         rotationalEphemeris->resetRotationRate( nominalRotationRate + perturbation );
         Eigen::Matrix3d upperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
@@ -57,9 +62,11 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
         Eigen::Matrix3d downperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
                     testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
 
-        Eigen::Matrix3d numericalRotationMatrixPartial = ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
+        Eigen::Matrix3d numericalRotationMatrixPartial =
+                ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
         Eigen::Matrix3d matrixDifference = rotationMatrixPartial - numericalRotationMatrixPartial;
 
+        // Compare analytical and numerical result.
         for( unsigned int i = 0; i < 3; i++ )
         {
             for( unsigned int j = 0; j < 3; j++ )
@@ -70,18 +77,23 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
     }
 
     {
+        // Create partial object.
         boost::shared_ptr< RotationMatrixPartialWrtPoleOrientation > rotationMatrixPartialObject =
                 boost::make_shared< RotationMatrixPartialWrtPoleOrientation >( rotationalEphemeris );
 
+        // Compute partial analytically
         double testTime = 1.0E6;
-        std::vector< Eigen::Matrix3d > rotationMatrixPartials = rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter(
+        std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+                rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter(
                     testTime );
 
         Eigen::Vector3d nominalEulerAngles = rotationalEphemeris->getInitialEulerAngles( );
         double perturbedAngle;
 
+        // Compute partial numerically.
         double perturbation = 1.0E-6;
         {
+            // Compute partial for right ascension numerically.
             {
                 perturbedAngle = nominalEulerAngles( 0 ) + perturbation;
                 rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( perturbedAngle, nominalEulerAngles( 1 ) );
@@ -93,9 +105,11 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
                 Eigen::Matrix3d downperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
                             testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
 
-                Eigen::Matrix3d numericalRotationMatrixPartial = ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
+                Eigen::Matrix3d numericalRotationMatrixPartial =
+                        ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
                 Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( 0 ) - numericalRotationMatrixPartial;
 
+                // Compare analytical and numerical result.
                 for( unsigned int i = 0; i < 3; i++ )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
@@ -105,6 +119,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
                 }
             }
 
+            // Compute partial for declination numerically.
             {
                 perturbedAngle = nominalEulerAngles( 1 ) + perturbation;
                 rotationalEphemeris->resetInitialPoleRightAscensionAndDeclination( nominalEulerAngles( 0 ), perturbedAngle );
@@ -116,9 +131,11 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
                 Eigen::Matrix3d downperturbedRotationMatrix = rotationalEphemeris->getRotationToBaseFrame(
                             testTime, basic_astrodynamics::JULIAN_DAY_ON_J2000 ).toRotationMatrix( );
 
-                Eigen::Matrix3d numericalRotationMatrixPartial = ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
+                Eigen::Matrix3d numericalRotationMatrixPartial =
+                        ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
                 Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( 1 ) - numericalRotationMatrixPartial;
 
+                // Compare analytical and numerical result.
                 for( unsigned int i = 0; i < 3; i++ )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
@@ -129,9 +146,6 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
             }
         }
     }
-
-
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

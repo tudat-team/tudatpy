@@ -1,5 +1,5 @@
-#ifndef CONSTANTROTATIONALORIENTATION_H
-#define CONSTANTROTATIONALORIENTATION_H
+#ifndef TUDAT_CONSTANTROTATIONALORIENTATION_H
+#define TUDAT_CONSTANTROTATIONALORIENTATION_H
 
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
@@ -13,34 +13,68 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-// pole right ascension and declination
+//! Interface class for estimation of a body's constant pole position (right ascension and declination of north pole).
+/*!
+ *  Interface class for estimation of a body's constant pole position (right ascension and declination of north pole).
+ *  Interfaces the estimation with the right ascension and declination Euler angle members of a SimpleRotationalEphemeris
+ *  object
+ */
 class ConstantRotationalOrientation: public EstimatableParameter< Eigen::VectorXd >
 {
 
 public:
+
+    //! Constructor
+    /*!
+     *  Constructor
+     *  \param rotationModel SimpleRotationalEphemeris object of which pole position is a property
+     *  \param associatedBody Name of body of which parameter is a property.
+     */
     ConstantRotationalOrientation(
-            boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
+            const boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
             const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( rotation_pole_position, associatedBody ),
         rotationModel_( rotationModel ) { }
 
+    //! Destructor
     ~ConstantRotationalOrientation( ) { }
 
+    //! Get value of pole right ascension and declination (in that order)
+    /*!
+     *  Get value of pole right ascension and declination (in that order)
+     *  \return Right ascension and declination (in that order)
+     */
     Eigen::VectorXd getParameterValue( )
     {
-        return rotationModel_->getInitialEulerAngles( ).segment( 0, 2 ); }
-
-    void setParameterValue( Eigen::VectorXd parameterValue )
-    {
-        rotationModel_->resetInitialPoleRightAscensionAndDeclination( parameterValue.x( ),
-                                                                      parameterValue.y( ) );
+        return rotationModel_->getInitialEulerAngles( ).segment( 0, 2 );
     }
 
-    int getParameterSize( ){ return 2; }
+    //! Reset value of pole right ascension and declination (in that order)
+    /*!
+     *  Reset value of pole right ascension and declination (in that order)
+     *  \param parameterValue New right ascension and declination (in that order)
+     */
+    void setParameterValue( const Eigen::VectorXd parameterValue )
+    {
+        rotationModel_->resetInitialPoleRightAscensionAndDeclination(
+                    parameterValue.x( ), parameterValue.y( ) );
+    }
+
+    //! Function to retrieve the size of the parameter
+    /*!
+     *  Function to retrieve the size of the parameter
+     *  \return Size of parameter value, 2 for this parameter
+     */
+    int getParameterSize( )
+    {
+        return 2;
+    }
 
 protected:
 
 private:
+
+    //! SimpleRotationalEphemeris object of which rotation rate parameter is a property
     boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
 };
 
@@ -48,4 +82,4 @@ private:
 
 }
 
-#endif // CONSTANTROTATIONALORIENTATION_H
+#endif // TUDAT_CONSTANTROTATIONALORIENTATION_H
