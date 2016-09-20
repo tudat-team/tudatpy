@@ -14,9 +14,9 @@
 #include <Tudat/External/SpiceInterface/spiceEphemeris.h>
 #include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
 #include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/SimulationSetup/body.h>
-#include <Tudat/SimulationSetup/createAccelerationModels.h>
-#include <Tudat/SimulationSetup/defaultBodies.h>
+#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
+#include <Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h>
+#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
 
 namespace tudat
 {

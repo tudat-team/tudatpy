@@ -10,7 +10,7 @@
 
 #include <boost/bind.hpp>
 
-#include "Tudat/SimulationSetup/createRadiationPressureInterface.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createRadiationPressureInterface.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 

@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/SimulationSetup/createMassRateModels.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h"
 
 namespace tudat
 {

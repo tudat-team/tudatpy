@@ -21,7 +21,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsCircularCoplanar.h"
 #include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
-#include "Tudat/SimulationSetup/createEphemeris.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createEphemeris.h"
 
 namespace tudat
 {

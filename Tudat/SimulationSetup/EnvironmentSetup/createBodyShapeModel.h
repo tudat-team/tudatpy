@@ -14,7 +14,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 
 namespace tudat

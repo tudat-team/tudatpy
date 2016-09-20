@@ -11,7 +11,7 @@
 #ifndef TUDAT_DEFAULTBODIES_H
 #define TUDAT_DEFAULTBODIES_H
 
-#include "Tudat/SimulationSetup/createBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 
 namespace tudat
 {

@@ -15,8 +15,8 @@
 #include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 #include "Tudat/Astrodynamics/Propagators/environmentUpdateTypes.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
-#include "Tudat/SimulationSetup/body.h"
-#include "Tudat/SimulationSetup/createFlightConditions.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createFlightConditions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
 

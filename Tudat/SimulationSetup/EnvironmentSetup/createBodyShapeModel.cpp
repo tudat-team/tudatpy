@@ -13,7 +13,7 @@
 #endif
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalBodyShapeModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/oblateSpheroidBodyShapeModel.h"
-#include "Tudat/SimulationSetup/createBodyShapeModel.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodyShapeModel.h"
 
 namespace tudat
 {

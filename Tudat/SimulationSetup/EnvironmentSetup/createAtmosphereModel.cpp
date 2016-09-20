@@ -20,7 +20,7 @@
 #endif
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/solarActivityData.h"
-#include "Tudat/SimulationSetup/createAtmosphereModel.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createAtmosphereModel.h"
 
 namespace tudat
 {

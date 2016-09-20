@@ -17,7 +17,7 @@
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
-#include "Tudat/SimulationSetup/createThrustModelGuidance.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createThrustModelGuidance.h"
 
 
 

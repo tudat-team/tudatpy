@@ -16,8 +16,8 @@
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
-#include "Tudat/Astrodynamics/Propagators/propagationSettings.h"
-#include "Tudat/SimulationSetup/body.h"
+#include "Tudat/SimulationSetup/PropagationSetup//propagationSettings.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsSimulator.h"
 
 

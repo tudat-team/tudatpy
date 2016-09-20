@@ -16,7 +16,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
-#include "Tudat/SimulationSetup/createBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 
 namespace tudat
 {

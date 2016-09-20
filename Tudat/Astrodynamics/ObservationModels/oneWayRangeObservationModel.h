@@ -23,8 +23,6 @@
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrection.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 
 namespace tudat
 {
